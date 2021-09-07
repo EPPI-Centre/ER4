@@ -62,16 +62,20 @@
         let descr = "";
         if (mapData.graphic == "table") {
             if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0)) {
-                descr = "<h5>\"<b>(Column) " + mapData.setIdXName.toString() + "</b>\" vs \"<b>(Row) " + mapData.setIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.setIdXName) + "</b>\" vs \"<b>(Row) " + HTMLEncodeText(mapData.setIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
             }
             if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0)) {
-                descr = "<h5>\"<b>(Column) " + mapData.attibuteIdXName.toString() + "</b>\" vs \"<b>(Row) " + mapData.attibuteIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.attibuteIdXName) + "</b>\" vs \"<b>(Row) " + HTMLEncodeText(mapData.attibuteIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
             }
             if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0)) {
-                descr = " <h5>\"<b>(Column) " + mapData.setIdXName.toString() + "</b >\" vs \"<b>(Row) " + mapData.attibuteIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+                descr = " <h5>\"<b>(Column) " + HTMLEncodeText(mapData.setIdXName) + "</b >\" vs \"<b>(Row) " + HTMLEncodeText(mapData.attibuteIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
             }
             if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0)) {
-                descr = "<h5>\"<b>(Column) " + mapData.attibuteIdXName.toString() + "</b >\" vs \"<b>(Row) " + mapData.setIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.attibuteIdXName) + "</b >\" vs \"<b>(Row) " + HTMLEncodeText(mapData.setIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
             }
         }
         el.html(descr);
@@ -448,9 +452,6 @@
     }
 
 
-    function BubbleMapLog() {
-        return "Sorry: not implemented, yet";
-    }
 
 </script>
 

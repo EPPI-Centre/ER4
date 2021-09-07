@@ -33,14 +33,18 @@
     let xTabData = null;
     let rgx = new RegExp("'", 'g');
     let rgx2 = new RegExp("\"", 'g');
+    let rgxRev = new RegExp("↖", 'g');
+    let rgx2Rev = new RegExp("↗", 'g');
 
     function buildTable() {
         if (xTabData == null) return;
         const CrosstabsGrid = $("#CrosstabsGrid");
         const ResultsTitle = $("#ResultsTitle");
+        let evenRow = false, evenCol = false;
+        let headerClass = "";
         $("#BubbleLegend").html("");
         if (!CrosstabsGrid || !ResultsTitle) return;
-        let rTab = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let rTab = "<table class=''><tr><th></th>";
         htmlTitle = "<h5 class=\"card-title mb-3\">Cross-tab report</h5>";
         if ((xTabData.attibuteIdX == 0) && (xTabData.attibuteIdY == 0)) {
             htmlTitle += "<h5><b>(Column) " + HTMLEncodeText(xTabData.setIdXName) + "</b> vs <b>(Row) " + HTMLEncodeText(xTabData.setIdYName) + "</b></h5>";
@@ -56,53 +60,65 @@
         }
         ResultsTitle.html(htmlTitle);
         for (let i = 0; i < xTabData.columnAttIDs.length; i++){
-            rTab += "<th>" + HTMLEncodeText(xTabData.columnAttNames[i]) + "</th>";
+            if (evenCol) {
+                headerClass = "xTabHeaderA";
+            } else {
+                headerClass = "xTabHeaderB";
+            }
+            rTab += "<th class='" + headerClass +"'>" + HTMLEncodeText(xTabData.columnAttNames[i]) + "</th>";
+            evenCol = !evenCol;
         }
         rTab += "</tr>";
         for (let row of xTabData.rows)
         {
-            rTab += "<tr><th>" + HTMLEncodeText(row.attributeName) + "</th>";
+            if (evenRow) {
+                headerClass = "xTabHeaderA";
+            } else {
+                headerClass = "xTabHeaderB";
+            }
+            evenRow = !evenRow;
+            rTab += "<tr><th class='" + headerClass + "'>" + HTMLEncodeText(row.attributeName) + "</th>";
             for (let i = 0; i < xTabData.columnAttIDs.length; i++) {
                 if (row.counts[i] == 0) {
-                    rTab += "<td>0</td>";
+                    rTab += "<td class='td_XtabEmptyCell'>0</td>";
                 }
-                else if (row == xTabData.rows[xTabData.rows.length - 1]) {//last row, with column header, without all the row codes
+                else if (row == xTabData.rows[xTabData.rows.length - 1]) {//last row: with column header, without all the row codes
                     let withS = xTabData.columnAttIDs[i].toString();
                     let without = "";
                     let withoutSets = "";
-                    let descript = "Records without " + xTabData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                    let descript = "Records without " + HTMLEncodeText(xTabData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
                     for (let ri = 0; ri < xTabData.rows.length - 1; ri++) {//skip last row!
                         without += xTabData.rows[ri].attributeId.toString() + ",";
                         withoutSets += xTabData.setIdY.toString() + ",";
                     }
                     without = without.substring(0, without.length - 1);
                     withoutSets = withoutSets.substring(0, withoutSets.length - 1);
-                    rTab += "<th style=\"background-color: rgba(211, 211, 255, 0.20)\">";
+                    rTab += "<td class='td_XtabCell' style=\"background-color: rgba(211, 211, 255, 0.20)\">";
                     rTab += "<a href=\"javascript:GoToItemsJson('" + withS + "', '" + xTabData.setIdX.toString() + "', '"
-                        + without + "', '" + withoutSets + "', '" + descript + "')\">" + row.counts[i] + "</a></th>";
+                        + without + "', '" + withoutSets + "', '" + descript + "')\">" + row.counts[i] + "</a></td>";
                 }
-                else if (i == xTabData.columnAttIDs.length - 1) {//last cell with row header, without all the column codes
+                else if (i == xTabData.columnAttIDs.length - 1) {//last cell: with row header, without all the column codes
                     let withS = row.attributeId.toString();
                     let without = "";
                     let withoutSets = "";
-                    let descript = "Records without " + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                    let descript = "Records without " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
                     for (let ci = 0; ci < row.counts.length - 1; ci++) {//skip last column!
                         without += xTabData.columnAttIDs[ci].toString() + ",";
                         withoutSets += xTabData.setIdX.toString() + ",";
                     }
                     without = without.substring(0, without.length - 1);
                     withoutSets = withoutSets.substring(0, withoutSets.length - 1);
-                    rTab += "<th style=\"background-color:rgba(211, 211, 255, 0.20)\">";
+                    rTab += "<td class='td_XtabCell' style=\"background-color:rgba(211, 211, 255, 0.20)\">";
                     rTab += "<a href=\"javascript:GoToItemsJson('" + withS + "', '" + xTabData.setIdY.toString() + "', '"
-                        + without + "', '" + withoutSets + "', '" + descript + "')\">" + row.counts[i] + "</a></th>";
+                        + without + "', '" + withoutSets + "', '" + descript + "')\">" + row.counts[i] + "</a></td>";
                 }
                 else {//normal cell, with row and col codes
                     let withS = row.attributeId.toString() + "," + xTabData.columnAttIDs[i].toString();
                     let withSets = xTabData.setIdY.toString() + "," + xTabData.setIdX.toString();
-                    let descript = HTMLEncodeText(xTabData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;"))
-                        + " [AND] " + HTMLEncodeText(row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;"));
-                    rTab += "<th style=\"background-color:rgba(211, 211, 255, 0.20)\">";
-                    rTab += "<a href=\"javascript:GoToItemsJson('" + withS + "', '" + withSets + "', '', '', '" + descript + "')\">" + row.counts[i] + "</a></th>";
+                    let descript = HTMLEncodeText(xTabData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;")
+                        + " [AND] " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                    rTab += "<td class='td_XtabCell' style=\"background-color:rgba(211, 211, 255, 0.20)\">";
+                    rTab += "<a href=\"javascript:GoToItemsJson('" + withS + "', '" + withSets + "', '', '', '" + descript + "')\">" + row.counts[i] + "</a></td>";
                 }
             }
             rTab += "</tr >";
@@ -113,20 +129,25 @@
     }
 
     function GoToItemsJson(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
-        $("#ItemCount").html("Loading...");
+        $("#ItemCount").html("");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
+        let spinnerItems = $("#spinnerItems");
+        if (spinnerItems) spinnerItems.show();
         var pars = {
             WithAttIds: WithAttIds
             , WithSetId: WithSetId
             , WithoutAttIds: WithoutAttIds
             , WithoutSetId: WithoutSetId
             , included: @Model.included
-            , Description: Descript.replaceAll('&#39;', '\'')
+            , Description: Descript.replace(rgxRev, '\'').replace(rgx2Rev, '"')
         }
         $.post("../ItemList/GetListWithWithoutAttsJSON"
             , pars
-            , function (data, result) { BuildItems(data, result); }
+            , function (data, result) {
+                if (spinnerItems) spinnerItems.hide();
+                BuildItems(data, result);
+            }
         );
 
     }
@@ -151,7 +172,15 @@
                 if (xTabData.rows[i].counts[j] > maxVal) maxVal = xTabData.rows[i].counts[j];
             }
         }
-        if (isLinear) {
+        if (maxVal < 7) {
+            fa1 = 1;
+            fa2 = 2;
+            fa3 = 3;
+            fa4 = 4;
+            fa5 = 5;
+            fa6 = 6;
+        }
+        else if (isLinear) {
             fa1 = maxVal / 6;
             fa2 = fa1 * 2;
             fa3 = fa1 * 3;
@@ -169,13 +198,13 @@
         }
         let evenRow = false, evenCol = false;
         let headerClass = "";
-        console.log(fa1, fa2, fa3, fa4, fa5, fa6);
-        rTab += "<table class=\"content-full table table-bordered\"><tr><th></th>";
+        //console.log(fa1, fa2, fa3, fa4, fa5, fa6);
+        rTab += "<table class=\"table-bordered\"><tr><th></th>";
         for (let i = 0; i < xTabData.columnAttIDs.length - 1; i++) {
             if (evenCol) {
-                headerClass = "th_2ndColHeaderA";
+                headerClass = "xTabHeaderA";
             } else {
-                headerClass = "th_2ndColHeaderB";
+                headerClass = "xTabHeaderB";
             }
             evenCol = !evenCol;
             rTab += "<th class='"+ headerClass + "' >" + HTMLEncodeText(xTabData.columnAttNames[i]) + "</th>";
@@ -184,9 +213,9 @@
         for (let ri = 0; ri < xTabData.rows.length - 1; ri++) {
             let row = xTabData.rows[ri];
             if (evenRow) {
-                headerClass = "th_2ndRowHeaderA";
+                headerClass = "xTabHeaderA";
             } else {
-                headerClass = "th_2ndRowHeaderB";
+                headerClass = "xTabHeaderB";
             }
             evenRow = !evenRow;
             rTab += "<tr><th class='" +headerClass +"' >" + HTMLEncodeText(row.attributeName) + "</th>";
@@ -201,7 +230,7 @@
                     let descript = HTMLEncodeText(xTabData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;")
                         + " [AND] " + HTMLEncodeText(row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;"));
                     let classN = "";
-                    if (isLinear) {
+                    if (isLinear || maxVal < 7) {//if we have 6 or less possible values, we don't bother with log scale!!
                         dimension = (4 * (row.counts[i] / maxVal) + 0.8).toString() + "em;";
                         if (row.counts[i] > fa5) {
                             classN = "xTabColour-6x";
@@ -259,7 +288,7 @@
         $('[tool-tip-toggle="tooltip-demo"]').tooltip({
             placement: 'top'
         });
-        if (isLinear == false) {
+        if (isLinear == false && maxVal > 6) {
             //log scale, we update our faX vals to make them work below...
             fa1 = Math.pow(10, fa1);
             fa2 = Math.pow(10, fa2);
@@ -269,12 +298,12 @@
             fa6 = Math.pow(10, fa6);
         }
         rTab = "<div class='row mx-0 px-0 mt-1 mb-2'><div class='col-12 font-weight-bold'>Legend:</div>";
-        rTab += "<div class='col mx-2'><i class='fa fa-circle xTabColour-1x mx-1'></i>" + "1 - " + (Math.trunc(fa1)).toString() + " records</div>";
-        rTab += "<div class='col mx-2'><i class='fa fa-circle xTabColour-2x mx-1'></i>" + (Math.trunc(fa1) + 1).toString() + " - " + (Math.trunc(fa2)).toString() + " records</div>";
-        rTab += "<div class='col mx-2'><i class='fa fa-circle xTabColour-3x mx-1'></i>" + (Math.trunc(fa2) + 1).toString() + " - " + (Math.trunc(fa3)).toString() + " records</div>";
-        rTab += "<div class='col mx-2'><i class='fa fa-circle xTabColour-4x mx-1'></i>" + (Math.trunc(fa3) + 1).toString() + " - " + (Math.trunc(fa4)).toString() + " records</div>";
-        rTab += "<div class='col mx-2'><i class='fa fa-circle xTabColour-5x mx-1'></i>" + (Math.trunc(fa4) + 1).toString() + " - " + (Math.trunc(fa5)).toString() + " records</div>";
-        rTab += "<div class='col mx-2'><i class='fa fa-circle xTabColour-6x mx-1'></i>" + (Math.trunc(fa5) + 1).toString() + " records or more</div></div>";
+        if (fa1 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-1x mx-1'></i>" + "1 - " + (Math.trunc(fa1)).toString() + " records</div>";
+        if (fa2 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-2x mx-1'></i>" + (Math.trunc(fa1) + 1).toString() + " - " + (Math.trunc(fa2)).toString() + " records</div>";
+        if (fa3 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-3x mx-1'></i>" + (Math.trunc(fa2) + 1).toString() + " - " + (Math.trunc(fa3)).toString() + " records</div>";
+        if (fa4 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-4x mx-1'></i>" + (Math.trunc(fa3) + 1).toString() + " - " + (Math.trunc(fa4)).toString() + " records</div>";
+        if (fa5 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-5x mx-1'></i>" + (Math.trunc(fa4) + 1).toString() + " - " + (Math.trunc(fa5)).toString() + " records</div>";
+        if (fa6 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-6x mx-1'></i>" + (Math.trunc(fa5) + 1).toString() + " records or more</div></div>";
         $("#BubbleLegend").html(rTab);
     }
 
@@ -287,9 +316,8 @@
 <br />
 <div class="main-panel main-panel-no-sidebar">
 
-    <div class="page-inner">
-
-        <div class="card">
+    <div class="page-inner px-2 py-1">
+        <div class="card mb-2">
             <div class="card-body">
                 <div class="card-body" style="max-width:99vw; overflow:auto;">
                     <table width="100%">
@@ -338,15 +366,23 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body my-1 py-1">
-                        <div id="CrosstabsGrid" style="max-height:55vh;overflow:auto;"></div>
-                        <div id="BubbleLegend" ></div>
+                    <div class="card-body row my-1 py-1">
+                        <div class="d-block" id="CrosstabsGrid" style="max-height:55vh;overflow:auto;"></div>
+                        <div class="col-12" id="BubbleLegend" ></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card">
+            <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
+                <div class="col-auto p-1">Loading...</div>
+                <div class="col d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
             @await Html.PartialAsync("_ItemsList")
         </div>
     </div>

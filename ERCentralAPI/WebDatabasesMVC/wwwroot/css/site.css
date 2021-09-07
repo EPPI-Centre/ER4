@@ -303,6 +303,40 @@ body {
     color: #007bff;
 }
 
+.xTabHeaderA {
+    background-color: #6861CE;
+    color: white;
+    border: 2px solid white;
+    min-width: 60px;
+    font-weight: 400;
+    padding: 10px 10px 10px 10px;
+    vertical-align: top !important;
+}
 
+.xTabHeaderB {
+    background-color: #1572E8;
+    color: white;
+    border: 2px solid white;
+    min-width: 60px;
+    font-weight: 400;
+    padding: 10px 10px 10px 10px;
+    vertical-align: top !important;
+}
+.td_XtabCell {
+    background-color: #dfdfed !important;
+    border: 2px solid white !important;
+    min-width: 60px;
+    font-weight: bold !important;
+    padding: 10px 10px 10px 10px;
+    text-align: center;
+}
+.td_XtabEmptyCell {
+    background-color: #efefef !important;
+    border: 2px solid white !important;
+    min-width: 60px;
+    font-weight: normal !important;
+    padding: 10px 10px 10px 10px;
+    text-align: center;
+}
 
 
