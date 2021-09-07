@@ -40,10 +40,13 @@
         if (xTabData == null) return;
         const CrosstabsGrid = $("#CrosstabsGrid");
         const ResultsTitle = $("#ResultsTitle");
+        if (!CrosstabsGrid || !ResultsTitle) return;
         let evenRow = false, evenCol = false;
         let headerClass = "";
         $("#BubbleLegend").html("");
-        if (!CrosstabsGrid || !ResultsTitle) return;
+        $("#showTableButton").prop("disabled", true);
+        $("#showBubbleButton").prop("disabled", false);
+        $("#showLogBubbleButton").prop("disabled", false);
         let rTab = "<table class=''><tr><th></th>";
         htmlTitle = "<h5 class=\"card-title mb-3\">Cross-tab report</h5>";
         if ((xTabData.attibuteIdX == 0) && (xTabData.attibuteIdY == 0)) {
@@ -171,6 +174,15 @@
             {
                 if (xTabData.rows[i].counts[j] > maxVal) maxVal = xTabData.rows[i].counts[j];
             }
+        }
+        if (isLinear) {
+            $("#showTableButton").prop("disabled", false);
+            $("#showBubbleButton").prop("disabled", true);
+            $("#showLogBubbleButton").prop("disabled", false);
+        } else {
+            $("#showTableButton").prop("disabled", false);
+            $("#showBubbleButton").prop("disabled", false);
+            $("#showLogBubbleButton").prop("disabled", true);
         }
         if (maxVal < 7) {
             fa1 = 1;
@@ -325,19 +337,19 @@
                             <td id="ResultsTitle"></td>
                             <td style="text-align:right">
                                 <div class="card-tools">
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="buildTable()">
+                                    <button class="btn btn-primary btn-sm btn-round" id="showTableButton" onclick="buildTable()">
                                         <span class="btn-label">
                                             <i class="fa fa-table"></i>
                                         </span>
                                         Table
                                     </button>
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMap(true)">
+                                    <button class="btn btn-primary btn-sm btn-round" id="showBubbleButton" onclick="BubbleMap(true)">
                                         <span class="btn-label">
                                             <i class="fa fa-circle"></i>
                                         </span>
                                         Bubble map
                                     </button>
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMap(false)">
+                                    <button class="btn btn-primary btn-sm btn-round" id="showLogBubbleButton" onclick="BubbleMap(false)">
                                         <span class="btn-label">
                                             <i class="fa fa-circle"></i>
                                         </span>

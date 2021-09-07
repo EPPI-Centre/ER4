@@ -121,7 +121,7 @@
         }
     }
     function GoToItemsJson(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
-        $("#ItemCount").html("Loading...");
+        $("#ItemCount").html("");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         let spinnerItems = $("#spinnerItems");
@@ -139,7 +139,7 @@
         $.post("../ItemList/GetListWithWithoutAttsJSON"
             , pars
             , function (data, result) {
-                if (spinnerItems) spinnerItems.remove();
+                if (spinnerItems) spinnerItems.hide();
                 BuildItems(data, result);
             }
         );

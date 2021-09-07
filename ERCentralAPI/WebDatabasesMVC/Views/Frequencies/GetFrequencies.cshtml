@@ -234,7 +234,7 @@
     };
 
     function GoToItemsJson(AttId, AttName = '') {
-        $("#ItemCount").html("Loading...");
+        $("#ItemCount").html("");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         let spinnerItems = $("#spinnerItems");
@@ -254,7 +254,7 @@
                     , attName: AttName
                 }
                 , function (data, result) {
-                    if (spinnerItems) spinnerItems.remove();
+                    if (spinnerItems) spinnerItems.hide();
                     BuildItems(data, result);
                 }
             );
@@ -263,7 +263,7 @@
             $.post("../ItemList/GetFreqListJSon"
                 , { attId: AttId, attName: AttName }
                 , function (data, result) {
-                    if (spinnerItems) spinnerItems.remove();
+                    if (spinnerItems) spinnerItems.hide();
                     BuildItems(data, result);
                 }
             );
