@@ -284,7 +284,24 @@ body {
     text-align: center;
 }
 
-
+.xTabColour-1x {
+    color: #343a40;
+}
+.xTabColour-2x {
+    color: #17a2b8;
+}
+.xTabColour-3x {
+    color: #dc3545;
+}
+.xTabColour-4x {
+    color: #ffc107;
+}
+.xTabColour-5x {
+    color: #28a745;
+}
+.xTabColour-6x {
+    color: #007bff;
+}
 
 
 

@@ -134,8 +134,16 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    WebDbItemAttributeCrosstabList Itm = GetCrosstabInternal(attIdx, setIdx, nameXaxis, attIdy, setIdy, nameYaxis, included, graphic);
-                    return View(Itm);
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                        if (DBid < 1)
+                        {
+                            _logger.LogError("Error in GetFrequenciesInternal, no WebDbId!");
+                            return null;
+                        }
+
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, graphic, 0, attIdy, setIdy, nameYaxis);
+                    return View(crit);
                 }
                 else return Unauthorized();
             }
@@ -145,8 +153,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        [HttpPost("[action]")]
-        public IActionResult GetCrosstabJSON([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
+        [HttpPost]
+        public IActionResult GetCrosstabJSON(long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {

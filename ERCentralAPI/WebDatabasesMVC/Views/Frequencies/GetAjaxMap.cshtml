@@ -32,8 +32,7 @@
 <script type="text/javascript">
     let mapData = null;
     $(document).ready(function () {
-        const mapPanel = $("#resultsTable");
-        mapPanel.css("max-height", "400px");
+
         $("#ExpandMapDiv").show();
         $("#ReduceMapDiv").hide();
         //console.log("ready function is happening");
@@ -146,11 +145,17 @@
     function ToggleMapDivSize() {
         const descrPanel = $("#resultsTable");
         if (descrPanel) {
-            if (descrPanel.css("max-height") == "400px") {
-                descrPanel.css("max-height", "");
-            }
-            else {
-                descrPanel.css("max-height", "400px");
+            //console.log("p h", descrPanel.css("max-height"));
+            //if (descrPanel.css("max-height") == "60vh") {
+            //    descrPanel.css("max-height", "40vh");
+            //}
+            //else {
+            //    descrPanel.css("max-height", "60vh");
+            //}
+            if ($("#ExpandMapDiv").is(":visible")) {
+                descrPanel.css("max-height", "75vh");
+            } else {
+                descrPanel.css("max-height", "50vh");
             }
             $("#ExpandMapDiv").toggle();
             $("#ReduceMapDiv").toggle();
@@ -335,7 +340,7 @@
 
 
         //let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
-        let res = "<table class=\"mapTable2 \"><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>";
+        let res = "<table class=\"mapTable2 m-1\"><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>";
         res += "<th class=\"th_topRowHeader\" colspan=" + mapData.columnAttIDs.length + ">" + HTMLEncodeText(colDescr) +
             "</th><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>"
         let maxVal = 0;
@@ -456,11 +461,11 @@
 <br />
 <div class="main-panel main-panel-no-sidebar">
 
-    <div class="page-inner">
+    <div class="page-inner px-2 py-1">
 
-        <div class="card">
+        <div class="card mb-2">
             <div class="card-body">
-                <div class="card-body" style="max-height:80vh; max-width:99vw; overflow:auto;">
+                <div class="" style="max-width:99vw; overflow:auto;">
                     <table width="100%">
                         <tr>
                             <td>
@@ -497,23 +502,23 @@
                                     </button>
 
                                     <!--<button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
-        <span class="btn-label">
-            <i class="fa fa-circle"></i>
-        </span>
-        Bubble (log)
-    </button>*
-    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
-        <span class="btn-label">
-            <i class="fa fa-file-excel"></i>
-        </span>
-        Export
-    </a>-->
+                                        <span class="btn-label">
+                                            <i class="fa fa-circle"></i>
+                                        </span>
+                                        Bubble (log)
+                                    </button>*
+                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                        <span class="btn-label">
+                                            <i class="fa fa-file-excel"></i>
+                                        </span>
+                                        Export
+                                    </a>-->
                                     <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm">
-        <span class="btn-label">
-            <i class="fa fa-copy"></i>
-        </span>
-        Copy
-    </a>-->
+                                        <span class="btn-label">
+                                            <i class="fa fa-copy"></i>
+                                        </span>
+                                        Copy
+                                    </a>-->
                                 </div>
                             </td>
                         </tr>
@@ -526,9 +531,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body" id="resultsTable" style="max-height:50vh; overflow:auto;display:none;">
+                    <div class="card-body row mx-0 px-0">
+                        <div class="d-block" id="resultsTable" style="max-height:50vh; overflow:auto;display:none;"></div>
                     </div>
-                    <div class="card-body" id="mapLegend">
+                    <div class="card-body py-1" id="mapLegend">
                     </div>
                 </div>
             </div>
