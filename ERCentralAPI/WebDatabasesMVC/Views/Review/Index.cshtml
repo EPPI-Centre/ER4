@@ -106,6 +106,9 @@
         $("#FrequenciesResult").html("Frequencies");
         $("#BarOrPieChartVisible").hide();
         $("#NoCodedRecords").hide();
+        $("#YearFreqPie").hide();
+        $("#BarByYearChartVisible").show();
+        $("#YearFreq").prop("disabled", true);
     });
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
@@ -604,6 +607,12 @@
     
 
     function GetYearsFreqs() {
+        $("#chartByYear").show();
+        $("#YearFrequenciesGrid").hide();
+        $("#BarByYearChartVisible").show();
+        $("#YearFreqTable").prop("disabled", false);
+        $("#YearFreq").prop("disabled", true);
+
         $("#chartByYear").kendoChart({
             categoryAxis: {
                 field: "year"
@@ -634,6 +643,48 @@
             }
         });
     }
+
+    function GetYearsFreqsTable() {
+        $("#chartByYear").hide();
+        $("#YearFrequenciesGrid").show();
+        $("#BarByYearChartVisible").hide();
+        $("#YearFreqTable").prop("disabled", true);
+        $("#YearFreq").prop("disabled", false);
+        
+        $("#YearFrequenciesGrid").kendoGrid({
+            columns: [
+                {
+                    field: "year",
+                    title: "Year",                       
+                    headerAttributes: {
+                        style: "font-size:12px;font-weight:bold"
+                    },
+                    attributes: {
+                        style: "font-size:12px;"
+                    }
+                },
+                {
+                    field: "count",
+                    title: "Count",
+                    headerAttributes: {
+                        style: "font-size:12px;font-weight:bold"
+                    },
+                    attributes: {
+                        style: "font-size:12px;color:rgb(0,123,255);"
+                    },
+                    template: "<a href='\\#' class='link' onclick='GoToYearListTable(\"#=year#\")'>#=count#</a>"
+                }],
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "../Review/YearHistogramJSON",
+                        dataType: "json"
+                    }
+                }
+            }
+        });      
+    }
+
 
     function GetYearsFreqsPie() {
         $("#chartByYear").kendoChart({
@@ -676,6 +727,15 @@
     }
 
     function GoToYearList(year) {
+        //if (year == "Unknown") year = "'    ' OR '0   '";
+        postwith("../ItemList/GetListSearchResults", {
+            SearchString: year
+            , SearchWhat: "PubYear"
+            , included: "true"
+        })
+    }
+
+    function GoToYearListTable(year) {
         //if (year == "Unknown") year = "'    ' OR '0   '";
         postwith("../ItemList/GetListSearchResults", {
             SearchString: year
@@ -796,6 +856,22 @@
     //var treeviewData = $("#treeView").data("kendoTreeView");
     //treeview.bind("change", TreeViewSelection);
 </script>
+
+
+<style>
+    .k-grid-header .k-header {
+        height: 20px;
+        padding: 0;
+    }
+
+    .k-grid tbody tr {
+        line-height: 15px;
+    }
+
+    .k-grid tbody td {
+        padding: 0;
+    }
+</style>
 
 <div class="sidebar sidebar-style-2">
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
@@ -1055,27 +1131,33 @@
                                             Bar
                                         </button>
 
-                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqsPie()" id="YearFreq">
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqsPie()" id="YearFreqPie">
                                             <span class="btn-label">
                                                 <i class="fa fa-chart-pie"></i>
                                             </span>
                                             Pie
                                         </button>
 
-                                        <button class="btn btn-default btn-sm btn-round" onclick="ExportByYearImg()" id="BarOrPieByYearChartVisible">
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqsTable()" id="YearFreqTable">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>
+                                            Table
+                                        </button>
+
+                                        <button class="btn btn-default btn-sm btn-round" onclick="ExportByYearImg()" id="BarByYearChartVisible">
                                             <span class="btn-label">
                                                 <i class="fa fa-save"></i>
                                             </span>
                                             Save
                                         </button>
-
-
                                     </td>
                                 </tr>
                             </table>
                         </div>
                         <div class="card-body">
                             <div id="chartByYear"></div>
+                            <div id="YearFrequenciesGrid" style="max-width:300px"></div>
                         </div>
                     </div>
                     @*<div class="card ">
