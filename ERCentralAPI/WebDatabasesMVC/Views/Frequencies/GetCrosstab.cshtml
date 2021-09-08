@@ -89,7 +89,7 @@
                     let withS = xTabData.columnAttIDs[i].toString();
                     let without = "";
                     let withoutSets = "";
-                    let descript = "Records without " + HTMLEncodeText(xTabData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                    let descript = "Records without: " + HTMLEncodeText(xTabData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
                     for (let ri = 0; ri < xTabData.rows.length - 1; ri++) {//skip last row!
                         without += xTabData.rows[ri].attributeId.toString() + ",";
                         withoutSets += xTabData.setIdY.toString() + ",";
@@ -104,7 +104,7 @@
                     let withS = row.attributeId.toString();
                     let without = "";
                     let withoutSets = "";
-                    let descript = "Records without " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                    let descript = "Records without: " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
                     for (let ci = 0; ci < row.counts.length - 1; ci++) {//skip last column!
                         without += xTabData.columnAttIDs[ci].toString() + ",";
                         withoutSets += xTabData.setIdX.toString() + ",";

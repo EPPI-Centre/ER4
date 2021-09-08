@@ -1,22 +1,23 @@
-﻿@model BusinessLibrary.BusinessClasses.WebDbItemAttributeCrosstabList
+﻿@model BusinessLibrary.BusinessClasses.WebDbFrequencyCrosstabAndMapSelectionCriteria
 @using BusinessLibrary.BusinessClasses
 
 
-<input type="hidden" value="@Model.Included" name="included" id="includedCrit" />
-<input type="hidden" value="@Model.SetIdY" name="setIdYAxis" id="setIdYAxisCrit" />
-<input type="hidden" value="@Model.SetIdX" name="setIdXAxis" id="setIdXAxisCrit" />
-<input type="hidden" value="@Model.FilterAttributeId" name="onlyThisAttribute" id="onlyThisAttributeCrit" />
-<input type="hidden" value="@Model.WebDbId" name="webDbId" id="webDbIdCrit" />
+<input type="hidden" value="@Model.included" name="included" id="includedCrit" />
+<input type="hidden" value="@Model.setIdYAxis" name="setIdYAxis" id="setIdYAxisCrit" />
+<input type="hidden" value="@Model.setIdXAxis" name="setIdXAxis" id="setIdXAxisCrit" />
+<input type="hidden" value="@Model.webDbId" name="webDbId" id="webDbIdCrit" />
 
-<input type="hidden" value="@Model.SetIdXName" name="SetIdXName" id="SetIdXNameCrit" />
-<input type="hidden" value="@Model.SetIdYName" name="SetIdYName" id="SetIdYNameCrit" />
-<input type="hidden" value="@Model.AttibuteIdX" name="AttibuteIdXAxis" id="AttibuteIdXCrit" />
-<input type="hidden" value="@Model.AttibuteIdY" name="AttibuteIdYAxis" id="AttibuteIdYCrit" />
-<input type="hidden" value="@Model.AttibuteIdXName" name="AttibuteIdXName" id="AttibuteIdXNameCrit" />
-<input type="hidden" value="@Model.AttibuteIdYName" name="AttibuteIdYName" id="AttibuteIdYNameCrit" />
-<input type="hidden" value="@Model.Graphic" name="Graphic" id="GraphicCrit" />
+<input type="hidden" value="@Model.attributeIdXAxis" name="AttibuteIdXAxis" id="AttibuteIdXCrit" />
+<input type="hidden" value="@Model.attributeIdYAxis" name="AttibuteIdYAxis" id="AttibuteIdYCrit" />
+<input type="hidden" value="@Model.segmentsParent" name="AttibuteIdSegments" id="AttibuteIdSegments" />
+<input type="hidden" value="@Model.setIdSegments" name="SetIdSegments" id="SetIdSegments" />
+<input type="hidden" value="@Model.graphic" name="Graphic" id="GraphicCrit" />
 
 
+<input type="hidden" value="-1" name="SetIdXName" id="SetIdXNameCrit" />
+<input type="hidden" value="-1" name="SetIdYName" id="SetIdYNameCrit" />
+<input type="hidden" value="" name="AttibuteIdXName" id="AttibuteIdXNameCrit" />
+<input type="hidden" value="" name="AttibuteIdYName" id="AttibuteIdYNameCrit" />
 
 
 <script type="text/javascript">
@@ -29,102 +30,428 @@
 
 
 <script type="text/javascript">
+    let mapData = null;
+    $(document).ready(function () {
 
-
-
-
-    @*function GoToItems(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
+        $("#ExpandMapDiv").show();
+        $("#ReduceMapDiv").hide();
+        //console.log("ready function is happening");
         var pars = {
-            WithAttIds: WithAttIds
-            , WithSetId: WithSetId
-            , WithoutAttIds: WithoutAttIds
-            , WithoutSetId: WithoutSetId
-            , included: @Model.Included
-            , Description: Descript.replaceAll('&#39;', '\'')
+            attributeIdXAxis: @Model.attributeIdXAxis
+            , setIdXAxis: @Model.setIdXAxis
+            , attributeIdYAxis: @Model.attributeIdYAxis
+            , setIdYAxis: @Model.setIdYAxis
+            , segmentsParent: @Model.segmentsParent
+            , setIdSegments: @Model.setIdSegments
+            , included: @Model.included
+            , graphic: "bubble"
         }
-        postwith("../ItemList/GetListWithWithoutAtts", pars);
+        $("#spinner").show();
+        $("#resultsTable").hide();
+        $("#mapLegend").hide();
+        $.post("../Frequencies/GetMapJSON", pars, (data, status) => buildResults(data, status));
+    });
+    function buildResults(data, status) {
+        mapData = data;
+        buildDescription();
+        buildTable();
+    }
+    function buildDescription() {
+        let el = $("#MapDescription");
+        if (!el) return;
+        let descr = "";
+        if (mapData.graphic == "table") {
+            if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0)) {
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.setIdXName) + "</b>\" vs \"<b>(Row) " + HTMLEncodeText(mapData.setIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0)) {
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.attibuteIdXName) + "</b>\" vs \"<b>(Row) " + HTMLEncodeText(mapData.attibuteIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0)) {
+                descr = " <h5>\"<b>(Column) " + HTMLEncodeText(mapData.setIdXName) + "</b >\" vs \"<b>(Row) " + HTMLEncodeText(mapData.attibuteIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0)) {
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.attibuteIdXName) + "</b >\" vs \"<b>(Row) " + HTMLEncodeText(mapData.setIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
+            }
+        }
+        el.html(descr);
+    }
+    function buildTable() {
+        let resultsDiv = $("#resultsTable");
+        let legendDiv = $("#mapLegend");
+        if (!resultsDiv) return;//just for safety...
+        let resultsHTML = "";
+        let legendHTML = "";
+        if (mapData.graphic == "bubble") {
+            resultsHTML = BubbleMap2();
+            legendHTML = createLegend();
+            $("#showBubbleButton").prop("disabled", true);
+            $("#showTableButton").prop("disabled", false);
+            buildDescription();
+        }
+        else if (mapData.graphic == "table") {
+            resultsHTML = tableMap();
+            $("#showTableButton").prop("disabled", true);
+            $("#showBubbleButton").prop("disabled", false);
+            buildDescription();
+        }
+        else if (mapData.graphic == "bubbleLog") {
+            resultsHTML = BubbleMapLog();
+        }
 
-    }*@
-
+        //console.log("html string:", resultsHTML);
+        resultsDiv.html(resultsHTML);
+        legendDiv.html(legendHTML);
+        //console.log("all html:", resultsDiv.html());
+        $("#spinner").hide();
+        resultsDiv.show();
+        legendDiv.show();
+        $('[tool-tip-toggle="tooltip-demo"]').tooltip({
+            placement: 'top'
+        });
+    }
+    function changeView(viewName) {
+        if (mapData != null) {
+            mapData.graphic = viewName;
+            buildTable();
+        }
+    }
     function GoToItemsJson(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
-        $("#ItemCount").html("Loading...");
+        $("#ItemCount").html("");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
+        let spinnerItems = $("#spinnerItems");
+        if (spinnerItems) spinnerItems.show();
+        let rgx = new RegExp("↖", 'g');
+        let rgx2 = new RegExp("↗", 'g');
         var pars = {
             WithAttIds: WithAttIds
             , WithSetId: WithSetId
             , WithoutAttIds: WithoutAttIds
             , WithoutSetId: WithoutSetId
-            , included: @Model.Included
-            , Description: Descript.replaceAll('&#39;', '\'')
+            , included: @Model.included
+            , Description: Descript.replace(rgx, '\'').replace(rgx2, '"')
         }
         $.post("../ItemList/GetListWithWithoutAttsJSON"
             , pars
-            , function (data, result) { BuildItems(data, result); }
+            , function (data, result) {
+                if (spinnerItems) spinnerItems.hide();
+                BuildItems(data, result);
+            }
         );
 
     }
 
+    function ToggleMapDivSize() {
+        const descrPanel = $("#resultsTable");
+        if (descrPanel) {
+            //console.log("p h", descrPanel.css("max-height"));
+            //if (descrPanel.css("max-height") == "60vh") {
+            //    descrPanel.css("max-height", "40vh");
+            //}
+            //else {
+            //    descrPanel.css("max-height", "60vh");
+            //}
+            if ($("#ExpandMapDiv").is(":visible")) {
+                descrPanel.css("max-height", "75vh");
+            } else {
+                descrPanel.css("max-height", "50vh");
+            }
+            $("#ExpandMapDiv").toggle();
+            $("#ReduceMapDiv").toggle();
+        }
+    }
 
-    function ReloadCrosstab() {
-        if (!@Model.SetIdX) {
-            console.log("CurrentNodeGoToCrosstab no data");
-            return;
+    function tableMap() {
+        let res = "<table class=\"content-full mapTable table table-bordered table-striped\"><tr><th></th>";
+        for (let i = 0; i < mapData.columnAttIDs.length; i++) {
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
         }
-        $("#CrosstabsGrid").show();
-        $("#CrosstabsChart").hide();
-        var pars = {
-            attIdx: @Model.AttibuteIdX
-            , setIdx: @Model.SetIdX
-            , attIdy: @Model.AttibuteIdY
-            , setIdy: @Model.SetIdY
-            , segmentsParent: @Model.AttibuteIdSegments
-            , setIdSegments: @Model.SetIdSegments
-            , included: true
-            , graphic: "table"
+        let segmentsN = mapData.segmentsAttIDs.length;
+        let rgx = new RegExp("'", 'g');
+        let rgx2 = new RegExp("\"", 'g');
+        for (let ri = 0; ri < mapData.rows.length ; ri++) {
+            let row = mapData.rows[ri];
+            let withC = "", withS = "", withoutC = "", withoutS = "", descript = "";
+
+            res += "<tr><th class='px-1'>" + HTMLEncodeText(row.attributeName) + "</th>";
+            for (let i = 0; i < mapData.columnAttIDs.length; i++) {
+                res += "<td class='px-1'>";
+
+                if (ri == mapData.rows.length - 1 && i == mapData.columnAttIDs.length - 1) {
+                    //last row AND Last column...
+                    res += "&nbsp;";
+                }
+                else if (ri == mapData.rows.length - 1) {
+                    //last row...
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span >";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 </div>";
+                        }
+                        else {//we need item list with column header, without all the row codes
+                            withC = mapData.columnAttIDs[i] + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdX + "," + mapData.setIdSegments;
+                            descript = "3D Map, list from last row, column: &nearr;" + HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
+                            withoutC = "";
+                            withoutS = "";
+                            for (let rowInd = 0; rowInd < mapData.rows.length - 1; rowInd++) {
+                                withoutC += mapData.rows[rowInd].attributeId + ",";
+                                withoutS += mapData.setIdY + ",";
+                            }
+                            withoutC = withoutC.substring(0, withoutC.length - 1);
+                            withoutS = withoutS.substring(0, withoutS.length - 1);
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">"
+                                + currC + "</a></div>";
+                        }
+                    }
+                }
+                else if (i == mapData.columnAttIDs.length - 1) {
+                    //last column
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span>";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 </div>";
+                        }
+                        else {//we need item list with row header, without all the column codes
+                            withC = row.attributeId + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdY + "," + mapData.setIdSegments;
+                            descript = "3D Map, list from last column, row: &nearr;" + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
+                            withoutC = "";
+                            withoutS = "";
+                            for (let colInd = 0; colInd < mapData.columnAttIDs.length - 1; colInd++) {
+                                withoutC += mapData.columnAttIDs[colInd].toString() + ",";
+                                withoutS += mapData.setIdX + ",";
+                            }
+                            withoutC = withoutC.substring(0, withoutC.length - 1);
+                            withoutS = withoutS.substring(0, withoutS.length - 1);
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">"
+                                + currC + "</a></div>";
+                        }
+                    }
+                }
+                else {
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span>";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 </div>";
+                        }
+                        else {
+                            withC = mapData.columnAttIDs[i] + "," + row.attributeId + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdX + "," + mapData.setIdY + "," + mapData.setIdSegments;
+                            descript = "With these codes: " + HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
+                                + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '', '', '" + descript + "')\">"
+                                + currC + "</a></div>";
+                        }
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
         }
-        postwith("../Frequencies/GetMap", pars);
+        res += "</table>"
+        return res;
     }
 
     function BubbleMap() {
-        if (!@Model.SetIdX) {
-            console.log("CurrentNodeGoToCrosstab no data");
-            return;
+        let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let maxVal = 0;
+        let segmentsN = mapData.segmentsAttIDs.length;
+        for (let i = 0; i < mapData.rows.length - 1; i++)//ignore the last row
+        {
+            for (let j = 0; j < mapData.rows[i].counts.length - mapData.segmentsAttIDs.length; j++)//ignore the values for the last column
+            {
+                if (mapData.rows[i].counts[j] > maxVal) maxVal = mapData.rows[i].counts[j];
+            }
         }
-        $("#CrosstabsGrid").hide();
-        $("#CrosstabsChart").show();
-        var pars = {
-            attIdx: @Model.AttibuteIdX
-            , setIdx: @Model.SetIdX
-            , attIdy: @Model.AttibuteIdY
-            , setIdy: @Model.SetIdY
-            , segmentsParent: @Model.AttibuteIdSegments
-            , setIdSegments: @Model.SetIdSegments
-            , included: true
-            , graphic: "bubble"
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++)
+        {
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
         }
-        postwith("../Frequencies/GetMap", pars);
+        res += "</tr>";
+        for (let ri = 0; ri < mapData.rows.length - 1; ri++)
+        {
+            let row = mapData.rows[ri];
+            let rgx = new RegExp("'", 'g');
+            let rgx2 = new RegExp("\"", 'g');
+            res += "<tr><td>" + HTMLEncodeText(row.attributeName) + "</th>";
+            for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+                res += "<td>";
+                for (let ii = 0; ii < segmentsN; ii++) {
+                    let SegClassName = "mapC" + (ii + 1).toString();
+                    let title = "";
+                    if (row.counts[(i * segmentsN) + ii] == 0)
+                    {
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": no records";
+                        res += "<i class='fa fa-ban " + SegClassName + "' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title=\"" + title + "\"></i>";
+                    }
+                    else {//normal cell, with row and col codes
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
+                        let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.8).toString() + "em;";
+                        let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
+                        let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
+                        let descript = HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                        //console.log("des", descript);
+                        res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
+                        res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
+        }
+        res +="</table>"
+        return res;
     }
 
-        function BubbleMapLog() {
-        if (!@Model.SetIdX) {
-            console.log("CurrentNodeGoToCrosstab no data");
-            return;
+    function BubbleMap2() {
+        let colDescr = "";
+        let RowDescr = "";
+        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0)) {
+            colDescr = mapData.setIdXName.toString();
+            RowDescr = mapData.setIdYName.toString();
         }
-        $("#CrosstabsGrid").hide();
-        $("#CrosstabsChart").show();
-        var pars = {
-            attIdx: @Model.AttibuteIdX
-            , setIdx: @Model.SetIdX
-            , attIdy: @Model.AttibuteIdY
-            , setIdy: @Model.SetIdY
-            , segmentsParent: @Model.AttibuteIdSegments
-            , setIdSegments: @Model.SetIdSegments
-            , included: true
-            , graphic: "bubbleLog"
+        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0)) {
+            colDescr = mapData.attibuteIdXName.toString();
+            RowDescr = mapData.attibuteIdYName.toString();
         }
-            postwith("../Frequencies/GetMap", pars);
+        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0)) {
+            colDescr = mapData.setIdXName.toString();
+            RowDescr = mapData.attibuteIdYName.toString();
+        }
+        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0)) {
+            colDescr = mapData.attibuteIdXName.toString();
+            RowDescr = mapData.setIdYName.toString();
+        }
+
+
+
+        //let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let res = "<table class=\"mapTable2 m-1\"><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>";
+        res += "<th class=\"th_topRowHeader\" colspan=" + mapData.columnAttIDs.length + ">" + HTMLEncodeText(colDescr) +
+            "</th><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>"
+        let maxVal = 0;
+        let segmentsN = mapData.segmentsAttIDs.length;
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+            if ((i % 2) == 0) {
+                res += "<th class=\"th_2ndRowHeaderA\">" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+            } else {
+                res += "<th class=\"th_2ndRowHeaderB\">" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+            }
+        }
+
+        // gettting the sizes
+        for (let i = 0; i < mapData.rows.length - 1; i++)//ignore the last row
+        {
+            for (let j = 0; j < mapData.rows[i].counts.length - mapData.segmentsAttIDs.length; j++)//ignore the values for the last column
+            {
+                if (mapData.rows[i].counts[j] > maxVal) maxVal = mapData.rows[i].counts[j];
+            }
+        }
+        
+        /* 
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+        }
+        */
+        res += "</tr>";
+
+
+        res += "<tr><th rowspan=" + (mapData.rows.length + 1) + " class=\"th_topColHeader\" style=\"vertical-align:top\">" + HTMLEncodeText(RowDescr) + "</th>";
+
+
+        for (let ri = 0; ri < mapData.rows.length - 1; ri++) {
+            let row = mapData.rows[ri];
+            let rgx = new RegExp("'", 'g');
+            let rgx2 = new RegExp("\"", 'g');
+
+            if ((ri % 2) == 0) {
+                res += "<tr><th class=\"th_2ndColHeaderA\">" + HTMLEncodeText(row.attributeName) + "</th>";
+            } else {
+                res += "<tr><th class=\"th_2ndColHeaderB\">" + HTMLEncodeText(row.attributeName) + "</th>";
+            }
+
+            //res += "<tr><td>" + HTMLEncodeText(row.attributeName) + "</th>";
+
+            for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+                //res += "<td>";
+                res += "<td class=\"td_mapCell\">";
+                for (let ii = 0; ii < segmentsN; ii++) {
+                    let SegClassName = "mapC" + (ii + 1).toString();
+                    let title = "";
+                    if (row.counts[(i * segmentsN) + ii] == 0) {
+                        // hide the 'no records' bubbles
+                        //title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": no records";
+                        //res += "<i class='fa fa-ban " + SegClassName + "' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title=\"" + title + "\"></i>";
+                    }
+                    else {//normal cell, with row and col codes
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
+                        let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.8).toString() + "em;";
+                        let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
+                        let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
+                        let descript = HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                        //console.log("des", descript);
+                        res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
+                        res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
+        }
+        res += "</table>"
+        return res;
     }
+
+
+    function createLegend() {
+        let segmentsN = mapData.segmentsAttIDs.length;
+        let dimension = "1em";
+        let SegClassName = "";
+        let title = "";
+        let res = "";
+        let rgx2 = new RegExp("\"", 'g');
+
+        res += "<table>";
+        res += "<tr>";
+        res += "<td>";
+        res += "<h3><b>Legend</b></h3>";
+        res += "</td>";
+        res += "</tr>";
+        res += "<tr>";
+        for (let ii = 0; ii < segmentsN; ii++) {
+            SegClassName = "mapC" + (ii + 1).toString();
+            title = mapData.segmentsAttNames[ii];//.replace(rgx2, "&quot;");
+
+            res += "<td>";
+            res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\"></i>&nbsp;&nbsp;" + HTMLEncodeText(title) +
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            res += "</td>";
+        }                
+        res += "</tr>";
+        res += "</table>";
+
+        return res;
+    }
+
+
 
 </script>
 
@@ -135,54 +462,53 @@
 <br />
 <div class="main-panel main-panel-no-sidebar">
 
-    <div class="page-inner">
+    <div class="page-inner px-2 py-1">
 
-        <div class="card">
+        <div class="card mb-2">
             <div class="card-body">
-                <div class="card-body" style="max-height:70vh; max-width:99vw; overflow:auto;">
+                <div class="" style="max-width:99vw; overflow:auto;">
                     <table width="100%">
                         <tr>
                             <td>
                                 <h5 class="card-title mb-3">Evidence (gap) Map</h5>
-                                @if ((@Model.AttibuteIdX == 0) && (Model.AttibuteIdY == 0))
-                                {
-                                    <h5>"<b>(Column) @Model.SetIdXName.ToString()</b>" vs "<b>(Row) @Model.SetIdYName.ToString()</b>", segments: "@Model.AttibuteIdSegmentsName"</h5>
-                                }
-                                @if ((@Model.AttibuteIdX != 0) && (Model.AttibuteIdY != 0))
-                                {
-                                    <h5>"<b>(Column) @Model.AttibuteIdXName.ToString()</b>" vs "<b>(Row) @Model.AttibuteIdYName.ToString()</b>", segments: "@Model.AttibuteIdSegmentsName"</h5>
-                                }
-                                @if ((@Model.AttibuteIdX == 0) && (Model.AttibuteIdY != 0))
-                                {
-                                    <h5>"<b>(Column) @Model.SetIdXName.ToString()</b>" vs "<b>(Row) @Model.AttibuteIdYName.ToString()</b>", segments: "@Model.AttibuteIdSegmentsName"</h5>
-                                }
-                                @if ((@Model.AttibuteIdX != 0) && (Model.AttibuteIdY == 0))
-                                {
-                                    <h5>"<b>(Column) @Model.AttibuteIdXName.ToString()</b>" vs "<b>(Row) @Model.SetIdYName.ToString()</b>", segments: "@Model.AttibuteIdSegmentsName"</h5>
-                                }
+                                <div id="MapDescription">Loading...</div>
 
                             </td>
                             <td style="text-align:right">
                                 <div class="card-tools">
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="ReloadCrosstab()">
-                                        <span class="btn-label">
-                                            <i class="fa fa-table"></i>
-                                        </span>
-                                        Table
-                                    </button>
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMap()">
+                                    <div id="ExpandMapDiv" class="btn btn-primary btn-sm btn-round"
+                                         onclick="ToggleMapDivSize()">
+                                        <div class="flaticon-down-arrow-1">
+                                            &nbsp;&nbsp;View more&nbsp;
+                                        </div>
+                                    </div>
+                                    <div id="ReduceMapDiv" class="btn btn-primary btn-sm btn-round"
+                                         onclick="ToggleMapDivSize()">
+                                        <div class="flaticon-up-arrow-1">
+                                            &nbsp;&nbsp;View less&nbsp;
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubble')" disabled id="showBubbleButton">
                                         <span class="btn-label">
                                             <i class="fa fa-circle"></i>
                                         </span>
                                         Bubble map
                                     </button>
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMapLog()">
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')" disabled id="showTableButton">
+                                        <span class="btn-label">
+                                            <i class="fa fa-table"></i>
+                                        </span>
+                                        Table
+                                    </button>
+
+                                    <!--<button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
                                         <span class="btn-label">
                                             <i class="fa fa-circle"></i>
                                         </span>
                                         Bubble (log)
-                                    </button>
-                                    <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                    </button>*
+                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
                                         <span class="btn-label">
                                             <i class="fa fa-file-excel"></i>
                                         </span>
@@ -198,398 +524,34 @@
                             </td>
                         </tr>
                     </table>
-                    <div class="card-body">
-                        <!-------------------------------------------------------------------------------------------------------------------->
-                        @if (@Model.Graphic == "table")
-                        {
-                            <div id="CrosstabsGrid">
-                                <table class="content-full table table-striped">
-                                    <tr>
-                                        <th></th>
-                                        @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
-                                        {
-                                            <th>
-                                                @Model.ColumnAttNames[i]
-                                            </th>
-                                        }
 
-                                    </tr>
-                                    @{int segmentsN = Model.SegmentsAttIDs.Count; }
-                                    @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
-                                    {
-                                        <tr>
-                                            <th>@row.AttributeName</th>
-                                            @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
-                                            {
-                                                <td>
-
-                                                    @for (int ii = 0; ii < segmentsN; ii++)
-                                                    {
-                                                        <span class="font-weight-bold">@Model.SegmentsAttNames[ii]: </span>
-                                                        @if (row.Counts[(i * segmentsN) + ii] == 0)
-                                                        {
-                                                            <span>0</span><br />
-                                                        }
-                                                        else if (row == Model.Rows[Model.Rows.Count - 1])
-                                                        {//last row, with column header, without all the row codes
-                                                            string with = Model.ColumnAttIDs[i].ToString() + "," + Model.SegmentsAttIDs[ii].ToString();
-                                                            string without = "";
-                                                            string withoutSets = "";
-                                                            string withSets = Model.SetIdY.ToString() + "," + Model.SetIdSegments.ToString();
-                                                            //string descript = "Listing &#39;None of the above&#39; crosstab result for the code: " + Model.ColumnAttNames[i].Replace("'", "&#39;");
-                                                            string descript = "Records without " + Model.ColumnAttNames[i].Replace("'", "&#39;");
-                                                            for (int ri = 0; ri < Model.Rows.Count - 1; ri++)//skip last row!
-                                                            {
-                                                                without += Model.Rows[ri].AttributeId.ToString() + ",";
-                                                                withoutSets += @Model.SetIdY.ToString() + ",";
-                                                            }
-                                                            without = without.TrimEnd(',');
-                                                            withoutSets = withoutSets.TrimEnd(',');
-                                                            <a href="javascript:GoToItemsJson('@with', '@withSets', '@without', '@withoutSets', '@descript')">@row.Counts[(i * segmentsN) + ii]</a><br />
-
-                                                        }
-                                                        else if (i >= Model.ColumnAttIDs.Count - 1 - Model.SegmentsAttIDs.Count)
-                                                        {//last cell with row header, without all the column codes
-                                                            string with = row.AttributeId.ToString() + "," + Model.SegmentsAttIDs[ii].ToString();
-                                                            string without = "";
-                                                            string withoutSets = "";
-                                                            string withSets = Model.SetIdY.ToString() + "," + Model.SetIdSegments.ToString();
-                                                            //string descript = "Listing &#39;None of these&#39; crosstab result for the code: " + row.AttributeName.Replace("'", "&#39;");
-                                                            string descript = "Records without " + row.AttributeName.Replace("'", "&#39;");
-                                                            for (int ci = 0; ci < Model.ColumnAttIDs.Count - 1; ci++)//skip last column!
-                                                            {
-                                                                without += Model.ColumnAttIDs[ci].ToString() + ",";
-                                                                withoutSets += @Model.SetIdX.ToString() + ",";
-                                                            }
-                                                            without = without.TrimEnd(',');
-                                                            withoutSets = withoutSets.TrimEnd(',');
-
-                                                            <a href="javascript:GoToItemsJson('@with', '@withSets', '@without', '@withoutSets', '@descript')">@row.Counts[(i * segmentsN) + ii]</a>
-                                                            <br />
-
-                                                        }
-                                                        else
-                                                        {//normal cell, with row and col codes
-                                                            string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString() + "," + Model.SegmentsAttIDs[ii].ToString();
-                                                            string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString() + "," + Model.SetIdSegments.ToString();
-                                                            //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
-                                                            string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " [AND] " + row.AttributeName.Replace("'", "&#39;");
-
-
-                                                            <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">@row.Counts[(i * segmentsN) + ii]</a>
-                                                            <br />
-
-                                                        }
-                                                    }
-                                                </td>
-                                            }
-                                        </tr>
-                                    }
-                                </table>
+                    <div id="spinner" class="w-100" style="display:none;">
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
                             </div>
-
-                                        }
-                                        else if (@Model.Graphic == "bubble")
-                                        {
-
-                                            int maxVal = 0;
-                                            for (int i=0; i < Model.Rows.Count-1; i++)//ignore the last row
-                                            {
-                                                for (int j=0; j < Model.Rows[i].Counts.Count - Model.SegmentsAttIDs.Count; j++)//ignore the values for the last column
-                                                {
-                                                    if (Model.Rows[i].Counts[j] > maxVal) maxVal = Model.Rows[i].Counts[j];
-                                                }
-                                            }
-
-                            <div id="CrosstabsGrid">
-                                <table class="content-full table table-striped">
-                                    <tr>
-                                        <th></th>
-                                        @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
-                                        {
-                                            <th>
-                                                @Model.ColumnAttNames[i]
-                                            </th>
-                                        }
-
-                                    </tr>
-                                    @{int segmentsN = Model.SegmentsAttIDs.Count; }
-                                    @for (int ri = 0; ri < Model.Rows.Count - 1; ri++)
-                                    {
-                                        WebDbItemAttributeCrosstabRow row = Model.Rows[ri];
-                                            <tr>
-                                                <th>@row.AttributeName</th>
-                                                @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
-                                                {
-                                                    <td>
-
-                                                        @for (int ii = 0; ii < segmentsN; ii++)
-                                                        {
-                                                            
-                                                            string SegClassName = "mapC" + (ii+1).ToString();
-                                                            string title = "";
-                                                            if (row.Counts[(i * segmentsN) + ii] == 0)
-                                                            {
-                                                                title =  Model.SegmentsAttNames[ii] + ": no records";
-                                                                <i class="fa fa-ban @SegClassName" style="font-size:0.8em" tool-tip-toggle="tooltip-demo" data-original-title="@title"></i>
-                                                            }
-                                                            else
-                                                            {//normal cell, with row and col codes
-                                                                title = Model.SegmentsAttNames[ii] + ": " + @row.Counts[(i * segmentsN) + ii].ToString() + " records";
-                                                                string dimension = (4 * ((double)row.Counts[(i * segmentsN) + ii] / (double)maxVal) + 0.5).ToString() + "em;";
-                                                                string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString() + "," + Model.SegmentsAttIDs[ii].ToString();
-                                                                string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString() + "," + Model.SetIdSegments.ToString();
-                                                                //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
-                                                                string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " [AND] " + row.AttributeName.Replace("'", "&#39;");
-
-
-                                                                <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')" >
-                                                                    <i class="fa fa-circle @SegClassName" style="font-size:@dimension" tool-tip-toggle="tooltip-demo" data-original-title="@title"></i>
-                                                                </a>
-                                                            }
-                                                        }
-                                                    </td>
-                                                }
-                                            </tr>
-                                        }
-                                </table>
-                                <div class="col-12">
-                                    Legend: @for (int ii = 0; ii < segmentsN; ii++)
-                                    {
-                                        string SegClassName = "mapC" + (ii + 1).ToString();
-                                        <span class="mx-1 @SegClassName"><i class="fa fa-circle mx-1"></i> @Model.SegmentsAttNames[ii]</span>
-                                    }
-                                </div>
-                            </div>       
-                        }
-                        <!-------------------------------------------------------------------------------------------------------------------------->
-                        @if ((@Model.Graphic == "bubbleLog"))
-                        {
-                            var rowNumber = 0;
-                            var biggestValue = 0;
-                            var value = 0;
-                            <!--<script>console.log("numberColumns: " + @Model.ColumnAttIDs.Count);</script>
-                                <script>console.log("numberRows: " + @Model.Rows.Count);</script>-->
-                            for (int j = 0; j < Model.Rows.Count - 1; j++)
-                            {
-
-                                for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
-                                {
-
-                                    value = @Model.Rows[j].Counts[i];
-                                    if (value > biggestValue)
-                                    {
-                                        biggestValue = value;
-                                    }
-                                    <!--<script>
-                                            console.log("rowNumber: " + @rowNumber);
-                                            console.log("column: " + @i);
-                                            console.log("value: " + @value);
-                                            console.log("biggest value: " + @biggestValue);
-                                    </script>-->
-                                    rowNumber = rowNumber + 1;
-
-
-                                }
-                            }
-
-                            rowNumber = 0;
-
-
-                            var fa6 = 9.0;
-                            var fa5 = 7.0;
-                            var fa4 = 5.0;
-                            var fa3 = 3.0;
-                            var fa2 = 1.0;
-
-
-                            var fa6Start = fa6 / 10 * biggestValue;
-                            var fa5Start = fa5 / 10 * biggestValue;
-                            var fa4Start = fa4 / 10 * biggestValue;
-                            var fa3Start = fa3 / 10 * biggestValue;
-                            var fa2Start = fa2 / 10 * biggestValue;
-                            var fa1Start = 1.0;
-
-                            <div id="CrosstabsChart">
-                                <table class="content-full table table-bordered">
-                                    <tr>
-                                        <th></th>
-                                        @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
-                                        {
-                                            <th>
-                                                @Model.ColumnAttNames[i]
-                                            </th>
-                                        }
-
-                                    </tr>
-
-
-                                    @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
-                                    {
-                                        @if (@rowNumber < Model.Rows.Count - 1)
-                                        {
-                                            <tr>
-                                                <th>@row.AttributeName</th>
-
-                                                @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
-                                                {
-                                                    @if (row.Counts[i] == 0)
-                                                    {
-                                                        <td></td>
-                                                    }
-                                                    else
-                                                    {//normal cell, with row and col codes
-                                                        string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
-                                                        string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
-                                                        //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
-                                                        string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " [AND] " + row.AttributeName.Replace("'", "&#39;");
-
-                                                        <th style="text-align:center;vertical-align:middle">
-
-                                                            @if (@Model.Graphic == "bubbleLog")
-                                                            {
-                                                                // do it logarithmically
-
-                                                                <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">
-                                                                    @if (@row.Counts[i] > 10000.0)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if (@row.Counts[i] > 1000.0)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if (@row.Counts[i] > 100.0)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if (@row.Counts[i] > 10.0)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if (@row.Counts[i] > 1.0)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-
-                                                                </a>
-
-                                                            }
-                                                            else
-                                                            {
-                                                                // do it linearly
-
-                                                                <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">
-
-                                                                    @if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa6)
-                                                                    {
-                                                                        <!--<script>
-                                                                            console.log("value: " + @row.Counts[i]);
-                                                                            console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                            console.log("fa-6x");
-                                                                        </script>-->
-                                                                        <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa5)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa4)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa3)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa2)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                </a>
-                                                            }
-
-                                                        </th>
-                                                    }
-                                                }
-                                            </tr>
-                                            rowNumber = rowNumber + 1;
-
-                                        }
-
-                                    }
-
-                                </table>
-
-                                <table width="100%">
-                                    <tr>
-                                        <td>
-                                            <h3><b>Legend</b></h3>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        @if (@Model.Graphic == "bubbleLog")
-                                        {
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#343a40;"></i>&nbsp;1 record
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#17a2b8;"></i>&nbsp;2 - 10 records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#dc3545;"></i>&nbsp;11 - 100 records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#ffc107;"></i>&nbsp;101 - 1,000 records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color: #28a745;"></i>&nbsp;1,001 - 10,000 records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#007bff;"></i>&nbsp;10,000(+) records
-                                            </td>
-                                        }
-                                        else
-                                        {
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#343a40;"></i>&nbsp;@Math.Truncate(fa1Start) - @Math.Truncate((fa2Start - 1)) records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#17a2b8;"></i>&nbsp;@Math.Truncate(fa2Start) - @Math.Truncate((fa3Start - 1)) records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#dc3545;"></i>&nbsp;@Math.Truncate(fa3Start) - @Math.Truncate((fa4Start - 1)) records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#ffc107;"></i>&nbsp;@Math.Truncate(fa4Start) - @Math.Truncate((fa5Start - 1)) records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color: #28a745;"></i>&nbsp;@Math.Truncate(fa5Start) - @Math.Truncate((fa6Start - 1)) records
-                                            </td>
-                                            <td>
-                                                <i class="fa fa-circle fa-1x" style="color:#007bff;"></i>&nbsp;@Math.Truncate(fa6Start) (+) records
-                                            </td>
-                                        }
-                                    </tr>
-                                </table>
-
-                            </div>
-                        }
-                        <!--------------------------------------------------------------------------------------------------------------------------------->
+                        </div>
+                    </div>
+                    <div class="card-body row mx-0 px-0">
+                        <div class="d-block" id="resultsTable" style="max-height:50vh; overflow:auto;display:none;"></div>
+                    </div>
+                    <div class="card-body py-1" id="mapLegend">
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card">
+
+            <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
+                <div class="col-auto p-1">Loading...</div>
+                <div class="col d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
             @await Html.PartialAsync("_ItemsList")
         </div>
     </div>
