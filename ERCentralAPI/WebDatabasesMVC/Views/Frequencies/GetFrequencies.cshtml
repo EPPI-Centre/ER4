@@ -23,6 +23,8 @@
             , included: @Model.included
             , graphic: "table"
         }
+        $("#BuildBarHideNOA").hide();
+        $("#BuildBarShowNOA").hide();
         $("#spinner").show();
         $("#resultsTable").hide();
         $.post("../Frequencies/GetFrequenciesResultsJSON", pars, (data, status) => buildResults(data, status));
@@ -44,6 +46,8 @@
         $("#BuildPieBT").prop("disabled", false);
         $("#BarOrPieChartVisible").hide();
         $("#FrequenciesChart").hide();
+        $("#BuildBarHideNOA").hide();
+        $("#BuildBarShowNOA").hide();
         let counter = 0;
         let innerHtml = "";
         for (let itm of freqData)
@@ -74,7 +78,7 @@
     }
 
 
-    function BuildBar() {
+    function BuildBar(showNoneOfTheAbove) {
 
         $("#GoToFreqBT").prop("disabled", false);
         $("#BuildBarBT").prop("disabled", true);
@@ -85,8 +89,28 @@
         //$("#FrequenciesResult").text("Frequencies for: " + $("#nameXAxisCrit").val());
         //$("#FrequenciesResult").show();
 
+        let myData = [];
+        for (var i = 0; i < freqData.length; i++) {
+            myData.push(freqData[i]);
+        }
+
+        if (showNoneOfTheAbove == 0) {
+            if (myData[myData.length - 1].attributeId == -999999) {
+                myData.splice(freqData.length - 1, 1);
+            }
+            $("#BuildBarShowNOA").show();
+            $("#BuildBarHideNOA").hide();
+        }
+        else {
+            $("#BuildBarShowNOA").hide();
+            $("#BuildBarHideNOA").show();
+        }
+
+
+
         $("#FrequenciesChart").kendoChart({
-            dataSource: { data: freqData },
+            //dataSource: { data: freqData },
+            dataSource: { data: myData },
             categoryAxis: {
                 field: "attribute"
             },
@@ -111,10 +135,12 @@
     }
 
 
-    function BuildPie() {
+    function BuildPieOrig() {
 
         $("#GoToFreqBT").prop("disabled", false);
         $("#BuildBarBT").prop("disabled", false);
+        $("#BuildBarHideNOA").hide();
+        $("#BuildBarShowNOA").hide();
         $("#BuildPieBT").prop("disabled", true);
         $("#BarOrPieChartVisible").show();
         $("#FrequenciesGrid").hide();
@@ -147,6 +173,141 @@
             }
         });
     }
+
+    function BuildPie() {
+
+        $("#GoToFreqBT").prop("disabled", false);
+        $("#BuildBarBT").prop("disabled", false);
+        $("#BuildPieBT").prop("disabled", true);
+        $("#BarOrPieChartVisible").show();
+        $("#FrequenciesGrid").hide();
+        $("#FrequenciesChart").show();
+        $("#BuildBarHideNOA").hide();
+        $("#BuildBarShowNOA").hide();
+
+        let myData = [];
+        // remove all of the rows that have zero values
+        for (var i = freqData.length - 1; i >= 0; i--) {
+            if (freqData[i].itemCount > 0) {
+                //console.log("adding: ", freqData.results[i]);
+                myData.push(freqData[i]);
+                //data.results.splice(i, 1);
+            }
+        }
+        if (myData.length == 0) return;
+        //var lastRow = myData.length - 1;
+
+        // remove the last row if it is 'none of the above'
+        if (myData[0].attributeId == -999999) {
+            myData.splice(0, 1);
+        }
+
+        var legendPostion = "right";
+        var chartHeight = 250;
+
+        var ele = document.getElementById("FrequenciesChart"), // Do not use #
+            eleStyle = window.getComputedStyle(ele);
+        /* Below is the width of ele */
+        var eleWidth = parseInt(eleStyle.width.replace("px", ""));
+
+        if (eleWidth <= 768) {
+            legendPostion = "bottom";
+            chartHeight = 400;
+        }
+
+        //if (myData.length > 200) {
+        //    legendPostion = "bottom";
+        //chartHeight = 600;
+        //}
+
+        $("#FrequenciesGrid").hide();
+
+        if (myData.length != 0) {
+            $("#BarOrPieChartVisible").show();
+            $("#FrequenciesChart").show();
+            $("#NoCodedRecords").hide();
+
+            $("#FrequenciesChart").kendoChart({
+                dataSource: { data: myData },
+                chartArea: {
+                    height: chartHeight
+                },
+                seriesDefaults: {
+                    type: "pie"
+                },
+                seriesClick: function (e) {
+                    GoToListPie(e);
+                },
+                series: [{
+                    field: "itemCount",
+                    categoryField: "attribute",
+                    padding: 0
+                }],
+                tooltip: {
+                    visible: true,
+                    template: "#= HTMLEncodeText(category) #: #= value # records"
+                },
+                legend: {
+                    item: {
+                        visual: function (e) {
+                            var color = e.options.markers.background;
+                            var labelColor = e.options.labels.color;
+
+                            var rect = new kendo.geometry.Rect([0, 0], [400, 50]);
+                            if (eleWidth <= 768) {
+                                rect = new kendo.geometry.Rect([0, 0], [400, 100]);
+                            }
+
+
+                            var layout = new kendo.drawing.Layout(rect, {
+                                spacing: 10
+                            });
+
+                            var allZeroValues = false;
+                            if (e.series.data[e.pointIndex].itemCount == 0) {
+                                allZeroValues = true;
+                            }
+
+                            if (!allZeroValues) {
+                                // create a circle geometry centered at x=10, y=5, with a radius of 5
+                                var CircGeometry = new kendo.geometry.Circle([10, 5], 5);
+                                // draw the circle using the geometry and set the color
+                                var MarkerCircle = new kendo.drawing.Circle(CircGeometry, {
+                                    stroke: { color: color, width: 1 },
+                                    fill: { color: color }
+                                });
+
+                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].attribute + " (" +
+                                    e.series.data[e.pointIndex].itemCount + ")", [0, 0], {
+                                    fill: {
+                                        color: labelColor
+                                    }
+                                });
+
+                                layout.append(MarkerCircle, label);
+                                layout.reflow()
+                            }
+                            return layout;
+                        }
+                    },
+                    position: legendPostion,
+                    padding: 10,
+                    background: "#e2e3e5",
+                    border: {
+                        width: 1,
+                        color: "#d6d8db"
+                    },
+                },
+            });
+        }
+        else {
+            $("#BarOrPieChartVisible").hide();
+            $("#FrequenciesChart").hide();
+            $("#NoCodedRecords").show();
+        }
+    }
+
+
 
     function GotoItemsTable(attributeId) {
         if (freqData == null || freqData.length < 1) return;
@@ -297,7 +458,7 @@
                                     </span>
                                     Table
                                 </button>
-                                <button class="btn btn-primary btn-sm btn-round" onclick="BuildBar()" id="BuildBarBT">
+                                <button class="btn btn-primary btn-sm btn-round" onclick="BuildBar(1)" id="BuildBarBT">
                                     <span class="btn-label">
                                         <i class="fa fa-chart-bar"></i>
                                     </span>
@@ -351,6 +512,18 @@
                     <div id="FrequenciesChart" class="chart" style="text-align:left">
                         <!-- pie and bar charts get displayed here -->
                     </div>
+                    <button class="btn btn-primary btn-sm btn-round" onclick="BuildBar(0)" id="BuildBarHideNOA">
+                        <span class="btn-label">
+                            <i class="fa fa-chart-bar"></i>
+                        </span>
+                        Remove last row
+                    </button>
+                    <button class="btn btn-primary btn-sm btn-round" onclick="BuildBar(1)" id="BuildBarShowNOA">
+                        <span class="btn-label">
+                            <i class="fa fa-chart-bar"></i>
+                        </span>
+                        Show uncoded
+                    </button>
 
                 </div>
             </div>
