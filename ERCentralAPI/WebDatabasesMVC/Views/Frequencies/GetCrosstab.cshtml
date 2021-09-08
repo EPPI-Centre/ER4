@@ -210,7 +210,7 @@
         }
         let evenRow = false, evenCol = false;
         let headerClass = "";
-        //console.log(fa1, fa2, fa3, fa4, fa5, fa6);
+        //console.log(fa1, fa2, fa3, fa4, fa5, fa6, maxVal);
         rTab += "<table class=\"table-bordered\"><tr><th></th>";
         for (let i = 0; i < xTabData.columnAttIDs.length - 1; i++) {
             if (evenCol) {
@@ -295,27 +295,39 @@
         }
         rTab += "</table>";
         
-        console.log(rTab);
+        //console.log(rTab);
         CrosstabsGrid.html(rTab);
         $('[tool-tip-toggle="tooltip-demo"]').tooltip({
             placement: 'top'
         });
         if (isLinear == false && maxVal > 6) {
             //log scale, we update our faX vals to make them work below...
-            fa1 = Math.pow(10, fa1);
-            fa2 = Math.pow(10, fa2);
-            fa3 = Math.pow(10, fa3);
-            fa4 = Math.pow(10, fa4);
-            fa5 = Math.pow(10, fa5);
-            fa6 = Math.pow(10, fa6);
+            //flooring because doing log and then pow introduces rounding errors, for example Math.pow(10, (Math.log10(1498))) = 1498.000000000001 which breaks the "<=" checks below...
+            fa1 = Math.floor(Math.pow(10, fa1));
+            fa2 = Math.floor(Math.pow(10, fa2));
+            fa3 = Math.floor(Math.pow(10, fa3));
+            fa4 = Math.floor(Math.pow(10, fa4));
+            fa5 = Math.floor(Math.pow(10, fa5));
+            fa6 = Math.floor(Math.pow(10, fa6));
         }
+        else {
+            //just flooring, so the calcs below will not keep flooring the same values...
+            fa1 = Math.floor(fa1);
+            fa2 = Math.floor(fa2);
+            fa3 = Math.floor(fa3);
+            fa4 = Math.floor(fa4);
+            fa5 = Math.floor(fa5);
+            fa6 = Math.floor(fa6);
+        }
+        console.log(fa1, fa2, fa3, fa4, fa5, fa6, maxVal);
         rTab = "<div class='row mx-0 px-0 mt-1 mb-2'><div class='col-12 font-weight-bold'>Legend:</div>";
-        if (fa1 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-1x mx-1'></i>" + "1 - " + (Math.trunc(fa1)).toString() + " records</div>";
-        if (fa2 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-2x mx-1'></i>" + (Math.trunc(fa1) + 1).toString() + " - " + (Math.trunc(fa2)).toString() + " records</div>";
-        if (fa3 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-3x mx-1'></i>" + (Math.trunc(fa2) + 1).toString() + " - " + (Math.trunc(fa3)).toString() + " records</div>";
-        if (fa4 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-4x mx-1'></i>" + (Math.trunc(fa3) + 1).toString() + " - " + (Math.trunc(fa4)).toString() + " records</div>";
-        if (fa5 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-5x mx-1'></i>" + (Math.trunc(fa4) + 1).toString() + " - " + (Math.trunc(fa5)).toString() + " records</div>";
-        if (fa6 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-6x mx-1'></i>" + (Math.trunc(fa5) + 1).toString() + " records or more</div></div>";
+        if (fa1 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-1x mx-1'></i>" + "1 - " + fa1.toString() + " records</div>";
+        if (fa2 <= maxVal && fa1 + 1 <= fa2) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-2x mx-1'></i>" + (fa1 + 1).toString() + " - " + fa2.toString() + " records</div>";
+        if (fa3 <= maxVal && fa2 + 1 <= fa3) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-3x mx-1'></i>" + (fa2 + 1).toString() + " - " + fa3.toString() + " records</div>";
+        if (fa4 <= maxVal && fa3 + 1 <= fa4) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-4x mx-1'></i>" + (fa3 + 1).toString() + " - " + fa4.toString() + " records</div>";
+        if (fa5 <= maxVal && fa4 + 1 <= fa5) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-5x mx-1'></i>" + (fa4 + 1).toString() + " - " + fa5.toString() + " records</div>";
+        if (fa6 <= maxVal && fa5 + 1 <= maxVal) rTab += "<div class='col-auto mx-2'><i class='fa fa-circle xTabColour-6x mx-1'></i>" + (fa5 + 1).toString() + " records or more</div>";
+        rTab += "</div>";
         $("#BubbleLegend").html(rTab);
     }
 
