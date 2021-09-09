@@ -165,7 +165,14 @@
         if (!dataItem) {
             //console.log("GetFreqs no data");
             return;
-        } else if (freqData != null && dataItem.id == freqData.criteria.attributeIdXAxis) {
+        } else if (
+            freqData != null
+            && (
+                (dataItem.isCodeset == false && dataItem.id == freqData.criteria.attributeIdXAxis)//it's a code, compare attributeIDs
+                ||
+                (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
+            )
+        ) {
             //console.log("GetFreqs no API call");
             BuildFreqs();
             return;
@@ -240,7 +247,14 @@
         if (!dataItem) {
             //console.log("GetFreqs no data");
             return;
-        } else if (freqData != null && dataItem.id == freqData.criteria.attributeIdXAxis) {
+        } else if (
+            freqData != null
+            && (
+            (dataItem.isCodeset == false && dataItem.id == freqData.criteria.attributeIdXAxis)//it's a code, compare attributeIDs
+            ||
+            (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
+            )
+        ) {
             BuildBar();
             return;
         }
@@ -275,7 +289,14 @@
         if (!dataItem) {
             //console.log("GetFreqs no data");
             return;
-        } else if (freqData != null && dataItem.id == freqData.criteria.attributeIdXAxis) {
+        } else if (
+            freqData != null
+            && (
+                (dataItem.isCodeset == false && dataItem.id == freqData.criteria.attributeIdXAxis)//it's a code, compare attributeIDs
+                ||
+                (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
+            )
+        ) {
             //console.log("direct to build pie");
             BuildPie();
             return;
