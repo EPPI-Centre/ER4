@@ -109,6 +109,8 @@
         $("#YearFreqPie").hide();
         $("#BarByYearChartVisible").show();
         $("#YearFreq").prop("disabled", true);
+        $("#BuildBarShowNOA").hide();
+        $("#BuildBarHideNOA").hide();
     });
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
@@ -216,6 +218,9 @@
         $("#FrequenciesGrid").show();
         $("#FrequenciesChart").hide();
         $("#NoCodedRecords").hide();
+        $("#BuildBarShowNOA").hide();
+        $("#BuildBarHideNOA").hide();
+
         //$("#FrequenciesResult").show();
         let desiredHeight = ((freqData.results.length + 1) * 20.1 + 4);
         if (desiredHeight > window.innerHeight / 2) desiredHeight = window.innerHeight / 2;
@@ -243,7 +248,7 @@
         
     }
     
-    function GetFreqsBar() {
+    function GetFreqsBar(showNoneOfTheAbove) {
         if (!dataItem) {
             //console.log("GetFreqs no data");
             return;
@@ -255,7 +260,7 @@
             (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
             )
         ) {
-            BuildBar();
+            BuildBar(showNoneOfTheAbove);
             return;
         }
         freqData = null;
@@ -269,7 +274,7 @@
                     $("#FreqSpinner").hide();
                     if (result == "success") {
                         freqData = data;
-                        BuildBar();
+                        BuildBar(showNoneOfTheAbove);
                     }
                 })
         }
@@ -279,7 +284,7 @@
                     $("#FreqSpinner").hide();
                     if (result == "success") {
                         freqData = data;
-                        BuildBar();
+                        BuildBar(showNoneOfTheAbove);
                     }
                 })
         }
@@ -328,15 +333,46 @@
         }
     }
 
-    function BuildBar() {
+    function BuildBar(showNoneOfTheAbove) {
         $("#BarOrPieChartVisible").show();
         $("#FrequenciesGrid").hide();
         $("#FrequenciesChart").show();
         $("#NoCodedRecords").hide();
         //$("#FrequenciesResult").show();
 
+        var chartHeight = 250;
+        let myData = [];
+        for (var i = 0; i < freqData.results.length; i++) {
+            myData.push(freqData.results[i]);
+            // shorten codes names that are stupid long
+            if (myData[i].attribute.length > 60) {
+                myData[i].attribute = myData[i].attribute.substring(0, 60) + "...";
+            }
+        }
+
+        if (myData.length > 20) {
+            chartHeight = 350;
+        }
+
+        if (myData.length > 25) {
+            chartHeight = 400;
+        }
+
+        if (showNoneOfTheAbove == 0) {
+            if (myData[myData.length - 1].attributeId == -999999) {
+                myData.splice(freqData.results.length - 1, 1);
+            }
+            $("#BuildBarShowNOA").show();
+            $("#BuildBarHideNOA").hide();
+        }
+        else {
+            $("#BuildBarShowNOA").hide();
+            $("#BuildBarHideNOA").show();
+        }
+
         $("#FrequenciesChart").kendoChart({
-            dataSource: { data: freqData.results },
+            //dataSource: { data: freqData.results },
+            dataSource: { data: myData },
             categoryAxis: {
                 field: "attribute"
             },
@@ -350,7 +386,7 @@
                 GoToFreqListPieAndBar(e);
             },
             chartArea: {
-                height: 250
+                height: chartHeight
             },
             tooltip: {
                 visible: true,
@@ -360,19 +396,27 @@
     }
 
 
+
+
     function BuildPie() {
-        
+        $("#BuildBarShowNOA").hide();
+        $("#BuildBarHideNOA").hide();
+
         let myData = [];
         // remove all of the rows that have zero values
         for (var i = freqData.results.length - 1; i >= 0; i--) {
             if (freqData.results[i].itemCount > 0) {
-                //console.log("adding: ", freqData.results[i]);
-                myData.push(freqData.results[i]);
-                //data.results.splice(i, 1);
+                myData.push(freqData.results[i]);  
             }
         }
         if (myData.length == 0) return;
-        //var lastRow = myData.length - 1;
+
+        for (var i = 0; i < myData.length; i++) {
+            // shorten codes names that are stupid long
+            if (myData[i].attribute.length > 60) {
+                myData[i].attribute = myData[i].attribute.substring(0, 60) + "...";
+            }
+        }
 
         // remove the last row if it is 'none of the above'
         if (myData[0].attributeId == -999999) {
@@ -381,9 +425,21 @@
 
         var legendPostion = "right";
         var chartHeight = 250;
+
+        var ele = document.getElementById("VisualsDiv"), // Do not use #
+            eleStyle = window.getComputedStyle(ele);
+        /* Below is the width of ele */
+        var eleWidth = parseInt(eleStyle.width.replace("px", ""));
+
+        //if (eleWidth <= 768) {
+        if (eleWidth <= 570) {
+            legendPostion = "bottom";
+            chartHeight = 400;
+        }
+
         if (myData.length > 20) {
             legendPostion = "bottom";
-            chartHeight = 600;
+            chartHeight = 400;
         }
 
         $("#FrequenciesGrid").hide();
@@ -418,7 +474,13 @@
                         visual: function (e) {
                             var color = e.options.markers.background;
                             var labelColor = e.options.labels.color;
-                            var rect = new kendo.geometry.Rect([0, 0], [200, 50]);
+
+                            var rect = new kendo.geometry.Rect([0, 0], [400, 50]);
+                            if (eleWidth <= 570) {
+                                rect = new kendo.geometry.Rect([0, 0], [400, 100]);
+                            }
+
+
                             var layout = new kendo.drawing.Layout(rect, {
                                 spacing: 10
                             });
@@ -437,7 +499,8 @@
                                     fill: { color: color }
                                 });
 
-                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].attribute, [0, 0], {
+                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].attribute + " (" +
+                                    e.series.data[e.pointIndex].itemCount + ")", [0, 0], {
                                     fill: {
                                         color: labelColor
                                     }
@@ -493,7 +556,12 @@
     function GetFreqLinkContent(attId, count, attName) {
         //console.log("GetFreqLinkContent", attId, count, attName);
         if (count == 0) return "0";
-        else return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
+        else {
+            var name = attName.replaceAll('\'', '\\\'');
+            name = name.replaceAll('\"', '%22');
+            //return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
+            return '<a href="javascript:GoToItems(' + attId + ', \'' + name + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
+        }
     }
 
     function GoToCrosstab(isSelfXtab) {
@@ -1070,12 +1138,24 @@
                                 </tr>
                             </table>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body" id="VisualsDiv">
 
 
 
 
                             <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
+                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar(0)" id="BuildBarHideNOA">
+                                <span class="btn-label">
+                                    <i class="fa fa-chart-bar"></i>
+                                </span>
+                                Remove last row
+                            </button>
+                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar(1)" id="BuildBarShowNOA">
+                                <span class="btn-label">
+                                    <i class="fa fa-chart-bar"></i>
+                                </span>
+                                Show uncoded
+                            </button>
                             <div id="NoCodedRecords">No coded records</div>
                             <div id="FrequenciesGrid"></div>
 
