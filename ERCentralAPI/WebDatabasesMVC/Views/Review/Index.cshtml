@@ -557,7 +557,7 @@
         //console.log("GetFreqLinkContent", attId, count, attName);
         if (count == 0) return "0";
         else {
-            var name = attName.replaceAll('\'', '\\\'');
+            var name = attName.replaceAll('\'', '\\\'').toString();
             name = name.replaceAll('\"', '%22');
             //return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
             return '<a href="javascript:GoToItems(' + attId + ', \'' + name + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
@@ -761,7 +761,7 @@
                     attributes: {
                         style: "font-size:12px;color:rgb(0,123,255);"
                     },
-                    template: "<a href='\\#' class='link' onclick='GoToYearListTable(\"#=year#\")'>#=count#</a>"
+                    template: "<a href='\\#' class='link' onclick='GoToYearListTable(\"#=year.replaceAll('\"', '↖').replaceAll('\\\'', '↗').toString()#\")'>#=count#</a>"
                 }],
             dataSource: {
                 transport: {
@@ -825,7 +825,7 @@
     }
 
     function GoToYearListTable(year) {
-        //if (year == "Unknown") year = "'    ' OR '0   '";
+        year = year.replaceAll('↖', '"').replaceAll("↗", "'");
         postwith("../ItemList/GetListSearchResults", {
             SearchString: year
             , SearchWhat: "PubYear"
@@ -1261,56 +1261,7 @@
                             <div id="YearFrequenciesGrid" style="max-width:300px"></div>
                         </div>
                     </div>
-                    @*<div class="card ">
-                        <div class="card-header">
-                            <table>
-                                <tr>
-                                    <td>
-                                        <div class="card-title">Crosstabs</div>
-                                    </td>
-                                    <td style="padding: 0px 0px 0px 25px;">
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">
-                                            <span class="btn-label">
-                                                <i class="fa fa-table"></i>
-                                            </span>&nbsp;Full Crosstab
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <div class="card-body">
-                            <table>
-                                <tr>
-                                    <td style="padding: 0px 0px 10px 0px;">
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">
-                                            <span class="btn-label">
-                                                <i class="fa fa-table"></i>
-                                            </span>&nbsp;Self Crosstab
-                                        </button>
-                                    </td>
-                                    <td style="padding: 0px 0px 10px 0px;">
-                                        <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeNameCT"></div>
-                                    </td>
-                                </tr>
-                            </table>
-                            <table>
-                                <tr>
-                                    <td>
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="SetXAxis()" disabled id="CurrentNodeSetXAxis">Set X axis</button>
-                                    </td>
-                                    <td>
-                                        <div class="my-auto"><span id="x_axis_name" class="m-1"></span></div>
-                                    </td>
-                                </tr>
-                            </table>
-                            <div class="row m-0" id="x_axis_setting" style="display:none;">
-
-
-                            </div>
-                        </div>
-                    </div>*@
-
+                    
 
                     <div class="card ">
                         <div class="card-header p-2">
