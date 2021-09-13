@@ -346,7 +346,9 @@
             myData.push(freqData.results[i]);
             // shorten codes names that are stupid long
             if (myData[i].attribute.length > 60) {
-                myData[i].attribute = myData[i].attribute.substring(0, 60) + "...";
+                myData[i].shortName = myData[i].attribute.substring(0, 60) + "...";
+            } else {
+                myData[i].shortName = myData[i].attribute;
             }
         }
 
@@ -374,7 +376,7 @@
             //dataSource: { data: freqData.results },
             dataSource: { data: myData },
             categoryAxis: {
-                field: "attribute"
+                field: "shortName"
             },
             series: [
                 { field: "itemCount" }
@@ -390,7 +392,7 @@
             },
             tooltip: {
                 visible: true,
-                template: "#= HTMLEncodeText(category) #: #= value # records"
+                template: "#= HTMLEncodeText(dataItem.attribute) #: #= value # records"
             }
         });
     }
@@ -414,7 +416,9 @@
         for (var i = 0; i < myData.length; i++) {
             // shorten codes names that are stupid long
             if (myData[i].attribute.length > 60) {
-                myData[i].attribute = myData[i].attribute.substring(0, 60) + "...";
+                myData[i].shortName = myData[i].attribute.substring(0, 60) + "...";
+            } else {
+                myData[i].shortName = myData[i].attribute;
             }
         }
 
@@ -462,12 +466,12 @@
                 },
                 series: [{
                     field: "itemCount",
-                    categoryField: "attribute",
+                    categoryField: "shortName",
                     padding: 0
                 }],
                 tooltip: {
                     visible: true,
-                    template: "#= HTMLEncodeText(category) #: #= value # records"
+                    template: "#= HTMLEncodeText(dataItem.attribute) #: #= value # records"
                 },
                 legend: {
                     item: {
@@ -499,7 +503,7 @@
                                     fill: { color: color }
                                 });
 
-                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].attribute + " (" +
+                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].shortName + " (" +
                                     e.series.data[e.pointIndex].itemCount + ")", [0, 0], {
                                     fill: {
                                         color: labelColor
