@@ -62,12 +62,13 @@
                 innerHtml += "<div class=\"col text-left border-bottom\">" + HTMLEncodeText(itm.attribute) + "</div>";
                 innerHtml += "<div class=\"col text-left border-bottom\">";
             }
-            if (itm.itemCount == 0)
-            {
+            
+            if (itm.itemCount == 0) {
                 innerHtml += '<text>0</text>';
             }
-            
-            innerHtml += "<a href=\"javascript:GotoItemsTable(" + itm.attributeId + ")\">" + itm.itemCount + "</a>";
+            else {
+                innerHtml += "<a href=\"javascript:GotoItemsTable(" + itm.attributeId + ")\">" + itm.itemCount + "</a>";
+            }
             
             innerHtml += "</div></div>";
         }
