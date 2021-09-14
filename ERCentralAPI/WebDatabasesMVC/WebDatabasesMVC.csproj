@@ -71,6 +71,8 @@
 
     <Compile Include="..\ERxWebClient2\Models\WebDbItemSet.cs" Link="Models\WebDbItemSet.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbItemSetList.cs" Link="Models\WebDbItemSetList.cs" />
+    <Compile Include="..\ERxWebClient2\Models\WebDbMap.cs" Link="Models\WebDbMap.cs" />
+    <Compile Include="..\ERxWebClient2\Models\WebDbMapList.cs" Link="Models\WebDbMapList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReadOnlyItemAttributeList.cs" Link="Models\WebDbReadOnlyItemAttributeList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReviewSet.cs" Link="Models\WebDbReviewSet.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReviewSetsList.cs" Link="Models\WebDbReviewSetsList.cs" />

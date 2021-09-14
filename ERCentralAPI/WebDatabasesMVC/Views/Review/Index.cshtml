@@ -32,6 +32,8 @@
     var dataItemMapYaxis = null;
     var dataItemMapSegments = null;
     var freqData = null;
+    let MapsData = null;
+
     function Buildnode(attr) {
         var nodes = [];
 
@@ -82,6 +84,9 @@
                             nodes.push(nd);
                         }
                         GetYearsFreqs();//getting the years chart after the codes...
+                        setTimeout(function () {
+                            GetMaps();
+                        }, 150); //don't like multiple requests to be fired all at once!
                         return nodes;
                     }
                 }
@@ -319,7 +324,7 @@
                         freqData = data;
                         BuildPie();
                     }
-                })
+                });
         }
         else {
             $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
@@ -697,8 +702,7 @@
             //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
         }
     }
-    
-
+        
     function GetYearsFreqs() {
         $("#chartByYear").show();
         $("#YearFrequenciesGrid").hide();
@@ -946,8 +950,36 @@
                 $("#CurrentNodeGoToMap").prop("disabled", false);
         }
     }
-    //var treeviewData = $("#treeView").data("kendoTreeView");
-    //treeview.bind("change", TreeViewSelection);
+
+    function GetMaps() {
+        $("#MapsSpinner").show();
+        $.get("../Review/MapsListJSON", ""
+            , function (data, result) {
+                $("#MapsSpinner").hide();
+                if (result == "success") {
+                    MapsData = data;
+                    BuildMapsTable();
+                }
+            });
+    }
+    function BuildMapsTable() {
+        console.log("got Maps Data", MapsData);
+        if (MapsData != null && MapsData.length > 0) {
+            let content = "";
+            for (let map of MapsData) {
+                content += "<div class='col-12 m-1 p-1 border rounded row'><h5 class='col'>" + map.webDBMapName + "</h5>"
+                    + "<div class='col-auto'><button class='btn btn-primary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId + ")' id='CurrentNodeGoToFreqSB'>Open Map</button></div>"
+                    + "<div class='col-12 m-0 p-0'>" + map.webDBMapDescription + "</div>"
+                    + "</div>";
+            }
+            $("#MapsCardBody").html(content);
+            $("#MapsCard").show();
+        }
+    }
+    function GetMap(mapId) {
+        console.log("Will go to map:" + mapId);
+        postwith("../Frequencies/GetMapById", { mapId: mapId });
+    }
 </script>
 
 
@@ -1180,7 +1212,13 @@
                         </div>
                     </div>
 
-
+                    <div class="card" id="MapsCard" style="display:none;">
+                        <div class="card-header font-weight-bold">
+                            Pre-configured Maps:
+                        </div>
+                        <div class="card-body" id="MapsCardBody">
+                        </div>
+                    </div>
 
                     @*@if (@imgMapPath1 != "")
                     {

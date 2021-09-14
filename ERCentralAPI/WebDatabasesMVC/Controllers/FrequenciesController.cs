@@ -224,7 +224,42 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
+        public IActionResult GetMapById([FromForm] int mapId)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetMapById, no WebDbId!");
+                        return Unauthorized();
+                    }
+
+                    WebDbMap map = DataPortal.Fetch<WebDbMap>(new WebDBMapCriteria(DBid, mapId));
+                    if (map == null || map.WebDBMapId < 1)
+                    {
+                        _logger.LogError("Error in GetMapById, no such map! MapId: " + mapId);
+                        return Unauthorized();
+                    }
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria crit 
+                        = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, map.ColumnsAttributeID, map.ColumnsSetID
+                            , map.ColumnsPublicAttributeName != "" ? map.ColumnsPublicAttributeName : map.ColumnsPublicSetName, "true"
+                            , "bubble", 0, map.RowsAttributeID, map.RowsSetID
+                            , map.RowsPublicAttributeName != "" ? map.RowsPublicAttributeName : map.RowsPublicSetName
+                            , map.SegmentsAttributeID, map.SegmentsSetID);
+                    return View("GetMap", crit);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetMapById");
+                return StatusCode(500, e.Message);
+            }
+        }
+
     }
     public class WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC
     {

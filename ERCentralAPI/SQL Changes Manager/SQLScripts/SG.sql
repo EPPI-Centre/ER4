@@ -68,59 +68,65 @@ CREATE or ALTER PROCEDURE [dbo].[st_WebDbMapAdd]
 (
 	@REVIEW_ID INT,
 	@WEBDB_ID int,
-	@ColumnsPublicSetID int,
-	@ColumnsPublicAttributeID int,
-	@RowsPublicSetID int,
-	@RowsPublicAttributeID int,
-	@SegmentsPublicSetID int,
-	@SegmentsPublicAttributeID int,
+	@ColumnsSetID int,
+	@ColumnsAttributeID int,
+	@RowsSetID int,
+	@RowsAttributeID int,
+	@SegmentsSetID int,
+	@SegmentsAttributeID int,
 	@MapName nvarchar(1000),
 	@MapDescription nvarchar(max),
 	@WEBDB_MAP_ID int output
 )
 As
---first, check that all parameters match up...
-declare @check int = (select review_set_id from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_SET rs 
-							on rs.WEBDB_PUBLIC_SET_ID = @ColumnsPublicSetID and w.REVIEW_ID = @REVIEW_ID and rs.WEBDB_ID = w.WEBDB_ID 
-							and w.WEBDB_ID = @WEBDB_ID 
+--first, check that all parameters match up and get the value we need...
+declare @ColumnsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @ColumnsSetID
 						)
-IF @check is null OR @check < 1 return
+IF @ColumnsPublicSetID is null OR @ColumnsPublicSetID < 1 return
 
-set @check = (select review_set_id from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_SET rs 
-							on rs.WEBDB_PUBLIC_SET_ID = @RowsPublicSetID and w.REVIEW_ID = @REVIEW_ID and rs.WEBDB_ID = w.WEBDB_ID 
-							and w.WEBDB_ID = @WEBDB_ID 
+declare @RowsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @RowsSetID
 						)
-IF @check is null OR @check < 1 return
+IF @RowsPublicSetID is null OR @RowsPublicSetID < 1 return
 
-set @check = (select review_set_id from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_SET rs 
-							on rs.WEBDB_PUBLIC_SET_ID = @SegmentsPublicSetID and w.REVIEW_ID = @REVIEW_ID and rs.WEBDB_ID = w.WEBDB_ID 
-							and w.WEBDB_ID = @WEBDB_ID 
+declare @SegmentsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @SegmentsSetID
 						)
-IF @check is null OR @check < 1 return
+IF @SegmentsPublicSetID is null OR @SegmentsPublicSetID < 1 return
 
-set @check = (select a.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
-							on a.WEBDB_PUBLIC_ATTRIBUTE_ID = @ColumnsPublicAttributeID and w.REVIEW_ID = @REVIEW_ID and a.WEBDB_ID = w.WEBDB_ID 
+declare @ColumnsPublicAttributeID int = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
 							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @ColumnsAttributeID
 						)
-IF @check is null OR @check < 1 return
+IF @ColumnsPublicAttributeID is null OR @ColumnsPublicAttributeID < 1 return
 
-set @check = (select a.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
-							on a.WEBDB_PUBLIC_ATTRIBUTE_ID = @RowsPublicAttributeID and w.REVIEW_ID = @REVIEW_ID and a.WEBDB_ID = w.WEBDB_ID 
+declare @RowsPublicAttributeID int = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
 							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @RowsAttributeID
 						)
-IF @check is null OR @check < 1 return
+IF @RowsPublicAttributeID is null OR @RowsPublicAttributeID < 1 return
 
-set @check = (select a.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
-							on a.WEBDB_PUBLIC_ATTRIBUTE_ID = @SegmentsPublicAttributeID and w.REVIEW_ID = @REVIEW_ID and a.WEBDB_ID = w.WEBDB_ID 
+declare @SegmentsPublicAttributeID int = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
 							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @SegmentsAttributeID
 						)
-IF @check is null OR @check < 1 return
+IF @SegmentsPublicAttributeID is null OR @SegmentsPublicAttributeID < 1 return
 --OK, all checks match up, phew
 
 
@@ -154,64 +160,64 @@ CREATE or ALTER PROCEDURE [dbo].[st_WebDbMapEdit]
 	@REVIEW_ID INT,
 	@WEBDB_ID int,
 	@WEBDB_MAP_ID int,
-	@ColumnsPublicSetID int,
-	@ColumnsPublicAttributeID int,
-	@RowsPublicSetID int,
-	@RowsPublicAttributeID int,
-	@SegmentsPublicSetID int,
-	@SegmentsPublicAttributeID int,
+	@ColumnsSetID int,
+	@ColumnsAttributeID int,
+	@RowsSetID int,
+	@RowsAttributeID int,
+	@SegmentsSetID int,
+	@SegmentsAttributeID int,
 	@MapName nvarchar(1000),
 	@MapDescription nvarchar(max)
 )
 As
---first, check that all parameters match up...
-declare @check int = (select m.WEBDB_MAP_ID from TB_WEBDB w
-						inner join TB_WEBDB_MAP m
-							on m.WEBDB_MAP_ID = @WEBDB_MAP_ID and w.REVIEW_ID = @REVIEW_ID and m.WEBDB_ID = w.WEBDB_ID 
-							and w.WEBDB_ID = @WEBDB_ID 
+--first, check that all parameters match up and get the value we need...
+declare @ColumnsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @ColumnsSetID
 						)
-IF @check is null OR @check < 1 return
+IF @ColumnsPublicSetID is null OR @ColumnsPublicSetID < 1 return
 
-set @check = (select review_set_id from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_SET rs 
-							on rs.WEBDB_PUBLIC_SET_ID = @ColumnsPublicSetID and w.REVIEW_ID = @REVIEW_ID and rs.WEBDB_ID = w.WEBDB_ID 
-							and w.WEBDB_ID = @WEBDB_ID 
+declare @RowsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @RowsSetID
 						)
-IF @check is null OR @check < 1 return
-set @check = (select review_set_id from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_SET rs 
-							on rs.WEBDB_PUBLIC_SET_ID = @RowsPublicSetID and w.REVIEW_ID = @REVIEW_ID and rs.WEBDB_ID = w.WEBDB_ID 
-							and w.WEBDB_ID = @WEBDB_ID 
-						)
-IF @check is null OR @check < 1 return
+IF @RowsPublicSetID is null OR @RowsPublicSetID < 1 return
 
-set @check = (select review_set_id from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_SET rs 
-							on rs.WEBDB_PUBLIC_SET_ID = @SegmentsPublicSetID and w.REVIEW_ID = @REVIEW_ID and rs.WEBDB_ID = w.WEBDB_ID 
-							and w.WEBDB_ID = @WEBDB_ID 
+declare @SegmentsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @SegmentsSetID
 						)
-IF @check is null OR @check < 1 return
+IF @SegmentsPublicSetID is null OR @SegmentsPublicSetID < 1 return
 
-set @check = (select a.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
-							on a.WEBDB_PUBLIC_ATTRIBUTE_ID = @ColumnsPublicAttributeID and w.REVIEW_ID = @REVIEW_ID and a.WEBDB_ID = w.WEBDB_ID 
+declare @ColumnsPublicAttributeID int = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
 							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @ColumnsAttributeID
 						)
-IF @check is null OR @check < 1 return
+IF @ColumnsPublicAttributeID is null OR @ColumnsPublicAttributeID < 1 return
 
-set @check = (select a.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
-							on a.WEBDB_PUBLIC_ATTRIBUTE_ID = @RowsPublicAttributeID and w.REVIEW_ID = @REVIEW_ID and a.WEBDB_ID = w.WEBDB_ID 
+declare @RowsPublicAttributeID int = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
 							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @RowsAttributeID
 						)
-IF @check is null OR @check < 1 return
+IF @RowsPublicAttributeID is null OR @RowsPublicAttributeID < 1 return
 
-set @check = (select a.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
-							on a.WEBDB_PUBLIC_ATTRIBUTE_ID = @SegmentsPublicAttributeID and w.REVIEW_ID = @REVIEW_ID and a.WEBDB_ID = w.WEBDB_ID 
+declare @SegmentsPublicAttributeID int = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
 							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @SegmentsAttributeID
 						)
-IF @check is null OR @check < 1 return
+IF @SegmentsPublicAttributeID is null OR @SegmentsPublicAttributeID < 1 return
 --OK, all checks match up, phew
 
 UPDATE TB_WEBDB_MAP set 
@@ -247,3 +253,157 @@ delete from TB_WEBDB_MAP
      where WEBDB_MAP_ID = @WEBDB_MAP_ID and WEBDB_ID = @WEBDB_ID
 
 GO
+
+CREATE or ALTER PROCEDURE [dbo].[st_WebDbMapsList]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int
+)
+As
+--first, check that all parameters match up...
+declare @check int = (select WEBDB_ID from TB_WEBDB w
+						where w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID 
+						)
+IF @check is null OR @check < 1 return
+--OK, all checks match up, phew
+
+select m.*, s1.SET_ID as [COLUMNS_SET_ID], s2.SET_ID as [ROWS_SET_ID], s3.SET_ID as [SEGMENTS_SET_ID]
+	, a1.ATTRIBUTE_ID as [COLUMNS_ATTRIBUTE_ID], a2.ATTRIBUTE_ID as [ROWS_ATTRIBUTE_ID], a3.ATTRIBUTE_ID as [SEGMENTS_ATTRIBUTE_ID]
+	, CASE when (ps1.WEBDB_SET_NAME = '' OR ps1.WEBDB_SET_NAME is null) then s1.SET_NAME
+		else ps1.WEBDB_SET_NAME
+	END as COLUMNS_SET_NAME
+	, CASE when (ps2.WEBDB_SET_NAME = '' OR ps2.WEBDB_SET_NAME is null) then s2.SET_NAME
+		else ps2.WEBDB_SET_NAME
+	END as ROWS_SET_NAME
+	, CASE when (ps3.WEBDB_SET_NAME = '' OR ps3.WEBDB_SET_NAME is null) then s3.SET_NAME
+		else ps3.WEBDB_SET_NAME
+	END as SEGMENTS_SET_NAME
+
+	, CASE when (pa1.WEBDB_ATTRIBUTE_NAME = '' OR pa1.WEBDB_ATTRIBUTE_NAME is null) then a1.ATTRIBUTE_NAME
+		else pa1.WEBDB_ATTRIBUTE_NAME
+	END as COLUMNS_ATTRIBUTE_NAME
+	, CASE when (pa2.WEBDB_ATTRIBUTE_NAME = '' OR pa2.WEBDB_ATTRIBUTE_NAME is null) then a2.ATTRIBUTE_NAME
+		else pa2.WEBDB_ATTRIBUTE_NAME
+	END as ROWS_ATTRIBUTE_NAME
+	, CASE when (pa3.WEBDB_ATTRIBUTE_NAME = '' OR pa3.WEBDB_ATTRIBUTE_NAME is null) then a3.ATTRIBUTE_NAME
+		else pa3.WEBDB_ATTRIBUTE_NAME
+	END as SEGMENTS_ATTRIBUTE_NAME
+
+
+	from TB_WEBDB_MAP m
+	inner join TB_WEBDB_PUBLIC_SET ps1 on m.COLUMNS_PUBLIC_SET_ID = ps1.WEBDB_PUBLIC_SET_ID and ps1.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs1 on ps1.REVIEW_SET_ID = rs1.REVIEW_SET_ID and rs1.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s1 on rs1.SET_ID = s1.SET_ID
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa1 on m.COLUMNS_PUBLIC_ATTRIBUTE_ID = pa1.WEBDB_PUBLIC_ATTRIBUTE_ID
+	inner join TB_ATTRIBUTE a1 on pa1.ATTRIBUTE_ID = a1.ATTRIBUTE_ID
+
+	inner join TB_WEBDB_PUBLIC_SET ps2 on m.ROWS_PUBLIC_SET_ID = ps2.WEBDB_PUBLIC_SET_ID and ps2.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs2 on ps2.REVIEW_SET_ID = rs2.REVIEW_SET_ID and rs2.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s2 on rs2.SET_ID = s2.SET_ID
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on m.ROWS_PUBLIC_ATTRIBUTE_ID = pa2.WEBDB_PUBLIC_ATTRIBUTE_ID
+	inner join TB_ATTRIBUTE a2 on pa2.ATTRIBUTE_ID = a2.ATTRIBUTE_ID
+
+	inner join TB_WEBDB_PUBLIC_SET ps3 on m.SEGMENTS_PUBLIC_SET_ID = ps3.WEBDB_PUBLIC_SET_ID and ps3.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs3 on ps3.REVIEW_SET_ID = rs3.REVIEW_SET_ID and rs3.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s3 on rs3.SET_ID = s3.SET_ID
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa3 on m.SEGMENTS_PUBLIC_ATTRIBUTE_ID = pa3.WEBDB_PUBLIC_ATTRIBUTE_ID
+	inner join TB_ATTRIBUTE a3 on pa3.ATTRIBUTE_ID = a3.ATTRIBUTE_ID
+    where m.WEBDB_ID = @WEBDB_ID
+
+GO
+
+CREATE or ALTER PROCEDURE [dbo].[st_WebDbMap]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@WEBDB_MAP_ID INT
+)
+As
+--first, check that all parameters match up...
+declare @check int = (select WEBDB_ID from TB_WEBDB w
+						where w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID 
+						)
+IF @check is null OR @check < 1 return
+--OK, all checks match up, phew
+
+select m.*, s1.SET_ID as [COLUMNS_SET_ID], s2.SET_ID as [ROWS_SET_ID], s3.SET_ID as [SEGMENTS_SET_ID]
+	, a1.ATTRIBUTE_ID as [COLUMNS_ATTRIBUTE_ID], a2.ATTRIBUTE_ID as [ROWS_ATTRIBUTE_ID], a3.ATTRIBUTE_ID as [SEGMENTS_ATTRIBUTE_ID]
+	, CASE when (ps1.WEBDB_SET_NAME = '' OR ps1.WEBDB_SET_NAME is null) then s1.SET_NAME
+		else ps1.WEBDB_SET_NAME
+	END as COLUMNS_SET_NAME
+	, CASE when (ps2.WEBDB_SET_NAME = '' OR ps2.WEBDB_SET_NAME is null) then s2.SET_NAME
+		else ps2.WEBDB_SET_NAME
+	END as ROWS_SET_NAME
+	, CASE when (ps3.WEBDB_SET_NAME = '' OR ps3.WEBDB_SET_NAME is null) then s3.SET_NAME
+		else ps3.WEBDB_SET_NAME
+	END as SEGMENTS_SET_NAME
+
+	, CASE when (pa1.WEBDB_ATTRIBUTE_NAME = '' OR pa1.WEBDB_ATTRIBUTE_NAME is null) then a1.ATTRIBUTE_NAME
+		else pa1.WEBDB_ATTRIBUTE_NAME
+	END as COLUMNS_ATTRIBUTE_NAME
+	, CASE when (pa2.WEBDB_ATTRIBUTE_NAME = '' OR pa2.WEBDB_ATTRIBUTE_NAME is null) then a2.ATTRIBUTE_NAME
+		else pa2.WEBDB_ATTRIBUTE_NAME
+	END as ROWS_ATTRIBUTE_NAME
+	, CASE when (pa3.WEBDB_ATTRIBUTE_NAME = '' OR pa3.WEBDB_ATTRIBUTE_NAME is null) then a3.ATTRIBUTE_NAME
+		else pa3.WEBDB_ATTRIBUTE_NAME
+	END as SEGMENTS_ATTRIBUTE_NAME
+
+	from TB_WEBDB_MAP m
+	inner join TB_WEBDB_PUBLIC_SET ps1 on m.COLUMNS_PUBLIC_SET_ID = ps1.WEBDB_PUBLIC_SET_ID and ps1.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs1 on ps1.REVIEW_SET_ID = rs1.REVIEW_SET_ID and rs1.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s1 on rs1.SET_ID = s1.SET_ID
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa1 on m.COLUMNS_PUBLIC_ATTRIBUTE_ID = pa1.WEBDB_PUBLIC_ATTRIBUTE_ID
+	inner join TB_ATTRIBUTE a1 on pa1.ATTRIBUTE_ID = a1.ATTRIBUTE_ID
+
+	inner join TB_WEBDB_PUBLIC_SET ps2 on m.ROWS_PUBLIC_SET_ID = ps2.WEBDB_PUBLIC_SET_ID and ps2.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs2 on ps2.REVIEW_SET_ID = rs2.REVIEW_SET_ID and rs2.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s2 on rs2.SET_ID = s2.SET_ID
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on m.ROWS_PUBLIC_ATTRIBUTE_ID = pa2.WEBDB_PUBLIC_ATTRIBUTE_ID
+	inner join TB_ATTRIBUTE a2 on pa2.ATTRIBUTE_ID = a2.ATTRIBUTE_ID
+
+	inner join TB_WEBDB_PUBLIC_SET ps3 on m.SEGMENTS_PUBLIC_SET_ID = ps3.WEBDB_PUBLIC_SET_ID and ps3.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs3 on ps3.REVIEW_SET_ID = rs3.REVIEW_SET_ID and rs3.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s3 on rs3.SET_ID = s3.SET_ID
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa3 on m.SEGMENTS_PUBLIC_ATTRIBUTE_ID = pa3.WEBDB_PUBLIC_ATTRIBUTE_ID
+	inner join TB_ATTRIBUTE a3 on pa3.ATTRIBUTE_ID = a3.ATTRIBUTE_ID
+     where WEBDB_MAP_ID = @WEBDB_MAP_ID
+
+GO
+
+
+
+--to be commented out!
+INSERT INTO [TB_WEBDB_MAP]
+           ([WEBDB_ID]
+           ,[COLUMNS_PUBLIC_ATTRIBUTE_ID]
+           ,[COLUMNS_PUBLIC_SET_ID]
+           ,[ROWS_PUBLIC_ATTRIBUTE_ID]
+           ,[ROWS_PUBLIC_SET_ID]
+           ,[SEGMENTS_PUBLIC_ATTRIBUTE_ID]
+           ,[SEGMENTS_PUBLIC_SET_ID]
+           ,[MAP_NAME]
+           ,[MAP_DESCRIPTION])
+     VALUES
+           (2,4551,46,4565, 46, 4547, 46, 'my first map', 'yep, <strong>the first</strong>!! <p>I''m not joking, although this gets <u>recreated</u> by a script.</p>')
+
+INSERT INTO [TB_WEBDB_MAP]
+           ([WEBDB_ID]
+           ,[COLUMNS_PUBLIC_ATTRIBUTE_ID]
+           ,[COLUMNS_PUBLIC_SET_ID]
+           ,[ROWS_PUBLIC_ATTRIBUTE_ID]
+           ,[ROWS_PUBLIC_SET_ID]
+           ,[SEGMENTS_PUBLIC_ATTRIBUTE_ID]
+           ,[SEGMENTS_PUBLIC_SET_ID]
+           ,[MAP_NAME]
+           ,[MAP_DESCRIPTION])
+     VALUES
+           (2,4528,13,4529, 13, 1440, 13, 'my 2nd map', 'yep, <strong>the second</strong>!! <p>I''m not joking, although this gets <u>recreated</u> by a script.</p>')
+--END OF: to be commented out!
+
+
+GO
+
+
+
+
+
