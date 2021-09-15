@@ -101,7 +101,7 @@
             $("#ExpandDescription").show();
             $("#ReduceDescription").hide();
             $("#HideDescriptionDiv").show();
-            $("#ShowDescriptionDiv").hide();           
+            $("#ShowDescriptionDiv").hide();
             descrPanel.css("max-height", "250px");
         } else {
             $("#ExpandDescription").hide();
@@ -136,7 +136,7 @@
         const descrShowHideIcon = $("#ShowHideDescriptionDivIcon");
         if (descrPanel) {
             descrPanel.css("max-height", "250px");
-            if (descrShowHideIcon[0].className == "fa fa-plus") {                
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
                 $("#ExpandDescription").show();
                 $("#ReduceDescription").hide();
                 $("#WebDBDescriptionBody").show();
@@ -150,6 +150,29 @@
             }
         }
     }
+
+    function HideShowMapDescriptionDiv(ID) {
+
+        var WebDBMapDescription = 'WebDBMapDescription' + ID;
+        var WebDBMapDescriptionBody = 'WebDBMapDescriptionBody' + ID;
+        var ShowHideMapDescriptionDivIcon = 'ShowHideMapDescriptionDivIcon' + ID;
+
+        const descrPanel = $("#" + WebDBMapDescription);
+        const descrShowHideIcon = $("#" + ShowHideMapDescriptionDivIcon);
+        if (descrPanel) {
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
+                $("#" + WebDBMapDescriptionBody).show();
+                $("#" + ShowHideMapDescriptionDivIcon)[0].className = "fa fa-minus";
+                descrPanel.css("max-height", "300px");
+            }
+            else {
+                $("#" + WebDBMapDescriptionBody).hide();
+                $("#" + ShowHideMapDescriptionDivIcon)[0].className = "fa fa-plus";
+                descrPanel.css("max-height", "0px");
+            }
+        }
+    }
+
 
 
     function tree_dataBound(e) {
@@ -214,10 +237,10 @@
                         $("#FrequenciesGrid").html("");
                     }
                 })
-            
+
         }
     }
-    
+
     function BuildFreqs() {
         $("#BarOrPieChartVisible").hide();
         $("#FrequenciesGrid").show();
@@ -250,9 +273,9 @@
             dataSource: freqData.results,
             height: desiredHeight
         });
-        
+
     }
-    
+
     function GetFreqsBar(showNoneOfTheAbove) {
         if (!dataItem) {
             //console.log("GetFreqs no data");
@@ -260,9 +283,9 @@
         } else if (
             freqData != null
             && (
-            (dataItem.isCodeset == false && dataItem.id == freqData.criteria.attributeIdXAxis)//it's a code, compare attributeIDs
-            ||
-            (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
+                (dataItem.isCodeset == false && dataItem.id == freqData.criteria.attributeIdXAxis)//it's a code, compare attributeIDs
+                ||
+                (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
             )
         ) {
             BuildBar(showNoneOfTheAbove);
@@ -413,7 +436,7 @@
         // remove all of the rows that have zero values
         for (var i = freqData.results.length - 1; i >= 0; i--) {
             if (freqData.results[i].itemCount > 0) {
-                myData.push(freqData.results[i]);  
+                myData.push(freqData.results[i]);
             }
         }
         if (myData.length == 0) return;
@@ -454,10 +477,10 @@
         $("#FrequenciesGrid").hide();
 
         if (myData.length != 0) {
-            $("#BarOrPieChartVisible").show();          
+            $("#BarOrPieChartVisible").show();
             $("#FrequenciesChart").show();
-            $("#NoCodedRecords").hide();           
-            
+            $("#NoCodedRecords").hide();
+
             $("#FrequenciesChart").kendoChart({
                 dataSource: { data: myData },
                 chartArea: {
@@ -543,7 +566,7 @@
         chart.exportImage().done(function (data) {
             kendo.saveAs({
                 dataURI: data,
-                fileName: dataItem.text 
+                fileName: dataItem.text
                 /*, proxyURL: "https://demos.telerik.com/kendo-ui/service/export"*/
             });
         });
@@ -560,7 +583,7 @@
         });
     };
 
-    
+
 
     function GetFreqLinkContent(attId, count, attName) {
         //console.log("GetFreqLinkContent", attId, count, attName);
@@ -702,7 +725,7 @@
             //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
         }
     }
-        
+
     function GetYearsFreqs() {
         $("#chartByYear").show();
         $("#YearFrequenciesGrid").hide();
@@ -747,12 +770,12 @@
         $("#BarByYearChartVisible").hide();
         $("#YearFreqTable").prop("disabled", true);
         $("#YearFreq").prop("disabled", false);
-        
+
         $("#YearFrequenciesGrid").kendoGrid({
             columns: [
                 {
                     field: "year",
-                    title: "Year",                       
+                    title: "Year",
                     headerAttributes: {
                         style: "font-size:12px;font-weight:bold"
                     },
@@ -779,7 +802,7 @@
                     }
                 }
             }
-        });      
+        });
     }
 
 
@@ -852,7 +875,7 @@
 
     function GoToFreqListPieAndBar(dataItem) {
         GoToItems(dataItem.dataItem.attributeId, dataItem.dataItem.attribute);
-        
+
     }
 
     function GoToMap() {
@@ -897,7 +920,7 @@
         }
         postwith("../Frequencies/GetMap", pars);
         //postwith("../Frequencies/GetAjaxMap", pars);
-        
+
     }
     function SetMapXAxis() {
         if (!dataItem) {
@@ -967,10 +990,37 @@
         if (MapsData != null && MapsData.length > 0) {
             let content = "";
             for (let map of MapsData) {
+
+                content += "<table width='100%'><tr>";
+                content += "<td style='text-align:left;width:70%'><h4>" + map.webDBMapName + "</h4></td>";
+
+                content += "<td style='text-align:right;'>";
+
+                content += "<div id='ShowHideMapDescriptionDivButton" + map.webDBMapId +
+                    "' class='btn btn-primary btn-sm' onclick='HideShowMapDescriptionDiv(" + map.webDBMapId + ")'>";
+                content += "<div id='ShowHideMapDescriptionDivIcon" + map.webDBMapId + "' class='fa fa-plus'></div>&nbsp;&nbsp;Details</div>";
+
+                content += "</td><td style='text-align:right;'>";
+
+                content += "<div><button class='btn btn-secondary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId
+                    + ")' id='getMapButton" + map.webDBMapId + "'>View map</button></div>";                     
+
+                content += "</td></tr></table>";
+                
+
+                content += "<div class='card-category' id='WebDBMapDescription" + map.webDBMapId + "' style='max-height:0px;overflow-y:auto;'>" +
+                    map.webDBMapDescription + "</div>";
+
+                content += "<hr>";
+
+                @*
                 content += "<div class='col-12 m-1 p-1 border rounded row'><h5 class='col'>" + map.webDBMapName + "</h5>"
-                    + "<div class='col-auto'><button class='btn btn-primary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId + ")' id='CurrentNodeGoToFreqSB'>Open Map</button></div>"
+                    + "<div class='col-auto'><button class='btn btn-primary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId +
+                    ")' id='nothingspecial'>Open Map</button></div>"
                     + "<div class='col-12 m-0 p-0'>" + map.webDBMapDescription + "</div>"
                     + "</div>";
+                *@
+
             }
             $("#MapsCardBody").html(content);
             $("#MapsCard").show();
@@ -998,6 +1048,8 @@
     }
 </style>
 
+
+<!-- Side bar coding tools area -->
 <div class="sidebar sidebar-style-2">
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
@@ -1026,6 +1078,8 @@
 
 <div class="main-panel">
     <div class="content">
+
+        <!-- header area -->
         <div class="panel-header bg-primary-gradient">
             <div class="page-inner py-5">
                 <div class="row">
@@ -1077,9 +1131,13 @@
                 </div>
             </div>
         </div>
+
+        <!-- Everything below header -->
         <div class="page-inner px-2 mt--5">
             <div class="row mx-0 mt--2">
                 <div class="col-12 col-md-7 col-lg-8">
+
+                    <!-- Description card -->
                     <div class="card ">
                         <div class="card-header">
                             <table width="100%">
@@ -1110,14 +1168,27 @@
                             </table>
 
                         </div>
-                        <div class="card-body" id="WebDBDescriptionBody" tooltip="" >
+                        <div class="card-body" id="WebDBDescriptionBody" tooltip="">
                             <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
                                 @(new HtmlString(Model.WebDb.WebDBDescription))
 
                             </div>
                         </div>
                     </div>
+
+                    <!-- Pre-built maps card -->
+                    <div class="card" id="MapsCard" style="display:none;">
+                        <div class="card-header card-title">
+                            Evidence and Gap Maps
+                        </div>
+                        <div class="card-body" id="MapsCardBody">
+                        </div>
+                    </div>
+
+
+                    <!-- Frequency card -->
                     <div class="card ">
+
                         <div class="card-header">
                             <input type="hidden" value="0" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
                             <input type="hidden" value="0" name="setIdXAxis" id="setIdXAxisCrit" />
@@ -1174,11 +1245,8 @@
                                 </tr>
                             </table>
                         </div>
+
                         <div class="card-body" id="VisualsDiv">
-
-
-
-
                             <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
                             <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar(0)" id="BuildBarHideNOA">
                                 <span class="btn-label">
@@ -1195,7 +1263,6 @@
                             <div id="NoCodedRecords">No coded records</div>
                             <div id="FrequenciesGrid"></div>
 
-
                             <script id="FrequenciesTemplate" type="text/x-kendo-tmpl">
                                 <tr class="border border-bottom ">
                                     @*<td>#= attributeId #</td>*@
@@ -1208,54 +1275,18 @@
                                         @*<a href="javascript:GoToItems(#= attributeId #)" style="color: #007bff!important;">#= itemCount #</a>*@
                                     </td>
                                 </tr>
-                            </script>
+</script>
                         </div>
                     </div>
 
-                    <div class="card" id="MapsCard" style="display:none;">
-                        <div class="card-header font-weight-bold">
-                            Pre-configured Maps:
-                        </div>
-                        <div class="card-body" id="MapsCardBody">
-                        </div>
-                    </div>
 
-                    @*@if (@imgMapPath1 != "")
-                    {
-                        <div class="card">
-                            <div class="card-header">
-                                <table width="100%">
-                                    <tr>
-                                        <td>
-                                            <div class="card-title">@(new HtmlString(Model.WebDb.MapTitle))</div>
-                                        </td>
-                                        <td style="text-align:right;padding-top:5px">
-
-                                            <a href="@(new HtmlString(Model.WebDb.MapUrl))" class="btn btn-secondary btn-sm btn-round" target="_blank" title="Go to W3Schools HTML section">
-                                                <span class="btn-label">
-                                                    <i class="fa fa-table"></i>
-                                                </span>&nbsp;View map
-
-                                            </a>
-
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div class="card-body">
-                                <a href="@(new HtmlString(Model.WebDb.MapUrl))" target="_blank" title="Go to W3Schools HTML section">
-                                    <img src=@imgMapPath1 style="object-fit: cover;" class="img-fluid pb-2 float-sm-left float-md-left float-lg-left" />
-                                </a>
-
-
-                            </div>
-                        </div>
-                    }*@
 
                 </div>
 
+
                 <div class="col-auto col-lg">
+
+                    <!-- Publication date frequency card -->
                     <div class="card">
                         <div class="card-header">
                             <table>
@@ -1290,7 +1321,7 @@
 
                                         <button class="btn btn-default btn-sm btn-round" onclick="ExportByYearImg()" id="BarByYearChartVisible">
                                             <span class="btn-label">
-                                                <i class="fa fa-save"></i> 
+                                                <i class="fa fa-save"></i>
                                             </span>
                                             Save
                                         </button>
@@ -1303,8 +1334,8 @@
                             <div id="YearFrequenciesGrid" style="max-width:300px"></div>
                         </div>
                     </div>
-                    
 
+                    <!-- Crosstab and Map card -->
                     <div class="card ">
                         <div class="card-header p-2">
                             <table>
@@ -1379,8 +1410,41 @@
                 </div>
             </div>
 
-
         </div>
     </div>
 </div>
 
+
+
+@*@if (@imgMapPath1 != "")
+    {
+        <div class="card">
+            <div class="card-header">
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <div class="card-title">@(new HtmlString(Model.WebDb.MapTitle))</div>
+                        </td>
+                        <td style="text-align:right;padding-top:5px">
+
+                            <a href="@(new HtmlString(Model.WebDb.MapUrl))" class="btn btn-secondary btn-sm btn-round" target="_blank" title="Go to W3Schools HTML section">
+                                <span class="btn-label">
+                                    <i class="fa fa-table"></i>
+                                </span>&nbsp;View map
+
+                            </a>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card-body">
+                <a href="@(new HtmlString(Model.WebDb.MapUrl))" target="_blank" title="Go to W3Schools HTML section">
+                    <img src=@imgMapPath1 style="object-fit: cover;" class="img-fluid pb-2 float-sm-left float-md-left float-lg-left" />
+                </a>
+
+
+            </div>
+        </div>
+    }*@
