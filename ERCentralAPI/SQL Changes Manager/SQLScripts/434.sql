@@ -410,51 +410,51 @@ GO
 
 
 
---to be commented out!
-INSERT INTO [TB_WEBDB_MAP]
-           ([WEBDB_ID]
-           ,[COLUMNS_PUBLIC_ATTRIBUTE_ID]
-           ,[COLUMNS_PUBLIC_SET_ID]
-           ,[ROWS_PUBLIC_ATTRIBUTE_ID]
-           ,[ROWS_PUBLIC_SET_ID]
-           ,[SEGMENTS_PUBLIC_ATTRIBUTE_ID]
-           ,[SEGMENTS_PUBLIC_SET_ID]
-           ,[MAP_NAME]
-           ,[MAP_DESCRIPTION])
-     VALUES
-           (2,4551,46,4565, 46, 4547, 46, 'my first map', 'yep, <strong>the first</strong>!! <p>I''m not joking, although this gets <u>recreated</u> by a script.</p>')
+--to be commented out! the below only works on SG's machine, but you can use it with appropriate ID values to make it work elsewhere
+--INSERT INTO [TB_WEBDB_MAP]
+--           ([WEBDB_ID]
+--           ,[COLUMNS_PUBLIC_ATTRIBUTE_ID]
+--           ,[COLUMNS_PUBLIC_SET_ID]
+--           ,[ROWS_PUBLIC_ATTRIBUTE_ID]
+--           ,[ROWS_PUBLIC_SET_ID]
+--           ,[SEGMENTS_PUBLIC_ATTRIBUTE_ID]
+--           ,[SEGMENTS_PUBLIC_SET_ID]
+--           ,[MAP_NAME]
+--           ,[MAP_DESCRIPTION])
+--     VALUES
+--           (2,4551,46,4565, 46, 4547, 46, 'my first map', 'yep, <strong>the first</strong>!! <p>I''m not joking, although this gets <u>recreated</u> by a script.</p>')
 
-INSERT INTO [TB_WEBDB_MAP]
-           ([WEBDB_ID]
-           ,[COLUMNS_PUBLIC_ATTRIBUTE_ID]
-           ,[COLUMNS_PUBLIC_SET_ID]
-           ,[ROWS_PUBLIC_ATTRIBUTE_ID]
-           ,[ROWS_PUBLIC_SET_ID]
-           ,[SEGMENTS_PUBLIC_ATTRIBUTE_ID]
-           ,[SEGMENTS_PUBLIC_SET_ID]
-           ,[MAP_NAME]
-           ,[MAP_DESCRIPTION])
-     VALUES
-           (2,4528,13,4529, 13, 1440, 13, 'my 2nd map', 'yep, <strong>the second</strong>!! <p>I''m not joking, although this gets <u>recreated</u> by a script.</p>')
+--INSERT INTO [TB_WEBDB_MAP]
+--           ([WEBDB_ID]
+--           ,[COLUMNS_PUBLIC_ATTRIBUTE_ID]
+--           ,[COLUMNS_PUBLIC_SET_ID]
+--           ,[ROWS_PUBLIC_ATTRIBUTE_ID]
+--           ,[ROWS_PUBLIC_SET_ID]
+--           ,[SEGMENTS_PUBLIC_ATTRIBUTE_ID]
+--           ,[SEGMENTS_PUBLIC_SET_ID]
+--           ,[MAP_NAME]
+--           ,[MAP_DESCRIPTION])
+--     VALUES
+--           (2,4528,13,4529, 13, 1440, 13, 'my 2nd map', 'yep, <strong>the second</strong>!! <p>I''m not joking, although this gets <u>recreated</u> by a script.</p>')
 
 
-DECLARE	@return_value int,
-		@WEBDB_MAP_ID int
+--DECLARE	@return_value int,
+--		@WEBDB_MAP_ID int
 
-EXEC	@return_value = [dbo].[st_WebDbMapAdd]
-		@REVIEW_ID = 99,
-		@WEBDB_ID = 2,
-		@ColumnsSetID = 644,
-		@ColumnsAttributeID = 0,
-		@RowsSetID = 1880,
-		@RowsAttributeID = 121689,
-		@SegmentsSetID = 894,
-		@SegmentsAttributeID = 72166,
-		@MapName = N'third map!',
-		@MapDescription = N'<h4>really</h4> this is the 3rd map and is probably broken.',
-		@WEBDB_MAP_ID = @WEBDB_MAP_ID OUTPUT
+--EXEC	@return_value = [dbo].[st_WebDbMapAdd]
+--		@REVIEW_ID = 99,
+--		@WEBDB_ID = 2,
+--		@ColumnsSetID = 644,
+--		@ColumnsAttributeID = 0,
+--		@RowsSetID = 1880,
+--		@RowsAttributeID = 121689,
+--		@SegmentsSetID = 894,
+--		@SegmentsAttributeID = 72166,
+--		@MapName = N'third map!',
+--		@MapDescription = N'<h4>really</h4> this is the 3rd map and is probably broken.',
+--		@WEBDB_MAP_ID = @WEBDB_MAP_ID OUTPUT
 
-SELECT	@WEBDB_MAP_ID as N'@WEBDB_MAP_ID'
+--SELECT	@WEBDB_MAP_ID as N'@WEBDB_MAP_ID'
 
 --END OF: to be commented out!
 
