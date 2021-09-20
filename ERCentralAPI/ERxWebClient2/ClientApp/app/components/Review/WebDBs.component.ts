@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, AfterViewInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute } from '../services/WebDB.service';
+import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute, iWebDBMap } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
@@ -55,6 +55,8 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public EditingWebDbReviewSet: WebDbReviewSet | null = null;
 	public EditingSetAttribute: SetAttribute | null = null;
 	public EditingFilter: boolean = false;
+	public EditingMap: iWebDBMap | null = null;
+	public ShowMapsMiniHelp: boolean = false;
 	public ConfirmPassword: string = "";
 	public ShowPassword: boolean = false;
 	public isCollapsedFilterCode: boolean = false;
@@ -82,6 +84,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get CurrentDB(): iWebDB | null {
 		return this.WebDBService.CurrentDB;
 	}
+	public get CurrentMaps(): iWebDBMap[] {
+		return this.WebDBService.CurrentMaps;
+    }
 	public get IsServiceBusy(): boolean {
 		return (this.WebDBService.IsBusy
 			|| this.ReviewSetsService.IsBusy);
@@ -182,7 +187,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		return this.WebDBService.CurrentSets;
 	}
 	public get EditingSomething(): boolean {
-		return this.EditingDB != null || this.EditingSetAttribute != null || this.EditingWebDbReviewSet != null;
+		return this.EditingDB != null || this.EditingSetAttribute != null || this.EditingWebDbReviewSet != null || this.EditingMap != null;
 	}
 	public get VisitURL(): string {
 		if (this.CurrentDB) return this.WebDBService.URLfromWebDB(this.CurrentDB);
@@ -446,6 +451,200 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 			this.EditingSetAttribute = null;
 		}
     }
+
+	EditMap(map: iWebDBMap) {
+		this.EditingMap = {
+			columnsAttributeID: map.columnsAttributeID,
+			columnsPublicAttributeID: map.columnsPublicAttributeID,
+			columnsPublicAttributeName: map.columnsPublicAttributeName,
+			columnsPublicSetID: map.columnsPublicSetID,
+			columnsPublicSetName: map.columnsPublicSetName,
+			columnsSetID: map.columnsSetID,
+			rowsAttributeID: map.rowsAttributeID,
+			rowsPublicAttributeID: map.rowsPublicAttributeID,
+			rowsPublicAttributeName: map.rowsPublicAttributeName,
+			rowsPublicSetID: map.rowsPublicSetID,
+			rowsPublicSetName: map.rowsPublicSetName,
+			rowsSetID: map.rowsSetID,
+			segmentsAttributeID: map.segmentsAttributeID,
+			segmentsPublicAttributeID: map.segmentsPublicAttributeID,
+			segmentsPublicAttributeName: map.segmentsPublicAttributeName,
+			segmentsPublicSetID: map.segmentsPublicSetID,
+			segmentsPublicSetName: map.segmentsPublicSetName,
+			segmentsSetID: map.segmentsSetID,
+			webDBId: map.webDBId,
+			webDBMapDescription: map.webDBMapDescription,
+			webDBMapId: map.webDBMapId,
+			webDBMapName: map.webDBMapName
+		}
+	}
+	CreateMap() {
+		if (this.CurrentDB) {
+			this.EditingMap = {
+				columnsAttributeID: 0,
+				columnsPublicAttributeID: 0,
+				columnsPublicAttributeName: '',
+				columnsPublicSetID: 0,
+				columnsPublicSetName: '',
+				columnsSetID: 0,
+				rowsAttributeID: 0,
+				rowsPublicAttributeID: 0,
+				rowsPublicAttributeName: '',
+				rowsPublicSetID: 0,
+				rowsPublicSetName: '',
+				rowsSetID: 0,
+				segmentsAttributeID: 0,
+				segmentsPublicAttributeID: 0,
+				segmentsPublicAttributeName: '',
+				segmentsPublicSetID: 0,
+				segmentsPublicSetName: '',
+				segmentsSetID: 0,
+				webDBId: this.CurrentDB.webDBId,
+				webDBMapDescription: '',
+				webDBMapId: 0,
+				webDBMapName: 'New Map (please edit!)'
+			}
+		}
+	}
+	public get CanAssignToMapRowAndCols(): boolean {
+		if (this.WebDBService.SelectedNodeData == null) return false;
+		else if (this.WebDBService.SelectedNodeData.attributes.length > 0) return true;
+		return false;
+	}
+	public get CanAssignToMapSegments(): boolean {
+		if (this.WebDBService.SelectedNodeData == null) return false;
+		else if (this.WebDBService.SelectedNodeData.attributes.length > 0 && this.WebDBService.SelectedNodeData.attributes.length < 7) return true;
+		return false;
+	}
+	SetColumnsNode() {
+		if (this.WebDBService.SelectedNodeData == null || this.EditingMap == null) return;
+		else {
+			if (this.SelectedNodeIsRoot == true) {
+				//adding the root of a coding tool
+				this.EditingMap.columnsAttributeID = 0;
+				this.EditingMap.columnsPublicAttributeName = "";
+				this.EditingMap.columnsSetID = this.WebDBService.SelectedNodeData.set_id;
+				this.EditingMap.columnsPublicSetName = this.WebDBService.SelectedNodeData.name;
+				this.EditingMap.columnsPublicSetID = 0;
+				this.EditingMap.columnsPublicAttributeID = 0;
+			}
+			else {
+				let setid = this.WebDBService.SelectedNodeData.set_id;
+				let ind = this.WebDBService.CurrentSets.findIndex(f => f.set_id == setid);
+				this.EditingMap.columnsPublicSetID = 0;
+				this.EditingMap.columnsPublicAttributeID = 0;
+				if (ind == -1) {
+					//oh, can't do much here, then...
+					this.EditingMap.columnsAttributeID = 0;
+					this.EditingMap.columnsPublicAttributeName = "";
+					this.EditingMap.columnsSetID = 0;
+					this.EditingMap.columnsPublicSetName = "";
+				} else {
+					this.EditingMap.columnsSetID = this.WebDBService.SelectedNodeData.set_id;
+					this.EditingMap.columnsAttributeID = (this.WebDBService.SelectedNodeData as SetAttribute).attribute_id;
+					this.EditingMap.columnsPublicAttributeName = (this.WebDBService.SelectedNodeData as SetAttribute).name;
+					this.EditingMap.columnsPublicSetName = this.WebDBService.CurrentSets[ind].name;
+                }
+				
+			}
+        }
+	}
+	SetRowsNode() {
+		if (this.WebDBService.SelectedNodeData == null || this.EditingMap == null) return;
+		else {
+			if (this.SelectedNodeIsRoot == true) {
+				//adding the root of a coding tool
+				this.EditingMap.rowsAttributeID = 0;
+				this.EditingMap.rowsPublicAttributeName = "";
+				this.EditingMap.rowsSetID = this.WebDBService.SelectedNodeData.set_id;
+				this.EditingMap.rowsPublicSetName = this.WebDBService.SelectedNodeData.name;
+				this.EditingMap.rowsPublicSetID = 0;
+				this.EditingMap.rowsPublicAttributeID = 0;
+			}
+			else {
+				let setid = this.WebDBService.SelectedNodeData.set_id;
+				let ind = this.WebDBService.CurrentSets.findIndex(f => f.set_id == setid);
+				this.EditingMap.rowsPublicSetID = 0;
+				this.EditingMap.rowsPublicAttributeID = 0;
+				if (ind == -1) {
+					//oh, can't do much here, then...
+					this.EditingMap.rowsAttributeID = 0;
+					this.EditingMap.rowsPublicAttributeName = "";
+					this.EditingMap.rowsSetID = 0;
+					this.EditingMap.rowsPublicSetName = "";
+				} else {
+					this.EditingMap.rowsSetID = this.WebDBService.SelectedNodeData.set_id;
+					this.EditingMap.rowsAttributeID = (this.WebDBService.SelectedNodeData as SetAttribute).attribute_id;
+					this.EditingMap.rowsPublicAttributeName = (this.WebDBService.SelectedNodeData as SetAttribute).name;
+					this.EditingMap.rowsPublicSetName = this.WebDBService.CurrentSets[ind].name;
+				}
+
+			}
+		}
+	}
+	SetSegmentsNode() {
+		if (this.WebDBService.SelectedNodeData == null || this.EditingMap == null) return;
+		else {
+			if (this.SelectedNodeIsRoot == true) {
+				//adding the root of a coding tool
+				this.EditingMap.segmentsAttributeID = 0;
+				this.EditingMap.segmentsPublicAttributeName = "";
+				this.EditingMap.segmentsSetID = this.WebDBService.SelectedNodeData.set_id;
+				this.EditingMap.segmentsPublicSetName = this.WebDBService.SelectedNodeData.name;
+				this.EditingMap.segmentsPublicSetID = 0;
+				this.EditingMap.segmentsPublicAttributeID = 0;
+			}
+			else {
+				let setid = this.WebDBService.SelectedNodeData.set_id;
+				let ind = this.WebDBService.CurrentSets.findIndex(f => f.set_id == setid);
+				this.EditingMap.segmentsPublicSetID = 0;
+				this.EditingMap.segmentsPublicAttributeID = 0;
+				if (ind == -1) {
+					//oh, can't do much here, then...
+					this.EditingMap.segmentsAttributeID = 0;
+					this.EditingMap.segmentsPublicAttributeName = "";
+					this.EditingMap.segmentsSetID = 0;
+					this.EditingMap.segmentsPublicSetName = "";
+				} else {
+					this.EditingMap.segmentsSetID = this.WebDBService.SelectedNodeData.set_id;
+					this.EditingMap.segmentsAttributeID = (this.WebDBService.SelectedNodeData as SetAttribute).attribute_id;
+					this.EditingMap.segmentsPublicAttributeName = (this.WebDBService.SelectedNodeData as SetAttribute).name;
+					this.EditingMap.segmentsPublicSetName = this.WebDBService.CurrentSets[ind].name;
+				}
+
+			}
+		}
+	}
+	public get CanSaveMap(): string {
+		if (this.EditingMap == null) return "no map";
+		else {
+			let ind = this.WebDBService.CurrentMaps.findIndex(f => f == this.EditingMap);
+			if (ind == -1) {
+				const m = this.EditingMap;
+				if (m.webDBMapName == "" || m.webDBMapName == "New Map (please edit!)") return "Map name is required";
+				else if (m.columnsSetID < 1) return "Please set the columns dimension";
+				else if (m.rowsSetID < 1) return "Please set the rows dimension";
+				else if (m.segmentsSetID < 1) return "Please set the segments (within each cell) dimension";
+				else return "";
+			}
+			else return "no change";
+        }
+	}
+	async SaveMap(map: iWebDBMap) {
+		await this.WebDBService.SaveMap(map).then(res => {
+			this.EditingMap = null;//not sure if it's best to close the editing panel or keep it open!!
+		})
+	}
+	DeleteMap(map: iWebDBMap) {
+		if (!this.CanWrite) return;
+		this.ConfirmationDialogService.confirm("Delete Web Database?"
+			, "Are you sure you want to delete this Map (\"<em>" + map.webDBMapName + "</em>\")?"
+			, false, "", "Yes Delete", "Cancel").then((confirm: any) => {
+				if (confirm) {
+					this.WebDBService.DeleteMap(map);
+				}
+			});
+	}
 
 	BackToMain() {
 		this.router.navigate(['Main']);
