@@ -64,6 +64,18 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             return this._CurrentSets;
         }
     }
+
+    private _CurrentMaps: iWebDBMap[] = [];
+    public get CurrentMaps(): iWebDBMap[] {
+        if (this._CurrentMaps.length > 0 && this._CurrentDB != null && this._CurrentMaps[0].webDBId == this._CurrentDB.webDBId) {
+            return this._CurrentMaps;
+        }
+        else {
+            this._CurrentMaps = [];
+            return this._CurrentMaps;
+        }
+    }
+
     public SelectedNodeData: singleNode | null = null;
 
     public URLfromWebDB(webDB: iWebDB): string {
@@ -177,6 +189,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
                         this._CurrentSets.push(new WebDbReviewSet(iwSet));
                     }
                     this.PleaseRedrawTheTree.emit();
+                    this.FetchMaps();
                     this.RemoveBusy("GetWebDbReviewSetsList");
                 }, error => {
                     this.RemoveBusy("GetWebDbReviewSetsList");
@@ -426,6 +439,69 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         }
     }
 
+    public FetchMaps() {
+        if (!this._CurrentDB) return;
+        this._BusyMethods.push("FetchMaps");
+        this._CurrentMaps = [];
+        let body = JSON.stringify({
+            Value: this._CurrentDB.webDBId
+        });
+        this._httpC.post<iWebDBMap[]>(this._baseUrl + 'api/WebDB/GetWebDBMaps', body).subscribe(
+            res => {
+                if (res) {
+                    //console.log("received " + res.length + " maps");
+                    this._CurrentMaps = res;
+                }  
+                this.RemoveBusy("FetchMaps");
+            }, error => {
+                this.RemoveBusy("FetchMaps");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+    public SaveMap(map: iWebDBMap): Promise<boolean> {
+        if (!this._CurrentDB) return Promise.resolve(false);
+        const url = map.webDBMapId > 0 ? "api/WebDB/UpdateWebDBMap" : "api/WebDB/CreateWebDBMap";
+        this._BusyMethods.push("SaveMap");
+        this._CurrentMaps = [];
+        return this._httpC.post<iWebDBMap[]>(this._baseUrl + url, map).toPromise().then(
+            res => {
+                if (res) {
+                    //console.log("received " + res.length + " maps");
+                    this._CurrentMaps = res;
+                }
+                this.RemoveBusy("SaveMap");
+                return true;
+            }, error => {
+                this.RemoveBusy("SaveMap");
+                this.modalService.GenericError(error);
+                return false;
+            }
+        ).catch(caught => {
+            this.RemoveBusy("DeleteModel");
+            this.modalService.GenericErrorMessage("Saving the map failed: " + caught.toString()
+                + ". If the problem persists, please contact EPPISupport");
+            console.log("Catch in SaveMap", map);
+            return false;
+        });
+    }
+    public DeleteMap(map: iWebDBMap) {
+        
+        this._BusyMethods.push("DeleteMap");
+        this._CurrentMaps = [];
+        this._httpC.post<iWebDBMap[]>(this._baseUrl + 'api/WebDB/DeleteWebDBMap', map).subscribe(
+            res => {
+                if (res) {
+                    //console.log("received " + res.length + " maps");
+                    this._CurrentMaps = res;
+                }
+                this.RemoveBusy("DeleteMap");
+            }, error => {
+                this.RemoveBusy("DeleteMap");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
     public Clear() {
         this._WebDBs = [];
         this._CurrentDB = null;
@@ -520,4 +596,28 @@ export class MissingAttribute {
     public path: string = "";
     public attributeId: number = 0;
     public parentId: number = 0;
+}
+export interface iWebDBMap {
+    columnsAttributeID: number;
+    columnsPublicAttributeID: number;
+    columnsPublicAttributeName: string;
+    columnsPublicSetID: number;
+    columnsPublicSetName: string;
+    columnsSetID: number;
+    rowsAttributeID: number;
+    rowsPublicAttributeID: number;
+    rowsPublicAttributeName: string;
+    rowsPublicSetID: number;
+    rowsPublicSetName: string;
+    rowsSetID: number;
+    segmentsAttributeID: number;
+    segmentsPublicAttributeID: number;
+    segmentsPublicAttributeName: string;
+    segmentsPublicSetID: number;
+    segmentsPublicSetName: string;
+    segmentsSetID: number;
+    webDBId: number;
+    webDBMapDescription: string;
+    webDBMapId: number;
+    webDBMapName: string;
 }

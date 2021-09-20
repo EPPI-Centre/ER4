@@ -254,6 +254,100 @@ namespace ERxWebClient2.Controllers
 
         }
 
+        [HttpPost("[action]")]
+        public IActionResult GetWebDBMaps([FromBody] SingleIntCriteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    WebDbMapList res = DataPortal.Fetch<WebDbMapList>(new WebDBMapCriteria(crit.Value, 0));
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetWebDBMaps error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult CreateWebDBMap([FromBody] WebDbMapMVC map)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    if (map.webDBMapId != 0 || map.webDBId < 1)
+                    {
+                        throw new Exception("Inconsistent data, can't proceed");
+                    }
+                    WebDbMap mapC = map.toCSLAWebDbMap();
+                    mapC = mapC.Save();
+                    //we'll return the whole list of results, as it's cheap and gives us all data
+                    WebDbMapList res = DataPortal.Fetch<WebDbMapList>(new WebDBMapCriteria(map.webDBId, 0));
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CreateWebDBMap error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult UpdateWebDBMap([FromBody] WebDbMapMVC map)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    if (map.webDBMapId < 1 || map.webDBId < 1)
+                    {
+                        throw new Exception("Inconsistent data, can't proceed");
+                    }
+                    WebDbMap mapC = map.toCSLAWebDbMap();//object comes out already "old" and "dirty", see method...
+                    mapC = mapC.Save();
+                    //we'll return the whole list of results, as it's cheap and gives us all data
+                    WebDbMapList res = DataPortal.Fetch<WebDbMapList>(new WebDBMapCriteria(map.webDBId, 0));
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "UpdateWebDBMap error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult DeleteWebDBMap([FromBody] WebDbMapMVC map)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    if (map.webDBMapId < 1 || map.webDBId < 1)
+                    {
+                        throw new Exception("Inconsistent data, can't proceed");
+                    }
+                    WebDbMap mapC = map.toCSLAWebDbMap();//object comes out already "old" and "dirty", see method...
+                    mapC.Delete();
+                    mapC = mapC.Save();
+                    //we'll return the whole list of results, as it's cheap and gives us all data
+                    WebDbMapList res = DataPortal.Fetch<WebDbMapList>(new WebDBMapCriteria(map.webDBId, 0));
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "DeleteWebDBMap error");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
     public class WebDbListWithUrl
     {
@@ -340,5 +434,55 @@ namespace ERxWebClient2.Controllers
     {
         public int WebDbId { get; set; }
         public short imageNumber { get; set; }
+    }
+
+    public class WebDbMapMVC
+    {
+        public WebDbMap toCSLAWebDbMap()
+        {
+            WebDbMap res = new WebDbMap();
+            res.ColumnsAttributeID = columnsAttributeID;
+            res.ColumnsPublicAttributeID = columnsPublicAttributeID;
+            //res.ColumnsPublicAttributeName = columnsPublicAttributeName;
+            res.ColumnsPublicSetID = columnsPublicSetID;
+            //res.ColumnsPublicSetName = columnsPublicSetName;
+            res.ColumnsSetID = columnsSetID;
+            res.RowsAttributeID = rowsAttributeID;
+            res.RowsPublicAttributeID = rowsPublicAttributeID;
+            res.RowsPublicSetID = rowsPublicSetID;
+            res.RowsSetID = rowsSetID;
+            res.SegmentsAttributeID = segmentsAttributeID;
+            res.SegmentsPublicAttributeID = segmentsPublicAttributeID;
+            res.SegmentsPublicSetID = segmentsPublicSetID;
+            res.SegmentsSetID = segmentsSetID;
+            res.WebDBId = webDBId;
+            res.WebDBMapDescription = webDBMapDescription;
+            res.WebDBMapId = webDBMapId;
+            res.WebDBMapName = webDBMapName;
+            if (webDBId > 0 && webDBMapId > 0) res.MarkAsOldAndDirty();
+            return res;
+        }
+        public long columnsAttributeID { get; set; }
+        public int columnsPublicAttributeID { get; set; }
+        public string columnsPublicAttributeName { get; set; }
+        public int columnsPublicSetID { get; set; }
+        public string columnsPublicSetName { get; set; }
+        public int columnsSetID { get; set; }
+        public long rowsAttributeID { get; set; }
+        public int rowsPublicAttributeID { get; set; }
+        public string rowsPublicAttributeName { get; set; }
+        public int rowsPublicSetID { get; set; }
+        public string rowsPublicSetName { get; set; }
+        public int rowsSetID { get; set; }
+        public long segmentsAttributeID { get; set; }
+        public int segmentsPublicAttributeID { get; set; }
+        public string segmentsPublicAttributeName { get; set; }
+        public int segmentsPublicSetID { get; set; }
+        public string segmentsPublicSetName { get; set; }
+        public int segmentsSetID { get; set; }
+        public int webDBId { get; set; }
+        public string webDBMapDescription { get; set; }
+        public int webDBMapId { get; set; }
+        public string webDBMapName { get; set; }
     }
 }

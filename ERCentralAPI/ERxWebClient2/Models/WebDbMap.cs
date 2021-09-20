@@ -425,7 +425,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SegmentsAttributeID", SegmentsAttributeID));
                     command.Parameters.Add(new SqlParameter("@MapName", WebDBMapName));
                     command.Parameters.Add(new SqlParameter("@MapDescription", WebDBMapDescription));
-                    SqlParameter par = new SqlParameter("@WEBDB_MAP_ID", System.Data.SqlDbType.Int);
+                    command.Parameters.Add(new SqlParameter("@WEBDB_MAP_ID", WebDBMapId));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
