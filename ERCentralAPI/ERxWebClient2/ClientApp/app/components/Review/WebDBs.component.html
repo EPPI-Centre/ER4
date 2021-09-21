@@ -670,6 +670,37 @@
                                     <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
                                 </div>
 
+                                <div class="row col-12 p-1 mx-0 ">
+                                    <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                                        <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                            <i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns:
+                                        </div>
+                                        <div class="rounded bg-white col w-100">
+                                            Code: {{map.columnsPublicAttributeName}} <br />
+                                            Tool: {{map.columnsPublicSetName}}
+                                        </div>
+                                    </div>
+                                    <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                                        <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                            <i class="text-primary mx-1 fa fa-bars mr-1"></i>Rows:
+                                        </div>
+                                        <div class="rounded bg-white col w-100">
+                                            Code: {{map.rowsPublicAttributeName}} <br />
+                                            Tool: {{map.rowsPublicSetName}}
+                                        </div>
+                                    </div>
+                                    <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                                        <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                            <i class="text-success mx-1 fa fa-comments mr-1"></i>Segments:
+                                        </div>
+                                        <div class="rounded bg-white col w-100">
+                                            Code: {{map.segmentsPublicAttributeName}} <br />
+                                            Tool: {{map.segmentsPublicSetName}}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--
                                 <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns parent code: <strong>{{map.columnsPublicAttributeName}}</strong></div>
                                 <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns tool: <strong>{{map.columnsPublicSetName}}</strong></div>
 
@@ -678,6 +709,7 @@
 
                                 <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-success mx-1 fa fa-comments mr-1"></i>Segments parent code: <strong>{{map.segmentsPublicAttributeName}}</strong></div>
                                 <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-success mx-1 fa fa-comments mr-1"></i>Segments tool: <strong>{{map.segmentsPublicSetName}}</strong></div>
+                                -->
 
                                 <div class="m-0 col-12 p-0 ">
                                     <div class="m-1 border border-info rounded">
@@ -692,6 +724,21 @@
                         <div class="col-12">
                             <div class="m-1 p-1 alert-info small rounded">
                                 <p>
+                                    <strong>A Map is a graphical, interactive 3-dimensional visualisation of research evidence in a particular domain.</strong><br />
+                                    It is a matrices of rows and columns (ex. rows could represent interventions and columns could represent outcomes)
+                                    with categorising segments in each node (ex. segments could represent study quality).<br />
+
+                                    Each dimension is set by picking a code/node from the tools on the left, which then form the columns, rows
+                                    and segments in the map. The saved map will be available to view in the EPPI-Vis home page.
+                                </p>
+                                <ul>
+                                    <li>Rows and columns - you can pick any node/code that has at least one child code.</li>
+                                    <li>Segments - you can pick any node/code that has between one and six child code(s).</li>
+                                    <li>You must specify all 3 dimensions along with a map name. The description is optional.</li>
+                                </ul>
+
+                                <!--
+                                <p>
                                     <strong>Maps are data-visualisation tools that allow to present data about 3 different "dimensions"</strong>.
                                     Each dimension is set by picking a code/node from the tools on the left, which then form the columns, rows and "within cell" categories (segments) in the visualisation.<br />
                                     The following rules apply:
@@ -702,6 +749,7 @@
                                     <li>Maps need to have all three dimensions specified, as well as a Map Name. The description is optional.</li>
                                 </ul>
                                 <p>The corresponding map will become available in the Visualisation home page as soon as it is Saved!</p>
+                                -->
                             </div>
                         </div>
                     </ng-template>
@@ -743,7 +791,7 @@
                             <div class="row col-12 p-1 mx-0 ">
                                 <div class="col row m-1 p-0 border border-info rounded">
                                     <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        Columns selection:
+                                        Columns:
                                         <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetColumnsNode()">Set</button>
                                     </div>
                                     <div class="rounded bg-white col w-100">
@@ -753,7 +801,7 @@
                                 </div>
                                 <div class="col row m-1 p-0 border border-info rounded">
                                     <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        Rows selection:
+                                        Rows:
                                         <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetRowsNode()">Set</button>
                                     </div>
                                     <div class="rounded bg-white col w-100">
@@ -763,7 +811,7 @@
                                 </div>
                                 <div class="col row m-1 p-0 border border-info rounded">
                                     <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        Segments selection:
+                                        Segments:
                                         <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapSegments" (click)="SetSegmentsNode()">Set</button>
                                     </div>
                                     <div class="rounded bg-white col w-100">
