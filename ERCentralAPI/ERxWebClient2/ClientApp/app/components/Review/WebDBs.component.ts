@@ -618,7 +618,18 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get CanSaveMap(): string {
 		if (this.EditingMap == null) return "no map";
 		else {
-			let ind = this.WebDBService.CurrentMaps.findIndex(f => f == this.EditingMap);
+			let em = this.EditingMap;
+			let ind = this.WebDBService.CurrentMaps.findIndex( //comparing all significant fields...
+				f => f.webDBMapId == em.webDBMapId
+					&& f.columnsAttributeID == em.columnsAttributeID
+					&& f.columnsSetID == em.columnsSetID
+					&& f.rowsAttributeID == em.rowsAttributeID
+					&& f.rowsSetID == em.rowsSetID
+					&& f.segmentsAttributeID == em.segmentsAttributeID
+					&& f.segmentsSetID == em.segmentsSetID
+					&& f.webDBMapName == em.webDBMapName
+					&& f.webDBMapDescription == em.webDBMapDescription
+			);
 			if (ind == -1) {
 				const m = this.EditingMap;
 				if (m.webDBMapName == "" || m.webDBMapName == "New Map (please edit!)") return "Map name is required";

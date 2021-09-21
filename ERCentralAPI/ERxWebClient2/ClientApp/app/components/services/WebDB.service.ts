@@ -43,6 +43,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         return this._CurrentDB;
     }
     public set CurrentDB(db: iWebDB | null) {
+        this.SelectedNodeData = null;
         const ind = this._WebDBs.findIndex((f) => db != null && f.webDBId == db.webDBId);
         if (ind == -1) {
             this._CurrentDB = null;
