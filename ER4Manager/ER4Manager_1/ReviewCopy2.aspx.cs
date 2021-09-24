@@ -37,6 +37,24 @@ public partial class ReviewCopy2 : System.Web.UI.Page
                     if (radTs != null)
                     {
                         radTs.SelectedIndex = 5;
+                        radTs.Tabs[5].Tabs[5].Selected = true;
+                        radTs.Tabs[5].Tabs[6].Width = 550;
+
+                        radTs.Tabs[5].Tabs[0].Visible = true;
+                        radTs.Tabs[5].Tabs[1].Visible = true;
+                        radTs.Tabs[5].Tabs[6].Visible = true;
+
+                        if (Utils.GetSessionString("IsAdm") == "True")
+                        {
+                            radTs.Tabs[5].Tabs[2].Visible = true;
+                            radTs.Tabs[5].Tabs[3].Visible = true;
+                            radTs.Tabs[5].Tabs[4].Visible = true;
+                            radTs.Tabs[5].Tabs[5].Visible = true;
+                            radTs.Tabs[5].Tabs[6].Width = 200;
+                        }
+
+                        /*
+                        radTs.SelectedIndex = 5;
                         radTs.Tabs[5].Tabs[4].Selected = true;
                         radTs.Tabs[5].Tabs[5].Width = 500;
                         if (Utils.GetSessionString("IsAdm") == "True")
@@ -46,6 +64,7 @@ public partial class ReviewCopy2 : System.Web.UI.Page
                             radTs.Tabs[5].Tabs[4].Visible = true;
                             radTs.Tabs[5].Tabs[5].Width = 220;
                         }
+                        */
                     }
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                     if (lbl1 != null)

@@ -52,11 +52,11 @@
 
                 <tr><td style="width:800px">
                                 <telerik:RadTabStrip ID="rtsMenu" runat="server"  MultiPageID="RadMultiPage1" 
-                                    Width="100%" SelectedIndex="0"
+                                    Width="100%" SelectedIndex="5"
                              Owner="rtsMenu" Skin="WebBlue" ResolvedRenderMode="Classic" >
                                     <Tabs>
                                         <Telerik:RadTab runat="server" NavigateUrl="~/Summary.aspx" 
-                                            Text="Summary" Selected="True" SelectedIndex="1">
+                                            Text="Summary" SelectedIndex="1">
                                             <Tabs>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Summary.aspx" Text="Summary">
                                                 </Telerik:RadTab>
@@ -150,19 +150,21 @@
                                                 </Telerik:RadTab>
                                             </Tabs>
                                         </Telerik:RadTab>
-                                        <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Text="Utilities" SelectedIndex="2">
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Text="Utilities" SelectedIndex="4" Selected="True">
                                             <Tabs>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Owner="" 
                                                     Text="Codesets">
                                                 </Telerik:RadTab>
-                                                <Telerik:RadTab runat="server" NavigateUrl="~/Presenter.aspx" Owner="" 
-                                                    Text="Data viewer setup" Visible="False">
-                                                </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/ExampleReviews.aspx" Owner="" 
-                                                    Text="Example review" Selected="True">
+                                                    Text="Example review">
+                                                </Telerik:RadTab>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/EPPIVIS.aspx" Text="EPPI-Vis" Visible="False">
+                                                </telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Presenter.aspx" Owner="" 
+                                                    Text="Old WebDB setup" Visible="False">
                                                 </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/ReviewCopy.aspx" Owner="" 
-                                                    Text="Review copy 1" Visible="False">
+                                                    Text="Review copy 1" Visible="False" Selected="True">
                                                 </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/ReviewCopy2.aspx" Owner="" 
                                                     Text="Review copy 2" Visible="False">
