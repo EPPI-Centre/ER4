@@ -1517,6 +1517,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             if (ss == "")
                 return "";
+            else if (ss.Length == 1) return ss;//what else can we do? Added by SG on 22/09/2021
+            string orig = ss;
             ss = RemoveLanguageAndThesisText(ss);
             ss = MagMakesHelpers.CleanText(ss);
             string r = Truncate(ToSimpleText(RemoveDiacritics(ss))
@@ -1528,30 +1530,92 @@ namespace BusinessLibrary.BusinessClasses
                     .Replace("ize", "")
                     .Replace("ise", ""), 500);
 
-            // additional tweak to reduce the length of longer strings and often reduce noise
-            if (r.Length < 20)
+            
+            if (r.Length > 1)
+            {// additional tweak to reduce the length of longer strings and often reduce noise
+                if (r.Length < 20)
+                    return r;
+                else if (r.Length <= 30)
+                {
+                    r = r.Substring(0, r.Length - 5);
+                }
+                else
+                {
+                    // JT more radical change - truncate at 30 characters
+                    r = r.Substring(0, 30);
+                }
                 return r;
-            else if (r.Length <= 30)
-            {
-                r = r.Substring(0, r.Length - 5);
             }
-            else
-                // JT more radical change - truncate at 30 characters
-                r = r.Substring(0, 30);
-            //else if (r.Length <= 44)
-            //{
-            //    r = r.Substring(0, r.Length - 10);
-            //}
-            //else
-            //{
-            //    //int cutting = r.Length / 4;
-            //    //r = r.Substring(0, r.Length - cutting);
-            //    
-            //    r = r.Substring(0, 40);
-            //}
-            return r;
+            else return Item.DoCharsBasedShortString(orig.ToLower().Trim());//apparently "ToLower()" does a decent job even on non-latin alphabets...
         }
+        private static string DoCharsBasedShortString(string s)
+        {
+            if (_UnicRanges == null)
+            {
+                Item.BuildUnicodeRanges();//only done once per thread(?): save CPU cycles...
+            }
+            bool found = false;
+            UnicodeRange range = _UnicRanges[5];//default case, fictional: we only care about the rules, not the char-range
+            foreach (Char c in s)
+            { //we look for the first instance where 2 chars fall in the same "range" and thus get the rules we'll use for setting the search text
+                int ind = _UnicRanges.FindIndex(f => f.CharIsInThisRange(c));
+                if (ind > -1)
+                {
+                    if (found)
+                    {
+                        range = _UnicRanges[ind];//the previous char did fall in a range!
+                        break;
+                    }
+                    else found = true;
+                }
+                else found = false;
+            }
+            int len = s.Length;
+            if (range.WordCharacters)
+            {//ideograms, we'll take just 4
+                if (len <= 4) return s;
+                else return s.Substring(0, 4);
+            }
+            else if (range.LeftToRight == false)
+            {//get the "end" as the beginning is on the right
+                if (len <= 15) return s;
+                else return s.Substring(len - 15);//the last 15 chars, because reading goes from right to left
+            }
+            else {
+                if (len <= 15) return s;
+                else return s.Substring(0, 15);//first 15 chars
+            }
+        }
+        private static List<UnicodeRange> _UnicRanges;
+        private static void BuildUnicodeRanges()
+        {
+            _UnicRanges = new List<UnicodeRange>();
+            //ranges are unified by keeping continuous ranges in one entry, if rules don't change
+            //also vaguely ordered to keep common cases on top (save CPU cycles!)
+            //then the cases that have "default" rules are commented out: we don't need them, we will "just" use the last (fake) case which picked by default.
 
+            _UnicRanges.Add(new UnicodeRange(1424, 1871, false)); //Hebrew, Arabic, Urdu, Syriac et. al.
+            //_UnicRanges.Add(new UnicodeRange(1024, 1279)); //Cyrillic
+            _UnicRanges.Add(new UnicodeRange(12800, 40959, true, true)); //Chinese, I think/hope
+            _UnicRanges.Add(new UnicodeRange(63744, 64255, true, true)); //more chinese ideograms, I think/hope 
+            //_UnicRanges.Add(new UnicodeRange(2304, 4991)); //Devanagari, Bengali, Gurmukhi, Gujarati, Oriya,Tamil,Telugu,Kannada,Malayalam,Gurmukhi,Gujarati,Oriya...Ethiopic
+            //_UnicRanges.Add(new UnicodeRange(880, 1023)); //Greek
+            _UnicRanges.Add(new UnicodeRange(1920, 2047, false)); //Thaana, NKo
+            //_UnicRanges.Add(new UnicodeRange(1328, 1423)); //Armenian
+            
+            //_UnicRanges.Add(new UnicodeRange(5024, 5887)); //Cherokee ,Unified Canadian Aboriginal Syllabics,Ogham,Runic
+
+            //_UnicRanges.Add(new UnicodeRange(6016, 6319)); //Khmer  
+
+            _UnicRanges.Add(new UnicodeRange(12272, 12287, true, true)); //??Ideographic Description Characters ??
+            //_UnicRanges.Add(new UnicodeRange(12352, 12735)); //Hiragana ... Bopomofo Extended
+
+            //_UnicRanges.Add(new UnicodeRange(40960, 42191)); //Yi Syllables, Yi Radicals
+
+            //_UnicRanges.Add(new UnicodeRange(44032, 55203)); //Hangul Syllables 
+            _UnicRanges.Add(new UnicodeRange(55300, 55300));//fake, used as the default
+
+        }
         public static string RemoveDiacritics(string stIn)
         {
             string stFormD = stIn.Normalize(NormalizationForm.FormD);
@@ -1597,7 +1661,26 @@ namespace BusinessLibrary.BusinessClasses
             return s;
         }
         
-
+        private class UnicodeRange
+        {
+            public UnicodeRange(int start, int end, bool leftToR = true, bool wChar = false)
+            {
+                RangeStart = start;
+                RangeEnd = end;
+                WordCharacters = wChar;
+                LeftToRight = leftToR;
+            }
+            public int RangeStart { get; set; }
+            public int RangeEnd { get; set; }
+            public bool WordCharacters { get; set; }
+            public bool LeftToRight { get; set; }
+            public bool CharIsInThisRange(Char c)
+            {
+                int index = (int)c;
+                if (index >= RangeStart && index <= RangeEnd) return true;
+                else return false;
+            }
+        }
 #endif
 
     }
