@@ -462,7 +462,7 @@
         $("#NoCodedRecords").hide();
         //$("#FrequenciesResult").show();
 
-        var chartHeight = 250;
+        var chartHeight = 300;
         let myData = [];
         for (var i = 0; i < freqData.results.length; i++) {
             myData.push(freqData.results[i]);
@@ -474,13 +474,26 @@
             }
         }
 
-        if (myData.length > 20) {
-            chartHeight = 350;
+        if (myData.length > 25) {
+            chartHeight = 500;
         }
 
-        if (myData.length > 25) {
-            chartHeight = 400;
+        if (myData.length > 50) {
+            chartHeight = 750;
         }
+
+        if (myData.length > 75) {
+            chartHeight = 1000;
+        }
+
+        if (myData.length > 100) {
+            chartHeight = 1250;
+        }
+
+        if (myData.length > 150) {
+            chartHeight = 1750;
+        }
+
 
         if (showNoneOfTheAbove == 0) {
             if (myData[myData.length - 1].attributeId == -999999) {

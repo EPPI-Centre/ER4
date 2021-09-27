@@ -11,6 +11,8 @@
 
 <script type="text/javascript">
 
+    var barChartHeight = 250;
+    var treeChartHeight = 250;
     let freqData = null;
 
     $(document).ready(function () {
@@ -25,6 +27,8 @@
         }
         $("#BuildBarHideNOA").hide();
         $("#BuildBarShowNOA").hide();
+        $("#TallerBarBT").hide();
+        $("#ShorterBarBT").hide();
         $("#spinner").show();
         $("#resultsTable").hide();
         $.post("../Frequencies/GetFrequenciesResultsJSON", pars, (data, status) => buildResults(data, status));
@@ -49,6 +53,10 @@
         $("#FrequenciesChart").hide();
         $("#BuildBarHideNOA").hide();
         $("#BuildBarShowNOA").hide();
+        $("#TallerBarBT").hide();
+        $("#ShorterBarBT").hide();
+        $("#TallerTreeBT").hide();
+        $("#ShorterTreeBT").hide();
         let counter = 0;
         let innerHtml = "";
         for (let itm of freqData)
@@ -79,6 +87,17 @@
         $("#FrequenciesGrid").show();
     }
 
+    function BuildTallerBar(showNoneOfTheAbove) {
+        barChartHeight = barChartHeight + 150;
+        BuildBar(showNoneOfTheAbove);
+    }
+
+    function BuildShorterBar(showNoneOfTheAbove) {
+        if (barChartHeight > 250) {
+            barChartHeight = barChartHeight - 150;
+        }
+        BuildBar(showNoneOfTheAbove)
+    }
 
     function BuildBar(showNoneOfTheAbove) {
 
@@ -89,8 +108,10 @@
         $("#BarOrPieChartVisible").show();
         $("#FrequenciesGrid").hide();
         $("#FrequenciesChart").show();
-        //$("#FrequenciesResult").text("Frequencies for: " + $("#nameXAxisCrit").val());
-        //$("#FrequenciesResult").show();
+        $("#TallerBarBT").show();
+        $("#ShorterBarBT").show();
+        $("#TallerTreeBT").hide();
+        $("#ShorterTreeBT").hide();
 
         let myData = [];
         for (var i = 0; i < freqData.length; i++) {
@@ -109,26 +130,29 @@
             $("#BuildBarHideNOA").show();
         }
 
-        // adjust height depending on the number of rows
-        var chartHeight = 250;
+        var fieldName = "color";
+        for (var i = 0; i < myData.length; i++) {
 
-        if (myData.length > 20) {
-            chartHeight = 350;
-        }
+            // shorten codes names that are stupid long
+            if (myData[i].attribute.length > 60) {
+                myData[i].shortName = myData[i].attribute.substring(0, 60) + "...";
+            } else {
+                myData[i].shortName = myData[i].attribute;
+            }
 
-        if (myData.length > 25) {
-            chartHeight = 400;
+            // set the colour
+            myData[i][fieldName] = "#ff6800";
         }
 
         $("#FrequenciesChart").kendoChart({
             //dataSource: { data: freqData },
             dataSource: { data: myData },
             categoryAxis: {
-                field: "attribute"
+                field: "shortName"
             },
             series: [
                 { field: "itemCount" }
-            ],
+            ],           
             seriesDefaults: {
                 type: 'bar'
             },
@@ -136,11 +160,11 @@
                 GoToListBar(e);
             },
             chartArea: {
-                height: chartHeight
+                height: barChartHeight
             },
             tooltip: {
                 visible: true,
-                template: "#= HTMLEncodeText(category) #: #= value # records"
+                template: "#= HTMLEncodeText(dataItem.attribute) #: #= value # records"
             }
         });
 
@@ -158,8 +182,11 @@
         $("#BarOrPieChartVisible").show();
         $("#FrequenciesGrid").hide();
         $("#FrequenciesChart").show();
-        //$("#FrequenciesResult").html("Frequencies for: " + data.criteria.nameXAxis);
-        //$("#FrequenciesResult").show();
+        $("#TallerBarBT").hide();
+        $("#ShorterBarBT").hide();
+        $("#TallerTreeBT").hide();
+        $("#ShorterTreeBT").hide();
+
 
         $("#FrequenciesChart").kendoChart({
             dataSource: { data: freqData },
@@ -188,7 +215,17 @@
     }
 
 
+    function BuildTallerTree() {
+        treeChartHeight = treeChartHeight + 150;
+        BuildTreemap();
+    }
 
+    function BuildShorterTree() {
+        if (treeChartHeight > 250) {
+            treeChartHeight = treeChartHeight - 150;
+        }
+        BuildTreemap()
+    }
 
 
     function BuildTreemap() {
@@ -199,6 +236,11 @@
         $("#BuildTreemapBT").prop("disabled", true);
         $("#BuildBarHideNOA").hide();
         $("#BuildBarShowNOA").hide();
+        $("#TallerBarBT").hide();
+        $("#ShorterBarBT").hide();
+        $("#TallerTreeBT").show();
+        $("#ShorterTreeBT").show();
+        
 
         $("#BarOrPieChartVisible").hide();
         $("#FrequenciesGrid").hide();
@@ -269,17 +311,6 @@
             items: items
         }];
 
-        // adjust height depending on the number of rows
-        var chartHeight = 250;
-
-        if (items.length > 20) {
-            chartHeight = 350;
-        }
-
-        if (items.length > 25) {
-            chartHeight = 400;
-        }
-
         $("#FrequenciesChart").kendoTreeMap({
             dataSource: {
                 data: myData3
@@ -287,12 +318,13 @@
             valueField: "itemCount",
             textField: "attribute",
             chartArea: {
-                height: chartHeight
+                height: treeChartHeight
             },
             colors: "color",
             type: "squarified", // squarified vertical horizontal
-
-
+            template: function (e) {
+                return "<div>" + HTMLEncodeText(e.text) + "</div>";
+            }
         }).on("click", ".k-leaf, .k-treemap-title", function (e) {
             var attributeId = $("#FrequenciesChart").data("kendoTreeMap").dataItem($(this).closest(".k-treemap-tile")).attributeId;
             var attribute = $("#FrequenciesChart").data("kendoTreeMap").dataItem($(this).closest(".k-treemap-tile")).attribute;
@@ -301,7 +333,7 @@
 
         });
 
-        $("#FrequenciesChart").css("height", chartHeight);
+        $("#FrequenciesChart").css("height", treeChartHeight);
         var treeMap = $("#FrequenciesChart").getKendoTreeMap();
         treeMap.resize();
 
@@ -333,23 +365,62 @@
         $("#FrequenciesChart").show();
         $("#BuildBarHideNOA").hide();
         $("#BuildBarShowNOA").hide();
+        $("#TallerBarBT").hide();
+        $("#ShorterBarBT").hide();
+        $("#TallerTreeBT").hide();
+        $("#ShorterTreeBT").hide();
 
-        let myData = [];
+        let myPieData = [];
         // remove all of the rows that have zero values
         for (var i = freqData.length - 1; i >= 0; i--) {
             if (freqData[i].itemCount > 0) {
                 //console.log("adding: ", freqData.results[i]);
-                myData.push(freqData[i]);
+                myPieData.push(freqData[i]);
                 //data.results.splice(i, 1);
             }
         }
-        if (myData.length == 0) return;
+        if (myPieData.length == 0) return;
         //var lastRow = myData.length - 1;
 
         // remove the last row if it is 'none of the above'
-        if (myData[0].attributeId == -999999) {
-            myData.splice(0, 1);
+        if (myPieData[0].attributeId == -999999) {
+            myPieData.splice(0, 1);
         }
+        
+        counter = 0
+        var fieldName = "color";
+        for (var i = 0; i < myPieData.length; i++) {
+
+            // shorten codes names that are stupid long
+            if (myPieData[i].attribute.length > 60) {
+                myPieData[i].shortName = myPieData[i].attribute.substring(0, 60) + "...";
+            } else {
+                myPieData[i].shortName = myPieData[i].attribute;
+            }
+
+            // set the colours
+            if (counter == 0) {
+                myPieData[i][fieldName] = "#ff6800";
+            } else if (counter == 1) {
+                myPieData[i][fieldName] = "#a0a700";
+            } else if (counter == 2) {
+                myPieData[i][fieldName] = "#ff8d00";
+            } else if (counter == 3) {
+                myPieData[i][fieldName] = "#678900";
+            } else if (counter == 4) {
+                myPieData[i][fieldName] = "#ffb53c";
+            } else if (counter == 5) {
+                myPieData[i][fieldName] = "#396000";
+
+            }
+            if (counter == 5) {
+                counter = 0;
+            } else {
+                counter += 1;
+            }
+        }
+        
+
 
         var legendPostion = "right";
         var chartHeight = 250;
@@ -371,13 +442,13 @@
 
         $("#FrequenciesGrid").hide();
 
-        if (myData.length != 0) {
+        if (myPieData.length != 0) {
             $("#BarOrPieChartVisible").show();
             $("#FrequenciesChart").show();
             $("#NoCodedRecords").hide();
 
-            $("#FrequenciesChart").kendoChart({
-                dataSource: { data: myData },
+            $("#FrequenciesChart").kendoChart({              
+                dataSource: { data: myPieData },
                 chartArea: {
                     height: chartHeight
                 },
@@ -387,14 +458,15 @@
                 seriesClick: function (e) {
                     GoToListPie(e);
                 },
+                colors: "color",
                 series: [{
                     field: "itemCount",
-                    categoryField: "attribute",
+                    categoryField: "shortName",
                     padding: 0
                 }],
                 tooltip: {
                     visible: true,
-                    template: "#= HTMLEncodeText(category) #: #= value # records"
+                    template: "#= HTMLEncodeText(dataItem.attribute) #: #= value # records"
                 },
                 legend: {
                     item: {
@@ -426,7 +498,7 @@
                                     fill: { color: color }
                                 });
 
-                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].attribute + " (" +
+                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].shortName + " (" +
                                     e.series.data[e.pointIndex].itemCount + ")", [0, 0], {
                                     fill: {
                                         color: labelColor
@@ -446,6 +518,7 @@
                         width: 1,
                         color: "#d6d8db"
                     },
+                    
                 },
             });
         }
@@ -598,6 +671,30 @@
                             <tr>
                                 <td>
                                     <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.nameXAxis</b></h5>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="BuildTallerBar(1)" id="TallerBarBT">
+                                        <span class="btn-label">
+                                            <i class="fas fa-angle-double-up"></i>
+                                        </span>
+                                        Taller
+                                    </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="BuildShorterBar(1)" id="ShorterBarBT">
+                                        <span class="btn-label">
+                                            <i class="fas fa-angle-double-down"></i>
+                                        </span>
+                                        Shorter
+                                    </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="BuildTallerTree()" id="TallerTreeBT">
+                                        <span class="btn-label">
+                                            <i class="fas fa-angle-double-up"></i>
+                                        </span>
+                                        Taller
+                                    </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="BuildShorterTree()" id="ShorterTreeBT">
+                                        <span class="btn-label">
+                                            <i class="fas fa-angle-double-down"></i>
+                                        </span>
+                                        Shorter
+                                    </button>
                                 </td>
                                 <td style="text-align:right">
                                     <div class="card-tools">
