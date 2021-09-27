@@ -648,9 +648,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	DeleteMap(map: iWebDBMap) {
 		if (!this.CanWrite) return;
-		this.ConfirmationDialogService.confirm("Delete Web Database?"
+		this.ConfirmationDialogService.confirm("Delete Map?"
 			, "Are you sure you want to delete this Map (\"<em>" + map.webDBMapName + "</em>\")?"
-			, false, "", "Yes Delete", "Cancel").then((confirm: any) => {
+			, false, "", "Yes, Delete", "Cancel").then((confirm: any) => {
 				if (confirm) {
 					this.WebDBService.DeleteMap(map);
 				}
