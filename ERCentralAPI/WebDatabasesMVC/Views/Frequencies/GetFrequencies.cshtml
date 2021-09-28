@@ -31,6 +31,10 @@
         $("#ShorterBarBT").hide();
         $("#spinner").show();
         $("#resultsTable").hide();
+        $("#TallerBarBT").hide();
+        $("#ShorterBarBT").hide();
+        $("#TallerTreeBT").hide();
+        $("#ShorterTreeBT").hide();
         $.post("../Frequencies/GetFrequenciesResultsJSON", pars, (data, status) => buildResults(data, status));
     });
 
@@ -673,25 +677,25 @@
                                     <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.nameXAxis</b></h5>
                                     <button class="btn btn-primary btn-sm btn-round" onclick="BuildTallerBar(1)" id="TallerBarBT">
                                         <span class="btn-label">
-                                            <i class="fas fa-angle-double-up"></i>
+                                            <i class="fas fa-plus"></i>
                                         </span>
                                         Taller
                                     </button>
                                     <button class="btn btn-primary btn-sm btn-round" onclick="BuildShorterBar(1)" id="ShorterBarBT">
                                         <span class="btn-label">
-                                            <i class="fas fa-angle-double-down"></i>
+                                            <i class="fas fa-minus"></i>
                                         </span>
                                         Shorter
                                     </button>
                                     <button class="btn btn-primary btn-sm btn-round" onclick="BuildTallerTree()" id="TallerTreeBT">
                                         <span class="btn-label">
-                                            <i class="fas fa-angle-double-up"></i>
+                                            <i class="fas fa-plus"></i>
                                         </span>
                                         Taller
                                     </button>
                                     <button class="btn btn-primary btn-sm btn-round" onclick="BuildShorterTree()" id="ShorterTreeBT">
                                         <span class="btn-label">
-                                            <i class="fas fa-angle-double-down"></i>
+                                            <i class="fas fa-minus"></i>
                                         </span>
                                         Shorter
                                     </button>
