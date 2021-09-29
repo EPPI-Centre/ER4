@@ -260,7 +260,8 @@
             }
         }
         if (myData.length == 0) return;
-        //var lastRow = myData.length - 1;
+        //remove the "on click" event(s), which will be re-attached below. Otherwise we keep adding them which isn't good...
+        $("#FrequenciesChart").kendoTreeMap().off("click", ".k-leaf, .k-treemap-title");
 
         // remove the last row if it is 'none of the above'
         if (myData[0].attributeId == -999999) {
