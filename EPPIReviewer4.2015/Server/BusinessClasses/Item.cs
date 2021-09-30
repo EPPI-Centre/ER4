@@ -1520,7 +1520,7 @@ namespace BusinessLibrary.BusinessClasses
             else if (ss.Length == 1) return ss;//what else can we do? Added by SG on 22/09/2021
             string orig = ss;
             ss = RemoveLanguageAndThesisText(ss);
-            ss = MagMakesHelpers.CleanText(ss);
+            ss = MagMakesHelpers.CleanText(ss, true);//the true paramater makes it use a less aggressive stripping out if the original string gets shortened by 90% or more
             string r = Truncate(ToSimpleText(RemoveDiacritics(ss))
                     .Replace("a", "")
                     .Replace("e", "")
