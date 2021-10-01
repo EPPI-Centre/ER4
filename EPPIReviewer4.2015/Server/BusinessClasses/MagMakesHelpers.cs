@@ -697,11 +697,19 @@ namespace BusinessLibrary.BusinessClasses
             }
             return 12; // just in case
         }
-
+        public static readonly Regex CleanTextWhiteList = new Regex("[^a-zA-Z0-9 ]");
+        public static readonly Regex CleanTextBlackList = new Regex("[!-/:-@[-`{-¿"
+                        + Char.ConvertFromUtf32(697) + "-" + Char.ConvertFromUtf32(866)//using the unicode codes because they look odd and might not work in VS
+                        + Char.ConvertFromUtf32(1154) + "-" + Char.ConvertFromUtf32(1161)
+                        + Char.ConvertFromUtf32(1369) + "-" + Char.ConvertFromUtf32(1375)
+                        + Char.ConvertFromUtf32(1417) + "-" + Char.ConvertFromUtf32(1479)
+                        + Char.ConvertFromUtf32(1519) + "-" + Char.ConvertFromUtf32(1567)
+                        + "]"
+                        );//these are ranges of the unicode chars that contain various symbols, pretty much stopping before the arabic range because ignorance...
         public static string CleanText(string text, bool UseLighterTouch = false )
         {
             if (text == "") return text;
-            Regex rgx = new Regex("[^a-zA-Z0-9 ]");
+            
             Dictionary<string, string> charMap = EuropeanCharacterMap();
             foreach (KeyValuePair<string, string> replacement in charMap)
             {
@@ -709,7 +717,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             string orig = text;
 
-            text = rgx.Replace(text, " ").ToLower().Trim();
+            text = CleanTextWhiteList.Replace(text, " ").ToLower().Trim();
             while (text.IndexOf("  ") != -1)
             {
                 text = text.Replace("  ", " ");
@@ -721,16 +729,8 @@ namespace BusinessLibrary.BusinessClasses
                 if (cut / full >= 0.1) return text; //cleaned text is 10% or more of the original text, we'll keep it.
                 else
                 {// we removed too much, so we'll use the less aggressive approach, getting rid of what's in the ranges below
-                    rgx = new Regex("[!-/:-@[-`{-¿"
-                        + Char.ConvertFromUtf32(697) + "-" + Char.ConvertFromUtf32(866)//using the unicode codes because they look odd and might not work in VS
-                        + Char.ConvertFromUtf32(1154) + "-" + Char.ConvertFromUtf32(1161)
-                        + Char.ConvertFromUtf32(1369) + "-" + Char.ConvertFromUtf32(1375)
-                        + Char.ConvertFromUtf32(1417) + "-" + Char.ConvertFromUtf32(1479)
-                        + Char.ConvertFromUtf32(1519) + "-" + Char.ConvertFromUtf32(1567)
-                        + "]"
-                        );//these are ranges of the unicode chars that contain various symbols, pretty much stopping before the arabic range because ignorance...
-                    //hopefully the above removes a great deal of noise, even if perhaps not all noise.
-                    text = rgx.Replace(orig, " ").ToLower().Trim();
+                    //hopefully the BlackList removes a great deal of noise, even if perhaps not all noise.
+                    text = CleanTextBlackList.Replace(orig, " ").ToLower().Trim();
                     while (text.IndexOf("  ") != -1)
                     {
                         text = text.Replace("  ", " ");
