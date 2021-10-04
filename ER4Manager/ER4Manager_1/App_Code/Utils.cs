@@ -343,6 +343,15 @@ public class Utils
             //return "";
         }
     }
+    public static string EPPIVisUrl
+    {
+        get
+        {
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["EPPIVisUrl"];
+            if (tmp != null) return tmp;
+            else return "https://eppi.ioe.ac.uk/eppi-vis";
+        }
+    }
     private static SmtpClient smtpClient()
     {
         SmtpClient smtp = new SmtpClient(SMTP);//sergio.graziosi+1@gmail.com

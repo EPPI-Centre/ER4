@@ -57,7 +57,7 @@
                         FilterControlAltText="Filter EPPI-Vis column">
                         <ItemTemplate>
                             <asp:HyperLink ID="EPPIVis" runat="server" Text='<%# Bind("WEBDB_NAME") %>'
-                                NavigateUrl='<%# "https://localhost:44314/Login/Open?WebDBid=" + Eval("WEBDB_ID")  %>'
+                                NavigateUrl='<%# EPPIVisUrl() + "Login/Open?WebDBid=" + Eval("WEBDB_ID")  %>'
                                 DataFormatString="<nobr>{0}</nobr>" Target="_blank">HyperLink</asp:HyperLink>
                         </ItemTemplate>
                         <HeaderStyle Width="200px" BackColor="#B6C6D6" ForeColor="Black" />

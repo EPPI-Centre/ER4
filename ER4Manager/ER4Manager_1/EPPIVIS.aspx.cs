@@ -69,6 +69,10 @@ public partial class EPPIVIS : System.Web.UI.Page
             Server.Transfer("Error.aspx");
         }
     }
+    public string EPPIVisUrl()
+    {
+        return Utils.EPPIVisUrl;
+    }
 
     private void buildRadEPPIVisGrid()
     {

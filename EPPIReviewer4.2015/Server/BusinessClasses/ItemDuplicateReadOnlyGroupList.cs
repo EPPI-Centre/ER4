@@ -405,7 +405,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     using (SqlCommand command = new SqlCommand("st_ItemDuplicatesGetCandidatesOnSearchText", connection))
                     {
-                        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                        //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _RevId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _Cid));
