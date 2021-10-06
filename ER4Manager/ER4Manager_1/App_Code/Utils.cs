@@ -349,7 +349,7 @@ public class Utils
         {
             string tmp = System.Configuration.ConfigurationManager.AppSettings["EPPIVisUrl"];
             if (tmp != null) return tmp;
-            else return "https://eppi.ioe.ac.uk/eppi-vis";
+            else return "https://eppi.ioe.ac.uk/eppi-vis/";
         }
     }
     private static SmtpClient smtpClient()

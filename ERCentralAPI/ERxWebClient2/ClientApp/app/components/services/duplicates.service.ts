@@ -548,6 +548,7 @@ export interface iDuplicateGroupMember {
     typeName: string;
     pages: string;
     similarityScore: number;
+    doi: string;
 }
 export interface iItemDuplicateGroup {
     groupID: number;
@@ -597,6 +598,7 @@ export class DuplicateGroupMember {
             this.typeName = iDupMember.typeName;
             this.pages = iDupMember.pages;
             this.similarityScore = iDupMember.similarityScore;
+            this.doi = iDupMember.doi;
         }
     }
     itemDuplicateId: number = 0;
@@ -620,6 +622,7 @@ export class DuplicateGroupMember {
     typeName: string = "";
     pages: string = "";
     similarityScore: number = 0;
+    doi: string = "";
 }
 export class ItemDuplicateGroup {
     constructor(iItemDGroup?: iItemDuplicateGroup) {
