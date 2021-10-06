@@ -100,9 +100,9 @@
                            <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="50px"/>
                        </telerik:GridBoundColumn>
                        
-                       <telerik:GridBoundColumn AllowFiltering="False" DataField="CONTACT_NAME" 
+                       <telerik:GridBoundColumn AllowFiltering="False" DataField="USERNAME" 
                            DataFormatString="&lt;nobr&gt;{0}&lt;/nobr&gt;" 
-                           FilterControlAltText="Filter column6 column" HeaderText="Creator" 
+                           FilterControlAltText="Filter column6 column" HeaderText="*Username" 
                            UniqueName="column6">
                            <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="95px" />
                        </telerik:GridBoundColumn>

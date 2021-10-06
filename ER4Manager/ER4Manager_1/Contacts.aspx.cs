@@ -85,7 +85,8 @@ public partial class Contacts : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(DateTime)));
         dt.Columns.Add(new DataColumn("MONTHS_CREDIT", typeof(string)));
         dt.Columns.Add(new DataColumn("SITE_LIC_ID", typeof(string)));
-        dt.Columns.Add(new DataColumn("CREATOR_ID", typeof(string)));
+        //dt.Columns.Add(new DataColumn("CREATOR_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("USERNAME", typeof(string)));
 
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_2", ER4AccountsOnly, tbFilter.Text, siteLicense);
@@ -100,7 +101,8 @@ public partial class Contacts : System.Web.UI.Page
             newrow["EXPIRY_DATE"] = idr["EXPIRY_DATE"];
             newrow["SITE_LIC_ID"] = idr["SITE_LIC_ID"].ToString();
             newrow["MONTHS_CREDIT"] = idr["MONTHS_CREDIT"].ToString();
-            newrow["CREATOR_ID"] = idr["CREATOR_ID"].ToString();
+            //newrow["CREATOR_ID"] = idr["CREATOR_ID"].ToString();
+            newrow["USERNAME"] = idr["USERNAME"].ToString();
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -139,7 +141,8 @@ public partial class Contacts : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(DateTime)));
         dt.Columns.Add(new DataColumn("MONTHS_CREDIT", typeof(string)));
         dt.Columns.Add(new DataColumn("SITE_LIC_ID", typeof(string)));
-        dt.Columns.Add(new DataColumn("CREATOR_ID", typeof(string)));
+        //dt.Columns.Add(new DataColumn("CREATOR_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("USERNAME", typeof(string)));
 
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_2", ER4AccountsOnly, tbFilter.Text, siteLicense);
@@ -158,7 +161,8 @@ public partial class Contacts : System.Web.UI.Page
             newrow["EXPIRY_DATE"] = idr["EXPIRY_DATE"];
             newrow["SITE_LIC_ID"] = idr["SITE_LIC_ID"].ToString();
             newrow["MONTHS_CREDIT"] = idr["MONTHS_CREDIT"].ToString();
-            newrow["CREATOR_ID"] = idr["CREATOR_ID"].ToString();
+            //newrow["CREATOR_ID"] = idr["CREATOR_ID"].ToString();
+            newrow["USERNAME"] = idr["USERNAME"].ToString();
             dt.Rows.Add(newrow);
         }
         idr.Close();
