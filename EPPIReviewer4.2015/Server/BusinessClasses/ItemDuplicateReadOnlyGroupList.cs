@@ -836,7 +836,7 @@ namespace BusinessLibrary.BusinessClasses
                     ic1.ABSTRACT.Length > 50 && ic2.ABSTRACT.Length > 50 &&
                     ic1.PARENT_TITLE.Length > 5 && ic2.PARENT_TITLE.Length > 5 && titleSimilarity > 90 &&
                     ptitleLev(ic1, ic2) > 90 &&
-                    MagPaperItemMatch.HaBoLevenshtein(ic1.ABSTRACT, ic2.ABSTRACT) > 90)
+                    MagPaperItemMatch.HaBoLevenshtein(ic1.ABSTRACT, ic2.ABSTRACT) > 97) //07/10/2021: up from 90 to account for "correction" references, which might have almost identical abstract to what they are correcting...
                 {
                     return 0.98;
                 }
