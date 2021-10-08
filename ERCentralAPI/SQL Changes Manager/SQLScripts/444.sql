@@ -21,10 +21,7 @@ declare @Content nvarchar(max) = '
 	<b>Create a new visualisation.</b><br>
 	<img class="img" src="Images/EPPIVis_Create.png"><br>
 	To create a new visualisation click <b>Add new</b>, enter a title, a subTitle and click <b>Save</b><br><br>
-	At any time you can preview the visualisation by clicking <b>View in EPPI-Vis</b><br>
-	<img class="img" src="Images/EPPIVis_EditButton.png"><br>
-	The actual link to your visualisation can be found further down the screen as the <b>Public URL</b><br>
-	<img class="img" src="Images/EPPIVis_PublicURL.png"><br><br>
+	<br><br>
 	</div>
 	<div class="col-sm">		
 	<b>Edit visualisation - click Edit!</b> <img class="img" src="Images/EPPIVis_EditButton.png"><br>
@@ -38,16 +35,15 @@ declare @Content nvarchar(max) = '
 
 <div class="row">
 	<div class="col-sm">
-	<b>Adding logos - click Edit! then Edit images</b> <img class="img" src="Images/EPPIVis_EditImageButton.png"><br>
-	<img class="img" src="Images/EPPIVis_Logos.png"><br>
-	Select the image number (up to 2) and click <b>Select files</b> to choose and upload an image.<br>
-	Image size restrictions and image caching details are described on the screen.<br>
-	Be sure to click <b>Save</b> when you are finished.<br><br> 
+	<b>Adding logos</b> - click <b>Edit!</b> then <b>Edit images</b> <img class="img" src="Images/EPPIVis_EditImageButton.png"><br>
+	<img class="img" src="Images/EPPIVis_AddLogos.png"><br>
+	Select the image location and click <b>Select files</b> to choose and upload an image. Image size restrictions and image caching details 
+	are described on the screen. Be sure to click <b>Save</b> when you are finished.<br><br> 
 	</div>
 	<div class="col-sm">
 	<b>Adding logo links</b><br>
-	<img class="img" src="Images/EPPIVis_LogosUrls.png"><br>
-	Click <b>Edit!</b> and you will see two text boxes below the description area.<br> 
+	<img class="img" src="Images/EPPIVis_LogoUrls.png"><br>
+	Click <b>Edit!</b> and you will see text boxes below the description area.<br> 
 	You can enter urls for your logos to make them linkable to a website.<br>
 	Enter the full path including https://<br>
 	Be sure to click <b>Save</b> when you are finished.<br><br>
@@ -73,12 +69,29 @@ declare @Content nvarchar(max) = '
 	</div>
 </div>
 
+<div class="row">
+	<div class="col-sm">
+	<b>View the visualisation</b><br>
+	At any time you can preview the visualisation by clicking <b>View in EPPI-Vis</b><br>
+	<img class="img" src="Images/EPPIVis_EditButton.png"><br>
+	The actual link to your visualisation can be found further down the screen as the <b>Public URL</b><br>
+	<img class="img" src="Images/EPPIVis_PublicURL.png">
+	<br><br>
+	</div>
+	<div class="col-sm">
+	<b>Example visualisation</b><br>
+	<img class="img" src="Images/EPPIVis_example.png">
+	<br><br>
+	</div>
+</div>
+
 <hr>
 
 <div class="row">
 	<div class="col-sm">
 	<b>Pre-configured maps</b><br>
-	<img class="img" src="Images/EPPIVis_PreConfigMap01.png"><br><br>
+	<img class="img" src="Images/EPPIVis_PreConfigMap01.png"><br>
+	Click <b>Create map</b> to set up a pre-configured map.<br><br>
 	</div>
 	<div class="col-sm">
 	<b>A Map is a graphical, interactive, 3-dimensional visualisation of research evidence in a particular domain.</b><br />
