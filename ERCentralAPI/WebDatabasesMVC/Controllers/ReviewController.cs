@@ -125,5 +125,23 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        public IActionResult MapsListJSON()
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    WebDBMapCriteria crit = new WebDBMapCriteria(WebDbId, 0);
+                    WebDbMapList res = DataPortal.Fetch<WebDbMapList>(crit);
+                    return Json(res);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in MapsListJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 }

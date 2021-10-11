@@ -521,6 +521,33 @@
 	  <None Update="SQLScripts\426.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <None Update="SQLScripts\428.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\430.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\432.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\434.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\436.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\438.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\440.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\442.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\444.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
     <None Update="SQLScripts\MagCurrentInfoInsert.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -405,7 +405,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     using (SqlCommand command = new SqlCommand("st_ItemDuplicatesGetCandidatesOnSearchText", connection))
                     {
-                        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                        //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _RevId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _Cid));
@@ -651,7 +651,7 @@ namespace BusinessLibrary.BusinessClasses
                     ITEM_ID = reader.GetInt64("ITEM_ID");
                     AUTHORS = reader.GetString("AUTHORS");
                     TITLE = reader.GetString("TITLE");
-                    PARENT_TITLE = MagMakesHelpers.CleanText(reader.GetString("PARENT_TITLE").Replace("&", "and"));
+                    PARENT_TITLE = MagMakesHelpers.CleanText(reader.GetString("PARENT_TITLE").Replace("&", "and"), true);
                     YEAR = reader.GetString("YEAR");
                     VOLUME = reader.GetString("VOLUME");
                     PAGES = reader.GetString("PAGES");
@@ -667,7 +667,7 @@ namespace BusinessLibrary.BusinessClasses
                     ITEM_ID = reader.GetInt64("ITEM_ID2");
                     AUTHORS = reader.GetString("AUTHORS2");
                     TITLE = reader.GetString("TITLE2");
-                    PARENT_TITLE = MagMakesHelpers.CleanText(reader.GetString("PARENT_TITLE2").Replace("&", "and"));
+                    PARENT_TITLE = MagMakesHelpers.CleanText(reader.GetString("PARENT_TITLE2").Replace("&", "and"), true);
                     YEAR = reader.GetString("YEAR2");
                     VOLUME = reader.GetString("VOLUME2");
                     PAGES = reader.GetString("PAGES2");
@@ -678,9 +678,10 @@ namespace BusinessLibrary.BusinessClasses
                     IS_MASTER = reader.GetInt32("IS_MASTER2");
                     TYPE_ID = reader.GetInt32("TYPE_ID2");
                 }
-                if (TITLE.IndexOf("Erratum") == -1)
+                //line below was: if (TITLE.IndexOf("Erratum") == -1)
+                if (!Comparator.ErratumRegex.IsMatch(TITLE))
                     TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
-                TITLE = MagMakesHelpers.CleanText(TITLE);
+                TITLE = MagMakesHelpers.CleanText(TITLE, true);
             }
 
             public ItemComparison(MagMakesHelpers.PaperMakes pm)
@@ -701,7 +702,8 @@ namespace BusinessLibrary.BusinessClasses
                 HAS_CODES = 0;
                 IS_MASTER = 0;
                 TYPE_ID = MagMakesHelpers.GetErEquivalentPubType(pm.Pt);
-                if (TITLE.IndexOf("Erratum") == -1)
+                //line below was: if (TITLE.IndexOf("Erratum") == -1)
+                if (!Comparator.ErratumRegex.IsMatch(TITLE))
                     TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
                 TITLE = MagMakesHelpers.CleanText(TITLE);
             }
@@ -721,7 +723,8 @@ namespace BusinessLibrary.BusinessClasses
                 HAS_CODES = 0;
                 IS_MASTER = 0;
                 TYPE_ID = i.TypeId;
-                if (TITLE.IndexOf("Erratum") == -1)
+                //line below was: if (TITLE.IndexOf("Erratum") == -1)
+                if (!Comparator.ErratumRegex.IsMatch(TITLE))
                     TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
                 TITLE = MagMakesHelpers.CleanText(TITLE);
             }
@@ -763,6 +766,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         internal class Comparator
         {
+            public static readonly System.Text.RegularExpressions.Regex ErratumRegex = new System.Text.RegularExpressions.Regex("(E|e)rratum|(c|C)orrection|(c|C)orrigendum|(e|E)rrata");
             //little tricks to ensure costly operations are done only once
             private void ClearPrivateComparisonValues()
             {
@@ -832,7 +836,7 @@ namespace BusinessLibrary.BusinessClasses
                     ic1.ABSTRACT.Length > 50 && ic2.ABSTRACT.Length > 50 &&
                     ic1.PARENT_TITLE.Length > 5 && ic2.PARENT_TITLE.Length > 5 && titleSimilarity > 90 &&
                     ptitleLev(ic1, ic2) > 90 &&
-                    MagPaperItemMatch.HaBoLevenshtein(ic1.ABSTRACT, ic2.ABSTRACT) > 90)
+                    MagPaperItemMatch.HaBoLevenshtein(ic1.ABSTRACT, ic2.ABSTRACT) > 97) //07/10/2021: up from 90 to account for "correction" references, which might have almost identical abstract to what they are correcting...
                 {
                     return 0.98;
                 }
@@ -878,7 +882,7 @@ namespace BusinessLibrary.BusinessClasses
                 int volumeMatch = ic1.VOLUME == ic2.VOLUME ? 1 : 0;
                 int pageMatch = ic1.GetFirstPage() == ic2.GetFirstPage() ? 1 : 0;
                 int yearMatch = ic1.YEAR == ic2.YEAR ? 1 : 0;
-                int doiMatch = ic1.DOI == ic2.DOI ? 1 : 0;
+                int doiMatch = ic1.DOI.Length > 8 && ic1.DOI == ic2.DOI ? 1 : 0;
                 double journalJaro = ic1.PARENT_TITLE != null ? ptitleLev(ic1, ic2) : 0;
                 //double allAuthorsJaro = MagPaperItemMatch.Jaro(reader["AUTHORS"].ToString().Replace(",", " "),
                 //readerCandidates["AUTHORS"].ToString().Replace(",", " "));
@@ -914,9 +918,15 @@ namespace BusinessLibrary.BusinessClasses
                     ret = Math.Min(ret, 0.75);
 
                 // check for erratum
-                if ((ic1.TITLE.IndexOf("erratum") > -1 && ic2.TITLE.IndexOf("erratum") < 0) ||
-                    (ic2.TITLE.IndexOf("erratum") > -1 && ic1.TITLE.IndexOf("erratum") < 0))
+                bool ic1HasErratum = Comparator.ErratumRegex.IsMatch(ic1.TITLE);
+                bool ic2HasErratum = Comparator.ErratumRegex.IsMatch(ic2.TITLE);
+                if ((ic1HasErratum && !ic2HasErratum)
+                    || (ic2HasErratum && !ic1HasErratum))
                     ret = Math.Min(ret, 0.75);
+                //OLD version below, when we only looked for "erratum". New regex will match 4 labels for the same effect
+                //if ((ic1.TITLE.IndexOf("erratum") > -1 && ic2.TITLE.IndexOf("erratum") < 0) ||
+                //    (ic2.TITLE.IndexOf("erratum") > -1 && ic1.TITLE.IndexOf("erratum") < 0))
+                //    ret = Math.Min(ret, 0.75);
 
                 // if first page numbers different AND journal different then can't be an auto-match
                 if ((ic1.PARENT_TITLE != "" && ic2.PARENT_TITLE != "") &&
@@ -965,7 +975,9 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     foreach (AutH auth2 in ic2.GetAuthors())
                     {
-                        double compareResult = doCompareAuthors(MagMakesHelpers.CleanText(author.LastName), MagMakesHelpers.CleanText(auth2.LastName));
+                        double compareResult = 0;
+                        if (author.LastName.Length > 1 && author.LastName == auth2.LastName) compareResult = 1;
+                        else compareResult = doCompareAuthors(MagMakesHelpers.CleanText(author.LastName, true), MagMakesHelpers.CleanText(auth2.LastName, true));
                         if (compareResult > 0)
                         {
                             lastWithLast += compareResult;
@@ -977,7 +989,9 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     foreach (AutH auth2 in ic2.GetAuthors())
                     {
-                        double compareResult = doCompareAuthors(MagMakesHelpers.CleanText(author.LastName), MagMakesHelpers.CleanText(auth2.FirstName));
+                        double compareResult = 0;
+                        if (author.LastName.Length > 1 && author.LastName == auth2.FirstName) compareResult = 1;
+                        else compareResult = doCompareAuthors(MagMakesHelpers.CleanText(author.LastName, true), MagMakesHelpers.CleanText(auth2.FirstName, true));
                         if (compareResult > 0)
                         {
                             firstWithLast += compareResult;

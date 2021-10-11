@@ -27,8 +27,13 @@
 <script>
     var treeviewData = null;
     var dataItem = null;
-    var dataItemXaxis = null;
+    //var dataItemXaxis = null;
+    var dataItemMapXaxis = null;
+    var dataItemMapYaxis = null;
+    var dataItemMapSegments = null;
     var freqData = null;
+    let MapsData = null;
+
     function Buildnode(attr) {
         var nodes = [];
 
@@ -79,6 +84,9 @@
                             nodes.push(nd);
                         }
                         GetYearsFreqs();//getting the years chart after the codes...
+                        setTimeout(function () {
+                            GetMaps();
+                        }, 150); //don't like multiple requests to be fired all at once!
                         return nodes;
                     }
                 }
@@ -87,13 +95,13 @@
         });
         treeviewData = $("#treeView").data("kendoTreeView");
         const descrPanel = $("#WebDBDescription");
-        console.log("descrPanel:", descrPanel, descrPanel.height());
+        //console.log("descrPanel:", descrPanel, descrPanel.height());
         if (descrPanel && descrPanel.height() > 300) {
             //ExpandDescription ReduceDescription
             $("#ExpandDescription").show();
             $("#ReduceDescription").hide();
             $("#HideDescriptionDiv").show();
-            $("#ShowDescriptionDiv").hide();           
+            $("#ShowDescriptionDiv").hide();
             descrPanel.css("max-height", "250px");
         } else {
             $("#ExpandDescription").hide();
@@ -101,6 +109,14 @@
         }
         //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
         $("#FrequenciesResult").html("Frequencies");
+        $("#BarOrPieChartVisible").hide();
+        $("#NoCodedRecords").hide();
+        $("#YearFreqPie").hide();
+        $("#BarByYearChartVisible").show();
+        $("#YearFreq").prop("disabled", true);
+        $("#BuildBarShowNOA").hide();
+        $("#BuildBarHideNOA").hide();
+        $("#tableVisible").val("0");
     });
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
@@ -121,7 +137,7 @@
         const descrShowHideIcon = $("#ShowHideDescriptionDivIcon");
         if (descrPanel) {
             descrPanel.css("max-height", "250px");
-            if (descrShowHideIcon[0].className == "fa fa-plus") {                
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
                 $("#ExpandDescription").show();
                 $("#ReduceDescription").hide();
                 $("#WebDBDescriptionBody").show();
@@ -137,8 +153,120 @@
     }
 
 
+    function HideShowPublicationDiv() {
+        if ("#publicationDiv") {
+            if (HideShowPublicationDivIcon.className == "fa fa-plus") {
+                $("#publicationDiv").show();
+                HideShowPublicationDivIcon.className = "fa fa-minus";
+                $("#publicationDiv").css("max-height", "1000px");
+                $("#YearFreq").show();
+                $("#YearFreqTable").show();
+                if (YearFreqTable.disabled == false) {
+                    $("#BarByYearChartVisible").show();
+                }
+            }
+            else {
+                $("#publicationDiv").hide();
+                HideShowPublicationDivIcon.className = "fa fa-plus";
+                $("#publicationDiv").css("max-height", "0px");
+                $("#YearFreq").hide();
+                $("#YearFreqTable").hide();
+                $("#BarByYearChartVisible").hide();
+            }
+        }
+    }
+
+    function HideShowPBMapsDiv() {
+        if ("#MapsCardBody") {
+            if (HideShowPBMapsDivIcon.className == "fa fa-plus") {
+                $("#MapsCardBody").show();
+                HideShowPBMapsDivIcon.className = "fa fa-minus";
+                $("#MapsCardBody").css("max-height", "1000px");
+            }
+            else {
+                $("#MapsCardBody").hide();
+                HideShowPBMapsDivIcon.className = "fa fa-plus";
+                $("#MapsCardBody").css("max-height", "0px");
+            }
+        }
+    }
+
+    function HideShowFrequencyDiv() {
+        if ("#VisualsDiv") {
+            if (HideShowFrequencyDivIcon.className == "fa fa-plus") {
+                $("#VisualsDiv").show();
+                HideShowFrequencyDivIcon.className = "fa fa-minus";
+                $("#VisualsDiv").css("max-height", "1000px");
+                $("#CurrentNodeGoToFreq").show();
+                $("#CurrentNodeGoToFreqBar").show();
+                $("#CurrentNodeGoToFreqPie").show();
+                $("#CurrentNodeGoToFreq2").show();
+                if (FrequenciesResult.textContent == "Frequencies") {
+                    $("#BarOrPieChartVisible").hide();
+                }
+                else if (tableVisible.value == "1") {
+                    $("#BarOrPieChartVisible").hide();
+                }
+                else {
+                    $("#BarOrPieChartVisible").show();
+                }
+            }
+            else {
+                $("#VisualsDiv").hide();
+                HideShowFrequencyDivIcon.className = "fa fa-plus";
+                $("#VisualsDiv").css("max-height", "0px");
+                $("#CurrentNodeGoToFreq").hide();
+                $("#CurrentNodeGoToFreqBar").hide();
+                $("#CurrentNodeGoToFreqPie").hide();
+                $("#CurrentNodeGoToFreq2").hide();
+                $("#BarOrPieChartVisible").hide();
+            }
+        }
+    }
+
+
+    function HideShowMapDescriptionDiv(ID) {
+
+        var WebDBMapDescription = 'WebDBMapDescription' + ID;
+        var WebDBMapDescriptionBody = 'WebDBMapDescriptionBody' + ID;
+        var ShowHideMapDescriptionDivIcon = 'ShowHideMapDescriptionDivIcon' + ID;
+
+        const descrPanel = $("#" + WebDBMapDescription);
+        const descrShowHideIcon = $("#" + ShowHideMapDescriptionDivIcon);
+        if (descrPanel) {
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
+                $("#" + WebDBMapDescriptionBody).show();
+                $("#" + ShowHideMapDescriptionDivIcon)[0].className = "fa fa-minus";
+                descrPanel.css("max-height", "300px");
+            }
+            else {
+                $("#" + WebDBMapDescriptionBody).hide();
+                $("#" + ShowHideMapDescriptionDivIcon)[0].className = "fa fa-plus";
+                descrPanel.css("max-height", "0px");
+            }
+        }
+    }
+
+    function HideShowCrosstabDiv() {
+        if ("#crosstabDiv") {
+            if (HideShowCrosstabDivIcon.className == "fa fa-plus") {
+                $("#crosstabDiv").show();
+                HideShowCrosstabDivIcon.className = "fa fa-minus";
+                $("#crosstabDiv").css("max-height", "1000px");
+            }
+            else {
+                $("#crosstabDiv").hide();
+                HideShowCrosstabDivIcon.className = "fa fa-plus";
+                $("#crosstabDiv").css("max-height", "0px");
+            }
+        }
+    }
+
+
+
+
     function tree_dataBound(e) {
-        console.log("DataBound", e.node);
+        //console.log("DataBound", e.node);
     }
     function GoToFreq() {
         //console.log("CurrentNodeGoToFreq");
@@ -157,68 +285,233 @@
         if (!dataItem) {
             //console.log("GetFreqs no data");
             return;
-        }
-        $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
-        $("#setIdXAxisCrit").val(dataItem.setId);
-        $("#FrequenciesGrid").show();
-        $("#FrequenciesChart").hide();
-        $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
-        //$("#FrequenciesResult").show();
-
-        if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
-            //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
-        }
-        else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
-            //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
-        }
-    }
-
-
-    function GetFreqsBar() {
-        if (!dataItem) {
+        } else if (
+            freqData != null
+            && (
+                (dataItem.isCodeset == false && dataItem.id == freqData.criteria.attributeIdXAxis)//it's a code, compare attributeIDs
+                ||
+                (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
+            )
+        ) {
+            //console.log("GetFreqs no API call");
+            BuildFreqs();
             return;
         }
+        //console.log("GetFreqs do API call");
+        freqData = null;
         $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
         $("#setIdXAxisCrit").val(dataItem.setId);
+        $("#FrequenciesResult").text("Frequencies: " + dataItem.text);      
+        $("#FreqSpinner").show();
+
         if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildBar(data, result); })
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildFreqs();
+                    } else {
+                        $("#FrequenciesGrid").html("");
+                    }
+                })
         }
         else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildBar(data, result); })
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildFreqs();
+                    } else {
+                        $("#FrequenciesGrid").html("");
+                    }
+                })
+
         }
     }
 
+    function BuildFreqs() {
+        $("#BarOrPieChartVisible").hide();
+        $("#FrequenciesGrid").show();
+        $("#FrequenciesChart").hide();
+        $("#NoCodedRecords").hide();
+        $("#BuildBarShowNOA").hide();
+        $("#BuildBarHideNOA").hide();
+        $("#tableVisible").val("1");
+
+        //$("#FrequenciesResult").show();
+        let desiredHeight = ((freqData.results.length + 1) * 20.1 + 4);
+        if (desiredHeight > window.innerHeight / 2) desiredHeight = window.innerHeight / 2;
+        $("#FrequenciesGrid").css("height", ((freqData.length + 1) * 20.1 + 4).toString() + 'px');
+        $("#FrequenciesGrid").kendoGrid({
+            rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
+            columns: [
+                {
+                    field: "attribute",
+                    title: "Code Name",
+                    headerAttributes: {
+                        "class": "small py-0 px-1 font-weight-bold w-75"
+                    }
+                },
+                {
+                    field: "itemCount",
+                    title: "Count",
+                    headerAttributes: {
+                        "class": "small py-0 px-1 font-weight-bold w-25"
+                    }
+                }],
+            dataSource: freqData.results,
+            height: desiredHeight
+        });
+
+    }
+
+    function GetFreqsBar(showNoneOfTheAbove) {
+        if (!dataItem) {
+            //console.log("GetFreqs no data");
+            return;
+        } else if (
+            freqData != null
+            && (
+                (dataItem.isCodeset == false && dataItem.id == freqData.criteria.attributeIdXAxis)//it's a code, compare attributeIDs
+                ||
+                (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
+            )
+        ) {
+            BuildBar(showNoneOfTheAbove);
+            return;
+        }
+        freqData = null;
+        
+        $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
+        $("#setIdXAxisCrit").val(dataItem.setId);
+        $("#FrequenciesResult").text("Frequencies: " + dataItem.text);
+        $("#FreqSpinner").show();
+        if (dataItem.isCodeset == true) {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildBar(showNoneOfTheAbove);
+                    }
+                })
+        }
+        else {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildBar(showNoneOfTheAbove);
+                    }
+                })
+        }
+    }
 
     function GetFreqsPie() {
         if (!dataItem) {
+            //console.log("GetFreqs no data");
+            return;
+        } else if (
+            freqData != null
+            && (
+                (dataItem.isCodeset == false && dataItem.id == freqData.criteria.attributeIdXAxis)//it's a code, compare attributeIDs
+                ||
+                (dataItem.isCodeset == true && dataItem.setId == freqData.criteria.setIdXAxis && freqData.criteria.attributeIdXAxis == 0) //it's a coding tool, compare SetIDs and ensure the criteria isn't asking for a code
+            )
+        ) {
+            //console.log("direct to build pie");
+            BuildPie();
             return;
         }
+        freqData = null;
+        
         $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
         $("#setIdXAxisCrit").val(dataItem.setId);
+        $("#FrequenciesResult").text("Frequencies: " + dataItem.text);
+        $("#FreqSpinner").show();
         if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildPie(data, result); })
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildPie();
+                    }
+                });
         }
         else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildPie(data, result); })
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildPie();
+                    }
+                })
         }
     }
 
-    function BuildBar(data, result) {
-        if (!dataItem) {
-            return;
-        }
-
+    function BuildBar(showNoneOfTheAbove) {
+        $("#tableVisible").val("0");
+        $("#BarOrPieChartVisible").show();
         $("#FrequenciesGrid").hide();
         $("#FrequenciesChart").show();
-        $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
+        $("#NoCodedRecords").hide();
         //$("#FrequenciesResult").show();
 
+        var chartHeight = 300;
+        let myData = [];
+        for (var i = 0; i < freqData.results.length; i++) {
+            myData.push(freqData.results[i]);
+            // shorten codes names that are stupid long
+            if (myData[i].attribute.length > 60) {
+                myData[i].shortName = myData[i].attribute.substring(0, 60) + "...";
+            } else {
+                myData[i].shortName = myData[i].attribute;
+            }
+        }
+
+        if (myData.length > 25) {
+            chartHeight = 500;
+        }
+
+        if (myData.length > 50) {
+            chartHeight = 750;
+        }
+
+        if (myData.length > 75) {
+            chartHeight = 1000;
+        }
+
+        if (myData.length > 100) {
+            chartHeight = 1250;
+        }
+
+        if (myData.length > 150) {
+            chartHeight = 1750;
+        }
+
+
+        if (showNoneOfTheAbove == 0) {
+            if (myData[myData.length - 1].attributeId == -999999) {
+                myData.splice(freqData.results.length - 1, 1);
+            }
+            $("#BuildBarShowNOA").show();
+            $("#BuildBarHideNOA").hide();
+        }
+        else {
+            $("#BuildBarShowNOA").hide();
+            $("#BuildBarHideNOA").show();
+        }
+
         $("#FrequenciesChart").kendoChart({
-            dataSource: { data: data.results },
+            //dataSource: { data: freqData.results },
+            dataSource: { data: myData },
             categoryAxis: {
-                field: "attribute"
+                field: "shortName"
             },
             series: [
                 { field: "itemCount" }
@@ -230,92 +523,191 @@
                 GoToFreqListPieAndBar(e);
             },
             chartArea: {
-                height: 250
+                height: chartHeight
             },
             tooltip: {
                 visible: true,
-                template: "#= category #: #= value # records"
+                template: "#= HTMLEncodeText(dataItem.attribute) #: #= value # records"
             }
         });
     }
 
 
-    function BuildPie(data, result) {
-        if (!dataItem) {
-            return;
+
+
+    function BuildPie() {
+        $("#tableVisible").val("0");
+        $("#BuildBarShowNOA").hide();
+        $("#BuildBarHideNOA").hide();
+
+        let myData = [];
+        // remove all of the rows that have zero values
+        for (var i = freqData.results.length - 1; i >= 0; i--) {
+            if (freqData.results[i].itemCount > 0) {
+                myData.push(freqData.results[i]);
+            }
+        }
+        if (myData.length == 0) return;
+
+        for (var i = 0; i < myData.length; i++) {
+            // shorten codes names that are stupid long
+            if (myData[i].attribute.length > 60) {
+                myData[i].shortName = myData[i].attribute.substring(0, 60) + "...";
+            } else {
+                myData[i].shortName = myData[i].attribute;
+            }
+        }
+
+        // remove the last row if it is 'none of the above'
+        if (myData[0].attributeId == -999999) {
+            myData.splice(0, 1);
+        }
+
+        var legendPostion = "right";
+        var chartHeight = 250;
+
+        var ele = document.getElementById("VisualsDiv"), // Do not use #
+            eleStyle = window.getComputedStyle(ele);
+        /* Below is the width of ele */
+        var eleWidth = parseInt(eleStyle.width.replace("px", ""));
+
+        //if (eleWidth <= 768) {
+        if (eleWidth <= 570) {
+            legendPostion = "bottom";
+            chartHeight = 400;
+        }
+
+        if (myData.length > 20) {
+            legendPostion = "bottom";
+            chartHeight = 400;
         }
 
         $("#FrequenciesGrid").hide();
-        $("#FrequenciesChart").show();
-        $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
-        //$("#FrequenciesResult").show();
 
-        $("#FrequenciesChart").kendoChart({
-            dataSource: { data: data.results },
-            legend: {
-                position: "right"
-            },
-            chartArea: {
-                height: 250
-            },
-            seriesDefaults: {
-                type: "pie"
-            },
-            seriesClick: function (e) {
-                GoToFreqListPieAndBar(e);
-            },
-            series: [{
-                field: "itemCount",
-                categoryField: "attribute",
-                padding: 0
-            }],
-            tooltip: {
-                visible: true,
-                template: "#= category #: #= value # records"
-            }
-        });
-    }
+        if (myData.length != 0) {
+            $("#BarOrPieChartVisible").show();
+            $("#FrequenciesChart").show();
+            $("#NoCodedRecords").hide();
+
+            $("#FrequenciesChart").kendoChart({
+                dataSource: { data: myData },
+                chartArea: {
+                    height: chartHeight
+                },
+                seriesDefaults: {
+                    type: "pie"
+                },
+                seriesClick: function (e) {
+                    GoToFreqListPieAndBar(e);
+                },
+                series: [{
+                    field: "itemCount",
+                    categoryField: "shortName",
+                    padding: 0
+                }],
+                tooltip: {
+                    visible: true,
+                    template: "#= HTMLEncodeText(dataItem.attribute) #: #= value # records"
+                },
+                legend: {
+                    item: {
+                        visual: function (e) {
+                            var color = e.options.markers.background;
+                            var labelColor = e.options.labels.color;
+
+                            var rect = new kendo.geometry.Rect([0, 0], [400, 50]);
+                            if (eleWidth <= 570) {
+                                rect = new kendo.geometry.Rect([0, 0], [400, 100]);
+                            }
 
 
-    function BuildFreqs(data, result) {
-        console.log(data, result);//FrequenciesTemplate
-        if (result == "success") {
-            $("#FrequenciesChart").hide();
-            //$("#FrequenciesResult").show();
-            $("#FrequenciesGrid").css("height", ((data.results.length + 1) * 20.1 + 4).toString() + 'px');
-            $("#FrequenciesGrid").kendoGrid({
-                rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
-                columns: [
-                    {
-                        field: "attribute",
-                        title: "Code Name",
-                        headerAttributes: {
-                            "class": "small py-0 px-1  w-75"
+                            var layout = new kendo.drawing.Layout(rect, {
+                                spacing: 10
+                            });
+
+                            var allZeroValues = false;
+                            if (e.series.data[e.pointIndex].itemCount == 0) {
+                                allZeroValues = true;
+                            }
+
+                            if (!allZeroValues) {
+                                // create a circle geometry centered at x=10, y=5, with a radius of 5
+                                var CircGeometry = new kendo.geometry.Circle([10, 5], 5);
+                                // draw the circle using the geometry and set the color (could have no stroke)
+                                var MarkerCircle = new kendo.drawing.Circle(CircGeometry, {
+                                    stroke: { color: color, width: 1 },
+                                    fill: { color: color }
+                                });
+
+                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].shortName + " (" +
+                                    e.series.data[e.pointIndex].itemCount + ")", [0, 0], {
+                                    fill: {
+                                        color: labelColor
+                                    }
+                                });
+
+                                layout.append(MarkerCircle, label);
+                                layout.reflow()
+                            }
+                            return layout;
                         }
                     },
-                    {
-                        field: "itemCount",
-                        title: "Count",
-                        headerAttributes: {
-                            "class": "small py-0 px-1  w-25"
-                        }
-                    }],
-                dataSource: data.results
+                    position: legendPostion,
+                    padding: 10,
+                    background: "#e2e3e5",
+                    border: {
+                        width: 1,
+                        color: "#d6d8db"
+                    },
+                },
             });
-        } else {
-            $("#FrequenciesGrid").html("");
+        }
+        else {
+            $("#BarOrPieChartVisible").hide();
+            $("#FrequenciesChart").hide();
+            $("#NoCodedRecords").show();
         }
     }
+
+    function ExportImg() {
+        var chart = $("#FrequenciesChart").getKendoChart();
+        chart.exportImage().done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: dataItem.text
+                /*, proxyURL: "https://demos.telerik.com/kendo-ui/service/export"*/
+            });
+        });
+    };
+
+    function ExportByYearImg() {
+        var chart = $("#chartByYear").getKendoChart();
+        chart.exportImage().done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "Pubications by year"
+                /*, proxyURL: "https://demos.telerik.com/kendo-ui/service/export"*/
+            });
+        });
+    };
+
+
 
     function GetFreqLinkContent(attId, count, attName) {
         //console.log("GetFreqLinkContent", attId, count, attName);
         if (count == 0) return "0";
-        else return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
+        else {
+            var name = attName.replaceAll('\'', '\\\'').toString();
+            name = name.replaceAll('\"', '%22');
+            //return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
+            return '<a href="javascript:GoToItems(' + attId + ', \'' + name + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
+        }
     }
+
     function GoToCrosstab(isSelfXtab) {
-        console.log("CurrentNodeGoToCrosstab");
-        if (!dataItem || (isSelfXtab !== true && !dataItemXaxis)) {
-            console.log("CurrentNodeGoToCrosstab no data");
+        //console.log("CurrentNodeGoToCrosstab");
+        if (!dataItem || (isSelfXtab !== true && !dataItemMapXaxis)) {
+            //console.log("CurrentNodeGoToCrosstab no data");
             return;
         }
         if (isSelfXtab == true) {
@@ -348,21 +740,21 @@
                 , included: true
                 , graphic: "table"
             }
-            if (dataItem.isCodeset == true) {
+            if (dataItemMapYaxis.isCodeset == true) {
                 pars.attIdy = 0;
-                pars.setIdy = dataItem.setId;
+                pars.setIdy = dataItemMapYaxis.setId;
             }
             else {
-                pars.attIdy = dataItem.id;
-                pars.setIdy = dataItem.setId;
+                pars.attIdy = dataItemMapYaxis.id;
+                pars.setIdy = dataItemMapYaxis.setId;
             }
-            if (dataItemXaxis.isCodeset == true) {
+            if (dataItemMapXaxis.isCodeset == true) {
                 pars.attIdx = 0;
-                pars.setIdx = dataItemXaxis.setId;
+                pars.setIdx = dataItemMapXaxis.setId;
             }
             else {
-                pars.attIdx = dataItemXaxis.id;
-                pars.setIdx = dataItemXaxis.setId;
+                pars.attIdx = dataItemMapXaxis.id;
+                pars.setIdx = dataItemMapXaxis.setId;
             }
             postwith("../Frequencies/GetCrosstab", pars);
         }
@@ -372,45 +764,60 @@
         if (treeviewData == null) retrun;
         dataItem = treeviewData.dataItem(e.node);
         if (!dataItem) {
+            $("#CurrentNodeNameMap").html("N\A");
             $("#CurrentNodeGoToFreq").prop("disabled", true);
             $("#CurrentNodeGoToFreqSB").prop("disabled", true);
             $("#CurrentNodeGoToFreq2").prop("disabled", true);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
-            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
-            $("#CurrentNodeSetXAxis").prop("disabled", true);
+            //$("#CurrentNodeGoToCrosstab").prop("disabled", true);
+            //$("#CurrentNodeSetXAxis").prop("disabled", true);
             $("#GoToItemsWithThisCode").prop("disabled", true);
             $("#GoToItemsWithThisCodeSB").prop("disabled", true);
             $("#CurrentNodeGoToFreqBar").prop("disabled", true);
             $("#CurrentNodeGoToFreqPie").prop("disabled", true);
+            $("#CurrentNodeSetMapXAxis").prop("disabled", true);
+            $("#CurrentNodeSetMapYAxis").prop("disabled", true);
+            $("#CurrentNodeSetMapSegments").prop("disabled", true);
             $("#GoToItemsWithThisCode").attr('onclick', '');
             $("#GoToItemsWithThisCodeSB").attr('onclick', '');
             return;
         }
-        console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
+        //console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
         $("#CurrentNodeName").text(dataItem.text);
-        $("#CurrentNodeNameCT").text(dataItem.text);
-        $("#CurrentNodeId").text(dataItem.id);
-        $("#CurrentNodeSetId").text(dataItem.setId);
-        $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
+        //$("#CurrentNodeNameCT").text(dataItem.text);
+        $("#CurrentNodeNameMap").text(dataItem.text);
+        //$("#CurrentNodeId").text(dataItem.id);
+        //$("#CurrentNodeSetId").text(dataItem.setId);
+        //$("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
         if (dataItem.items && dataItem.items.length > 0) {
             $("#CurrentNodeGoToFreq").prop("disabled", false);
             $("#CurrentNodeGoToFreqSB").prop("disabled", false);
             $("#CurrentNodeGoToFreq2").prop("disabled", false);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", false);
-            $("#CurrentNodeGoToCrosstab").prop("disabled", dataItemXaxis == null);
-            $("#CurrentNodeSetXAxis").prop("disabled", false);
+            //$("#CurrentNodeGoToCrosstab").prop("disabled", dataItemMapXaxis == null);
+            //$("#CurrentNodeSetXAxis").prop("disabled", false);
             $("#CurrentNodeGoToFreqBar").prop("disabled", false);
             $("#CurrentNodeGoToFreqPie").prop("disabled", false);
+
+            $("#CurrentNodeSetMapXAxis").prop("disabled", false);
+            $("#CurrentNodeSetMapYAxis").prop("disabled", false);
+            if (dataItem.items.length < 7) {
+                //max 6 children in the segments of maps
+                $("#CurrentNodeSetMapSegments").prop("disabled", false);
+            } else $("#CurrentNodeSetMapSegments").prop("disabled", true);
         }
         else {
             $("#CurrentNodeGoToFreq").prop("disabled", true);
             $("#CurrentNodeGoToFreqSB").prop("disabled", true);
             $("#CurrentNodeGoToFreq2").prop("disabled", true);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
-            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
-            $("#CurrentNodeSetXAxis").prop("disabled", true);
+            //$("#CurrentNodeGoToCrosstab").prop("disabled", true);
+            //$("#CurrentNodeSetXAxis").prop("disabled", true);
             $("#CurrentNodeGoToFreqBar").prop("disabled", true);
             $("#CurrentNodeGoToFreqPie").prop("disabled", true);
+            $("#CurrentNodeSetMapXAxis").prop("disabled", true);
+            $("#CurrentNodeSetMapYAxis").prop("disabled", true);
+            $("#CurrentNodeSetMapSegments").prop("disabled", true);
         }
         if (dataItem.isCodeset) {
             $("#GoToItemsWithThisCode").prop("disabled", true);
@@ -426,22 +833,15 @@
             //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
         }
     }
-    function SetXAxis() {
-        if (!dataItem) {
-            dataItemXaxis = null;
-            $("#x_axis_setting").hide();
-            $("CurrentNodeGoToCrosstab").prop("disabled", true);
-        }
-        else {
-            dataItemXaxis = dataItem;
-            $("#x_axis_name").text(dataItemXaxis.text);
-            $("CurrentNodeGoToCrosstab").prop("disabled", false);
-            $("#x_axis_setting").show();
-        }
-    }
 
     function GetYearsFreqs() {
-        $("#chart").kendoChart({
+        $("#chartByYear").show();
+        $("#YearFrequenciesGrid").hide();
+        $("#BarByYearChartVisible").show();
+        $("#YearFreqTable").prop("disabled", false);
+        $("#YearFreq").prop("disabled", true);
+
+        $("#chartByYear").kendoChart({
             categoryAxis: {
                 field: "year"
             },
@@ -472,8 +872,50 @@
         });
     }
 
+    function GetYearsFreqsTable() {
+        $("#chartByYear").hide();
+        $("#YearFrequenciesGrid").show();
+        $("#BarByYearChartVisible").hide();
+        $("#YearFreqTable").prop("disabled", true);
+        $("#YearFreq").prop("disabled", false);
+
+        $("#YearFrequenciesGrid").kendoGrid({
+            columns: [
+                {
+                    field: "year",
+                    title: "Year",
+                    headerAttributes: {
+                        style: "font-size:12px;font-weight:bold"
+                    },
+                    attributes: {
+                        style: "font-size:12px;"
+                    }
+                },
+                {
+                    field: "count",
+                    title: "Count",
+                    headerAttributes: {
+                        style: "font-size:12px;font-weight:bold"
+                    },
+                    attributes: {
+                        style: "font-size:12px;color:rgb(0,123,255);"
+                    },
+                    template: "<a href='\\#' class='link' onclick='GoToYearListTable(\"#=year.replaceAll('\"', '↖').replaceAll('\\\'', '↗').toString()#\")'>#=count#</a>"
+                }],
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "../Review/YearHistogramJSON",
+                        dataType: "json"
+                    }
+                }
+            }
+        });
+    }
+
+
     function GetYearsFreqsPie() {
-        $("#chart").kendoChart({
+        $("#chartByYear").kendoChart({
             dataSource: {
                 transport: {
                     read: {
@@ -521,6 +963,15 @@
         })
     }
 
+    function GoToYearListTable(year) {
+        year = year.replaceAll('↖', '"').replaceAll("↗", "'");
+        postwith("../ItemList/GetListSearchResults", {
+            SearchString: year
+            , SearchWhat: "PubYear"
+            , included: "true"
+        })
+    }
+
     function GoToYearListPie(year) {
         //if (year == "Unknown") year = "'    ' OR '0   '";
         postwith("../ItemList/GetListSearchResults", {
@@ -530,32 +981,183 @@
         })
     }
 
-
     function GoToFreqListPieAndBar(dataItem) {
         GoToItems(dataItem.dataItem.attributeId, dataItem.dataItem.attribute);
-        //if (dataItem.dataItem.attributeId == -999999) {
-        //    postwith("../ItemList/GetFreqListNoneOfTheAbove", {
-        //        attributeIdXAxis: 0
-        //        , setId: dataItem.dataItem.setId
-        //        , included: "true"
-        //        , onlyThisAttribute: 0
-        //        , webDbId: 1
-        //        , attName: dataItem.dataItem.attribute
-        //    })
-        //}
-        //else {
-        //    postwith("../ItemList/GetFreqList", {
-        //        attId: dataItem.dataItem.attributeId
-        //        , attName: dataItem.dataItem.attribute
-        //    })
-        //}
+
     }
 
+    function GoToMap() {
+        //console.log("CurrentNodeGoToCrosstab");
+        if (!dataItemMapXaxis || !dataItemMapYaxis || !dataItemMapSegments) {
+            //console.log("GoToMap no data");
+            return;
+        }
+        var pars = {
+            attIdx: 0
+            , setIdx: 0
+            , attIdy: 0
+            , setIdy: 0
+            , segmentsParent: 0
+            , setIdSegments: 0
+            , included: true
+            , graphic: "bubble"
+        }
+        if (dataItemMapXaxis.isCodeset == true) {
+            pars.attIdx = 0;
+            pars.setIdx = dataItemMapXaxis.setId;
+        }
+        else {
+            pars.attIdx = dataItemMapXaxis.id;
+            pars.setIdx = dataItemMapXaxis.setId;
+        }
+        if (dataItemMapYaxis.isCodeset == true) {
+            pars.attIdy = 0;
+            pars.setIdy = dataItemMapYaxis.setId;
+        }
+        else {
+            pars.attIdy = dataItemMapYaxis.id;
+            pars.setIdy = dataItemMapYaxis.setId;
+        }
+        if (dataItemMapSegments.isCodeset == true) {
+            pars.segmentsParent = 0;
+            pars.setIdSegments = dataItemMapSegments.setId;
+        }
+        else {
+            pars.segmentsParent = dataItemMapSegments.id;
+            pars.setIdSegments = dataItemMapSegments.setId;
+        }
+        postwith("../Frequencies/GetMap", pars);
+        //postwith("../Frequencies/GetAjaxMap", pars);
 
-    //var treeviewData = $("#treeView").data("kendoTreeView");
-    //treeview.bind("change", TreeViewSelection);
+    }
+    function SetMapXAxis() {
+        if (!dataItem) {
+            dataItemMapXaxis = null;
+            $("#map_x_axis_name").hide();
+            $("#CurrentNodeGoToMap").prop("disabled", true);
+            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
+        }
+        else {
+            dataItemMapXaxis = dataItem;
+            $("#map_x_axis_name").text(dataItemMapXaxis.text);
+            $("#map_x_axis_name").show();
+            //console.log("X", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            if (dataItemMapXaxis != null && dataItemMapYaxis != null) {
+                if (dataItemMapSegments != null) $("#CurrentNodeGoToMap").prop("disabled", false);//segments are needed for Maps, irrelevant to Xtabs
+                $("#CurrentNodeGoToCrosstab").prop("disabled", false); //2Ds are set, can enable XTab
+            }
+        }
+    }
+    function SetMapYAxis() {
+        if (!dataItem) {
+            dataItemMapYaxis = null;
+            $("#map_y_axis_name").hide();
+            $("#CurrentNodeGoToMap").prop("disabled", true);
+            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
+        }
+        else {
+            dataItemMapYaxis = dataItem;
+            $("#map_y_axis_name").text(dataItemMapYaxis.text);
+            $("#map_y_axis_name").show();
+            //console.log("Y", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            if (dataItemMapXaxis != null && dataItemMapYaxis != null) {
+                if (dataItemMapSegments != null) $("#CurrentNodeGoToMap").prop("disabled", false);//segments are needed for Maps, irrelevant to Xtabs
+                $("#CurrentNodeGoToCrosstab").prop("disabled", false); //2Ds are set, can enable XTab
+            }
+        }
+    }
+    function SetMapSegments() {
+        if (!dataItem) {
+            dataItemMapSegments = null;
+            $("#map_segments_name").hide();
+            $("#CurrentNodeGoToMap").prop("disabled", true);
+        }
+        else {
+            dataItemMapSegments = dataItem;
+            $("#map_segments_name").text(dataItemMapSegments.text);
+            $("#map_segments_name").show();
+            //console.log("S", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            if (dataItemMapXaxis != null && dataItemMapYaxis != null && dataItemMapSegments != null)
+                $("#CurrentNodeGoToMap").prop("disabled", false);
+        }
+    }
+
+    function GetMaps() {
+        $("#MapsSpinner").show();
+        $.get("../Review/MapsListJSON", ""
+            , function (data, result) {
+                $("#MapsSpinner").hide();
+                if (result == "success") {
+                    MapsData = data;
+                    BuildMapsTable();
+                }
+            });
+    }
+    function BuildMapsTable() {
+        console.log("got Maps Data", MapsData);
+        if (MapsData != null && MapsData.length > 0) {
+            let content = "";
+            for (let map of MapsData) {
+
+                content += "<table width='100%'><tr>";
+                content += "<td style='text-align:left;width:70%'><h4>" + HTMLEncodeText(map.webDBMapName) + "</h4></td>";
+
+                content += "<td style='text-align:right;'>";
+
+                content += "<div id='ShowHideMapDescriptionDivButton" + map.webDBMapId +
+                    "' class='btn btn-primary btn-sm' onclick='HideShowMapDescriptionDiv(" + map.webDBMapId + ")'>";
+                content += "<div id='ShowHideMapDescriptionDivIcon" + map.webDBMapId + "' class='fa fa-plus'></div>&nbsp;&nbsp;Details</div>";
+
+                content += "</td><td style='text-align:right;'>";
+
+                content += "<div><button class='btn btn-secondary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId
+                    + ")' id='getMapButton" + map.webDBMapId + "'>View map</button></div>";                     
+
+                content += "</td></tr></table>";
+                
+
+                content += "<div class='card-category' id='WebDBMapDescription" + map.webDBMapId + "' style='max-height:0px;overflow-y:auto;'>" +
+                    map.webDBMapDescription + "</div>";
+
+                content += "<hr>";
+
+                @*
+                content += "<div class='col-12 m-1 p-1 border rounded row'><h5 class='col'>" + map.webDBMapName + "</h5>"
+                    + "<div class='col-auto'><button class='btn btn-primary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId +
+                    ")' id='nothingspecial'>Open Map</button></div>"
+                    + "<div class='col-12 m-0 p-0'>" + map.webDBMapDescription + "</div>"
+                    + "</div>";
+                *@
+
+            }
+            $("#MapsCardBody").html(content);
+            $("#MapsCard").show();
+        }
+    }
+    function GetMap(mapId) {
+        console.log("Will go to map:" + mapId);
+        postwith("../Frequencies/GetMapById", { mapId: mapId });
+    }
 </script>
 
+
+<style>
+    .k-grid-header .k-header {
+        height: 20px;
+        padding: 0;
+    }
+
+    .k-grid tbody tr {
+        line-height: 15px;
+    }
+
+    .k-grid tbody td {
+        padding: 0;
+    }
+</style>
+
+
+<!-- Side bar coding tools area -->
 <div class="sidebar sidebar-style-2">
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
@@ -584,15 +1186,16 @@
 
 <div class="main-panel">
     <div class="content">
+
+        <!-- header area -->
         <div class="panel-header bg-primary-gradient">
             <div class="page-inner py-5">
-                <div class="d-flex align-items-left align-items-md-center flex-md-row">
-                    <div class="col-6 col-md-7 px-1">
-                        @*@(new HtmlString(Model.WebDb.WebDBName))*@
+                <div class="row">
+                    <div class="col-8 col-md-7 px-1">
                         <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
                         <h5 class="text-white op-7 mb-2">@Model.WebDb.Subtitle</h5>
                     </div>
-                    <div class="col-6 col-md-5 px-1 row mx-0">
+                    <div class="col-auto col-md-5 px-1 row mx-0">
                         @if (@imgPath1 != "")
                         {
                             if (Model.WebDb.HeaderImage1Url == "")
@@ -636,9 +1239,13 @@
                 </div>
             </div>
         </div>
-        <div class="page-inner mt--5">
-            <div class="row mt--2">
-                <div class="col-md-8">
+
+        <!-- Everything below header -->
+        <div class="page-inner px-2 mt--5">
+            <div class="row mx-0 mt--2">
+                <div class="col-12 col-md-7 col-lg-8">
+
+                    <!-- Description card -->
                     <div class="card ">
                         <div class="card-header">
                             <table width="100%">
@@ -669,23 +1276,67 @@
                             </table>
 
                         </div>
-                        <div class="card-body" id="WebDBDescriptionBody" tooltip="" >
+                        <div class="card-body" id="WebDBDescriptionBody" tooltip="">
                             <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
                                 @(new HtmlString(Model.WebDb.WebDBDescription))
 
                             </div>
                         </div>
                     </div>
+
+                    <!-- Pre-built maps card -->
+                    <div class="card" id="MapsCard" style="display:none;">
+                        <div class="card-header card-title">
+                            <table width="100%">
+                                <tr>
+                                    <td style="text-align: left;width:70%">Evidence and Gap Maps</td>
+                                    <td style="text-align:right">
+                                        <div id="PBMapsDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowPBMapsDiv()">
+                                            <div id="HideShowPBMapsDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </div>
+                        <div class="card-body" id="MapsCardBody">
+                        </div>
+                    </div>
+
+
+                    <!-- Frequency card -->
                     <div class="card ">
+
                         <div class="card-header">
                             <input type="hidden" value="0" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
                             <input type="hidden" value="0" name="setIdXAxis" id="setIdXAxisCrit" />
-                            <table>
+                            <input type="hidden" value="0" name="tableVisible" id="tableVisible" />
+                            <table width="100%">
                                 <tr>
-                                    <td>
-                                        <div class="card-title" id="FrequenciesResult"></div>
+                                    <td style="text-align: left;width:70%">
+                                        <div class="row m-0 p-0">
+                                            <div class="card-title" id="FrequenciesResult"></div>
+                                            <div id="FreqSpinner" class="ml-2" style="display:none;">
+                                                <div class="d-flex justify-content-end">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="sr-only">Loading...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <div id="FrequencyDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowFrequencyDiv()">
+                                            <div id="HideShowFrequencyDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
+                            </table>
+                            <table width="100%">
                                 <tr>
                                     <td style="padding: 10px 0px 0px 0px;">
                                         <!--<button id="GoToItemsWithThisCode" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>-->
@@ -713,24 +1364,40 @@
                                             </span>
                                             Table (new page)
                                         </button>
+                                        <button class="btn btn-default btn-sm btn-round" onclick="ExportImg()" id="BarOrPieChartVisible">
+                                            <span class="btn-label">
+                                                <i class="fa fa-save"></i>
+                                            </span>
+                                            Save
+                                        </button>
+                                        <!--<button class="export-img k-button" onclick="ExportImg()">Export as Image</button>-->
                                     </td>
                                 </tr>
                             </table>
                         </div>
-                        <div class="card-body">
 
-
-
-
-                            <div id="FrequenciesChart" class="chart"></div>
-                            <div style="max-height:50vh;" id="FrequenciesGrid"></div>
-
+                        <div class="card-body" id="VisualsDiv">
+                            <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
+                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar(0)" id="BuildBarHideNOA">
+                                <span class="btn-label">
+                                    <i class="fa fa-chart-bar"></i>
+                                </span>
+                                Remove last row
+                            </button>
+                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar(1)" id="BuildBarShowNOA">
+                                <span class="btn-label">
+                                    <i class="fa fa-chart-bar"></i>
+                                </span>
+                                Show uncoded
+                            </button>
+                            <div id="NoCodedRecords">No coded records</div>
+                            <div id="FrequenciesGrid"></div>
 
                             <script id="FrequenciesTemplate" type="text/x-kendo-tmpl">
                                 <tr class="border border-bottom ">
                                     @*<td>#= attributeId #</td>*@
                                     <td class="px-1 py-0 border-bottom small w-75">
-                                        #= attribute #
+                                        #= HTMLEncodeText(attribute) #
                                     </td>
                                     <td class="px-1 py-0 border-bottom small w-25">
                                         #= GetFreqLinkContent(attributeId, itemCount, attribute) #
@@ -744,50 +1411,31 @@
 
 
 
-                    @*@if (@imgMapPath1 != "")
-                    {
-                        <div class="card">
-                            <div class="card-header">
-                                <table width="100%">
-                                    <tr>
-                                        <td>
-                                            <div class="card-title">@(new HtmlString(Model.WebDb.MapTitle))</div>
-                                        </td>
-                                        <td style="text-align:right;padding-top:5px">
-
-                                            <a href="@(new HtmlString(Model.WebDb.MapUrl))" class="btn btn-secondary btn-sm btn-round" target="_blank" title="Go to W3Schools HTML section">
-                                                <span class="btn-label">
-                                                    <i class="fa fa-table"></i>
-                                                </span>&nbsp;View map
-
-                                            </a>
-
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div class="card-body">
-                                <a href="@(new HtmlString(Model.WebDb.MapUrl))" target="_blank" title="Go to W3Schools HTML section">
-                                    <img src=@imgMapPath1 style="object-fit: cover;" class="img-fluid pb-2 float-sm-left float-md-left float-lg-left" />
-                                </a>
-
-
-                            </div>
-                        </div>
-                    }*@
-
                 </div>
 
-                <div class="col-md-4">
+
+                <div class="col-auto col-lg">
+
+                    <!-- Publication date frequency card -->
                     <div class="card">
                         <div class="card-header">
-                            <table>
+                            <table width="100%">
                                 <tr>
-                                    <td>
+                                    <td style="text-align: left;width:70%">
                                         <div class="card-title">Publications by year</div>
                                     </td>
-                                    <td style="padding: 0px 0px 0px 25px;">
+                                    <td style="text-align:right">
+                                        <div id="HideShowPublicationDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowPublicationDiv()">
+                                            <div id="HideShowPublicationDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td style="padding: 5px 0px 0px 25px;">
 
                                         <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqs()" id="YearFreq">
                                             <span class="btn-label">
@@ -796,76 +1444,153 @@
                                             Bar
                                         </button>
 
-                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqsPie()" id="YearFreq">
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqsPie()" id="YearFreqPie">
                                             <span class="btn-label">
                                                 <i class="fa fa-chart-pie"></i>
                                             </span>
                                             Pie
                                         </button>
 
-
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="card-body">
-                            <div id="chart"></div>
-                        </div>
-                    </div>
-                    <div class="card ">
-                        <div class="card-header">
-                            <table>
-                                <tr>
-                                    <td>
-                                        <div class="card-title">Crosstabs</div>
-                                    </td>
-                                    <td style="padding: 0px 0px 0px 25px;">
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqsTable()" id="YearFreqTable">
                                             <span class="btn-label">
                                                 <i class="fa fa-table"></i>
-                                            </span>&nbsp;Full Crosstab
+                                            </span>
+                                            Table
+                                        </button>
+
+                                        <button class="btn btn-default btn-sm btn-round" onclick="ExportByYearImg()" id="BarByYearChartVisible">
+                                            <span class="btn-label">
+                                                <i class="fa fa-save"></i>
+                                            </span>
+                                            Save
                                         </button>
                                     </td>
                                 </tr>
                             </table>
                         </div>
+                        <div class="card-body" id="publicationDiv">
+                            <div id="chartByYear"></div>
+                            <div id="YearFrequenciesGrid" style="max-width:300px"></div>
+                        </div>
+                    </div>
 
-                        <div class="card-body">
+                    <!-- Crosstab and Map card -->
+                    <div class="card ">
+                        <div class="card-header">
+                            <table width="100%">
+                                <tr>
+                                    <td style="text-align: left;width:80%">
+                                        <div class="card-title">
+                                            Maps(3D) & Crosstabs(2D)
+                                        </div>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <div id="HideShowCrosstabDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowCrosstabDiv()">
+                                            <div id="HideShowCrosstabDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="card-body px-2 pt-1 pb-1" id="crosstabDiv">
                             <table>
                                 <tr>
-                                    <td style="padding: 0px 0px 10px 0px;">
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">
+                                    <td colspan="2" class="px-1 py-1 border-bottom">
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToMap()" disabled id="CurrentNodeGoToMap">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>&nbsp;Get Map
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>&nbsp;Get Crosstab
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="px-1 py-1 border-bottom">
+                                        Selected node: <span class="mx-1 font-weight-bold my-auto" id="CurrentNodeNameMap">N\A</span>
+                                        <button class="btn btn-outline-primary btn-sm btn-round" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">
                                             <span class="btn-label">
                                                 <i class="fa fa-table"></i>
                                             </span>&nbsp;Self Crosstab
                                         </button>
                                     </td>
-                                    <td style="padding: 0px 0px 10px 0px;">
-                                        <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeNameCT"></div>
-                                    </td>
                                 </tr>
-                            </table>
-                            <table>
+
                                 <tr>
-                                    <td>
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="SetXAxis()" disabled id="CurrentNodeSetXAxis">Set X axis</button>
+                                    <td class="px-1 py-1 ">
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapXAxis()" disabled id="CurrentNodeSetMapXAxis">Set X axis</button>
                                     </td>
-                                    <td>
-                                        <div class="my-auto"><span id="x_axis_name" class="m-1"></span></div>
+                                    <td class="px-1 py-1 ">
+                                        <div class="my-auto"><span id="map_x_axis_name" class="m-1"></span></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-1 py-1">
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapYAxis()" disabled id="CurrentNodeSetMapYAxis">Set Y axis</button>
+                                    </td>
+                                    <td class="px-1 py-1">
+                                        <div class="my-auto"><span id="map_y_axis_name" class="m-1"></span></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-1 py-1 border-bottom">
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapSegments()" disabled id="CurrentNodeSetMapSegments">Set segments</button>
+                                    </td>
+                                    <td class="px-1 py-1 border-bottom">
+                                        <div class="my-auto"><span id="map_segments_name" class="m-1"></span></div>
                                     </td>
                                 </tr>
                             </table>
-                            <div class="row m-0" id="x_axis_setting" style="display:none;">
-
-
-                            </div>
+                            <div class="row m-0" id="x_axis_map_setting" style="display:none;"></div>
+                            <div class="row m-0" id="y_axis_map_setting" style="display:none;"></div>
+                            <div class="row m-0" id="segments_map_setting" style="display:none;"></div>
                         </div>
                     </div>
+
                 </div>
             </div>
-
 
         </div>
     </div>
 </div>
+  
 
+
+@*@if (@imgMapPath1 != "")
+    {
+        <div class="card">
+            <div class="card-header">
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <div class="card-title">@(new HtmlString(Model.WebDb.MapTitle))</div>
+                        </td>
+                        <td style="text-align:right;padding-top:5px">
+
+                            <a href="@(new HtmlString(Model.WebDb.MapUrl))" class="btn btn-secondary btn-sm btn-round" target="_blank" title="Go to W3Schools HTML section">
+                                <span class="btn-label">
+                                    <i class="fa fa-table"></i>
+                                </span>&nbsp;View map
+
+                            </a>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card-body">
+                <a href="@(new HtmlString(Model.WebDb.MapUrl))" target="_blank" title="Go to W3Schools HTML section">
+                    <img src=@imgMapPath1 style="object-fit: cover;" class="img-fluid pb-2 float-sm-left float-md-left float-lg-left" />
+                </a>
+
+
+            </div>
+        </div>
+    }*@

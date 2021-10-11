@@ -34,8 +34,14 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
-                    return View(Itm);
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetFrequencies, no WebDbId!");
+                        return null;
+                    }
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria res = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, parentName, included);
+                    return View(res);
                 }
                 else return Unauthorized();
             }
@@ -64,14 +70,23 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        public IActionResult GetFrequenciesResultsJSON([FromForm] long attId, int setId, string parentName, string included)
+        
+        [HttpPost]
+        public IActionResult GetFrequenciesResultsJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {
                 if (SetCSLAUser())
                 {
-                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
-                    return Json(Itm.results);
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetFrequenciesResultsJSON, no WebDbId!");
+                        return null;
+                    }
+                    else crit.webDbId = DBid;
+                    WebDbItemAttributeChildFrequencyList results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria()); 
+                    return Json(results);
                 }
                 else return Unauthorized();
             }
@@ -103,19 +118,27 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    WebDbItemAttributeCrosstabList Itm = GetCrosstabInternal(attIdx, setIdx, nameXaxis, attIdy, setIdy, nameYaxis, included, graphic);
-                    return View(Itm);
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                        if (DBid < 1)
+                        {
+                            _logger.LogError("Error in GetFrequenciesInternal, no WebDbId!");
+                            return null;
+                        }
+
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, graphic, 0, attIdy, setIdy, nameYaxis);
+                    return View(crit);
                 }
                 else return Unauthorized();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error in GetFrequencies");
+                _logger.LogError(e, "Error in GetCrosstab");
                 return StatusCode(500, e.Message);
             }
         }
-        [HttpPost("[action]")]
-        public IActionResult GetCrosstabJSON([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
+        [HttpPost]
+        public IActionResult GetCrosstabJSON(long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {
@@ -142,13 +165,99 @@ namespace WebDatabasesMVC.Controllers
                 _logger.LogError("Error in GetFrequenciesInternal, no WebDbId!");
                 return null;
             }
-            //FrequencyResultWithCriteria res = new FrequencyResultWithCriteria();
-            //res.criteria =
-            //    new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdy, included, onlyThisAtt, attIdy, setIdx);
-            //res.results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(res.criteria);
+            
             WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, graphic, onlyThisAtt, attIdy, setIdy, nameYaxis);
             WebDbItemAttributeCrosstabList res = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit);
             return res;
+        }
+
+        //[HttpPost("[action]")]
+        public IActionResult GetMap([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
+                                    string included, string graphic, long segmentsParent, int setIdSegments)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetAjaxMap, no WebDbId!");
+                        return Unauthorized();
+                    }
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, graphic, 0, attIdy, setIdy, nameYaxis, segmentsParent, setIdSegments);
+                    return View(crit);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetAjaxMap");
+                return StatusCode(500, e.Message);
+            }
+        }
+       
+        [HttpPost]
+        public IActionResult GetMapJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
+        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetAjaxMap, no WebDbId!");
+                        return Unauthorized();
+                    } else
+                    {
+                        crit.webDbId = DBid;
+                    }
+                    WebDbItemAttributeCrosstabList Itm = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria());
+                    return Json(Itm);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetMapJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
+        public IActionResult GetMapById([FromForm] int mapId)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetMapById, no WebDbId!");
+                        return Unauthorized();
+                    }
+
+                    WebDbMap map = DataPortal.Fetch<WebDbMap>(new WebDBMapCriteria(DBid, mapId));
+                    if (map == null || map.WebDBMapId < 1)
+                    {
+                        _logger.LogError("Error in GetMapById, no such map! MapId: " + mapId);
+                        return Unauthorized();
+                    }
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria crit 
+                        = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, map.ColumnsAttributeID, map.ColumnsSetID
+                            , map.ColumnsPublicAttributeName != "" ? map.ColumnsPublicAttributeName : map.ColumnsPublicSetName, "true"
+                            , "bubble", 0, map.RowsAttributeID, map.RowsSetID
+                            , map.RowsPublicAttributeName != "" ? map.RowsPublicAttributeName : map.RowsPublicSetName
+                            , map.SegmentsAttributeID, map.SegmentsSetID);
+                    return View("GetMap", crit);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetMapById");
+                return StatusCode(500, e.Message);
+            }
         }
 
     }

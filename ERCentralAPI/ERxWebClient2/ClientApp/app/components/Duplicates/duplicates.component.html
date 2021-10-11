@@ -360,7 +360,9 @@
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Pub Name: </td>
-                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
+                            <td colspan="4" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
+                            <td class="font-weight-bold">DOI: </td>
+                            <td colspan="2" class="bg-white">{{CurrentGroup.Master?.doi}}</td>
                         </tr>
                         <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" class="alert-dark">
                             <td colspan="8">
@@ -408,7 +410,9 @@
                             </tr>
                             <tr class="bg-light">
                                 <td>Pub Name: </td>
-                                <td colspan="7">{{member.parentTitle}}</td>
+                                <td colspan="4">{{member.parentTitle}}</td>
+                                <td class="font-weight-bold">DOI: </td>
+                                <td colspan="2" class="bg-white">{{member.doi}}</td>
                             </tr>
                             <tr class="bg-light">
                                 <td>Marked As:</td>
@@ -489,7 +493,9 @@
                             </tr>
                             <tr class="alert-info ">
                                 <td class="font-weight-bold">Pub Name: </td>
-                                <td colspan="7" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
+                                <td colspan="4" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
+                                <td class="font-weight-bold">DOI: </td>
+                                <td colspan="2" class="bg-white">{{CurrentGroup.Master?.doi}}</td>
                             </tr>
                             <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" class="alert-dark">
                                 <td colspan="8">
@@ -540,7 +546,9 @@
                                 </tr>
                                 <tr class="bg-light">
                                     <td>Pub Name: </td>
-                                    <td colspan="7" [ngClass]="DistanceClass(member.parentTitle, CurrentGroup.Master?.parentTitle)">{{member.parentTitle}}</td>
+                                    <td colspan="4" [ngClass]="DistanceClass(member.parentTitle, CurrentGroup.Master?.parentTitle)">{{member.parentTitle}}</td>
+                                    <td class="font-weight-bold">DOI: </td>
+                                    <td colspan="2" [ngClass]="(CurrentGroup.Master) && member.doi.length > 0 && CurrentGroup.Master.doi.length > 0 && CurrentGroup.Master.doi != member.doi ? 'bg-lev3' : 'bg-white'">{{member.doi}}</td>
                                 </tr>
                                 <tr class="bg-light">
                                     <td>Marked As:</td>

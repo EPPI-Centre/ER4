@@ -203,10 +203,15 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	}
 	
 	Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number) {
+		let ind = this.ClassifierContactAllModelList.findIndex(f => f.modelId == ModelId);
+		if (ind == -1) return;//no point trying to apply a model we can't find the model list...
 
 		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
-		
-		MVCcmd._title = modeltitle;
+		if (this._reviewInfoService.ReviewInfo.reviewId != this.ClassifierContactAllModelList[ind].reviewId) {
+			//we're recording the ReviewID only if the model was built in another review
+			MVCcmd._title = modeltitle + " (Review ID: " + this.ClassifierContactAllModelList[ind].reviewId + ")";
+        }
+		else MVCcmd._title = modeltitle;
 		MVCcmd._attributeIdOn = -1;
 		MVCcmd._attributeIdNotOn = -1;
 		MVCcmd._attributeIdClassifyTo = AttributeId;

@@ -1,4 +1,5 @@
-﻿<script type="text/javascript">
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script type="text/javascript">
     var ColumnVisibility = {
         ItemId: false,
         ShortTitle: true,
@@ -110,7 +111,7 @@
                     PrepareItemsHeader();
                     
                 },
-                toolbar: ["search", "excel"],
+                toolbar: ["search"],
                 resizable: true,
                 toolbar: [
                     { template: kendo.template($("#gridToolbarTemplate").html()) }
@@ -155,7 +156,7 @@
         //});
     }
     function setPaging() {
-        $("#ItemsDescr").html(CurrentItemsCriteria.description);
+        $("#ItemsDescr").text(CurrentItemsCriteria.description);
         $("#ItemCount").html(ItemsListData.totalItemCount.toString() + (ItemsListData.totalItemCount == 1 ? " record" : " records"));
         if (ItemsListData.pagecount > 1) {
             $("#ResultsCountPaged").html("[Total: " + ItemsListData.totalItemCount.toString() + " references]");

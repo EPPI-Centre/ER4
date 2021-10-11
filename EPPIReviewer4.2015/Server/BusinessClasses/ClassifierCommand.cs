@@ -480,10 +480,39 @@ namespace BusinessLibrary.BusinessClasses
                 //SG Edit:
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
                 string fileName = tmpDir.FullName + "/ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
-                //string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+				//string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #endif
-
-                using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
+				//[SG]: new 27/09/2021: find out the reviewId for this model, as it might be from a different review
+				//added bonus, ensures the current user has access to this model, I guess.
+				int ModelReviewId = -1; //will be used later on so this addition includes later refs to this object.
+				if (modelId > 0) //no need to check for the general pre-built models...
+                {
+					using (SqlCommand command = new SqlCommand("st_ClassifierContactModels", connection))
+					{
+						command.CommandType = System.Data.CommandType.StoredProcedure;
+						command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+						using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+						{
+							while (reader.Read())
+							{
+								int tempModelid = reader.GetInt32("MODEL_ID");
+								if (tempModelid == modelId)
+								{
+									//we found it, we can stop after getting the actual ReviewId where this model was built: we need it for the filename of the model in the blob
+									ModelReviewId = reader.GetInt32("REVIEW_ID");
+									break;
+								}
+							}
+						}
+					}
+					if (ModelReviewId == -1)
+					{
+						//the query above didn't find the current model, so we can't/should not continue...
+						return;
+					}
+				}
+				//end of 27/09/2021 addition
+				using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
 				{
 					command.CommandType = System.Data.CommandType.StoredProcedure;
 					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
@@ -538,7 +567,7 @@ namespace BusinessLibrary.BusinessClasses
 				_returnMessage = "Successful upload of data";
 
                 string DataFile = @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv";
-                string ModelFile = @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, RevInfo.ReviewId.ToString()) + ".csv";
+                string ModelFile = @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, ModelReviewId.ToString()) + ".csv";
                 string ResultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv";
                 string ResultsFile2 = "";
                 if (modelId == -4)

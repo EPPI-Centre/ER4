@@ -31,8 +31,6 @@ namespace ERxWebClient2.Controllers
         public IActionResult GetCrossTabs([FromBody] CrossTabCriteria data)
         {
 
-			Type type = null;
-
 			try
             {
                 if (!SetCSLAUser()) return Unauthorized();

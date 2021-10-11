@@ -284,6 +284,18 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SimilarityScoreProperty, value);
             }
         }
+        public readonly static PropertyInfo<string> doiProperty = RegisterProperty<string>(new PropertyInfo<string>("doi", "doi", string.Empty));
+        public string doi
+        {
+            get
+            {
+                return GetProperty(doiProperty);
+            }
+            set
+            {
+                SetProperty(doiProperty, value);
+            }
+        }
         #endregion
         //protected override void AddAuthorizationRules()
         //{
@@ -405,6 +417,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(DocCountProperty, reader.GetInt32("DOC_COUNT"));
             returnValue.LoadProperty<string>(SourceProperty, reader.GetString("SOURCE"));
             returnValue.LoadProperty<string>(PagesProperty, reader.GetString("PAGES"));
+            returnValue.LoadProperty<string>(doiProperty, reader.GetString("DOI"));
             returnValue.LoadProperty<int>(ItemDuplicateIdProperty, reader.GetInt32("GROUP_MEMBER_ID"));
             returnValue.LoadProperty<double>(SimilarityScoreProperty, reader.GetDouble("SCORE"));
             returnValue.LoadProperty<int>(GroupIDProperty, groupID);
