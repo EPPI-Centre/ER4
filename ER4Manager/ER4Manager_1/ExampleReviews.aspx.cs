@@ -33,7 +33,7 @@ public partial class ExampleReviews : System.Web.UI.Page
                 if (radTs != null)
                 {
                     radTs.SelectedIndex = 5;
-                    radTs.Tabs[5].Tabs[1].Selected = true;
+                    radTs.Tabs[5].Tabs[0].Selected = true;
                     radTs.Tabs[5].Tabs[6].Width = 550;
 
                     radTs.Tabs[5].Tabs[0].Visible = true;
