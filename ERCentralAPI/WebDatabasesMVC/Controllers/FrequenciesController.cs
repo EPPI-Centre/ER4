@@ -59,7 +59,29 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
                     
+                    if (Itm.criteria.attributeIdXAxis.ToString() == "0")
+                    {
+                        pars1.Add(new SqlParameter("@Type", "GetSetFrequency"));
+                        pars1.Add(new SqlParameter("@Details", Itm.criteria.setIdXAxis));
+                    }
+                    else
+                    {                      
+                        pars1.Add(new SqlParameter("@Type", "GetFrequency"));
+                        pars1.Add(new SqlParameter("@Details", Itm.criteria.attributeIdXAxis));
+                    }
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
+
                     return Json(Itm);
                 }
                 else return Unauthorized();
@@ -85,7 +107,21 @@ namespace WebDatabasesMVC.Controllers
                         return null;
                     }
                     else crit.webDbId = DBid;
-                    WebDbItemAttributeChildFrequencyList results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria()); 
+                    WebDbItemAttributeChildFrequencyList results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria());
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "GetFrequencyNewPage"));
+                    pars1.Add(new SqlParameter("@Details", crit.nameXAxis));
+
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
                     return Json(results);
                 }
                 else return Unauthorized();
@@ -145,6 +181,41 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     WebDbItemAttributeCrosstabList Itm = GetCrosstabInternal(attIdx, setIdx, nameXaxis, attIdy, setIdy, nameYaxis, included, graphic);
+
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "GetCrosstab"));
+
+                    string descr = "";
+                    if ((Itm.AttibuteIdX == 0) && (Itm.AttibuteIdY == 0))
+                    {
+                        descr = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.SetIdYName;
+                    }
+                    if ((Itm.AttibuteIdX != 0) && (Itm.AttibuteIdY != 0))
+                    {
+                        descr = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.AttibuteIdYName;
+                    }
+                    if ((Itm.AttibuteIdX == 0) && (Itm.AttibuteIdY != 0))
+                    {
+                        descr = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.AttibuteIdYName;
+                    }
+                    if ((Itm.AttibuteIdX != 0) && (Itm.AttibuteIdY == 0))
+                    {
+                        descr = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.SetIdYName;
+                    }
+
+                    pars1.Add(new SqlParameter("@Details", descr));
+
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
+
                     return Json(Itm);
                 }
                 else return Unauthorized();
@@ -214,6 +285,38 @@ namespace WebDatabasesMVC.Controllers
                         crit.webDbId = DBid;
                     }
                     WebDbItemAttributeCrosstabList Itm = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria());
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "GetMap"));
+
+                    string descr = "";
+                    if ((Itm.AttibuteIdX == 0) && (Itm.AttibuteIdY == 0))
+                    {
+                        descr = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.SetIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
+                    }
+                    if ((Itm.AttibuteIdX != 0) && (Itm.AttibuteIdY != 0))
+                    {
+                        descr = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.AttibuteIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
+                    }
+                    if ((Itm.AttibuteIdX == 0) && (Itm.AttibuteIdY != 0))
+                    {
+                        descr = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.AttibuteIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
+                    }
+                    if ((Itm.AttibuteIdX != 0) && (Itm.AttibuteIdY == 0))
+                    {
+                        descr = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.SetIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
+                    }
+
+                    pars1.Add(new SqlParameter("@Details", descr));
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
                     return Json(Itm);
                 }
                 else return Unauthorized();

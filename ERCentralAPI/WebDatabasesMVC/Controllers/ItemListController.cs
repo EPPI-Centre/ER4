@@ -169,6 +169,19 @@ namespace WebDatabasesMVC.Controllers
                     //crit.Description = "Listing items with code: " + attName;
                     crit.Description = attName;
                     ItemListWithCriteria iList = GetItemList(crit);
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
+                    pars1.Add(new SqlParameter("@Details", crit.Description));
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
                 else return Unauthorized();
@@ -191,6 +204,19 @@ namespace WebDatabasesMVC.Controllers
                     crit.Description = attName;
                     crit.FilterAttributeId = attId;
                     ItemListWithCriteria iList = GetItemList(crit);
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
+                    pars1.Add(new SqlParameter("@Details", crit.Description));
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
                     return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
                 else return Unauthorized();
@@ -223,6 +249,19 @@ namespace WebDatabasesMVC.Controllers
                     }
                     criteria.FilterAttributeId = onlyThisAttribute;
                     ItemListWithCriteria iList = GetItemList(criteria);
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
+                    pars1.Add(new SqlParameter("@Details", criteria.Description));
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
                 else return Unauthorized();
@@ -252,6 +291,19 @@ namespace WebDatabasesMVC.Controllers
                     }
                     criteria.FilterAttributeId = onlyThisAttribute;
                     ItemListWithCriteria iList = GetItemList(criteria);
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
+                    pars1.Add(new SqlParameter("@Details", criteria.Description));
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
                     return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
                 else return Unauthorized();
@@ -333,6 +385,20 @@ namespace WebDatabasesMVC.Controllers
                         criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
                     }
                     ItemListWithCriteria iList = GetItemList(criteria);
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
+                    pars1.Add(new SqlParameter("@Details", criteria.Description));
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
+
                     return Json(iList);
                 }
                 else return Unauthorized();
@@ -389,6 +455,19 @@ namespace WebDatabasesMVC.Controllers
                         criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
                     }
                     ItemListWithCriteria iList = GetItemList(criteria);
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "Search"));
+                    pars1.Add(new SqlParameter("@Details", criteria.Description));
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
                 else return Unauthorized();
@@ -478,6 +557,19 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     FullItemDetails Itm = GetItemDetails(crit);
+
+                    // log to TB_WEBDB_LOG                               
+                    string SP1 = "st_WebDBWriteToLog";
+                    List<SqlParameter> pars1 = new List<SqlParameter>();
+                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                    pars1.Add(new SqlParameter("@Type", "ItemDetailsFromList"));
+                    pars1.Add(new SqlParameter("@Details", crit.itemID));
+                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+                    if (result == -2)
+                    {
+                        Console.WriteLine("Unable to write to WebDB log");
+                    }
+
                     return View(Itm);
                 }
                 else return Unauthorized();
