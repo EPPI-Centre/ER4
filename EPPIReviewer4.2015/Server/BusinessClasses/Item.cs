@@ -1576,11 +1576,12 @@ namespace BusinessLibrary.BusinessClasses
                 if (len <= 4) return s;
                 else return s.Substring(0, 4);
             }
-            else if (range.LeftToRight == false)
-            {//get the "end" as the beginning is on the right
-                if (len <= 15) return s;
-                else return s.Substring(len - 15);//the last 15 chars, because reading goes from right to left
-            }
+            //case dealing with Right-To-Left languages, not needed, as something inverts the order for us when chars come from such languages!
+            //else if (range.LeftToRight == false)
+            //{//get the "end" as the beginning is on the right
+            //    if (len <= 15) return s;
+            //    else return s.Substring(0, 15);//the last 15 chars, because reading goes from right to left
+            //}
             else {
                 if (len <= 15) return s;
                 else return s.Substring(0, 15);//first 15 chars
@@ -1594,20 +1595,20 @@ namespace BusinessLibrary.BusinessClasses
             //also vaguely ordered to keep common cases on top (save CPU cycles!)
             //then the cases that have "default" rules are commented out: we don't need them, we will "just" use the last (fake) case which picked by default.
 
-            _UnicRanges.Add(new UnicodeRange(1424, 1871, false)); //Hebrew, Arabic, Urdu, Syriac et. al.
+            _UnicRanges.Add(new UnicodeRange(1424, 1871)); //Hebrew, Arabic, Urdu, Syriac et. al.
             //_UnicRanges.Add(new UnicodeRange(1024, 1279)); //Cyrillic
-            _UnicRanges.Add(new UnicodeRange(12800, 40959, true, true)); //Chinese, I think/hope
-            _UnicRanges.Add(new UnicodeRange(63744, 64255, true, true)); //more chinese ideograms, I think/hope 
+            _UnicRanges.Add(new UnicodeRange(12800, 40959, true)); //Chinese, I think/hope
+            _UnicRanges.Add(new UnicodeRange(63744, 64255, true)); //more chinese ideograms, I think/hope 
             //_UnicRanges.Add(new UnicodeRange(2304, 4991)); //Devanagari, Bengali, Gurmukhi, Gujarati, Oriya,Tamil,Telugu,Kannada,Malayalam,Gurmukhi,Gujarati,Oriya...Ethiopic
             //_UnicRanges.Add(new UnicodeRange(880, 1023)); //Greek
-            _UnicRanges.Add(new UnicodeRange(1920, 2047, false)); //Thaana, NKo
+            _UnicRanges.Add(new UnicodeRange(1920, 2047)); //Thaana, NKo
             //_UnicRanges.Add(new UnicodeRange(1328, 1423)); //Armenian
             
             //_UnicRanges.Add(new UnicodeRange(5024, 5887)); //Cherokee ,Unified Canadian Aboriginal Syllabics,Ogham,Runic
 
             //_UnicRanges.Add(new UnicodeRange(6016, 6319)); //Khmer  
 
-            _UnicRanges.Add(new UnicodeRange(12272, 12287, true, true)); //??Ideographic Description Characters ??
+            _UnicRanges.Add(new UnicodeRange(12272, 12287, true)); //??Ideographic Description Characters ??
             //_UnicRanges.Add(new UnicodeRange(12352, 12735)); //Hiragana ... Bopomofo Extended
 
             //_UnicRanges.Add(new UnicodeRange(40960, 42191)); //Yi Syllables, Yi Radicals
@@ -1663,17 +1664,17 @@ namespace BusinessLibrary.BusinessClasses
         
         private class UnicodeRange
         {
-            public UnicodeRange(int start, int end, bool leftToR = true, bool wChar = false)
+            public UnicodeRange(int start, int end, bool wChar = false)
             {
                 RangeStart = start;
                 RangeEnd = end;
                 WordCharacters = wChar;
-                LeftToRight = leftToR;
+                //LeftToRight = leftToR;
             }
             public int RangeStart { get; set; }
             public int RangeEnd { get; set; }
             public bool WordCharacters { get; set; }
-            public bool LeftToRight { get; set; }
+            //public bool LeftToRight { get; set; }
             public bool CharIsInThisRange(Char c)
             {
                 int index = (int)c;
