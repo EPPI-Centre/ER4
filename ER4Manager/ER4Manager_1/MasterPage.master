@@ -150,13 +150,13 @@
                                                 </Telerik:RadTab>
                                             </Tabs>
                                         </Telerik:RadTab>
-                                        <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Text="Utilities" SelectedIndex="4" Selected="True">
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/ExampleReviews.aspx" Text="Utilities" SelectedIndex="0" Selected="True">
                                             <Tabs>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/ExampleReviews.aspx" Owner="" 
+                                                    Text="Example review" Selected="True">
+                                                </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Owner="" 
                                                     Text="Codesets">
-                                                </Telerik:RadTab>
-                                                <Telerik:RadTab runat="server" NavigateUrl="~/ExampleReviews.aspx" Owner="" 
-                                                    Text="Example review">
                                                 </Telerik:RadTab>
                                                 <telerik:RadTab runat="server" NavigateUrl="~/EPPIVIS.aspx" Text="EPPI-Vis" Visible="False">
                                                 </telerik:RadTab>
@@ -164,7 +164,7 @@
                                                     Text="Old WebDB setup" Visible="False">
                                                 </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/ReviewCopy.aspx" Owner="" 
-                                                    Text="Review copy 1" Visible="False" Selected="True">
+                                                    Text="Review copy 1" Visible="False">
                                                 </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/ReviewCopy2.aspx" Owner="" 
                                                     Text="Review copy 2" Visible="False">
