@@ -551,7 +551,7 @@
 	  <None Update="SQLScripts\446.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-	  <None Update="SQLScripts\448.sql">
+	  <None Update="SQLScripts\450.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
     <None Update="SQLScripts\MagCurrentInfoInsert.sql">
