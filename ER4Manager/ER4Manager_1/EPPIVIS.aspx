@@ -6,7 +6,9 @@
     <!--http://localhost:50813/Login/Open?WebDBid=-->
     <!--"~/EPPI-Vis/Login/Open?WebDBid="-->
 
-    <asp:Panel ID="pnlSiteLicences" runat="server">
+
+
+    <asp:Panel ID="pnlEPPIVisusalisations" runat="server">
 
         <table style="width: 100%;">
             <tr>
@@ -21,7 +23,7 @@
 
         <telerik:RadGrid ID="radGVEPPIVis" runat="server"
             CssClass="Grid" Skin="Windows7" AllowPaging="True" AutoGenerateColumns="False"
-            Height="350px" ResolvedRenderMode="Classic" Width="800px"
+            Height="280px" ResolvedRenderMode="Classic" Width="800px"
             OnItemDataBound="radGVEPPIVis_ItemDataBound"
             OnItemCommand="radGVEPPIVis_ItemCommand"
             AllowSorting="True"
@@ -84,21 +86,36 @@
                         FilterControlAltText="Filter name column" HeaderText="*Created by"
                         UniqueName="CONTACT_NAME" DataFormatString="<nobr>{0}</nobr>"
                         Resizable="False" AllowFiltering="False">
-                        <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="190px" />
+                        <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="130px" />
                     </telerik:GridBoundColumn>
 
                     <telerik:GridBoundColumn DataField="IS_OPEN"
                         FilterControlAltText="Filter name column" HeaderText="Is open"
                         UniqueName="IS_OPEN" DataFormatString="<nobr>{0}</nobr>"
                         Resizable="False" AllowFiltering="False">
-                        <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="75px" />
+                        <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="70px" />
                     </telerik:GridBoundColumn>
+
+                    <telerik:GridTemplateColumn DataField="DETAILS" HeaderText="Log"
+                                UniqueName="DETAILS" Resizable="True" AllowFiltering="False"
+                                SortExpression="DETAILS"
+                                FilterControlAltText="Details column">
+                                <ItemTemplate>
+                                    <asp:HyperLink ID="License" runat="server" Text='<%# Bind("DETAILS") %>'
+                                        NavigateUrl='<%# "~/EPPIVisLog.aspx?webDB_ID=" + Eval("WEBDB_ID") %>'
+                                        DataFormatString="<nobr>{0}</nobr>">HyperLink</asp:HyperLink>
+                                </ItemTemplate>
+                                <HeaderStyle Width="70px" BackColor="#B6C6D6" ForeColor="Black" />
+                            </telerik:GridTemplateColumn>
+
 
 
 
                 </Columns>
             </MasterTableView>
         </telerik:RadGrid>
+
+
 
 
         <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server" OnAjaxRequest="RadAjaxManager1_AjaxRequest">
@@ -137,7 +154,7 @@
                 function LoadTable() {
                     $find("<%= RadAjaxManager1.ClientID %>").ajaxRequest("FilterGrid");
                 }
-            </script>
+</script>
         </telerik:RadCodeBlock>
 
 

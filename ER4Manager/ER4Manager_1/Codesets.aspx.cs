@@ -35,20 +35,19 @@ public partial class Codesets : System.Web.UI.Page
                 if (radTs != null)
                 {
                     radTs.SelectedIndex = 5;
-                    radTs.Tabs[5].Tabs[0].Selected = true;
-                    radTs.Tabs[5].Tabs[6].Width = 550;
+                    radTs.Tabs[5].Tabs[1].Selected = true;
+                    radTs.Tabs[5].Tabs[5].Width = 550;
 
                     radTs.Tabs[5].Tabs[0].Visible = true;
                     radTs.Tabs[5].Tabs[1].Visible = true;
-                    radTs.Tabs[5].Tabs[6].Visible = true;
+                    radTs.Tabs[5].Tabs[5].Visible = true;
 
                     if (Utils.GetSessionString("IsAdm") == "True")
                     {
                         radTs.Tabs[5].Tabs[2].Visible = true;
-                        radTs.Tabs[5].Tabs[3].Visible = true;
+                        radTs.Tabs[5].Tabs[3].Visible = false;
                         radTs.Tabs[5].Tabs[4].Visible = true;
-                        radTs.Tabs[5].Tabs[5].Visible = true;
-                        radTs.Tabs[5].Tabs[6].Width = 200;
+                        radTs.Tabs[5].Tabs[5].Width = 350;
                     }
 
                     /*

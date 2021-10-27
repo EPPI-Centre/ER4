@@ -706,6 +706,8 @@ namespace BusinessLibrary.BusinessClasses
                         + Char.ConvertFromUtf32(1519) + "-" + Char.ConvertFromUtf32(1567)
                         + "]"
                         );//these are ranges of the unicode chars that contain various symbols, pretty much stopping before the arabic range because ignorance...
+
+        //private static int DebugCounter = 0; //this should be commented out in production!
         public static string CleanText(string text, bool UseLighterTouch = false )
         {
             if (text == "") return text;
@@ -724,16 +726,27 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (UseLighterTouch)
             {//this means: if the string got shortened too much, clean it by removing a blacklist, instead of the whitelist (rgx) we used above
-                int full = orig.Length;
-                int cut = text.Length;
-                if (cut / full >= 0.1) return text; //cleaned text is 10% or more of the original text, we'll keep it.
+
+                //int full = orig.Length;
+                //int cut = text.Length;
+
+                double full = orig.Length;
+                double cut = text.Length;
+                if (full == 0 || cut / full >= 0.1) return text; //cleaned text is 10% or more of the original text, we'll keep it.
                 else
                 {// we removed too much, so we'll use the less aggressive approach, getting rid of what's in the ranges below
-                    //hopefully the BlackList removes a great deal of noise, even if perhaps not all noise.
+                 //hopefully the BlackList removes a great deal of noise, even if perhaps not all noise.
+
+                    //used for debugging, should be commented in production:
+                    //DebugCounter++;
+
                     text = CleanTextBlackList.Replace(orig, " ").ToLower().Trim();
+                    int tLen = text.Length;
                     while (text.IndexOf("  ") != -1)
                     {
                         text = text.Replace("  ", " ");
+                        if (tLen == text.Length) break;
+                        tLen = text.Length;
                     }
                 }
             }

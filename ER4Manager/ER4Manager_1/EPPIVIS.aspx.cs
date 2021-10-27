@@ -16,6 +16,7 @@ using System.Data.SqlClient;
 using Telerik.Web.UI;
 using System.Drawing;
 using System.Globalization;
+using Telerik.Web.UI.Calendar;
 
 public partial class EPPIVIS : System.Web.UI.Page
 {
@@ -38,24 +39,24 @@ public partial class EPPIVIS : System.Web.UI.Page
                     {
                         radTs.SelectedIndex = 5;
                         radTs.Tabs[5].Tabs[2].Selected = true;
-                        radTs.Tabs[5].Tabs[6].Width = 550;
+                        radTs.Tabs[5].Tabs[5].Width = 550;
 
                         radTs.Tabs[5].Tabs[0].Visible = true;
                         radTs.Tabs[5].Tabs[1].Visible = true;
-                        radTs.Tabs[5].Tabs[6].Visible = true;
+                        radTs.Tabs[5].Tabs[5].Visible = true;
 
                         if (Utils.GetSessionString("IsAdm") == "True")
                         {
                             radTs.Tabs[5].Tabs[2].Visible = true;
-                            radTs.Tabs[5].Tabs[3].Visible = true;
+                            radTs.Tabs[5].Tabs[3].Visible = false;
                             radTs.Tabs[5].Tabs[4].Visible = true;
-                            radTs.Tabs[5].Tabs[5].Visible = true;
-                            radTs.Tabs[5].Tabs[6].Width = 200;
+                            radTs.Tabs[5].Tabs[5].Width = 350;
                         }
 
                     }
 
                     buildRadEPPIVisGrid();
+
                 }
 
             }
@@ -85,6 +86,7 @@ public partial class EPPIVIS : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("IS_OPEN", typeof(string)));
+        dt.Columns.Add(new DataColumn("DETAILS", typeof(string)));
 
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_Eppi_Vis_Get_All", tbFilter.Text);
@@ -97,10 +99,13 @@ public partial class EPPIVIS : System.Web.UI.Page
             newrow["REVIEW_NAME"] = idr["tv_review_name"].ToString();
             newrow["CONTACT_NAME"] = idr["tv_contact_name"].ToString();
             newrow["IS_OPEN"] = idr["tv_is_open"].ToString();
+            newrow["DETAILS"] = "details";
             dt.Rows.Add(newrow);
         }
         idr.Close();
     }
+
+
 
 
     protected void radGVEPPIVis_NeedDataSource(object sender, Telerik.Web.UI.GridNeedDataSourceEventArgs e)
@@ -114,6 +119,7 @@ public partial class EPPIVIS : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("IS_OPEN", typeof(string)));
+        dt.Columns.Add(new DataColumn("DETAILS", typeof(string)));
 
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_Eppi_Vis_Get_All", tbFilter.Text);
@@ -126,6 +132,7 @@ public partial class EPPIVIS : System.Web.UI.Page
             newrow["REVIEW_NAME"] = idr["tv_review_name"].ToString();
             newrow["CONTACT_NAME"] = idr["tv_contact_name"].ToString();
             newrow["IS_OPEN"] = idr["tv_is_open"].ToString();
+            newrow["DETAILS"] = "details";
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -154,7 +161,7 @@ public partial class EPPIVIS : System.Web.UI.Page
     }
     protected void radGVEPPIVis_ItemDataBound(object sender, Telerik.Web.UI.GridItemEventArgs e)
     {
-
+        
     }
 
     protected void radGVEPPIVis_ItemCommand(object sender, Telerik.Web.UI.GridCommandEventArgs e)
@@ -162,5 +169,5 @@ public partial class EPPIVIS : System.Web.UI.Page
 
     }
 
-
 }
+

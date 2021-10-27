@@ -656,16 +656,12 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", this.AttributeId));
                             using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
                             {
-                                if (reader.Read())
+                                using (StreamWriter file = new StreamWriter(uploadFileName, false))
                                 {
-                                    using (StreamWriter file = new StreamWriter(uploadFileName, false))
+                                    while (reader.Read())
                                     {
                                         file.WriteLine(reader["PaperId"].ToString());
-                                        while (reader.Read())
-                                        {
-                                            file.WriteLine(reader["PaperId"].ToString());
-                                            c++;
-                                        }
+                                        c++;
                                     }
                                 }
                             }

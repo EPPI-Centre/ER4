@@ -448,6 +448,8 @@ namespace BusinessLibrary.BusinessClasses
                                 MakeComparisons(CurrentGroup, 1); // for the last group to be read before the reader didn't read any more
                                 if (ResultsCache.Rows.Count > 0) FlushCache();//save last batch
                             }
+                            //debug purposes: comment out in production
+                            //MagMakesHelpers.CleanText("nothing");
                         }
 
                     }
