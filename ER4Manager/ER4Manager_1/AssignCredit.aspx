@@ -47,7 +47,7 @@
                 <td>
                     <asp:Button ID="cmdComplete" runat="server" Text="Complete" OnClick="cmdComplete_Click" Enabled="False" 
                         onClientClick="this.disabled=true;" UseSubmitBehavior="false" />
-                    &nbsp;&nbsp;
+                    &nbsp;&nbsp; 
                     <asp:LinkButton ID="lbCancel" runat="server" OnClick="lbCancel_Click">(cancel)</asp:LinkButton>
                     &nbsp;&nbsp;
                     <asp:Label runat="server" ID="lblExtensionError" Visible="false" Font-Bold="True" ForeColor="Red" Text="Missing extension"></asp:Label>
