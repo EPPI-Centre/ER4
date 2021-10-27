@@ -65,7 +65,8 @@
                 <table style="width: 100%;">
                     <tr>
                         <td style="width: 40%; height: 25px;">
-                            <asp:Button ID="cmdSaveShareableReview" runat="server" OnClick="cmdSaveShareableReview_Click" Text="Save" />
+                            <asp:Button ID="cmdSaveShareableReview" runat="server" OnClick="cmdSaveShareableReview_Click" Text="Save" 
+                                onClientClick="this.disabled=true;" UseSubmitBehavior="false" />
                             &nbsp;&nbsp;
                                     <asp:LinkButton ID="lbCancelReviewDetailsEdit" runat="server" OnClick="lbCancelReviewDetailsEdit_Click">Cancel/close</asp:LinkButton>
                         </td>

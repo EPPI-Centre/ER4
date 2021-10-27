@@ -363,6 +363,14 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
+        public IActionResult GetEPPIMapperMap([FromQuery] string eppiMapperMapUrl)
+        {
+            string url = eppiMapperMapUrl;
+            WebDbFrequencyCrosstabAndMapSelectionCriteria crit = 
+                new WebDbFrequencyCrosstabAndMapSelectionCriteria(0, 1, 1, url, "", "", 0, 1, 1, "");
+            return View(crit);
+        }
+
     }
     public class WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC
     {

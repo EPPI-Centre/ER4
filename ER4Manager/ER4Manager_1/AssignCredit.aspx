@@ -45,7 +45,8 @@
 
             <tr>
                 <td>
-                    <asp:Button ID="cmdComplete" runat="server" Text="Complete" OnClick="cmdComplete_Click" Enabled="False" />
+                    <asp:Button ID="cmdComplete" runat="server" Text="Complete" OnClick="cmdComplete_Click" Enabled="False" 
+                        onClientClick="this.disabled=true;" UseSubmitBehavior="false" />
                     &nbsp;&nbsp;
                     <asp:LinkButton ID="lbCancel" runat="server" OnClick="lbCancel_Click">(cancel)</asp:LinkButton>
                     &nbsp;&nbsp;
