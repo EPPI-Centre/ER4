@@ -11,6 +11,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Data.SqlClient;
 using System.Net.Mail;
+using System.Net;
 
 /// <summary>
 /// Summary description for Utils
@@ -354,9 +355,10 @@ public class Utils
     }
     private static SmtpClient smtpClient()
     {
+        //from https://docs.microsoft.com/en-us/answers/questions/400152/authentication-failed-because-the-remote-party-has.html
+        ServicePointManager.SecurityProtocol = (SecurityProtocolType)48 | (SecurityProtocolType)192 | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
         SmtpClient smtp = new SmtpClient(SMTP);//sergio.graziosi+1@gmail.com
         System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("***REMOVED***", "***REMOVED***");
-        //System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("EPPISupport@ioe.ac.uk", "***REMOVED***");
         smtp.UseDefaultCredentials = false;
         smtp.Credentials = SMTPUserInfo;
         smtp.EnableSsl = true; smtp.Port = 587;
