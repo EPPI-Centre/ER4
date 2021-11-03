@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 
+using System.Data.SqlClient;
+using WebDatabasesMVC;
+
 namespace ERxWebClient2.Controllers
 {
     public abstract class CSLAController : Controller
@@ -88,6 +91,28 @@ namespace ERxWebClient2.Controllers
                 }
             }
         }
+
+        protected int ReviewID
+        {
+            get
+            {
+                try
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (User == null || ri == null) return -1;
+                    else
+                    {
+                        return ri.ReviewId;
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("Error getting ReviewerIdentity or ReviewId therein.", e);
+                    return -1;
+                }
+            }
+        }
+
         private void SetViewBag()
         {
             ViewBag.WebDbId = WebDbId;
@@ -101,6 +126,23 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        protected void logActivity(string type, string details)
+        {
+            string SP1 = "st_WebDBWriteToLog";
+            List<SqlParameter> pars1 = new List<SqlParameter>();
+            pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+            pars1.Add(new SqlParameter("@Reviewid", ReviewID));
+            pars1.Add(new SqlParameter("@Type", type));
+            pars1.Add(new SqlParameter("@Details", details));
+
+            int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+            if (result == -2)
+            {
+                Console.WriteLine("Unable to write to WebDB log");
+            }
+        }
+
 #endif
     }
     public class SingleStringCriteria

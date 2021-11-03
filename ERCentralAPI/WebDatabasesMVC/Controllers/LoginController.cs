@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebDatabasesMVC;
 
+
+
 namespace WebDatabasesMVC.Controllers
 {
     //[Route("Login")]
@@ -80,6 +82,8 @@ namespace WebDatabasesMVC.Controllers
                         pars.Add(new SqlParameter("@Password", password));
                     }
 
+
+
                     using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.ER4DB, SP, pars.ToArray())) 
                     {
                         
@@ -91,10 +95,18 @@ namespace WebDatabasesMVC.Controllers
                                 SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
                                 //SetImages(WebDbId, reader);
 
-                                // log to TB_WEBDB_LOG                               
+                                // log to TB_WEBDB_LOG
+                                /*
+                                string details = "Closed access";
+                                if (SP == "st_WebDBgetClosedAccess")
+                                    details = "Closed access";
+                                logActivity("Login", details);
+                                */
+                                
                                 string SP1 = "st_WebDBWriteToLog";
                                 List<SqlParameter> pars1 = new List<SqlParameter>();
                                 pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                                pars1.Add(new SqlParameter("@ReviewID", Revid));
                                 pars1.Add(new SqlParameter("@Type", "Login"));
                                 if (SP == "st_WebDBgetClosedAccess")
                                     pars1.Add(new SqlParameter("@Details", "Closed access"));
@@ -105,6 +117,7 @@ namespace WebDatabasesMVC.Controllers
                                 {
                                     Console.WriteLine("Unable to write to WebDB log");
                                 }
+                                
 
                                 return Redirect("~/Review/Index");
                             } 
@@ -156,10 +169,18 @@ namespace WebDatabasesMVC.Controllers
                                 SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
                                 //SetImages(WebDbId, reader);
 
-                                // log to TB_WEBDB_LOG                               
+                                // log to TB_WEBDB_LOG
+                                /*
+                                string details = "Closed access";
+                                if (SP == "st_WebDBgetClosedAccess")
+                                    details = "Closed access";
+                                logActivity("Login", details);
+                                */
+
                                 string SP1 = "st_WebDBWriteToLog";
                                 List<SqlParameter> pars1 = new List<SqlParameter>();
                                 pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+                                pars1.Add(new SqlParameter("@ReviewID", Revid));
                                 pars1.Add(new SqlParameter("@Type", "Login"));
                                 pars1.Add(new SqlParameter("@Details", "Open access"));
                                 int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
