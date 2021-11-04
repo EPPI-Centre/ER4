@@ -10,7 +10,6 @@ using System.Linq;
 using System.Security.Claims;
 
 using System.Data.SqlClient;
-using WebDatabasesMVC;
 
 namespace ERxWebClient2.Controllers
 {
@@ -136,7 +135,7 @@ namespace ERxWebClient2.Controllers
             pars1.Add(new SqlParameter("@Type", type));
             pars1.Add(new SqlParameter("@Details", details));
 
-            int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+            int result = WebDatabasesMVC.Program.SqlHelper.ExecuteNonQuerySP(WebDatabasesMVC.Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
             if (result == -2)
             {
                 Console.WriteLine("Unable to write to WebDB log");
