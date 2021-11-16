@@ -34,7 +34,7 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-        private void DataPortal_Fetch(SingleCriteria<ReadOnlyWebDbActivityList, int> criteria)
+        private void DataPortal_Fetch(ReadOnlyWebDbActivityListSelectionCrit criteria)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
@@ -47,10 +47,10 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_Eppi_Vis_Get_Log", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@WEBDB_ID", criteria.Value));
-                    command.Parameters.Add(new SqlParameter("@FROM", criteria.Value));
-                    command.Parameters.Add(new SqlParameter("@UNTIL", criteria.Value));
-                    command.Parameters.Add(new SqlParameter("@TYPE", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@WEBDB_ID", criteria.WebDBID));
+                    command.Parameters.Add(new SqlParameter("@FROM", criteria.From));
+                    command.Parameters.Add(new SqlParameter("@UNTIL", criteria.Until));
+                    command.Parameters.Add(new SqlParameter("@TYPE", criteria.LogType));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
@@ -66,4 +66,40 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
     }
+
+    [Serializable]
+    public class ReadOnlyWebDbActivityListSelectionCrit : Csla.CriteriaBase<ReadOnlyWebDbActivityListSelectionCrit>
+    {
+        private static PropertyInfo<int> WebDBIDProperty = RegisterProperty<int>(typeof(ReadOnlyWebDbActivityListSelectionCrit), new PropertyInfo<int>("WebDBID", "WebDBID"));
+        public int WebDBID
+        {
+            get { return ReadProperty(WebDBIDProperty); }
+        }
+        private static PropertyInfo<DateTime> FromProperty = RegisterProperty<DateTime>(typeof(ReadOnlyWebDbActivityListSelectionCrit), new PropertyInfo<DateTime>("From", "From"));
+        public DateTime From
+        {
+            get { return ReadProperty(FromProperty); }
+        }
+        private static PropertyInfo<DateTime> UntilProperty = RegisterProperty<DateTime>(typeof(ReadOnlyWebDbActivityListSelectionCrit), new PropertyInfo<DateTime>("Until", "Until"));
+        public DateTime Until
+        {
+            get { return ReadProperty(UntilProperty); }
+        }
+        private static PropertyInfo<string> LogTypeProperty = RegisterProperty<string>(typeof(ReadOnlyWebDbActivityListSelectionCrit), new PropertyInfo<string>("LogType", "LogType"));
+        public string LogType
+        {
+            get { return ReadProperty(LogTypeProperty); }
+        }
+
+        public ReadOnlyWebDbActivityListSelectionCrit(int webDBID, DateTime from, DateTime until, string logType)
+        {
+            LoadProperty(WebDBIDProperty, webDBID);
+            LoadProperty(FromProperty, from);
+            LoadProperty(UntilProperty, until);
+            LoadProperty(LogTypeProperty, logType);
+        }
+
+        public ReadOnlyWebDbActivityListSelectionCrit() { }
+    }
+
 }

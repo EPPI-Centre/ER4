@@ -77,7 +77,7 @@ namespace BusinessLibrary.BusinessClasses
         private void Child_Fetch(SafeDataReader reader)
         {
             LoadProperty<int>(WebDBLogIdentityProperty, reader.GetInt32("tv_webdb_log_identity"));
-            LoadProperty<DateTime>(DateTimeCreatedProperty, reader.GetDateTime("DateTimeCreated"));
+            LoadProperty<DateTime>(DateTimeCreatedProperty, reader.GetDateTime("tv_created"));
             LoadProperty<string>(LogTypeProperty, reader.GetString("tv_log_type"));
             LoadProperty<string>(LogDetailsProperty, reader.GetString("tv_details"));
         }

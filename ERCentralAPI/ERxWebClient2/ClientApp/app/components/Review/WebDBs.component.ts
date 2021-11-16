@@ -250,6 +250,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				}
 			});
 	}
+	GetLogs(CurrentDB: iWebDB) {
+		this.WebDBService.GetWebDBLogs(CurrentDB.webDBId);
+    }
 	EditFilter() {
 		this.EditingFilter = true;
 		this.isCollapsedFilterCode = false;

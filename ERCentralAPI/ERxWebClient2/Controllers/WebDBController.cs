@@ -23,7 +23,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace ERxWebClient2.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     public class WebDbController : CSLAController
     {
@@ -37,13 +37,13 @@ namespace ERxWebClient2.Controllers
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
-
                 int WebDBID = 1002;
                 DateTime From = new DateTime(2021, 01, 01, 12, 12, 12);
                 DateTime Until = new DateTime(1980, 01, 01, 00, 00, 00);
                 string Type = "all";
 
-                ReadOnlyWebDbActivityList res = DataPortal.Fetch<ReadOnlyWebDbActivityList>(WebDBID);
+                ReadOnlyWebDbActivityListSelectionCrit crit = new ReadOnlyWebDbActivityListSelectionCrit(WebDBID, From, Until, Type);
+                ReadOnlyWebDbActivityList res = DataPortal.Fetch<ReadOnlyWebDbActivityList>(crit);
                 return Ok(res);
             }
             catch (Exception e)

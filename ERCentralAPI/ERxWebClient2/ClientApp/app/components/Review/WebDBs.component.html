@@ -70,6 +70,9 @@
                     <a href="{{VisitURL}}" target="_blank">View in EPPI-Vis</a>
                     <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
                 </div>
+                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="GetLogs(CurrentDB)" >
+                   Logs
+                </button>
             </div>
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-2 row m-0 p-0">

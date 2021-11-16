@@ -105,7 +105,18 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             }
         );
     }
-
+    public GetWebDBLogs(webDbId: number) {
+        this._BusyMethods.push("GetWebDBLogs");
+        this._httpC.get<any>(this._baseUrl + 'api/WebDB/GetWebDBLogs').subscribe(
+            res => {
+                console.log(res);
+                this.RemoveBusy("GetWebDBLogs");
+            }, error => {
+                this.RemoveBusy("GetWebDBLogs");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
     public Delete(toDel: iWebDB): void {
         if (this._WebDBs.indexOf(toDel) == -1) {
             this.Fetch();//let's refresh this list: why did user ask to delete something we don't have??
