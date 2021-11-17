@@ -96,29 +96,9 @@ namespace WebDatabasesMVC.Controllers
                                 //SetImages(WebDbId, reader);
 
                                 // log to TB_WEBDB_LOG
-                                /*
-                                string details = "Closed access";
-                                if (SP == "st_WebDBgetClosedAccess")
-                                    details = "Closed access";
-                                logActivity("Login", details);
-                                */
-                                
-                                string SP1 = "st_WebDBWriteToLog";
-                                List<SqlParameter> pars1 = new List<SqlParameter>();
-                                pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                                pars1.Add(new SqlParameter("@ReviewID", Revid));
-                                pars1.Add(new SqlParameter("@Type", "Login"));
-                                if (SP == "st_WebDBgetClosedAccess")
-                                    pars1.Add(new SqlParameter("@Details", "Closed access"));
-                                else
-                                    pars1.Add(new SqlParameter("@Details", "Open access"));
-                                int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                                if (result == -2)
-                                {
-                                    Console.WriteLine("Unable to write to WebDB log");
-                                }
-                                
-
+                                ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
+                                    , SP == "st_WebDBgetClosedAccess" ? "Closed access" : "Open access"
+                                    , WebDbId, Revid);
                                 return Redirect("~/Review/Index");
                             } 
                             else
@@ -170,24 +150,7 @@ namespace WebDatabasesMVC.Controllers
                                 //SetImages(WebDbId, reader);
 
                                 // log to TB_WEBDB_LOG
-                                /*
-                                string details = "Closed access";
-                                if (SP == "st_WebDBgetClosedAccess")
-                                    details = "Closed access";
-                                logActivity("Login", details);
-                                */
-
-                                string SP1 = "st_WebDBWriteToLog";
-                                List<SqlParameter> pars1 = new List<SqlParameter>();
-                                pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                                pars1.Add(new SqlParameter("@ReviewID", Revid));
-                                pars1.Add(new SqlParameter("@Type", "Login"));
-                                pars1.Add(new SqlParameter("@Details", "Open access"));
-                                int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                                if (result == -2)
-                                {
-                                    Console.WriteLine("Unable to write to WebDB log");
-                                }
+                                ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login", "Open access", WebDbId, Revid);
 
                                 return Redirect("~/Review/Index");
                             }
