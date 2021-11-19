@@ -70,10 +70,17 @@
                     <a href="{{VisitURL}}" target="_blank">View in EPPI-Vis</a>
                     <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
                 </div>
-                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="GetLogs(CurrentDB)" >
-                   Logs
+                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="GetLogs(CurrentDB, '', '', '')">
+                    Logs
                 </button>
             </div>
+            <div *ngIf="CurrentLogs.length > 0">
+                <div *ngFor="let log of CurrentLogs[0]" class="col-12">
+                    <div class="col-12 mx-0 p-1 row">{{log.webDBLogIdentity}},{{log.dateTimeCreated}},{{log.logType}},{{log.logDetails}}<br />
+                    </div>
+                </div>
+            </div>
+
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-2 row m-0 p-0">
                     <div class="col-auto">
@@ -186,7 +193,7 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
         <div *ngIf="EditingDB !== null" class="bg-light rounded">
             <div class="w-100 m-0 p-0 text-center">

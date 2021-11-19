@@ -31,8 +31,8 @@ namespace ERxWebClient2.Controllers
         public WebDbController(ILogger<WebDbController> logger, IConfiguration configuration) : base(logger)
         { _Configuration = configuration; }
 
-        [HttpGet("[action]")]
-        public IActionResult GetWebDBLogs()
+        //[HttpGet("[action]")]
+        /*public IActionResult GetWebDBLogs()
         {
             try
             {
@@ -51,8 +51,32 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "GetWebDBLogs data portal error");
                 return StatusCode(500, e.Message);
             }
-        }
+        }*/
 
+        [HttpPost("[action]")]
+        public IActionResult GetWebDBLogs([FromBody] ReadOnlyWebDbActivityListSelectionCritJson critJson)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {        
+                    int WebDBID = critJson.wedDBId;
+                    string From = critJson.from;
+                    string Until = critJson.until;                                   
+                    string Type = critJson.logType;
+
+                    ReadOnlyWebDbActivityListSelectionCrit crit = critJson.GetFetchCriteria();
+                    ReadOnlyWebDbActivityList res = DataPortal.Fetch<ReadOnlyWebDbActivityList>(crit);
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetWebDBLogs data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
 
         [HttpGet("[action]")]
         public IActionResult GetWebDBs()
@@ -507,5 +531,23 @@ namespace ERxWebClient2.Controllers
         public string webDBMapDescription { get; set; }
         public int webDBMapId { get; set; }
         public string webDBMapName { get; set; }
+    }
+
+    public class ReadOnlyWebDbActivityListSelectionCritJson
+    {
+        public int wedDBId;
+        public string from;
+        public string until;
+        public string logType;
+
+        public ReadOnlyWebDbActivityListSelectionCrit GetFetchCriteria()
+        {
+
+            DateTime From = DateTime.Parse(from);
+            DateTime Until = DateTime.Parse(until);
+
+            ReadOnlyWebDbActivityListSelectionCrit res = new ReadOnlyWebDbActivityListSelectionCrit(wedDBId, From, Until, logType);
+            return res;
+        }
     }
 }

@@ -66,6 +66,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         }
     }
 
+
     private _CurrentMaps: iWebDBMap[] = [];
     public get CurrentMaps(): iWebDBMap[] {
         if (this._CurrentMaps.length > 0 && this._CurrentDB != null && this._CurrentMaps[0].webDBId == this._CurrentDB.webDBId) {
@@ -76,6 +77,18 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             return this._CurrentMaps;
         }
     }
+
+    private _CurrentLogs: iWebDBLog[] = [];
+    public get CurrentLogs(): iWebDBLog[] {
+        if (this._CurrentLogs.length > 0) {
+            return this._CurrentLogs;
+        }
+        else {
+            this._CurrentLogs = [];
+            return this._CurrentLogs;
+        }
+    }
+
 
     public SelectedNodeData: singleNode | null = null;
 
@@ -105,10 +118,21 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             }
         );
     }
-    public GetWebDBLogs(webDbId: number) {
+
+   
+    public GetWebDBLogs(webDbId: number, from: string, until: string, logType: string) {
+        let body: ReadOnlyWebDbActivityListSelectionCrit = new ReadOnlyWebDbActivityListSelectionCrit();
+        body.wedDBId = webDbId;
+        body.from = from;
+        body.until = until;
+        body.logType = logType;
+        
+
         this._BusyMethods.push("GetWebDBLogs");
-        this._httpC.get<any>(this._baseUrl + 'api/WebDB/GetWebDBLogs').subscribe(
+        this._httpC.post<iWebDBLog>(this._baseUrl + 'api/WebDB/GetWebDBLogs', body).subscribe(
             res => {
+                this._CurrentLogs = [];
+                this._CurrentLogs.push(res);
                 console.log(res);
                 this.RemoveBusy("GetWebDBLogs");
             }, error => {
@@ -632,4 +656,16 @@ export interface iWebDBMap {
     webDBMapDescription: string;
     webDBMapId: number;
     webDBMapName: string;
+}
+export class ReadOnlyWebDbActivityListSelectionCrit {
+    public wedDBId: number = 0;
+    public from: string = "";
+    public until: string = "";
+    public logType: string = "";
+}
+export interface iWebDBLog {
+    webDBLogIdentity: number;
+    dateTimeCreated: string;
+    logType: string;
+    logDetails: string;
 }
