@@ -46,10 +46,13 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         this.SelectedNodeData = null;
         const ind = this._WebDBs.findIndex((f) => db != null && f.webDBId == db.webDBId);
         if (ind == -1) {
+            this._CurrentLogs = [];
             this._CurrentDB = null;
             this._CurrentSets = [];
         }
         else {
+            if (this._CurrentDB && this._CurrentDB.webDBId != this._WebDBs[ind].webDBId)
+                this._CurrentLogs = [];
             this._CurrentDB = this._WebDBs[ind];
             this.GetWebDbReviewSetsList();
         }
@@ -129,11 +132,10 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         
 
         this._BusyMethods.push("GetWebDBLogs");
-        this._httpC.post<iWebDBLog>(this._baseUrl + 'api/WebDB/GetWebDBLogs', body).subscribe(
+        this._httpC.post<iWebDBLog[]>(this._baseUrl + 'api/WebDB/GetWebDBLogs', body).subscribe(
             res => {
-                this._CurrentLogs = [];
-                this._CurrentLogs.push(res);
-                console.log(res);
+                this._CurrentLogs = res;
+                //console.log(res);
                 this.RemoveBusy("GetWebDBLogs");
             }, error => {
                 this.RemoveBusy("GetWebDBLogs");
@@ -544,6 +546,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         this._CurrentSets = [];
         this.SelectedNodeData = null;
         this.MissingAttributes = [];
+        this._CurrentLogs = [];
     }
 }
 export interface iWebDbListWithUrl {

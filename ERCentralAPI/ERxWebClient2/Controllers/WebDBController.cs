@@ -58,13 +58,8 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
-                {        
-                    int WebDBID = critJson.wedDBId;
-                    string From = critJson.from;
-                    string Until = critJson.until;                                   
-                    string Type = critJson.logType;
-
+                if (SetCSLAUser())
+                {    
                     ReadOnlyWebDbActivityListSelectionCrit crit = critJson.GetFetchCriteria();
                     ReadOnlyWebDbActivityList res = DataPortal.Fetch<ReadOnlyWebDbActivityList>(crit);
                     return Ok(res);
