@@ -128,6 +128,11 @@ namespace ERxWebClient2.Controllers
 
         protected void logActivity(string type, string details)
         {
+            CSLAController.logActivityStatic(type, details, WebDbId, ReviewID);
+        }
+        public static void logActivityStatic(string type, string details, int WebDbId, int ReviewID)
+        {
+            //making this public and static, so we can call it from LoginController, which does not inherit from CSLAController
             string SP1 = "st_WebDBWriteToLog";
             List<SqlParameter> pars1 = new List<SqlParameter>();
             pars1.Add(new SqlParameter("@WebDBid", WebDbId));
@@ -141,7 +146,6 @@ namespace ERxWebClient2.Controllers
                 Console.WriteLine("Unable to write to WebDB log");
             }
         }
-
 #endif
     }
     public class SingleStringCriteria
