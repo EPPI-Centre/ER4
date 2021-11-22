@@ -126,7 +126,7 @@ public partial class EPPIVisLog : System.Web.UI.Page
             newrow["WEBDB_LOG_IDENTITY"] = idr["tv_webdb_log_identity"].ToString();
             newrow["CREATED"] = idr["tv_created"].ToString();
             newrow["TYPE"] = idr["tv_log_type"].ToString();
-            newrow["DETAILS"] = idr["tv_details"].ToString();
+            newrow["DETAILS"] = HttpUtility.HtmlEncode(idr["tv_details"].ToString());
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -155,7 +155,7 @@ public partial class EPPIVisLog : System.Web.UI.Page
             newrow["WEBDB_LOG_IDENTITY"] = idr["tv_webdb_log_identity"].ToString();
             newrow["CREATED"] = idr["tv_created"].ToString();
             newrow["TYPE"] = idr["tv_log_type"].ToString();
-            newrow["DETAILS"] = idr["tv_details"].ToString();
+            newrow["DETAILS"] = HttpUtility.HtmlEncode(idr["tv_details"].ToString());
             dt.Rows.Add(newrow);
         }
         idr.Close();
