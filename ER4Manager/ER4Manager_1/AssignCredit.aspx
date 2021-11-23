@@ -2,6 +2,52 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
+
+
+
+    <script type="text/javascript">
+
+
+        function DisableControls() {
+            var cmdbutton = document.getElementById('<%= cmdComplete.ClientID %>');
+
+            var extendReviewDdl = document.getElementById('<%= ddlExtendReview.ClientID %>');
+            if (extendReviewDdl) {
+                extendReviewDdl.disabled = true;
+            }
+            
+            var cancelLink = document.getElementById('<%= lbCancel.ClientID %>');
+            cancelLink.removeAttribute('href');
+
+            var gridviewcontrol = document.getElementById('<%= gvMembersOfReview.ClientID %>');
+            var rowCount = gridviewcontrol.rows.length;
+
+            if (rowCount >= 0) {
+                var idStringPt1 = "Skinnedctl00_ContentPlaceHolder1_gvMembersOfReview_ctl0";
+                var idStringPt1b = "Skinnedctl00_ContentPlaceHolder1_gvMembersOfReview_ctl";
+                var idStringPt2 = "2";
+                var idStringPt3 = "_ddlExtendAccount";
+
+                var idString = idStringPt1 + idStringPt2 + idStringPt3;
+                var ddl = document.getElementById(idString);
+                ddl.hidden = true;
+
+                for (let i = 3; i < rowCount + 1; i++) {
+                    idStringPt2 = i.toString();
+                    if (i > 9) {
+                        idString = idStringPt1b + idStringPt2 + idStringPt3;
+                    }
+                    else {
+                        idString = idStringPt1 + idStringPt2 + idStringPt3;
+                    }
+                    ddl = document.getElementById(idString);
+                    ddl.hidden = true;
+                }
+            }     
+        }
+
+    </script>
+
     <asp:Panel ID="pnlInstructions" runat="server" Visible="true">
         <table style="width: 100%;">
             <tr>
@@ -46,7 +92,10 @@
             <tr>
                 <td>
                     <asp:Button ID="cmdComplete" runat="server" Text="Complete" OnClick="cmdComplete_Click" Enabled="False" 
-                        onClientClick="this.disabled=true;" UseSubmitBehavior="false" />
+                        onClientClick="javascript:DisableControls();" UseSubmitBehavior="false" />
+
+
+
                     &nbsp;&nbsp; 
                     <asp:LinkButton ID="lbCancel" runat="server" OnClick="lbCancel_Click">(cancel)</asp:LinkButton>
                     &nbsp;&nbsp;
