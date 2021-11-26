@@ -12,7 +12,7 @@ export class VisLogComp implements OnInit{
 
     
     constructor(
-        private visLogService: WebDBService     
+        private visLogService: WebDBService      
         ) {
     }
 
