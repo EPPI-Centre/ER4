@@ -1,0 +1,47 @@
+﻿@using Microsoft.AspNetCore.Mvc;
+@{
+    //this is a trick, to ensure the JS method ItemsWithThisCode will work from pages with urls like "[root]/fair", "[root]/fair/Index", "[root]/fair/", "[root]/fair/Topic?TopicId=121783" and more... 
+    string path = Url.Content("~/"); //should give us the root of the app!
+}
+<script type="text/javascript">
+    var treeviewData = null;
+    var dataItem = null;
+    const path = '@path' + "fair/";
+    function ItemsWithThisCode() {
+        console.log(dataItem);
+        if (dataItem && !dataItem.isCodeset)
+            window.location.href = path + 'Topic?TopicId=' + dataItem.id;
+    }
+    function TreeViewSelection(e) {
+        if (treeviewData == null) retrun;
+        dataItem = treeviewData.dataItem(e.node);
+        console.log(dataItem);
+        if (!dataItem) {
+            return;
+        }
+
+
+        if (dataItem.items && dataItem.items.length > 0) {
+        }
+        else {
+
+        }
+        if (dataItem.isCodeset) {
+            $("#GoToItemsWithThisCodeSB").prop("disabled", true);
+        } else {
+            $("#GoToItemsWithThisCodeSB").prop("disabled", false);
+        }
+    }
+</script>
+
+<div class="">
+    <div class="">
+        <div class="">
+            <button id="GoToItemsWithThisCodeSB" class="btn btn-secondary btn-sm btn-round" onclick="ItemsWithThisCode()" disabled>List records</button>
+            @*<button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreqSB">Frequencies</button>*@
+        </div>
+    </div>
+    <div class="">
+        <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
+    </div>
+</div>
