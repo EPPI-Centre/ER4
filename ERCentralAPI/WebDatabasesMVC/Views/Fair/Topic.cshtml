@@ -288,7 +288,7 @@
         <div class="rounded border m-2 p-2 bg-white">
             @{
                 if (Model.TopicAttribute.ExtType != "")
-                { <img class="float-right" src="https://upload.wikimedia.org/wikipedia/@Model.TopicAttribute.ExtType" /> }
+                { <img class="float-right" src="@Model.ImagesBaseUrl@Model.TopicAttribute.ExtType" /> }
             }
             @Model.TopicAttribute.AttributeSetDescription
         </div>

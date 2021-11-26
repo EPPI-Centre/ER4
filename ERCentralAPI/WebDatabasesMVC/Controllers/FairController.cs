@@ -181,9 +181,10 @@ namespace WebDatabasesMVC.Controllers
                             break;
                         }
                     }
-                    if (reviewSets != null && reviewSets.Count > 0 && aSet != null && ProgressSet != null)
+                    string imgBaseUrl = Configuration.GetValue<string>("AppSettings:FAIRImagesRoot");
+                    if (reviewSets != null && reviewSets.Count > 0 && aSet != null && ProgressSet != null && imgBaseUrl != null && imgBaseUrl != "")
                     {
-                        FairTopicVM res = new FairTopicVM(reviewSets, ProgressSet.SetId, aSet);
+                        FairTopicVM res = new FairTopicVM(reviewSets, ProgressSet.SetId, aSet, imgBaseUrl);
                         return View(res);    
                     }
                     else return BadRequest();
