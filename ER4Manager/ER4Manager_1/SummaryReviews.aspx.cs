@@ -1188,9 +1188,12 @@ public partial class SummaryReviews : System.Web.UI.Page
 
     protected void rblPSShareableEnable_SelectedIndexChanged(object sender, EventArgs e)
     {
-        bool isAdmDB = true;
-        Utils.ExecuteSP(isAdmDB, Server, "st_PriorityScreeningTurnOnOff",
-                lblShareableReviewNumber.Text, "ShowScreening", rblPSShareableEnable.SelectedValue);
+        if (cmdSaveShareableReview.Enabled == true)
+        {
+            bool isAdmDB = true;
+            Utils.ExecuteSP(isAdmDB, Server, "st_PriorityScreeningTurnOnOff",
+                    lblShareableReviewNumber.Text, "ShowScreening", rblPSShareableEnable.SelectedValue);
+        }
     }
 
     protected void rblPSNonShareableEnable_SelectedIndexChanged(object sender, EventArgs e)
