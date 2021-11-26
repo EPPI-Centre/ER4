@@ -20,7 +20,7 @@ using WebDatabasesMVC.ViewModels;
 
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "CookieAuthentication,FairAuthentication")]
     public class FrequenciesController : CSLAController
     {
         
@@ -28,7 +28,7 @@ namespace WebDatabasesMVC.Controllers
         {}
 
         
-        public IActionResult GetFrequencies([FromForm] long attId, int setId, string parentName, string included)
+        public IActionResult GetFrequencies([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
             try
             {
@@ -52,13 +52,13 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
-        public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included)
+        public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {
                 if (SetCSLAUser())
                 {
-                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
+                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included, onlyThisAttribute);
 
                     // log to TB_WEBDB_LOG
                     string type = "GetFrequency";
@@ -110,7 +110,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, string parentName, string included)
+        internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, string parentName, string included, long onlyThisAttribute)
         {
             int DBid = WebDbId;
             if (DBid < 1)
@@ -120,7 +120,7 @@ namespace WebDatabasesMVC.Controllers
             }
             FrequencyResultWithCriteria res = new FrequencyResultWithCriteria();
             res.criteria = 
-                new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, parentName, included);
+                new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, parentName, included, "", onlyThisAttribute);
             res.results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(res.criteria);
             return res;
         }

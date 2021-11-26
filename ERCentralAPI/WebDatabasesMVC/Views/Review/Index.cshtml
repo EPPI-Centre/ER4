@@ -34,24 +34,7 @@
     var freqData = null;
     let MapsData = null;
 
-    function Buildnode(attr) {
-        var nodes = [];
-
-        var res = new kendo.data.Node({
-            text: attr.setName ? attr.setName : attr.attributeName
-        });
-        for (var ii = 0; ii < attr.attributes.attributesList.length; ii++) {
-            res.append(Buildnode(attr.attributes.attributesList[ii]));
-        }
-        res.id = attr.attributeId ? attr.attributeId : attr.setId;
-        res.isCodeset = false;
-        res.setId = attr.setId;
-        //res.items = nodes;
-        //res.hasChildren = () => {
-        //    return this.items.length > 0;
-        //};
-        return res;
-    }
+    
 
 
     $(document).ready(function () {
@@ -314,7 +297,7 @@
                     } else {
                         $("#FrequenciesGrid").html("");
                     }
-                })
+                });
         }
         else {
             $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }

@@ -1,0 +1,303 @@
+﻿@model WebDbWithRevInfo;
+@using WebDatabasesMVC.ViewModels;
+@using Microsoft.AspNetCore.Html;
+@using System.IO;
+@using System.Security.Claims;
+
+@{
+    Layout = "~/Views/Shared/_FairLayout.cshtml";
+    string imgPath3 = "";
+    string imgUrl3 = "";
+    Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    if (WebDbIDclaim != null)
+    {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.jpg")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.png")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.png");
+        if (imgPath3 != "")
+        {
+            Claim LogoUrlCl = User.FindFirst("LogoURL");
+            if (LogoUrlCl != null) imgUrl3 = LogoUrlCl.Value;
+        }
+    }
+}
+
+<script>
+    
+    var progressData = null;
+    var freqData = null;
+    $(document).ready(function () {
+        $("#treeView").kendoTreeView({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "../ReviewSetList/FetchJSON",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    parse: function (response) {
+                        dataItem = null;
+                        var nodes = [];
+                        for (var i = 0; i < response.length; i++) {
+                            if (response[i].originalSetId == 180878) {
+                                //we don't want the "Progress Plus" tool on the left side tree, we want it on the pie chart on the right!
+                                GetFreqForPieChart(response[i]);
+                                continue;
+                            }
+                            var nodes2 = [];
+                            var nd = new kendo.data.Node({ text: response[i].setName });
+                            nd.id = response[i].setId;
+                            nd.isCodeset = true;
+                            nd.setId = nd.id;
+                            for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
+                                nd.append(Buildnode(response[i].attributes.attributesList[ii]));
+                            }
+                            nd.expanded = true;
+                            nd.items = nodes2;
+                            nodes.push(nd);
+                        }
+                        //GetYearsFreqs();//getting the years chart after the codes...
+                        //setTimeout(function () {
+                        //    GetMaps();
+                        //}, 150); //don't like multiple requests to be fired all at once!
+                        return nodes;
+                    }
+                }
+            },
+            select: TreeViewSelection
+        });
+        treeviewData = $("#treeView").data("kendoTreeView");
+        const descrPanel = $("#WebDBDescription");
+        //console.log("descrPanel:", descrPanel, descrPanel.height());
+        if (descrPanel && descrPanel.height() > 300) {
+            //ExpandDescription ReduceDescription
+            //$("#ExpandDescription").show();
+            //$("#ReduceDescription").hide();
+            //$("#HideDescriptionDiv").show();
+            //$("#ShowDescriptionDiv").hide();
+            //descrPanel.css("max-height", "250px");
+        } else {
+            //$("#ExpandDescription").hide();
+            //$("#ReduceDescription").hide();
+        }
+    });
+
+    function GetFreqForPieChart(dataItem) {
+        $("#FreqSpinner").show();
+        progressData = dataItem;
+        $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+            , function (data, result) {
+                $("#FreqSpinner").hide();
+                if (result == "success") {
+                    freqData = data;
+                    BuildPie();
+                } else {
+                    $("#FrequenciesGrid").html("");
+                }
+            });
+    }
+    
+    function BuildPie() {
+        
+        let myData = [];
+        // remove all of the rows that have zero values
+        for (var i = freqData.results.length - 1; i >= 0; i--) {
+            if (freqData.results[i].itemCount > 0) {
+                myData.push(freqData.results[i]);
+            }
+        }
+        if (myData.length == 0) return;
+
+        for (var i = 0; i < myData.length; i++) {
+            // shorten codes names that are stupid long
+            if (myData[i].attribute.length > 60) {
+                myData[i].shortName = myData[i].attribute.substring(0, 60) + "...";
+            } else {
+                myData[i].shortName = myData[i].attribute;
+            }
+        }
+
+        // remove the last row if it is 'none of the above'
+        if (myData[0].attributeId == -999999) {
+            myData.splice(0, 1);
+        }
+
+        var legendPostion = "right";
+        var chartHeight = 250;
+
+        var ele = document.getElementById("VisualsDiv"), // Do not use #
+            eleStyle = window.getComputedStyle(ele);
+        /* Below is the width of ele */
+        var eleWidth = parseInt(eleStyle.width.replace("px", ""));
+
+        //if (eleWidth <= 768) {
+        if (eleWidth <= 570) {
+            legendPostion = "bottom";
+            chartHeight = 400;
+        }
+
+        if (myData.length > 20) {
+            legendPostion = "bottom";
+            chartHeight = 400;
+        }
+
+        //$("#FrequenciesGrid").hide();
+
+        if (myData.length != 0) {
+            //$("#BarOrPieChartVisible").show();
+            //$("#FrequenciesChart").show();
+            //$("#NoCodedRecords").hide();
+
+            $("#FrequenciesChart").kendoChart({
+                dataSource: { data: myData },
+                chartArea: {
+                    height: chartHeight
+                },
+                seriesDefaults: {
+                    type: "pie"
+                },
+                seriesClick: function (e) {
+                    GoToFreqListPieAndBar(e);
+                },
+                series: [{
+                    field: "itemCount",
+                    categoryField: "shortName",
+                    padding: 0
+                }],
+                tooltip: {
+                    visible: true,
+                    template: "#= HTMLEncodeText(dataItem.attribute) #: #= value # records"
+                },
+                legend: {
+                    item: {
+                        visual: function (e) {
+                            var color = e.options.markers.background;
+                            var labelColor = e.options.labels.color;
+
+                            var rect = new kendo.geometry.Rect([0, 0], [400, 50]);
+                            if (eleWidth <= 570) {
+                                rect = new kendo.geometry.Rect([0, 0], [400, 100]);
+                            }
+
+
+                            var layout = new kendo.drawing.Layout(rect, {
+                                spacing: 10
+                            });
+
+                            var allZeroValues = false;
+                            if (e.series.data[e.pointIndex].itemCount == 0) {
+                                allZeroValues = true;
+                            }
+
+                            if (!allZeroValues) {
+                                // create a circle geometry centered at x=10, y=5, with a radius of 5
+                                var CircGeometry = new kendo.geometry.Circle([10, 5], 5);
+                                // draw the circle using the geometry and set the color (could have no stroke)
+                                var MarkerCircle = new kendo.drawing.Circle(CircGeometry, {
+                                    stroke: { color: color, width: 1 },
+                                    fill: { color: color }
+                                });
+
+                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].shortName + " (" +
+                                    e.series.data[e.pointIndex].itemCount + ")", [0, 0], {
+                                    fill: {
+                                        color: labelColor
+                                    }
+                                });
+
+                                layout.append(MarkerCircle, label);
+                                layout.reflow()
+                            }
+                            return layout;
+                        }
+                    },
+                    position: legendPostion,
+                    padding: 10,
+                    background: "#e2e3e5",
+                    border: {
+                        width: 1,
+                        color: "#d6d8db"
+                    },
+                },
+            });
+        }
+        else {
+            //$("#BarOrPieChartVisible").hide();
+            //$("#FrequenciesChart").hide();
+            //$("#NoCodedRecords").show();
+        }
+    }
+    function GoToFreqListPieAndBar(code) {
+        console.log(code);
+    }
+    
+</script>
+
+<div class="row h-100 mx-1">
+    <div class="col-3 border">
+                I'm the lx sidebar!
+        <div class="scrollbar scrollbar-inner">
+            <div class="">
+                @await Html.PartialAsync("_FairCodingTools")
+            </div>
+        </div>
+    </div>
+    <div class="col-6 ">
+        I'm the mainpanel!!
+        <!-- Description card -->
+        <div class="card ">
+            <div class="card-header">
+                <div class="card-title">@Model.WebDb.WebDBName</div>
+                <div class="h4">@Model.WebDb.Subtitle</div>
+            </div>
+            <div class="card-body" id="WebDBDescriptionBody" tooltip="">
+                <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
+                    @(new HtmlString(Model.WebDb.WebDBDescription))
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-3 border">
+        <div class="row">I'm the rx sidebar!</div>
+        <!-- Logo Header -->
+        <div class="row">
+            <div class="ml-auto">
+                @if (imgPath3 == "")
+                {
+                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="max-width:180px; max-height: 155px; object-fit: cover;">
+                }
+                else
+                {
+                    if (imgUrl3 != "")
+                    {
+                        <a href="@(new HtmlString(imgUrl3))" target="_blank" title="Open this Organisation Webpage">
+                            <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 180px; max-height: 155px; object-fit: cover;">
+                        </a>
+                    }
+                    else
+                    {
+                        <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 180px; max-height: 155px; object-fit: cover;">
+                    }
+                }
+            </div>
+        </div>
+        <!-- End Logo Header -->
+
+
+        <div class="row">
+            <div id="FreqSpinner" class="ml-2" style="display:none;">
+                <div class="d-flex justify-content-end">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div id="VisualsDiv" class="w-100">
+                <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
+            </div>
+        </div>
+    </div>
+</div>

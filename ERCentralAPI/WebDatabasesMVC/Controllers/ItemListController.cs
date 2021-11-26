@@ -31,7 +31,7 @@ using WebDatabasesMVC.ViewModels;
 /// </summary>
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "CookieAuthentication,FairAuthentication")]
     public class ItemListController : CSLAController
     {
         
