@@ -82,8 +82,7 @@
         treeviewData = $("#treeView").data("kendoTreeView");
         GoToItemsJson(topicAttribute, false);
     }
-    function TreeViewSelection(e) {
-    }
+    
     function GetFreqForPieChart(dataItem) {
         $("#FreqSpinner").show();
         progressData = dataItem;
@@ -244,7 +243,7 @@
         var pars = {};
         if (useFilter) {
             Destination = "../ItemList/GetListWithWithoutAttsJSON";
-            var Descript = "Items with: " + HTMLEncodeText(AttributeSet.attribute) + " and " + HTMLEncodeText(topicAttribute.attributeName);
+            var Descript = "Items with: " + AttributeSet.attribute + " and " + topicAttribute.attributeName;
             var WithAttIds = AttributeSet.attributeId.toString() + "," + topicAttribute.attributeId.toString();
             var WithSetId = AttributeSet.setId.toString() + "," + topicAttribute.setId.toString();
             pars = {
@@ -257,7 +256,7 @@
             };
         }
         else {
-            pars = { attId: AttributeSet.attributeId, attName: HTMLEncodeText(AttributeSet.attributeName) };
+            pars = { attId: AttributeSet.attributeId, attName: AttributeSet.attributeName };
         }
         
         $.post(Destination

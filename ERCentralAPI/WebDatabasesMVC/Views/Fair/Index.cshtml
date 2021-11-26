@@ -73,14 +73,14 @@
         //console.log("descrPanel:", descrPanel, descrPanel.height());
         if (descrPanel && descrPanel.height() > 300) {
             //ExpandDescription ReduceDescription
-            $("#ExpandDescription").show();
-            $("#ReduceDescription").hide();
-            $("#HideDescriptionDiv").show();
-            $("#ShowDescriptionDiv").hide();
-            descrPanel.css("max-height", "250px");
+            //$("#ExpandDescription").show();
+            //$("#ReduceDescription").hide();
+            //$("#HideDescriptionDiv").show();
+            //$("#ShowDescriptionDiv").hide();
+            //descrPanel.css("max-height", "250px");
         } else {
-            $("#ExpandDescription").hide();
-            $("#ReduceDescription").hide();
+            //$("#ExpandDescription").hide();
+            //$("#ReduceDescription").hide();
         }
     });
 
@@ -249,38 +249,12 @@
         <!-- Description card -->
         <div class="card ">
             <div class="card-header">
-                <table width="100%">
-                    <tr>
-                        <td>
-                            <div class="card-title">Introduction</div>
-                        </td>
-                        <td style="text-align:right;padding-top:5px">
-                            <div id="ExpandDescription" class="btn btn-primary btn-sm btn-round"
-                                 onclick="ToggleDescrPanelSize()">
-                                <div class="flaticon-down-arrow-1">
-                                    &nbsp;&nbsp;View more&nbsp;
-                                </div>
-                            </div>
-                            <div id="ReduceDescription" class="btn btn-primary btn-sm btn-round"
-                                 onclick="ToggleDescrPanelSize()">
-                                <div class="flaticon-up-arrow-1">
-                                    &nbsp;&nbsp;View less&nbsp;
-                                </div>
-                            </div>
-                            <div id="ShowHideDescriptionDivButton" class="btn btn-primary btn-sm"
-                                 onclick="HideShowDescriptionDiv()">
-                                <div id="ShowHideDescriptionDivIcon" class="fa fa-minus">
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-
+                <div class="card-title">@Model.WebDb.WebDBName</div>
+                <div class="h4">@Model.WebDb.Subtitle</div>
             </div>
             <div class="card-body" id="WebDBDescriptionBody" tooltip="">
                 <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
                     @(new HtmlString(Model.WebDb.WebDBDescription))
-
                 </div>
             </div>
         </div>
