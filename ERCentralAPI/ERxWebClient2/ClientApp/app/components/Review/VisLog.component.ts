@@ -1,5 +1,8 @@
 import { Component, Inject, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { WebDBService, iWebDB, iWebDBLog } from '../services/WebDB.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+
+
 
 
 @Component({
@@ -8,9 +11,15 @@ import { WebDBService, iWebDB, iWebDBLog } from '../services/WebDB.service';
     providers: []
 })
 
+
+
+
 export class VisLogComp implements OnInit{
 
-    
+    public value: Date = new Date(2019, 5, 1, 22);
+    public format = "MM/dd/yyyy HH:mm";
+    public valueKendoDatepickerCombine1: Date = new Date();
+
     constructor(
         private visLogService: WebDBService      
         ) {
