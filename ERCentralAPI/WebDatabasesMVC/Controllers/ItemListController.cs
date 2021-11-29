@@ -534,27 +534,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal FullItemDetails GetItemDetails(ItemSelCritMVC crit)
-        {
-            Item itm = DataPortal.Fetch<Item>(new SingleCriteria<Item, Int64>(crit.itemID));
-            ItemArmList arms = DataPortal.Fetch<ItemArmList>(new SingleCriteria<Item, Int64>(crit.itemID));
-            itm.Arms = arms;
-            ItemTimepointList timepoints = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(crit.itemID));
-            ItemDocumentList docs = DataPortal.Fetch<ItemDocumentList>(new SingleCriteria<ItemDocumentList, Int64>(crit.itemID));
-            ReadOnlySource ros = DataPortal.Fetch<ReadOnlySource>(new SingleCriteria<ReadOnlySource, long>(crit.itemID));
-            ItemDuplicatesReadOnlyList dups = DataPortal.Fetch<ItemDuplicatesReadOnlyList>(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(crit.itemID));
-            FullItemDetails res = new FullItemDetails
-            {
-                Item = itm,
-                Documents = docs,
-                Timepoints = timepoints,
-                Duplicates = dups,
-                Source = ros,
-                ListCrit = crit as SelCritMVC,
-                ItemIds = crit.itemIds
-            };
-            return res;
-        }
+        
 
     }
     public class SelCritMVC
