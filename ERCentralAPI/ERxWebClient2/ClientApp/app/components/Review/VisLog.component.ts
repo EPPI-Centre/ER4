@@ -7,7 +7,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
     selector: 'VisLogComp',
-    templateUrl: './VisLog.component.html',
+    templateUrl: './VisLog.component.html', 
     providers: []
 })
 
