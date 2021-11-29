@@ -1,0 +1,9 @@
+
+
+<div *ngIf="CurrentLogs.length > 0">
+    <div *ngFor="let log of CurrentLogs" class="col-12">
+        <div class="col-12 mx-0 p-1 row">
+            {{log.webDBLogIdentity}},{{log.dateTimeCreated}},{{log.logType}},{{log.logDetails}}<br />
+        </div>
+    </div>
+</div>

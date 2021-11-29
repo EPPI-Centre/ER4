@@ -59,6 +59,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public ShowMapsMiniHelp: boolean = false;
 	public ConfirmPassword: string = "";
 	public ShowPassword: boolean = false;
+	public ShowLogs: boolean = false;
 	public isCollapsedFilterCode: boolean = false;
 	public uploadSaveUrl = this._baseUrl + 'api/WebDB/UploadImage'; 
 	public uploadRestrictions: FileRestrictions = {
@@ -240,6 +241,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		if (db) {
 			this.WebDBService.CurrentDB = db;
 			this.ReloadDBDependentData();
+			this.ShowLogs = false;
 		}
 	}
 	DeleteDB(db: iWebDB) {
@@ -253,9 +255,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				}
 			});
 	}
-	GetLogs(CurrentDB: iWebDB) {
-		this.WebDBService.GetWebDBLogs(CurrentDB.webDBId, "1980/01/01 00:00:00", "1980/01/01 00:00:00", "All");
-    }
+	//GetLogs(CurrentDB: iWebDB) {
+	//	this.WebDBService.GetWebDBLogs(CurrentDB.webDBId, "1980/01/01 00:00:00", "1980/01/01 00:00:00", "All");
+    //}
 	EditFilter() {
 		this.EditingFilter = true;
 		this.isCollapsedFilterCode = false;

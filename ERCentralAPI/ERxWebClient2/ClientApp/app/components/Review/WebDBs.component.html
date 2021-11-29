@@ -6,7 +6,7 @@
 
 
     <div class="col-12 p-0">
-
+        
         <div *ngIf="WebDbs.length > 0; else CreateNewBlock" class="col-12  p-0 m-0 row ">
             <div class="m-1 font-weight-bold">Pick WebDatabase:</div>
             <select (change)="ShowDBSettingById($event.target.value)" class="d-inline mb-1">
@@ -70,18 +70,11 @@
                     <a href="{{VisitURL}}" target="_blank">View in EPPI-Vis</a>
                     <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
                 </div>
-                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="GetLogs(CurrentDB, '', '', '')">
+                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="ShowLogs = !ShowLogs">
                     Logs
                 </button>
             </div>
-            <div *ngIf="CurrentLogs.length > 0">
-                <div *ngFor="let log of CurrentLogs" class="col-12">
-                    <div class="col-12 mx-0 p-1 row">
-                        {{log.webDBLogIdentity}},{{log.dateTimeCreated}},{{log.logType}},{{log.logDetails}}<br />
-                    </div>
-                </div>
-            </div>
-
+            <VisLogComp *ngIf="ShowLogs"></VisLogComp>
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-2 row m-0 p-0">
                     <div class="col-auto">
@@ -250,9 +243,9 @@
                         <div class="col-12 mx-0 px-1">
                             <div class="m-1 p-1 rounded alert-danger small">
                                 <div class="rounded text-danger p-1 bg-white">
-                                    <strong>Top Left logo:</strong><br /> 
+                                    <strong>Top Left logo:</strong><br />
                                     In EPPI-Vis, this logo will be reduced to a maximum width of 80 pixels and a maximum height of 45 pixels.<br />
-                                    If it does not look good once uploaded and reduced, you may need to change or edit the image using an image editor. 
+                                    If it does not look good once uploaded and reduced, you may need to change or edit the image using an image editor.
                                     Rescaling or cropping the image might produce a better final result.
                                 </div>
                             </div>
@@ -419,23 +412,23 @@
                         </ckeditor>
                         <!--<textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBDescription" rows="4"></textarea>-->
                         <!--<ckeditor [(ngModel)]="EditingDB.webDBDescription"
-                  [config]="{uiColor: '#bbbbbb'
-                            }"
-                  [readonly]="false"
-                  debounce="500">
-                </ckeditor>
+                      [config]="{uiColor: '#bbbbbb'
+                                }"
+                      [readonly]="false"
+                      debounce="500">
+                    </ckeditor>
 
-                (change)="onChange($event)"
-                (editorChange)="onEditorChange($event)"
-                (ready)="onReady($event)"
-                (focus)="onFocus($event)"
-                (blur)="onBlur($event)"
-                (contentDom)="onContentDom($event)"
-                (fileUploadRequest)="onFileUploadRequest($event)"
-                (fileUploadResponse)="onFileUploadResponse($event)"
-                (paste)="onPaste($event)"
-                (drop)="onDrop($event)"
-                 -->
+                    (change)="onChange($event)"
+                    (editorChange)="onEditorChange($event)"
+                    (ready)="onReady($event)"
+                    (focus)="onFocus($event)"
+                    (blur)="onBlur($event)"
+                    (contentDom)="onContentDom($event)"
+                    (fileUploadRequest)="onFileUploadRequest($event)"
+                    (fileUploadResponse)="onFileUploadResponse($event)"
+                    (paste)="onPaste($event)"
+                    (drop)="onDrop($event)"
+                     -->
                     </div>
                 </div>
                 <div class="col-12 col-md-3 row m-0 p-0">
@@ -537,9 +530,9 @@
             </div>
         </div>
 
-        <div *ngIf="CurrentDB !== null" class="row p-0 m-0" >
+        <div *ngIf="CurrentDB !== null" class="row p-0 m-0">
             <div class="row col-4 p-1 mx-0 mt-2 border-top border-info">
-                <WebDbCcodesetTree class="w-100" MaxHeight="400" [CanChangeSelectedCode]="!(EditingSomething && EditingMap == null)" ></WebDbCcodesetTree>
+                <WebDbCcodesetTree class="w-100" MaxHeight="400" [CanChangeSelectedCode]="!(EditingSomething && EditingMap == null)"></WebDbCcodesetTree>
             </div>
             <div class="row col-8 p-1 mx-0 mt-2 border-top border-info">
                 <div class="bg-light w-100 rounded">
@@ -666,7 +659,7 @@
                 <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info rounded bg-white" style="max-height:55vh;overflow-y:auto;">
                     <div class="col-12 row px-1 mx-0 mb-1 font-weight-bold">
                         Pre-configured maps:
-                        <button  class="btn btn-sm btn-outline-primary py-0 ml-auto mr-1 my-auto" [disabled]="EditingMap !== null || EditingSomething" (click)="CreateMap()">Create map</button>
+                        <button class="btn btn-sm btn-outline-primary py-0 ml-auto mr-1 my-auto" [disabled]="EditingMap !== null || EditingSomething" (click)="CreateMap()">Create map</button>
                         <button *ngIf="(CurrentMaps.length > 0 || EditingMap !== null)" class="btn btn-sm btn-outline-primary py-0 mx-1 my-auto" (click)="ShowMapsMiniHelp = !ShowMapsMiniHelp">
                             <i class="text-primary fa fa-question "></i>
                         </button>
@@ -712,15 +705,15 @@
                                 </div>
 
                                 <!--
-                                <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns parent code: <strong>{{map.columnsPublicAttributeName}}</strong></div>
-                                <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns tool: <strong>{{map.columnsPublicSetName}}</strong></div>
+                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns parent code: <strong>{{map.columnsPublicAttributeName}}</strong></div>
+                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns tool: <strong>{{map.columnsPublicSetName}}</strong></div>
 
-                                <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1"></i>Rows parent code: <strong>{{map.rowsPublicAttributeName}}</strong></div>
-                                <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1"></i>Rows tool: <strong>{{map.rowsPublicSetName}}</strong></div>
+                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1"></i>Rows parent code: <strong>{{map.rowsPublicAttributeName}}</strong></div>
+                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1"></i>Rows tool: <strong>{{map.rowsPublicSetName}}</strong></div>
 
-                                <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-success mx-1 fa fa-comments mr-1"></i>Segments parent code: <strong>{{map.segmentsPublicAttributeName}}</strong></div>
-                                <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-success mx-1 fa fa-comments mr-1"></i>Segments tool: <strong>{{map.segmentsPublicSetName}}</strong></div>
-                                -->
+                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-success mx-1 fa fa-comments mr-1"></i>Segments parent code: <strong>{{map.segmentsPublicAttributeName}}</strong></div>
+                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-success mx-1 fa fa-comments mr-1"></i>Segments tool: <strong>{{map.segmentsPublicSetName}}</strong></div>
+                            -->
 
                                 <div class="m-0 col-12 p-0 ">
                                     <div class="m-1 border border-info rounded">
@@ -749,18 +742,18 @@
                                 </ul>
 
                                 <!--
-                                <p>
-                                    <strong>Maps are data-visualisation tools that allow to present data about 3 different "dimensions"</strong>.
-                                    Each dimension is set by picking a code/node from the tools on the left, which then form the columns, rows and "within cell" categories (segments) in the visualisation.<br />
-                                    The following rules apply:
-                                </p>
-                                <ul>
-                                    <li>For rows and columns, you can pick any node/code that has at least one child code.</li>
-                                    <li>For "within cell" categories (segments), you can pick any node/code that has between one and six child code(s).</li>
-                                    <li>Maps need to have all three dimensions specified, as well as a Map Name. The description is optional.</li>
-                                </ul>
-                                <p>The corresponding map will become available in the Visualisation home page as soon as it is Saved!</p>
-                                -->
+                            <p>
+                                <strong>Maps are data-visualisation tools that allow to present data about 3 different "dimensions"</strong>.
+                                Each dimension is set by picking a code/node from the tools on the left, which then form the columns, rows and "within cell" categories (segments) in the visualisation.<br />
+                                The following rules apply:
+                            </p>
+                            <ul>
+                                <li>For rows and columns, you can pick any node/code that has at least one child code.</li>
+                                <li>For "within cell" categories (segments), you can pick any node/code that has between one and six child code(s).</li>
+                                <li>Maps need to have all three dimensions specified, as well as a Map Name. The description is optional.</li>
+                            </ul>
+                            <p>The corresponding map will become available in the Visualisation home page as soon as it is Saved!</p>
+                            -->
                             </div>
                         </div>
                     </ng-template>
@@ -858,3 +851,4 @@
     </div>
 </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+
