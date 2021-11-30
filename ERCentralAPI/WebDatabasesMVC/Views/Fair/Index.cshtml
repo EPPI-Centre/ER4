@@ -230,7 +230,16 @@
         }
     }
     function GoToFreqListPieAndBar(code) {
-        console.log(code);
+        //console.log(code);
+        if (!code || !code.dataItem) return;
+        let pars = {
+            filterAttributeId: code.dataItem.attributeId
+            , description: code.dataItem.attribute
+            , onlyIncluded: 'True'
+            , listType: "WebDbWithThisCode"
+        };
+
+        postwith("../Fair/ListFromCrit", pars);
     }
     
 </script>

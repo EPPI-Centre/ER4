@@ -468,32 +468,7 @@ namespace WebDatabasesMVC.Controllers
 
 
 
-        internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
-        {
-            if (crit.WebDbId == 0)
-            {
-                crit.WebDbId = WebDbId;
-                crit.PageSize = 100;
-            }
-            else if (WebDbId != crit.WebDbId)
-            {
-                throw new Exception("WebDbId in ItemList Criteria is not the expected value - possible tampering attempt!");
-            }
-
-            if (crit.ListType == "StandardItemList")
-            {
-                crit.ListType = "WebDbAllItems";
-                crit.OnlyIncluded = true;
-                crit.Description = "All Items.";
-            }
-            else if (!crit.ListType.StartsWith("WebDb"))
-            {
-                throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
-            }
-            ItemList4Json res = new ItemList4Json( DataPortal.Fetch<ItemList>(crit));
-            return new ItemListWithCriteria { items = res, criteria = new SelCritMVC(crit)   };
-        }
-
+        
         [HttpPost]
         public IActionResult ItemDetails(ItemSelCritMVC crit)
         {

@@ -197,6 +197,28 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost]
+        public IActionResult ListFromCrit(SelCritMVC critMVC)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    SelectionCriteria crit = critMVC.CSLACriteria();
+                    ItemListWithCriteria iList = GetItemList(crit);
+                    return View(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemList ListFromCrit");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
         [HttpPost]
         public IActionResult ItemDetails(ItemSelCritMVC crit)
         {

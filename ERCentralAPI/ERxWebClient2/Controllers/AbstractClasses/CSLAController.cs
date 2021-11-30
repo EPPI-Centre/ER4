@@ -149,6 +149,33 @@ namespace ERxWebClient2.Controllers
             };
             return res;
         }
+        //as above, placing this method here, so to allow accessing it from EPPI-Vis, from both the regular controllers and the FAIR one. 
+        internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
+        {
+            if (crit.WebDbId == 0)
+            {
+                crit.WebDbId = WebDbId;
+                crit.PageSize = 100;
+            }
+            else if (WebDbId != crit.WebDbId)
+            {
+                throw new Exception("WebDbId in ItemList Criteria is not the expected value - possible tampering attempt!");
+            }
+
+            if (crit.ListType == "StandardItemList")
+            {
+                crit.ListType = "WebDbAllItems";
+                crit.OnlyIncluded = true;
+                crit.Description = "All Items.";
+            }
+            else if (!crit.ListType.StartsWith("WebDb"))
+            {
+                throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
+            }
+            ItemList4Json res = new ItemList4Json(DataPortal.Fetch<ItemList>(crit));
+            return new ItemListWithCriteria { items = res, criteria = new WebDatabasesMVC.Controllers.SelCritMVC(crit) };
+        }
+
 
         protected void logActivity(string type, string details)
         {

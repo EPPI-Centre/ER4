@@ -1,0 +1,125 @@
+﻿@model ItemListWithCriteria;
+@using BusinessLibrary.BusinessClasses;
+@using WebDatabasesMVC.ViewModels;
+@using Microsoft.AspNetCore.Html;
+@using System.IO;
+@using System.Security.Claims;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+@{
+    Layout = "~/Views/Shared/_FairLayout.cshtml";
+    string imgPath3 = "";
+    string imgUrl3 = "";
+    Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    if (WebDbIDclaim != null)
+    {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.jpg")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.png")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.png");
+        if (imgPath3 != "")
+        {
+            Claim LogoUrlCl = User.FindFirst("LogoURL");
+            if (LogoUrlCl != null) imgUrl3 = LogoUrlCl.Value;
+        }
+    }
+}
+<script id="InitialScript" type="text/javascript">
+    @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));};
+        var ListData = @jdata;
+    $(document).ready(function () {
+        //CurrentItemsCriteria = ListData.criteria;
+        //ItemsListData = ListData.items;
+        gridHeightCSS = "75vh"; //default is 60vh, useful when we have results on top of the page...
+        BuildItems(ListData, "success");
+        $("#InitialScript").remove();
+
+    });
+</script>
+<script>
+    var treeviewData = null;
+    $(document).ready(function () {
+        $("#treeView").kendoTreeView({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "../ReviewSetList/FetchJSON",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    parse: function (response) {
+                        dataItem = null;
+                        var nodes = [];
+                        for (var i = 0; i < response.length; i++) {
+                            if (response[i].originalSetId == 180878) {
+                                //we don't want the "Progress Plus" tool on the left side tree!
+                                continue;
+                            }
+                            var nodes2 = [];
+                            var nd = new kendo.data.Node({ text: response[i].setName });
+                            nd.id = response[i].setId;
+                            nd.isCodeset = true;
+                            nd.setId = nd.id;
+                            for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
+                                nd.append(Buildnode(response[i].attributes.attributesList[ii]));
+                            }
+                            nd.expanded = true;
+                            nd.items = nodes2;
+                            nodes.push(nd);
+                        }
+                        return nodes;
+                    }
+                }
+            },
+            select: TreeViewSelection
+        });
+        treeviewData = $("#treeView").data("kendoTreeView");
+    });
+
+</script>
+<div class="row h-100 mx-1 mt-2">
+    <div class="col-3 border">
+        I'm the lx sidebar!
+        <div class="scrollbar scrollbar-inner">
+            <div class="">
+                @await Html.PartialAsync("_FairCodingTools")
+            </div>
+        </div>
+    </div>
+    <div class="col-9 ">
+        <div class="row">
+            <div class="ml-auto">
+                @if (imgPath3 == "")
+                {
+                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="max-width:180px; max-height: 155px; object-fit: cover;">
+                }
+                else
+                {
+                    if (imgUrl3 != "")
+                    {
+                        <a href="@(new HtmlString(imgUrl3))" target="_blank" title="Open this Organisation Webpage">
+                            <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 180px; max-height: 155px; object-fit: cover;">
+                        </a>
+                    }
+                    else
+                    {
+                        <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 180px; max-height: 155px; object-fit: cover;">
+                    }
+                }
+            </div>
+        </div>
+        <div class="card w-100">
+            <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
+                <div class="col-auto p-1">Loading...</div>
+                <div class="col d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            @await Html.PartialAsync("_ItemsList")
+        </div>
+    </div>
+</div>
