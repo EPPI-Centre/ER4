@@ -2,6 +2,9 @@
 
 //this class should only contain static methods.
 //it's a collection of methods that can be used by any component/service. Main purpose is to avoid replication.
+
+import { min } from "rxjs-compat/operator/min";
+
 //Please include a short description of the purpose of any method added in this class.
 export class Helpers {
     //Used to format dates when the date string is like "DD-MM-YYYY[...]".
@@ -40,6 +43,19 @@ export class Helpers {
             const day = parseInt(splitted[0]);
             const date: Date = new Date(year, month, day);
             return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+    }
+    public static FormatDateTime(YYYY_MM_DD_: string): string {  //2021-11-22T11:51:32.517
+        if (!YYYY_MM_DD_ || YYYY_MM_DD_.length < 19) return "";
+        else {
+            const year = parseInt(YYYY_MM_DD_.substr(0, 4));
+            const month = parseInt(YYYY_MM_DD_.substr(5, 2)) - 1;
+            const day = parseInt(YYYY_MM_DD_.substr(8, 2));
+            const hour = parseInt(YYYY_MM_DD_.substr(11, 2));
+            const minute = parseInt(YYYY_MM_DD_.substr(14, 2));
+            const second = parseInt(YYYY_MM_DD_.substr(17, 2));
+            const date: Date = new Date(year, month, day, hour, minute, second);
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });
         }
     }
 
