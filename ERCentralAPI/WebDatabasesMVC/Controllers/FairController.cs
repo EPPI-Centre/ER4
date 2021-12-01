@@ -197,6 +197,52 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost]
+        public IActionResult ListFromCrit(SelCritMVC critMVC)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    SelectionCriteria crit = critMVC.CSLACriteria();
+                    ItemListWithCriteria iList = GetItemList(crit);
+                    return View(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemList ListFromCrit");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+        [HttpPost]
+        public IActionResult ItemDetails(ItemSelCritMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    FullItemDetails Itm = GetItemDetails(crit);
+
+                    // log to TB_WEBDB_LOG
+                    logActivity("ItemDetailsFromList", crit.itemID.ToString());
+                    ViewBag.isFair = true;
+                    return View("Views/ItemList/ItemDetails.cshtml", Itm);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemDetails");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
         private async void SetUser(string Name, int WebDbID, int revId, long itemsCode, SqlDataReader reader)
         {
             var userClaims = new List<Claim>()

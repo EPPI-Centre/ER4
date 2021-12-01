@@ -50,11 +50,11 @@
 
         function GoToItem(itemId) {
             //console.log(itemId, ItemsIds);
-            if (ItemsIds.indexOf(itemId) == -1) return;
+            if (!ItemsIds || !CurrentItemsCriteria || ItemsIds.indexOf(itemId) == -1) return;
             let crit = CurrentItemsCriteria;
             crit.itemID = itemId;
             crit.itemIds = ItemsIds;
-            postwith("../ItemList/ItemDetails", crit);
+            postwith("../Fair/ItemDetails", crit);
         }
     </script>
 

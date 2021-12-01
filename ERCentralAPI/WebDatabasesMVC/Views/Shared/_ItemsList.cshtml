@@ -109,7 +109,7 @@
                 dataBound: function (e) {
                     console.log("dataBound");
                     PrepareItemsHeader();
-                    
+
                 },
                 toolbar: ["search"],
                 resizable: true,
@@ -118,14 +118,14 @@
                 ],
                 sortable: true,
                 height: gridHeightCSS,
-                sort: function(e) {
+                sort: function (e) {
                     console.log(e.sort.field);
                     if (e.sort.dir != undefined) {
                         $("#SortWarning").css("display", "inline");
                     }
                     else $("#SortWarning").css("display", "none");
                 }
-                //mobile: "phone", 
+                //mobile: "phone",
                 //search: {
                 //    fields: ["title", "year", "itemId", "shortTitle", "authors", "journal"]
                 //}
@@ -219,7 +219,7 @@
             //if (ItemsListData.totalItemCount > 1) $("#HeaderNotPaged").html("[" + ItemsListData.totalItemCount.toString() + " references]");
             //else if (ItemsListData.totalItemCount == 1) $("#HeaderNotPaged").html("[1 reference]");
             //else $("#HeaderNotPaged").html("[No references in this list]");
-            
+
             $("#HeaderNotPaged").show();
             $("#WholeListToRisButton").hide();
             $("#HeaderPaged").hide();
@@ -694,7 +694,7 @@
                 </td>
             </tr>
         </table>
-        <div id="ItemsGrid" >
+        <div id="ItemsGrid">
 
         </div>
     </div>
@@ -737,5 +737,5 @@
             </span>
         </span>
     </script>
-    
+
 </div>

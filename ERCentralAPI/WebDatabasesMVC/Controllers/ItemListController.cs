@@ -468,32 +468,7 @@ namespace WebDatabasesMVC.Controllers
 
 
 
-        internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
-        {
-            if (crit.WebDbId == 0)
-            {
-                crit.WebDbId = WebDbId;
-                crit.PageSize = 100;
-            }
-            else if (WebDbId != crit.WebDbId)
-            {
-                throw new Exception("WebDbId in ItemList Criteria is not the expected value - possible tampering attempt!");
-            }
-
-            if (crit.ListType == "StandardItemList")
-            {
-                crit.ListType = "WebDbAllItems";
-                crit.OnlyIncluded = true;
-                crit.Description = "All Items.";
-            }
-            else if (!crit.ListType.StartsWith("WebDb"))
-            {
-                throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
-            }
-            ItemList4Json res = new ItemList4Json( DataPortal.Fetch<ItemList>(crit));
-            return new ItemListWithCriteria { items = res, criteria = new SelCritMVC(crit)   };
-        }
-
+        
         [HttpPost]
         public IActionResult ItemDetails(ItemSelCritMVC crit)
         {
@@ -534,27 +509,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal FullItemDetails GetItemDetails(ItemSelCritMVC crit)
-        {
-            Item itm = DataPortal.Fetch<Item>(new SingleCriteria<Item, Int64>(crit.itemID));
-            ItemArmList arms = DataPortal.Fetch<ItemArmList>(new SingleCriteria<Item, Int64>(crit.itemID));
-            itm.Arms = arms;
-            ItemTimepointList timepoints = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(crit.itemID));
-            ItemDocumentList docs = DataPortal.Fetch<ItemDocumentList>(new SingleCriteria<ItemDocumentList, Int64>(crit.itemID));
-            ReadOnlySource ros = DataPortal.Fetch<ReadOnlySource>(new SingleCriteria<ReadOnlySource, long>(crit.itemID));
-            ItemDuplicatesReadOnlyList dups = DataPortal.Fetch<ItemDuplicatesReadOnlyList>(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(crit.itemID));
-            FullItemDetails res = new FullItemDetails
-            {
-                Item = itm,
-                Documents = docs,
-                Timepoints = timepoints,
-                Duplicates = dups,
-                Source = ros,
-                ListCrit = crit as SelCritMVC,
-                ItemIds = crit.itemIds
-            };
-            return res;
-        }
+        
 
     }
     public class SelCritMVC

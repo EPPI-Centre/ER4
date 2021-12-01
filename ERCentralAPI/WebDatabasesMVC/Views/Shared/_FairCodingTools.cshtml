@@ -6,6 +6,8 @@
 <script type="text/javascript">
     var treeviewData = null;
     var dataItem = null;
+    var withTheseCodes = [];
+    var withoutTheseCodes = [];
     const path = '@path' + "fair/";
     function ItemsWithThisCode() {
         console.log(dataItem);
@@ -28,9 +30,101 @@
         }
         if (dataItem.isCodeset) {
             $("#GoToItemsWithThisCodeSB").prop("disabled", true);
+            $("#AddWithThisCodeBtn").prop("disabled", true);
+            $("#AddWithoutThisCodeBtn").prop("disabled", true);
         } else {
             $("#GoToItemsWithThisCodeSB").prop("disabled", false);
+            if (withoutTheseCodes.findIndex(f => f.id == dataItem.id) == -1 && withTheseCodes.findIndex(f => f.id == dataItem.id) == -1) {
+                $("#AddWithThisCodeBtn").prop("disabled", false);
+                $("#AddWithoutThisCodeBtn").prop("disabled", false);
+            } else {
+                $("#AddWithThisCodeBtn").prop("disabled", true);
+                $("#AddWithoutThisCodeBtn").prop("disabled", true);
+            }
         }
+    }
+    function ToggleAdvanced() {
+        const btn = $("#AdvancedBtn");
+        if (btn.text() == "Advanced...") {
+            btn.text("Close Advanced...");
+            $("#AdvancedCodesPanel").show();
+            withTheseCodes = [];
+            withoutTheseCodes = [];
+        } else {
+            $("#AdvancedCodesSearchBtn").prop("disabled", true);
+            $("#WithTheseCodesList").html('');
+            $("#WithoutTheseCodesList").html('');
+            btn.text("Advanced...");
+            $("#AdvancedCodesPanel").hide();
+        }
+    }
+    function AddWithThisCode() {
+        withTheseCodes.push(dataItem);
+        $("#AdvancedCodesSearchBtn").prop("disabled", false);
+        let html = "";
+        for (let node of withTheseCodes) {
+            html += "<div class='border-bottom small'>" + node.text + "</div>";
+        }
+        $("#WithTheseCodesList").html(html);
+        $("#AddWithThisCodeBtn").prop("disabled", true);
+        $("#AddWithoutThisCodeBtn").prop("disabled", true);
+    }
+
+    function AddWithoutThisCode() {
+        withoutTheseCodes.push(dataItem);
+        $("#AdvancedCodesSearchBtn").prop("disabled", false);
+        let html = "";
+        for (let node of withoutTheseCodes) {
+            html += "<div class='border-bottom small'>" + node.text + "</div>";
+        }
+        $("#WithoutTheseCodesList").html(html);
+        $("#AddWithThisCodeBtn").prop("disabled", true);
+        $("#AddWithoutThisCodeBtn").prop("disabled", true);
+    }
+    function AdvancedCodesSearch() {
+        //WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description
+        if (withTheseCodes.length + withoutTheseCodes.length < 1) return;
+
+        let WithAttIds = "";
+        let WithSetId = "";
+        let WithoutAttIds = "";
+        let WithoutSetId = "";
+        let Description = "Custom list:";
+        if (withTheseCodes.length > 0) {
+            Description += " with (all) these codes [";
+            for (let code of withTheseCodes) {
+                WithAttIds += code.id.toString() + ", ";
+                WithSetId += code.setId.toString() + ", ";
+                Description += code.text + ", ";
+            }
+            WithAttIds = WithAttIds.substring(0, WithAttIds.length - 2);
+            WithSetId = WithSetId.substring(0, WithSetId.length - 2);
+            Description = Description.substring(0, Description.length - 2) + "]";
+        }
+
+        if (withoutTheseCodes.length > 0) {
+            if (withTheseCodes.length == 0) Description += " without (all) these codes [";
+            else Description += " and without (all) these codes [";
+            for (let code of withoutTheseCodes) {
+                WithoutAttIds += code.id.toString() + ", ";
+                WithoutSetId += code.setId.toString() + ", ";
+                Description += code.text + ", ";
+            }
+            WithoutAttIds = WithoutAttIds.substring(0, WithoutAttIds.length - 2);
+            WithoutSetId = WithoutSetId.substring(0, WithoutSetId.length - 2);
+            Description = Description.substring(0, Description.length - 2) + "]";
+        }
+        let pars = {
+            withAttributesIds: WithAttIds
+            , withSetIdsList: WithSetId
+            , withOutAttributesIdsList: WithoutAttIds
+            , withOutSetIdsList: WithoutSetId
+            , description: Description
+            , onlyIncluded: 'True'
+            , listType: "WebDbWithWithoutCodes"
+        };
+        
+        postwith("../Fair/ListFromCrit", pars);
     }
 </script>
 
@@ -38,7 +132,28 @@
     <div class="">
         <div class="">
             <button id="GoToItemsWithThisCodeSB" class="btn btn-secondary btn-sm btn-round" onclick="ItemsWithThisCode()" disabled>List records</button>
-            @*<button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreqSB">Frequencies</button>*@
+            <button id="AdvancedBtn" class="btn btn-sm btn-secondary" onclick="ToggleAdvanced()">Advanced...</button>
+        </div>
+    </div>
+    <div>
+        
+        <div class="container m-1 p-1 border border-right" style="display:none;" id="AdvancedCodesPanel">
+            <div class="row mx-0">
+                <button id="AddWithThisCodeBtn" class="btn btn-sm btn-secondary px-1 py-0 mr-1" onclick="AddWithThisCode()" disabled>With this code</button>
+                <button id="AddWithoutThisCodeBtn" class="btn btn-sm btn-secondary py-0 mr-1" onclick="AddWithoutThisCode()" disabled>Without this code</button>
+            </div>
+            <div>
+                With these codes:
+                <div class="alert-success border-left" id="WithTheseCodesList"></div>
+            </div>
+            <div>
+                Without these codes:
+                <div class="alert-danger border-left" id="WithoutTheseCodesList"></div>
+            </div>
+            <div class="row mx-0">
+                <button id="AdvancedCodesSearchBtn" class="btn btn-success btn-sm px-2 py-1 mr-1" onclick="AdvancedCodesSearch()" disabled>Go!</button>
+                <button class="btn btn-sm btn-secondary" onclick="ToggleAdvanced()">Close</button>
+            </div>
         </div>
     </div>
     <div class="">

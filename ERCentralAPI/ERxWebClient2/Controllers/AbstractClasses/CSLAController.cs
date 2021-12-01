@@ -10,6 +10,8 @@ using System.Linq;
 using System.Security.Claims;
 
 using System.Data.SqlClient;
+using BusinessLibrary.BusinessClasses;
+
 
 namespace ERxWebClient2.Controllers
 {
@@ -125,6 +127,55 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        //this method is here, so to allow accessing it from EPPI-Vis, from both the regular controllers and the FAIR one.
+        internal WebDatabasesMVC.ViewModels.FullItemDetails GetItemDetails(WebDatabasesMVC.Controllers.ItemSelCritMVC crit)
+        {
+            Item itm = DataPortal.Fetch<Item>(new SingleCriteria<Item, Int64>(crit.itemID));
+            ItemArmList arms = DataPortal.Fetch<ItemArmList>(new SingleCriteria<Item, Int64>(crit.itemID));
+            itm.Arms = arms;
+            ItemTimepointList timepoints = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(crit.itemID));
+            ItemDocumentList docs = DataPortal.Fetch<ItemDocumentList>(new SingleCriteria<ItemDocumentList, Int64>(crit.itemID));
+            ReadOnlySource ros = DataPortal.Fetch<ReadOnlySource>(new SingleCriteria<ReadOnlySource, long>(crit.itemID));
+            ItemDuplicatesReadOnlyList dups = DataPortal.Fetch<ItemDuplicatesReadOnlyList>(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(crit.itemID));
+            WebDatabasesMVC.ViewModels.FullItemDetails res = new WebDatabasesMVC.ViewModels.FullItemDetails
+            {
+                Item = itm,
+                Documents = docs,
+                Timepoints = timepoints,
+                Duplicates = dups,
+                Source = ros,
+                ListCrit = crit as WebDatabasesMVC.Controllers.SelCritMVC,
+                ItemIds = crit.itemIds
+            };
+            return res;
+        }
+        //as above, placing this method here, so to allow accessing it from EPPI-Vis, from both the regular controllers and the FAIR one. 
+        internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
+        {
+            if (crit.WebDbId == 0)
+            {
+                crit.WebDbId = WebDbId;
+                crit.PageSize = 100;
+            }
+            else if (WebDbId != crit.WebDbId)
+            {
+                throw new Exception("WebDbId in ItemList Criteria is not the expected value - possible tampering attempt!");
+            }
+
+            if (crit.ListType == "StandardItemList")
+            {
+                crit.ListType = "WebDbAllItems";
+                crit.OnlyIncluded = true;
+                crit.Description = "All Items.";
+            }
+            else if (!crit.ListType.StartsWith("WebDb"))
+            {
+                throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
+            }
+            ItemList4Json res = new ItemList4Json(DataPortal.Fetch<ItemList>(crit));
+            return new ItemListWithCriteria { items = res, criteria = new WebDatabasesMVC.Controllers.SelCritMVC(crit) };
+        }
+
 
         protected void logActivity(string type, string details)
         {
