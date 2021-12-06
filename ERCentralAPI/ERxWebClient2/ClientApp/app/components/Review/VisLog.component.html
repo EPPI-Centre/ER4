@@ -1,4 +1,4 @@
-
+<p *ngIf="IsServiceBusy1"><em>Loading...</em></p>
 <div class="row mx-2 px-2 col-12 alert-secondary card">
     <table>
         <tr>
@@ -58,9 +58,6 @@
     </table>
 </div>
 
-<div *ngIf="LogTypeSelection >= 0">
-    
-</div>
 
 <div *ngIf="CurrentLogs.length > 0" >
     <div class="col-12 alert-secondary px-2 mx-2 py-1 my-1 card">

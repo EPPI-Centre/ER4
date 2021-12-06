@@ -63,6 +63,10 @@ export class VisLogComp implements OnInit{
 
     }
 
+    public get IsServiceBusy1(): boolean {
+        return (this.visLogService.IsBusy);
+    }
+
     public visLogDate: string = 'dateFrom';
 
     // needso to  be 'public' for compiling in production mode
@@ -96,60 +100,29 @@ export class VisLogComp implements OnInit{
 
             var untilDate = "1980/01/01 00:00:00";
             if (this.visLogDate == "dateUntil") {
-                const dateUntil = new Date(this.valueKendoDatepickerUntil.toString());
-                untilDate = dateUntil.toISOString();
+                //const dateUntil = new Date(this.valueKendoDatepickerUntil.toString());             
+                //untilDate = dateUntil.toISOString();
+
+                var targetDate = new Date(this.valueKendoDatepickerUntil);
+                var uFullYear = targetDate.getFullYear();
+                var uMonth = targetDate.getMonth() + 1;
+                var uDate = targetDate.getDate();
+                untilDate = uFullYear.toString() + "/" + uMonth.toString() + "/" + uDate.toString() + " 23:59:59";
             }
 
-            const dateFrom = new Date(this.valueKendoDatepickerFrom.toString());
-            var fromDate = dateFrom.toISOString();
+            //const dateFrom = new Date(this.valueKendoDatepickerFrom.toString());
+            //var fromDate = dateFrom.toISOString();
+
+            var targetDate = new Date(this.valueKendoDatepickerFrom);
+            var fFullYear = targetDate.getFullYear();
+            var fMonth = targetDate.getMonth() + 1;
+            var fDate = targetDate.getDate();
+            var fromDate = fFullYear.toString() + "/" + fMonth.toString() + "/" + fDate.toString() + " 00:00:00";
 
             this.visLogService.GetWebDBLogs(this.visLogService.CurrentDB.webDBId, fromDate, untilDate, logTypeSelected);
             this.LogDataGet;
         }
 
-        /*
-        if (this.DateLimitSelection == 4) {
-
-            this.magSearchDate1 = this.valueKendoDatepicker1;
-            this.magSearchDate2 = this.valueKendoDatepicker2;
-
-        } else if (this.DateLimitSelection == 5 || this.DateLimitSelection == 6 ||
-            this.DateLimitSelection == 7) {
-
-            this.magSearchDate1 = new Date(this.valueYearPicker3 + 1, 0, 0, 0, 0, 0, 0);
-
-        } else if (this.DateLimitSelection == 8) {
-
-            this.magSearchDate1 = new Date(this.valueYearPicker3 + 1, 0, 0, 0, 0, 0, 0);
-            this.magSearchDate2 = new Date(this.valueYearPicker4 + 1, 0, 0, 0, 0, 0, 0);
-
-        } else {
-
-            this.magSearchDate1 = this.valueKendoDatepicker3;
-        }
-
-        let title: string = "";
-        if (this.WordsInSelection != 3) title = this.magSearchInput;
-        else title = this.SearchTextTopicDisplayName;
-        this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
-            title, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
-
-                () => {
-                    this.FetchMagSearches();
-                    this.DateLimitSelection = 0;
-
-                    if (this.WordsInSelection == 3) {
-                        //cleanup the topics...
-                        this.SearchTextTopicsResults = [];
-                        this.SearchTextTopic = "";
-                        this.SearchedTopic = "";
-                        this.SearchTextTopicDisplayName = "";
-                    }
-                    //let msg: string = 'You have created a new search';
-                    //this._confirmationDialogService.showMAGRunMessage(msg);
-                }
-            );
-        */
     }
 
 }
