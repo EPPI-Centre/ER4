@@ -100,18 +100,12 @@ export class VisLogComp implements OnInit{
 
             var untilDate = "1980/01/01 00:00:00";
             if (this.visLogDate == "dateUntil") {
-                //const dateUntil = new Date(this.valueKendoDatepickerUntil.toString());             
-                //untilDate = dateUntil.toISOString();
-
                 var targetDate = new Date(this.valueKendoDatepickerUntil);
                 var uFullYear = targetDate.getFullYear();
                 var uMonth = targetDate.getMonth() + 1;
                 var uDate = targetDate.getDate();
                 untilDate = uFullYear.toString() + "/" + uMonth.toString() + "/" + uDate.toString() + " 23:59:59";
             }
-
-            //const dateFrom = new Date(this.valueKendoDatepickerFrom.toString());
-            //var fromDate = dateFrom.toISOString();
 
             var targetDate = new Date(this.valueKendoDatepickerFrom);
             var fFullYear = targetDate.getFullYear();
@@ -124,6 +118,72 @@ export class VisLogComp implements OnInit{
         }
 
     }
+
+    public RetrieveLogFrom() {
+        if (this.visLogService.CurrentDB != null) {
+
+            var logTypeSelected = "";
+            switch (this.LogTypeSelection) {
+                case 1: logTypeSelected = "Login"; break;
+                case 2: logTypeSelected = "Search"; break;
+                case 3: logTypeSelected = "GetFrequency"; break;
+                case 4: logTypeSelected = "GetSetFrequency"; break;
+                case 5: logTypeSelected = "GetFrequencyNewPage"; break;
+                case 6: logTypeSelected = "GetItemList"; break;
+                case 7: logTypeSelected = "GetMap"; break;
+                case 8: logTypeSelected = "ItemDetailsFromList"; break;
+                default: logTypeSelected = "All";
+            }
+         
+            var targetDate = new Date(this.valueKendoDatepickerFrom);
+            var fFullYear = targetDate.getFullYear();
+            var fMonth = targetDate.getMonth() + 1;
+            var fDate = targetDate.getDate();
+            var fromDate = fFullYear.toString() + "/" + fMonth.toString() + "/" + fDate.toString() + " 00:00:00";
+
+            var untilDate = "1980/01/01 00:00:00"
+
+            this.visLogService.GetWebDBLogs(this.visLogService.CurrentDB.webDBId, fromDate, untilDate, logTypeSelected);
+            this.LogDataGet;
+        }
+
+    }
+
+    public RetrieveLogUntil() {
+        if (this.visLogService.CurrentDB != null) {
+
+            var logTypeSelected = "";
+            switch (this.LogTypeSelection) {
+                case 1: logTypeSelected = "Login"; break;
+                case 2: logTypeSelected = "Search"; break;
+                case 3: logTypeSelected = "GetFrequency"; break;
+                case 4: logTypeSelected = "GetSetFrequency"; break;
+                case 5: logTypeSelected = "GetFrequencyNewPage"; break;
+                case 6: logTypeSelected = "GetItemList"; break;
+                case 7: logTypeSelected = "GetMap"; break;
+                case 8: logTypeSelected = "ItemDetailsFromList"; break;
+                default: logTypeSelected = "All";
+            }
+
+            var targetDate = new Date(this.valueKendoDatepickerFrom);
+            var fFullYear = targetDate.getFullYear();
+            var fMonth = targetDate.getMonth() + 1;
+            var fDate = targetDate.getDate();
+            var fromDate = fFullYear.toString() + "/" + fMonth.toString() + "/" + fDate.toString() + " 00:00:00";
+
+            this.valueKendoDatepickerUntil = new Date();
+            var targetDate = new Date(this.valueKendoDatepickerUntil);
+            var uFullYear = targetDate.getFullYear();
+            var uMonth = targetDate.getMonth() + 1;
+            var uDate = targetDate.getDate();
+            var untilDate = uFullYear.toString() + "/" + uMonth.toString() + "/" + uDate.toString() + " 23:59:59";
+
+            this.visLogService.GetWebDBLogs(this.visLogService.CurrentDB.webDBId, fromDate, untilDate, logTypeSelected);
+            this.LogDataGet;
+        }
+
+    }
+
 
 }
 

@@ -6,22 +6,22 @@
                 <div class="d-flex col-auto mx-auto">
                     <div class="px-1 col-auto row mx-auto my-auto rounded border border-info bg-light">
                         <div class="my-auto border-info border-right py-1 px-2">
-                            <input type="radio" value="dateFrom" name="logDate" [(ngModel)]="visLogDate">&nbsp;From
+                            <input type="radio" value="dateFrom" name="logDate" [(ngModel)]="visLogDate" (click)="RetrieveLogFrom()">&nbsp;From
                         </div>
                         <div class="my-auto py-1 px-2">
-                            <input type="radio" value="dateUntil" name="logDate" [(ngModel)]="visLogDate">&nbsp;Between
+                            <input type="radio" value="dateUntil" name="logDate" [(ngModel)]="visLogDate" (click)="RetrieveLogUntil()">&nbsp;Between
                         </div>
                     </div>
                 </div>
             </td>
             <td>
                 &nbsp;<b>From</b>&nbsp;
-                <kendo-datepicker [(value)]="valueKendoDatepickerFrom" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                <kendo-datepicker [(value)]="valueKendoDatepickerFrom" [format]="'dd MMM yyyy'" (select)="RetrieveLog()"></kendo-datepicker>
             </td>
             <td>
                 <div *ngIf="visLogDate=='dateUntil'">
                     &nbsp;<b>Until</b>&nbsp;
-                    <kendo-datepicker [(value)]="valueKendoDatepickerUntil" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                    <kendo-datepicker [(value)]="valueKendoDatepickerUntil" [format]="'dd MMM yyyy'" (select)="RetrieveLog()"></kendo-datepicker>
                 </div>
             </td>
             <td>
@@ -32,7 +32,7 @@
                         </td>
                         <td>
                             <div ngbDropdown>
-                                <select class="col-12 form-control mb-1" name="LogTypeSelection" [(ngModel)]="LogTypeSelection">
+                                <select class="col-12 form-control mb-1" name="LogTypeSelection" [(ngModel)]="LogTypeSelection" (change)="RetrieveLog()">
                                     <option [ngValue]="0" [selected]="LogTypeSelection == 0">All</option>
                                     <option [ngValue]="1">Login</option>
                                     <option [ngValue]="2">Search</option>
@@ -46,14 +46,14 @@
                             </div>
                         </td>
                     </tr>
-                </table>                           
+                </table>
             </td>
-            <td>
-                <button class="btn btn-primary btn-sm text-white"
-                        (click)="RetrieveLog()">
-                    Retrieve
-                </button>
-            </td>
+            <!--<td>
+                    <button class="btn btn-primary btn-sm text-white"
+                            (click)="RetrieveLog()">
+                        Retrieve
+                    </button>
+                </td>-->
         </tr>
     </table>
 </div>
