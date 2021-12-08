@@ -1,6 +1,6 @@
-<p *ngIf="IsServiceBusy1"><em>Loading...</em></p>
-<div class="row mx-2 px-2 col-12 alert-secondary card">
-    <table>
+
+<div class="row col-12 mx-0 px-2 alert-secondary card">
+    <table class="">
         <tr>
             <td width="200px">
                 <div class="d-flex col-auto mx-auto">
@@ -59,20 +59,19 @@
 </div>
 
 
-<div *ngIf="CurrentLogs.length > 0" >
-    <div class="col-12 alert-secondary px-2 mx-2 py-1 my-1 card">
 
-        <kendo-grid *ngIf="CurrentLogs.length > 0"
-                    [data]="LogDataGet" [height]="600"
-                    [rowClass]="rowCallback"
-                    [sortable]="{
+<div class="col-12 alert-secondary px-2 py-1 my-1 card">
+
+    <kendo-grid *ngIf="CurrentLogs.length > 0"
+                [data]="LogDataGet" [height]="420"
+                [sortable]="{
 	                        allowUnsort: allowUnsort,
 	                        mode: 'single'
 	                        }"
-                    [sort]="sortLogs"
-                    [pageSize]="pageSize"
-                    [skip]="skip"
-                    [pageable]="{
+                [sort]="sortLogs"
+                [pageSize]="pageSize"
+                [skip]="skip"
+                [pageable]="{
                               buttonCount: 10,
                               info: false,
                               type: 'numeric',
@@ -80,46 +79,37 @@
                               previousNext: true,
                               position: 'top'
                             }"
-                    (pageChange)="pageChange($event)"
-                    (sortChange)="sortChangeLogs($event)"
-                    class="mt-1">
+                (pageChange)="pageChange($event)"
+                (sortChange)="sortChangeLogs($event)"
+                class="mt-1">
 
 
-            <kendo-grid-column field="webDBLogIdentity" title="No" width="60" class="px-1 py-0 m-1">
-                {{webDBLogIdentity}}
-            </kendo-grid-column>
-            <kendo-grid-column field="dateTimeCreated" title="Date" width="140" class="px-1 py-0 m-1">
-                <ng-template kendoGridCellTemplate let-dataItem>
-                    {{FormatDate(dataItem.dateTimeCreated)}}
-                </ng-template>
-                <!--{{dateTimeCreated}}-->
-            </kendo-grid-column>
-            <kendo-grid-column field="logType" title="Type" width="140" class="px-1 py-0 m-1">
-                {{logType}}
-            </kendo-grid-column>
-            <kendo-grid-column field="logDetails" title="Details" width="360" class="px-1 py-0 m-1">
-                {{logDetails}}
-            </kendo-grid-column>
-
-
-            <ng-template kendoPagerTemplate let-totalPages="totalPages" let-totalN="total" let-skipo="skip" let-pageSizep="pageSize">
-                <kendo-pager-prev-buttons *ngIf="totalPages > 1"></kendo-pager-prev-buttons>
-                <kendo-pager-numeric-buttons *ngIf="totalPages > 1" [buttonCount]="10"></kendo-pager-numeric-buttons>
-                <kendo-pager-next-buttons *ngIf="totalPages > 1"></kendo-pager-next-buttons>
-                <div *ngIf="totalPages == 1" class="m-0 p-0 small k-pager-info">[{{totalN}} Entries]</div>
-                <div *ngIf="totalPages > 1" class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
+        <kendo-grid-column field="webDBLogIdentity" title="No" width="60" class="px-1 py-0 m-1">
+            {{webDBLogIdentity}}
+        </kendo-grid-column>
+        <kendo-grid-column field="dateTimeCreated" title="Date" width="140" class="px-1 py-0 m-1">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                {{FormatDate(dataItem.dateTimeCreated)}}
             </ng-template>
-        </kendo-grid>
+            <!--{{dateTimeCreated}}-->
+        </kendo-grid-column>
+        <kendo-grid-column field="logType" title="Type" width="140" class="px-1 py-0 m-1">
+            {{logType}}
+        </kendo-grid-column>
+        <kendo-grid-column field="logDetails" title="Details" width="360" class="px-1 py-0 m-1">
+            {{logDetails}}
+        </kendo-grid-column>
 
-    </div>
 
+        <ng-template kendoPagerTemplate let-totalPages="totalPages" let-totalN="total" let-skipo="skip" let-pageSizep="pageSize">
+            <kendo-pager-prev-buttons *ngIf="totalPages > 1"></kendo-pager-prev-buttons>
+            <kendo-pager-numeric-buttons *ngIf="totalPages > 1" [buttonCount]="10"></kendo-pager-numeric-buttons>
+            <kendo-pager-next-buttons *ngIf="totalPages > 1"></kendo-pager-next-buttons>
+            <div *ngIf="totalPages == 1" class="m-0 p-0 small k-pager-info">[{{totalN}} Entries]</div>
+            <div *ngIf="totalPages > 1" class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
+        </ng-template>
+    </kendo-grid>
+    <div *ngIf="CurrentLogs.length == 0">No logs</div>
 </div>
 
-    <!--
-    <div *ngFor="let log of CurrentLogs" class="col-12">
-        <div class="col-12 mx-0 p-1 row">
-            {{log.webDBLogIdentity}},{{log.dateTimeCreated}},{{log.logType}},{{log.logDetails}}<br />
-        </div>
-    </div>
-    -->
 

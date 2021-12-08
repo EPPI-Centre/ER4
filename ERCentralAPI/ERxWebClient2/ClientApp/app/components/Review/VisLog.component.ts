@@ -18,7 +18,22 @@ import { Helpers } from '../helpers/HelperMethods';
 
 
 export class VisLogComp implements OnInit{
+    constructor(
+        private visLogService: WebDBService
+    ) {
+    }
 
+    ngOnInit() {
+        // IF the current logs are empty and CurrentDB is not null, 
+        // CALL GetWebDBLogs(...) with the correct WebDBid and 
+        // some default values for "from, until, logType".
+
+        if ((this.visLogService.CurrentLogs.length == 0) && (this.visLogService.CurrentDB != null)) {
+            const currDB = this.visLogService.CurrentDB;
+            setTimeout(() => { this.visLogService.GetWebDBLogs(currDB.webDBId, "1980/01/01 00:00:00", "1980/01/01 00:00:00", "All") }, 20);
+        }
+
+    }
 
     //public value: Date = new Date(2019, 5, 1, 22);
     //public value: Date = new Date(2000, 2, 10, 10, 30, 0);
@@ -46,26 +61,11 @@ export class VisLogComp implements OnInit{
         this.sortLogs = sort;
     }
 
-    constructor(
-        private visLogService: WebDBService      
-        ) {
-    }
+    
 
-    ngOnInit() {
-        // IF the current logs are empty and CurrentDB is not null, 
-        // CALL GetWebDBLogs(...) with the correct WebDBid and 
-        // some default values for "from, until, logType".
-
-        if ((this.visLogService.CurrentLogs.length == 0) && (this.visLogService.CurrentDB != null)) {
-            this.visLogService.GetWebDBLogs(this.visLogService.CurrentDB.webDBId, "1980/01/01 00:00:00", "1980/01/01 00:00:00", "All");
-            this.LogDataGet;
-        }
-
-    }
-
-    public get IsServiceBusy1(): boolean {
-        return (this.visLogService.IsBusy);
-    }
+    //public get IsServiceBusy1(): boolean {
+    //    return (this.visLogService.IsBusy);
+    //}
 
     public visLogDate: string = 'dateFrom';
 

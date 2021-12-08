@@ -25,11 +25,7 @@ import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'SearchComp',
-    templateUrl: './SearchComp.component.html',
-    styles: [`
-       .k-grid tr.even { background-color: white; }
-       .k-grid tr.odd { background-color: light-grey; }
-   `],
+    templateUrl: './SearchComp.component.html'
 })
 
 export class SearchComp implements OnInit, OnDestroy {
@@ -1177,13 +1173,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     };
 
-    public rowCallback(context: RowClassArgs) {
-        const isEven = context.index % 2 == 0;
-        return {
-            even: isEven,
-            odd: !isEven
-        };
-    }
+    
     BuildModel() {
         this.router.navigate(['BuildModel']);
     }
