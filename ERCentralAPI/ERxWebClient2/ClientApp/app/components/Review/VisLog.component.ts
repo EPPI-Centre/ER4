@@ -4,7 +4,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { Helpers } from '../helpers/HelperMethods';
-
+import { ExcelService } from '../services/excel.service';
 
 
 
@@ -19,7 +19,8 @@ import { Helpers } from '../helpers/HelperMethods';
 
 export class VisLogComp implements OnInit{
     constructor(
-        private visLogService: WebDBService
+        private visLogService: WebDBService,
+        private ExcelService: ExcelService
     ) {
     }
 
@@ -28,17 +29,23 @@ export class VisLogComp implements OnInit{
         // CALL GetWebDBLogs(...) with the correct WebDBid and 
         // some default values for "from, until, logType".
 
-        if ((this.visLogService.CurrentLogs.length == 0) && (this.visLogService.CurrentDB != null)) {
+        //if ((this.visLogService.CurrentLogs.length == 0) && (this.visLogService.CurrentDB != null)) { // (I removed the '== 0' check to have a proper 'close')
+        if (this.visLogService.CurrentDB != null) {
             const currDB = this.visLogService.CurrentDB;
-            setTimeout(() => { this.visLogService.GetWebDBLogs(currDB.webDBId, "1980/01/01 00:00:00", "1980/01/01 00:00:00", "All") }, 20);
+            setTimeout(() => { this.visLogService.GetWebDBLogs(currDB.webDBId, "2021/09/01 00:00:00", "1980/01/01 00:00:00", "All") }, 20);
         }
 
     }
 
-    //public value: Date = new Date(2019, 5, 1, 22);
-    //public value: Date = new Date(2000, 2, 10, 10, 30, 0);
-    public valueKendoDatepickerFrom: Date = new Date(2021, 0, 1, 12, 0, 0);
+    public valueKendoDatepickerFrom: Date = new Date(2021, 8, 1);
     public valueKendoDatepickerUntil: Date = new Date();
+
+    public fromMin: Date = new Date(2021, 8, 1);
+    public fromMax: Date = this.valueKendoDatepickerUntil;
+    public untilMin: Date = this.valueKendoDatepickerFrom;
+    public untilMax: Date = new Date();
+
+
     public LogTypeSelection: number = 0;
 
     public get LogDataGet(): GridDataResult {
@@ -61,21 +68,16 @@ export class VisLogComp implements OnInit{
         this.sortLogs = sort;
     }
 
-    
-
-    //public get IsServiceBusy1(): boolean {
-    //    return (this.visLogService.IsBusy);
-    //}
 
     public visLogDate: string = 'dateFrom';
 
-    // needso to  be 'public' for compiling in production mode
+    // needs to  be 'public' for compiling in production mode
     public get CurrentLogs(): iWebDBLog[] {
         return this.visLogService.CurrentLogs;
     }
 
     GetLogs(CurrentDB: iWebDB) {
-        this.visLogService.GetWebDBLogs(CurrentDB.webDBId, "1980/01/01 00:00:00", "1980/01/01 00:00:00", "All");
+        this.visLogService.GetWebDBLogs(CurrentDB.webDBId, "2021/08/01 00:00:00", "1980/01/01 00:00:00", "All");
     }
 
     FormatDate(DateSt: string): string {
@@ -113,6 +115,10 @@ export class VisLogComp implements OnInit{
             var fDate = targetDate.getDate();
             var fromDate = fFullYear.toString() + "/" + fMonth.toString() + "/" + fDate.toString() + " 00:00:00";
 
+            this.fromMax = this.valueKendoDatepickerUntil;
+            this.untilMin = this.valueKendoDatepickerFrom;
+
+
             this.visLogService.GetWebDBLogs(this.visLogService.CurrentDB.webDBId, fromDate, untilDate, logTypeSelected);
             this.LogDataGet;
         }
@@ -142,6 +148,8 @@ export class VisLogComp implements OnInit{
             var fromDate = fFullYear.toString() + "/" + fMonth.toString() + "/" + fDate.toString() + " 00:00:00";
 
             var untilDate = "1980/01/01 00:00:00"
+
+            this.fromMax = this.valueKendoDatepickerUntil;
 
             this.visLogService.GetWebDBLogs(this.visLogService.CurrentDB.webDBId, fromDate, untilDate, logTypeSelected);
             this.LogDataGet;
@@ -178,10 +186,22 @@ export class VisLogComp implements OnInit{
             var uDate = targetDate.getDate();
             var untilDate = uFullYear.toString() + "/" + uMonth.toString() + "/" + uDate.toString() + " 23:59:59";
 
+            this.fromMax = this.valueKendoDatepickerUntil;
+            this.untilMin = this.valueKendoDatepickerFrom;
+
             this.visLogService.GetWebDBLogs(this.visLogService.CurrentDB.webDBId, fromDate, untilDate, logTypeSelected);
             this.LogDataGet;
         }
 
+    }
+
+    public GridToExcel() {
+        let res: any[] = [];
+        for (let row of this.visLogService.CurrentLogs) {
+            let rrow = { ID: row.webDBLogIdentity, Date: row.dateTimeCreated, LogType: row.logType, Details: row.logDetails };
+            res.push(rrow);
+        }
+        this.ExcelService.exportAsExcelFile(res, 'EPPIVis_logging_data');
     }
 
 

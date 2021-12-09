@@ -16,12 +16,14 @@
             </td>
             <td>
                 &nbsp;<b>From</b>&nbsp;
-                <kendo-datepicker [(value)]="valueKendoDatepickerFrom" [format]="'dd MMM yyyy'" (select)="RetrieveLog()"></kendo-datepicker>
+                <kendo-datepicker [(value)]="valueKendoDatepickerFrom" [format]="'dd MMM yyyy'" (valueChange)="RetrieveLog()" [min]="fromMin" [max]="fromMax" >
+                </kendo-datepicker>
             </td>
             <td>
                 <div *ngIf="visLogDate=='dateUntil'">
                     &nbsp;<b>Until</b>&nbsp;
-                    <kendo-datepicker [(value)]="valueKendoDatepickerUntil" [format]="'dd MMM yyyy'" (select)="RetrieveLog()"></kendo-datepicker>
+                    <kendo-datepicker [(value)]="valueKendoDatepickerUntil" [format]="'dd MMM yyyy'" (valueChange)="RetrieveLog()" [min]="untilMin" [max]="untilMax">
+                    </kendo-datepicker>
                 </div>
             </td>
             <td>
@@ -48,12 +50,18 @@
                     </tr>
                 </table>
             </td>
-            <!--<td>
-                    <button class="btn btn-primary btn-sm text-white"
-                            (click)="RetrieveLog()">
-                        Retrieve
+            <td>
+                <div *ngIf="CurrentLogs.length > 0">
+                    <button  class="btn btn-sm btn-outline-primary my-auto py-0 px-1" (click)="GridToExcel()" title="Export to Excel">
+                        Export <i class="k-icon k-i-excel my-1"></i>
                     </button>
-                </td>-->
+                </div>
+
+                    <!--<button class="btn btn-primary btn-sm text-white"
+                (click)="RetrieveLog()">
+            Retrieve
+        </button>-->
+            </td>
         </tr>
     </table>
 </div>
@@ -61,24 +69,27 @@
 
 
 <div class="col-12 alert-secondary px-2 py-1 my-1 card">
+    <div *ngIf="CurrentLogs.length == 5000">
+        <strong>&nbsp;&nbsp;&nbsp;&nbsp;Only the top 5000 entries are displayed</strong>
+    </div>
 
     <kendo-grid *ngIf="CurrentLogs.length > 0"
                 [data]="LogDataGet" [height]="420"
                 [sortable]="{
-	                        allowUnsort: allowUnsort,
-	                        mode: 'single'
-	                        }"
+	                    allowUnsort: allowUnsort,
+	                    mode: 'single'
+	                    }"
                 [sort]="sortLogs"
                 [pageSize]="pageSize"
                 [skip]="skip"
                 [pageable]="{
-                              buttonCount: 10,
-                              info: false,
-                              type: 'numeric',
-                              pageSizes: false,
-                              previousNext: true,
-                              position: 'top'
-                            }"
+                            buttonCount: 10,
+                            info: false,
+                            type: 'numeric',
+                            pageSizes: false,
+                            previousNext: true,
+                            position: 'top'
+                        }"
                 (pageChange)="pageChange($event)"
                 (sortChange)="sortChangeLogs($event)"
                 class="mt-1">
@@ -91,7 +102,6 @@
             <ng-template kendoGridCellTemplate let-dataItem>
                 {{FormatDate(dataItem.dateTimeCreated)}}
             </ng-template>
-            <!--{{dateTimeCreated}}-->
         </kendo-grid-column>
         <kendo-grid-column field="logType" title="Type" width="140" class="px-1 py-0 m-1">
             {{logType}}
@@ -108,8 +118,10 @@
             <div *ngIf="totalPages == 1" class="m-0 p-0 small k-pager-info">[{{totalN}} Entries]</div>
             <div *ngIf="totalPages > 1" class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
         </ng-template>
+
+
     </kendo-grid>
-    <div *ngIf="CurrentLogs.length == 0">No logs</div>
+    <div *ngIf="CurrentLogs.length == 0"><strong>&nbsp;&nbsp;&nbsp;&nbsp;No log data to display</strong></div>
 </div>
 
 

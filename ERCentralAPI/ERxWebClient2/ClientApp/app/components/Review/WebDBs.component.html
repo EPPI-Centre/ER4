@@ -60,19 +60,21 @@
                 </div>
             </div>
             <div *ngIf="CanWrite" class="row col-12  m-0 p-0 justify-content-center">
-                <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
+                <button class="btn btn-outline-success btn-sm ml-1 mb-1 mt-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
                     Edit!
                 </button>
-                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="DeleteDB(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
+                <button class="btn btn-outline-danger btn-sm ml-1 mb-1 mt-1" (click)="DeleteDB(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
                     <span class="k-icon k-i-delete "></span>
                 </button>
+                <button class="btn btn-outline-primary btn-sm ml-1 mb-1 mt-1" (click)="ShowLogs = !ShowLogs">
+                    <span>{{ShowLogs ? 'Close log' : 'Show log'}}</span>
+                </button>
                 <div class="ml-1 my-auto">
+                    &nbsp;&nbsp;
                     <a href="{{VisitURL}}" target="_blank">View in EPPI-Vis</a>
                     <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
                 </div>
-                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="ShowLogs = !ShowLogs">
-                    Logs
-                </button>
+
             </div>
             <VisLogComp *ngIf="ShowLogs"></VisLogComp>
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
