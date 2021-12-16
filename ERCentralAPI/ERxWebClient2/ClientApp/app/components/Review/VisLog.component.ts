@@ -32,15 +32,15 @@ export class VisLogComp implements OnInit{
         //if ((this.visLogService.CurrentLogs.length == 0) && (this.visLogService.CurrentDB != null)) { // (I removed the '== 0' check to have a proper 'close')
         if (this.visLogService.CurrentDB != null) {
             const currDB = this.visLogService.CurrentDB;
-            setTimeout(() => { this.visLogService.GetWebDBLogs(currDB.webDBId, "2021/09/01 00:00:00", "1980/01/01 00:00:00", "All") }, 20);
+            setTimeout(() => { this.visLogService.GetWebDBLogs(currDB.webDBId, "2021/09/27 00:00:00", "1980/01/01 00:00:00", "All") }, 20);
         }
 
     }
 
-    public valueKendoDatepickerFrom: Date = new Date(2021, 8, 1);
+    public valueKendoDatepickerFrom: Date = new Date(2021, 9, 27);
     public valueKendoDatepickerUntil: Date = new Date();
 
-    public fromMin: Date = new Date(2021, 8, 1);
+    public fromMin: Date = new Date(2021, 9, 27);
     public fromMax: Date = this.valueKendoDatepickerUntil;
     public untilMin: Date = this.valueKendoDatepickerFrom;
     public untilMax: Date = new Date();
@@ -56,7 +56,7 @@ export class VisLogComp implements OnInit{
         };
     }
     public sortLogs: SortDescriptor[] = [{
-        field: 'webDBLogIdentity',
+        field: 'dateTimeCreated',
         dir: 'desc'
     }];
     public pageSize = 100;
@@ -78,7 +78,7 @@ export class VisLogComp implements OnInit{
     }
 
     GetLogs(CurrentDB: iWebDB) {
-        this.visLogService.GetWebDBLogs(CurrentDB.webDBId, "2021/08/01 00:00:00", "1980/01/01 00:00:00", "All");
+        this.visLogService.GetWebDBLogs(CurrentDB.webDBId, "2021/09/27 00:00:00", "1980/01/01 00:00:00", "All");
     }
 
     FormatDate(DateSt: string): string {
@@ -199,7 +199,8 @@ export class VisLogComp implements OnInit{
     public GridToExcel() {
         let res: any[] = [];
         for (let row of this.visLogService.CurrentLogs) {
-            let rrow = { ID: row.webDBLogIdentity, Date: row.dateTimeCreated, LogType: row.logType, Details: row.logDetails };
+            //let rrow = { ID: row.webDBLogIdentity, Date: row.dateTimeCreated, LogType: row.logType, Details: row.logDetails };
+            let rrow = { Date: row.dateTimeCreated, LogType: row.logType, Details: row.logDetails };
             res.push(rrow);
         }
         this.ExcelService.exportAsExcelFile(res, 'EPPIVis_logging_data');

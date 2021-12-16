@@ -95,9 +95,9 @@
                 class="mt-1">
 
 
-        <kendo-grid-column field="webDBLogIdentity" title="No" width="60" class="px-1 py-0 m-1">
+        <!--<kendo-grid-column field="webDBLogIdentity" title="No" width="60" class="px-1 py-0 m-1">
             {{webDBLogIdentity}}
-        </kendo-grid-column>
+        </kendo-grid-column>-->
         <kendo-grid-column field="dateTimeCreated" title="Date" width="140" class="px-1 py-0 m-1">
             <ng-template kendoGridCellTemplate let-dataItem>
                 {{FormatDate(dataItem.dateTimeCreated)}}
@@ -106,7 +106,7 @@
         <kendo-grid-column field="logType" title="Type" width="140" class="px-1 py-0 m-1">
             {{logType}}
         </kendo-grid-column>
-        <kendo-grid-column field="logDetails" title="Details" width="360" class="px-1 py-0 m-1">
+        <kendo-grid-column field="logDetails" title="Details" width="420" class="px-1 py-0 m-1">
             {{logDetails}}
         </kendo-grid-column>
 
