@@ -3,6 +3,22 @@
 
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="Telerik" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+
+    <script type="text/javascript">
+
+
+        function DisableControls() {
+            var cmdbutton = document.getElementById('<%= cmdInvite.ClientID %>');
+            cmdbutton.disabled = true;
+
+            var sendInviteLink = document.getElementById('<%= lbInviteReviewer.ClientID %>');
+            sendInviteLink.removeAttribute('href');
+        }
+
+    </script>
+
+
+
     <telerik:RadWindowManager ID="RadWindowManager1" runat="server" EnableShadow="true">
     </telerik:RadWindowManager>
 
@@ -167,27 +183,18 @@
                         <asp:BoundField HeaderText="Last access" DataField="LAST_LOGIN">
                             <HeaderStyle BackColor="#B6C6D6" />
                         </asp:BoundField>
-                        <asp:TemplateField HeaderText="Coding only">
-                            <EditItemTemplate>
-                                <asp:CheckBox ID="CheckBox1" runat="server" />
-                            </EditItemTemplate>
+                        
+                        
+                        
+                        <asp:TemplateField HeaderText="Role">
                             <ItemTemplate>
-                                <asp:CheckBox ID="cbCodingOnly" runat="server" AutoPostBack="True"
-                                    OnCheckedChanged="cbCodingOnly_CheckedChanged" />
-                            </ItemTemplate>
-                            <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:TemplateField>
-                        <asp:TemplateField HeaderText="Read only">
-                            <ItemTemplate>
-                                <asp:CheckBox ID="cbReadOnly" runat="server" AutoPostBack="True"
-                                    OnCheckedChanged="cbReadOnly_CheckedChanged" />
-                            </ItemTemplate>
-                            <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:TemplateField>
-                        <asp:TemplateField HeaderText="Review admin">
-                            <ItemTemplate>
-                                <asp:CheckBox ID="cbReviewAdmin" runat="server" AutoPostBack="True"
-                                    OnCheckedChanged="cbReviewAdmin_CheckedChanged" />
+                                <asp:DropDownList ID="ddlRole" runat="server" AutoPostBack="True"
+                                    OnSelectedIndexChanged="ddlRole_SelectedIndexChanged" >
+                                    <asp:ListItem Value="1">Review admin</asp:ListItem>
+                                    <asp:ListItem Value="4">Reviewer</asp:ListItem>
+                                    <asp:ListItem Value="2">Coding only</asp:ListItem>
+                                    <asp:ListItem Value="3">Read only</asp:ListItem>
+                                    </asp:DropDownList>
                             </ItemTemplate>
                             <HeaderStyle BackColor="#B6C6D6" />
                         </asp:TemplateField>
@@ -202,7 +209,7 @@
                     <asp:TextBox ID="tbInvite" runat="server" Width="200px"></asp:TextBox>
                     &nbsp;&nbsp;
                         <asp:Button ID="cmdInvite" runat="server" Text="Invite"
-                            OnClick="cmdInvite_Click" />
+                            OnClick="cmdInvite_Click" onClientClick="javascript:DisableControls();" UseSubmitBehavior="false"/>
                     &nbsp;
                         <asp:Label ID="lblInviteMsg" runat="server" Font-Bold="True"
                             Text="Invalid account" Visible="False" ForeColor="Red"></asp:Label>

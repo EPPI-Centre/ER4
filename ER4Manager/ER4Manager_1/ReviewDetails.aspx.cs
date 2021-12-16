@@ -257,7 +257,65 @@ public partial class ReviewDetails : System.Web.UI.Page
 
         gvContacts.DataSource = dt1;
         gvContacts.DataBind();
-   
+
+
+        string contactIDFromGridView = "";
+        for (int i = 0; i < gvContacts.Rows.Count; i++)  // through each row in grid
+        {
+            contactIDFromGridView = (string)gvContacts.DataKeys[i].Value;
+            GridViewRow row = gvContacts.Rows[i];
+            DropDownList ddl = ((DropDownList)row.FindControl("ddlRole"));
+
+            DataTable dt = new DataTable();
+            System.Data.DataRow newrow;
+            dt.Columns.Add(new DataColumn("ROLE", typeof(string)));
+
+            idr = Utils.GetReader(isAdmDB, "st_ContactReviewRole", contactIDFromGridView, Request.QueryString["ID"].ToString());            
+            while (idr.Read()) 
+            {
+                newrow = dt.NewRow();
+                newrow["ROLE"] = idr["ROLE_NAME"].ToString();
+                dt.Rows.Add(newrow);
+            }
+            idr.Close();
+
+            // there are some users missing roles as well as users with multiple roles (which is no longer needed/wanted)
+            // but we still need to make sense of it...
+            // If the user doesn't have a role then go with RegularUser
+            // If a user has multiple roles there is a hierarchal order and luckily that order is in alphabetical order
+            // AdminUser, Coding only, ReadOnlyUser, RegularUser  
+            // so we just need to sort the table and take the top one!
+            dt.DefaultView.Sort = "ROLE asc";
+            dt = dt.DefaultView.ToTable();
+
+            if (dt.Rows.Count == 0)
+            {
+                // If the user doesn't have a role then go with RegularUser
+                ddl.SelectedValue = "4";
+            }
+            else
+            {
+                switch (dt.Rows[0]["ROLE"].ToString())
+                {
+                    case "AdminUser":
+                        ddl.SelectedValue = "1";
+                        break;
+                    case "Coding only":
+                        ddl.SelectedValue = "2";
+                        break;
+                    case "ReadOnlyUser":
+                        ddl.SelectedValue = "3";
+                        break;
+                    default:
+                        ddl.SelectedValue = "4";
+                        break;
+                }
+            }
+        }
+
+
+        /*   this is no longer needed JB 10/12/2001 */
+        /**/
         DataTable dt2 = new DataTable();
         System.Data.DataRow newrow2;
         dt2.Columns.Add(new DataColumn("ROLE_NAME", typeof(string)));
@@ -273,6 +331,7 @@ public partial class ReviewDetails : System.Web.UI.Page
         }
         idr.Close();
 
+
         for (int i = 0; i < gvContacts.Rows.Count; i++)  // through each row in grid
         {
             GridViewRow row = gvContacts.Rows[i];
@@ -282,7 +341,7 @@ public partial class ReviewDetails : System.Web.UI.Page
         }
 
         
-        string contactIDFromGridView = "";
+        //string contactIDFromGridView = "";
         for (int i = 0; i < gvContacts.Rows.Count; i++)  // through each row in grid
         {
             contactIDFromGridView = (string)gvContacts.DataKeys[i].Value;
@@ -301,8 +360,11 @@ public partial class ReviewDetails : System.Web.UI.Page
             }
             idr.Close();
         } 
-          
-         
+
+        /**/
+
+
+
     }
 
     /*
@@ -810,11 +872,47 @@ public partial class ReviewDetails : System.Web.UI.Page
                 break;
         }
     }
+
+
+    protected void ddlRole_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ContentPlaceHolder mpContentPlaceHolder;
+        mpContentPlaceHolder = (ContentPlaceHolder)Master.FindControl("ContentPlaceHolder1");
+        if (mpContentPlaceHolder != null)
+        {
+            DropDownList ddlRole = (DropDownList)sender;
+            GridViewRow row = (GridViewRow)ddlRole.Parent.Parent;
+            string ContactID = (string)gvContacts.DataKeys[row.RowIndex].Value.ToString();
+            string roleNum = ddlRole.SelectedValue;
+
+            string role = "RegularUser";
+            switch (roleNum)
+            {
+                case "1":
+                    role = "AdminUser";
+                    break;
+                case "2":
+                    role = "Coding only";
+                    break;
+                case "3":
+                    role = "ReadOnlyUser";
+                    break;
+                default:
+                    role = "RegularUser";
+                    break;
+            }
+
+            //update the role for this user
+            bool isAdmDB = true;
+            Utils.ExecuteSP(isAdmDB, Server, "st_ReviewRoleUpdateByContactID", lblReviewID.Text, ContactID, role);
+        }
+    }
+
     protected void gvContacts_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            LinkButton lb = (LinkButton)(e.Row.Cells[7].Controls[0]);
+            LinkButton lb = (LinkButton)(e.Row.Cells[6].Controls[0]);
             lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this user from this review?') == false) return false;");
         }
     }

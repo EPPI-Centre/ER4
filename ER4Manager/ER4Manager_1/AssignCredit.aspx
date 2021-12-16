@@ -10,6 +10,7 @@
 
         function DisableControls() {
             var cmdbutton = document.getElementById('<%= cmdComplete.ClientID %>');
+            cmdbutton.disabled = true;
 
             var extendReviewDdl = document.getElementById('<%= ddlExtendReview.ClientID %>');
             if (extendReviewDdl) {

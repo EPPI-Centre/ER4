@@ -365,7 +365,7 @@ function openReviewerList(ID) {
                 runat="server" Visible="False">Add a user</asp:LinkButton>
                         &nbsp;</b><br />
             <asp:GridView ID="gvContacts" runat="server" AutoGenerateColumns="False" 
-                DataKeyNames="CONTACT_ID" onrowcommand="gvContacts_RowCommand" 
+                DataKeyNames="CONTACT_ID" onrowcommand="gvContacts_RowCommand" CssClass="grviewFixedWidth"
                 onrowdatabound="gvContacts_RowDataBound" EnableModelValidation="True">
                 <Columns>
                     <asp:BoundField DataField="CONTACT_ID" HeaderText="ContactID">
@@ -385,7 +385,27 @@ function openReviewerList(ID) {
                     <asp:BoundField DataField="LAST_LOGIN" HeaderText="Last access">
                     <HeaderStyle BackColor="#B6C6D6" />
                     </asp:BoundField>
-                    <asp:TemplateField HeaderText="Review role">
+                    <asp:TemplateField HeaderText="Role">
+                        <ItemTemplate>
+                            <asp:DropDownList ID="ddlRole" runat="server" AutoPostBack="True"
+                                OnSelectedIndexChanged="ddlRole_SelectedIndexChanged" >
+                                <asp:ListItem Value="1">Review admin</asp:ListItem>
+                                <asp:ListItem Value="4">Reviewer</asp:ListItem>
+                                <asp:ListItem Value="2">Coding only</asp:ListItem>
+                                <asp:ListItem Value="3">Read only</asp:ListItem>
+                                </asp:DropDownList>
+                        </ItemTemplate>
+                        <HeaderStyle BackColor="#B6C6D6" />
+                    </asp:TemplateField>
+                    <asp:ButtonField CommandName="REMOVE" HeaderText="Remove from&lt;br&gt;review" 
+                        Text="Remove">
+                    <HeaderStyle BackColor="#B6C6D6" />
+                    </asp:ButtonField>
+                    <asp:BoundField DataField="HOURS" HeaderText="Hours">
+                    <HeaderStyle BackColor="#B6C6D6" />
+                    </asp:BoundField>
+
+                    <asp:TemplateField HeaderText="Review role" Visible="false">
                         <ItemTemplate>
                             <asp:CheckBoxList ID="cblContactReviewRole" runat="server" 
                                 DataValueField="ROLE_NAME">
@@ -394,16 +414,11 @@ function openReviewerList(ID) {
                         <HeaderStyle BackColor="#B6C6D6" />
                     </asp:TemplateField>
                     <asp:ButtonField CommandName="SAVE_ROLE" HeaderText="Save review&lt;br&gt;role" 
-                        Text="Save role">
+                        Text="Save role" Visible="false">
                     <HeaderStyle BackColor="#B6C6D6" />
                     </asp:ButtonField>
-                    <asp:ButtonField CommandName="REMOVE" HeaderText="Remove from&lt;br&gt;review" 
-                        Text="Remove">
-                    <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:ButtonField>
-                    <asp:BoundField DataField="HOURS" HeaderText="Hours">
-                    <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
+
+                    
                 </Columns>
             </asp:GridView>
             <br /><b>Detailed extension history</b>&nbsp;&nbsp;
