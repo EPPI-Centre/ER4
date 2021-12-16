@@ -405,7 +405,7 @@ function openReviewerList(ID) {
                     <HeaderStyle BackColor="#B6C6D6" />
                     </asp:BoundField>
 
-                    <asp:TemplateField HeaderText="Review role" Visible="false">
+                    <asp:TemplateField HeaderText="Review role" Visible="true">
                         <ItemTemplate>
                             <asp:CheckBoxList ID="cblContactReviewRole" runat="server" 
                                 DataValueField="ROLE_NAME">
@@ -414,7 +414,7 @@ function openReviewerList(ID) {
                         <HeaderStyle BackColor="#B6C6D6" />
                     </asp:TemplateField>
                     <asp:ButtonField CommandName="SAVE_ROLE" HeaderText="Save review&lt;br&gt;role" 
-                        Text="Save role" Visible="false">
+                        Text="Save role" Visible="true">
                     <HeaderStyle BackColor="#B6C6D6" />
                     </asp:ButtonField>
 
