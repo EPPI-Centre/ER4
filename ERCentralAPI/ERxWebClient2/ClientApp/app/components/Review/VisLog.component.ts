@@ -49,6 +49,7 @@ export class VisLogComp implements OnInit{
     public LogTypeSelection: number = 0;
 
     public get LogDataGet(): GridDataResult {
+        if (this.skip > this.visLogService.CurrentLogs.length) this.skip = 0;
         return {
             data: orderBy(this.visLogService.CurrentLogs, this.sortLogs).slice(this.skip, this.skip + this.pageSize),
             total: this.visLogService.CurrentLogs.length,
