@@ -571,7 +571,7 @@ public partial class SummaryReviews : System.Web.UI.Page
             bool isAdmDB = true;
             if (cmdSaveShareableReview.Text == "Save and activate")
             {
-
+                cmdSaveShareableReview.Text = "Save";
                 Utils.ExecuteSP(isAdmDB, Server, "st_GhostReviewActivate",
                      lblShareableReviewNumber.Text, tbShareableReviewName.Text);
             }
