@@ -8,11 +8,32 @@
 
 
         function DisableControls() {
-            var cmdbutton = document.getElementById('<%= cmdInvite.ClientID %>');
-            cmdbutton.disabled = true;
-
-            var sendInviteLink = document.getElementById('<%= lbInviteReviewer.ClientID %>');
-            sendInviteLink.removeAttribute('href');
+            //var cmdbutton = document.getElementById('<%= cmdSaveShareableReview.ClientID %>');
+            //if (cmdbutton) {
+            //    cmdbutton.disabled = true;
+            //}
+            //cmdbutton = document.getElementById('<%= lbCancelReviewDetailsEdit.ClientID %>');
+            //if (cmdbutton) {
+            //    cmdbutton.disabled = true;
+            //}
+            //cmdbutton = document.getElementById('<%= rblPSShareableEnable.ClientID %>');
+            //if (cmdbutton) {
+            //    cmdbutton.disabled = true;
+            //}
+            //cmdbutton = document.getElementById('<%= lbBritLibCodesShared.ClientID %>');
+            //if (cmdbutton) {
+            //    cmdbutton.disabled = true;
+            //}
+            //var sendInviteLink = document.getElementById('<%= lbInviteReviewer.ClientID %>');
+            //if (sendInviteLink) sendInviteLink.removeAttribute('href');
+            var el = document.getElementById('<%= pnlReviewDetails.ClientID %>'); 
+            if (el) {
+                el.style.display = "none";
+            }
+            var el = document.getElementById('jsSavingDiv');
+            if (el) {
+                el.style.display = "block";
+            } 
         }
 
     </script>
@@ -60,7 +81,9 @@
         <br />
         <asp:Panel ID="pnlEditShareableReview" runat="server" Visible="False">
 
-
+            <div id="jsSavingDiv" style="display:none;padding: 1em; margin: 1em; border-collapse:collapse; background-color:#B6C6D6; border: 1px solid black;">
+                Saving...
+            </div>
             <asp:Panel ID="pnlReviewDetails" runat="server" BorderStyle="Solid"
                 BorderWidth="1px" BackColor="#E2E9EF">
                 <table id="Table5" border="1" cellpadding="1" cellspacing="1" width="600">
@@ -81,8 +104,8 @@
                 <table style="width: 100%;">
                     <tr>
                         <td style="width: 40%; height: 25px;">
-                            <asp:Button ID="cmdSaveShareableReview" runat="server" OnClick="cmdSaveShareableReview_Click" Text="Save" 
-                                onClientClick="this.disabled=true;" UseSubmitBehavior="false" />
+                            <asp:Button ID="cmdSaveShareableReview" runat="server" OnClick="cmdSaveShareableReview_Click" Text="Save"
+                                OnClientClick="javascript:DisableControls();" UseSubmitBehavior="false" />
                             &nbsp;&nbsp;
                                     <asp:LinkButton ID="lbCancelReviewDetailsEdit" runat="server" OnClick="lbCancelReviewDetailsEdit_Click">Cancel/close</asp:LinkButton>
                         </td>
@@ -183,18 +206,18 @@
                         <asp:BoundField HeaderText="Last access" DataField="LAST_LOGIN">
                             <HeaderStyle BackColor="#B6C6D6" />
                         </asp:BoundField>
-                        
-                        
-                        
+
+
+
                         <asp:TemplateField HeaderText="Role">
                             <ItemTemplate>
                                 <asp:DropDownList ID="ddlRole" runat="server" AutoPostBack="True"
-                                    OnSelectedIndexChanged="ddlRole_SelectedIndexChanged" >
+                                    OnSelectedIndexChanged="ddlRole_SelectedIndexChanged">
                                     <asp:ListItem Value="1">Review admin</asp:ListItem>
                                     <asp:ListItem Value="4">Reviewer</asp:ListItem>
                                     <asp:ListItem Value="2">Coding only</asp:ListItem>
                                     <asp:ListItem Value="3">Read only</asp:ListItem>
-                                    </asp:DropDownList>
+                                </asp:DropDownList>
                             </ItemTemplate>
                             <HeaderStyle BackColor="#B6C6D6" />
                         </asp:TemplateField>
@@ -209,7 +232,7 @@
                     <asp:TextBox ID="tbInvite" runat="server" Width="200px"></asp:TextBox>
                     &nbsp;&nbsp;
                         <asp:Button ID="cmdInvite" runat="server" Text="Invite"
-                            OnClick="cmdInvite_Click" onClientClick="javascript:DisableControls();" UseSubmitBehavior="false"/>
+                            OnClick="cmdInvite_Click" OnClientClick="javascript:DisableControls();" UseSubmitBehavior="false" />
                     &nbsp;
                         <asp:Label ID="lblInviteMsg" runat="server" Font-Bold="True"
                             Text="Invalid account" Visible="False" ForeColor="Red"></asp:Label>
@@ -219,7 +242,6 @@
                     If the account is valid it will be placed in the review and an email send to the 
                         account holder.
                 </asp:Panel>
-
             </asp:Panel>
 
 
