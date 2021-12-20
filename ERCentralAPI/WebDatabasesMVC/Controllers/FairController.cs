@@ -124,13 +124,13 @@ namespace WebDatabasesMVC.Controllers
 
                                 // log to TB_WEBDB_LOG
                                 ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login", "Open access", WebDbId, Revid);
-                                if (ReturnUrl != null && ReturnUrl != "")
+                                if (ReturnUrl != null && ReturnUrl != "" && !ReturnUrl.Contains("ListFromCrit"))
                                 {
                                     return Redirect(ReturnUrl);
                                 }
                                 else
                                 {
-                                    return Redirect("~/Fair/LoggedOn");
+                                    return Redirect("~/Fair");
                                 }
                             }
                             else
