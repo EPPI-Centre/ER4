@@ -18,14 +18,14 @@
         $(document).find('.showhide1').toggle(100);
         $(document).find('.showhide2').toggle(100);
     }
-    var IsFair = @isFair;
+    var IsFair = @isFair.ToString().ToLower();
     var ModelData = null;
     var CurrentItemsCriteria = null;
     var ItemsIds = null;
     function BackToList() {
-        if (IsFair == false)
-            postwith("../ItemList/ListFromCrit", CurrentItemsCriteria);
-        else postwith("../Fair/ListFromCrit", CurrentItemsCriteria);
+        if (IsFair == true )
+            postwith("../Fair/ListFromCrit", CurrentItemsCriteria);
+        else postwith("../ItemList/ListFromCrit", CurrentItemsCriteria);
     }
 </script>
 <script id="InitialScript" type="text/javascript">
