@@ -240,7 +240,7 @@ export class SearchComp implements OnInit, OnDestroy {
     public modelIsInProgress: boolean = false;
     public selectedRows(e: any) {
 
-        if (e.selectedRows[0] != undefined && this.modelNum == 5 || this.modelNum == 6) {
+        if (e.selectedRows[0] != undefined && this.modelNum == 6 || this.modelNum == 7) {
 
             console.log("selected:", e.selectedRows[0].dataItem);
 
@@ -383,12 +383,12 @@ export class SearchComp implements OnInit, OnDestroy {
 
             this.ModelSelected = false;
         }
-        if (modelNum ==5) {
-            this.modelNum = 5;
+        if (modelNum ==6) {
+            this.modelNum = 6;
             this.modelResultsSection = !this.modelResultsSection;
             this.modelResultsAllReviewSection = false;
-        } else if (modelNum ==6) {
-            this.modelNum = 6;
+        } else if (modelNum ==7) {
+            this.modelNum = 7;
             this.modelResultsAllReviewSection = !this.modelResultsAllReviewSection;
             this.modelResultsSection = false;
         }
@@ -463,7 +463,7 @@ export class SearchComp implements OnInit, OnDestroy {
     }
     CanApplyModel(): boolean {
 
-        if (this.modelNum != 5 && this.modelNum != 0) {
+        if (this.modelNum != 6 && this.modelNum != 0) {
             //console.log('yes step 1');
             // Need to check for Apply code and apply source are filled if selected...
             if (this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
@@ -476,15 +476,15 @@ export class SearchComp implements OnInit, OnDestroy {
             }
             // Need logic in the below about model still in progress
         }
-        else if (this.modelNum == 5 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
+        else if (this.modelNum == 6 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
 
             return true;
         }
-        else if (this.modelNum == 5 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
+        else if (this.modelNum == 6 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
             //alert('custom models');
             return true;
 
-        } else if (this.modelNum == 5 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
+        } else if (this.modelNum == 6 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
 
             //alert('custom models');
             return true;
@@ -633,6 +633,10 @@ export class SearchComp implements OnInit, OnDestroy {
 
             this.modelTitle = 'New Cochrane RCT classifier model';
             this.ModelId = -4;
+
+        } else if (this.modelNum == 5) {
+            this.modelTitle = 'COVID-19 map categories';
+            this.ModelId = -5;
 
         } else {
 
