@@ -1237,32 +1237,14 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ClassifierGetGetPredictedLabels", connection))
+                using (SqlCommand command = new SqlCommand("st_ClassifierInsertSearchAndScores", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                    {
-                        while (reader.Read())
-                        {
-                            string PredictedLabel = reader["PredictedLabel"].ToString();
-                            using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
-                            {
-                                connection2.Open();
-                                using (SqlCommand command2 = new SqlCommand("st_ClassifierInsertSearchAndScores", connection2))
-                                {
-                                    command2.CommandType = System.Data.CommandType.StoredProcedure;
-                                    command2.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
-                                    command2.Parameters.Add(new SqlParameter("@PredictedLabel", PredictedLabel));
-                                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", reviewId));
-                                    command2.Parameters.Add(new SqlParameter("@CONTACT_ID", userId));
-                                    command2.Parameters.Add(new SqlParameter("@SearchTitle", "COVID-19 map category: " + PredictedLabel));
-                                    command2.ExecuteNonQuery();
-                                }
-                            }
-
-                        }
-                    }
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", reviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", userId));
+                    command.Parameters.Add(new SqlParameter("@SearchTitle", "COVID-19 map category: "));
+                    command.ExecuteNonQuery();
                 }
             }
         }

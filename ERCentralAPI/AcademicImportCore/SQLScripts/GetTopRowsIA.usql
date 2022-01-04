@@ -1,0 +1,11 @@
+﻿@PaperAbstractsInvertedIndex = PaperAbstractsInvertedIndex("wasb://mag-2021-12-06@eppimag/");
+
+@result =
+    SELECT *
+    FROM @PaperAbstractsInvertedIndex
+    ORDER BY @PaperAbstractsInvertedIndex.PaperId
+    FETCH FIRST 500 ROWS;    
+
+OUTPUT @result
+TO "wasb://experiments@eppimag/JT_tests/IA.txt"
+USING Outputters.Tsv(quoting : false);
