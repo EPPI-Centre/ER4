@@ -181,6 +181,11 @@ namespace EppiReviewer4
                 modelTitle = "COVID-19 map categories";
                 ModelId = -5;
             }
+            if (rbApplyLongCovidModel.IsChecked == true)
+            {
+                modelTitle = "Long COVID model";
+                ModelId = -6;
+            }
             Int64 AttributeId = -1; // the attributeID we might be limiting the application of model to. -1 == apply to whole review
             int SourceId = -2;//source_id == -1 means "sourceless items"
 

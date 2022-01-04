@@ -520,7 +520,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 //end of 27/09/2021 addition
 
-                if (modelId == -5) // the covid19 categories using the BERT model, new Azure ML environment and SQL database. This will become default over time.
+                if (modelId == -5 || modelId == -6) // the covid19 categories using the BERT model, new Azure ML environment and SQL database. This will become default over time.
                 {
 					System.Threading.Tasks.Task.Run(() => DoNewMethod(modelId, ApplyToAttributeId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
@@ -841,8 +841,13 @@ namespace BusinessLibrary.BusinessClasses
             {
                 retval = "CovidCategories";
             }
+            else
+                if (modId == -6)
+            {
+                retval = "LongCovid";
+            }
 
-			return retval;
+            return retval;
 		}
 		public static string ReviewIdForScoring(int modId, string reviewId)
 		{
@@ -866,7 +871,13 @@ namespace BusinessLibrary.BusinessClasses
             {
                 retval = "CovidCategoriesModel";
             }
-			return retval;
+            else
+                if (modId == -6)
+            {
+                retval = "LongCovidModel";
+            }
+
+            return retval;
 		}
 
 		public enum BatchScoreStatusCode
@@ -1174,7 +1185,22 @@ namespace BusinessLibrary.BusinessClasses
             string subscriptionId = configuration["subscriptionId"];
             string resourceGroup = configuration["resourceGroup"];
             string dataFactoryName = configuration["dataFactoryName"];
+
             string covidClassifierPipelineName = configuration["covidClassifierPipelineName"];
+            string covidLongCovidPipelineName = configuration["covidLongCovidPipelineName"];
+
+            string ClassifierPipelineName = "";
+            string SearchTitle = "";
+            if (modelId == -5)
+            {
+                ClassifierPipelineName = covidClassifierPipelineName;
+                SearchTitle = "COVID-19 map category: ";
+            }
+            if (modelId == -6)
+            {
+                ClassifierPipelineName = covidLongCovidPipelineName;
+                SearchTitle = "Long COVID model: ";
+            }
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
@@ -1189,7 +1215,7 @@ namespace BusinessLibrary.BusinessClasses
                 {"BatchGuid", BatchGuid}
             };
 
-            CreateRunResponse runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, covidClassifierPipelineName, parameters: parameters).Result.Body;
+            CreateRunResponse runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, ClassifierPipelineName, parameters: parameters).Result.Body;
 
             string runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, runResponse.RunId).Result.Status;
             while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
@@ -1243,7 +1269,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", reviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", userId));
-                    command.Parameters.Add(new SqlParameter("@SearchTitle", "COVID-19 map category: "));
+                    command.Parameters.Add(new SqlParameter("@SearchTitle", SearchTitle));
                     command.ExecuteNonQuery();
                 }
             }
