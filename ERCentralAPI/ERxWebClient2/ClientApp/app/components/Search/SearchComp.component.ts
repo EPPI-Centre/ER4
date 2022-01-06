@@ -240,7 +240,7 @@ export class SearchComp implements OnInit, OnDestroy {
     public modelIsInProgress: boolean = false;
     public selectedRows(e: any) {
 
-        if (e.selectedRows[0] != undefined && this.modelNum == 7 || this.modelNum == 8) {
+        if (e.selectedRows[0] != undefined && (this.modelNum == 7 || this.modelNum == 8)) {
 
             console.log("selected:", e.selectedRows[0].dataItem);
 
@@ -387,10 +387,12 @@ export class SearchComp implements OnInit, OnDestroy {
             this.modelNum = 7;
             this.modelResultsSection = !this.modelResultsSection;
             this.modelResultsAllReviewSection = false;
+            this.ModelSelected = false;
         } else if (modelNum == 8) {
             this.modelNum = 8;
             this.modelResultsAllReviewSection = !this.modelResultsAllReviewSection;
             this.modelResultsSection = false;
+            this.ModelSelected = false;
         }
 
     }
@@ -463,9 +465,35 @@ export class SearchComp implements OnInit, OnDestroy {
     }
     CanApplyModel(): boolean {
 
-        if (this.modelNum != 7 && this.modelNum != 0) {
-            //console.log('yes step 1');
-            // Need to check for Apply code and apply source are filled if selected...
+        if (this.modelNum == 7 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
+
+            return true;
+        }
+        else if (this.modelNum == 7 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
+            //alert('custom models');
+            return true;
+
+        }
+        else if (this.modelNum == 7 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
+
+            //alert('custom models');
+            return true;
+        }
+        else if (this.modelNum == 8 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
+
+            return true;
+        }
+        else if (this.modelNum == 8 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
+            //alert('custom models');
+            return true;
+
+        }
+        else if (this.modelNum == 8 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
+
+            //alert('custom models');
+            return true;
+        }
+        else if (this.modelNum < 7 && this.modelNum != 0) {
             if (this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
                 return true;
             } else if (this.ApplySource && this.selected != null) {
@@ -474,23 +502,13 @@ export class SearchComp implements OnInit, OnDestroy {
                 //console.log('yes step 2');
                 return true;
             }
-            // Need logic in the below about model still in progress
-        }
-        else if (this.modelNum == 7 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
 
-            return true;
         }
-        else if (this.modelNum == 7 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
-            //alert('custom models');
-            return true;
-
-        } else if (this.modelNum == 7 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
-
-            //alert('custom models');
-            return true;
-        }
+            
         return false;
+
     }
+
     private hideAfter: number = 900;
     chooseCodeMessage() {
 
