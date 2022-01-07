@@ -247,7 +247,7 @@ export class SearchComp implements OnInit, OnDestroy {
             this.ModelSelected = true;
             this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
             this.ModelId = e.selectedRows[0].dataItem.modelId;
-            if (this.modelTitle.indexOf('prog') != -1 || this.modelTitle.indexOf('failed') != -1) {
+            if (this.modelTitle.indexOf('(in progress...)') != -1 || (this.modelTitle.indexOf('fail') != -1 && e.selectedRows[0].dataItem.precision <= 0)) {
                 this.modelIsInProgress = true;
                 //alert('model is in progress');
             } else {
