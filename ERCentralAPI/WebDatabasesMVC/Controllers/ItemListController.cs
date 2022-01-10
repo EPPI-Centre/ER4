@@ -370,46 +370,14 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    string[] sTypes = {
-                    "TitleAbstract"
-                    ,"Title"
-                    ,"Abstract"
-                    ,"PubYear"
-                    ,"AdditionalText"
-                    ,"ItemId"
-                    ,"OldItemId"
-                    ,"Authors"};
-                    //basic check: is the list type supported?
-                    if (!sTypes.Contains(SearchWhat) || SearchString == null || SearchString == "")
+                    string errorMsg;
+                    SelectionCriteria criteria = ItemListController.GetCriterionForSearch(SearchString, SearchWhat, included, out errorMsg);
+                    if (errorMsg != "")
                     {
                         _logger.LogError("Error in ItemList GetListSearchResults: search parameters appear to be malformed.");
                         return BadRequest("Request parameters appear to be malformed.");
                     }
-                    //basic check: number of atts and sets match...
-                    SelectionCriteria criteria = new SelectionCriteria();
-                    criteria.ListType = "WebDbSearch";
-                    criteria.SearchString = SearchString;
-                    criteria.SearchWhat = SearchWhat;
-                    string descr = "Search results (in ";
-                    if (SearchWhat == "TitleAbstract") descr += "Title and Abstract" + ") for: ";
-                    else if (SearchWhat == "AdditionalText") descr += "\"Coded\" Text" + ") for: ";
-                    else if (SearchWhat == "PubYear") descr += "Publication Year" + ") for: ";
-                    else if (SearchWhat == "OldItemId") descr += "Imported ID(s)" + ") for: ";
-                    else descr += SearchWhat + ") for: ";
-                    if (SearchString.Length > 30)
-                    {
-                        int i = SearchString.IndexOf(' ', 15);
-                        if (i > 0) descr += SearchString.Substring(0, i) + " [...]";
-                        else descr += SearchString.Substring(0, 30) + " [...]";
-                    }
-                    else descr += SearchString;
-                    criteria.Description = descr;
-                    if (included != "")
-                    {
-                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
-                    }
                     ItemListWithCriteria iList = GetItemList(criteria);
-
                     // log to TB_WEBDB_LOG
                     logActivity("Search", criteria.Description);
 
@@ -430,31 +398,16 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    string[] sTypes = {
-                    "TitleAbstract"
-                    ,"Title"
-                    ,"Abstract"
-                    ,"PubYear"
-                    ,"AdditionalText"
-                    ,"ItemId"
-                    ,"OldItemId"
-                    ,"Authors"};
-                    //basic check: is the list type supported?
-                    if (!sTypes.Contains(SearchWhat) || SearchString == null || SearchString == "")
+                    string errorMsg;
+                    SelectionCriteria criteria = ItemListController.GetCriterionForSearch(SearchString, SearchWhat, included, out errorMsg);
+                    if (errorMsg != "")
                     {
-                        _logger.LogError("Error in ItemList GetListSearchResults: search parameters appear to be malformed.");
+                        _logger.LogError("Error in ItemList GetListSearchResultsJSON: search parameters appear to be malformed.");
                         return BadRequest("Request parameters appear to be malformed.");
                     }
-                    //basic check: number of atts and sets match...
-                    SelectionCriteria criteria = new SelectionCriteria();
-                    criteria.ListType = "WebDbSearch";
-                    criteria.SearchString = SearchString;
-                    criteria.SearchWhat = SearchWhat;
-                    if (included != "")
-                    {
-                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
-                    }
                     ItemListWithCriteria iList = GetItemList(criteria);
+                    // log to TB_WEBDB_LOG
+                    logActivity("Search", criteria.Description);
                     return Json(iList);
                 }
                 else return Unauthorized();
@@ -466,9 +419,51 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
+        internal static SelectionCriteria GetCriterionForSearch(string SearchString, string SearchWhat, string included, out string ErrorMessage)
+        {
+            ErrorMessage = "";
+            SelectionCriteria criteria = new SelectionCriteria();
+            string[] sTypes = {
+                    "TitleAbstract"
+                    ,"Title"
+                    ,"Abstract"
+                    ,"PubYear"
+                    ,"AdditionalText"
+                    ,"ItemId"
+                    ,"OldItemId"
+                    ,"Authors"};
+            //basic check: is the list type supported?
+            if (!sTypes.Contains(SearchWhat) || SearchString == null || SearchString == "")
+            {
+                ErrorMessage = "Error in ItemList GetListSearchResults: search parameters appear to be malformed.";
+                return criteria;
+            }
+            //basic check: number of atts and sets match...
+            criteria.ListType = "WebDbSearch";
+            criteria.SearchString = SearchString;
+            criteria.SearchWhat = SearchWhat;
+            string descr = "Search results (in ";
+            if (SearchWhat == "TitleAbstract") descr += "Title and Abstract" + ") for: ";
+            else if (SearchWhat == "AdditionalText") descr += "\"Coded\" Text" + ") for: ";
+            else if (SearchWhat == "PubYear") descr += "Publication Year" + ") for: ";
+            else if (SearchWhat == "OldItemId") descr += "Imported ID(s)" + ") for: ";
+            else descr += SearchWhat + ") for: ";
+            if (SearchString.Length > 30)
+            {
+                int i = SearchString.IndexOf(' ', 15);
+                if (i > 0) descr += SearchString.Substring(0, i) + " [...]";
+                else descr += SearchString.Substring(0, 30) + " [...]";
+            }
+            else descr += SearchString;
+            criteria.Description = descr;
+            if (included != "")
+            {
+                criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+            }
+            return criteria;
+        }
 
 
-        
         [HttpPost]
         public IActionResult ItemDetails(ItemSelCritMVC crit)
         {

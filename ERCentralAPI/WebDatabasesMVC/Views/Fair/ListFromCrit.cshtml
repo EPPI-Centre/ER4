@@ -8,21 +8,6 @@
 @using Newtonsoft.Json.Serialization;
 @{
     Layout = "~/Views/Shared/_FairLayout.cshtml";
-    string imgPath3 = "";
-    string imgUrl3 = "";
-    Claim WebDbIDclaim = User.FindFirst("WebDbID");
-    if (WebDbIDclaim != null)
-    {
-        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
-        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
-        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.jpg")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.jpg");
-        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.png")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.png");
-        if (imgPath3 != "")
-        {
-            Claim LogoUrlCl = User.FindFirst("LogoURL");
-            if (LogoUrlCl != null) imgUrl3 = LogoUrlCl.Value;
-        }
-    }
 }
 <script id="InitialScript" type="text/javascript">
     @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));};
@@ -80,7 +65,6 @@
 </script>
 <div class="row h-100 mx-1 mt-2">
     <div class="col-3 border">
-        I'm the lx sidebar!
         <div class="scrollbar scrollbar-inner">
             <div class="">
                 @await Html.PartialAsync("_FairCodingTools")
@@ -88,28 +72,6 @@
         </div>
     </div>
     <div class="col-9 ">
-        <div class="row">
-            <a class="ml-auto mr-2" href="~/Fair">Home</a>
-            <div class="ml-auto">
-                @if (imgPath3 == "")
-                {
-                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="max-width:180px; max-height: 155px; object-fit: cover;">
-                }
-                else
-                {
-                    if (imgUrl3 != "")
-                    {
-                        <a href="@(new HtmlString(imgUrl3))" target="_blank" title="Open this Organisation Webpage">
-                            <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 180px; max-height: 155px; object-fit: cover;">
-                        </a>
-                    }
-                    else
-                    {
-                        <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 180px; max-height: 155px; object-fit: cover;">
-                    }
-                }
-            </div>
-        </div>
         <div class="card w-100">
             <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
                 <div class="col-auto p-1">Loading...</div>

@@ -241,7 +241,31 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
+        public IActionResult GetListSearchResults([FromForm] string SearchString, string SearchWhat, string included)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    string errorMsg;
+                    SelectionCriteria criteria = ItemListController.GetCriterionForSearch(SearchString, SearchWhat, included, out errorMsg);
+                    if (errorMsg != "")
+                    {
+                        _logger.LogError("Error in ItemList (FAIR) GetListSearchResults: search parameters appear to be malformed.");
+                        return BadRequest("Request parameters appear to be malformed.");
+                    }
+                    ItemListWithCriteria iList = GetItemList(criteria);
+                    
+                    return View("ListFromCrit", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemList GetListSearchResults");
+                return StatusCode(500, e.Message);
+            }
+        }
 
         private async void SetUser(string Name, int WebDbID, int revId, long itemsCode, SqlDataReader reader)
         {

@@ -6,21 +6,6 @@
 
 @{
     Layout = "~/Views/Shared/_FairLayout.cshtml";
-    string imgPath3 = "";
-    string imgUrl3 = "";
-    Claim WebDbIDclaim = User.FindFirst("WebDbID");
-    if (WebDbIDclaim != null)
-    {
-        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
-        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
-        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.jpg")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.jpg");
-        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.png")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.png");
-        if (imgPath3 != "")
-        {
-            Claim LogoUrlCl = User.FindFirst("LogoURL");
-            if (LogoUrlCl != null) imgUrl3 = LogoUrlCl.Value;
-        }
-    }
 }
 
 <script>
@@ -246,7 +231,6 @@
 
 <div class="row h-100 mx-1">
     <div class="col-3 border">
-                I'm the lx sidebar!
         <div class="scrollbar scrollbar-inner">
             <div class="">
                 @await Html.PartialAsync("_FairCodingTools")
@@ -254,7 +238,6 @@
         </div>
     </div>
     <div class="col-6 ">
-        I'm the mainpanel!!
         <!-- Description card -->
         <div class="card ">
             <div class="card-header">
@@ -270,32 +253,6 @@
 
     </div>
     <div class="col-3 border">
-        <div class="row">I'm the rx sidebar!</div>
-        <!-- Logo Header -->
-        <div class="row">
-            <div class="ml-auto">
-                @if (imgPath3 == "")
-                {
-                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="max-width:180px; max-height: 155px; object-fit: cover;">
-                }
-                else
-                {
-                    if (imgUrl3 != "")
-                    {
-                        <a href="@(new HtmlString(imgUrl3))" target="_blank" title="Open this Organisation Webpage">
-                            <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 180px; max-height: 155px; object-fit: cover;">
-                        </a>
-                    }
-                    else
-                    {
-                        <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 180px; max-height: 155px; object-fit: cover;">
-                    }
-                }
-            </div>
-        </div>
-        <!-- End Logo Header -->
-
-
         <div class="row">
             <div id="FreqSpinner" class="ml-2" style="display:none;">
                 <div class="d-flex justify-content-end">
