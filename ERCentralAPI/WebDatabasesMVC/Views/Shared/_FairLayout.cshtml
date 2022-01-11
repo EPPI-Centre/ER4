@@ -99,52 +99,69 @@
 <body>
 
     <div class="h-100">
-        <div class="row w-100 border mb-1 mx-0">
-            <div class="row mx-0 ">
-                <form asp-controller="Fair" asp-action="GetListSearchResults" method="post" class="col row p-0 mx-0">
+        <div class="main-header" data-background-color="blue">
+            <!-- Navbar Header -->
+            <div class="row w-100 m-3">
+                <div class="col-md-8">
+                    <form asp-controller="Fair" asp-action="GetListSearchResults" method="post" class="col row p-0 mx-0">
 
-                    <div class="input-group col mx-1 my-auto px-0">
-                        <div class="input-group-prepend border rounded my-auto ">
-                            <button type="submit" class="btn btn-search py-2 px-2">
-                                <i class="fa fa-search search-icon"></i>
+                        <div class="input-group col mx-1 my-auto px-0">
+                            <div class="input-group-prepend border rounded my-auto ">
+                                <button type="submit" class="btn btn-search py-2 px-2">
+                                    <i class="fa fa-search search-icon"></i>
+                                </button>
+                            </div>
+                            <input type="text" placeholder="Search records..." size="40" class="form-control my-auto" maxlength="4000" name="SearchString" id="SearchString" />
+                        </div>
+                        <div class="col my-auto mx-1 p-0">
+                            <select name="SearchWhat" id="SearchWhat" class="btn btn-light border dropdown-toggle ml-1 mr-2">
+                                <option value="TitleAbstract">Title and Abstract</option>
+                                <option value="Title">Title</option>
+                                <option value="Abstract">Abstract</option>
+                                <option value="Authors">Authors</option>
+                                <option value="PubYear">Publication Year</option>
+                                <option value="AdditionalText">"Coded" Text</option>
+                                <option value="ItemId">ItemIds (comma separated)</option>
+                                <option value="OldItemId">Imported Ids (comma separated)</option>
+                            </select>
+                            <div>
+                                <input type="radio" style="display:none" class="ml-auto my-auto" id="includedt" name="included" value="true" checked>
+                            </div>
+                            <button class="btn btn-info" type="submit" style="display:none">
+                                Search
                             </button>
                         </div>
-                        <input type="text" placeholder="Search records..." size="40" class="form-control my-auto" maxlength="4000" name="SearchString" id="SearchString" />
-                    </div>
-                    <div class="col my-auto mx-1 p-0">
-                        <select name="SearchWhat" id="SearchWhat" class="btn btn-light border dropdown-toggle ml-1 mr-2">
-                            <option value="TitleAbstract">Title and Abstract</option>
-                            <option value="Title">Title</option>
-                            <option value="Abstract">Abstract</option>
-                            <option value="Authors">Authors</option>
-                            <option value="PubYear">Publication Year</option>
-                            <option value="AdditionalText">"Coded" Text</option>
-                            <option value="ItemId">ItemIds (comma separated)</option>
-                            <option value="OldItemId">Imported Ids (comma separated)</option>
-                        </select>
-                        <div>
-                            <input type="radio" style="display:none" class="ml-auto my-auto" id="includedt" name="included" value="true" checked>
-                        </div>
-                        <button class="btn btn-info" type="submit" style="display:none">
-                            Search
-                        </button>
-                    </div>
-                </form>
-                <div class="ml-auto my-auto col-auto px-0">
-                    <a class="btn btn-sm btn-info btn-border btn-round mr-2 ml-auto " href="~/Fair">Home</a>
+                    </form>
                 </div>
+
+
+
+                <!-- Logo Header -->
+                <div class="col-md-4">
+                    <table width="100%">
+                        <tr>
+                            <td style="text-align:left">
+                                <a class="btn btn-white btn-border btn-round mr-2" href="~/Fair">Home</a>
+                            </td>
+                            <td style="text-align:right;padding-right:10px">
+                                @if (imgPath3 == "")
+                                {
+                                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="ml-auto" style="max-width:180px; max-height: 45px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <img src="@imgPath3" alt="logo image" class="ml-auto" style="max-width: 180px; max-height: 45px; object-fit: cover;">
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- End Logo Header -->
             </div>
-            @if (imgPath3 == "")
-            {
-                <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="ml-auto" style="max-width:180px; max-height: 155px; object-fit: cover;">
-            }
-            else
-            {
-                <img src="@imgPath3" alt="logo image" class="ml-auto" style="max-width: 180px; max-height: 155px; object-fit: cover;">
-            }
         </div>
     </div>
-
+    <!--<div style="height:100px;">
+    </div>-->
 
     @RenderBody()
 
@@ -157,7 +174,7 @@
             </a>
         </div>
     </div>
-    </div>
+
 
 
 

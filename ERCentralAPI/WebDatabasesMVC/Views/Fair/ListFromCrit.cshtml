@@ -63,26 +63,53 @@
     });
 
 </script>
-<div class="row h-100 mx-1 mt-2">
-    <div class="col-3 border">
-        <div class="scrollbar scrollbar-inner">
-            <div class="">
-                @await Html.PartialAsync("_FairCodingTools")
-            </div>
-        </div>
-    </div>
-    <div class="col-9 ">
-        <div class="card w-100">
-            <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
-                <div class="col-auto p-1">Loading...</div>
-                <div class="col d-flex justify-content-center">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                </div>
-            </div>
 
-            @await Html.PartialAsync("_ItemsList")
+<!-- blue area below header -->
+<div class="panel-header bg-primary-gradient">
+    <div class="page-inner py-5">
+        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+            <table>
+                <tr>
+                    <td>
+                        <h2 class="text-white pb-2 fw-bold">Spacer</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h2 class="text-white pb-2 fw-bold">List of records</h2></td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>
+
+<div class="page-inner mt--5">
+    <div class="row mt--2">
+        <div class="col-md-3">
+            <div class="card full-height">
+                <div class="card-body">
+                    <div class="card-title">Explore</div>
+
+                    <div class="scrollbar scrollbar-inner">
+                        <div class="">
+                            @await Html.PartialAsync("_FairCodingTools")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card full-height">
+                <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
+                    <div class="col-auto p-1">Loading...</div>
+                    <div class="col d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                @await Html.PartialAsync("_ItemsList")
+            </div>
+        </div>
+    </div>
+    </div>

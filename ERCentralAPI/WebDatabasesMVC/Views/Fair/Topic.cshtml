@@ -67,11 +67,11 @@
         treeviewData = $("#treeView").data("kendoTreeView");
         GoToItemsJson(topicAttribute, false);
     }
-    
+
     function GetFreqForPieChart(dataItem) {
         $("#FreqSpinner").show();
         progressData = dataItem;
-        $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true, onlyThisAttribute: topicAttribute.attributeId}
+        $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true, onlyThisAttribute: topicAttribute.attributeId }
             , function (data, result) {
                 $("#FreqSpinner").hide();
                 if (result == "success") {
@@ -243,7 +243,7 @@
         else {
             pars = { attId: AttributeSet.attributeId, attName: AttributeSet.attributeName };
         }
-        
+
         $.post(Destination
             , pars
             , function (data, result) {
@@ -256,55 +256,103 @@
     }
 
 </script>
-<div class="row h-100 mx-1 mt-2">
-    <div class="col-3 border">
-        <div class="scrollbar scrollbar-inner">
-            <div class="">
-                @await Html.PartialAsync("_FairCodingTools")
+
+<!-- blue area below header -->
+<div class="panel-header bg-primary-gradient">
+    <div class="page-inner py-5">
+        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+            <table>
+                <tr>
+                    <td>
+                        <h2 class="text-white pb-2 fw-bold">Spacer</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h2 class="text-white pb-2 fw-bold">@Model.TopicAttribute.AttributeName</h2></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="page-inner mt--5">
+    <div class="row mt--2">
+
+        <div class="col-md-3">
+            <div class="card full-height">
+                <div class="card-body">
+                    <div class="card-title">Explore</div>
+
+                    <div class="scrollbar scrollbar-inner">
+                        <div class="">
+                            @await Html.PartialAsync("_FairCodingTools")
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-6 ">
-        <div class="row">
-            <h2 class="mx-2">@Model.TopicAttribute.AttributeName</h2>
-        </div>
-        <div class="rounded border m-2 p-2 bg-white">
-            @{
-                if (Model.TopicAttribute.ExtType != "")
-                { <img class="float-right" src="@Model.ImagesBaseUrl@Model.TopicAttribute.ExtType" /> }
-            }
-            @Model.TopicAttribute.AttributeSetDescription
+
+        <div class="col-md-6">
+            <div class="card full-height">
+                <div class="card-body">
+                    <div class="card-title">@Model.TopicAttribute.AttributeName</div>
+                    <div class="row py-3">
+                        <div class="card-body" id="WebDBDescriptionBody" tooltip="">
+                            <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
+                                @{
+                                    if (Model.TopicAttribute.ExtType != "")
+                                    { <img class="float-right" src="@Model.ImagesBaseUrl@Model.TopicAttribute.ExtType" /> }
+                                }
+                                @Model.TopicAttribute.AttributeSetDescription
+                            </div>
+                            <div class="large m-2 p-1">
+                                <a href="@Model.TopicAttribute.ExtURL" target="_blank">Wikipedia page</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="large m-2 p-1">
-            <a href="@Model.TopicAttribute.ExtURL" target="_blank">Wikipedia page</a>
+
+
+        <div class="col-md-3">
+            <div class="card full-height">
+                <div class="card-body">
+                    <div class="card-title">Statistics</div>
+                    <div class="row py-3">
+                        <div id="FreqSpinner" class="ml-2" style="display:none;">
+                            <div class="d-flex justify-content-end">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="VisualsDiv" class="w-100">
+                            <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-3 border">
-        <div class="row">
-            <div id="FreqSpinner" class="ml-2" style="display:none;">
-                <div class="d-flex justify-content-end">
+
+
+        <div class="card w-100">
+            <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
+                <div class="col-auto p-1">Loading...</div>
+                <div class="col d-flex justify-content-center">
                     <div class="spinner-border" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
             </div>
-            <div id="VisualsDiv" class="w-100">
-                <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
-            </div>
-        </div>
-    </div>
 
-    <div class="card w-100">
-        <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
-            <div class="col-auto p-1">Loading...</div>
-            <div class="col d-flex justify-content-center">
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </div>
+            @await Html.PartialAsync("_ItemsList")
         </div>
-
-        @await Html.PartialAsync("_ItemsList")
     </div>
 </div>
