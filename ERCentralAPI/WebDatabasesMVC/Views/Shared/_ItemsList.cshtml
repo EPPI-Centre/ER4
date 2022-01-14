@@ -13,6 +13,8 @@
     var ItemsIds = null;
     var FirstBuild = true;
     var ItemsListKendoDataSource = null;
+    var ListFromCritJson = "../ItemList/ListFromCritJson";
+    if (typeof IsFair != "undefined" && IsFair == true) ListFromCritJson = "../ItemList/FairListFromCritJson";
     var gridHeightCSS = "60vh";
     function BuildItems(data, result) {
         if (result == "success") {
@@ -308,7 +310,7 @@
         //$("#HeaderNotPaged").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
-        $.post("../ItemList/ListFromCritJson"
+        $.post(ListFromCritJson
             , CurrentItemsCriteria
             , function (data, result) { BuildItems(data, result); }
         );
@@ -324,7 +326,7 @@
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
 
-        $.post("../ItemList/ListFromCritJson"
+        $.post(ListFromCritJson
             , CurrentItemsCriteria
             , function (data, result) { BuildItems(data, result); }
         );
@@ -561,7 +563,7 @@
         $("#ExportToRisProgress").css("display", "inline"); //Exporting to RIS: page < span id = "ExportToRisProgressN" ></span > of Model.items.PageCount
         $("#ExportToRisProgress").html("Exporting to RIS: page 1 of " + ItemsListData.pagecount.toString());
         //this starts a recursive call!!
-        $.post("../ItemList/ListFromCritJSON", formData, function (data, result) {
+        $.post(ListFromCritJson, formData, function (data, result) {
             interimWholeListToRisClick(data, result, formData, RISstring);
         }).fail(function (response) {
             interimFail(response);
@@ -582,7 +584,7 @@
             //get the next page
             $("#ExportToRisProgressN").html((formData.PageIndex + 1).toString());
             $("#ExportToRisProgress").html("Exporting to RIS: page " + (formData.pageNumber + 1).toString() + " of " + ItemsListData.pagecount.toString());
-            $.post("../ItemList/ListFromCritJSON", formData, function (data, result) {
+            $.post(ListFromCritJson, formData, function (data, result) {
                 interimWholeListToRisClick(data, result, formData, RISstring);
             }).fail(function (response) {
                 interimFail(response);

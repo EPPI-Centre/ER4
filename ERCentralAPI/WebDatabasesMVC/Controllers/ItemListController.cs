@@ -31,7 +31,7 @@ using WebDatabasesMVC.ViewModels;
 /// </summary>
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize(AuthenticationSchemes = "CookieAuthentication,FairAuthentication")]
+    [Authorize(AuthenticationSchemes = "CookieAuthentication")]
     public class ItemListController : CSLAController
     {
         
@@ -139,6 +139,16 @@ namespace WebDatabasesMVC.Controllers
         [HttpPost]
         public IActionResult ListFromCritJson(SelCritMVC critMVC)
         {
+            return internalListFromCritJson(critMVC);
+        }
+        [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        [HttpPost]
+        public IActionResult FairListFromCritJson(SelCritMVC critMVC)
+        {
+            return internalListFromCritJson(critMVC);
+        }
+        private IActionResult internalListFromCritJson(SelCritMVC critMVC)
+        {
             try
             {
                 if (SetCSLAUser())
@@ -156,7 +166,6 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
         public IActionResult GetFreqList([FromForm] long attId, string attName)
         {
             try
@@ -184,6 +193,15 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         public IActionResult GetFreqListJSon([FromForm] long attId, string attName)
+        {
+            return InternalGetFreqListJSon(attId, attName);
+        }
+        [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        public IActionResult FairGetFreqListJSon([FromForm] long attId, string attName)
+        {
+            return InternalGetFreqListJSon(attId, attName);
+        }
+        private IActionResult InternalGetFreqListJSon(long attId, string attName)
         {
             try
             {
@@ -322,6 +340,17 @@ namespace WebDatabasesMVC.Controllers
         [HttpPost]
         public IActionResult GetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
         {
+            return internalGetListWithWithoutAttsJSON(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, included, Description);
+        }
+
+        [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        [HttpPost]
+        public IActionResult FairGetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
+        {
+            return internalGetListWithWithoutAttsJSON(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, included, Description);
+        }
+        private IActionResult internalGetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description)
+        {
             try
             {
                 if (SetCSLAUser())
@@ -363,6 +392,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+
 
         public IActionResult GetListSearchResults([FromForm] string SearchString, string SearchWhat, string included)
         {

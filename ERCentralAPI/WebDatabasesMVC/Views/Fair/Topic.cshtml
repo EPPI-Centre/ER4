@@ -13,7 +13,8 @@
     @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver()
             , ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
         }));};
-        var ListData = @jdata;
+    var ListData = @jdata;
+    var IsFair = true;
     $(document).ready(function () {
         BuildPage(ListData);
         $("#InitialScript").remove();
@@ -224,10 +225,10 @@
         if (spinnerItems) spinnerItems.show();
 
         //ALERT! we're taking for granted that we do NOT support "none of the above" frequency results...
-        var Destination = "../ItemList/GetFreqListJSon";
+        var Destination = "../ItemList/FairGetFreqListJson";
         var pars = {};
         if (useFilter) {
-            Destination = "../ItemList/GetListWithWithoutAttsJSON";
+            Destination = "../ItemList/FairGetListWithWithoutAttsJSON";
             var Descript = "Items with: " + AttributeSet.attribute + " and " + topicAttribute.attributeName;
             var WithAttIds = AttributeSet.attributeId.toString() + "," + topicAttribute.attributeId.toString();
             var WithSetId = AttributeSet.setId.toString() + "," + topicAttribute.setId.toString();
