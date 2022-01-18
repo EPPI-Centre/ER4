@@ -62,6 +62,16 @@
             }
         };
 
+        function GoToFairItems(AttId, AttName = '') {
+            let pars = {
+                filterAttributeId: AttId
+                , description: AttName.replaceAll('&#39;', '\'')
+                , onlyIncluded: 'True'
+                , listType: "WebDbWithThisCode"
+            };
+            postwith("../Fair/ListFromCrit", pars);
+        };
+
         function GoToItem(itemId) {
             //console.log(itemId, ItemsIds);
             if (!ItemsIds || !CurrentItemsCriteria || ItemsIds.indexOf(itemId) == -1) return;

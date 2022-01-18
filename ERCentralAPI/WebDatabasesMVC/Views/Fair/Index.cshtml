@@ -67,6 +67,9 @@
             //$("#ExpandDescription").hide();
             //$("#ReduceDescription").hide();
         }
+
+        $("#FrequencyPie").prop("disabled", true);
+        $("#FrequencyTable").prop("disabled", false);
     });
 
     function GetFreqForPieChart(dataItem) {
@@ -82,6 +85,77 @@
                     $("#FrequenciesGrid").html("");
                 }
             });
+    }
+
+
+    function GetFreqsPie() {
+        if (!progressData) {
+            return;
+        } else {
+            BuildPie();
+            return;
+        }
+    }
+
+
+    function GetFreqsTable() {
+        if (!progressData) {
+            return;
+        } else {
+            BuildFreqs();
+            return;
+        }
+    }
+
+
+    function BuildFreqs() {
+
+
+        let myData = [];
+        // put in array for manipulating without disturbing the original
+        for (var i = freqData.results.length - 1; i >= 0; i--) {
+            myData.push(freqData.results[i]);
+        }
+        if (myData.length == 0) return;
+
+        for (var i = 0; i < myData.length; i++) {
+            // shorten codes names that are stupid long
+            if (myData[i].attribute.length > 60) {
+                myData[i].shortName = myData[i].attribute.substring(0, 60) + "...";
+            } else {
+                myData[i].shortName = myData[i].attribute;
+            }
+        }
+
+        // remove the last row if it is 'none of the above'
+        if (myData[0].attributeId == -999999) {
+            myData.splice(0, 1);
+        }
+
+        $("#FrequencyPie").prop("disabled", false);
+        $("#FrequencyTable").prop("disabled", true);
+        $("#FrequenciesGrid").show();
+        $("#FrequenciesChart").hide();
+        $("#FrequenciesGrid").kendoGrid({
+            rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
+            columns: [
+                {
+                    field: "attribute",
+                    title: "Code Name",
+                    headerAttributes: {
+                        "class": "small py-0 px-1 font-weight-bold w-75"
+                    }
+                },
+                {
+                    field: "itemCount",
+                    title: "Count",
+                    headerAttributes: {
+                        "class": "small py-0 px-1 font-weight-bold w-25"
+                    }
+                }],
+            dataSource: { data: myData }
+        });
+
     }
 
     function BuildPie() {
@@ -130,6 +204,10 @@
 
         //$("#FrequenciesGrid").hide();
 
+        $("#FrequencyPie").prop("disabled", true);
+        $("#FrequencyTable").prop("disabled", false);
+        $("#FrequenciesGrid").hide();
+        $("#FrequenciesChart").show();
         if (myData.length != 0) {
             //$("#BarOrPieChartVisible").show();
             //$("#FrequenciesChart").show();
@@ -214,6 +292,16 @@
             //$("#NoCodedRecords").show();
         }
     }
+
+    function GetFreqLinkContent(attId, count, attName) {
+        if (count == 0) return "0";
+        else {
+            var name = attName.replaceAll('\'', '\\\'').toString();
+            name = name.replaceAll('\"', '%22');
+            return '<a href="javascript:GoToFairItems(' + attId + ', \'' + name + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
+        }
+    }
+
     function GoToFreqListPieAndBar(code) {
         //console.log(code);
         if (!code || !code.dataItem) return;
@@ -285,7 +373,22 @@
                 <div class="col-md-3">
                     <div class="card full-height">
                         <div class="card-body">
-                            <div class="card-title">Statistics</div>
+
+                            <div class="card-title">
+                                Statistics&nbsp;&nbsp;
+                                <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsPie()" id="FrequencyPie">
+                                    <span class="btn-label">
+                                        <i class="fa fa-chart-pie"></i>
+                                    </span>
+                                    Pie
+                                </button>
+                                <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsTable()" id="FrequencyTable">
+                                    <span class="btn-label">
+                                        <i class="fa fa-table"></i>
+                                    </span>
+                                    Table
+                                </button>
+                            </div>
                             <div class="row py-3">
                                 <div id="FreqSpinner" class="ml-2" style="display:none;">
                                     <div class="d-flex justify-content-end">
@@ -296,7 +399,19 @@
                                 </div>
                                 <div id="VisualsDiv" class="w-100">
                                     <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
+                                    <div id="FrequenciesGrid"></div>
                                 </div>
+
+                                <script id="FrequenciesTemplate" type="text/x-kendo-tmpl">
+                                    <tr class="border border-bottom ">
+                                        <td class="px-1 py-0 border-bottom small w-75">
+                                            #= HTMLEncodeText(attribute) #
+                                        </td>
+                                        <td class="px-1 py-0 border-bottom small w-25">
+                                            #= GetFreqLinkContent(attributeId, itemCount, attribute) #
+                                        </td>
+                                    </tr>
+                                </script>
                             </div>
 
 
