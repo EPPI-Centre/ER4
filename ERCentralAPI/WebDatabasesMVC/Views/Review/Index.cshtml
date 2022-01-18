@@ -297,7 +297,7 @@
                     } else {
                         $("#FrequenciesGrid").html("");
                     }
-                });
+                }).fail((response) => handleFreqsError(response));
         }
         else {
             $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
@@ -309,8 +309,17 @@
                     } else {
                         $("#FrequenciesGrid").html("");
                     }
-                })
+                }).fail((response)=> handleFreqsError(response));
 
+        }
+    }
+    function handleFreqsError(response) {
+        $("#FreqSpinner").hide();
+        if (response.status == 401) {
+            $("#FrequenciesGrid").html("Error: unauthorised. You may need to re-open, or login to, this visualisation.");
+        }
+        else {
+            $("#FrequenciesGrid").html("Error, status code is: " + response.status);
         }
     }
 
