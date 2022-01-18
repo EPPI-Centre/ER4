@@ -52,6 +52,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.CommandTimeout = 40;
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())

@@ -72,7 +72,7 @@
     function GetFreqForPieChart(dataItem) {
         $("#FreqSpinner").show();
         progressData = dataItem;
-        $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true, onlyThisAttribute: topicAttribute.attributeId }
+        $.post("../Frequencies/FairGetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true, onlyThisAttribute: topicAttribute.attributeId }
             , function (data, result) {
                 $("#FreqSpinner").hide();
                 if (result == "success") {

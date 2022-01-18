@@ -73,7 +73,7 @@ export class WorkAllocationListService extends BusyAwareService implements OnDes
 			this._allWorkAllocationsForReview = result;
 				this.RemoveBusy("FetchAllWorkAllocation");
 			}, error => {
-				this.modalService.SendBackHomeWithError(error);
+				this.modalService.GenericError(error);
 				this.RemoveBusy("FetchAllWorkAllocation");
 			}
 		);

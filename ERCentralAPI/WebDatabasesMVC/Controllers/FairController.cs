@@ -185,7 +185,7 @@ namespace WebDatabasesMVC.Controllers
                     if (reviewSets != null && reviewSets.Count > 0 && aSet != null && ProgressSet != null && imgBaseUrl != null && imgBaseUrl != "")
                     {
                         FairTopicVM res = new FairTopicVM(reviewSets, ProgressSet.SetId, aSet, imgBaseUrl);
-                        ViewBag.isFair = true;
+                        //ViewBag.isFair = true;
                         return View(res);    
                     }
                     else return BadRequest();
