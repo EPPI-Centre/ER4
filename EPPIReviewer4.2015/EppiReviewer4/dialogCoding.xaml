@@ -227,10 +227,10 @@
                 <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
                     <TextBlock Text="PaperId:" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                     <TextBox Text="{Binding PaperId}" Margin="5,5,5,5" IsReadOnly="True" VerticalAlignment="Center" BorderThickness="0"></TextBox>
-                    <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,8,5" VerticalAlignment="Center" Click="HyperlinkButton_Click"
+                    <HyperlinkButton Content="View in the OpenAlex Browser" Margin="5,5,8,5" VerticalAlignment="Center" Click="HyperlinkButton_Click"
                                      IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></HyperlinkButton>
                     <HyperlinkButton Content="View on the web" NavigateUri="{Binding FindOnWeb}" VerticalAlignment="Center" TargetName="_blank" Margin="5,5,8,5"></HyperlinkButton>
-                    <HyperlinkButton Content="Enrich review record with Microsoft Academic data" VerticalAlignment="Center" Margin="5,5,5,5" Click="HyperlinkButton_Click_3"
+                    <HyperlinkButton Content="Enrich review record with OpenAlex data" VerticalAlignment="Center" Margin="5,5,5,5" Click="HyperlinkButton_Click_3"
                                      IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></HyperlinkButton>
                 </StackPanel>
             </Grid>
@@ -816,7 +816,7 @@
                             </Grid>
                         </radDock:RadDocumentPane>
 
-                        <radDock:RadDocumentPane Header="Microsoft Academic" x:Name="MicrosoftAcademic" Title="Microsoft Academic" CanUserClose="False" CanFloat="False"
+                        <radDock:RadDocumentPane Header="OpenAlex" x:Name="OpenAlex" Title="OpenAlex" CanUserClose="False" CanFloat="False"
                                                  Visibility="{Binding Source={StaticResource ReviewInfoData}, Path=Data.MagEnabled, Converter={StaticResource EditIntVisibility}, Mode=OneWay}"
                                                  IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MagOnline, Mode=OneWay}"
                                                  Activated="MicrosoftAcademic_Activated">
@@ -832,12 +832,12 @@
 
                                 <StackPanel Orientation="Horizontal" Grid.Row="0">
                                     <HyperlinkButton x:Name="hlManualMagLookup" VerticalAlignment="Top"
-                                                 Content="Look up this record in Microsoft Academic" Margin="2,7,2,0"
+                                                 Content="Look up this record in OpenAlex" Margin="2,7,2,0"
                                                  Click="hlManualMagLookup_Click" IsTabStop="False" Tag="Lookup"
                                                  IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"
                                                  ></HyperlinkButton>
                                     <HyperlinkButton x:Name="hlManualMagClear" VerticalAlignment="Top"
-                                                 Content="Clear Microsoft Academic matches from this record" Margin="7,7,2,0"
+                                                 Content="Clear OpenAlex matches from this record" Margin="7,7,2,0"
                                                  Click="hlManualMagLookup_Click" IsTabStop="False" Tag="Clear"
                                                  IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"
                                                  ></HyperlinkButton>
@@ -862,7 +862,7 @@
                                 </StackPanel>
 
                                 <TextBlock Grid.Row="1" x:Name="tbQuickCitation" Text="{Binding QuickCitation}" FontWeight="Bold" FontSize="12" TextWrapping="Wrap" Margin="5,2,5,2"></TextBlock>
-                                <TextBlock Grid.Row="2" VerticalAlignment="Bottom" Text="Record(s) matched from Microsoft Academic:" Margin="5,3,5,1"></TextBlock>
+                                <TextBlock Grid.Row="2" VerticalAlignment="Bottom" Text="Record(s) matched from OpenAlex:" Margin="5,3,5,1"></TextBlock>
                                 <telerik:RadListBox Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                         ItemsSource="{Binding Source={StaticResource MagPaperListData}, Path=Data, Mode=TwoWay}"
                                         IsEnabled="{Binding Source={StaticResource MagPaperListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
@@ -873,7 +873,7 @@
                                 </telerik:RadListBox>
 
                                 <StackPanel Grid.Row="4" Orientation="Horizontal" Background="BlanchedAlmond">
-                                    <TextBlock Margin="5,7,5,5" Text="Look up specific Microsoft Academic ID:" VerticalAlignment="Center"></TextBlock>
+                                    <TextBlock Margin="5,7,5,5" Text="Look up specific OpenAlex ID:" VerticalAlignment="Center"></TextBlock>
                                     <TextBox Margin="5,5,5,5" x:Name="tbFindMagPaperById" Width="80" VerticalAlignment="Top"></TextBox>
                                     <HyperlinkButton Margin="5,7,5,5" Content="Go" VerticalAlignment="Center" Click="HyperlinkButton_Click_1"></HyperlinkButton>
                                     <HyperlinkButton x:Name="lbHideMagPaperPreview" Margin="5,7,5,5" Content="(Hide preview)" Visibility="Collapsed" VerticalAlignment="Center" Click="HyperlinkButton_Click_2"></HyperlinkButton>
@@ -904,7 +904,7 @@
                                                              IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></RadioButton>
                                             </StackPanel>
                                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-                                            <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,5,5" Click="HyperlinkButton_Click"
+                                        <HyperlinkButton Content="View in the OpenAlex Browser" Margin="5,5,5,5" Click="HyperlinkButton_Click"
                                                              IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></HyperlinkButton>
                                             <HyperlinkButton Content="View on the web" NavigateUri="{Binding FindOnWeb}" TargetName="_blank" Margin="5,5,5,5"></HyperlinkButton>
                                         </StackPanel>

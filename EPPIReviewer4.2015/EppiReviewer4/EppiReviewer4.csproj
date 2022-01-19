@@ -1103,6 +1103,8 @@
     <Resource Include="Icons\MicrosoftAcademicICOAlert.png" />
     <Resource Include="Icons\MAG.jpg" />
     <Resource Include="Icons\svn-workbench_wb.png" />
+    <Resource Include="Icons\OpenAlex.png" />
+    <Resource Include="Icons\OpenAlex-logo.png" />
     <Content Include="pMed.png" />
     <Content Include="ServiceReferences.ClientConfig">
       <SubType>Designer</SubType>

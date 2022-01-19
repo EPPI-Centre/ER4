@@ -34,7 +34,7 @@ namespace BusinessLibrary.BusinessClasses
         //static string keyVaultUri = "https://ucl.vault.azure.net/";
 
         public static string runADFPipeline(int ContactId, string TrainFileName, string InferenceFileName,
-            string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold,
+            string ResultsFileName, string ModelFileName, string MagVersion, string PreFilterThreshold,
             string FolderName, string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
             string ReviewSampleSize, string prepare_data, string process_train, string process_inference, string train_model,
             string score_papers, CancellationToken cancellationToken = default(CancellationToken))
@@ -76,7 +76,7 @@ namespace BusinessLibrary.BusinessClasses
             };
 
             Dictionary<string, object> parameters = readParameters(TrainFileName, InferenceFileName, ResultsFileName,
-                ModelFileName, MagContainer, PreFilterThreshold, FolderName, AcceptanceThreshold, ReviewRunVersion,
+                ModelFileName, MagVersion, PreFilterThreshold, FolderName, AcceptanceThreshold, ReviewRunVersion,
                 OverwriteRawProcessedData, ReviewSampleSize, prepare_data, process_train, process_inference, train_model,
                 score_papers);
 
@@ -151,7 +151,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static Dictionary<string, object> readParameters(string TrainFileName, string InferenceFileName,
-            string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold, string FolderName,
+            string ResultsFileName, string ModelFileName, string MagVersion, string PreFilterThreshold, string FolderName,
             string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
             string ReviewSampleSize, string prepare_data, string process_train, string process_inference, string train_model,
             string score_papers)
@@ -177,10 +177,11 @@ namespace BusinessLibrary.BusinessClasses
             parameters.Add("wf_process_inference", process_inference);
             parameters.Add("wf_train_model", train_model);
             parameters.Add("wf_score_papers", score_papers);
-            parameters.Add("db_mag_container", MagContainer);
+            parameters.Add("db_mag_container", "open-alex");
             parameters.Add("exp_gold_file_name", TrainFileName);
             parameters.Add("exp_new_papers_file_name", InferenceFileName);
             parameters.Add("exp_experiment_label", FolderName);
+            parameters.Add("mag_version", "OpenAlexData/" + MagVersion);
 
             // set from web.config
             parameters.Add("databricks_cluster_id", configuration["databricks_cluster_id"]);
@@ -192,52 +193,7 @@ namespace BusinessLibrary.BusinessClasses
             parameters.Add("db_database_schema_version", configuration["db_database_schema_version"]);
             parameters.Add("exp_experiments_container", configuration["exp_experiments_container"]);
             parameters.Add("exp_run_suffix", configuration["exp_run_suffix"]);
-
-            // OLD PARAMETERS FOR NOTEBOOKS V1
-            /*
-            TrainFileName = TrainFileName == "" ? configuration["gold_standard_file"] : TrainFileName;
-            InferenceFileName = InferenceFileName == "" ? configuration["new_papers_file"] : InferenceFileName;
-            ResultsFileName = ResultsFileName == "" ? configuration["results_file_name"] : ResultsFileName;
-            ModelFileName = ModelFileName == "" ? configuration["trained_model_filename"] : ModelFileName;
-            MagContainer = MagContainer == "" ? configuration["mag_container"] : MagContainer;
-            PreFilterThreshold = PreFilterThreshold == "" ? configuration["pre_filter_threshold"] : PreFilterThreshold;
-            AcceptanceThreshold = AcceptanceThreshold == "" ? configuration["acceptance_threshold"] : AcceptanceThreshold;
-
-            parameters.Add("interactive", configuration["interactive"]);
-            parameters.Add("make_train_set", configuration["make_train_set"]);
-            parameters.Add("make_inference_set", configuration["make_inference_set"]);
-            //parameters.Add("review_run_version", configuration["review_run_version"]);
-            //parameters.Add("overwrite_raw_processed_data", configuration["overwrite_raw_processed_data"]);
-            parameters.Add("mag_account_name", configuration["mag_account_name"]);
-            parameters.Add("mag_account_key", configuration["mag_account_key"]);
-            parameters.Add("gold_account_name", configuration["gold_account_name"]);
-            parameters.Add("gold_account_key", configuration["gold_account_key"]);
-            parameters.Add("gold_container", configuration["gold_container"]);
-
-            parameters.Add("gold_standard_file", FolderName + "/" + TrainFileName);
-            parameters.Add("new_papers_file", FolderName + "/" + InferenceFileName);
-            parameters.Add("results_file_name", FolderName + "/" + ResultsFileName);
-            parameters.Add("trained_model_filename", ModelFileName);
-            parameters.Add("overwrite_raw_processed_data", OverwriteRawProcessedData);
-            parameters.Add("review_run_version", ReviewRunVersion);
-            parameters.Add("acceptance_threshold", AcceptanceThreshold);
-            parameters.Add("pre_filter_threshold", PreFilterThreshold);
-            parameters.Add("sample_size", ReviewSampleSize);
-
-            //mounts/training_datastore_ucl/experiment-v2/Incont2/experiment-v2/Incont2/per_paper_tfidf.pickle'
-            parameters.Add("training_set_folder", FolderName);
-            parameters.Add("mag_container", MagContainer); //"samples-mag-2020-03-23"); // 
-            parameters.Add("ml_experiment_folder", FolderName);
-            parameters.Add("min_review_size", "5");
-
-            parameters.Add("training_set_storage_account_name", configuration["training_set_storage_account_name"]);
-            parameters.Add("training_set_storage_key", configuration["training_set_storage_key"]);
-            parameters.Add("training_set_container", configuration["training_set_container"]);
-            parameters.Add("new_papers_account_name", configuration["new_papers_account_name"]);
-            parameters.Add("new_papers_account_key", configuration["new_papers_account_key"]);
-            parameters.Add("new_papers_container", configuration["new_papers_container"]);
-            parameters.Add("results_storage_container", configuration["results_storage_container"]);
-            */
+          
             return parameters;
         }
 

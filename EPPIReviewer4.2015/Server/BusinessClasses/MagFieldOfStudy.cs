@@ -138,7 +138,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return "https://academic.microsoft.com/topic/" + FieldOfStudyId.ToString();
+                return "https://openalex.org/C" + FieldOfStudyId.ToString();
             }
         }
 

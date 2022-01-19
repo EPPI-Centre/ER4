@@ -43,14 +43,17 @@ namespace BusinessLibrary.BusinessClasses
             public List<PaperMakesFieldOfStudy> F { get; set; }
             public string FP { get; set; }
             public string I { get; set; }
-            public PaperMakesInvertedAbstract IA { get; set; }
+            //public PaperMakesInvertedAbstract IA { get; set; }
+            public string IA { get; set; }
             public Int64 Id { get; set; }
-            public PaperMakesJournal J { get; set; }
+            public List<PaperMakesJournal> J { get; set; }
+            //public PaperMakesJournal J { get; set; }
             public string LP { get; set; }
             public string PB { get; set; }
             public string Pt { get; set; }
             public List<Int64> RId { get; set; }
-            public List<PaperMakesSource> S { get; set; }
+            //public List<PaperMakesSource> S { get; set; }
+            public string S { get; set; }
             public string Ti { get; set; }
             public string V { get; set; }
             public string VFN { get; set; }
@@ -281,7 +284,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + @"/evaluate?expr=Id=" +
-                FosId.ToString() + @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN");
+                FosId.ToString() + @"&attributes=Id,CC,DFN,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN");
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
             {
@@ -321,7 +324,7 @@ namespace BusinessLibrary.BusinessClasses
                 string searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
 
                 string queryString =  @"/evaluate?expr=" +
-                    searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
+                    searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
                     "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
                 if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
@@ -337,7 +340,7 @@ namespace BusinessLibrary.BusinessClasses
                             searchText = searchText.Substring(0, truncateAt);
                             searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);
                             queryString = @"/evaluate?expr=" +
-                                searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
+                                searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
                                 "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                             FullRequestStr = MagInfo.MakesEndPoint + queryString;
                         }
@@ -377,10 +380,6 @@ namespace BusinessLibrary.BusinessClasses
                     return PaperList;
                 }
             }
-            if (TryAgain && PaperList.Count == 0)
-            {
-                PaperList = MagMakesHelpers.GetCandidateMatchesTake2(searchText, MakesDeploymentStatus);
-            }
             return PaperList;
         }
 
@@ -400,7 +399,7 @@ namespace BusinessLibrary.BusinessClasses
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
                 string queryString = @"/interpret?query=" +
-                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
+                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
                     "&complete=0&count=100&offset=0&timeout=2000&model=latest";
 
                 WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
@@ -435,6 +434,91 @@ namespace BusinessLibrary.BusinessClasses
             return PaperList;
         }
 
+        public static List<PaperMakes> GetCandidateMatchesOnAuthorsAndJournal(string text, string MakesDeploymentStatus = "LIVE", bool TryAgain = false)
+        {
+            List<PaperMakes> PaperList = new List<PaperMakes>();
+
+            string searchText = CleanText(text);
+            // Hard to tell whether it's better or worse removing stopwords
+            searchText = (removeStopwords(" " + searchText + " ")).Trim();
+            if (searchText != "")
+            {
+                var jsonsettings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore
+                };
+
+                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
+
+
+                //string searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
+                string searchTextEncoded = searchText;
+                string queryString = @"/interpret?query=" +
+                    searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
+                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
+                string FullRequestStr = MagInfo.MakesEndPoint + queryString;
+                if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
+                {//this would fail entire URL is too long or the query string is.
+                    int attempts = 0;
+                    int maxattempts = searchText.Count(found => found == ',');
+                    while ((FullRequestStr.Length >= 2048 || queryString.Length >= 1024) && attempts < maxattempts)
+                    {
+                        attempts++;
+                        int truncateAt = searchText.LastIndexOf(" ");
+                        if (truncateAt != -1)
+                        {
+                            searchText = searchText.Substring(0, truncateAt);
+                            searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);
+                            queryString = @"/evaluate?expr=" +
+                                searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
+                                "&complete=0&count=100&offset=0&timeout=2000&model=latest";
+                            FullRequestStr = MagInfo.MakesEndPoint + queryString;
+                        }
+                    }
+                }
+                //WebRequest request = WebRequest.Create(FullRequestStr);
+                try
+                {
+                    HttpClient client = new HttpClient();
+                    var response = client.GetAsync(FullRequestStr).Result;
+
+                    var resp = response.Content.ReadAsStringAsync().Result;
+                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(resp, jsonsettings);
+                    if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                    {
+                        foreach (MakesInterpretation mi in respJson.interpretations)
+                        {
+                            foreach (MakesInterpretationRule r in mi.rules)
+                            {
+                                foreach (PaperMakes pm in r.output.entities)
+                                {
+                                    var found = PaperList.Find(e => e.Id == pm.Id);
+                                    if (found == null)
+                                    {
+                                        PaperList.Add(pm);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+#if !CSLA_NETCORE
+                    //not clear what to do on ER4, how do we log this?
+                    Console.WriteLine(e.Message, searchText);
+#elif WEBDB
+                    WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
+#else
+                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
+#endif
+                    return PaperList;
+                }
+            }
+            return PaperList;
+        }
+
         public static List<PaperMakes> GetCandidateMatchesOnDOI(string DOI, string MakesDeploymentStatus = "LIVE")
         {//will try searching again, but truncating the search string when we find a problem word (if possible)
             List<PaperMakes> PaperList = new List<PaperMakes>();
@@ -453,7 +537,7 @@ namespace BusinessLibrary.BusinessClasses
                 string queryString = @"/evaluate?expr=DOI='" +
                     System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim())
                     + "'&entityCount=5&attributes=" +
-                    System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
+                    System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
                     "&complete=0&count=10&offset=0&timeout=2000&model=latest";
                 WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
                 WebResponse response = request.GetResponse();
@@ -491,7 +575,8 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
+                //"&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,I,J.JN,J.JId,V,FP,LP,RId,IA,S" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -515,7 +600,8 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
+                //"&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,I,J.JN,J.JId,V,FP,LP,RId,IA,S" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -540,7 +626,8 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,C.CId,C.CN,CC,D,DN,DOI,ECC,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,LP,PB,PCS.CId,PCS.CN,Pt,RId,S,Ti,Ty,V,VFN,VSN,W,Y") +
+                //"&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,C.CId,C.CN,CC,D,DN,DOI,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,LP,PB,PCS.CId,PCS.CN,Pt,RId,S,Ti,Ty,V,VFN,VSN,W,Y") +
+                "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,CC,D,DN,DOI,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,Pt,RId,S,Ti,Ty,V,W,Y") +
                 "&complete=1&count=10&normalize=1&model=latest");
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())

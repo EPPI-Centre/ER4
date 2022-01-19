@@ -206,9 +206,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         let msg: string = ''; 
         //if (att != null && att.attribute_id > 0) {
         if (matchType == 1) {
-            msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
+            msg = 'Are you sure you want to match all items with this code to OpenAlex records?';
         } else {
-            msg = 'Are you sure you want to match all items to Microsoft Academic records?';
+            msg = 'Are you sure you want to match all items to OpenAlex records?';
         }
         this.ConfirmationDialogService.confirm('Run matching algorithm', msg, false, '')
             .then((confirm: any) => {
@@ -233,7 +233,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     this._magAdvancedService._RunAlgorithmFirst = true;
 
                     if (res != "error") {
-                        this._notificationService.showMAGRunMessage('Matching records to Microsoft Academic. This can take a while...');
+                        this._notificationService.showMAGRunMessage('Matching records to OpenAlex. This can take a while...');
                     } else {
                         this._notificationService.showMAGRunMessage('Matching has returned an error please contact your administrator');
                     }
@@ -403,7 +403,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                         p.abstract, p.linkedITEM_ID, p.allLinks, p.findOnWeb, 0, "", "", 0));
                     this.PleaseGoTo.emit("PaperDetail");
                 } else {
-                    this._notificationService.showMAGRunMessage('Microsoft academic could not find the paperId!');
+                    this._notificationService.showMAGRunMessage('OpenAlex could not find the paperId!');
                 }
             });
     }

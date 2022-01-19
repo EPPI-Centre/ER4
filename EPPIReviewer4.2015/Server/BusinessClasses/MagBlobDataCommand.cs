@@ -13,11 +13,13 @@ using Csla.DataPortalClient;
 using System.Threading;
 using System.Configuration;
 
+
 #if !SILVERLIGHT
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using System.Data.SqlClient;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -101,6 +103,8 @@ namespace BusinessLibrary.BusinessClasses
         {
 #if (CSLA_NETCORE)
 
+            // This doesn't work in .net core. As we run admin in ER4 there's no point in going through the pain...
+
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
             string storageAccountName = configuration["MAGStorageAccount"];
             string storageAccountKey = configuration["MAGStorageAccountKey"];
@@ -108,7 +112,7 @@ namespace BusinessLibrary.BusinessClasses
 #else
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
-#endif
+
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -120,47 +124,94 @@ namespace BusinessLibrary.BusinessClasses
             {
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
-                List<string> ListContainers = await ListContainersWithPrefixAsync(blobClient, "mag-");
-
+                CloudBlobContainer blobContainer = storageAccount.CreateCloudBlobClient().GetContainerReference("open-alex");
                 DateTime LatestDateMAG = new DateTime(2017, 1, 1);
                 _PreviousMAGName = "";
-                foreach (var item in ListContainers)
-                {
-                    CloudBlobContainer container = blobClient.GetContainerReference(item);
 
-                    var length = container.Name.Length;
-                    int ind = container.Name.IndexOf("-", 0);
-                    string dateStr = container.Name.Substring(ind + 1, length - ind - 1);
+                bool useFlatBlobListing = false;
+                var blobs = blobContainer.ListBlobs("OpenAlexData/", useFlatBlobListing, BlobListingDetails.None);
+                var folders = blobs.Where(b => b as CloudBlobDirectory != null).ToList();
+                foreach (var folder in folders)
+                {
+                    string dateStr = folder.Uri.ToString().Replace(folder.Parent.Uri.ToString(), "").Replace("/", "");
                     DateTime date;
-                    if (DateTime.TryParse(dateStr, out date)) // might be some other folder than MAG
+                    if (DateTime.TryParse(dateStr, out date)) 
                     {
                         if (date > LatestDateMAG)
                         {
-                            _PreviousMAGName = _LatestMAGName;
-                            LatestDateMAG = date;
-                            _LatestMAGName = item;
+                            _PreviousMAGName = dateStr;
                         }
                     }
                 }
-                containerLatest = blobClient.GetContainerReference(_LatestMAGName);
 
-                //Console.WriteLine("The relevant SAS key is: ");
-                _LatestMagSasUri = GetContainerSasUri(containerLatest);
-
-                var rootDirectory = containerLatest.GetDirectoryReference("");
-
-                BlobContinuationToken token = new BlobContinuationToken();
-                var results = await rootDirectory.ListBlobsSegmentedAsync(token);
-
-                await ListBlobsFlatListingAsync(containerLatest, null);
-
-                if (CurrentReleaseNotes != null)
+                LatestDateMAG = new DateTime(2017, 1, 1);
+                _LatestMAGName = "";
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    CloudBlockBlob blockBlob = CurrentReleaseNotes as CloudBlockBlob;
-                    _ReleaseNotes = await blockBlob.DownloadTextAsync();
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_MagGetOpenAlexFolders", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            while (reader.Read())
+                            {
+                                string dateStr = reader["FolderName"].ToString();
+                                DateTime date;
+                                if (DateTime.TryParse(dateStr, out date))
+                                {
+                                    if (date > LatestDateMAG)
+                                    {
+                                        _LatestMAGName = dateStr;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    connection.Close();
                 }
 
+                // This was used when we used MAG rather than OpenAlex. Leaving in case we need to generate Sas keys etc
+                //List<string> ListContainers = await ListContainersWithPrefixAsync(blobClient, "mag-");
+                //foreach (var item in ListContainers)
+                //{
+                //    CloudBlobContainer container = blobClient.GetContainerReference(item);
+
+                //    var length = container.Name.Length;
+                //    int ind = container.Name.IndexOf("-", 0);
+                //    string dateStr = container.Name.Substring(ind + 1, length - ind - 1);
+                //    DateTime date;
+                //    if (DateTime.TryParse(dateStr, out date)) // might be some other folder than MAG
+                //    {
+                //        if (date > LatestDateMAG)
+                //        {
+                //            _PreviousMAGName = _LatestMAGName;
+                //            LatestDateMAG = date;
+                //            _LatestMAGName = item;
+                //        }
+                //    }
+                //}
+                //containerLatest = blobClient.GetContainerReference(_LatestMAGName);
+
+                ////Console.WriteLine("The relevant SAS key is: ");
+                //_LatestMagSasUri = GetContainerSasUri(containerLatest);
+
+                //var rootDirectory = containerLatest.GetDirectoryReference("");
+
+                //BlobContinuationToken token = new BlobContinuationToken();
+                //var results = await rootDirectory.ListBlobsSegmentedAsync(token);
+
+                //await ListBlobsFlatListingAsync(containerLatest, null);
+
+                //if (CurrentReleaseNotes != null)
+                //{
+                //    CloudBlockBlob blockBlob = CurrentReleaseNotes as CloudBlockBlob;
+                //    _ReleaseNotes = await blockBlob.DownloadTextAsync();
+                //}
+
             }
+#endif
         }
 
         private async Task<List<string>> ListContainersWithPrefixAsync(CloudBlobClient blobClient, string prefix)

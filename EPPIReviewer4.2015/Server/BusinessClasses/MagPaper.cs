@@ -40,8 +40,6 @@ namespace BusinessLibrary.BusinessClasses
 #else
         public MagPaper() { }
 #endif
-
-        
         
 
         public static void GetMagPaper(Int64 PaperId, EventHandler<DataPortalResult<MagPaper>> handler)
@@ -54,7 +52,7 @@ namespace BusinessLibrary.BusinessClasses
         public static readonly PropertyInfo<string> ExternalMagLinkProperty = RegisterProperty<string>(new PropertyInfo<string>("ExternalMagLink", "ExternalMagLink", string.Empty));
         public string ExternalMagLink()
         {
-            return "https://academic.microsoft.com/paper/" + PaperId.ToString();
+            return "https://explore.openalex.org/works/W" + PaperId.ToString();
         }
 
         public static readonly PropertyInfo<string> FullRecordProperty = RegisterProperty<string>(new PropertyInfo<string>("FullRecord", "FullRecord", string.Empty));
@@ -433,7 +431,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return "http://academic.microsoft.com/paper/" + this.PaperId.ToString();
+                return "https://explore.openalex.org/works/W" + this.PaperId.ToString();
             }
         }
 
@@ -686,10 +684,13 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int32>(YearProperty, pm.Y);
             returnValue.LoadProperty<SmartDate>(DateProperty, pm.D);
             returnValue.LoadProperty<string>(PublisherProperty, pm.PB);
+            //if (pm.J != null && pm.J[0] != null)
             if (pm.J != null)
             {
-                returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
-                returnValue.LoadProperty<string>(JournalProperty, pm.J.DJN != null ? myTI.ToTitleCase(pm.J.DJN) : "");
+                returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J[0].JId);
+                returnValue.LoadProperty<string>(JournalProperty, pm.J[0].JN != null ? myTI.ToTitleCase(pm.J[0].JN) : "");
+                //returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
+                //returnValue.LoadProperty<string>(JournalProperty, pm.J.DJN != null ? myTI.ToTitleCase(pm.J.DJN) : "");
             }
             if (returnValue.GetProperty(JournalProperty) == "" && pm.VFN != null)
             {
@@ -739,7 +740,7 @@ namespace BusinessLibrary.BusinessClasses
                 returnValue.LoadProperty<string>(FieldsOfStudyProperty, "");
             }
             returnValue.LoadProperty<Int64>(CitationCountProperty, pm.CC);
-            returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
+            //returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
             if (pm.AA != null)
             {
                 string a = "";
@@ -761,7 +762,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 string u = "";
                 string p = "";
-                foreach (MagMakesHelpers.PaperMakesSource pms in pm.S)
+                //List<MagMakesHelpers.PaperMakesSource> pmList = pm.S;
+                var j = (JArray)JsonConvert.DeserializeObject(pm.S);
+                List <MagMakesHelpers.PaperMakesSource> pmList = j.ToObject<List<MagMakesHelpers.PaperMakesSource>>();
+                foreach (MagMakesHelpers.PaperMakesSource pms in pmList)
                 {
                     if (pms.Ty == "3")
                     {
