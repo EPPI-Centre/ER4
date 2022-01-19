@@ -61,11 +61,11 @@ namespace BusinessLibrary.BusinessClasses
                     break;
                 case "FieldOfStudyParentsList":
                     searchString = "Id=" + selectionCriteria.FieldOfStudyId.ToString() +
-                        @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
+                        @"&attributes=Id,CC,DFN,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
                     break;
                 case "FieldOfStudyChildrenList":
                     searchString = "Id=" + selectionCriteria.FieldOfStudyId.ToString() +
-                        @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
+                        @"&attributes=Id,CC,DFN,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
                     break;
                 case "FieldOfStudySearchList":
                     searchString = selectionCriteria.SearchText;

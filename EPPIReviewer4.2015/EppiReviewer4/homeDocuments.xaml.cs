@@ -234,7 +234,7 @@ namespace EppiReviewer4
             //end of windowReportsDocuments
 
             //prepare windowMagBrowser
-            windowMagBrowser.Header = "Microsoft Academic Graph Browser. BETA version: all feedback welcome!";
+            windowMagBrowser.Header = "OpenAlex Browser. BETA version: all feedback welcome!";
             windowMagBrowser.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
             windowMagBrowser.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
             windowMagBrowser.WindowState = WindowState.Maximized;
@@ -419,7 +419,7 @@ namespace EppiReviewer4
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             if (ri.UserId == 1451 || ri.UserId == 1576 || ri.UserId == 4688 
-                || ri.UserId == 6258 || ri.UserId == 6545 || ri.UserId == 11817 || ri.UserId == 1095) //Alison, Ian, Dylan,  Hollie Melton from York CRD, Claire, Joshua Pink from NICE and Albert Harkema
+                || ri.UserId == 6258 || ri.UserId == 6545 || ri.UserId == 11817 || ri.UserId == 1095 || ri.UserId == 11288) //Alison, Ian, Dylan,  Hollie Melton from York CRD, Claire, Joshua Pink from NICE and Albert Harkema and Ley Muller
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
@@ -447,11 +447,11 @@ namespace EppiReviewer4
                     {
                         if (chk.HasUpdates)
                         {
-                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/MicrosoftAcademicICOAlert.png", UriKind.Relative));
+                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/OpenAlex.png", UriKind.Relative));
                         }
                         else
                         {
-                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/MicrosoftAcademicICO.png", UriKind.Relative));
+                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/OpenAlex.png", UriKind.Relative));
                         }
                     }
                 }
@@ -6211,7 +6211,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListIncludedThatNeedMatching(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: included items with low confidence Microsoft Academic matches (that are unchecked)";
+            TextBlockShowing.Text = "Showing: included items with low confidence OpenAlex matches (that are unchecked)";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesNeedingChecking";
             SelectionCritieraItemList.OnlyIncluded = true;
@@ -6224,7 +6224,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListExcludedThatNeedMatching(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: excluded items with low confidence Microsoft Academic matches (that are unchecked)";
+            TextBlockShowing.Text = "Showing: excluded items with low confidence OpenAlex matches (that are unchecked)";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesNeedingChecking";
             SelectionCritieraItemList.OnlyIncluded = false;
@@ -6237,7 +6237,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListExcludedNotMatched(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: excluded items that are not matched to any Microsoft Academic records";
+            TextBlockShowing.Text = "Showing: excluded items that are not matched to any OpenAlex records";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesNotMatched";
             SelectionCritieraItemList.OnlyIncluded = false;
@@ -6250,7 +6250,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListIncludedNotMatched(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: included items that are not matched to any Microsoft Academic records";
+            TextBlockShowing.Text = "Showing: included items that are not matched to any OpenAlex records";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesNotMatched";
             SelectionCritieraItemList.OnlyIncluded = true;
@@ -6263,7 +6263,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListExcludedMatched(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: excluded items that are matched to at least one Microsoft Academic record";
+            TextBlockShowing.Text = "Showing: excluded items that are matched to at least one OpenAlex record";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesMatched";
             SelectionCritieraItemList.OnlyIncluded = false;
@@ -6276,7 +6276,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListIncludedMatched(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: included items that are matched to at least one Microsoft Academic record";
+            TextBlockShowing.Text = "Showing: included items that are matched to at least one OpenAlex record";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesMatched";
             SelectionCritieraItemList.OnlyIncluded = true;

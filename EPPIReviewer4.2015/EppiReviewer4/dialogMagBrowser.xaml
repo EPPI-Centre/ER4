@@ -192,7 +192,7 @@
                 <ColumnDefinition Width="400*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap"  Text="Microsoft Academic Graph browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
+                <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap"  Text="OpenAlex database browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
                 <TextBlock x:Name="tbMatchedRecordsTitle" TextWrapping="Wrap"  Text="" FontSize="10" FontStyle="Italic" Margin="5,13,5,5"></TextBlock>
                 <TextBlock x:Name="tbImportingRecords" Grid.Column="0" Text="Importing records..." FontSize="12" FontStyle="Italic" Margin="20,10,5,5" Visibility="Collapsed"></TextBlock>
                 <cslaXAML:BusyAnimation x:Name="BusyImportingRecords"  Width="50" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -231,13 +231,13 @@
                                 <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
                                     <TextBlock FontSize="14" Margin="5,5,5,5">Bring your review up to date by finding related papers</TextBlock>
                                     <TextBlock TextWrapping="Wrap"  Margin="5,10,5,5" Text="On this page you can bring your review up to date by finding papers related to those already in your review automatically.&#10;
-&#10;This special type of search uses Microsoft Academic graph, exploiting the connections in the graph between the papers already in your review and other 'nearby' papers. For these features to work it's essential that you have your existing included items matched to their equivalent Microsoft Academic records. If you haven't done this yet, go to the 'Match records' tab and click 'Run auto-matching algorithm. Once this is done, you can use the functions on this page in two ways.&#10;
+&#10;This special type of search uses the OpenAlex dataset, exploiting the connections in the graph between the papers already in your review and other 'nearby' papers. For these features to work it's essential that you have your existing included items matched to their equivalent OpenAlex records. If you haven't done this yet, go to the 'Match records' tab and click 'Run auto-matching algorithm. Once this is done, you can use the functions on this page in two ways.&#10;
 &#10;First, for review updates. Set the 'Items dated from' date to the date that your searches were last run. Select your preferred graph search method ('full graph search' is the most comprehensive).&#10;
 &#10;Second, to conduct 'snowball' searches around records you have already included. To accomplish this, you should set the 'items dated from' parameter to the earliest eligible date for papers in your review.&#10;
 &#10;If you want to try out the performance of the graph search in your review, go to the 'Test graph search' tab above."></TextBlock>
                                 </StackPanel>
 
-                                <Image Grid.Row="0" Grid.Column="1" Source="./Icons/MAG.jpg" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
+                                <Image Grid.Row="0" Grid.Column="1" Source="./Icons/OpenAlex-logo.png" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Top" Height="80"></Image>
 
                                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                                     <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Margin="5,5,5,5" Content="Add new search for related papers" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
@@ -369,7 +369,7 @@
                                     <ColumnDefinition Width="80*"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
                                 
-                                <Image Grid.Row="1" Grid.Column="0" Source="./Icons/MAG.jpg" Margin="5,5,10,5" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
+                                <Image Grid.Row="1" Grid.Column="0" Source="./Icons/OpenAlex-logo.png" Margin="5,5,10,5" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
 
                                 <Grid x:Name="GridAutoUpdateImport" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="LightGray" Margin="5,5,5,5">
                                     <Grid.RowDefinitions>
@@ -516,7 +516,7 @@
                                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
                                     <TextBlock FontSize="14" Margin="5,5,5,5">Keep your review up to date with research as it is published</TextBlock>
                                     <TextBlock TextWrapping="Wrap"  Margin="5,10,5,5" Text="On this page you can 'subscribe' to keep your review up to date by automatically adding potentially relevant papers as soon as they are published.&#10;
-&#10;This feature uses a copy of the Microsoft Academic dataset, that is updated every 1-2 weeks. It looks for all the new papers that have arrived since the last update, and then adds those to your review that are most similar to papers that you have already included. For this to work it's essential that you have your existing included items matched to their equivalent Microsoft Academic records. If you haven't done this yet, go to the 'Match records' tab and match your records in. As this feature ONLY looks at the new records that appear, you should ensure that your review is up to date first, by using the 'bring review up to date' feature.&#10;
+&#10;This feature uses a copy of the OpenAlex dataset, that is updated every 1-2 weeks. It looks for all the new papers that have arrived since the last update, and then adds those to your review that are most similar to papers that you have already included. For this to work it's essential that you have your existing included items matched to their equivalent OpenAlex records. If you haven't done this yet, go to the 'Match records' tab and match your records in. As this feature ONLY looks at the new records that appear, you should ensure that your review is up to date first, by using the 'bring review up to date' feature.&#10;
 &#10;You can use the 'filter' below to limit the items you want the auto-update to 'learn' from to a subset of items in your review. You can also obtain multiple updates per review if needed, for example, for specific subsets of records.&#10;"></TextBlock>
                                 </StackPanel>
 
@@ -624,9 +624,9 @@
                                     <ColumnDefinition Width="50*"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Match user uploaded records into Microsoft Academic" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Match user uploaded records into OpenAlex" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                                 <ToolkitRef:WrapPanel Grid.Row="1" Grid.Column="0" Margin="10,5,10,5" Orientation="Horizontal">
-                                    <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,0" Text="The algorithm to find new and related studies to the ones you have already identified depends on correctly matching your existing records into the Microsoft Academic dataset.&#10;
+                                    <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,0" Text="The algorithm to find new and related studies to the ones you have already identified depends on correctly matching your existing records into the OpenAlex dataset.&#10;
 &#10;While this process can be automated up to a point, some records cannot be matched with 100% confidence, and some cannot be matched at all.&#10;
 &#10;In order to improve performance, it can be helpful to check the lower confidence automatic matches for accuracy (see links on the right of this page)."></TextBlock>
                                 </ToolkitRef:WrapPanel>
@@ -712,7 +712,7 @@
                                     </ToolkitRef:WrapPanel>
                                 </ScrollViewer>
                                 <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
-                                     <HyperlinkButton x:Name="lbGoToPaperId" Margin="5,5,5,5" Content="Go to this Microsoft Academic Paper ID" VerticalAlignment="Center" Click="lbGoToPaperId_Click" IsTabStop="False"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="lbGoToPaperId" Margin="5,5,5,5" Content="Go to this OpenAlex Paper ID" VerticalAlignment="Center" Click="lbGoToPaperId_Click" IsTabStop="False"></HyperlinkButton>
                                      <TextBox x:Name="tbGoToPaperId" Margin="3,5,5,5" Width="120"></TextBox>
                                 </StackPanel>
                                
@@ -747,7 +747,7 @@
                                     </Grid.RowDefinitions>
 
                                     <TextBlock Grid.Row="0" FontSize="14" Margin="5,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center">Test bringing review up to date</TextBlock>
-                                    <TextBlock Grid.Row="2" Margin="5,5,5,5" TextWrapping="Wrap" Text="The mechanism for bringing a review 'up to date' uses a 'graph search' of Microsoft Academic. This search examines the publications your included studies are closely connected to - by citation relationship, and by automatically generated keywords and 'recommended' documents.&#10;
+                                    <TextBlock Grid.Row="2" Margin="5,5,5,5" TextWrapping="Wrap" Text="The mechanism for bringing a review 'up to date' uses a 'graph search' of OpenAlex. This search examines the publications your included studies are closely connected to - by citation relationship, and by automatically generated keywords and 'recommended' documents.&#10;
 &#10;These tests need you to split your records into two sets: 'train' and 'test'. The training records will be used to start the search off, with the connections related to this set being use to find the records in the 'test' set. Obviously, we want the search to find as many records as possible. You can create the split between train and test records in three ways: by year of publication, precise date of publication, and by records with/ without a code. We then use machine learning that aims to identify the 'test' records from the (sometimes large) set of records retrieved by the graph search. Please see the documentation for further information.&#10;
 &#10;N.B. This page tests the performance of the graph search to bring your review up to date, as this depends on the graph search finding the records in your review. The algorithm that aims to keep your review up to date operates differently, as it assesses every record published each week (so doesn't have the limitation of the graph search)."></TextBlock>
                                 </Grid>
@@ -1503,11 +1503,11 @@
                                         <ColumnDefinition Width="100"></ColumnDefinition>
                                         <ColumnDefinition Width="400"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Latest MAG" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+                                    
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Latest OpenAlex" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                                     <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
                                         <TextBox x:Name="tbLatestMag" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="False"></TextBox>
-                                        <TextBlock Margin="5,5,5,5" Text="Previous MAG version:" VerticalAlignment="Center"></TextBlock>
+                                        <TextBlock Margin="5,5,5,5" Text="Latest local version:" VerticalAlignment="Center"></TextBlock>
                                         <TextBox x:Name="tbPreviousMAG" Margin="5,5,5,5" VerticalAlignment="Center"></TextBox>
                                     </StackPanel>
 
@@ -1557,7 +1557,8 @@
                                     </Grid.RowDefinitions>
 
                                     <ToolkitRef:WrapPanel Grid.Row="0"  Orientation="Horizontal">
-                                        <TextBlock Text="Processes to run on PENDING" Margin="5,5,5,5"></TextBlock>
+                                        <TextBlock Text="Maintenance processes" Margin="5,5,5,5"></TextBlock>
+                                        <HyperlinkButton x:Name="LBCopyNewOaData" Content="Copy new OpenAlexData" Click="LBCopyNewOaData_Click"  IsTabStop="False" Margin="0,5,5,5" Foreground="Red" Visibility="Collapsed"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBCurrentInfoCreate" Content="Add new MAG to MAKES list" Click="LBCurrentInfoCreate_Click"  Foreground="Red" IsTabStop="False" Margin="0,5,5,5" Visibility="Collapsed"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBDownloadNewPaperIds" Content="1. Download new PaperIds" Click="LBCreateParquetFiles_Click" IsTabStop="False" Margin="0,5,5,5" Tag="GetNewPaperIds"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBGetMissingAbstracts" Content="2. Get missing abstracts for new MAG" Click="LBGetMissingAbstracts_Click" IsTabStop="False" Margin="5,5,5,5" Tag="Get abstracts that may not have been present when items first created"></HyperlinkButton>

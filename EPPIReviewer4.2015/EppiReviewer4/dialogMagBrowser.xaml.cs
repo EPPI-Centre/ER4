@@ -273,9 +273,9 @@ namespace EppiReviewer4
                 else
                 {
                     MagBlobDataCommand mb = e2.Object as MagBlobDataCommand;
-                    tbMagSas.Text = mb.LatestMagSasUri;
+                    //tbMagSas.Text = mb.LatestMagSasUri;
                     tbLatestMag.Text = mb.LatestMAGName;
-                    tbReleaseNotes.Text = mb.ReleaseNotes;
+                    //tbReleaseNotes.Text = mb.ReleaseNotes;
                     tbPreviousMAG.Text = mb.PreviousMAGName;
 
                     CslaDataProvider provider4 = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
@@ -296,10 +296,12 @@ namespace EppiReviewer4
                             if (!found)
                             {
                                 LBCurrentInfoCreate.Visibility = Visibility.Visible;
+                                LBCopyNewOaData.Visibility = Visibility.Visible;
                             }
                             else
                             {
                                 LBCurrentInfoCreate.Visibility = Visibility.Collapsed;
+                                LBCopyNewOaData.Visibility = Visibility.Collapsed;
                             }
                         }
                     }
@@ -670,11 +672,11 @@ namespace EppiReviewer4
             {
                 if (mci.MagOnline == true)
                 {
-                    tbAcademicTitle.Text = "Microsoft Academic dataset: " + mci.MagFolder;
+                    tbAcademicTitle.Text = "OpenAlex dataset: " + mci.MagFolder;
                 }
                 else
                 {
-                    tbAcademicTitle.Text = "Microsoft Academic dataset currently unavailable";
+                    tbAcademicTitle.Text = "OpenAlex dataset currently unavailable";
                 }
             }
 
@@ -1779,7 +1781,7 @@ namespace EppiReviewer4
             MatchOnAllOrFiltered = ((HyperlinkButton)sender).Tag.ToString();
             if (MatchOnAllOrFiltered == "All")
             {
-                RadWindow.Confirm("Are you sure you want to match all the items in your review\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+                RadWindow.Confirm("Are you sure you want to match all the items in your review\n to OpenAlex records?", OnShowWizardDialogClosed);
             }
             else
             {
@@ -1789,7 +1791,7 @@ namespace EppiReviewer4
                 }
                 else
                 {
-                    RadWindow.Confirm("Are you sure you want to match the items with this code\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+                    RadWindow.Confirm("Are you sure you want to match the items with this code\n to OpenAlex records?", OnShowWizardDialogClosed);
                 }
             }
         }
@@ -2801,9 +2803,45 @@ namespace EppiReviewer4
             }
         }
 
+        private string CurrentMag()
+        {
+            string currentMag = "";
+            CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+            if (provider != null && provider.Data != null && provider.Data is MagCurrentInfoList)
+            {
+                foreach (MagCurrentInfo mci in provider.Data as MagCurrentInfoList)
+                {
+                    if (mci.MakesDeploymentStatus == "LIVE")
+                    {
+                        currentMag = mci.MagFolder;
+                        break;
+                    }
+                } 
+            }
+            return currentMag;
+        }
+
+        private string PendingMag()
+        {
+            string pendingMag = "";
+            CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+            if (provider != null && provider.Data != null && provider.Data is MagCurrentInfoList)
+            {
+                foreach (MagCurrentInfo mci in provider.Data as MagCurrentInfoList)
+                {
+                    if (mci.MakesDeploymentStatus == "PENDING")
+                    {
+                        pendingMag = mci.MagFolder;
+                        break;
+                    }
+                }
+            }
+            return pendingMag;
+        }
+
         private void CheckChangedPaperIds_Click(object sender, RoutedEventArgs e)
         {
-            RadWindow.Confirm("Are you sure?\nPlease check it is not already running first!\nOld: " + tbPreviousMAG.Text + " new: " + tbLatestMag.Text,
+            RadWindow.Confirm("Are you sure?\nPlease check it is not already running first!\nOld: " + CurrentMag() + " new: " + PendingMag(),
                 this.DoCheckChangedPaperIds);
         }
 
@@ -2813,7 +2851,7 @@ namespace EppiReviewer4
             if (result == true)
             {
                 DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
-                MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(tbLatestMag.Text);
+                MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(PendingMag());
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     LBCheckChangedPaperIds.IsEnabled = true;
@@ -2875,12 +2913,12 @@ namespace EppiReviewer4
 
         private void LBRunContReviewPipeline_Click(object sender, RoutedEventArgs e)
         {
-            if (tbPreviousMAG.Text == tbLatestMag.Text)
+            if (CurrentMag() == PendingMag())
             {
                 RadWindow.Alert("Both MAG versions are the same!");
                 return;
             }
-            RadWindow.Confirm("Are you sure you want to run the pipeline?!\nOld mag: " + tbPreviousMAG.Text + " new mag: " + tbLatestMag.Text, this.checkRunContReviewPipeline);
+            RadWindow.Confirm("Are you sure you want to run the pipeline?!\nOld mag: " + CurrentMag() + " new mag: " + PendingMag(), this.checkRunContReviewPipeline);
         }
 
         private void checkRunContReviewPipeline(object sender, WindowClosedEventArgs e)
@@ -2927,8 +2965,8 @@ namespace EppiReviewer4
             DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
             MagContReviewPipelineRunCommand RunPipelineCommand =
                 new MagContReviewPipelineRunCommand(
-                    tbPreviousMAG.Text,
-                    tbLatestMag.Text,
+                    CurrentMag(),
+                    PendingMag(),
                     EditScoreThreshold.Value.Value,
                     EditFoSThreshold.Value.Value,
                     specificFolder,
@@ -2950,15 +2988,53 @@ namespace EppiReviewer4
             dp2.BeginExecute(RunPipelineCommand);
         }
 
+        private void LBCopyNewOaData_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to download new data from OpenAlex for " + tbLatestMag.Text + "?", this.doRunDownloadNewOpenAlexData);
+        }
+
+        private void doRunDownloadNewOpenAlexData(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
+                MagContReviewPipelineRunCommand RunPipelineCommand =
+                    new MagContReviewPipelineRunCommand(
+                        "",
+                        tbLatestMag.Text,
+                        0,
+                        0,
+                        "",
+                        0,
+                        0,
+                        "CopyOpenAlexDataToAzureBlob");
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RadWindow.Alert("Ok. Process to download new OpenAlex data is started\nThe MAKES json will then be created, so this process\n can take about 4 hours.");
+                        SwitchOnAutoRefreshLogList();
+                    }
+                };
+                LBRunContReviewPipeline.IsEnabled = false;
+                dp2.BeginExecute(RunPipelineCommand);
+            }
+        }
+
         private void LBCreateParquetFiles_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as HyperlinkButton).Tag.ToString() == "Prepare parquet")
             {
-                RadWindow.Confirm("Are you sure you want to create parquet files for\n" + tbLatestMag.Text, this.doRunCreateParquetFiles);
+                RadWindow.Confirm("Are you sure you want to create parquet files for\n" + PendingMag(), this.doRunCreateParquetFiles);
             }
             else
             {
-                RadWindow.Confirm("Are you sure you want to download new PaperIds for\n" + tbLatestMag.Text, this.doRunDownloadNewPaperIds);
+                RadWindow.Confirm("Are you sure you want to download new PaperIds appearing in\n" + PendingMag() + ", which are not in " + CurrentMag(), this.doRunDownloadNewPaperIds);
             }
         }
 
@@ -2972,8 +3048,8 @@ namespace EppiReviewer4
                 DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
                 MagContReviewPipelineRunCommand RunPipelineCommand =
                     new MagContReviewPipelineRunCommand(
-                        tbPreviousMAG.Text,
-                        tbLatestMag.Text,
+                        CurrentMag(),
+                        PendingMag(),
                         EditScoreThreshold.Value.Value,
                         EditFoSThreshold.Value.Value,
                         "",
@@ -2999,7 +3075,7 @@ namespace EppiReviewer4
 
         private void LBGetMissingAbstracts_Click(object sender, RoutedEventArgs e)
         {
-            RadWindow.Confirm("Are you sure you want to hunt for missing abstracts in \n" + tbLatestMag.Text, this.doDownloadMissingAbstracts);
+            RadWindow.Confirm("Are you sure you want to hunt for missing abstracts in \n" + PendingMag(), this.doDownloadMissingAbstracts);
         }
 
         private void doDownloadMissingAbstracts(object sender, WindowClosedEventArgs e)
@@ -3035,8 +3111,8 @@ namespace EppiReviewer4
                 DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
                 MagContReviewPipelineRunCommand RunPipelineCommand =
                     new MagContReviewPipelineRunCommand(
-                        tbPreviousMAG.Text,
-                        tbLatestMag.Text,
+                        CurrentMag(),
+                        PendingMag(),
                         EditScoreThreshold.Value.Value,
                         EditFoSThreshold.Value.Value,
                         "",
@@ -3060,6 +3136,38 @@ namespace EppiReviewer4
             }
         }
 
+        private void LBCurrentInfoCreate_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to create a new record for: " + tbLatestMag.Text, this.doCurrentInfoCreate);
+        }
+
+        private void doCurrentInfoCreate(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagCurrentInfoList infList = provider.Data as MagCurrentInfoList;
+                    if (infList != null)
+                    {
+                        string[] versionElements = PendingMag().Replace("mag-", "").Split('-');
+                        MagCurrentInfo mci = new MagCurrentInfo();
+                        mci.MagFolder = tbLatestMag.Text; // versionElements[2] + "/" + versionElements[1] + "/" + versionElements[0];
+                        mci.WhenLive = DateTime.Now;
+                        mci.MatchingAvailable = true;
+                        mci.MakesEndPoint = "http://eppioa" + tbLatestMag.Text.Replace("-", "") + ".westeurope.cloudapp.azure.com";
+                        mci.MakesDeploymentStatus = "PENDING";
+                        infList.Add(mci);
+                        infList.Saved -= InfList_Saved;
+                        infList.Saved += InfList_Saved;
+                        infList.SaveItem(mci);
+                        LBCurrentInfoCreate.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+        }
 
         private void HyperlinkButton_Click_13(object sender, RoutedEventArgs e)
         {
@@ -3107,6 +3215,11 @@ namespace EppiReviewer4
                 string folder = ml.JobMessage.Substring(ml.JobMessage.IndexOf("Folder:")).Replace("Folder:", "");
                 DoRunContReviewPipeline(folder, ml.MagLogId, "Downloading data from folder: " + folder);
             }
+        }
+
+        private void LBCheckForNewOA_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         // *********************************** MagSearch page ***********************************
@@ -3553,7 +3666,7 @@ namespace EppiReviewer4
                     }
                 }
 
-                        if (search != null)
+                if (search != null)
                 {
                     TBPaperListTitle.Text = search.HitsNo.ToString() + " hits (in original search)";
                     ShowSearchResults(search.MagSearchText);
@@ -3581,7 +3694,7 @@ namespace EppiReviewer4
                         if (ms.MagFolder != mci.MagFolder)
                         {
                             RadWindow.Alert("This search was run against an earlier version of MAG\nPlease re-run before importing");
-                            return;
+                            //return;
                         }
                     }
                         if (ms.HitsNo > 20000)
@@ -4413,40 +4526,7 @@ namespace EppiReviewer4
             }
         }
 
-        private void LBCurrentInfoCreate_Click(object sender, RoutedEventArgs e)
-        {
-            RadWindow.Confirm("Are you sure you want to create a new record for: " + tbLatestMag.Text, this.doCurrentInfoCreate);
-        }
-
-        private void doCurrentInfoCreate(object sender, WindowClosedEventArgs e)
-        {
-            var result = e.DialogResult;
-            if (result == true)
-            {
-                CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
-                if (provider != null)
-                {
-                    MagCurrentInfoList infList = provider.Data as MagCurrentInfoList;
-                    if (infList != null)
-                    {
-                        string [] versionElements = tbLatestMag.Text.Replace("mag-", "").Split('-');
-                        MagCurrentInfo mci = new MagCurrentInfo();
-                        mci.MagFolder = tbLatestMag.Text; // versionElements[2] + "/" + versionElements[1] + "/" + versionElements[0];
-                        mci.WhenLive = DateTime.Now;
-                        mci.MatchingAvailable = true;
-                        mci.MakesEndPoint = "http://eppimag" + tbLatestMag.Text.Replace("mag", "").Replace("-", "")
-                            + ".westeurope.cloudapp.azure.com";
-                        mci.MakesDeploymentStatus = "NEW";
-                        infList.Add(mci);
-                        infList.Saved -= InfList_Saved;
-                        infList.Saved += InfList_Saved;
-                        infList.SaveItem(mci);
-                        LBCurrentInfoCreate.Visibility = Visibility.Collapsed;
-                    }
-                }
-            }
-        }
-
+        
         private void InfList_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
             CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
@@ -4496,7 +4576,7 @@ namespace EppiReviewer4
                     provider.Refresh();
                 }
             }
-            tbAcademicTitle.Text = "Microsoft Academic dataset: " + CurrentTempMagCurrentInfo.MagFolder;
+            tbAcademicTitle.Text = "OpenAlex dataset: " + CurrentTempMagCurrentInfo.MagFolder;
             CurrentTempMagCurrentInfo = null;
             CslaDataProvider provider2 = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             provider2.Refresh();
@@ -4579,5 +4659,6 @@ namespace EppiReviewer4
             }
         }
 
+        
     }
 }

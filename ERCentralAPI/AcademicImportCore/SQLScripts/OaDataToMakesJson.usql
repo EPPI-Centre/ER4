@@ -18,14 +18,14 @@ SET @@FeaturePreviews = "DataPartitionedOutput:on";
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // The wasb path to a MAG release on Azure storage.
-DECLARE EXTERNAL @In_MagRootUri string = "wasb://open-alex@eppimag/2021-11-08/"; //Example: "wasb://open-alex@eppimag/2021-11-08/"
+DECLARE EXTERNAL @In_MagRootUri string = "wasb://open-alex@eppimag/OpenAlexData/2021-12-06/"; //Example: "wasb://open-alex@eppimag/2021-11-08/"
 
 // The storage output path where the JSON files will be created
 // The if the output destination type is Azure storage (output path starts with "wasb"), the container for the output location needs to be created before running the script
-DECLARE EXTERNAL @Out_OutputPath string = "wasb://open-alex@eppimag/makes/2021-11-08/microsoft/entities";  // Example: "wasb://open-alex@eppimag/makes/2021-11-08/microsoft/entities"
+DECLARE EXTERNAL @Out_OutputPath string = "wasb://open-alex@eppimag/makes/2021-12-06/microsoft/entities";  // Example: "wasb://open-alex@eppimag/makes/2021-11-08/microsoft/entities"
 
 //The name of the institution to create subgraph for. The full graph is used by default.
-DECLARE EXTERNAL @Param_UseSubgraphForInstitution string = "microsoft"; // Example: "microsoft"
+DECLARE EXTERNAL @Param_UseSubgraphForInstitution string = ""; // Example: "microsoft"
 
 DECLARE EXTERNAL @Param_UseSubgraphForPapers bool = true;
 
@@ -264,11 +264,11 @@ DECLARE @GetLogProbabilityFromRank Func<uint?, double?> =
 	(
 		@In_MagRootUri
 	);
-//@fieldOfStudyChildren =
-//	FieldOfStudyChildren
-//	(
-//		@In_MagRootUri
-//	);
+@fieldOfStudyChildren =
+	FieldOfStudyChildren
+	(
+		@In_MagRootUri
+	);
 @fieldsOfStudy =
 	FieldsOfStudy
 	(
@@ -350,6 +350,53 @@ DECLARE @GetLogProbabilityFromRank Func<uint?, double?> =
 		@authors.CreatedDate,
 		@authors.UpdatedDate
 	FROM @authors;
+
+@paperAuthorAffiliations =
+	SELECT
+		(@paperAuthorAffiliations.PaperId == null? (long) -1 : (long) @paperAuthorAffiliations.PaperId) AS PaperId,
+        (@paperAuthorAffiliations.AuthorId == null? (long) -1 : (long) @paperAuthorAffiliations.AuthorId) AS AuthorId,
+        (@paperAuthorAffiliations.AffiliationId == null? (long) -1 : (long) @paperAuthorAffiliations.AuthorId) AS AffiliationId,
+        (@paperAuthorAffiliations.AuthorSequenceNumber == null? (uint) 0 : (uint) @paperAuthorAffiliations.AuthorSequenceNumber) AS AuthorSequenceNumber,
+        @paperAuthorAffiliations.OriginalAuthor,
+		@paperAuthorAffiliations.OriginalAffiliation
+	FROM @paperAuthorAffiliations;
+
+@paperAbstractsInvertedIndex =
+	SELECT
+		(@paperAbstractsInvertedIndex.PaperId == null? (long) -1 : (long) @paperAbstractsInvertedIndex.PaperId) AS PaperId,
+        @paperAbstractsInvertedIndex.IndexedAbstract,
+		@paperAbstractsInvertedIndex.AbstractWords
+	FROM @paperAbstractsInvertedIndex;
+
+@paperFieldsOfStudy = 
+	SELECT
+		(@paperFieldsOfStudy.PaperId == null? (long) -1 : (long) @paperFieldsOfStudy.PaperId) AS PaperId,
+        (@paperFieldsOfStudy.FieldOfStudyId == null? (long) -1 : (long) @paperFieldsOfStudy.FieldOfStudyId) AS FieldOfStudyId,
+        @paperFieldsOfStudy.Score,
+        @paperFieldsOfStudy.AlgorithmVersion
+    FROM
+    @paperFieldsOfStudy;
+
+@paperReferences = 
+	SELECT
+		(@paperReferences.PaperId == null? (long) -1 : (long) @paperReferences.PaperId) AS PaperId,
+        (@paperReferences.PaperReferenceId == null? (long) -1 : (long) @paperReferences.PaperReferenceId) AS PaperReferenceId
+	FROM @paperReferences;
+
+@paperUrls =
+	SELECT
+		(@paperUrls.PaperId == null? (long) -1 : (long) @paperUrls.PaperId) AS PaperId,
+		SourceType,
+		SourceUrl,
+		LanguageCode,
+		UrlForLandingPage,
+		UrlForPdf,
+		HostType,
+		Version,
+		License,
+		RepositoryInstitution,
+		OaiPmhId
+	FROM @paperUrls;
 
 @papers =
 	SELECT
@@ -466,55 +513,55 @@ END;
 //        ORDER BY @papers.PaperId
 //		FETCH FIRST 10000 ROWS; 
 
-//@fieldOfStudyChildren =
-//	SELECT 
-//		Fc.FieldOfStudyId AS ParentId,
-//		Fc.ChildFieldOfStudyId AS ChildId,
-//		
-//		//Using display name for backwards compatibility. Not a bug
-//		Fr.DisplayName AS ChildName,
-//		Fl.DisplayName AS ParentName
-//	FROM @fieldOfStudyChildren AS Fc
-//		INNER JOIN
-//			@fieldsOfStudy AS Fl
-//		ON Fc.FieldOfStudyId == Fl.FieldOfStudyId
-//		INNER JOIN
-//			@fieldsOfStudy AS Fr
-//		ON Fc.ChildFieldOfStudyId == Fr.FieldOfStudyId;
+@fieldOfStudyChildren =
+	SELECT 
+		Fc.FieldOfStudyId AS ParentId,
+		Fc.ChildFieldOfStudyId AS ChildId,
+		
+		//Using display name for backwards compatibility. Not a bug
+		Fr.DisplayName AS ChildName,
+		Fl.DisplayName AS ParentName
+	FROM @fieldOfStudyChildren AS Fc
+		INNER JOIN
+			@fieldsOfStudy AS Fl
+		ON Fc.FieldOfStudyId == Fl.FieldOfStudyId
+		INNER JOIN
+			@fieldsOfStudy AS Fr
+		ON Fc.ChildFieldOfStudyId == Fr.FieldOfStudyId;
 
-// Reduce field of study children data to create field childs per field of study
-//@reducedFieldOfStudyChildren =
-//	SELECT 
-//		ParentId AS FieldOfStudyId,
-//		
-//		// Reduce the rows into a string representation of a list of fields of study json objects
-//		string.Join(
-//			",",
-//			ARRAY_AGG(
-//			@JsonObjectFromAttributes(new string[]{ 
-//					@JsonAttribute("FId", ChildId),
-//					@JsonAttribute("FN", ChildName)
-//			}))
-//		.Take(@Param_MaximumFieldOfStudyChildrenCount)) AS FieldOfStudyChildren
-//	FROM @fieldOfStudyChildren
-//	GROUP BY ParentId;
+ //Reduce field of study children data to create field childs per field of study
+@reducedFieldOfStudyChildren =
+	SELECT 
+		ParentId AS FieldOfStudyId,
+		
+		// Reduce the rows into a string representation of a list of fields of study json objects
+		string.Join(
+			",",
+			ARRAY_AGG(
+			@JsonObjectFromAttributes(new string[]{ 
+					@JsonAttribute("FId", ChildId),
+					@JsonAttribute("FN", ChildName)
+			}))
+		.Take(@Param_MaximumFieldOfStudyChildrenCount)) AS FieldOfStudyChildren
+	FROM @fieldOfStudyChildren
+	GROUP BY ParentId;
 
-// Reduce field of study children data to create field parents per field of study
-//@reducedFieldOfStudyParents =
-//	SELECT 
-//		ChildId AS FieldOfStudyId,
-//		
-//		// Reduce the rows into a string representation of a list of fields of study json objects
-//		string.Join(
-//			",",
-//			ARRAY_AGG(
-//			@JsonObjectFromAttributes(new string[]{ 
-//					@JsonAttribute("FId", ParentId),
-//					@JsonAttribute("FN", ParentName)
-//			}))
-//		.Take(@Param_MaximumFieldOfStudyParentCount)) AS FieldOfStudyParents
-//	FROM @fieldOfStudyChildren
-//	GROUP BY ChildId;
+ //Reduce field of study children data to create field parents per field of study
+@reducedFieldOfStudyParents =
+	SELECT 
+		ChildId AS FieldOfStudyId,
+		
+		// Reduce the rows into a string representation of a list of fields of study json objects
+		string.Join(
+			",",
+			ARRAY_AGG(
+			@JsonObjectFromAttributes(new string[]{ 
+					@JsonAttribute("FId", ParentId),
+					@JsonAttribute("FN", ParentName)
+			}))
+		.Take(@Param_MaximumFieldOfStudyParentCount)) AS FieldOfStudyParents
+	FROM @fieldOfStudyChildren
+	GROUP BY ChildId;
 
 
 
@@ -743,7 +790,7 @@ END;
 //	FROM @paperStatsAuthors
 //	GROUP BY AuthorId;
 
-//Fields of study
+////Fields of study
 //@paperStatsFieldsOfStudy =
 //	SELECT 
 //		@paperFieldsOfStudy.FieldOfStudyId,
@@ -752,7 +799,7 @@ END;
 //	INNER JOIN
 //		@papers
 //	ON @paperFieldsOfStudy.PaperId == @papers.PaperId;
-
+//
 //@fieldOfStudyEstimatedCitationCount =
 //	SELECT FieldOfStudyId,               
 //			(int) 0 //(int) SUM(@paperStatsFieldsOfStudy.EstimatedCitation) AS EstimatedCitationCount
@@ -777,20 +824,22 @@ END;
 		@JsonAttribute("Ti", P.PaperTitle) + "," AS Column006,
 		@JsonRawAttribute("W", @GenerateUniqueStringWords(P.PaperTitle)) + "," AS Column007,
 		@JsonAttribute("DN", P.OriginalTitle) + "," AS Column008,           
-		(Abs.IndexedAbstract == null ? "" : @JsonRawAttribute("IA", Abs.IndexedAbstract) + ",") AS Column009,
+		(Abs.IndexedAbstract == null ? "" : @JsonStringAttribute("IA", Abs.IndexedAbstract) + ",") AS Column009,
 		(P.Year == null ? "" : @JsonAttribute("Y", P.Year) + ",") AS Column010, // was P.Year.Value - but removed as year is definitely an int now
 		(P.Date == null ? "" : @JsonAttribute("D", P.Date.Value.ToString("yyyy-MM-dd")) + ",") AS Column011,
 		@JsonAttribute("CC", P.CitationCount) + "," AS Column012,
-		@JsonAttribute("ECC", P.EstimatedCitation) + "," AS Column013,
+		//@JsonAttribute("ECC", P.EstimatedCitation) + "," AS Column013,
+        "" AS Column013,
 								
 		//Advanced information
-		(Urls.Urls == null ? "" : "\"S\":[" + Urls.Urls + "],") AS Column014,
+		(Urls.Urls == null ? "" : "\"S\":\"[" + @jsonEscapeString(Urls.Urls) + "]\",") AS Column014,
 		(F.FieldsOfStudy == null ? "" : "\"F\":[" + F.FieldsOfStudy + "],") AS Column015,
 		
 		//Journal information
 		((P.JournalId == null || P.JournalId == -1) ? "" : @JsonRawAttribute("J", @JsonObjectFromAttributes(new string[]{ 
 			@JsonAttribute("JId", P.JournalId.Value), // WAS P.JournalId.Value
-			@JsonAttribute("JN", J.NormalizedName)
+			@JsonAttribute("JN", J.NormalizedName),
+			@JsonAttribute("DJN", J.NormalizedName)
 		})) + ",") AS Column016,
 		(string.IsNullOrEmpty(P.Publisher) ? "" : @JsonAttribute("PB", P.Publisher) + ",") AS Column017,
 		(string.IsNullOrEmpty(P.Volume) ? "" : @JsonAttribute("V", P.Volume) + ",") AS Column018,
@@ -798,7 +847,10 @@ END;
 		(string.IsNullOrEmpty(P.FirstPage) ? "" : @JsonAttribute("FP", P.FirstPage) + ",") AS Column020,
 		(string.IsNullOrEmpty(P.LastPage) ? "" : @JsonAttribute("LP", P.LastPage) + ",") AS Column021,
 		"" AS Column022,
-        "" AS Column023,
+        
+        //Venue information
+		@JsonAttribute("VFN", J.DisplayName != null ? J.DisplayName : P.OriginalVenue) + "," AS Column023,
+        
         "" AS Column024,
 		// Author affiliations
 		(A.AuthorAffiliations == null ? "" : "\"AA\":[") AS Column025,
@@ -857,10 +909,10 @@ END;
 			ON P.PaperId == Ref.PaperId
 			LEFT OUTER JOIN
 				@reducedPaperUrls AS Urls
-			ON P.PaperId == Urls.PaperId
+			ON P.PaperId == Urls.PaperId;
             
-            ORDER BY P.PaperId
-			FETCH FIRST 10000 ROWS;
+            //ORDER BY P.PaperId
+			//FETCH FIRST 100000 ROWS;
 
 //@affiliationJson =
 //	SELECT 
@@ -968,56 +1020,56 @@ END;
 ////			ON  Au.AuthorId == AuEcc.AuthorId;
 
 
-//@fieldOfStudyJson =
-//	SELECT 
-//			(int) (Fos.FieldOfStudyId % @Param_PartitionCount) AS PartitionNumber,
-//			"{" AS Column001,
-//			@JsonAttribute("logprob", @GetLogProbabilityFromRank(Fos.Rank)) + "," AS Column002,
-//			@JsonAttribute("Id", Fos.FieldOfStudyId) + "," AS Column003,
-//			@JsonAttribute("DFN", Fos.DisplayName) + "," AS Column004,
-//			@JsonAttribute("FN", Fos.NormalizedName) + "," AS Column005,           
-//			@JsonAttribute("FL", Fos.Level) + "," AS Column006,
-//			@JsonAttribute("PC", Fos.PaperCount) + "," AS Column007,
-//			@JsonAttribute("CC", Fos.CitationCount) + "," AS Column008, 
-//			"" AS Column009, //@JsonAttribute("ECC", FosEcc.EstimatedCitationCount == null ? 0 : FosEcc.EstimatedCitationCount) + "," AS Column009, 
-//			(Ch.FieldOfStudyChildren == null? "" : "\"FC\":[" + Ch.FieldOfStudyChildren + "],") AS Column010,
-//			(Pr.FieldOfStudyParents == null ? "" :  "\"FP\":[" + Pr.FieldOfStudyParents + "],") AS Column011,
-//			"" AS Column012,
-//			"" AS Column013,
-//			"" AS Column014,
-//			"" AS Column015,
-//			"" AS Column016,
-//			"" AS Column017,
-//			"" AS Column018,
-//			"" AS Column019,
-//			"" AS Column020,
-//			"" AS Column021,
-//			"" AS Column022,
-//			"" AS Column023,
-//			"" AS Column024,
-//			"" AS Column025,
-//			"" AS Column026,
-//			"" AS Column027,
-//			"" AS Column028,
-//			"" AS Column029,
-//			"" AS Column030,
-//			"" AS Column031,
-//			"" AS Column032,
-//			"" AS Column033,
-//			"" AS Column034,
-//			"" AS Column035,
-//			"" AS Column036,
-//			"" AS Column037,
-//			"" AS Column038,
-//			@JsonAttribute("Ty", "6") AS Column039,
-//			"}" AS Column040
-//	FROM @fieldsOfStudy AS Fos
-//			LEFT OUTER JOIN
-//				@reducedFieldOfStudyChildren AS Ch
-//			ON Fos.FieldOfStudyId == Ch.FieldOfStudyId
-//			LEFT OUTER JOIN
-//			@reducedFieldOfStudyParents AS Pr
-//			ON Fos.FieldOfStudyId == Pr.FieldOfStudyId;
+@fieldOfStudyJson =
+	SELECT 
+			(int) (Fos.FieldOfStudyId % @Param_PartitionCount) AS PartitionNumber,
+			"{" AS Column001,
+			@JsonAttribute("logprob", @GetLogProbabilityFromRank(Fos.Rank)) + "," AS Column002,
+			@JsonAttribute("Id", Fos.FieldOfStudyId) + "," AS Column003,
+			@JsonAttribute("DFN", Fos.DisplayName) + "," AS Column004,
+			@JsonAttribute("FN", Fos.NormalizedName) + "," AS Column005,           
+			@JsonAttribute("FL", Fos.Level) + "," AS Column006,
+			@JsonAttribute("PC", Fos.PaperCount) + "," AS Column007,
+			@JsonAttribute("CC", Fos.CitationCount) + "," AS Column008, 
+			"" AS Column009, //@JsonAttribute("ECC", FosEcc.EstimatedCitationCount == null ? 0 : FosEcc.EstimatedCitationCount) + "," AS Column009, 
+			(Ch.FieldOfStudyChildren == null? "" : "\"FC\":[" + Ch.FieldOfStudyChildren + "],") AS Column010,
+			(Pr.FieldOfStudyParents == null ? "" :  "\"FP\":[" + Pr.FieldOfStudyParents + "],") AS Column011,
+			"" AS Column012,
+			"" AS Column013,
+			"" AS Column014,
+			"" AS Column015,
+			"" AS Column016,
+			"" AS Column017,
+			"" AS Column018,
+			"" AS Column019,
+			"" AS Column020,
+			"" AS Column021,
+			"" AS Column022,
+			"" AS Column023,
+			"" AS Column024,
+			"" AS Column025,
+			"" AS Column026,
+			"" AS Column027,
+			"" AS Column028,
+			"" AS Column029,
+			"" AS Column030,
+			"" AS Column031,
+			"" AS Column032,
+			"" AS Column033,
+			"" AS Column034,
+			"" AS Column035,
+			"" AS Column036,
+			"" AS Column037,
+			"" AS Column038,
+			@JsonAttribute("Ty", "6") AS Column039,
+			"}" AS Column040
+	FROM @fieldsOfStudy AS Fos
+			LEFT OUTER JOIN
+				@reducedFieldOfStudyChildren AS Ch
+			ON Fos.FieldOfStudyId == Ch.FieldOfStudyId
+			LEFT OUTER JOIN
+			@reducedFieldOfStudyParents AS Pr
+			ON Fos.FieldOfStudyId == Pr.FieldOfStudyId;
 ////			LEFT OUTER JOIN
 ////			@fieldOfStudyEstimatedCitationCount AS FosEcc
 ////			ON Fos.FieldOfStudyId == FosEcc.FieldOfStudyId;
@@ -1072,16 +1124,16 @@ END;
 
 @merged =
 	SELECT *
-	FROM @paperJson;
+	FROM @paperJson
 //	UNION ALL
 //	SELECT *
 //	FROM @affiliationJson
 //	UNION ALL
 //	SELECT *
 //	FROM @authorJson
-//	UNION ALL
-//	SELECT *
-//	FROM @fieldOfStudyJson
+	UNION ALL
+	SELECT *
+	FROM @fieldOfStudyJson;
 //	UNION ALL
 //	SELECT *
 //	FROM @journalJson;

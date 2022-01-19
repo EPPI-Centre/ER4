@@ -1,10 +1,10 @@
 <div class="card p-1 m-1 alert-light" style="min-width: 750px">
     <div class="col-12 row">
         <h5 class="font-weight-bold btn btn-link col-6 pull-left" (click)="FindNewMAGMatches()">
-            Look up this record in Microsoft Academic
+            Look up this record in OpenAlex
         </h5>
         <h5 class="font-weight-bold btn btn-link col-6 pull-right" (click)="ClearMAGMatches()">
-            Clear Microsoft Academic matches from this record
+            Clear OpenAlex matches from this record
         </h5>
     </div>
     <h5><b>{{item.quickCitation}}</b></h5>
@@ -16,7 +16,7 @@
         <table class="table table-bordered table-responsive-md table-striped text-left small alert-light">
             <thead>
                 <tr>
-                    <th class="text-center">Matches with Microsoft Academic records</th>
+                    <th class="text-center">Matches with OpenAlex records</th>
                     <th class="text-center">Status and score</th>
                 </tr>
             </thead>
@@ -29,10 +29,10 @@
                             {{magPaper.paperId}}
                         </div>
                         <div class="col-3 btn btn-link text-left" (click)="GetMagPaperRef(magPaper.paperId)">
-                            <p>View in Microsoft Academic Browser</p>
+                            <p>View in OpenAlex Browser</p>
                         </div>
                         <div class="col-3 btn btn-link pull-right">
-                            <a href="https://academic.microsoft.com/paper/{{magPaper.paperId}}/reference" target="_blank">
+                            <a href="https://explore.openalex.org/works/W{{magPaper.paperId}}" target="_blank">
                                 View on the internet
                             </a>
                         </div>
@@ -64,7 +64,7 @@
         <table class="table table-bordered table-responsive-md table-striped text-left small alert-warning">
             <thead>
                 <tr>
-                    <th class="text-center">Matches with Microsoft Academic records</th>
+                    <th class="text-center">Matches with OpenAlex records</th>
                     <th class="text-center">Status and score</th>
                 </tr>
             </thead>
@@ -77,10 +77,10 @@
                             {{FoundPaper.paperId}}
                         </div>
                         <div class="col-3 btn btn-link text-left" (click)="GetMagPaperRef(FoundPaper.paperId)">
-                            <p>View in Microsoft Academic Browser</p>
+                            <p>View in OpenAlex Browser</p>
                         </div>
                         <div class="col-3 btn btn-link pull-right">
-                            <a href="https://academic.microsoft.com/paper/{{magPaper.paperId}}/reference" target="_blank">
+                            <a href="https://explore.openalex.org/works/W{{magPaper.paperId}}" target="_blank">
                                 View on the internet
                             </a>
                         </div>
@@ -108,7 +108,7 @@
     </div>
     <div class="col-12 p-2 m-2 row">
         <div class="col-12 text-left">
-            <p><b>Look up specific Microsoft Academic ID:</b></p>
+            <p><b>Look up specific OpenAlex ID:</b></p>
             <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
                    class="alert text-center"
                    [(ngModel)]="magPaperId" />

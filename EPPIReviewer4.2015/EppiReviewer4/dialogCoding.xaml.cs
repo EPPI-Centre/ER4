@@ -439,7 +439,7 @@ namespace EppiReviewer4
                 //codesTreeControl.BindItem(DataContext as Item);
                 LoadAllItemSets((DataContext as Item).ItemId);
                 ClearCurrentTextDocument();
-                if (PaneItemDetails.SelectedIndex != 7) // i.e. don't change if we're on microsoft academic tab
+                if (PaneItemDetails.SelectedIndex != 7) // i.e. don't change if we're on OpenAlex tab
                     PaneItemDetails.SelectedIndex = 0;
                 else
                     MicrosoftAcademic_Activated(null, null);
@@ -3524,10 +3524,10 @@ namespace EppiReviewer4
                     provider.Refresh();
                     hlManualMagLookup.IsEnabled = true;
                     hlManualMagClear.IsEnabled = true;
-                    hlManualMagLookup.Content = "Look up this record in Microsoft Academic";
+                    hlManualMagLookup.Content = "Look up this record in OpenAlex";
                 }
             };
-            hlManualMagLookup.Content = "Looking up this record in Microsoft Academic...";
+            hlManualMagLookup.Content = "Looking up this record in OpenAlex...";
             hlManualMagLookup.IsEnabled = false;
             hlManualMagClear.IsEnabled = false;
             dp.BeginExecute(GetMatches);

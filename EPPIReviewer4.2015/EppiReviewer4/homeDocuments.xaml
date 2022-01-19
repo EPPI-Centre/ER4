@@ -376,7 +376,7 @@
                                     <Button x:Name="cmdMagBrowser" Click="cmdMagBrowser_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"
                                             Visibility="{Binding Source={StaticResource ReviewInfoData}, Path=Data.MagEnabled, Converter={StaticResource EditIntVisibility}, Mode=OneWay}">
                                         <Image x:Name="ImageMAGHasUpdates" Width="22" Height="22" Source="Icons/MicrosoftAcademicICO.png"
-						                    ToolTipService.ToolTip="Explore and import records from Microsoft Academic" />
+						                    ToolTipService.ToolTip="Explore and import records from OpenAlex" />
                                     </Button> 
 
                                     <Button x:Name="cmdNewItem" Click="cmdNewItem_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">

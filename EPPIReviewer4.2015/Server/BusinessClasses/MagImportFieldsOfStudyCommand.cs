@@ -158,10 +158,10 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                         command.Parameters.Add(new SqlParameter("@SET_TYPE_ID", 3)); // Standard
                         command.Parameters.Add(new SqlParameter("@ALLOW_CODING_EDITS", 1));
-                        command.Parameters.Add(new SqlParameter("@SET_NAME", "Microsoft Academic Topics"));
+                        command.Parameters.Add(new SqlParameter("@SET_NAME", "OpenAlex Topics"));
                         command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", 1));
                         command.Parameters.Add(new SqlParameter("@SET_ORDER", _reviewSetIndex));
-                        command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", "Topics auto-generated from Microsoft Academic"));
+                        command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", "Topics auto-generated from OpenAlex"));
                         command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", 0));
 
                         SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);

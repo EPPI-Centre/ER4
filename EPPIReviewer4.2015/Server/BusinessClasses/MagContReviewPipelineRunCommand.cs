@@ -117,6 +117,16 @@ namespace BusinessLibrary.BusinessClasses
                 return;
             }
 
+            if (_doWhat == "CopyOpenAlexDataToAzureBlob")
+            {
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => doRunPipelineCopyOpenAlexDataToAzureBlob(ri.UserId));
+#else
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doRunPipelineCopyOpenAlexDataToAzureBlob(ri.UserId, cancellationToken));
+#endif
+                return;
+            }
+
 
             if (_specificFolder == "")
             {
@@ -204,9 +214,18 @@ namespace BusinessLibrary.BusinessClasses
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);
                 int NewIds = await DownloadResultsAsync(folderPrefix, ReviewId);
-                MagLog.UpdateLogEntry("Complete", "MAG version: " + _NextMagVersion + "; SeedIds: " + SeedIds.ToString() + "; NewIds: " +
-                    NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "; Score threshold: " + _scoreThreshold.ToString() +
+
+                if (NewIds == -1)
+                {
+                    MagLog.UpdateLogEntry("failed", "On downloading IDs. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);
+                }
+                else
+                {
+                    MagLog.UpdateLogEntry("Complete", "MAG version: " + _NextMagVersion + "; SeedIds: " + SeedIds.ToString() + "; NewIds: " +
+                        NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "; Score threshold: " + _scoreThreshold.ToString() +
+                        " Folder:" + folderPrefix, logId);
+                }
             }
             else
             {
@@ -250,7 +269,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                if (!MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIds](""" + this._CurrentMagVersion + "\",\"" +
+                if (!MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIds](""OpenAlexData/" + this._CurrentMagVersion + "\",\"OpenAlexData/" +
                 this._NextMagVersion + "\");", true, "GetNewPaperIds", ContactId, 10, cancellationToken))
                 {
                     MagLog.UpdateLogEntry("Stopped", "Data lake job failed", logId);
@@ -282,8 +301,8 @@ namespace BusinessLibrary.BusinessClasses
 
 
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference(_NextMagVersion);
-            CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference("NewPaperIds.tsv");
+            CloudBlobContainer container = blobClient.GetContainerReference("open-alex");
+            CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference("OpenAlexData/" + _NextMagVersion + "/NewPaperIds.tsv");
 
             try
             {
@@ -331,21 +350,35 @@ namespace BusinessLibrary.BusinessClasses
             return true;
         }
 
+        private async void doRunPipelineCopyOpenAlexDataToAzureBlob(int ContactId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+#if (!CSLA_NETCORE)
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                {"S3Path", "data_dump_v1/" + _NextMagVersion},
+                {"BlobPath", "OpenAlexData/" + _NextMagVersion},
+                {"In_MagRootUri", "wasb://open-alex@eppimag/OpenAlexData/" + _NextMagVersion + "/" },
+                {"In_MagRootUri", "wasb://open-alex@eppimag/makes/" + _NextMagVersion + "/microsoft/entities" }
+            };
+            DataFactoryHelper.RunDataFactoryProcess("Get OpenAlex data", parameters, true, ContactId, cancellationToken);
+#endif
+        }
+
         private async void doRunPipelinePrepareParquet(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string folderName;
-#if (!CSLA_NETCORE)
+//            string folderName;
+//#if (!CSLA_NETCORE)
 
-            folderName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads";
-#else
-                // same as comment above for same line
-                //SG Edit:
-                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                folderName = tmpDir.FullName + "/" + @"UserTempUploads";
-#endif
+//            folderName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads";
+//#else
+//                // same as comment above for same line
+//                //SG Edit:
+//                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+//                folderName = tmpDir.FullName + "/" + @"UserTempUploads";
+//#endif
             int logId = MagLog.SaveLogEntry("ContReview process", "running", "Updating parquet to: " + _NextMagVersion, ContactId);
             string result = MagContReviewPipeline.runADFPipeline(ContactId, "NoTrainFile", "NoInferenceFile",
-                "NoResultsFile", "NoModelFile", _NextMagVersion, _fosThreshold.ToString(), folderName,
+                "NoResultsFile", "NoModelFile", _NextMagVersion, _fosThreshold.ToString(), "",
                 _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), "true", "false",
                 "false", "false", "false");
             if (result == "Succeeded")
@@ -466,7 +499,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private bool WriteNewIdsFileOnBlob(string uploadFileName, int ContactId, string folderPrefix, CancellationToken cancellationToken)
         {
-            if (MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIdsPreviousYear](""" + this._CurrentMagVersion + "\",\"" +
+            if (MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIdsPreviousYear](""OpenAlexData/" + this._CurrentMagVersion + "\",\"OpenAlexData/" +
                 this._NextMagVersion + "\",\"" + folderPrefix + "/NewPapers.tsv" + "\",\"" + "experiments" + "\");", true,
                 "GetNewPaperIds", ContactId, 10, cancellationToken))
                 return true;
@@ -609,5 +642,5 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
 
+        }
     }
-}

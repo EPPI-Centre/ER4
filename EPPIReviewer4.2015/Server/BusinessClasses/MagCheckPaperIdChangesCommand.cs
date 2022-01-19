@@ -584,7 +584,8 @@ namespace BusinessLibrary.BusinessClasses
                             if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                             {
                                 List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal =
-                                    MagMakesHelpers.GetCandidateMatches(MagMakesHelpers.getAuthors(pm.AA) + " " + (pm.J != null ? pm.J.JN : ""));
+                                    //MagMakesHelpers.GetCandidateMatches(MagMakesHelpers.getAuthors(pm.AA) + " " + (pm.J != null ? pm.J[0].JN : ""));
+                                    MagMakesHelpers.GetCandidateMatchesOnAuthorsAndJournal(MagMakesHelpers.getAuthors(pm.AA) + " " + (pm.J != null && pm.J[0] != null ? pm.J[0].JN : ""));
                                 foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
                                 {
                                     MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
@@ -652,16 +653,6 @@ namespace BusinessLibrary.BusinessClasses
                                         MagPaperItemMatch.doComparison(i, cpm);
                                     }
                                 }
-                                /* JT - don't think we need this, as it just removes stuff below the automatch score - and we filter on this below
-                                for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
-                                {
-                                    if (candidatePapersOnTitle[inn].matchingScore < AutoMatchMinScore)
-                                    {
-                                        candidatePapersOnTitle.RemoveAt(inn);
-                                        inn--;
-                                    }
-                                }
-                                */
                                 foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
                                 {
                                     var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
@@ -674,7 +665,7 @@ namespace BusinessLibrary.BusinessClasses
                                 if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                                 {
                                     List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal =
-                                        MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle, "PENDING", false);
+                                        MagMakesHelpers.GetCandidateMatchesOnAuthorsAndJournal(i.Authors + " " + i.ParentTitle, "PENDING", false);
                                     foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
                                     {
                                         MagPaperItemMatch.doComparison(i, cpm);

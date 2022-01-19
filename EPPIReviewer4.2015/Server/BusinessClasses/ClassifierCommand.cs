@@ -520,7 +520,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 //end of 27/09/2021 addition
 
-                if (modelId == -5 || modelId == -6) // the covid19 categories using the BERT model, new Azure ML environment and SQL database. This will become default over time.
+                if (modelId == -5 || modelId == -6 || modelId == -7) // the covid19 and progress-plus using the BERT model, new Azure ML environment and SQL database. This will become default over time.
                 {
 					System.Threading.Tasks.Task.Run(() => DoNewMethod(modelId, ApplyToAttributeId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
@@ -1188,6 +1188,7 @@ namespace BusinessLibrary.BusinessClasses
 
             string covidClassifierPipelineName = configuration["covidClassifierPipelineName"];
             string covidLongCovidPipelineName = configuration["covidLongCovidPipelineName"];
+            string progressPlusPipelineName = configuration["progressPlusPipelineName"];
 
             string ClassifierPipelineName = "";
             string SearchTitle = "";
@@ -1200,6 +1201,11 @@ namespace BusinessLibrary.BusinessClasses
             {
                 ClassifierPipelineName = covidLongCovidPipelineName;
                 SearchTitle = "Long COVID model: ";
+            }
+            if (modelId == -7)
+            {
+                ClassifierPipelineName = progressPlusPipelineName;
+                SearchTitle = "PROGRESS-Plus model: ";
             }
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
@@ -1221,7 +1227,7 @@ namespace BusinessLibrary.BusinessClasses
             while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
             {
                 int count = 0;
-                Console.WriteLine(runStatus);
+                //Console.WriteLine(runStatus);
 
                 if (DateTime.Now.ToUniversalTime().AddMinutes(5) > result.ExpiresOn) // the token expires after an hour
                 {

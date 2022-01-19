@@ -5,7 +5,7 @@ CREATE FUNCTION Affiliations(@BaseDir string = "")
   RETURNS @_Affiliations TABLE
   (
     AffiliationId long,
-    Rank uint,
+    Rank uint?,
     NormalizedName string,
     DisplayName string,
     GridId string,
@@ -26,7 +26,7 @@ CREATE FUNCTION Affiliations(@BaseDir string = "")
   @_Affiliations =
   EXTRACT
     AffiliationId long,
-    Rank uint,
+    Rank uint?,
     NormalizedName string,
     DisplayName string,
     GridId string,
@@ -75,7 +75,7 @@ CREATE FUNCTION Authors(@BaseDir string = "")
   RETURNS @_Authors TABLE
   (
     AuthorId long,
-    Rank uint,
+    Rank uint?,
     NormalizedName string,
     DisplayName string,
     Orcid string,
@@ -91,7 +91,7 @@ CREATE FUNCTION Authors(@BaseDir string = "")
   @_Authors =
   EXTRACT
     AuthorId long,
-    Rank uint,
+    Rank uint?,
     NormalizedName string,
     DisplayName string,
     Orcid string,
@@ -185,7 +185,7 @@ CREATE FUNCTION FieldsOfStudy(@BaseDir string = "")
   RETURNS @_FieldsOfStudy TABLE
   (
     FieldOfStudyId long,
-    Rank uint,
+    Rank uint?,
     NormalizedName string,
     DisplayName string,
     MainType string,
@@ -200,7 +200,7 @@ CREATE FUNCTION FieldsOfStudy(@BaseDir string = "")
   @_FieldsOfStudy =
   EXTRACT
     FieldOfStudyId long,
-    Rank uint,
+    Rank uint?,
     NormalizedName string,
     DisplayName string,
     MainType string,
@@ -221,7 +221,7 @@ CREATE FUNCTION Journals(@BaseDir string = "")
   RETURNS @_Journals TABLE
   (
     JournalId long,
-    Rank uint,
+    Rank uint?,
     NormalizedName string,
     DisplayName string,
     Issn string,
@@ -241,7 +241,7 @@ CREATE FUNCTION Journals(@BaseDir string = "")
   @_Journals =
   EXTRACT
     JournalId long,
-    Rank uint,
+    Rank uint?,
     NormalizedName string,
     DisplayName string,
     Issn string,
@@ -266,14 +266,14 @@ DROP FUNCTION IF EXISTS PaperAbstractsInvertedIndex;
 CREATE FUNCTION PaperAbstractsInvertedIndex(@BaseDir string = "")
   RETURNS @_PaperAbstractsInvertedIndex TABLE
   (
-    PaperId long,
+    PaperId long?,
     IndexedAbstract string
   )
   AS BEGIN
   DECLARE @_Path string = @BaseDir + "nlp/PaperAbstractsInvertedIndex.txt.{*}";
   @_PaperAbstractsInvertedIndex =
   EXTRACT
-    PaperId long,
+    PaperId long?,
     IndexedAbstract string
   FROM @_Path
   USING Extractors.Tsv(silent: true, quoting: false, skipFirstNRows: 1);
@@ -286,10 +286,10 @@ DROP FUNCTION IF EXISTS PaperAuthorAffiliations;
 CREATE FUNCTION PaperAuthorAffiliations(@BaseDir string = "")
   RETURNS @_PaperAuthorAffiliations TABLE
   (
-    PaperId long,
-    AuthorId long,
+    PaperId long?,
+    AuthorId long?,
     AffiliationId long?,
-    AuthorSequenceNumber uint,
+    AuthorSequenceNumber uint?,
     OriginalAuthor string,
     OriginalAffiliation string
   )
@@ -297,10 +297,10 @@ CREATE FUNCTION PaperAuthorAffiliations(@BaseDir string = "")
   DECLARE @_Path string = @BaseDir + "mag/PaperAuthorAffiliations.txt";
   @_PaperAuthorAffiliations =
   EXTRACT
-    PaperId long,
-    AuthorId long,
+    PaperId long?,
+    AuthorId long?,
     AffiliationId long?,
-    AuthorSequenceNumber uint,
+    AuthorSequenceNumber uint?,
     OriginalAuthor string,
     OriginalAffiliation string
   FROM @_Path
@@ -336,19 +336,19 @@ DROP FUNCTION IF EXISTS PaperFieldsOfStudy;
 CREATE FUNCTION PaperFieldsOfStudy(@BaseDir string = "")
   RETURNS @_PaperFieldsOfStudy TABLE
   (
-    PaperId long,
-    FieldOfStudyId long,
-    Score float,
-    AlgorithmVersion int
+    PaperId long?,
+    FieldOfStudyId long?,
+    Score float?,
+    AlgorithmVersion int?
   )
   AS BEGIN
   DECLARE @_Path string = @BaseDir + "advanced/PaperFieldsOfStudy.txt";
   @_PaperFieldsOfStudy =
   EXTRACT
-    PaperId long,
-    FieldOfStudyId long,
-    Score float,
-    AlgorithmVersion int
+    PaperId long?,
+    FieldOfStudyId long?,
+    Score float?,
+    AlgorithmVersion int?
   FROM @_Path
   USING Extractors.Tsv(silent: true, quoting: false, skipFirstNRows: 1);
   RETURN;
@@ -456,7 +456,7 @@ DROP FUNCTION IF EXISTS PaperUrls;
 CREATE FUNCTION PaperUrls(@BaseDir string = "")
   RETURNS @_PaperUrls TABLE
   (
-    PaperId long,
+    PaperId long?,
     SourceType int?,
     SourceUrl string,
     LanguageCode string,
@@ -472,7 +472,7 @@ CREATE FUNCTION PaperUrls(@BaseDir string = "")
   DECLARE @_Path string = @BaseDir + "mag/PaperUrls.txt";
   @_PaperUrls =
   EXTRACT
-    PaperId long,
+    PaperId long?,
     SourceType int?,
     SourceUrl string,
     LanguageCode string,
@@ -495,7 +495,7 @@ CREATE FUNCTION Papers(@BaseDir string = "")
   RETURNS @_Papers TABLE
   (
     PaperId long,
-    Rank uint,
+    Rank uint?,
     Doi string,
     DocType string,
     Genre string,
@@ -534,7 +534,7 @@ CREATE FUNCTION Papers(@BaseDir string = "")
   @_Papers =
   EXTRACT
     PaperId long,
-    Rank uint,
+    Rank uint?,
     Doi string,
     DocType string,
     Genre string,
