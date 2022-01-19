@@ -139,20 +139,23 @@
         
         <div class="container m-1 p-1 border border-right" style="display:none;" id="AdvancedCodesPanel">
             <div class="row mx-0">
-                <button id="AddWithThisCodeBtn" class="btn btn-sm btn-secondary px-1 py-0 mr-1" onclick="AddWithThisCode()" disabled>With this code</button>
-                <button id="AddWithoutThisCodeBtn" class="btn btn-sm btn-secondary py-0 mr-1" onclick="AddWithoutThisCode()" disabled>Without this code</button>
+                <button id="AddWithThisCodeBtn" class="btn btn-sm btn-info px-1 py-1 mr-1" onclick="AddWithThisCode()" disabled>
+                    <span style="color:black;">With this code</span></button>
+                <button id="AddWithoutThisCodeBtn" class="btn btn-sm btn-warning px-1 py-1 mr-1" onclick="AddWithoutThisCode()" disabled>
+                    <span style="color:black;">Without this code</span></button>
             </div>
             <div>
                 With these codes:
-                <div class="alert-success border-left" id="WithTheseCodesList"></div>
+                <div class="alert-primary border-left" id="WithTheseCodesList"></div>
             </div>
             <div>
                 Without these codes:
-                <div class="alert-danger border-left" id="WithoutTheseCodesList"></div>
+                <div class="alert-warning border-left" id="WithoutTheseCodesList"></div>
             </div>
-            <div class="row mx-0">
-                <button id="AdvancedCodesSearchBtn" class="btn btn-success btn-sm px-2 py-1 mr-1" onclick="AdvancedCodesSearch()" disabled>Go!</button>
-                <button class="btn btn-sm btn-secondary" onclick="ToggleAdvanced()">Close</button>
+            <div class="row mx-0 my-1">
+                <button id="AdvancedCodesSearchBtn" class="btn btn-primary btn-sm px-2 py-1 mr-1" onclick="AdvancedCodesSearch()" disabled>
+                    <span class="btn-label"><i class="flaticon-search-2"></i></span>&nbsp;&nbsp;Go!&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                <button class="btn btn-sm btn-link" onclick="ToggleAdvanced()">Close</button>
             </div>
         </div>
     </div>
