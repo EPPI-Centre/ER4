@@ -3364,7 +3364,7 @@ namespace EppiReviewer4
                         RadWindow.Alert(newSearch.MagSearchText);
                         return;
                     }
-                    newSearch.SearchText = "MAG ID(s): " + TextBoxMagSearch.Text;
+                    newSearch.SearchText = "OpenAlex ID(s): " + TextBoxMagSearch.Text;
                     break;
                 case 5:
                     newSearch.MagSearchText = newSearch.GetSearchTextJournals(TextBoxMagSearch.Text);
@@ -4659,6 +4659,47 @@ namespace EppiReviewer4
             }
         }
 
-        
+        private void LBCreateCodeSetFromFosIds_Click(object sender, RoutedEventArgs e)
+        {
+            if (TBUploadIDs.Text == "")
+            {
+                RadWindow.Alert("You need to enter some IDs first");
+                return;
+            }
+            RadWindow.Confirm("Are you sure you want to create a codeset from these IDs?", this.doCreateCodeSetFromFosIds);
+        }
+
+        private void doCreateCodeSetFromFosIds(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
+                DataPortal<MagImportFieldsOfStudyCommand> dp2 = new DataPortal<MagImportFieldsOfStudyCommand>();
+                MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
+                    "",
+                    TBUploadIDs.Text,
+                    rsl.Count,
+                    0,
+                    0,
+                    0);
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    BusyImportingRecords.IsRunning = false;
+                    tbImportingRecords.Visibility = Visibility.Collapsed;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        
+                    }
+                };
+                BusyImportingRecords.IsRunning = true;
+                tbImportingRecords.Visibility = Visibility.Visible;
+                dp2.BeginExecute(command);
+            }
+        }
     }
 }

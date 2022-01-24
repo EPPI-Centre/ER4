@@ -106,7 +106,14 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
+            if (_itemList == "")
+            {
+                doCreateCodeSet();
+                return;
+            }
+
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            
             List<ItemData> ItemsData = new List<ItemData>();
 
             // Get a list of the item ids that we need to get topics for
@@ -149,36 +156,7 @@ namespace BusinessLibrary.BusinessClasses
             ReviewSet rs = null;
             if (_reviewSetId == 0)
             {
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                {
-                    connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_ReviewSetInsert", connection))
-                    {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                        command.Parameters.Add(new SqlParameter("@SET_TYPE_ID", 3)); // Standard
-                        command.Parameters.Add(new SqlParameter("@ALLOW_CODING_EDITS", 1));
-                        command.Parameters.Add(new SqlParameter("@SET_NAME", "OpenAlex Topics"));
-                        command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", 1));
-                        command.Parameters.Add(new SqlParameter("@SET_ORDER", _reviewSetIndex));
-                        command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", "Topics auto-generated from OpenAlex"));
-                        command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", 0));
-
-                        SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
-                        par.Value = 0;
-                        command.Parameters.Add(par);
-                        command.Parameters["@NEW_REVIEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
-
-                        SqlParameter par2 = new SqlParameter("@NEW_SET_ID", System.Data.SqlDbType.Int);
-                        par2.Value = 0;
-                        command.Parameters.Add(par2);
-                        command.Parameters["@NEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
-                        command.ExecuteNonQuery();
-                        _reviewSetId = Convert.ToInt32(command.Parameters["@NEW_REVIEW_SET_ID"].Value);
-                    }
-                    connection.Close();
-                }
-
+                _reviewSetId = CreateNewReviewSet(ri.ReviewId);
             }
             
             rs = ReviewSet.GetReviewSet(_reviewSetId);
@@ -255,6 +233,40 @@ namespace BusinessLibrary.BusinessClasses
             ReturnMessage = "Successful. Items processed: " + numAdded.ToString();
         }
 
+        private int CreateNewReviewSet(int ReviewId)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ReviewSetInsert", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@SET_TYPE_ID", 3)); // Standard
+                    command.Parameters.Add(new SqlParameter("@ALLOW_CODING_EDITS", 1));
+                    command.Parameters.Add(new SqlParameter("@SET_NAME", "OpenAlex Topics"));
+                    command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", 1));
+                    command.Parameters.Add(new SqlParameter("@SET_ORDER", _reviewSetIndex));
+                    command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", "Topics auto-generated from OpenAlex"));
+                    command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", 0));
+
+                    SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
+                    par.Value = 0;
+                    command.Parameters.Add(par);
+                    command.Parameters["@NEW_REVIEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+
+                    SqlParameter par2 = new SqlParameter("@NEW_SET_ID", System.Data.SqlDbType.Int);
+                    par2.Value = 0;
+                    command.Parameters.Add(par2);
+                    command.Parameters["@NEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    _reviewSetId = Convert.ToInt32(command.Parameters["@NEW_REVIEW_SET_ID"].Value);
+                }
+                connection.Close();
+            }
+            return _reviewSetId;
+        }
+
         
         private bool isValidFos(Int64 fos)
         {
@@ -294,8 +306,8 @@ namespace BusinessLibrary.BusinessClasses
                         AttributeOrder = rs.Attributes.Count,
                         AttributeName = fos.DFN,
                         AttributeDescription = "",
-                        ExtURL = "http://academic.microsoft.com/topic/" + fos.Id,
-                        ExtType = "MAG",
+                        ExtURL = "https://explore.openalex.org/C" + fos.Id,
+                        ExtType = "OpenAlex",
                         ContactId = ContactId,
                         OriginalAttributeID = fos.Id
                     };
@@ -331,8 +343,8 @@ namespace BusinessLibrary.BusinessClasses
                             AttributeOrder = parentAttribute.Attributes.Count,
                             AttributeName = fos.DFN,
                             AttributeDescription = "",
-                            ExtURL = "http://academic.microsoft.com/topic/" + fos.Id,
-                            ExtType = "MAG",
+                            ExtURL = "https://explore.openalex.org/C" + fos.Id,
+                            ExtType = "OpenAlex",
                             ContactId = ContactId,
                             OriginalAttributeID = fos.Id
                         };
@@ -377,6 +389,38 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             return ItemAttributeId;
+        }
+
+        private void doCreateCodeSet()
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            ReviewSet rs = null;
+            if (_reviewSetId == 0)
+            {
+                _reviewSetId = CreateNewReviewSet(ri.ReviewId);
+            }
+
+            rs = ReviewSet.GetReviewSet(_reviewSetId);
+            if (rs == null)
+            {
+                ReturnMessage = "Error: could not get code set for new codes";
+                return;
+            }
+
+            string [] FosIds = _attributeList.Replace("\n\r", "¬").Replace("r\n", "¬").Replace("\n", "¬").Replace("\r", "¬").Replace(",", "¬").Split('¬');
+            Int64 testInt64 = 0;
+            int count = 0;
+            foreach (string s in FosIds)
+            {
+                if (s.Trim() != "" && Int64.TryParse(s, out testInt64))
+                {
+                    if (isValidFos(testInt64))
+                    {
+                        GetOrCreateAttribute(rs, s.Trim(), ri.UserId, ri.ReviewId);
+                    }
+                }
+            }
+            
         }
 
 

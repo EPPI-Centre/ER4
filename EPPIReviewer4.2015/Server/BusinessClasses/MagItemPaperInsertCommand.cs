@@ -523,7 +523,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else
                 {
-                    incomingList.SourceName = "Selected items from MAG on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
+                    incomingList.SourceName = "Selected items from OpenAlex on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
                     incomingList.SearchStr = _PaperIds;
                 }
                 incomingList.SourceDB = "OpenAlex";

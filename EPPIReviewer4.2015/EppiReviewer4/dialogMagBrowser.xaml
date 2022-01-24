@@ -1542,6 +1542,7 @@
 
                                     <StackPanel Grid.Row="5" Orientation="Vertical" Grid.ColumnSpan="2">
                                         <HyperlinkButton x:Name="LBUploadIDsFile" Content="Add IDs to selected items list" Click="LBUploadIDsFile_Click"  IsTabStop="False" Margin="0,10,5,5"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBCreateCodeSetFromFosIds" Content="Create codeset from FoS IDs" Click="LBCreateCodeSetFromFosIds_Click"  IsTabStop="False" Margin="0,10,5,5"></HyperlinkButton>
                                         <TextBox x:Name="TBUploadIDs" TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" AcceptsReturn="True" MaxHeight="80"></TextBox>
                                     </StackPanel>
                                 </Grid>
