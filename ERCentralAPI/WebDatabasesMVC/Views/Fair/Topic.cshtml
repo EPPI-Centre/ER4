@@ -75,7 +75,7 @@
     function GetFreqForPieChart(dataItem) {
         $("#FreqSpinner").show();
         progressData = dataItem;
-        $.post("../Frequencies/FairGetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true, onlyThisAttribute: topicAttribute.attributeId }
+        $.post(pathRoot + "Frequencies/FairGetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true, onlyThisAttribute: topicAttribute.attributeId }
             , function (data, result) {
                 $("#FreqSpinner").hide();
                 if (result == "success") {
@@ -320,10 +320,10 @@
         if (spinnerItems) spinnerItems.show();
 
         //ALERT! we're taking for granted that we do NOT support "none of the above" frequency results...
-        var Destination = "../ItemList/FairGetFreqListJson";
+        var Destination = pathRoot + "ItemList/FairGetFreqListJson";
         var pars = {};
         if (useFilter) {
-            Destination = "../ItemList/FairGetListWithWithoutAttsJSON";
+            Destination = pathRoot + "ItemList/FairGetListWithWithoutAttsJSON";
             var Descript = "Items with: " + attribute + " and " + topicAttribute.attributeName;
             var WithAttIds = attributeId.toString() + "," + topicAttribute.attributeId.toString();
             var WithSetId = setId.toString() + "," + topicAttribute.setId.toString();
@@ -358,10 +358,10 @@
         if (spinnerItems) spinnerItems.show();
 
         //ALERT! we're taking for granted that we do NOT support "none of the above" frequency results...
-        var Destination = "../ItemList/FairGetFreqListJson";
+        var Destination = pathRoot + "ItemList/FairGetFreqListJson";
         var pars = {};
         if (useFilter) {
-            Destination = "../ItemList/FairGetListWithWithoutAttsJSON";
+            Destination = pathRoot + "ItemList/FairGetListWithWithoutAttsJSON";
             var Descript = "Items with: " + AttributeSet.attribute + " and " + topicAttribute.attributeName;
             var WithAttIds = AttributeSet.attributeId.toString() + "," + topicAttribute.attributeId.toString();
             var WithSetId = AttributeSet.setId.toString() + "," + topicAttribute.setId.toString();

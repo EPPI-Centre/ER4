@@ -18,8 +18,7 @@
             if (LogoUrlCl != null) imgUrl3 = LogoUrlCl.Value;
         }
     }
-
-
+    string path = Context.Request.Scheme + "://" + Context.Request.Host.ToString() + Context.Request.PathBase +"/" ;// + Url.Content("~/"); //should give us the root of the app!
 }
 
 
@@ -38,7 +37,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/Kendo/kendo.all.min.js"></script>
     <script>
-        
+        const pathRoot = '@path';
         function GoToItems(AttId, AttName = '') {
 
             //console.log("GoToItems", AttId, AttName);
@@ -92,7 +91,7 @@
     <script>
         WebFont.load({
             google: { "families": ["Lato:300,400,700,900"] },
-            custom: { "families": ["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css'] },
+            custom: { "families": ["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: [pathRoot + 'assets/css/fonts.min.css'] },
             active: function () {
                 sessionStorage.fonts = true;
             }
@@ -107,7 +106,6 @@
     <link rel="stylesheet" href="~/assets/css/demo.css">
 </head>
 <body>
-
     <div class="h-100">
         <div class="main-header" data-background-color="blue">
             <!-- Navbar Header -->

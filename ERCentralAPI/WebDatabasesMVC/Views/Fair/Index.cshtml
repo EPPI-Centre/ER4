@@ -17,7 +17,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "../ReviewSetList/FetchJSON",
+                        url: pathRoot + "ReviewSetList/FetchJSON",
                         dataType: "json"
                     }
                 },
@@ -75,7 +75,7 @@
     function GetFreqForPieChart(dataItem) {
         $("#FreqSpinner").show();
         progressData = dataItem;
-        $.post("../Frequencies/FairGetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+        $.post(pathRoot + "Frequencies/FairGetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
             , function (data, result) {
                 $("#FreqSpinner").hide();
                 if (result == "success") {
@@ -312,7 +312,7 @@
             , listType: "WebDbWithThisCode"
         };
 
-        postwith("../Fair/ListFromCrit", pars);
+        postwith(pathRoot + "Fair/ListFromCrit", pars);
     }
 
 </script>

@@ -1,18 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Mvc;
 @{
     //this is a trick, to ensure the JS method ItemsWithThisCode will work from pages with urls like "[root]/fair", "[root]/fair/Index", "[root]/fair/", "[root]/fair/Topic?TopicId=121783" and more... 
-    string path = Url.Content("~/"); //should give us the root of the app!
+
 }
 <script type="text/javascript">
     var treeviewData = null;
     var dataItem = null;
     var withTheseCodes = [];
     var withoutTheseCodes = [];
-    const path = '@path' + "fair/";
     function ItemsWithThisCode() {
         console.log(dataItem);
         if (dataItem && !dataItem.isCodeset)
-            window.location.href = path + 'Topic?TopicId=' + dataItem.id;
+            window.location.href = pathRoot + 'Fair/Topic?TopicId=' + dataItem.id;
     }
     function TreeViewSelection(e) {
         if (treeviewData == null) retrun;
@@ -124,7 +123,7 @@
             , listType: "WebDbWithWithoutCodes"
         };
         
-        postwith("../Fair/ListFromCrit", pars);
+        postwith(pathRoot + "Fair/ListFromCrit", pars);
     }
 </script>
 
