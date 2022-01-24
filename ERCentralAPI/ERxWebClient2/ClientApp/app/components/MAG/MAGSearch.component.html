@@ -26,7 +26,7 @@
                                     <option [value]="1">Word(s) in abstract</option>
                                     <option [value]="2">Author name(s)</option>
                                     <option [value]="3">Topic</option>
-                                    <option [value]="4">MAG ID</option>
+                                    <option [value]="4">OpenAlex ID</option>
                                     <option [value]="5">Journal</option>
                                     <option [value]="6">Custom</option>
                                 </select>
@@ -49,7 +49,7 @@
                                         <div class="card-body">
 
 
-                                            <div class="row m-0">1. Search MAG for topics:</div>
+                                            <div class="row m-0">1. Search OpenAlex for topics:</div>
                                             <div class="row m-0">
                                                 <input class="form-control col border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="magSearchInput"
                                                        placeholder="Wildcards will work, e.g. physic* " />
@@ -59,7 +59,7 @@
                                             </div>
 
                                             <div class="row m-0 " [ngClass]="{'font-weight-light small': SearchTextTopicsResults.length == 0}">
-                                                2. Pick a MAG topic:
+                                                2. Pick an OpenAlex topic:
                                             </div>
                                             <div *ngIf="SearchTextTopicsResults.length > 0" class="col-auto small my-1 mx-auto alert-info border border-info rounded">
                                                 Showing topics found by searching for: <strong>{{SearchedTopic}}</strong>
@@ -76,7 +76,7 @@
                                                 3. Pick other options and Search:
                                             </div>
                                             <div *ngIf="SearchTextTopicDisplayName != ''" class="col-auto small my-1 mx-auto alert-info border border-info rounded">
-                                                Selected MAG topic is: <strong>{{SearchTextTopicDisplayName}}</strong>
+                                                Selected OpenAlex topic is: <strong>{{SearchTextTopicDisplayName}}</strong>
                                             </div>
                                         </div>
 
@@ -436,7 +436,7 @@
                                 <th class="" width="1">#</th>
                                 <th class="" width="6" style="min-width:50px">Name</th>
                                 <th class="" width="5" style="min-width:50px">Search string</th>
-                                <th class="" width="2">MAG Version</th>
+                                <th class="" width="2">OpenAlex Version</th>
                                 <th class="" width="2">User</th>
                                 <th class="" width="2">Date</th>
                                 <th class="" width="2" style="text-align:center">Hits</th>
