@@ -30,7 +30,7 @@
         <TextBlock Grid.Row="0" Grid.Column="0" Text="Select robot" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
             <RadioButton x:Name="rbRobotReviewer" GroupName="SelectRobot" Content="RobotReviewer" Margin="5,5,5,5" IsChecked="True" VerticalAlignment="Center"></RadioButton>
-            <RadioButton x:Name="rbRobotHBCP" GroupName="SelectRobot" Content="HBCP" Margin="5,5,5,5" IsChecked="False" VerticalAlignment="Center"></RadioButton>
+            <RadioButton x:Name="rbRobotHBCP" GroupName="SelectRobot" Content="HBCP" Margin="5,5,5,5" IsEnabled="False" IsChecked="False" VerticalAlignment="Center"></RadioButton>
         </StackPanel>
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Select coding tool" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
         <ComboBox x:Name="dialogRobotsComboSelectCodeSet" Grid.Row="1" Grid.Column="1" Margin="5,5,5,5" ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}"></ComboBox>
