@@ -436,7 +436,7 @@
                             <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
                                 @{
                                     if (Model.TopicAttribute.ExtType != "")
-                                    { <img class="float-right" src="@Model.ImagesBaseUrl@Model.TopicAttribute.ExtType" /> }
+                                    { <img class="float-right" src="@Model.ImagesBaseUrl@Model.TopicAttribute.ExtType" style="max-width:60%; object-fit: cover;"/> }
                                 }
                                 @Model.TopicAttribute.AttributeSetDescription
                             </div>
