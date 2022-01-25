@@ -170,7 +170,7 @@ namespace BusinessLibrary.BusinessClasses
             if (NewAttributeSet != null)
             {
                 int n = 0;
-                if (a.Attributes != null)
+                if (a.Attributes != null && a.Attributes.AttributesList != null)
                 {
                     foreach (Attributeslist nested in a.Attributes.AttributesList)
                     {
