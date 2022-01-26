@@ -69,6 +69,15 @@
             crit.itemIds = ItemsIds;
             postwith("../ItemList/ItemDetails", crit);
         }
+
+        function enableSearch() {
+            if (document.getElementById("SearchString").value === "") {
+                document.getElementById('searchButton').disabled = true;
+            } else {
+                document.getElementById('searchButton').disabled = false;
+            }
+        }
+
     </script>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -142,22 +151,24 @@
             <nav class="navbar navbar-header navbar-expand-lg" data-background-color="blue2">
 
                 <div class="container-fluid">
-                    <form asp-controller="ItemList" asp-action="GetListSearchResults" method="post" class="navbar-left navbar-form nav-search mr-md-3">
+                    <form asp-controller="ItemList" asp-action="GetListSearchResults" method="post" class="navbar-left navbar-form mr-md-3">
                         <table>
                             <tr>
                                 <td>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
-                                            <button type="submit" class="btn btn-search pr-1">
-                                                <i class="fa fa-search search-icon"></i>
-                                            </button>
+                                            <div class="input-group-prepend border rounded my-auto ">
+                                                <button type="submit" id="searchButton" class="btn btn-search pr-1 py-2 px-2" disabled>
+                                                    <span style="color:white"><i class="fa fa-search search-icon"></i></span>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <input type="text" placeholder="Search records..." class="form-control" maxlength="4000" name="SearchString" id="SearchString" />
+                                        <input type="text" placeholder="Search records..." onkeyup="enableSearch()" style="background-color:white" class="form-control" maxlength="4000" name="SearchString" id="SearchString" />
                                     </div>
                                 </td>
                                 <td>
                                     <div class="col-auto">
-                                        <select name="SearchWhat" id="SearchWhat" class="btn btn-light dropdown-toggle ml-1 mr-2">
+                                        <select name="SearchWhat" id="SearchWhat" style="text-align:left" class="btn btn-light dropdown-toggle ml-1 mr-2">
                                             <option value="TitleAbstract">Title and Abstract</option>
                                             <option value="Title">Title</option>
                                             <option value="Abstract">Abstract</option>
