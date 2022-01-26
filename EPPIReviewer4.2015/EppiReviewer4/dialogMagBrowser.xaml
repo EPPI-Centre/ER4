@@ -1109,7 +1109,7 @@
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn Header="MAG search string" Width="*">
+                                            <telerikGridView:GridViewDataColumn Header="Search string" Width="*">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock Text="{Binding MagSearchText}" TextWrapping="Wrap"/>

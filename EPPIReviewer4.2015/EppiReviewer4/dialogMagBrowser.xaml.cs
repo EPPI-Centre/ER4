@@ -1979,7 +1979,7 @@ namespace EppiReviewer4
             mrpr.Filtered = "";
             mrpr.DateRun = DateTime.Now;
             mrpr.Mode = (ComboRelatedPapersMode.SelectedItem as ComboBoxItem).Tag.ToString();
-            if (mrpr.Mode == "New items in MAG")
+            if (mrpr.Mode == "New items in OpenAlex")
             {
                 mrpr.Status = "Pending";
             }
@@ -2750,7 +2750,7 @@ namespace EppiReviewer4
             if (mr != null)
             {
                 RememberThisMagReview = mr;
-                RadWindow.Confirm("Are you sure you want to remove MAG access from this review?", this.RemoveMagReview);
+                RadWindow.Confirm("Are you sure you want to remove OpenAlex access from this review?", this.RemoveMagReview);
             }
         }
 
@@ -2915,10 +2915,10 @@ namespace EppiReviewer4
         {
             if (CurrentMag() == PendingMag())
             {
-                RadWindow.Alert("Both MAG versions are the same!");
+                RadWindow.Alert("Both OpenAlex versions are the same!");
                 return;
             }
-            RadWindow.Confirm("Are you sure you want to run the pipeline?!\nOld mag: " + CurrentMag() + " new mag: " + PendingMag(), this.checkRunContReviewPipeline);
+            RadWindow.Confirm("Are you sure you want to run the pipeline?!\nOld OpenAlex: " + CurrentMag() + " new OpenAlex: " + PendingMag(), this.checkRunContReviewPipeline);
         }
 
         private void checkRunContReviewPipeline(object sender, WindowClosedEventArgs e)
@@ -3661,7 +3661,7 @@ namespace EppiReviewer4
                 {
                     if (search.MagFolder != mci.MagFolder)
                     {
-                        RadWindow.Alert("This search was run against a prevous version of MAG\nPlease re-run before listing results.");
+                        RadWindow.Alert("This search was run against a prevous version of OpenAlex\nPlease re-run before listing results.");
                         return;
                     }
                 }
@@ -3693,8 +3693,8 @@ namespace EppiReviewer4
                     {
                         if (ms.MagFolder != mci.MagFolder)
                         {
-                            RadWindow.Alert("This search was run against an earlier version of MAG\nPlease re-run before importing");
-                            //return;
+                            RadWindow.Alert("This search was run against an earlier version of OpenAlex\nPlease re-run before importing");
+                            return;
                         }
                     }
                         if (ms.HitsNo > 20000)
@@ -3726,8 +3726,8 @@ namespace EppiReviewer4
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterDOI.Text : ""),
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterURL.Text : ""),
                         ms.MagSearchText,
-                        "MAG search: " + ms.SearchText + 
-                            (SelectedLinkButton.Tag.ToString() == "MagSearchResultsLatestMAG" ? " (filtered to latest MAG deployment)" : "") +
+                        "OpenAlex search: " + ms.SearchText + 
+                            (SelectedLinkButton.Tag.ToString() == "MagSearchResultsLatestMAG" ? " (filtered to latest deployment)" : "") +
                             (cbMagSearchShowTextFilters.IsChecked == true ? " (with source filters applied)" : ""));
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
@@ -3753,7 +3753,7 @@ namespace EppiReviewer4
                                     filteredText = " / were removed by filters";
                                 string latestMagFilter = "";
                                 if (SelectedLinkButton.Tag.ToString() != "MagSearchResults")
-                                    latestMagFilter = " / were not in latest MAG";
+                                    latestMagFilter = " / were not in latest OpenAlex";
 
                                 if (e2.Object.NImported == 0)
                                 {
