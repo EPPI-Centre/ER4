@@ -222,7 +222,7 @@ namespace BusinessLibrary.BusinessClasses
                             AllIDsToSearch.Add(PaperId);
                         }
                     }
-                    incomingList.SourceName = "Selected items from MAG on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
+                    incomingList.SourceName = "Selected items from OpenAlex on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
                     incomingList.SearchStr = _PaperIds;
                 }
                 // then we look up the list of IDs from 1, 2 and 3 in MAKES. Doing in batches of 100 as this is much quicker than one at a time
