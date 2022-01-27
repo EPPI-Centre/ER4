@@ -362,6 +362,7 @@ namespace EppiReviewer4
             windowDocumentCluster.ClusterWhat_SelectionChanged += new EventHandler<System.Windows.Controls.SelectionChangedEventArgs>(ComboClusterWhat_SelectionChanged);
             windowDocumentCluster.cmdCluster_Clicked += new EventHandler<RoutedEventArgs>(cmdCluster_Click);
             windowDocumentCluster.cmdGetMicrosoftAcademicTopics_Clicked += new EventHandler<RoutedEventArgs>(cmdGetMicrosoftAcademicTopics_Click);
+            windowDocumentCluster.cmdGetOpenAlexTopicsNLP_Clicked += new EventHandler<RoutedEventArgs>(cmdGetOpenAlexTopicsNLP_Click);
             windowLoadDiagram.cmdLoadDiagram_Clicked += new EventHandler<RoutedEventArgs>(cmdLoadDiagram_Click);
             windowCheckAssignItemsToCode.cmdCancelAssignCode_Clicked += new EventHandler<RoutedEventArgs>(cmdCancelAssignCode_Click);
             windowCheckAssignItemsToCode.cmdAssignCode_Clicked += new EventHandler<RoutedEventArgs>(cmdAssignCode_Click);
@@ -760,6 +761,7 @@ namespace EppiReviewer4
         }
         private void cmdGetMicrosoftAcademicTopics_Click(object sender, RoutedEventArgs e)
         {
+            RadWindow.Alert("at topics");
             if (windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true && windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedIndex == -1)
             {
                 RadWindow.Alert("Please select a code set or specify a new one be created");
@@ -786,11 +788,13 @@ namespace EppiReviewer4
             DataPortal<MagImportFieldsOfStudyCommand> dp = new DataPortal<MagImportFieldsOfStudyCommand>();
             MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
                 item_ids,
-                (windowDocumentCluster.ComboClusterWhat.SelectedIndex != 2 ? "" : windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet().AttributeId.ToString()),
+                (windowDocumentCluster.ComboClusterWhat.SelectedIndex != 2 ? -2 : windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet().AttributeId),
                 rsl.Count,
                 windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true ? (windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedItem as ReviewSet).ReviewSetId : 0,
                 Convert.ToInt32(windowDocumentCluster.dialogClusterMaxTopics.Value.Value),
-                Convert.ToInt32(windowDocumentCluster.dialogClusterMinItems.Value.Value));
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMinItems.Value.Value),
+                "Use OpenAlex assigned topics",
+                "");
 
             dp.ExecuteCompleted += (o, e2) =>
             {
@@ -808,6 +812,67 @@ namespace EppiReviewer4
                     windowDocumentCluster.Close();
                     windowPleaseWait.Close();
                     (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Refresh();
+                    DocumentActions.SelectedIndex = 0;
+                    RadWindow.Alert(e2.Object.ReturnMessage);
+                }
+            };
+            windowPleaseWait.ShowDialog();
+            BusyPleaseWait.IsRunning = true;
+            dp.BeginExecute(command);
+        }
+
+        private void cmdGetOpenAlexTopicsNLP_Click(object sender, RoutedEventArgs e)
+        {
+            if (windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedIndex == -1)
+            {
+                RadWindow.Alert("Please select a code set");
+                return;
+            }
+            string item_ids = "";
+            ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
+
+            if (windowDocumentCluster.ComboClusterWhat.SelectedIndex == 1)
+            {
+                item_ids = ItemsGridSelectedItems();
+                if (item_ids == "")
+                {
+                    RadWindow.Alert("You don't have any items selected");
+                    return;
+                }
+            }
+            if (windowDocumentCluster.ComboClusterWhat.SelectedIndex == 2 && windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet() == null)
+            {
+                RadWindow.Alert("Please select a code");
+                return;
+            }
+
+            DataPortal<MagImportFieldsOfStudyCommand> dp = new DataPortal<MagImportFieldsOfStudyCommand>();
+            MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
+                item_ids,
+                (windowDocumentCluster.ComboClusterWhat.SelectedIndex != 2 ? -1 : windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet().AttributeId),
+                rsl.Count,
+                windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true ? (windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedItem as ReviewSet).ReviewSetId : 0,
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMaxTopics.Value.Value),
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMinItems.Value.Value),
+                "UseNLP",
+                "");
+
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                if (e2.Error != null)
+                {
+                    BusyPleaseWait.IsRunning = false;
+                    windowDocumentCluster.Close();
+                    windowPleaseWait.Close();
+                    DocumentActions.SelectedIndex = 0;
+                    RadWindow.Alert(e2.Error);
+                }
+                else
+                {
+                    BusyPleaseWait.IsRunning = false;
+                    windowDocumentCluster.Close();
+                    windowPleaseWait.Close();
+                    //(App.Current.Resources["CodeSetsData"] as CslaDataProvider).Refresh(); // not needed, as this returns before the process is complete
                     DocumentActions.SelectedIndex = 0;
                     RadWindow.Alert(e2.Object.ReturnMessage);
                 }
@@ -5228,6 +5293,7 @@ on the right of the main screen");
                         windowDocumentCluster.GridWindowDocumentCluster.RowDefinitions[9].MaxHeight = 35;
                         break;
                 }
+                windowDocumentCluster.cmdGetOpenAlexTopicsNLP.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             }
         }
 

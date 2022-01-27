@@ -79,6 +79,7 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -150,6 +151,7 @@
         <RadioButton x:Name="rbApplyCovidCategoriesModel" Grid.Column="4" Grid.Row="13" Content="Apply COVID-19 categories model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
         <RadioButton x:Name="rbApplyLongCovidModel" Grid.Column="4" Grid.Row="14" Content="Apply Long-COVID binary model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
         <RadioButton x:Name="rbApplyProgressPlusModel" Grid.Column="4" Grid.Row="15" Content="Apply PROGRESS-Plus model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
+        <RadioButton x:Name="rbApplyPubMedStudyTypesModel" Grid.Column="4" Grid.Row="16" Content="Apply PubMed study types model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
         
         <RadioButton x:Name="rbApplyToAll" Grid.Column="5" Grid.Row="8" Content="Apply to all items in review" GroupName="ApplyTo" IsChecked="true"  Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToAll"></RadioButton>
         <RadioButton x:Name="rbApplyToSelected" Grid.Column="5" Grid.Row="9" Content="Apply to items with this code" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSelected"/>
@@ -164,8 +166,8 @@
             </ComboBox.ItemTemplate>
 
         </ComboBox>
-        <TextBlock x:Name="textUploadingDataApply" Grid.Column="4" Grid.Row="16" Text="Uploading data. Please wait..." Visibility="Collapsed"></TextBlock>
-        <Button x:Name="cmdApplyModel" ToolTipService.ToolTip="Apply selected model" Grid.Row="16" Grid.Column="5" Click="cmdApplyModel_Click" Margin="91,1,5,7">
+        <TextBlock x:Name="textUploadingDataApply" Grid.Column="4" Grid.Row="17" Text="Uploading data. Please wait..." Visibility="Collapsed"></TextBlock>
+        <Button x:Name="cmdApplyModel" ToolTipService.ToolTip="Apply selected model" Grid.Row="17" Grid.Column="5" Click="cmdApplyModel_Click" Margin="91,1,5,7">
             <StackPanel Orientation="Horizontal">
                 <Image Width="16" Height="16" Source="../Icons/run-build-install.png"/>
                 <TextBlock Text="Apply model" Margin="5,0,5,0"/>

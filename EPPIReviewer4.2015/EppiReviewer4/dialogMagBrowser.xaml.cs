@@ -4678,11 +4678,13 @@ namespace EppiReviewer4
                 DataPortal<MagImportFieldsOfStudyCommand> dp2 = new DataPortal<MagImportFieldsOfStudyCommand>();
                 MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
                     "",
-                    TBUploadIDs.Text,
+                    -1,
                     rsl.Count,
                     0,
                     0,
-                    0);
+                    0,
+                    "Use OpenAlex assigned topics",
+                    TBUploadIDs.Text);
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
                     BusyImportingRecords.IsRunning = false;

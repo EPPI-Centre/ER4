@@ -520,7 +520,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 //end of 27/09/2021 addition
 
-                if (modelId == -5 || modelId == -6 || modelId == -7) // the covid19 and progress-plus using the BERT model, new Azure ML environment and SQL database. This will become default over time.
+                if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8) // the covid19,  progress-plus using the BERT model, pubmed study types, new Azure ML environment and SQL database. This will become default over time.
                 {
 					System.Threading.Tasks.Task.Run(() => DoNewMethod(modelId, ApplyToAttributeId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
@@ -846,6 +846,16 @@ namespace BusinessLibrary.BusinessClasses
             {
                 retval = "LongCovid";
             }
+            else
+                if (modId == -7)
+            {
+                retval = "PROGRESSPlus";
+            }
+            else
+                if (modId == -8)
+            {
+                retval = "PubMedStudyTypes";
+            }
 
             return retval;
 		}
@@ -866,7 +876,7 @@ namespace BusinessLibrary.BusinessClasses
 			{
 				retval = "NHSEEDModel";
 			}
-            else
+            else // though the rest are using the new workflow, so don't need filenames
                 if (modId == -5)
             {
                 retval = "CovidCategoriesModel";
@@ -875,6 +885,16 @@ namespace BusinessLibrary.BusinessClasses
                 if (modId == -6)
             {
                 retval = "LongCovidModel";
+            }
+            else
+                if (modId == -7)
+            {
+                retval = "PROGRESSPlus";
+            }
+            else
+                if (modId == -8)
+            {
+                retval = "PubMedStudyTypes";
             }
 
             return retval;
@@ -1151,6 +1171,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID_LIST", ""));
                     command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
                     command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
                     command.Parameters.Add(new SqlParameter("@ContactId", ri.UserId));
@@ -1189,6 +1210,7 @@ namespace BusinessLibrary.BusinessClasses
             string covidClassifierPipelineName = configuration["covidClassifierPipelineName"];
             string covidLongCovidPipelineName = configuration["covidLongCovidPipelineName"];
             string progressPlusPipelineName = configuration["progressPlusPipelineName"];
+            string pubMedStudyTypesPipelineName = configuration["pubMedStudyTypesPipelineName"];
 
             string ClassifierPipelineName = "";
             string SearchTitle = "";
@@ -1206,6 +1228,11 @@ namespace BusinessLibrary.BusinessClasses
             {
                 ClassifierPipelineName = progressPlusPipelineName;
                 SearchTitle = "PROGRESS-Plus model: ";
+            }
+            if (modelId == -8)
+            {
+                ClassifierPipelineName = pubMedStudyTypesPipelineName;
+                SearchTitle = "PubMed study type model: ";
             }
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);

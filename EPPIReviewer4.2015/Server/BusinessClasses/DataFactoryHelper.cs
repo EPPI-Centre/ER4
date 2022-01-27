@@ -23,7 +23,8 @@ namespace BusinessLibrary.BusinessClasses
 {
     class DataFactoryHelper
     {
-        public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId, CancellationToken cancellationToken)
+        public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
 
 #if (CSLA_NETCORE)

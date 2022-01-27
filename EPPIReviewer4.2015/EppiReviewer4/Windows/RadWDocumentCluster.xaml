@@ -24,7 +24,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="160"></ColumnDefinition>
             <ColumnDefinition Width="190"></ColumnDefinition>
-            <ColumnDefinition Width="165"></ColumnDefinition>
+            <ColumnDefinition Width="190"></ColumnDefinition>
             <ColumnDefinition Width="190"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
@@ -62,7 +62,9 @@
         <TextBlock Grid.Row="5" Grid.Column="2" Text="Min number items per topic" Margin="6,8,6,6" HorizontalAlignment="Right"></TextBlock>
         <telerik:RadNumericUpDown x:Name="dialogClusterMinItems" Grid.Row="5" Grid.Column="3" Margin="4,4,4,4" Value="5" HorizontalAlignment="Left" Width="80" Maximum="100" IsInteger="True" Minimum="1" ToolTipService.ToolTip="Topic needs to be used this number of times before it is added" ValueChanged="dialogClusterMinItems_ValueChanged"></telerik:RadNumericUpDown>
         <TextBlock x:Name="dialogClusterThresholdWarning" Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="2" Text="Warning: a low threshold can generate lots of codes!" FontStyle="Italic" Margin="6,8,6,6" HorizontalAlignment="Right" Visibility="Collapsed"></TextBlock>
-
-        <Button x:Name="cmdGetMicrosoftAcademicTopics" HorizontalAlignment="Center" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Grid.Row="11" Grid.Column="2" Grid.ColumnSpan="2" FontSize="10" Content="Get OpenAlex topics" Width="180" Click="cmdGetMicrosoftAcademicTopics_Click" Margin="6,0,6,12"></Button>
+        <StackPanel Orientation="Horizontal" Grid.Row="11" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            <Button x:Name="cmdGetMicrosoftAcademicTopics" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" FontSize="10" Content="Get OpenAlex topics (from OA)" Width="170" Click="cmdGetMicrosoftAcademicTopics_Click" Margin="6,0,6,12"></Button>
+            <Button x:Name="cmdGetOpenAlexTopicsNLP" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" FontSize="10" Content="Get OpenAlex topics (using NLP)" Width="170" Click="cmdGetOpenAlexTopicsNLP_Click" Margin="6,0,6,12"></Button>
+        </StackPanel>
     </Grid>
 </telerik:RadWindow>
