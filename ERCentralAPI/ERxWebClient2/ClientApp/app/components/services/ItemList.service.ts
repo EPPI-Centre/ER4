@@ -276,10 +276,34 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 		if (this.GetListItemOptions.showYear) retVal["Year"] = Item.year;
 		if (this.GetListItemOptions.showDocType) retVal["Ref. Type"] = Item.typeName;
 		if (this.GetListItemOptions.showScore) retVal["Score"] = Item.rank;
-		console.log(retVal);
+		//console.log(retVal);
 		return retVal;
 
-	}
+    }
+    public static GetHISCitationForExport(Item: Item) {
+
+        let retVal: any;
+        retVal = {};
+        retVal["ID"] = Item.itemId;
+        retVal["Short Title"] = Item.shortTitle;
+        retVal["Authors"] = Item.authors;
+        retVal["Year"] = Item.year;
+        retVal["Full Title"] = Item.title;
+        retVal["Abstract"] = Item.abstract;
+        retVal["Journal"] = Item.parentTitle;
+        retVal["Volume"] = Item.volume;
+        retVal["Issue"] = Item.issue;
+        retVal["Page(s)"] = Item.pages;
+        retVal["Ref. Type"] = Item.typeName;
+        retVal["Url"] = Item.url;
+        retVal["DOI"] = Item.doi;
+        retVal["Include (?)"] = "";
+        retVal["Exclude (?)"] = "";
+        retVal["Comments (if any)"] = "";
+        return retVal;
+
+    }
+
     public static GetCitation(Item: Item): string {
         let retVal: string = "";
         switch (Item.typeId) {
