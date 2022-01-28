@@ -99,11 +99,13 @@ namespace EppiReviewer4
             {
                 RowExtURL.Height = new GridLength(35, GridUnitType.Auto);
                 RowExtType.Height = new GridLength(35, GridUnitType.Auto);
+                RowOriginalAttributeIdType.Height = new GridLength(35, GridUnitType.Auto);
             }
             else
             {
                 RowExtURL.Height = new GridLength(0);
                 RowExtType.Height = new GridLength(0);
+                RowOriginalAttributeIdType.Height = new GridLength(0);
             }
         }
 

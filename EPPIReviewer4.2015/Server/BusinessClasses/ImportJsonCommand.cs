@@ -96,6 +96,7 @@ namespace BusinessLibrary.BusinessClasses
             catch (Exception e)
             {
                 _message = "deserialize error";
+                return;
             }
             if (_message.Contains("codesets"))
             {
@@ -673,9 +674,9 @@ namespace BusinessLibrary.BusinessClasses
 
         public class Attributeslist
         {
-            public int AttributeSetId { get; set; }
+            public Int64 AttributeSetId { get; set; }
             public Int64 AttributeId { get; set; }
-            public int OriginalAttributeID { get; set; }
+            public Int64 OriginalAttributeID { get; set; }
             public string AttributeSetDescription { get; set; }
             public string AttributeType { get; set; }
             public string AttributeName { get; set; }
@@ -725,7 +726,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public class Code
         {
-            public int AttributeId { get; set; }
+            public Int64 AttributeId { get; set; }
             public string AdditionalText { get; set; }
             public int ArmId { get; set; }
             public string ArmTitle { get; set; }

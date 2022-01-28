@@ -842,6 +842,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESC", ReadProperty(AttributeDescriptionProperty)));
                         command.Parameters.Add(new SqlParameter("@Ext_URL", ReadProperty(ExtURLProperty)));
                         command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
+                        command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", ReadProperty(OriginalAttributeIdProperty)));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
 						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                         // I don't think there's a use case to 'update' originalAttributeId

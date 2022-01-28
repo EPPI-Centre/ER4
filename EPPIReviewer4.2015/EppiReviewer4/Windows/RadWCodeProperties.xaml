@@ -54,8 +54,9 @@
                 <RowDefinition Height="35"></RowDefinition>
                 <RowDefinition Height="35" x:Name="RowExtURL"></RowDefinition>
                 <RowDefinition Height="35" x:Name="RowExtType"></RowDefinition>
+                <RowDefinition Height="35" x:Name="RowOriginalAttributeIdType"></RowDefinition>
                 <RowDefinition Height="35"></RowDefinition>
-        </Grid.RowDefinitions>
+            </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Code name" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
             <TextBox x:Name="TextBoxCodeName" KeyDown="TextBoxCodeName_KeyDown" Grid.Row="0" Grid.Column="1" Text="{Binding Path=AttributeName, Mode=TwoWay}" 
                      HorizontalAlignment="Stretch" Margin="6,6,6,6"></TextBox>
@@ -79,7 +80,10 @@
         <TextBlock Grid.Row="5" Grid.Column="0" Text="External URL type" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
         <TextBox x:Name="editExtURLType" Grid.Row="5" Grid.Column="1" Margin="6,6,6,6" HorizontalAlignment="Stretch" Text="{Binding Path=ExtType, Mode=TwoWay}"></TextBox>
 
-        <Button x:Name="cmdSaveCodeSettings" Grid.Row="6" Grid.Column="0" Margin="6,6,6,6" Width="80" Content="Save" Click="cmdSaveCodeSettings_Click"></Button>
-            <Button x:Name="cmdCancelCodeSettings" Grid.Row="6" Grid.Column="1" Margin="6,6,6,6" Width="120" Content="Cancel" Click="cmdCancelCodeSettings_Click" ></Button>
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="Original attributeId" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
+        <TextBox x:Name="editOriginalAttributeIdType" Grid.Row="6" Grid.Column="1" Margin="6,6,6,6" HorizontalAlignment="Stretch" Text="{Binding Path=OriginalAttributeID, Mode=TwoWay}"></TextBox>
+
+        <Button x:Name="cmdSaveCodeSettings" Grid.Row="7" Grid.Column="0" Margin="6,6,6,6" Width="80" Content="Save" Click="cmdSaveCodeSettings_Click"></Button>
+            <Button x:Name="cmdCancelCodeSettings" Grid.Row="7" Grid.Column="1" Margin="6,6,6,6" Width="120" Content="Cancel" Click="cmdCancelCodeSettings_Click" ></Button>
         </Grid>
 </telerik:RadWindow>
