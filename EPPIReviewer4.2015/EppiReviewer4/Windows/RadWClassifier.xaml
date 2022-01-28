@@ -150,9 +150,9 @@
         <RadioButton x:Name="rbApplyRCTModel" Grid.Column="4" Grid.Row="12" Content="Apply original RCT model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
         <RadioButton x:Name="rbApplyCovidCategoriesModel" Grid.Column="4" Grid.Row="13" Content="Apply COVID-19 categories model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
         <RadioButton x:Name="rbApplyLongCovidModel" Grid.Column="4" Grid.Row="14" Content="Apply Long-COVID binary model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
-        <RadioButton x:Name="rbApplyProgressPlusModel" Grid.Column="4" Grid.Row="15" Content="Apply PROGRESS-Plus model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
-        <RadioButton x:Name="rbApplyPubMedStudyTypesModel" Grid.Column="4" Grid.Row="16" Content="Apply PubMed study types model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
-        
+        <RadioButton x:Name="rbApplyPubMedStudyTypesModel" Grid.Column="4" Grid.Row="15" Content="Apply PubMed study types model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
+        <RadioButton x:Name="rbApplyProgressPlusModel" Grid.Column="4" Grid.Row="16" Content="Apply PROGRESS-Plus model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
+
         <RadioButton x:Name="rbApplyToAll" Grid.Column="5" Grid.Row="8" Content="Apply to all items in review" GroupName="ApplyTo" IsChecked="true"  Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToAll"></RadioButton>
         <RadioButton x:Name="rbApplyToSelected" Grid.Column="5" Grid.Row="9" Content="Apply to items with this code" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSelected"/>
         <RadioButton x:Name="rbApplyToSource" Grid.Column="5" Grid.Row="11" Content="Apply to items from this source" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSource"/>
