@@ -144,9 +144,11 @@ namespace BusinessLibrary.BusinessClasses
                 this.ReviewSets.Add(rs);
                 if (rs != null && CurrentCodeSet.Attributes != null)
                 {
+                    int c = 0;
                     foreach (Attributeslist nested in CurrentCodeSet.Attributes.AttributesList)
                     {
-                        AddNestedAttributes(rs, null, nested, ContactId, 0);
+                        AddNestedAttributes(rs, null, nested, ContactId, c);
+                        c++;
                     }
                 }
             }
