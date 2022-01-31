@@ -69,6 +69,10 @@
             , select: TreeViewSelection
         });
         treeviewData = $("#treeView").data("kendoTreeView");
+        if (topicAttribute && topicAttribute.attributeId && topicAttribute.attributeId > 0) {
+            var barDataItem = treeviewData.dataSource.get(topicAttribute.attributeId);
+            expandTreeNode(barDataItem.uid);
+        }
         GoToItemsJson(topicAttribute, false);
     }
 

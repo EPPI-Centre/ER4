@@ -18,21 +18,22 @@
         dataItem = treeviewData.dataItem(e.node);
         console.log(dataItem);
         if (!dataItem) {
+            $("#GoToItemsWithThisCodeSB").prop("disabled", true);
+            $("#AddWithThisCodeBtn").prop("disabled", true);
+            $("#AddWithoutThisCodeBtn").prop("disabled", true);
             return;
         }
-
-
         if (dataItem.items && dataItem.items.length > 0) {
+            $("#GoToItemsWithThisCodeSB").prop("disabled", true);
         }
         else {
-
+            $("#GoToItemsWithThisCodeSB").prop("disabled", false);
         }
         if (dataItem.isCodeset) {
             $("#GoToItemsWithThisCodeSB").prop("disabled", true);
             $("#AddWithThisCodeBtn").prop("disabled", true);
             $("#AddWithoutThisCodeBtn").prop("disabled", true);
         } else {
-            $("#GoToItemsWithThisCodeSB").prop("disabled", false);
             if (withoutTheseCodes.findIndex(f => f.id == dataItem.id) == -1 && withTheseCodes.findIndex(f => f.id == dataItem.id) == -1) {
                 $("#AddWithThisCodeBtn").prop("disabled", false);
                 $("#AddWithoutThisCodeBtn").prop("disabled", false);
@@ -40,6 +41,31 @@
                 $("#AddWithThisCodeBtn").prop("disabled", true);
                 $("#AddWithoutThisCodeBtn").prop("disabled", true);
             }
+        }
+    }
+    function expandTreeNode(Uid) {
+        //treeviewData
+
+        var nodeitem = treeviewData.findByUid(Uid);
+
+        if (nodeitem.length > 0) {
+            treeviewData.select(nodeitem);
+            var parent = treeviewData.parent(nodeitem);
+            while (parent && parent.length > 0) {
+                treeviewData.expand(parent);
+                parent = treeviewData.parent(parent);
+            }
+            const tV = $("#treeView");
+            var b2 = treeviewData.select()[0];
+            var itemScrollTop = b2.offsetTop;
+            let counter = 0;
+            while (counter < 1000 && b2.offsetParent && b2.className != "card full-height") {
+                counter++;
+                //console.log(b2.innerText);
+                b2 = b2.offsetParent;
+                itemScrollTop = itemScrollTop + b2.offsetTop;
+            }
+            tV.animate({ scrollTop: itemScrollTop - 85 });
         }
     }
     function ToggleAdvanced() {
