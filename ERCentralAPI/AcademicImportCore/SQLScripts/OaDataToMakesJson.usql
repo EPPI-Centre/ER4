@@ -18,11 +18,11 @@ SET @@FeaturePreviews = "DataPartitionedOutput:on";
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // The wasb path to a MAG release on Azure storage.
-DECLARE EXTERNAL @In_MagRootUri string = "wasb://open-alex@eppimag/OpenAlexData/2021-12-06/"; //Example: "wasb://open-alex@eppimag/2021-11-08/"
+DECLARE EXTERNAL @In_MagRootUri string = "wasb://open-alex@eppimag/OpenAlexData/2022-01-30/"; //Example: "wasb://open-alex@eppimag/2021-11-08/"
 
 // The storage output path where the JSON files will be created
 // The if the output destination type is Azure storage (output path starts with "wasb"), the container for the output location needs to be created before running the script
-DECLARE EXTERNAL @Out_OutputPath string = "wasb://open-alex@eppimag/makes/2021-12-06/microsoft/entities";  // Example: "wasb://open-alex@eppimag/makes/2021-11-08/microsoft/entities"
+DECLARE EXTERNAL @Out_OutputPath string = "wasb://open-alex@eppimag/makes/2022-01-30/microsoft/entities";  // Example: "wasb://open-alex@eppimag/makes/2021-11-08/microsoft/entities"
 
 //The name of the institution to create subgraph for. The full graph is used by default.
 DECLARE EXTERNAL @Param_UseSubgraphForInstitution string = ""; // Example: "microsoft"
@@ -319,7 +319,7 @@ DECLARE @GetLogProbabilityFromRank Func<uint?, double?> =
 @affiliations =
 	SELECT
 		@affiliations.AffiliationId,
-		@affiliations.Rank,
+        (@affiliations.Rank == null ? (uint) 0 : (uint) @affiliations.Rank) AS Rank,
 		@affiliations.NormalizedName,
 		@affiliations.DisplayName,
 		@affiliations.GridId,
@@ -401,7 +401,7 @@ DECLARE @GetLogProbabilityFromRank Func<uint?, double?> =
 @papers =
 	SELECT
 		@papers.PaperId,
-    	@papers.Rank,
+        (@papers.Rank == null ? (uint) 0 : (uint) @papers.Rank) AS Rank,
     	@papers.Doi,
     	@papers.DocType,
     	@papers.Genre,
@@ -439,7 +439,7 @@ DECLARE @GetLogProbabilityFromRank Func<uint?, double?> =
 @journals =
 	SELECT
 		@journals.JournalId,
-		@journals.Rank,
+        (@journals.Rank == null ? (uint) 0 : (uint) @journals.Rank) AS Rank,
 		(@journals.NormalizedName == null ? (string) "" : (string) @journals.NormalizedName) AS NormalizedName,
 		@journals.DisplayName,
 		@journals.Issn,
@@ -458,7 +458,7 @@ DECLARE @GetLogProbabilityFromRank Func<uint?, double?> =
 @fieldsOfStudy = 
 	SELECT
 		FieldOfStudyId,
-		Rank,
+        (Rank == null ? (uint) 0 : (uint) Rank) AS Rank,
 		NormalizedName,
 		DisplayName,
 		MainType,
@@ -836,7 +836,7 @@ END;
 		(F.FieldsOfStudy == null ? "" : "\"F\":[" + F.FieldsOfStudy + "],") AS Column015,
 		
 		//Journal information
-		((P.JournalId == null || P.JournalId == -1) ? "" : @JsonRawAttribute("J", @JsonObjectFromAttributes(new string[]{ 
+		((P.JournalId == null || P.JournalId == -1 || J.NormalizedName == null) ? "" : @JsonRawAttribute("J", @JsonObjectFromAttributes(new string[]{ 
 			@JsonAttribute("JId", P.JournalId.Value), // WAS P.JournalId.Value
 			@JsonAttribute("JN", J.NormalizedName),
 			@JsonAttribute("DJN", J.NormalizedName)

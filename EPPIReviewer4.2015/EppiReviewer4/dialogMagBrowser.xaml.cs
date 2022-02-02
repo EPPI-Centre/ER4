@@ -3019,6 +3019,7 @@ namespace EppiReviewer4
                     {
                         RadWindow.Alert("Ok. Process to download new OpenAlex data is started\nThe MAKES json will then be created, so this process\n can take about 4 hours.");
                         SwitchOnAutoRefreshLogList();
+                        LBCopyNewOaData.IsEnabled = false;
                     }
                 };
                 LBRunContReviewPipeline.IsEnabled = false;
@@ -3075,7 +3076,7 @@ namespace EppiReviewer4
 
         private void LBGetMissingAbstracts_Click(object sender, RoutedEventArgs e)
         {
-            RadWindow.Confirm("Are you sure you want to hunt for missing abstracts in \n" + PendingMag(), this.doDownloadMissingAbstracts);
+            RadWindow.Confirm("Are you sure you want to hunt for missing abstracts in \n" + CurrentMag(), this.doDownloadMissingAbstracts);
         }
 
         private void doDownloadMissingAbstracts(object sender, WindowClosedEventArgs e)

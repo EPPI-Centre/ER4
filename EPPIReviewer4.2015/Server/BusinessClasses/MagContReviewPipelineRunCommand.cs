@@ -358,7 +358,7 @@ namespace BusinessLibrary.BusinessClasses
                 {"S3Path", "data_dump_v1/" + _NextMagVersion},
                 {"BlobPath", "OpenAlexData/" + _NextMagVersion},
                 {"In_MagRootUri", "wasb://open-alex@eppimag/OpenAlexData/" + _NextMagVersion + "/" },
-                {"In_MagRootUri", "wasb://open-alex@eppimag/makes/" + _NextMagVersion + "/microsoft/entities" }
+                {"Out_OutputPath", "wasb://open-alex@eppimag/makes/" + _NextMagVersion + "/microsoft/entities" }
             };
             DataFactoryHelper.RunDataFactoryProcess("Get OpenAlex data", parameters, true, ContactId, cancellationToken);
 #endif
