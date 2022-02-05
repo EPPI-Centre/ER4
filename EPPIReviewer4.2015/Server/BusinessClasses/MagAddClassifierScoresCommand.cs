@@ -233,11 +233,11 @@ namespace BusinessLibrary.BusinessClasses
                             break;
                         case "Economic evaluation":
                             classifierId = -3;
-                            classifierName = "NHSEED";
+                            classifierName = "NHSEEDModel";
                             break;
                         case "Systematic review":
                             classifierId = -2;
-                            classifierName = "DARE";
+                            classifierName = "DAREModel";
                             break;
                     }
                     await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel", classifierId, @"attributemodeldata/" + uploadedFileName,

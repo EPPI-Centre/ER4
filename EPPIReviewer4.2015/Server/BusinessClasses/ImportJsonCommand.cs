@@ -96,6 +96,7 @@ namespace BusinessLibrary.BusinessClasses
             catch (Exception e)
             {
                 _message = "deserialize error";
+                return;
             }
             if (_message.Contains("codesets"))
             {
@@ -143,9 +144,11 @@ namespace BusinessLibrary.BusinessClasses
                 this.ReviewSets.Add(rs);
                 if (rs != null && CurrentCodeSet.Attributes != null)
                 {
+                    int c = 0;
                     foreach (Attributeslist nested in CurrentCodeSet.Attributes.AttributesList)
                     {
-                        AddNestedAttributes(rs, null, nested, ContactId, 0);
+                        AddNestedAttributes(rs, null, nested, ContactId, c);
+                        c++;
                     }
                 }
             }
@@ -170,7 +173,7 @@ namespace BusinessLibrary.BusinessClasses
             if (NewAttributeSet != null)
             {
                 int n = 0;
-                if (a.Attributes != null)
+                if (a.Attributes != null && a.Attributes.AttributesList != null)
                 {
                     foreach (Attributeslist nested in a.Attributes.AttributesList)
                     {
@@ -673,9 +676,9 @@ namespace BusinessLibrary.BusinessClasses
 
         public class Attributeslist
         {
-            public int AttributeSetId { get; set; }
+            public Int64 AttributeSetId { get; set; }
             public Int64 AttributeId { get; set; }
-            public int OriginalAttributeID { get; set; }
+            public Int64 OriginalAttributeID { get; set; }
             public string AttributeSetDescription { get; set; }
             public string AttributeType { get; set; }
             public string AttributeName { get; set; }
@@ -725,7 +728,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public class Code
         {
-            public int AttributeId { get; set; }
+            public Int64 AttributeId { get; set; }
             public string AdditionalText { get; set; }
             public int ArmId { get; set; }
             public string ArmTitle { get; set; }

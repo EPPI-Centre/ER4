@@ -1,0 +1,116 @@
+﻿@model ItemListWithCriteria;
+@using BusinessLibrary.BusinessClasses;
+@using WebDatabasesMVC.ViewModels;
+@using Microsoft.AspNetCore.Html;
+@using System.IO;
+@using System.Security.Claims;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+@{
+    Layout = "~/Views/Shared/_FairLayout.cshtml";
+}
+<script id="InitialScript" type="text/javascript">
+    @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));};
+        var ListData = @jdata;
+    $(document).ready(function () {
+        //CurrentItemsCriteria = ListData.criteria;
+        //ItemsListData = ListData.items;
+        gridHeightCSS = "75vh"; //default is 60vh, useful when we have results on top of the page...
+        BuildItems(ListData, "success");
+        $("#InitialScript").remove();
+
+    });
+</script>
+<script>
+    var IsFair = true;
+    var treeviewData = null;
+    $(document).ready(function () {
+        $("#treeView").kendoTreeView({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: pathRoot + "ReviewSetList/FetchJSON",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    parse: function (response) {
+                        dataItem = null;
+                        var nodes = [];
+                        for (var i = 0; i < response.length; i++) {
+                            if (response[i].originalSetId == 180878) {
+                                //we don't want the "Progress Plus" tool on the left side tree!
+                                continue;
+                            }
+                            var nodes2 = [];
+                            var nd = new kendo.data.Node({ text: response[i].setName });
+                            nd.id = response[i].setId;
+                            nd.isCodeset = true;
+                            nd.setId = nd.id;
+                            for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
+                                nd.append(Buildnode(response[i].attributes.attributesList[ii]));
+                            }
+                            nd.expanded = true;
+                            nd.items = nodes2;
+                            nodes.push(nd);
+                        }
+                        return nodes;
+                    }
+                }
+            },
+            select: TreeViewSelection
+        });
+        treeviewData = $("#treeView").data("kendoTreeView");
+    });
+
+</script>
+
+<!-- blue area below header -->
+<div class="panel-header bg-primary-gradient">
+    <div class="page-inner py-5">
+        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+            <table>
+                <tr>
+                    <td>
+                        <h2 class="text-white pb-2 fw-bold">Spacer</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h2 class="text-white pb-2 fw-bold">List of records</h2></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="page-inner mt--5">
+    <div class="row mt--2">
+        <div class="col-md-3">
+            <div class="card full-height">
+                <div class="card-body">
+                    <div class="card-title">Explore</div>
+
+                    <div class="scrollbar scrollbar-inner">
+                        <div class="">
+                            @await Html.PartialAsync("_FairCodingTools")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card full-height">
+                <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
+                    <div class="col-auto p-1">Loading...</div>
+                    <div class="col d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                @await Html.PartialAsync("_ItemsList")
+            </div>
+        </div>
+    </div>
+    </div>

@@ -23,6 +23,7 @@ namespace EppiReviewer4
         public event EventHandler<System.Windows.Controls.SelectionChangedEventArgs> ClusterWhat_SelectionChanged;
         public event EventHandler<RoutedEventArgs> cmdCluster_Clicked;
         public event EventHandler<RoutedEventArgs> cmdGetMicrosoftAcademicTopics_Clicked;
+        public event EventHandler<RoutedEventArgs> cmdGetOpenAlexTopicsNLP_Clicked;
 
 
         public RadWDocumentCluster()
@@ -65,6 +66,20 @@ namespace EppiReviewer4
             {
                 if (dialogClusterThresholdWarning != null)
                     dialogClusterThresholdWarning.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void cmdGetOpenAlexTopicsNLP_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to assign OpenAlex topics automatically?", this.doGetOpenAlexTopicsNLP);
+        }
+
+        private void doGetOpenAlexTopicsNLP(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                if (cmdGetOpenAlexTopicsNLP_Clicked != null) cmdGetOpenAlexTopicsNLP_Clicked.Invoke(sender, new RoutedEventArgs());
             }
         }
     }

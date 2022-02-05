@@ -621,42 +621,42 @@
         });
         };
 
-        function GoToItemsJson(AttId, AttName = '') {
+    function GoToItemsJson(AttId, AttName = '') {
         $("#ItemCount").html("");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         let spinnerItems = $("#spinnerItems");
         if (spinnerItems) spinnerItems.show();
         if (AttId == -999999) {
-        AttName = 'None of the above';
-        var included = $('#includedCrit').val();
-        var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
-        var setIdXAxis = $('#setIdXAxisCrit').val();
-        var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
-        $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
-        , {
-        attributeIdXAxis: attributeIdXAxis
-        , setId: setIdXAxis
-        , included: included
-        , onlyThisAttribute: onlyThisAttribute
-        , attName: AttName
-        }
-        , function (data, result) {
-        if (spinnerItems) spinnerItems.hide();
-        BuildItems(data, result);
-        }
-        );
+            AttName = 'None of the above';
+            var included = $('#includedCrit').val();
+            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+            var setIdXAxis = $('#setIdXAxisCrit').val();
+            var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
+            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
+                , {
+                    attributeIdXAxis: attributeIdXAxis
+                    , setId: setIdXAxis
+                    , included: included
+                    , onlyThisAttribute: onlyThisAttribute
+                    , attName: AttName
+                }
+                , function (data, result) {
+                    if (spinnerItems) spinnerItems.hide();
+                    BuildItems(data, result);
+                }
+            );
         } else {
-        //AttName = AttName.replace(rgx2, "'");
-        $.post("../ItemList/GetFreqListJSon"
-        , { attId: AttId, attName: AttName }
-        , function (data, result) {
-        if (spinnerItems) spinnerItems.hide();
-        BuildItems(data, result);
+            //AttName = AttName.replace(rgx2, "'");
+            $.post("../ItemList/GetFreqListJSon"
+                , { attId: AttId, attName: AttName }
+                , function (data, result) {
+                    if (spinnerItems) spinnerItems.hide();
+                    BuildItems(data, result);
+                }
+            );
         }
-        );
-        }
-        };
+    };
 
 </script>
 

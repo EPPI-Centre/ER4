@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, AfterViewInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute, iWebDBMap } from '../services/WebDB.service';
+import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute, iWebDBMap, iWebDBLog } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
@@ -59,6 +59,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public ShowMapsMiniHelp: boolean = false;
 	public ConfirmPassword: string = "";
 	public ShowPassword: boolean = false;
+	public ShowLogs: boolean = false;
 	public isCollapsedFilterCode: boolean = false;
 	public uploadSaveUrl = this._baseUrl + 'api/WebDB/UploadImage'; 
 	public uploadRestrictions: FileRestrictions = {
@@ -86,7 +87,10 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	public get CurrentMaps(): iWebDBMap[] {
 		return this.WebDBService.CurrentMaps;
-    }
+	}
+	public get CurrentLogs(): iWebDBLog[] {
+		return this.WebDBService.CurrentLogs;
+	}
 	public get IsServiceBusy(): boolean {
 		return (this.WebDBService.IsBusy
 			|| this.ReviewSetsService.IsBusy);
@@ -237,6 +241,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		if (db) {
 			this.WebDBService.CurrentDB = db;
 			this.ReloadDBDependentData();
+			this.ShowLogs = false;
 		}
 	}
 	DeleteDB(db: iWebDB) {
@@ -250,6 +255,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				}
 			});
 	}
+	//GetLogs(CurrentDB: iWebDB) {
+	//	this.WebDBService.GetWebDBLogs(CurrentDB.webDBId, "1980/01/01 00:00:00", "1980/01/01 00:00:00", "All");
+    //}
 	EditFilter() {
 		this.EditingFilter = true;
 		this.isCollapsedFilterCode = false;

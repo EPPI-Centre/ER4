@@ -1,0 +1,56 @@
+﻿DECLARE EXTERNAL @In_MagRootUri string = "wasb://open-alex@eppimag/2021-11-08/"; //Example: "wasb://open-alex@eppimag/2021-11-08/"
+
+DECLARE EXTERNAL @Out_OutputPath string = "wasb://open-alex@eppimag/CheckKeys/result.tsv"; 
+
+
+@affiliations =
+	Affiliations
+	(
+		@In_MagRootUri
+	);
+@authors =
+	Authors
+	(
+		@In_MagRootUri
+	);
+@fieldsOfStudy =
+	FieldsOfStudy
+	(
+		@In_MagRootUri
+	);
+@journals =
+	Journals
+	(
+		@In_MagRootUri
+	);
+
+@papers =
+	Papers
+	(
+		@In_MagRootUri
+	);
+
+@merged =
+    SELECT "PaperId" AS name,
+           COUNT(@papers.PaperId) AS num
+    FROM @papers
+    WHERE @papers.PaperId IS NULL
+    UNION
+    SELECT "AuthorId" AS name,
+           COUNT(@authors.AuthorId) AS num
+    FROM @authors
+    WHERE @authors.AuthorId IS NULL    
+    UNION
+    SELECT "AffiliationId" AS name, COUNT(@affiliations.AffiliationId) AS num
+    FROM @affiliations WHERE @affiliations.AffiliationId IS NULL
+    UNION
+    SELECT "FieldOfStudyId" AS name, COUNT(@fieldsOfStudy.FieldOfStudyId) AS num
+    FROM @fieldsOfStudy WHERE @fieldsOfStudy.FieldOfStudyId IS NULL
+	UNION
+    SELECT "JournalId" AS name, COUNT(@journals.JournalId) AS num
+    FROM @journals WHERE @journals.JournalId IS NULL;
+
+
+OUTPUT @merged
+TO @Out_OutputPath
+USING Outputters.Tsv(quoting : false);

@@ -13,7 +13,7 @@
             <table>
                 <tr>
                     <td>
-                        <h2 class="font-weight-light">Match records in your review to Microsoft Academic</h2>
+                        <h2 class="font-weight-light">Match records in your review to OpenAlex</h2>
                     </td>
                     <td style="padding-left:10px">
                         <div *ngIf="!basicPanel">
@@ -34,18 +34,18 @@
 
             <div class="collapse multi-collapse" id="collapseExample1">
                 <div class="card card-footer">
-                    <p>The automated processes for bringing and keeping your review up to date depend on operations in the Microsoft Academic 'graph' (or dataset). We use the graph of relationships between publications to locate papers that are 'closest' to the papers in your review out of the 250 million other records it contains.</p>
+                    <p>The automated processes for bringing and keeping your review up to date depend on operations in the OpenAlex 'graph' (or dataset). We use the graph of relationships between publications to locate papers that are 'closest' to the papers in your review out of the 200 million other records it contains.</p>
                     <p>
-                        Because we make use of this 'graph' of relationships, we need to know where the papers in your review are located in this graph. If your papers were imported from Microsoft Academic originally, the system will already know their Microsoft Academic IDs and you are ready to use the updating features available.
+                        Because we make use of this 'graph' of relationships, we need to know where the papers in your review are located in this graph. If your papers were imported from OpenAlex originally, the system will already know their OpenAlex IDs and you are ready to use the updating features available.
                     </p>
                     <p>
-                        If you originally imported your records from other sources (e.g. from RIS files), then we need to find the Microsoft Academic IDs for your records. The more of your records that we can locate succesfully in Microsoft Academic, the better the automated processes will work.
-                        While Microsoft Academic is an extremely comprehensive source, it does not contain all of the world's research knowledge, and there will be some papers that are not (yet) present.
+                        If you originally imported your records from other sources (e.g. from RIS files), then we need to find the OpenAlex IDs for your records. The more of your records that we can locate succesfully in OpenAlex, the better the automated processes will work.
+                        While OpenAlex is an extremely comprehensive source, it does not contain all of the world's research knowledge, and there will be some papers that are not (yet) present.
                     </p>
                     <p>
-                        In order to match the records in your review to their Microsoft Academic equivalents, simply click the 'run matching algorithm' button. This will start a process 'behind the scenes' that will go through each of the records in your review and look them up in the latest version of Microsoft Academic.
+                        In order to match the records in your review to their OpenAlex equivalents, simply click the 'run matching algorithm' button. This will start a process 'behind the scenes' that will go through each of the records in your review and look them up in the latest version of OpenAlex.
                         If you only have a few tens or hundreds of records to match, this will only take a few seconds. If you have tens of thousands, the process will take many minutes; you can keep track of progress by using the green 'refresh' button.
-                   </p>
+                    </p>
                     <p>
                         The matching process uses the same algorithm for matching bibliographic records as we use for duplicate checking, and where it finds possible matches, it allocates them a confidence score between zero and 1. A score above 0.8 is considered a safe match, and the automated processes operate on the assumption that these are correct.
                         Matches below 0.8 are retained, but it is recommended that you check through these manually, as they may be wrong. You can do this by clicking on the links below the 'low confidence matched items' headings. Some records can't be matched at all; these can also be identified for manual lookups - which may not be necessary for many reviews, but might be useful for methodological work.
@@ -207,7 +207,7 @@
             <div class="row col-12">
 
                 <div class="col-sm-12 col-lg-6 mb-5">
-                    <h4 class="font-weight-light">Locate by Microsoft Academic ID</h4>
+                    <h4 class="font-weight-light">Locate by OpenAlex ID</h4>
                     <div class="col-sm-12 col-lg-6">
                         <div class="row">
                             <div class="col-10" >
@@ -243,7 +243,7 @@
                 </div>
 
                 <div class="col-sm-12 col-lg-5 mb-5">
-                    <h4 class="font-weight-light">Search Microsoft Academic by topic</h4>
+                    <h4 class="font-weight-light">Search OpenAlex by topic</h4>
                     <table class="col-sm-12">
                         <tr class="col-12">
                             <td class="col-12">

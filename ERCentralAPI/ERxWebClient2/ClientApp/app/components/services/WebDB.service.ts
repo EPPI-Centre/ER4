@@ -46,10 +46,13 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         this.SelectedNodeData = null;
         const ind = this._WebDBs.findIndex((f) => db != null && f.webDBId == db.webDBId);
         if (ind == -1) {
+            this._CurrentLogs = [];
             this._CurrentDB = null;
             this._CurrentSets = [];
         }
         else {
+            if (this._CurrentDB && this._CurrentDB.webDBId != this._WebDBs[ind].webDBId)
+                this._CurrentLogs = [];
             this._CurrentDB = this._WebDBs[ind];
             this.GetWebDbReviewSetsList();
         }
@@ -66,6 +69,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         }
     }
 
+
     private _CurrentMaps: iWebDBMap[] = [];
     public get CurrentMaps(): iWebDBMap[] {
         if (this._CurrentMaps.length > 0 && this._CurrentDB != null && this._CurrentMaps[0].webDBId == this._CurrentDB.webDBId) {
@@ -76,6 +80,18 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             return this._CurrentMaps;
         }
     }
+
+    private _CurrentLogs: iWebDBLog[] = [];
+    public get CurrentLogs(): iWebDBLog[] {
+        if (this._CurrentLogs.length > 0) {
+            return this._CurrentLogs;
+        }
+        else {
+            this._CurrentLogs = [];
+            return this._CurrentLogs;
+        }
+    }
+
 
     public SelectedNodeData: singleNode | null = null;
 
@@ -106,6 +122,27 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         );
     }
 
+   
+    public GetWebDBLogs(webDbId: number, from: string, until: string, logType: string) {
+        let body: ReadOnlyWebDbActivityListSelectionCrit = new ReadOnlyWebDbActivityListSelectionCrit();
+        body.wedDBId = webDbId;
+        body.from = from;
+        body.until = until;
+        body.logType = logType;
+        
+
+        this._BusyMethods.push("GetWebDBLogs");
+        this._httpC.post<iWebDBLog[]>(this._baseUrl + 'api/WebDB/GetWebDBLogs', body).subscribe(
+            res => {
+                this._CurrentLogs = res;
+                //console.log(res);
+                this.RemoveBusy("GetWebDBLogs");
+            }, error => {
+                this.RemoveBusy("GetWebDBLogs");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
     public Delete(toDel: iWebDB): void {
         if (this._WebDBs.indexOf(toDel) == -1) {
             this.Fetch();//let's refresh this list: why did user ask to delete something we don't have??
@@ -509,6 +546,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         this._CurrentSets = [];
         this.SelectedNodeData = null;
         this.MissingAttributes = [];
+        this._CurrentLogs = [];
     }
 }
 export interface iWebDbListWithUrl {
@@ -621,4 +659,16 @@ export interface iWebDBMap {
     webDBMapDescription: string;
     webDBMapId: number;
     webDBMapName: string;
+}
+export class ReadOnlyWebDbActivityListSelectionCrit {
+    public wedDBId: number = 0;
+    public from: string = "";
+    public until: string = "";
+    public logType: string = "";
+}
+export interface iWebDBLog {
+    webDBLogIdentity: number;
+    dateTimeCreated: string;
+    logType: string;
+    logDetails: string;
 }

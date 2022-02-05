@@ -22,8 +22,12 @@ using BusinessLibrary.Data;
 using AuthorsHandling;
 using BusinessLibrary.Security;
 using System.Data;
+#if !CSLA_NETCORE
+using System.Web.Hosting;
+#endif
 
 #endif
+
 
 namespace BusinessLibrary.BusinessClasses
 {
@@ -38,12 +42,14 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
         private string _itemList;
+        private Int64 _attributeIdFilter;
         private string _attributeList;
         private int _reviewSetIndex;
         private int _reviewSetId;
         private string _returnMessage;
         private int _numTopics;
         private int _minItems;
+        private string _method;
 
         public string ReturnMessage
         {
@@ -57,14 +63,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public MagImportFieldsOfStudyCommand(string itemList, string attributeList, int reviewSetIndex, int ReviewSetId, int NumTopics, int MinItems)
+        public MagImportFieldsOfStudyCommand(string itemList, Int64 attributeIdFilter, int reviewSetIndex, int ReviewSetId, int NumTopics, int MinItems, string method, string attributeList)
         {
             _itemList = itemList;
+            _attributeIdFilter = attributeIdFilter;
             _attributeList = attributeList;
             _reviewSetIndex = reviewSetIndex;
             _reviewSetId = ReviewSetId;
             _numTopics = NumTopics;
             _minItems = MinItems;
+            _method = method;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -72,21 +80,25 @@ namespace BusinessLibrary.BusinessClasses
             base.OnGetState(info, mode);
             info.AddValue("_itemList", _itemList);
             info.AddValue("_attributeList", _attributeList);
+            info.AddValue("_attributeIdFilter", _attributeIdFilter);
             info.AddValue("_reviewSetIndex", _reviewSetIndex);
             info.AddValue("_reviewSetId", _reviewSetId);
             info.AddValue("_returnMessage", _returnMessage);
             info.AddValue("_numTopics", _numTopics);
             info.AddValue("_minItems", _minItems);
+            info.AddValue("_method", _method);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _itemList = info.GetValue<string>("_itemList");
+            _attributeIdFilter = info.GetValue<Int64>("_attributeIdFilter");
             _attributeList = info.GetValue<string>("_attributeList");
             _reviewSetIndex = info.GetValue<int>("_reviewSetIndex");
             _reviewSetId = info.GetValue<int>("_reviewSetId");
             _returnMessage = info.GetValue<string>("_returnMessage");
             _numTopics = info.GetValue<int>("_numTopics");
             _minItems = info.GetValue<int>("_minItems");
+            _method = info.GetValue<string>("_method");
         }
 
 
@@ -107,6 +119,25 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Execute()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            if (_method == "UseNLP")
+            {
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => doUseNLP(ri.ReviewId, ri.UserId));
+#else
+                ReturnMessage = "Process running (can take 10+ minutes)";
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doUseNLP(ri.ReviewId, ri.UserId, cancellationToken));
+#endif
+                return;
+            }
+
+            if (_itemList == "")
+            {
+                doCreateCodeSet();
+                return;
+            }
+
+            
+            
             List<ItemData> ItemsData = new List<ItemData>();
 
             // Get a list of the item ids that we need to get topics for
@@ -120,7 +151,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@ITEM_IDS", _itemList));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_IDS", _attributeList));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _attributeIdFilter));
                     command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
@@ -149,36 +180,7 @@ namespace BusinessLibrary.BusinessClasses
             ReviewSet rs = null;
             if (_reviewSetId == 0)
             {
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                {
-                    connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_ReviewSetInsert", connection))
-                    {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                        command.Parameters.Add(new SqlParameter("@SET_TYPE_ID", 3)); // Standard
-                        command.Parameters.Add(new SqlParameter("@ALLOW_CODING_EDITS", 1));
-                        command.Parameters.Add(new SqlParameter("@SET_NAME", "Microsoft Academic Topics"));
-                        command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", 1));
-                        command.Parameters.Add(new SqlParameter("@SET_ORDER", _reviewSetIndex));
-                        command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", "Topics auto-generated from Microsoft Academic"));
-                        command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", 0));
-
-                        SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
-                        par.Value = 0;
-                        command.Parameters.Add(par);
-                        command.Parameters["@NEW_REVIEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
-
-                        SqlParameter par2 = new SqlParameter("@NEW_SET_ID", System.Data.SqlDbType.Int);
-                        par2.Value = 0;
-                        command.Parameters.Add(par2);
-                        command.Parameters["@NEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
-                        command.ExecuteNonQuery();
-                        _reviewSetId = Convert.ToInt32(command.Parameters["@NEW_REVIEW_SET_ID"].Value);
-                    }
-                    connection.Close();
-                }
-
+                _reviewSetId = CreateNewReviewSet(ri.ReviewId);
             }
             
             rs = ReviewSet.GetReviewSet(_reviewSetId);
@@ -255,6 +257,40 @@ namespace BusinessLibrary.BusinessClasses
             ReturnMessage = "Successful. Items processed: " + numAdded.ToString();
         }
 
+        private int CreateNewReviewSet(int ReviewId)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ReviewSetInsert", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@SET_TYPE_ID", 3)); // Standard
+                    command.Parameters.Add(new SqlParameter("@ALLOW_CODING_EDITS", 1));
+                    command.Parameters.Add(new SqlParameter("@SET_NAME", "OpenAlex Topics"));
+                    command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", 1));
+                    command.Parameters.Add(new SqlParameter("@SET_ORDER", _reviewSetIndex));
+                    command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", "Topics auto-generated from OpenAlex"));
+                    command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", 0));
+
+                    SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
+                    par.Value = 0;
+                    command.Parameters.Add(par);
+                    command.Parameters["@NEW_REVIEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+
+                    SqlParameter par2 = new SqlParameter("@NEW_SET_ID", System.Data.SqlDbType.Int);
+                    par2.Value = 0;
+                    command.Parameters.Add(par2);
+                    command.Parameters["@NEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    _reviewSetId = Convert.ToInt32(command.Parameters["@NEW_REVIEW_SET_ID"].Value);
+                }
+                connection.Close();
+            }
+            return _reviewSetId;
+        }
+
         
         private bool isValidFos(Int64 fos)
         {
@@ -294,8 +330,8 @@ namespace BusinessLibrary.BusinessClasses
                         AttributeOrder = rs.Attributes.Count,
                         AttributeName = fos.DFN,
                         AttributeDescription = "",
-                        ExtURL = "http://academic.microsoft.com/topic/" + fos.Id,
-                        ExtType = "MAG",
+                        ExtURL = "https://explore.openalex.org/C" + fos.Id,
+                        ExtType = "OpenAlex",
                         ContactId = ContactId,
                         OriginalAttributeID = fos.Id
                     };
@@ -331,8 +367,8 @@ namespace BusinessLibrary.BusinessClasses
                             AttributeOrder = parentAttribute.Attributes.Count,
                             AttributeName = fos.DFN,
                             AttributeDescription = "",
-                            ExtURL = "http://academic.microsoft.com/topic/" + fos.Id,
-                            ExtType = "MAG",
+                            ExtURL = "https://explore.openalex.org/C" + fos.Id,
+                            ExtType = "OpenAlex",
                             ContactId = ContactId,
                             OriginalAttributeID = fos.Id
                         };
@@ -378,6 +414,136 @@ namespace BusinessLibrary.BusinessClasses
             }
             return ItemAttributeId;
         }
+
+        private void doCreateCodeSet()
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            ReviewSet rs = null;
+            if (_reviewSetId == 0)
+            {
+                _reviewSetId = CreateNewReviewSet(ri.ReviewId);
+            }
+
+            rs = ReviewSet.GetReviewSet(_reviewSetId);
+            if (rs == null)
+            {
+                ReturnMessage = "Error: could not get code set for new codes";
+                return;
+            }
+
+            string [] FosIds = _attributeList.Replace("\n\r", "¬").Replace("r\n", "¬").Replace("\n", "¬").Replace("\r", "¬").Replace(",", "¬").Split('¬');
+            Int64 testInt64 = 0;
+            int count = 0;
+            foreach (string s in FosIds)
+            {
+                if (s.Trim() != "" && Int64.TryParse(s, out testInt64))
+                {
+                    if (isValidFos(testInt64))
+                    {
+                        GetOrCreateAttribute(rs, s.Trim(), ri.UserId, ri.ReviewId);
+                    }
+                }
+            }
+        }
+        private async void doUseNLP(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string BatchGuid = Guid.NewGuid().ToString();
+            int rowcount = 0;
+
+            ReviewSet rs = ReviewSet.GetReviewSet(_reviewSetId);
+            if (rs == null)
+            {
+                ReturnMessage = "Error: could not get code set";
+                return;
+            }
+            if (rs.SetTypeId == 5 || rs.SetTypeId == 6)
+            {
+                ReturnMessage = "Error: can't add topics to screening or admin code sets";
+                return;
+            }
+
+            // 1) write the data to the Azure SQL database
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationDataToSQL", connection))
+                {
+                    command.CommandTimeout = 6000; // 10 minutes - if there are tens of thousands of items it can take a while
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", _attributeIdFilter));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID_LIST", _itemList));
+                    command.Parameters.Add(new SqlParameter("@SOURCE_ID", 0));
+                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
+                    command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
+                    command.Parameters.Add(new SqlParameter("@MachineName", TrainingRunCommand.NameBase));
+                    command.Parameters.Add(new SqlParameter("@ROWCOUNT", 0));
+                    command.Parameters["@ROWCOUNT"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    rowcount = Convert.ToInt32(command.Parameters["@ROWCOUNT"].Value);
+                }
+            }
+            if (rowcount == 0)
+            {
+                ReturnMessage = "Zero rows to classify!";
+                return;
+            }
+
+            // 2) Call the datafactory process that will take the above data and assign OpenAlex topics to all the records
+
+#if (!CSLA_NETCORE)
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                {"BatchGuid", BatchGuid }
+            };
+            DataFactoryHelper.RunDataFactoryProcess("Fair wikipedia categories", parameters, true, ContactId, cancellationToken);
+#endif
+
+            // 3) Grab the classifications from the Azure SQL table and insert into tb_item_attribute
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationScores", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+
+                            AttributeSet aset = rs.GetAttributeSetFromAttributeName(reader["PredictedLabel"].ToString());
+                            if (aset != null)
+                            {
+                                SaveAttribute(aset.AttributeId, ReviewId, ContactId, Convert.ToInt64(reader["ITEM_ID"].ToString()), aset.SetId);
+                            }
+                            
+                        }
+                    }
+                }
+                connection.Close();
+            }
+
+            // 4) clean up the Azure DB - deleting the item data and scores
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ClassifierCleanUpBatch", connection))
+                {
+                    command.CommandTimeout = 6000; // 10 minutes - if there are tens of thousands of items it can take a while
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            ReturnMessage = "Categories processed successfully";
+
+        }
+
 
 
 #endif

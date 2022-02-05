@@ -97,16 +97,6 @@ namespace BusinessLibrary.BusinessClasses
                             doComparison(i, cpm);
                         }
                     }
-                    /* JT - don't think we need this, as it just removes stuff below the automatch score - and we filter on this below
-                    for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
-                    {
-                        if (candidatePapersOnTitle[inn].matchingScore < AutoMatchMinScore)
-                        {
-                            candidatePapersOnTitle.RemoveAt(inn);
-                            inn--;
-                        }
-                    }
-                    */
                     foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
                     {
                         var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
@@ -119,7 +109,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < AutoMatchThreshold))
                     {
                         List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = 
-                            MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle, "LIVE", false);
+                            MagMakesHelpers.GetCandidateMatchesOnAuthorsAndJournal(i.Title + " " + i.Authors + " " + i.ParentTitle, "LIVE", false);
                         foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
                         {
                             doComparison(i, cpm);

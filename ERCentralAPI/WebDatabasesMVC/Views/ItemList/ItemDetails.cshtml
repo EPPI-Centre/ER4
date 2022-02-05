@@ -6,17 +6,26 @@
 @using System.Linq; 
 @{
     Item itm = Model.Item;
+    bool isFair = false;
+    if (ViewBag.isFair != null && ViewBag.isFair == true)
+    {
+        Layout = "~/Views/Shared/_FairLayout.cshtml";
+        isFair = true;
+    }
 }
 <script type="text/javascript">
     function toggleDetails() {
         $(document).find('.showhide1').toggle(100);
         $(document).find('.showhide2').toggle(100);
     }
+    var IsFair = @isFair.ToString().ToLower();
     var ModelData = null;
     var CurrentItemsCriteria = null;
     var ItemsIds = null;
     function BackToList() {
-        postwith("../ItemList/ListFromCrit", CurrentItemsCriteria);
+        if (IsFair == true )
+            postwith("../Fair/ListFromCrit", CurrentItemsCriteria);
+        else postwith("../ItemList/ListFromCrit", CurrentItemsCriteria);
     }
 </script>
 <script id="InitialScript" type="text/javascript">

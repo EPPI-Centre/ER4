@@ -19,7 +19,7 @@ using WebDatabasesMVC;
 
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "CookieAuthentication,FairAuthentication")]
     public class ReviewSetListController : CSLAController
     {
         

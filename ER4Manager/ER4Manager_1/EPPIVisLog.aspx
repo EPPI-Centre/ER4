@@ -48,16 +48,29 @@
         <table style="width: 100%;">
             <tr>
                 <td align="left" style="width: 60%">
-                    <b>Log details</b>
+                    <b>Log details</b>&nbsp;&nbsp;(top 5000 entries based on date selected)
                     
                 </td>
-                <td align="right" width="50%">&nbsp;&nbsp;&nbsp; *Find&nbsp;&nbsp;
-                        <asp:TextBox ID="tbFilter" runat="server" onkeyup="KeyUp();"></asp:TextBox>
+                <td align="right" width="50%">&nbsp;&nbsp;&nbsp; Type&nbsp;&nbsp;
+                    <asp:DropDownList ID="ddlTypes" runat="server" AutoPostBack="True" OnSelectedIndexChanged="ddlTypes_SelectedIndexChanged">
+                         <asp:listitem text="All" value="1"></asp:listitem>
+                         <asp:listitem text="Login" value="2"></asp:listitem>
+                         <asp:listitem text="Search" value="3"></asp:listitem>
+                         <asp:listitem text="GetFrequency" value="4"></asp:listitem>
+                         <asp:listitem text="GetSetFrequency" value="5"></asp:listitem>
+                         <asp:listitem text="GetFrequencyNewPage" value="6"></asp:listitem>
+                         <asp:listitem text="GetItemList" value="7"></asp:listitem>
+                         <asp:listitem text="GetMap" value="8"></asp:listitem>
+                        <asp:listitem text="ItemDetailsFromList" value="9"></asp:listitem>
+                    </asp:DropDownList>                  
                 </td>
+                <!--<td align="right" width="50%">&nbsp;&nbsp;&nbsp; *Find&nbsp;&nbsp;
+                        <asp:TextBox ID="tbFilter" runat="server" onkeyup="KeyUp();" Visible="false"></asp:TextBox>
+                </td>-->
             </tr>
         </table>
 
-        <telerik:RadGrid ID="radGVEPPIVisLog" runat="server"
+        <telerik:RadGrid ID="radGVEPPIVisLog" runat="server" 
             CssClass="Grid" Skin="Windows7" AllowPaging="True" AutoGenerateColumns="False"
             Height="280px" ResolvedRenderMode="Classic" Width="800px"
             OnItemDataBound="radGVEPPIVisLog_ItemDataBound"
@@ -160,6 +173,11 @@
 
         <br />
     </asp:Panel>
+
+
+    <asp:SqlDataSource ID="SqlDataSource2" ConnectionString="Data Source=localhost;Initial Catalog=ReviewerAdmin;Integrated Security=True"
+        ProviderName="System.Data.SqlClient" SelectCommand="SELECT DISTINCT LOG_TYPE FROM TB_WEBDB_LOG"
+        runat="server"></asp:SqlDataSource>
 
 
 </asp:Content>

@@ -205,10 +205,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public RunExportReferences() {
 		alert('not implemented yet');
 	}
-	public ShowHideExportReferences(style: string): any {
+	public ShowHideExportReferences(style: string): string | any[] {
 
 		let report: string = '';
-		let jsonReport: any= [];
+		let jsonReport: any[] = [];
 		let items: Item[] = this.ItemListService.ItemList.items.filter(found => found.isSelected == true);
 				
 		for (var i = 0; i < items.length; i++) {
@@ -226,7 +226,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 					break;
 				case "ExportTable":
 					jsonReport.push(this.ItemListService.GetCitationForExport(currentItem));
-					break;
+                    break;
+                case "HIS":
+                    jsonReport.push(ItemListService.GetHISCitationForExport(currentItem));
+                    break;
 				//case "BL":
 				//	report += review.BL_TX + Environment.NewLine +
 				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
@@ -238,10 +241,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			}
 		}
 		if (report == '') {
-			console.log('wrong', jsonReport);
+			//console.log('wrong', jsonReport);
 			return jsonReport;
 		} else {
-			console.log('got in here');
+			//console.log('got in here');
 			return report;
 		}		
 	}
@@ -254,8 +257,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	exportAsXLSX(report: string[]): void {
 		this.excelService.exportAsExcelFile(report, 'ItemsList');
-
-	}
+    }
+    exportAsHisXLSX(report: string[]): void {
+        this.excelService.exportHISscreeningFile(report, 'ItemsList (RevId ' + this.ReviewerIdentityServ.reviewerIdentity.reviewId.toString()+ ')') ;
+    }
     public ItemsWithThisCodeDDData: Array<any> = [
         {
             text: 'With this Code (Excluded)',
@@ -318,7 +323,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			click: () => {
 				//this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
 				let testRefs: any = this.ShowHideExportReferences('ExportTable');
-				console.log(testRefs);
+				//console.log(testRefs);
 				this.exportAsXLSX(testRefs);
 			}
         },
@@ -349,6 +354,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
                 //    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(t2.nativeElement.outerHTML, this._baseUrl, "Items Table"));
                 //    saveAs(dataURI, "ItemsTable.html");
                 //}
+            }
+        },
+        {
+            text: 'HIS (ext. scr.)',
+            click: () => {
+                //this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
+                let testRefs: any = this.ShowHideExportReferences('HIS');
+                //console.log(testRefs);
+                this.exportAsHisXLSX(testRefs);
             }
         }
     ];

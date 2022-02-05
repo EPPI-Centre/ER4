@@ -132,7 +132,7 @@ namespace BusinessLibrary.BusinessClasses
             List<string> AlreadyUsedPaperIds = new List<string>();
             List<string> AllIDsToSearch = new List<string>();
             IncomingItemsList incomingList = IncomingItemsList.NewIncomingItemsList();
-            incomingList.SourceDB = "Microsoft Academic Graph";
+            incomingList.SourceDB = "OpenAlex";
             incomingList.HasMAGScores = true;
             incomingList.IsFirst = true; incomingList.IsLast = true;
             incomingList.IncomingItems = new MobileList<ItemIncomingData>();
@@ -222,7 +222,7 @@ namespace BusinessLibrary.BusinessClasses
                             AllIDsToSearch.Add(PaperId);
                         }
                     }
-                    incomingList.SourceName = "Selected items from MAG on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
+                    incomingList.SourceName = "Selected items from OpenAlex on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
                     incomingList.SearchStr = _PaperIds;
                 }
                 // then we look up the list of IDs from 1, 2 and 3 in MAKES. Doing in batches of 100 as this is much quicker than one at a time
@@ -402,7 +402,7 @@ namespace BusinessLibrary.BusinessClasses
             //    string[] urls = mp.URLs.Split(';');
             //    if (urls.Length > 0) tItem.Url = urls[0];
             //}
-            tItem.Url = "https://academic.microsoft.com/paper/" + mp.PaperId.ToString();
+            tItem.Url = "https://explore.openalex.org/works/W" + mp.PaperId.ToString();
             if (mp.Publisher != null) tItem.Publisher = mp.Publisher;
             tItem.MAGManualFalseMatch = false;
             tItem.MAGManualTrueMatch = false;
@@ -523,10 +523,10 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else
                 {
-                    incomingList.SourceName = "Selected items from MAG on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
+                    incomingList.SourceName = "Selected items from OpenAlex on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
                     incomingList.SearchStr = _PaperIds;
                 }
-                incomingList.SourceDB = "Microsoft Academic Graph";
+                incomingList.SourceDB = "OpenAlex";
                 incomingList.HasMAGScores = true;
                 incomingList.IsFirst = true; incomingList.IsLast = true;
                 incomingList.IncomingItems = new MobileList<ItemIncomingData>();

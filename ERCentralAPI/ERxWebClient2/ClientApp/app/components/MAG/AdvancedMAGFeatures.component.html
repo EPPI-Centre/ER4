@@ -45,7 +45,7 @@
                 <div class="card card-footer">
                     <p>
                         The algorithm to find new and related studies to the ones you have already identified depends on correctly matching your existing records
-                        into the Microsoft Academic dataset. While this process can be automated up to a point, some records cannot be matched with 100% confidence,
+                        into the OpenAlex dataset. While this process can be automated up to a point, some records cannot be matched with 100% confidence,
                         and some cannot be matched at all.
                     </p>
                     <p>
@@ -57,7 +57,7 @@
                     </p>
                     <ol>
                         <li>year of publication</li>
-                        <li>the date a study entered the MAG</li>
+                        <li>the date a study entered the OpenAlex</li>
                         <li>database and items under a specific code.</li>
                     </ol>
 
@@ -75,13 +75,13 @@
         <div *ngIf="!basicSeedPanel">
             <a (click)="ShowSeedPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse" href="#collapseExample1"
                 role="button" aria-expanded="false" aria-controls="collapseExample1">
-            Seed and Test MAG <i class="fa fa-arrow-circle-down"></i>
+            Seed and Test OpenAlex <i class="fa fa-arrow-circle-down"></i>
             </a>
         </div>
         <div *ngIf="basicSeedPanel">
             <a (click)="ShowSeedPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse" href="#collapseExample1"
                 role="button" aria-expanded="false" aria-controls="collapseExample1">
-            Seed and Test MAG <i class="fa fa-arrow-circle-up"></i>
+            Seed and Test OpenAlex <i class="fa fa-arrow-circle-up"></i>
             </a>
         </div>
 

@@ -24,13 +24,13 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="160"></ColumnDefinition>
             <ColumnDefinition Width="190"></ColumnDefinition>
-            <ColumnDefinition Width="165"></ColumnDefinition>
+            <ColumnDefinition Width="190"></ColumnDefinition>
             <ColumnDefinition Width="190"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <TextBlock Text="Automatically assign codes" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" Margin="6,6,6,6"></TextBlock>
         <TextBlock Text="Lingo3G" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
-        <TextBlock Text="Microsoft Academic" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+        <TextBlock Text="OpenAlex" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
         <TextBlock Text="Maximum hierarchy depth" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2" Margin="6,6,6,6"></TextBlock>
         <telerikInput:RadNumericUpDown x:Name="NumericUpDownMaxHierarchyDepth" Maximum="5" Minimum="1" Value="2" SmallChange="1" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
         <TextBlock Text="Minimum cluster size" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="6,6,6,6"></TextBlock>
@@ -41,8 +41,8 @@
         <telerikInput:RadNumericUpDown x:Name="NumericUpDownSingleWordLabelWeight" Maximum="1" Minimum="0" Value="0.5" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
         <TextBlock Text="Minimum label length" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="6,6,6,6"></TextBlock>
         <telerikInput:RadNumericUpDown x:Name="NumericUpDownMinLabelLength" Maximum="8" Minimum="1" Value="0.35" SmallChange="1" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
-        
-        <TextBlock Text="Assign codes to (applies to Lingo3G and Microsoft Academic)" HorizontalAlignment="Right" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" Margin="6,10,6,6"></TextBlock>
+
+        <TextBlock Text="Assign codes to (applies to Lingo3G and OpenAlex)" HorizontalAlignment="Right" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" Margin="6,10,6,6"></TextBlock>
         <ComboBox x:Name="ComboClusterWhat" Grid.Column="2" Grid.Row="8" Margin="6,6,6,6" SelectionChanged="ComboClusterWhat_SelectionChanged">
             <ComboBoxItem Content="All included items" IsSelected="True"></ComboBoxItem>
             <ComboBoxItem Content="All selected items"></ComboBoxItem>
@@ -62,7 +62,9 @@
         <TextBlock Grid.Row="5" Grid.Column="2" Text="Min number items per topic" Margin="6,8,6,6" HorizontalAlignment="Right"></TextBlock>
         <telerik:RadNumericUpDown x:Name="dialogClusterMinItems" Grid.Row="5" Grid.Column="3" Margin="4,4,4,4" Value="5" HorizontalAlignment="Left" Width="80" Maximum="100" IsInteger="True" Minimum="1" ToolTipService.ToolTip="Topic needs to be used this number of times before it is added" ValueChanged="dialogClusterMinItems_ValueChanged"></telerik:RadNumericUpDown>
         <TextBlock x:Name="dialogClusterThresholdWarning" Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="2" Text="Warning: a low threshold can generate lots of codes!" FontStyle="Italic" Margin="6,8,6,6" HorizontalAlignment="Right" Visibility="Collapsed"></TextBlock>
-
-        <Button x:Name="cmdGetMicrosoftAcademicTopics" HorizontalAlignment="Center" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Grid.Row="11" Grid.Column="2" Grid.ColumnSpan="2" FontSize="10" Content="Get Microsoft Academic topics" Width="180" Click="cmdGetMicrosoftAcademicTopics_Click" Margin="6,0,6,12"></Button>
+        <StackPanel Orientation="Horizontal" Grid.Row="11" Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            <Button x:Name="cmdGetMicrosoftAcademicTopics" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" FontSize="10" Content="Get OpenAlex topics (from OA)" Width="170" Click="cmdGetMicrosoftAcademicTopics_Click" Margin="6,0,6,12"></Button>
+            <Button x:Name="cmdGetOpenAlexTopicsNLP" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" FontSize="10" Content="Get OpenAlex topics (using NLP)" Width="170" Click="cmdGetOpenAlexTopicsNLP_Click" Margin="6,0,6,12"></Button>
+        </StackPanel>
     </Grid>
 </telerik:RadWindow>

@@ -691,7 +691,8 @@ namespace BusinessLibrary.BusinessClasses
                 ITEM_ID = pm.Id;
                 AUTHORS = MagMakesHelpers.getErStyleAuthors(pm.AA);
                 TITLE = pm.DN;
-                PARENT_TITLE = pm.J != null ? pm.J.JN : "";
+                PARENT_TITLE = pm.J != null && pm.J[0] != null ? pm.J[0].JN : "";
+                //PARENT_TITLE = pm.J != null && pm.J != null ? pm.J.JN : "";
                 if (PARENT_TITLE == "")
                     PARENT_TITLE = pm.VFN != null ? pm.VFN : "";
                 PARENT_TITLE = MagMakesHelpers.CleanText(PARENT_TITLE.Replace("&", "and"));

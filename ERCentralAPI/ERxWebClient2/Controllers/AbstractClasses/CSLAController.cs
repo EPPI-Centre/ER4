@@ -9,6 +9,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 
+using System.Data.SqlClient;
+using BusinessLibrary.BusinessClasses;
+
+
 namespace ERxWebClient2.Controllers
 {
     public abstract class CSLAController : Controller
@@ -88,6 +92,28 @@ namespace ERxWebClient2.Controllers
                 }
             }
         }
+
+        protected int ReviewID
+        {
+            get
+            {
+                try
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (User == null || ri == null) return -1;
+                    else
+                    {
+                        return ri.ReviewId;
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("Error getting ReviewerIdentity or ReviewId therein.", e);
+                    return -1;
+                }
+            }
+        }
+
         private void SetViewBag()
         {
             ViewBag.WebDbId = WebDbId;
@@ -100,6 +126,76 @@ namespace ERxWebClient2.Controllers
                 ViewBag.WebDbName = WebDbTitle;
             }
 
+        }
+        //this method is here, so to allow accessing it from EPPI-Vis, from both the regular controllers and the FAIR one.
+        internal WebDatabasesMVC.ViewModels.FullItemDetails GetItemDetails(WebDatabasesMVC.Controllers.ItemSelCritMVC crit)
+        {
+            Item itm = DataPortal.Fetch<Item>(new SingleCriteria<Item, Int64>(crit.itemID));
+            ItemArmList arms = DataPortal.Fetch<ItemArmList>(new SingleCriteria<Item, Int64>(crit.itemID));
+            itm.Arms = arms;
+            ItemTimepointList timepoints = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(crit.itemID));
+            ItemDocumentList docs = DataPortal.Fetch<ItemDocumentList>(new SingleCriteria<ItemDocumentList, Int64>(crit.itemID));
+            ReadOnlySource ros = DataPortal.Fetch<ReadOnlySource>(new SingleCriteria<ReadOnlySource, long>(crit.itemID));
+            ItemDuplicatesReadOnlyList dups = DataPortal.Fetch<ItemDuplicatesReadOnlyList>(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(crit.itemID));
+            WebDatabasesMVC.ViewModels.FullItemDetails res = new WebDatabasesMVC.ViewModels.FullItemDetails
+            {
+                Item = itm,
+                Documents = docs,
+                Timepoints = timepoints,
+                Duplicates = dups,
+                Source = ros,
+                ListCrit = crit as WebDatabasesMVC.Controllers.SelCritMVC,
+                ItemIds = crit.itemIds
+            };
+            return res;
+        }
+        //as above, placing this method here, so to allow accessing it from EPPI-Vis, from both the regular controllers and the FAIR one. 
+        internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
+        {
+            if (crit.WebDbId == 0)
+            {
+                crit.WebDbId = WebDbId;
+                crit.PageSize = 100;
+            }
+            else if (WebDbId != crit.WebDbId)
+            {
+                throw new Exception("WebDbId in ItemList Criteria is not the expected value - possible tampering attempt!");
+            }
+
+            if (crit.ListType == "StandardItemList")
+            {
+                crit.ListType = "WebDbAllItems";
+                crit.OnlyIncluded = true;
+                crit.Description = "All Items.";
+            }
+            else if (!crit.ListType.StartsWith("WebDb"))
+            {
+                throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
+            }
+            ItemList4Json res = new ItemList4Json(DataPortal.Fetch<ItemList>(crit));
+            return new ItemListWithCriteria { items = res, criteria = new WebDatabasesMVC.Controllers.SelCritMVC(crit) };
+        }
+
+
+        protected void logActivity(string type, string details)
+        {
+            CSLAController.logActivityStatic(type, details, WebDbId, ReviewID);
+        }
+        public static void logActivityStatic(string type, string details, int WebDbId, int ReviewID)
+        {
+            //making this public and static, so we can call it from LoginController, which does not inherit from CSLAController
+            string SP1 = "st_WebDBWriteToLog";
+            List<SqlParameter> pars1 = new List<SqlParameter>();
+            pars1.Add(new SqlParameter("@WebDBid", WebDbId));
+            pars1.Add(new SqlParameter("@Reviewid", ReviewID));
+            pars1.Add(new SqlParameter("@Type", type));
+            pars1.Add(new SqlParameter("@Details", details));
+
+            int result = WebDatabasesMVC.Program.SqlHelper.ExecuteNonQuerySP(WebDatabasesMVC.Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
+            if (result == -2)
+            {
+                Console.WriteLine("Unable to write to WebDB log");
+            }
         }
 #endif
     }

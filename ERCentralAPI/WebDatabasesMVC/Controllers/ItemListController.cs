@@ -31,7 +31,7 @@ using WebDatabasesMVC.ViewModels;
 /// </summary>
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "CookieAuthentication")]
     public class ItemListController : CSLAController
     {
         
@@ -139,6 +139,16 @@ namespace WebDatabasesMVC.Controllers
         [HttpPost]
         public IActionResult ListFromCritJson(SelCritMVC critMVC)
         {
+            return internalListFromCritJson(critMVC);
+        }
+        [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        [HttpPost]
+        public IActionResult FairListFromCritJson(SelCritMVC critMVC)
+        {
+            return internalListFromCritJson(critMVC);
+        }
+        private IActionResult internalListFromCritJson(SelCritMVC critMVC)
+        {
             try
             {
                 if (SetCSLAUser())
@@ -156,7 +166,6 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
         public IActionResult GetFreqList([FromForm] long attId, string attName)
         {
             try
@@ -170,17 +179,8 @@ namespace WebDatabasesMVC.Controllers
                     crit.Description = attName;
                     ItemListWithCriteria iList = GetItemList(crit);
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
-                    pars1.Add(new SqlParameter("@Details", crit.Description));
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
+                    // log to TB_WEBDB_LOG
+                    logActivity("GetItemList", crit.Description);
 
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
@@ -194,6 +194,15 @@ namespace WebDatabasesMVC.Controllers
         }
         public IActionResult GetFreqListJSon([FromForm] long attId, string attName)
         {
+            return InternalGetFreqListJSon(attId, attName);
+        }
+        [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        public IActionResult FairGetFreqListJSon([FromForm] long attId, string attName)
+        {
+            return InternalGetFreqListJSon(attId, attName);
+        }
+        private IActionResult InternalGetFreqListJSon(long attId, string attName)
+        {
             try
             {
                 if (SetCSLAUser())
@@ -205,17 +214,8 @@ namespace WebDatabasesMVC.Controllers
                     crit.FilterAttributeId = attId;
                     ItemListWithCriteria iList = GetItemList(crit);
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
-                    pars1.Add(new SqlParameter("@Details", crit.Description));
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
+                    // log to TB_WEBDB_LOG
+                    logActivity("GetItemList", crit.Description);
 
                     return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
@@ -250,17 +250,8 @@ namespace WebDatabasesMVC.Controllers
                     criteria.FilterAttributeId = onlyThisAttribute;
                     ItemListWithCriteria iList = GetItemList(criteria);
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
-                    pars1.Add(new SqlParameter("@Details", criteria.Description));
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
+                    // log to TB_WEBDB_LOG
+                    logActivity("GetItemList", criteria.Description);
 
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
@@ -292,17 +283,8 @@ namespace WebDatabasesMVC.Controllers
                     criteria.FilterAttributeId = onlyThisAttribute;
                     ItemListWithCriteria iList = GetItemList(criteria);
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
-                    pars1.Add(new SqlParameter("@Details", criteria.Description));
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
+                    // log to TB_WEBDB_LOG
+                    logActivity("GetItemList", criteria.Description);
 
                     return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
@@ -358,6 +340,17 @@ namespace WebDatabasesMVC.Controllers
         [HttpPost]
         public IActionResult GetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
         {
+            return internalGetListWithWithoutAttsJSON(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, included, Description);
+        }
+
+        [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        [HttpPost]
+        public IActionResult FairGetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
+        {
+            return internalGetListWithWithoutAttsJSON(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, included, Description);
+        }
+        private IActionResult internalGetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description)
+        {
             try
             {
                 if (SetCSLAUser())
@@ -386,18 +379,8 @@ namespace WebDatabasesMVC.Controllers
                     }
                     ItemListWithCriteria iList = GetItemList(criteria);
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "GetItemList"));
-                    pars1.Add(new SqlParameter("@Details", criteria.Description));
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
-
+                    // log to TB_WEBDB_LOG
+                    logActivity("GetItemList", criteria.Description);
 
                     return Json(iList);
                 }
@@ -410,63 +393,24 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
+
+
         public IActionResult GetListSearchResults([FromForm] string SearchString, string SearchWhat, string included)
         {
             try
             {
                 if (SetCSLAUser())
                 {
-                    string[] sTypes = {
-                    "TitleAbstract"
-                    ,"Title"
-                    ,"Abstract"
-                    ,"PubYear"
-                    ,"AdditionalText"
-                    ,"ItemId"
-                    ,"OldItemId"
-                    ,"Authors"};
-                    //basic check: is the list type supported?
-                    if (!sTypes.Contains(SearchWhat) || SearchString == null || SearchString == "")
+                    string errorMsg;
+                    SelectionCriteria criteria = ItemListController.GetCriterionForSearch(SearchString, SearchWhat, included, out errorMsg);
+                    if (errorMsg != "")
                     {
                         _logger.LogError("Error in ItemList GetListSearchResults: search parameters appear to be malformed.");
                         return BadRequest("Request parameters appear to be malformed.");
                     }
-                    //basic check: number of atts and sets match...
-                    SelectionCriteria criteria = new SelectionCriteria();
-                    criteria.ListType = "WebDbSearch";
-                    criteria.SearchString = SearchString;
-                    criteria.SearchWhat = SearchWhat;
-                    string descr = "Search results (in ";
-                    if (SearchWhat == "TitleAbstract") descr += "Title and Abstract" + ") for: ";
-                    else if (SearchWhat == "AdditionalText") descr += "\"Coded\" Text" + ") for: ";
-                    else if (SearchWhat == "PubYear") descr += "Publication Year" + ") for: ";
-                    else if (SearchWhat == "OldItemId") descr += "Imported ID(s)" + ") for: ";
-                    else descr += SearchWhat + ") for: ";
-                    if (SearchString.Length > 30)
-                    {
-                        int i = SearchString.IndexOf(' ', 15);
-                        if (i > 0) descr += SearchString.Substring(0, i) + " [...]";
-                        else descr += SearchString.Substring(0, 30) + " [...]";
-                    }
-                    else descr += SearchString;
-                    criteria.Description = descr;
-                    if (included != "")
-                    {
-                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
-                    }
                     ItemListWithCriteria iList = GetItemList(criteria);
-
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "Search"));
-                    pars1.Add(new SqlParameter("@Details", criteria.Description));
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
+                    // log to TB_WEBDB_LOG
+                    logActivity("Search", criteria.Description);
 
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
@@ -485,31 +429,16 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    string[] sTypes = {
-                    "TitleAbstract"
-                    ,"Title"
-                    ,"Abstract"
-                    ,"PubYear"
-                    ,"AdditionalText"
-                    ,"ItemId"
-                    ,"OldItemId"
-                    ,"Authors"};
-                    //basic check: is the list type supported?
-                    if (!sTypes.Contains(SearchWhat) || SearchString == null || SearchString == "")
+                    string errorMsg;
+                    SelectionCriteria criteria = ItemListController.GetCriterionForSearch(SearchString, SearchWhat, included, out errorMsg);
+                    if (errorMsg != "")
                     {
-                        _logger.LogError("Error in ItemList GetListSearchResults: search parameters appear to be malformed.");
+                        _logger.LogError("Error in ItemList GetListSearchResultsJSON: search parameters appear to be malformed.");
                         return BadRequest("Request parameters appear to be malformed.");
                     }
-                    //basic check: number of atts and sets match...
-                    SelectionCriteria criteria = new SelectionCriteria();
-                    criteria.ListType = "WebDbSearch";
-                    criteria.SearchString = SearchString;
-                    criteria.SearchWhat = SearchWhat;
-                    if (included != "")
-                    {
-                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
-                    }
                     ItemListWithCriteria iList = GetItemList(criteria);
+                    // log to TB_WEBDB_LOG
+                    logActivity("Search", criteria.Description);
                     return Json(iList);
                 }
                 else return Unauthorized();
@@ -521,33 +450,50 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
-
-
-        internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
+        internal static SelectionCriteria GetCriterionForSearch(string SearchString, string SearchWhat, string included, out string ErrorMessage)
         {
-            if (crit.WebDbId == 0)
+            ErrorMessage = "";
+            SelectionCriteria criteria = new SelectionCriteria();
+            string[] sTypes = {
+                    "TitleAbstract"
+                    ,"Title"
+                    ,"Abstract"
+                    ,"PubYear"
+                    ,"AdditionalText"
+                    ,"ItemId"
+                    ,"OldItemId"
+                    ,"Authors"};
+            //basic check: is the list type supported?
+            if (!sTypes.Contains(SearchWhat) || SearchString == null || SearchString == "")
             {
-                crit.WebDbId = WebDbId;
-                crit.PageSize = 100;
+                ErrorMessage = "Error in ItemList GetListSearchResults: search parameters appear to be malformed.";
+                return criteria;
             }
-            else if (WebDbId != crit.WebDbId)
+            //basic check: number of atts and sets match...
+            criteria.ListType = "WebDbSearch";
+            criteria.SearchString = SearchString;
+            criteria.SearchWhat = SearchWhat;
+            string descr = "Search results (in ";
+            if (SearchWhat == "TitleAbstract") descr += "Title and Abstract" + ") for: ";
+            else if (SearchWhat == "AdditionalText") descr += "\"Coded\" Text" + ") for: ";
+            else if (SearchWhat == "PubYear") descr += "Publication Year" + ") for: ";
+            else if (SearchWhat == "OldItemId") descr += "Imported ID(s)" + ") for: ";
+            else descr += SearchWhat + ") for: ";
+            if (SearchString.Length > 30)
             {
-                throw new Exception("WebDbId in ItemList Criteria is not the expected value - possible tampering attempt!");
+                int i = SearchString.IndexOf(' ', 15);
+                if (i > 0) descr += SearchString.Substring(0, i) + " [...]";
+                else descr += SearchString.Substring(0, 30) + " [...]";
             }
-
-            if (crit.ListType == "StandardItemList")
+            else descr += SearchString;
+            criteria.Description = descr;
+            if (included != "")
             {
-                crit.ListType = "WebDbAllItems";
-                crit.OnlyIncluded = true;
-                crit.Description = "All Items.";
+                criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
             }
-            else if (!crit.ListType.StartsWith("WebDb"))
-            {
-                throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
-            }
-            ItemList4Json res = new ItemList4Json( DataPortal.Fetch<ItemList>(crit));
-            return new ItemListWithCriteria { items = res, criteria = new SelCritMVC(crit)   };
+            return criteria;
         }
+
 
         [HttpPost]
         public IActionResult ItemDetails(ItemSelCritMVC crit)
@@ -558,17 +504,8 @@ namespace WebDatabasesMVC.Controllers
                 {
                     FullItemDetails Itm = GetItemDetails(crit);
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "ItemDetailsFromList"));
-                    pars1.Add(new SqlParameter("@Details", crit.itemID));
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
+                    // log to TB_WEBDB_LOG
+                    logActivity("ItemDetailsFromList", crit.itemID.ToString());
 
                     return View(Itm);
                 }
@@ -598,27 +535,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal FullItemDetails GetItemDetails(ItemSelCritMVC crit)
-        {
-            Item itm = DataPortal.Fetch<Item>(new SingleCriteria<Item, Int64>(crit.itemID));
-            ItemArmList arms = DataPortal.Fetch<ItemArmList>(new SingleCriteria<Item, Int64>(crit.itemID));
-            itm.Arms = arms;
-            ItemTimepointList timepoints = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(crit.itemID));
-            ItemDocumentList docs = DataPortal.Fetch<ItemDocumentList>(new SingleCriteria<ItemDocumentList, Int64>(crit.itemID));
-            ReadOnlySource ros = DataPortal.Fetch<ReadOnlySource>(new SingleCriteria<ReadOnlySource, long>(crit.itemID));
-            ItemDuplicatesReadOnlyList dups = DataPortal.Fetch<ItemDuplicatesReadOnlyList>(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(crit.itemID));
-            FullItemDetails res = new FullItemDetails
-            {
-                Item = itm,
-                Documents = docs,
-                Timepoints = timepoints,
-                Duplicates = dups,
-                Source = ros,
-                ListCrit = crit as SelCritMVC,
-                ItemIds = crit.itemIds
-            };
-            return res;
-        }
+        
 
     }
     public class SelCritMVC

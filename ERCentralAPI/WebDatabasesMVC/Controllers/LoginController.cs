@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebDatabasesMVC;
 
+
+
 namespace WebDatabasesMVC.Controllers
 {
     //[Route("Login")]
@@ -58,9 +60,15 @@ namespace WebDatabasesMVC.Controllers
         
         public IActionResult Logout()
         {
-            HttpContext.SignOutAsync();
+            Signout();
             return Redirect("~/Login/Index");
         }
+        private async void Signout()
+        {
+            await HttpContext.SignOutAsync("FairAuthentication");
+            await HttpContext.SignOutAsync();
+        }
+
         // POST: Login/Create
         [HttpPost]
         //[ValidateAntiForgeryToken]
@@ -70,6 +78,7 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (int.TryParse(id, out int WebDbId))
                 {
+                    Signout();
                     string SP = "st_WebDBgetOpenAccess";
                     List<SqlParameter> pars = new List<SqlParameter>();
                     pars.Add(new SqlParameter("@WebDBid", WebDbId));
@@ -79,6 +88,8 @@ namespace WebDatabasesMVC.Controllers
                         pars.Add(new SqlParameter("@userName", username));
                         pars.Add(new SqlParameter("@Password", password));
                     }
+
+
 
                     using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.ER4DB, SP, pars.ToArray())) 
                     {
@@ -91,21 +102,10 @@ namespace WebDatabasesMVC.Controllers
                                 SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
                                 //SetImages(WebDbId, reader);
 
-                                // log to TB_WEBDB_LOG                               
-                                string SP1 = "st_WebDBWriteToLog";
-                                List<SqlParameter> pars1 = new List<SqlParameter>();
-                                pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                                pars1.Add(new SqlParameter("@Type", "Login"));
-                                if (SP == "st_WebDBgetClosedAccess")
-                                    pars1.Add(new SqlParameter("@Details", "Closed access"));
-                                else
-                                    pars1.Add(new SqlParameter("@Details", "Open access"));
-                                int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                                if (result == -2)
-                                {
-                                    Console.WriteLine("Unable to write to WebDB log");
-                                }
-
+                                // log to TB_WEBDB_LOG
+                                ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
+                                    , SP == "st_WebDBgetClosedAccess" ? "Closed access" : "Open access"
+                                    , WebDbId, Revid);
                                 return Redirect("~/Review/Index");
                             } 
                             else
@@ -142,6 +142,7 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (int.TryParse(WebDBid, out int WebDbId))
                 {
+                    Signout();
                     string SP = "st_WebDBgetOpenAccess";
                     List<SqlParameter> pars = new List<SqlParameter>();
                     pars.Add(new SqlParameter("@WebDBid", WebDbId));
@@ -156,17 +157,8 @@ namespace WebDatabasesMVC.Controllers
                                 SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
                                 //SetImages(WebDbId, reader);
 
-                                // log to TB_WEBDB_LOG                               
-                                string SP1 = "st_WebDBWriteToLog";
-                                List<SqlParameter> pars1 = new List<SqlParameter>();
-                                pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                                pars1.Add(new SqlParameter("@Type", "Login"));
-                                pars1.Add(new SqlParameter("@Details", "Open access"));
-                                int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                                if (result == -2)
-                                {
-                                    Console.WriteLine("Unable to write to WebDB log");
-                                }
+                                // log to TB_WEBDB_LOG
+                                ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login", "Open access", WebDbId, Revid);
 
                                 return Redirect("~/Review/Index");
                             }

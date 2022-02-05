@@ -44,6 +44,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_WebDbFrequencyCrosstabAndMap", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandTimeout =100;
                     command.Parameters.Add(new SqlParameter("@attributeIdXAxis", criteria.attributeIdXAxis));
                     command.Parameters.Add(new SqlParameter("@setIdXAxis", criteria.setIdXAxis));
                     if (criteria.included != "")

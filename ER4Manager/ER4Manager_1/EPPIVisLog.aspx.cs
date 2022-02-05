@@ -98,7 +98,6 @@ public partial class EPPIVisLog : System.Web.UI.Page
         }
     }
 
-
     private void loadLoggingData()
     {
         if (pnlRadTimePicker2.Visible == false)
@@ -116,16 +115,18 @@ public partial class EPPIVisLog : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("DETAILS", typeof(string)));
 
 
+
+
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_Eppi_Vis_Get_Log", lblWebDBID.Text,
-            RadTimePicker1.SelectedDate, RadTimePicker2.SelectedDate, tbFilter.Text);
+            RadTimePicker1.SelectedDate, RadTimePicker2.SelectedDate, ddlTypes.SelectedItem.Text);
         while (idr.Read())
         {
             newrow = dt.NewRow();
             newrow["WEBDB_LOG_IDENTITY"] = idr["tv_webdb_log_identity"].ToString();
             newrow["CREATED"] = idr["tv_created"].ToString();
             newrow["TYPE"] = idr["tv_log_type"].ToString();
-            newrow["DETAILS"] = idr["tv_details"].ToString();
+            newrow["DETAILS"] = HttpUtility.HtmlEncode(idr["tv_details"].ToString());
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -147,14 +148,14 @@ public partial class EPPIVisLog : System.Web.UI.Page
 
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_Eppi_Vis_Get_Log", lblWebDBID.Text,
-            RadTimePicker1.SelectedDate, RadTimePicker2.SelectedDate, tbFilter.Text);
+            RadTimePicker1.SelectedDate, RadTimePicker2.SelectedDate, ddlTypes.SelectedItem.Text);
         while (idr.Read())
         {
             newrow = dt.NewRow();
             newrow["WEBDB_LOG_IDENTITY"] = idr["tv_webdb_log_identity"].ToString();
             newrow["CREATED"] = idr["tv_created"].ToString();
             newrow["TYPE"] = idr["tv_log_type"].ToString();
-            newrow["DETAILS"] = idr["tv_details"].ToString();
+            newrow["DETAILS"] = HttpUtility.HtmlEncode(idr["tv_details"].ToString());
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -233,12 +234,16 @@ public partial class EPPIVisLog : System.Web.UI.Page
         if (rblCalendars.SelectedValue == "0")
         {
             pnlRadTimePicker2.Visible = false;
+            DateTime time2 = DateTime.Now;
+            RadTimePicker2.SelectedDate = time2;
+            radGVEPPIVisLog.Rebind();
         }
         else
         {
             pnlRadTimePicker2.Visible = true;
             DateTime time2 = DateTime.Now;
             RadTimePicker2.SelectedDate = time2;
+            radGVEPPIVisLog.Rebind();
         }
     }
 
@@ -249,4 +254,9 @@ public partial class EPPIVisLog : System.Web.UI.Page
     }
 
 
+
+    protected void ddlTypes_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        radGVEPPIVisLog.Rebind();
+    }
 }

@@ -234,7 +234,7 @@ namespace EppiReviewer4
             //end of windowReportsDocuments
 
             //prepare windowMagBrowser
-            windowMagBrowser.Header = "Microsoft Academic Graph Browser. BETA version: all feedback welcome!";
+            windowMagBrowser.Header = "OpenAlex Browser. BETA version: all feedback welcome!";
             windowMagBrowser.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
             windowMagBrowser.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
             windowMagBrowser.WindowState = WindowState.Maximized;
@@ -362,6 +362,7 @@ namespace EppiReviewer4
             windowDocumentCluster.ClusterWhat_SelectionChanged += new EventHandler<System.Windows.Controls.SelectionChangedEventArgs>(ComboClusterWhat_SelectionChanged);
             windowDocumentCluster.cmdCluster_Clicked += new EventHandler<RoutedEventArgs>(cmdCluster_Click);
             windowDocumentCluster.cmdGetMicrosoftAcademicTopics_Clicked += new EventHandler<RoutedEventArgs>(cmdGetMicrosoftAcademicTopics_Click);
+            windowDocumentCluster.cmdGetOpenAlexTopicsNLP_Clicked += new EventHandler<RoutedEventArgs>(cmdGetOpenAlexTopicsNLP_Click);
             windowLoadDiagram.cmdLoadDiagram_Clicked += new EventHandler<RoutedEventArgs>(cmdLoadDiagram_Click);
             windowCheckAssignItemsToCode.cmdCancelAssignCode_Clicked += new EventHandler<RoutedEventArgs>(cmdCancelAssignCode_Click);
             windowCheckAssignItemsToCode.cmdAssignCode_Clicked += new EventHandler<RoutedEventArgs>(cmdAssignCode_Click);
@@ -419,7 +420,7 @@ namespace EppiReviewer4
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             if (ri.UserId == 1451 || ri.UserId == 1576 || ri.UserId == 4688 
-                || ri.UserId == 6258 || ri.UserId == 6545 || ri.UserId == 11817 || ri.UserId == 1095) //Alison, Ian, Dylan,  Hollie Melton from York CRD, Claire, Joshua Pink from NICE and Albert Harkema
+                || ri.UserId == 6258 || ri.UserId == 6545 || ri.UserId == 11817 || ri.UserId == 1095 || ri.UserId == 11288) //Alison, Ian, Dylan,  Hollie Melton from York CRD, Claire, Joshua Pink from NICE and Albert Harkema and Ley Muller
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
@@ -447,11 +448,11 @@ namespace EppiReviewer4
                     {
                         if (chk.HasUpdates)
                         {
-                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/MicrosoftAcademicICOAlert.png", UriKind.Relative));
+                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/OpenAlex.png", UriKind.Relative));
                         }
                         else
                         {
-                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/MicrosoftAcademicICO.png", UriKind.Relative));
+                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/OpenAlex.png", UriKind.Relative));
                         }
                     }
                 }
@@ -760,6 +761,7 @@ namespace EppiReviewer4
         }
         private void cmdGetMicrosoftAcademicTopics_Click(object sender, RoutedEventArgs e)
         {
+            RadWindow.Alert("at topics");
             if (windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true && windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedIndex == -1)
             {
                 RadWindow.Alert("Please select a code set or specify a new one be created");
@@ -786,11 +788,13 @@ namespace EppiReviewer4
             DataPortal<MagImportFieldsOfStudyCommand> dp = new DataPortal<MagImportFieldsOfStudyCommand>();
             MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
                 item_ids,
-                (windowDocumentCluster.ComboClusterWhat.SelectedIndex != 2 ? "" : windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet().AttributeId.ToString()),
+                (windowDocumentCluster.ComboClusterWhat.SelectedIndex != 2 ? -2 : windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet().AttributeId),
                 rsl.Count,
                 windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true ? (windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedItem as ReviewSet).ReviewSetId : 0,
                 Convert.ToInt32(windowDocumentCluster.dialogClusterMaxTopics.Value.Value),
-                Convert.ToInt32(windowDocumentCluster.dialogClusterMinItems.Value.Value));
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMinItems.Value.Value),
+                "Use OpenAlex assigned topics",
+                "");
 
             dp.ExecuteCompleted += (o, e2) =>
             {
@@ -808,6 +812,67 @@ namespace EppiReviewer4
                     windowDocumentCluster.Close();
                     windowPleaseWait.Close();
                     (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Refresh();
+                    DocumentActions.SelectedIndex = 0;
+                    RadWindow.Alert(e2.Object.ReturnMessage);
+                }
+            };
+            windowPleaseWait.ShowDialog();
+            BusyPleaseWait.IsRunning = true;
+            dp.BeginExecute(command);
+        }
+
+        private void cmdGetOpenAlexTopicsNLP_Click(object sender, RoutedEventArgs e)
+        {
+            if (windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedIndex == -1)
+            {
+                RadWindow.Alert("Please select a code set");
+                return;
+            }
+            string item_ids = "";
+            ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
+
+            if (windowDocumentCluster.ComboClusterWhat.SelectedIndex == 1)
+            {
+                item_ids = ItemsGridSelectedItems();
+                if (item_ids == "")
+                {
+                    RadWindow.Alert("You don't have any items selected");
+                    return;
+                }
+            }
+            if (windowDocumentCluster.ComboClusterWhat.SelectedIndex == 2 && windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet() == null)
+            {
+                RadWindow.Alert("Please select a code");
+                return;
+            }
+
+            DataPortal<MagImportFieldsOfStudyCommand> dp = new DataPortal<MagImportFieldsOfStudyCommand>();
+            MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
+                item_ids,
+                (windowDocumentCluster.ComboClusterWhat.SelectedIndex != 2 ? -1 : windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet().AttributeId),
+                rsl.Count,
+                windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true ? (windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedItem as ReviewSet).ReviewSetId : 0,
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMaxTopics.Value.Value),
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMinItems.Value.Value),
+                "UseNLP",
+                "");
+
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                if (e2.Error != null)
+                {
+                    BusyPleaseWait.IsRunning = false;
+                    windowDocumentCluster.Close();
+                    windowPleaseWait.Close();
+                    DocumentActions.SelectedIndex = 0;
+                    RadWindow.Alert(e2.Error);
+                }
+                else
+                {
+                    BusyPleaseWait.IsRunning = false;
+                    windowDocumentCluster.Close();
+                    windowPleaseWait.Close();
+                    //(App.Current.Resources["CodeSetsData"] as CslaDataProvider).Refresh(); // not needed, as this returns before the process is complete
                     DocumentActions.SelectedIndex = 0;
                     RadWindow.Alert(e2.Object.ReturnMessage);
                 }
@@ -5228,6 +5293,7 @@ on the right of the main screen");
                         windowDocumentCluster.GridWindowDocumentCluster.RowDefinitions[9].MaxHeight = 35;
                         break;
                 }
+                windowDocumentCluster.cmdGetOpenAlexTopicsNLP.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             }
         }
 
@@ -6211,7 +6277,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListIncludedThatNeedMatching(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: included items with low confidence Microsoft Academic matches (that are unchecked)";
+            TextBlockShowing.Text = "Showing: included items with low confidence OpenAlex matches (that are unchecked)";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesNeedingChecking";
             SelectionCritieraItemList.OnlyIncluded = true;
@@ -6224,7 +6290,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListExcludedThatNeedMatching(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: excluded items with low confidence Microsoft Academic matches (that are unchecked)";
+            TextBlockShowing.Text = "Showing: excluded items with low confidence OpenAlex matches (that are unchecked)";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesNeedingChecking";
             SelectionCritieraItemList.OnlyIncluded = false;
@@ -6237,7 +6303,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListExcludedNotMatched(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: excluded items that are not matched to any Microsoft Academic records";
+            TextBlockShowing.Text = "Showing: excluded items that are not matched to any OpenAlex records";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesNotMatched";
             SelectionCritieraItemList.OnlyIncluded = false;
@@ -6250,7 +6316,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListIncludedNotMatched(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: included items that are not matched to any Microsoft Academic records";
+            TextBlockShowing.Text = "Showing: included items that are not matched to any OpenAlex records";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesNotMatched";
             SelectionCritieraItemList.OnlyIncluded = true;
@@ -6263,7 +6329,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListExcludedMatched(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: excluded items that are matched to at least one Microsoft Academic record";
+            TextBlockShowing.Text = "Showing: excluded items that are matched to at least one OpenAlex record";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesMatched";
             SelectionCritieraItemList.OnlyIncluded = false;
@@ -6276,7 +6342,7 @@ on the right of the main screen");
         private void MagBrowserControl_ListIncludedMatched(object sender, RoutedEventArgs e)
         {
             windowMagBrowser.Close();
-            TextBlockShowing.Text = "Showing: included items that are matched to at least one Microsoft Academic record";
+            TextBlockShowing.Text = "Showing: included items that are matched to at least one OpenAlex record";
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "MagMatchesMatched";
             SelectionCritieraItemList.OnlyIncluded = true;

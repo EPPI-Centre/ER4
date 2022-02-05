@@ -746,14 +746,14 @@ namespace BusinessLibrary.BusinessClasses
             if (this.Mode == "PubMed ID search")
             {
                 MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetPaperIdsFromPmids](""" + Path.GetFileName(uploadFileName) + "\",\"" +
-                    Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\");", true, "RelatedRunPmid",
+                    Path.GetFileName(uploadFileName) + "\", \"OpenAlexData/" + MagInfo.MagFolder + "\");", true, "RelatedRunPmid",
                     ContactId, 3, cancellationToken);
             }
             else
             {
                 
                 MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
-                    Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
+                    Path.GetFileName(uploadFileName) + "\", \"OpenAlexData/" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
                     (this.DateFrom.ToString() != "" ? DateFrom.Date.Year.ToString() : "1753") + ");", true, "RelatedRun",
                     ContactId, 10, cancellationToken);
             }

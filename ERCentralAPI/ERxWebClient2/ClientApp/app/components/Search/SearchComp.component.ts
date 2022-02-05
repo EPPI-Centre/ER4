@@ -25,11 +25,7 @@ import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'SearchComp',
-    templateUrl: './SearchComp.component.html',
-    styles: [`
-       .k-grid tr.even { background-color: white; }
-       .k-grid tr.odd { background-color: light-grey; }
-   `],
+    templateUrl: './SearchComp.component.html'
 })
 
 export class SearchComp implements OnInit, OnDestroy {
@@ -244,14 +240,14 @@ export class SearchComp implements OnInit, OnDestroy {
     public modelIsInProgress: boolean = false;
     public selectedRows(e: any) {
 
-        if (e.selectedRows[0] != undefined && this.modelNum == 5 || this.modelNum == 6) {
+        if (e.selectedRows[0] != undefined && (this.modelNum == 7 || this.modelNum == 8)) {
 
             console.log("selected:", e.selectedRows[0].dataItem);
 
             this.ModelSelected = true;
             this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
             this.ModelId = e.selectedRows[0].dataItem.modelId;
-            if (this.modelTitle.indexOf('prog') != -1 || this.modelTitle.indexOf('failed') != -1) {
+            if (this.modelTitle.indexOf('(in progress...)') != -1 || (this.modelTitle.indexOf('fail') != -1 && e.selectedRows[0].dataItem.precision <= 0)) {
                 this.modelIsInProgress = true;
                 //alert('model is in progress');
             } else {
@@ -387,14 +383,16 @@ export class SearchComp implements OnInit, OnDestroy {
 
             this.ModelSelected = false;
         }
-        if (modelNum ==5) {
-            this.modelNum = 5;
+        if (modelNum == 7) {
+            this.modelNum = 7;
             this.modelResultsSection = !this.modelResultsSection;
             this.modelResultsAllReviewSection = false;
-        } else if (modelNum ==6) {
-            this.modelNum = 6;
+            this.ModelSelected = false;
+        } else if (modelNum == 8) {
+            this.modelNum = 8;
             this.modelResultsAllReviewSection = !this.modelResultsAllReviewSection;
             this.modelResultsSection = false;
+            this.ModelSelected = false;
         }
 
     }
@@ -467,9 +465,35 @@ export class SearchComp implements OnInit, OnDestroy {
     }
     CanApplyModel(): boolean {
 
-        if (this.modelNum != 5 && this.modelNum != 0) {
-            //console.log('yes step 1');
-            // Need to check for Apply code and apply source are filled if selected...
+        if (this.modelNum == 7 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
+
+            return true;
+        }
+        else if (this.modelNum == 7 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
+            //alert('custom models');
+            return true;
+
+        }
+        else if (this.modelNum == 7 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
+
+            //alert('custom models');
+            return true;
+        }
+        else if (this.modelNum == 8 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
+
+            return true;
+        }
+        else if (this.modelNum == 8 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
+            //alert('custom models');
+            return true;
+
+        }
+        else if (this.modelNum == 8 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
+
+            //alert('custom models');
+            return true;
+        }
+        else if (this.modelNum < 7 && this.modelNum != 0) {
             if (this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
                 return true;
             } else if (this.ApplySource && this.selected != null) {
@@ -478,23 +502,13 @@ export class SearchComp implements OnInit, OnDestroy {
                 //console.log('yes step 2');
                 return true;
             }
-            // Need logic in the below about model still in progress
-        }
-        else if (this.modelNum == 5 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
 
-            return true;
         }
-        else if (this.modelNum == 5 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
-            //alert('custom models');
-            return true;
-
-        } else if (this.modelNum == 5 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
-
-            //alert('custom models');
-            return true;
-        }
+            
         return false;
+
     }
+
     private hideAfter: number = 900;
     chooseCodeMessage() {
 
@@ -637,6 +651,14 @@ export class SearchComp implements OnInit, OnDestroy {
 
             this.modelTitle = 'New Cochrane RCT classifier model';
             this.ModelId = -4;
+
+        } else if (this.modelNum == 5) {
+            this.modelTitle = 'COVID-19 map categories';
+            this.ModelId = -5;
+
+        } else if (this.modelNum == 6) {
+            this.modelTitle = 'Long COVID binary model';
+            this.ModelId = -6;
 
         } else {
 
@@ -1177,13 +1199,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     };
 
-    public rowCallback(context: RowClassArgs) {
-        const isEven = context.index % 2 == 0;
-        return {
-            even: isEven,
-            odd: !isEven
-        };
-    }
+    
     BuildModel() {
         this.router.navigate(['BuildModel']);
     }

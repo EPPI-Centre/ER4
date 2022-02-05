@@ -231,7 +231,7 @@ export class MAGSearchComponent implements OnInit {
 
     public GetItems(item: MagSearch) {
         if (item.magFolder != this.MagFolder) {
-            this.modalService.GenericErrorMessage("This search refers to an outdated version of Microsoft Academic, so results might be outdated. <br /> Please re-run the search.")
+            this.modalService.GenericErrorMessage("This search refers to an outdated version of OpenAlex, so results might be outdated. <br /> Please re-run the search.")
             return;
         }
 

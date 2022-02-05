@@ -20,7 +20,7 @@ using WebDatabasesMVC.ViewModels;
 
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "CookieAuthentication")]
     public class FrequenciesController : CSLAController
     {
         
@@ -28,7 +28,7 @@ namespace WebDatabasesMVC.Controllers
         {}
 
         
-        public IActionResult GetFrequencies([FromForm] long attId, int setId, string parentName, string included)
+        public IActionResult GetFrequencies([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
             try
             {
@@ -52,35 +52,32 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
-        public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included)
+        public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
+        {
+            return internalGetFrequenciesJSON(attId, setId, parentName, included, onlyThisAttribute);
+        }
+        [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        public IActionResult FairGetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
+        {
+            return internalGetFrequenciesJSON(attId, setId, parentName, included, onlyThisAttribute);
+        }
+        private IActionResult internalGetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {
                 if (SetCSLAUser())
                 {
-                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
+                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included, onlyThisAttribute);
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    
+                    // log to TB_WEBDB_LOG
+                    string type = "GetFrequency";
+                    string details = Itm.criteria.attributeIdXAxis.ToString();
                     if (Itm.criteria.attributeIdXAxis.ToString() == "0")
                     {
-                        pars1.Add(new SqlParameter("@Type", "GetSetFrequency"));
-                        pars1.Add(new SqlParameter("@Details", Itm.criteria.setIdXAxis));
+                        type = "GetSetFrequency";
+                        details = Itm.criteria.setIdXAxis.ToString();
                     }
-                    else
-                    {                      
-                        pars1.Add(new SqlParameter("@Type", "GetFrequency"));
-                        pars1.Add(new SqlParameter("@Details", Itm.criteria.attributeIdXAxis));
-                    }
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
-
+                    logActivity(type, details);
 
                     return Json(Itm);
                 }
@@ -92,7 +89,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
+
+
         [HttpPost]
         public IActionResult GetFrequenciesResultsJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
@@ -109,18 +107,8 @@ namespace WebDatabasesMVC.Controllers
                     else crit.webDbId = DBid;
                     WebDbItemAttributeChildFrequencyList results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria());
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "GetFrequencyNewPage"));
-                    pars1.Add(new SqlParameter("@Details", crit.nameXAxis));
-
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
+                    // log to TB_WEBDB_LOG
+                    logActivity("GetFrequencyNewPage", crit.nameXAxis);
 
                     return Json(results);
                 }
@@ -132,7 +120,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, string parentName, string included)
+        internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, string parentName, string included, long onlyThisAttribute)
         {
             int DBid = WebDbId;
             if (DBid < 1)
@@ -142,7 +130,7 @@ namespace WebDatabasesMVC.Controllers
             }
             FrequencyResultWithCriteria res = new FrequencyResultWithCriteria();
             res.criteria = 
-                new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, parentName, included);
+                new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, parentName, included, "", onlyThisAttribute);
             res.results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(res.criteria);
             return res;
         }
@@ -182,39 +170,26 @@ namespace WebDatabasesMVC.Controllers
                 {
                     WebDbItemAttributeCrosstabList Itm = GetCrosstabInternal(attIdx, setIdx, nameXaxis, attIdy, setIdy, nameYaxis, included, graphic);
 
-
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "GetCrosstab"));
-
-                    string descr = "";
+                    // log to TB_WEBDB_LOG
+                    string type = "GetCrosstab";
+                    string details = "";
                     if ((Itm.AttibuteIdX == 0) && (Itm.AttibuteIdY == 0))
                     {
-                        descr = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.SetIdYName;
+                        details = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.SetIdYName;
                     }
                     if ((Itm.AttibuteIdX != 0) && (Itm.AttibuteIdY != 0))
                     {
-                        descr = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.AttibuteIdYName;
+                        details = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.AttibuteIdYName;
                     }
                     if ((Itm.AttibuteIdX == 0) && (Itm.AttibuteIdY != 0))
                     {
-                        descr = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.AttibuteIdYName;
+                        details = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.AttibuteIdYName;
                     }
                     if ((Itm.AttibuteIdX != 0) && (Itm.AttibuteIdY == 0))
                     {
-                        descr = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.SetIdYName;
+                        details = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.SetIdYName;
                     }
-
-                    pars1.Add(new SqlParameter("@Details", descr));
-
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
-
+                    logActivity(type, details);
 
                     return Json(Itm);
                 }
@@ -286,36 +261,26 @@ namespace WebDatabasesMVC.Controllers
                     }
                     WebDbItemAttributeCrosstabList Itm = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria());
 
-                    // log to TB_WEBDB_LOG                               
-                    string SP1 = "st_WebDBWriteToLog";
-                    List<SqlParameter> pars1 = new List<SqlParameter>();
-                    pars1.Add(new SqlParameter("@WebDBid", WebDbId));
-                    pars1.Add(new SqlParameter("@Type", "GetMap"));
-
-                    string descr = "";
+                    // log to TB_WEBDB_LOG
+                    string type = "GetMap";
+                    string details = "";
                     if ((Itm.AttibuteIdX == 0) && (Itm.AttibuteIdY == 0))
                     {
-                        descr = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.SetIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
+                        details = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.SetIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
                     }
                     if ((Itm.AttibuteIdX != 0) && (Itm.AttibuteIdY != 0))
                     {
-                        descr = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.AttibuteIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
+                        details = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.AttibuteIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
                     }
                     if ((Itm.AttibuteIdX == 0) && (Itm.AttibuteIdY != 0))
                     {
-                        descr = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.AttibuteIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
+                        details = "(Column) " + Itm.SetIdXName + " vs (Row) " + Itm.AttibuteIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
                     }
                     if ((Itm.AttibuteIdX != 0) && (Itm.AttibuteIdY == 0))
                     {
-                        descr = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.SetIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
+                        details = "(Column) " + Itm.AttibuteIdXName + " vs (Row) " + Itm.SetIdYName + ", Segments: " + Itm.AttibuteIdSegmentsName;
                     }
-
-                    pars1.Add(new SqlParameter("@Details", descr));
-                    int result = Program.SqlHelper.ExecuteNonQuerySP(Program.SqlHelper.ER4AdminDB, SP1, pars1.ToArray());
-                    if (result == -2)
-                    {
-                        Console.WriteLine("Unable to write to WebDB log");
-                    }
+                    logActivity(type, details);
 
                     return Json(Itm);
                 }
@@ -361,6 +326,14 @@ namespace WebDatabasesMVC.Controllers
                 _logger.LogError(e, "Error in GetMapById");
                 return StatusCode(500, e.Message);
             }
+        }
+
+        public IActionResult GetEPPIMapperMap([FromQuery] string eppiMapperMapUrl)
+        {
+            string url = eppiMapperMapUrl;
+            WebDbFrequencyCrosstabAndMapSelectionCriteria crit = 
+                new WebDbFrequencyCrosstabAndMapSelectionCriteria(0, 1, 1, url, "", "", 0, 1, 1, "");
+            return View(crit);
         }
 
     }

@@ -111,6 +111,7 @@ import { SetupConfigurableReports } from './components/Reports/SetupConfigurable
 import { FreqXtabMapsComp } from './components/Frequencies/FreqXtabMaps.component';
 import { ReconcilingCodesetTreeComponent } from './components/CodesetTrees/ReconcilingCodesetTree.component';
 import { SourcesListSearchesComponent } from './components/Sources/SourcesListSearches.component';
+import { VisLogComp } from './components/Review/VisLog.component';
 
 @NgModule({
     declarations: [
@@ -201,7 +202,8 @@ import { SourcesListSearchesComponent } from './components/Sources/SourcesListSe
         ItemLinksComp,
         SetupConfigurableReports,
         FreqXtabMapsComp,
-        ReconcilingCodesetTreeComponent
+        ReconcilingCodesetTreeComponent,
+        VisLogComp
 	],
     providers: [
         DatePipe, 
