@@ -797,7 +797,7 @@ namespace BusinessLibrary.BusinessClasses
         //private static int DebugCounter = 0; //this should be commented out in production!
         public static string CleanText(string text, bool UseLighterTouch = false )
         {
-            if (text == "") return text;
+            if (text == null || text == "") return "";
             
             Dictionary<string, string> charMap = EuropeanCharacterMap();
             foreach (KeyValuePair<string, string> replacement in charMap)

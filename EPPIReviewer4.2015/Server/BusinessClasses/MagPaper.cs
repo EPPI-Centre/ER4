@@ -678,7 +678,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(PaperIdProperty, pm.Id);
             returnValue.LoadProperty<string>(DOIProperty, pm.DOI);
             returnValue.LoadProperty<string>(DocTypeProperty, pm.Pt);
-            returnValue.LoadProperty<string>(PaperTitleProperty, pm.Ti);
+            returnValue.LoadProperty<string>(PaperTitleProperty, (pm.Ti == null || pm.Ti == "" ? "" : pm.Ti));
             returnValue.LoadProperty<string>(OriginalTitleProperty, pm.DN);
             //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
             returnValue.LoadProperty<Int32>(YearProperty, pm.Y);
