@@ -7,46 +7,19 @@
 
     <script type="text/javascript">
 
-
         function DisableControls() {
-            var cmdbutton = document.getElementById('<%= cmdComplete.ClientID %>');
-            if (cmdbutton) {
-                cmdbutton.disabled = true;
+            var el = document.getElementById('<%= pnlToHide.ClientID %>');
+            if (el) {
+                el.style.display = "none";
             }
-            var extendReviewDdl = document.getElementById('<%= ddlExtendReview.ClientID %>');
-            if (extendReviewDdl) {
-                extendReviewDdl.disabled = true;
+            var el = document.getElementById('jsSavingDiv');
+            if (el) {
+                el.style.display = "block";
             }
-            
-            var cancelLink = document.getElementById('<%= lbCancel.ClientID %>');
-            cancelLink.removeAttribute('href');
-
-            var gridviewcontrol = document.getElementById('<%= gvMembersOfReview.ClientID %>');
-            var rowCount = gridviewcontrol.rows.length;
-
-            if (rowCount >= 0) {
-                var idStringPt1 = "Skinnedctl00_ContentPlaceHolder1_gvMembersOfReview_ctl0";
-                var idStringPt1b = "Skinnedctl00_ContentPlaceHolder1_gvMembersOfReview_ctl";
-                var idStringPt2 = "2";
-                var idStringPt3 = "_ddlExtendAccount";
-
-                var idString = idStringPt1 + idStringPt2 + idStringPt3;
-                var ddl = document.getElementById(idString);
-                ddl.hidden = true;
-
-                for (let i = 3; i < rowCount + 1; i++) {
-                    idStringPt2 = i.toString();
-                    if (i > 9) {
-                        idString = idStringPt1b + idStringPt2 + idStringPt3;
-                    }
-                    else {
-                        idString = idStringPt1 + idStringPt2 + idStringPt3;
-                    }
-                    ddl = document.getElementById(idString);
-                    ddl.hidden = true;
-                }
-            }     
         }
+
+        
+
 
     </script>
 
@@ -77,6 +50,11 @@
         </table>
     </asp:Panel>
 
+<div id="jsSavingDiv" style="display:none;padding: 1em; margin: 1em; border-collapse:collapse; background-color:#B6C6D6; border: 1px solid black;">
+                Saving...
+            </div>
+
+<asp:Panel ID="pnlToHide" runat="server">
     <asp:Panel ID="pnlAssign" runat="server" BackColor="#E2E9EF" Visible="false">
         <table style="border-style: solid solid none solid; border-width: medium; width: 100%;">
             <tr>
@@ -93,11 +71,8 @@
 
             <tr>
                 <td>
-                    <asp:Button ID="cmdComplete" runat="server" Text="Complete" OnClick="cmdComplete_Click" Enabled="False" 
-                        onClientClick="javascript:DisableControls();" UseSubmitBehavior="false" />
-
-
-
+                    <asp:Button ID="cmdComplete" runat="server" Text="Complete" 
+                        OnClick="cmdComplete_Click" Enabled="False" onClientClick="javascript:DisableControls();" UseSubmitBehavior="false" />
                     &nbsp;&nbsp; 
                     <asp:LinkButton ID="lbCancel" runat="server" OnClick="lbCancel_Click">(cancel)</asp:LinkButton>
                     &nbsp;&nbsp;
@@ -289,6 +264,9 @@
         </table>
     </asp:Panel>
     <br />
+
+</asp:Panel>
+
 
     <b>Reviews you have adminstrative rights to</b>
     <asp:GridView

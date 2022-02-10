@@ -27,7 +27,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private EventEmitterService: EventEmitterService,
-		private ModalService: ModalService
+        private ModalService: ModalService
     ) {
         super();
         //console.log("On create ItemListService");
@@ -467,7 +467,14 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 				break;
 		}
 		return retVal;
-	}
+    }
+    public static GetLinks(currentItem: Item): any {
+        let retVal: string = "";
+        retVal = "<td>" + currentItem.itemId + "</td><td>" + currentItem.shortTitle + "</td><td>" + currentItem.title + "</td>" +
+            "<td></td><td></td><td></td>";
+        return retVal;
+    }
+
 
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');

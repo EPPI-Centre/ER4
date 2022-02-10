@@ -230,6 +230,25 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
                 case "HIS":
                     jsonReport.push(ItemListService.GetHISCitationForExport(currentItem));
                     break;
+                case "LINKS":
+                    if (i == 0) {
+                        report += "<h3>Linked reference report</h3>";
+                        report += "<table border='1' cellspacing='0' cellpadding='2'>";
+                        report += "<tr>"
+                        report += "<td><b>Master<br>EPPI ID</b></td>";
+                        report += "<td><b>Master<br>Short title</b></td>";
+                        report += "<td><b>Master title</b></td>";
+                        report += "<td><b>Linked EPPI ID <br>& Short title</b></td>";
+                        report += "<td><b>Linked Item title</b></td>";
+                        report += "<td><b>Link description</b></td>";
+                        report += "</tr>"
+                        
+                    }
+                    report += "<tr>" + ItemListService.GetLinks(currentItem) + "</tr>";
+                    if (i == items.length - 1) {
+                        report += "</table>"
+                    }
+                    break;
 				//case "BL":
 				//	report += review.BL_TX + Environment.NewLine +
 				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
@@ -363,6 +382,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
                 let testRefs: any = this.ShowHideExportReferences('HIS');
                 //console.log(testRefs);
                 this.exportAsHisXLSX(testRefs);
+            }
+        },
+        {
+            text: 'Linked report',
+            click: () => {
+                Helpers.OpenInNewWindow(this.ShowHideExportReferences('LINKS'), this._baseUrl);
             }
         }
     ];
