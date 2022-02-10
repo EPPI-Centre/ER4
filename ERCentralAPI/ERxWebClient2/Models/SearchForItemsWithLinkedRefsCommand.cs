@@ -22,7 +22,7 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class SearchForItemsWithLinkedRefsCommand : CommandBase<SearchForUploadedFilesCommand>
+    public class SearchForItemsWithLinkedRefsCommand : CommandBase<SearchForItemsWithLinkedRefsCommand>
     {
 #if SILVERLIGHT
     public SearchForItemsWithLinkedRefsCommand(){}
