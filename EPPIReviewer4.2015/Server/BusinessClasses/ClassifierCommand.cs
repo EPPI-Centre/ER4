@@ -1299,6 +1299,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_ClassifierInsertSearchAndScores", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandTimeout = 300; // 5 mins to be safe. I've seen queries with large numbers of searches / items take about 30 seconds, which times out live
                     command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", reviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", userId));

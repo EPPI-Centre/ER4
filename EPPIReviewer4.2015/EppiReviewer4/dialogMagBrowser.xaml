@@ -226,6 +226,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="80*"></ColumnDefinition>
                                     <ColumnDefinition Width="20*"></ColumnDefinition>
+                                    <ColumnDefinition Width="0" x:Name="ColumnFiltersRelatedRun"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
@@ -242,6 +243,7 @@
                                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                                     <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Margin="5,5,5,5" Content="Add new search for related papers" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
                                     <HyperlinkButton x:Name="LBOpenPmidSearch" Margin="5,5,5,5" Content="Add search by PubMed ID" Tag="ClickToOpen" IsTabStop="False" Click="LBOpenPmidSearch_Click"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LBOpenFiltersRelatedRun" Margin="5,5,5,5" Content="OpenFilters" Tag="Open" IsTabStop="False" Click="LBOpenFiltersRelatedRun_Click"></HyperlinkButton>
                                 </StackPanel>
                                 
                                 <Grid Grid.Row="2">
@@ -345,6 +347,46 @@
 
                                 </telerikGridView:RadGridView>
 
+                                <Grid Grid.Row="4" Grid.Column="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from journal field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="RelatedRunTextFilterJournal" Margin="23,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from URL field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="RelatedRunTextFilterURL" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from DOI field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="RelatedRunTextFilterDOI" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from title field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="RelatedRunTextFilterTitle" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="4" Orientation="Horizontal">
+                                        <TextBlock Text="Filter these pub types" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <telerik:RadComboBox x:Name="ComboRelatedRunPubTypeFilter" Margin="40,5,5,5" Width="200" VerticalAlignment="Center" >
+                                            <telerik:RadComboBox.Items>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeJournal" Tag="Journal" Content="Journal article"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeConferencePaper" Tag="Conference" Content="Conference paper"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeBookChapter" Tag="BookChapter" Content="Book chapter"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeBook" Tag="Book" Content="Book"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeDataset" Tag="Dataset" Content="Dataset"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeRepository" Tag="Repository" Content="Repository"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeThesis" Tag="Thesis" Content="Thesis"></CheckBox>
+                                            </telerik:RadComboBox.Items>
+                                        </telerik:RadComboBox>
+                                    </StackPanel>
+                                </Grid>
+
                             </Grid>
 
 
@@ -387,6 +429,8 @@
                                         <RowDefinition Height="0" x:Name="RowAutoUpdateTextFilterJournal"></RowDefinition>
                                         <RowDefinition Height="0" x:Name="RowAutoUpdateTextFilterURL"></RowDefinition>
                                         <RowDefinition Height="0" x:Name="RowAutoUpdateTextFilterDOI"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowAutoUpdateTextFilterTitle"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowAutoUpdatePubTypeFilter"></RowDefinition>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="200*"></ColumnDefinition>
@@ -471,7 +515,7 @@
 
                                     <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal">
                                         <HyperlinkButton x:Name="AutoUpdateOpenClassifiers" Content="Select and run classifiers" Margin="5,5,5,5" IsTabStop="False" Click="AutoUpdateOpenClassifiers_Click" Tag="Open"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="AutoUpdateOpenTextFilters" Content="Text filters" Margin="5,5,5,5" IsTabStop="False" Click="AutoUpdateOpenTextFilters_Click" Tag="Open"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="AutoUpdateOpenTextFilters" Content="Open filters" Margin="5,5,5,5" IsTabStop="False" Click="AutoUpdateOpenTextFilters_Click" Tag="Open"></HyperlinkButton>
                                     </StackPanel>
                                     
                                     <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
@@ -509,6 +553,24 @@
                                     <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal">
                                         <TextBlock Text="Filter from DOI field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <TextBox x:Name="AutoUpdateTextFilterDOI" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="14" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from title field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="AutoUpdateTextFilterTitle" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="15" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Filter these pub types" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <telerik:RadComboBox x:Name="ComboPubTypeFilter" Margin="40,5,5,5" Width="200" VerticalAlignment="Center" >
+                                            <telerik:RadComboBox.Items>
+                                                <CheckBox x:Name="cbFilterPubTypeJournal" Tag="Journal" Content="Journal article"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeConferencePaper" Tag="Conference" Content="Conference paper"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeBookChapter" Tag="BookChapter" Content="Book chapter"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeBook" Tag="Book" Content="Book"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeDataset" Tag="Dataset" Content="Dataset"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeRepository" Tag="Repository" Content="Repository"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeThesis" Tag="Thesis" Content="Thesis"></CheckBox>
+                                            </telerik:RadComboBox.Items>
+                                        </telerik:RadComboBox>
                                     </StackPanel>
                                 </Grid>
                                 <!-- END Sub grid for refine and import -->
@@ -971,6 +1033,7 @@
                                         <RowDefinition Height="0" x:Name="RowMagSearchFilterJournal"></RowDefinition>
                                         <RowDefinition Height="0" x:Name="RowMagSearchFilterUrl"></RowDefinition>
                                         <RowDefinition Height="0" x:Name="RowMagSearchFilterDoi"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowMagSearchFilterTitle"></RowDefinition>
                                         <RowDefinition Height="*"></RowDefinition>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
@@ -1087,6 +1150,10 @@
                                     <StackPanel Grid.Row="8" Grid.Column="4" Grid.ColumnSpan="2" Orientation="Horizontal">
                                         <TextBlock Text="Filter from DOI field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <TextBox x:Name="MagSearchTextFilterDOI" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="9" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from title field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="MagSearchTextFilterTitle" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
                                     </StackPanel>
                                     
                                     <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="9" Grid.ColumnSpan="6" AutoGenerateColumns="False" ShowGroupPanel="False"

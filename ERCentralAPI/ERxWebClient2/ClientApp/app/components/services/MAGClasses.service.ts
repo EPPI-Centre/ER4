@@ -40,6 +40,7 @@ export class MagItemPaperInsertCommand {
     filterJournal: string = '';
     filterDOI: string = '';
     filterURL: string = '';
+    filterTitle: string = '';
 }
 export class MagRelatedPapersRun {
 
