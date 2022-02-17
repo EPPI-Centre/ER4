@@ -70,6 +70,7 @@ export class MAGSearchComponent implements OnInit {
     public FilterOutJournal: string = "";
     public FilterOutURL: string = "";
     public FilterOutDOI: string = "";
+    public FilterOutTitle: string = "";
     public magSearchDate1: Date = new Date();
     public magSearchDate2: Date = new Date();
     public SearchTextTopics: TopicLink[] = [];
@@ -195,6 +196,7 @@ export class MAGSearchComponent implements OnInit {
                         , this.basicFilterPanel ? this.FilterOutJournal : ""
                         , this.basicFilterPanel ? this.FilterOutURL : ""
                         , this.basicFilterPanel ? this.FilterOutDOI : ""
+                        , this.basicFilterPanel ? this.FilterOutTitle : ""
                     ).then(
 
                         (result: number) => {

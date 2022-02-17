@@ -269,7 +269,8 @@ namespace ERxWebClient2.Controllers
 
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
-                        0, 0, "", 0, 0, 0, 0, magSearch.FilterOutJournal.Trim(), magSearch.FilterOutDOI.Trim(), magSearch.FilterOutURL.Trim(), magSearch.magSearchText, "OpenAlex search: " + magSearch.searchText);
+                        0, 0, "", 0, 0, 0, 0, magSearch.FilterOutJournal.Trim(), magSearch.FilterOutDOI.Trim(),
+                        magSearch.FilterOutURL.Trim(), magSearch.FilterOutTitle.Trim(), magSearch.magSearchText, "OpenAlex search: " + magSearch.searchText);
 
                     command = dp2.Execute(command);
 
@@ -406,6 +407,7 @@ namespace ERxWebClient2.Controllers
         public string FilterOutJournal { get; set; }
         public string FilterOutURL { get; set; }
         public string FilterOutDOI { get; set; }
+        public string FilterOutTitle { get; set; }
     }
     public class MVCMagSearch4Delete
     {
