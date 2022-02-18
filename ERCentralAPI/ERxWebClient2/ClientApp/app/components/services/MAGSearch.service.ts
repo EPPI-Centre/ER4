@@ -158,7 +158,7 @@ export class magSearchService extends BusyAwareService {
     }
 
     ImportMagSearches(magSearchText: string, searchText: string,
-        FilterOutJournal: string = "", FilterOutURL: string = "", FilterOutDOI: string = ""): Promise<any> {
+        FilterOutJournal: string = "", FilterOutURL: string = "", FilterOutDOI: string = "", FilterOutTitle: string = ""): Promise<any> {
                                                                  
         this._BusyMethods.push("ImportMagSearches");            
         let body = JSON.stringify({
@@ -166,6 +166,7 @@ export class magSearchService extends BusyAwareService {
             , FilterOutJournal: FilterOutJournal
             , FilterOutURL: FilterOutURL
             , FilterOutDOI: FilterOutDOI
+            , FilterOutTitle: FilterOutTitle
         });
         return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/ImportMagSearchPapers',
             body).toPromise()

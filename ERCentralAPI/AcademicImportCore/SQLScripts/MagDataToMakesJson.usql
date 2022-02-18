@@ -191,6 +191,8 @@ DECLARE @GetPublicationTypeValueFromString Func<string, string> =
 				return "7";
 			case "Repository":
 				return "8";
+			case "Thesis":
+				return "9";
 			default:
 				return "0";
 		}

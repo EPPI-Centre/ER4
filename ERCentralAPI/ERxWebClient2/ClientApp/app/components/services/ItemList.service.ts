@@ -3,7 +3,7 @@ import { HttpClient,  } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
-import { iArm } from './ArmTimepointLinkList.service';
+import { ArmTimepointLinkListService, iArm } from './ArmTimepointLinkList.service';
 import { Subscription } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
@@ -468,10 +468,60 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 		}
 		return retVal;
     }
-    public static GetLinks(currentItem: Item): any {
+
+    public static GetLinks(currentItem: Item, linksToShow: iItemLink[] | true, lastItemID: number): any {
         let retVal: string = "";
-        retVal = "<td>" + currentItem.itemId + "</td><td>" + currentItem.shortTitle + "</td><td>" + currentItem.title + "</td>" +
-            "<td></td><td></td><td></td>";
+        let lastRowInTable: boolean = false;
+        retVal += "<tr>";
+        retVal += "<td>" + currentItem.itemId + "</td>"
+        retVal += "<td>" + currentItem.shortTitle + "</td>"
+        retVal += "<td>" + currentItem.title + "</td>"
+        if (linksToShow != true) {
+            for (var j = 0; j < linksToShow.length; j++) {
+                let currentLink: iItemLink = linksToShow[j];
+                if (currentLink.itemIdPrimary == lastItemID) {
+                    lastRowInTable = true;
+                }
+                if (j == 0) {
+                    if (currentLink.itemIdPrimary == currentLink.itemIdSecondary) {
+                        // the first row is also the master item (left over from ER3?) so get the rest from next row
+                        j += 1;
+                        let currentLink: iItemLink = linksToShow[1];
+                        retVal += "<td>" + currentLink.itemIdSecondary + ": " + currentLink.shortTitle + "</td>";
+                        retVal += "<td>" + currentLink.title + "</td>";
+                        retVal += "<td>" + currentLink.description + "</td>";
+                        retVal += "</tr>";
+                    }
+                    else {
+                        retVal += "<td>" + currentLink.itemIdSecondary + ": " + currentLink.shortTitle + "</td>";
+                        retVal += "<td>" + currentLink.title + "</td>";
+                        retVal += "<td>" + currentLink.description + "</td>";
+                        retVal += "</tr>";
+                    }
+                }
+                else {
+                    // subsequent links
+                    retVal += "<tr>";
+                    retVal += "<td></td>";
+                    retVal += "<td></td>";
+                    retVal += "<td></td>";
+                    retVal += "<td>" + currentLink.itemIdSecondary + ": " + currentLink.shortTitle + "</td>";
+                    retVal += "<td>" + currentLink.title + "</td>";
+                    retVal += "<td>" + currentLink.description + "</td>";
+                    retVal += "</tr>";
+                }
+            }
+        }
+        else {
+            // no linked items to show
+            retVal += "<td colspan='3'>No linked items</td>";
+            retVal += "</tr>";
+        }
+
+        if (lastRowInTable == true) {
+            retVal += "</table><p>&nbsp;</p>";
+        }
+
         return retVal;
     }
 
@@ -1049,5 +1099,13 @@ export class KeyValue {//used in more than one place...
     }
     key: string;
     value: string;
+}
+export interface iItemLink {
+    itemLinkId: number;
+    itemIdPrimary: number;
+    itemIdSecondary: number;
+    title: string;
+    shortTitle: string;
+    description: string;
 }
 

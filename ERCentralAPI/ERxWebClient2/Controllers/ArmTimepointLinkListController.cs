@@ -374,6 +374,31 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+
+		// READ Links
+		[HttpPost("[action]")]
+		public IActionResult GetLinkLists([FromBody] SingleInt64Criteria ItemIDCrit)
+		{
+
+			try
+			{
+				if (!SetCSLAUser()) return Unauthorized();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(ItemIDCrit.Value);
+				ItemLinkLists result = new ItemLinkLists();
+				result.links = DataPortal.Fetch<ItemLinkList>(criteria);
+				result.links.OrderBy(x => x.ItemLinkId);
+				return Ok(result.links);
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when fetching LinkLists: {0}", ItemIDCrit.Value);
+				return StatusCode(500, e.Message);
+			}
+		}
+
+
 		// CREATE
 		//adds an arm to the list and then calls data portal insert
 		[HttpPost("[action]")]
@@ -492,6 +517,11 @@ namespace ERxWebClient2.Controllers
 		public ItemTimepointList timePoints { get; set; }
 		public ItemLinkList links { get; set; }
     }
+
+	public class ItemLinkLists
+	{
+		public ItemLinkList links { get; set; }
+	}
 
 	public class TimePointJSON
 	{
