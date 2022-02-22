@@ -491,13 +491,13 @@ namespace BusinessLibrary.BusinessClasses
 
             // 2) Call the datafactory process that will take the above data and assign OpenAlex topics to all the records
 
-#if (!CSLA_NETCORE)
+//#if (!CSLA_NETCORE)
             Dictionary<string, object> parameters = new Dictionary<string, object>
             {
                 {"BatchGuid", BatchGuid }
             };
             DataFactoryHelper.RunDataFactoryProcess("Fair wikipedia categories", parameters, true, ContactId, cancellationToken);
-#endif
+//#endif
 
             // 3) Grab the classifications from the Azure SQL table and insert into tb_item_attribute
 

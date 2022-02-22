@@ -1151,12 +1151,12 @@
                                         <TextBlock Text="Filter from DOI field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <TextBox x:Name="MagSearchTextFilterDOI" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
                                     </StackPanel>
-                                    <StackPanel Grid.Row="9" Orientation="Horizontal">
+                                    <StackPanel Grid.Row="9" Grid.Column="4" Grid.ColumnSpan="2" Orientation="Horizontal">
                                         <TextBlock Text="Filter from title field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <TextBox x:Name="MagSearchTextFilterTitle" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
                                     </StackPanel>
                                     
-                                    <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="9" Grid.ColumnSpan="6" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="10" Grid.ColumnSpan="6" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource MagSearchListData}, Path=Data, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed" CanUserSortColumns="True" 
