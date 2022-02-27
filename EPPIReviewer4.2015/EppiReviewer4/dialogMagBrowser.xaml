@@ -375,13 +375,14 @@
                                         <TextBlock Text="Filter these pub types" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <telerik:RadComboBox x:Name="ComboRelatedRunPubTypeFilter" Margin="40,5,5,5" Width="200" VerticalAlignment="Center" >
                                             <telerik:RadComboBox.Items>
-                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeJournal" Tag="Journal" Content="Journal article"></CheckBox>
-                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeConferencePaper" Tag="Conference" Content="Conference paper"></CheckBox>
-                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeBookChapter" Tag="BookChapter" Content="Book chapter"></CheckBox>
-                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeBook" Tag="Book" Content="Book"></CheckBox>
-                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeDataset" Tag="Dataset" Content="Dataset"></CheckBox>
-                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeRepository" Tag="Repository" Content="Repository"></CheckBox>
-                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeThesis" Tag="Thesis" Content="Thesis"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeUnknown" Tag="0" Content="Unknown"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeJournal" Tag="1" Content="Journal article"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeConferencePaper" Tag="3" Content="Conference paper"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeBookChapter" Tag="4" Content="Book chapter"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeBook" Tag="5" Content="Book"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeDataset" Tag="7" Content="Dataset"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeRepository" Tag="8" Content="Repository"></CheckBox>
+                                                <CheckBox x:Name="cbRelatedRunFilterPubTypeThesis" Tag="9" Content="Thesis"></CheckBox>
                                             </telerik:RadComboBox.Items>
                                         </telerik:RadComboBox>
                                     </StackPanel>
@@ -562,13 +563,14 @@
                                         <TextBlock Text="Filter these pub types" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <telerik:RadComboBox x:Name="ComboPubTypeFilter" Margin="40,5,5,5" Width="200" VerticalAlignment="Center" >
                                             <telerik:RadComboBox.Items>
-                                                <CheckBox x:Name="cbFilterPubTypeJournal" Tag="Journal" Content="Journal article"></CheckBox>
-                                                <CheckBox x:Name="cbFilterPubTypeConferencePaper" Tag="Conference" Content="Conference paper"></CheckBox>
-                                                <CheckBox x:Name="cbFilterPubTypeBookChapter" Tag="BookChapter" Content="Book chapter"></CheckBox>
-                                                <CheckBox x:Name="cbFilterPubTypeBook" Tag="Book" Content="Book"></CheckBox>
-                                                <CheckBox x:Name="cbFilterPubTypeDataset" Tag="Dataset" Content="Dataset"></CheckBox>
-                                                <CheckBox x:Name="cbFilterPubTypeRepository" Tag="Repository" Content="Repository"></CheckBox>
-                                                <CheckBox x:Name="cbFilterPubTypeThesis" Tag="Thesis" Content="Thesis"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeUnknown" Tag="0" Content="Unknown"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeJournal" Tag="1" Content="Journal"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeConferencePaper" Tag="3" Content="Conference paper"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeBookChapter" Tag="4" Content="Book chapter"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeBook" Tag="5" Content="Book"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeDataset" Tag="7" Content="Dataset"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeRepository" Tag="8" Content="Repository"></CheckBox>
+                                                <CheckBox x:Name="cbFilterPubTypeThesis" Tag="9" Content="Thesis"></CheckBox>
                                             </telerik:RadComboBox.Items>
                                         </telerik:RadComboBox>
                                     </StackPanel>
@@ -1095,15 +1097,16 @@
 
                                     <ComboBox x:Name="ComboMagSearchPubTypeLimit" Grid.Row="4" Grid.Column="0" Margin="5,5,5,5">
                                         <ComboBoxItem Content="All publication types" IsSelected="True"></ComboBoxItem>
-                                        <ComboBoxItem Content="Unknown types"></ComboBoxItem>
-                                        <ComboBoxItem Content="Journal article"></ComboBoxItem>
-                                        <ComboBoxItem Content="Patent"></ComboBoxItem>
-                                        <ComboBoxItem Content="Conference paper"></ComboBoxItem>
-                                        <ComboBoxItem Content="Book chapter"></ComboBoxItem>
-                                        <ComboBoxItem Content="Book"></ComboBoxItem>
-                                        <ComboBoxItem Content="Book reference entry"></ComboBoxItem>
-                                        <ComboBoxItem Content="Dataset"></ComboBoxItem>
-                                        <ComboBoxItem Content="Repository"></ComboBoxItem>
+                                        <ComboBoxItem Content="Unknown types" Tag="0"></ComboBoxItem>
+                                        <ComboBoxItem Content="Journal article" Tag="1"></ComboBoxItem>
+                                        <ComboBoxItem Content="Patent" Tag="2"></ComboBoxItem>
+                                        <ComboBoxItem Content="Conference paper" Tag="3"></ComboBoxItem>
+                                        <ComboBoxItem Content="Book chapter" Tag="4"></ComboBoxItem>
+                                        <ComboBoxItem Content="Book" Tag="5"></ComboBoxItem>
+                                        <ComboBoxItem Content="Book reference entry" Tag="6"></ComboBoxItem>
+                                        <ComboBoxItem Content="Dataset" Tag="7"></ComboBoxItem>
+                                        <ComboBoxItem Content="Repository" Tag="8"></ComboBoxItem>
+                                        <ComboBoxItem Content="Thesis" Tag="9"></ComboBoxItem>
                                     </ComboBox>
 
                                     <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="5" Grid.Column="0" Content="Run search!" Margin="5,5,5,5" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
