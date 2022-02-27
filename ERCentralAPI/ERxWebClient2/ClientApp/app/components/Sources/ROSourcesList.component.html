@@ -1,6 +1,12 @@
 <div class="">
     <div class="m-1" style="max-height: 350px; overflow-y:scroll;">
-        <div>SOURCES in Review:</div>
+        <div>SOURCES in Review:
+            <button class="btn btn-outline-secondary btn-sm px-1 py-0 mb-1 mr-1 float-right"
+                    (click)="CreateSourceReport()">
+                Report&nbsp;<i class="fa fa-table"></i>
+            </button>
+        
+        </div>
         <div *ngIf="ReviewSources.length == 0">
             No Sources in review.
         </div>
