@@ -7,6 +7,7 @@ import { CodesetStatisticsService } from '../services/codesetstatistics.service'
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { Helpers } from '../helpers/HelperMethods';
+import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 
 
 @Component({
@@ -86,66 +87,74 @@ export class ROSourcesListComponent implements OnInit {
     public async CreateSourceReport() {
         if (this.ReviewSources != null) {
 
-            let report: string = "<h3>Search sources report</h3>";
+            let report: string = "<h3>Search sources report</h3>(undeleted sources only)";
             report += "<table border='1' cellspacing='0' cellpadding='2'>";
            
             for (var i = 0; i < this.ReviewSources.length; i++) {
                 let currentSource: ReadOnlySource = this.ReviewSources[i];
+                if (currentSource.isDeleted == true) {
+                    // we only want undeleted sources
+                    i += 1;
+                }
+                else {
 
-                report += "<tr>"
-                report += "<td>Source name</td>";
+                    report += "<tr>"
+                    report += "<td>Source name</td>";
 
-                if (i == this.ReviewSources.length - 1) {
-                    report += "<td><b>Manually created items</b></td>";
-                } else {
-                    report += "<td><b>" + currentSource.source_Name + "</b></td>";
-                }             
-                report += "</tr>"
+                    if (i == this.ReviewSources.length - 1) {
+                        report += "<td><b>Manually created items</b></td>";
+                    } else {
+                        report += "<td><b>" + currentSource.source_Name + "</b></td>";
+                    }
+                    report += "</tr>"
 
-                let res = await this.SourcesService.GetSourceDataForThisSource(currentSource.source_ID);
+                    let res = await this.SourcesService.GetSourceDataForThisSource(currentSource.source_ID);
 
-                if (res != false) {
-                    if (res != true) {                        
-                        let currentSourceData: Source = res;
+                    if (res != false) {
+                        if (res != true) {
+                            let currentSourceData: Source = res;
 
-                        report += "<tr>"
-                        report += "<td>Date of search</td>";
+                            report += "<tr>"
+                            report += "<td>Date of search</td>";
 
-                        if (i == this.ReviewSources.length - 1) {
-                            report += "<td>N/A</td>";
-                        } else {
-                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
+                            if (i == this.ReviewSources.length - 1) {
+                                report += "<td>N/A</td>";
+                            } else {
+                                report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
+                            }
+
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Number items</td>";
+                            report += "<td>" + currentSourceData.total_Items + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Duplicates</td>";
+                            report += "<td>" + currentSourceData.duplicates + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Description</td>";
+                            report += "<td>" + currentSourceData.searchDescription + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Notes</td>";
+                            report += "<td>" + currentSourceData.notes + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Search string</td>";
+                            report += "<td>" + currentSourceData.searchString + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
+                            report += "</tr>"
                         }
-                       
-                        report += "</tr>"
-                        report += "<tr>"
-                        report += "<td>Number items</td>";
-                        report += "<td>" + currentSourceData.total_Items + "</td>";
-                        report += "</tr>"
-                        report += "<tr>"
-                        report += "<td>Duplicates</td>";
-                        report += "<td>" + currentSourceData.duplicates + "</td>";
-                        report += "</tr>"
-                        report += "<tr>"
-                        report += "<td>Description</td>";
-                        report += "<td>" + currentSourceData.searchDescription + "</td>";
-                        report += "</tr>"
-                        report += "<tr>"
-                        report += "<td>Notes</td>";
-                        report += "<td>" + currentSourceData.notes + "</td>";
-                        report += "</tr>"
-                        report += "<tr>"
-                        report += "<td>Search string</td>";
-                        report += "<td>" + currentSourceData.searchString + "</td>";
-                        report += "</tr>"
-                        report += "<tr>"
-                        report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
-                        report += "</tr>"
                     }
                 }
             }
             report += "</table>"
-            Helpers.OpenInNewWindow(report, this._baseUrl);
+            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
+            saveAs(dataURI, "Source table.html");
+            //Helpers.OpenInNewWindow(report, this._baseUrl);
         }      
     }
 }
