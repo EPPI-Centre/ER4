@@ -98,6 +98,8 @@ export class ROSourcesListComponent implements OnInit {
                 }
                 else {
 
+                    
+
                     report += "<tr>"
                     report += "<td>Source name</td>";
 
@@ -114,17 +116,33 @@ export class ROSourcesListComponent implements OnInit {
                         if (res != true) {
                             let currentSourceData: Source = res;
 
+                            if (i != this.ReviewSources.length - 1) {
+                                report += "<tr>"
+                                report += "<td>Database name/platform</td>";
+                                report += "<td><b>" + currentSourceData.sourceDataBase + "</b></td>";
+                                report += "</tr>"
+                            }
+
                             report += "<tr>"
                             report += "<td>Date of search</td>";
-
                             if (i == this.ReviewSources.length - 1) {
                                 report += "<td>N/A</td>";
                             } else {
                                 report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
                             }
+                            report += "</tr>"
 
+                            report += "<tr>"
+                            report += "<tr>"
+                            report += "<td>Date of import</td>";
+                            if (i == this.ReviewSources.length - 1) {
+                                report += "<td>N/A</td>";
+                            } else {
+                                report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfImport) + "</td>";
+                            }
                             report += "</tr>"
                             report += "<tr>"
+
                             report += "<td>Number items</td>";
                             report += "<td>" + currentSourceData.total_Items + "</td>";
                             report += "</tr>"

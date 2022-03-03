@@ -262,6 +262,11 @@ export class SourcesComponent implements OnInit, OnDestroy {
             report += "<td><b>" + this._CurrentSource.source_Name + "</b></td>";
             report += "</tr>"
 
+            report += "<tr>"
+            report += "<td>Database name/platform</td>";
+            report += "<td><b>" + this._CurrentSource.sourceDataBase + "</b></td>";
+            report += "</tr>"
+
             let res = await this.SourcesService.GetSourceDataForThisSource(this._CurrentSource.source_ID);
 
             if (res != false) {
@@ -271,6 +276,10 @@ export class SourcesComponent implements OnInit, OnDestroy {
                     report += "<tr>"
                     report += "<td>Date of search</td>";
                     report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
+                    report += "</tr>"
+                    report += "<tr>"
+                    report += "<td>Date of import</td>";
+                    report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfImport) + "</td>";
                     report += "</tr>"
                     report += "<tr>"
                     report += "<td>Number items</td>";
