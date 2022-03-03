@@ -89,25 +89,27 @@ export class ROSourcesListComponent implements OnInit {
 
             let report: string = "<h3>Search sources report</h3>(undeleted sources only)";
             report += "<table border='1' cellspacing='0' cellpadding='2'>";
-           
-            for (var i = 0; i < this.ReviewSources.length; i++) {
-                let currentSource: ReadOnlySource = this.ReviewSources[i];
+            
+            let sourceList: ReadOnlySource[] = [];
+
+            for (var j = 0; j < this.ReviewSources.length - 1; j++) { // we don't want the manually created item source               
+                let tmpSource: ReadOnlySource = this.ReviewSources[j];
+                sourceList.push(tmpSource);
+            }
+
+            // order the test array by source name
+            let orderedSourceList = sourceList.sort((a, b) => (a.source_Name < b.source_Name) ? -1 : 1);
+               
+            for (var i = 0; i < orderedSourceList.length; i++) {
+                let currentSource: ReadOnlySource = orderedSourceList[i];
                 if (currentSource.isDeleted == true) {
                     // we only want undeleted sources
                     i += 1;
                 }
                 else {
-
-                    
-
                     report += "<tr>"
                     report += "<td>Source name</td>";
-
-                    if (i == this.ReviewSources.length - 1) {
-                        report += "<td><b>Manually created items</b></td>";
-                    } else {
-                        report += "<td><b>" + currentSource.source_Name + "</b></td>";
-                    }
+                    report += "<td><b>" + currentSource.source_Name + "</b></td>";
                     report += "</tr>"
 
                     let res = await this.SourcesService.GetSourceDataForThisSource(currentSource.source_ID);
@@ -116,33 +118,20 @@ export class ROSourcesListComponent implements OnInit {
                         if (res != true) {
                             let currentSourceData: Source = res;
 
-                            if (i != this.ReviewSources.length - 1) {
-                                report += "<tr>"
-                                report += "<td>Database name/platform</td>";
-                                report += "<td><b>" + currentSourceData.sourceDataBase + "</b></td>";
-                                report += "</tr>"
-                            }
-
+                            report += "<tr>"
+                            report += "<td>Database name/platform</td>";
+                            report += "<td><b>" + currentSourceData.sourceDataBase + "</b></td>";
+                            report += "</tr>"
                             report += "<tr>"
                             report += "<td>Date of search</td>";
-                            if (i == this.ReviewSources.length - 1) {
-                                report += "<td>N/A</td>";
-                            } else {
-                                report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
-                            }
+                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
                             report += "</tr>"
-
                             report += "<tr>"
                             report += "<tr>"
                             report += "<td>Date of import</td>";
-                            if (i == this.ReviewSources.length - 1) {
-                                report += "<td>N/A</td>";
-                            } else {
-                                report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfImport) + "</td>";
-                            }
+                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfImport) + "</td>";
                             report += "</tr>"
                             report += "<tr>"
-
                             report += "<td>Number items</td>";
                             report += "<td>" + currentSourceData.total_Items + "</td>";
                             report += "</tr>"
@@ -169,6 +158,49 @@ export class ROSourcesListComponent implements OnInit {
                     }
                 }
             }
+
+            // add the manually create items source at the end
+            report += "<tr>"
+            report += "<td>Source name</td>";
+            report += "<td><b>Manually created items</b></td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Database name/platform</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Date of search</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Date of import</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Number items</td>";
+            report += "<td>" + this.ReviewSources[this.ReviewSources.length - 1].total_Items + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Duplicates</td>";
+            report += "<td>" + this.ReviewSources[this.ReviewSources.length - 1].duplicates + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Description</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Notes</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Search string</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
+            report += "</tr>"
+
+
             report += "</table>"
             const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
             saveAs(dataURI, "Source table.html");
