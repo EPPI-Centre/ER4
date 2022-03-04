@@ -41,7 +41,11 @@
                             </div>
                             <div class="card bg-light col-12 col-md-6">
                                 <div class="row col-12">
-                                    <div class="col-12 font-weight-bold">Source Stats:</div>
+                                    <div class="col-12 font-weight-bold py-1" >Source Stats:
+                                    <button class="btn btn-outline-secondary btn-sm px-1 py-0 mb-1 mr-1 float-right"
+                                        (click)="CreateSourceReport()">
+                                        Report&nbsp;<i class="fa fa-table"></i>
+                                    </button></div>
                                     <div class="col-12 small mb-1" style="top:0px;">
                                         <div class="row">
                                             <div class="col-md-6 col-sm-12 ">
@@ -98,7 +102,9 @@
                                     </div>
                                     <div class="col-sm-7">
                                         <div *ngIf="!CanDeleteSourceForever()" class="small bg-light">
-                                            To permanently delete a source it must first be marked as deleted on the Review home page.<br />
+                                            To permanently delete a source it must first be marked
+                                            <i class="fa fa-ban" style="color:red" title="Deleted source"></i>
+                                            (deleted) from the Review home page.<br />
                                             Only deleted sources that do not contain master items of duplicates may be deleted permanentely.
                                         </div>
                                     </div>
@@ -141,7 +147,8 @@
                                 <div class="btn btn-link btn-sm p-0 ml-2"
                                      [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
                                      (click)="SelectSource(ROsource)">
-                                    {{ROsource.source_Name}}
+                                    <i *ngIf="ROsource.isDeleted" class="fa fa-ban" style="color:red" title="Deleted source">
+                                        </i>&nbsp;&nbsp;{{ROsource.source_Name}}
                                 </div>
                             </td>
                         </tr>

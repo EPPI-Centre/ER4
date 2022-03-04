@@ -801,7 +801,7 @@ namespace BusinessLibrary.BusinessClasses
                 case "Thesis":
                     return "9";
                 default:
-                    return "0";
+                    return "0"; // "Unknown"
             }
         }
 
@@ -809,6 +809,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             switch (s)
             {
+                case "0":
+                    return "Unknown";
                 case "1":
                     return "Journal";
                 case "2":

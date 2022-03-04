@@ -1247,50 +1247,9 @@ namespace BusinessLibrary.BusinessClasses
             {
                 {"BatchGuid", BatchGuid}
             };
-
-            CreateRunResponse runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, ClassifierPipelineName, parameters: parameters).Result.Body;
-
-            string runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, runResponse.RunId).Result.Status;
-            while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
-            {
-                int count = 0;
-                //Console.WriteLine(runStatus);
-
-                if (DateTime.Now.ToUniversalTime().AddMinutes(5) > result.ExpiresOn) // the token expires after an hour
-                {
-                    count++;
-                    string accessToken = result.AccessToken;
-                    result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
-                    cred = new TokenCredentials(result.AccessToken);
-                    client = new DataFactoryManagementClient(cred)
-                    {
-                        SubscriptionId = subscriptionId
-                    };
-                }
-
-                Thread.Sleep(5 * 1000);
-                try
-                {
-                    PipelineRun pr = client.PipelineRuns.Get(resourceGroup, dataFactoryName, runResponse.RunId); //Microsoft.Rest.Azure.CloudException if token has expired
-                    if (pr != null)
-                    {
-                        runStatus = pr.Status;
-                    }
-                }
-                catch (Microsoft.Rest.Azure.CloudException e)
-                {
-                    if (e != null)
-                    {
-                        result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
-                        cred = new TokenCredentials(result.AccessToken);
-                        client = new DataFactoryManagementClient(cred)
-                        {
-                            SubscriptionId = subscriptionId
-                        };
-                    }
-                }
-            }
-
+			CancellationTokenSource source = new CancellationTokenSource();
+			CancellationToken token = source.Token;
+			DataFactoryHelper.RunDataFactoryProcess(ClassifierPipelineName, parameters, true, userId, token);
 
             // 3) download the scores and insert them into the Reviewer database. This stored proc also cleans up the data in the Azure SQL database (i.e. deletes rows associated with this BatchGuid)
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))

@@ -462,7 +462,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private bool doFilterPubType(MagPaper mp)
         {
-            if (transformPubTypeStringListToIndex(_FilterPubTypes).IndexOf(mp.DocType) > -1)
+            if (_FilterPubTypes.IndexOf(mp.DocType) > -1) //(transformPubTypeStringListToIndex(_FilterPubTypes).IndexOf(mp.DocType) > -1)
             {
                 return false;
             }

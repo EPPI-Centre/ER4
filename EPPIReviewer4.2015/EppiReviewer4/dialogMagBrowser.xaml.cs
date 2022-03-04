@@ -2280,10 +2280,13 @@ namespace EppiReviewer4
                 if (RememberThisMagRelatedPapersRun != null)
                 {
                     int num_in_run = RememberThisMagRelatedPapersRun.NPapers;
+                    string pubTypeFilters = getRelatedRunPubTypeFilters();
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch",
                         RememberThisMagRelatedPapersRun.MagRelatedRunId, 0, "", 0, 0, 0, 0, RelatedRunTextFilterJournal.Text,
-                        RelatedRunTextFilterDOI.Text, RelatedRunTextFilterURL.Text, RelatedRunTextFilterTitle.Text, "", "", getRelatedRunPubTypeFilters());
+                        RelatedRunTextFilterDOI.Text, RelatedRunTextFilterURL.Text, RelatedRunTextFilterTitle.Text, "", "", pubTypeFilters);
+                    string Filtered = RelatedRunTextFilterDOI.Text != "" || RelatedRunTextFilterURL.Text != "" || RelatedRunTextFilterTitle.Text != "" ||
+                        RelatedRunTextFilterJournal.Text != "" || pubTypeFilters != "" ? " or filtered out" : ".";
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         BusyImportingRecords.IsRunning = false;
@@ -2301,13 +2304,13 @@ namespace EppiReviewer4
                             }
                             else if (e2.Object.NImported != 0)
                             {
-                                RadWindow.Alert("Some of these items were already in your review.\n\nImported " +
+                                RadWindow.Alert("Some of these items were already in your review" + Filtered + "\n\nImported " +
                                     e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
                                     " new items");
                             }
                             else
                             {
-                                RadWindow.Alert("All of these records were already in your review.");
+                                RadWindow.Alert("All of these records were already in your review" + Filtered);
                             }
                             //SelectedLinkButton.IsEnabled = true; - no need to renable, as it's destroyed in the refresh below
                             CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
@@ -2325,7 +2328,8 @@ namespace EppiReviewer4
 
         private string getRelatedRunPubTypeFilters()
         {
-            string ret = addPubTypeFilter(cbFilterPubTypeJournal, "");
+            string ret = addPubTypeFilter(cbRelatedRunFilterPubTypeJournal, "");
+            ret = addPubTypeFilter(cbRelatedRunFilterPubTypeUnknown, ret);
             ret = addPubTypeFilter(cbRelatedRunFilterPubTypeConferencePaper, ret);
             ret = addPubTypeFilter(cbRelatedRunFilterPubTypeBookChapter, ret);
             ret = addPubTypeFilter(cbRelatedRunFilterPubTypeBook, ret);
@@ -2422,6 +2426,7 @@ namespace EppiReviewer4
                 cbRelatedRunFilterPubTypeDataset.IsChecked = false;
                 cbRelatedRunFilterPubTypeRepository.IsChecked = false;
                 cbRelatedRunFilterPubTypeThesis.IsChecked = false;
+                cbRelatedRunFilterPubTypeUnknown.IsChecked = false;
             }
         }
 
@@ -4429,7 +4434,8 @@ namespace EppiReviewer4
 
         private string getPubTypeFilters()
         {
-            string ret = addPubTypeFilter(cbFilterPubTypeJournal, "");
+            string ret = addPubTypeFilter(cbFilterPubTypeUnknown, "");
+            ret = addPubTypeFilter(cbFilterPubTypeJournal, ret); 
             ret = addPubTypeFilter(cbFilterPubTypeConferencePaper, ret);
             ret = addPubTypeFilter(cbFilterPubTypeBookChapter, ret);
             ret = addPubTypeFilter(cbFilterPubTypeBook, ret);
@@ -4438,7 +4444,6 @@ namespace EppiReviewer4
             ret = addPubTypeFilter(cbFilterPubTypeThesis, ret);
             return ret;
         }
-
 
         private void doImportAutoRunResults(object sender, WindowClosedEventArgs e)
         {

@@ -4341,7 +4341,7 @@ namespace EppiReviewer4
         private void cmdShowClassificationWindow_Click(object sender, RoutedEventArgs e)
         {
             windowClassifier.rbApplyProgressPlusModel.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
-            windowClassifier.rbApplyPubMedStudyTypesModel.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            windowClassifier.rbApplyPubMedStudyTypesModel.Visibility = ri.IsSiteAdmin || ri.UserId == 1576 ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             windowClassifier.ShowDialog();
         }
 
