@@ -173,7 +173,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.crosstabService.IsBusy ||
             this.ReviewSetsEditingService.IsBusy ||
             this.SourcesService.IsBusy ||
-            this.ComparisonsService.IsBusy);
+            this.ComparisonsService.IsBusy ||
+            this.ArmTimepointLinkListService.IsBusy);
     }
     public get ReviewSets(): ReviewSet[] {
         return this.reviewSetsService.ReviewSets;
