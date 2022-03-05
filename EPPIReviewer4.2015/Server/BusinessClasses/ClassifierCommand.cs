@@ -522,7 +522,7 @@ namespace BusinessLibrary.BusinessClasses
 
                 if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8) // the covid19,  progress-plus using the BERT model, pubmed study types, new Azure ML environment and SQL database. This will become default over time.
                 {
-					System.Threading.Tasks.Task.Run(() => DoNewMethod(modelId, ApplyToAttributeId));
+					System.Threading.Tasks.Task.Run(() => DoNewMethod(modelId, ApplyToAttributeId, ri.ReviewId, ri.UserId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
                     return;
                 }
@@ -1151,14 +1151,14 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 
-        private async Task DoNewMethod(int modelId, Int64 ApplyToAttributeId)
+        private async Task DoNewMethod(int modelId, Int64 ApplyToAttributeId, int ReviewId, int ContactId)
         {
             // Much simpler approach: 1) write data to Azure SQL; 2) trigger the DataFactory pipeline; 3) download scores from Azure SQL and insert into Reviewer DB
 
             string BatchGuid = Guid.NewGuid().ToString();
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            int userId = ri.UserId;
-            int reviewId = ri.ReviewId;
+            //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            //int userId = ri.UserId;
+            //int reviewId = ri.ReviewId;
             int rowcount = 0;
 
             // 1) write the data to the Azure SQL database
@@ -1169,12 +1169,12 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandTimeout = 6000; // 10 minutes - if there are tens of thousands of items it can take a while
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
                     command.Parameters.Add(new SqlParameter("@ITEM_ID_LIST", ""));
                     command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
                     command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
-                    command.Parameters.Add(new SqlParameter("@ContactId", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
                     command.Parameters.Add(new SqlParameter("@MachineName", TrainingRunCommand.NameBase));
                     command.Parameters.Add(new SqlParameter("@ROWCOUNT", 0));
                     command.Parameters["@ROWCOUNT"].Direction = System.Data.ParameterDirection.Output;
@@ -1249,7 +1249,7 @@ namespace BusinessLibrary.BusinessClasses
             };
 			CancellationTokenSource source = new CancellationTokenSource();
 			CancellationToken token = source.Token;
-			DataFactoryHelper.RunDataFactoryProcess(ClassifierPipelineName, parameters, true, userId, token);
+			DataFactoryHelper.RunDataFactoryProcess(ClassifierPipelineName, parameters, true, ContactId, token);
 
             // 3) download the scores and insert them into the Reviewer database. This stored proc also cleans up the data in the Azure SQL database (i.e. deletes rows associated with this BatchGuid)
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -1260,8 +1260,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.CommandTimeout = 300; // 5 mins to be safe. I've seen queries with large numbers of searches / items take about 30 seconds, which times out live
                     command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", reviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", userId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
                     command.Parameters.Add(new SqlParameter("@SearchTitle", SearchTitle));
                     command.ExecuteNonQuery();
                 }
