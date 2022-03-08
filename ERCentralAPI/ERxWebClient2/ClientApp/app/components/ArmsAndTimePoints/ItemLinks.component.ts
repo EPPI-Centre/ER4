@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, Inject } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import {  Item, ItemListService } from '../services/ItemList.service';
 import { _localeFactory } from '@angular/core/src/application_module';
@@ -6,6 +6,8 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ArmTimepointLinkListService, ItemTimepointDeleteWarningCommandJSON, iTimePoint, TimePoint, iItemLink } from '../services/ArmTimepointLinkList.service';
 import { NgModel, NgForm } from '@angular/forms';
+
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
 	selector: 'ItemLinksComp',
@@ -19,7 +21,8 @@ export class ItemLinksComp  implements OnInit {
 		private ArmTimepointLinkListService: ArmTimepointLinkListService,
 		private confirmationDialogService: ConfirmationDialogService,
 		private itemListService: ItemListService,
-		private ReviewerIdentityServ: ReviewerIdentityService
+		private ReviewerIdentityServ: ReviewerIdentityService,
+		@Inject('BASE_URL') private _baseUrl: string,
 	) {
 		
 	}
@@ -82,6 +85,63 @@ export class ItemLinksComp  implements OnInit {
 		}
 		this.EditingLink = newLink;
 	}
+	public CreateLinkReport() {
+
+		if (this._item != null) {
+
+			let report: string = "<h3>Linked reference report</h3>";
+			report += "<table border='1' cellspacing='0' cellpadding='2'>";
+			report += "<tr>"
+			report += "<td><b>Master<br>EPPI ID</b></td>";
+			report += "<td><b>Master<br>Short title</b></td>";
+			report += "<td><b>Master title</b></td>";
+			report += "<td><b>Linked EPPI ID <br>& Short title</b></td>";
+			report += "<td><b>Linked Item title</b></td>";
+			report += "<td><b>Link description</b></td>";
+			report += "</tr>"
+			report += "<tr>"
+
+			report += "<td>" + this._item.itemId + "</td>"
+			report += "<td>" + this._item.shortTitle + "</td>"
+			report += "<td>" + this._item.title + "</td>"
+
+			for (var i = 0; i < this.ItemLinks.length; i++) {
+				let currentItem: iItemLink = this.ItemLinks[i];
+				if (i == 0) {
+					if (currentItem.itemIdPrimary == currentItem.itemIdSecondary) {
+						// the first row is the master item so get the rest from next row
+						i += 1;
+						let currentItem: iItemLink = this.ItemLinks[1];
+						report += "<td>" + currentItem.itemIdSecondary + ": " + currentItem.shortTitle + "</td>"
+						report += "<td>" + currentItem.title + "</td>"
+						report += "<td>" + currentItem.description + "</td>"
+						report += "</tr>"
+					}
+					else {
+						report += "<td>" + currentItem.itemIdSecondary + ": " + currentItem.shortTitle + "</td>"
+						report += "<td>" + currentItem.title + "</td>"
+						report += "<td>" + currentItem.description + "</td>"
+						report += "</tr>"
+					}
+				}				
+				else {
+					// subsequent links
+					report += "<tr>"
+					report += "<td></td>"
+					report += "<td></td>"
+					report += "<td></td>"
+					report += "<td>" + currentItem.itemIdSecondary + ": " + currentItem.shortTitle + "</td>"
+					report += "<td>" + currentItem.title + "</td>"
+					report += "<td>" + currentItem.description + "</td>"
+					report += "</tr>"
+				}
+
+			}
+			report += "</table>"
+			Helpers.OpenInNewWindow(report, this._baseUrl);
+		}
+	}
+
 	CancelEditing() {
 		this.CantSaveLinkMessage = "";
 		this.EditingLink = null;

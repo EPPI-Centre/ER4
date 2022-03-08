@@ -37,6 +37,7 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import { SetupConfigurableReports } from '../Reports/SetupConfigurableReports.component';
 import { FreqXtabMapsComp } from '../Frequencies/FreqXtabMaps.component';
 import { ClassifierService } from '../services/classifier.service';
+import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
@@ -85,7 +86,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
         private excelService: ExcelService,
         private reviewInfoService: ReviewInfoService,
-        private classifierService: ClassifierService
+        private classifierService: ClassifierService,
+        private ArmTimepointLinkListService: ArmTimepointLinkListService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -171,7 +173,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.crosstabService.IsBusy ||
             this.ReviewSetsEditingService.IsBusy ||
             this.SourcesService.IsBusy ||
-            this.ComparisonsService.IsBusy);
+            this.ComparisonsService.IsBusy ||
+            this.ArmTimepointLinkListService.IsBusy);
     }
     public get ReviewSets(): ReviewSet[] {
         return this.reviewSetsService.ReviewSets;
@@ -205,49 +208,85 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public RunExportReferences() {
 		alert('not implemented yet');
 	}
-	public ShowHideExportReferences(style: string): string | any[] {
+    public async ShowHideExportReferences(style: string): Promise<string | any[]> {
 
-		let report: string = '';
-		let jsonReport: any[] = [];
-		let items: Item[] = this.ItemListService.ItemList.items.filter(found => found.isSelected == true);
-				
-		for (var i = 0; i < items.length; i++) {
-			let currentItem: Item  = items[i];
-			
-			switch (style) {
-				case "Chicago":
-					report += "<p>" + ItemListService.GetCitation(currentItem) + "</p>";
-					break;
-				case "Harvard":
-					report += "<p>" + ItemListService.GetHarvardCitation(currentItem)+ "</p>";
-					break;
-				case "NICE":
-					report += "<p>" + ItemListService.GetNICECitation(currentItem) + "</p>";
-					break;
-				case "ExportTable":
-					jsonReport.push(this.ItemListService.GetCitationForExport(currentItem));
-                    break;
-                case "HIS":
-                    jsonReport.push(ItemListService.GetHISCitationForExport(currentItem));
-                    break;
-				//case "BL":
-				//	report += review.BL_TX + Environment.NewLine +
-				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-				//	break;
-				//case "BLCopyrightCleared":
-				//	report += review.BL_CC_TX + Environment.NewLine +
-				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-				//	break;
-			}
-		}
-		if (report == '') {
-			//console.log('wrong', jsonReport);
-			return jsonReport;
-		} else {
-			//console.log('got in here');
-			return report;
-		}		
-	}
+        let report: string = '';
+        let jsonReport: any[] = [];
+        let items: Item[] = this.ItemListService.ItemList.items.filter(found => found.isSelected == true);
+
+        if (style == "LINKS") {
+            for (var k = 0; k < items.length; k++) {
+                let currentItem: Item = items[k];
+                let lastItemID: number = items[items.length - 1].itemId;
+
+                let res = await this.ArmTimepointLinkListService.GetLinksForThisItem(currentItem.itemId);
+                if (k == 0) {
+                    report += "<h3>Linked reference report</h3>";
+                    report += "<table border='1' cellspacing='0' cellpadding='2'>";
+                    report += "<tr>"
+                    report += "<td><b>Master<br>EPPI ID</b></td>";
+                    report += "<td><b>Master<br>Short title</b></td>";
+                    report += "<td><b>Master title</b></td>";
+                    report += "<td><b>Linked EPPI ID <br>& Short title</b></td>";
+                    report += "<td><b>Linked Item title</b></td>";
+                    report += "<td><b>Link description</b></td>";
+                    report += "</tr>"
+                }
+
+                if (res == false) {
+                    //console.log('res', res);
+                    res = true; // so we go through the process but have an empty row
+                }
+                  
+                report += ItemListService.GetLinks(currentItem, res, lastItemID);
+                if (report.endsWith('</table>')) {
+                    return report;
+                }         
+            }
+
+            if (report == "") {
+                report = "No linked records to show";
+                return report;
+            }
+            else { // we should only reach this one if the last item doesn't have any links
+                report += "</table><p>&nbsp;</p>";
+                return report; 
+            }
+        }
+        else { 
+            for (var i = 0; i < items.length; i++) {
+                let currentItem: Item = items[i];
+                let lastItemID: number = items[items.length - 1].itemId;
+
+                switch (style) {
+                    case "Chicago":
+                        report += "<p>" + ItemListService.GetCitation(currentItem) + "</p>";
+                        break;
+                    case "Harvard":
+                        report += "<p>" + ItemListService.GetHarvardCitation(currentItem) + "</p>";
+                        break;
+                    case "NICE":
+                        report += "<p>" + ItemListService.GetNICECitation(currentItem) + "</p>";
+                        break;
+                    case "ExportTable":
+                        jsonReport.push(this.ItemListService.GetCitationForExport(currentItem));
+                        break;
+                    case "HIS":
+                        jsonReport.push(ItemListService.GetHISCitationForExport(currentItem));
+                        break;
+                }
+            }
+
+            if (report == '') {
+                return jsonReport;
+            } else {
+                return report;
+            }
+        }
+
+    }
+
+
 	public ExportReferences(report: string) {
 		
 		const dataURI = "data:text/plain;base64," +
@@ -302,20 +341,20 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public ExportReferencesDDData: Array<any> = [
 		{
 			text: 'Harvard',
-			click: () => {
-				Helpers.OpenInNewWindow(this.ShowHideExportReferences('Harvard'), this._baseUrl);
+			click: async () => {
+				Helpers.OpenInNewWindow(await this.ShowHideExportReferences('Harvard'), this._baseUrl);
 			}
 		},
 		{
 			text: 'Chicago',
-			click: () => {
-				Helpers.OpenInNewWindow(this.ShowHideExportReferences('Chicago'), this._baseUrl);
+			click: async () => {
+				Helpers.OpenInNewWindow(await this.ShowHideExportReferences('Chicago'), this._baseUrl);
 			}
 		},
 		{
 			text: 'NICE Format',
-			click: () => {
-				Helpers.OpenInNewWindow(this.ShowHideExportReferences('NICE'), this._baseUrl);
+            click: async () => {
+				Helpers.OpenInNewWindow(await this.ShowHideExportReferences('NICE'), this._baseUrl);
 			}
 		},
 		{
@@ -358,11 +397,22 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         },
         {
             text: 'HIS (ext. scr.)',
-            click: () => {
+            click: async () => {
                 //this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
-                let testRefs: any = this.ShowHideExportReferences('HIS');
+                let testRefs: any = await this.ShowHideExportReferences('HIS');
                 //console.log(testRefs);
                 this.exportAsHisXLSX(testRefs);
+            }
+        },
+        {
+            text: 'Linked report',
+            click: async () => {
+                let linkReport: any = await this.ShowHideExportReferences('LINKS');
+                const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(linkReport, this._baseUrl, "Links Table"));
+                saveAs(dataURI, "Links table.html");
+
+                // for displaying in a new tab rather than a file
+                //Helpers.OpenInNewWindow(await this.ShowHideExportReferences('LINKS'), this._baseUrl);
             }
         }
     ];
@@ -1117,6 +1167,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 export class RadioButtonComp {
 	IncEnc = true;
+}
+export interface iItemLink {
+    itemLinkId: number;
+    itemIdPrimary: number;
+    itemIdSecondary: number;
+    title: string;
+    shortTitle: string;
+    description: string;
 }
 
 

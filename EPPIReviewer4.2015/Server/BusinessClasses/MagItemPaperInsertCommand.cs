@@ -52,6 +52,8 @@ namespace BusinessLibrary.BusinessClasses
         private string _FilterJournal;
         private string _FilterDOI;
         private string _FilterURL;
+        private string _FilterTitle;
+        private string _FilterPubTypes;
 
         public int NImported
         {
@@ -67,7 +69,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public MagItemPaperInsertCommand(string PaperIds, string SourceOfIds, int MagRelatedRunId,
              int MagAutoUpdateRunId, string OrderBy, double AutoUpdateScore, double StudyTypeClassifierScore, double UserClassifierScore,
-            int TopN, string FilterJournal, string FilterDOI, string FilterURL, string MagSearchText = "", string MagSearchDesc = "")
+            int TopN, string FilterJournal, string FilterDOI, string FilterURL, string FilterTitle, string MagSearchText = "", string MagSearchDesc = "", string FilterPubTypes = "")
         {
             _PaperIds = PaperIds;
             _SourceOfIds = SourceOfIds;
@@ -83,6 +85,8 @@ namespace BusinessLibrary.BusinessClasses
             _FilterJournal = FilterJournal;
             _FilterDOI = FilterDOI;
             _FilterURL = FilterURL;
+            _FilterTitle = FilterTitle;
+            _FilterPubTypes = FilterPubTypes;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -103,6 +107,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_FilterJournal", _FilterJournal);
             info.AddValue("_FilterDOI", _FilterDOI);
             info.AddValue("_FilterURL", _FilterURL);
+            info.AddValue("_FilterTitle", _FilterTitle);
+            info.AddValue("_FilterPubTypes", _FilterPubTypes);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -121,6 +127,8 @@ namespace BusinessLibrary.BusinessClasses
             _FilterJournal = info.GetValue<string>("_FilterJournal");
             _FilterDOI = info.GetValue<string>("_FilterDOI");
             _FilterURL = info.GetValue<string>("_FilterURL");
+            _FilterTitle = info.GetValue<string>("_FilterTitle");
+            _FilterPubTypes = info.GetValue<string>("_FilterPubTypes");
         }
 
 
@@ -413,22 +421,30 @@ namespace BusinessLibrary.BusinessClasses
 
         private bool PaperPassesFilters(MagPaper mp)
         {
-            if (mp.Journal != null && !doFilter(mp.Journal.ToLower(), _FilterJournal))
+            if (mp.Journal != null && !doFilterField(mp.Journal.ToLower(), _FilterJournal))
             {
                 return false;
             }
-            if (mp.DOI != null && !doFilter(mp.DOI.ToLower(), _FilterDOI))
+            if (mp.DOI != null && !doFilterField(mp.DOI.ToLower(), _FilterDOI))
             {
                 return false;
             }
-            if ( mp.URLs != null && !doFilter(mp.URLs.ToLower(), _FilterURL))
+            if (mp.URLs != null && !doFilterField(mp.URLs.ToLower(), _FilterURL))
+            {
+                return false;
+            }
+            if (mp.PaperTitle != null && !doFilterField(mp.PaperTitle.ToLower(), _FilterTitle))
+            {
+                return false;
+            }
+            if (_FilterPubTypes != "" && !doFilterPubType(mp))
             {
                 return false;
             }
             return true;
         }
 
-        private bool doFilter(string field, string filter)
+        private bool doFilterField(string field, string filter)
         {
             if (filter != "" && filter.Length > 3)
             {
@@ -442,6 +458,25 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             return true;
+        }
+
+        private bool doFilterPubType(MagPaper mp)
+        {
+            if (_FilterPubTypes.IndexOf(mp.DocType) > -1) //(transformPubTypeStringListToIndex(_FilterPubTypes).IndexOf(mp.DocType) > -1)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private string transformPubTypeStringListToIndex(string s)
+        {
+            string pubTypeIndex = "";
+            foreach (string l in s.Split(','))
+            {
+                pubTypeIndex += MagMakesHelpers.GetOaPubTypeIndexFromString(l);
+            }
+            return pubTypeIndex;
         }
 
         private void OldVersion() // main difference is this looks up existing IDs in the database, rather than on the webserver. Also looks up items on MAKES one by one so is slower

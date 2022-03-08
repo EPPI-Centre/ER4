@@ -223,6 +223,38 @@ namespace ERxWebClient2.Controllers
 		}
 
 		[HttpPost("[action]")]
+		public IActionResult SearchWithLinkedReferences([FromBody] CodeCommand cmdIn)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+
+					SearchForItemsWithLinkedRefsCommand cmd = new SearchForItemsWithLinkedRefsCommand(
+						cmdIn._title,
+						cmdIn._included
+						);
+					DataPortal<SearchForItemsWithLinkedRefsCommand> dp = new DataPortal<SearchForItemsWithLinkedRefsCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+
+				}
+				else
+				{
+
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Searches containing just one file has failed");
+				return StatusCode(500, e.Message);
+			}
+		}
+
+
+		[HttpPost("[action]")]
 		public IActionResult SearchText([FromBody] CodeCommand cmdIn)
 		{
 

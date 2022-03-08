@@ -1638,7 +1638,7 @@ namespace EppiReviewer4
             {
                 DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                 MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds(), "SelectedPapers", 0, 0, "", 0, 0, 0, 0,
-                    "", "", "");
+                    "", "", "", "", "", "","");
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
                     BusyImportingRecords.IsRunning = false;
@@ -2280,9 +2280,13 @@ namespace EppiReviewer4
                 if (RememberThisMagRelatedPapersRun != null)
                 {
                     int num_in_run = RememberThisMagRelatedPapersRun.NPapers;
+                    string pubTypeFilters = getRelatedRunPubTypeFilters();
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch",
-                        RememberThisMagRelatedPapersRun.MagRelatedRunId, 0, "", 0, 0, 0, 0, "", "", "");
+                        RememberThisMagRelatedPapersRun.MagRelatedRunId, 0, "", 0, 0, 0, 0, RelatedRunTextFilterJournal.Text,
+                        RelatedRunTextFilterDOI.Text, RelatedRunTextFilterURL.Text, RelatedRunTextFilterTitle.Text, "", "", pubTypeFilters);
+                    string Filtered = RelatedRunTextFilterDOI.Text != "" || RelatedRunTextFilterURL.Text != "" || RelatedRunTextFilterTitle.Text != "" ||
+                        RelatedRunTextFilterJournal.Text != "" || pubTypeFilters != "" ? " or filtered out" : ".";
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         BusyImportingRecords.IsRunning = false;
@@ -2300,13 +2304,13 @@ namespace EppiReviewer4
                             }
                             else if (e2.Object.NImported != 0)
                             {
-                                RadWindow.Alert("Some of these items were already in your review.\n\nImported " +
+                                RadWindow.Alert("Some of these items were already in your review" + Filtered + "\n\nImported " +
                                     e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
                                     " new items");
                             }
                             else
                             {
-                                RadWindow.Alert("All of these records were already in your review.");
+                                RadWindow.Alert("All of these records were already in your review" + Filtered);
                             }
                             //SelectedLinkButton.IsEnabled = true; - no need to renable, as it's destroyed in the refresh below
                             CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
@@ -2320,6 +2324,19 @@ namespace EppiReviewer4
                     dp2.BeginExecute(command);
                 }
             }
+        }
+
+        private string getRelatedRunPubTypeFilters()
+        {
+            string ret = addPubTypeFilter(cbRelatedRunFilterPubTypeJournal, "");
+            ret = addPubTypeFilter(cbRelatedRunFilterPubTypeUnknown, ret);
+            ret = addPubTypeFilter(cbRelatedRunFilterPubTypeConferencePaper, ret);
+            ret = addPubTypeFilter(cbRelatedRunFilterPubTypeBookChapter, ret);
+            ret = addPubTypeFilter(cbRelatedRunFilterPubTypeBook, ret);
+            ret = addPubTypeFilter(cbRelatedRunFilterPubTypeDataset, ret);
+            ret = addPubTypeFilter(cbRelatedRunFilterPubTypeRepository, ret);
+            ret = addPubTypeFilter(cbRelatedRunFilterPubTypeThesis, ret);
+            return ret;
         }
 
         private void HyperlinkButton_Click_5(object sender, RoutedEventArgs e)
@@ -2382,6 +2399,37 @@ namespace EppiReviewer4
                 }
             }
         }
+
+
+        private void LBOpenFiltersRelatedRun_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as HyperlinkButton).Tag.ToString() == "Open")
+            {
+                ColumnFiltersRelatedRun.Width = new GridLength(250, GridUnitType.Auto);
+                LBOpenFiltersRelatedRun.Content = "Close and clear filters";
+                LBOpenFiltersRelatedRun.Tag = "Close";
+                tbAutoUpdateDescription.Text = "";
+            }
+            else
+            {
+                ColumnFiltersRelatedRun.Width = new GridLength(0);
+                LBOpenFiltersRelatedRun.Content = "Open filters";
+                LBOpenFiltersRelatedRun.Tag = "Open";
+                RelatedRunTextFilterJournal.Text = "";
+                RelatedRunTextFilterURL.Text = "";
+                RelatedRunTextFilterDOI.Text = "";
+                RelatedRunTextFilterTitle.Text = "";
+                cbRelatedRunFilterPubTypeJournal.IsChecked = false;
+                cbRelatedRunFilterPubTypeConferencePaper.IsChecked = false;
+                cbRelatedRunFilterPubTypeBookChapter.IsChecked = false;
+                cbRelatedRunFilterPubTypeBook.IsChecked = false;
+                cbRelatedRunFilterPubTypeDataset.IsChecked = false;
+                cbRelatedRunFilterPubTypeRepository.IsChecked = false;
+                cbRelatedRunFilterPubTypeThesis.IsChecked = false;
+                cbRelatedRunFilterPubTypeUnknown.IsChecked = false;
+            }
+        }
+
 
         // **************************** Simulation studies in research & development *******************************
 
@@ -3726,10 +3774,12 @@ namespace EppiReviewer4
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterJournal.Text : ""),
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterDOI.Text : ""),
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterURL.Text : ""),
+                        (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterTitle.Text : ""),
                         ms.MagSearchText,
                         "OpenAlex search: " + ms.SearchText + 
                             (SelectedLinkButton.Tag.ToString() == "MagSearchResultsLatestMAG" ? " (filtered to latest deployment)" : "") +
-                            (cbMagSearchShowTextFilters.IsChecked == true ? " (with source filters applied)" : ""));
+                            (cbMagSearchShowTextFilters.IsChecked == true ? " (with source filters applied)" : ""),
+                        "");
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         BusyImportingRecords.IsRunning = false;
@@ -3827,6 +3877,7 @@ namespace EppiReviewer4
                 RowMagSearchFilterJournal.Height = new GridLength(35, GridUnitType.Auto);
                 RowMagSearchFilterUrl.Height = new GridLength(35, GridUnitType.Auto);
                 RowMagSearchFilterDoi.Height = new GridLength(35, GridUnitType.Auto);
+                RowMagSearchFilterTitle.Height = new GridLength(35, GridUnitType.Auto);
             }
         }
 
@@ -3837,6 +3888,7 @@ namespace EppiReviewer4
                 RowMagSearchFilterJournal.Height = new GridLength(0);
                 RowMagSearchFilterUrl.Height = new GridLength(0);
                 RowMagSearchFilterDoi.Height = new GridLength(0);
+                RowMagSearchFilterTitle.Height = new GridLength(0);
             }
         }
 
@@ -4185,7 +4237,9 @@ namespace EppiReviewer4
                 RowAutoUpdateTextFilterJournal.Height = new GridLength(35, GridUnitType.Auto);
                 RowAutoUpdateTextFilterURL.Height = new GridLength(35, GridUnitType.Auto);
                 RowAutoUpdateTextFilterDOI.Height = new GridLength(35, GridUnitType.Auto);
-                AutoUpdateOpenTextFilters.Content = "Close and clear text filters";
+                RowAutoUpdateTextFilterTitle.Height = new GridLength(35, GridUnitType.Auto);
+                RowAutoUpdatePubTypeFilter.Height = new GridLength(35, GridUnitType.Auto);
+                AutoUpdateOpenTextFilters.Content = "Close and clear filters";
                 AutoUpdateOpenTextFilters.Tag = "Close";
             }
             else
@@ -4193,7 +4247,16 @@ namespace EppiReviewer4
                 RowAutoUpdateTextFilterJournal.Height = new GridLength(0);
                 RowAutoUpdateTextFilterURL.Height = new GridLength(0);
                 RowAutoUpdateTextFilterDOI.Height = new GridLength(0);
-                AutoUpdateOpenTextFilters.Content = "Text filters";
+                RowAutoUpdateTextFilterTitle.Height = new GridLength(0);
+                RowAutoUpdatePubTypeFilter.Height = new GridLength(0);
+                cbFilterPubTypeJournal.IsChecked = false;
+                cbFilterPubTypeConferencePaper.IsChecked = false;
+                cbFilterPubTypeBookChapter.IsChecked = false;
+                cbFilterPubTypeBook.IsChecked = false;
+                cbFilterPubTypeDataset.IsChecked = false;
+                cbFilterPubTypeRepository.IsChecked = false;
+                cbFilterPubTypeThesis.IsChecked = false;
+                AutoUpdateOpenTextFilters.Content = "Open filters";
                 AutoUpdateOpenTextFilters.Tag = "Open";
                 AutoUpdateTextFilterJournal.Text = "";
                 AutoUpdateTextFilterURL.Text = "";
@@ -4356,6 +4419,32 @@ namespace EppiReviewer4
             }
         }
 
+        private string addPubTypeFilter(CheckBox cb, string s)
+        {
+            if (cb.IsChecked == false)
+            {
+                return s;
+            }
+            if (s == "")
+            {
+                return cb.Tag.ToString();
+            }
+            return s + "," + cb.Tag.ToString();
+        }
+
+        private string getPubTypeFilters()
+        {
+            string ret = addPubTypeFilter(cbFilterPubTypeUnknown, "");
+            ret = addPubTypeFilter(cbFilterPubTypeJournal, ret); 
+            ret = addPubTypeFilter(cbFilterPubTypeConferencePaper, ret);
+            ret = addPubTypeFilter(cbFilterPubTypeBookChapter, ret);
+            ret = addPubTypeFilter(cbFilterPubTypeBook, ret);
+            ret = addPubTypeFilter(cbFilterPubTypeDataset, ret);
+            ret = addPubTypeFilter(cbFilterPubTypeRepository, ret);
+            ret = addPubTypeFilter(cbFilterPubTypeThesis, ret);
+            return ret;
+        }
+
         private void doImportAutoRunResults(object sender, WindowClosedEventArgs e)
         {
             var result = e.DialogResult;
@@ -4364,12 +4453,13 @@ namespace EppiReviewer4
                 MagAutoUpdateRun maur = GridAutoUpdateImport.DataContext as MagAutoUpdateRun;
                 if (maur != null)
                 {
+                    string pubTypeFilters = getPubTypeFilters();
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "AutoUpdateRun", 0, maur.MagAutoUpdateRunId,
                         (comboAutoUpdateImportOptions.SelectedItem as ComboBoxItem).Tag.ToString(), AutoUpdateAutoScoreThreshold.Value.Value,
                         AutoUpdateStudyTypeScoreThreshold.Value.Value, AutoUpdateUserScoreThreshold.Value.Value,
                         Convert.ToInt32(AutoUpdateImportTopN.Value.Value), AutoUpdateTextFilterJournal.Text,
-                        AutoUpdateTextFilterDOI.Text, AutoUpdateTextFilterURL.Text);
+                        AutoUpdateTextFilterDOI.Text, AutoUpdateTextFilterURL.Text, AutoUpdateTextFilterTitle.Text, "", "", pubTypeFilters);
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         BusyImportingRecords.IsRunning = false;
@@ -4391,7 +4481,9 @@ namespace EppiReviewer4
                             {
                                 if (AutoUpdateTextFilterJournal.Text != "" ||
                                     AutoUpdateTextFilterDOI.Text != "" ||
-                                    AutoUpdateTextFilterURL.Text != "")
+                                    AutoUpdateTextFilterURL.Text != "" ||
+                                    AutoUpdateTextFilterTitle.Text != "" ||
+                                    getPubTypeFilters() != "")
                                 {
                                     RadWindow.Alert("Some of these items were already in your review or were filtered out.\n\nImported " +
                                     e2.Object.NImported.ToString() + " out of " + num_in_import.ToString() +
@@ -4704,5 +4796,6 @@ namespace EppiReviewer4
                 dp2.BeginExecute(command);
             }
         }
+
     }
 }

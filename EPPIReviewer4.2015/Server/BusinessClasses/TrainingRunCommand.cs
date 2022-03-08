@@ -142,7 +142,7 @@ namespace BusinessLibrary.BusinessClasses
                 CreateNonMLLIst(ri.ReviewId, ri.UserId);
                 return;
             }
-
+            if (ri.ReviewId == 21823) return;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();

@@ -117,7 +117,41 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 					this.RemoveBusy("FetchAll");
 			}
 			);
-		return currentItem.arms;
+	}
+
+
+	public GetItemLinks(Id: number): Promise<iItemLink[] | boolean> {
+		this._BusyMethods.push("GetLinkLists");
+		let ErrMsg = "Something went wrong when getting the Links. \r\n If the problem persists, please contact EPPISupport.";
+		let body = JSON.stringify({ Value: Id });
+
+		return this._http.post<iItemLink[]>(this._baseUrl + 'api/ArmTimepointLinkList/GetLinkLists',
+			body).toPromise()
+			.then(
+				(result) => {
+					//if (!result || result.length < 1) this.modalService.GenericErrorMessage(ErrMsg);
+					// a false result just means there aren't any links (and we want to know that)
+					this.RemoveBusy("GetLinkLists");
+					return result;
+				}
+				, (error) => {
+					this.modalService.GenericError(error);
+					this.RemoveBusy("GetLinkLists");
+					return false;
+				}
+			).catch((caught) => {
+				this.modalService.GenericError(caught);
+				this.RemoveBusy("GetLinkLists");
+				return false;
+			});
+	}
+
+	public async GetLinksForThisItem(Id: number): Promise<iItemLink[] | boolean>  {
+		let res = await this.GetItemLinks(Id);
+		if (res != false) {
+			let res = await this.GetItemLinks(Id);
+		}
+		return res;
 	}
 
 

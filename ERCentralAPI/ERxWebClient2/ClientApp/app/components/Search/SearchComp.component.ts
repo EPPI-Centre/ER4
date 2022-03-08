@@ -427,6 +427,8 @@ export class SearchComp implements OnInit, OnDestroy {
             return true;
         } else if (this.selectedSearchDropDown == 'With at least one document uploaded') {
             return true;
+        } else if (this.selectedSearchDropDown == 'With linked references') {
+            return true;
         }
         // Codes in set options next: ''
         else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool'
@@ -1037,6 +1039,10 @@ export class SearchComp implements OnInit, OnDestroy {
             }
             if (selectedSearchDropDown == 'From source(s)') {
                 if (this.MakeSearchBySourceName()) this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
+            }
+            if (selectedSearchDropDown == 'With linked references') {
+                this._searchService.cmdSearches._title = 'With linked references';
+                this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchWithLinkedReferences');
             }
 
         }

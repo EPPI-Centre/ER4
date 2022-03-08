@@ -286,7 +286,7 @@ namespace ERxWebClient2.Controllers
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
 
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId,
-                        0, "", 0, 0, 0, 0, "", "", "");
+                        0, "", 0, 0, 0, 0, "", "", "", "", "", "", "");
 
                     command = dp2.Execute(command);
 
@@ -314,7 +314,7 @@ namespace ERxWebClient2.Controllers
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
 
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(magSelectedPapers.Value, "SelectedPapers", 0,
-                        0, "", 0, 0, 0, 0, "", "", "");
+                        0, "", 0, 0, 0, 0, "", "", "", "", "", "", "");
 
                     command = dp2.Execute(command);
 
@@ -386,7 +386,7 @@ namespace ERxWebClient2.Controllers
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "AutoUpdateRun", 0
                                                             , mr.magAutoUpdateRunId, mr.orderBy, mr.autoUpdateScore
                                                             , mr.studyTypeClassifierScore, mr.userClassifierScore
-                                                            , mr.TopN, mr.filterJournal, mr.filterDOI, mr.filterURL);
+                                                            , mr.TopN, mr.filterJournal, mr.filterDOI, mr.filterURL, mr.filterTitle, "", "", "");
                     command = dp.Execute(command);
                     return Ok(command);
                 }
@@ -520,6 +520,7 @@ namespace ERxWebClient2.Controllers
         public string filterJournal { get; set; }
         public string filterDOI { get; set; }
         public string filterURL { get; set; }
+        public string filterTitle { get; set; }
     }
 }
 

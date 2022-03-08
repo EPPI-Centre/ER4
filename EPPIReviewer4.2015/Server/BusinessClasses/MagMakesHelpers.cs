@@ -756,34 +756,84 @@ namespace BusinessLibrary.BusinessClasses
             {
                 case "0":
                     return 12; //unknown
-                    break;
                 case "1":
                     return 14; // journal article
-                    break;
                 case "2":
                     return 12; // patent
-                    break;
                 case "3":
                     return 1; // journal article, as they put the conference in the journal name field
-                    break;
                 case "4":
                     return 3; // book chapter
-                    break;
                 case "5":
                     return 2; // book
-                    break;
                 case "6": // Book reference entry (whatever that is - mapping to generic)
                     return 12;
-                    break;
                 case "7": // dataset
                     return 12;
-                    break;
                 case "8": // repository
                     return 12;
-                    break;
+                case "9": // thesis
+                    return 4;
             }
             return 12; // just in case
         }
+
+        public static string GetOaPubTypeIndexFromString(string s)
+        {
+            switch (s)
+            {
+                case "Journal":
+                    return "1";
+                case "Patent":
+                    return "2";
+                case "Conference":
+                    return "3";
+                case "BookChapter":
+                    return "4";
+                case "Book":
+                    return "5";
+                case "BookReferenceEntry":
+                    return "6";
+                case "Dataset":
+                    return "7";
+                case "Repository":
+                    return "8";
+                case "Thesis":
+                    return "9";
+                default:
+                    return "0"; // "Unknown"
+            }
+        }
+
+        public static string GetOaPubTypeStringFromIndex(string s)
+        {
+            switch (s)
+            {
+                case "0":
+                    return "Unknown";
+                case "1":
+                    return "Journal";
+                case "2":
+                    return "Patent";
+                case "3":
+                    return "Conference";
+                case "4":
+                    return "BookChapter";
+                case "5":
+                    return "Book";
+                case "6":
+                    return "BookReferenceEntry";
+                case "7":
+                    return "Dataset";
+                case "8":
+                    return "Repository";
+                case "9":
+                    return "Thesis";
+                default:
+                    return "Unknown";
+            }
+        }
+
         public static readonly Regex CleanTextWhiteList = new Regex("[^a-zA-Z0-9 ]");
         public static readonly Regex CleanTextBlackList = new Regex("[!-/:-@[-`{-¿"
                         + Char.ConvertFromUtf32(697) + "-" + Char.ConvertFromUtf32(866)//using the unicode codes because they look odd and might not work in VS

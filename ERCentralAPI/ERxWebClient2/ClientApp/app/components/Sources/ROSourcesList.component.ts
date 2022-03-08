@@ -6,6 +6,8 @@ import { SourcesService, IncomingItemsList, ImportFilter, SourceForUpload, Sourc
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { Helpers } from '../helpers/HelperMethods';
+import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 
 
 @Component({
@@ -21,7 +23,8 @@ export class ROSourcesListComponent implements OnInit {
         private _eventEmitter: EventEmitterService,
         private SourcesService: SourcesService,
         private ConfirmationDialogService: ConfirmationDialogService,
-        private ReviewerIdentityService: ReviewerIdentityService 
+        private ReviewerIdentityService: ReviewerIdentityService,
+        @Inject('BASE_URL') private _baseUrl: string,
     ) {    }
     ngOnInit() {
     }
@@ -80,4 +83,132 @@ export class ROSourcesListComponent implements OnInit {
     ActuallyDeleteUndeleteSource(ros: ReadOnlySource) {
         this.SourcesService.DeleteUndeleteSource(ros);
     }
+
+    public async CreateSourceReport() {
+        if (this.ReviewSources != null) {
+
+            let report: string = "<h3>Search sources report</h3>(undeleted sources only)";
+            report += "<table border='1' cellspacing='0' cellpadding='2'>";
+            
+            let sourceList: ReadOnlySource[] = [];
+
+            for (var j = 0; j < this.ReviewSources.length - 1; j++) { // we don't want the manually created item source               
+                let tmpSource: ReadOnlySource = this.ReviewSources[j];
+                sourceList.push(tmpSource);
+            }
+
+            // order the test array by source name
+            let orderedSourceList = sourceList.sort((a, b) => (a.source_Name < b.source_Name) ? -1 : 1);
+               
+            for (var i = 0; i < orderedSourceList.length; i++) {
+                let currentSource: ReadOnlySource = orderedSourceList[i];
+                if (currentSource.isDeleted == true) {
+                    // we only want undeleted sources
+                    i += 1;
+                }
+                else {
+                    report += "<tr>"
+                    report += "<td>Source name</td>";
+                    report += "<td><b>" + currentSource.source_Name + "</b></td>";
+                    report += "</tr>"
+
+                    let res = await this.SourcesService.GetSourceDataForThisSource(currentSource.source_ID);
+
+                    if (res != false) {
+                        if (res != true) {
+                            let currentSourceData: Source = res;
+
+                            report += "<tr>"
+                            report += "<td>Database name/platform</td>";
+                            report += "<td><b>" + currentSourceData.sourceDataBase + "</b></td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Date of search</td>";
+                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<tr>"
+                            report += "<td>Date of import</td>";
+                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfImport) + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Number items</td>";
+                            report += "<td>" + currentSourceData.total_Items + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Duplicates</td>";
+                            report += "<td>" + currentSourceData.duplicates + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Description</td>";
+                            report += "<td>" + currentSourceData.searchDescription + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Notes</td>";
+                            report += "<td>" + currentSourceData.notes + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Search string</td>";
+                            report += "<td>" + currentSourceData.searchString + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
+                            report += "</tr>"
+                        }
+                    }
+                }
+            }
+
+            // add the manually create items source at the end
+            report += "<tr>"
+            report += "<td>Source name</td>";
+            report += "<td><b>Manually created items</b></td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Database name/platform</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Date of search</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Date of import</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Number items</td>";
+            report += "<td>" + this.ReviewSources[this.ReviewSources.length - 1].total_Items + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Duplicates</td>";
+            report += "<td>" + this.ReviewSources[this.ReviewSources.length - 1].duplicates + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Description</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Notes</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Search string</td>";
+            report += "<td>N/A</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
+            report += "</tr>"
+
+
+            report += "</table>"
+            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
+            saveAs(dataURI, "Source table.html");
+            //Helpers.OpenInNewWindow(report, this._baseUrl);
+        }      
+    }
 }
+
+
+
+

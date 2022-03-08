@@ -340,6 +340,44 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         }
         return res.trim();
     }
+
+
+    public GetSourceData(Id: number): Promise<Source | boolean> {
+        this._BusyMethods.push("GetSource");
+        let ErrMsg = "Something went wrong when getting the source data. \r\n If the problem persists, please contact EPPISupport.";
+        let body = JSON.stringify({ Value: Id });
+
+        return this._httpC.post<Source>(this._baseUrl + 'api/Sources/GetSource',
+            body).toPromise()
+            .then(
+                (result) => {
+                    //if (!result || result.length < 1) this.modalService.GenericErrorMessage(ErrMsg);
+                    // a false result just means there aren't any links (and we want to know that)
+                    this.RemoveBusy("GetSource");
+                    return result;
+                }
+                , (error) => {
+                    this.modalService.GenericError(error);
+                    this.RemoveBusy("GetSource");
+                    return false;
+                }
+            ).catch((caught) => {
+                this.modalService.GenericError(caught);
+                this.RemoveBusy("GetSource");
+                return false;
+            });
+    }
+
+    public async GetSourceDataForThisSource(Id: number): Promise<Source | boolean> {
+        let res = await this.GetSourceData(Id);
+        //if (res != false) {
+        //    let res = await this.GetSourceData(Id);
+        //}
+        return res;
+    }
+
+
+
 }
 export interface Source {
     source_ID: number;
