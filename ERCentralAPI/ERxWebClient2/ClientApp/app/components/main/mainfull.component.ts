@@ -359,9 +359,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		},
 		{
 			text: 'Excel',
-			click: () => {
+			click: async () => {
 				//this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
-				let testRefs: any = this.ShowHideExportReferences('ExportTable');
+                let testRefs: any = await this.ShowHideExportReferences('ExportTable');
 				//console.log(testRefs);
 				this.exportAsXLSX(testRefs);
 			}

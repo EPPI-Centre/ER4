@@ -26,8 +26,10 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	) { }
 
 	ngOnInit() {
-		if (this.configurablereportServ.Reports == null || this.configurablereportServ.Reports.length == 0)
-			this.configurablereportServ.FetchReports();
+		setTimeout(() => {// super-cautious... Wait 10s, if after this configurablereportServ.Reports is still null, ask for the reports (another call should have happened already...)
+			if (this.configurablereportServ.Reports == null)
+				this.configurablereportServ.FetchReports();
+		}, 10000);
 	}
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;

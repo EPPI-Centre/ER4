@@ -106,7 +106,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             this.RemoveBusy("FetchSources");
         }, error => {
             this.RemoveBusy("FetchSources");
-            this.modalService.GenericErrorMessage(error);
+            this.modalService.GenericError(error);
         }
         );
     }
