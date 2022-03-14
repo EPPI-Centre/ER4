@@ -4,6 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { EventEmitterService } from './EventEmitter.service';
 import { Subscription } from 'rxjs';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Injectable({
     providedIn: 'root',
@@ -43,6 +44,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     @Output() gotPmSearchToCheck = new EventEmitter();
     @Output() PubMedSearchImported = new EventEmitter();
 
+    private _PerSourceReport: boolean = true;
     private _ReviewSources: ReadOnlySource[] = [];
     public get ReviewSources(): ReadOnlySource[] {
         return this._ReviewSources;
@@ -72,7 +74,31 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this._CurrentPMsearch = null;
         this._LastUploadOrUpdateStatus = "";
     }
-    
+
+    public get SourceReportIsRunning(): boolean {
+        if (this._SourceReportStarted == false) {
+            return false;
+        }
+        else {
+            return this._NumberSourcesInReport > this._CurrentSourceIndex4SourceReport;
+        }
+    }
+
+
+    public get ReportProgress(): string {
+        return this.ProgressOfSourcesReport;
+    }
+
+    private _CurrentSourceIndex4SourceReport: number = 0;
+    private _SourceReportStarted: boolean = false;
+    private _NumberSourcesInReport: number = 0;
+
+    public get ProgressOfSourcesReport(): string {
+        return "Retreiving Item " + (this._CurrentSourceIndex4SourceReport + 1).toString()
+            + " of " + this._NumberSourcesInReport;
+
+    }
+
     public FetchSources() {
         this._BusyMethods.push("FetchSources");
         return this._httpC.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
@@ -324,6 +350,9 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this._LastDeleteForeverStatus = "";
         this.ClearIncomingItems4Checking();
         this.ClearPMsearchState();
+        this._CurrentSourceIndex4SourceReport = 0;
+        this._SourceReportStarted = false;
+        this._NumberSourcesInReport = 0;
     }
     public static LimitedAuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
         //[LAST] + ' ' + [FIRST] + ' ' + [SECOND]
@@ -376,6 +405,218 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         return res;
     }
 
+
+    
+    public async GetSourceReport(reportParameter: Source | string): Promise<string> {
+
+        let report: string = "";
+        if (typeof reportParameter === 'string') {
+            // the parameter is a string indicating the type of report
+            if (reportParameter == "allSources") {
+                // this is a summary report of all non-deleted sources
+
+                this._SourceReportStarted = true;
+                this._CurrentSourceIndex4SourceReport = 0;
+
+                report += "<h3>Search sources report</h3>(undeleted sources only)";
+                report += "<table border='1' cellspacing='0' cellpadding='2'>";
+
+                let sourceList: ReadOnlySource[] = [];
+
+                // we need the the number of sources that will be in the report
+                this._NumberSourcesInReport = 0;
+                for (var j = 0; j < this.ReviewSources.length - 1; j++) { // we don't want the manually created item source yet               
+                    let tmpSource: ReadOnlySource = this.ReviewSources[j];
+                    if (tmpSource.isDeleted == false) { // we don't want deleted sources either
+                        sourceList.push(tmpSource);
+                        this._NumberSourcesInReport += 1;
+                    }
+                }
+                this._NumberSourcesInReport += 1; // counting the manually created source
+
+                // order the source array by source name
+                let orderedSourceList = sourceList.sort((a, b) => (a.source_Name < b.source_Name) ? -1 : 1);
+                
+                for (var i = 0; i < orderedSourceList.length; i++) {                  
+                    let currentSource: ReadOnlySource = orderedSourceList[i];
+                        
+                    report += "<tr>"
+                    report += "<td>Source name</td>";
+                    report += "<td><b>" + currentSource.source_Name + "</b></td>";
+                    report += "</tr>"
+
+                    let res = await this.GetSourceDataForThisSource(currentSource.source_ID);
+
+                    if (res != false) {
+                        if (res != true) {
+                            this._CurrentSourceIndex4SourceReport += 1;
+                            let currentSourceData: Source = res;
+
+                            report += "<tr>"
+                            report += "<td>Database name/platform</td>";
+                            report += "<td><b>" + currentSourceData.sourceDataBase + "</b></td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Date of search</td>";
+                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<tr>"
+                            report += "<td>Date of import</td>";
+                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfImport) + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Number items</td>";
+                            report += "<td>" + currentSourceData.total_Items + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Duplicates</td>";
+                            report += "<td>" + currentSourceData.duplicates + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Description</td>";
+                            report += "<td>" + currentSourceData.searchDescription + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Notes</td>";
+                            report += "<td>" + currentSourceData.notes + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td>Search string</td>";
+                            report += "<td>" + currentSourceData.searchString + "</td>";
+                            report += "</tr>"
+                            report += "<tr>"
+                            report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
+                            report += "</tr>"
+                        }
+                    }
+                    
+                }
+
+                // add the manually create items source at the end
+                report += "<tr>"
+                report += "<td>Source name</td>";
+                report += "<td><b>Manually created items</b></td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td>Database name/platform</td>";
+                report += "<td>N/A</td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td>Date of search</td>";
+                report += "<td>N/A</td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td>Date of import</td>";
+                report += "<td>N/A</td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td>Number items</td>";
+                report += "<td>" + this.ReviewSources[this.ReviewSources.length - 1].total_Items + "</td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td>Duplicates</td>";
+                report += "<td>" + this.ReviewSources[this.ReviewSources.length - 1].duplicates + "</td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td>Description</td>";
+                report += "<td>N/A</td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td>Notes</td>";
+                report += "<td>N/A</td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td>Search string</td>";
+                report += "<td>N/A</td>";
+                report += "</tr>"
+                report += "<tr>"
+                report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
+                report += "</tr>"
+                report += "</table>"
+
+                this._SourceReportStarted = false; // report generation is done
+            }
+        }
+        else {
+            // this is a detailed report of a single source
+            let currentSource: Source = reportParameter;
+
+            report +=  "<h3>Source report</h3>";
+            report += "<table border='1' cellspacing='0' cellpadding='2'>";
+
+            report += "<tr>"
+            report += "<td>Source name</td>";
+            report += "<td><b>" + currentSource.source_Name + "</b></td>";
+            report += "</tr>"
+
+            report += "<tr>"
+            report += "<td>Database name/platform</td>";
+            report += "<td><b>" + currentSource.sourceDataBase + "</b></td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Date of search</td>";
+            report += "<td>" + Helpers.FormatDate2(currentSource.dateOfSerach) + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Date of import</td>";
+            report += "<td>" + Helpers.FormatDate2(currentSource.dateOfImport) + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Number items</td>";
+            report += "<td>" + currentSource.total_Items + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Duplicates</td>";
+            report += "<td>" + currentSource.duplicates + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Description</td>";
+            report += "<td>" + currentSource.searchDescription + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Notes</td>";
+            report += "<td>" + currentSource.notes + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Search string</td>";
+            report += "<td>" + currentSource.searchString + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Items coded</td>";
+            report += "<td>" + currentSource.codes + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Uploaded documents</td>";
+            report += "<td>" + currentSource.attachedFiles + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Masters of duplicates</td>";
+            report += "<td>" + currentSource.isMasterOf + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Deleted items</td>";
+            report += "<td>" + currentSource.deleted_Items + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Outcomes</td>";
+            report += "<td>" + currentSource.outcomes + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Import filter</td>";
+            report += "<td>" + currentSource.importFilter + "</td>";
+            report += "</tr>"
+            report += "<tr>"
+            report += "<td>Is deleted?</td>";
+            report += "<td>" + currentSource.isDeleted + "</td>";
+            report += "</tr>";
+            report += "</table>"           
+        }
+        
+        return report;
+    }
+
+    
 
 
 }

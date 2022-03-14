@@ -251,88 +251,16 @@ export class SourcesComponent implements OnInit, OnDestroy {
         if (this.GotSourcesSubs) this.GotSourcesSubs.unsubscribe();
     }
 
+
     public async CreateSourceReport() {
         if (this._CurrentSource != null) {
 
-            let report: string = "<h3>Source report</h3>";
-            report += "<table border='1' cellspacing='0' cellpadding='2'>";
+            let ReportParameter: Source = this._CurrentSource;
+            let report: string = await this.SourcesService.GetSourceReport(ReportParameter);
 
-            report += "<tr>"
-            report += "<td>Source name</td>";
-            report += "<td><b>" + this._CurrentSource.source_Name + "</b></td>";
-            report += "</tr>"
-
-            report += "<tr>"
-            report += "<td>Database name/platform</td>";
-            report += "<td><b>" + this._CurrentSource.sourceDataBase + "</b></td>";
-            report += "</tr>"
-            let currentSourceData = this.SourcesService.CurrentSourceDetail;
-            
-            if (currentSourceData) {
-                report += "<tr>"
-                report += "<td>Date of search</td>";
-                report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Date of import</td>";
-                report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfImport) + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Number items</td>";
-                report += "<td>" + currentSourceData.total_Items + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Duplicates</td>";
-                report += "<td>" + currentSourceData.duplicates + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Description</td>";
-                report += "<td>" + currentSourceData.searchDescription + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Notes</td>";
-                report += "<td>" + currentSourceData.notes + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Search string</td>";
-                report += "<td>" + currentSourceData.searchString + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Items coded</td>";
-                report += "<td>" + currentSourceData.codes + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Uploaded documents</td>";
-                report += "<td>" + currentSourceData.attachedFiles + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Masters of duplicates</td>";
-                report += "<td>" + currentSourceData.isMasterOf + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Deleted items</td>";
-                report += "<td>" + currentSourceData.deleted_Items + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Outcomes</td>";
-                report += "<td>" + currentSourceData.outcomes + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Import filter</td>";
-                report += "<td>" + currentSourceData.importFilter + "</td>";
-                report += "</tr>"
-                report += "<tr>"
-                report += "<td>Is deleted?</td>";
-                report += "<td>" + currentSourceData.isDeleted + "</td>";
-                report += "</tr>";
-            }
-
-
-            report += "</table>"
             //const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
             //saveAs(dataURI, "Source table.html");
             Helpers.OpenInNewWindow(report, this._baseUrl);
-            
         }
     }
 
