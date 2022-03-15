@@ -9,6 +9,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { TabStripComponent, SelectEvent } from '@progress/kendo-angular-layout';
 import { Helpers } from '../helpers/HelperMethods';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 
@@ -25,7 +26,9 @@ export class SourcesComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private ItemListService: ItemListService,
         private CodesetStatisticsService: CodesetStatisticsService,
-        private ReviewerIdentityServ: ReviewerIdentityService
+        private ReviewerIdentityServ: ReviewerIdentityService,
+        private ReviewerIdentityService: ReviewerIdentityService,
+        private ConfirmationDialogService: ConfirmationDialogService,
     ) {    }
 
     ngOnInit() {
@@ -70,7 +73,46 @@ export class SourcesComponent implements OnInit, OnDestroy {
     //we are going to use a clone of the selected source, cached here
     //this is to avoid dangerous recursion problems.
     private _CurrentSource: Source | null = null;
-    
+
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityService.HasWriteRights;
+    }
+
+    ToggleDelSource(ros: ReadOnlySource) {
+        if ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) || ros.source_ID > 0) {
+            let msg: string;
+            if (ros.isDeleted) {
+                msg = "Are you sure you want to undelete<br><b> " + ros.source_Name + "</b>?<br/>Items within the source <b> will be marked as 'Included' </b>, with the exception of duplicates."
+            }
+            else {
+                msg = "Are you sure you want to delete<br><b> " + ros.source_Name + "</b>?<br/>Information about items state (<b>Included, Exluded or Deleted</b>) will be lost."
+            }
+            this.openConfirmationDialogDeleteUnDeleteSource(ros, msg);
+        }
+    }
+
+    public openConfirmationDialogDeleteUnDeleteSource(ros: ReadOnlySource, msg: string) {
+
+        this.ConfirmationDialogService.confirm('Please confirm', msg, false, '')
+            .then(
+                (confirmed: any) => {
+                    console.log('User confirmed source (un/)delete:', confirmed);
+                    if (confirmed) {
+                        this.ActuallyDeleteUndeleteSource(ros);
+                    } else {
+                        //alert('did not confirm');
+                    }
+                }
+            )
+            .catch(() => {
+                //console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)');
+            });
+    }
+
+    ActuallyDeleteUndeleteSource(ros: ReadOnlySource) {
+        this.SourcesService.DeleteUndeleteSource(ros);
+    }
+
     get CurrentSource(): Source | null {
         if (this.SourcesService.CurrentSourceDetail == null && this.SourcesService.ReviewSources.length > 0) {
             this._CurrentSource = null;

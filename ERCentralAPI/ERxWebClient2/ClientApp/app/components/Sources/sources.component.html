@@ -97,14 +97,12 @@
                                         <button class="btn btn-danger ml-1" type="button"
                                                 (click)="ConfirmDeleteSourceForever()"
                                                 [disabled]="!CanDeleteSourceForever()">
-                                            Delete
+                                            Delete forever
                                         </button>
                                     </div>
                                     <div class="col-sm-7">
                                         <div *ngIf="!CanDeleteSourceForever()" class="small bg-light">
-                                            To permanently delete a source it must first be marked
-                                            <i class="fa fa-ban" style="color:red" title="Deleted source"></i>
-                                            (deleted) from the Review home page.<br />
+                                            To permanently delete a source it must first be marked as deleted (ex. <span style="color:blue"><s>source name</s></span>) in the list of sources.<br />
                                             Only deleted sources that do not contain master items of duplicates may be deleted permanentely.
                                         </div>
                                     </div>
@@ -143,14 +141,31 @@
                     <tbody>
                         <tr *ngFor="let ROsource of ReviewSources" class="p-0"
                             [hidden]="HideManuallyCreatedItems(ROsource)">
-                            <td class="p-1 align-middle">
-                                <div class="btn btn-link btn-sm p-0 ml-2"
+
+                            <td class="p-0 align-middle">
+                                <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger">
+                                <i class="fa fa-undo"></i></button>
+                                <ng-template #optionToDelete>
+                                    <button [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </ng-template>
+                            </td>
+                            <td class="p-0 align-middle">
+                                <div *ngIf="ROsource.isDeleted;else not_deleted" class="btn btn-link btn-sm p-0 ml-2"
                                      [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
                                      (click)="SelectSource(ROsource)">
-                                    <i *ngIf="ROsource.isDeleted" class="fa fa-ban" style="color:red" title="Deleted source">
-                                        </i>&nbsp;&nbsp;{{ROsource.source_Name}}
+                                    <s>{{ROsource.source_Name}}</s>
                                 </div>
+                                <ng-template #not_deleted>
+                                    <div class="btn btn-link btn-sm p-0 ml-2"
+                                         [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
+                                         (click)="SelectSource(ROsource)">
+                                        {{ROsource.source_Name}}
+                                    </div>
+                                </ng-template>
                             </td>
+
                         </tr>
                     </tbody>
                 </table>

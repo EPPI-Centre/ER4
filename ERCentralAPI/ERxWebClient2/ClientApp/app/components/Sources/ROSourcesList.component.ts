@@ -59,10 +59,10 @@ export class ROSourcesListComponent implements OnInit {
         if ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) || ros.source_ID > 0) {
             let msg: string;
             if (ros.isDeleted) {
-                msg = "Are you sure you want to undelete the selected Source? <br /><br /> Items within the source <b>will be marked as 'Included'</b>, with the exception of duplicates."
+                msg = "Are you sure you want to undelete<br><b> " + ros.source_Name + "</b>?<br/>Items within the source <b>will be marked as 'Included'</b>, with the exception of duplicates."
             }
             else {
-                msg = "Are you sure you want to delete the selected Source? <br /><br />Information about items state (<b>Included, Exluded or Deleted</b>) will be lost."
+                msg = "Are you sure you want to delete<br><b> " + ros.source_Name + "</b>?<br/>Information about items state (<b>Included, Exluded or Deleted</b>) will be lost."
             }
             this.openConfirmationDialogDeleteUnDeleteSource(ros, msg);
         } 

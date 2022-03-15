@@ -27,10 +27,15 @@
             </tr>
             <tr *ngFor="let ROsource of ReviewSources" class="p-0">
                 <td class="p-0 align-middle justify-content-center">
-                    <button *ngIf="ROsource.isDeleted" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-primary btn-sm p-1"> Restore </button>
-                    <button *ngIf="!ROsource.isDeleted" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-outline-info btn-sm p-1 ml-1"> Delete </button>
+                    <button *ngIf="ROsource.isDeleted" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger"><i class="fa fa-undo"></i></button>
+                    <button *ngIf="!ROsource.isDeleted" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success"><i class="fa fa-trash"></i></button>
                 </td>
-                <td class="p-1 align-middle"><div class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)">{{DisplaySourcename(ROsource)}}</div></td>
+                <td class="p-1 align-middle">
+                    <div *ngIf="ROsource.isDeleted;else not_deleted" class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)"><s>{{DisplaySourcename(ROsource)}}</s></div>
+                    <ng-template #not_deleted>
+                        <div class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)">{{DisplaySourcename(ROsource)}}</div>
+                    </ng-template>
+                </td>
                 <td class="p-1 align-middle ">{{ROsource.total_Items}}</td>
                 <td class="p-1 align-middle ">{{ROsource.deleted_Items}}</td>
                 <td class="p-1 align-middle ">{{ROsource.duplicates}}</td>
