@@ -110,7 +110,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         }
         );
     }
-    public FetchSource(SourceId: number) {
+    /*
+    public FetchSource1(SourceId: number) {
         this._BusyMethods.push("FetchSource");
         let body = JSON.stringify({ Value: SourceId });
         this._httpC.post<Source>(this._baseUrl + 'api/Sources/GetSource', body).subscribe(result => {
@@ -125,6 +126,9 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             }
         );
     }
+    */
+
+
     public FetchNewPubMedSearch(SearchString: string) {
         if (SearchString.trim().length < 2) return;
         this._BusyMethods.push("FetchNewPubMedSearch");
@@ -405,7 +409,14 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         return res;
     }
 
-
+    public async FetchSource(SourceId: number) {
+        let res = await this.GetSourceData(SourceId);
+        if (res != false) {
+            if (res != true) {
+                this._Source = res;
+            }
+        }
+    }
     
     public async GetSourceReport(reportParameter: Source | string): Promise<string> {
 
