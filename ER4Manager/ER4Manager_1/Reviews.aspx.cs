@@ -83,7 +83,7 @@ public partial class Reviews : System.Web.UI.Page
         while (idr.Read())
         {
             newrow = dt.NewRow();
-            newrow["REVIEW_ID"] = Int16.Parse(idr["REVIEW_ID"].ToString());
+            newrow["REVIEW_ID"] = int.Parse(idr["REVIEW_ID"].ToString());
             if (idr["REVIEW_NAME"].ToString() == "")
                 newrow["REVIEW_NAME"] = "Unactivated review";
             else
@@ -128,7 +128,7 @@ public partial class Reviews : System.Web.UI.Page
         while (idr.Read())
         {
             newrow = dt.NewRow();
-            newrow["REVIEW_ID"] = Int16.Parse(idr["REVIEW_ID"].ToString());
+            newrow["REVIEW_ID"] = int.Parse(idr["REVIEW_ID"].ToString());
             if (idr["REVIEW_NAME"].ToString() == "")
                 newrow["REVIEW_NAME"] = "Unactivated review";
             else
