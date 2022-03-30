@@ -36,7 +36,6 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     public get ImportFilters(): ImportFilter[] {
         return this._ImportFilters;
     }
-    @Output() gotSource = new EventEmitter();
     @Output() gotItems4Checking = new EventEmitter();
     @Output() SourceUploaded = new EventEmitter();
     @Output() SourceUpdated = new EventEmitter();

@@ -36,13 +36,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         this.SourceDeletedSubs = this.SourcesService.SourceDeleted.subscribe((value: number) => {
             this.SourceDeletedForever(value);
         })
-        this.GotSourcesSubs = this.SourcesService.gotSource.subscribe(() => {
-            if (this.SourcesService.CurrentSourceDetail && this._CurrentSource == null) {
-                this._CurrentSource = this.SourcesService.CurrentSourceDetail;
-                this._CurrentSourceDateofSearch = new Date(this._CurrentSource.dateOfSerach);
-            }
-            this.GotSourcesSubs.unsubscribe();
-        })
+        
         //see: https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
         //timeout might be needed, but apparently not!
         this.SourcesService.FetchSources();
@@ -67,7 +61,6 @@ export class SourcesComponent implements OnInit, OnDestroy {
         //console.log("rev srcs:", this.SourcesService.ReviewSources.length);
         return this.SourcesService.ReviewSources;
     }
-    private GotSourcesSubs: Subscription = new Subscription();
     private SourceDeletedSubs: Subscription = new Subscription();
     private SrcUpdatedSbus: Subscription = new Subscription();
     //we are going to use a clone of the selected source, cached here
@@ -290,7 +283,6 @@ export class SourcesComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         if (this.SourceDeletedSubs) this.SourceDeletedSubs.unsubscribe();
         if (this.SrcUpdatedSbus) this.SrcUpdatedSbus.unsubscribe();
-        if (this.GotSourcesSubs) this.GotSourcesSubs.unsubscribe();
     }
 
 

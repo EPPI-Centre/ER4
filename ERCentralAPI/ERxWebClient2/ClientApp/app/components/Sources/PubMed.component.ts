@@ -204,6 +204,6 @@ export class PubMedComponent implements OnInit, OnDestroy {
     }
     ngOnDestroy(): void {
         if (this.gotPmSearchToCheckSubs) this.gotPmSearchToCheckSubs.unsubscribe();
-        //if (this.gotItems4CheckingSbus) this.gotItems4CheckingSbus.unsubscribe();
+        if (this.PubMedSearchImportedSubs) this.PubMedSearchImportedSubs.unsubscribe();
     }
 }
