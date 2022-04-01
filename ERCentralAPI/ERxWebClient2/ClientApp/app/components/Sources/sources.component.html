@@ -143,10 +143,10 @@
                             [hidden]="HideManuallyCreatedItems(ROsource)">
 
                             <td class="p-0 align-middle">
-                                <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger">
+                                <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source">
                                 <i class="fa fa-undo"></i></button>
                                 <ng-template #optionToDelete>
-                                    <button [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success">
+                                    <button [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success" title="Mark this source as 'Deleted'">
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </ng-template>
