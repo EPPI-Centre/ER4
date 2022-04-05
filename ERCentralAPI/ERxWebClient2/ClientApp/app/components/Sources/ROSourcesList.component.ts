@@ -94,11 +94,15 @@ export class ROSourcesListComponent implements OnInit {
 
             let ReportParameter: string = "allSources";
             let report: string = await this.SourcesService.GetSourceReport(ReportParameter);
-
-            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
-            saveAs(dataURI, "Source table.html");
-            //Helpers.OpenInNewWindow(report, this._baseUrl);
+            if (report != "") {//report comes back empty if there was an error - error messages will be shown by the service
+                const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
+                saveAs(dataURI, "Source table.html");
+                //Helpers.OpenInNewWindow(report, this._baseUrl);
+            }
         }      
+    }
+    CancelSourcesReport() {
+        this.SourcesService.StopSourcesReport();
     }
 }
 

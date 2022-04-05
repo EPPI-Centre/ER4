@@ -294,7 +294,9 @@ export class SourcesComponent implements OnInit, OnDestroy {
 
             //const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
             //saveAs(dataURI, "Source table.html");
-            Helpers.OpenInNewWindow(report, this._baseUrl);
+            if (report != "") {//report could be made to come back empty if there was an error - error messages will be shown by the service
+                Helpers.OpenInNewWindow(report, this._baseUrl);
+            }
         }
     }
 
