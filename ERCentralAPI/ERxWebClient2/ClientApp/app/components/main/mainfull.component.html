@@ -57,13 +57,15 @@
                                     <div class="card card-body mt-1 bg-light ">
                                         {{MyAccountMessage}}
                                         <br />
+                                        <EditAccountComp></EditAccountComp>
+                                        <br />
                                         {{MyReviewMessage}}
-                                    <div class="row m-0 p-0">
-                                        <NewReviewComp></NewReviewComp>
-                                        <div *ngIf="HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
-                                            Setup Visualisations...
+                                        <div class="row m-0 p-0">
+                                            <NewReviewComp></NewReviewComp>
+                                            <div *ngIf="HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
+                                                Setup Visualisations...
+                                            </div>
                                         </div>
-                                    </div>
                                         <div>
                                             <siteadminEntry *ngIf="IsSiteAdmin" class="row p-1 mx-0"></siteadminEntry>
                                         </div>
