@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
@@ -31,9 +27,33 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (crit.Value)// write rights are required to "get new duplicates", not needed otherwise...
+                {
+                    if (!SetCSLAUser4Writing()) return Forbid();
+                }
+                else
+                {
+                    if (!SetCSLAUser()) return Unauthorized();
+                }
+
+                //for testing the protection against concurrenty, comment out the next two lines, uncomment the block below.
                 DataPortal<ItemDuplicateReadOnlyGroupList> dp = new DataPortal<ItemDuplicateReadOnlyGroupList>();
                 ItemDuplicateReadOnlyGroupList result = dp.Fetch(new SingleCriteria<ItemDuplicateReadOnlyGroupList, bool>(crit.Value));
+
+                //START of block of code that can be used to test protection against concurrenty
+                //---------------------
+                //ItemDuplicateReadOnlyGroupList result = null;
+                ////change/increase the last number below to produce more aggressive "concurrency testing".
+                //int instances = crit.Value == false ? 1 : 5;//for testing, we'll start 5 instances of "get new duplicates" if API call asks for "get new duplicates"...
+                //Parallel.For(0, instances, index =>
+                //{
+                //    SetCSLAUser4Writing();
+                //    DataPortal<ItemDuplicateReadOnlyGroupList> dp = new DataPortal<ItemDuplicateReadOnlyGroupList>();
+                //    result = dp.Fetch(new SingleCriteria<ItemDuplicateReadOnlyGroupList, bool>(crit.Value));
+                //});
+                //---------------------
+                //END of block of code that can be used to test protection against concurrenty
+
                 return Ok(result);
             }
             catch(Exception e)

@@ -60,6 +60,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _RevId = 0;
         private bool CachedCriteriaValue = false ;
         private int _Cid = 0;
+        private int instance = DateTime.Now.Millisecond;
         Comparator comparator;
         private DataTable ResultsCache = null;
         private void DataPortal_Fetch(SingleCriteria<ItemDuplicateReadOnlyGroupList, bool> criteria)
@@ -73,7 +74,11 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                CheckOngoing(connection, true, true);
+                CheckOngoing(connection, true, true, criteria.Value);//this will insert a new "dedup running" line in TB_REVIEW_JOB if:
+                //dedup isn't already running, AND:
+                //1. criteria.Value is true (user asked to run "get new dups")
+                //or
+                //2. Check found that previous execution failed, instructing the code below to "get new dups" even if the user didn't ask for this.
                 if (CachedCriteriaValue == true)
                 {
 #if OLDDEDUP
@@ -143,21 +148,22 @@ namespace BusinessLibrary.BusinessClasses
         protected void FindNewDuplicates(SqlConnection connection)
         {
             
+            bool StillRunning = true;
             SetShortSearchText();
             //line above might take time, so let's check again that noone else triggered this...
-            CheckOngoing(connection, true, true);//shouldrestart = true: don't throw an exception if it should restart, we are restarting...
+            //CheckOngoing(connection, true, true);//shouldrestart = true: don't throw an exception if it should restart, we are (re/)starting...
+            
 #if CSLA_NETCORE
             System.Threading.Tasks.Task.Run(() => FindNewDuplicatesNewVersion());
 #else
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
             HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
 #endif
-            //HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
+            
 
             //we now  want to wait about 3m to keep the user waiting...
             //we check if it's still running every "sleeptime" for up to 10 times in total.
             int counter = 0;
-            bool StillRunning = true;
             int sleepTime = 15 * 1000;//in Milliseconds
             while (StillRunning && counter < 9)
             {
@@ -174,7 +180,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             
         }
-        private bool CheckOngoing(SqlConnection AlreadyOpenConnection, bool once = true, bool shouldRestart = false)
+        private bool CheckOngoing(SqlConnection AlreadyOpenConnection, bool once = true, bool shouldRestart = false, bool userAskedToGetNewDuplicates = false)
         {
 #if OLDDEDUP
                 using (SqlCommand command = new SqlCommand("st_ItemDuplicateGroupCheckOngoing", AlreadyOpenConnection))
@@ -206,6 +212,8 @@ namespace BusinessLibrary.BusinessClasses
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add("@revID", System.Data.SqlDbType.Int);
                 command.Parameters["@revID"].Value = _RevId;
+                command.Parameters.Add(new SqlParameter("@CONTACT_ID", _Cid));
+                command.Parameters.Add(new SqlParameter("@GettingNewDuplicates", userAskedToGetNewDuplicates));
                 command.Parameters.Add("@RETURN_VALUE", System.Data.SqlDbType.Int);
                 command.Parameters["@RETURN_VALUE"].Direction = System.Data.ParameterDirection.ReturnValue;
                 command.ExecuteNonQuery();
