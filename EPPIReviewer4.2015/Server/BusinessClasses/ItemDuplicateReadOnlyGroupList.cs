@@ -60,7 +60,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _RevId = 0;
         private bool CachedCriteriaValue = false ;
         private int _Cid = 0;
-        private int instance = DateTime.Now.Millisecond;
+        //private int instance = DateTime.Now.Millisecond;
         Comparator comparator;
         private DataTable ResultsCache = null;
         private void DataPortal_Fetch(SingleCriteria<ItemDuplicateReadOnlyGroupList, bool> criteria)
