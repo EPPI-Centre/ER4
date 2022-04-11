@@ -10,7 +10,7 @@ GO
 
 
 
-CREATE procedure [dbo].[st_ContactDetailsEdit]
+CREATE OR ALTER procedure [dbo].[st_ContactDetailsEdit]
 (
 	@CONTACT_ID int,
 	@CONTACT_NAME nvarchar(255),
