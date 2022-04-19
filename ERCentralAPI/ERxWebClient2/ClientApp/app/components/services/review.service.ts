@@ -88,63 +88,60 @@ export class ReviewService extends BusyAwareService {
         }
     }
     
-    private _AccountFullDetails: ContactFull = { contactId: 0, ContactName: "", username: "", email: "", OldPassword: "", NewPassword: ""};
 
+    public async UpdateAccount(contactId: number, ContactName: string, Username: string,
+        Email: string, OldPassword: string, NewPassword: string): Promise<boolean> {
 
-    public async UpdateAccount(contactId: number, ContactName: string, Username: string, Email: string, OldPassword: string, NewPassword: string) {
-
+        let _AccountFullDetails: ContactFull = { contactId: 0, ContactName: "", username: "", email: "", OldPassword: "", NewPassword: "" };
         // put values into ContactFull and pass that through
-            this._AccountFullDetails.contactId = contactId;
-            this._AccountFullDetails.ContactName = ContactName;
-            this._AccountFullDetails.username = Username;
-            this._AccountFullDetails.email = Email;
-            this._AccountFullDetails.OldPassword = OldPassword;
-            this._AccountFullDetails.NewPassword = NewPassword;
+        _AccountFullDetails.contactId = contactId;
+        _AccountFullDetails.ContactName = ContactName;
+        _AccountFullDetails.username = Username;
+        _AccountFullDetails.email = Email;
+        _AccountFullDetails.OldPassword = OldPassword;
+        _AccountFullDetails.NewPassword = NewPassword;
 
-            let res = await this.UpdateAccountFull(this._AccountFullDetails);
+        let res = await this.UpdateAccountFull(_AccountFullDetails);
+        // res = 0 - everything OK
+        // res = 1 - email already in use
+        // res = 2 - username already in use
+        // res = 3 - oldPassword is not correct
 
-            //this._Account = res;
-
-            // res
-            // 0 - everything OK
-            // 1 - email already in use
-            // 2 - username already in use
-            // 3 - oldPassword is not correct
-
-        //}
+        if (res == 0) {
+            return true;
+        }
+        else {
+            if (res == 1) {
+                this.modalService.GenericErrorMessage("This <b>email</b> is already in use.<br>If you do not think this is correct please contact eppisupport@ucl.ac.uk");
+            } else if (res == 2) {
+                this.modalService.GenericErrorMessage("This <b>Username</b> is already in use.<br>Please try a different username.");
+            }
+            else {
+                this.modalService.GenericErrorMessage("Your <b>Exising password</b> is not correct.");
+            }
+            return false 
+        }
     }
-    
-    public UpdateAccountFull(fullAccountDetails: ContactFull): Promise<ContactFull> {
 
+
+    public UpdateAccountFull(fullAccountDetails: ContactFull): Promise<number> { // could make this async directly
         this._BusyMethods.push("UpdateAccount");
         let ErrMsg = "Something went wrong when updating the account. \r\n If the problem persists, please contact EPPISupport.";
+        let body = JSON.stringify(fullAccountDetails);
 
-        return this._httpC.post<ContactFull>(this._baseUrl + 'api/Contact/UpdateAccount',
-
-            fullAccountDetails).toPromise()
+        return this._httpC.post<number>(this._baseUrl + 'api/AccountManager/UpdateAccount',
+            body).toPromise()
             .then(
                 (result) => {
-                    if (!result) this.modalService.GenericErrorMessage(ErrMsg);
                     this.RemoveBusy("UpdateAccount");
                     return result;
-                }
-                , (error) => {
-                    this.modalService.GenericErrorMessage(ErrMsg);
-                    this.RemoveBusy("CreateArm");
-                    return error;
-                }
-            )
-            .catch(
-                (error) => {
-                    this.modalService.GenericErrorMessage(ErrMsg);
-                    this.RemoveBusy("UpdateAccount");
-                    return error;
-                }
-            );
-
+            }, error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("UpdateAccount");
+                return 4;
+            }
+        );
     }
-    
-
 
 
 
@@ -182,4 +179,6 @@ export class Review {
 	reviewId: number = 0;
 	reviewName: string = '';
 }
+
+
 

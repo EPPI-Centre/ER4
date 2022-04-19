@@ -2,6 +2,7 @@ import { Component, Inject, OnInit, Input, Output, EventEmitter } from '@angular
 import { result } from 'underscore';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewService, Contact } from '../services/review.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
@@ -13,33 +14,16 @@ import { ReviewService, Contact } from '../services/review.service';
 export class EditAccountComponent implements OnInit {
     constructor(
         private userAccountService: ReviewerIdentityService,
-        private AccountManagerService: ReviewService
+        private AccountManagerService: ReviewService,
+        private notificationService: NotificationService
     ) {
     }
 
     ngOnInit() {
-        //if (this.userAccountService.reviewerIdentity.userId != null) {
-        //    this.userAccountService.GetUserAccount(this.userAccountService.reviewerIdentity.userId);
-        //}
     }
 
-    /*IsAccountNameValid(): number {
-        // zero if it's fine, 1 if empty, 2 if name-clash (we don't want 2 sources with the same name)
-        //if (this.WizPhase != 2) return 1;
-        if (this._CurrentAccount == null) return 1;
-        else {
-            return 0
-            //return this.AccountManagerService.IsSourceNameValid(this._CurrentSource.source_Name, this._CurrentSource.source_ID);
-        };
-    }*/
 
     public CurrentAccount: Contact | null = null;
-    //public _CurrentAccount: Contact | null = null;
-    //get CurrentAccount(): Contact | null {
-    //    return this._CurrentAccount;
-    //}
-
-	//@Output() onCloseClick = new EventEmitter();
     public isExpanded: boolean = false;
     public oldPassword: string = '';
     public confirmEmail: string = '';
@@ -62,19 +46,16 @@ export class EditAccountComponent implements OnInit {
     async Expand() {      
         if (this.userAccountService.reviewerIdentity.userId != null) {
             await this.AccountManagerService.GetUserAccount(this.userAccountService.reviewerIdentity.userId);
-            //this.CurrentAccount = this.AccountManagerService.CurrentAccountDetail;
             
             this.CurrentAccount = JSON.parse(JSON.stringify(this.AccountManagerService.CurrentAccountDetail));
 
-            if (this.CurrentAccount != null) {
-                //this.confirmEmail = this.CurrentAccount.Email // make user fill it in
-            }
+            this.confirmEmail = "";
+            this.oldPassword = "";
             this.newPassword = "";
             this.confirmNewPassword = "";
 
             this.isExpanded = true;
-        }
-       
+        }    
     }
 
     CloseEditAccount() {
@@ -82,16 +63,32 @@ export class EditAccountComponent implements OnInit {
 	}
 
 
-    SaveAccount() {
-        if (this.CurrentAccount) {
-            this.AccountManagerService.UpdateAccount(this.userAccountService.reviewerIdentity.userId, this.CurrentAccount.contactName,
+    async SaveAccount() {
+        if (this.CurrentAccount && this.CheckPassword) { // I changed how CheckPassword words by using get
+            let result = await this.AccountManagerService.UpdateAccount(this.userAccountService.reviewerIdentity.userId, this.CurrentAccount.contactName,
                 this.CurrentAccount.username, this.CurrentAccount.email, this.oldPassword, this.newPassword);
+            if (result == true) {
+                // close div and put up a message saying account updated
+                this.isExpanded = false;
+                this.showAccountUpdatedNotification();
+            }
         }
-	}
+    }
+
+    private showAccountUpdatedNotification(): void {
+        let contentSt: string = "Accounts details updated";
+        this.notificationService.show({
+            content: contentSt,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "success", icon: true },
+            closable: true
+        });
+    }
 
     private passw = "^.*(?=.{8,})(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$";
 
-    CheckPassword() {     
+    get CheckPassword(): boolean { 
         if (this.newPassword.length == 0) {
             return true // hide warning
         }
@@ -105,9 +102,9 @@ export class EditAccountComponent implements OnInit {
         }
     }
 
-    OldPasswordNeeded() {
+    get OldPasswordNeeded(): boolean { 
         if ((this.newPassword.length == 0) && (this.confirmNewPassword.length == 0)) {
-            return true // hide warning
+            return true; // hide warning
         }
         else if ((this.newPassword.length > 0) && (this.confirmNewPassword.length > 0) && this.oldPassword.length > 0) {
             return true;

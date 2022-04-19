@@ -45,7 +45,7 @@
             </td>
             <td style="vertical-align: top; padding-top: 3px">
                 <div class="">
-                    <button [disabled]="(CurrentAccount.email != confirmEmail) || (newPassword != confirmNewPassword) || (CurrentAccount.username.length < 4) || (!OldPasswordNeeded())"
+                    <button [disabled]="(CurrentAccount.email != confirmEmail) || (newPassword != confirmNewPassword) || (CurrentAccount.username.length < 4) || (!OldPasswordNeeded)"
                             (click)="SaveAccount()"
                             class="btn btn-primary m-1">
                         Save
@@ -67,7 +67,7 @@
                            id="OldPassword" name="OldPassword"
                            [(ngModel)]="oldPassword" />
                 </div>
-                <div [hidden]="OldPasswordNeeded()"
+                <div [hidden]="OldPasswordNeeded"
                      class="alert alert-danger small">
                     Enter existing password
                 </div>
@@ -77,7 +77,7 @@
                            id="NewPassword" name="NewPassword"
                            [(ngModel)]="newPassword" />
                 </div>
-                <div [hidden]="CheckPassword(newPassword)"
+                <div [hidden]="CheckPassword"
                      class="alert alert-danger small">
                     Password conditions not met
                 </div>

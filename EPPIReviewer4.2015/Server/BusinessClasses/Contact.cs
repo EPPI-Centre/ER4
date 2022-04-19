@@ -32,6 +32,7 @@ namespace BusinessLibrary.BusinessClasses
         #endif
         */
 
+        /*
         public Contact(int contactId, string ContactName, string username, string email, string OldPassword, string NewPassword)
         {
             SetProperty(ContactIdProperty, contactId);
@@ -41,6 +42,7 @@ namespace BusinessLibrary.BusinessClasses
             SetProperty(OldPasswordProperty, OldPassword);
             SetProperty(NewPasswordProperty, NewPassword);
         }
+        */
         public Contact() { }
 
 #region properties
@@ -59,6 +61,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(ContactIdProperty);
             }
+            set
+            {
+                SetProperty(ContactIdProperty, value);
+            }
         }
 
 		public static readonly PropertyInfo<string> contactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
@@ -67,6 +73,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(contactNameProperty);
+            }
+            set
+            {
+                SetProperty(contactNameProperty, value);
             }
         }
 
@@ -77,6 +87,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(UsernameProperty);
             }
+            set
+            {
+                SetProperty(UsernameProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<string> EmailProperty = RegisterProperty<string>(new PropertyInfo<string>("email", "email"));
@@ -85,6 +99,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(EmailProperty);
+            }
+            set
+            {
+                SetProperty(EmailProperty, value);
             }
         }
 
@@ -95,6 +113,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(OldPasswordProperty);
             }
+            set
+            {
+                SetProperty(OldPasswordProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<string> NewPasswordProperty = RegisterProperty<string>(new PropertyInfo<string>("NewPassword", "NewPassword"));
@@ -103,6 +125,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(NewPasswordProperty);
+            }
+            set
+            {
+                SetProperty(NewPasswordProperty, value);
             }
         }
 
@@ -139,8 +165,9 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-        /*protected override void DataPortal_Insert()
+        protected override void DataPortal_Insert()
         {
+            /*
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -164,13 +191,14 @@ namespace BusinessLibrary.BusinessClasses
                     
                 }
                 connection.Close();
-            }
-        }*/
+            }*/
+        }
 
         
-        protected override void DataPortal_Insert()
+ 
+       
+        protected override void DataPortal_Update()
         {
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
             {
                 connection.Open();
@@ -189,26 +217,6 @@ namespace BusinessLibrary.BusinessClasses
                     LoadProperty(ResultProperty, command.Parameters["@RESULT"].Value);
                 }
                 connection.Close();
-            }
-        }
-        
-
-        protected override void DataPortal_Update()
-        {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                /*
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ContactUpdate", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(ContactIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@TITLE", ReadProperty(TitleProperty)));
-                    //command.Parameters.Add(new SqlParameter("@AUTHORS", ReadProperty(AllowCodingEditsProperty)));
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-                */
             }
         }
 
@@ -231,33 +239,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-
-
-        /*
-        protected void DataPortal_Fetch(SingleCriteria<Contact, int> criteria) // used to return a specific item
-        {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_Contact", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", criteria.Value));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                    {
-                        if (reader.Read())
-                        {
-                            LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
-                            LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
-                        }
-                    }
-                }
-                connection.Close();
-            }
-        }
-        */
 
         protected void DataPortal_Fetch(SingleCriteria<Contact, int> criteria)
         {
