@@ -253,12 +253,12 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     }
     
     public DeleteUndeleteSource(ros: ReadOnlySource) {
-        this._Source = null;//we may be deleting/undeleting this, so catch all solution: just forget...
+        if (this._Source &&  this._Source.source_ID == ros.source_ID) this._Source = null;//we are deleting/undeleting this, so catch all solution: just forget it...
         this._BusyMethods.push("DeleteUndeleteSource");
         let body = JSON.stringify({ Value: ros.source_ID });
         this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/DeleteUndeleteSource',
-        body).subscribe(result => {
-            this.FetchSources()
+            body).subscribe(result => {
+                this.FetchSources();
             }, error => {
                 this.RemoveBusy("DeleteUndeleteSource");
                 this.modalService.GenericError(error);
@@ -282,7 +282,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
                 this._LastUploadOrUpdateStatus = "Error";
                 this.RemoveBusy("UpdateSource");
             },
-            () => {
+                () => {
+                    this._Source = null;//resets the source also on the UI - this ensures the "cancel" buttons will disappear in the component
                     this.FetchSource(source.source_ID);
                     this.FetchSources();
                     this.RemoveBusy("UpdateSource");//service remains busy because of the two calls above

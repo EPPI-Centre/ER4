@@ -140,6 +140,34 @@ export class SourcesComponent implements OnInit, OnDestroy {
     public set CurrentSourceDateofSearch(newDate: Date | null) {
         this._CurrentSourceDateofSearch = newDate;
     }
+
+    public get CurrentSourceIsEdited(): boolean {
+        if (!this._CurrentSource || !this.SourcesService.CurrentSourceDetail || !this.CurrentSourceDateofSearch || !this.CanWrite()) return false;
+        else if (this._CurrentSource.source_Name != this.SourcesService.CurrentSourceDetail.source_Name ||
+            this.CurrentSourceDateofSearch.toISOString() != new Date(this._CurrentSource.dateOfSerach).toISOString() ||
+            this._CurrentSource.sourceDataBase != this.SourcesService.CurrentSourceDetail.sourceDataBase ||
+            this._CurrentSource.searchDescription != this.SourcesService.CurrentSourceDetail.searchDescription ||
+            this._CurrentSource.searchString != this.SourcesService.CurrentSourceDetail.searchString ||
+            this._CurrentSource.notes != this.SourcesService.CurrentSourceDetail.notes
+        ) {
+            //console.log("S is edited? "
+            //    , this._CurrentSource.source_Name != this.SourcesService.CurrentSourceDetail.source_Name
+            //    , this.CurrentSourceDateofSearch.toISOString()
+            //    , this.CurrentSourceDateofSearch.toISOString() != new Date(this._CurrentSource.dateOfSerach).toISOString()
+            //    , this._CurrentSource.sourceDataBase != this.SourcesService.CurrentSourceDetail.sourceDataBase
+            //    , this._CurrentSource.searchDescription != this.SourcesService.CurrentSourceDetail.searchDescription
+            //    , this._CurrentSource.searchString != this.SourcesService.CurrentSourceDetail.searchString
+            //    , this._CurrentSource.notes != this.SourcesService.CurrentSourceDetail.notes
+            //);
+            return true;
+        }
+        else return false;
+    }
+
+    CancelEditSource() {
+        this._CurrentSource = null;//will be re-populated in "get CurrentSource()"
+    }
+
     BackToMain() {
         this.router.navigate(['Main']);
     }
@@ -160,7 +188,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         };
     }
     CanDeleteSourceForever(): boolean {
-        if (this._CurrentSource == null) return false;
+        if (this._CurrentSource == null || !this.CanWrite()) return false;
         else if (this._CurrentSource.isFlagDeleted && this._CurrentSource.isMasterOf == 0) return true;
         else return false;
     }
@@ -214,12 +242,12 @@ export class SourcesComponent implements OnInit, OnDestroy {
     async SourceUpdated() {
         let counter: number = 0;
         //setTimeout(() => {
-            while (this.SourcesService.IsBusy && counter < 3*120) {
+            while (this.SourcesService.IsBusy && counter < 4*120) {
                 counter++;
                 await Helpers.Sleep(200);
                 console.log("waiting, cycle n: " + counter);
             }
-        //will remain here for up to 72s (200ms*3*120)... counter ensures we won't have an endless loop.
+        //will remain here for up to 96s (200ms*4*120)... counter ensures we won't have an endless loop.
         this.showUploadedNotification(this.SourcesService.LastUploadOrUpdateStatus);
     }
     
