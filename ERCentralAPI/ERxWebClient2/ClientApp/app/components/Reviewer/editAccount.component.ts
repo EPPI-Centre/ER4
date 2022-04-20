@@ -15,7 +15,8 @@ export class EditAccountComponent implements OnInit {
     constructor(
         private userAccountService: ReviewerIdentityService,
         private AccountManagerService: ReviewService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private ReviewerIdentityServ: ReviewerIdentityService
     ) {
     }
 
@@ -49,7 +50,12 @@ export class EditAccountComponent implements OnInit {
             
             this.CurrentAccount = JSON.parse(JSON.stringify(this.AccountManagerService.CurrentAccountDetail));
 
-            this.confirmEmail = "";
+            if (this.CurrentAccount != null) {
+                this.confirmEmail = this.CurrentAccount.email;
+            }
+            else {
+                this.confirmEmail = "";
+            }
             this.oldPassword = "";
             this.newPassword = "";
             this.confirmNewPassword = "";
@@ -68,9 +74,10 @@ export class EditAccountComponent implements OnInit {
             let result = await this.AccountManagerService.UpdateAccount(this.userAccountService.reviewerIdentity.userId, this.CurrentAccount.contactName,
                 this.CurrentAccount.username, this.CurrentAccount.email, this.oldPassword, this.newPassword);
             if (result == true) {
-                // close div and put up a message saying account updated
+                // close div and put up a message saying the account was updated 
                 this.isExpanded = false;
                 this.showAccountUpdatedNotification();
+                this.ReviewerIdentityServ.reviewerIdentity.name = this.CurrentAccount.contactName;
             }
         }
     }
@@ -107,6 +114,15 @@ export class EditAccountComponent implements OnInit {
             return true; // hide warning
         }
         else if ((this.newPassword.length > 0) && (this.confirmNewPassword.length > 0) && this.oldPassword.length > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    get IsolatedPassword(): boolean { // disable save button if only the oldPassword box has data
+        if ((this.newPassword.length == 0) && (this.confirmNewPassword.length == 0) && this.oldPassword.length > 0) {
             return true;
         }
         else {

@@ -45,7 +45,7 @@
             </td>
             <td style="vertical-align: top; padding-top: 3px">
                 <div class="">
-                    <button [disabled]="(CurrentAccount.email != confirmEmail) || (newPassword != confirmNewPassword) || (CurrentAccount.username.length < 4) || (!OldPasswordNeeded)"
+                    <button [disabled]="(CurrentAccount.email != confirmEmail) || (newPassword != confirmNewPassword) || (CurrentAccount.username.length < 4) || (!OldPasswordNeeded) || (IsolatedPassword)"
                             (click)="SaveAccount()"
                             class="btn btn-primary m-1">
                         Save
