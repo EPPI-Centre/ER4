@@ -66,19 +66,6 @@
         <tr>
             <td style="min-width: 150px; vertical-align: top; padding-bottom: 3px" width="320">
                 <div class="container">
-                    <div class="mr-1"><b>Existing password</b></div>
-                    <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
-                           id="OldPassword" name="OldPassword"
-                           [(ngModel)]="oldPassword" />
-                    <input *ngIf="ShowPasswords" class="mb-1 w-100" type="text"
-                           id="OldPassword" name="OldPassword"
-                           [(ngModel)]="oldPassword" />
-                    <div [hidden]="OldPasswordNeeded"
-                         class="p-1 alert alert-danger small font-weight-bold">
-                        Enter existing password
-                    </div>
-                </div>
-                <div class="container">
                     <div class="mr-1"><b>New password</b></div>
                     <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
                            id="NewPassword" name="NewPassword"
@@ -104,14 +91,27 @@
                         Passwords do not match
                     </div>
                 </div>
+                <div class="container">
+                    <div class="mr-1"><b>Existing password</b></div>
+                    <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
+                           id="OldPassword" name="OldPassword"
+                           [(ngModel)]="oldPassword" />
+                    <input *ngIf="ShowPasswords" class="mb-1 w-100" type="text"
+                           id="OldPassword" name="OldPassword"
+                           [(ngModel)]="oldPassword" />
+                    <div [hidden]="OldPasswordNeeded"
+                         class="p-1 alert alert-danger small font-weight-bold">
+                        Enter existing password
+                    </div>
+                </div>
             </td>
             <td style="vertical-align: top; padding-bottom: 3px">
-                To keep your existing password leave the "new" password fields blank.<br />
+                Leave the "new" password fields blank to keep your existing password.<br />
                 <button *ngIf="oldPassword.length !=0 || newPassword.length !=0 || confirmNewPassword.length !=0 " (click)="ShowPasswords = !ShowPasswords" class="btn btn-sm btn-primary">
                     <i class="fa fa-eye"></i> Show passwords
                 </button>
                 <br />
-                <b>Passwords</b> must be at least 8 characters and contain and at least one lower case letter, one upper case letter, one digit and no spaces.<br />
+                <b>Passwords</b> must be at least 8 characters and contain at least one lower case letter, one upper case letter, one digit and no spaces.<br />
 
 
 
