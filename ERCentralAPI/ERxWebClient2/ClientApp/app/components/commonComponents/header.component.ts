@@ -185,6 +185,13 @@ export class HeaderComponent implements OnInit {
             hideAfter: 2000
         });
     }
+    public get EmailString(): string {
+        return "mailto:EPPISupport@ucl.ac.uk?Subject=ER-Web support request from page \""
+            + this.Context
+            + "\" (ReviewId:"
+            + this.ReviewerIdentityServ.reviewerIdentity.reviewId
+            + ")&Body=Hello,";
+    }
     ngOnInit() {
     }
 }
