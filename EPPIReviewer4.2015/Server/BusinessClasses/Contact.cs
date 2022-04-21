@@ -201,16 +201,25 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
             {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ContactDetailsEdit", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));//guarantee we change things ONLY for the current user
                     command.Parameters.Add(new SqlParameter("@CONTACT_NAME", ReadProperty(contactNameProperty)));
                     command.Parameters.Add(new SqlParameter("@USERNAME", ReadProperty(UsernameProperty)));
                     command.Parameters.Add(new SqlParameter("@EMAIL", ReadProperty(EmailProperty)));
-                    command.Parameters.Add(new SqlParameter("@OLD_PASSWORD", ReadProperty(OldPasswordProperty)));
-                    command.Parameters.Add(new SqlParameter("@NEW_PASSWORD", ReadProperty(NewPasswordProperty)));
+                    if (ReadProperty(NewPasswordProperty).Length > 0) //only pass the password data IF a new password is supplied
+                    { 
+                        command.Parameters.Add(new SqlParameter("@OLD_PASSWORD", ReadProperty(OldPasswordProperty)));
+                        command.Parameters.Add(new SqlParameter("@NEW_PASSWORD", ReadProperty(NewPasswordProperty)));
+                    }
+                    else
+                    {
+                        command.Parameters.Add(new SqlParameter("@OLD_PASSWORD", ""));
+                        command.Parameters.Add(new SqlParameter("@NEW_PASSWORD", ""));
+                    }
                     command.Parameters.Add(new SqlParameter("@RESULT", 0));
                     command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
