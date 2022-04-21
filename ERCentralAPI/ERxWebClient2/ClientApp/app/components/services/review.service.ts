@@ -98,14 +98,20 @@ export class ReviewService extends BusyAwareService {
         _AccountFullDetails.ContactName = ContactName;
         _AccountFullDetails.username = Username;
         _AccountFullDetails.email = Email;
-        _AccountFullDetails.OldPassword = OldPassword;
-        _AccountFullDetails.NewPassword = NewPassword;
-
+        if (NewPassword.trim().length > 0) {
+            _AccountFullDetails.OldPassword = OldPassword;
+            _AccountFullDetails.NewPassword = NewPassword;
+        }
+        else {
+            _AccountFullDetails.OldPassword = "";
+            _AccountFullDetails.NewPassword = "";
+        }
         let res = await this.UpdateAccountFull(_AccountFullDetails);
         // res = 0 - everything OK
         // res = 1 - email already in use
         // res = 2 - username already in use
         // res = 3 - oldPassword is not correct
+        // res = 4 - API call failed, error has been shown already
 
         if (res == 0) {
             return true;
@@ -116,17 +122,16 @@ export class ReviewService extends BusyAwareService {
             } else if (res == 2) {
                 this.modalService.GenericErrorMessage("This <b>Username</b> is already in use.<br>Please try a different username.");
             }
-            else {
+            else if (res == 3) {
                 this.modalService.GenericErrorMessage("Your <b>Exising password</b> is not correct.");
             }
-            return false 
+            return false;
         }
     }
 
 
     public UpdateAccountFull(fullAccountDetails: ContactFull): Promise<number> { // could make this async directly
         this._BusyMethods.push("UpdateAccount");
-        let ErrMsg = "Something went wrong when updating the account. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify(fullAccountDetails);
 
         return this._httpC.post<number>(this._baseUrl + 'api/AccountManager/UpdateAccount',

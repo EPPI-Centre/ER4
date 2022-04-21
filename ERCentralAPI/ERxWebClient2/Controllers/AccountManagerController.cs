@@ -57,15 +57,23 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+                    //safety check: one can only edit their own account!
+                    //No need to check for reviewId as well (to make sure user login status is currently valid) as this happens in SetCSLAUser4Writing()
+                    if (data.contactId != ri.UserId) return Forbid();
                     DataPortal<Contact> dp = new DataPortal<Contact>();
                     Contact res = dp.Fetch(new SingleCriteria<Contact, int>(data.contactId));
-                    res.ContactId = data.contactId;
+                    //res.ContactId = data.contactId; //contact ID is fixed, no point in allowing it to change
+
                     res.contactName = data.ContactName;
                     res.Username = data.username;
                     res.Email = data.email;
-                    res.OldPassword = data.OldPassword;
-                    res.NewPassword = data.NewPassword;    
-                    
+                    if (data.OldPassword.Trim().Length > 1 && data.NewPassword.Trim().Length > 7)
+                    {//we only attempt to change password IF input data seems sensible
+                        res.OldPassword = data.OldPassword;
+                        res.NewPassword = data.NewPassword;
+                    }
                     res = res.Save(); // asking object to save itself
                     return Ok(res.Result);
                 }

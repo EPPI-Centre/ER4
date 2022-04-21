@@ -30,6 +30,7 @@ export class EditAccountComponent implements OnInit {
     public confirmEmail: string = '';
     public newPassword: string = '';
     public confirmNewPassword: string = '';
+    public ShowPasswords: boolean = false;
 
     CanWrite(): boolean {
         //console.log("create rev check:", this._reviewerIdentityServ.reviewerIdentity);
@@ -65,12 +66,16 @@ export class EditAccountComponent implements OnInit {
     }
 
     CloseEditAccount() {
+        this.ShowPasswords = false;
+        this.oldPassword = "";
+        this.newPassword = "";
+        this.confirmNewPassword = "";
         this.isExpanded = false;
 	}
 
 
     async SaveAccount() {
-        if (this.CurrentAccount && this.CheckPassword) { // I changed how CheckPassword words by using get
+        if (this.CurrentAccount && this.CheckPassword) { // I changed how CheckPassword works by using get
             let result = await this.AccountManagerService.UpdateAccount(this.userAccountService.reviewerIdentity.userId, this.CurrentAccount.contactName,
                 this.CurrentAccount.username, this.CurrentAccount.email, this.oldPassword, this.newPassword);
             if (result == true) {
@@ -100,7 +105,7 @@ export class EditAccountComponent implements OnInit {
             return true // hide warning
         }
         else {
-            if (this.newPassword.match(this.passw)) {
+            if ( this.newPassword.match(this.passw)) {
                 return true;
             }
             else {
@@ -109,26 +114,33 @@ export class EditAccountComponent implements OnInit {
         }
     }
 
-    get OldPasswordNeeded(): boolean { 
-        if ((this.newPassword.length == 0) && (this.confirmNewPassword.length == 0)) {
-            return true; // hide warning
-        }
-        else if ((this.newPassword.length > 0) && (this.confirmNewPassword.length > 0) && this.oldPassword.length > 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
+
+
+    get OldPasswordNeeded(): boolean { //warning is hidden when this returns "true"
+        if (this.oldPassword.length == 0
+            && (this.newPassword.length > 0 || this.confirmNewPassword.length > 0)
+            ) return false; //show the warning
+        else return true; //hide the wening
+
+        //if ((this.newPassword.length == 0) && (this.confirmNewPassword.length == 0)) {
+        //    return true; // hide warning
+        //}
+        //else if ((this.newPassword.length > 0) && (this.confirmNewPassword.length > 0) && this.oldPassword.length > 0) {
+        //    return true;
+        //}
+        //else {
+        //    return false;
+        //}
     }
 
-    get IsolatedPassword(): boolean { // disable save button if only the oldPassword box has data
-        if ((this.newPassword.length == 0) && (this.confirmNewPassword.length == 0) && this.oldPassword.length > 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+    //get IsolatedPassword(): boolean { // disable save button if only the oldPassword box has data
+    //    if ((this.newPassword.length == 0) && (this.confirmNewPassword.length == 0) && this.oldPassword.length > 0) {
+    //        return true;
+    //    }
+    //    else {
+    //        return false;
+    //    }
+    //}
 
 
 }
