@@ -711,7 +711,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             
             this.HelpAndFeebackContext = "itemdetails";
         }
-        else if (e.title == 'Arms and Timepoints') {
+        else if (e.title == 'Links Arms Timepoints') {
             
             this.HelpAndFeebackContext = "itemdetails\\arms";
         }
@@ -726,7 +726,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
           
             this.HelpAndFeebackContext = "itemdetails\\pdf";//no record in DB for the help!!
         }
-        else if (e.title == 'Microsoft Academic') {
+        else if (e.title == 'OpenAlex') {
            
             console.log('test tabs');
             this.HelpAndFeebackContext = "itemdetails\\Microsoft Academic";
