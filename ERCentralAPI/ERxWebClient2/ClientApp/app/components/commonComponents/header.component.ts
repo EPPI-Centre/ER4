@@ -188,9 +188,10 @@ export class HeaderComponent implements OnInit {
     public get EmailString(): string {
         return "mailto:EPPISupport@ucl.ac.uk?Subject=ER-Web support request from page \""
             + this.Context
-            + "\" (ReviewId:"
+            + "\" (Review Id:"
             + this.ReviewerIdentityServ.reviewerIdentity.reviewId
-            + ")&Body=Hello,";
+            + ")&Body=Hello,%0D%0A[Please type your message here]%0D%0A %0D%0A %0D%0A[Context details, please do not edit]: %0D%0APage: "
+            + this.Context + "%0D%0AReview Id: " + this.ReviewerIdentityServ.reviewerIdentity.reviewId + "%0D%0A";
     }
     ngOnInit() {
     }
