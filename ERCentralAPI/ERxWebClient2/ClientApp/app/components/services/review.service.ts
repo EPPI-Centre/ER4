@@ -149,6 +149,29 @@ export class ReviewService extends BusyAwareService {
     }
 
 
+    public async UpdateReviewName(ReviewName: string): Promise<boolean> { 
+        this._BusyMethods.push("UpdateReviewName");
+        //let body = JSON.stringify(ReviewName);
+
+        return this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/UpdateReviewName',
+            ReviewName).toPromise()
+            .then(
+                (result) => {
+                    this.RemoveBusy("UpdateReviewName");
+                    return true;
+                }, error => {
+                    this.modalService.GenericError(error);
+                    this.RemoveBusy("UpdateReviewName");
+                    return false;
+                }
+            );
+    }
+
+
+
+
+
+
 
 	ngOnInit() {
 

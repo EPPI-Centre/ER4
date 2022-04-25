@@ -84,21 +84,59 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "Contact data portal error");
                 return StatusCode(500, e.Message);
             }
-        }
+        } 
         
 
+        [HttpPost("[action]")]
+        public IActionResult UpdateReviewName(string ReviewName)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<ReviewInfo> dpT = new DataPortal<ReviewInfo>();
+                    ReviewInfo result = dpT.Fetch();
+                    int reviewId = result.ReviewId;
+
+                    DataPortal<Review> dp = new DataPortal<Review>();
+                    Review res = dp.Fetch();
+                    res.ReviewId = reviewId;
+                    res.ReviewName = ReviewName;
+                    res = res.Save(); // asking object to save itself
+                    return Ok(res.Result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Contact data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+
     }
 
 
 
-    public class JSONAccount
-    {
-        public int contactId = 0;
-        public string ContactName = "";
-        public string username = "";
-        public string email = "";
-        public string OldPassword = "";
-        public string NewPassword = "";
-    }
+}
 
+
+
+
+public class JSONAccount
+{
+    public int contactId = 0;
+    public string ContactName = "";
+    public string username = "";
+    public string email = "";
+    public string OldPassword = "";
+    public string NewPassword = "";
+}
+
+
+public class JSONReview
+{
+    public string ReviewName = "";
 }

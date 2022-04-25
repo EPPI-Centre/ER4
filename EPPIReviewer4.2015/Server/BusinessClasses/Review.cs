@@ -45,6 +45,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(ReviewIdProperty);
             }
+            set
+            {
+                SetProperty(ReviewIdProperty, value);
+            }
         }
 
 		public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
@@ -70,6 +74,14 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(ReviewNameProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<Int64> ResultProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("Result", "Result"));
+        public Int64 Result
+        {
+            get
+            {
+                return GetProperty(ResultProperty);
             }
         }
 
@@ -123,13 +135,16 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ReviewUpdate", connection))
+                connection.Open(); 
+                //using (SqlCommand command = new SqlCommand("st_ReviewUpdate", connection))
+                using (SqlCommand command = new SqlCommand("st_ReviewEditName", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReadProperty(ReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@REVIEW_NAME", ReadProperty(ReviewNameProperty)));
                     command.ExecuteNonQuery();
+                    LoadProperty(ReviewIdProperty, true); // routine doesn't return anything but it is updating the review you are
+                                                            // presently in so what could cause a sql error?
                 }
                 connection.Close();
             }
