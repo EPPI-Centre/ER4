@@ -88,7 +88,7 @@ namespace ERxWebClient2.Controllers
         
 
         [HttpPost("[action]")]
-        public IActionResult UpdateReviewName(string ReviewName)
+        public IActionResult UpdateReviewName([FromBody] JSONReview data)
         {
             try
             {
@@ -98,10 +98,12 @@ namespace ERxWebClient2.Controllers
                     ReviewInfo result = dpT.Fetch();
                     int reviewId = result.ReviewId;
 
+
                     DataPortal<Review> dp = new DataPortal<Review>();
+                    //Review res = dp.Fetch(new SingleCriteria<Review, int>(reviewId));
                     Review res = dp.Fetch();
                     res.ReviewId = reviewId;
-                    res.ReviewName = ReviewName;
+                    res.ReviewName = data.ReviewName;
                     res = res.Save(); // asking object to save itself
                     return Ok(res.Result);
                 }

@@ -76,8 +76,8 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ReviewNameProperty, value);
             }
         }
-        public static readonly PropertyInfo<Int64> ResultProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("Result", "Result"));
-        public Int64 Result
+        public static readonly PropertyInfo<Boolean> ResultProperty = RegisterProperty<Boolean>(new PropertyInfo<Boolean>("Result", "Result"));
+        public Boolean Result
         {
             get
             {
@@ -110,6 +110,14 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
+
+        protected void DataPortal_Fetch()
+        {
+
+        }
+
+
+
         protected override void DataPortal_Insert()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -133,7 +141,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
             {
                 connection.Open(); 
                 //using (SqlCommand command = new SqlCommand("st_ReviewUpdate", connection))
@@ -143,7 +151,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReadProperty(ReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@REVIEW_NAME", ReadProperty(ReviewNameProperty)));
                     command.ExecuteNonQuery();
-                    LoadProperty(ReviewIdProperty, true); // routine doesn't return anything but it is updating the review you are
+                    LoadProperty(ResultProperty, true); // routine doesn't return anything but it is updating the review you are
                                                             // presently in so what could cause a sql error?
                 }
                 connection.Close();
