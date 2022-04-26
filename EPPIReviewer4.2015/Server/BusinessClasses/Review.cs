@@ -145,7 +145,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 connection.Open(); 
                 //using (SqlCommand command = new SqlCommand("st_ReviewUpdate", connection))
-                using (SqlCommand command = new SqlCommand("st_ReviewEditName", connection))
+                using (SqlCommand command = new SqlCommand("st_ReviewEditName", connection)) 
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReadProperty(ReviewIdProperty)));
