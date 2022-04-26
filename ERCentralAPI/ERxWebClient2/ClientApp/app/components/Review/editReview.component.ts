@@ -91,7 +91,7 @@ export class EditReviewComponent implements OnInit, OnDestroy {
 
 
 	CanEditReview() {
-		if (this.CanWrite() && this.reviewN != '') {
+		if (this.CanWrite() && this.reviewN.trim() != '') {
 			return true;
 		}
 	}
