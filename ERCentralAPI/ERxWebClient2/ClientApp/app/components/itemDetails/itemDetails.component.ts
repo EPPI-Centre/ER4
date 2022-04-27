@@ -193,8 +193,12 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 		alert('item changed!!');
     }
     EditItem() {
-        if (this.item) {
-            this.router.navigate(['EditItem', this.item.itemId], { queryParams: { return: 'itemcoding/' + this.item.itemId.toString() } });
+		if (this.item) {
+			if (!this.IsScreening)
+				this.router.navigate(['EditItem', this.item.itemId], { queryParams: { return: 'itemcoding/' + this.item.itemId.toString() } });
+			else {//we're in priority screening...
+				this.router.navigate(['EditItem', "FromPrioritySc"], { queryParams: { return: 'itemcoding/PriorityScreening2' } });
+            }
         }
     }
 	OpenFirstPDF() {

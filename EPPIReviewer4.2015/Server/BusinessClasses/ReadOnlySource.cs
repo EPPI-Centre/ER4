@@ -9,8 +9,9 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using System.ComponentModel;
+using BusinessLibrary.Security;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using Csla.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -98,6 +99,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(SingleCriteria<ReadOnlySource, Int64> criteria)
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -105,6 +107,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())

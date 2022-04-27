@@ -149,21 +149,27 @@
                                           [max]="AdjustedMax()"
                                           [autoCorrect]="true"
                                           class="border border-dark rounded"
-                                          style="width: 110px;"
+                                          style="width: 130px;"
                                           name="importFrom"></kendo-numerictextbox>
                     <div>
                         &nbsp;to Item&nbsp;
                     </div>
-                        <kendo-numerictextbox [(ngModel)]="AdjustedSaveEnd"
-                                              [min]="AdjustedSaveStart" [format]="'n0'"
-                                              [max]="AdjustedMax()"
-                                              [autoCorrect]="true"
-                                              class="border border-dark rounded"
-                                              style="width: 130px;"
-                                              name="importTo"></kendo-numerictextbox>
-                        <button class="btn btn-success ml-2" (click)="ImportPmSearch()" type="button"
-                                 [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.queMax == 0">&nbsp;Import&nbsp;</button>
-                    </div>
+                    <kendo-numerictextbox [(ngModel)]="AdjustedSaveEnd"
+                                          [min]="AdjustedSaveStart" [format]="'n0'"
+                                          [max]="AdjustedMax()"
+                                          [autoCorrect]="true"
+                                          class="border border-dark rounded"
+                                          style="width: 130px;"
+                                          name="importTo"></kendo-numerictextbox>
+                    <button class="btn btn-success ml-2" (click)="ImportPmSearch()" type="button"
+                            [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.queMax == 0 || !ImportRangeOK">
+                        &nbsp;Import&nbsp;
+                    </button>
+                </div>
+                <div [hidden]="ImportRangeOK"
+                     class="alert alert-danger small">
+                    Maximum items per import is 10,000
+                </div>
             </div>
         </form>
     </div>

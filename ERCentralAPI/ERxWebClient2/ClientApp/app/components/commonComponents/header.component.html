@@ -18,13 +18,16 @@
                         <div class="font-weight-bold small border border-dark rounded alert-danger ml-1 mt-1 py-0 px-1 ">RO</div>
                     </div>
                 </div>
-                <div *ngIf="Context" class="float-right row m-0 mt-1 p-0" >
-                    <button class="btn btn-outline-info btn-sm mt-1 ml-1 p-0 pr-1 pl-1" (click)="ShowHideFeedback()"  style="zoom:0.8;">
+                <div *ngIf="Context" class="float-right row m-0 mt-1 p-0">
+                    <button class="btn btn-outline-info btn-sm mt-1 ml-1 p-0 pr-1 pl-1" (click)="ShowHideFeedback()" style="zoom:0.8;">
                         Feedback
                     </button>
                     <button class="btn btn-outline-primary btn-sm mt-1 ml-1 p-0 pr-1 pl-1 mr-1" (click)="ShowHideHelp()" style="zoom:0.8;">
                         Help
                     </button>
+                    <a class="btn btn-outline-info btn-sm mt-1 ml-1 p-0 pr-1 pl-1" [href]="EmailString" target="_top" title="Contact support via email..." style="zoom:0.8;">
+                        Support...
+                    </a>
                 </div>
             </td>
         </tr>

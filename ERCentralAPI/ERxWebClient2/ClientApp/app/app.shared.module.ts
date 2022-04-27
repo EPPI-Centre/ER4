@@ -59,6 +59,8 @@ import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree
 import { ConfirmationDialogComponent } from './components/ConfirmationDialog/confirmation-dialog.component';
 import { QuickCodingReportComponent } from './components/Reports/quickcodingreport.component';
 import { NewReviewComponent } from './components/Review/newreview.component';
+import { EditAccountComponent } from './components/Reviewer/editAccount.component';
+import { EditReviewComponent } from './components/Review/editReview.component';
 import 'hammerjs';
 import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
 import { armDetailsComp } from './components/ArmsAndTimePoints/armDetailsComp.component';
@@ -160,6 +162,8 @@ import { VisLogComp } from './components/Review/VisLog.component';
         QuickCodingReportComponent,
         CodesetTree4QuickQuestionReportComponent,
         NewReviewComponent,
+        EditAccountComponent,
+        EditReviewComponent,
 		RunLingo3G,
         WorkAllocationComp,
         WorkAllocationContactListComp,

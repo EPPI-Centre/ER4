@@ -36,7 +36,6 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     public get ImportFilters(): ImportFilter[] {
         return this._ImportFilters;
     }
-    @Output() gotSource = new EventEmitter();
     @Output() gotItems4Checking = new EventEmitter();
     @Output() SourceUploaded = new EventEmitter();
     @Output() SourceUpdated = new EventEmitter();
@@ -76,7 +75,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     }
 
     public get SourceReportIsRunning(): boolean {
-        if (this._SourceReportStarted == false) {
+        if (this._CurrentSourceIndex4SourceReport == -1) {
             return false;
         }
         else {
@@ -85,13 +84,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     }
 
 
-    public get ReportProgress(): string {
-        return this.ProgressOfSourcesReport;
-    }
-
-    private _CurrentSourceIndex4SourceReport: number = 0;
-    private _SourceReportStarted: boolean = false;
-    private _NumberSourcesInReport: number = 0;
+    private _CurrentSourceIndex4SourceReport: number = -1;// -1 also means: report is NOT running
+    private _NumberSourcesInReport: number = -1;
 
     public get ProgressOfSourcesReport(): string {
         return "Retreiving Item " + (this._CurrentSourceIndex4SourceReport + 1).toString()
@@ -110,7 +104,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         }
         );
     }
-    public FetchSource(SourceId: number) {
+    /*
+    public FetchSource1(SourceId: number) {
         this._BusyMethods.push("FetchSource");
         let body = JSON.stringify({ Value: SourceId });
         this._httpC.post<Source>(this._baseUrl + 'api/Sources/GetSource', body).subscribe(result => {
@@ -125,6 +120,9 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             }
         );
     }
+    */
+
+
     public FetchNewPubMedSearch(SearchString: string) {
         if (SearchString.trim().length < 2) return;
         this._BusyMethods.push("FetchNewPubMedSearch");
@@ -255,12 +253,12 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     }
     
     public DeleteUndeleteSource(ros: ReadOnlySource) {
-        this._Source = null;//we may be deleting/undeleting this, so catch all solution: just forget...
+        if (this._Source &&  this._Source.source_ID == ros.source_ID) this._Source = null;//we are deleting/undeleting this, so catch all solution: just forget it...
         this._BusyMethods.push("DeleteUndeleteSource");
         let body = JSON.stringify({ Value: ros.source_ID });
         this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/DeleteUndeleteSource',
-        body).subscribe(result => {
-            this.FetchSources()
+            body).subscribe(result => {
+                this.FetchSources();
             }, error => {
                 this.RemoveBusy("DeleteUndeleteSource");
                 this.modalService.GenericError(error);
@@ -284,7 +282,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
                 this._LastUploadOrUpdateStatus = "Error";
                 this.RemoveBusy("UpdateSource");
             },
-            () => {
+                () => {
+                    this._Source = null;//resets the source also on the UI - this ensures the "cancel" buttons will disappear in the component
                     this.FetchSource(source.source_ID);
                     this.FetchSources();
                     this.RemoveBusy("UpdateSource");//service remains busy because of the two calls above
@@ -350,9 +349,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this._LastDeleteForeverStatus = "";
         this.ClearIncomingItems4Checking();
         this.ClearPMsearchState();
-        this._CurrentSourceIndex4SourceReport = 0;
-        this._SourceReportStarted = false;
-        this._NumberSourcesInReport = 0;
+        this.StopSourcesReport();
     }
     public static LimitedAuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
         //[LAST] + ' ' + [FIRST] + ' ' + [SECOND]
@@ -397,15 +394,16 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             });
     }
 
-    public async GetSourceDataForThisSource(Id: number): Promise<Source | boolean> {
-        let res = await this.GetSourceData(Id);
-        //if (res != false) {
-        //    let res = await this.GetSourceData(Id);
-        //}
-        return res;
+    
+
+    public async FetchSource(SourceId: number) {
+        let res = await this.GetSourceData(SourceId);
+        if (res != false) {
+            if (res != true) {
+                this._Source = res;
+            }
+        }
     }
-
-
     
     public async GetSourceReport(reportParameter: Source | string): Promise<string> {
 
@@ -415,41 +413,33 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             if (reportParameter == "allSources") {
                 // this is a summary report of all non-deleted sources
 
-                this._SourceReportStarted = true;
                 this._CurrentSourceIndex4SourceReport = 0;
 
                 report += "<h3>Search sources report</h3>(undeleted sources only)";
                 report += "<table border='1' cellspacing='0' cellpadding='2'>";
 
-                let sourceList: ReadOnlySource[] = [];
+                let sourceList: ReadOnlySource[] = this.ReviewSources.filter(f=> f.isDeleted == false && f.source_ID > 0);//filter to get only not-deleted sources, and exclude the "manually created" source
 
-                // we need the the number of sources that will be in the report
-                this._NumberSourcesInReport = 0;
-                for (var j = 0; j < this.ReviewSources.length - 1; j++) { // we don't want the manually created item source yet               
-                    let tmpSource: ReadOnlySource = this.ReviewSources[j];
-                    if (tmpSource.isDeleted == false) { // we don't want deleted sources either
-                        sourceList.push(tmpSource);
-                        this._NumberSourcesInReport += 1;
-                    }
-                }
-                this._NumberSourcesInReport += 1; // counting the manually created source
+                // we need the the number of sources that will be in the report, this also helps "cancelling" the process on user's demand
+                this._NumberSourcesInReport += sourceList.length; // counting the manually created source
 
                 // order the source array by source name
                 let orderedSourceList = sourceList.sort((a, b) => (a.source_Name < b.source_Name) ? -1 : 1);
                 
-                for (var i = 0; i < orderedSourceList.length; i++) {                  
-                    let currentSource: ReadOnlySource = orderedSourceList[i];
+                for (this._CurrentSourceIndex4SourceReport = 0; this._NumberSourcesInReport > -1 && this._CurrentSourceIndex4SourceReport < orderedSourceList.length; this._CurrentSourceIndex4SourceReport++) {
+                    //condition this._NumberSourcesInReport > -1 becomes false when user clicks on "Cancel".
+                    let currentSource: ReadOnlySource = orderedSourceList[this._CurrentSourceIndex4SourceReport];
                         
                     report += "<tr>"
                     report += "<td>Source name</td>";
                     report += "<td><b>" + currentSource.source_Name + "</b></td>";
                     report += "</tr>"
 
-                    let res = await this.GetSourceDataForThisSource(currentSource.source_ID);
+                    let res = await this.GetSourceData(currentSource.source_ID);
 
                     if (res != false) {
                         if (res != true) {
-                            this._CurrentSourceIndex4SourceReport += 1;
+                            
                             let currentSourceData: Source = res;
 
                             report += "<tr>"
@@ -489,6 +479,11 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
                             report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
                             report += "</tr>"
                         }
+                    }
+                    else {
+                        //on error, we abort the whole thing, otherwise would be returning a malformed report with at least one source data missing.
+                        this.StopSourcesReport();//fully mark the process as finished
+                        return "";//also ends the for cycle
                     }
                     
                 }
@@ -534,8 +529,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
                 report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
                 report += "</tr>"
                 report += "</table>"
-
-                this._SourceReportStarted = false; // report generation is done
+                if (this._NumberSourcesInReport == -1) report = "";//this happens if the user clicked on "Cancel"...
+                this.StopSourcesReport(); // report generation is done
             }
         }
         else {
@@ -615,7 +610,10 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         
         return report;
     }
-
+    public StopSourcesReport() {
+        this._CurrentSourceIndex4SourceReport = -1;
+        this._NumberSourcesInReport = -1;
+    }
     
 
 

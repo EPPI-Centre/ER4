@@ -9,6 +9,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { TabStripComponent, SelectEvent } from '@progress/kendo-angular-layout';
 import { Helpers } from '../helpers/HelperMethods';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 
@@ -25,7 +26,9 @@ export class SourcesComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private ItemListService: ItemListService,
         private CodesetStatisticsService: CodesetStatisticsService,
-        private ReviewerIdentityServ: ReviewerIdentityService
+        private ReviewerIdentityServ: ReviewerIdentityService,
+        private ReviewerIdentityService: ReviewerIdentityService,
+        private ConfirmationDialogService: ConfirmationDialogService,
     ) {    }
 
     ngOnInit() {
@@ -33,13 +36,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         this.SourceDeletedSubs = this.SourcesService.SourceDeleted.subscribe((value: number) => {
             this.SourceDeletedForever(value);
         })
-        this.GotSourcesSubs = this.SourcesService.gotSource.subscribe(() => {
-            if (this.SourcesService.CurrentSourceDetail && this._CurrentSource == null) {
-                this._CurrentSource = this.SourcesService.CurrentSourceDetail;
-                this._CurrentSourceDateofSearch = new Date(this._CurrentSource.dateOfSerach);
-            }
-            this.GotSourcesSubs.unsubscribe();
-        })
+        
         //see: https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
         //timeout might be needed, but apparently not!
         this.SourcesService.FetchSources();
@@ -64,13 +61,51 @@ export class SourcesComponent implements OnInit, OnDestroy {
         //console.log("rev srcs:", this.SourcesService.ReviewSources.length);
         return this.SourcesService.ReviewSources;
     }
-    private GotSourcesSubs: Subscription = new Subscription();
     private SourceDeletedSubs: Subscription = new Subscription();
     private SrcUpdatedSbus: Subscription = new Subscription();
     //we are going to use a clone of the selected source, cached here
     //this is to avoid dangerous recursion problems.
     private _CurrentSource: Source | null = null;
-    
+
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityService.HasWriteRights;
+    }
+
+    ToggleDelSource(ros: ReadOnlySource) {
+        if ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) || ros.source_ID > 0) {
+            let msg: string;
+            if (ros.isDeleted) {
+                msg = "Are you sure you want to undelete the<br> <b>\"" + ros.source_Name + "\"</b> source?<br/>Items within the source <b> will be marked as 'Included' </b>, with the exception of duplicates."
+            }
+            else {
+                msg = "Are you sure you want to delete the<br> <b>\"" + ros.source_Name + "\"</b> source?<br/>Information about items state (<b>Included, Exluded or Deleted</b>) will be lost."
+            }
+            this.openConfirmationDialogDeleteUnDeleteSource(ros, msg);
+        }
+    }
+
+    public openConfirmationDialogDeleteUnDeleteSource(ros: ReadOnlySource, msg: string) {
+
+        this.ConfirmationDialogService.confirm('Please confirm', msg, false, '')
+            .then(
+                (confirmed: any) => {
+                    //console.log('User confirmed source (un/)delete:', confirmed);
+                    if (confirmed) {
+                        this.ActuallyDeleteUndeleteSource(ros);
+                    } else {
+                        //alert('did not confirm');
+                    }
+                }
+            )
+            .catch(() => {
+                //console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)');
+            });
+    }
+
+    ActuallyDeleteUndeleteSource(ros: ReadOnlySource) {
+        this.SourcesService.DeleteUndeleteSource(ros);
+    }
+
     get CurrentSource(): Source | null {
         if (this.SourcesService.CurrentSourceDetail == null && this.SourcesService.ReviewSources.length > 0) {
             this._CurrentSource = null;
@@ -105,6 +140,34 @@ export class SourcesComponent implements OnInit, OnDestroy {
     public set CurrentSourceDateofSearch(newDate: Date | null) {
         this._CurrentSourceDateofSearch = newDate;
     }
+
+    public get CurrentSourceIsEdited(): boolean {
+        if (!this._CurrentSource || !this.SourcesService.CurrentSourceDetail || !this.CurrentSourceDateofSearch || !this.CanWrite()) return false;
+        else if (this._CurrentSource.source_Name != this.SourcesService.CurrentSourceDetail.source_Name ||
+            this.CurrentSourceDateofSearch.toISOString() != new Date(this._CurrentSource.dateOfSerach).toISOString() ||
+            this._CurrentSource.sourceDataBase != this.SourcesService.CurrentSourceDetail.sourceDataBase ||
+            this._CurrentSource.searchDescription != this.SourcesService.CurrentSourceDetail.searchDescription ||
+            this._CurrentSource.searchString != this.SourcesService.CurrentSourceDetail.searchString ||
+            this._CurrentSource.notes != this.SourcesService.CurrentSourceDetail.notes
+        ) {
+            //console.log("S is edited? "
+            //    , this._CurrentSource.source_Name != this.SourcesService.CurrentSourceDetail.source_Name
+            //    , this.CurrentSourceDateofSearch.toISOString()
+            //    , this.CurrentSourceDateofSearch.toISOString() != new Date(this._CurrentSource.dateOfSerach).toISOString()
+            //    , this._CurrentSource.sourceDataBase != this.SourcesService.CurrentSourceDetail.sourceDataBase
+            //    , this._CurrentSource.searchDescription != this.SourcesService.CurrentSourceDetail.searchDescription
+            //    , this._CurrentSource.searchString != this.SourcesService.CurrentSourceDetail.searchString
+            //    , this._CurrentSource.notes != this.SourcesService.CurrentSourceDetail.notes
+            //);
+            return true;
+        }
+        else return false;
+    }
+
+    CancelEditSource() {
+        this._CurrentSource = null;//will be re-populated in "get CurrentSource()"
+    }
+
     BackToMain() {
         this.router.navigate(['Main']);
     }
@@ -125,14 +188,14 @@ export class SourcesComponent implements OnInit, OnDestroy {
         };
     }
     CanDeleteSourceForever(): boolean {
-        if (this._CurrentSource == null) return false;
+        if (this._CurrentSource == null || !this.CanWrite()) return false;
         else if (this._CurrentSource.isFlagDeleted && this._CurrentSource.isMasterOf == 0) return true;
         else return false;
     }
     confirmSourceDeletionClose(status: string) {
         this.confirmSourceDeletionOpen = false;
         if (status == 'yes' && this._CurrentSource) {
-            console.log("I'll delete the source");
+            //console.log("I'll delete the source");
             this.SourcesService.DeleteSourceForever(this._CurrentSource.source_ID);
         }
     }
@@ -179,12 +242,12 @@ export class SourcesComponent implements OnInit, OnDestroy {
     async SourceUpdated() {
         let counter: number = 0;
         //setTimeout(() => {
-            while (this.SourcesService.IsBusy && counter < 3*120) {
+            while (this.SourcesService.IsBusy && counter < 4*120) {
                 counter++;
                 await Helpers.Sleep(200);
                 console.log("waiting, cycle n: " + counter);
             }
-        //will remain here for up to 72s (200ms*3*120)... counter ensures we won't have an endless loop.
+        //will remain here for up to 96s (200ms*4*120)... counter ensures we won't have an endless loop.
         this.showUploadedNotification(this.SourcesService.LastUploadOrUpdateStatus);
     }
     
@@ -248,7 +311,6 @@ export class SourcesComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         if (this.SourceDeletedSubs) this.SourceDeletedSubs.unsubscribe();
         if (this.SrcUpdatedSbus) this.SrcUpdatedSbus.unsubscribe();
-        if (this.GotSourcesSubs) this.GotSourcesSubs.unsubscribe();
     }
 
 
@@ -260,7 +322,9 @@ export class SourcesComponent implements OnInit, OnDestroy {
 
             //const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
             //saveAs(dataURI, "Source table.html");
-            Helpers.OpenInNewWindow(report, this._baseUrl);
+            if (report != "") {//report could be made to come back empty if there was an error - error messages will be shown by the service
+                Helpers.OpenInNewWindow(report, this._baseUrl);
+            }
         }
     }
 
