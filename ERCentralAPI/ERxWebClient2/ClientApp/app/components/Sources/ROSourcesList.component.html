@@ -31,11 +31,13 @@
             </tr>
             <tr *ngFor="let ROsource of ReviewSources" class="p-0">
                 <td  class="p-0 align-middle justify-content-center" width="30px">
-                    <button *ngIf="ROsource.isDeleted" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source"><i class="fa fa-undo"></i></button>
+                    <button *ngIf="ROsource.isDeleted" [disabled]="!HasWriteRights || ROsource.isBeingDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source"><i class="fa fa-undo"></i></button>
                     <button *ngIf="!ROsource.isDeleted" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success"  title="Mark this source as 'Deleted'"><i class="fa fa-trash"></i></button>
                 </td>
                 <td class="p-1 align-middle">
-                    <div *ngIf="ROsource.isDeleted;else not_deleted" style="white-space: normal; text-align: left" class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)"><s>{{DisplaySourcename(ROsource)}}</s></div>
+                    <div *ngIf="ROsource.isDeleted;else not_deleted" style="white-space: normal; text-align: left" class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)">
+                        <s>{{DisplaySourcename(ROsource)}}</s> <span *ngIf="ROsource.isBeingDeleted">(D...)</span>
+                    </div>
                     <ng-template #not_deleted>
                         <div style="white-space: normal; text-align:left"  class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)">{{DisplaySourcename(ROsource)}}</div>
                     </ng-template>

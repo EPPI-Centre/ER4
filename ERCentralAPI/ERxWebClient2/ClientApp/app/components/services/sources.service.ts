@@ -674,6 +674,7 @@ export interface ReadOnlySource {
     deleted_Items: number;
     duplicates: number;
     isDeleted: boolean;
+    isBeingDeleted: boolean;
 }
 export interface ReadOnlySourcesList {
     sources: ReadOnlySource[];
