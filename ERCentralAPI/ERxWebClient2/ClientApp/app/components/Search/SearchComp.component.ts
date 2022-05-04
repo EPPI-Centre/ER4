@@ -23,12 +23,14 @@ import { saveAs } from '@progress/kendo-file-saver';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { Helpers } from '../helpers/HelperMethods';
 
+
 @Component({
     selector: 'SearchComp',
     templateUrl: './SearchComp.component.html'
 })
 
 export class SearchComp implements OnInit, OnDestroy {
+    
 
     constructor(private router: Router,
         private ReviewerIdentityServ: ReviewerIdentityService,
@@ -41,7 +43,8 @@ export class SearchComp implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private _sourcesService: SourcesService,
         private confirmationDialogService: ConfirmationDialogService,
-        private _reviewInfoService: ReviewInfoService
+        private _reviewInfoService: ReviewInfoService,
+        public _reviewerIdentityServ: ReviewerIdentityService,
     ) {
 
     }
@@ -105,6 +108,10 @@ export class SearchComp implements OnInit, OnDestroy {
     public UpperScoreThreshold: number = 50;
     public ShowSources: boolean = false;
     public ReviewSources: ReadOnlySource[] = [];
+    public CurrentSearchNameEditing: boolean = false;
+    public searchN: string = '';
+    public searchId: string = 'N/A';
+    public popUpTitle: string = '';
 
     public get DataSourceSearches(): GridDataResult {
         return {
@@ -172,7 +179,7 @@ export class SearchComp implements OnInit, OnDestroy {
         if (this.CanWrite()) {
 
             this._searchService.cmdSearches._scoreOne = this.LowerScoreThreshold;
-            this._searchService.cmdSearches._scoreTwo = this.UpperScoreThreshold;           
+            this._searchService.cmdSearches._scoreTwo = this.UpperScoreThreshold;
             this._searchService.cmdSearches._searchType = this._searchMTLTB;
             if (this.visualiseSearchId > 0) {
                 this._searchService.cmdSearches._searchId = this.visualiseSearchId;
@@ -197,15 +204,15 @@ export class SearchComp implements OnInit, OnDestroy {
             } else if (this._searchMTLTB === 'Between') {
                 searchText = "Search #" + this._searchService.cmdSearches._searchId + " scores is between " +
                     this.LowerScoreThreshold + " and " + this.UpperScoreThreshold;
-                    if (this.UpperScoreThreshold <= this.LowerScoreThreshold) {
-                        this.notificationService.show({
-                            content: 'Second score must be higher than the first',
-                            animation: { type: 'slide', duration: 400 },
-                            position: { horizontal: 'center', vertical: 'top' },
-                            type: { style: "warning", icon: true },
-                            closable: true,
-                            hideAfter: 3000
-                        });
+                if (this.UpperScoreThreshold <= this.LowerScoreThreshold) {
+                    this.notificationService.show({
+                        content: 'Second score must be higher than the first',
+                        animation: { type: 'slide', duration: 400 },
+                        position: { horizontal: 'center', vertical: 'top' },
+                        type: { style: "warning", icon: true },
+                        closable: true,
+                        hideAfter: 3000
+                    });
                     return;
                 }
             } else {
@@ -273,7 +280,7 @@ export class SearchComp implements OnInit, OnDestroy {
     }
     public get DataSourceModelAllReviews(): GridDataResult {
         return {
-            
+
             data: orderBy(this.classifierService.ClassifierContactAllModelList, this.sortCustomModel),
             total: this.classifierService.ClassifierContactAllModelList.length,
         };
@@ -458,7 +465,7 @@ export class SearchComp implements OnInit, OnDestroy {
             return true;
         } else if (this.selectedSearchDropDown == 'From source(s)' &&
             this._sourcesService.ReviewSources.filter(x => x.isSelected == true).length > 0 &&
-            this._searchService.selectedSourceDropDown.length > 0 ) {
+            this._searchService.selectedSourceDropDown.length > 0) {
             return true;
         }
 
@@ -506,7 +513,7 @@ export class SearchComp implements OnInit, OnDestroy {
             }
 
         }
-            
+
         return false;
 
     }
@@ -695,7 +702,7 @@ export class SearchComp implements OnInit, OnDestroy {
         if (model.modelId > 0) {
             if (model.attributeIdOn !== undefined && model.attributeIdNotOn !== undefined) {
                 await this.classifierService.CreateAsync(model.modelTitle, model.attributeIdOn, model.attributeIdNotOn, model.modelId);
-            }           
+            }
         }
 
     }
@@ -874,7 +881,7 @@ export class SearchComp implements OnInit, OnDestroy {
         this._searchService.Fetch();
     }
 
-    refreshModels() {        
+    refreshModels() {
         this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
 
@@ -1155,7 +1162,7 @@ export class SearchComp implements OnInit, OnDestroy {
                 break;
             }
             case 11: {
-                
+
                 this.ReviewSources = this._sourcesService.ReviewSources;
                 if (this.ReviewSources.length > 0) {
 
@@ -1205,7 +1212,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     };
 
-    
+
     BuildModel() {
         this.router.navigate(['BuildModel']);
     }
@@ -1259,6 +1266,116 @@ export class SearchComp implements OnInit, OnDestroy {
         this.ItemListService.FetchWithCrit(cr, ListDescription);
         this._eventEmitter.PleaseSelectItemsListTab.emit();
 
+    }
+
+
+
+
+
+    SearchNameEdit(searchId: string, searchName: string) {
+        this.CurrentSearchNameEditing = true;
+        this.searchN = searchName;
+        this.searchId = searchId;
+        this.popUpTitle = "Edit search name (Search Id " + searchId + ")";
+    }
+
+
+    async SaveSearchName() {
+        if (this.searchN.trim().length > 0) {
+            let result = false;
+            if (this.popUpTitle.startsWith("Edit search")) {
+                this._searchService.UpdateSearchName(this.searchN.trim(), this.searchId);
+                this.CurrentSearchNameEditing = false;
+            }
+            else {
+                result = await this.classifierService.UpdateModelName(this.searchN.trim(), this.searchId);
+            }
+            if (result == true) {
+                // close div and put up a message saying the account was updated 
+                this.CurrentSearchNameEditing = false;
+                this.showNameUpdatedNotification();
+
+                if (this.popUpTitle.startsWith("Edit search")) {
+                    // reload the sources
+                    //this.refreshSearches();  // make the service source of truth
+                }
+                else {
+                    // reload the models
+                    // not sure how yet....
+                }
+
+            }
+        }
+    }
+
+    CanEditSearchName() {
+        if (this.CanWriteName() && this.searchN.trim() != '') {
+            return true;
+        }
+    }
+
+    ModelNameEdit(modelId: string, modelTitle: string) {
+        /*
+        // I am using the same popup as the search edit so the variable names are 'search related'
+        this.CurrentSearchNameEditing = true;
+        this.searchN = modelTitle;
+        this.searchId = modelId;
+        this.popUpTitle = "Edit model name (ModelId " + modelId + ")";
+        */
+    }
+
+    /*
+    async SaveModelName() {
+        // I am using the same popup as the search edit so the variable names are 'search related'
+        if (this.searchN.trim().length > 0) {
+            let result = await this._searchService.UpdateSearchName(this.searchN.trim(), this.searchNum);
+            //let result = true;
+            if (result == true) {
+                // close div and put up a message saying the account was updated 
+                this.CurrentSearchNameEditing = false;
+                this.showNameUpdatedNotification();
+
+                // do we now reload the sources? or can we just change that one line? I don't know yet.
+                this.refreshSearches();
+
+            }
+        }
+    }
+    */
+
+
+
+    private showNameUpdatedNotification(): void {
+        let contentSt: string = "Name / Title updated";
+        this.notificationService.show({
+            content: contentSt,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "success", icon: true },
+            closable: true
+        });
+    }
+
+    CanWriteName(): boolean {
+        if (!this._reviewerIdentityServ.HasWriteRights) {
+            //one more check: is the user in the first screen?
+            if (this._reviewerIdentityServ.reviewerIdentity.reviewId == 0
+                && this._reviewerIdentityServ.reviewerIdentity.ticket === ""
+                && this._reviewerIdentityServ.reviewerIdentity.token
+                && this._reviewerIdentityServ.reviewerIdentity.token.length > 100
+                && this._reviewerIdentityServ.reviewerIdentity.roles
+                && this._reviewerIdentityServ.reviewerIdentity.roles.length > 0
+                && this._reviewerIdentityServ.reviewerIdentity.roles.indexOf('ReadOnlyUser') == -1
+                && this._reviewerIdentityServ.reviewerIdentity.daysLeftAccount >= 0
+            )
+                return true;
+            else return false;
+        }
+        else return true;
+    }
+
+    CancelEditSearchName() {
+        this.CurrentSearchNameEditing = false;
     }
 
     Clear() {

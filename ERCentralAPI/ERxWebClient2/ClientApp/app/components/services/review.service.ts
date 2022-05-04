@@ -152,7 +152,7 @@ export class ReviewService extends BusyAwareService {
     public async UpdateReviewName(reviewName: string): Promise<boolean> {
         this._BusyMethods.push("UpdateReviewName");
 
-        let _ReviewName: ReviewRename = { ReviewName: reviewName };        
+        let _ReviewName = { Value: reviewName };        
         let body = JSON.stringify(_ReviewName);
 
         return this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/UpdateReviewName',
@@ -210,8 +210,6 @@ export class Review {
 	reviewName: string = '';
 }
 
-export class ReviewRename {
-    ReviewName: string = '';
-}
+
 
 

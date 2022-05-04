@@ -88,23 +88,14 @@ namespace ERxWebClient2.Controllers
         
 
         [HttpPost("[action]")]
-        public IActionResult UpdateReviewName([FromBody] JSONReview data)
+        public IActionResult UpdateReviewName([FromBody] SingleStringCriteria data)
         {
             try
             {
                 if (SetCSLAUser4Writing())
                 {
-                    DataPortal<ReviewInfo> dpT = new DataPortal<ReviewInfo>();
-                    ReviewInfo result = dpT.Fetch();
-                    int reviewId = result.ReviewId;
-
-
-                    DataPortal<Review> dp = new DataPortal<Review>();
-                    //Review res = dp.Fetch(new SingleCriteria<Review, int>(reviewId));
-                    Review res = dp.Fetch();
-                    res.ReviewId = reviewId;
-                    res.ReviewName = data.ReviewName;
-                    res = res.Save(); // asking object to save itself
+                    Review res = new Review(data.Value);
+                    res = res.Save(); 
                     return Ok(res.Result);
                 }
                 else return Forbid();
@@ -115,7 +106,6 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
 
 
     }
@@ -138,7 +128,3 @@ public class JSONAccount
 }
 
 
-public class JSONReview
-{
-    public string ReviewName = "";
-}

@@ -243,6 +243,31 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 			);
 	}
 
+
+	public async UpdateModelName(modelName: string, modelNumber: string): Promise<boolean> {
+		this._BusyMethods.push("UpdateModelName");
+		let _ModelName: ModelNameUpdate = { ModelNumber: modelNumber, ModelName: modelName };
+		let body = JSON.stringify(_ModelName);
+
+		return this._httpC.post<boolean>(this._baseUrl + 'api/Classifier/UpdateModelName',
+			body).toPromise()
+			.then(
+				(result) => {
+					this.RemoveBusy("UpdateModelName");
+					return true;
+				}, error => {
+					//this.modalService.GenericError(error);
+					this.modalService.GenericErrorMessage("There was an error updating the model name. Please contact eppisupport@ucl.ac.uk");
+					this.RemoveBusy("UpdateModelName");
+					return false;
+				}
+			);
+	}
+
+
+
+
+
 	public Clear() {
 		this.modelToBeDeleted = 0;
 		this._ClassifierModelList = [];
@@ -306,4 +331,9 @@ export class ClassifierCommandDeprecated {
 	public revInfo: ReviewInfo = new ReviewInfo();
 	public returnMessage: string = '';
 
+}
+
+export interface ModelNameUpdate {
+	ModelNumber: string;
+	ModelName: string;
 }
