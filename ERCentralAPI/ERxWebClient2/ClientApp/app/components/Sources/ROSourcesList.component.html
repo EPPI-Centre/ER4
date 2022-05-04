@@ -35,9 +35,10 @@
                     <button *ngIf="!ROsource.isDeleted" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success"  title="Mark this source as 'Deleted'"><i class="fa fa-trash"></i></button>
                 </td>
                 <td class="p-1 align-middle">
-                    <div *ngIf="ROsource.isDeleted;else not_deleted" style="white-space: normal; text-align: left" class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)">
-                        <s>{{DisplaySourcename(ROsource)}}</s> <span *ngIf="ROsource.isBeingDeleted">(D...)</span>
-                    </div>
+                    <button *ngIf="ROsource.isDeleted;else not_deleted" class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)"
+                            [disabled]="ROsource.isBeingDeleted" style="white-space: normal; text-align: left">
+                        <s>{{DisplaySourcename(ROsource)}}</s> <i *ngIf="ROsource.isBeingDeleted" class="fa fa-trash-o ml-2" style="animation: oscillate 2s infinite; "></i>
+                    </button>
                     <ng-template #not_deleted>
                         <div style="white-space: normal; text-align:left"  class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)">{{DisplaySourcename(ROsource)}}</div>
                     </ng-template>
