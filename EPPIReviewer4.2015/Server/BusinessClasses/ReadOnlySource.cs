@@ -82,7 +82,18 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(IsDeletedProperty);
             }
         }
-
+        public static readonly PropertyInfo<bool> IsBeingDeletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsBeingDeleted", "IsBeingDeleted", false));
+        public bool IsBeingDeleted
+        {
+            get
+            {
+                return GetProperty(IsBeingDeletedProperty);
+            }
+        }
+        public void MarkAsBeingDeleted()
+        {
+            LoadProperty<bool>(IsBeingDeletedProperty, true);
+        }
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -129,6 +140,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<int>(Source_IDProperty, reader.GetInt32("Source_ID"));
             LoadProperty<bool>(IsDeletedProperty, reader.GetInt32("IS_DELETED") == 1 ? true : false);
             LoadProperty<int>(DuplicatesProperty, reader.GetInt32("Duplicates"));
+            LoadProperty<bool>(IsBeingDeletedProperty, false);
         }
 
 
