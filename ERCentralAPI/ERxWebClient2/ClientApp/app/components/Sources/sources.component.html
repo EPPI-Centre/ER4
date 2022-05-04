@@ -135,7 +135,6 @@
         </kendo-tabstrip>
     </kendo-splitter-pane>
     <kendo-splitter-pane size="30%">
-
         <div *ngIf="CurrentSourceIsEdited" class="w-100 h-100 row" style="position:absolute; background: #aaaaaaaa; z-index:3;">
             <div class="p-2 rounded bg-white m-auto">
                 <button (click)="CancelEditSource()" class="btn btn-sm btn-outline-dark ">
@@ -155,7 +154,7 @@
                             [hidden]="HideManuallyCreatedItems(ROsource)">
 
                             <td class="p-0 align-middle" width="30px">
-                                <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source">
+                                <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights || ROsource.isBeingDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source">
                                     <i class="fa fa-undo"></i>
                                 </button>
                                 <ng-template #optionToDelete>
@@ -165,11 +164,13 @@
                                 </ng-template>
                             </td>
                             <td class="p-0 align-middle">
-                                <div *ngIf="ROsource.isDeleted;else not_deleted" class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
+                                <button *ngIf="ROsource.isDeleted;else not_deleted" class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
+                                     [disabled]="ROsource.isBeingDeleted"
                                      [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
                                      (click)="SelectSource(ROsource)">
                                     <s>{{ROsource.source_Name}}</s>
-                                </div>
+                                    <i *ngIf="ROsource.isBeingDeleted" class="fa fa-trash-o ml-2" style="animation: oscillate 2s infinite; "></i>
+                                </button>
                                 <ng-template #not_deleted>
                                     <div class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
                                          [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"

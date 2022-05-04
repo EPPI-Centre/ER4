@@ -16,7 +16,14 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 @Component({
     selector: 'SourcesComp',
     templateUrl: './sources.component.html',
-    providers: []
+    providers: [],
+    styles: [
+        `@keyframes oscillate {
+          0%   {transform:rotate(35deg);}
+          50% {transform:rotate(-35deg);}
+          100% {transform:rotate(35deg);}
+        }`
+    ]
 })
 
 export class SourcesComponent implements OnInit, OnDestroy {

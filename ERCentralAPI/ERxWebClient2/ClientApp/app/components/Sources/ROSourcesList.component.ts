@@ -13,7 +13,14 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 @Component({
     selector: 'ROSourcesList',
     templateUrl: './ROSourcesList.component.html',
-    providers: []
+    providers: [],
+    styles: [
+        `@keyframes oscillate {
+          0%   {transform:rotate(35deg);}
+          50% {transform:rotate(-35deg);}
+          100% {transform:rotate(35deg);}
+        }`
+    ]
 })
 
 export class ROSourcesListComponent implements OnInit {
