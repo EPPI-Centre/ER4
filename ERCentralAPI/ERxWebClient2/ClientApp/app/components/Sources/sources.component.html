@@ -106,6 +106,9 @@
                                         </button>
                                     </div>
                                     <div class="col-sm-7">
+                                        <div *ngIf="SomeSourceIsBeingDeleted" class="small bg-warning p-1 border border-danger rounded">
+                                            One source is currently being deleted. You can permanently delete only one source at the time.
+                                        </div>
                                         <div *ngIf="!CanDeleteSourceForever()" class="small bg-light">
                                             To permanently delete a source it must first be marked as deleted (ex. <span style="color:blue"><s>source name</s></span>) in the list of sources.<br />
                                             Only deleted sources that do not contain master items of duplicates may be deleted permanentely.

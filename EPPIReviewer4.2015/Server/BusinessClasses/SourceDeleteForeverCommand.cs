@@ -84,7 +84,13 @@ namespace BusinessLibrary.BusinessClasses
 
                             if (res != null && res != 0)
                             {
-                                _Result = "Deletion running for SourceId: " + res.ToString();
+                                if (res != SourceId)
+                                {//a deletion is running for another source, which can always happen because of concurrent usage
+                                    _Result = "Deletion is  already running for a different source (id: " + res.ToString() + ")";
+                                    //we can stop checking, current source isn't going to be deleted!
+                                    count = 100;
+                                }
+                                else _Result = "Deletion running for SourceId: " + res.ToString();
                             }
                             else
                             {//must have finished already!
