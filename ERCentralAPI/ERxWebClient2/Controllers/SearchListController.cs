@@ -464,13 +464,8 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					//DataPortal<ReviewInfo> dpT = new DataPortal<ReviewInfo>();
-					//ReviewInfo result = dpT.Fetch();
-					//int reviewId = result.ReviewId;
-
 					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 					int reviewId = ri.ReviewId;  
-
 
 					DataPortal<Search> dp = new DataPortal<Search>();
 					Search res = dp.Fetch(new SingleCriteria<Search, int>(data.SearchID));

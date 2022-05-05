@@ -126,10 +126,10 @@ export class searchService extends BusyAwareService implements OnDestroy {
 				(result) => {
 					this.RemoveBusy("UpdateSearchName");
 
-					//something like this to update that line (rather than reloading all searches...
-					let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeUpdated));
-					this.SearchList[tmpIndex].title = _SearchName.SearchName;
-
+					// just update that line (rather than reloading all searches).
+					let parsedInt: number = parseInt(searchId);
+					let tmpIndex: number = this.SearchList.findIndex(x => x.searchId == parsedInt);
+					if (tmpIndex > -1) this.SearchList[tmpIndex].title = _SearchName.SearchName;
 					return true;
 				}, error => {
 					this.modalService.GenericError(error); //actual error

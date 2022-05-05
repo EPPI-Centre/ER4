@@ -1272,39 +1272,26 @@ export class SearchComp implements OnInit, OnDestroy {
 
 
 
-    SearchNameEdit(searchId: string, searchName: string) {
+    SearchNameEdit(searchId: string, searchNo: string, searchName: string) {
         this.CurrentSearchNameEditing = true;
         this.searchN = searchName;
         this.searchId = searchId;
-        this.popUpTitle = "Edit search name (Search Id " + searchId + ")";
+        this.popUpTitle = "Edit search name (search #: " + searchNo + ")";
+        window.scrollTo(0, 0);
     }
 
 
-    async SaveSearchName() {
+    SaveSearchName() {
+        // I am using the same popup for both search and model edit so the variable names are 'search related' //
         if (this.searchN.trim().length > 0) {
-            let result = false;
             if (this.popUpTitle.startsWith("Edit search")) {
                 this._searchService.UpdateSearchName(this.searchN.trim(), this.searchId);
-                this.CurrentSearchNameEditing = false;
             }
             else {
-                result = await this.classifierService.UpdateModelName(this.searchN.trim(), this.searchId);
+                this.classifierService.UpdateModelName(this.searchN.trim(), this.searchId);
             }
-            if (result == true) {
-                // close div and put up a message saying the account was updated 
-                this.CurrentSearchNameEditing = false;
-                this.showNameUpdatedNotification();
-
-                if (this.popUpTitle.startsWith("Edit search")) {
-                    // reload the sources
-                    //this.refreshSearches();  // make the service source of truth
-                }
-                else {
-                    // reload the models
-                    // not sure how yet....
-                }
-
-            }
+            this.CurrentSearchNameEditing = false;
+            this.showNameUpdatedNotification();
         }
     }
 
@@ -1315,34 +1302,13 @@ export class SearchComp implements OnInit, OnDestroy {
     }
 
     ModelNameEdit(modelId: string, modelTitle: string) {
-        /*
-        // I am using the same popup as the search edit so the variable names are 'search related'
+        // I am using the same popup as the search edit so the variable names are 'search related' //
         this.CurrentSearchNameEditing = true;
         this.searchN = modelTitle;
         this.searchId = modelId;
-        this.popUpTitle = "Edit model name (ModelId " + modelId + ")";
-        */
+        this.popUpTitle = "Edit model name (model ID: " + modelId + ")";
+        window.scrollTo(0, 0);
     }
-
-    /*
-    async SaveModelName() {
-        // I am using the same popup as the search edit so the variable names are 'search related'
-        if (this.searchN.trim().length > 0) {
-            let result = await this._searchService.UpdateSearchName(this.searchN.trim(), this.searchNum);
-            //let result = true;
-            if (result == true) {
-                // close div and put up a message saying the account was updated 
-                this.CurrentSearchNameEditing = false;
-                this.showNameUpdatedNotification();
-
-                // do we now reload the sources? or can we just change that one line? I don't know yet.
-                this.refreshSearches();
-
-            }
-        }
-    }
-    */
-
 
 
     private showNameUpdatedNotification(): void {

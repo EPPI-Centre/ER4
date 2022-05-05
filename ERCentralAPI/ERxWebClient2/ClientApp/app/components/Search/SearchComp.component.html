@@ -313,26 +313,27 @@
                 <!--<kendo-grid-column field="modelTitle" title="Title">
                 </kendo-grid-column>-->
                 <kendo-grid-column field="modelTitle" title="Title" width="360" class="px-1 py-0 m-1">
-                <ng-template kendoGridCellTemplate let-dataItem>
-                    <div (click)="ModelNameEdit(dataItem.modelId, dataItem.modelTitle)" class="btn btn-sm btn-light">
-                        <i class="fa fa-edit"></i>&nbsp;&nbsp;{{dataItem.modelTitle}}
-                    </div>
-                </ng-template>
+                    <ng-template kendoGridCellTemplate let-dataItem>
+                        <div (click)="ModelNameEdit(dataItem.modelId, dataItem.modelTitle)" class="btn btn-sm btn-light">
+                            <i class="fa fa-edit"></i>
+                        </div>
+                        {{dataItem.modelTitle}}
+                    </ng-template>
                 </kendo-grid-column>
                 <kendo-grid-column field="attributeOn" title="Applies">
                 </kendo-grid-column>
                 <kendo-grid-column field="attributeNotOn" title="Compared with">
                 </kendo-grid-column>
                 <!--<kendo-grid-column field="accuracy" title="Accuracy">
-                </kendo-grid-column>
-                <kendo-grid-column field="auc" title="AUC">
-                </kendo-grid-column>-->
+    </kendo-grid-column>
+    <kendo-grid-column field="auc" title="AUC">
+    </kendo-grid-column>-->
                 <kendo-grid-column field="precision" title="Precision">
                 </kendo-grid-column>
                 <kendo-grid-column field="recall" title="Recall">
                 </kendo-grid-column>
                 <kendo-grid-column width="80" class="px-1 py-0 m-1"
-                                    field="modelId" title="Rebuild">
+                                   field="modelId" title="Rebuild">
                     <ng-template kendoGridCellTemplate let-dataItem>
                         <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
                             Rebuild
@@ -546,7 +547,7 @@
             </kendo-grid-column>-->
             <kendo-grid-column field="title" title="Name" width="360" class="px-1 py-0 m-1">
                 <ng-template kendoGridCellTemplate let-dataItem>
-                    <div (click)="SearchNameEdit(dataItem.searchId, dataItem.title)" class="btn btn-sm btn-light">
+                    <div (click)="SearchNameEdit(dataItem.searchId, dataItem.searchNo, dataItem.title)" class="btn btn-sm btn-light">
                         <i class="fa fa-edit"></i>
                     </div>
                     {{dataItem.title}}

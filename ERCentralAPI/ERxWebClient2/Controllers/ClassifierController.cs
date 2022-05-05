@@ -158,6 +158,39 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+
+		[HttpPost("[action]")]
+		public IActionResult UpdateModelName([FromBody] JSONModelName data)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					int reviewId = ri.ReviewId;
+
+					DataPortal<ClassifierContactModel> dp = new DataPortal<ClassifierContactModel>();
+					ClassifierContactModel res = dp.Fetch(new SingleCriteria<ClassifierContactModel, int>(data.ModelID));
+					res.ModelTitle = data.ModelName;
+					res = res.Save(); // asking object to save itself
+					return Ok(true);
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Contact data portal error");
+				return StatusCode(500, e.Message);
+			}
+		}
+
+
+
+
+
+
+
+
 		public class MVCClassifierCommand
 		{
 			public string _title { get; set; }
@@ -231,6 +264,14 @@ namespace ERxWebClient2.Controllers
 			public int ModelId { get; set; }
 			public string ModelTitle { get; set; }
 			public double Accuracy { get; set; }
+		}
+
+
+
+		public class JSONModelName
+		{
+			public int ModelID = 0;
+			public string ModelName = "";
 		}
 
 	}

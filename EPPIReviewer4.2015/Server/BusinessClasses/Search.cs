@@ -202,11 +202,6 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(SingleCriteria<Search, int> criteria)
         {
-            
-            //st_SearchGet (SearchId and ReviewId)
-
-                
-
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -243,23 +238,6 @@ namespace BusinessLibrary.BusinessClasses
             {
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				connection.Open();
-                /*if (ReadProperty(TitleProperty).Contains("ERWeb-"))
-                {
-                    using (SqlCommand command = new SqlCommand("st_SearchUpdateERWeb", connection))
-                    {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@SEARCH_NO", ReadProperty(SearchNoProperty)));
-                        command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", ReadProperty(TitleProperty).Remove(0,6)));
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                        command.Parameters.Add(new SqlParameter("@RESULT", false));
-                        command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
-                        command.ExecuteNonQuery();
-                        LoadProperty(ResultProperty, command.Parameters["@RESULT"].Value);
-                    }
-                    connection.Close();
-                }
-                else
-                {*/
                 using (SqlCommand command = new SqlCommand("st_SearchUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -269,7 +247,6 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
-                //}
             }
         }
 

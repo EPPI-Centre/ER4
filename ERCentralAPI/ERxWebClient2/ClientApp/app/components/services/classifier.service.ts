@@ -246,7 +246,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
 	public async UpdateModelName(modelName: string, modelNumber: string): Promise<boolean> {
 		this._BusyMethods.push("UpdateModelName");
-		let _ModelName: ModelNameUpdate = { ModelNumber: modelNumber, ModelName: modelName };
+		let _ModelName: ModelNameUpdate = { ModelId: modelNumber, ModelName: modelName };
 		let body = JSON.stringify(_ModelName);
 
 		return this._httpC.post<boolean>(this._baseUrl + 'api/Classifier/UpdateModelName',
@@ -254,10 +254,15 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 			.then(
 				(result) => {
 					this.RemoveBusy("UpdateModelName");
+
+					// just update that line (rather than reloading all searches).
+					let parsedInt: number = parseInt(modelNumber);
+					let tmpIndex: number = this.ClassifierModelCurrentReviewList.findIndex(x => x.modelId == parsedInt);
+					if (tmpIndex > -1) this.ClassifierModelCurrentReviewList[tmpIndex].modelTitle = _ModelName.ModelName;
 					return true;
 				}, error => {
-					//this.modalService.GenericError(error);
-					this.modalService.GenericErrorMessage("There was an error updating the model name. Please contact eppisupport@ucl.ac.uk");
+					this.modalService.GenericError(error);
+					//this.modalService.GenericErrorMessage("There was an error updating the model name. Please contact eppisupport@ucl.ac.uk");
 					this.RemoveBusy("UpdateModelName");
 					return false;
 				}
@@ -334,6 +339,6 @@ export class ClassifierCommandDeprecated {
 }
 
 export interface ModelNameUpdate {
-	ModelNumber: string;
+	ModelId: string;
 	ModelName: string;
 }
