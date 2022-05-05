@@ -1,0 +1,75 @@
+﻿USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ClassifierGet]    Script Date: 05/05/2022 14:42:19 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE or ALTER  procedure [dbo].[st_ClassifierGet]
+(
+	@MODEL_ID INT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT MODEL_ID, MODEL_TITLE, CONTACT_ID, REVIEW_ID, ATTRIBUTE_ID_ON, ATTRIBUTE_ID_NOT_ON, ACCURACY, AUC,
+		[PRECISION], RECALL FROM tb_CLASSIFIER_MODEL
+		WHERE MODEL_ID = @MODEL_ID
+		AND REVIEW_ID = @REVIEW_ID
+
+
+
+SET NOCOUNT OFF
+
+GO
+
+--------------------------------------------
+
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_SearchGet]    Script Date: 05/05/2022 16:03:03 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE or ALTER  procedure [dbo].[st_SearchGet]
+(
+	@SEARCH_ID INT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT SEARCH_ID, REVIEW_ID, TB_SEARCH.CONTACT_ID, SEARCH_TITLE,SEARCH_NO, ANSWERS, HITS_NO, SEARCH_DATE, IS_CLASSIFIER_RESULT,
+		CONTACT_NAME FROM TB_SEARCH
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_SEARCH.CONTACT_ID
+		WHERE SEARCH_ID = @SEARCH_ID
+		AND REVIEW_ID = @REVIEW_ID
+
+
+
+SET NOCOUNT OFF
+
+GO
+
+------------------------------------------------
+
+
+
+
+
