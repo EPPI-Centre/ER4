@@ -90,6 +90,24 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(IsBeingDeletedProperty);
             }
         }
+#if SILVERLIGHT
+        public string DeleteUndeleteAction
+        {
+            get
+            {
+                if (IsBeingDeleted) return "none";
+                else if (IsDeleted) return "undelete";
+                else return "delete";
+            }
+        }
+        public bool IsNotBeingDeleted
+        {
+            get
+            {
+                return !GetProperty(IsBeingDeletedProperty);
+            }
+        }
+#endif
         public void MarkAsBeingDeleted()
         {
             LoadProperty<bool>(IsBeingDeletedProperty, true);

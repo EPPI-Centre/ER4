@@ -411,7 +411,9 @@ namespace EppiReviewer4
                 if (src == null) DeleteSourceForeverButton.IsEnabled = false;
                 else
                 {
-                    DeleteSourceForeverButton.IsEnabled = src.IsFlagDeleted & (src.isMasterOf == 0) & HasWriteRights;
+                    CslaDataProvider provider = this.Resources["SourcesData"] as CslaDataProvider;
+                    BusinessLibrary.BusinessClasses.ReadOnlySourceList ROSL = (BusinessLibrary.BusinessClasses.ReadOnlySourceList)provider.Data;
+                    DeleteSourceForeverButton.IsEnabled = src.IsFlagDeleted && (src.isMasterOf == 0) && HasWriteRights && !ROSL.SomeSourceIsBeingDeleted;
                     SaveSrcCMD.IsEnabled = HasWriteRights;
                 }
                 

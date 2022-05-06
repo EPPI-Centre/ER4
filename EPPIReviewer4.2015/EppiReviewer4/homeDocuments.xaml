@@ -27,6 +27,7 @@
         <helper:SourceButtonConverter x:Key="helper"/>
         <helper:SourceNameConverter x:Key="SourceNameConverter"/>
         <helper:SourceButtonTipConverter x:Key="SourceTipHelper"/>
+        <helper:SourceDeleteUndeleteIsEnabledConverter x:Key="SourceDeleteUndeleteIsEnabledConverter"/>
         <helper:SourceNameStyleConverter x:Key="SourceNameStyleConverter"/>
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
         <helper:EditTrueFalseVisibilityConverter x:Key="EditTrueFalseVisibility" />
@@ -188,7 +189,8 @@
             <Setter Property="Template" >
                 <Setter.Value>
                     <ControlTemplate>
-                        <Button x:Name="cmdListSourceItems" Content="List" Click="cmdListSourceItems_Click" ></Button>
+                        <Button x:Name="cmdListSourceItems" Content="List" Click="cmdListSourceItems_Click" 
+                                IsEnabled="{Binding IsNotBeingDeleted}"></Button>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -1419,9 +1421,9 @@
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="grid:GridViewCell" >
                                                                 <Button x:Name="cmdDelSource" Tag="{Binding Source_ID}" Margin="2,2,4,2" HorizontalAlignment="Right"
-                                                                        Content="{Binding IsDeleted, Converter={StaticResource helper}}" 
-                                                                        ToolTipService.ToolTip="{Binding IsDeleted, Converter={StaticResource SourceTipHelper}}"
-                                                                        IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Click="cmdDelSource_Click" ></Button>
+                                                                        Content="{Binding DeleteUndeleteAction, Converter={StaticResource helper}}" 
+                                                                        ToolTipService.ToolTip="{Binding DeleteUndeleteAction, Converter={StaticResource SourceTipHelper}}"
+                                                                        IsEnabled="{Binding DeleteUndeleteAction, Converter={StaticResource SourceDeleteUndeleteIsEnabledConverter}, ConverterParameter={StaticResource isEn}, Mode=OneWay}" Click="cmdDelSource_Click" ></Button>
                                                         </ControlTemplate>
                                                     </Setter.Value>
                                                 </Setter>

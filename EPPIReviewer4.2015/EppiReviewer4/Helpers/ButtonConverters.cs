@@ -20,21 +20,27 @@ namespace EppiReviewer4.Helpers
         }
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null || !(value is bool)) return string.Empty;
+            if (value == null || !(value is string)) return string.Empty;
             System.Windows.Controls.Image img = new Image();
             img.Height = 16; img.Width = 16;
             img.HorizontalAlignment = HorizontalAlignment.Center;
             img.VerticalAlignment = VerticalAlignment.Center;
-            if ((bool)value)
+            string val = (string)value;
+            if (val == "undelete")
             {
                 //return "Undelete";
                 img.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("Icons/edit-undo.png", UriKind.RelativeOrAbsolute));
                 img.Tag = "Undelete";
             }
-            else
+            else if (val == "delete")
             {
                 img.Tag = "Delete";
                 img.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("Icons/trash.png", UriKind.RelativeOrAbsolute));
+            }
+            else
+            {
+                img.Tag = "BeingDeleted";
+                img.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("Icons/DocumentCancel.png", UriKind.RelativeOrAbsolute));
             }
             //else return "Delete";
             return img;
@@ -52,12 +58,46 @@ namespace EppiReviewer4.Helpers
         }
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null || !(value is bool)) return string.Empty;
-            if ((bool)value)
+            if (value == null || !(value is string)) return string.Empty;
+            string val = (string)value;
+            if (val == "undelete")
             {
                 return "Undelete";
             }
-            else return "Delete";
+            else if (val == "delete")
+            {
+                return "Delete";
+            }
+            else
+            {
+                return "Source is Being Deleted";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value;
+        }
+    }
+    //SourceDeleteUndeleteIsEnabledConverter
+    public class SourceDeleteUndeleteIsEnabledConverter : IValueConverter
+    {
+        public SourceDeleteUndeleteIsEnabledConverter()
+        {
+        }
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            Button bt = parameter as Button;
+            if (value == null || !(value is string) || bt == null) return false;
+            string val = (string)value;
+            if (val != "none")
+            {
+                return bt.IsEnabled;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

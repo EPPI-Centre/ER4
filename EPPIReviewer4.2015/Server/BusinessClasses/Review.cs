@@ -9,12 +9,12 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using BusinessLibrary.Security;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
-using BusinessLibrary.Security;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
