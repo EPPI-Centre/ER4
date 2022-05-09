@@ -105,6 +105,36 @@ namespace EppiReviewer4.Helpers
             return value;
         }
     }
+
+    public class SourceNameTextColour : IValueConverter
+    {
+        public SourceNameTextColour()
+        {
+        }
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value == null || !(value is string)) return new SolidColorBrush(Colors.Black);
+            string val = (string)value;
+            if (val == "delete")
+            {
+                return new SolidColorBrush(Colors.Black);
+            }
+            else if (val == "none")
+            {
+                return new SolidColorBrush(Colors.LightGray);
+            } 
+            else
+            {
+                return new SolidColorBrush(Colors.Red);
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value;
+        }
+    }
+
     public class ViewDocConverter : IValueConverter
     {
         public ViewDocConverter()

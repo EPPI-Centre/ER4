@@ -311,7 +311,7 @@ namespace EppiReviewer4
             provider.Refresh();
             if (grView0.Columns.Count > 0)
             {
-                grView0.Columns[0].Width = new Telerik.Windows.Controls.GridViewLength(0);
+                //grView0.Columns[0].Width = new Telerik.Windows.Controls.GridViewLength(0);
                 //txtb0.IsEnabled = true;
             }
         }
@@ -341,7 +341,7 @@ namespace EppiReviewer4
                     //this.grView0.Rebind();//TextBlockDocCount.Text = (provider.Data as ItemList).Count.ToString() + " documents loaded.";
                 if (grView0.Columns.Count > 0)
                 {
-                    grView0.Columns[0].Width = new Telerik.Windows.Controls.GridViewLength(0, Telerik.Windows.Controls.GridViewLengthUnitType.Auto);
+                    //grView0.Columns[0].Width = new Telerik.Windows.Controls.GridViewLength(0, Telerik.Windows.Controls.GridViewLengthUnitType.Auto);
                     txtb0.IsEnabled = true;
                 }
             }
@@ -365,7 +365,7 @@ namespace EppiReviewer4
                 }
                 if (grView0.Columns.Count > 0)
                 {
-                    grView0.Columns[0].Width = new Telerik.Windows.Controls.GridViewLength(0, Telerik.Windows.Controls.GridViewLengthUnitType.Auto);
+                    //grView0.Columns[0].Width = new Telerik.Windows.Controls.GridViewLength(0, Telerik.Windows.Controls.GridViewLengthUnitType.Auto);
                     txtb0.IsEnabled = true;
                 }
             }
@@ -947,14 +947,48 @@ namespace EppiReviewer4
             Int32.TryParse(DeleteSourceForeverDialogWindow.ConfirmDeleteSourceForeverButton.Tag.ToString(), out sourcetodelete);
             DataPortal<SourceDeleteForeverCommand> dp = new DataPortal<SourceDeleteForeverCommand>();
             SourceDeleteForeverCommand command = new SourceDeleteForeverCommand(sourcetodelete);
+            string sourcename = (grView0.SelectedItem as ReadOnlySource).Source_Name;
             dp.ExecuteCompleted += (o, e2) =>
             {
                 if (e2.Error != null)
                 {
                     SourcesMainPaneGroup.IsEnabled = true;
-                    RadWindow.Alert(e2.Error.Message);
+                    RadWindow.Alert("Permanent deletion of source '" + sourcename + "' failed with error:" +Environment.NewLine +
+                        e2.Error.Message
+                        );
                 }
-                else refreshSources();
+                else
+                {
+                    command = e2.Object;
+                    if (command != null)
+                    {
+                        string status = command.Result;
+                        if (status == "No deletion is running")
+                        {
+                            RadWindow.Alert("Permanent deletion of source" + Environment.NewLine +
+                                "'" + sourcename + "'"
+                                + Environment.NewLine + "completed successfully.");
+                        }
+                        else if (status == "Deletion running for SourceId: " + sourcetodelete.ToString())
+                        {
+                            RadWindow.Alert("Permanent deletion of source" + Environment.NewLine +
+                                "'" + sourcename + "'"
+                                + Environment.NewLine + " is running (may take some time!)");
+                        }
+                        else if (status.IndexOf("Deletion is  already running for a different source") > -1)
+                        {
+                            RadWindow.Alert("Permanent deletion of source" + Environment.NewLine +
+                                "'" + sourcename + "'"
+                                + Environment.NewLine + "did not start," + Environment.NewLine + "because another source is being deleted.");
+                        }
+                    }
+                    //change the currently selected source...
+                    CslaDataProvider provider = this.Resources["SourcesData"] as CslaDataProvider;
+                    BusinessLibrary.BusinessClasses.ReadOnlySourceList ROSL = (BusinessLibrary.BusinessClasses.ReadOnlySourceList)provider.Data;
+                    ReadOnlySource ros = ROSL.Sources.FirstOrDefault(f => f.Source_ID != sourcetodelete);
+                    grView0.SelectedItem = ros;
+                }
+                refreshSources();
             };
             dp.BeginExecute(command);
         }
