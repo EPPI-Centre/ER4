@@ -66,6 +66,19 @@
         <tr>
             <td style="min-width: 150px; vertical-align: top; padding-bottom: 3px" width="320">
                 <div class="container">
+                    <div class="mr-1"><b>Existing password</b></div>
+                    <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
+                           id="OldPassword" name="OldPassword"
+                           [(ngModel)]="oldPassword" />
+                    <input *ngIf="ShowPasswords" class="mb-1 w-100" type="text"
+                           id="OldPassword" name="OldPassword"
+                           [(ngModel)]="oldPassword" />
+                    <div [hidden]="OldPasswordNeeded"
+                         class="p-1 alert alert-danger small font-weight-bold">
+                        Enter existing password
+                    </div>
+                </div>
+                <div class="container">
                     <div class="mr-1"><b>New password</b></div>
                     <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
                            id="NewPassword" name="NewPassword"
@@ -89,19 +102,6 @@
                     <div [hidden]="newPassword == confirmNewPassword"
                          class="p-1 alert alert-danger small font-weight-bold">
                         Passwords do not match
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="mr-1"><b>Existing password</b></div>
-                    <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
-                           id="OldPassword" name="OldPassword"
-                           [(ngModel)]="oldPassword" />
-                    <input *ngIf="ShowPasswords" class="mb-1 w-100" type="text"
-                           id="OldPassword" name="OldPassword"
-                           [(ngModel)]="oldPassword" />
-                    <div [hidden]="OldPasswordNeeded"
-                         class="p-1 alert alert-danger small font-weight-bold">
-                        Enter existing password
                     </div>
                 </div>
             </td>
