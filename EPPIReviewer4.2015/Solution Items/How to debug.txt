@@ -1,4 +1,5 @@
-In Win10 (UCL build), apparently it's still possible to run IE, however, if you try to launch it from VS(2015), it will actually open Edge.
+In Win10 (UCL build), won't launch IE anymore, if you try to launch it from VS(2015) (or the Win UI), it will actually open Edge.
+In Win11, I don't know how things are, but I assume you can't even "see" IE.
 Edge in IE mode will run SL apps, it's an x64 app (I think), so debugging SL doesn't work. But: inside Edge, it actually executes IE, or so it seems.
 
 My hypothesis is that VS launches the x86 debugger because that's what SL requires, but tries to attach to Edge, which is x64 and therefore fails.
@@ -8,8 +9,9 @@ Trying to move all to x64 fails (perhaps because of the circular relations graph
 
 WORKAROUND:
 configure WcfHostPortal to not debug Silverlight (properties, "web" tab). This allows to launch and debug the server side.
-This opens ER4 from Edge in IE mode (enable it, if you haven't). 
-In VS, debug menu, "Attach to process", find IE, there might be more than one process for IE.
-You want to attach to the process that mentions "Managed (Core CLR), x86" in the "type" column, you also need the "Managed (Core CLR)" option selected, above the list of processes.
+This opens ER4 from Edge in IE mode (enable it, if you haven't).
+In VS, debug menu, "Attach to process", find "iexplore.exe", there might be more than one process for IE.
+You want to attach to the process that mentions "Managed (Core CLR), x86" in the "type" column, you also need the "Managed (Core CLR)" option selected (above the list of processes).
 If you have multiple versions of ER4 running, or multiple pages open in "IE mode" from Edge, you may find many iexplore.exe processes, in which case, you'll either need to close what's not needed, or trial and error until you find the right process.
 
+For Win11, or maybe due to other differences (this from James' machine) the Options "Managed (v4.6, v4.5, v4.0)" and "Managed compatibility mode" need to be ticked, while "Managed (Core CLR)" does not work.

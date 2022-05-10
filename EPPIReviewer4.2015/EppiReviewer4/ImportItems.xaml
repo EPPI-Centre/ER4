@@ -199,13 +199,15 @@
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=isMasterOf}" VerticalAlignment="Top"/>
                                     <TextBlock Grid.Row="3" Grid.Column="2" Text="Associated Outcomes: " VerticalAlignment="Top"/>
                                     <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding Path=Outcomes}" VerticalAlignment="Top"/>
-                                    <TextBlock Grid.Row="4" Grid.Column="2" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Right"
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" TextAlignment="Right"
                                        Text="Only deleted sources that do not contain master items of duplicates may be deleted permanentely:"/>
                                     <Button Grid.Row="4" Grid.Column="3" x:Name="DeleteSourceForeverButton"  Click="DeleteSourceForeverButton_Click" 
                                     Width="35" Height="35" VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <Image Width="18" Height="22" Source="Icons/SearchDeleteAll.png"
 						                    ToolTipService.ToolTip="Delete source Forever" />
                                     </Button>
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Right" VerticalAlignment="Top"
+                                       Text="Concurrent 'permanent deletions' of sources are not permitted, only one source at the time can be 'deleted permanently'."/>
 
                                 </Grid>
                                 <Border Margin="5" BorderBrush="Black" BorderThickness="1" Background="AntiqueWhite" VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="2" >

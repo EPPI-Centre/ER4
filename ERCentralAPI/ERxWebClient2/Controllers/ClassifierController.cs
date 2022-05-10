@@ -166,11 +166,9 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-					int reviewId = ri.ReviewId;
-
 					DataPortal<ClassifierContactModel> dp = new DataPortal<ClassifierContactModel>();
 					ClassifierContactModel res = dp.Fetch(new SingleCriteria<ClassifierContactModel, int>(data.ModelID));
+					if (res.ModelId == 0 || res.ModelId != data.ModelID) return NotFound();
 					res.ModelTitle = data.ModelName;
 					res = res.Save(); // asking object to save itself
 					return Ok(true);
