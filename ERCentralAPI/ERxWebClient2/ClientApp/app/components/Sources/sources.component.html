@@ -8,12 +8,12 @@
         <kendo-tabstrip #tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
             <kendo-tabstrip-tab [title]="'Manage Sources'" >
                 <ng-template kendoTabContent>
-                    <div *ngIf="ReviewSources.length > 1" class="container" [ngClass]="{disableThisAndChildren:!CanWrite()}">
+                    <div *ngIf="ReviewSources.length > 1" class="container" > <!--[ngClass]="{disableThisAndChildren:!CanWrite()}">-->
                         <form *ngIf="CurrentSource" class="row" #CurrentSourceForm="ngForm" (ngSubmit)="onSubmit()">
                             <div class=" col-6">
                                 <div class="form-group">
                                     <label for="source_Name">Source Name</label>
-                                    <input type="text" class="form-control" id="Sourcename"
+                                    <input type="text" class="form-control" id="Sourcename" [disabled]="!CanWrite()"
                                            [(ngModel)]="CurrentSource.source_Name" name="source_Name"
                                            #name="ngModel">
                                     <div [hidden]="IsSourceNameValid() != 1"
@@ -29,13 +29,14 @@
                                     <label for="source_Name">Date of search</label>
                                     <kendo-datepicker *ngIf="CurrentSourceDateofSearch" [(value)]="value"
                                                       [format]="'dd-MMM-yyyy'"
+                                                      [disabled]="!CanWrite()"
                                                       class="form-control" id="DateOfSearch"
                                                       [(ngModel)]="CurrentSourceDateofSearch" name="DateOfSearch">
                                     </kendo-datepicker>
                                 </div>
                                 <div class="form-group">
                                     <label for="sourceDataBase">Database (optional)</label>
-                                    <input type="text" class="form-control" id="sourceDataBase"
+                                    <input type="text" class="form-control" id="sourceDataBase" [disabled]="!CanWrite()"
                                            [(ngModel)]="CurrentSource.sourceDataBase" name="sourceDataBase">
                                 </div>
                             </div>
@@ -75,36 +76,41 @@
                             </div>
                             <div class="form-group col-12">
                                 <label for="searchString">Search String (optional)</label>
-                                <textarea class="form-control" id="searchString"
+                                <textarea class="form-control" id="searchString" [disabled]="!CanWrite()"
                                           [(ngModel)]="CurrentSource.searchString" name="searchString" rows="3"></textarea>
                             </div>
                             <div class="form-group col-12">
                                 <label for="searchDescription">Description (optional)</label>
-                                <input type="text" class="form-control" id="searchDescription"
+                                <input type="text" class="form-control" id="searchDescription" [disabled]="!CanWrite()"
                                        [(ngModel)]="CurrentSource.searchDescription" name="searchDescription">
                             </div>
                             <div class="form-group col-12">
                                 <label for="searchnotes">Notes (optional)</label>
-                                <input type="text" class="form-control" id="searchnotes"
+                                <input type="text" class="form-control" id="searchnotes" [disabled]="!CanWrite()"
                                        [(ngModel)]="CurrentSource.notes" name="searchnotes">
                             </div>
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-sm-5">
-                                        <button type="submit" (click)="SaveSource()" class="btn btn-success ml-2 mr-2" [disabled]="!CurrentSourceForm.dirty || IsSourceNameValid() != 0 || !HasCurrentSourceDateofSearch() ">
+                                        <button type="submit" (click)="SaveSource()" class="btn btn-success ml-0 mr-2 mt-1"
+                                                [disabled]="!CurrentSourceIsEdited || IsSourceNameValid() != 0 || !HasCurrentSourceDateofSearch() ">
                                             Save Changes
                                         </button>
-                                        <button class="btn btn-danger ml-1" type="button"
+                                        <button *ngIf="CurrentSourceIsEdited" (click)="CancelEditSource()" class="btn btn-outline-dark ml-0 mr-2 mt-1">
+                                            Cancel
+                                        </button>
+                                        <button class="btn btn-danger my-0 mt-1" type="button"
                                                 (click)="ConfirmDeleteSourceForever()"
                                                 [disabled]="!CanDeleteSourceForever()">
-                                            Delete
+                                            Delete forever
                                         </button>
                                     </div>
                                     <div class="col-sm-7">
+                                        <div *ngIf="SomeSourceIsBeingDeleted" class="small bg-warning p-1 border border-danger rounded">
+                                            One source is currently being deleted. You can permanently delete only one source at the time.
+                                        </div>
                                         <div *ngIf="!CanDeleteSourceForever()" class="small bg-light">
-                                            To permanently delete a source it must first be marked
-                                            <i class="fa fa-ban" style="color:red" title="Deleted source"></i>
-                                            (deleted) from the Review home page.<br />
+                                            To permanently delete a source it must first be marked as deleted (ex. <span style="color:blue"><s>source name</s></span>) in the list of sources.<br />
                                             Only deleted sources that do not contain master items of duplicates may be deleted permanentely.
                                         </div>
                                     </div>
@@ -132,8 +138,14 @@
         </kendo-tabstrip>
     </kendo-splitter-pane>
     <kendo-splitter-pane size="30%">
+        <div *ngIf="CurrentSourceIsEdited" class="w-100 h-100 row" style="position:absolute; background: #aaaaaaaa; z-index:3;">
+            <div class="p-2 rounded bg-white m-auto">
+                <button (click)="CancelEditSource()" class="btn btn-sm btn-outline-dark ">
+                    Cancel
+                </button> pending edits
+            </div>
+        </div>
         <div class="pane-content">
-            
             <div>SOURCES in Review:</div>
             <div *ngIf="ReviewSources.length <= 1">
                 No Sources in review.
@@ -143,14 +155,34 @@
                     <tbody>
                         <tr *ngFor="let ROsource of ReviewSources" class="p-0"
                             [hidden]="HideManuallyCreatedItems(ROsource)">
-                            <td class="p-1 align-middle">
-                                <div class="btn btn-link btn-sm p-0 ml-2"
+
+                            <td class="p-0 align-middle" width="30px">
+                                <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights || ROsource.isBeingDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source">
+                                    <i class="fa fa-undo"></i>
+                                </button>
+                                <ng-template #optionToDelete>
+                                    <button [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success" title="Mark this source as 'Deleted'">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </ng-template>
+                            </td>
+                            <td class="p-0 align-middle">
+                                <button *ngIf="ROsource.isDeleted;else not_deleted" class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
+                                     [disabled]="ROsource.isBeingDeleted"
                                      [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
                                      (click)="SelectSource(ROsource)">
-                                    <i *ngIf="ROsource.isDeleted" class="fa fa-ban" style="color:red" title="Deleted source">
-                                        </i>&nbsp;&nbsp;{{ROsource.source_Name}}
-                                </div>
+                                    <s>{{ROsource.source_Name}}</s>
+                                    <i *ngIf="ROsource.isBeingDeleted" class="fa fa-trash-o ml-2" style="animation: oscillate 2s infinite; "></i>
+                                </button>
+                                <ng-template #not_deleted>
+                                    <div class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
+                                         [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
+                                         (click)="SelectSource(ROsource)">
+                                        {{ROsource.source_Name}}
+                                    </div>
+                                </ng-template>
                             </td>
+
                         </tr>
                     </tbody>
                 </table>

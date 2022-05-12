@@ -1050,6 +1050,8 @@ namespace EppiReviewer4
 
         private void cmdDelSource_Click(object sender, RoutedEventArgs e)
         {
+            
+
             string ch = (((System.Windows.Controls.Button)sender).Content as Image).Tag.ToString();
             if ((((System.Windows.Controls.Button)sender).Content as Image).Tag.ToString() == "Delete")
             {
@@ -1059,13 +1061,17 @@ namespace EppiReviewer4
                 windowConfirmDeleteSource.deleteSrcTxt4.Visibility = System.Windows.Visibility.Collapsed;
                 windowConfirmDeleteSource.Header = "Confirm Source Delete";
             }
-            else
+            else if ((((System.Windows.Controls.Button)sender).Content as Image).Tag.ToString() == "Undelete")
             {
                 windowConfirmDeleteSource.deleteSrcTxt1.Visibility = System.Windows.Visibility.Collapsed;
                 windowConfirmDeleteSource.deleteSrcTxt2.Visibility = System.Windows.Visibility.Collapsed;
                 windowConfirmDeleteSource.deleteSrcTxt3.Visibility = System.Windows.Visibility.Visible;
                 windowConfirmDeleteSource.deleteSrcTxt4.Visibility = System.Windows.Visibility.Visible;
                 windowConfirmDeleteSource.Header = "Confirm Source Undelete";
+            }  
+            else
+            {//source is currently being deleted, do nothing
+                return;
             }
             windowConfirmDeleteSource.cmdDoDeleteSource.Tag = ((System.Windows.Controls.Button)sender).Tag;
             windowConfirmDeleteSource.ShowDialog();

@@ -393,6 +393,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             console.log("asking for next screening item");
             this.PriorityScreeningService.NextItem();
         }
+        else if (this.itemString == 'PriorityScreening2') {//we're back from editing an item
+            if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
+            this.IsScreening = true;
+            this.itemString = 'PriorityScreening';//just for safety...
+            console.log("NOT(!) asking for next screening item");
+            this.GotScreeningItem();
+        }
         else {
             //this.itemID = +this.itemString;
             this.item = this.ItemListService.getItem(+this.itemString);
@@ -704,7 +711,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             
             this.HelpAndFeebackContext = "itemdetails";
         }
-        else if (e.title == 'Arms and Timepoints') {
+        else if (e.title == 'Links Arms Timepoints') {
             
             this.HelpAndFeebackContext = "itemdetails\\arms";
         }
@@ -719,7 +726,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
           
             this.HelpAndFeebackContext = "itemdetails\\pdf";//no record in DB for the help!!
         }
-        else if (e.title == 'Microsoft Academic') {
+        else if (e.title == 'OpenAlex') {
            
             console.log('test tabs');
             this.HelpAndFeebackContext = "itemdetails\\Microsoft Academic";

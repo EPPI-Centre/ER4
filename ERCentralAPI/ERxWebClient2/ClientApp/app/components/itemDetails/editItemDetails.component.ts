@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { ModalService } from '../services/modal.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { isString } from '@progress/kendo-angular-grid/dist/es2015/utils';
 import { Helpers } from '../helpers/HelperMethods';
+import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 
 
@@ -19,7 +20,7 @@ import { Helpers } from '../helpers/HelperMethods';
     providers: [],
     styles: []
 })
-export class editItemDetailsComp implements OnInit {
+export class editItemDetailsComp implements OnInit, OnDestroy {
 
     constructor(
         private ReviewerIdentityServ: ReviewerIdentityService,
@@ -27,7 +28,7 @@ export class editItemDetailsComp implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
         public ItemListService: ItemListService,
-        private ModalService: ModalService
+        private priorityScreeningService: PriorityScreeningService
     ) {}
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
@@ -135,17 +136,26 @@ export class editItemDetailsComp implements OnInit {
     }
     
     Save() {
-        if (this.item) this.ItemListService.UpdateItem(this.item);
+        if (this.item) {
+            this.ItemListService.UpdateItem(this.item);
+            if (this.returnTo == "itemcoding/PriorityScreening2") this.priorityScreeningService.CurrentItem = this.item;//so that my changes will be visible
+        }
     }
     private GetItem() {
         if (this.itemString == "0") {
             this.item = new Item();
             this.OriginalItem = new Item();
         }
+        else if (this.itemString == "FromPrioritySc") {
+            if (this.priorityScreeningService.CurrentItem.itemId < 1) this.GoBack();
+            this.OriginalItem = this.priorityScreeningService.CurrentItem;
+            if (!this.OriginalItem || this.OriginalItem.itemId == 0) this.router.navigate(['Main']);
+            this.item = (JSON.parse(JSON.stringify(this.OriginalItem)));//WARNING: this works ONLY as long as Item class has no methods!!!!
+        }
         else {
             //this.itemID = +this.itemString;
             this.OriginalItem = this.ItemListService.getItem(+this.itemString);
-            if (!this.OriginalItem || this.OriginalItem.itemId == 0) this.router.navigate(['Main']);
+            if (!this.OriginalItem || this.OriginalItem.itemId == 0) this.GoBack();
             this.item = (JSON.parse(JSON.stringify(this.OriginalItem)));//WARNING: this works ONLY as long as Item class has no methods!!!!
             //should the above fail, we might use iterationCopy(...), below.
         }
@@ -164,6 +174,10 @@ export class editItemDetailsComp implements OnInit {
     }
     GoBack() {
         this.router.navigate([this.returnTo]);
+    }
+    ngOnDestroy() {
+        if (this.subReturnTo) this.subReturnTo.unsubscribe();
+        if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
     }
 }
 

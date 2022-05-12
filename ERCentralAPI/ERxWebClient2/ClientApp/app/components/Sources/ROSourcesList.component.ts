@@ -13,7 +13,14 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 @Component({
     selector: 'ROSourcesList',
     templateUrl: './ROSourcesList.component.html',
-    providers: []
+    providers: [],
+    styles: [
+        `@keyframes oscillate {
+          0%   {transform:rotate(35deg);}
+          50% {transform:rotate(-35deg);}
+          100% {transform:rotate(35deg);}
+        }`
+    ]
 })
 
 export class ROSourcesListComponent implements OnInit {
@@ -28,7 +35,12 @@ export class ROSourcesListComponent implements OnInit {
     ) {    }
     ngOnInit() {
     }
-    
+    public get GettingSourceReport(): boolean {
+        return this.SourcesService.SourceReportIsRunning;
+    }
+    public get ReportProgress(): string {
+        return this.SourcesService.ProgressOfSourcesReport;
+    }
     get ReviewSources(): ReadOnlySource[] {
         return this.SourcesService.ReviewSources;
     }
@@ -54,10 +66,10 @@ export class ROSourcesListComponent implements OnInit {
         if ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) || ros.source_ID > 0) {
             let msg: string;
             if (ros.isDeleted) {
-                msg = "Are you sure you want to undelete the selected Source? <br /><br /> Items within the source <b>will be marked as 'Included'</b>, with the exception of duplicates."
+                msg = "Are you sure you want to undelete the<br> <b>\"" + ros.source_Name + "\"</b> source?<br/>Items within the source <b> will be marked as 'Included' </b>, with the exception of duplicates."
             }
             else {
-                msg = "Are you sure you want to delete the selected Source? <br /><br />Information about items state (<b>Included, Exluded or Deleted</b>) will be lost."
+                msg = "Are you sure you want to delete the<br> <b>\"" + ros.source_Name + "\"</b> source?<br/>Information about items state (<b>Included, Exluded or Deleted</b>) will be lost."
             }
             this.openConfirmationDialogDeleteUnDeleteSource(ros, msg);
         } 
@@ -87,125 +99,17 @@ export class ROSourcesListComponent implements OnInit {
     public async CreateSourceReport() {
         if (this.ReviewSources != null) {
 
-            let report: string = "<h3>Search sources report</h3>(undeleted sources only)";
-            report += "<table border='1' cellspacing='0' cellpadding='2'>";
-            
-            let sourceList: ReadOnlySource[] = [];
-
-            for (var j = 0; j < this.ReviewSources.length - 1; j++) { // we don't want the manually created item source               
-                let tmpSource: ReadOnlySource = this.ReviewSources[j];
-                sourceList.push(tmpSource);
+            let ReportParameter: string = "allSources";
+            let report: string = await this.SourcesService.GetSourceReport(ReportParameter);
+            if (report != "") {//report comes back empty if there was an error - error messages will be shown by the service
+                const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
+                saveAs(dataURI, "Source table.html");
+                //Helpers.OpenInNewWindow(report, this._baseUrl);
             }
-
-            // order the test array by source name
-            let orderedSourceList = sourceList.sort((a, b) => (a.source_Name < b.source_Name) ? -1 : 1);
-               
-            for (var i = 0; i < orderedSourceList.length; i++) {
-                let currentSource: ReadOnlySource = orderedSourceList[i];
-                if (currentSource.isDeleted == true) {
-                    // we only want undeleted sources
-                    i += 1;
-                }
-                else {
-                    report += "<tr>"
-                    report += "<td>Source name</td>";
-                    report += "<td><b>" + currentSource.source_Name + "</b></td>";
-                    report += "</tr>"
-
-                    let res = await this.SourcesService.GetSourceDataForThisSource(currentSource.source_ID);
-
-                    if (res != false) {
-                        if (res != true) {
-                            let currentSourceData: Source = res;
-
-                            report += "<tr>"
-                            report += "<td>Database name/platform</td>";
-                            report += "<td><b>" + currentSourceData.sourceDataBase + "</b></td>";
-                            report += "</tr>"
-                            report += "<tr>"
-                            report += "<td>Date of search</td>";
-                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfSerach) + "</td>";
-                            report += "</tr>"
-                            report += "<tr>"
-                            report += "<tr>"
-                            report += "<td>Date of import</td>";
-                            report += "<td>" + Helpers.FormatDate2(currentSourceData.dateOfImport) + "</td>";
-                            report += "</tr>"
-                            report += "<tr>"
-                            report += "<td>Number items</td>";
-                            report += "<td>" + currentSourceData.total_Items + "</td>";
-                            report += "</tr>"
-                            report += "<tr>"
-                            report += "<td>Duplicates</td>";
-                            report += "<td>" + currentSourceData.duplicates + "</td>";
-                            report += "</tr>"
-                            report += "<tr>"
-                            report += "<td>Description</td>";
-                            report += "<td>" + currentSourceData.searchDescription + "</td>";
-                            report += "</tr>"
-                            report += "<tr>"
-                            report += "<td>Notes</td>";
-                            report += "<td>" + currentSourceData.notes + "</td>";
-                            report += "</tr>"
-                            report += "<tr>"
-                            report += "<td>Search string</td>";
-                            report += "<td>" + currentSourceData.searchString + "</td>";
-                            report += "</tr>"
-                            report += "<tr>"
-                            report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
-                            report += "</tr>"
-                        }
-                    }
-                }
-            }
-
-            // add the manually create items source at the end
-            report += "<tr>"
-            report += "<td>Source name</td>";
-            report += "<td><b>Manually created items</b></td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td>Database name/platform</td>";
-            report += "<td>N/A</td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td>Date of search</td>";
-            report += "<td>N/A</td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td>Date of import</td>";
-            report += "<td>N/A</td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td>Number items</td>";
-            report += "<td>" + this.ReviewSources[this.ReviewSources.length - 1].total_Items + "</td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td>Duplicates</td>";
-            report += "<td>" + this.ReviewSources[this.ReviewSources.length - 1].duplicates + "</td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td>Description</td>";
-            report += "<td>N/A</td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td>Notes</td>";
-            report += "<td>N/A</td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td>Search string</td>";
-            report += "<td>N/A</td>";
-            report += "</tr>"
-            report += "<tr>"
-            report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
-            report += "</tr>"
-
-
-            report += "</table>"
-            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Source Table"));
-            saveAs(dataURI, "Source table.html");
-            //Helpers.OpenInNewWindow(report, this._baseUrl);
         }      
+    }
+    CancelSourcesReport() {
+        this.SourcesService.StopSourcesReport();
     }
 }
 

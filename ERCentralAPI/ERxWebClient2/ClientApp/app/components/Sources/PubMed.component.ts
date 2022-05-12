@@ -107,10 +107,20 @@ export class PubMedComponent implements OnInit, OnDestroy {
     }
     AdjustedMax(): number {
         if (this._DataToCheck) {
-            return this._DataToCheck.queMax > 10000 ? 10000 : this._DataToCheck.queMax ;
+            return this._DataToCheck.queMax > 10000 ? this._DataToCheck.queMax : this._DataToCheck.queMax ;
         }
         else return 1;
     }
+
+    get ImportRangeOK(): boolean {
+        if ((this.AdjustedSaveEnd - this.AdjustedSaveStart) < 10000) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+
     public togglePreviewPanel() {
         this.ShowPreviewTable = !this.ShowPreviewTable;
     }
@@ -204,6 +214,6 @@ export class PubMedComponent implements OnInit, OnDestroy {
     }
     ngOnDestroy(): void {
         if (this.gotPmSearchToCheckSubs) this.gotPmSearchToCheckSubs.unsubscribe();
-        //if (this.gotItems4CheckingSbus) this.gotItems4CheckingSbus.unsubscribe();
+        if (this.PubMedSearchImportedSubs) this.PubMedSearchImportedSubs.unsubscribe();
     }
 }

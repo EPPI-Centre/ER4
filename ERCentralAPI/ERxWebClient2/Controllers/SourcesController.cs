@@ -229,7 +229,7 @@ namespace ERxWebClient2.Controllers
                     SourceDeleteForeverCommand cmd = new SourceDeleteForeverCommand(sourceId.Value);
                     DataPortal<SourceDeleteForeverCommand> dp2 = new DataPortal<SourceDeleteForeverCommand>();
                     cmd = dp2.Execute(cmd);
-                    return Ok(cmd.SourceId);
+                    return Json(cmd.Result);
                 }
                 else return Forbid();
             }

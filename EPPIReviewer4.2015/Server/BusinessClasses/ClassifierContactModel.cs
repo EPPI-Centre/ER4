@@ -87,6 +87,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(ModelTitleProperty);
             }
+            set
+            {
+                SetProperty(ModelTitleProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<string> AttributeOnProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeOn", "AttributeOn"));
@@ -185,15 +189,73 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
+
+
+
+        protected void DataPortal_Fetch(SingleCriteria<ClassifierContactModel, int> criteria)
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ClassifierGet", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MODEL_ID", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            LoadProperty<int>(ModelIdProperty, reader.GetInt32("MODEL_ID"));
+                            LoadProperty<string>(ModelTitleProperty, reader.GetString("MODEL_TITLE"));
+                            LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
+                            LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
+                            LoadProperty<Int64>(AttributeIdOnProperty, reader.GetInt64("ATTRIBUTE_ID_ON"));
+                            LoadProperty<Int64>(AttributeIdNotOnProperty, reader.GetInt64("ATTRIBUTE_ID_NOT_ON"));
+                            LoadProperty<decimal>(AccuracyProperty, reader.GetDecimal("ACCURACY"));
+                            LoadProperty<decimal>(AucProperty, reader.GetDecimal("AUC"));
+                            LoadProperty<decimal>(PrecisionProperty, reader.GetDecimal("PRECISION"));
+                            LoadProperty<decimal>(RecallProperty, reader.GetDecimal("RECALL"));
+
+                        }
+                    }
+                }
+                connection.Close();
+            }
+        }
+
+        protected override void DataPortal_Update()
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ClassifierUpdateModelTitle", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MODEL_ID", ReadProperty(ModelIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@TITLE", ReadProperty(ModelTitleProperty)));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+        }
+
+
+
+
+
+
         protected override void DataPortal_Insert()
         {
 
         }
 
-        protected override void DataPortal_Update()
+        /*protected override void DataPortal_Update()
         {
 
-        }
+        }*/
 
         protected override void DataPortal_DeleteSelf()
         {

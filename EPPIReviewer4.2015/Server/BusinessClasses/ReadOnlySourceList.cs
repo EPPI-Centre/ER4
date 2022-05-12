@@ -21,13 +21,13 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlySourceList : ReadOnlyBase<ReadOnlySourceList> //ReadOnlyListBase<ReadOnlySourceList, ReadOnlySource>
     {
-        //private int _SourcelessItems;
-        public static readonly PropertyInfo<int> Sourceless_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Sourceless_Items", "Sourceless_Items"));
-        public int Sourceless_Items
+        
+        public static readonly PropertyInfo<bool> SomeSourceIsBeingDeletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("SomeSourceIsBeingDeleted", "SomeSourceIsBeingDeleted"));
+        public bool SomeSourceIsBeingDeleted
         {
             get
             {
-                return GetProperty(Sourceless_ItemsProperty);
+                return GetProperty(SomeSourceIsBeingDeletedProperty);
             }
         }
         public static readonly PropertyInfo<MobileList<ReadOnlySource>> SourcesProperty = RegisterProperty(new PropertyInfo<MobileList<ReadOnlySource>>("Sources", "Sources"));
@@ -79,8 +79,26 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             Sources.Add(ReadOnlySource.GetReadOnlySource(reader));
                         }
-                        //reader.NextResult();
-                        //reader.Read();
+                        reader.NextResult();
+                        if (reader.Read())
+                        {//second reader gives us the source ID of a "currently being deleted" source (if any)
+                            int DeletingThisSouceId = reader.GetInt32("SOURCE_ID");
+                            int index = Sources.FindIndex(f => f.Source_ID == DeletingThisSouceId);
+                            if (index > -1)
+                            {
+                                Sources[index].MarkAsBeingDeleted();
+                                LoadProperty(SomeSourceIsBeingDeletedProperty, true);
+
+                                //supplying 0 as the SourceId makes the command "check" is a source deletion needs to be resumed.
+                                SourceDeleteForeverCommand sdfc = new SourceDeleteForeverCommand(0);
+                                DataPortal<SourceDeleteForeverCommand> dp2 = new DataPortal<SourceDeleteForeverCommand>();
+                                sdfc = dp2.Execute(sdfc);//fire and forget, this will check and possibly resume deletion, but doesn't wait for the deletion to end.
+                            } 
+                            else
+                            {
+                                LoadProperty(SomeSourceIsBeingDeletedProperty, false);
+                            }
+                        }
                         //LoadProperty(Sourceless_ItemsProperty, reader.GetInt32("Total_Items"));
                     }
                 }

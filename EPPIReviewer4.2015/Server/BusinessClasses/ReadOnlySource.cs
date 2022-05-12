@@ -9,8 +9,9 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using System.ComponentModel;
+using BusinessLibrary.Security;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using Csla.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -81,7 +82,36 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(IsDeletedProperty);
             }
         }
-
+        public static readonly PropertyInfo<bool> IsBeingDeletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsBeingDeleted", "IsBeingDeleted", false));
+        public bool IsBeingDeleted
+        {
+            get
+            {
+                return GetProperty(IsBeingDeletedProperty);
+            }
+        }
+#if SILVERLIGHT
+        public string DeleteUndeleteAction
+        {
+            get
+            {
+                if (IsBeingDeleted) return "none";
+                else if (IsDeleted) return "undelete";
+                else return "delete";
+            }
+        }
+        public bool IsNotBeingDeleted
+        {
+            get
+            {
+                return !GetProperty(IsBeingDeletedProperty);
+            }
+        }
+#endif
+        public void MarkAsBeingDeleted()
+        {
+            LoadProperty<bool>(IsBeingDeletedProperty, true);
+        }
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -98,6 +128,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(SingleCriteria<ReadOnlySource, Int64> criteria)
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -105,6 +136,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
@@ -126,6 +158,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<int>(Source_IDProperty, reader.GetInt32("Source_ID"));
             LoadProperty<bool>(IsDeletedProperty, reader.GetInt32("IS_DELETED") == 1 ? true : false);
             LoadProperty<int>(DuplicatesProperty, reader.GetInt32("Duplicates"));
+            LoadProperty<bool>(IsBeingDeletedProperty, false);
         }
 
 

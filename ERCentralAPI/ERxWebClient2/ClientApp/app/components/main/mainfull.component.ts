@@ -23,6 +23,7 @@ import { WorkAllocationComp } from '../WorkAllocations/WorkAllocationComp.compon
 import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
+import { EditReviewComponent } from '../Review/editReview.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -101,7 +102,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
     @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
     @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
-    @ViewChild(SetupConfigurableReports) private SetupConfigurableReports!: SetupConfigurableReports; 
+    @ViewChild(SetupConfigurableReports) private SetupConfigurableReports!: SetupConfigurableReports;
+    @ViewChild('EditReviewComp') EditReviewComp!: EditReviewComponent;
     //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
@@ -359,9 +361,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		},
 		{
 			text: 'Excel',
-			click: () => {
+			click: async () => {
 				//this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
-				let testRefs: any = this.ShowHideExportReferences('ExportTable');
+                let testRefs: any = await this.ShowHideExportReferences('ExportTable');
 				//console.log(testRefs);
 				this.exportAsXLSX(testRefs);
 			}
@@ -1094,6 +1096,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 		if (this.ComparisonComp) {
 			this.ComparisonComp.Clear();
+        }
+        if (this.EditReviewComp) {
+            this.EditReviewComp.CloseEditReview();
         }
         if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
         if (this.SetupConfigurableReports) this.SetupConfigurableReports.Clear();

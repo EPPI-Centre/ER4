@@ -9,12 +9,12 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using BusinessLibrary.Security;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
-using BusinessLibrary.Security;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -27,10 +27,21 @@ namespace BusinessLibrary.BusinessClasses
             SetProperty(ReviewNameProperty, Name);
             SetProperty(ContactIdProperty, ContactID);
         }
+
+        public Review(string Name)
+        {
+            MarkOld();
+            ReviewName = Name;
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            SetProperty(ReviewIdProperty, ri.ReviewId);
+            MarkDirty();
+        }
+
+
 #if SILVERLIGHT
     public Review() { }  
 #else
-		public Review() { }
+        public Review() { }
 #endif
 
         public override string ToString()
@@ -44,6 +55,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(ReviewIdProperty);
+            }
+            set
+            {
+                SetProperty(ReviewIdProperty, value);
             }
         }
 
@@ -70,6 +85,14 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(ReviewNameProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<Boolean> ResultProperty = RegisterProperty<Boolean>(new PropertyInfo<Boolean>("Result", "Result"));
+        public Boolean Result
+        {
+            get
+            {
+                return GetProperty(ResultProperty);
             }
         }
 
@@ -121,15 +144,18 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ReviewUpdate", connection))
+                connection.Open(); 
+                //using (SqlCommand command = new SqlCommand("st_ReviewUpdate", connection))
+                using (SqlCommand command = new SqlCommand("st_ReviewEditName", connection)) 
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReadProperty(ReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@REVIEW_NAME", ReadProperty(ReviewNameProperty)));
                     command.ExecuteNonQuery();
+                    LoadProperty(ResultProperty, true); // routine doesn't return anything but it is updating the review you are
+                                                            // presently in so what could cause a sql error?
                 }
                 connection.Close();
             }
