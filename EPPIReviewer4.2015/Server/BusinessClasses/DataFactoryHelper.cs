@@ -5,10 +5,8 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataLake.Analytics;
 using Microsoft.Azure.Management.DataLake.Analytics.Models;
 using Microsoft.Azure.Management.DataLake.Store;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Rest;
-using Microsoft.Rest.Azure.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -18,30 +16,34 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if !CSLA_NETCORE
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Rest.Azure.Authentication;
+#endif
 
 namespace BusinessLibrary.BusinessClasses
 {
     class DataFactoryHelper
     {
+#if (CSLA_NETCORE)
         public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-
-#if (CSLA_NETCORE)
-
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
-
+            throw new NotImplementedException();
+            //return false;
+        }
 #else
-            var configuration = ConfigurationManager.AppSettings;
+public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
 
-#endif
-
-            string tenantID = configuration["tenantID"];
-            string appClientId = configuration["appClientId"];
-            string appClientSecret = configuration["appClientSecret"];
-            string subscriptionId = configuration["subscriptionId"];
-            string resourceGroup = configuration["resourceGroup"];
-            string dataFactoryName = configuration["dataFactoryName"];
+            string tenantID = AzureSettings.tenantID;
+            string appClientId = AzureSettings.appClientId;
+            string appClientSecret = AzureSettings.appClientSecret;
+            string subscriptionId = AzureSettings.subscriptionId;
+            string resourceGroup = AzureSettings.resourceGroup;
+            string dataFactoryName = AzureSettings.dataFactoryName;
 
             int MagLogId = 0;
             if (doLogging == true)
@@ -127,6 +129,6 @@ namespace BusinessLibrary.BusinessClasses
             return true;
         }
 
-        
+#endif
     }
 }

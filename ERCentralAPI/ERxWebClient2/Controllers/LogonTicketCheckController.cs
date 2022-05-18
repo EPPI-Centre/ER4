@@ -22,7 +22,7 @@ namespace ERxWebClient2.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    public class LogonTicketCheckController : Controller
+    public class LogonTicketCheckController : Microsoft.AspNetCore.Mvc.Controller
     {
 
         private readonly ILogger _logger;

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
 using BusinessLibrary.BusinessClasses;
@@ -56,7 +57,7 @@ namespace ERxWebClient2
             services.AddSingleton(Configuration);
       
 
-            services.AddMvc().AddJsonOptions(options =>
+            services.AddMvc().AddNewtonsoftJson(options =>
             {//this is needed to allow serialising CSLA child objects:
                 //they all have a "Parent" field which creates a reference loop.
                 options.SerializerSettings.CheckAdditionalContent = true;

@@ -19,13 +19,19 @@ using BusinessLibrary.Data;
 using Csla.Data;
 using BusinessLibrary.Security;
 using System.Configuration;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data;
 using System.Threading;
 using System.Collections;
 using System.Globalization;
 using System.Linq;
+#endif
+#if !SILVERLIGHT && !WEBDB
+using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+#else
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -418,34 +424,22 @@ namespace BusinessLibrary.BusinessClasses
 
         private static string UpdateMagCurrentInfoTableWithMostRecentMagDBOnAzureAsync()
         {
-
-#if (CSLA_NETCORE && WEBDB)
-
-            var configuration = WebDatabasesMVC.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
-
-#elif (CSLA_NETCORE && !WEBDB)
-
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
-
-#else
-            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
-#endif
-
+            string storageAccountName = AzureSettings.MAGStorageAccount;
+            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
 
             string storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
             storageConnectionString += storageAccountKey;
-
+#if (CSLA_NETCORE && !WEBDB)
+            BlobServiceClient blobClient = new BlobServiceClient(storageConnectionString);
+            var magContainers = ListContainersWithPrefixAsync(blobClient, "mag-");
+#else
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             //CloudBlobContainer container = blobClient.GetContainerReference("experiments");
             //here need  list
             var magContainers = ListContainersWithPrefixAsync(blobClient, "mag-");
-            
+#endif
+
             //use LINQ to list them in date order
             var orderedMagContainers = magContainers.OrderByDescending(x => x.Name);
             //MagCurrentInfo returnValue = new MagCurrentInfo();
@@ -462,14 +456,34 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+#if (CSLA_NETCORE && !WEBDB)
+        private static IEnumerable<BlobContainerItem> ListContainersWithPrefixAsync(BlobServiceClient blobClient,
+                                                        string prefix)
+        {
+            try
+            {
+                IEnumerable<BlobContainerItem> resultSegment = null;
+                CancellationToken continuationToken = new CancellationToken();
+                resultSegment = blobClient.GetBlobContainers(BlobContainerTraits.None,BlobContainerStates.None, prefix, continuationToken);
+                return resultSegment;
+
+            }
+            catch (RequestFailedException e)
+            {
+                Console.WriteLine("HTTP error code {0} : {1}",
+                                    e.ErrorCode,
+                                    e.Message);
+                return null;
+            }
+        }
+#else
         private static IEnumerable<CloudBlobContainer> ListContainersWithPrefixAsync(CloudBlobClient blobClient,
                                                         string prefix)
         {
             try
             {
-                ContainerResultSegment resultSegment = null;
                 BlobContinuationToken continuationToken = null;
-
+                ContainerResultSegment resultSegment = null;
                 do
                 {
                     resultSegment = blobClient.ListContainersSegmentedAsync(
@@ -493,7 +507,7 @@ namespace BusinessLibrary.BusinessClasses
                 return null;
             }
         }
-
+#endif
         private static string swapDateFormat(string mag_version)
         {
             var date = DateTime.ParseExact(mag_version, "yyyy/MM/dd",
@@ -525,5 +539,5 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #endif
-        }
+    }
     }

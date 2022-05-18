@@ -214,3 +214,6 @@ FakesAssemblies/
 /ERCentralAPI/WebDatabasesMVC/wwwroot/Fair/FAIRImages
 /ERCentralAPI/WebDatabasesMVC/wwwroot/Fair.zip
 /ERCentralAPI/WebDatabasesMVC/appsettings.Development.json
+/ERCentralAPI/ERxWebClient2.backup
+/ERCentralAPI/ERxWebClient2/AnalysisReport.sarif
+/ERCentralAPI/ERxWebClient2/upgrade-assistant.clef

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace ERxWebClient2.Controllers
 {
@@ -83,7 +82,7 @@ namespace ERxWebClient2.Controllers
                     foreach (var item in magSearches)
                     {
                         msList.RaiseListChangedEvents = false;
-                        MagSearch ToDelete = msList.FirstOr(found => found.MagSearchId == item.magSearchId, null);
+                        MagSearch ToDelete = msList.FirstOrDefault(found => found.MagSearchId == item.magSearchId, null);
                         if (ToDelete != null)
                         {
                             int index = msList.IndexOf(ToDelete);

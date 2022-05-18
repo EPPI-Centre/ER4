@@ -22,6 +22,8 @@ using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using System.Configuration;
+using Azure.Storage.Blobs;
+using Azure.Storage;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 #if !CSLA_NETCORE
@@ -182,9 +184,9 @@ namespace BusinessLibrary.BusinessClasses
                 MagLog.SaveLogEntry("Add classifier scores", "Failed", "Writing local file. Review: " + ReviewId, ContactId);
                 return;
             }
-            
+
             // this copied from ClassifierCommand. The keys should move to web.config
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse("***REMOVED***");
+            Microsoft.Azure.Storage.CloudStorageAccount storageAccount = CloudStorageAccount.Parse("***REMOVED***");
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
             CloudBlockBlob blockBlobData;

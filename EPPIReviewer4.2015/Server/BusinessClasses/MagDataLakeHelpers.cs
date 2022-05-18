@@ -9,6 +9,7 @@ using Microsoft.Rest;
 using Microsoft.Rest.Azure.Authentication;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
@@ -16,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace BusinessLibrary.BusinessClasses
 {
@@ -28,16 +30,9 @@ namespace BusinessLibrary.BusinessClasses
             var adlaJobClient = new DataLakeAnalyticsJobManagementClient(adlCreds);
             var adlsFileSystemClient = new DataLakeStoreFileSystemManagementClient(adlCreds);
 
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string dataLakeAccount = configuration["MagDataLakeDataLakeAccount"];
-            string dataLakestorageAccount = configuration["MagDataLakeStorageAccount"];
-
-#else
-            string dataLakeAccount = ConfigurationManager.AppSettings["MagDataLakeDataLakeAccount"];
-            string dataLakestorageAccount = ConfigurationManager.AppSettings["MagDataLakeStorageAccount"];
-#endif
+            string dataLakeAccount = AzureSettings.MagDataLakeDataLakeAccount;
+            string dataLakestorageAccount = AzureSettings.MagDataLakeStorageAccount;
 
             try
             {
@@ -302,5 +297,66 @@ namespace BusinessLibrary.BusinessClasses
             var jobInfo = adlaJobClient.Job.Create(adla, jobId, parameters);
             return jobId;
         }
+    }
+    public class AzureSettings
+    {
+#if (CSLA_NETCORE)
+        private static Microsoft.Extensions.Configuration.IConfigurationSection _AzureContReviewSettings;
+        private static Microsoft.Extensions.Configuration.IConfigurationSection AzureContReviewSettings
+        {
+            get
+            {
+#if WEBDB
+                if (_AzureContReviewSettings == null) _AzureContReviewSettings = WebDatabasesMVC.Startup.Configuration.GetSection("AzureContReviewSettings");
+#else
+                if (_AzureContReviewSettings == null) _AzureContReviewSettings = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+#endif
+                return _AzureContReviewSettings;
+            }
+        }
+        private static Microsoft.Extensions.Configuration.IConfigurationSection _AzureMagSettings;
+        private static Microsoft.Extensions.Configuration.IConfigurationSection AzureMagSettings
+        {
+            get
+            {
+#if WEBDB
+                if (_AzureContReviewSettings == null) _AzureContReviewSettings = WebDatabasesMVC.Startup.Configuration.GetSection("AzureMagSettings");
+#else
+                if (_AzureContReviewSettings == null) _AzureContReviewSettings = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+#endif
+                return _AzureMagSettings;
+            }
+        }
+#else
+        private static NameValueCollection _AzureContReviewSettings;
+        private static NameValueCollection AzureContReviewSettings
+        {
+            get
+            {
+                if (_AzureContReviewSettings == null) _AzureContReviewSettings = ConfigurationManager.AppSettings;
+                return _AzureContReviewSettings;
+            }
+        }
+        private static NameValueCollection _AzureMagSettings;
+        private static NameValueCollection AzureMagSettings
+        {
+            get
+            {
+                if (_AzureContReviewSettings == null) _AzureMagSettings = ConfigurationManager.AppSettings;
+                return _AzureMagSettings;
+            }
+        }
+#endif
+
+        public static string tenantID { get { return AzureContReviewSettings["tenantID"]; } }
+        public static string appClientId { get { return AzureContReviewSettings["appClientId"]; } }
+        public static string appClientSecret { get { return AzureContReviewSettings["appClientSecret"]; } }
+        public static string subscriptionId { get { return AzureContReviewSettings["subscriptionId"]; } }
+        public static string resourceGroup { get { return AzureContReviewSettings["resourceGroup"]; } }
+        public static string dataFactoryName { get { return AzureContReviewSettings["dataFactoryName"]; } }
+        public static string MagDataLakeDataLakeAccount { get { return AzureMagSettings["MagDataLakeDataLakeAccount"]; } }
+        public static string MagDataLakeStorageAccount { get { return AzureMagSettings["MagDataLakeStorageAccount"]; } }
+        public static string MAGStorageAccount { get { return AzureMagSettings["MAGStorageAccount"]; } }
+        public static string MAGStorageAccountKey { get { return AzureMagSettings["MAGStorageAccountKey"]; } }
     }
 }

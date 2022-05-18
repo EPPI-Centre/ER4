@@ -20,8 +20,6 @@ using BusinessLibrary.Data;
 using Csla.Data;
 using BusinessLibrary.Security;
 using System.Configuration;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data;
 using System.Threading;
 #endif

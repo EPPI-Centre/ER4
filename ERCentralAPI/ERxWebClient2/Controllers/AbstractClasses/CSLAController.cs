@@ -15,7 +15,7 @@ using BusinessLibrary.BusinessClasses;
 
 namespace ERxWebClient2.Controllers
 {
-    public abstract class CSLAController : Controller
+    public abstract class CSLAController : Microsoft.AspNetCore.Mvc.Controller
     {
         protected readonly ILogger _logger;
         protected CSLAController(ILogger logger)

@@ -1,63 +1,65 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <RuntimeFrameworkVersion>2.1.5</RuntimeFrameworkVersion>
+    <TargetFramework>net6.0</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;CSLA_NETCORE</DefineConstants>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;CSLA_NETCORE</DefineConstants>
   </PropertyGroup>
-
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.12.0" />
+    <PackageReference Include="Azure.Storage.Common" Version="12.11.0" />
     <PackageReference Include="CSLA-ASPNETCORE-MVC" Version="4.7.200" />
     <PackageReference Include="CsvHelper" Version="12.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.19" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="6.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.25" />
     <PackageReference Include="Microsoft.Azure.DataLake.Store" Version="1.1.19" />
-    <PackageReference Include="Microsoft.Azure.Management.DataFactory" Version="4.8.0" />
+    <PackageReference Include="Microsoft.Azure.Management.DataFactory" Version="6.1.0" />
     <PackageReference Include="Microsoft.Azure.Management.DataLake.Analytics" Version="3.0.1" />
     <PackageReference Include="Microsoft.Azure.Management.DataLake.Store" Version="2.2.1" />
-    <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.31.1" />
+    <PackageReference Include="Microsoft.Azure.Management.ResourceManager" Version="3.17.4-preview" />
     <PackageReference Include="Microsoft.Azure.Search" Version="10.1.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.8.2" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.43.2" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.17.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.17.0" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.4.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.2-dev-00028" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="1.1.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.1-dev-00798" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.17.0" />
     <PackageReference Include="TypeGen" Version="2.3.4" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.326103">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.5" />
   </ItemGroup>
-
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- Files not to publish (note that the 'dist' subfolders are re-added below) -->
     <Content Remove="ClientApp\**" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Remove="Models\Security\RiExtension.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <None Remove="ClientApp\app\components\helpers\HelperMethods.ts" />
     <None Remove="ClientApp\app\components\helpers\StatisticsMethods.ts" />
     <None Remove="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs" Link="Models\ArchieAbstractClasses\ArchieCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyBase.cs" Link="Models\ArchieAbstractClasses\ArchieReadOnlyBase.cs" />
@@ -274,31 +276,22 @@
     <Compile Include="..\PubmedImport\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
     <Compile Include="..\PubmedImport\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="ClientApp\app\components\assets\sales.json" />
-    <Content Include="ClientApp\favicon.ico" />
-  </ItemGroup>
-
   <ItemGroup>
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
     <Folder Include="Extensions\" />
     <Folder Include="helpers\" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="EPPIiFilter">
       <HintPath>..\Dlls\EPPIiFilter.dll</HintPath>
     </Reference>
   </ItemGroup>
-
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\app\components\helpers\StatisticsMethods.ts" />
     <TypeScriptCompile Include="ClientApp\app\components\helpers\HelperMethods.ts" />
     <TypeScriptCompile Include="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Update="wwwroot\Images\AssignCodeToItems.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -376,13 +369,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
     <None Update="UserTempUploads\.placeholder">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <!-- <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') "> -->
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist')">
     <!-- Ensure Node.js is installed -->
@@ -390,20 +381,17 @@
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-
     <!-- In development, the dist files won't exist on the first run or when cloning to
          a different machine, so rebuild them if not already present. -->
     <Message Importance="high" Text="Webpack build (dist files)..." />
     <Exec Command="node node_modules/webpack/bin/webpack.js --config webpack.config.vendor.js" />
     <Exec Command="node node_modules/webpack/bin/webpack.js" />
   </Target>
-
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec Command="npm install" />
     <Exec Command="node node_modules/webpack/bin/webpack.js --config webpack.config.vendor.js --env.prod" />
     <Exec Command="node --max-old-space-size=4096 node_modules/webpack/bin/webpack.js --env.prod" />
-
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
       <DistFiles Include="wwwroot\dist\**; ClientApp\dist\**" />
@@ -413,7 +401,9 @@
       </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
-
-  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
-
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties appsettings_1json__JSONSchema="" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

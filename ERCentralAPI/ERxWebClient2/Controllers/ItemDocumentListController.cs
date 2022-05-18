@@ -58,7 +58,7 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpGet("[action]")]
-        public ActionResult GetItemDocument(int ItemDocumentID)
+        public Microsoft.AspNetCore.Mvc.ActionResult GetItemDocument(int ItemDocumentID)
         {
             
             if (!SetCSLAUser()) return Unauthorized();

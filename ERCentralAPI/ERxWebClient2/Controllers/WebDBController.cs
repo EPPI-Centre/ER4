@@ -16,7 +16,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using EPPIDataServices.Helpers;
 using Newtonsoft.Json;
-using Microsoft.Azure.Management.Compute.Fluent.VirtualMachine.Definition;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.Extensions.Configuration;

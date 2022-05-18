@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ERxWebClient.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : Microsoft.AspNetCore.Mvc.Controller
     {
         public IActionResult Index()
         {

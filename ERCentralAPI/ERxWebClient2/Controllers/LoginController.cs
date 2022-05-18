@@ -5,6 +5,7 @@ using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using System.Text;
@@ -18,7 +19,7 @@ using EPPIDataServices.Helpers;
 namespace ERxWebClient2.Controllers
 {
     [Route("api/[controller]")]
-    public class LoginController : Controller
+    public class LoginController : Microsoft.AspNetCore.Mvc.Controller
     {
         private IConfiguration _config;
         private readonly ILogger _logger;
@@ -212,7 +213,7 @@ namespace ERxWebClient2.Controllers
             riCI.AddClaim(new Claim("name", ri.Name));
             riCI.AddClaim(new Claim("reviewTicket", ri.Ticket));
             riCI.AddClaim(new Claim("isSiteAdmin", ri.IsSiteAdmin.ToString()));
-            riCI.AddClaim(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+            riCI.AddClaim(new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
             
             foreach (var userRole in ri.Roles)
             {
