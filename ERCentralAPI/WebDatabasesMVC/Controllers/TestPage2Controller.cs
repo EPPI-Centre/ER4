@@ -114,13 +114,13 @@ namespace WebDatabasesMVC.Controllers
         }
 
         // GET: TestPAge2Controller/Details/5
-        public ActionResult Details(int id)
+        public Microsoft.AspNetCore.Mvc.ActionResult Details(int id)
         {
             return View();
         }
 
         // GET: TestPAge2Controller/Create
-        public ActionResult Create()
+        public Microsoft.AspNetCore.Mvc.ActionResult Create()
         {
             return View();
         }
@@ -128,7 +128,7 @@ namespace WebDatabasesMVC.Controllers
         // POST: TestPAge2Controller/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public Microsoft.AspNetCore.Mvc.ActionResult Create(IFormCollection collection)
         {
             try
             {
@@ -141,7 +141,7 @@ namespace WebDatabasesMVC.Controllers
         }
 
         // GET: TestPAge2Controller/Edit/5
-        public ActionResult Edit(int id)
+        public Microsoft.AspNetCore.Mvc.ActionResult Edit(int id)
         {
             return View();
         }
@@ -149,7 +149,7 @@ namespace WebDatabasesMVC.Controllers
         // POST: TestPAge2Controller/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public Microsoft.AspNetCore.Mvc.ActionResult Edit(int id, IFormCollection collection)
         {
             try
             {
@@ -162,7 +162,7 @@ namespace WebDatabasesMVC.Controllers
         }
 
         // GET: TestPAge2Controller/Delete/5
-        public ActionResult Delete(int id)
+        public Microsoft.AspNetCore.Mvc.ActionResult Delete(int id)
         {
             return View();
         }
@@ -170,7 +170,7 @@ namespace WebDatabasesMVC.Controllers
         // POST: TestPAge2Controller/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public Microsoft.AspNetCore.Mvc.ActionResult Delete(int id, IFormCollection collection)
         {
             try
             {

@@ -11,9 +11,6 @@ using System.Threading;
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Azure.KeyVault.Core;
 using System.Configuration;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using System.Threading.Tasks;
 
 
 //using Azure.Identity;

@@ -22,8 +22,6 @@ using System.IO;
 using System.Xml;
 
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using System.Text.RegularExpressions;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -36,14 +34,16 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
+using System.Data;
 
 
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
+#else
+using System.Net.Http.Json;
 #endif
 
-using System.Data;
 
 #endif
 
@@ -249,7 +249,6 @@ namespace BusinessLibrary.BusinessClasses
 		private async Task<int> UploadDataAndBuildModelAsync(int modelId)
 		{
 			ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-			CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
 			//StringBuilder data = new StringBuilder();
 			//data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"" + Environment.NewLine);
 			List<Int64> ItemIds = new List<Int64>();
@@ -317,22 +316,11 @@ namespace BusinessLibrary.BusinessClasses
 					return 0;
 				}
 				// upload data to blob
-				CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-				CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
-				
-				CloudBlockBlob blockBlobData = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
-					+ ".csv");
-				//blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
-
 				using (var fileStream = System.IO.File.OpenRead(fileName))
 				{
-
-#if (!CSLA_NETCORE)
-					blockBlobData.UploadFromStream(fileStream);
-#else
-
-					await blockBlobData.UploadFromFileAsync(fileName);
-#endif
+					BlobOperations.UploadStream(
+						blobConnection, "attributemodeldata", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString() + ".csv"
+						, fileStream);
 				}
 
 				File.Delete(fileName);
@@ -341,10 +329,6 @@ namespace BusinessLibrary.BusinessClasses
 
 				await InvokeBatchExecutionService(RevInfo.ReviewId.ToString(), "BuildModel", modelId, "", "", "", "");
 				// er4ml isharedkey =true
-				CloudBlobClient blobClientStats = storageAccount.CreateCloudBlobClient();
-				CloudBlobContainer containerStats = blobClient.GetContainerReference("attributemodels");
-				CloudBlockBlob blockBlob = containerStats.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
-					modelId.ToString() + "Stats.csv");
 
 				double accuracy = 0;
 				double auc = 0;
@@ -352,25 +336,8 @@ namespace BusinessLibrary.BusinessClasses
 				double recall = 0;
 				try
 				{
-
-#if (!CSLA_NETCORE)
-
-					byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-#else
-					// This is not being handled correctly
-					bool check = await blockBlob.ExistsAsync();
-					string strResult = "";
-					if (check)
-					{
-						var downloadTask = blockBlob.DownloadTextAsync();
-						strResult = await downloadTask;
-						
-					}
-					byte[] myFile = Encoding.UTF8.GetBytes(strResult);
-#endif
-
-
-					MemoryStream ms = new MemoryStream(myFile);
+					MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
+					modelId.ToString() + "Stats.csv");
 
 #if (!CSLA_NETCORE)
 
@@ -472,8 +439,6 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-
-                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
                 //StringBuilder data = new StringBuilder();
                 //data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"" + Environment.NewLine);
                 List<Int64> ItemIds = new List<Int64>();
@@ -562,22 +527,12 @@ namespace BusinessLibrary.BusinessClasses
                     }
 
                     // upload data to blob
-                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                    CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
-                    CloudBlockBlob blockBlobData;
-
-                    blockBlobData = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv");
                     using (var fileStream = System.IO.File.OpenRead(fileName))
                     {
-
-
-#if (!CSLA_NETCORE)
-                        blockBlobData.UploadFromStream(fileStream);
-#else
-
-					await blockBlobData.UploadFromFileAsync(fileName);
-#endif
-
+						BlobOperations.UploadStream(blobConnection, 
+							"attributemodeldata", 
+							TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv"
+							, fileStream);
                     }
                     File.Delete(fileName);
                     _returnMessage = "Successful upload of data";
@@ -596,18 +551,18 @@ namespace BusinessLibrary.BusinessClasses
                     if (modelId == -4) // new RCT model = two searches to create, one for the RCTs, one for the non-RCTs
                     {
                         // load RCTs
-                        DataTable RCTs = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
+                        DataTable RCTs = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
                         _title = "Cochrane RCT Classifier: may be RCTs";
                         LoadResultsIntoDatabase(RCTs, connection, ri);
 
                         // load non-RCTs
-                        DataTable nRCTs = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
+                        DataTable nRCTs = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
                         _title = "Cochrane RCT Classifier: unlikely to be RCTs";
                         LoadResultsIntoDatabase(nRCTs, connection, ri);
                     }
                     else
                     {
-                        DataTable Scores = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
+                        DataTable Scores = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
                         LoadResultsIntoDatabase(Scores, connection, ri);
                     }
 
@@ -616,30 +571,9 @@ namespace BusinessLibrary.BusinessClasses
             } // end if check for using covid categories / BERT models / SQL database
         }
 
-		private async Task<DataTable> DownloadResults(CloudStorageAccount storageAccount, string container, string filename)
+		private  DataTable DownloadResults( string container, string filename)
 		{
-			CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
-			CloudBlobContainer container2 = blobClient2.GetContainerReference(container);
-			CloudBlockBlob blockBlob = container2.GetBlockBlobReference(filename);
-
-#if (!CSLA_NETCORE)
-
-				byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-
-#else
-			// same as comment above for same line
-			bool check = await blockBlob.ExistsAsync();
-				string strResult = "";
-				if (check)
-				{
-					var downloadTask = blockBlob.DownloadTextAsync();
-					strResult = await downloadTask;
-
-				}
-				byte[] myFile = Encoding.UTF8.GetBytes(strResult);
-#endif
-
-			MemoryStream ms = new MemoryStream(myFile);
+			MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, container, filename);
 
 			DataTable dt = new DataTable("Scores");
 			dt.Columns.Add("SCORE");
@@ -776,36 +710,10 @@ namespace BusinessLibrary.BusinessClasses
 			}
 
 			// now remove the blob from Azure. the fact that it's always tied to the reviewId means that people can't delete the public classifiers (RCT / DARE)
-			CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
-			CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-			CloudBlobContainer container = blobClient.GetContainerReference("attributemodels");
-			CloudBlockBlob blockBlobModel = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + ".csv");
-			CloudBlockBlob blockBlobStats = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + "Stats.csv");
 			try
 			{
-#if (!CSLA_NETCORE)
-
-				blockBlobModel.Delete();
-				blockBlobStats.Delete();
-#else
-
-                Task<bool> task1 = blockBlobModel.ExistsAsync();
-                while (!task1.IsCompleted) Thread.Sleep(50);
-                if (task1.Result)
-                {
-                    Task task2 = blockBlobModel.DeleteAsync();
-                    while (!task2.IsCompleted) Thread.Sleep(50);
-                }
-                task1 = blockBlobStats.ExistsAsync();
-                while (!task1.IsCompleted) Thread.Sleep(50);
-                if (task1.Result)
-                {
-                    Task task2 = blockBlobStats.DeleteAsync();
-                    while (!task2.IsCompleted) Thread.Sleep(50);
-                }
-
-#endif// goes in cricles.
-
+				BlobOperations.DeleteIfExists(blobConnection, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + ".csv");
+				BlobOperations.DeleteIfExists(blobConnection, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + "Stats.csv");
 			}
 			catch
 			{
@@ -942,14 +850,13 @@ namespace BusinessLibrary.BusinessClasses
 			Console.WriteLine(responseContent);
 		}
 
-		// these should all be stored in app.config really
-		const string blobConnection = "***REMOVED***";
-		const string BaseUrlScoreModel = "***REMOVED***";
-		const string apiKeyScoreModel = "***REMOVED***"; //EPPI-R Models: Apply Attribute Model
-		const string BaseUrlBuildModel = "***REMOVED***";
-		const string apiKeyBuildModel = "***REMOVED***"; //EPPI-R Models: Build Attribute Model
-		const string BaseUrlScoreNewRCTModel = "***REMOVED***";
-		const string apiKeyScoreNewRCTModel = "***REMOVED***"; // Cochrane RCT Classifier v.2 (ensemble) blob storage
+		static string blobConnection = AzureSettings.blobConnection;
+		static string BaseUrlScoreModel = AzureSettings.BaseUrlScoreModel;
+		static string apiKeyScoreModel = AzureSettings.apiKeyScoreModel;
+		static string BaseUrlBuildModel = AzureSettings.BaseUrlBuildModel;
+		static string apiKeyBuildModel = AzureSettings.apiKeyBuildModel;
+		static string BaseUrlScoreNewRCTModel = AzureSettings.BaseUrlScoreNewRCTModel;
+		static string apiKeyScoreNewRCTModel = AzureSettings.apiKeyScoreNewRCTModel;// Cochrane RCT Classifier v.2 (ensemble) blob storage
 		const string TempPath = @"UserTempUploads/ContactId";
 
 		const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
@@ -1028,7 +935,7 @@ namespace BusinessLibrary.BusinessClasses
                     return;//not much to do here, we don't log in here...
                 }
 
-				string jobId = await response.Content.ReadAsAsync<string>();
+				string jobId = await response.Content.ReadAsStringAsync();
 
 
 				// start the job
@@ -1051,8 +958,11 @@ namespace BusinessLibrary.BusinessClasses
 						return;
 					}
 
-
+#if CSLA_NETCORE
+					BatchScoreStatus status = await response.Content.ReadFromJsonAsync<BatchScoreStatus>();
+#else
 					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+#endif
 
 
 					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds || cancellationToken.IsCancellationRequested)
@@ -1269,7 +1179,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-    }
+				}
 }
 
 

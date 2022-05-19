@@ -16,8 +16,6 @@ using System.Configuration;
 #if !SILVERLIGHT
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data.SqlClient;
 using System.Data;
 #endif

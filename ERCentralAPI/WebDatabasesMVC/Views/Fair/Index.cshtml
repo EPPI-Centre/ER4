@@ -1,4 +1,4 @@
-﻿@model WebDbWithRevInfo;
+@model WebDbWithRevInfo;
 @using WebDatabasesMVC.ViewModels;
 @using Microsoft.AspNetCore.Html;
 @using System.IO;
@@ -362,7 +362,7 @@
                             <div class="row py-3">
                                 <div class="card-body" id="WebDBDescriptionBody" tooltip="">
                                     <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
-                                        @(new HtmlString(Model.WebDb.WebDBDescription))
+@{ Microsoft.AspNetCore.Html. }                                        @(new HtmlString(Model.WebDb.WebDBDescription))
                                     </div>
                                 </div>
 

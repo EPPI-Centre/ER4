@@ -17,9 +17,11 @@ using System.Configuration;
 #if !SILVERLIGHT
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
+using System.Data.SqlClient;
+#if (!CSLA_NETCORE)
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using System.Data.SqlClient;
+#endif
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -95,23 +97,20 @@ namespace BusinessLibrary.BusinessClasses
             task.Wait();
         }
 
-        private static CloudBlob CurrentReleaseNotes { get; set; }
-        private static CloudBlobContainer containerLatest { get; set; }
+        //private static CloudBlob CurrentReleaseNotes { get; set; }
+        //private static CloudBlobContainer containerLatest { get; set; }
         
 
         private async Task ListMagDbsAndMeta()
         {
+            string storageAccountName = AzureSettings.MAGStorageAccount;
+            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
 #if (CSLA_NETCORE)
 
-            // This doesn't work in .net core. As we run admin in ER4 there's no point in going through the pain...
-
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
+            throw new NotImplementedException();
 
 #else
-            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+
 
 
             string storageConnectionString =
@@ -214,148 +213,148 @@ namespace BusinessLibrary.BusinessClasses
 #endif
         }
 
-        private async Task<List<string>> ListContainersWithPrefixAsync(CloudBlobClient blobClient, string prefix)
-        {
-            List<string> ListContainers = new List<string>();
-            //Console.WriteLine("List all containers beginning with prefix {0}, plus container metadata:", prefix);
+        //private async Task<List<string>> ListContainersWithPrefixAsync(CloudBlobClient blobClient, string prefix)
+        //{
+        //    List<string> ListContainers = new List<string>();
+        //    //Console.WriteLine("List all containers beginning with prefix {0}, plus container metadata:", prefix);
 
-            BlobContinuationToken continuationToken = null;
-            ContainerResultSegment resultSegment = null;
+        //    BlobContinuationToken continuationToken = null;
+        //    ContainerResultSegment resultSegment = null;
 
-            try
-            {
-                do
-                {
-                    // List containers beginning with the specified prefix, returning segments of 5 results each. 
-                    // Note that passing in null for the maxResults parameter returns the maximum number of results (up to 5000).
-                    // Requesting the container's metadata as part of the listing operation populates the metadata, 
-                    // so it's not necessary to call FetchAttributes() to read the metadata.
-                    resultSegment = await blobClient.ListContainersSegmentedAsync(
-                        prefix, ContainerListingDetails.Metadata, 5, continuationToken, null, null);
+        //    try
+        //    {
+        //        do
+        //        {
+        //            // List containers beginning with the specified prefix, returning segments of 5 results each. 
+        //            // Note that passing in null for the maxResults parameter returns the maximum number of results (up to 5000).
+        //            // Requesting the container's metadata as part of the listing operation populates the metadata, 
+        //            // so it's not necessary to call FetchAttributes() to read the metadata.
+        //            resultSegment = await blobClient.ListContainersSegmentedAsync(
+        //                prefix, ContainerListingDetails.Metadata, 5, continuationToken, null, null);
 
-                    // Enumerate the containers returned.
-                    foreach (var container in resultSegment.Results)
-                    {
-                        //Console.WriteLine("\tContainer:" + container.Name);
-                        ListContainers.Add(container.Name);
-                        // Write the container's metadata keys and values.
-                        foreach (var metadataItem in container.Metadata)
-                        {
-                            //Console.WriteLine("\t\tMetadata key: " + metadataItem.Key);
-                            //Console.WriteLine("\t\tMetadata value: " + metadataItem.Value);
-                        }
-                    }
+        //            // Enumerate the containers returned.
+        //            foreach (var container in resultSegment.Results)
+        //            {
+        //                //Console.WriteLine("\tContainer:" + container.Name);
+        //                ListContainers.Add(container.Name);
+        //                // Write the container's metadata keys and values.
+        //                foreach (var metadataItem in container.Metadata)
+        //                {
+        //                    //Console.WriteLine("\t\tMetadata key: " + metadataItem.Key);
+        //                    //Console.WriteLine("\t\tMetadata value: " + metadataItem.Value);
+        //                }
+        //            }
 
-                    // Get the continuation token.
-                    continuationToken = resultSegment.ContinuationToken;
+        //            // Get the continuation token.
+        //            continuationToken = resultSegment.ContinuationToken;
 
-                } while (continuationToken != null);
+        //        } while (continuationToken != null);
 
-                //Console.WriteLine();
-                return ListContainers;
-            }
-            catch (StorageException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.ReadLine();
-                throw;
-            }
-        }
+        //        //Console.WriteLine();
+        //        return ListContainers;
+        //    }
+        //    catch (StorageException e)
+        //    {
+        //        Console.WriteLine(e.Message);
+        //        Console.ReadLine();
+        //        throw;
+        //    }
+        //}
 
-        private string GetContainerSasUri(CloudBlobContainer container, string storedPolicyName = null)
-        {
-            string sasContainerToken;
+        //private string GetContainerSasUri(CloudBlobContainer container, string storedPolicyName = null)
+        //{
+        //    string sasContainerToken;
 
-            // If no stored policy is specified, create a new access policy and define its constraints.
-            if (storedPolicyName == null)
-            {
-                // Note that the SharedAccessBlobPolicy class is used both to define the parameters of an ad-hoc SAS, and 
-                // to construct a shared access policy that is saved to the container's shared access policies. 
-                SharedAccessBlobPolicy adHocPolicy = new SharedAccessBlobPolicy()
-                {
-                    // When the start time for the SAS is omitted, the start time is assumed to be the time when the storage service receives the request. 
-                    // Omitting the start time for a SAS that is effective immediately helps to avoid clock skew.
-                    SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24),
-                    Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.List
-                };
+        //    // If no stored policy is specified, create a new access policy and define its constraints.
+        //    if (storedPolicyName == null)
+        //    {
+        //        // Note that the SharedAccessBlobPolicy class is used both to define the parameters of an ad-hoc SAS, and 
+        //        // to construct a shared access policy that is saved to the container's shared access policies. 
+        //        SharedAccessBlobPolicy adHocPolicy = new SharedAccessBlobPolicy()
+        //        {
+        //            // When the start time for the SAS is omitted, the start time is assumed to be the time when the storage service receives the request. 
+        //            // Omitting the start time for a SAS that is effective immediately helps to avoid clock skew.
+        //            SharedAccessExpiryTime = DateTime.UtcNow.AddHours(24),
+        //            Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.List
+        //        };
 
-                // Generate the shared access signature on the container, setting the constraints directly on the signature.
-                sasContainerToken = container.GetSharedAccessSignature(adHocPolicy, null);
+        //        // Generate the shared access signature on the container, setting the constraints directly on the signature.
+        //        sasContainerToken = container.GetSharedAccessSignature(adHocPolicy, null);
 
-                Console.WriteLine("SAS Container Token: {0}", sasContainerToken);
-                Console.WriteLine();
-            }
-            else
-            {
-                // Generate the shared access signature on the container. In this case, all of the constraints for the
-                // shared access signature are specified on the stored access policy, which is provided by name.
-                // It is also possible to specify some constraints on an ad-hoc SAS and others on the stored access policy.
-                sasContainerToken = container.GetSharedAccessSignature(null, storedPolicyName);
-                Console.WriteLine("SAS for blob container (stored access policy): {0}", sasContainerToken);
-                Console.WriteLine();
-            }
+        //        Console.WriteLine("SAS Container Token: {0}", sasContainerToken);
+        //        Console.WriteLine();
+        //    }
+        //    else
+        //    {
+        //        // Generate the shared access signature on the container. In this case, all of the constraints for the
+        //        // shared access signature are specified on the stored access policy, which is provided by name.
+        //        // It is also possible to specify some constraints on an ad-hoc SAS and others on the stored access policy.
+        //        sasContainerToken = container.GetSharedAccessSignature(null, storedPolicyName);
+        //        Console.WriteLine("SAS for blob container (stored access policy): {0}", sasContainerToken);
+        //        Console.WriteLine();
+        //    }
 
-            // Return the URI string for the container, including the SAS token.
-            return container.Uri + sasContainerToken;
-        }
+        //    // Return the URI string for the container, including the SAS token.
+        //    return container.Uri + sasContainerToken;
+        //}
 
-        private async Task ListBlobsFlatListingAsync(CloudBlobContainer container, int? segmentSize)
-        {
-            // List blobs to the console window.
-            //Console.WriteLine("List blobs in segments (flat listing):");
-            //Console.WriteLine();
+        //private async Task ListBlobsFlatListingAsync(CloudBlobContainer container, int? segmentSize)
+        //{
+        //    // List blobs to the console window.
+        //    //Console.WriteLine("List blobs in segments (flat listing):");
+        //    //Console.WriteLine();
 
-            int i = 0;
-            BlobContinuationToken continuationToken = null;
-            BlobResultSegment resultSegment = null;
+        //    int i = 0;
+        //    BlobContinuationToken continuationToken = null;
+        //    BlobResultSegment resultSegment = null;
 
-            try
-            {
-                // Call ListBlobsSegmentedAsync and enumerate the result segment returned, while the continuation token is non-null.
-                // When the continuation token is null, the last segment has been returned and execution can exit the loop.
-                do
-                {
-                    // This overload allows control of the segment size. You can return all remaining results by passing null for the maxResults parameter, 
-                    // or by calling a different overload.
-                    // Note that requesting the blob's metadata as part of the listing operation 
-                    // populates the metadata, so it's not necessary to call FetchAttributes() to read the metadata.
-                    resultSegment = await container.ListBlobsSegmentedAsync(string.Empty, true, BlobListingDetails.Metadata, segmentSize, continuationToken, null, null);
-                    if (resultSegment.Results.Count() > 0)
-                    {
-                        //Console.WriteLine("Page {0}:", ++i);
-                    }
+        //    try
+        //    {
+        //        // Call ListBlobsSegmentedAsync and enumerate the result segment returned, while the continuation token is non-null.
+        //        // When the continuation token is null, the last segment has been returned and execution can exit the loop.
+        //        do
+        //        {
+        //            // This overload allows control of the segment size. You can return all remaining results by passing null for the maxResults parameter, 
+        //            // or by calling a different overload.
+        //            // Note that requesting the blob's metadata as part of the listing operation 
+        //            // populates the metadata, so it's not necessary to call FetchAttributes() to read the metadata.
+        //            resultSegment = await container.ListBlobsSegmentedAsync(string.Empty, true, BlobListingDetails.Metadata, segmentSize, continuationToken, null, null);
+        //            if (resultSegment.Results.Count() > 0)
+        //            {
+        //                //Console.WriteLine("Page {0}:", ++i);
+        //            }
 
-                    foreach (var blobItem in resultSegment.Results)
-                    {
-                        //Console.WriteLine("************************************");
-                        //Console.WriteLine(blobItem.Uri);
+        //            foreach (var blobItem in resultSegment.Results)
+        //            {
+        //                //Console.WriteLine("************************************");
+        //                //Console.WriteLine(blobItem.Uri);
 
-                        if (blobItem.Uri.ToString().Contains("ReleaseNote.txt"))
-                        {
-                            CurrentReleaseNotes = (CloudBlob)blobItem;
-                        }
-                        // A flat listing operation returns only blobs, not virtual directories.
-                        // Write out blob properties and metadata.
-                        //if (blobItem is CloudBlob)
-                        //{
-                        //	PrintBlobPropertiesAndMetadata((CloudBlob)blobItem);
-                        //}
-                    }
+        //                if (blobItem.Uri.ToString().Contains("ReleaseNote.txt"))
+        //                {
+        //                    CurrentReleaseNotes = (CloudBlob)blobItem;
+        //                }
+        //                // A flat listing operation returns only blobs, not virtual directories.
+        //                // Write out blob properties and metadata.
+        //                //if (blobItem is CloudBlob)
+        //                //{
+        //                //	PrintBlobPropertiesAndMetadata((CloudBlob)blobItem);
+        //                //}
+        //            }
 
-                    //Console.WriteLine();
+        //            //Console.WriteLine();
 
-                    // Get the continuation token.
-                    continuationToken = resultSegment.ContinuationToken;
+        //            // Get the continuation token.
+        //            continuationToken = resultSegment.ContinuationToken;
 
-                } while (continuationToken != null);
-            }
-            catch (StorageException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.ReadLine();
-                throw;
-            }
-        }
+        //        } while (continuationToken != null);
+        //    }
+        //    catch (StorageException e)
+        //    {
+        //        Console.WriteLine(e.Message);
+        //        Console.ReadLine();
+        //        throw;
+        //    }
+        //}
 
 #endif
 

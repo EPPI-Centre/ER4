@@ -1,4 +1,4 @@
-﻿<!-- Home -->
+<!-- Home -->
 
 @model WebDbWithRevInfo;
 @using WebDatabasesMVC.ViewModels;
@@ -1196,13 +1196,13 @@
                             }
                             else if (Model.WebDb.HeaderImage1Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage1Url.ToLower().StartsWith("https://"))
                             {
-                                <a href="@(new HtmlString(Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
+@{ Microsoft.AspNetCore.Html. }                                <a href="@(new HtmlString(Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
                                     <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 " />
                                 </a>
                             }
                             else
                             {
-                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
+@{ Microsoft.AspNetCore.Html. }                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
                                     <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2" />
                                 </a>
                             }
@@ -1215,13 +1215,13 @@
                             }
                             else if (Model.WebDb.HeaderImage2Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage2Url.ToLower().StartsWith("https://"))
                             {
-                                <a href="@(new HtmlString(Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
+@{ Microsoft.AspNetCore.Html. }                                <a href="@(new HtmlString(Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
                                     <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 " />
                                 </a>
                             }
                             else
                             {
-                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
+@{ Microsoft.AspNetCore.Html. }                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
                                     <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2" />
                                 </a>
                             }
@@ -1270,7 +1270,7 @@
                         </div>
                         <div class="card-body" id="WebDBDescriptionBody" tooltip="">
                             <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
-                                @(new HtmlString(Model.WebDb.WebDBDescription))
+@{ Microsoft.AspNetCore.Html. }                                @(new HtmlString(Model.WebDb.WebDBDescription))
 
                             </div>
                         </div>

@@ -24,14 +24,14 @@ using System.Threading;
 using System.Collections;
 using System.Globalization;
 using System.Linq;
-#endif
-#if !SILVERLIGHT && !WEBDB
+#if CSLA_NETCORE
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 #else
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+#endif
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -429,7 +429,7 @@ namespace BusinessLibrary.BusinessClasses
 
             string storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
             storageConnectionString += storageAccountKey;
-#if (CSLA_NETCORE && !WEBDB)
+#if (CSLA_NETCORE)
             BlobServiceClient blobClient = new BlobServiceClient(storageConnectionString);
             var magContainers = ListContainersWithPrefixAsync(blobClient, "mag-");
 #else
@@ -456,7 +456,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-#if (CSLA_NETCORE && !WEBDB)
+#if (CSLA_NETCORE)
         private static IEnumerable<BlobContainerItem> ListContainersWithPrefixAsync(BlobServiceClient blobClient,
                                                         string prefix)
         {

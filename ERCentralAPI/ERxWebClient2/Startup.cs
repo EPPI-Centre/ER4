@@ -93,17 +93,31 @@ namespace ERxWebClient2
             app.UseStaticFiles(new StaticFileOptions{
                 ContentTypeProvider = provider
             });
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
+            app.UseRouting();
+            app.UseAuthorization();
+            //default endpoint ensures the API endpoints work as one would expect
+            //the MapFallbackToController ensures that if a user reloads from an "inner page" (Angular uses the paths to do its own thing)
+            //then the full client is downloaded again, and routed (by Angular) to the correct "page", i.e. without hitting the Website.
+            //otherwise, server side would receive requests for URLs it doesn't serve and return 404...
+            app.UseEndpoints(endpoints =>
+                { endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}"
+                    );
+                    endpoints.MapFallbackToController("Index", "Home");
+                }
+                );
+            //app.UseMvc(routes =>
+            //{
+            //    routes.MapRoute(
+            //        name: "default",
+            //        template: "{controller=Home}/{action=Index}/{id?}");
 
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
-            });
+            //    routes.MapSpaFallbackRoute(
+            //        name: "spa-fallback",
+            //        defaults: new { controller = "Home", action = "Index" });
+            //});
+            //app.ma
         }
     }
 }

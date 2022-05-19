@@ -22,10 +22,6 @@ using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using System.Configuration;
-using Azure.Storage.Blobs;
-using Azure.Storage;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 #if !CSLA_NETCORE
 using System.Web.Hosting;
 #endif
@@ -185,29 +181,17 @@ namespace BusinessLibrary.BusinessClasses
                 return;
             }
 
-            // this copied from ClassifierCommand. The keys should move to web.config
-            Microsoft.Azure.Storage.CloudStorageAccount storageAccount = CloudStorageAccount.Parse("***REMOVED***");
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
-            CloudBlockBlob blockBlobData;
+            
 
             try
             {
                 string uploadedFileName = TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "StudyModelToScore.csv";
                 string resultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results1.csv";
                 string resultsFile2 = @"attributemodels/" + TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results2.csv";
-                blockBlobData = container.GetBlockBlobReference(uploadedFileName);
+                
                 using (var fileStream = System.IO.File.OpenRead(fName))
                 {
-
-
-#if (!CSLA_NETCORE)
-                    blockBlobData.UploadFromStream(fileStream);
-#else
-
-					await blockBlobData.UploadFromFileAsync(fName);
-#endif
-
+                    BlobOperations.UploadStream(AzureSettings.blobConnection, "attributemodeldata", uploadedFileName, fileStream);
                 }
                 File.Delete(fName);
 
@@ -251,13 +235,11 @@ namespace BusinessLibrary.BusinessClasses
                         return;
                     }
 
-                    await insertResults(blobClient.GetContainerReference("attributemodels"),
-                        TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
+                    insertResults(TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
                         "Results1.csv", "StudyTypeClassifierScore", ReviewId, ContactId);
                     if (classifierId == -4)
                     {
-                        await insertResults(blobClient.GetContainerReference("attributemodels"),
-                            TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
+                        insertResults(TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
                             "Results2.csv", "StudyTypeClassifierScore", ReviewId, ContactId);
                     }
                 }
@@ -273,8 +255,7 @@ namespace BusinessLibrary.BusinessClasses
                         return;
                     }
 
-                    await insertResults(blobClient.GetContainerReference("attributemodels"),
-                        TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
+                    insertResults(TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
                         "Results1.csv", "UserClassifierScore", ReviewId, ContactId);
                 }
                 MagLog.SaveLogEntry("Add classifier scores", "Finished", "Successful. Review: " + ReviewId, ContactId);
@@ -287,13 +268,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private async Task insertResults(CloudBlobContainer container, string FileName, string Field, string ReviewId, int ContactId)
+        private void insertResults(string FileName, string Field, string ReviewId, int ContactId)
         {
-            CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference(FileName);
-
-            string Results1 = await blockBlobDataResults.DownloadTextAsync();
-            byte[] myFile = Encoding.UTF8.GetBytes(Results1);
-
             DataTable dt = new DataTable("Ids");
             dt.Columns.Add("MAG_AUTO_UPDATE_RUN_ID");
             dt.Columns.Add("PaperId");
@@ -301,7 +277,7 @@ namespace BusinessLibrary.BusinessClasses
 
             try
             {
-                MemoryStream msIds = new MemoryStream(myFile);
+                MemoryStream msIds = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, "attributemodels", FileName);
                 using (var readerIds = new StreamReader(msIds))
                 {
                     string line;
