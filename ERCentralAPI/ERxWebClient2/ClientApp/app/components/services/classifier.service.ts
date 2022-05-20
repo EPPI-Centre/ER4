@@ -223,10 +223,10 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("Apply");
 
-		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+		//const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
-		this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/ApplyClassifierAsync',
-			MVCcmd, { headers: headers }
+		this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/ApplyClassifier'//'api/Classifier/ApplyClassifierAsync'
+			,MVCcmd
 		)
 			.subscribe(result => {
 				

@@ -35,6 +35,7 @@ using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using System.Data;
+using Newtonsoft.Json;
 
 
 
@@ -921,9 +922,15 @@ namespace BusinessLibrary.BusinessClasses
 				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
 				// submit the job
-
-
-				var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
+#if (!CSLA_NETCORE)
+                var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
+#else
+				Task<HttpResponseMessage> task = client.PostAsync(BaseUrl + "?api-version=2.0",
+					new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
+					);
+				while (!task.IsCompleted) Thread.Sleep(100);
+				var response = task.Result;
+#endif
 
 				if (!response.IsSuccessStatusCode)
 				{
@@ -935,8 +942,17 @@ namespace BusinessLibrary.BusinessClasses
                     return;//not much to do here, we don't log in here...
                 }
 
+#if (!CSLA_NETCORE)
+                string jobId = await response.Content.ReadAsAsync<string>();
+                response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
+#else
 				string jobId = await response.Content.ReadAsStringAsync();
-
+				jobId = jobId.Trim('"');
+				task = client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
+				while (!task.IsCompleted) Thread.Sleep(100);
+				response = task.Result;
+				//response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
+#endif
 
 				// start the job
 				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
@@ -951,19 +967,26 @@ namespace BusinessLibrary.BusinessClasses
 				bool done = false;
 				while (!done)
 				{
-					response = await client.GetAsync(jobLocation);
+#if (!CSLA_NETCORE)
+                    response = await client.GetAsync(jobLocation);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        await WriteFailedResponse(response);
+                        return;
+                    }
+
+                    BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+#else
+					task = client.GetAsync(jobLocation);
+					while (!task.IsCompleted) Thread.Sleep(100);
+					response = task.Result;
 					if (!response.IsSuccessStatusCode)
 					{
 						await WriteFailedResponse(response);
 						return;
 					}
-
-#if CSLA_NETCORE
-					BatchScoreStatus status = await response.Content.ReadFromJsonAsync<BatchScoreStatus>();
-#else
-					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+					BatchScoreStatus status = JsonConvert.DeserializeObject<BatchScoreStatus>(await response.Content.ReadAsStringAsync());
 #endif
-
 
 					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds || cancellationToken.IsCancellationRequested)
 					{
