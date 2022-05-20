@@ -129,8 +129,9 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             foreach (string bName in blobNames)
             {
-                CloudBlobContainer container = blobClient.GetContainerReference(bName);
-                res.Add(bName, container.Exists());
+                CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+                CloudBlockBlob cbl = container.GetBlockBlobReference(bName);
+                res.Add(bName, cbl.Exists());
             }
             return res;
         }
@@ -139,6 +140,7 @@ namespace BusinessLibrary.BusinessClasses
             MemoryStream res = new MemoryStream();
             CloudBlockBlob blockBlob = GetBlockBlobReference(blobConnectionStr, containerName, blobName);
             blockBlob.DownloadToStream(res);
+            res.Position = 0;
             return res;
         }
         public static void UploadStream(string blobConnectionStr, string containerName, string blobName, Stream Data)
