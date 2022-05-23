@@ -39,9 +39,9 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
 #if WEBDB
-                if (_AzureContReviewSettings == null) _AzureContReviewSettings = WebDatabasesMVC.Startup.Configuration.GetSection("AzureMagSettings");
+                if (_AzureMagSettings == null) _AzureMagSettings = WebDatabasesMVC.Startup.Configuration.GetSection("AzureMagSettings");
 #else
-                if (_AzureContReviewSettings == null) _AzureContReviewSettings = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+                if (_AzureMagSettings == null) _AzureMagSettings = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
 #endif
                 return _AzureMagSettings;
             }
