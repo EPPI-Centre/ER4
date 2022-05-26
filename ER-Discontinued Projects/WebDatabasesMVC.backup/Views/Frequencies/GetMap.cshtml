@@ -1,0 +1,559 @@
+﻿@model BusinessLibrary.BusinessClasses.WebDbFrequencyCrosstabAndMapSelectionCriteria
+@using BusinessLibrary.BusinessClasses
+
+
+<input type="hidden" value="@Model.included" name="included" id="includedCrit" />
+<input type="hidden" value="@Model.setIdYAxis" name="setIdYAxis" id="setIdYAxisCrit" />
+<input type="hidden" value="@Model.setIdXAxis" name="setIdXAxis" id="setIdXAxisCrit" />
+<input type="hidden" value="@Model.webDbId" name="webDbId" id="webDbIdCrit" />
+
+<input type="hidden" value="@Model.attributeIdXAxis" name="AttibuteIdXAxis" id="AttibuteIdXCrit" />
+<input type="hidden" value="@Model.attributeIdYAxis" name="AttibuteIdYAxis" id="AttibuteIdYCrit" />
+<input type="hidden" value="@Model.segmentsParent" name="AttibuteIdSegments" id="AttibuteIdSegments" />
+<input type="hidden" value="@Model.setIdSegments" name="SetIdSegments" id="SetIdSegments" />
+<input type="hidden" value="@Model.graphic" name="Graphic" id="GraphicCrit" />
+
+
+<input type="hidden" value="-1" name="SetIdXName" id="SetIdXNameCrit" />
+<input type="hidden" value="-1" name="SetIdYName" id="SetIdYNameCrit" />
+<input type="hidden" value="" name="AttibuteIdXName" id="AttibuteIdXNameCrit" />
+<input type="hidden" value="" name="AttibuteIdYName" id="AttibuteIdYNameCrit" />
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('[tool-tip-toggle="tooltip-demo"]').tooltip({
+            placement: 'top'
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+    let mapData = null;
+    $(document).ready(function () {
+
+        $("#ExpandMapDiv").show();
+        $("#ReduceMapDiv").hide();
+        //console.log("ready function is happening");
+        var pars = {
+            attributeIdXAxis: @Model.attributeIdXAxis
+            , setIdXAxis: @Model.setIdXAxis
+            , attributeIdYAxis: @Model.attributeIdYAxis
+            , setIdYAxis: @Model.setIdYAxis
+            , segmentsParent: @Model.segmentsParent
+            , setIdSegments: @Model.setIdSegments
+            , included: @Model.included
+            , graphic: "bubble"
+        }
+        $("#spinner").show();
+        $("#resultsTable").hide();
+        $("#mapLegend").hide();
+        $.post("../Frequencies/GetMapJSON", pars, (data, status) => buildResults(data, status));
+    });
+    function buildResults(data, status) {
+        mapData = data;
+        buildDescription();
+        buildTable();
+    }
+    function buildDescription() {
+        let el = $("#MapDescription");
+        if (!el) return;
+        let descr = "";
+        if (mapData.graphic == "table") {
+            if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0)) {
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.setIdXName) + "</b>\" vs \"<b>(Row) " + HTMLEncodeText(mapData.setIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0)) {
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.attibuteIdXName) + "</b>\" vs \"<b>(Row) " + HTMLEncodeText(mapData.attibuteIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0)) {
+                descr = " <h5>\"<b>(Column) " + HTMLEncodeText(mapData.setIdXName) + "</b >\" vs \"<b>(Row) " + HTMLEncodeText(mapData.attibuteIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0)) {
+                descr = "<h5>\"<b>(Column) " + HTMLEncodeText(mapData.attibuteIdXName) + "</b >\" vs \"<b>(Row) " + HTMLEncodeText(mapData.setIdYName)
+                    + "</b>\", segments: \"" + HTMLEncodeText(mapData.attibuteIdSegmentsName) + "\"</h5>";
+            }
+        }
+        el.html(descr);
+    }
+    function buildTable() {
+        let resultsDiv = $("#resultsTable");
+        let legendDiv = $("#mapLegend");
+        if (!resultsDiv) return;//just for safety...
+        let resultsHTML = "";
+        let legendHTML = "";
+        if (mapData.graphic == "bubble") {
+            resultsHTML = BubbleMap2();
+            legendHTML = createLegend();
+            $("#showBubbleButton").prop("disabled", true);
+            $("#showTableButton").prop("disabled", false);
+            buildDescription();
+        }
+        else if (mapData.graphic == "table") {
+            resultsHTML = tableMap();
+            $("#showTableButton").prop("disabled", true);
+            $("#showBubbleButton").prop("disabled", false);
+            buildDescription();
+        }
+        else if (mapData.graphic == "bubbleLog") {
+            resultsHTML = BubbleMapLog();
+        }
+
+        //console.log("html string:", resultsHTML);
+        resultsDiv.html(resultsHTML);
+        legendDiv.html(legendHTML);
+        //console.log("all html:", resultsDiv.html());
+        $("#spinner").hide();
+        resultsDiv.show();
+        legendDiv.show();
+        $('[tool-tip-toggle="tooltip-demo"]').tooltip({
+            placement: 'top'
+        });
+    }
+    function changeView(viewName) {
+        if (mapData != null) {
+            mapData.graphic = viewName;
+            buildTable();
+        }
+    }
+    function GoToItemsJson(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
+        $("#ItemCount").html("");
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
+        let spinnerItems = $("#spinnerItems");
+        if (spinnerItems) spinnerItems.show();
+        let rgx = new RegExp("↖", 'g');
+        let rgx2 = new RegExp("↗", 'g');
+        var pars = {
+            WithAttIds: WithAttIds
+            , WithSetId: WithSetId
+            , WithoutAttIds: WithoutAttIds
+            , WithoutSetId: WithoutSetId
+            , included: @Model.included
+            , Description: Descript.replace(rgx, '\'').replace(rgx2, '"')
+        }
+        $.post("../ItemList/GetListWithWithoutAttsJSON"
+            , pars
+            , function (data, result) {
+                if (spinnerItems) spinnerItems.hide();
+                BuildItems(data, result);
+            }
+        );
+
+    }
+
+    function ToggleMapDivSize() {
+        const descrPanel = $("#resultsTable");
+        if (descrPanel) {
+            //console.log("p h", descrPanel.css("max-height"));
+            //if (descrPanel.css("max-height") == "60vh") {
+            //    descrPanel.css("max-height", "40vh");
+            //}
+            //else {
+            //    descrPanel.css("max-height", "60vh");
+            //}
+            if ($("#ExpandMapDiv").is(":visible")) {
+                descrPanel.css("max-height", "75vh");
+            } else {
+                descrPanel.css("max-height", "50vh");
+            }
+            $("#ExpandMapDiv").toggle();
+            $("#ReduceMapDiv").toggle();
+        }
+    }
+
+    function tableMap() {
+        let res = "<table class=\"content-full mapTable table table-bordered table-striped\"><tr><th></th>";
+        for (let i = 0; i < mapData.columnAttIDs.length; i++) {
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+        }
+        let segmentsN = mapData.segmentsAttIDs.length;
+        let rgx = new RegExp("'", 'g');
+        let rgx2 = new RegExp("\"", 'g');
+        for (let ri = 0; ri < mapData.rows.length ; ri++) {
+            let row = mapData.rows[ri];
+            let withC = "", withS = "", withoutC = "", withoutS = "", descript = "";
+
+            res += "<tr><th class='px-1'>" + HTMLEncodeText(row.attributeName) + "</th>";
+            for (let i = 0; i < mapData.columnAttIDs.length; i++) {
+                res += "<td class='px-1'>";
+
+                if (ri == mapData.rows.length - 1 && i == mapData.columnAttIDs.length - 1) {
+                    //last row AND Last column...
+                    res += "&nbsp;";
+                }
+                else if (ri == mapData.rows.length - 1) {
+                    //last row...
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span >";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 </div>";
+                        }
+                        else {//we need item list with column header, without all the row codes
+                            withC = mapData.columnAttIDs[i] + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdX + "," + mapData.setIdSegments;
+                            descript = "3D Map, list from last row, column: &nearr;" + HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
+                            withoutC = "";
+                            withoutS = "";
+                            for (let rowInd = 0; rowInd < mapData.rows.length - 1; rowInd++) {
+                                withoutC += mapData.rows[rowInd].attributeId + ",";
+                                withoutS += mapData.setIdY + ",";
+                            }
+                            withoutC = withoutC.substring(0, withoutC.length - 1);
+                            withoutS = withoutS.substring(0, withoutS.length - 1);
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">"
+                                + currC + "</a></div>";
+                        }
+                    }
+                }
+                else if (i == mapData.columnAttIDs.length - 1) {
+                    //last column
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span>";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 </div>";
+                        }
+                        else {//we need item list with row header, without all the column codes
+                            withC = row.attributeId + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdY + "," + mapData.setIdSegments;
+                            descript = "3D Map, list from last column, row: &nearr;" + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
+                            withoutC = "";
+                            withoutS = "";
+                            for (let colInd = 0; colInd < mapData.columnAttIDs.length - 1; colInd++) {
+                                withoutC += mapData.columnAttIDs[colInd].toString() + ",";
+                                withoutS += mapData.setIdX + ",";
+                            }
+                            withoutC = withoutC.substring(0, withoutC.length - 1);
+                            withoutS = withoutS.substring(0, withoutS.length - 1);
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">"
+                                + currC + "</a></div>";
+                        }
+                    }
+                }
+                else {
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span>";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 </div>";
+                        }
+                        else {
+                            withC = mapData.columnAttIDs[i] + "," + row.attributeId + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdX + "," + mapData.setIdY + "," + mapData.setIdSegments;
+                            descript = "With these codes: " + HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
+                                + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '', '', '" + descript + "')\">"
+                                + currC + "</a></div>";
+                        }
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
+        }
+        res += "</table>"
+        return res;
+    }
+
+    function BubbleMap() {
+        let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let maxVal = 0;
+        let segmentsN = mapData.segmentsAttIDs.length;
+        for (let i = 0; i < mapData.rows.length - 1; i++)//ignore the last row
+        {
+            for (let j = 0; j < mapData.rows[i].counts.length - mapData.segmentsAttIDs.length; j++)//ignore the values for the last column
+            {
+                if (mapData.rows[i].counts[j] > maxVal) maxVal = mapData.rows[i].counts[j];
+            }
+        }
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++)
+        {
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+        }
+        res += "</tr>";
+        for (let ri = 0; ri < mapData.rows.length - 1; ri++)
+        {
+            let row = mapData.rows[ri];
+            let rgx = new RegExp("'", 'g');
+            let rgx2 = new RegExp("\"", 'g');
+            res += "<tr><td>" + HTMLEncodeText(row.attributeName) + "</th>";
+            for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+                res += "<td>";
+                for (let ii = 0; ii < segmentsN; ii++) {
+                    let SegClassName = "mapC" + (ii + 1).toString();
+                    let title = "";
+                    if (row.counts[(i * segmentsN) + ii] == 0)
+                    {
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": no records";
+                        res += "<i class='fa fa-ban " + SegClassName + "' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title=\"" + title + "\"></i>";
+                    }
+                    else {//normal cell, with row and col codes
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
+                        let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.8).toString() + "em;";
+                        let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
+                        let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
+                        let descript = HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                        //console.log("des", descript);
+                        res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
+                        res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
+        }
+        res +="</table>"
+        return res;
+    }
+
+    function BubbleMap2() {
+        let colDescr = "";
+        let RowDescr = "";
+        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0)) {
+            colDescr = mapData.setIdXName.toString();
+            RowDescr = mapData.setIdYName.toString();
+        }
+        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0)) {
+            colDescr = mapData.attibuteIdXName.toString();
+            RowDescr = mapData.attibuteIdYName.toString();
+        }
+        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0)) {
+            colDescr = mapData.setIdXName.toString();
+            RowDescr = mapData.attibuteIdYName.toString();
+        }
+        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0)) {
+            colDescr = mapData.attibuteIdXName.toString();
+            RowDescr = mapData.setIdYName.toString();
+        }
+
+
+
+        //let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let res = "<table class=\"mapTable2 m-1\"><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>";
+        res += "<th class=\"th_topRowHeader\" colspan=" + mapData.columnAttIDs.length + ">" + HTMLEncodeText(colDescr) +
+            "</th><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>"
+        let maxVal = 0;
+        let segmentsN = mapData.segmentsAttIDs.length;
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+            if ((i % 2) == 0) {
+                res += "<th class=\"th_2ndRowHeaderA\">" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+            } else {
+                res += "<th class=\"th_2ndRowHeaderB\">" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+            }
+        }
+
+        // gettting the sizes
+        for (let i = 0; i < mapData.rows.length - 1; i++)//ignore the last row
+        {
+            for (let j = 0; j < mapData.rows[i].counts.length - mapData.segmentsAttIDs.length; j++)//ignore the values for the last column
+            {
+                if (mapData.rows[i].counts[j] > maxVal) maxVal = mapData.rows[i].counts[j];
+            }
+        }
+        
+        /* 
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+        }
+        */
+        res += "</tr>";
+
+
+        res += "<tr><th rowspan=" + (mapData.rows.length + 1) + " class=\"th_topColHeader\" style=\"vertical-align:top\">" + HTMLEncodeText(RowDescr) + "</th>";
+
+
+        for (let ri = 0; ri < mapData.rows.length - 1; ri++) {
+            let row = mapData.rows[ri];
+            let rgx = new RegExp("'", 'g');
+            let rgx2 = new RegExp("\"", 'g');
+
+            if ((ri % 2) == 0) {
+                res += "<tr><th class=\"th_2ndColHeaderA\">" + HTMLEncodeText(row.attributeName) + "</th>";
+            } else {
+                res += "<tr><th class=\"th_2ndColHeaderB\">" + HTMLEncodeText(row.attributeName) + "</th>";
+            }
+
+            //res += "<tr><td>" + HTMLEncodeText(row.attributeName) + "</th>";
+
+            for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+                //res += "<td>";
+                res += "<td class=\"td_mapCell\">";
+                for (let ii = 0; ii < segmentsN; ii++) {
+                    let SegClassName = "mapC" + (ii + 1).toString();
+                    let title = "";
+                    if (row.counts[(i * segmentsN) + ii] == 0) {
+                        // hide the 'no records' bubbles
+                        //title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": no records";
+                        //res += "<i class='fa fa-ban " + SegClassName + "' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title=\"" + title + "\"></i>";
+                    }
+                    else {//normal cell, with row and col codes
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
+                        let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.8).toString() + "em;";
+                        let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
+                        let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
+                        let descript = HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                        //console.log("des", descript);
+                        res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
+                        res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
+        }
+        res += "</table>"
+        return res;
+    }
+
+
+    function createLegend() {
+        let segmentsN = mapData.segmentsAttIDs.length;
+        let dimension = "1em";
+        let SegClassName = "";
+        let title = "";
+        let res = "";
+        let rgx2 = new RegExp("\"", 'g');
+
+        res += "<table>";
+        res += "<tr>";
+        res += "<td>";
+        res += "<h3><b>Legend</b></h3>";
+        res += "</td>";
+        res += "</tr>";
+        res += "<tr>";
+        for (let ii = 0; ii < segmentsN; ii++) {
+            SegClassName = "mapC" + (ii + 1).toString();
+            title = mapData.segmentsAttNames[ii];//.replace(rgx2, "&quot;");
+
+            res += "<td>";
+            res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\"></i>&nbsp;&nbsp;" + HTMLEncodeText(title) +
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            res += "</td>";
+        }                
+        res += "</tr>";
+        res += "</table>";
+
+        return res;
+    }
+
+
+
+</script>
+
+
+
+<br />
+<br />
+<br />
+<div class="main-panel main-panel-no-sidebar">
+
+    <div class="page-inner px-2 py-1">
+
+        <div class="card mb-2">
+            <div class="card-body">
+                <div class="" style="max-width:99vw; overflow:auto;">
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <h5 class="card-title mb-3">Evidence (gap) Map</h5>
+                                <div id="MapDescription">Loading...</div>
+
+                            </td>
+                            <td style="text-align:right">
+                                <div class="card-tools">
+                                    <div id="ExpandMapDiv" class="btn btn-primary btn-sm btn-round"
+                                         onclick="ToggleMapDivSize()">
+                                        <div class="flaticon-down-arrow-1">
+                                            &nbsp;&nbsp;View more&nbsp;
+                                        </div>
+                                    </div>
+                                    <div id="ReduceMapDiv" class="btn btn-primary btn-sm btn-round"
+                                         onclick="ToggleMapDivSize()">
+                                        <div class="flaticon-up-arrow-1">
+                                            &nbsp;&nbsp;View less&nbsp;
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubble')" disabled id="showBubbleButton">
+                                        <span class="btn-label">
+                                            <i class="fa fa-circle"></i>
+                                        </span>
+                                        Bubble map
+                                    </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')" disabled id="showTableButton">
+                                        <span class="btn-label">
+                                            <i class="fa fa-table"></i>
+                                        </span>
+                                        Table
+                                    </button>
+
+                                    <!--<button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
+                                        <span class="btn-label">
+                                            <i class="fa fa-circle"></i>
+                                        </span>
+                                        Bubble (log)
+                                    </button>*
+                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                        <span class="btn-label">
+                                            <i class="fa fa-file-excel"></i>
+                                        </span>
+                                        Export
+                                    </a>-->
+                                    <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm">
+                                        <span class="btn-label">
+                                            <i class="fa fa-copy"></i>
+                                        </span>
+                                        Copy
+                                    </a>-->
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div id="spinner" class="w-100" style="display:none;">
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body row mx-0 px-0">
+                        <div class="d-block" id="resultsTable" style="max-height:50vh; overflow:auto;display:none;"></div>
+                    </div>
+                    <div class="card-body py-1" id="mapLegend">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+
+            <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
+                <div class="col-auto p-1">Loading...</div>
+                <div class="col d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            @await Html.PartialAsync("_ItemsList")
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,33 @@
+﻿<!-- ItemList -->
+@model ItemListWithCriteria
+@using BusinessLibrary.BusinessClasses;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+<style>
+    #ItemsGrid table {
+        //background-color: yellow !important;
+        //color: #00ff00 !important;
+        table-layout: auto;
+    }
+</style>
+
+<script id="InitialScript" type="text/javascript">
+    @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));};
+        var ListData = @jdata;
+    $(document).ready(function () {
+        //CurrentItemsCriteria = ListData.criteria;
+        //ItemsListData = ListData.items;
+        gridHeightCSS = "75vh"; //default is 60vh, useful when we have results on top of the page...
+        BuildItems(ListData, "success");
+        $("#InitialScript").remove();
+
+    });
+
+</script>
+
+<br />
+<br />
+<br />
+
+@await Html.PartialAsync("_ItemsList")
+

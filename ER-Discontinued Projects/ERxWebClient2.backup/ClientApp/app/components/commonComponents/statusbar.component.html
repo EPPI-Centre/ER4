@@ -1,0 +1,89 @@
+<ng-template #content let-c="close" let-d="dismiss">
+    <div class="modal-header bg-danger">
+        <h4 class="modal-title" id="modal-basic-title">Server Message</h4>
+        <button type="button" class="btn btn-danger close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="form-group">
+                <div class="input-group" [innerHTML]="modalMsg">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div *ngIf="isAdmin" class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Close but stay on page for development reasons</button>
+    </div>
+</ng-template>
+
+
+<div class="col-sm-12 card px-1 bg-light">
+    <div class="card-body pr-1 pl-1 pt-2 pb-2">
+        <table>
+            <tr>
+                <td class="px-1">
+                    <div [ngClass]="{'bg-light' : !CurrentMessageIsWarning,
+                              'bg-warning' : CurrentMessageIsWarning}"
+                          class="px-1 border border-info rounded">
+                        Status:
+                        <span class="pl-0" [innerHTML]="CurrentStatus"></span>
+                        <span (click)="pressedMore()" class="font-weight-bold btn-link ml-1 pt-1 px-0"
+                              [hidden]="!isMoreButtonVisible"
+                              style="cursor:pointer;">...more</span>
+                    </div>
+                </td>
+
+                <td *ngIf="ReviewerIdentityServ.getDaysLeftAccount() > 14" class=" pr-2 pl-2">
+                    <div class="px-1 border border-light rounded">Current User: {{ReviewerIdentityServ.reviewerIdentity.name}}</div>
+                </td>
+                <td class="pr-2 pl-2" data-toggle="tooltip" data-placement="top"
+                    title="Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? 'today!' : 'tomorrow!'}}"
+                    *ngIf="ReviewerIdentityServ.getDaysLeftAccount() == 1 || ReviewerIdentityServ.getDaysLeftAccount() == 0">
+                    <div class="bg-warning px-1 border border-info rounded">
+                        Current User: {{ReviewerIdentityServ.reviewerIdentity.name}}
+                    </div>
+                </td>
+                <td class=" pr-2 pl-2" data-toggle="tooltip" data-placement="top"
+                    title="Your Account will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount}} days!"
+                    *ngIf="ReviewerIdentityServ.getDaysLeftAccount() < 14 && ReviewerIdentityServ.getDaysLeftAccount() > 1">
+                    <div class="bg-warning px-1 border border-info rounded">
+                        Current User: {{ReviewerIdentityServ.reviewerIdentity.name}}
+                    </div>
+                </td>
+                <td class="pr-2 pl-2" *ngIf="ReviewerIdentityServ.getDaysLeftAccount() < 0">
+                    <div class="bg-danger px-1 border border-danger rounded">
+                        Current User: {{ReviewerIdentityServ.reviewerIdentity.name}} (Expired)
+                    </div> 
+                </td>
+                <td *ngIf="ReviewInfoService.ReviewInfo.reviewName && (ReviewerIdentityServ.getDaysLeftReview() > 14 || ReviewerIdentityServ.getDaysLeftReview() == -999999)" 
+                    class=" pr-2 pl-2">
+                    <div class="px-1 border border-light">Review: {{ReviewInfoService.ReviewInfo.reviewName}}</div>
+                </td>
+                <td class="pr-2 pl-2" data-toggle="tooltip" data-placement="top"
+                    title="Your Review will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview == 0 ? ' today!' : ' tomorrow!'}}"
+                    *ngIf="ReviewInfoService.ReviewInfo.reviewName && ReviewerIdentityServ.getDaysLeftReview() == 1  && ReviewerIdentityServ.getDaysLeftReview() == 0">
+                    <div class="bg-warning px-1 border border-info rounded">
+                        Review: {{ReviewInfoService.ReviewInfo.reviewName}}
+                    </div>
+                </td>
+                <td class=" pr-2 pl-2 " data-toggle="tooltip" data-placement="top"
+                    title="Your Review will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview}} days!"
+                    *ngIf="ReviewInfoService.ReviewInfo.reviewName && ReviewerIdentityServ.getDaysLeftReview() < 14 && ReviewerIdentityServ.getDaysLeftReview() > 1">
+                    <div class="bg-light px-1 border border-light rounded">
+                        Review: {{ReviewInfoService.ReviewInfo.reviewName}}
+                    </div>
+                </td>
+                <td class=" mr-2 ml-2 " *ngIf="ReviewInfoService.ReviewInfo.reviewName && ReviewerIdentityServ.getDaysLeftReview() < 0 && ReviewerIdentityServ.getDaysLeftReview() != -999999">
+                    <div class="bg-danger px-1 border border-danger rounded">
+                        Review: {{ReviewInfoService.ReviewInfo.reviewName}} (Expired)
+                    </div>
+                </td>
+            </tr>
+            
+        </table>
+    </div>
+</div>
+
+
