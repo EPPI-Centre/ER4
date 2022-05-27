@@ -29,7 +29,7 @@ namespace BusinessLibrary.BusinessClasses
         public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+            //var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
             throw new NotImplementedException();
             //return false;
         }

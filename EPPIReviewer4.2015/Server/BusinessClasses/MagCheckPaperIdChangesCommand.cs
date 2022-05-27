@@ -340,19 +340,12 @@ namespace BusinessLibrary.BusinessClasses
 
         private string LookupMissingIdsInNewMakes(int ContactId, int MagLogId, int missingCount, int currentlyUsed)
         {
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
-
-#else
-            var configuration = ConfigurationManager.AppSettings;
-
-#endif
             int PaperTotalCount = 0;
             int PaperTotalFound = 0;
             int activeThreadCount = 0;
             int notMatchedCount = 0;
-            int maxThreadCount = Convert.ToInt32(configuration["MagMatchItemsMaxThreadCount"]);
+            int maxThreadCount = Convert.ToInt32(AzureSettings.MagMatchItemsMaxThreadCount);
             int errorCount = 0;
             string result;
             string returnString = "ERROR: LookupMissingIdsInNewMakes did not complete";

@@ -29,11 +29,10 @@ import { itemDetailsPaginatorComp } from './components/ItemDetailsPaginator/item
 import { frequenciesResultsComp } from './components/Frequencies/frequenciesResults.component';
 import { EventEmitterService } from './components/services/EventEmitter.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
-import { ChartsModule } from 'ng2-charts'
-import { SearchComp } from './components/Search/SearchComp.component';
+import { ChartsModule } from 'ng2-charts';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LayoutModule } from '@progress/kendo-angular-layout';
 import { InputsModule } from '@progress/kendo-angular-inputs';
 import { NotificationModule } from '@progress/kendo-angular-notification';
@@ -42,11 +41,13 @@ import { ToolBarModule } from '@progress/kendo-angular-toolbar';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 import { UploadModule } from '@progress/kendo-angular-upload';
 import { ButtonsModule } from '@progress/kendo-angular-buttons';
+import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
+import 'hammerjs';
+import { SearchComp } from './components/Search/SearchComp.component';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
 import { ROSourcesListComponent } from './components/Sources/ROSourcesList.component';
-import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 import { SourcesComponent } from './components/Sources/sources.component';
 import { PubMedComponent } from './components/Sources/PubMed.component';
 import { ReviewSetsEditorComponent } from './components/CodesetTrees/reviewSetsEditor.component';
@@ -61,7 +62,6 @@ import { QuickCodingReportComponent } from './components/Reports/quickcodingrepo
 import { NewReviewComponent } from './components/Review/newreview.component';
 import { EditAccountComponent } from './components/Reviewer/editAccount.component';
 import { EditReviewComponent } from './components/Review/editReview.component';
-import 'hammerjs';
 import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
 import { armDetailsComp } from './components/ArmsAndTimePoints/armDetailsComp.component';
 import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTrees/codesetTree4QuickQuestionReport.component';
@@ -99,13 +99,11 @@ import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAlloc
 import { microsoftAcademicComp } from './components/MAG/microsoftAcademic.component';
 import { MAGHeaderBar2Comp } from './components/commonComponents/MAGHeaderBar2.component';
 import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.component';
-import { DatePipe } from '@angular/common';
 import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
 import { WebDBsComponent } from './components/Review/WebDBs.component';
 import { TruncatePipe } from './components/MAG/TruncatePipe.component';
 import { MAGSearchDetailsComponent } from './components/MAG/MAGSearchDetails.component'; 
 import { WebDbCcodesetTreeComponent } from './components/CodesetTrees/WebDbCcodesetTree.component';
-import { CKEditorModule } from 'ckeditor4-angular';
 import { MAGKeepUpToDate } from './components/MAG/MAGKeepUpToDate.component';
 import { MAGComp } from './components/MAG/MAG.component';
 import { ItemLinksComp } from './components/ArmsAndTimePoints/ItemLinks.component';
@@ -114,10 +112,13 @@ import { FreqXtabMapsComp } from './components/Frequencies/FreqXtabMaps.componen
 import { ReconcilingCodesetTreeComponent } from './components/CodesetTrees/ReconcilingCodesetTree.component';
 import { SourcesListSearchesComponent } from './components/Sources/SourcesListSearches.component';
 import { VisLogComp } from './components/Review/VisLog.component';
+import { CKEditorModule } from 'ckeditor4-angular';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
     declarations: [
 		AppComponent,
+        HomeComponent,
 		SearchComp,
         BasicMAGComp,
         frequenciesComp,
@@ -135,7 +136,6 @@ import { VisLogComp } from './components/Review/VisLog.component';
 		armsComp,
 		armDetailsComp,
         FetchReadOnlyReviewsComponent,
-        HomeComponent,
         ArchieCallBackComponent, 
         ItemListComp,
         ItemCodingComp,

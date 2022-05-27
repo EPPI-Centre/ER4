@@ -1,0 +1,64 @@
+<div class="row m-1 p-0 d-flex justify-content-between">
+    <button class="btn btn-primary" (click)="fetchFrequencies(chosenNode, chosenFilter?.attribute_id)" >Get Frequencies</button>
+    <div *ngIf="selectedNode" class="align-self-center small"> &nbsp; Current code: {{selectedNode?.name}}</div>
+</div>
+<div class="row m-1 p-0">
+    <div style="width:200px;"><span class="mt-1">Selected (parent) Code: &nbsp;</span></div>
+    <div class="col-4 border"><span [className]="chosenNode != null ? 'somekindofBackground' : ''">{{chosenNode?.name}}&nbsp;</span></div>
+    <div class="col-4">
+        <button (click)="SetCode1()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
+        <button (click)="clearChosenNode()" class="collapse btn btn-outline-info btn-sm">Clear</button>
+    </div>
+</div>
+<div class="row m-1 p-0">
+    <div style="width:200px;"><span class="mt-1">Selected Filter: &nbsp;</span></div>
+    <div class="col-4 border"><span [className]="chosenFilter != null ? 'somekindofBackground' : ''">{{chosenFilter?.name}}&nbsp;</span></div>
+    <div class="col-4">
+        <button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
+        <button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
+    </div>
+
+</div>
+<div class="row m-1 p-0">
+    <div class="col-md-12">
+        <table class="table-striped table table-light card-body">
+            <tbody>
+                <tr>
+                    <td>
+                        <b>Get frequencies for</b>
+                    </td>
+                    <td>
+                        <input type="radio" value="included" name="frIncludeOrExclude" [(ngModel)]="freqIncEx">&nbsp;Included
+                    </td>
+                    <td>
+                        <input type="radio" value="excluded" name="frIncludeOrExclude" [(ngModel)]="freqIncEx">&nbsp;Excluded
+                    </td>
+                    <td>
+                        <input type="radio" value="bothIandE" name="frIncludeOrExclude" [(ngModel)]="freqIncEx">&nbsp;Both
+                    </td>
+                    <td colspan="1"></td>
+                </tr>
+                <tr>
+                    <td>
+                        Show results as:
+                    </td>
+                    <td>
+                        <input type="radio" value="table" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat">&nbsp;Table
+                    </td>
+                    <td>
+                        <input type="radio" value="pie" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat">&nbsp;Pie chart
+                    </td>
+                    <td>
+                        <input type="radio" value="bar" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat">&nbsp;Bar chart
+                    </td>
+                    <td>
+                        <input type="checkbox" value="true" [(ngModel)]="NoneOfTheAboveCB" checked="checked"> Show 'None of the codes above'
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-12">
+        <frequenciesResults [ChartType]="FreqShowWhat" [ShowNoneOfTheAbove]="NoneOfTheAboveCB"></frequenciesResults>
+    </div>
+</div>

@@ -1122,28 +1122,21 @@ namespace BusinessLibrary.BusinessClasses
             }
 
 
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
-
-#else
-            var configuration = ConfigurationManager.AppSettings;
-
-#endif
 
             // 2) trigger the data factory run (which in turn calls the Azure ML pipeline)
 
-            string tenantID = configuration["tenantID"];
-            string appClientId = configuration["appClientId"];
-            string appClientSecret = configuration["appClientSecret"];
-            string subscriptionId = configuration["subscriptionId"];
-            string resourceGroup = configuration["resourceGroup"];
-            string dataFactoryName = configuration["dataFactoryName"];
+            string tenantID = AzureSettings.tenantID;
+            string appClientId = AzureSettings.appClientId;
+            string appClientSecret = AzureSettings.appClientSecret;
+            string subscriptionId = AzureSettings.subscriptionId;
+            string resourceGroup = AzureSettings.resourceGroup;
+            string dataFactoryName = AzureSettings.dataFactoryName;
 
-            string covidClassifierPipelineName = configuration["covidClassifierPipelineName"];
-            string covidLongCovidPipelineName = configuration["covidLongCovidPipelineName"];
-            string progressPlusPipelineName = configuration["progressPlusPipelineName"];
-            string pubMedStudyTypesPipelineName = configuration["pubMedStudyTypesPipelineName"];
+            string covidClassifierPipelineName = AzureSettings.covidClassifierPipelineName;
+            string covidLongCovidPipelineName = AzureSettings.covidLongCovidPipelineName;
+            string progressPlusPipelineName = AzureSettings.progressPlusPipelineName;
+            string pubMedStudyTypesPipelineName = AzureSettings.pubMedStudyTypesPipelineName;
 
             string ClassifierPipelineName = "";
             string SearchTitle = "";

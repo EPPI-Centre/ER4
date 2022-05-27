@@ -1,0 +1,111 @@
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
+<div class="border border-success coll" [style.max-height.px]="singleTableHeight * 2"
+     style="overflow:auto;">
+    <kendo-grid [data]="DataSource" 
+                [sortable]="{
+                    allowUnsort: allowUnsort,
+                    mode: 'single'
+                    }"
+                style="min-width:570px; " class="km-horizontal-scrollbar"
+                [sort]="sort"
+                (sortChange)="sortChange($event)">
+        <!--<kendo-grid-column title="Main" [style]="{'width':'75px', 'padding':'0.25rem'}" [headerStyle]="{'width':'75px'}" >
+            <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                <form #f="ngForm" (ngSubmit)="onFullSubmit(r_id.value)" novalidate>
+                    <input type="hidden" #r_id name="review_id" value="{{ dataItem.reviewId }}">
+                    <button class="btn btn-info p-1 w-100" data-placement="top">Main</button>
+                </form>
+            </ng-template>
+        </kendo-grid-column>-->
+        <kendo-grid-column field="reviewId" [style]="{'width':'78px'}" [headerStyle]="{'width':'78px'}" title="ID">
+        </kendo-grid-column>
+        <kendo-grid-column [style]="{'min-width':'150px', 'overflow': 'visible'}"
+                           [headerStyle]="{'min-width':'150px', 'overflow': 'visible'}" field="reviewName" title="Review Name">
+            <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                <button class="btn btn-link p-0 ml-0 border-0" title="Open full Review" (click)="onFullSubmit(dataItem)"
+                        [disabled]="HasCodingOnlyRole(dataItem)"
+                        style="white-space:normal;text-align: left;">
+                    {{dataItem.reviewName}}
+                </button>
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column field="lastAccess" [style]="{'width':'145px'}" [headerStyle]="{'width':'145px'}" title="Last Access:">
+            <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                {{FormatDate(dataItem.lastAccess)}}
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column title="Coding UI" [style]="{'width':'108px'}" [headerStyle]="{'width':'108px'}" [sortable]="false">
+            <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
+                    <input type="hidden" #r_id name="review_id" value="{{ dataItem.reviewId }}">
+                    <button class="btn btn-info p-1" data-placement="top">Coding UI</button>
+                </form>
+            </ng-template>
+        </kendo-grid-column>
+    </kendo-grid>
+</div>
+<div *ngIf="IsCochraneUser" class="border border-top-0 border-dark">
+    <div class="bg-white ml-1">Cochrane Reviews</div>
+    <div  [style.max-height.px]="singleTableHeight" 
+         style="overflow:auto;">
+        <kendo-grid [data]="ArchieReviewsData"
+                    [sortable]="{
+                allowUnsort: allowUnsort,
+                mode: 'single'
+                }"
+                    class="km-horizontal-scrollbar k-n small"
+                    [sort]="ArchieSort"
+                    (sortChange)="ArchieSortChange($event)">
+            <kendo-grid-column field="reviewId" [style]="{'width':'78px', 'padding':'0.30rem'}" [headerStyle]="{'width':'78px', 'padding':'0.30rem'}" title="ER ID">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <div *ngIf="dataItem.reviewId >0">{{dataItem.reviewId}}</div>
+                    <div *ngIf="dataItem.reviewId <=0 || !dataItem.reviewId">N/A</div>
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column [style]="{'width':'150px', 'min-width':'150px', 'overflow': 'visible', 'padding':'0.30rem'}"
+                               [headerStyle]="{'width':'150px', 'min-width':'150px', 'overflow': 'visible', 'padding':'0.30rem'}" field="reviewName" title="Review Name">
+                <ng-template kendoGridCellTemplate let-dataItem >
+                    <button *ngIf="dataItem.isLocal" class="btn btn-link p-0 ml-0 border-0" title="Open full Review" (click)="onFullSubmit(dataItem)"
+                            [disabled]="HasCodingOnlyRole(dataItem) || dataItem.reviewName == 'Place holder: no real reviews are in this list'"
+                            style="white-space:normal;text-align: left;">
+                        {{dataItem.reviewName}}
+                    </button>
+                    <!--<div *ngIf="!dataItem.isLocal" class=""
+                         style="white-space:normal;text-align: left;">
+                        {{dataItem.reviewName}}&nbsp;(Please Check-Out)
+                    </div>-->
+                <div *ngIf="!dataItem.isLocal" class="" title="Activate this Review from within EPPI-Reviewer"
+                     style="white-space:normal;text-align: left;">
+                    {{dataItem.reviewName}} <em>(Not active in EPPI-Reviewer)</em>
+                </div>
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="lastAccess" [style]="{'width':'145px', 'padding':'0.30rem'}" [headerStyle]="{'width':'145px'}" title="Last Access:">
+                <ng-template kendoGridCellTemplate let-dataItem >
+                    <div *ngIf="dataItem.isLocal">
+                        {{FormatDate(dataItem.lastAccess)}}
+                    </div>
+                    <button *ngIf="!dataItem.isLocal" title="Activate: creates a record for this review in the EPPI-Reviewer database"
+                             [disabled]="dataItem.reviewName == 'Place holder: no real reviews are in this list'"
+                            class="btn btn-sm btn-outline-danger" (click)="ConfirmActivate(dataItem)">Activate</button>
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column [style]="{'max-width':'220px', 'min-width':'95px', 'width':'200px', 'padding':'0.30rem'}" 
+                               [headerStyle]="{'max-width':'220px', 'width':'200px', 'min-width':'95px'}" title="Archie IDs:">
+                <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                    Archie ID {{dataItem.archieReviewId}}<br />
+                    CD: {{dataItem.archieReviewCD}}
+                </ng-template>
+            </kendo-grid-column>
+
+            <kendo-grid-column title="Coding UI" [style]="{'width':'108px', 'padding':'0.30rem'}" [headerStyle]="{'width':'108px', 'padding':'0.30rem'}" [sortable]="false">
+                <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                    <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
+                        <input type="hidden" #r_id name="review_id" value="{{ dataItem.reviewId }}">
+                        <button class="btn btn-info p-1 btn-sm" data-placement="top" [disabled]="!dataItem.isLocal || dataItem.reviewName == 'Place holder: no real reviews are in this list'">Coding UI</button>
+                    </form>
+                </ng-template>
+            </kendo-grid-column>
+        </kendo-grid>
+    </div>
+</div>

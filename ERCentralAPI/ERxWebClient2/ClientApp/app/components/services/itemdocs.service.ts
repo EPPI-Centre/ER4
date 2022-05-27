@@ -94,14 +94,14 @@ export class ItemDocsService extends BusyAwareService   {
                                 this.GotDocument.emit();
                             }
                             else {
-                                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-                                    window.navigator.msSaveOrOpenBlob(blob);
-                                }
-                                else {
+                                //if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                                //    window.navigator.msSaveOrOpenBlob(blob);
+                                //}
+                                //else {
                                     URL.createObjectURL(blob);
                                     let url = URL.createObjectURL(blob);
                                     if (url) window.open(url);
-                                }
+                                //}
                             }
                         });
                     this.RemoveBusy("GetItemDocument");

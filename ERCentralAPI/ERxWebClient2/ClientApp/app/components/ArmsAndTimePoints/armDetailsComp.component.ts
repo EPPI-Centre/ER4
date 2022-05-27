@@ -174,7 +174,14 @@ export class armDetailsComp implements OnInit {
                     (res: Arm) => {
 
 						let key = this.armsList.length;
-						this.armsList.splice(key, 0, res);
+						let ires: iArm = {
+							[key]: key,  // Add index signature
+							itemArmId: res.itemArmId,
+							itemId: res.itemId,
+							ordering: res.ordering,
+							title: res.title
+						};
+						this.armsList.splice(key, 0, ires);
 					}
 				);
 			}

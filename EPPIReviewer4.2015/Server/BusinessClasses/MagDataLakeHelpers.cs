@@ -127,20 +127,10 @@ namespace BusinessLibrary.BusinessClasses
             serviceSettings.TokenAudience = new Uri(@"https://datalake.azure.net/");
 
 
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string magDataLakeTenantId = configuration["MagDataLakeTenantId"];
-            string magDataLakeClientId = configuration["MagDataLakeClientId"];
-            string magDataLakeSecretKey = configuration["MagDataLakeSecretKey"];
-
-#else
-            string magDataLakeTenantId = ConfigurationManager.AppSettings["MagDataLakeTenantId"];
-            string magDataLakeClientId =  ConfigurationManager.AppSettings["MagDataLakeClientId"];
-            string magDataLakeSecretKey = ConfigurationManager.AppSettings["MagDataLakeSecretKey"];
-#endif
-
-
+            string magDataLakeTenantId = AzureSettings.MagDataLakeTenantId;
+            string magDataLakeClientId = AzureSettings.MagDataLakeClientId;
+            string magDataLakeSecretKey = AzureSettings.MagDataLakeSecretKey;
 
             var creds = ApplicationTokenProvider.LoginSilentAsync(
                 magDataLakeTenantId,
@@ -174,14 +164,9 @@ namespace BusinessLibrary.BusinessClasses
         public static AdlsClient ConnectToClient(ServiceClientCredentials adlCreds)
         {
 
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string dataLakeAccount = configuration["MagDataLakeDataLakeAccount"];
+            string dataLakeAccount = AzureSettings.MagDataLakeDataLakeAccount;
 
-#else
-            string dataLakeAccount = ConfigurationManager.AppSettings["MagDataLakeDataLakeAccount"];
-#endif
             string _adlsg1AccountName = dataLakeAccount + ".azuredatalakestore.net";
 
             AdlsClient client = AdlsClient.CreateClient(_adlsg1AccountName, adlCreds);

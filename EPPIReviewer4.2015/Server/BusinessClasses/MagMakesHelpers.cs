@@ -375,7 +375,7 @@ namespace BusinessLibrary.BusinessClasses
 #elif WEBDB
                     WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
 #else
-                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
+                    Program.Logger.Error(e, "Searching on MAKES failed for text: ", searchText);
 #endif
                     return PaperList;
                 }
@@ -511,7 +511,7 @@ namespace BusinessLibrary.BusinessClasses
 #elif WEBDB
                     WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
 #else
-                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
+                    Program.Logger.Error(e, "Searching on MAKES failed for text: ", searchText);
 #endif
                     return PaperList;
                 }
@@ -673,7 +673,7 @@ namespace BusinessLibrary.BusinessClasses
 #elif WEBDB
                     WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", query);
 #else
-                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", query);
+                    Program.Logger.Error(e, "Searching on MAKES failed for text: ", query);
 #endif
             }
             return respJson;

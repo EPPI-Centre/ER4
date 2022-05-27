@@ -1,0 +1,129 @@
+<div class="card p-1 m-1 alert-light" style="min-width: 750px">
+    <div class="col-12 row">
+        <h5 class="font-weight-bold btn btn-link col-6 pull-left" (click)="FindNewMAGMatches()">
+            Look up this record in OpenAlex
+        </h5>
+        <h5 class="font-weight-bold btn btn-link col-6 pull-right" (click)="ClearMAGMatches()">
+            Clear OpenAlex matches from this record
+        </h5>
+    </div>
+    <h5><b>{{item.quickCitation}}</b></h5>
+    <br />
+    <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
+    <div class="card col-12 alert-light border-dark" style="overflow:auto;"
+         *ngIf="_magAdvancedService.MagReferencesPaperList != null && _magAdvancedService.MagReferencesPaperList.papers.length > 0 ">
+        <br />
+        <table class="table table-bordered table-responsive-md table-striped text-left small alert-light">
+            <thead>
+                <tr>
+                    <th class="text-center">Matches with OpenAlex records</th>
+                    <th class="text-center">Status and score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let magPaper of _magAdvancedService.MagReferencesPaperList.papers">
+                    <td>
+                        <div class="col-12">{{magPaper.fullRecord}}</div>
+                        <div class="col-12">
+                            Id:
+                            {{magPaper.paperId}}
+                        </div>
+                        <div class="col-3 btn btn-link text-left" (click)="GetMagPaperRef(magPaper.paperId)">
+                            <p>View in OpenAlex Browser</p>
+                        </div>
+                        <div class="col-3 btn btn-link pull-right">
+                            <a href="https://explore.openalex.org/works/W{{magPaper.paperId}}" target="_blank">
+                                View on the internet
+                            </a>
+                        </div>
+                    </td>
+                    <td class="w-25">
+                        <div class="col-12 ">
+                            Score: {{magPaper.autoMatchScore}}
+                            <!--CurrentMagPaper: {{magPaper.manualTrueMatch}}-->
+                        </div>
+                        <div class="col-12">
+
+                            Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaper(true, magPaper.paperId)"
+                                                                type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
+                                                                [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
+                        </div>
+                        <div class="col-12 ">
+                            Incorrect Match: <input (click)="UpdateMagPaper(false, magPaper.paperId)"
+                                                    type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
+                                                    [(ngModel)]="magPaper.manualFalseMatch" class="ml-3">
+                        </div>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div *ngIf="foundMagPaper">
+        <table class="table table-bordered table-responsive-md table-striped text-left small alert-warning">
+            <thead>
+                <tr>
+                    <th class="text-center">Matches with OpenAlex records</th>
+                    <th class="text-center">Status and score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr >
+                    <td>
+                        <div class="col-12">{{FoundPaper.fullRecord}}</div>
+                        <div class="col-12">
+                            Id:
+                            {{FoundPaper.paperId}}
+                        </div>
+                        <div class="col-3 btn btn-link text-left" (click)="GetMagPaperRef(FoundPaper.paperId)">
+                            <p>View in OpenAlex Browser</p>
+                        </div>
+                        <div class="col-3 btn btn-link pull-right">
+                            <a href="https://explore.openalex.org/works/W{{magPaper.paperId}}" target="_blank">
+                                View on the internet
+                            </a>
+                        </div>
+                    </td>
+                    <td class="w-25">
+                        <div class="col-12 ">
+                            Score: 0
+                        </div>
+                        <div class="col-12">
+
+                            Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaperFound(true, FoundPaper.paperId)"
+                                                                type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
+                                                                [(ngModel)]="FoundPaper.manualTrueMatch" class="ml-3">
+                        </div>
+                        <div class="col-12 ">
+                            Incorrect Match: <input (click)="UpdateMagPaperFound(false, FoundPaper.paperId)"
+                                                    type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
+                                                    [(ngModel)]="FoundPaper.manualFalseMatch" class="ml-3">
+                        </div>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-12 p-2 m-2 row">
+        <div class="col-12 text-left">
+            <p><b>Look up specific OpenAlex ID:</b></p>
+            <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
+                   class="alert text-center"
+                   [(ngModel)]="magPaperId" />
+            <button (click)="GetMagPaperForPage()" [disabled]="!CanGetMagPaper()" class="btn btn-outline-primary  p-2 m-2">GO</button>
+        </div>
+        <div class="col-4"></div>
+        <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
+             class="col-4 alert alert-danger text-center">
+
+            <div *ngIf="magPaper.errors.required">
+                magPaperId is required.
+            </div>
+            <div *ngIf="magPaper.errors.minlength">
+                magPaperId must be at least 4 numbers long.
+            </div>
+        </div>
+    </div>
+</div>

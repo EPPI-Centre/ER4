@@ -44,15 +44,9 @@ namespace BusinessLibrary.BusinessClasses
         public const double AutoMatchMinScore = 0.4;
         private static SearchIndexClient CreateSearchIndexClient()
         {
-#if (!CSLA_NETCORE)
-            SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(ConfigurationManager.AppSettings["AzureSearchMAGApi-key"]));
-            
-#else
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string MAGApikey = configuration["AzureSearchMAGApi-key"];
-            SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(MAGApikey));
-
-#endif
+            SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(
+                AzureSettings.AzureSearchMAGApiKey
+                ));
             return indexClient;
         }
 

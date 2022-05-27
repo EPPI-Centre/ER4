@@ -1,0 +1,93 @@
+<!-- Editable table -->
+<div class="card">
+	<h5 class="m-1 p-1 font-weight-bold">
+		Time Points
+		<button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right"
+				(click)="ShowTimePoints = !ShowTimePoints">
+			{{ShowTimePointsBtnText}}
+		</button>
+	</h5>
+	
+	<div class="card-body" style="max-height:360px;overflow:auto;">
+		<div id="table" class=" bg-light" *ngIf="ShowTimePoints">
+			<div class="table-add float-left mb-3 mr-2 col-md-12 row">
+				<form #timePointForm="ngForm" class="col-md-6">
+					Enter Time Point value:
+					<div>
+						<input #timePointModel="ngModel" name="n1"
+							   required
+							   class="form-control"
+							   type="number" [(ngModel)]="TimePointValue" />
+					</div>
+					<div *ngIf="timePointModel.invalid && (timePointModel.dirty || timePointModel.touched)"
+						 class="alert alert-danger p-1 small">
+
+						<div *ngIf="timePointModel.errors.required">
+							Time Point value is required
+						</div>
+						<div *ngIf="timePointModel.errors.pattern">
+							Time Point value has to be a number
+						</div>
+					</div>
+					<div *ngIf="TimePointTheSame && EditingTimepointId == 0" class="rounded alert-danger p-1 small">
+						Time Point exists already
+					</div>
+					<div *ngIf="TimePointTheSame && EditingTimepointId > 0" class="rounded alert-danger p-1 small">
+						Time Point hasn't changed or has the same value of one that exists already
+					</div>
+				</form>
+				<div class="col-md-2">
+				</div>
+				<div class="form-group col-md-4">
+					<label class="m-0 p-0">Time Unit</label>
+					<select #unitM="ngModel" [(ngModel)]="SelectedUnit"
+							class="form-control col-md-12" name="n2">
+						<option value="" selected="selected">Choose time point metric</option>
+						<option [ngValue]="unit" *ngFor="let unit of Units" [selected]="unit == SelectedUnit">
+							{{unit}}
+						</option>
+					</select>
+				</div>
+				<div class="col-md-12 row">
+					<button *ngIf="EditingTimepointId == 0"
+							[disabled]="!HasWriteRights || timePointModel.invalid || SelectedUnit =='' || TimePointTheSame"
+							class="btn btn-success mt-1 p-1 m-1" (click)="CreateTimepoint()">
+						Add Time Point
+					</button>
+					<button *ngIf="EditingTimepointId > 0"
+							[disabled]="!HasWriteRights || timePointModel.invalid || SelectedUnit =='' || TimePointTheSame"
+							class="btn btn-success mt-1 p-1 m-1" (click)="UpdateTimepoint()">
+						Update Time Point
+					</button>
+					<button [disabled]="!timePointModel.dirty && unitModel ==''" type="reset"
+							class="btn btn-danger mt-1 p-1 m-1"
+							(click)="Clear()">
+						Cancel
+					</button>
+				</div>
+			</div>
+			<!---->
+			
+			<table *ngIf="timePointsList.length > 0" class="table table-bordered table-sm table-striped text-center">
+				<tr>
+					<th class="text-center">Timepoint</th>
+					<th class="text-center" style="">Actions</th>
+				</tr>
+				<tr *ngFor="let timepoint of timePointsList">
+					<td style="">{{timepoint.timepointValue}}&nbsp;{{timepoint.timepointMetric}}</td>
+                    <td style="white-space:nowrap;">
+                        <button (click)="setTimePointForEdit(timepoint)"
+                                [disabled]="!HasWriteRights"
+                                type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 mx-1">
+                            Edit
+                        </button>
+                        <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 mx-1"
+                                [disabled]="!HasWriteRights" (click)="removeWarning(timepoint)">
+							<span class="k-icon k-i-delete "></span>
+                        </button>
+                    </td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>

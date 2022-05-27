@@ -1,0 +1,91 @@
+import { OnInit, Component, Input, OnDestroy, EventEmitter, Output } from "@angular/core";
+import { Router } from "@angular/router";
+import { ReviewerIdentityService } from "../services/revieweridentity.service";
+import { ReviewerTermsService, ReviewerTerm } from "../services/ReviewerTerms.service";
+import {  Item } from "../services/ItemList.service";
+import { ItemCodingService } from "../services/ItemCoding.service";
+
+@Component({
+	selector: 'ReviewTermsListComp',
+	templateUrl: './ReviewTermsListComp.component.html',
+})
+
+export class ReviewTermsListComp implements OnInit, OnDestroy {
+
+	constructor(private router: Router,
+		private ReviewerIdentityServ: ReviewerIdentityService,
+		private ReviewTermsServ: ReviewerTermsService,
+		private ItemCodingService: ItemCodingService,
+		private ReviewerTermsService: ReviewerTermsService
+
+	) {
+
+	}
+	@Input() item: Item | undefined;
+
+	ngOnInit() {
+
+		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+			this.router.navigate(['home']);
+		}
+		else {
+		}
+	}
+	public get TermsList(): ReviewerTerm[] {
+		return this.ReviewTermsServ.TermsList;
+	}
+	public Update(term: ReviewerTerm) {
+		if (term) {
+			this.ReviewTermsServ.UpdateTerm(term);
+			if (this.item) {
+				this.ItemCodingService.Fetch(this.item.itemId);
+			}
+
+		}
+	}
+	
+	ngOnDestroy() {
+
+		this.Clear();
+
+	}
+	public Clear() {
+
+		this.ReviewerTermsService._ShowHideTermsList = false;
+		this.ShowNewTermPanel = false;
+	}
+	public ShowNewTermPanel: boolean = false;
+	public OpenRowPanel() {
+		this.ShowNewTermPanel = !this.ShowNewTermPanel;
+
+	}
+	public Remove(term: ReviewerTerm) {
+		if (term) {
+			this.ReviewTermsServ.DeleteTerm(term.trainingReviewerTermId);
+			if (this.item) {
+				this.ItemCodingService.Fetch(this.item.itemId);
+			}
+		}
+	}
+	public get HasWriteRights(): boolean {
+		return this.ReviewerIdentityServ.HasWriteRights;
+	}
+
+	public newReviewTerm: string = '';
+	public newReviewIncluded: boolean = false;
+
+	public InsertNewRow() {
+
+		if (this.newReviewTerm != '') {
+			let newTerm: ReviewerTerm = {} as ReviewerTerm;
+			newTerm.included = this.newReviewIncluded;
+			newTerm.term = this.newReviewTerm;
+			this.ReviewTermsServ.CreateTerm(newTerm);
+			this.ReviewTermsServ.TermsList.push(newTerm);
+			this.newReviewTerm = '';
+			this.newReviewIncluded = false;
+			this.ShowNewTermPanel = false;
+		}
+	}
+}
+ 

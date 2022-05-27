@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Configuration;
 #if (CSLA_NETCORE)
+using Microsoft.Extensions.Configuration;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -20,6 +21,27 @@ namespace BusinessLibrary.BusinessClasses
     public class AzureSettings
     {
 #if (CSLA_NETCORE)
+
+        public static void SetValues(IConfiguration config)
+        {
+            _AzureContReviewSettings = config.GetSection("AzureContReviewSettings");
+            _AzureMagSettings = config.GetSection("AzureMagSettings");
+            _ClassifierSettings = config.GetSection("ClassifierSettings");
+            _AppSettings = config.GetSection("AppSettings");
+        }
+
+        private static Microsoft.Extensions.Configuration.IConfigurationSection _AppSettings;
+        private static Microsoft.Extensions.Configuration.IConfigurationSection AppSettings
+        {
+            get
+            {
+#if WEBDB
+                if (_AppSettings == null) _AppSettings = WebDatabasesMVC.Startup.Configuration.GetSection("AppSettings");
+#endif
+                return _AppSettings;
+            }
+        }
+
         private static Microsoft.Extensions.Configuration.IConfigurationSection _AzureContReviewSettings;
         private static Microsoft.Extensions.Configuration.IConfigurationSection AzureContReviewSettings
         {
@@ -27,8 +49,8 @@ namespace BusinessLibrary.BusinessClasses
             {
 #if WEBDB
                 if (_AzureContReviewSettings == null) _AzureContReviewSettings = WebDatabasesMVC.Startup.Configuration.GetSection("AzureContReviewSettings");
-#else
-                if (_AzureContReviewSettings == null) _AzureContReviewSettings = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+//#else
+//                if (_AzureContReviewSettings == null) _AzureContReviewSettings = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
 #endif
                 return _AzureContReviewSettings;
             }
@@ -40,8 +62,8 @@ namespace BusinessLibrary.BusinessClasses
             {
 #if WEBDB
                 if (_AzureMagSettings == null) _AzureMagSettings = WebDatabasesMVC.Startup.Configuration.GetSection("AzureMagSettings");
-#else
-                if (_AzureMagSettings == null) _AzureMagSettings = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+//#else
+//                if (_AzureMagSettings == null) _AzureMagSettings = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
 #endif
                 return _AzureMagSettings;
             }
@@ -53,8 +75,8 @@ namespace BusinessLibrary.BusinessClasses
             {
 #if WEBDB
                 if (_AzureContReviewSettings == null) _ClassifierSettings = WebDatabasesMVC.Startup.Configuration.GetSection("ClassifierSettings");
-#else
-                if (_AzureContReviewSettings == null) _ClassifierSettings = ERxWebClient2.Startup.Configuration.GetSection("ClassifierSettings");
+//#else
+//                if (_AzureContReviewSettings == null) _ClassifierSettings = ERxWebClient2.Startup.Configuration.GetSection("ClassifierSettings");
 #endif
                 return _ClassifierSettings;
             }
@@ -89,16 +111,40 @@ namespace BusinessLibrary.BusinessClasses
 
 
 
+        public static string MagMatchItemsMaxThreadCount { get { return AppSettings["MagMatchItemsMaxThreadCount"]; } }
+
         public static string tenantID { get { return AzureContReviewSettings["tenantID"]; } }
         public static string appClientId { get { return AzureContReviewSettings["appClientId"]; } }
         public static string appClientSecret { get { return AzureContReviewSettings["appClientSecret"]; } }
         public static string subscriptionId { get { return AzureContReviewSettings["subscriptionId"]; } }
         public static string resourceGroup { get { return AzureContReviewSettings["resourceGroup"]; } }
         public static string dataFactoryName { get { return AzureContReviewSettings["dataFactoryName"]; } }
+        public static string covidClassifierPipelineName { get { return AzureContReviewSettings["covidClassifierPipelineName"]; } }
+        public static string covidLongCovidPipelineName { get { return AzureContReviewSettings["covidLongCovidPipelineName"]; } }
+        public static string progressPlusPipelineName { get { return AzureContReviewSettings["progressPlusPipelineName"]; } }
+        public static string pubMedStudyTypesPipelineName { get { return AzureContReviewSettings["pubMedStudyTypesPipelineName"]; } }
+        public static string pipelineName { get { return AzureContReviewSettings["pipelineName"]; } }
+
+        
+
         public static string MagDataLakeDataLakeAccount { get { return AzureMagSettings["MagDataLakeDataLakeAccount"]; } }
         public static string MagDataLakeStorageAccount { get { return AzureMagSettings["MagDataLakeStorageAccount"]; } }
+        public static string MagDataLakeTenantId { get { return AzureMagSettings["MagDataLakeTenantId"]; } }
+        public static string MagDataLakeClientId { get { return AzureMagSettings["MagDataLakeClientId"]; } }
+        public static string MagDataLakeSecretKey { get { return AzureMagSettings["MagDataLakeSecretKey"]; } }
         public static string MAGStorageAccount { get { return AzureMagSettings["MAGStorageAccount"]; } }
         public static string MAGStorageAccountKey { get { return AzureMagSettings["MAGStorageAccountKey"]; } }
+        public static string databricks_cluster_id { get { return AzureMagSettings["databricks_cluster_id"]; } }
+        public static string DynamicAnnotation { get { return AzureMagSettings["DynamicAnnotation"]; } }
+        public static string ml_pipeline_id { get { return AzureMagSettings["ml_pipeline_id"]; } }
+        public static string sa_account_name { get { return AzureMagSettings["sa_account_name"]; } }
+        public static string sa_secret_scope_name { get { return AzureMagSettings["sa_secret_scope_name"]; } }
+        public static string sa_secret_scope_key { get { return AzureMagSettings["sa_secret_scope_key"]; } }
+        public static string db_database_schema_version { get { return AzureMagSettings["db_database_schema_version"]; } }
+        public static string exp_experiments_container { get { return AzureMagSettings["exp_experiments_container"]; } }
+        public static string exp_run_suffix { get { return AzureMagSettings["exp_run_suffix"]; } }
+        public static string AzureSearchMAGApiKey { get { return AzureMagSettings["AzureSearchMAGApi-key"]; } }
+
 
         public static string blobConnection { get { return ClassifierSettings["blobConnection"]; } }
         public static string BaseUrlScoreModel { get { return ClassifierSettings["BaseUrlScoreModel"]; } }
