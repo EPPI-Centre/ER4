@@ -275,15 +275,12 @@
                                        [data]="AddRemoveSearchesDDData"
                                        class="my-1 ml-1 mr-0"
                                        style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
-                    <button kendoButton class="my-1 ml-1 mr-0" title="Get Frequencies (for children of currently selected code)" (click)="GetFrequencies()" [disabled]="!CanGetFrequencies">
-                      <!--<i class="fa fa-bar-chart my-1" style="transform: rotate(90deg) scaleX(-1)"></i>-->
-                      <kendo-icon name="chart-bar-stacked"></kendo-icon>
+                    <button kendoButton [icon]="'chart-bar-stacked'" class="my-1 ml-1 mr-0" title="Get Frequencies (for children of currently selected code)" (click)="GetFrequencies()" [disabled]="!CanGetFrequencies">
+                     </button>
+                    <button kendoButton [icon]="'refresh'" class="my-1 ml-1 mr-0" *ngIf="!IsServiceBusy" title="Refresh Coding Tools" (click)="RefreshCodingTools()">
                     </button>
-                    <button kendoButton class="my-1 ml-1 mr-0" *ngIf="!IsServiceBusy" title="Refresh Coding Tools" (click)="RefreshCodingTools()">
-                      <kendo-icon name="refresh"></kendo-icon>
-                    </button>
-                    <button kendoButton class="my-1 ml-1 mr-0" title="Print coding tool" (click)="ShowPrintCodeset = !ShowPrintCodeset">
-                      <kendo-icon name="print"></kendo-icon>
+                    <button kendoButton [icon]="'print'" class="my-1 ml-1 mr-0 " title="Print coding tool" (click)="ShowPrintCodeset = !ShowPrintCodeset">
+                      <!--<kendo-icon name="print"></kendo-icon>-->
                     </button>
                 </div>
                 <div *ngIf="ShowPrintCodeset" class="m-1 rounded border border-success">
