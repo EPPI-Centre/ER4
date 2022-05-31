@@ -20,6 +20,13 @@ const PROXY_CONFIG = [
     ],
     target: target,
     secure: false
+  },
+  {
+    context: [
+      "**", '!index.html'
+    ],
+    target: target,
+    secure: false
   }
 ]
 

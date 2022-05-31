@@ -1,132 +1,132 @@
 <div class="h-100">
-    <div class="row m-0 d-flex justify-content-center border-bottom border-primary">
-        &nbsp;
-    </div>
-    <div class="d-flex ml-1 mr-1 mt-0 mb-0 justify-content-center bg-white ">
-        <h3 class="justify-center m-1 ">EPPI-Reviewer Web (Beta)</h3><br />
-    </div>
+  <div class="row m-0 d-flex justify-content-center border-bottom border-primary">
+    &nbsp;
+  </div>
+  <div class="d-flex mx-1 mt-0 mb-0 justify-content-center bg-white ">
+    <h3 class="justify-center m-1 ">EPPI-Reviewer Web (Beta)</h3><br />
+  </div>
 
-    <div class="row ml-1 mr-1 mt-0 mb-0 d-flex justify-content-center flex-row-reverse bg-white border-bottom border-primary">
-        
-        <div class="col-md-2 m-1">
-            <!--<div class="panel" style="background-color: #33b5e5">-->
-            <div class="panel" style="background-color: #FFFFFF">
-                <table class="">
-                    <tr>
-                        <td class="border-bottom border-dark" style="padding: 6px;color: #FFFFFF;">
-                            <img src="../assets/EPPI-Centre_logo2.png" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p class="text-right border-bottom border-dark">
-                                <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Click here</a><br />
-                                to Create your Account.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
+  <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center flex-row-reverse bg-white border-bottom border-primary">
+
+    <div class="col-md-2 m-1">
+      <!--<div class="panel" style="background-color: #33b5e5">-->
+      <div class="panel" style="background-color: #FFFFFF">
+        <table class="">
+          <tr>
+            <td class="border-bottom border-dark" style="padding: 6px;color: #FFFFFF;">
+              <img src="../assets/EPPI-Centre_logo2.png" />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p class="text-right border-bottom border-dark">
+                <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Click here</a><br />
+                to Create your Account.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="form-horizontal" role="form">
+        <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
+          <div class="form-group row m-1 p-0">
+            <label class="col-sm-2 control-label" for="tbTFullNameReg">Username:</label>
+            <div class="col-sm-7">
+              <input #c_name name="username" required class="form-control" ngModel>
             </div>
-        </div>
-        <div class="col-md-8">
-            <div class="form-horizontal" role="form">
-                <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
-                    <div class="form-group row m-1 p-0">
-                        <label class="col-sm-2 control-label" for="tbTFullNameReg">Username:</label>
-                        <div class="col-sm-7">
-                            <input #c_name name="username" required class="form-control" ngModel>
-                        </div>
-                        <div *ngIf="ShowUsernameRequired" class=" m-1">
-                            <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
-                        </div>
-                    </div>
-                    <div class="form-group row m-1 p-0">
-                        <label class="col-sm-2 control-label" for="tbTFullNameReg">Password:</label>
-                        <div class="col-sm-7">
-                            <input #c_password type="password" required class="form-control" name="password" ngModel>
-                        </div>
-                        <div *ngIf="ShowPasswordRequired" class=" m-1">
-                            <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Password Required (or too short)!</span></div>
-                        </div>
-                    </div>
-                    <div class="form-group row m-1 p-0">
-                        <div class="row offset-md-1 col-sm-7 align-content-center ">
-                            <input type="submit" value="Login" class="btn btn-primary m-1" /> &nbsp;
-                            <a class="mt-2" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Forgot Password?</a>
-                            <div *ngIf="ShowLoginFailed" class=" m-2"><div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div></div>
-                        </div>
-                    </div>
-                </form>
+            <div *ngIf="ShowUsernameRequired" class=" m-1">
+              <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
             </div>
-        </div>
-        <div class="col-md-1 p-0">&nbsp;</div>
-    </div>
-    
-    <div class="row ml-1 mr-1 mt-0 mb-0 p-0 d-flex p-0 justify-content-center bg-light border-bottom border-primary">
-        <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11 p-0">
-            <div class="text-center my-2">
-
-                Visit the <a class="text-center font-weight-bold" href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">
-                    EPPI-Reviewer Gateway
-                </a><br />
-                for Account and Review Management, Documentation, Support and the RIS export utility.
+          </div>
+          <div class="form-group row m-1 p-0">
+            <label class="col-sm-2 control-label" for="tbTFullNameReg">Password:</label>
+            <div class="col-sm-7">
+              <input #c_password type="password" required class="form-control" name="password" ngModel>
             </div>
-        </div>
-        <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1 mt-2 p-0 ml-0 float-right">
-            <a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="../assets/FollowUs.png" /></a>
-            <br />&nbsp;on <a href="https://twitter.com/EPPIReviewer" target="_blank">
-                Twitter
-            </a>
-            <br />
-
-        </div>
-        <!--<div class=" mt-4 ml-1 p-0 container text-center"><a class="text-danger font-weight-bold justify-center" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>-->
+            <div *ngIf="ShowPasswordRequired" class=" m-1">
+              <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Password Required (or too short)!</span></div>
+            </div>
+          </div>
+          <div class="form-group row m-1 p-0 align-content-center ">
+            <div class="col mx-1"><input type="submit" value="Login" class="btn btn-primary m-1" /></div>
+            <div class="col-auto mx-1"><a class="mt-2 col" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Forgot Password?</a></div>
+            <div *ngIf="ShowLoginFailed" class="col m-2">
+              <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-    <div class="row ml-1 mr-1 mt-2 mb-2 d-flex justify-content-center bg-white border-top border-bottom border-primary">
-        <div class="p-1">
-            <img src="{{baseUrl}}/Images/cochrane_logo.png" width="30" height="30" class="mr-1" />
-            <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
-            <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info...</button>
-        </div>
-        <div *ngIf="showCochraneHelp" class="col-11 justify-center border border-info rounded alert-info mb-1">
-            <p class="mb-1">
-                This link allows <b>Cochrane Authors</b> to log in EPPI-Reviewer with their Cochrane Account details.<br />
-                Within EPPI-Reviewer, Cochrane Authors are automatically licensed to:
-            </p>
-            <ol class="small">
-                <li>Work on Cochrane reviews (access control is controlled by review authorship state as defined in Archie).</li>
-                <li>Work on private (not shared) reviews.</li>
-                <li>Work on "Prospective" Cochrane reviews (preliminary work, before registering a review in Archie). To gain access to this option please get in touch with EPPI-Support. </li>
-            </ol>
-            <p>
-                More details, including guidance, are <a href="https://community.cochrane.org/help/tools-and-software/eppi-reviewer" target="_blank">here</a>.
-            </p>
+    <div class="col-md-1 p-0">&nbsp;</div>
+  </div>
 
-        </div>
+  <div class="row mx-1 mt-0 mb-0 p-0 d-flex p-0 justify-content-center bg-light border-bottom border-primary">
+    <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11 p-0">
+      <div class="text-center my-2">
+
+        Visit the <a class="text-center font-weight-bold" href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">
+          EPPI-Reviewer Gateway
+        </a><br />
+        for Account and Review Management, Documentation, Support and the RIS export utility.
+      </div>
+    </div>
+    <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1 mt-2 p-0 ml-0 float-right">
+      <a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="../assets/FollowUs.png" /></a>
+      <br />&nbsp;on <a href="https://twitter.com/EPPIReviewer" target="_blank">
+        Twitter
+      </a>
+      <br />
+
+    </div>
+    <!--<div class=" mt-4 ml-1 p-0 container text-center"><a class="text-danger font-weight-bold justify-center" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>-->
+  </div>
+  <div class="row mx-1 mt-2 mb-2 d-flex justify-content-center bg-white border-top border-bottom border-primary">
+    <div class="p-1">
+      <img src="{{baseUrl}}/Images/cochrane_logo.png" width="30" height="30" class="mr-1" />
+      <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
+      <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info...</button>
+    </div>
+    <div *ngIf="showCochraneHelp" class="col-11 justify-center border border-info rounded alert-info mb-1">
+      <p class="mb-1">
+        This link allows <b>Cochrane Authors</b> to log in EPPI-Reviewer with their Cochrane Account details.<br />
+        Within EPPI-Reviewer, Cochrane Authors are automatically licensed to:
+      </p>
+      <ol class="small">
+        <li>Work on Cochrane reviews (access control is controlled by review authorship state as defined in Archie).</li>
+        <li>Work on private (not shared) reviews.</li>
+        <li>Work on "Prospective" Cochrane reviews (preliminary work, before registering a review in Archie). To gain access to this option please get in touch with EPPI-Support. </li>
+      </ol>
+      <p>
+        More details, including guidance, are <a href="https://community.cochrane.org/help/tools-and-software/eppi-reviewer" target="_blank">here</a>.
+      </p>
+
+    </div>
+  </div>
+
+  <div class="row mx-1 px-2 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 font-weight-bold p-0 m-0">
+      Latest Changes:
+    </div>
+    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
+      Version: {{vInfo.versionN}}
+    </div>
+    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
+      {{FormatDate(vInfo.date)}}
+    </div>
+  </div>
+  <div class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+    <div class="col-md-12 px-1 m-1">
+      {{vInfo.description}}
     </div>
 
-    <div class="row mr-1 ml-1  d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
-        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 font-weight-bold p-0 m-0">
-            Latest Changes:
-        </div>
-        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
-            Version: {{vInfo.versionN}}
-        </div>
-        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
-            {{FormatDate(vInfo.date)}}
-        </div>
+    <div class="col-md-12 justify-content-end">
+      <a href="{{vInfo.url}}" target="_blank">Read More...</a>
     </div>
-    <div class="row d-flex ml-1 mr-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
-        <div class="col-md-12 p-0 m-1">
-            {{vInfo.description}}
-        </div>
+  </div>
 
-        <div class="col-md-12 justify-content-end">
-            <a href="{{vInfo.url}}" target="_blank">Read More...</a>
-        </div>
-    </div>
-
-    <div class="row ml-1 mr-1 mt-0 mb-0 d-flex justify-content-center bg-light h-100 align-bottom">
-        &nbsp;
-    </div>
+  <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-light align-bottom">
+    &nbsp;
+  </div>
 </div>

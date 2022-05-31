@@ -1,23 +1,17 @@
-import { Location } from '@angular/common';
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import {
-    MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun,
+    MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun,
     MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, MagAddClassifierScoresCommand, MagItemPaperInsertCommand
 } from '../services/MAGClasses.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
-import { MAGAdminService } from '../services/MAGAdmin.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { timeInRange } from '@progress/kendo-angular-dateinputs/dist/es2015/util';
-import { timeout } from 'rxjs/operators';
 import { Helpers } from '../helpers/HelperMethods';
 import { NgForm } from '@angular/forms';
 import { ModalService } from '../services/modal.service';

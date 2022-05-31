@@ -1,4 +1,4 @@
-﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGMatching"></HeaderComponent>
+<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGMatching"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
@@ -226,7 +226,7 @@
 
                         <div>
                             <div colspan="2">
-                                <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
+                                <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched) && magPaper.errors"
                                      class="alert alert-danger">
 
                                     <div *ngIf="magPaper.errors.required">

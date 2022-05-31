@@ -35,7 +35,12 @@ try
 
     // Add services to the container.
 
-    builder.Services.AddControllersWithViews();
+    builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
+    {//this is needed to allow serialising CSLA child objects:
+     //they all have a "Parent" field which creates a reference loop.
+        options.SerializerSettings.CheckAdditionalContent = true;
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -49,8 +54,7 @@ try
             ValidAudience = builder.Configuration["AppSettings:EPPIApiClientName"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:EPPIApiClientSecret"]))
         };
-    }); ;
-
+    });
     var app = builder.Build();
 
     //the following command could be used to log "streamlined request data", whatever that means... Disabled for now, could be useful if we could use it to log request data along with exceptions.

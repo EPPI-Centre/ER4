@@ -70,9 +70,16 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public AlwaysShow: boolean = false;
 	public RiskOfBias: boolean = false;
-	public outcomesHidden: boolean = false;
-
-
+  public outcomesHidden: boolean = false;
+  public get Reports(): iConfigurableReport[] | null {
+    return this.configurablereportServ.Reports;
+  }
+  public get ReportCollectionROB(): iConfigurableReport[] | null {
+    return this.configurablereportServ.ReportCollectionROB;
+  }
+  public get ReportCollectionOutcomes(): iConfigurableReport[] | null {
+  return this.configurablereportServ.ReportCollectionOutcomes;
+}
 
 	public onTabSelect(event: any) {
 
@@ -96,9 +103,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			this.tabSelectedIndex = 0;
 		}
 
-	}
-
-	public OpenInNewWindow() {
+  }
+  public OpenInNewWindow() {
 
 		if (this.reportHTML.length < 1) return;
 		else if (this.reportHTML.length < 1) {
@@ -115,9 +121,11 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				pwa.document.close();
 			}
 		}
-	}
-	public ChangedReport(item: any) {
-		if (item != null || item != '') {
+  }
+  //public ChangedReport(item: any) {
+  public ChangedReport(event: Event) {
+    let selection = (event.target as HTMLOptionElement).value;
+    if (selection != null || selection != '') {
 			this.GeneratedReport = false;
 		}
 	}

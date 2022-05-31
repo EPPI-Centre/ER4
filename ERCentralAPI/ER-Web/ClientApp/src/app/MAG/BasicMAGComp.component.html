@@ -1,4 +1,4 @@
-﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="basicMAG"></HeaderComponent>
+<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="basicMAG"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
@@ -85,7 +85,7 @@
                                 <input required minlength="4" type="text" id="descName" name="descName" #descName="ngModel" class="form-control col-sm-12 col-lg-5"
                                        [(ngModel)]="description" />
 
-                                <div *ngIf="descName.invalid && (descName.dirty || descName.touched)"
+                                <div *ngIf="descName.invalid && (descName.dirty || descName.touched) && descName.errors"
                                      class="alert alert-danger">
 
                                     <div *ngIf="descName.errors.required">

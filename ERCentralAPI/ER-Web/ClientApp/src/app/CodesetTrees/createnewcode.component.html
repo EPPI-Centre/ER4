@@ -6,7 +6,7 @@
                 <label for="Codeset_TypeCollaborate">Code Type*</label>
                 <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
                         [disabled]="!CurrentCodeCanHaveChildren">
-                    <option *ngFor="let type of _reviewSetsService.AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == _reviewSetsService.AllowedChildTypesOfSelectedNode[0].key">
+                    <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == AllowedChildTypesOfSelectedNode[0].key">
                         {{type.value}}
                     </option>
                 </select>
@@ -48,7 +48,7 @@
             <div>Code Type*</div>
             <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate"
                     [disabled]="!CurrentCodeCanHaveChildren">
-                <option *ngFor="let type of _reviewSetsService.AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == _reviewSetsService.AllowedChildTypesOfSelectedNode[0].key">
+                <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == AllowedChildTypesOfSelectedNode[0].key">
                     {{type.value}}
                 </option>
             </select>

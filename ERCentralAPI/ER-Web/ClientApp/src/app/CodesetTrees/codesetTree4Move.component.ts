@@ -2,8 +2,8 @@ import { Component, Inject, OnInit, Input, ViewChild, OnDestroy, AfterViewInit }
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { singleNode, ReviewSet } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeComponent } from 'angular-tree-component';
-import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+import { ITreeOptions, TreeComponent, TreeNode } from '@circlon/angular-tree-component';
+//import { ITreeNode } from '@circlon/angular-tree-component/
 import { singleNode4move, ReviewSet4Move } from '../services/ReviewSetsEditing.service';
 
 @Component({
@@ -62,7 +62,7 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
     
 	public SelectedCodeDescription: string = "";
 
-    NodeSelected(node: ITreeNode) {
+    NodeSelected(node: TreeNode) {
         let data = node.data as singleNode4move;
         if (data) {
             if (!data.CanMoveBranchInHere) {

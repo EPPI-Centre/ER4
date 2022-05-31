@@ -6,7 +6,7 @@
                   [saveUrl]="uploadSaveUrl"
                   [restrictions]="uploadRestrictions"
                   (upload)="uploadEventHandler($event)"
-                  (complete)="completeEventHandler($event)">
+                  (complete)="completeEventHandler()">
     </kendo-upload>
     <div class="">
         <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false">Cancel</button>

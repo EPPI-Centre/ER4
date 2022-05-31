@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, iSetType, ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
-import { ITreeOptions, TreeComponent } from 'angular-tree-component';
+import { ITreeOptions, TreeComponent } from '@circlon/angular-tree-component';
 
 @Component({
     selector: 'codesetTreeEdit',

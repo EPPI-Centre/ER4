@@ -19,7 +19,7 @@
 					   required minlength="3"
 					   pattern="^(?!\s*$).+" class="form-control"
 					   type="text" [(ngModel)]="title" />
-				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
+				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched) && titleModel.errors"
 					 class="alert alert-danger p-1 mb-1 small">
 
 					<div *ngIf="titleModel.errors.pattern">
@@ -35,7 +35,7 @@
 
 				</div>
 				<div class="col-md-12 row">
-					<button *ngIf="editTitle !== true" [disabled]="!HasWriteRights || titleModel.invalid || title =='' || editTitle == true"
+					<button *ngIf="editTitle !== true" [disabled]="!HasWriteRights || titleModel.invalid || title ==''"
 							class="btn btn-success mt-1 p-1 m-1" (click)="add(title)">
 						Add New Study Arm
 					</button>

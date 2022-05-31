@@ -20,7 +20,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		public _reviewSetsService: ReviewSetsService,
 		public _eventEmitterService: EventEmitterService,
 		private _ReviewerIdentityServ: ReviewerIdentityService,
-		private _OutcomesService: OutcomesService
+		public _OutcomesService: OutcomesService
 	) { }
 	
 	private ItemSetId: number = 0;

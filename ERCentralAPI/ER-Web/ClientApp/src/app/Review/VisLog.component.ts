@@ -61,7 +61,7 @@ export class VisLogComp implements OnInit{
     }];
     public pageSize = 100;
     public skip = 0;
-    protected pageChange({ skip, take }: PageChangeEvent): void {
+    pageChange({ skip, take }: PageChangeEvent): void {
         this.skip = skip;
         this.pageSize = take;
     }

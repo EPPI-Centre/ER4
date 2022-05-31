@@ -27,29 +27,29 @@
                     mode: 'single'
                     }"
                     (sortChange)="sortChangeModel($event)">
-            <kendo-grid-column title=" " width="20" class="p-1"  headerClass="p-1 small">
+            <kendo-grid-column title=" " [width]="20" class="p-1"  headerClass="p-1 small">
                 <ng-template kendoGridCellTemplate let-item>
                     <input type="checkbox" [(ngModel)]="item.isSelected" (change)="checkboxChange(item)" />
                 </ng-template>
             </kendo-grid-column>
-            <kendo-grid-column field="setName" title="Coding Tool" width="250" class="p-1" headerClass="p-1 small font-weight-bold">
+            <kendo-grid-column field="setName" title="Coding Tool" [width]="250" class="p-1" headerClass="p-1 small font-weight-bold">
             </kendo-grid-column>
-            <kendo-grid-column field="contactName" title="Reviewer" width="200" class="p-1" headerClass="p-1 small font-weight-bold">
+            <kendo-grid-column field="contactName" title="Reviewer" [width]="200" class="p-1" headerClass="p-1 small font-weight-bold">
             </kendo-grid-column>
-            <kendo-grid-column field="isCompleted" title="Completed" width="82" class="p-1" headerClass="p-1 small font-weight-bold">
+            <kendo-grid-column field="isCompleted" title="Completed" [width]="82" class="p-1" headerClass="p-1 small font-weight-bold">
                 <ng-template kendoGridCellTemplate let-item>
                     <img *ngIf="item.isCompleted" title="Coding complete: these codes can appear in reports and be found in searches" src="../assets/CodingComplete.png" class="mr-1" />
                     <img *ngIf="!item.isCompleted" title="Coding not complete: these codes will not appear in reports or be found in searches" src="../assets/CodingNotComplete.png" class="mr-1" /><br />
                 </ng-template>
             </kendo-grid-column>
-            <kendo-grid-column field="isLocked" title="Locked?" width="62" class="p-1" headerClass="p-1 small font-weight-bold">
+            <kendo-grid-column field="isLocked" title="Locked?" [width]="62" class="p-1" headerClass="p-1 small font-weight-bold">
                 <ng-template kendoGridCellTemplate let-item>
                     <img *ngIf="item.isLocked" title="Coding locked: you can't change the codes already entered"
-                         (click)="CompleteUncompleteShowPanel($event, node.data)" src="../assets/CodingLocked.png" class="mr-1" />
+                          src="../assets/CodingLocked.png" class="mr-1" />
                     <div *ngIf="!item.isLocked">No</div>
                 </ng-template>
             </kendo-grid-column>
-            <kendo-grid-column title="" width="92" class="p-1" headerClass="p-1 small">
+            <kendo-grid-column title="" [width]="92" class="p-1" headerClass="p-1 small">
                 <ng-template kendoGridCellTemplate let-item>
                     <button class="btn btn-sm btn-info" (click)="ViewSingleCodingReport(item, true)">View</button>
                     <button (click)="ViewSingleCodingReport(item, false)"

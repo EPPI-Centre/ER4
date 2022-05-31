@@ -1,15 +1,13 @@
 import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, Attribute } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, ItemSetCompleteCommand } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
+import { ITreeOptions, TreeComponent } from '@circlon/angular-tree-component';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Node } from '@angular/compiler/src/render3/r3_ast';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
-import { TREE_ACTIONS, KEYS, IActionMapping } from 'angular-tree-component';
-import { ITreeNode } from 'angular-tree-component/dist/defs/api';
-import { ItemCodingService, ItemAttPDFCodingCrit, ItemSet} from '../services/ItemCoding.service';
+//import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+import { ItemCodingService, ItemAttPDFCodingCrit} from '../services/ItemCoding.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -33,7 +31,7 @@ import { Subscription } from 'rxjs';
         `],
     templateUrl: './codesetTreeCoding.component.html'
 })
-export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
    constructor(private router: Router,
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
@@ -111,9 +109,10 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
     public get IsReviewSetsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (this.ReviewSetsService.IsBusy);
-    }
-	ngAfterViewInit() {
-	}
+  }
+  public CanWriteCoding(data: singleNode) {
+    return this.ReviewSetsService.CanWriteCoding(data)
+  }
 	public attributeType: string = '';
 	public outcomesPresent: boolean = false;
 	public checkOutComes(data: singleNode): boolean {

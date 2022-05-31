@@ -31,7 +31,7 @@
 				<div class=" col-12 col-sm-6 col-md-4">
 					<input id="modelName" name="modelName" #modelName="ngModel" required minlength="4" [(ngModel)]="modelNameText" type="text" class="form-control bg-light form-control col-md-12" />
 
-					<div *ngIf="modelName.invalid && (modelName.dirty || modelName.touched)"
+					<div *ngIf="modelName.invalid && (modelName.dirty || modelName.touched) && modelName.errors"
 						 class="alert alert-danger">
 
 						<div *ngIf="modelName.errors.required">
@@ -73,7 +73,7 @@
 						(sortChange)="sortChange($event)"
 						(remove)="removeHandler($event)">
 
-				<kendo-grid-column [sortable]="false" field="add" width="50"
+				<kendo-grid-column [sortable]="false" field="add" [width]="50"
 								   [headerStyle]="{'text-align': 'center'}"
 								   [style]="{'text-align': 'center'}">
 					<ng-template kendoGridHeaderTemplate let-dataItem>

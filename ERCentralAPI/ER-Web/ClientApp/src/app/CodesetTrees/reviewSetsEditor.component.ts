@@ -68,10 +68,19 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     public get NewCode(): SetAttribute {
         return this._NewCode;
     }
-    public get CurrentNode(): singleNode | null {
-        if (!this.ReviewSetsService.selectedNode) return null;
-        else return this.ReviewSetsService.selectedNode;
-    }
+  public get CurrentNode(): singleNode | null {
+    if (!this.ReviewSetsService.selectedNode) return null;
+    else return this.ReviewSetsService.selectedNode;
+  }
+  public get CurrentNodeAsReviewSet(): ReviewSet | null {
+    return this.ReviewSetsService.selectedNode as ReviewSet;
+  }
+  public get CurrentReviewSetCanEditUrls(): boolean {
+    if (!this.ReviewSetsService.selectedNode) return false;
+    const rs = this.ReviewSetsService.selectedNode as ReviewSet;
+    if (!rs) return false;
+    else return rs.userCanEditURLs;
+  }
     IsServiceBusy(): boolean {
         if (this.ReviewSetsService.IsBusy || this.ReviewSetsEditingService.IsBusy || this.ReviewInfoService.IsBusy) return true;
         else return false;
@@ -335,7 +344,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         if (this._ActivityPanelName != "") this.CancelActivity(true);
         this._ActivityPanelName = activityName;
     }
-    CancelActivity(refreshTree?: boolean) {
+    CancelActivity(refreshTree: boolean | null = null) {
         //console.log("CancelActivity", refreshTree);
         if (refreshTree) {
             if (this.ReviewSetsService.selectedNode) {
@@ -366,7 +375,9 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this._ActivityPanelName = "";
 		
     }
-    CodesetTypeChanged(typeId: number) {
+  CodesetTypeChanged(event: Event) {
+    let typeId = parseInt((event.target as HTMLOptionElement).value);
+    if (isNaN(typeId)) return;
         this.NewSetSelectedTypeId = typeId;
         let current = this.ReviewSetsEditingService.SetTypes.find(found => found.setTypeId == this.NewSetSelectedTypeId);
         if (current) {

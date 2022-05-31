@@ -1,16 +1,14 @@
-import { Location } from '@angular/common';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
+import { MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
-import { b } from '@angular/core/src/render3';
 
 @Component({
     selector: 'MAGBrowserHistory',

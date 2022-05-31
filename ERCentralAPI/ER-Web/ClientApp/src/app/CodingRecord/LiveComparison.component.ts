@@ -1,17 +1,11 @@
 import { Component, OnInit, OnDestroy, Input, Inject} from '@angular/core';
 import { Router } from '@angular/router';
-import { ItemListService,  Item } from '../services/ItemList.service';
-import { ItemCodingService, ItemSet, ReadOnlyItemAttribute, ItemAttributeFullTextDetails } from '../services/ItemCoding.service';
+import { ItemListService, Item } from '../services/ItemList.service';
+import { ItemCodingService, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode} from '../services/ReviewSets.service';
-import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { Subscription } from 'rxjs';
 import { ComparisonsService } from '../services/comparisons.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { error } from '@angular/compiler/src/util';
-import { Helpers } from '../helpers/HelperMethods';
-import { GridDataResult } from '@progress/kendo-angular-grid';
-import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
-import { CurrencyIndex } from '@angular/common/src/i18n/locale_data';
 
 @Component({
    

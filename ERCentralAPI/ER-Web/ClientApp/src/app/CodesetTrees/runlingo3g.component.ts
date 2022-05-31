@@ -1,14 +1,9 @@
-import { Component, Inject, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewInfoService } from '../services/ReviewInfo.service';
-import { timer, Subject, Subscription, Observable } from 'rxjs';
-import { take, map, takeUntil } from 'rxjs/operators';
 import { ReviewSetsService, SetAttribute, singleNode } from '../services/ReviewSets.service';
-import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
-import { WorkAllocationListService } from '../services/WorkAllocationList.service';
+import { ItemListService } from '../services/ItemList.service';
 import { ReviewSetsEditingService, PerformClusterCommand } from '../services/ReviewSetsEditing.service';
-import { codesetSelectorComponent } from './codesetSelector.component';
 
 
 @Component({
@@ -80,9 +75,10 @@ export class RunLingo3G implements OnInit {
     CancelActivity() {
         this.PleaseCloseMe.emit();
     }
-    ClusterWhatChanged(value: string) {
-        this.ClusterWhat = value;
-    }
+  ClusterWhatChanged(event: Event) {
+    let value = (event.target as HTMLOptionElement).value;
+    this.ClusterWhat = value;
+  }
     public get CanExecuteCommand(): boolean {
         if (this.ClusterWhat == "All Selected Items") {
             if (this.ItemListService.SelectedItems.length > 1) return true;

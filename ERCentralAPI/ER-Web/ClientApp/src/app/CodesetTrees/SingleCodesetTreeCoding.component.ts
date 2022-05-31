@@ -3,8 +3,9 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode,  SetAttribute } from '../services/ReviewSets.service';
-import { ITreeOptions,  TreeComponent } from 'angular-tree-component';
+import { ITreeOptions,  TreeComponent } from '@circlon/angular-tree-component';
 import { OutcomesService, OutcomeItemAttribute, Outcome } from '../services/outcomes.service';
+import { CheckboxControlValueAccessor } from '@angular/forms';
 
 
 @Component({
@@ -53,9 +54,12 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy {
 		displayField: 'name',
 		allowDrag: false,
 
-	}
-	CheckBoxClicked(checked: boolean, data: singleNode, ) {
-		
+  }
+  public CanWriteCoding(data: singleNode): boolean {
+    return this.ReviewSetsService.CanWriteCoding(data);
+  }
+  CheckBoxClicked(event: Event, data: singleNode,) {
+    let checked = (event.target as HTMLInputElement).checked;
 		if (data.nodeType != "SetAttribute") return;
 	
 		let Att = data as SetAttribute;

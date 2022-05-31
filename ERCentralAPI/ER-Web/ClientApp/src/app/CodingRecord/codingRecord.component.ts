@@ -259,7 +259,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
     if (!this.item) return;
         this._ItemCodingService.FetchAllFullTextData(this.item.itemId).then(
             (GetFTWorked: boolean) => {
-                if (!GetFTWorked) {
+                if (!GetFTWorked || !this.item) {
                     return;
                 }
                 else {

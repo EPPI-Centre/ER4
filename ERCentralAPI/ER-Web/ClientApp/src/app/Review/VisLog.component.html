@@ -76,7 +76,7 @@
     <kendo-grid *ngIf="CurrentLogs.length > 0"
                 [data]="LogDataGet" [height]="420"
                 [sortable]="{
-	                    allowUnsort: allowUnsort,
+	                    allowUnsort: true,
 	                    mode: 'single'
 	                    }"
                 [sort]="sortLogs"
@@ -98,16 +98,16 @@
         <!--<kendo-grid-column field="webDBLogIdentity" title="No" width="60" class="px-1 py-0 m-1">
             {{webDBLogIdentity}}
         </kendo-grid-column>-->
-        <kendo-grid-column field="dateTimeCreated" title="Date" width="140" class="px-1 py-0 m-1">
+        <kendo-grid-column field="dateTimeCreated" title="Date" [width]="140" class="px-1 py-0 m-1">
             <ng-template kendoGridCellTemplate let-dataItem>
                 {{FormatDate(dataItem.dateTimeCreated)}}
             </ng-template>
         </kendo-grid-column>
-        <kendo-grid-column field="logType" title="Type" width="140" class="px-1 py-0 m-1">
-            {{logType}}
+        <kendo-grid-column field="logType" title="Type" [width]="140" class="px-1 py-0 m-1">
+          
         </kendo-grid-column>
-        <kendo-grid-column field="logDetails" title="Details" width="420" class="px-1 py-0 m-1">
-            {{logDetails}}
+        <kendo-grid-column field="logDetails" title="Details" [width]="420" class="px-1 py-0 m-1">
+          
         </kendo-grid-column>
 
 

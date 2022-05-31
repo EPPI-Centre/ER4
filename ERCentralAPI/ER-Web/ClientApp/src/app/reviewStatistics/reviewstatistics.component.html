@@ -49,11 +49,12 @@
                                    style="border-color: #04070b;background-color: #e1e4eb;">
                     Coding Tools
                 </kendo-splitbutton>
-                <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 py-1 px-2 ng-star-inserted" (click)="RefreshStats()">
-                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2 ng-star-inserted" (click)="RefreshStats()">
+                  <!--<i class="fa fa-refresh" aria-hidden="true"></i>-->
+                  <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
                 </button>
                 <div *ngIf="IsServiceBusy" class="mx-2 mt-1 pl-1 " style="display:inline-block;position:relative; top:0.10em;">
-                    <i class="fa fa-spinner fa-spin text-success mt-1 " style=""></i>
+                  <fa-icon [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
                 </div>
 
             </div>

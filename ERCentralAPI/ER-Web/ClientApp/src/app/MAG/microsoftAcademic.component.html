@@ -7,7 +7,7 @@
             Clear OpenAlex matches from this record
         </h5>
     </div>
-    <h5><b>{{item.quickCitation}}</b></h5>
+    <h5 *ngIf="item"><b>{{item.quickCitation}}</b></h5>
     <br />
     <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
     <div class="card col-12 alert-light border-dark" style="overflow:auto;"
@@ -80,23 +80,23 @@
                             <p>View in OpenAlex Browser</p>
                         </div>
                         <div class="col-3 btn btn-link pull-right">
-                            <a href="https://explore.openalex.org/works/W{{magPaper.paperId}}" target="_blank">
+                            <a href="https://explore.openalex.org/works/W{{FoundPaper.paperId}}" target="_blank">
                                 View on the internet
                             </a>
                         </div>
                     </td>
-                    <td class="w-25">
+                    <td  class="w-25">
                         <div class="col-12 ">
                             Score: 0
                         </div>
                         <div class="col-12">
 
-                            Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaperFound(true, FoundPaper.paperId)"
+                            Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaperFound(true)"
                                                                 type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
                                                                 [(ngModel)]="FoundPaper.manualTrueMatch" class="ml-3">
                         </div>
-                        <div class="col-12 ">
-                            Incorrect Match: <input (click)="UpdateMagPaperFound(false, FoundPaper.paperId)"
+                        <div  class="col-12 ">
+                            Incorrect Match: <input (click)="UpdateMagPaperFound(false)"
                                                     type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
                                                     [(ngModel)]="FoundPaper.manualFalseMatch" class="ml-3">
                         </div>
@@ -115,7 +115,7 @@
             <button (click)="GetMagPaperForPage()" [disabled]="!CanGetMagPaper()" class="btn btn-outline-primary  p-2 m-2">GO</button>
         </div>
         <div class="col-4"></div>
-        <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
+        <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched) && magPaper.errors"
              class="col-4 alert alert-danger text-center">
 
             <div *ngIf="magPaper.errors.required">

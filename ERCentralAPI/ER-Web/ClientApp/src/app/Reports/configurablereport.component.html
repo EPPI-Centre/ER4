@@ -14,9 +14,7 @@
 			<label class="col-2 px-0 mt-1">Selected code:</label>
             <div class="col-9 m-0 p-0">
                 <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-12 mb-1"
-                        (click)="isCollapsedCodingTool = !isCollapsedCodingTool;
-														dropdownBasicCodingTool = false"
-                        [attr.aria-expanded]="!collapseCodeTreeCodingToolReports"
+                        (click)="isCollapsedCodingTool = !isCollapsedCodingTool"
                         aria-controls="collapseCodeTreeCodingToolReports">
                     {{DropdownSelectedCodingTool?.name}}
                 </button>
@@ -51,8 +49,8 @@
                             <div class="pl-0 mt-2 font-weight-bold mr-1">Report Name:</div>
                             <div class="col">
                                 <select class="form-control mb-1" style="min-width:190px;"
-                                        (change)="ChangedReport(item)"
-                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportStandard.report || ReportStandard.report == '[Please select...]' || ReportStandard.report.reportId == undefined )}"
+                                        (change)="ChangedReport($event)"
+                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportStandard.report || ReportStandard.report.name == '[Please select...]' || ReportStandard.report.reportId == undefined )}"
                                         [(ngModel)]="ReportStandard.report">
                                     <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
                                     <!--<option class="font-weight-light font-italic alert-warning"
@@ -60,7 +58,7 @@
                                             [ngValue]="PleaseSelectReport">
                                         {{PleaseSelectReport.name}}
                                     </option>-->
-                                    <option *ngFor="let item of configurablereportServ.Reports"
+                                    <option *ngFor="let item of Reports"
                                             [ngValue]="item">
                                         {{ item.name }}
                                     </option>
@@ -148,11 +146,11 @@
                             <div class="pl-0 mt-2 font-weight-bold mr-1">Report Name:</div>
                             <div class="col">
                                 <select class="form-control mb-1" style="min-width:190px;"
-                                        (change)="ChangedReport(item)"
-                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportRiskOfBias.report || ReportRiskOfBias.report == '[Please select...]' || ReportRiskOfBias.report.reportId == undefined )}"
+                                        (change)="ChangedReport($event)"
+                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportRiskOfBias.report || ReportRiskOfBias.report.name == '[Please select...]' || ReportRiskOfBias.report.reportId == undefined )}"
                                         [(ngModel)]="ReportRiskOfBias.report">
                                     <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
-                                    <option *ngFor="let item of configurablereportServ.ReportCollectionROB"
+                                    <option *ngFor="let item of ReportCollectionROB"
                                             [ngValue]="item">
                                         {{ item.name }}
                                     </option>
@@ -207,11 +205,11 @@
                             <div class="col-sm-auto mt-2 font-weight-bold">Report Name:</div>
                             <div class="col">
                                 <select class="form-control mb-1" style="min-width:190px;"
-                                        (change)="ChangedReport(item)"
-                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportOutcomes.report || ReportOutcomes.report == '[Please select...]' || ReportOutcomes.report.reportId == undefined )}"
+                                        (change)="ChangedReport($event)"
+                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportOutcomes.report || ReportOutcomes.report.name == '[Please select...]' || ReportOutcomes.report.reportId == undefined )}"
                                         [(ngModel)]="ReportOutcomes.report">
                                     <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
-                                    <option *ngFor="let item of configurablereportServ.ReportCollectionOutcomes"
+                                    <option *ngFor="let item of ReportCollectionOutcomes"
                                             [ngValue]="item">
                                         {{ item.name }}
                                     </option>

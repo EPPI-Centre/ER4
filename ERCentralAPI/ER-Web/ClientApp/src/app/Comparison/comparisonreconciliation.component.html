@@ -35,7 +35,7 @@
                         <span>Item:&nbsp;</span>
                         <input [attr.disabled]="allItems.length === 1 ? '' : null"
                                [disabled]="allItems.length === 1"
-                               class="" #box (keyup.enter)="ChangeItem(box.value)"
+                               class="" #box (keyup.enter)="ChangeItemSt(box.value)"
                                value="{{selectedRow + 1}}"
                                style="width:75px; min-width:75px">
                         &nbsp;of&nbsp;{{allItems.length}}
@@ -102,9 +102,9 @@
                                            [checked]="recon.IsCompleted" [disabled]="true" />&nbsp;
                                 </td>
                                 <td class="p-1" style="max-width:150px;">
-                                    <span *ngIf="_ItemListService.ItemList.items[i] != undefined" (click)="OpenItem(_ItemListService.ItemList.items[i].itemId)"
+                                    <span *ngIf="ItemList.items[i] != undefined" (click)="OpenItem(ItemList.items[i].itemId)"
                                           class="btn btn-link mt-1 col-md-1">
-                                        {{_ItemListService.ItemList.items[i].itemId}}
+                                        {{ItemList.items[i].itemId}}
                                     </span>
                                     <br />
                                     <span class="col-md-12">
@@ -156,8 +156,8 @@
                                             <b>[Info Box]</b> {{recon.CodesReviewer1[j-1].InfoBox}}
                                         </div>
                                     </div>
-                                    <div class="col-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0 ">
-                                        <div *ngFor="let a of _ItemListService.ItemList.items[i].arms">
+                                    <div class="col-12 pl-0" *ngIf="ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0 ">
+                                        <div *ngFor="let a of ItemList.items[i].arms">
                                             <b class="row col-md-12">{{a.title}}</b>
                                             <div *ngFor="let jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length)" class="col-12">
                                                 <div *ngIf="recon.CodesReviewer1[jj-1].ArmID == a.itemArmId" class="row">
@@ -235,8 +235,8 @@
                                             <b>[Info Box]</b>{{recon.CodesReviewer2[k-1].InfoBox}}
                                         </div>
                                     </div>
-                                    <div class="col-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
-                                        <div *ngFor="let b of _ItemListService.ItemList.items[i].arms">
+                                    <div class="col-12 pl-0" *ngIf="ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0  ">
+                                        <div *ngFor="let b of ItemList.items[i].arms">
                                             <b class="row col-md-12">{{b.title}}</b>
                                             <div *ngFor="let kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length)" class="col-12">
                                                 <div *ngIf="recon.CodesReviewer2[kk-1].ArmID == b.itemArmId" class="row">
@@ -311,8 +311,8 @@
                                             <b>[Info Box]</b>{{recon.CodesReviewer3[l-1].InfoBox}}
                                         </div>
                                     </div>
-                                    <div class="col-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
-                                        <div *ngFor="let c of _ItemListService.ItemList.items[i].arms">
+                                    <div class="col-12 pl-0" *ngIf="ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0  ">
+                                        <div *ngFor="let c of ItemList.items[i].arms">
                                             <b class="row col-md-12">{{c.title}}</b>
                                             <div *ngFor="let zz of reconcilingCodeArrayLength(recon.CodesReviewer3.length)" class="col-12">
                                                 <div *ngIf="recon.CodesReviewer3[zz-1].ArmID == c.itemArmId" class="row">

@@ -13,8 +13,8 @@
 			</span>
 			<input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" 
 				   [checked]="IsAttributeInOutcome(node.data)"
-				   [disabled]="!ReviewSetsService.CanWriteCoding(node.data)"
-				   *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event.target.checked, node.data)" />
+				   [disabled]="CanWriteCoding(node.data)"
+				   *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data)" />
 
 			<span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
                             'AdminSet' : node.data.subTypeName == 'Administration',

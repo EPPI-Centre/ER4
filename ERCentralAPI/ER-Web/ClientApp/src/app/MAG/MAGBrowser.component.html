@@ -1,4 +1,4 @@
-﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowser"></HeaderComponent>
+<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowser"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
@@ -29,7 +29,7 @@
                     <tr>
                         <td >
                             <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == false">
-                                <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList(_magBrowserService.currentMagPaper)" 
+                                <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList()" 
                                         [disabled]="_magBrowserService.currentMagPaper.linkedITEM_ID > 0">
                                     Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i>
                                 </button>
@@ -49,18 +49,18 @@
                             </div>
                         </td>
                         <td style="padding-left:10px">
-                            <div *ngIf="!basicPanel">
+                            <div>
                                 <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
                                    href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                                    more details <i class="fa fa-arrow-circle-down"></i>
+                                    more details
                                 </a>
                             </div>
-                            <div *ngIf="basicPanel">
+                            <!--<div *ngIf="basicPanel">
                                 <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
                                    href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                                     more details <i class="fa fa-arrow-circle-up"></i>
                                 </a>
-                            </div>
+                            </div>-->
                         </td>
                     </tr>
                 </table>
@@ -179,7 +179,7 @@
                                                 </td>
                                                 <td title="Model score"
                                                     *ngIf="_magBrowserService.MAGList.papers == _magBrowserService.MAGOriginalList.papers && ListType.startsWith('Auto update results')">
-                                                    {{item.similarityScore.toFixed(3)}}
+                                                  {{item.autoMatchScore.toFixed(3)}}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -276,8 +276,8 @@
                                                 </button>
                                             </td>
                                             <td title="Model score"
-                                                    *ngIf="ListType.startsWith('Auto update results')">
-                                                {{item.similarityScore.toFixed(3)}}
+                                                *ngIf="ListType.startsWith('Auto update results')">
+                                              {{item.autoMatchScore.toFixed(3)}}
                                             </td>
                                         </tr>
                                     </tbody>

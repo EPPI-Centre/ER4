@@ -73,7 +73,10 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     }
     public get NewCode(): SetAttribute {
         return this._NewCode;
-    }
+  }
+  public get AllowedChildTypesOfSelectedNode() {
+    return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
+  }
     CreateNewCode() {
 
         if (this.CurrentNode) {

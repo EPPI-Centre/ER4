@@ -45,7 +45,7 @@
                     <div class="col-5">
                         <div class="form-group">
                             <label for="Codeset_Type">Coding Tool Type*</label>
-                            <select *ngIf="SetTypes" class="col-md-6 form-control" (change)="CodesetTypeChanged($event.target.value)" name="Codeset_Type">
+                            <select *ngIf="SetTypes" class="col-md-6 form-control" (change)="CodesetTypeChanged($event)" name="Codeset_Type">
                                 <option *ngFor="let type of SetTypes" [value]="type.setTypeId" [selected]="type.setTypeId == NewSetSelectedTypeId">
                                     {{type.setTypeName}}
                                 </option>
@@ -123,9 +123,9 @@
                     </div>
                     <div class="form-group col-7 row">
                         <div>Coding Tool Name*</div>
-                        <input type="text" class="form-control" id="SetName"
+                        <input type="text" class="form-control" id="SetName" *ngIf="CurrentNodeAsReviewSet"
                                [disabled]="!CanEditSelectedNode"
-                               [(ngModel)]="CurrentNode.set_name" name="set_name"
+                               [(ngModel)]="CurrentNodeAsReviewSet.set_name" name="set_name"
                                #name="ngModel">
                         <span [hidden]="IsEditingNodeNameValid()"
                               class="alert alert-danger small p-1">
@@ -173,7 +173,7 @@
                             Delete Coding Tool...
                         </button>
                     </div>
-                    <div class="col-12 small alert-info p-1 m-1" *ngIf="CurrentNode.userCanEditURLs">
+                    <div class="col-12 small alert-info p-1 m-1" *ngIf="CurrentReviewSetCanEditUrls">
                         This codeset is configured to allow linking codes to external ontologies/concepts. (Done by indicating their URL)
                     </div>
                 </form>

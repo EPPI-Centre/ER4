@@ -3,10 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, iSetType, SetAttribute } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeModel, TreeComponent, IActionMapping, TREE_ACTIONS, KEYS } from 'angular-tree-component';
-import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+import { ITreeOptions, TreeModel, TreeComponent, IActionMapping, TREE_ACTIONS, KEYS, TreeNode } from '@circlon/angular-tree-component';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { Node } from '@angular/compiler';
 
 
 @Component({
@@ -155,7 +153,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		const treeModel: TreeModel = this.treeComponent.treeModel;
 		const firstNode: any = treeModel.getFirstRoot();
 
-		var rootsArr: Array<ITreeNode> = [];
+		var rootsArr: Array<TreeNode> = [];
 
 		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
 
@@ -168,7 +166,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	}
 
-	nodesNotRootsCollect(node: ITreeNode) {
+	nodesNotRootsCollect(node: TreeNode) {
 
 		const treeModel: TreeModel = this.treeComponent.treeModel;
 		const firstNode: any = treeModel.getFirstRoot();

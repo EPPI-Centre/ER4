@@ -72,14 +72,16 @@ export class EditCodeComp implements OnInit, OnDestroy {
         if (this.ReviewSetsService.IsBusy || this.ReviewSetsEditingService.IsBusy || this.ReviewInfoService.IsBusy) return true;
         else return false;
     }
-    CancelActivity(refreshtree?: boolean) {
+    CancelActivity(refreshtree: boolean | null = null) {
         this.ErrorMessage4CodeMove = "";
         if (refreshtree && refreshtree == true) this.emitterCancel.emit(true);
         else this.emitterCancel.emit(false);
     }
 
-    AttributeTypeChanged(typeId: number) {
-        console.log('selected att type:' + typeId);
+  AttributeTypeChanged(event: Event) {
+    let typeId = parseInt((event.target as HTMLOptionElement).value);
+    if (isNaN(typeId)) return;
+        //console.log('selected att type:' + typeId);
         if (this.UpdatingCode && this.UpdatingCode.nodeType == "SetAttribute") {
             this.UpdatingCode.attribute_type_id = typeId;
             let foundT = this.AllowedChildTypes.find(found => found.key == typeId);
@@ -144,8 +146,8 @@ export class EditCodeComp implements OnInit, OnDestroy {
             );
     }
 
-    async DoMoveBranch(DestinationBranch: singleNode) {
-        console.log("DoMoveBranch", DestinationBranch, this.UpdateCode);
+    async DoMoveBranch(DestinationBranch: singleNode | null) {
+        //console.log("DoMoveBranch", DestinationBranch, this.UpdateCode);
         if (DestinationBranch == null || this.UpdatingCode == null) return;
         else {
             let res = await this.ReviewSetsEditingService.MoveSetAttributeInto(this.UpdatingCode, DestinationBranch);

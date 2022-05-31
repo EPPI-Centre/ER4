@@ -2,13 +2,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-//import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 //import { DataTablesModule } from 'angular-datatables';
-//import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LayoutModule } from '@progress/kendo-angular-layout';
 import { InputsModule } from '@progress/kendo-angular-inputs';
 import { NotificationModule } from '@progress/kendo-angular-notification';
@@ -21,7 +20,7 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
 
 import { NgChartsModule } from 'ng2-charts';
-import { TreeModule } from 'angular-tree-component';
+import { TreeModule } from '@circlon/angular-tree-component';
 import { CKEditorModule } from 'ckeditor4-angular';
 
 import { AppComponent } from './app.component';
@@ -116,7 +115,19 @@ import { ReconcilingCodesetTreeComponent } from './CodesetTrees/ReconcilingCodes
 import { SourcesListSearchesComponent } from './Sources/SourcesListSearches.component';
 import { VisLogComp } from './Review/VisLog.component';
 import { DatePipe } from '@angular/common';
+//import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { JwtInterceptor } from './helpers/jwt.interceptor';
+import { TreeViewModule } from '@progress/kendo-angular-treeview';
+import { LabelModule } from '@progress/kendo-angular-label';
+import { PDFExportModule } from '@progress/kendo-angular-pdf-export';
+import { ProgressBarModule } from '@progress/kendo-angular-progressbar';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from '@progress/kendo-angular-icons';
+
+
+
+
+
 
 
 @NgModule({
@@ -275,13 +286,22 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     ]),
     ButtonsModule,
     BrowserAnimationsModule,
-    NgbModule
+    NgbModule,
+    TreeViewModule,
+    LabelModule,
+    PDFExportModule,
+    ProgressBarModule,
+    FontAwesomeModule,
+    IconsModule
   ],
-  providers: [DatePipe,
+  providers: [
+    DatePipe,
     EventEmitterService,
     {
       provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy
-    }],
+    },
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+  ],
   entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
   bootstrap: [AppComponent]
 })

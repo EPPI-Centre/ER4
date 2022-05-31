@@ -1,14 +1,9 @@
-import { Component,  OnInit,  OnDestroy, AfterViewInit, Output, EventEmitter, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component,  OnInit,  OnDestroy, AfterViewInit,  } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
-import { PriorityScreeningService } from '../services/PriorityScreening.service';
-import { ItemDocsService } from '../services/itemdocs.service';
 import { crosstabService, iWebDbItemAttributeCrosstabList, iWebDbItemAttributeCrosstabRow } from '../services/crosstab.service';
-import { singleNode, ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { ItemListComp } from '../ItemList/itemListComp.component';
+import { singleNode, ReviewSetsService} from '../services/ReviewSets.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
 

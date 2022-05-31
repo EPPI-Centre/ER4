@@ -18,11 +18,12 @@ export class armsComp implements OnInit{
         private armsService: ArmTimepointLinkListService
         ) {
     }
-    ArmChanged(armId: number) {
-        console.log("ArmChanged...");
-        this.armsService.SetSelectedArm(armId);
-        //this.armChangedEE.emit();
-    }
+  ArmChanged(event: Event) {
+    let armId = parseInt((event.target as HTMLOptionElement).value);
+    //console.log("ArmChanged...");
+    if (!isNaN(armId)) this.armsService.SetSelectedArm(armId);
+    //this.armChangedEE.emit();
+  }
     ngOnInit() {
     }
     

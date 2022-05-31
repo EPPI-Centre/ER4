@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem, TopicLink } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -376,7 +376,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
 
-    public async GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
+  public async GetParentAndChildRelatedPapers(item: TopicLink) {
 
         this._magBrowserService.MagCitationsByPaperList.papers = [];
         //this._eventEmitterService.firstVisitMAGBrowserPage = false;

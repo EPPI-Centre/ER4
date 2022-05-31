@@ -283,8 +283,8 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		}
 		return false;
     } 
-	public AddCodeToColumn(col: iReportColumn, nodeToAdd: singleNode) {
-		if (!this.CanAddNodeToColumn(col, nodeToAdd)) return;
+	public AddCodeToColumn(col: iReportColumn, nodeToAdd: singleNode | null) {
+            if (!nodeToAdd || !this.CanAddNodeToColumn(col, nodeToAdd)) return;
 		let colCode: iReportColumnCode = {
 			attributeId: 0,
 			codeOrder: col.codes.length,
@@ -348,7 +348,7 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		EditingReport.columns.splice(toMoveInd -1, 2, toMove, col);
 		this.EditingReportHasChanged = true;
 	}
-	public EditCode(code: iReportColumnCode | null) {
+	public EditCode(code: iReportColumnCode | null = null) {
 		this.EditingColumnCode = code;
 	}
 	public DeleteColumnCode(code: iReportColumnCode, col:iReportColumn) {

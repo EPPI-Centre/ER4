@@ -69,19 +69,22 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public get HasAdminRights(): boolean {
 		return this.ReviewerIdentityServ.HasAdminRights;
 	}
-	public hideme = [];
-	public hidemeOne = [];
-	public hidemeTwo = [];
-	public hidemeThree = [];
-	public hidemearms = [];
-	public hidemearmsTwo = [];
-	public hidemearmsThree = [];
+  public hideme: boolean[] = [];
+  public hidemeOne: boolean[] = [];
+  public hidemeTwo: boolean[] = [];
+  public hidemeThree: boolean[] = [];
+  public hidemearms: boolean[] = [];
+  public hidemearmsTwo: boolean[] = [];
+  public hidemearmsThree: boolean[] = [];
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
 	public get FlatAttributes(): ReconcilingCode[] {
 		return this.localList.Attributes;
-    }
+  }
+  public get ItemList() {
+    return this._ItemListService.ItemList;
+  }
 	public allItems: ReconcilingItem[] = [];
 	public testBool: boolean = false;
 	public selectedRow: number = 0;
@@ -152,13 +155,19 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	NextItem() {
 		this.ChangeItem(this.selectedRow + 2);
-	}
-	ChangeItem(notOffsetIndex: number) {
-		let index = notOffsetIndex - 1;
-		if (this.allItems.length < index) index = this.allItems.length - 1;
-		if (index < 1) this.ChangePanelItem(this.allItems[0].Item.itemId, 0);
-		else this.ChangePanelItem(this.allItems[index].Item.itemId, index);
-    }
+  }
+  ChangeItemSt(notOffsetIndexSt: string) {
+    let notOffsetIndex = parseInt(notOffsetIndexSt);
+    if (isNaN(notOffsetIndex)) return;
+    this.ChangeItem(notOffsetIndex)
+  }
+  ChangeItem(notOffsetIndex: number) {
+    let index = notOffsetIndex - 1;
+    if (this.allItems.length < index) index = this.allItems.length - 1;
+    if (index < 1) this.ChangePanelItem(this.allItems[0].Item.itemId, 0);
+    else this.ChangePanelItem(this.allItems[index].Item.itemId, index);
+  }
+
 	PreviousItem() {
 		this.ChangeItem(this.selectedRow);
 	}

@@ -45,7 +45,7 @@
                                     </div>
 
                                     <div *ngIf="HasSreeningList">
-                                        <div class="border border-primary rounded small align-content-end row p-1 mx-0 mt-1">
+                                        <div class="border border-primary rounded align-content-end row p-1 mx-0 mt-1">
                                             <div class="mx-1">The Screening List is <b>Enabled and Ready</b>:</div>
                                             <button (click)="StartScreening()" class="btn btn-sm btn-primary mx-0 py-0 px-1">
                                                 Click Here
@@ -276,13 +276,14 @@
                                        class="my-1 ml-1 mr-0"
                                        style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
                     <button kendoButton class="my-1 ml-1 mr-0" title="Get Frequencies (for children of currently selected code)" (click)="GetFrequencies()" [disabled]="!CanGetFrequencies">
-                        <i class="fa fa-bar-chart my-1" style="transform: rotate(90deg) scaleX(-1)"></i>
+                      <!--<i class="fa fa-bar-chart my-1" style="transform: rotate(90deg) scaleX(-1)"></i>-->
+                      <kendo-icon name="chart-bar-stacked"></kendo-icon>
                     </button>
                     <button kendoButton class="my-1 ml-1 mr-0" *ngIf="!IsServiceBusy" title="Refresh Coding Tools" (click)="RefreshCodingTools()">
-                        <i class="fa fa-refresh my-1" aria-hidden="true"></i>
+                      <kendo-icon name="refresh"></kendo-icon>
                     </button>
                     <button kendoButton class="my-1 ml-1 mr-0" title="Print coding tool" (click)="ShowPrintCodeset = !ShowPrintCodeset">
-                        <i class="fa fa-print my-1"></i>
+                      <kendo-icon name="print"></kendo-icon>
                     </button>
                 </div>
                 <div *ngIf="ShowPrintCodeset" class="m-1 rounded border border-success">

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { singleNode, ReviewSet } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeComponent } from 'angular-tree-component';
+import { ITreeOptions, TreeComponent } from '@circlon/angular-tree-component';
 
 
 @Component({

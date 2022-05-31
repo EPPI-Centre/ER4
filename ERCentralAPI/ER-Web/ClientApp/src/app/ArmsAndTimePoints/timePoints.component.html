@@ -19,7 +19,7 @@
 							   class="form-control"
 							   type="number" [(ngModel)]="TimePointValue" />
 					</div>
-					<div *ngIf="timePointModel.invalid && (timePointModel.dirty || timePointModel.touched)"
+					<div *ngIf="timePointModel.invalid && (timePointModel.dirty || timePointModel.touched) && timePointModel.errors"
 						 class="alert alert-danger p-1 small">
 
 						<div *ngIf="timePointModel.errors.required">
@@ -59,7 +59,7 @@
 							class="btn btn-success mt-1 p-1 m-1" (click)="UpdateTimepoint()">
 						Update Time Point
 					</button>
-					<button [disabled]="!timePointModel.dirty && unitModel ==''" type="reset"
+					<button [disabled]="!timePointModel.dirty && SelectedUnit ==''" type="reset"
 							class="btn btn-danger mt-1 p-1 m-1"
 							(click)="Clear()">
 						Cancel

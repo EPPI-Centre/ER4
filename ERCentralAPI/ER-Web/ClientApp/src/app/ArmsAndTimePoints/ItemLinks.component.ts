@@ -195,7 +195,7 @@ export class ItemLinksComp  implements OnInit {
 		}
 		else return true;
     }
-	public async  SaveLink(link: iItemLink) {
+	public async  SaveLink() {
 		if (!this.CanSaveLink || this.EditingLink == null) return;
 		else {
 			if (this.EditingLink.itemLinkId == 0) {

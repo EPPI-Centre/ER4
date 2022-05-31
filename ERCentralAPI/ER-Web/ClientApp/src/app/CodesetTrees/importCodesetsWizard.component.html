@@ -51,7 +51,7 @@
                 </button>
                 <button type="submit" (click)="ProceedClicked()" class="btn btn-success ml-2 mr-2"
                         [ngClass]="{disableThisAndChildren:!CanWrite()}"
-                        [disabled]="1==2">
+                        [disabled]="!CanWrite()">
                     Proceed <i class="fa fa-arrow-right"></i>
                 </button>
             </div>

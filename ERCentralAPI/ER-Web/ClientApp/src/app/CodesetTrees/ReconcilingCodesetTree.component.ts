@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
-import { ITreeOptions,  TreeComponent, ITreeState } from 'angular-tree-component';
+import { ITreeOptions,  TreeComponent, ITreeState } from '@circlon/angular-tree-component';
 import {  Outcome } from '../services/outcomes.service';
 import {  ReconcilingReviewSet, ReconcilingSetAttribute, ReconcilingCode, ReconcilingItem, ReconciliationService } from '../services/reconciliation.service';
 import { Comparison } from '../services/comparisons.service';
@@ -195,8 +195,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		}
 		return true;//must have admin rights...
     }
-	CheckBoxClicked(checked: boolean, data: singleNode, ) {
-	}
+
 	AgreementClass(node: singleNode | ReconcilingSetAttribute): string {
 		switch (this.IsNodeAgreement(node)) {
 			case "":
@@ -250,17 +249,23 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
         }
 		//console.log("NodeSelected", node);
 	}
-	Complete(recItem: ReconcilingItem, contactId: number) {
-		this.ShowingTransferPanelForCoding = null;
-		this.CompleteEvent.emit({ item: recItem, contactId: contactId });
-	}
-	CompleteAndLock(recItem: ReconcilingItem, contactId: number) {
-		this.ShowingTransferPanelForCoding = null;
-		this.CompleteAndLockEvent.emit({ item: recItem, contactId: contactId });
-	}
-	UnComplete(recItem: ReconcilingItem) {
-		this.UnCompleteEvent.emit(recItem);
+  Complete(recItem: ReconcilingItem | undefined, contactId: number) {
+    if (recItem) {
+      this.ShowingTransferPanelForCoding = null;
+      this.CompleteEvent.emit({ item: recItem, contactId: contactId });
     }
+  }
+  CompleteAndLock(recItem: ReconcilingItem | undefined, contactId: number) {
+    if (recItem) {
+      this.ShowingTransferPanelForCoding = null;
+      this.CompleteAndLockEvent.emit({ item: recItem, contactId: contactId });
+    }
+  }
+  UnComplete(recItem: ReconcilingItem | undefined) {
+    if (recItem) {
+      this.UnCompleteEvent.emit(recItem);
+    }
+  }
 	public PreviousDisagreement() {
 		//console.log("PreviousDisagreement");
 		if (this.treeComponent1) {
@@ -564,9 +569,9 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		else return;
 		this.ShowingTransferPanelForCoding = coding;
     }
-	ConfirmTransferACode(node: ReconcilingSetAttribute, rc: ReconcilingCode, from:string) {
+	ConfirmTransferACode(node: ReconcilingSetAttribute | null, rc: ReconcilingCode, from:string) {
 		
-		if (!this.HasWriteRights) return;
+		if (!this.HasWriteRights || node == null) return;
 		else {
 			let title = "Copy coding to: ";
 			let destName = "";

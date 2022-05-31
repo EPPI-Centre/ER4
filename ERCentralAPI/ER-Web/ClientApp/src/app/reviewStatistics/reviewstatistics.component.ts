@@ -12,6 +12,7 @@ import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { saveAs } from '@progress/kendo-file-saver';
 import { ConfigurableReportService } from '../services/configurablereport.service';
+import { faArrowsRotate, fas, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -35,7 +36,11 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	) {
 
 	}
-    
+
+  faArrowsRotate = faArrowsRotate;
+  faSpinner = faSpinner;
+  //fas = fas;
+  //faSpin = faSpin;
 	@ViewChild('CodeStudiesTreeOne') CodeStudiesTreeOne!: codesetSelectorComponent;
 	@Output() tabSelectEvent = new EventEmitter();
 

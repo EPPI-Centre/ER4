@@ -65,7 +65,8 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         }
 
     }
-    public FetchMAGMatches() {
+  public FetchMAGMatches() {
+    if (!this.item) return;
         let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         crit.listType = 'ItemMatchedPapersList';
         crit.iTEM_ID = this.item.itemId;
@@ -82,7 +83,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         )
     }
     public FindNewMAGMatches() {
-
+      if (!this.item) return;
         this._magAdvancedService.MagMatchItemsToPapers(this.item.itemId).then(
             (res) => {
                 if (res != null) {
@@ -101,7 +102,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matching for this item?", "", false, "")
             .then(
                 (confirm: any) => {
-                    if (confirm) {
+                    if (confirm && this.item) {
                         let res: any = this._magAdvancedService.ClearMagMatchItemsToPapers(this.item.itemId);
 
                         this._magAdvancedService.MagReferencesPaperList.papers = [];
@@ -160,11 +161,13 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
                 this.currentMagPaperLinkItem.manualTrueMatch = false;
             }
 
+          if (this.item) {
             this._magAdvancedService.UpdateMagPaper(match, paperId, this.item.itemId).then(
-                () => {
-                    this.FetchMAGMatches();
-                    }
+              () => {
+                this.FetchMAGMatches();
+              }
             );
+          }
         }
     }
 
@@ -197,13 +200,14 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
             } else {
                 this.currentMagPaperLinkItem.manualFalseMatch = true;
                 this.currentMagPaperLinkItem.manualTrueMatch = false;
-            }
-
+      }
+      if (this.item) {
         this._magAdvancedService.UpdateMagPaper(match, this.FoundPaper.paperId, this.item.itemId).then(
-                () => {
-                    this.FetchMAGMatches();
-                }
-            );
+          () => {
+            this.FetchMAGMatches();
+          }
+        );
+      }
       
     }
 

@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, Element
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeComponent } from 'angular-tree-component';
+import { ITreeOptions, TreeComponent } from '@circlon/angular-tree-component';
 import { Subscription } from 'rxjs';
 import { WebDBService } from '../services/WebDB.service';
 

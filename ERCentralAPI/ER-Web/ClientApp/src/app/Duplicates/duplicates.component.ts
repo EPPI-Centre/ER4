@@ -258,8 +258,8 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             else return "";
         }
     }
-    public DistanceClass(a: string, b: string): string {
-        if (a.length == 0 || b.length == 0) return "bg-lev0";
+    public DistanceClass(a: string, b: string | undefined): string {
+        if (a.length == 0 || !b || b.length == 0) return "bg-lev0";
         if (a == b) return "bg-lev0";//we don't calculate the distance if the two strings are equal!!
         //next, 2 "tricks" to speed things when calculating the distance would take too long.
         if (a.length > 5000 || b.length > 5000) {

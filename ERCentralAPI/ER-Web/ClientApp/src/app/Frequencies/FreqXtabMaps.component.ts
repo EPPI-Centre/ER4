@@ -1,18 +1,10 @@
-import { Component,  OnInit,  OnDestroy, AfterViewInit, Output, EventEmitter, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Router } from '@angular/router';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { Component,  OnInit,  OnDestroy, AfterViewInit } from '@angular/core';
 import { ItemListService, Criteria } from '../services/ItemList.service';
-import { PriorityScreeningService } from '../services/PriorityScreening.service';
-import { ItemDocsService } from '../services/itemdocs.service';
 import { crosstabService, iWebDbItemAttributeCrosstabList, iWebDbItemAttributeCrosstabRow } from '../services/crosstab.service';
 import { singleNode, ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { ItemListComp } from '../ItemList/itemListComp.component';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { frequenciesService, Frequency } from '../services/frequencies.service';
 import { ExcelService } from '../services/excel.service';
-import { JSON2SheetOpts } from 'xlsx/types';
 
 
 @Component({

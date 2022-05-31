@@ -12,7 +12,7 @@
             <div *ngIf="Aim=='QuickQuestionReport'" style="max-height:300px;overflow:auto"
                  class="col-12 col-md-9 p-sm-0 align-self-start
                   bg-light">
-                <codesetTree4QuickQuestionReport MaxHeight="298" #QuestionSelector></codesetTree4QuickQuestionReport>
+                <codesetTree4QuickQuestionReport [MaxHeight]="298" #QuestionSelector></codesetTree4QuickQuestionReport>
             </div>
             <div class="col-12 col-md-3 pt-sm-1 row m-0 justify-content-end">
                 <table *ngIf="Aim=='QuickQuestionReport'">

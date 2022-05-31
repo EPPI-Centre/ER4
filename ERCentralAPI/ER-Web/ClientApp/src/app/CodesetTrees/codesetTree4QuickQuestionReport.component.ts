@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, Element
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, iAttributeSet } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
+import { ITreeOptions, TreeModel, TreeComponent } from '@circlon/angular-tree-component';
 
 
 @Component({

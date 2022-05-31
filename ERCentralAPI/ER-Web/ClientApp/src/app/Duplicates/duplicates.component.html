@@ -117,7 +117,7 @@
                                [data]="ResetDDData"
                                style="border-color: #04070b;background-color: #e1e4eb;">
             </kendo-splitbutton>
-            <button kendoButton class="ml-1" [title]="'Deletes the currently shown group'" [disabled]="!HasWriteRights || CurrentGroup == null"
+            <button *ngIf="CurrentGroup" kendoButton class="ml-1" [title]="'Deletes the currently shown group'" [disabled]="!HasWriteRights"
                     (click)="DeleteCurrentGroup(CurrentGroup.groupID)">
                 Delete This Group
             </button>
@@ -143,17 +143,17 @@
         <div *ngIf="ActivePanel == 'CreateGroup' && DirtyGroup != null" class="p-2 m-2 rounded border border-primary bg-white">
             <div class="h4 text-center mb-1 pb-1">Creating a new group...</div>
             <table class="table table-bordered table-sm m-1 p-0">
-                <thead *ngIf="DirtyMaster !== null; else NoMasterTemplate">
+                <thead *ngIf="DirtyMaster; else NoMasterTemplate">
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Master Item ID:</td>
                         <td class="bg-white">
-                            <button *ngIf="CanGoToThisItem(DirtyMaster?.itemId); else JustTheMasterId" class="btn btn-link p-0" (click)="OpenItem(DirtyMaster?.itemId)">{{DirtyMaster?.itemId}}</button>
+                            <button *ngIf="DirtyMaster && CanGoToThisItem(DirtyMaster.itemId); else JustTheMasterId" class="btn btn-link p-0" (click)="OpenItem(DirtyMaster.itemId)">{{DirtyMaster?.itemId}}</button>
                             <ng-template #JustTheMasterId>{{DirtyMaster?.itemId}}</ng-template>
                         </td>
                         <td class="font-weight-bold">Coded count:</td>
-                        <td [ngClass]="{'font-weight-bold alert-danger' : DirtyMaster?.codedCount > 0}">{{DirtyMaster?.codedCount}}</td>
+                        <td [ngClass]="{'font-weight-bold alert-danger' : DirtyMaster && DirtyMaster.codedCount > 0}">{{DirtyMaster?.codedCount}}</td>
                         <td class="font-weight-bold">Uploaded Docs:</td>
-                        <td class="bg-white" [ngClass]="{'alert-danger font-weight-bold' : DirtyMaster?.docCount > 0}">{{DirtyMaster?.docCount}}</td>
+                        <td class="bg-white" [ngClass]="{'alert-danger font-weight-bold' : DirtyMaster && DirtyMaster.docCount > 0}">{{DirtyMaster?.docCount}}</td>
                         <td class="font-weight-bold">Date:</td>
                         <td class="bg-white">{{DirtyMaster?.year}}</td>
                     </tr>
@@ -323,7 +323,7 @@
         <div *ngIf="ActivePanel == 'FindByItemIDs'" class="row m-1 p-1 alert-light border border-info rounded">
             <div class="col-12">Find Groups with these item IDs (comma separated):</div>
             <input class="col-11 mx-2" type="text" maxlength="4000" [(ngModel)]="ItemIDsearchString" />
-            <button class="btn btn-sm py-0 px-1 m-1 btn-success" (click)="FindByItemIDs(member, true)">Find</button>
+            <button class="btn btn-sm py-0 px-1 m-1 btn-success" (click)="FindByItemIDs()">Find</button>
             <button class="btn btn-sm py-0 px-1 m-1 btn-outline-dark" (click)="ResetActivePanel()">Cancel</button>
         </div>
 
@@ -384,7 +384,7 @@
                                 <td>Uploaded Docs:</td>
                                 <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
                                 <td>Pages:</td>
-                                <td [ngClass]="">{{member.pages}}</td>
+                                <td>{{member.pages}}</td>
                             </tr>
                             <tr class="bg-light">
                                 <td>Pub Type:</td>
@@ -600,7 +600,7 @@
 
     </div>
     <div *ngIf="ShowItemsList" class="bg-light m-2 rounded border border-info p-1 ">
-        <ItemListComp Context="dedup" ShowItemsTable="true"></ItemListComp>
+        <ItemListComp Context="dedup" [ShowItemsTable]="true"></ItemListComp>
     </div>
 </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

@@ -1,4 +1,4 @@
-﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="searchMAG"></HeaderComponent>
+<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="searchMAG"></HeaderComponent>
 
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
@@ -462,7 +462,7 @@
                                 <td class="" style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.magSearchText}}>{{item.magSearchText | truncate}} </td>
                                 <td class="">{{item.magFolder}}</td>
                                 <td class="">{{item.contactName}}</td>
-                                <td class="">{{FormatDate2(item.searchDate)}}</td>
+                                <td class="">{{FormatDate2(item.searchDate.toString())}}</td>
                                 <td class=" p-0" style="vertical-align:middle;text-align:center">
                                     <div (click)="GetItems(item)" class="btn btn-link btn-sm font-weight-bold">{{ item.hitsNo}}</div>
                                 </td>
