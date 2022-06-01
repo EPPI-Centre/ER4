@@ -12,7 +12,7 @@ import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { saveAs } from '@progress/kendo-file-saver';
 import { ConfigurableReportService } from '../services/configurablereport.service';
-import { faArrowsRotate, fas, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({

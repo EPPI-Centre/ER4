@@ -85,7 +85,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy {
     this.ReviewSetsService.selectedNode = node;
   }
   onSelectionChange(event: TreeItem) {
-    console.log(event);
+    //console.log(event);
     let node: singleNode = event.dataItem;
     this.ReviewSetsService.selectedNode = node;
   }

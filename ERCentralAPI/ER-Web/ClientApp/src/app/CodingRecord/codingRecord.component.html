@@ -6,7 +6,7 @@
             <button (click)="SaveReportAsHtml(ComparisonReportHTML)" [disabled]="ComparisonReportHTML.length == 0"
                     title="Save as Html (Supports opening in Word)"
                     type="button" class="btn btn-sm btn-outline-primary mt-0 mb-1 mr-1">
-                <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                <span class="k-icon k-i-save"></span>
             </button>
             <button (click)="LiveComparison()" class="btn btn btn-outline-secondary mt-0 mb-1 mx-1">Live Comparison</button>
             <button *ngIf="!IsServiceBusy" title="Refresh Coding Record" class="btn btn-sm btn-outline-success mt-0 mb-1 mx-1 p-0 px-2" (click)="RefreshCodingRecord()">
@@ -55,7 +55,7 @@
                     <button (click)="ViewSingleCodingReport(item, false)"
                             title="Save as Html (Supports opening in Word)"
                             type="button" class="btn btn-sm btn-outline-info ml-1">
-                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                        <span class="k-icon k-i-save"></span>
                     </button>
                 </ng-template>
             </kendo-grid-column>

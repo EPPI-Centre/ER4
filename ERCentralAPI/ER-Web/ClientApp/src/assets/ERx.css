@@ -62,9 +62,23 @@ body {
 	color: white;
 	background-color: lightcoral;
 }
+/*for some reason, our custom modals come out with the wrong z-index in the part we should have access to
+    the below seem to fix it, perhaps only the .modal entry is needed
+*/
+.modal-content {
+    z-index:1056;
+}
+.modal {
+  z-index: 1056;
+}
 
 body {
-    height: 700px;
+    height: 100%;
+}
+
+.ItemsTable > tbody > tr > td {
+  vertical-align: middle;
+  border-left: 1px solid white;
 }
 
 .ScreeningSet {

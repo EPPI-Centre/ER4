@@ -48,11 +48,11 @@ import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.se
                     background-color:#f1f1f8 !important; 
                 }
                 .vertical-text {
-                    position: fixed;
+                    position: absolute;
                     top: 50%;
                     z-index:1002;
                     transform: rotate(90deg);
-                    right: -23px;
+                    right: -1.75em;
                     float: right;
                 }
 

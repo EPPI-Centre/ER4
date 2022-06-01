@@ -6,14 +6,14 @@
 			<span *ngIf="!ShowOptions">View</span>
 			Options
 		</div>
-        <div class="small card d-block ml-auto bg-white p-1 mb-3 mr-1" >
+        <div class="card d-block ml-auto bg-white p-1 mb-3 mr-1" >
             Enhanced selection is:
             <span *ngIf="EnhancedTableSelections" class="font-weight-bold">On</span>
             <span *ngIf="!EnhancedTableSelections" class="">Off</span>
         </div>
 	</div>
     <div *ngIf="EnhancedTableSelections && LocalPageSize > 500" class="row mx-1" >
-        <div class="m-1 p-1 alert alert-danger small">
+        <div class="m-1 p-1 alert alert-danger">
             Enhanced selection is turned <strong>ON</strong> and the list set to show more than 500 references per page. <strong>Beware:</strong> this can slow down this application, you may need to reduce the page size to make it "snappy" again.
         </div> 
     </div>
@@ -96,7 +96,7 @@
     </div>
     <div class="row mx-1">
         <div *ngIf="ItemListService.ListDescription != ''"
-             class="small p-2 ml-1 mr-1 mb-1 row col-12 col-sm-10 card bg-white flex-row">
+             class="p-2 ml-1 mr-1 mb-1 row col-12 col-sm-10 card bg-white flex-row">
             <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
         </div>
         <div *ngIf="Context =='FullUI'" class="row small col-12 col-sm-2 align-self-start">
@@ -161,7 +161,7 @@
             </kendo-grid-column>
         </kendo-grid>-->
         <div style="overflow:auto;" [ngStyle]="{'max-height': Context === 'dedup' ? '45vh' : '80vh' }">
-            <table class=" p-1 table table-striped" #exportItemsTable id="ItemsTable" [ngClass]="{'table-sm' : Context == 'dedup' }"
+            <table class="p-1 table table-sm table-striped ItemsTable" #exportItemsTable id="ItemsTable"
                    *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
                 <thead>
                     <tr style="">
@@ -188,10 +188,10 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let dataItem of this.ItemListService.ItemList.items"  [ngClass]="{'alert-primary font-weight-bold' : thisIsTheLastSelectedItem(dataItem)}">
-                        <td class="p-1 pt-2 ">
-                            <button class="btn btn-outline-primary btn-sm m-0" (click)="OpenItem(dataItem.itemId)">GO</button>
+                        <td class=" ">
+                            <button class="btn btn-outline-primary btn-sm pb-0 pt-1 m-0" (click)="OpenItem(dataItem.itemId)">GO</button>
                         </td>
-                        <td class="pl-0 pr-0 " (click)="ItemRowClicked($event, dataItem)">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)">
                             <input type="checkbox" class="m-1" style="zoom: 1.2;"
                                    [(ngModel)]="dataItem.isSelected" (click)="$event.stopPropagation()" />
                         </td>
@@ -200,37 +200,37 @@
                                 {{dataItem.itemStatus}}
                             </div>
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showId" title="Item ID">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showId" title="Item ID">
                             {{dataItem.itemId}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showImportedId" title="Your ID (Imported)">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showImportedId" title="Your ID (Imported)">
                             {{dataItem.oldItemId}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showShortTitle" title="Short Title">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showShortTitle" title="Short Title">
                             {{dataItem.shortTitle}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showAuthors" title="Authors">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showAuthors" title="Authors">
                             {{dataItem.authors}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showTitle" title="Title">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showTitle" title="Title">
                             {{dataItem.title}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showYear" title="Year">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showYear" title="Year">
                             {{dataItem.year}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showJournal" title="Journal / Parent Title">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showJournal" title="Journal / Parent Title">
                             {{dataItem.parentTitle}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showDocType" title="Reference Type">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showDocType" title="Reference Type">
                             {{dataItem.typeName}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showInfo" title="InfoBox text (only when listing items with this code)">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showInfo" title="InfoBox text (only when listing items with this code)">
                             {{dataItem.attributeAdditionalText}}
                         </td>
-                        <td class="pr-0 " (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showScore" title="Score (ML or text searches)">
+                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showScore" title="Score (ML or text searches)">
                             {{dataItem.rank}}
                         </td>
-                        <td class="pr-0"></td>
+                        <td class="py-0"></td>
                     </tr>
                 </tbody>
             </table>

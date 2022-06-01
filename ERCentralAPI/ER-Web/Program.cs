@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
-
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Builder;
 
 try
 {
@@ -69,7 +70,17 @@ try
     }
 
     app.UseHttpsRedirection();
-    app.UseStaticFiles();
+    var provider = new FileExtensionContentTypeProvider();
+    // Add new mappings required for the PDF viewer.
+    provider.Mappings[".res"] = "application/octet-stream";
+    provider.Mappings[".pexe"] = "application/x-pnacl";
+    provider.Mappings[".nmf"] = "application/octet-stream";
+    provider.Mappings[".mem"] = "application/octet-stream";
+    provider.Mappings[".wasm"] = "application/wasm";
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        ContentTypeProvider = provider
+    });
     app.UseRouting();
 
     app.UseAuthorization();

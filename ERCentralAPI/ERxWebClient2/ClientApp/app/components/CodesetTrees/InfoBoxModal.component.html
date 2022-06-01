@@ -1,5 +1,6 @@
 
 
+<div style="z-index:1055">
     <div class="modal-header">
         <b class="modal-title" id="modal-basic-title">Additional Text</b>
         <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
@@ -15,6 +16,9 @@
         <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
         <button type="button" class="btn btn-outline-success" [disabled]="IsReadOnly"
                 [attr.disabled]="IsReadOnly ? null : ''"
-                (click)="activeModal.close(InfoBoxText.value)">Save</button>
+                (click)="activeModal.close(InfoBoxText.value)">
+            Save
+        </button>
     </div>
+</div>
 

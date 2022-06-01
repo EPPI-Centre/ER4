@@ -12,19 +12,20 @@
             </div>
         </div>
 
-        <div class="small row p-0 m-0 col justify-content-end"
+        <div class="row p-0 m-0 col justify-content-end"
              style="">
             <div class="dropdown small mr-1">
                 <button class="btn btn-outline-info dropdown-toggle btn-sm px-1 py-0" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-book" aria-hidden="true"></i>&nbsp;Find on:
+                    <fa-icon [icon]="faBook" class="my-0"></fa-icon>&nbsp;Find on:
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-					<a class="dropdown-item small" (click)="FindReferenceOnMicrosoftAcademic(item)">OpenAlex</a>
+					<div class="dropdown-item small text-muted" >OpenAlex (coming soon)</div>
+					<!--<a class="dropdown-item small" (click)="FindReferenceOnMicrosoftAcademic(item)" [disabled]="true">OpenAlex</a>-->
                     <a class="dropdown-item small" (click)="FindReferenceOnGoogle(item)">Google</a>
                     <a class="dropdown-item small" (click)="FindReferenceOnGoogleScholar(item)">Google Scholar</a>
                 </div>
             </div>
-            <span class="mt-0 mr-1 ">Show optional fields?</span>
+            <div class="my-auto mx-1 ">Show optional fields?</div>
             <span class="brightSwitch" style="zoom:75%;">
                 <kendo-switch name="showOptionalFieldsSW" class="small small mt-0"
                               [(ngModel)]="showOptionalFields"

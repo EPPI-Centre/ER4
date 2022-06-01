@@ -84,7 +84,7 @@
                             <button (click)="SaveReport()" [disabled]="!CanSaveReport"
                                     title="Save as Html (Supports opening in Word)"
                                     type="button" class="btn btn-outline-primary float-right col-3">
-                                <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                                <span class="k-icon k-i-save"></span>
                             </button>
                         </td>
                     </tr>
@@ -139,7 +139,7 @@
                 <button (click)="SaveReport()" [disabled]="!CanSaveReport"
                         title="Save as Html (Supports opening in Word)"
                         type="button" class="btn btn-outline-primary ">
-                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                    <span class="k-icon k-i-save"></span>
                 </button>
                 <button (click)="OpenInNewWindow()" [disabled]="(ReportHTML.length == 0 &&!JsonReport)  || GettingReport"
                         type="button" class="btn btn-outline-primary mr-1">
@@ -159,7 +159,7 @@
                 <button (click)="SaveReport()" [disabled]="!CanSaveReport"
                         title="Save as Html (Supports opening in Word)"
                         type="button" class="btn btn-outline-primary ">
-                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                    <span class="k-icon k-i-save"></span>
                 </button>
             </div>
         </div>

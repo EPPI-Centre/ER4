@@ -11,6 +11,7 @@ import { ItemCodingService } from '../services/ItemCoding.service';
 import { ReviewerIdentityService, PersistingOptions } from '../services/revieweridentity.service';
 import { Subscription } from 'rxjs';
 import { ItemDocListComp } from '../ItemDocumentList/itemDocListComp.component';
+import { faBook } from '@fortawesome/free-solid-svg-icons';
 
 // COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
@@ -94,6 +95,7 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 				console.log('Set Default Paste');
 			}
     }];
+  public faBook = faBook;
   public get HighlightsStyle(): string {
     if (this.ReviewerIdentityServ.userOptions.persistingOptions) return this.ReviewerIdentityServ.userOptions.persistingOptions.HighlightsStyle;
     return "";

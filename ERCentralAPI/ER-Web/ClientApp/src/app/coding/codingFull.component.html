@@ -70,27 +70,24 @@
                         <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
                             Close/back
                         </button>
-                        <div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
+                        <div class="row bg-info float-right mb-1 ml-1 mr-1">
                             <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-                                Auto Advance?
-                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+                              <div>Auto Advance?</div>
+                                <input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
                             </div>
                         </div>
                         <div class="row float-right mb-1 pb-1 ml-0 mr-0">
-                            <button *ngIf="IsServiceBusy"
-                                    class="btn btn-sm btn-outline-success mx-1 my-0 py-1 px-2 ng-star-inserted"
-                                    (click)="RefreshTerms()">
-                                <i class="fa fa-refresh" aria-hidden="true"></i>
-                            </button>
-                            <div *ngIf="!IsServiceBusy"
-                                 class="ml-2 mt-1 pl-1 " style="display:inline-block;position:absolute; top:0.30em;">
-                                <i class="fa fa-spinner fa-spin text-success mt-1 " style=""></i>
-                            </div>
+                          <button  title="Refresh Terms"
+                                  class="btn btn-sm btn-outline-success mx-1 my-0 py-0 px-2"
+                                  (click)="RefreshTerms()">
+                            <fa-icon *ngIf="!IsServiceBusyTerms()" [icon]="faArrowsRotate" class="my-0"></fa-icon>
+                            <fa-icon *ngIf="IsServiceBusyTerms()" [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
+                          </button>
                         </div>
-                        <div class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
+                        <div class="row bg-info float-right mb-1 ml-0 mr-0">
                             <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-                                Show terms?
-                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+                              <div>Show terms?</div>
+                                <input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
                             </div>
                         </div>
                     </div>
