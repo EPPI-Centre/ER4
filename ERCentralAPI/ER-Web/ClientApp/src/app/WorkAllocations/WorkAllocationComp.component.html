@@ -18,9 +18,9 @@
 <div id="RandomlyAssignSection" *ngIf="PanelName == 'RandomlyAssignSection'" class="col-12 col-sm-12 col-md-12 p-0 mb-1" style="min-width:120px;">
 	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 		<div class="card-body">
-			<div class="row">
-				<div class="col-12 col-sm-2 text-sm-right" style="">Select from </div>
-				<div class="form-group col-12 col-sm-10">
+			<div class="row rounded boder border-info mb-2">
+				<div class="col-12 col-sm-auto mx-1 ml-sm-auto text-sm-right my-auto" style="">Select from:</div>
+				<div class="form-group col-12 col-sm-auto mx-1 mr-sm-auto my-auto">
 					<select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
 							style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event)"
 							(click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
@@ -31,14 +31,14 @@
 					</select>
 				</div>
 			</div>
-			<div class="row  " *ngIf="(selectedAllocated.value == 'All with this code')
+			<div class="row mb-2" *ngIf="(selectedAllocated.value == 'All with this code')
 						||  (selectedAllocated.value == 'All without this code' )">
 
 
-				<div class="col-12 col-sm-2 text-sm-right" style="">
+				<div class="col-12 col-sm-auto mx-1 ml-sm-auto text-sm-right my-auto" style="">
 					Select code:
 				</div>
-				<div ngbDropdown class="col-12 col-sm-10">
+				<div ngbDropdown class="form-group col-12 col-sm-auto mx-1 mr-sm-auto my-auto">
 					<button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
 							id="dropdownTreeRandomAllocate"
 							style="min-width: 200px; max-width:720px;"
@@ -55,13 +55,13 @@
 				</div>
 			</div>
 
-			<div class="row  "
+			<div class="row mb-2 "
 				 *ngIf="(selectedAllocated.value == 'All with any codes from this coding tool')
 						||  (selectedAllocated.value == 'All without any codes from this coding tool' )">
-				<div class="col-12 col-sm-2 text-sm-right" style="">
-					Select also from
+				<div class="col-12 col-sm-auto mx-1 ml-sm-auto text-sm-right my-auto">
+					Select also from:
 				</div>
-				<div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
+				<div ngbDropdown class="form-group col-12 col-sm-auto mx-1 mr-sm-auto my-auto" style="min-width:200px;">
 					<button class="btn btn-outline-secondary dropdown-toggle col-12"
 							style="min-width: 200px; max-width:720px;"
 							(click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false; isCollapsedCodeStudies = false;"
@@ -77,26 +77,26 @@
 				</div>
 			</div>
 										
-			<div class="row mt-2 justify-content-center justify-content-md-start">
-				<div class="col-12 col-md-4 row ">
-					<div class="mr-2 text-right" style="">
-						Percentage of references
+			<div class="row mx-1 mb-2">
+				<div class="col-12 col-sm-auto ml-1 ml-sm-auto mr-1 px-1 py-1 mb-1 row border border-info rounded">
+					<div class="mr-2 text-right my-auto" style="">
+						Percentage of references:
 					</div>
-					<div class="">
+					<div class="my-auto">
 						<kendo-numerictextbox [(ngModel)]="numericRandomSample"
 											  [min]="5" [format]="'n0'"
 											  [max]="100"
 											  [step]="1"
 											  [autoCorrect]="true"
-											  class="border border-dark rounded mt-1"
+											  class="border border-dark rounded"
 											  style="width: 100px;">
 
 						</kendo-numerictextbox>
 					</div>
 				</div>
-				<div class="col-12 col-md-4 row">
-					<div class="text-right mr-2" style="min-width:110px;">
-						Number of groups
+				<div class="col-12 col-sm-auto ml-1 mr-1 mr-sm-auto px-1 py-1 mb-1 row border border-info rounded">
+					<div class="text-right mr-2 my-auto" style="min-width:110px;">
+						Number of groups:
 					</div>
 					<div class="">
 						<kendo-numerictextbox [(ngModel)]="numericRandomCreate"
@@ -104,7 +104,7 @@
 											  [max]="10"
 											  [step]="1"
 											  [autoCorrect]="true"
-											  class="border border-dark rounded mt-1"
+											  class="border border-dark rounded"
 											  style="width: 100px;">
 						</kendo-numerictextbox>
 					</div>
@@ -112,18 +112,20 @@
 
 			</div>
 
-			<div class="row my-1 ">
-				<div class="col-12 row justify-content-center justify-content-md-start m-3">
+			<div class="row mx-1 mb-2">
+				<div class="col-auto row mx-auto border border-info rounded px-1 py-2">
 					<input class="mt-1 mr-1 ml-sm-4" type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
 					<div class="mr-2"> Included </div>
 					<input class="mt-1 mr-1" type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
 					<div class="mr-2"> Excluded</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-12 col-sm-2 text-sm-right" style="">Create codes below this code / coding tool </div>
-				<div class="form-group col-12 col-sm-10">
-					<div *ngIf="!NoSuitableCodeSet" ngbDropdown class="" style="min-width:150px;">
+			<div class="row mx-1 mb-2">
+				<div class="col-12 col-sm-auto mx-1 ml-sm-auto text-sm-right my-auto" style="">
+          Create codes below this code / coding tool:
+        </div>
+				<div class="form-group col-12 col-sm-auto mx-1 mr-sm-auto my-auto">
+					<div *ngIf="!NoSuitableCodeSet" ngbDropdown class="" style="min-width:200px;">
 						<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100" id="collapseCodeTreeCodingTool"
 								style="min-width: 200px; max-width:720px;"
 								(click)="isCollapsedCodingTool = !isCollapsedCodingTool; dropdownBasicCodingTool = false; isCollapsedAllocateOptions = false"
