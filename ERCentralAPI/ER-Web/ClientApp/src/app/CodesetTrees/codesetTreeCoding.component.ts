@@ -72,12 +72,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     }
   }
 
-  options: ITreeOptions = {
-    childrenField: 'attributes',
-    displayField: 'name',
-    allowDrag: false,
-  }
-  @ViewChild('tree') treeComponent!: TreeComponent;
   public ShowCompleteUncompletePanelForSetId: number = 0;
   public ItemSetProxy: MinimalItemSet = new MinimalItemSet();
   public ItemSetReference: MinimalItemSet = new MinimalItemSet();
@@ -100,7 +94,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     else return false;
   }
   public get IsServiceBusy(): boolean {
-    //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
     return (this.ReviewSetsService.IsBusy ||
       this.ItemCodingService.IsBusy ||
       this.armsService.IsBusy ||
@@ -357,8 +350,9 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   }
 
   public UpdateTree() {
-    if (this.treeComponent) this.treeComponent.treeModel.update();
-    else console.log("Update tree failed, no tree component!");
+    //if (this.treeComponent) this.treeComponent.treeModel.update();
+    //else console.log("Update tree failed, no tree component!");
+    this.ReviewSetsService.ReviewSets = this.ReviewSetsService.ReviewSets.slice();
   }
 
   ngOnDestroy() {

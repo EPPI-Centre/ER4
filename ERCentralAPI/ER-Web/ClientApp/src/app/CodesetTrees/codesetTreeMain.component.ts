@@ -65,8 +65,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy {
     //  this.treeComponent.treeModel.update();
     //}
     if (this.treeComponent) {
-      console.log("RefreshLocalTree (mainfull)");
-      const tmp = this.ReviewSetsService.ReviewSets;
+      //console.log("RefreshLocalTree (mainfull)");
       this.ReviewSetsService.ReviewSets = this.ReviewSetsService.ReviewSets.slice();
     }
   }

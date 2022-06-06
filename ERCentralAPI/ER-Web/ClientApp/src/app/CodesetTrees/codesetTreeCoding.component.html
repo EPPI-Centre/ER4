@@ -74,6 +74,7 @@
     </tree-root>-->
     <kendo-treeview #tree
                     [nodes]="nodes"
+                    class="text-wrap text-break"
                     textField="name"
                     (selectionChange)="NodeSelected($event)"
                     kendoTreeViewExpandable
