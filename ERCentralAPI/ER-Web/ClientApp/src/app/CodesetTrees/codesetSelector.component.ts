@@ -64,16 +64,6 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
     }
   }
 
-  options: ITreeOptions = {
-    childrenField: 'attributes',
-    displayField: 'name',
-    allowDrag: false,
-    // use this when a multi select is needed
-    //actionMapping: this.actionMapping
-
-  }
-
-
   ngAfterViewInit() {
 
 

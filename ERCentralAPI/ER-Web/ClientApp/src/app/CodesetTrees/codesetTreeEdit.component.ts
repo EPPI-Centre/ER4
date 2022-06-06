@@ -1,9 +1,10 @@
-import { Component, Inject, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, Input, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewSetsService, iSetType, ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
+import { ReviewSetsService, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
-import { ITreeOptions, TreeComponent } from '@circlon/angular-tree-component';
+import { TreeItem } from '@progress/kendo-angular-treeview';
+import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'codesetTreeEdit',
@@ -13,38 +14,28 @@ import { ITreeOptions, TreeComponent } from '@circlon/angular-tree-component';
 
 export class CodesetTreeEditComponent implements OnInit, OnDestroy {
 
-   
 
-    constructor(private router: Router,
-                @Inject('BASE_URL') private _baseUrl: string,
-        public ReviewerIdentityServ: ReviewerIdentityService,
+  constructor(
+    public ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewSetsService: ReviewSetsService,
         private ReviewSetsEditingService: ReviewSetsEditingService
     ) { }
     ngOnInit() {
-        
         if (this.ReviewSetsService.ReviewSets.length == 0) {
             this.ReviewSetsService.GetReviewSets(false);
         } else {
             this.CheckReviewSetsOrder();
         }
     }
-    @ViewChild('tree') treeComponent!: TreeComponent;
     @Input() CanChangeSelectedCode: boolean = true;
     @Input() CanWriteAndServicesIdle: boolean = false;
-    options: ITreeOptions = {
-        childrenField: 'attributes',
-        displayField: 'name',
-        allowDrag: false,
-
-    }
+  faCaretDown = faCaretDown;
+  faCaretUp = faCaretUp;
     public CanWrite(): boolean {
         if (this.CanChangeSelectedCode) {
-            console.log("1: ", this.CanWriteAndServicesIdle);
             return this.CanWriteAndServicesIdle;
         }
         else {
-            console.log("2: ", false);
             return false;
         }
     }
@@ -89,12 +80,12 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
         }
     }
     RefreshLocalTree() {
-        this.treeComponent.treeModel.update();
+      this.ReviewSetsService.ReviewSets = this.ReviewSetsService.ReviewSets.slice();
     }
     async MoveUpNode(node: singleNode) {
         await this.ReviewSetsEditingService.MoveUpNode(node);
         //and notify the tree:
-        this.treeComponent.treeModel.update();
+      this.RefreshLocalTree();
         //if (node.nodeType == 'ReviewSet') {
         //    let MySet = node as ReviewSet;
         //    if (MySet) this.MoveUpSet(MySet);
@@ -108,8 +99,8 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
     }
     async MoveDownNode(node: singleNode) {
         await this.ReviewSetsEditingService.MoveDownNode(node);
-        //and notify the tree:
-        this.treeComponent.treeModel.update();
+      //and notify the tree:
+      this.RefreshLocalTree();
         //if (node.nodeType == 'ReviewSet') {
         //    let MySet = node as ReviewSet;
         //    if (MySet) this.MoveDownSet(MySet);
@@ -121,10 +112,11 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
     }
     
 
-    NodeSelected(node: singleNode) {
-        this.ReviewSetsService.selectedNode = node;
-        //this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-    }
+  NodeSelected(event: TreeItem) {
+    let node: singleNode = event.dataItem;
+    this.ReviewSetsService.selectedNode = node;
+    //this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+  }
     CanMoveDown(node: singleNode): boolean {
         return this.ReviewSetsEditingService.CanMoveDown(node);
     }

@@ -1,25 +1,32 @@
 <div>Coding Tool(s) in Review:</div>
 <div *ngIf="ReviewSets.length == 0">
-    No Coding Tools in review.
+  No Coding Tools in review.
 </div>
-<tree-root #tree class="bg-dark" *ngIf="ReviewSets" [nodes]="ReviewSets" [options]="options"
-            (activate)="NodeSelected($event.node.data)"
-            [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}">
-    <ng-template #treeNodeTemplate let-node let-index="index">
-        <span *ngIf="node.data.nodeType == 'ReviewSet'">
-            <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-            <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-            <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
-        </span>
-        <span [ngClass]="{'font-weight-bold' : (selectedNode && selectedNode.id == node.data.id),
-                        'ScreeningSet' : node.data.subTypeName == 'Screening',
-                        'AdminSet' : node.data.subTypeName == 'Administration',
-                        'ExcludeCode' : node.data.subTypeName == 'Exclude'
-                        }">
-            {{node.data.name}}
-        </span>
-        <i *ngIf="CanMoveDown(node.data) && CanWriteAndServicesIdle" class="fa fa-caret-down btn btn-link p-0" (click)="MoveDownNode(node.data)"></i>
-        <i *ngIf="CanMoveUp(node.data) && CanWriteAndServicesIdle" class="fa fa-caret-up btn btn-link p-0" (click)="MoveUpNode(node.data)"></i>
-    </ng-template>
-</tree-root>
+<kendo-treeview #tree
+                *ngIf="ReviewSets" [nodes]="ReviewSets"
+                class="text-wrap text-break"
+                [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}"
+                textField="name"
+                (selectionChange)="NodeSelected($event)"
+                kendoTreeViewExpandable
+                kendoTreeViewHierarchyBinding
+                childrenField="attributes">
+  <ng-template kendoTreeViewNodeTemplate let-data>
+    <span *ngIf="data.nodeType == 'ReviewSet'" class="ml-0 mr-1">
+      <img *ngIf="data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+      <img *ngIf="!data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+      <img *ngIf="!data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
+    </span>
+    <span [ngClass]="{'ScreeningSet' : data.subTypeName == 'Screening',
+                            'AdminSet' : data.subTypeName == 'Administration',
+                            'ExcludeCode' : data.subTypeName == 'Exclude'
+                            }" class="mx-1">
+      {{data.name}}
+    </span>
+    <fa-icon *ngIf="CanMoveDown(data) && CanWriteAndServicesIdle" [icon]="faCaretDown" class="my-0 p-0 ml-1 mr-0 btn-link border-0"
+             (click)="MoveDownNode(data)" style="cursor: pointer;"></fa-icon>
+    <fa-icon  *ngIf="CanMoveUp(data) && CanWriteAndServicesIdle" [icon]="faCaretUp" class="my-0 p-0 ml-1 mr-0 btn-link border-0"
+             (click)="MoveUpNode(data)" style="cursor: pointer;"></fa-icon>
+  </ng-template>
+</kendo-treeview>
 

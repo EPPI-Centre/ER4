@@ -5,6 +5,7 @@
 <div class="bg-light" *ngIf="nodes && nodes.length > 0 " [ngStyle]="{'max-height.px': MaxHeight}" style="overflow-y:auto;">
   <kendo-treeview #tree
                   [nodes]="nodes"
+                  class="text-wrap text-break"
                   textField="name"
                   (selectionChange)="onSelectionChange($event)"
                   kendoTreeViewExpandable
