@@ -168,7 +168,10 @@ ul.k-tabstrip-items li.k-item.k-state-active {
     background-color:orange;
 }
 
-
+.recTree .k-treeview-leaf.k-selected {
+  color: white;
+  background-color: rgb(180, 195, 255);
+}
 /*
     disable controls within a given element hack.
     see https://stackoverflow.com/questions/50385048/disable-all-button-and-links-in-a-div
@@ -176,12 +179,12 @@ ul.k-tabstrip-items li.k-item.k-state-active {
     https://stackoverflow.com/questions/14072479/how-to-disable-keyboard-key-with-css
 */
 .disableThisAndChildren {
-    -webkit-user-select: none; /* Safari 3.1+ */
-    -moz-user-select: none; /* Firefox 2+ */
-    -ms-user-select: none; /* IE 10+ */
-    user-select: none; /* Standard syntax */
-    pointer-events: none;
-    opacity: 0.3;
+  -webkit-user-select: none; /* Safari 3.1+ */
+  -moz-user-select: none; /* Firefox 2+ */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none; /* Standard syntax */
+  pointer-events: none;
+  opacity: 0.3;
 }
 
 /*force the PDFtron iframe to use the available height*/

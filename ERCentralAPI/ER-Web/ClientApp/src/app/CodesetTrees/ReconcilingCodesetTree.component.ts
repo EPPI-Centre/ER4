@@ -11,6 +11,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { ItemCodingService, ItemAttPDFCodingCrit } from '../services/ItemCoding.service';
 import { ItemDocsService, ItemDocument } from '../services/itemdocs.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';
 
 //see: https://angular2-tree.readme.io/docs
 
@@ -46,9 +47,9 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		private ItemDocsService: ItemDocsService
 	) { }
 
-	@ViewChild('SingleCodeSetTree1') treeComponent1!: TreeComponent; 
-	@ViewChild('SingleCodeSetTree2') treeComponent2!: TreeComponent;
-	@ViewChild('SingleCodeSetTree3') treeComponent3!: TreeComponent;
+  @ViewChild('SingleCodeSetTree1') treeComponent1!: TreeViewComponent; 
+  @ViewChild('SingleCodeSetTree2') treeComponent2!: TreeViewComponent;
+  @ViewChild('SingleCodeSetTree3') treeComponent3!: TreeViewComponent;
 	private _reconcilingReviewSet: ReconcilingReviewSet | null = null;
 	private UpdatingSingleItem: boolean = false;
 	@Input() public set reconcilingReviewSet(rrs: ReconcilingReviewSet | null) {
@@ -108,7 +109,9 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	@Output() UnCompleteEvent = new EventEmitter<ReconcilingItem>();
 	@Output() PleaseUpdateCurrentItem = new EventEmitter<void>();
 
-	NodesState: ITreeState = {};// see https://angular2-tree.readme.io/docs/save-restore
+  expandedKeys: string[] = [];
+  selectedKeys: string[] = [];
+	//NodesState: ITreeState = {};// see https://angular2-tree.readme.io/docs/save-restore
 	SelectedNode: ReconcilingSetAttribute | null = null;
 	LoadPDFCoding: boolean = false;
 	ShowOutcomes: boolean = false; 
@@ -146,31 +149,27 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	public get CurrentContactId(): number {
 		return this.ReviewerIdentityServ.reviewerIdentity.userId;
     }
-	ngOnInit() {
-		if (this.reconcilingReviewSet) {
-			//console.log("ngOnInit Will try to expand the root!");
-			const expandedNodeIds: any = {};
-			expandedNodeIds[this.reconcilingReviewSet.id] = true;
-			this.NodesState = {
-				...this.NodesState,
-				expandedNodeIds
-			};
-		}
-	}
+  ngOnInit() {
+    if (this.reconcilingReviewSet) {
+      //console.log("ngOnInit Will try to expand the root!");
+      //const expandedNodeIds: any = {};
+      //expandedNodeIds[this.reconcilingReviewSet.id] = true;
+      //this.NodesState = {
+      //	...this.NodesState,
+      //	expandedNodeIds
+      //};
+      this.expandedKeys = [this.reconcilingReviewSet.id];
+    }
+  }
 	ngAfterViewInit() {
 		
     }
 	public get IsServiceBusy(): boolean {
 		return this.ReviewSetsService.IsBusy;
 	}
-	options: ITreeOptions = {
-		childrenField: 'attributes',
-		displayField: 'name',
-		allowDrag: false,
 
-	}
-	get nodes(): singleNode[] | null {
-		if (this.reconcilingReviewSet == null) return null;
+	get nodes(): singleNode[] {
+		if (this.reconcilingReviewSet == null) return [];
 		else return [this.reconcilingReviewSet];
 	}
 	CanMoveCodesFromHere(reviewerSlot: number):boolean {
@@ -237,18 +236,21 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		return "Agr";
     }
 
-	NodeSelected(node: ReconcilingSetAttribute | ReconcilingReviewSet) {
-		if (node.nodeType == "ReviewSet") {
-			this.SelectedNode = null;
-		}
-		else {
-			let renode = node as ReconcilingSetAttribute;
-			if (renode) {
-				this.SelectedNode = renode;
-            }
-        }
-		//console.log("NodeSelected", node);
-	}
+  NodeSelected(event: TreeItem) {
+    let node: ReconcilingSetAttribute | ReconcilingReviewSet = event.dataItem;
+    if (node) this.internalNodeSelected(node);
+  }
+  private internalNodeSelected(node: ReconcilingSetAttribute | ReconcilingReviewSet) {
+    if (node.nodeType == "ReviewSet") {
+      this.SelectedNode = null;
+    }
+    else {
+      let renode = node as ReconcilingSetAttribute;
+      if (renode) {
+        this.SelectedNode = renode;
+      }
+    }
+  }
   Complete(recItem: ReconcilingItem | undefined, contactId: number) {
     if (recItem) {
       this.ShowingTransferPanelForCoding = null;
@@ -393,50 +395,63 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 			}
 		}
     }
-	private UpdateTreeSelection(att: ReconcilingSetAttribute, rrs: ReconcilingReviewSet) {		
-		const activeNodeIds: any = {};
-		activeNodeIds[att.id] = true;
-		this.NodesState = {
-			...this.NodesState,
-			activeNodeIds
-		};
-		this.NodeSelected(att);
-		let expandTheseNodes = rrs.ParentsListByAttId(att.attribute_id);
-		if (expandTheseNodes.length > 0) {
-			let alreadyExpanded: any = this.NodesState.expandedNodeIds;
-			if (alreadyExpanded != undefined) {
-				for (let toExpand of expandTheseNodes) {
-					let done: boolean = false;
-					for (let key in alreadyExpanded) {
-						if (toExpand.id == key) {
-							//add this key to the list of expanded nodes
-							alreadyExpanded[key] = true;
-							done = true;
-							break;
-						}
-					}
-					if (done == false) {
-						alreadyExpanded[toExpand.id] = true;
-					}
-				}
-			}
-			else {
-				alreadyExpanded = {};
-				for (let toExpand of expandTheseNodes) {
-					alreadyExpanded[toExpand.id] = true;
-				}
-			}
-			this.NodesState.expandedNodeIds = alreadyExpanded;
-		}
-		//scroll the node in view
-		if (document) {
-			const attId = att.id;
-			setTimeout(() => {
-				const element = document.getElementById(attId);
-				if (element) element.scrollIntoView(false);
-			}, 250);
-		}		
+  private UpdateTreeSelection(att: ReconcilingSetAttribute, rrs: ReconcilingReviewSet) {
+    //const activeNodeIds: any = {};
+    //activeNodeIds[att.id] = true;
+    //this.NodesState = {
+    //	...this.NodesState,
+    //	activeNodeIds
+    //};
+    this.selectedKeys = [att.id];
+    this.internalNodeSelected(att);
+    let expandTheseNodes = rrs.ParentsListByAttId(att.attribute_id);
+    if (expandTheseNodes.length > 0) {
+      let alreadyExpanded: string[] = this.expandedKeys;
+      if (alreadyExpanded.length > 0) {
+        for (let toExpand of expandTheseNodes) {
+          let done: boolean = false;
+          for (let key of alreadyExpanded) {
+            if (toExpand.id == key) {
+              //add this key to the list of expanded nodes
+              //alreadyExpanded[key] = true;
+              done = true;
+              break;
+            }
+          }
+          if (done == false) {
+            if (this.treeComponent1) this.treeComponent1.expandNode(toExpand, toExpand.id);
+            if (this.treeComponent2) this.treeComponent2.expandNode(toExpand, toExpand.id);
+            if (this.treeComponent3) this.treeComponent3.expandNode(toExpand, toExpand.id);
+            alreadyExpanded.push(toExpand.id);
+          }
+        }
+      }
+      else {
+        alreadyExpanded = [];
+        for (let toExpand of expandTheseNodes) {
+          if (this.treeComponent1) this.treeComponent1.expandNode(toExpand, toExpand.id);
+          if (this.treeComponent2) this.treeComponent2.expandNode(toExpand, toExpand.id);
+          if (this.treeComponent3) this.treeComponent3.expandNode(toExpand, toExpand.id);
+          alreadyExpanded.push(toExpand.id);
+        }
+      }
+      this.expandedKeys = alreadyExpanded;
     }
+    //scroll the node in view
+    if (document) {
+      //const rrs = this.reconcilingReviewSet;
+      //this.reconcilingReviewSet = null;
+      //setTimeout(() => {
+      //  this.reconcilingReviewSet = rrs;
+      //}, 1);
+
+      const attId = att.id;
+      setTimeout(() => {
+        const element = document.getElementById("attributeID-" +attId);
+        if (element) element.scrollIntoView(false);
+      }, 250);
+    }
+  }
 	public CodingWholeStudy(coding: ReconcilingCode[]): ReconcilingCode[] {
 		if (this.LoadPDFCoding && this.ReconcilingItem && this.ItemDocsService._itemDocs.length > 0 && this.ReconcilingItem.Item.itemId == this.ItemDocsService.CurrentItemId) {
 			for (let singleCoding of coding) {
