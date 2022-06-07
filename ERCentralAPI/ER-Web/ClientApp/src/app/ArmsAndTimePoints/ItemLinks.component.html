@@ -12,7 +12,7 @@
 		</button>
 		<button *ngIf="ItemLinks.length > 0" class="btn btn-outline-secondary btn-sm px-1 py-0 mb-1 mr-1 float-right" 
 				(click)="CreateLinkReport()">
-			Report&nbsp;<i class="fa fa-table"></i>
+			Report&nbsp;<span class="k-icon k-i-table k-icon-sm"></span>
 		</button>
 	</h5>
 	
@@ -93,7 +93,7 @@
 							<button (click)="ViewLinkedItemDetails(link)"
 									title="View linked Item details"
 									type="button" rounded="true" size="sm" class="btn btn-outline-success p-1 m-1">
-								<i class="fa fa-eye"></i>
+                                <span class="k-icon k-i-eye"></span>
 							</button>
 							<button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
 									[disabled]="!HasWriteRights" (click)="DeleteLink(link)">

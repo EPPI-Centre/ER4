@@ -16,7 +16,7 @@
      *ngIf="ItemDocsService._itemDocs && ItemDocsService._itemDocs.length > 0">
     <div class="col-12 p-0"><b>Documents:</b></div>
     <div class="col-12 p-0" style="max-height: 200px; overflow:auto;">
-        <table class="table table-bordered table-striped small " >
+        <table class="table table-bordered table-striped table-sm " >
             <thead>
                 <tr>
                     <th width="1" style="min-width:45px;">Id</th>
@@ -32,15 +32,15 @@
                     <td class="">{{ ItemDocument.title }}</td>
                     <td class="p-0 m-0 align-middle">
                         <button *ngIf="ShowViewButton && ItemDocument.extension.toLowerCase() == '.pdf'" 
-                                class="btn btn-outline-success btn-sm mr-1" title="View" 
+                                class="btn btn-outline-success btn-sm mr-1  px-1 py-0" title="View" 
                                 (click)="DownloadDoc(ItemDocument.itemDocumentId, true)">
-                            <i class="fa fa-eye"></i>
+                          <span class="k-icon k-i-eye"></span>
                         </button>
-                        <button class="btn btn-outline-info btn-sm p-1" (click)="DownloadDoc(ItemDocument.itemDocumentId, false)">
+                        <button class="btn btn-outline-info btn-sm px-1 py-0" (click)="DownloadDoc(ItemDocument.itemDocumentId, false)">
                             Download
                         </button>
-                        <button class="btn btn-outline-danger btn-sm ml-1" title="Delete" (click)="DeleteDoc(ItemDocument.itemDocumentId)">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        <button class="btn btn-outline-danger btn-sm ml-1 px-1 py-0" title="Delete" (click)="DeleteDoc(ItemDocument.itemDocumentId)">
+                          <span class="k-icon k-i-trash"></span>
                         </button>
                     </td>
                 </tr>

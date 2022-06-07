@@ -1,4 +1,4 @@
-﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowsingHistory"></HeaderComponent>
+<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowsingHistory"></HeaderComponent>
 
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
@@ -22,7 +22,7 @@
                         <i> {{_magAdminService.latestMAGName}} </i>
                     </h4>-->
                     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-                    <a class="btn btn-danger text-white align-content-centerp-2 m-2" (click)="ClearHistory()"> Clear all history <i class=" fa fa-trash "></i></a>
+                    <a class="btn btn-danger text-white align-content-centerp-2 m-2" (click)="ClearHistory()"> Clear all history <span class="k-icon k-i-trash"></span></a>
                     <div class="col-12 alert-secondary p-2 m-2 card" style="min-width:150px;max-height:70vh; overflow:auto;">
 
                         <table class="table table-sm  table-striped" >
@@ -43,7 +43,7 @@
                                     <td class="btn btn-sm btn-link mt-1" (click)="GoToUrl(i)">{{item.title}}</td>
                                     <td>{{item.dateBrowsed.toLocaleDateString(undefined, {  year: 'numeric', month: 'short', day: 'numeric' })}}</td>
                                     <td>{{item.dateBrowsed.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}}</td>
-                                    <td class=""><button class="btn-outline-danger" (click)="RemoveUrl(i)"><i class="fa fa-trash"></i></button></td>
+                                    <td class=""><button class="btn btn-sm btn-outline-danger" (click)="RemoveUrl(i)"><span class="k-icon k-i-trash"></span></button></td>
                                 </tr>
                             </tbody>
                         </table>

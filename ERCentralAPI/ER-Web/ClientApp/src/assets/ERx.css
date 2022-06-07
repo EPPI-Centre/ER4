@@ -169,7 +169,7 @@ ul.k-tabstrip-items li.k-item.k-state-active {
 }
 
 .recTree .k-treeview-leaf.k-selected {
-  color: white;
+  color: darkblue;
   background-color: rgb(190, 235, 255);
 }
 

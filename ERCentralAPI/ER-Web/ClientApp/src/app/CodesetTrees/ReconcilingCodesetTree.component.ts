@@ -555,7 +555,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
       msg += "You will copy the coding for the <strong class='border border-success text-success px-1 mb-1 rounded d-inline-block'>" + rc.Name + (rc.ArmID == 0 ? "" : " (Arm: " + rc.ArmName + ")")
         + "</strong> code, to the coding of <strong class='border border-info text-info px-1 mb-1 rounded d-inline-block'>"
         + destName + "</strong>. <br />";
-      msg += "<div class='m-1 p-1 alert-danger rounded'><i class='fa fa-warning'></i> This will (irreversibly) overwrite the coding (including Info box text) on the destination version (if any).</div>"
+      msg += "<div class='m-1 p-1 alert-danger rounded'><span class='k-icon k-i-warning mb-1'></span> This will (irreversibly) overwrite the coding (including Info box text) on the destination version (if any).</div>"
       this.ConfirmationDialogService.confirm(title, msg, false, "", "Copy coding", "Cancel", "lg").then(
         (res: any) => { if (res == true) this.DoTheTransfer(destId, node, rc, from); }
       );

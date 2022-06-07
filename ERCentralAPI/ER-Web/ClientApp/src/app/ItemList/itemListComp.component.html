@@ -160,81 +160,81 @@
             <kendo-grid-column field="rank" title="Score" width="68" [hidden]="!ShowScore">
             </kendo-grid-column>
         </kendo-grid>-->
-        <div style="overflow:auto;" [ngStyle]="{'max-height': Context === 'dedup' ? '45vh' : '80vh' }">
-            <table class="p-1 table table-sm table-striped ItemsTable" #exportItemsTable id="ItemsTable"
-                   *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
-                <thead>
-                    <tr style="">
-                        <th></th>
-                        <th class="pl-0 pr-0">
-                            <input class="m-1" style="zoom: 1.2;"
-                                   type="checkbox"
-                                   name="selectAll"
-                                   [(ngModel)]="allItemsSelected" />
-                        </th>
-                        <th class="pl-0 pr-0"><div> </div></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showId" (click)="ChangeSort('itemId')" style="cursor:pointer;">ID<span [innerHTML]="sortSymbol('itemId')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showImportedId" (click)="ChangeSort('oldItemId')" style="cursor:pointer;">Your ID<span [innerHTML]="sortSymbol('oldItemId')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showShortTitle" (click)="ChangeSort('shortTitle')" style="cursor:pointer;">Short title<span [innerHTML]="sortSymbol('shortTitle')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showAuthors" (click)="ChangeSort('authors')" style="cursor:pointer;">Authors<span [innerHTML]="sortSymbol('authors')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showTitle" (click)="ChangeSort('title')" style="cursor:pointer;">Title<span [innerHTML]="sortSymbol('title')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showYear" (click)="ChangeSort('year')" style="cursor:pointer;">Year<span [innerHTML]="sortSymbol('year')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showJournal" (click)="ChangeSort('parentTitle')" style="cursor:pointer;">Journal<span [innerHTML]="sortSymbol('parentTitle')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showDocType" (click)="ChangeSort('typeName')" style="cursor:pointer;">Ref. Type<span [innerHTML]="sortSymbol('typeName')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showInfo" (click)="ChangeSort('attributeAdditionalText')" style="cursor:pointer;">Info<span [innerHTML]="sortSymbol('attributeAdditionalText')"></span></th>
-                        <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showScore" (click)="ChangeSort('rank')" style="cursor:pointer;">Score<span [innerHTML]="sortSymbol('rank')"></span></th>
-                        <th class="pr-1"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let dataItem of this.ItemListService.ItemList.items"  [ngClass]="{'alert-primary font-weight-bold' : thisIsTheLastSelectedItem(dataItem)}">
-                        <td class=" ">
-                            <button class="btn btn-outline-primary btn-sm pb-0 pt-1 m-0" (click)="OpenItem(dataItem.itemId)">GO</button>
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)">
-                            <input type="checkbox" class="m-1" style="zoom: 1.2;"
-                                   [(ngModel)]="dataItem.isSelected" (click)="$event.stopPropagation()" />
-                        </td>
-                        <td class="pr-0 pl-0 bg-white" (click)="ItemRowClicked($event, dataItem)">
-                            <div class="mr-1 ml-1">
-                                {{dataItem.itemStatus}}
-                            </div>
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showId" title="Item ID">
-                            {{dataItem.itemId}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showImportedId" title="Your ID (Imported)">
-                            {{dataItem.oldItemId}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showShortTitle" title="Short Title">
-                            {{dataItem.shortTitle}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showAuthors" title="Authors">
-                            {{dataItem.authors}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showTitle" title="Title">
-                            {{dataItem.title}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showYear" title="Year">
-                            {{dataItem.year}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showJournal" title="Journal / Parent Title">
-                            {{dataItem.parentTitle}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showDocType" title="Reference Type">
-                            {{dataItem.typeName}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showInfo" title="InfoBox text (only when listing items with this code)">
-                            {{dataItem.attributeAdditionalText}}
-                        </td>
-                        <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showScore" title="Score (ML or text searches)">
-                            {{dataItem.rank}}
-                        </td>
-                        <td class="py-0"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div style="overflow:auto;" [ngStyle]="{'max-height': Context === 'dedup' ? '45vh' : '80vh' }">
+      <table class="p-1 table table-sm table-striped ItemsTable" #exportItemsTable id="ItemsTable"
+             *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
+        <thead>
+          <tr style="">
+            <th></th>
+            <th class="pl-0 pr-0">
+              <input class="m-1" style="zoom: 1.2;"
+                     type="checkbox"
+                     name="selectAll"
+                     [(ngModel)]="allItemsSelected" />
+            </th>
+            <th class="pl-0 pr-0"><div> </div></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showId" (click)="ChangeSort('itemId')" style="cursor:pointer;">ID<span [innerHTML]="sortSymbol('itemId')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showImportedId" (click)="ChangeSort('oldItemId')" style="cursor:pointer;">Your ID<span [innerHTML]="sortSymbol('oldItemId')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showShortTitle" (click)="ChangeSort('shortTitle')" style="cursor:pointer;">Short title<span [innerHTML]="sortSymbol('shortTitle')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showAuthors" (click)="ChangeSort('authors')" style="cursor:pointer;">Authors<span [innerHTML]="sortSymbol('authors')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showTitle" (click)="ChangeSort('title')" style="cursor:pointer;">Title<span [innerHTML]="sortSymbol('title')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showYear" (click)="ChangeSort('year')" style="cursor:pointer;">Year<span [innerHTML]="sortSymbol('year')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showJournal" (click)="ChangeSort('parentTitle')" style="cursor:pointer;">Journal<span [innerHTML]="sortSymbol('parentTitle')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showDocType" (click)="ChangeSort('typeName')" style="cursor:pointer;">Ref. Type<span [innerHTML]="sortSymbol('typeName')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showInfo" (click)="ChangeSort('attributeAdditionalText')" style="cursor:pointer;">Info<span [innerHTML]="sortSymbol('attributeAdditionalText')"></span></th>
+            <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showScore" (click)="ChangeSort('rank')" style="cursor:pointer;">Score<span [innerHTML]="sortSymbol('rank')"></span></th>
+            <th class="pr-1"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dataItem of this.ItemListService.ItemList.items" [ngClass]="{'alert-primary font-weight-bold' : thisIsTheLastSelectedItem(dataItem)}">
+            <td class=" ">
+              <button class="btn btn-outline-primary btn-sm pb-0 pt-1 m-0" (click)="OpenItem(dataItem.itemId)">GO</button>
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)">
+              <input type="checkbox" class="m-1" style="zoom: 1.2;"
+                     [(ngModel)]="dataItem.isSelected" (click)="$event.stopPropagation()" />
+            </td>
+            <td class="pr-0 pl-0 bg-white" (click)="ItemRowClicked($event, dataItem)">
+              <div class="mr-1 ml-1">
+                {{dataItem.itemStatus}}
+              </div>
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showId" title="Item ID">
+              {{dataItem.itemId}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showImportedId" title="Your ID (Imported)">
+              {{dataItem.oldItemId}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showShortTitle" title="Short Title">
+              {{dataItem.shortTitle}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showAuthors" title="Authors">
+              {{dataItem.authors}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showTitle" title="Title">
+              {{dataItem.title}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showYear" title="Year">
+              {{dataItem.year}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showJournal" title="Journal / Parent Title">
+              {{dataItem.parentTitle}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showDocType" title="Reference Type">
+              {{dataItem.typeName}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showInfo" title="InfoBox text (only when listing items with this code)">
+              {{dataItem.attributeAdditionalText}}
+            </td>
+            <td class="py-1" (click)="ItemRowClicked($event, dataItem)" [hidden]="!ItemListService.GetListItemOptions.showScore" title="Score (ML or text searches)">
+              {{dataItem.rank}}
+            </td>
+            <td class="py-0"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
         <div *ngIf="ItemListService && ItemListService.ItemList && ItemListService.IsBusy">Loading items...</div>
         <div *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length == 0 && !ItemListService.IsBusy"
              class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>

@@ -136,7 +136,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         )
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
-                this.tabstrip.selectTab(1);
+            this.SelectTab(1);
             }
         )
         this._eventEmitter.criteriaComparisonChange.subscribe(
@@ -162,7 +162,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         ) this.Reload();
 
     }
-
+  SelectTab(i: number) {
+    if (!this.tabstrip) return;
+    else {
+      let t = this.tabstrip.tabs.get(i);
+      if (!t) return;
+      let e = new SelectEvent(i, t.title);
+      this.tabstrip.selectTab(i);
+      this.onTabSelect(e);
+    }
+  }
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (this.reviewSetsService.IsBusy ||
@@ -614,7 +623,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.FreqXtabMapsComp.selectedNodeDataY = this.selectedNode;
             this.reportsShowWhat = 'AllFreq';
             this.FreqXtabMapsComp.fetchFrequencies(this.selectedNode, null);
-            this.tabstrip.selectTab(2);
+          this.SelectTab(2);
         }
     }
 
@@ -676,11 +685,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     CloseClusterCommand() {
         this.ShowClusterCommand = false;
     }
-    setTabSelected(tabSelect: SelectEvent) {
-		//nothing for now, selectEvent is like this:
-        //index: number
-        //title: string
-	}
+
 	BuildModel() {
 		this.router.navigate(['BuildModel']);
     }
@@ -716,7 +721,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         cr.sourceId = 0;
         cr.attributeSetIdList = CurrentAtt.attributeSetId.toString();
         this.ItemListService.FetchWithCrit(cr, ListDescription);
-        this.tabstrip.selectTab(1);
+      this.SelectTab(1);
         //this._eventEmitter.PleaseSelectItemsListTab.emit();
     }
     
@@ -919,7 +924,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 	IncludedItemsList() {
         this.IncludedItemsListNoTabChange();
-		this.tabstrip.selectTab(1);
+    this.SelectTab(1);
     }
     IncludedItemsListNoTabChange() {
         this.ItemListService.GetIncludedItems();
@@ -927,14 +932,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     ExcludedItemsList() {
         this.ItemListService.GetExcludedItems();
         console.log('selecting tab 2...');
-        this.tabstrip.selectTab(1);
+      this.SelectTab(1);
     }
     DeletedItemList() {
         this.ItemListService.GetDeletedItems();
-        this.tabstrip.selectTab(1);
+      this.SelectTab(1);
     }
 	GoToItemList() {
-		this.tabstrip.selectTab(1);
+    this.SelectTab(1);
 	}
     LoadContactWorkAllocList(workAlloc: WorkAllocation) {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsContactComp.ListSubType);

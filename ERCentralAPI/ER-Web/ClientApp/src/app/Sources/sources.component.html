@@ -45,7 +45,7 @@
                                     <div class="col-12 font-weight-bold py-1" >Source Stats:
                                     <button class="btn btn-outline-secondary btn-sm px-1 py-0 mb-1 mr-1 float-right"
                                         (click)="CreateSourceReport()">
-                                        Report&nbsp;<i class="fa fa-table"></i>
+                                        Report&nbsp;<span class="k-icon k-i-table k-icon-sm"></span>
                                     </button></div>
                                     <div class="col-12 small mb-1" style="top:0px;">
                                         <div class="row">
@@ -158,11 +158,11 @@
 
                             <td class="p-0 align-middle" width="30px">
                                 <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights || ROsource.isBeingDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source">
-                                    <i class="fa fa-undo"></i>
+                                  <span class="k-icon k-i-undo"></span>
                                 </button>
                                 <ng-template #optionToDelete>
                                     <button [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success" title="Mark this source as 'Deleted'">
-                                        <i class="fa fa-trash"></i>
+                                      <span class="k-icon k-i-trash"></span>
                                     </button>
                                 </ng-template>
                             </td>
@@ -172,7 +172,7 @@
                                      [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
                                      (click)="SelectSource(ROsource)">
                                     <s>{{ROsource.source_Name}}</s>
-                                    <i *ngIf="ROsource.isBeingDeleted" class="fa fa-trash-o ml-2" style="animation: oscillate 2s infinite; "></i>
+                                    <span *ngIf="ROsource.isBeingDeleted" class="k-icon k-i-trash ml-2" style="animation: oscillate 2s infinite; color:gray;"></span>
                                 </button>
                                 <ng-template #not_deleted>
                                     <div class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"

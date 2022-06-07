@@ -178,7 +178,16 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     // child is set
   }
-
+  SelectTab(i: number) {
+    if (!this.tabstrip) return;
+    else {
+      let t = this.tabstrip.tabs.get(i);
+      if (!t) return;
+      let e = new SelectEvent(i, t.title);
+      this.tabstrip.selectTab(i);
+      this.onTabSelect(e);
+    }
+  }
   onTabSelect(e: SelectEvent) {
 
     if (e.title == 'Item Details') {
@@ -210,7 +219,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       if (this.tabstrip) {
         console.log("CheckAndMoveToPDFTab3");
         await Helpers.Sleep(50);//we need to give the UI thread the time to catch up and "un-disable" the tab.
-        this.tabstrip.selectTab(1);
+        this.SelectTab(1);
       }
     }
   }
@@ -583,7 +592,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         if (!this.IsScreening && this.hasNext()) this.nextItem();
         else if (this.IsScreening) this.GetItem();//in screening mode, this uses the screening service to receive the next item
         if (this.tabstrip) {
-          this.tabstrip.selectTab(0);//in CodingOnly, we always go to ItemDetails whenever we move item...
+          this.SelectTab(0);//in CodingOnly, we always go to ItemDetails whenever we move item...
         }
       }
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
@@ -597,7 +606,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ItemChanged() {
-    if (this.tabstrip) this.tabstrip.selectTab(0);
+    if (this.tabstrip) this.SelectTab(0);
     this.WipeHighlights();
     this.SetHighlights();
   }

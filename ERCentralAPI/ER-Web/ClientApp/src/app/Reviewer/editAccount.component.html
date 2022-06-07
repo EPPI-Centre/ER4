@@ -108,7 +108,7 @@
             <td style="vertical-align: top; padding-bottom: 3px">
                 Leave the "new" password fields blank to keep your existing password.<br />
                 <button *ngIf="oldPassword.length !=0 || newPassword.length !=0 || confirmNewPassword.length !=0 " (click)="ShowPasswords = !ShowPasswords" class="btn btn-sm btn-primary">
-                    <i class="fa fa-eye"></i> Show passwords
+                  <span class="k-icon k-i-eye"></span> Show passwords
                 </button>
                 <br />
                 <b>Passwords</b> must be at least 8 characters and contain at least one lower case letter, one upper case letter, one digit and no spaces.<br />

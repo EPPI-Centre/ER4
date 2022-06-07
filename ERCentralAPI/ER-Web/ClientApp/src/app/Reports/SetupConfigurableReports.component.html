@@ -123,7 +123,7 @@
                                                 Col {{col.columnOrder + 1}}
                                                 <button class="btn btn-sm btn-outline-danger my-auto ml-1 px-1 py-0" (click)="DeleteColumn(col, EditingReport)" title="Delete column from report"
                                                         [disabled]="!HasWriteRights">
-                                                    <i class="fa fa-trash "></i>
+                                                  <span class="k-icon k-i-trash"></span>
                                                 </button>
                                             </div>
                                             <div class="mx-1 d-inline-block"><strong class="mr-1">{{ShortColumnName(col)}}</strong></div>
@@ -165,7 +165,7 @@
                     </button>
                     <button class="btn btn-sm btn-outline-danger ml-0 mr-1 my-1 px-1 py-0" (click)="DeleteReport(rpt)" title="Delete Report"
                             [disabled]="!HasWriteRights || (EditingReport != null && EditingReport.reportId == rpt.reportId)">
-                        <i class="fa fa-trash "></i>
+                      <span class="k-icon k-i-trash"></span>
                     </button>
                 </div>
             </div>
@@ -219,7 +219,7 @@
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0 ml-auto" (click)="DeleteColumnCode(code, EditingColumn)" title="Remove code from column"
                                                 [disabled]="!HasWriteRights">
-                                            <i class="fa fa-trash "></i>
+                                          <span class="k-icon k-i-trash"></span>
                                         </button>
                                     </div>
                                     <ng-template #EditingColCodeTemplate>

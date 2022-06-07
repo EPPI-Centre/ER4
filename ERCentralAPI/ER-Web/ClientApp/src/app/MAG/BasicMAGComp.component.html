@@ -258,7 +258,7 @@
                                     <td class="px-1 py-0 small" style="vertical-align:middle">
                                         {{item.userStatus == '' ? 'N/A' : item.userStatus }}
                                     </td>
-                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun(item)" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
+                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun(item)" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center"><span class="k-icon k-i-trash"></span></button></td>
                                     <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
                                     <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.nPapers}}</div></td>
 

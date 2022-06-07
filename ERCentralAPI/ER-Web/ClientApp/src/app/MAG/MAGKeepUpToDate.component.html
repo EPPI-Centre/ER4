@@ -174,7 +174,7 @@
                                 <td>{{task.attributeName}}</td>
                                 <td>
                                     <button (click)="DeleteAutoUpdate(task)" [disabled]="!HasWriteRights || AutoRefreshIsOn" title="Delete this task" class="btn btn-outline-danger btn-sm px-1 py-1">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                      <span class="k-icon k-i-trash"></span>
                                     </button>
                                 </td>
                             </tr>
@@ -219,7 +219,7 @@
                                 </td>
                                 <td>
                                     <button (click)="DeleteAutoUpdateRun(task)" title="Delete these task results" class="btn btn-outline-danger btn-sm px-1 py-1" [disabled]="!HasWriteRights  || AutoRefreshIsOn">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                      <span class="k-icon k-i-trash"></span>
                                     </button>
                                 </td>
                             </tr>

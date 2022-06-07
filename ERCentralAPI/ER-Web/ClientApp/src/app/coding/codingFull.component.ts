@@ -386,7 +386,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       if (this.tabstrip) {
         //console.log("CheckAndMoveToPDFTab3");
         await Helpers.Sleep(50);//we need to give the UI thread the time to catch up and "un-disable" the tab.
-        this.tabstrip.selectTab(2);
+        this.SelectTab(2);
       }
     }
   }
@@ -695,7 +695,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this.tabstrip) {
       if (this.HelpAndFeebackContext != "itemdetails\\Microsoft Academic") {
         //we don't want to change tab when we're in the MAG tab!
-        this.tabstrip.selectTab(0);
+        this.SelectTab(0);
         //alternative is to change tab only in case we're in the PDF tab, because in this case we really have to!
         //something like: if (this.HelpAndFeebackContext == "itemdetails\\pdf") this.tabstrip.selectTab(0);
       }
@@ -714,7 +714,16 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     else { console.log('Ouch'); }
   }
-  //public tabSelected: string = 'itemdetails';
+  SelectTab(i: number) {
+    if (!this.tabstrip) return;
+    else {
+      let t = this.tabstrip.tabs.get(i);
+      if (!t) return;
+      let e = new SelectEvent(i, t.title);
+      this.tabstrip.selectTab(i);
+      this.onTabSelect(e);
+    }
+  }
   onTabSelect(e: SelectEvent) {
 
     if (e.title == 'Item Details') {
