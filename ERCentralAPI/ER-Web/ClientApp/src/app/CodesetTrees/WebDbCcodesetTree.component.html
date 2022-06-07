@@ -5,21 +5,26 @@
 <div class="bg-light" *ngIf="nodes && nodes.length > 0 " [ngStyle]="{'max-height.px': MaxHeight}" style="overflow-y:auto;">
 	
     <div class="me">
-        <tree-root #tree class="bg-dark" *ngIf="nodes" [nodes]="nodes" [options]="options"
-                   (activate)="NodeSelected($event.node.data)" inert
-                   [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}">
-            <ng-template class="bg-warning" #treeNodeTemplate let-node let-index="index">
-                <span *ngIf="node.data.nodeType == 'ReviewSet'">
-                    <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                    <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                    <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
-                </span>
-                <span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
-                            'AdminSet' : node.data.subTypeName == 'Administration',
-                            'ExcludeCode' : node.data.subTypeName == 'Exclude'
-                            }">{{node.data.name}}</span>
-            </ng-template>
-        </tree-root>
+        <kendo-treeview *ngIf="nodes" [nodes]="nodes"
+                        class="bg-light text-wrap text-break"
+                        textField="name"
+                        [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}"
+                        (selectionChange)="NodeSelected($event)"
+                        kendoTreeViewExpandable
+                        kendoTreeViewHierarchyBinding
+                        childrenField="attributes">
+          <ng-template kendoTreeViewNodeTemplate let-data>
+            <span *ngIf="data.nodeType == 'ReviewSet'" class="mx-0">
+              <img *ngIf="data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+              <img *ngIf="!data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+            </span>
+            <span [ngClass]="{'ScreeningSet' : data.subTypeName == 'Screening',
+                            'AdminSet' : data.subTypeName == 'Administration',
+                            'ExcludeCode' : data.subTypeName == 'Exclude'}">
+              {{data.name}}
+            </span>
+          </ng-template>
+        </kendo-treeview>
         <div *ngIf="!CanChangeSelectedCode" style="position:absolute;top:0;z-index:1000; background-color:#d8d8e2;opacity:0.35; width:100%;height:100%"></div>
     </div>
 </div>

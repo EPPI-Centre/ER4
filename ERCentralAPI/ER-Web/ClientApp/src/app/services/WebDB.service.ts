@@ -68,7 +68,9 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             return this._CurrentSets;
         }
     }
-
+  public set CurrentSets(data: WebDbReviewSet[]) {
+    this._CurrentSets = data;
+  }
 
     private _CurrentMaps: iWebDBMap[] = [];
     public get CurrentMaps(): iWebDBMap[] {

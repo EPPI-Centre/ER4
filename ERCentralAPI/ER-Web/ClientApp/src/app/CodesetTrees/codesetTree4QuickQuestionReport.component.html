@@ -3,25 +3,32 @@
 <p *ngIf="(!nodes || nodes.length == 0) && !IsServiceBusy"><em>Review Contains no Coding Tools...</em></p>
 <!--style="max-height: 800px; height:680px"   ng-style="_eventEmitter.testVar == 'true' ? {'width':'250px'} : {'width':'500px'}"-->
 <div class="bg-light" *ngIf="nodes && nodes.length > 0 " [ngStyle]="{'max-height.px': MaxHeight}" style="overflow-y:auto;">
-	<tree-root class="bg-dark"  *ngIf="nodes" [nodes]="nodes" [options]="options">
-        <ng-template class="bg-warning" #treeNodeTemplate let-node let-index="index">
-            <span *ngIf="node.data.nodeType == 'ReviewSet'">
-                <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
-            </span>
-            <input class="m-1 " type="checkbox" id="attributeID-{{node.data.id}}"
-                   *ngIf="node.data.attributes.length > 0" (change)="CheckBoxClicked($event, node.data)" />
-            <span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
-                            'AdminSet' : node.data.subTypeName == 'Administration',
-                            'ExcludeCode' : node.data.subTypeName == 'Exclude'
-                            }">{{node.data.name}}</span>
-        </ng-template>
-	</tree-root>
+
+  <kendo-treeview [nodes]="nodes"
+                  class="bg-light text-wrap text-break"
+                  textField="name"
+                  kendoTreeViewExpandable
+                  kendoTreeViewHierarchyBinding
+                  childrenField="attributes">
+    <ng-template kendoTreeViewNodeTemplate let-data>
+      <span *ngIf="data.nodeType == 'ReviewSet'" class="mx-0">
+        <img *ngIf="data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+        <img *ngIf="!data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+        <img *ngIf="!data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
+      </span>
+      <input class="m-1 " type="checkbox" id="attributeID-{{data.id}}"
+             *ngIf="data.attributes.length > 0" (change)="CheckBoxClicked($event, data)" />
+      <span [ngClass]="{'ScreeningSet' : data.subTypeName == 'Screening',
+                            'AdminSet' : data.subTypeName == 'Administration',
+                            'ExcludeCode' : data.subTypeName == 'Exclude'}" class="mx-1">
+        {{data.name}}
+      </span>
+    </ng-template>
+  </kendo-treeview>
 </div>
 
 <!--<div class="mt-2" *ngIf="SelectedCodeDescription != ''">
-	<div class="card card-title mb-0 font-weight-bold">Code description:</div>
-	<div class="card card-body mt-0 p-1 bg-white" style="max-height:150px; overflow-y:scroll" [innerHTML]="SelectedCodeDescription">
-	</div>
+  <div class="card card-title mb-0 font-weight-bold">Code description:</div>
+  <div class="card card-body mt-0 p-1 bg-white" style="max-height:150px; overflow-y:scroll" [innerHTML]="SelectedCodeDescription">
+  </div>
 </div>-->
