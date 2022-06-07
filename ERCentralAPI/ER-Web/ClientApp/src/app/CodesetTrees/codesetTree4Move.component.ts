@@ -1,8 +1,7 @@
-import { Component, Inject, OnInit, Input, ViewChild, OnDestroy, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { singleNode, ReviewSet } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeComponent, TreeNode } from '@circlon/angular-tree-component';
 //import { ITreeNode } from '@circlon/angular-tree-component/
 import { singleNode4move, ReviewSet4Move } from '../services/ReviewSetsEditing.service';
 import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';

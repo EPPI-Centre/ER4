@@ -1,9 +1,7 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, Attribute } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, ItemSetCompleteCommand } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeComponent } from '@circlon/angular-tree-component';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 //import { ITreeNode } from 'angular-tree-component/dist/defs/api';
@@ -34,8 +32,6 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
 })
 export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   constructor(private router: Router,
-    private _httpC: HttpClient,
-    @Inject('BASE_URL') private _baseUrl: string,
     private ReviewerIdentityServ: ReviewerIdentityService,
     private ReviewSetsService: ReviewSetsService,
     private ItemCodingService: ItemCodingService,

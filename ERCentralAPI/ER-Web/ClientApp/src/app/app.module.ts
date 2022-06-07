@@ -20,7 +20,6 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
 
 import { NgChartsModule } from 'ng2-charts';
-import { TreeModule } from '@circlon/angular-tree-component';
 import { CKEditorModule } from 'ckeditor4-angular';
 
 import { AppComponent } from './app.component';
@@ -238,7 +237,6 @@ import { IconsModule } from '@progress/kendo-angular-icons';
     BrowserAnimationsModule,
     NgChartsModule,
     ReactiveFormsModule,
-    TreeModule,
     GridModule,
     ChartModule,
     DialogsModule,

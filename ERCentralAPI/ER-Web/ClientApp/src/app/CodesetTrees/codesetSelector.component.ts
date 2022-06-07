@@ -1,9 +1,7 @@
-import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, Output, Input, OnDestroy, AfterViewInit, EventEmitter } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, iSetType, SetAttribute } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeModel, TreeComponent, IActionMapping, TREE_ACTIONS, KEYS, TreeNode } from '@circlon/angular-tree-component';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { TreeItem } from '@progress/kendo-angular-treeview';
 
@@ -16,8 +14,6 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
 
 export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(private router: Router,
-    private _httpC: HttpClient,
-    @Inject('BASE_URL') private _baseUrl: string,
     private ReviewerIdentityServ: ReviewerIdentityService,
     private ReviewSetsService: ReviewSetsService,
     private _eventEmitterService: EventEmitterService

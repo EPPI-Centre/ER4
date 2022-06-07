@@ -25,7 +25,6 @@
     "@angular/platform-browser-dynamic": "~13.3.9",
     "@angular/platform-server": "^13.3.10",
     "@angular/router": "~13.3.9",
-    "@circlon/angular-tree-component": "^11.0.4",
     "@fortawesome/angular-fontawesome": "^0.10.2",
     "@fortawesome/fontawesome-svg-core": "^6.1.0",
     "@fortawesome/free-brands-svg-icons": "^6.1.0",
@@ -60,6 +59,7 @@
     "@progress/kendo-drawing": "^1.2.0",
     "@progress/kendo-file-saver": "^1.1.1",
     "@progress/kendo-licensing": "^1.0.2",
+    "@progress/kendo-svg-icons": "^0.1.2",
     "@progress/kendo-theme-bootstrap": "^5.4.1",
     "@progress/kendo-theme-default": "^5.0.0",
     "@types/file-saver": "^2.0.5",
@@ -88,8 +88,7 @@
     "source-map-loader": "^3.0.1",
     "ts-loader": "^9.3.0",
     "xlsx": "^0.18.5",
-    "zone.js": "~0.11.4",
-    "@progress/kendo-svg-icons": "^0.1.2"
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^13.3.7",
