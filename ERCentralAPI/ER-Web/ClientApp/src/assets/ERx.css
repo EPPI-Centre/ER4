@@ -172,6 +172,11 @@ ul.k-tabstrip-items li.k-item.k-state-active {
   color: white;
   background-color: rgb(180, 195, 255);
 }
+
+.k-icon-24 {
+  font-size: 24px; /* Sets icon size to 24px */
+}
+
 /*
     disable controls within a given element hack.
     see https://stackoverflow.com/questions/50385048/disable-all-button-and-links-in-a-div

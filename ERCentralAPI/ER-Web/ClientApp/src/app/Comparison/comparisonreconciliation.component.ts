@@ -9,6 +9,8 @@ import { ItemDocsService } from '../services/itemdocs.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+
 
 
 @Component({
@@ -76,6 +78,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
   public hidemearms: boolean[] = [];
   public hidemearmsTwo: boolean[] = [];
   public hidemearmsThree: boolean[] = [];
+  faArrowRight = faArrowRight;
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
