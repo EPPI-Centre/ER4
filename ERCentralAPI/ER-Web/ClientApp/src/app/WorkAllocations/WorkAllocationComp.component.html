@@ -254,15 +254,15 @@
                 Reviewers
             </h5>
 			<div style="max-height:400px;overflow:auto;">
-				<table class='card-body table table-striped bg-light' *ngIf="ShowAllocations && ContactWorkAllocations">
+				<table class='card-body table table-striped table-sm bg-light' *ngIf="ShowAllocations && ContactWorkAllocations">
 					<thead>
-						<tr class="small">
+						<tr class="">
 							<th>ID</th>
 							<th>Name</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="small" *ngFor="let member of Contacts; let i = index">
+						<tr class="" *ngFor="let member of Contacts; let i = index">
 							<td>{{ member.contactId }}</td>
 							<td>{{ member.contactName }}</td>
 						</tr>
@@ -327,10 +327,10 @@
                             }"
                             (pageChange)="pageChangeWA($event)"
                             class="mt-1">
-                    <kendo-grid-column [headerClass]="'small px-1 py-0 m-1 font-weight-bold'" [class]="'small px-1 py-0 m-1'"
+                    <kendo-grid-column [headerClass]="'px-1 py-0 m-1 font-weight-bold'" [class]="'px-1 py-0 m-1'"
                                        field="workAllocationId" title="Id" [width]="48">
                     </kendo-grid-column>
-                    <kendo-grid-column [headerClass]="'small px-1 py-0 m-1 font-weight-bold'" [class]="'small px-1 py-0 m-1'"
+                    <kendo-grid-column [headerClass]="'px-1 py-0 m-1 font-weight-bold'" [class]="'px-1 py-0 m-1'"
                                        field="contactName" title="Name" [width]="110">
                         <ng-template kendoGridCellTemplate let-dataItem>
                             <div class="p-0" [title]="'User ID: ' + dataItem.contactId">
@@ -338,13 +338,13 @@
                             </div>
                         </ng-template>
                     </kendo-grid-column>
-                    <kendo-grid-column [headerClass]="'small px-1 py-0 m-1 font-weight-bold'" [class]="'small px-1 py-0 m-1'"
+                    <kendo-grid-column [headerClass]="'px-1 py-0 m-1 font-weight-bold'" [class]="'px-1 py-0 m-1'"
                                        field="attributeName" title="Study Group" [width]="140">
                     </kendo-grid-column>
-                    <kendo-grid-column [headerClass]="'small px-1 py-0 m-1 font-weight-bold'" [class]="'small px-1 py-0 m-1'"
+                    <kendo-grid-column [headerClass]="'px-1 py-0 m-1 font-weight-bold'" [class]="'px-1 py-0 m-1'"
                                        field="setName" title="Codes to apply" [width]="140">
                     </kendo-grid-column>
-                    <kendo-grid-column [headerClass]="'small px-1 py-0 m-1 font-weight-bold'" [class]="'small px-1 py-0 m-1'"
+                    <kendo-grid-column [headerClass]="'px-1 py-0 m-1 font-weight-bold'" [class]="'px-1 py-0 m-1'"
                                        field="totalAllocation" title="Allocated" [width]="80">
                         <ng-template kendoGridCellTemplate let-dataItem>
                             <div class="p-0"
@@ -353,7 +353,7 @@
                             </div>
                         </ng-template>
                     </kendo-grid-column>
-                    <kendo-grid-column [headerClass]="'small px-1 py-0 m-1 font-weight-bold'" [class]="'small px-1 py-0 m-1'"
+                    <kendo-grid-column [headerClass]="'px-1 py-0 m-1 font-weight-bold'" [class]="'px-1 py-0 m-1'"
                                        field="totalStarted" title="Started" [width]="70">
                         <ng-template kendoGridCellTemplate let-dataItem>
                             <div class="p-0"
@@ -362,7 +362,7 @@
                             </div>
                         </ng-template>
                     </kendo-grid-column>
-                    <kendo-grid-column [headerClass]="'small px-1 py-0 m-1 font-weight-bold'" [class]="'small px-1 py-0 m-1'"
+                    <kendo-grid-column [headerClass]="'px-1 py-0 m-1 font-weight-bold'" [class]="'px-1 py-0 m-1'"
                                        field="totalRemaining" title="Remaining" [width]="80">
                         <ng-template kendoGridCellTemplate let-dataItem>
                             <div class="p-0"
@@ -371,7 +371,7 @@
                             </div>
                         </ng-template>
                     </kendo-grid-column>
-                    <kendo-grid-column [headerClass]="'small px-1 py-0 m-1 font-weight-bold'" [class]="'small p-0 m-1'"
+                    <kendo-grid-column [headerClass]="'px-1 py-0 m-1 font-weight-bold'" [class]="'small p-0 m-1'"
                                        [style]="{'max-width' : '60px' , 'width' : '60px' , 'min-width' : '60px' }"
                                        [sortable]="false" field="hitsNo" title=" " [width]="60">
                         <ng-template kendoGridCellTemplate let-dataItem>
