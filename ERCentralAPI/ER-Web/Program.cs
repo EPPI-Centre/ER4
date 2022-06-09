@@ -12,7 +12,18 @@ try
     //Apparently this gets automatically "swapped out" when we call UseSerilog(...)
     Log.Logger = new LoggerConfiguration().CreateBootstrapLogger();
     var builder = WebApplication.CreateBuilder(args);
-
+#if DEBUG
+    //we allow CORS from localhost *only* when debugging
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(
+            policy =>
+            {
+                policy.WithOrigins("http://localhost:4200")
+                .AllowAnyHeader().AllowAnyMethod().AllowCredentials(); 
+            });
+    });
+#endif
     //add the file logger
     string loggerfilename = CreateLogFileName();
     //Silly Microsoft does not provide a log-to-file facility, so have to go for Serilog...
@@ -61,7 +72,6 @@ try
     //the following command could be used to log "streamlined request data", whatever that means... Disabled for now, could be useful if we could use it to log request data along with exceptions.
     //app.UseSerilogRequestLogging();
     
-    app.UseAuthentication();
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
     {
@@ -81,15 +91,20 @@ try
     {
         ContentTypeProvider = provider
     });
-    app.UseRouting();
-
-    app.UseAuthorization();
-
     app.MapControllerRoute(
         name: "default",
         pattern: "{controller}/{action=Index}/{id?}");
 
     app.MapFallbackToFile("index.html");
+    app.UseRouting();
+#if DEBUG
+    app.UseCors();
+#endif
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    
 
     app.Run();
 }
