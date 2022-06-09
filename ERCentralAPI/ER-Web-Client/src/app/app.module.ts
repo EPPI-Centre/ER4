@@ -129,19 +129,22 @@ import { map, catchError } from 'rxjs/operators';
 
 
 function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>) {
+  //see: https://davembush.github.io/where-to-store-angular-configurations/
   return (): Promise<boolean> => {
     return new Promise<boolean>((resolve: (a: boolean) => void): void => {
-      http.get('./assets/APIUrl.json')
+      let fallback = 'https://eppi.ioe.ac.uk/ER-Web-API/';
+      http.get('./assets/APIUrl.txt')
         .pipe(
           map((x: any) => {
-            config.baseUrl = x.APIBaseUrl + "/";
+            if (x && x.APIBaseUrl) config.baseUrl = x.APIBaseUrl + "/";
+            else config.baseUrl = fallback;
             resolve(true);
           }),
           catchError((x: { status: number }, caught: Observable<void>): ObservableInput<{}> => {
             if (x.status !== 404) {
               resolve(false);
             }
-            config.baseUrl = 'http://localhost:8080/api';
+            config.baseUrl = fallback ;
             resolve(true);
             return of({});
           })

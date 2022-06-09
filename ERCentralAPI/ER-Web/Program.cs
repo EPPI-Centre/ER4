@@ -14,15 +14,19 @@ try
     var builder = WebApplication.CreateBuilder(args);
 #if DEBUG
     //we allow CORS from localhost *only* when debugging
-    builder.Services.AddCors(options =>
+    var clientURL = builder.Configuration["AppSettings:clientURL"];
+    if (clientURL != null)
     {
-        options.AddDefaultPolicy(
-            policy =>
-            {
-                policy.WithOrigins("http://localhost:4200")
-                .AllowAnyHeader().AllowAnyMethod().AllowCredentials(); 
-            });
-    });
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                policy =>
+                {
+                    policy.WithOrigins(clientURL)
+                    .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                });
+        });
+    }
 #endif
     //add the file logger
     string loggerfilename = CreateLogFileName();
