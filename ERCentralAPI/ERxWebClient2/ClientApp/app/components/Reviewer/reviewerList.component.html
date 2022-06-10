@@ -1,0 +1,63 @@
+<div class="m-1" style="max-height: 350px; overflow-y:scroll;">
+    <div>
+        <b>Review members</b>
+        <button class="btn btn-primary btn-sm px-1 py-0 mb-1 mr-1 float-right"
+                (click)="ExpandAddReviewer()">
+            Add reviewer
+        </button>
+    </div>
+    <div *ngIf="isAddReviewerExpanded" class="pt-2 pb-2">
+        <div class="container col-12 pr-0 pl-0 border border-dark rounded bg-light" style="overflow:auto;">
+            <table style="width:100%">
+                <tr>
+                    <td style="min-width: 150px; padding-left: 10px; padding-top: 10px; padding-right: 10px">
+                        <input class="mb-1 w-100" type="text" style="width:99%"
+                               id="enterEmail" name="EnterEmail" placeholder="Enter reviewer email" required
+                               [(ngModel)]="reviewerEmail" />
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-left:10px">
+
+                        <button [disabled]="!CanInviteReviewer()" (click)="InviteReviewer()"
+                                class="btn btn-primary m-1">
+                            Invite
+                        </button>
+                        <button (click)="CloseInviteReviewer()" class="btn btn-outline-info m-1">Cancel</button>
+                        <br />
+                        Enter a reviewer's email address and click <b>Invite</b>.<br />
+                        If the account is valid it will be placed in the review and an email sent to the account holder.
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <table class="table-striped table table-bordered small">
+        <tbody>
+            <tr>
+                <th class="p-0" style="min-width:80px">Name</th>
+                <th class="p-0" width="50">Email</th>
+                <th class="p-0" width="60">Expiry</th>
+                <th class="p-0" style="min-width:70px">Role</th>
+                <th class="p-0" width="30"></th>
+            </tr>
+            <tr *ngFor="let member of Contacts; let i = index" class="p-0">
+                <td class="p-1 align-middle ">{{member.contactName}}</td>
+                <td class="p-1 align-middle ">{{member.email}}</td>
+                <td [ngStyle]="{'background-color':member.isExpired == 1 ? '#dc3545' : '#28a745'}" style="color:white;" class="p-1 align-middle ">{{member.expiry}}</td>
+                <td class="p-1 align-middle ">
+                    <select #AllocateOptionsDropDown class="form-control" name="RoleOptions"
+                            style="min-width: 60px" (change)="SetRelevantDropDownValues($event.target.value, member)">
+                        <option *ngFor="let item of RoleOptions" [value]="item.key"
+                                [selected]="item.value == member.role">
+                            {{item.value}}
+                        </option>
+                    </select>
+                </td>
+                <td class="p-1 align-middle" width="30px">
+                    <button (click)="RemoveReviewer(member)" class="btn btn-sm btn-success" title="Remove from review"><i class="fa fa-trash"></i></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -106,6 +106,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> RoleProperty = RegisterProperty<string>(new PropertyInfo<string>("role", "role"));
+        public string Role
+        {
+            get
+            {
+                return GetProperty(RoleProperty);
+            }
+            set
+            {
+                SetProperty(RoleProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<string> OldPasswordProperty = RegisterProperty<string>(new PropertyInfo<string>("OldPassword", "OldPassword"));
         public string OldPassword
         {
@@ -132,6 +145,28 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+
+        public static readonly PropertyInfo<string> ExpiryProperty = RegisterProperty<string>(new PropertyInfo<string>("expiry", "expiry"));
+        public string Expiry
+        {
+            get
+            {
+                return GetProperty(ExpiryProperty);
+            }
+            set
+            {
+                SetProperty(ExpiryProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> IsExpiredProperty = RegisterProperty<int>(new PropertyInfo<int>("isExpired", "isExpired"));
+        public int IsExpired
+        {
+            get
+            {
+                return GetProperty(IsExpiredProperty);
+            }
+        }
 
         public static readonly PropertyInfo<Int64> ResultProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("Result", "Result"));
         public Int64 Result
@@ -289,6 +324,10 @@ namespace BusinessLibrary.BusinessClasses
             Contact returnValue = new Contact();
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<string>(contactNameProperty, reader.GetString("CONTACT_NAME"));
+            returnValue.LoadProperty<string>(EmailProperty, reader.GetString("EMAIL"));
+            returnValue.LoadProperty<string>(ExpiryProperty, reader.GetString("EXPIRY_DATE"));
+            returnValue.LoadProperty<string>(RoleProperty, reader.GetString("ROLE_NAME"));
+            returnValue.LoadProperty<int>(IsExpiredProperty, reader.GetInt32("IS_EXPIRED"));
             returnValue.MarkOld();
             return returnValue;
         }

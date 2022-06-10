@@ -20,6 +20,9 @@ using Newtonsoft.Json;
 using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla.Core;
 
+
+
+
 namespace ERxWebClient2.Controllers
 {
     [Authorize]
@@ -108,6 +111,75 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [HttpPost("[action]")]
+        public IActionResult UpdateReviewerRole([FromBody] JSONAccount data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewMembers res = new ReviewMembers(data.role, data.contactId);
+                    res = res.Save();
+                    return Ok(res.Result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Contact data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+
+        [HttpPost("[action]")]
+        public IActionResult AddReviewer([FromBody] SingleStringCriteria data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewMembers res = new ReviewMembers(data.Value);
+                    res = res.Save();
+                    return Ok(res.ResultValue);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Contact data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+        [HttpPost("[action]")]
+        public IActionResult RemoveReviewer([FromBody] SingleStringCriteria data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    //ReviewMembers res = new ReviewMembers(data.Value);
+                    ReviewMembers res = DataPortal.Fetch<ReviewMembers>(new SingleCriteria<ReviewMembers, string>(data.Value));
+                    res.Delete();
+                    res = res.Save();
+                    return Ok(res.Result);
+                    //return Ok(0);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Contact data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+
+
     }
 
 
@@ -125,6 +197,8 @@ public class JSONAccount
     public string email = "";
     public string OldPassword = "";
     public string NewPassword = "";
+
+    public string role = "";
 }
 
 
