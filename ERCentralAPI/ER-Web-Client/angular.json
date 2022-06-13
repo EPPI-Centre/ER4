@@ -26,7 +26,7 @@
               "src/assets/lib/ui/build/index.html",
               "src/favicon.ico",
               "src/assets",
-              "src/assets/lib/ui/build/a.html"
+              "src/web.config"
             ],
             "styles": [
               {
@@ -47,8 +47,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "5.5mb",
+                  "maximumError": "7mb"
                 },
                 {
                   "type": "anyComponentStyle",
