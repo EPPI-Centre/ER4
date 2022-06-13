@@ -113,5 +113,8 @@
       }
     }
   },
-  "defaultProject": "ER-Web_Client"
+  "defaultProject": "ER-Web_Client",
+  "cli": {
+    "analytics": false
+  }
 }
