@@ -47,13 +47,20 @@ import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.se
                 .ReviewsBg {
                     background-color:#f1f1f8 !important; 
                 }
-                .vertical-text {
-                    position: absolute;
-                    top: 50%;
-                    z-index:1002;
-                    transform: rotate(90deg);
-                    right: -1.75em;
+                .CodesBtn {
+                    position: fixed;
+                    top: 45%;
+                    z-index:999;
+                    right: 0.05em;
                     float: right;
+                }
+                .CodesBtnContent {
+                    writing-mode: vertical-lr;
+                    font-size:0.9rem;
+                }
+                .CodesBtnContent span {
+                    margin-left: -10px;
+                    font-size:18px;
                 }
 
         `]
@@ -61,7 +68,7 @@ import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.se
 
 })
 export class MainFullReviewComponent implements OnInit, OnDestroy {
-
+  
 	
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,

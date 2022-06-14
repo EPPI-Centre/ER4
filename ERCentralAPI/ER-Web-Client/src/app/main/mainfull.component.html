@@ -215,18 +215,18 @@
                         </ng-template>
                     </kendo-tabstrip-tab>                    
                 </kendo-tabstrip>
-                    <button *ngIf="!CodesAreCollapsed" class="btn btn-success p-1 vertical-text" style="top:35%" (click)="ShowHideCodes()">
-                        <div class="small">
-                          <span class="k-icon k-i-arrow-end-up" ></span>
+                    <button *ngIf="!CodesAreCollapsed" class="btn btn-success p-1 CodesBtn"  (click)="ShowHideCodes()">
+                        <div class="CodesBtnContent ">
+                          <span class="k-icon k-i-arrow-right" ></span>
                           Codes
-                          <span class="k-icon k-i-arrow-end-up" ></span>
+                          <span class="k-icon k-i-arrow-right" ></span>
                         </div>
                     </button>
-                    <button *ngIf="CodesAreCollapsed" class="btn btn-success p-1 vertical-text" style="top:35%" (click)="ShowHideCodes()">
-                      <div class="small">
-                        <span class="k-icon k-i-arrow-end-down" ></span>
+                    <button *ngIf="CodesAreCollapsed" class="btn btn-success p-1 CodesBtn"  (click)="ShowHideCodes()">
+                      <div class="CodesBtnContent ">
+                        <span class="k-icon k-i-arrow-left" ></span>
                         Codes
-                        <span class="k-icon k-i-arrow-end-down" ></span>
+                        <span class="k-icon k-i-arrow-left" ></span>
                       </div>
                     </button>
                 </kendo-splitter-pane>

@@ -76,10 +76,9 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         return this.ReviewerIdentityServ.reviewerIdentity.daysLeftReview;
     }
     onLogin(u: string, p:string) {
-
         this.ReviewerIdentityServ.LoginReq(u, p);
-        
-    };
+  }
+
     subOpeningReview: Subscription | null = null;
     ngOnInit() {
 

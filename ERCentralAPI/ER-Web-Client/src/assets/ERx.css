@@ -161,8 +161,11 @@ ul.k-tabstrip-items li.k-item.k-state-active {
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
 }
+.k-loading-image {
+    z-index:19;
+}
 .brightSwitch .k-switch-label-off {
-    color: orange;
+  color: orange;
 }
 .brightSwitch .k-switch-off .k-switch-handle{
     background-color:orange;
