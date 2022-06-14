@@ -6,6 +6,7 @@ using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EPPIDataServices.Helpers;
+using BusinessLibrary.Security;
 
 namespace ERxWebClient2.Controllers
 {
@@ -84,6 +85,10 @@ namespace ERxWebClient2.Controllers
                 if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
                 ItemDuplicateGroup result = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.Value));
+                if (Csla.ApplicationContext.User.Identity as ReviewerIdentity == null)
+                {
+                    return StatusCode(500, "ah!");
+                }
                 return Ok(result);
             }
             catch (Exception e)

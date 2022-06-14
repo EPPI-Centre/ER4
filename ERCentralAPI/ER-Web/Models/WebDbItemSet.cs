@@ -204,7 +204,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void AddBusinessRules()
         {
-            BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
+            //BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
         }
 
 #if !SILVERLIGHT

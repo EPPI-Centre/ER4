@@ -57,24 +57,24 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Data\FullTextSearch.cs" Link="Models\FullTextSearch.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CredentialsCriteria.cs" Link="Models\Security\CredentialsCriteria.cs" />
-    <Compile Include="..\ERxWebClient2\Controllers\AbstractClasses\CSLAController.cs" Link="Controllers\AbstractClasses\CSLAController.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDB.cs" Link="Models\WebDB.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeChildFrequency.cs" Link="Models\WebDbItemAttributeChildFrequency.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeChildFrequencyList.cs" Link="Models\WebDbItemAttributeChildFrequencyList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstab.cs" Link="Models\WebDbItemAttributeCrosstab.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstabList.cs" Link="Models\WebDbItemAttributeCrosstabList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemSet.cs" Link="Models\WebDbItemSet.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemSetList.cs" Link="Models\WebDbItemSetList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbMap.cs" Link="Models\WebDbMap.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbMapList.cs" Link="Models\WebDbMapList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbReadOnlyItemAttributeList.cs" Link="Models\WebDbReadOnlyItemAttributeList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbReviewSet.cs" Link="Models\WebDbReviewSet.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbReviewSetsList.cs" Link="Models\WebDbReviewSetsList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDBsList.cs" Link="Models\WebDBsList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbYearFrequency.cs" Link="Models\WebDbYearFrequency.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbYearFrequencyList.cs" Link="Models\WebDbYearFrequencyList.cs" />
-    <Compile Include="..\ERxWebClient2\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
-    <Compile Include="..\ERxWebClient2\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
+    <Compile Include="..\ER-Web\Controllers\AbstractClasses\CSLAController.cs" Link="Controllers\AbstractClasses\CSLAController.cs" />
+    <Compile Include="..\ER-Web\Models\WebDB.cs" Link="Models\WebDB.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemAttributeChildFrequency.cs" Link="Models\WebDbItemAttributeChildFrequency.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemAttributeChildFrequencyList.cs" Link="Models\WebDbItemAttributeChildFrequencyList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemAttributeCrosstab.cs" Link="Models\WebDbItemAttributeCrosstab.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemAttributeCrosstabList.cs" Link="Models\WebDbItemAttributeCrosstabList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemSet.cs" Link="Models\WebDbItemSet.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemSetList.cs" Link="Models\WebDbItemSetList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbMap.cs" Link="Models\WebDbMap.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbMapList.cs" Link="Models\WebDbMapList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbReadOnlyItemAttributeList.cs" Link="Models\WebDbReadOnlyItemAttributeList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbReviewSet.cs" Link="Models\WebDbReviewSet.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbReviewSetsList.cs" Link="Models\WebDbReviewSetsList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDBsList.cs" Link="Models\WebDBsList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbYearFrequency.cs" Link="Models\WebDbYearFrequency.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbYearFrequencyList.cs" Link="Models\WebDbYearFrequencyList.cs" />
+    <Compile Include="..\ER-Web\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
+    <Compile Include="..\ER-Web\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.12.0" />

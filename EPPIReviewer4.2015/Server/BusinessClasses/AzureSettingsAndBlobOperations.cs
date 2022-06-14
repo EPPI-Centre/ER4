@@ -83,6 +83,14 @@ namespace BusinessLibrary.BusinessClasses
         }
 #else
         private static NameValueCollection _AllAppSettings;
+        private static NameValueCollection AppSettings
+        {
+            get
+            {
+                if (_AllAppSettings == null) _AllAppSettings = ConfigurationManager.AppSettings;
+                return _AllAppSettings;
+            }
+        }
         private static NameValueCollection AzureContReviewSettings
         {
             get

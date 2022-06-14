@@ -99,7 +99,7 @@ namespace BusinessLibrary.BusinessClasses
 #else
                     //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
                     HostingEnvironment.QueueBackgroundWorkItem(cancellationToken =>
-                        doMatchItems(ri.ReviewId, MagLogId, Convert.ToInt32(configuration["MagMatchItemsMaxThreadCount"]), cancellationToken));
+                        doMatchItems(ri.ReviewId, MagLogId, int.Parse(AzureSettings.MagMatchItemsMaxThreadCount), cancellationToken));
 #endif
                 }
             }

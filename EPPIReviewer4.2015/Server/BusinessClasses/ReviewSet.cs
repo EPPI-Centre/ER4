@@ -332,6 +332,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<bool> AllowCodingEditsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowCodingEdits", "Allow coding edits", false));
+        public static readonly PropertyInfo<bool> UserCanEditProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UserCanEdit", "UserCanEdit", false));
 #if (CSLA_NETCORE)
         [JsonProperty]
 #endif
@@ -339,10 +340,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-
-                return GetProperty(AllowCodingEditsProperty)&& 
-                    Csla.Rules.BusinessRules.HasPermission( AuthorizationActions.EditObject, this);
-                //&& Csla.Security.AuthorizationRules.CanEditObject(this.GetType());
+                return GetProperty(AllowCodingEditsProperty) && GetProperty(UserCanEditProperty);
+                //return GetProperty(AllowCodingEditsProperty)&& 
+                //    Csla.Rules.BusinessRules.HasPermission( AuthorizationActions.EditObject, this);
+                ////&& Csla.Security.AuthorizationRules.CanEditObject(this.GetType());
             }
             set
             {
@@ -573,7 +574,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemSetIsLockedProperty, value);
                 foreach (AttributeSet attributeSet in this.Attributes)
                 {
-                    attributeSet.IsLocked = value;
+                    attributeSet.IsLocked = ItemSetIsLocked;
                 }
             }
         }
@@ -657,7 +658,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void AddBusinessRules()
         {
-            BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
+            //BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.MaxValue<decimal>, new Csla.Validation.CommonRules.MaxValueRuleArgs<decimal>(ReviewCodeSetFte1Property, 1));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.StringRequired, new Csla.Validation.RuleArgs(ReviewCodeSetNameProperty));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.StringMaxLength, new Csla.Validation.CommonRules.MaxLengthRuleArgs(ReviewCodeSetNameProperty, 20));
@@ -775,6 +776,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
             returnValue.LoadProperty<bool>(AllowCodingEditsProperty, reader.GetBoolean("ALLOW_CODING_EDITS"));
+            returnValue.LoadProperty<bool>(UserCanEditProperty, (ApplicationContext.User.Identity as ReviewerIdentity).HasWriteRights());
             returnValue.LoadProperty<bool>(CodingIsFinalProperty, reader.GetBoolean("CODING_IS_FINAL"));
             returnValue.LoadProperty<int>(SetTypeIdProperty, reader.GetInt32("SET_TYPE_ID"));
             returnValue.LoadProperty<int>(SetOrderProperty, reader.GetInt32("SET_ORDER"));
@@ -797,6 +799,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(OriginalSetIdProperty, originalSetID);
             returnValue.LoadProperty<int>(ReviewIdProperty, RevID);
             returnValue.LoadProperty<bool>(AllowCodingEditsProperty, allowCodingEdits);
+            returnValue.LoadProperty<bool>(UserCanEditProperty, allowCodingEdits);
             returnValue.LoadProperty<bool>(CodingIsFinalProperty, codingIsFinal);
             returnValue.LoadProperty<int>(SetTypeIdProperty, setTypeID);
             returnValue.LoadProperty<int>(SetOrderProperty, setOrder);
@@ -832,6 +835,7 @@ namespace BusinessLibrary.BusinessClasses
                             returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
                             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
                             returnValue.LoadProperty<bool>(AllowCodingEditsProperty, reader.GetBoolean("ALLOW_CODING_EDITS"));
+                            returnValue.LoadProperty<bool>(UserCanEditProperty, (ApplicationContext.User.Identity as ReviewerIdentity).HasWriteRights());
                             returnValue.LoadProperty<bool>(CodingIsFinalProperty, reader.GetBoolean("CODING_IS_FINAL"));
                             returnValue.LoadProperty<int>(SetTypeIdProperty, reader.GetInt32("SET_TYPE_ID"));
                             returnValue.LoadProperty<int>(SetOrderProperty, reader.GetInt32("SET_ORDER"));

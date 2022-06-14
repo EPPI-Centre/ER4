@@ -162,6 +162,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked", true));
+        public static readonly PropertyInfo<bool> UserCanEditProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UserCanEditProperty", "UserCanEditProperty", true));
 #if (CSLA_NETCORE)
         [JsonProperty]
 #endif
@@ -169,9 +170,11 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return GetProperty(IsLockedProperty)||  
-                    !Csla.Rules.BusinessRules.HasPermission( AuthorizationActions.EditObject, this);
-                //| !Csla.Security.AuthorizationRules.CanEditObject(this.GetType());
+                return GetProperty(IsLockedProperty) || !GetProperty(UserCanEditProperty);
+                
+                //return GetProperty(IsLockedProperty) ||
+                //    !Csla.Rules.BusinessRules.HasPermission(AuthorizationActions.EditObject, this);
+                ////| !Csla.Security.AuthorizationRules.CanEditObject(this.GetType());
             }
             set
             {
@@ -276,7 +279,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void AddBusinessRules()
         {
-            BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
+            //BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.MaxValue<decimal>, new Csla.Validation.CommonRules.MaxValueRuleArgs<decimal>(ReviewCodeSetFte1Property, 1));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.StringRequired, new Csla.Validation.RuleArgs(ReviewCodeSetNameProperty));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.StringMaxLength, new Csla.Validation.CommonRules.MaxLengthRuleArgs(ReviewCodeSetNameProperty, 20));
@@ -384,6 +387,7 @@ namespace BusinessLibrary.BusinessClasses
                             this.LoadProperty<Int64>(ItemSetIdProperty, reader.GetInt64("ITEM_SET_ID"));
                             this.LoadProperty<bool>(IsCompletedProperty, reader.GetBoolean("IS_COMPLETED"));
                             this.LoadProperty<bool>(IsLockedProperty, reader.GetBoolean("IS_LOCKED"));
+                            this.LoadProperty<bool>(UserCanEditProperty, ri.HasWriteRights());
                             this.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
                             this.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
                             this.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
@@ -394,6 +398,7 @@ namespace BusinessLibrary.BusinessClasses
                         else
                         {//make sure the item_set is not marked as locked if there is no coding for this item
                             this.LoadProperty<bool>(IsLockedProperty, false);
+                            this.LoadProperty<bool>(UserCanEditProperty, ri.HasWriteRights());
                         }
                         //even if the query returned 0 rows (item doesn't have codes for this set), on client we need this set to have setid and itemid
                         this.LoadProperty<Int64>(ItemIdProperty, Criteria.ItemId);
@@ -413,6 +418,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(ItemIdProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<bool>(IsCompletedProperty, reader.GetBoolean("IS_COMPLETED"));
             returnValue.LoadProperty<bool>(IsLockedProperty, reader.GetBoolean("IS_LOCKED"));
+            returnValue.LoadProperty<bool>(UserCanEditProperty, (Csla.ApplicationContext.User.Identity as ReviewerIdentity).HasWriteRights());
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
             returnValue.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));

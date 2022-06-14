@@ -70,7 +70,12 @@ try
             ValidAudience = builder.Configuration["AppSettings:EPPIApiClientName"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:EPPIApiClientSecret"]))
         };
+        options.SaveToken = true;
     });
+    //builder.Services.AddAuthorization(opt =>
+    //{
+    //    opt.
+    //});
     var app = builder.Build();
 
     //the following command could be used to log "streamlined request data", whatever that means... Disabled for now, could be useful if we could use it to log request data along with exceptions.

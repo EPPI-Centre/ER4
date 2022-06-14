@@ -570,16 +570,15 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked", false));
+        public static readonly PropertyInfo<bool> UserCanEditProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UserCanEdit", "UserCanEdit", false));
         public bool IsLocked
         {
             get
             {
 #if SILVERLIGHT
-                return GetProperty(IsLockedProperty)|| IsInArmContext ||
-                    !Csla.Rules.BusinessRules.HasPermission( AuthorizationActions.EditObject, this); 
+                return GetProperty(IsLockedProperty)|| IsInArmContext || GetProperty(UserCanEditProperty);
 #else
-                return GetProperty(IsLockedProperty) ||
-                    !Csla.Rules.BusinessRules.HasPermission(AuthorizationActions.EditObject, this);
+                return GetProperty(IsLockedProperty) || GetProperty(UserCanEditProperty);
 #endif
                 
             }
@@ -741,7 +740,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void AddBusinessRules()
         {
-            BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
+            //BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.MaxValue<decimal>, new Csla.Validation.CommonRules.MaxValueRuleArgs<decimal>(ReviewCodeSetFte1Property, 1));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.StringRequired, new Csla.Validation.RuleArgs(ReviewCodeSetNameProperty));
             //ValidationRules.AddRule(Csla.Validation.CommonRules.StringMaxLength, new Csla.Validation.CommonRules.MaxLengthRuleArgs(ReviewCodeSetNameProperty, 20));
