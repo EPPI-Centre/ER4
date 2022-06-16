@@ -7,6 +7,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+    <PropertyGroup>
+        <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+        <ThreadPoolMinThreads>20</ThreadPoolMinThreads>
+        <ThreadPoolMaxThreads>20</ThreadPoolMaxThreads>
+    </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants)TRACE;CSLA_NETCORE</DefineConstants>
   </PropertyGroup>
