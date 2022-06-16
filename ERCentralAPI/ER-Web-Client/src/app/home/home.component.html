@@ -28,32 +28,37 @@
         </table>
       </div>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-9">
       <div class="form-horizontal" role="form">
         <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
-          <div class="form-group row m-1 p-0">
-            <label class="col-sm-2 control-label" for="tbTFullNameReg">Username:</label>
+          <div class="form-group row m-0 p-1">
+            <label class="col-12 col-sm-2 control-label text-left text-sm-right px-1 my-auto" for="tbTFullNameReg">Username:</label>
             <div class="col-sm-7">
               <input #c_name name="username" required class="form-control" ngModel>
             </div>
-            <div *ngIf="ShowUsernameRequired" class=" m-1">
-              <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
+            <div *ngIf="ShowUsernameRequired" class="col-12 col-sm-3 m-0 p-1">
+              <div class="badge badge-warning ml-1 pt-1 "><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
             </div>
           </div>
           <div class="form-group row m-1 p-0">
-            <label class="col-sm-2 control-label" for="tbTFullNameReg">Password:</label>
+            <label class="col-12 col-sm-2 control-label text-left text-sm-right px-1 my-auto" for="tbTFullNameReg">Password:</label>
             <div class="col-sm-7">
               <input #c_password type="password" required class="form-control" name="password" ngModel>
             </div>
-            <div *ngIf="ShowPasswordRequired" class=" m-1">
-              <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Password Required (or too short)!</span></div>
+            <div *ngIf="ShowPasswordRequired" class="col-12 col-sm-3 m-0 p-1">
+              <div class="badge badge-warning ml-1 pt-1 mx-1 pt-1 text-wrap"><span class="ml-1 mt-1 mr-1">Password Required (or too short)</span></div>
             </div>
           </div>
           <div class="form-group row m-1 p-0 align-content-center ">
-            <div class="col mx-1"><input type="submit" value="Login" class="btn btn-primary m-1" /></div>
-            <div class="col-auto mx-1"><a class="mt-2 col" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Forgot Password?</a></div>
-            <div *ngIf="ShowLoginFailed" class="col m-2">
-              <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div>
+            <div class="col-4 col-sm-2 text-right ">
+              <input type="submit" value="Login" class="btn btn-primary m-1" [disabled]="IsBusy" />
+            </div>
+            <div class="col-4 col-sm-2 text-left  align-self-center">
+              <fa-icon *ngIf="IsBusy" [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
+              <div *ngIf="ShowLoginFailed" class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div>
+            </div>
+            <div class="col-4 col-sm-8   text-left align-self-center ">
+              <a class="ml-3" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Forgot Password?</a>
             </div>
           </div>
         </form>
@@ -105,7 +110,7 @@
     </div>
   </div>
 
-  <div class="row mx-1 px-2 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+  <div  class="row mx-1 px-2 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 font-weight-bold p-0 m-0">
       Latest Changes:
     </div>
@@ -116,17 +121,33 @@
       {{FormatDate(vInfo.date)}}
     </div>
   </div>
-  <div class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
-    <div class="col-md-12 px-1 m-1">
+  <div *ngIf="!HasConnectionError; else ConnErr" class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+    <div *ngIf="!versionIsNew; else Newmsg" class="col-md-12 px-1 m-1">
       {{vInfo.description}}
     </div>
+    <ng-template #Newmsg>
+      <div class="col-md-12 px-1 m-2" >
+        <div style="animation: oscillate 1.4s infinite; " class="rounded py-1 px-2" >{{vInfo.description}}</div>
+      </div>
+    </ng-template>
 
     <div class="col-md-12 justify-content-end">
       <a href="{{vInfo.url}}" target="_blank">Read More...</a>
     </div>
   </div>
+  <ng-template #ConnErr>
+    <div class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+      <div class="col-12 px-1 m-1">
+        <div class="alert alert-warning">
+          <b>Error:</b> could not retrieve the data about the latest release.<br />
+          This usually indicates that a connection problem which might mean that you won't be able to log it. Please check your internet connection.<br />
+          Please also check our Twitter feed as it's the channel we'd use to communicate any unexpected problem/downtime on our end.
+        </div>
+      </div>
+    </div>
+  </ng-template>
 
-  <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-light align-bottom">
-    &nbsp;
-  </div>
+    <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-light align-bottom">
+      &nbsp;
+    </div>
 </div>
