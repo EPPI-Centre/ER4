@@ -534,7 +534,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (this.getMaster() == null)
                 Console.WriteLine(this.GroupID);
-            IsEditable = this.getMaster().IsEditable;
+            IsEditable = IsEditable && this.getMaster().IsEditable;
         }
         protected override void DataPortal_DeleteSelf()
         {
