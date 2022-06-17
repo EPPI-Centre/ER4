@@ -576,9 +576,9 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
 #if SILVERLIGHT
-                return GetProperty(IsLockedProperty)|| IsInArmContext || GetProperty(UserCanEditProperty);
+                return GetProperty(IsLockedProperty)|| IsInArmContext || !GetProperty(UserCanEditProperty);
 #else
-                return GetProperty(IsLockedProperty) || GetProperty(UserCanEditProperty);
+                return GetProperty(IsLockedProperty) || !GetProperty(UserCanEditProperty);
 #endif
                 
             }
@@ -929,7 +929,7 @@ namespace BusinessLibrary.BusinessClasses
             
             return returnValue;
         }
-        internal static AttributeSet GetAttributeSetForFlatList(SafeDataReader reader, int MaxDepth)
+        internal static AttributeSet GetAttributeSetForFlatList(SafeDataReader reader, int MaxDepth, bool UserCanEdit)
         {
             AttributeSet returnValue = new AttributeSet();
             try
@@ -956,6 +956,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<int>(MaxDepthProperty, MaxDepth);
+            returnValue.LoadProperty<bool>(UserCanEditProperty, UserCanEdit);
             return returnValue;
         }
 #endif

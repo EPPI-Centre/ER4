@@ -882,6 +882,7 @@ namespace BusinessLibrary.BusinessClasses
                             }
 #else
             List<AttributeSet> flatList = new List<AttributeSet>();
+            bool UserCanEdit = reviewSet.GetProperty(UserCanEditProperty);
             using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
             {
 
@@ -896,7 +897,7 @@ namespace BusinessLibrary.BusinessClasses
                         while (reader2.Read())
                         {
 
-                            AttributeSet newAttributeSet = AttributeSet.GetAttributeSetForFlatList(reader2, reviewSet.TempMaxDepth);
+                            AttributeSet newAttributeSet = AttributeSet.GetAttributeSetForFlatList(reader2, reviewSet.TempMaxDepth, UserCanEdit);
                             flatList.Add(newAttributeSet);
                         }
                         reader2.Close();
