@@ -8,10 +8,12 @@
 		<div class=""
 			 [ngClass]="{'bg-light':IsSmallScreen(),
                     'row d-flex flex-wrap-reverse ml-1 mr-1':!IsSmallScreen() }">
-			<button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen" class="btn btn-success vertical-text" (click)="ShowHideCodes()">
-				<i class="fa fa-arrow-up" aria-hidden="true"></i>
-				Codes
-				<i class="fa fa-arrow-up" aria-hidden="true"></i>
+			<button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen"  class="btn btn-success p-1 CodesBtnL" (click)="ShowHideCodes()">
+				<div class="CodesBtnContent">
+					<span class="k-icon k-i-arrow-right"></span>
+					Codes
+					<span class="k-icon k-i-arrow-right"></span>
+				</div>
 			</button>
 
 			<div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
@@ -19,10 +21,12 @@
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
                             , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
 
-				<button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success float-right vertical-text-R" (click)="ShowHideCodes()">
-					<i class="fa fa-arrow-down" aria-hidden="true"></i>
-					Codes
-					<i class="fa fa-arrow-down" aria-hidden="true"></i>
+				<button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success p-1 CodesBtnR" (click)="ShowHideCodes()">
+					<div class="CodesBtnContent">
+						<span class="k-icon k-i-arrow-left"></span>
+						Codes
+						<span class="k-icon k-i-arrow-left"></span>
+					</div>
 				</button>
 				<ArmsComp #cmp class="card-text"></ArmsComp>
 				<div [hidden]="ShowOutComes">
