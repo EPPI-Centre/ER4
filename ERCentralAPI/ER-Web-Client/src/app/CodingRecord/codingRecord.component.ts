@@ -11,6 +11,7 @@ import { error } from '@angular/compiler/src/util';
 import { Helpers } from '../helpers/HelperMethods';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
+import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
    
@@ -46,7 +47,10 @@ export class codingRecordComp implements OnInit, OnDestroy {
             }
         );
     }
-  
+
+  faArrowsRotate = faArrowsRotate;
+  faSpinner = faSpinner;
+
 	@Input() item: Item | undefined = new Item();
     public get CodingRecords(): ItemSet[] {
         return this._ItemCodingService.ItemCodingList;

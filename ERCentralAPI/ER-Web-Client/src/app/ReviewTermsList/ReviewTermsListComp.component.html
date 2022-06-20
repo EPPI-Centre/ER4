@@ -6,7 +6,7 @@
                     <td colspan="4">
                         <button (click)="OpenRowPanel()"
                                 class="btn btn-sm btn-outline-primary">
-                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                <span class="k-icon k-i-plus k-color-info"></span>
                             New term
                         </button>
                     </td>
@@ -26,12 +26,12 @@
                     <td>
                         <button [disabled]="newReviewTerm == ''" title="Save new term"
                                 class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
-                            <i class="fa fa-save"></i>
+                          <span class="k-icon k-i-floppy"></span>
                         </button>
                     </td>
                     <td>
                         <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
-                            <i class="fa fa-close"></i>
+                          <span class="k-icon k-i-close"></span>
                         </button>
                     </td>
                 </tr>
@@ -47,7 +47,7 @@
                         <button [disabled]="!HasWriteRights" title="Update"
                                 class="btn btn-sm btn-outline-info"
                                 (click)="Update(term)">
-                            <i class="fa fa-save" aria-hidden="true"></i>
+                          <span class="k-icon k-i-floppy"></span>
                         </button>
                     </td>
                     <td>
