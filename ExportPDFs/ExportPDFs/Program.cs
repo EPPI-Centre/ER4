@@ -15,6 +15,8 @@ namespace ExportPDFs
     {
         private static int RevId;
         private static string DoWhat = "export";
+        private static string InclExcl = "incl";
+        private static long OnlyThisCode = -1;
         private static bool WhatIf = false;
         private static List<Int64> ItemIDs = new List<long>();
         private static bool exportTXT = false;
@@ -53,7 +55,7 @@ namespace ExportPDFs
             {//main block to decide what to do!
                 if (s.Length > 6 && s.Substring(0, 6).ToLower() == "revid:")
                 {
-                    if(!int.TryParse(s.Substring(6).Trim(),out RevId))
+                    if (!int.TryParse(s.Substring(6).Trim(), out RevId))
                     {
                         Log.Fatal("Could not find the review ID parameter, aborting.");
                         return;
@@ -62,6 +64,18 @@ namespace ExportPDFs
                 else if (s.Length == 9 && s.ToLower() == "exportbin")
                 {
                     exportBin = true;
+                }
+                else if (s.Length == 4 && s.ToLower() == "incl")
+                {
+                    InclExcl = "incl";
+                }
+                else if (s.Length == 4 && s.ToLower() == "excl")
+                {
+                    InclExcl = "excl";
+                }
+                else if (s.Length == 4 && s.ToLower() == "both")
+                {
+                    InclExcl = "both";
                 }
                 else if (s.Length == 9 && s.ToLower() == "exporttxt")
                 {
@@ -85,6 +99,15 @@ namespace ExportPDFs
                         {
                             if (!AttIDs.Contains(ID)) AttIDs.Add(ID);
                         }
+                    }
+                }
+                else if (s.Length > 13 && s.Substring(0, 13).ToLower() == "onlythiscode:")
+                {
+                    string aIdst = s.Substring(13);
+                    if (!long.TryParse(aIdst, out OnlyThisCode))
+                    {
+                        Log.Fatal("'Onlythiscode' parameter did not parse: aborting.");
+                        return;
                     }
                 }
                 else
@@ -111,7 +134,49 @@ namespace ExportPDFs
         }
         private static void GetItemIds()
         {
-            string que = "SELECT ITEM_ID from TB_ITEM_REVIEW where REVIEW_ID = " + RevId + " AND IS_INCLUDED = 1 and IS_DELETED = 0 and MASTER_ITEM_ID is null";
+            string que = "";
+            if (OnlyThisCode > 0)
+            {//filtering for only this code
+                switch (InclExcl)
+                {
+                    case "incl":
+                        que = @"SELECT distinct ir.ITEM_ID from TB_ITEM_REVIEW ir 
+                                inner join TB_ITEM_SET tis on tis.ITEM_ID = ir.ITEM_ID and tis.IS_COMPLETED = 1
+                                inner join tb_attribute_set tas on tas.SET_ID = tis.SET_ID and tas.ATTRIBUTE_ID = " + OnlyThisCode
+                            + @"inner join TB_ITEM_ATTRIBUTE ia on tas.ATTRIBUTE_ID = ia.ATTRIBUTE_ID and ia.ITEM_SET_ID = tis.ITEM_SET_ID
+                                    where REVIEW_ID = " + RevId + " AND IS_INCLUDED = 1 and IS_DELETED = 0 and MASTER_ITEM_ID is null";
+                        break;
+                    case "excl":
+                        que = @"SELECT distinct ir.ITEM_ID from TB_ITEM_REVIEW ir 
+                                inner join TB_ITEM_SET tis on tis.ITEM_ID = ir.ITEM_ID and tis.IS_COMPLETED = 1
+                                inner join tb_attribute_set tas on tas.SET_ID = tis.SET_ID and tas.ATTRIBUTE_ID = " + OnlyThisCode
+                            + @"inner join TB_ITEM_ATTRIBUTE ia on tas.ATTRIBUTE_ID = ia.ATTRIBUTE_ID and ia.ITEM_SET_ID = tis.ITEM_SET_ID
+                                    where REVIEW_ID = " + RevId + " AND IS_INCLUDED = 0 and IS_DELETED = 0 and MASTER_ITEM_ID is null";
+                        break;
+                    case "both":
+                        que = @"SELECT distinct ir.ITEM_ID from TB_ITEM_REVIEW ir 
+                                inner join TB_ITEM_SET tis on tis.ITEM_ID = ir.ITEM_ID and tis.IS_COMPLETED = 1
+                                inner join tb_attribute_set tas on tas.SET_ID = tis.SET_ID and tas.ATTRIBUTE_ID = " + OnlyThisCode
+                            + @"inner join TB_ITEM_ATTRIBUTE ia on tas.ATTRIBUTE_ID = ia.ATTRIBUTE_ID and ia.ITEM_SET_ID = tis.ITEM_SET_ID
+                                    where REVIEW_ID = " + RevId + " AND IS_DELETED = 0 and MASTER_ITEM_ID is null";
+                        break;
+                }
+            }
+            else
+            {//filtering only on I/E/both not on "with this code".
+                switch (InclExcl)
+                {
+                    case "incl":
+                        que = "SELECT ITEM_ID from TB_ITEM_REVIEW where REVIEW_ID = " + RevId + " AND IS_INCLUDED = 1 and IS_DELETED = 0 and MASTER_ITEM_ID is null";
+                        break;
+                    case "excl":
+                        que = "SELECT ITEM_ID from TB_ITEM_REVIEW where REVIEW_ID = " + RevId + " AND IS_INCLUDED = 0 and IS_DELETED = 0 and MASTER_ITEM_ID is null";
+                        break;
+                    case "both":
+                        que = "SELECT ITEM_ID from TB_ITEM_REVIEW where REVIEW_ID = " + RevId + " AND IS_DELETED = 0 and MASTER_ITEM_ID is null";
+                        break;
+                }
+            }
             using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
             {
                 using (SqlDataReader reader = SqlHelper.ExecuteQueryNonSP(conn, que))
@@ -157,7 +222,7 @@ namespace ExportPDFs
             DirectoryInfo FilesDir = System.IO.Directory.CreateDirectory("Files");
             List<ShortDoc> AllDocs = new List<ShortDoc>();
             string firstRow = "ID\tTitle\tAbstract\tAuthors\tJournal\tShortTitle\tType\tYear\tmonth\t"
-                + "ISSN/ISBN\tCity\tCountry\tPublisher\tInstitution\tVolume\tPages\tEdition\tIssue\tURL\tDOI\tKeywords\tHas_Documents";
+                + "ISSN/ISBN\tCity\tCountry\tPublisher\tInstitution\tVolume\tPages\tEdition\tIssue\tURL\tDOI\tKeywords\tIncluded\tHas_Documents";
             foreach(KeyValuePair<long,string> kvp in Columns)
             {
                 firstRow += "	" + kvp.Value;
@@ -182,7 +247,7 @@ namespace ExportPDFs
                         }
                     }
                     string ItemQue = "Select i.ITEM_ID ,t.TYPE_NAME, dbo.fn_REBUILD_AUTHORS(i.ITEM_ID, 0) as AUTHORS, [TITLE], [PARENT_TITLE], [SHORT_TITLE],"
-                        + " [YEAR], [MONTH], [STANDARD_NUMBER], [CITY], [COUNTRY], [PUBLISHER], [INSTITUTION], [VOLUME], [PAGES], [EDITION], [ISSUE], [URL], [ABSTRACT], [DOI], [KEYWORDS]"
+                        + " [YEAR], [MONTH], [STANDARD_NUMBER], [CITY], [COUNTRY], [PUBLISHER], [INSTITUTION], [VOLUME], [PAGES], [EDITION], [ISSUE], [URL], [ABSTRACT], [DOI], [KEYWORDS], [IS_INCLUDED] as [Included]"
                         + " from tb_ITEM i inner join tb_item_review ir on i.item_id = ir.item_id and ir.Review_id = " + RevId + " AND i.ITEM_ID =" + itemId
                         + " inner join TB_ITEM_TYPE t on i.TYPE_ID = t.TYPE_ID";
                             string summaryline = "";
@@ -212,6 +277,7 @@ namespace ExportPDFs
                                                 + miniItem.URL + "	"
                                                 + miniItem.DOI + "	"
                                                 + miniItem.KEYWORDS.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ').Replace("  ", " ") + "	"
+                                                + miniItem.INCLUDED + "	"
                                                 + (hasdocs ? 1 : 0) ;
                         }
                         else continue;
@@ -236,7 +302,7 @@ namespace ExportPDFs
                 {
                     foreach (ShortDoc doc in AllDocs)
                     {
-                        string BaseFilename = FilesDir.FullName + @"\" + doc.itemDocumentId + "-" + doc.itemId;
+                        string BaseFilename = FilesDir.FullName + @"\" + doc.itemId + "-" + doc.itemDocumentId;
                         if (exportTXT) System.IO.File.WriteAllText(BaseFilename + ".txt", doc.text);//write the extracted text file...
                         if (exportBin && doc.extension.ToLower() != ".txt")
                         {
@@ -487,6 +553,7 @@ namespace ExportPDFs
         public string URL = "";
         public string DOI = "";
         public string KEYWORDS = "";
+        public string INCLUDED = "";
         public static MiniItem GetMiniItem(SqlDataReader reader)
         {
             MiniItem res = new MiniItem();
@@ -511,6 +578,7 @@ namespace ExportPDFs
             res.URL = reader["URL"].ToString();
             res.DOI = reader["DOI"].ToString();
             res.KEYWORDS = reader["KEYWORDS"].ToString();
+            res.INCLUDED = reader["Included"].ToString() == "True" ? "Included" : "Excluded";
             return res;
         }
     }

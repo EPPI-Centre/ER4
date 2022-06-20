@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\ERCentralAPI\PubmedImport\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
-    <Compile Include="..\..\ERCentralAPI\PubmedImport\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
+    <Compile Include="..\..\ERCentralAPI\ER-Web\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
+    <Compile Include="..\..\ERCentralAPI\ER-Web\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
   </ItemGroup>
 
   <ItemGroup>

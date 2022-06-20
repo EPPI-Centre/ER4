@@ -2,7 +2,7 @@
   "profiles": {
     "ExportPDFs": {
       "commandName": "Project",
-      "commandLineArgs": "revid:501 exportbin exporttxt columns:95707,95708,95712,95709,95710,95711,95695,95696,95697,95698,115357,95691,95692,95693,95713"
+      "commandLineArgs": "revid:431 exportbin excl"
     }
   }
 }

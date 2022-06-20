@@ -1,0 +1,17 @@
+for the full command line, add "dotnet ExportPDFs.dll " to the lines below. Lines below only refer to what's seen as "options" to the main command.
+
+
+revid:7 exportbin incl onlythiscode:1095
+revid:7 exportbin excl onlythiscode:1095
+revid:7 exportbin both onlythiscode:1095
+revid:7 exportbin both onlythiscode:122102
+revid:7 exportbin incl onlythiscode:122102
+revid:7 exportbin excl onlythiscode:122102
+
+
+revid:431 exportbin both onlythiscode:123045
+revid:431 exportbin incl onlythiscode:123045
+revid:431 exportbin excl onlythiscode:123045
+
+
+revid:431 exportbin both 
