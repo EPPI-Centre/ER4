@@ -61,7 +61,26 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
                 .codesInSmallScreen.show {
                   width:99.5%;
                   transform:scaleX(1);
-                }  
+                }
+                .CodesBtnL {
+                    position: fixed;
+                    top: 45%;
+                    z-index:999;
+                }
+                .CodesBtnR {
+                    position: fixed;
+                    top: 45%;
+                    z-index:999;
+                    right: 0.05em;
+                }
+                .CodesBtnContent {
+                    writing-mode: vertical-lr;
+                    font-size:0.9rem;
+                }
+                .CodesBtnContent span {
+                    margin-left: -10px;
+                    font-size:18px;
+                }
                
             `]
 

@@ -2,16 +2,18 @@
 <ng-template #FirstRowNotEditingAReport>
     <div class="mx-0 px-0 col-12 mb-1">
         <div class="card alert alert-info mx-auto my-auto col">
-            <div class="card-body mx-auto">
+          <div class="card-body mx-auto">
 
 
-                Please click <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
-                    New Report
-                </button> to create a report or one of the <i class="fa fa-edit text-success"></i> buttons to view/edit an existing report.
+            Please click <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
+              New Report
+            </button> to create a report or one of the
+            <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="DoNothingButton()" >
+              <span class="k-icon k-i-edit k-color-success"></span>
+            </button> buttons to view/edit an existing report.
 
-
-                <!--We can put some "welcome / instructions" content here, which will disappear when we edit a report...-->
-            </div>
+            <!--We can put some "welcome / instructions" content here, which will disappear when we edit a report...-->
+          </div>
         </div>
     </div>
 </ng-template>
@@ -64,7 +66,7 @@
                                 <div class="my-auto">{{EditingReport.name}}</div>&nbsp;&nbsp;
                                 <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="UpdatingReportName = true" title="Edit Report Name"
                                         [disabled]="!HasWriteRights">
-                                    Edit&nbsp;<i class="fa fa-edit "></i>
+                                    Edit&nbsp;<span class="k-icon k-i-edit k-color-success"></span>
                                 </button>
                             </div>
                         </div>
@@ -106,19 +108,19 @@
                                             <div class="row mx-0 px-0 alert-info " style="min-width:195px;">
                                                 <button class="btn btn-sm btn-outline-success mx-0 my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column content"
                                                         [disabled]="!HasWriteRights">
-                                                    <i class="fa fa-edit ml-1"></i>
+                                                  <span class="k-icon k-i-edit k-color-success"></span>
                                                 </button>
                                                 <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)" title="Add selected code to column"
                                                         [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
-                                                    <i class="fa fa-plus-square "></i>
+                                                  <span class="k-icon k-i-plus k-color-success"></span>
                                                 </button>
                                                 <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnLeft(EditingReport, col)" title="Move column to the left"
                                                         [disabled]="col.columnOrder == 0 || !HasWriteRights">
-                                                    <i class='fa fa-arrow-circle-left'></i>
+                                                  <span class="k-icon k-i-arrow-left k-color-success"></span>
                                                 </button>
                                                 <button class="btn btn-sm btn-outline-success my-auto mr-auto ml-0 px-1 py-0" (click)="MoveColumnRight(EditingReport, col)" title="Move column to the right"
                                                         [disabled]="col.columnOrder >= EditingReport.columns.length-1 || !HasWriteRights">
-                                                    <i class='fa fa-arrow-circle-right'></i>
+                                                  <span class="k-icon k-i-arrow-right k-color-success"></span>
                                                 </button>
                                                 Col {{col.columnOrder + 1}}
                                                 <button class="btn btn-sm btn-outline-danger my-auto ml-1 px-1 py-0" (click)="DeleteColumn(col, EditingReport)" title="Delete column from report"
@@ -142,15 +144,24 @@
             </div>
         </div>
         <div class="col-4 col-lg-3 rounded alert-dark border border-dark p-1">
-            <div class="row mx-0 p-1">
-                <h3>Reports list</h3>
-                <button class="btn btn-sm btn-outline-success ml-auto my-auto px-1 py-0" (click)="FetchReports()" title="Refresh reports list">
-                    <i class="fa fa-refresh "></i>
-                </button>
-                <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
-                    New Report
-                </button>
-            </div>
+          <div class="row mx-0 p-1">
+            <table width="100%">
+              <tr>
+                <td>
+                  <h3>Reports list</h3>
+                </td>
+                <td style="text-align:right">
+                  <button class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2" (click)="FetchReports()" title="Refresh reports list">
+                    <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+                  </button>
+                </td>
+              </tr>
+            </table>
+            
+            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
+              New Report
+            </button>
+          </div>
             <div class="mx-0 p-1 rounded border border-info bg-white" style="max-height:80vh; overflow:auto;">
                 <div *ngIf="Reports.length == 0" class="rounded border border-info alert-info">
                     No reports loaded. Click
@@ -161,7 +172,7 @@
                 <div *ngFor="let rpt of Reports" class="row ml-1 mr-1 border-bottom border-info">
                     <div class="my-auto">{{rpt.name}}</div>
                     <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="EditReport(rpt)" title="View/Edit report details">
-                        <i class="fa fa-edit mx-1"></i>
+                        <span class="k-icon k-i-edit k-color-success"></span>
                     </button>
                     <button class="btn btn-sm btn-outline-danger ml-0 mr-1 my-1 px-1 py-0" (click)="DeleteReport(rpt)" title="Delete Report"
                             [disabled]="!HasWriteRights || (EditingReport != null && EditingReport.reportId == rpt.reportId)">
@@ -175,7 +186,9 @@
             <ng-template #EditingReportNotEditingAColumn>
                 <div class="card alert alert-info  my-auto border-0 ml-1 mr-0">
                     <div class="card-body font-weight-bold">
-                        Click <span class="text-success"><i class="fa fa-edit "></i></span> in a column to edit that column's content.
+                        Click <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="DoNothingButton()">
+                          <span class="k-icon k-i-edit k-color-success"></span>
+                        </button> in a column to edit that column's content.
                     </div>
                 </div>
             </ng-template>
@@ -188,7 +201,7 @@
                                 <button *ngIf="CanAddNodeToColumn(EditingColumn, selectedNode)" class="btn btn-sm btn-outline-success ml-auto mr-1 my-auto px-1 py-0"
                                         (click)="AddCodeToColumn(EditingColumn, selectedNode)" title="Add selected code to column"
                                         [disabled]="!HasWriteRights">
-                                    Add code <i class="fa fa-plus-square "></i>
+                                    Add code <span class="k-icon k-i-plus k-color-success"></span>
                                 </button>
                             </div>
                             <div class="">
@@ -207,15 +220,15 @@
                                     <div *ngIf="EditingColumnCodeId == null || EditingColumnCodeId !== code.reportColumnCodeId; else EditingColCodeTemplate" class="row mx-0 px-0">
                                         <div class="mx-1">{{code.userDefText}}</div>
                                         <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details">
-                                            <i class="fa fa-edit "></i>
+                                          <span class="k-icon k-i-edit k-color-success"></span>
                                         </button>
                                         <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
                                                 (click)="MoveColumnCodeUp(EditingColumn, code)">
-                                            <i class='fa fa-arrow-circle-up'></i>
+                                          <span class="k-icon k-i-arrow-up k-color-success"></span>
                                         </button>
                                         <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mr-1" [disabled]="code.codeOrder >= EditingColumn.codes.length -1 || !HasWriteRights" title="Move code down (within this column)"
                                                 (click)="MoveColumnCodeDown(EditingColumn, code)">
-                                            <i class='fa fa-arrow-circle-down'></i>
+                                          <span class="k-icon k-i-arrow-down k-color-success"></span>
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0 ml-auto" (click)="DeleteColumnCode(code, EditingColumn)" title="Remove code from column"
                                                 [disabled]="!HasWriteRights">

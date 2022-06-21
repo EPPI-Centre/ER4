@@ -8,6 +8,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
+import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
 	selector: 'SetupConfigurableReports',
@@ -30,7 +31,10 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 			if (this.configurablereportServ.Reports == null)
 				this.configurablereportServ.FetchReports();
 		}, 10000);
-	}
+  }
+  faArrowsRotate = faArrowsRotate;
+  faSpinner = faSpinner;
+
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
@@ -52,7 +56,11 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	public EditReport(rpt: iConfigurableReport) {
 		this.CancelEditing();
 		this.EditingReport = ConfigurableReportService.CloneReport(rpt);
-	}
+    }
+
+    public DoNothingButton() {
+    }
+
 	//we use getters and setters so to allow keeping track of changes, these are in use for private members "EditingColumn" and "EditingColumnCode".
 	public get EditingReportName(): string {
 		if (this.EditingReport) return this.EditingReport.name;
