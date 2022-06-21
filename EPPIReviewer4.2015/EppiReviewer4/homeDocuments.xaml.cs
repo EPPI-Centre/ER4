@@ -6418,10 +6418,10 @@ on the right of the main screen");
                 MagBrowserControl.InitialiseBrowser();
                 MagBrowserControl.AddToBrowseHistory("Go to specific Paper Id: " + mp.PaperId.ToString(), "PaperDetail",
                         mp.PaperId, mp.FullRecord, mp.Abstract, mp.LinkedITEM_ID, mp.URLs, mp.FindOnWeb, 0,
-                        "", "", 0, 0, "", 0, 0, 0, 0);
+                        "", "", 0, 0, "", 0, 0, 0, 0, mp.FieldsOfStudyList);
                 MagBrowserControl.IncrementHistoryCount();
                 MagBrowserControl.ShowPaperDetailsPage(mp.PaperId, mp.FullRecord, mp.Abstract,
-                    mp.URLs, mp.FindOnWeb, mp.LinkedITEM_ID);
+                    mp.URLs, mp.FindOnWeb, mp.LinkedITEM_ID, mp.FieldsOfStudyList);
                 windowMagBrowser.PreviewClosed -= WindowMagBrowser_PreviewClosed;
                 windowMagBrowser.ShowDialog();
             }

@@ -145,29 +145,29 @@ namespace BusinessLibrary.BusinessClasses
                     while (count < Ids.Count)
                     {
                         string query = "";
-                        for (int i = count; i < Ids.Count && i < count + 100; i++)
+                        for (int i = count; i < Ids.Count && i < count + 50; i++)
                         {
                             if (query == "")
                             {
-                                query = "Id=" + Ids[i].ToString();
+                                query = "W" + Ids[i].ToString();
                             }
                             else
                             {
-                                query += ",Id=" + Ids[i].ToString();
+                                query += "|W" + Ids[i].ToString();
                             }
                         }
-                        MagMakesHelpers.PaperMakesResponse resp = MagMakesHelpers.EvaluateExpressionNoPagingWithCount("OR(" + query + ")", "100");
 
-                        foreach (MagMakesHelpers.PaperMakes pm in resp.entities)
+                        MagMakesHelpers.OaPaperFilterResult resp = MagMakesHelpers.EvaluateOaPaperFilter("openalex_id:https://openalex.org/" + query, "50", "1", false);
+                        foreach (MagMakesHelpers.OaPaper pm in resp.results)
                         {
-                            file.WriteLine("\"" + pm.Id.ToString() + "\"," +
+                            file.WriteLine("\"" + pm.id.Replace("https://openalex.org/W", "") + "\"," +
                                             "\"" + "99" + "\"," +
-                                            "\"" + MagMakesHelpers.CleanText(pm.Ti) + "\"," +
-                                            "\"" + MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.IA)) + "\"," +
+                                            "\"" + MagMakesHelpers.CleanText(pm.title) + "\"," +
+                                            "\"" + MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index)) + "\"," +
                                             "\"" + "" + "\"," +
                                             "\"" + ReviewId + "\"");
                         }
-                        count += 100;
+                        count += 50;
                     }
                 }
                 if (cancellationToken.IsCancellationRequested)

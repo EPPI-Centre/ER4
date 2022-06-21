@@ -1024,6 +1024,8 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task AddClassifierScores(string ReviewId)
         {
+            return;
+            /*
             // just return if we don't need to run the classifier(s)
             if (UserClassifierModelId == 0 && StudyTypeClassifier == "None")
             {
@@ -1160,6 +1162,7 @@ namespace BusinessLibrary.BusinessClasses
                     @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + UserClassifierReviewId.ToString() + "ModelId" + UserClassifierModelId.ToString() + ".csv", resultsFile1, resultsFile2);
                 await insertResults(blobClient.GetContainerReference("attributemodels"), TrainingRunCommand.NameBase + "Sim" + this.MagSimulationId.ToString() + "Results1.csv", "USER_CLASSIFIER_MODEL_SCORE");
             }
+            */
         }
 
         private async Task insertResults(CloudBlobContainer container, string FileName, string Field)

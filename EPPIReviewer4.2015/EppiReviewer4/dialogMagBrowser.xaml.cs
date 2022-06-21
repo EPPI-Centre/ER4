@@ -42,7 +42,7 @@ namespace EppiReviewer4
         private DispatcherTimer DataLakeTimer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
-        private int _maxFieldOfStudyPaperCount = 1000000;
+        //private int _maxFieldOfStudyPaperCount = 1000000;
         //public MagCurrentInfo CurrentMagInfo;
         private int nMatchedRecords;
 
@@ -56,7 +56,7 @@ namespace EppiReviewer4
 
             timer2 = new DispatcherTimer();
             timer2.Interval = TimeSpan.FromSeconds(1);
-            timer.Tick += Timer2_Tick;
+            timer2.Tick += Timer2_Tick;
 
             AdminLogTimer = new DispatcherTimer();
             AdminLogTimer.Interval = TimeSpan.FromSeconds(10);
@@ -106,7 +106,7 @@ namespace EppiReviewer4
                 return;
             }
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
+            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0, "");
             TBPaperListTitle.Text = "List of all selected papers";
             ShowSelectedPapersPage();
         }
@@ -120,13 +120,13 @@ namespace EppiReviewer4
                 {
                     case "BringUpToDate":
                         IncrementHistoryCount();
-                        AddToBrowseHistory("Bring review up to date", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
+                        AddToBrowseHistory("Bring review up to date", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0, "");
                         ShowRelatedPapersPage();
                         break;
 
                     case "AutoUpdate":
                         IncrementHistoryCount();
-                        AddToBrowseHistory("Keep review up to date", "AutoUpdate", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
+                        AddToBrowseHistory("Keep review up to date", "AutoUpdate", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0, "");
                         ShowAutoUpdatePage();
                         break;
 
@@ -136,7 +136,7 @@ namespace EppiReviewer4
 
                     case "Simulation":
                         IncrementHistoryCount();
-                        AddToBrowseHistory("Advanced page", "Advanced", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
+                        AddToBrowseHistory("Advanced page", "Advanced", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0, "");
                         ShowAdvancedPage();
                         break;
 
@@ -146,7 +146,7 @@ namespace EppiReviewer4
 
                     case "History":
                         IncrementHistoryCount();
-                        AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
+                        AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0, "");
                         break;
 
                     case "Admin":
@@ -313,7 +313,7 @@ namespace EppiReviewer4
 
         // ******************************** PAPER DETAILS PAGE **************************************
         public void ShowPaperDetailsPage(Int64 PaperId, string FullRecord, string Abstract, string URLs,
-            string FindOnWeb, Int64 LinkedITEM_ID)
+            string FindOnWeb, Int64 LinkedITEM_ID, string FieldsOfStudyListString)
         {
             PaperGrid.Visibility = Visibility.Visible;
             TopicsGrid.Visibility = Visibility.Collapsed;
@@ -341,16 +341,16 @@ namespace EppiReviewer4
                 string[] splitted = URLs.Split(';');
                 if (splitted.Length > 0)
                 {
-                    for (int i = 0; i < splitted.Length; i++)
+                    for (int ii = 0; ii < splitted.Length; ii++)
                     {
-                        if (splitted[i].Length > 7)
+                        if (splitted[ii].Length > 7)
                         {
                             try
                             {
                                 HyperlinkButton newHl = new HyperlinkButton();
-                                Uri uri = new Uri(splitted[i]);
+                                Uri uri = new Uri(splitted[ii]);
                                 newHl.Content = uri.Host;
-                                newHl.NavigateUri = new Uri(splitted[i]);
+                                newHl.NavigateUri = new Uri(splitted[ii]);
                                 newHl.TargetName = "_blank";
                                 newHl.IsTabStop = false;
                                 newHl.Margin = new Thickness(2, 1, 1, 1);
@@ -425,13 +425,36 @@ namespace EppiReviewer4
             selectionCriteria3.MagPaperId = PaperId;
             provider3.FactoryParameters.Add(selectionCriteria3);
             provider3.FactoryMethod = "GetMagPaperList";
-            //provider3.Refresh();
+            provider3.Refresh();
 
             MagFieldOfStudyListSelectionCriteria selectionCriteria4 = new MagFieldOfStudyListSelectionCriteria();
             selectionCriteria4.ListType = "PaperFieldOfStudyList";
             selectionCriteria4.PaperIdList = PaperId.ToString();
             DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
-            MagFieldOfStudyList mfsl = new MagFieldOfStudyList();
+            MagFieldOfStudyList FosList = MagPaper.GetFieldOfStudyAsList(FieldsOfStudyListString);
+            double i = 15;
+            foreach (MagFieldOfStudy fos in FosList)
+            {
+                HyperlinkButton newHl = new HyperlinkButton();
+                newHl.Content = fos.DisplayName;
+                newHl.Tag = fos.FieldOfStudyId.ToString();
+                newHl.IsTabStop = false;
+                newHl.FontSize = i;
+                newHl.Margin = new Thickness(5, 5, 5, 5);
+                    //newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
+                    //    fos.FieldOfStudyId.ToString());
+                    //newHl.TargetName = "_blank";
+                    //newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
+                    //newHl.FontStyle = FontStyles.Italic;
+                newHl.Click += HlNavigateToTopic_Click;
+                WPPaperTopics.Children.Add(newHl);
+                if (i > 10)
+                {
+                    i -= 0.5;
+                }
+            }
+
+            /* OLD STYLE USING MAKES
             dp.FetchCompleted += (o, e2) =>
             {
                 WPPaperTopics.Children.Clear();
@@ -471,6 +494,7 @@ namespace EppiReviewer4
                 }
             };
             dp.BeginFetch(selectionCriteria4);
+            */
         }
 
         private void lbGoToPaperId_Click(object sender, RoutedEventArgs e)
@@ -489,10 +513,10 @@ namespace EppiReviewer4
                     IncrementHistoryCount();
                     AddToBrowseHistory("Go to specific Paper Id: " + e2.Object.PaperId.ToString(), "PaperDetail",
                         e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract, e2.Object.LinkedITEM_ID,
-                        e2.Object.AllLinks, e2.Object.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0, 0);
+                        e2.Object.AllLinks, e2.Object.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0, 0, e2.Object.FieldsOfStudyList);
                     Panes.SelectedIndex = 4;
                     ShowPaperDetailsPage(e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract,
-                        e2.Object.AllLinks, e2.Object.FindOnWeb, e2.Object.LinkedITEM_ID);
+                        e2.Object.AllLinks, e2.Object.FindOnWeb, e2.Object.LinkedITEM_ID, e2.Object.FieldsOfStudyList);
                 }
                 else
                 {
@@ -601,7 +625,7 @@ namespace EppiReviewer4
             provider.Refresh();
         }
 
-        private void ShowSearchResults(string MagSearchText)
+        private void ShowSearchResults(string MagSearchId)
         {
             PaperGrid.Visibility = Visibility.Collapsed;
             TopicsGrid.Visibility = Visibility.Collapsed;
@@ -617,7 +641,7 @@ namespace EppiReviewer4
             selectionCriteria.PageSize = 20;
             selectionCriteria.PageNumber = 0;
             selectionCriteria.ListType = "MagSearchResultsList";
-            selectionCriteria.MagSearchText = MagSearchText;
+            selectionCriteria.MagSearchId = MagSearchId;
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
@@ -697,7 +721,7 @@ namespace EppiReviewer4
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
+            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0, "");
             TBPaperListTitle.Text = "List of all included matches";
             ShowIncludedMatchesPage("included");
         }
@@ -705,7 +729,7 @@ namespace EppiReviewer4
         private void LBListMatchesExcluded_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
+            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0, "");
             TBPaperListTitle.Text = "List of all excluded matches";
             ShowIncludedMatchesPage("excluded");
         }
@@ -714,7 +738,7 @@ namespace EppiReviewer4
         {
             IncrementHistoryCount();
             AddToBrowseHistory("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded",
-                0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
+                0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0, "");
             TBPaperListTitle.Text = "List of all matches in review (included and excluded)";
             ShowIncludedMatchesPage("all");
         }
@@ -749,7 +773,7 @@ namespace EppiReviewer4
                 }
                 IncrementHistoryCount();
                 AddToBrowseHistory("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0,
-                    "", "", 0, "", "", 0, "", attributeIDs, 0, 0, "", 0, 0, 0, 0);
+                    "", "", 0, "", "", 0, "", attributeIDs, 0, 0, "", 0, 0, 0, 0, "");
                 ShowAllWithThisCode(attributeIDs);
             }
         }
@@ -894,18 +918,15 @@ namespace EppiReviewer4
                     hl.IsTabStop = false;
                     hl.FontSize = i;
                     hl.Margin = new Thickness(5, 5, 5, 5);
-                    if (fos.PaperCount > _maxFieldOfStudyPaperCount)
-                    {
-                        hl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
-                            fos.FieldOfStudyId.ToString());
-                        hl.TargetName = "_blank";
-                        hl.Foreground = new SolidColorBrush(Colors.DarkGray);
-                        hl.FontStyle = FontStyles.Italic;
-                    }
-                    else
-                    {
-                        hl.Click += HlNavigateToTopic_Click;
-                    }
+                    //if (fos.PaperCount > _maxFieldOfStudyPaperCount)
+                    //{
+                    //    hl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
+                    //        fos.FieldOfStudyId.ToString());
+                    //    hl.TargetName = "_blank";
+                    //    hl.Foreground = new SolidColorBrush(Colors.DarkGray);
+                    //    hl.FontStyle = FontStyles.Italic;
+                    //}
+                    hl.Click += HlNavigateToTopic_Click;
                     WPTopTopics.Children.Add(hl);
                     if (i > 10)
                     {
@@ -922,7 +943,7 @@ namespace EppiReviewer4
             if (hl != null)
             {
                 AddToBrowseHistory("Browse topic: " + hl.Content.ToString(), "BrowseTopic", 0, "", "", 0, "", "",
-                    Convert.ToInt64(hl.Tag), hl.Content.ToString(), "", 0, 0, "", 0, 0, 0, 0);
+                    Convert.ToInt64(hl.Tag), hl.Content.ToString(), "", 0, 0, "", 0, 0, 0, 0, "");
                 Panes.SelectedIndex = 4;
                 ShowTopicPage(Convert.ToInt64(hl.Tag), hl.Content.ToString());
             }
@@ -952,18 +973,15 @@ namespace EppiReviewer4
                     newHl.FontSize = 12;
                     newHl.IsTabStop = false;
                     newHl.Tag = fos.FieldOfStudyId.ToString();
-                    if (fos.PaperCount > _maxFieldOfStudyPaperCount)
-                    {
-                        newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
-                            fos.FieldOfStudyId.ToString());
-                        newHl.TargetName = "_blank";
-                        newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
-                        newHl.FontStyle = FontStyles.Italic;
-                    }
-                    else
-                    {
-                        newHl.Click += HlNavigateToTopic_Click;
-                    }
+                    //if (fos.PaperCount > _maxFieldOfStudyPaperCount)
+                    //{
+                    //    newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
+                    //        fos.FieldOfStudyId.ToString());
+                    //    newHl.TargetName = "_blank";
+                    //    newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
+                    //    newHl.FontStyle = FontStyles.Italic;
+                    //}
+                    newHl.Click += HlNavigateToTopic_Click;
                     newHl.Margin = new Thickness(5, 5, 5, 5);
                     wp.Children.Add(newHl);
                 }
@@ -1009,9 +1027,9 @@ namespace EppiReviewer4
             MagPaper paper = (sender as TextBlock).DataContext as MagPaper;
             IncrementHistoryCount();
             AddToBrowseHistory("Browse paper: " + paper.FullRecord, "PaperDetail", paper.PaperId, paper.FullRecord,
-                paper.Abstract, paper.LinkedITEM_ID, paper.AllLinks, paper.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0, 0);
-            ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract, paper.AllLinks,
-                paper.FindOnWeb, paper.LinkedITEM_ID);
+                paper.Abstract, paper.LinkedITEM_ID, paper.AllLinks, paper.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0, 0, paper.FieldsOfStudyList);
+            ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract, paper.AllLinks, 
+                paper.FindOnWeb, paper.LinkedITEM_ID, paper.FieldsOfStudyList);
         }
 
         private void datePickerFilterTopics_SelectionChanged(object sender, Telerik.Windows.Controls.SelectionChangedEventArgs e)
@@ -1206,7 +1224,7 @@ namespace EppiReviewer4
             string PaperAbstract, Int64 LinkedITEM_ID, string URLs, string FindOnWeb, Int64 FieldOfStudyId,
             string FieldOfStudy, string AttributeIds, int MagRelatedRunId, int MagAutoUpdateRunId, string AutoUpdateOrderBy,
             double AutoUpdateAutoUpdateScore, double AutoUpdateStudyTypeClassifierScore, double AutoUpdateUserClassifierScore,
-            int AutoUpdateImportTopN)
+            int AutoUpdateImportTopN, string FieldsOfStudyList)
         {
             MagBrowseHistory mbh = new MagBrowseHistory();
             mbh.Title = title;
@@ -1227,6 +1245,7 @@ namespace EppiReviewer4
             mbh.LinkedITEM_ID = LinkedITEM_ID;
             mbh.URLs = URLs;
             mbh.FindOnWeb = FindOnWeb;
+            mbh.FieldsOfStudyListString = FieldsOfStudyList;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             mbh.ContactId = ri.UserId;
             mbh.DateBrowsed = DateTime.Now;
@@ -1311,7 +1330,7 @@ namespace EppiReviewer4
                             case "PaperDetail":
                                 Panes.SelectedIndex = 4;
                                 ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract, mbh.URLs,
-                                    mbh.FindOnWeb, mbh.LinkedITEM_ID);
+                                    mbh.FindOnWeb, mbh.LinkedITEM_ID, mbh.FieldsOfStudyListString);
                                 break;
                             case "MatchesIncluded":
                                 Panes.SelectedIndex = 4;
@@ -1741,18 +1760,17 @@ namespace EppiReviewer4
                             newHl.Tag = fos.FieldOfStudyId.ToString();
                             newHl.FontSize = i;
                             newHl.IsTabStop = false;
-                            if (fos.PaperCount > _maxFieldOfStudyPaperCount)
-                            {
-                                newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
-                                    fos.FieldOfStudyId.ToString());
-                                newHl.TargetName = "_blank";
-                                newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
-                                newHl.FontStyle = FontStyles.Italic;
-                            }
-                            else
-                            {
-                                newHl.Click += HlNavigateToTopic_Click;
-                            }
+                            //if (fos.PaperCount > _maxFieldOfStudyPaperCount)
+                            //{
+                            //    newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
+                            //        fos.FieldOfStudyId.ToString());
+                            //    newHl.TargetName = "_blank";
+                            //    newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
+                            //    newHl.FontStyle = FontStyles.Italic;
+                            //}
+                            //else
+                            //{
+                            newHl.Click += HlNavigateToTopic_Click;
                             newHl.Margin = new Thickness(5, 5, 5, 5);
                             WPFindTopics.Children.Add(newHl);
                             if (i > 10)
@@ -2166,7 +2184,7 @@ namespace EppiReviewer4
                 {
                     IncrementHistoryCount();
                     AddToBrowseHistory("Papers identified from related papers search", "MagRelatedPapersRunList", 0,
-                        "", "", 0, "", "", 0, "", "", pr.MagRelatedRunId, 0, "", 0, 0, 0, 0);
+                        "", "", 0, "", "", 0, "", "", pr.MagRelatedRunId, 0, "", 0, 0, 0, 0, "");
                     TBPaperListTitle.Text = "Papers identified from auto-identification run";
                     ShowRelatedRunPapers(pr.MagRelatedRunId);
                 }
@@ -2940,7 +2958,7 @@ namespace EppiReviewer4
             }
             else
             {
-                if (this.timer != null)
+                if (this.AdminLogTimer != null)
                 {
                     this.AdminLogTimer.Start();
                 }
@@ -3272,6 +3290,61 @@ namespace EppiReviewer4
         }
 
         // *********************************** MagSearch page ***********************************
+        private void ComboMagSearchSelect_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (ComboMagSearchSelect != null)
+            {
+                MagSearchClearTopics();
+                if (ComboMagSearchSelect.SelectedIndex == 2)
+                {
+                    RowMagSearchTopics.Height = new GridLength(120, GridUnitType.Pixel);
+                }
+                else
+                {
+                    RowMagSearchTopics.Height = new GridLength(0);
+                }
+                if (ComboMagSearchSelect.SelectedIndex == 1)
+                {
+                    ComboMagSearchDateLimit.SelectedIndex = 0;
+                    ComboMagSearchDateLimit.IsEnabled = false;
+                    //ComboMagSearchPubTypeLimit.SelectedIndex = 0;
+                    //ComboMagSearchPubTypeLimit.IsEnabled = false;
+                }
+                else
+                {
+                    ComboMagSearchDateLimit.IsEnabled = true;
+                    //ComboMagSearchPubTypeLimit.IsEnabled = true;
+                }
+            }
+        }
+
+        private void TextBoxMagSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (ComboMagSearchSelect != null && ComboMagSearchSelect.SelectedIndex != 2)
+            {
+                return;
+            }
+            if (CleanText(TextBoxMagSearch.Text).Length > 2)
+            {
+                if (this.timer2 != null && this.timer2.IsEnabled)
+                {
+                    this.timer2.Stop();
+                    this.timer2.Start();
+                }
+                else
+                {
+                    if (this.timer2 != null)
+                    {
+                        this.timer2.Start();
+                    }
+                }
+            }
+            else
+            {
+                WPMagSearchFindTopics.Children.Clear();
+            }
+        }
+
         private void ComboMagSearchDateLimit_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (ComboMagSearchDateLimit != null)
@@ -3320,7 +3393,7 @@ namespace EppiReviewer4
                 }
             }
         }
-
+        /* No adding date limiters to combining any more
         private void ComboMagSearchDateLimitFilter_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (ComboMagSearchDateLimitFilter != null)
@@ -3369,19 +3442,19 @@ namespace EppiReviewer4
                 }
             }
         }
-
+        */
         private void HyperLinkMagSearchDoSearch_Click(object sender, RoutedEventArgs e)
         {
             if (HyperLinkMagSearchDoSearch.IsEnabled == false)
             {
                 return; // for some reason disabled hyperlinks still work??
             }
-            if (ComboMagSearchSelect.SelectedIndex != 3 && TextBoxMagSearch.Text == "")
+            if (ComboMagSearchSelect.SelectedIndex != 2 && TextBoxMagSearch.Text == "")
             {
                 RadWindow.Alert("Search text is blank");
                 return;
             }
-            if (ComboMagSearchSelect.SelectedIndex == 3 && MagSearchCurrentTopic.Tag.ToString() == "")
+            if (ComboMagSearchSelect.SelectedIndex == 2 && MagSearchCurrentTopic.Tag.ToString() == "")
             {
                 RadWindow.Alert("Please select a topic");
                 return;
@@ -3391,75 +3464,69 @@ namespace EppiReviewer4
             switch (ComboMagSearchSelect.SelectedIndex)
             {
                 case 0:
-                    newSearch.MagSearchText = newSearch.GetSearchTextTitle(TextBoxMagSearch.Text);
-                    newSearch.SearchText = "Title: " + TextBoxMagSearch.Text;
+                    newSearch.MagSearchText = TextBoxMagSearch.Text; // newSearch.GetSearchTextTitle(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "¬Title: " + TextBoxMagSearch.Text; // + TextBoxMagSearch.Text;
                     break;
                 case 1:
-                    newSearch.MagSearchText = newSearch.GetSearchTextAbstract(TextBoxMagSearch.Text);
-                    newSearch.SearchText = "Abstract: " + TextBoxMagSearch.Text;
+                    newSearch.MagSearchText = TextBoxMagSearch.Text; // newSearch.GetSearchTextAbstract(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "¬Title and abstract: " + TextBoxMagSearch.Text; // + TextBoxMagSearch.Text;
                     break;
+                //case 2:
+                //    newSearch.MagSearchText = TextBoxMagSearch.Text; // newSearch.GetSearchTextAuthors(TextBoxMagSearch.Text);
+                //    newSearch.SearchText = "Authors"; // + TextBoxMagSearch.Text;
+                //    break;
                 case 2:
-                    newSearch.MagSearchText = newSearch.GetSearchTextAuthors(TextBoxMagSearch.Text);
-                    newSearch.SearchText = "Authors: " + TextBoxMagSearch.Text;
+                    newSearch.MagSearchText = MagSearchCurrentTopic.Tag.ToString(); // newSearch.GetSearchTextFieldOfStudy(MagSearchCurrentTopic.Tag.ToString());
+                    newSearch.SearchText = "¬Topic: " + MagSearchCurrentTopic.Text; // + MagSearchCurrentTopic.Text;
                     break;
                 case 3:
-                    newSearch.MagSearchText = newSearch.GetSearchTextFieldOfStudy(MagSearchCurrentTopic.Tag.ToString());
-                    newSearch.SearchText = "Topic: " + MagSearchCurrentTopic.Text;
-                    break;
-                case 4:
                     newSearch.MagSearchText = newSearch.GetSearchTextMagIds(TextBoxMagSearch.Text);
                     if (newSearch.MagSearchText.Contains("Error"))
                     {
                         RadWindow.Alert(newSearch.MagSearchText);
                         return;
                     }
-                    newSearch.SearchText = "OpenAlex ID(s): " + TextBoxMagSearch.Text;
+                    newSearch.SearchText = "¬OpenAlex ID(s): " + TextBoxMagSearch.Text;
                     break;
-                case 5:
-                    newSearch.MagSearchText = newSearch.GetSearchTextJournals(TextBoxMagSearch.Text);
-                    newSearch.SearchText = "Journal: " + TextBoxMagSearch.Text;
+                case 4:
+                    //newSearch.MagSearchText = TextBoxMagSearch.Text; // newSearch.GetSearchTextJournals(TextBoxMagSearch.Text);
+                    //newSearch.SearchText = "Journal"; // + TextBoxMagSearch.Text;
                     break;
                 default:
-                    newSearch.MagSearchText = TextBoxMagSearch.Text;
-                    newSearch.SearchText = "Custom: " + TextBoxMagSearch.Text;
-                    break;
+                    RadWindow.Alert("No search specified");
+                    return;
             }
             if (ComboMagSearchDateLimit.SelectedIndex > 0)
             {
                 switch (ComboMagSearchDateLimit.SelectedIndex)
                 {
                     case 1:
-                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                            newSearch.GetSearchTextPubDateExactly(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
-                        newSearch.SearchText += " AND published on: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.DateFilter = "Published on";
                         break;
                     case 2:
-                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                            newSearch.GetSearchTextPubDateBefore(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
-                        newSearch.SearchText += " AND published before: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.DateFilter = "Published before";
                         break;
                     case 3:
-                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                            newSearch.GetSearchTextPubDateFrom(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
-                        newSearch.SearchText += " AND published after: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.DateFilter = "Published after";
                         break;
                     case 4:
-                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                            newSearch.GetSearchTextPubDateBetween(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd"),
-                            MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
-                        newSearch.SearchText += " AND published between: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd") + " and " +
-                            MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.Date2 = MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.DateFilter = "Published between";
                         break;
                     case 5:
-                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                            newSearch.GetSearchTextYearExactly(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
-                        newSearch.SearchText += " AND year of publication: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
+                        newSearch.Date1 = MagSearchDate1.SelectedDate.Value.Year.ToString();
+                        newSearch.DateFilter = "Publication year";
                         break;
+                        /* I don't think we need these
                     case 6:
-                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                            newSearch.GetSearchTextYearBefore(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
-                        newSearch.SearchText += " AND year of publication before: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
+                        newSearch.Date1 = MagSearchDate1.SelectedDate.Value.Year.ToString("yyyy");
+                        newSearch.DateFilter = "Publication year before";
                         break;
+                        
                     case 7:
                         newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
                             newSearch.GetSearchTextYearAfter(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
@@ -3472,13 +3539,17 @@ namespace EppiReviewer4
                         newSearch.SearchText += " AND year of publication between: " + MagSearchDate1.SelectedDate.Value.Year.ToString() + " and " +
                             MagSearchDate2.SelectedDate.Value.Year.ToString();
                         break;
+                        */
                 }
+            }
+            else
+            {
+                newSearch.DateFilter = "";
             }
             if (ComboMagSearchPubTypeLimit != null && ComboMagSearchPubTypeLimit.SelectedIndex > 0)
             {
-                newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                            newSearch.GetSearchTextPublicationType((ComboMagSearchPubTypeLimit.SelectedIndex - 1).ToString()) + ")";
-                newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(ComboMagSearchPubTypeLimit.SelectedIndex - 1);
+                newSearch.PublicationTypeFilter = newSearch.GetSearchTextPublicationType((ComboMagSearchPubTypeLimit.SelectedIndex - 1).ToString());
+                newSearch.PublicationTypeTextFilter = newSearch.GetPublicationType(ComboMagSearchPubTypeLimit.SelectedIndex - 1);
             }
             if (newSearch.MagSearchText.Length > 2000)
             {
@@ -3524,6 +3595,7 @@ namespace EppiReviewer4
 
         private void MagSearchComboCombine_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            const int MaxHitCount = 50000; // We could put this in web.config
             if (MagSearchComboCombine.SelectedIndex == -1)
             {
                 return;
@@ -3535,24 +3607,51 @@ namespace EppiReviewer4
                 return;
             }
             List<MagSearch> searches = new List<MagSearch>();
+            int hitCount = 0;
+            string combined = "";
+            string searchDesc = "";
             foreach (MagSearch ms in SearchDataGrid.SelectedItems)
             {
                 searches.Add(ms);
+                if (!ms.SearchIdsStored)
+                {
+                    hitCount += ms.HitsNo;
+                }
+                if (combined == "")
+                {
+                    combined = ms.MagSearchId.ToString();
+                    searchDesc = ms.SearchNo.ToString();
+                }
+                else
+                {
+                    combined += (MagSearchComboCombine.SelectedIndex == 0 ? "AND" : "OR") + ms.MagSearchId.ToString();
+                    searchDesc += (MagSearchComboCombine.SelectedIndex == 0 ? "AND" : "OR") + ms.SearchNo.ToString();
+                }
+                
             }
-            MagSearch newSearch = new MagSearch();
-            newSearch.SetCombinedSearches(searches, MagSearchComboCombine.SelectedIndex == 0 ? "AND" : "OR");
-            newSearch = AddDateFilter(newSearch);
-            if (newSearch.MagSearchText.Length > 2000)
+            if (hitCount > MaxHitCount)
             {
-                Dispatcher.BeginInvoke(() => RadWindow.Alert("Sorry, this search string is too long"));
+                RadWindow.Alert("Sorry, too many hits. Please combine fewer records");
                 MagSearchComboCombine.SelectedIndex = -1;
                 return;
             }
+            MagSearch newSearch = new MagSearch();
+            //newSearch.SetCombinedSearches(searches, MagSearchComboCombine.SelectedIndex == 0 ? "AND" : "OR");
+            newSearch.MagSearchText = combined;
+            newSearch.SearchText = "¬COMBINE SEARCHES" + searchDesc;
+            //newSearch = AddDateFilter(newSearch);
+            //if (newSearch.MagSearchText.Length > 2000)
+            //{
+            //    Dispatcher.BeginInvoke(() => RadWindow.Alert("Sorry, this search string is too long"));
+            //    MagSearchComboCombine.SelectedIndex = -1;
+            //    return;
+            //}
             newSearch.Saved += NewSearch_Saved;
             newSearch.BeginSave();
             MagSearchComboCombine.SelectedIndex = -1;
             MagSearchComboCombine.IsEnabled = false;
             SearchDataGrid.IsEnabled = false;
+            RadWindow.Alert("Combining searches now\nThis can take a while...");
         }
 
         private void hlMagSearchDateLimitFilter2_Click(object sender, RoutedEventArgs e)
@@ -3568,7 +3667,7 @@ namespace EppiReviewer4
                 MagSearch newSearch = new MagSearch();
                 newSearch.MagSearchText = originalSearch.MagSearchText;
                 newSearch.SearchText = "#" + originalSearch.SearchNo.ToString();
-                newSearch = AddDateFilter(newSearch);
+                //newSearch = AddDateFilter(newSearch);
                 newSearch.Saved += NewSearch_Saved;
                 newSearch.BeginSave();
                 MagSearchComboCombine.SelectedIndex = -1;
@@ -3577,6 +3676,7 @@ namespace EppiReviewer4
             }
         }
 
+        /*
         private MagSearch AddDateFilter(MagSearch newSearch)
         {
             if (ComboMagSearchDateLimitFilter.SelectedIndex > 0)
@@ -3631,6 +3731,7 @@ namespace EppiReviewer4
             }
             return newSearch;
         }
+        */
 
         private MagSearch TempDeleteMagSearch;
         private void cmdDeleteSearch_Click(object sender, RoutedEventArgs e)
@@ -3704,6 +3805,14 @@ namespace EppiReviewer4
             if (btn != null)
             {
                 MagSearch search = btn.DataContext as MagSearch;
+
+                if (search.HitsNo == 0)
+                {
+                    RadWindow.Alert("No results");
+                    return;
+                }
+
+                /*
                 CslaDataProvider prov = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
                 MagCurrentInfo mci = prov.Data as MagCurrentInfo;
                 if (mci != null)
@@ -3714,11 +3823,12 @@ namespace EppiReviewer4
                         return;
                     }
                 }
+                */
 
                 if (search != null)
                 {
                     TBPaperListTitle.Text = search.HitsNo.ToString() + " hits (in original search)";
-                    ShowSearchResults(search.MagSearchText);
+                    ShowSearchResults(search.MagSearchId.ToString());
                 }
             }
         }
@@ -3738,15 +3848,23 @@ namespace EppiReviewer4
                 {
                     CslaDataProvider prov = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
                     MagCurrentInfo mci = prov.Data as MagCurrentInfo;
-                    if (mci != null)
+                    /*if (mci != null)
                     {
+                        
                         if (ms.MagFolder != mci.MagFolder)
                         {
                             RadWindow.Alert("This search was run against an earlier version of OpenAlex\nPlease re-run before importing");
                             return;
                         }
+                        
+
+                    }*/
+                    if (ms.HitsNo == 0)
+                    {
+                        RadWindow.Alert("No hits to import");
+                        return;
                     }
-                        if (ms.HitsNo > 20000)
+                    if (ms.HitsNo > 20000)
                     {
                         RadWindow.Alert("Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?");
                     }
@@ -3775,7 +3893,7 @@ namespace EppiReviewer4
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterDOI.Text : ""),
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterURL.Text : ""),
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterTitle.Text : ""),
-                        ms.MagSearchText,
+                        ms.MagSearchId.ToString(),
                         "OpenAlex search: " + ms.SearchText + 
                             (SelectedLinkButton.Tag.ToString() == "MagSearchResultsLatestMAG" ? " (filtered to latest deployment)" : "") +
                             (cbMagSearchShowTextFilters.IsChecked == true ? " (with source filters applied)" : ""),
@@ -3826,48 +3944,7 @@ namespace EppiReviewer4
             }
         }
 
-        private void ComboMagSearchSelect_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            if (ComboMagSearchSelect != null)
-            {
-                MagSearchClearTopics();
-                if (ComboMagSearchSelect.SelectedIndex == 3)
-                {
-                    RowMagSearchTopics.Height = new GridLength(120, GridUnitType.Pixel);
-                }
-                else
-                {
-                    RowMagSearchTopics.Height = new GridLength(0);
-                }
-            }
-        }
-
-        private void TextBoxMagSearch_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (ComboMagSearchSelect != null && ComboMagSearchSelect.SelectedIndex != 3)
-            {
-                return;
-            }
-            if (CleanText(TextBoxMagSearch.Text).Length > 2)
-            {
-                if (this.timer != null && this.timer.IsEnabled)
-                {
-                    this.timer.Stop();
-                    this.timer.Start();
-                }
-                else
-                {
-                    if (this.timer != null)
-                    {
-                        this.timer.Start();
-                    }
-                }
-            }
-            else
-            {
-                WPMagSearchFindTopics.Children.Clear();
-            }
-        }
+        
 
 
         private void cbMagSearchShowTextFilters_Checked(object sender, RoutedEventArgs e)
@@ -3894,7 +3971,7 @@ namespace EppiReviewer4
 
         private void Timer2_Tick(object sender, EventArgs e)
         {
-            this.timer.Stop();
+            this.timer2.Stop();
             if (TextBoxMagSearch.Text.Length > 1)
             {
                 CslaDataProvider provider = this.Resources["SearchTopicsData"] as CslaDataProvider;
@@ -4340,7 +4417,7 @@ namespace EppiReviewer4
                     }
                     IncrementHistoryCount();
                     AddToBrowseHistory("Papers identified from auto-update run", "MagAutoUpdateRunList", 0,
-                        "", "", 0, "", "", 0, "", "", 0, maur.MagAutoUpdateRunId, "AutoUpdate", 0, 0, 0, -1);
+                        "", "", 0, "", "", 0, "", "", 0, maur.MagAutoUpdateRunId, "AutoUpdate", 0, 0, 0, -1, "");
                     TBPaperListTitle.Text = "Papers identified from auto-update run";
                     ShowAutoUpdateIdentifiedItems(maur.MagAutoUpdateRunId, "AutoUpdate", 0, 0, 0, -1);
                 }
@@ -4570,7 +4647,7 @@ namespace EppiReviewer4
                         AutoUpdateAutoScoreThreshold.Value.Value,
                         AutoUpdateStudyTypeScoreThreshold.Value.Value,
                         AutoUpdateUserScoreThreshold.Value.Value,
-                        Convert.ToInt32(AutoUpdateImportTopN.Value.Value));
+                        Convert.ToInt32(AutoUpdateImportTopN.Value.Value), "");
                     TBPaperListTitle.Text = "Papers identified from auto-update run";
                     ShowAutoUpdateIdentifiedItems(maur.MagAutoUpdateRunId,
                         (comboAutoUpdateImportOptions.SelectedItem as ComboBoxItem).Tag.ToString(),

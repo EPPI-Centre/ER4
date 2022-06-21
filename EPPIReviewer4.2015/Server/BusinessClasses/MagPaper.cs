@@ -155,8 +155,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        /*
         public static readonly PropertyInfo<SmartDate> DateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("Date", "Date"));
         public SmartDate SmartDate
+        {
+            get
+            {
+                return GetProperty(DateProperty);
+            }
+        }
+        */
+
+        public static readonly PropertyInfo<string> DateProperty = RegisterProperty<string>(new PropertyInfo<string>("Date", "Date", ""));
+        public string SmartDate
         {
             get
             {
@@ -315,6 +326,31 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(FieldsOfStudyProperty);
             }
+        }
+
+        public static readonly PropertyInfo<string> FieldsOfStudyListProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldsOfStudyList", "FieldsOfStudyList", string.Empty));
+        public string FieldsOfStudyList
+        {
+            get
+            {
+                return GetProperty(FieldsOfStudyListProperty);
+            }
+        }
+
+        public static MagFieldOfStudyList GetFieldOfStudyAsList(string FieldsOfStudyListString)
+        {
+            MagFieldOfStudyList retval = new MagFieldOfStudyList();
+
+            foreach (string s in FieldsOfStudyListString.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
+            {
+                MagFieldOfStudy newFos = new MagFieldOfStudy();
+                string[] IdAndLabel = s.Split('¬');
+                newFos.FieldOfStudyId = Convert.ToInt64(IdAndLabel[0]);
+                newFos.DisplayName = IdAndLabel[1];
+                newFos.NormalizedName = IdAndLabel[1];
+                retval.Add(newFos);
+            }
+            return retval;
         }
 
         public static readonly PropertyInfo<string> PdfLinksProperty = RegisterProperty<string>(new PropertyInfo<string>("PdfLinks", "PdfLinks", string.Empty));
@@ -583,7 +619,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(criteria.Value);
+                        MagMakesHelpers.OaPaper pm = MagMakesHelpers.GetPaperMakesFromMakes(criteria.Value);
                         if (pm != null)
                         {
                             if (reader.Read())
@@ -643,7 +679,23 @@ namespace BusinessLibrary.BusinessClasses
         public static MagPaper GetMagPaperFromMakes(Int64 PaperId, SafeDataReader reader)
         {
             MagPaper returnValue = new MagPaper();
-            MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(PaperId);
+            MagMakesHelpers.OaPaper pm = MagMakesHelpers.GetPaperMakesFromMakes(PaperId);
+            if (pm != null)
+            {
+                fillValues(returnValue, pm, reader);
+            }
+            else
+            {
+                returnValue.LoadProperty<string>(OriginalTitleProperty, "ID not found in this version of MAG");
+            }
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+        // Can send a reader as null in some situations, but most fields contained in PaperMakes object
+        internal static MagPaper GetMagPaperFromPaperMakes(MagMakesHelpers.OaPaper pm, SafeDataReader reader)
+        {
+            MagPaper returnValue = new MagPaper();
             if (pm != null)
             {
                 fillValues(returnValue, pm, reader);
@@ -682,7 +734,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(OriginalTitleProperty, pm.DN);
             //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
             returnValue.LoadProperty<Int32>(YearProperty, pm.Y);
-            returnValue.LoadProperty<SmartDate>(DateProperty, pm.D);
+            //returnValue.LoadProperty<SmartDate>(DateProperty, pm.D);
             returnValue.LoadProperty<string>(PublisherProperty, pm.PB);
             //if (pm.J != null && pm.J[0] != null)
             if (pm.J != null)
@@ -809,8 +861,113 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        
+        public static void fillValues(MagPaper returnValue, MagMakesHelpers.OaPaper pm, SafeDataReader reader)
+        {
+            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
+            returnValue.LoadProperty<Int64>(PaperIdProperty, Convert.ToInt64(pm.id.Replace("https://openalex.org/W", "")));
+            returnValue.LoadProperty<string>(DOIProperty, pm.doi);
+            returnValue.LoadProperty<string>(DocTypeProperty, pm.type);
+            returnValue.LoadProperty<string>(PaperTitleProperty, (pm.display_name == null || pm.display_name == "" ? "" : pm.display_name));
+            returnValue.LoadProperty<string>(OriginalTitleProperty, pm.display_name);
+            //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
+            returnValue.LoadProperty<Int32>(YearProperty, pm.publication_year);
+            returnValue.LoadProperty<string>(DateProperty, pm.publication_date);
+            returnValue.LoadProperty<string>(PublisherProperty, pm.host_venue.publisher);
+            //if (pm.J != null && pm.J[0] != null)
+            if (pm.host_venue != null)
+            {
+                //returnValue.LoadProperty<Int64>(JournalIdProperty, pm.host_venue.id);
+                returnValue.LoadProperty<string>(JournalProperty, pm.host_venue.display_name);
+            }
+            
+            returnValue.LoadProperty<string>(VolumeProperty, pm.biblio.volume);
+            returnValue.LoadProperty<string>(IssueProperty, pm.biblio.issue);
+            returnValue.LoadProperty<string>(FirstPageProperty, pm.biblio.first_page);
+            returnValue.LoadProperty<string>(LastPageProperty, pm.biblio.last_page);
+            if (pm.referenced_works != null)
+            {
+                returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.referenced_works.Length);
+                string r = "";
+                foreach (string RId in pm.referenced_works)
+                {
+                    if (r == "")
+                        r = RId.ToString();
+                    else
+                        r += "," + RId.ToString();
+                }
+                returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.referenced_works.Length);
+            }
+            else
+            {
+                returnValue.LoadProperty<Int64>(ReferenceCountProperty, 0);
+            }
+            if (pm.concepts != null)
+            {
+                string f = "";
+                string fs = "";
+                foreach (MagMakesHelpers.Concept c in pm.concepts)
+                {
+                    if (f == "")
+                    {
+                        f = c.id.Replace("https://openalex.org/C", ""); 
+
+                       fs = c.id.Replace("https://openalex.org/C", "") + "¬" + c.display_name;
+                    }
+                    else
+                    {
+                        f += "," + c.id.Replace("https://openalex.org/C", "");
+                        fs += Environment.NewLine + c.id.Replace("https://openalex.org/C", "") + "¬" + c.display_name;
+                    }
+                }
+                returnValue.LoadProperty<string>(FieldsOfStudyProperty, f);
+                returnValue.LoadProperty<string>(FieldsOfStudyListProperty, fs);
+            }
+            else
+            {
+                returnValue.LoadProperty<string>(FieldsOfStudyProperty, "");
+            }
+            returnValue.LoadProperty<Int64>(CitationCountProperty, pm.cited_by_count);
+            //returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
+            if (pm.authorships != null)
+            {
+                string a = "";
+                foreach (MagMakesHelpers.Authorship pma in pm.authorships)
+                {
+                    if (a == "")
+                    {
+                        a = pma.author.display_name;
+                    }
+                    else
+                    {
+                        a += ", " + pma.author.display_name;
+                    }
+                }
+                returnValue.LoadProperty<string>(AuthorsProperty, a);
+            }
+            returnValue.LoadProperty<string>(AbstractProperty, MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index));
+            if (pm.host_venue != null)
+            {
+                returnValue.LoadProperty<string>(URLsProperty, pm.host_venue.url);
+                //returnValue.LoadProperty<string>(PdfLinksProperty, p);
+            }
+            if (reader != null)
+            {
+                try
+                {
+                    returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
+                    returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
+                    returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
+                    returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
+                }
+                catch
+                {
+                    // if the reader didn't read but we have a valid paper, it's not in the review
+                }
+            }
+        }
+
+
 
 #endif
-    }
+        }
 }

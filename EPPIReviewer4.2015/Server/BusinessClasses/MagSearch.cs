@@ -38,6 +38,7 @@ namespace BusinessLibrary.BusinessClasses
             this.MagSearchText = oldSearch.MagSearchText;
         }
 
+        /*
         public void SetCombinedSearches(List<MagSearch> searches, string AndOrOr)
         {
             string combinedMagSearch = "";
@@ -58,6 +59,7 @@ namespace BusinessLibrary.BusinessClasses
             this.SearchText = combinedSearchText + ")";
             this.MagSearchText = AndOrOr + "(" + combinedMagSearch + ")";
         }
+        */
 
         public string GetSearchTextTitle(string searchText)
         {
@@ -115,11 +117,11 @@ namespace BusinessLibrary.BusinessClasses
 
             if (words.Length == 1)
             {
-                cleaned = "Id=" + words[0];
+                cleaned = "W" + words[0];
             }
             else
             {
-                cleaned = "OR(Id=" + string.Join(",", words).Replace(",", ",Id=") + ")";
+                cleaned = "W" + string.Join("|", words).Replace("|", "|W");
             }
 
             return cleaned;
@@ -485,6 +487,94 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> Date1Property = RegisterProperty<string>(new PropertyInfo<string>("Date1", "Date1", ""));
+        public string Date1
+        {
+            get
+            {
+                return GetProperty(Date1Property);
+            }
+            set
+            {
+                SetProperty(Date1Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> Date2Property = RegisterProperty<string>(new PropertyInfo<string>("Date2", "Date2", ""));
+        public string Date2
+        {
+            get
+            {
+                return GetProperty(Date2Property);
+            }
+            set
+            {
+                SetProperty(Date2Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> DateFilterProperty = RegisterProperty<string>(new PropertyInfo<string>("DateFilter", "DateFilter", ""));
+        public string DateFilter
+        {
+            get
+            {
+                return GetProperty(DateFilterProperty);
+            }
+            set
+            {
+                SetProperty(DateFilterProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> PublicationTypeFilterProperty = RegisterProperty<string>(new PropertyInfo<string>("PublicationTypeFilter", "PublicationTypeFilter", ""));
+        public string PublicationTypeFilter
+        {
+            get
+            {
+                return GetProperty(PublicationTypeFilterProperty);
+            }
+            set
+            {
+                SetProperty(PublicationTypeFilterProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> PublicationTypeTextFilterProperty = RegisterProperty<string>(new PropertyInfo<string>("PublicationTypeTextFilter", "PublicationTypeTextFilter", ""));
+        public string PublicationTypeTextFilter
+        {
+            get
+            {
+                return GetProperty(PublicationTypeTextFilterProperty);
+            }
+            set
+            {
+                SetProperty(PublicationTypeTextFilterProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<bool> SearchIdsStoredProperty = RegisterProperty<bool>(new PropertyInfo<bool>("SearchIdsStored", "SearchIdsStored", false));
+        public bool SearchIdsStored
+        {
+            get
+            {
+                return GetProperty(SearchIdsStoredProperty);
+            }
+            set
+            {
+                SetProperty(SearchIdsStoredProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> SearchIdsProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchIds", "SearchIds", ""));
+        public string SearchIds
+        {
+            get
+            {
+                return GetProperty(SearchIdsProperty);
+            }
+            set
+            {
+                SetProperty(SearchIdsProperty, value);
+            }
+        }
+
 
 
         //protected override void AddAuthorizationRules()
@@ -517,25 +607,83 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
+            if (SearchText.IndexOf("¬COMBINE SEARCHES") > -1)
+            {
+                CombineSearches();
+                return;
+            }
+
+            bool TitleAndAbstract = false;
+
             if (MagSearchText != "")
             {
-                MagMakesHelpers.MakesCalcHistogramResponse resp = MagMakesHelpers.CalcHistoramCount(MagSearchText);
-                if (resp != null && resp.histograms != null && resp.histograms.Count > 0)
+                MagMakesHelpers.OaPaperFilterResult resp = null;
+                if (SearchText.StartsWith("¬Title:"))
                 {
-                    foreach (MagMakesHelpers.histograms hs in resp.histograms)
+                    if (MagSearchText.IndexOf("display_name.search:") == -1) // i.e. for a rerun the search is already fully described
                     {
-                        if (hs.attribute == "Id")
+                        MagSearchText = "display_name.search:" + MagSearchText;
+                    }
+                }
+                if (SearchText.StartsWith("¬Title and abstract:"))
+                {
+                    TitleAndAbstract = true;
+                    //MagSearchText = MagSearchText;
+                }
+                if (SearchText.StartsWith("¬Topic:"))
+                {
+                    if (MagSearchText.IndexOf("concepts.id:") == -1) // i.e. for a rerun the search is already fully described
+                    {
+                        MagSearchText = "concepts.id:" + "https://openalex.org/C" + MagSearchText;
+                    }
+                }
+                if (SearchText.StartsWith("¬OpenAlex ID(s):"))
+                {
+                    MagSearchText = "openalex_id:" + MagSearchText.Replace("W", "https://openalex.org/W");
+                }
+                SearchText = SearchText.Replace("¬", "");
+
+                if (TitleAndAbstract)
+                {
+                    resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", true);
+                }
+                else
+                {
+                    if (this.DateFilter != "")
+                    {
+                        switch (DateFilter)
                         {
-                            HitsNo = hs.total_count;
-                            break;
+                            case "Published on":
+                                MagSearchText += ",publication_date:" + Date1;
+                                break;
+                            case "Published before":
+                                MagSearchText += ",to_publication_date:" + Date1;
+                                break;
+                            case "Published after":
+                                MagSearchText += ",from_publication_date:" + Date1;
+                                break;
+                            case "Published between":
+                                MagSearchText += ",from_publication_date:" + Date1 + ",to_publication_date:" + Date2;
+                                break;
+                            case "Publication year":
+                                MagSearchText += ",publication_year:" + Date1;
+                                break;
                         }
                     }
+                    resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", false);
+                }
+
+                if (resp.meta != null)
+                {
+                    HitsNo = resp.meta.count;
                 }
                 else
                 {
                     HitsNo = 0;
                     SearchText = "INVALID SEARCH";
                 }
+
+                
             }
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
@@ -548,7 +696,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", SearchText + " (" + MagInfo.MagFolder + ")"));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", SearchText));
                     command.Parameters.Add(new SqlParameter("@SEARCH_NO", 0)); // set in the SP
                     command.Parameters.Add(new SqlParameter("@HITS_NO", HitsNo)); 
                     command.Parameters.Add(new SqlParameter("@SEARCH_DATE", SearchDate));
@@ -561,6 +709,113 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+        }
+
+        private void CombineSearches()
+        {
+            // grabbing these variables now in case of ticket expiery or anything else odd if the task takes a while
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            int ContactId = ri.UserId;
+            int ReviewId = ri.ReviewId;
+
+            HitsNo = 0;
+            bool CombineWithOR = true;
+            string[] SearchIDs = null;
+            if (MagSearchText.IndexOf("AND") > -1)
+            {
+                CombineWithOR = false;
+                SearchIDs = MagSearchText.Replace("AND", "¬").Split('¬');
+            }
+            else
+            {
+                SearchIDs = MagSearchText.Replace("OR", "¬").Split('¬');
+            }
+
+            // Get the IDs for the first search
+            List<string> OverallResults = GetIdsFromSearchId(SearchIDs[0], ReviewId);
+
+            // Loop through the rest of the searches and AND or OR them to the original
+            for (int i = 1; i < SearchIDs.Length; i++)
+            {
+                List<string> CurrentSearchResults = GetIdsFromSearchId(SearchIDs[i], ReviewId);
+                if (CombineWithOR == true)
+                {
+                    OverallResults = OverallResults.Union(CurrentSearchResults).ToArray().ToList();
+                }
+                else
+                {
+                    OverallResults = OverallResults.Intersect(CurrentSearchResults).ToArray().ToList();
+                }
+            }
+
+            this.SearchDate = DateTime.Now.Date;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagSearchInsert", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", SearchText.Replace("¬COMBINE SEARCHES", "").Replace("AND", " AND ").Replace("OR", " OR ")));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_NO", 0)); // set in the SP
+                    command.Parameters.Add(new SqlParameter("@HITS_NO", OverallResults.Count));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_DATE", SearchDate));
+                    command.Parameters.Add(new SqlParameter("@MAG_FOLDER", ""));
+                    command.Parameters.Add(new SqlParameter("@MAG_SEARCH_TEXT", MagSearchText));
+                    command.Parameters.Add(new SqlParameter("@MAG_SEARCH_ID", 0));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_IDS_STORED", true));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_IDS", string.Join(",", OverallResults)));
+                    command.Parameters["@MAG_SEARCH_ID"].Direction = ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    LoadProperty(MagSearchIdProperty, Convert.ToInt32(command.Parameters["@MAG_SEARCH_ID"].Value));
+                }
+                connection.Close();
+            }
+
+        }
+
+        private List<string> GetIdsFromSearchId(string Id, int ReviewId)
+        {
+            MagSearch theSearch = GetMagSearchById(Id, ReviewId);
+            if (theSearch.SearchIdsStored == true)
+            {
+                return GetStoredSearchIds(theSearch);
+            }
+            else
+            {
+                return GetIdsFromOpenAlex(theSearch);
+            }
+        }
+
+        private List<string> GetStoredSearchIds(MagSearch theSearch)
+        {
+            List<string> results = new List<string>();
+            string [] allIds = theSearch.SearchIds.Split(',');
+            foreach (string s in allIds)
+            {
+                results.Add(s);
+            }
+            return results;
+        }
+
+        private List<string> GetIdsFromOpenAlex(MagSearch theSearch)
+        {
+            List<string> results = new List<string>();
+            bool doSearch = false;
+            if (theSearch.MagSearchText.IndexOf(".") == -1)
+            {
+                doSearch = true; // i.e. title/abstract search where we 'search' rather than 'filter'
+            }
+            List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(theSearch.MagSearchText, doSearch);
+            foreach (MagMakesHelpers.OaPaperFilterResult r in res)
+            {
+                foreach (MagMakesHelpers.OaPaper p in r.results)
+                {
+                    results.Add(p.id.Replace("https://openalex.org/W", ""));
+                }
+            }
+            return results;
         }
 
         protected override void DataPortal_Update()
@@ -584,6 +839,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        // this version used when we want a list of searches
         internal static MagSearch GetMagSearch(SafeDataReader reader)
         {
             MagSearch returnValue = new MagSearch();
@@ -601,6 +857,48 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        // this version for a specific search when we load optional search results too
+        internal static MagSearch GetMagSearchWithIds(SafeDataReader reader)
+        {
+            MagSearch returnValue = new MagSearch();
+            returnValue.LoadProperty<int>(MagSearchIdProperty, reader.GetInt32("MAG_SEARCH_ID"));
+            returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
+            returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
+            returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
+            returnValue.LoadProperty<string>(SearchTextProperty, reader.GetString("SEARCH_TEXT"));
+            returnValue.LoadProperty<int>(SearchNoProperty, reader.GetInt32("SEARCH_NO"));
+            returnValue.LoadProperty<int>(HitsNoProperty, reader.GetInt32("HITS_NO"));
+            returnValue.LoadProperty<DateTime>(SearchDateProperty, reader.GetDateTime("SEARCH_DATE"));
+            returnValue.LoadProperty<string>(MagFolderProperty, reader.GetString("MAG_FOLDER"));
+            returnValue.LoadProperty<string>(MagSearchTextProperty, reader.GetString("MAG_SEARCH_TEXT"));
+            returnValue.LoadProperty<bool>(SearchIdsStoredProperty, reader.GetBoolean("SEARCH_IDS_STORED"));
+            returnValue.LoadProperty<string>(SearchIdsProperty, reader.GetString("SEARCH_IDS"));
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+        internal static MagSearch GetMagSearchById(string Id, int ReviewId)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagSearch", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@MAG_SEARCH_ID", Convert.ToInt32(Id)));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            return GetMagSearchWithIds(reader);
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            return null;
+        }
 
 #endif
 

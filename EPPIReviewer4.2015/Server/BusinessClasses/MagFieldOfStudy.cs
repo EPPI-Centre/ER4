@@ -42,6 +42,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(FieldOfStudyIdProperty);
             }
+            set
+            {
+                SetProperty(FieldOfStudyIdProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
@@ -60,6 +64,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(NormalizedNameProperty);
             }
+            set
+            {
+                SetProperty(NormalizedNameProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<string> DisplayNameProperty = RegisterProperty<string>(new PropertyInfo<string>("DisplayName", "DisplayName", string.Empty));
@@ -68,6 +76,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(DisplayNameProperty);
+            }
+            set
+            {
+                SetProperty(DisplayNameProperty, value);
             }
         }
 
@@ -360,11 +372,21 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudyRelationship(MagMakesHelpers.FieldOfStudyRelationshipMakes fosrm)
+        internal static MagFieldOfStudy GetAncestor(MagMakesHelpers.Ancestor fosrm)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
-            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, fosrm.FId);
-            returnValue.LoadProperty<string>(DisplayNameProperty, fosrm.FN);
+            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, Convert.ToInt64(fosrm.id.Replace("https://openalex.org/C", "")));
+            returnValue.LoadProperty<string>(DisplayNameProperty, fosrm.display_name);
+
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+        internal static MagFieldOfStudy GetConcept(MagMakesHelpers.OaFullConcept fullConcept)
+        {
+            MagFieldOfStudy returnValue = new MagFieldOfStudy();
+            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, Convert.ToInt64(fullConcept.id.Replace("https://openalex.org/C", "")));
+            returnValue.LoadProperty<string>(DisplayNameProperty, fullConcept.display_name);
 
             returnValue.MarkOld();
             return returnValue;

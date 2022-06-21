@@ -375,13 +375,16 @@ namespace BusinessLibrary.BusinessClasses
 #else
         protected void DataPortal_Fetch(MagPaperListSelectionCriteria selectionCriteria)
         {
-             // There are two types of list: one where we look up the items in SQL first, and one where the list comes from MAKES, and
+             // There are two types of list: one where we look up the items in SQL first, and one where the list comes from OpenAlex, and
              // we do an SQL lookup to match up IDs.
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
             PageSize = selectionCriteria.PageSize;
             _pageIndex = selectionCriteria.PageNumber;
             string Ids = "";
+            string searchString = "";
+            int itemCount = 0;
+            List<double> similarityScores = new List<double>();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -400,18 +403,25 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@RowsPerPage", selectionCriteria.PageSize));
                         command.Parameters.Add(new SqlParameter("@Total", 0));
                         command.Parameters["@Total"].Direction = System.Data.ParameterDirection.Output;
-                        
+
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
                             while (reader.Read())
                             {
-                                MagPaper newRow = MagPaper.GetMagPaperFromMakes(reader.GetInt64("PaperId"), reader);
+                                if (Ids == "")
+                                {
+                                    Ids = "W" + reader.GetInt64("PaperId").ToString();
+                                }
+                                else
+                                {
+                                    Ids += "|W" + reader.GetInt64("PaperId").ToString();
+                                }
                                 if (selectionCriteria.ListType == "MagRelatedPapersRunList" ||
                                     selectionCriteria.ListType == "MagAutoUpdateRunPapersList")
                                 {
-                                    newRow.SimilarityScore = reader.GetDouble("SimilarityScore");
+                                    similarityScores.Add(reader.GetDouble("SimilarityScore"));
                                 }
-                                Add(newRow);
+                                itemCount++;
                             }
                             reader.NextResult();
                             if (reader.Read())
@@ -420,49 +430,86 @@ namespace BusinessLibrary.BusinessClasses
                                 _totalItemCount = reader.GetInt32("@Total");
                             }
                         }
+
+                        if (Ids != "")
+                        {
+                            searchString = "openalex_id:https://openalex.org/W" + Ids;
+                            MagMakesHelpers.OaPaperFilterResult pmr = MagMakesHelpers.EvaluateOaPaperFilter(searchString, itemCount.ToString(), "1", false);
+                            if (pmr.results != null && pmr.results.Length > 0)
+                            {
+                                int index = 0;
+                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                                {
+                                    while (reader.Read())
+                                    {
+                                        MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pmr.results[index], reader);
+                                        if (mp != null)
+                                        {
+                                            if (similarityScores.Count > index)
+                                                mp.SimilarityScore = similarityScores[index];
+                                            this.Add(mp);
+                                        }
+                                        index++;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
+
                 else // i.e. these list types: CitedByList, RecommendationsList, RecommendedByList, PaperFieldsOfStudyList, MagSearchResultsList
                      // AuthorPaperList, PaperListById (selected items).
-                    //  These query MAKES for the list of PaperIds and then we look up in our database to see whether they are in the review.
+                     //  These query MAKES for the list of PaperIds and then we look up in our database to see whether they are in the review.
                 {
-                    MagMakesHelpers.PaperMakes mpParent = null;
+                    MagMakesHelpers.OaPaper mpParent = null;
                     MagMakesHelpers.FieldOfStudyMakes fosParent = null;
-                    string queryOffset = (PageIndex * _pageSize).ToString();
+                    bool doSearch = false;
+                    bool setPageToOne = false;
 
-                    string searchString = "";
                     switch (selectionCriteria.ListType)
                     {
                         case "PaperFieldsOfStudyList":
-                            searchString = "Composite(F.FId=" + selectionCriteria.FieldOfStudyId.ToString() + ")";                          
+                            searchString = "concepts.id:https://openalex.org/C" + selectionCriteria.FieldOfStudyId.ToString(); //"Composite(F.FId=" + selectionCriteria.FieldOfStudyId.ToString() + ")";                          
                             if (selectionCriteria.DateFrom != "" && selectionCriteria.DateTo != "")
                             {
-                                searchString = "AND(" + searchString + ",D=['" + selectionCriteria.DateFrom + "','" +
-                                    selectionCriteria.DateTo + "'])";
+                                searchString += ",from_publication_date:" + selectionCriteria.DateFrom + ",to_publication_date:" + selectionCriteria.DateTo; //"AND(" + searchString + ",D=['" + selectionCriteria.DateFrom + "','" + selectionCriteria.DateTo + "'])";
                             }
                             else
                             {
                                 if (selectionCriteria.DateFrom != "")
                                 {
-                                    searchString = "AND(" + searchString + ",D>='" + selectionCriteria.DateFrom + "')";
+                                    searchString += ",from_publication_date:" + selectionCriteria.DateFrom;
                                 }
                                 else
                                 {
-                                    if (selectionCriteria.DateTo != "") // though think this is always true here
+                                    if (selectionCriteria.DateTo != "")
                                     {
-                                        searchString = "AND(" + searchString + ",D<='" + selectionCriteria.DateTo + "')";
+                                        searchString += ",from_publication_date:" + selectionCriteria.DateTo;
                                     }
                                 }
                             }
                             this.FieldOfStudyId = selectionCriteria.FieldOfStudyId;
-                            /*
+
+                            /* This looks redundant even pre-OpenAlex
                             fosParent = MagMakesHelpers.EvaluateSingleFieldOfStudyId(selectionCriteria.FieldOfStudyId.ToString());
                             if (fosParent != null)
                             {
                                 _totalItemCount = fosParent.CC;
                             }
                             */
+
                             // replaced the above with this, so that the count is correct even with date filters
+
+                            MagMakesHelpers.OaPaperFilterResult resp = MagMakesHelpers.EvaluateOaPaperFilter(searchString, "1", "1", false);
+                            if (resp != null && resp.meta != null)
+                            {
+                                _totalItemCount = resp.meta.count;
+                            }
+                            else
+                            {
+                                _totalItemCount = 0;
+                            }
+                            /*
                             MagMakesHelpers.MakesCalcHistogramResponse resp = MagMakesHelpers.CalcHistoramCount(searchString);
                             if (resp != null)
                             {
@@ -479,42 +526,36 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 _totalItemCount = 0;
                             }
+                            */
                             break;
                         case "CitedByList":
-                            searchString = "RId=" + selectionCriteria.MagPaperId.ToString();
+                            searchString = "cites:W" + selectionCriteria.MagPaperId.ToString();
                             this.PaperIds = selectionCriteria.PaperIds;
                             this.PaperId = selectionCriteria.MagPaperId;
+
                             mpParent = MagMakesHelpers.GetPaperMakesFromMakes(selectionCriteria.MagPaperId);
                             if (mpParent != null)
                             {
-                                _totalItemCount = mpParent.CC;
+                                _totalItemCount = mpParent.cited_by_count;
                             }
+
                             break;
                         case "CitationsList":
                             mpParent = MagMakesHelpers.GetPaperMakesFromMakes(selectionCriteria.MagPaperId);
-                            string ids = "";
-                            if (mpParent != null && mpParent.RId != null)
+                            if (mpParent != null)
                             {
-                                _totalItemCount = mpParent.RId.Count;
-
-                                for(int i = _pageIndex * selectionCriteria.PageSize; i < mpParent.RId.Count && i <
-                                    ((PageIndex * selectionCriteria.PageSize) + selectionCriteria.PageSize); i++)
-                                {
-                                    ids += ids == "" ? mpParent.RId[i].ToString() : "," + mpParent.RId[i].ToString();
-                                }
+                                _totalItemCount = mpParent.referenced_works.Length;
                             }
                             else
                             {
                                 _totalItemCount = 0;
                             }
-                            searchString = "OR(Id=" + ids.Replace(",", ", Id=") + ")";
+                            searchString = "cited_by:W" + selectionCriteria.MagPaperId.ToString();
                             this.PaperIds = selectionCriteria.PaperIds;
                             this.PaperId = selectionCriteria.MagPaperId;
-                            queryOffset = "0";
-                            
                             break;
                         case "PaperListById":
-                            searchString = "OR(Id=" + selectionCriteria.PaperIds.Replace(",", ", Id=") + ")";
+                            searchString = "openalex_id:https://openalex.org/W" + selectionCriteria.PaperIds.Replace(",", "|https://openalex.org/W");
                             if (selectionCriteria.PaperIds != "")
                             {
                                 _totalItemCount = selectionCriteria.PaperIds.ToCharArray().Count(c => c == ',') + 1;
@@ -526,34 +567,89 @@ namespace BusinessLibrary.BusinessClasses
                             }
                             break;
                         case "MagSearchResultsList":
-                            searchString = selectionCriteria.MagSearchText;
-                            MagSearchText = searchString;
-                            resp = MagMakesHelpers.CalcHistoramCount(searchString);
-                            foreach (MagMakesHelpers.histograms hs in resp.histograms)
+                            MagSearch ms = MagSearch.GetMagSearchById(selectionCriteria.MagSearchId, ri.ReviewId);
+
+                            if (ms.SearchIdsStored == false && ms.HitsNo > 0) // we have to go to the OpenAlex API and run a filter/search as we don't have the search result IDs stored
                             {
-                                if (hs.attribute == "Id")
+                                searchString = ms.MagSearchText;
+                                MagSearchText = searchString;
+                                if (searchString.IndexOf(".") == -1)
                                 {
-                                    _totalItemCount = hs.total_count;
-                                    break;
+                                    doSearch = true; // i.e. title/abstract search where we 'search' rather than 'filter'
+                                }
+                                resp = MagMakesHelpers.EvaluateOaPaperFilter(searchString, "1", "1", doSearch);
+                                if (resp.meta != null)
+                                {
+                                    _totalItemCount = resp.meta.count;
+                                }
+                                else
+                                {
+                                    _totalItemCount = 0;
+                                    searchString = "";
+                                }
+                            }
+                            else // we do have the search results stored, so this must be a combined search. We basically get the 20 IDs requested (i.e. handle paging) and return them like PaperListById
+                            {
+                                string[] allIds = ms.SearchIds.Split(',');
+                                if (ms.HitsNo > 0)
+                                {
+                                    for (int i = PageIndex * selectionCriteria.PageSize; i < (PageIndex * selectionCriteria.PageSize) + selectionCriteria.PageSize; i++)
+                                    {
+                                        if (i < allIds.Length)
+                                        {
+                                            if (searchString == "")
+                                            {
+                                                searchString = "https://openalex.org/W" + allIds[i];
+                                            }
+                                            else
+                                            {
+                                                searchString += "|https://openalex.org/W" + allIds[i];
+                                            }
+                                        }
+                                    }
+                                    searchString = "openalex_id:" + searchString;
+                                    _totalItemCount = ms.HitsNo;
+                                    setPageToOne = true;
+                                }
+                                else
+                                {
+                                    _totalItemCount = 0;
+                                    searchString = "";
                                 }
                             }
                             break;
-                        case "RecommendationsList": // recommendations not currently in MAKES :(
-                            //searchString = "Composite(RId=" + selectionCriteria.MagPaperId.ToString() + ")";
+                        case "RecommendationsList":
+                            mpParent = MagMakesHelpers.GetPaperMakesFromMakes(selectionCriteria.MagPaperId);
+                            //string ids = "";
+                            if (mpParent != null)
+                            {
+                                _totalItemCount = mpParent.related_works.Length;
+                            }
+                            else
+                            {
+                                _totalItemCount = 0;
+                            }
+                            searchString = "related_to:W" + selectionCriteria.MagPaperId.ToString();
+                            this.PaperIds = selectionCriteria.PaperIds;
+                            this.PaperId = selectionCriteria.MagPaperId;
                             break;
                         case "RecommendedByList":
-                            //searchString = "Composite(RId=" + selectionCriteria.MagPaperId.ToString() + ")";
+                            // May never be implemented!
                             break;
                     }
 
                     if (searchString != "" && _totalItemCount > 0)
                     {
-                        MagMakesHelpers.PaperMakesResponse pmr = MagMakesHelpers.EvaluateExpressionWithPaging(searchString, selectionCriteria.PageSize.ToString(),
-                            queryOffset);
-
-                        if (pmr.entities != null && pmr.entities.Count > 0)
+                        string pageIndex = (PageIndex + 1).ToString();
+                        if (setPageToOne == true)
                         {
-                            foreach (MagMakesHelpers.PaperMakes pm in pmr.entities)
+                            pageIndex = "1";
+                        }
+                        MagMakesHelpers.OaPaperFilterResult pmr = MagMakesHelpers.EvaluateOaPaperFilter(searchString, selectionCriteria.PageSize.ToString(), pageIndex, doSearch);
+
+                        if (pmr.results != null && pmr.results.Length > 0)
+                        {
+                            foreach (MagMakesHelpers.OaPaper pm in pmr.results)
                             {
                                 MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
                                 if (mp != null)
@@ -867,13 +963,13 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> MagSearchTextProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("MagSearchText", "MagSearchText", ""));
-        public string MagSearchText
+        public static readonly PropertyInfo<string> MagSearchIdProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("MagSearchId", "MagSearchId", ""));
+        public string MagSearchId
         {
-            get { return ReadProperty(MagSearchTextProperty); }
+            get { return ReadProperty(MagSearchIdProperty); }
             set
             {
-                SetProperty(MagSearchTextProperty, value);
+                SetProperty(MagSearchIdProperty, value);
             }
         }
 
