@@ -48,6 +48,10 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     public get ReviewSources(): ReadOnlySource[] {
         return this._ReviewSources;
     }
+    private _SomeSourceIsBeingDeleted: boolean = false;
+    public get SomeSourceIsBeingDeleted(): boolean {
+        return this._SomeSourceIsBeingDeleted;
+    }
     private _Source: Source | null = null;
     public get CurrentSourceDetail(): Source | null {
         return this._Source;
@@ -97,6 +101,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this._BusyMethods.push("FetchSources");
         return this._httpC.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
             this._ReviewSources = result.sources;
+            this._SomeSourceIsBeingDeleted = result.someSourceIsBeingDeleted;
             this.RemoveBusy("FetchSources");
         }, error => {
             this.RemoveBusy("FetchSources");
@@ -171,22 +176,22 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this._LastDeleteForeverStatus = "";
         this._BusyMethods.push("DeleteSourceForever");
         let body = JSON.stringify({ Value: SourceId });
-        this._httpC.post<number>(this._baseUrl + 'api/Sources/DeleteSourceForever', body).subscribe(result => {
-            if (result == SourceId && this._Source && SourceId == this._Source.source_ID) this._Source = null;//we wipe it here only if user has not changed source in the mean time!!
-            this._LastDeleteForeverStatus = "Success";
+        this._httpC.post<string>(this._baseUrl + 'api/Sources/DeleteSourceForever', body).subscribe(result => {
+            if (this._Source && SourceId == this._Source.source_ID) this._Source = null;//we wipe it here only if user has not changed source in the mean time!!
+            this._LastDeleteForeverStatus = result;
+            this.SourceDeleted.emit(SourceId);
+            this.FetchSources();
+            this.RemoveBusy("DeleteSourceForever");
         },
             error => { 
                 //this.modalService.GenericErrorMessage(error); 
                 this._LastDeleteForeverStatus = "Error";
                 this.RemoveBusy("DeleteSourceForever");
                 this.modalService.GenericError(error);//best way to show the error, as it will include the error details, no matter what!
-                //this.SourceDeleted.emit(SourceId);
-            },
-            () => {
                 this.FetchSources();
-                this.SourceDeleted.emit(SourceId);
-                this.RemoveBusy("DeleteSourceForever");
+                //this.SourceDeleted.emit(SourceId);
             }
+            
         );
     }
     public FetchImportFilters() {
@@ -347,6 +352,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this._ReviewSources = [];
         this._Source = null;
         this._LastDeleteForeverStatus = "";
+        this._SomeSourceIsBeingDeleted = false;
         this.ClearIncomingItems4Checking();
         this.ClearPMsearchState();
         this.StopSourcesReport();
@@ -442,6 +448,9 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
                             
                             let currentSourceData: Source = res;
 
+                            let searchString: string = currentSourceData.searchString;
+                            searchString = searchString.replace(/(?:\r\n|\r|\n)/g, '<br>');
+
                             report += "<tr>"
                             report += "<td>Database name/platform</td>";
                             report += "<td><b>" + currentSourceData.sourceDataBase + "</b></td>";
@@ -473,7 +482,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
                             report += "</tr>"
                             report += "<tr>"
                             report += "<td>Search string</td>";
-                            report += "<td>" + currentSourceData.searchString + "</td>";
+                            report += "<td>" + searchString + "</td>";
                             report += "</tr>"
                             report += "<tr>"
                             report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
@@ -537,6 +546,9 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             // this is a detailed report of a single source
             let currentSource: Source = reportParameter;
 
+            let searchString: string = currentSource.searchString;
+            searchString = searchString.replace(/(?:\r\n|\r|\n)/g, '<br>');
+
             report +=  "<h3>Source report</h3>";
             report += "<table border='1' cellspacing='0' cellpadding='2'>";
 
@@ -575,7 +587,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             report += "</tr>"
             report += "<tr>"
             report += "<td>Search string</td>";
-            report += "<td>" + currentSource.searchString + "</td>";
+            report += "<td>" + searchString + "</td>";
             report += "</tr>"
             report += "<tr>"
             report += "<td>Items coded</td>";
@@ -674,8 +686,10 @@ export interface ReadOnlySource {
     deleted_Items: number;
     duplicates: number;
     isDeleted: boolean;
+    isBeingDeleted: boolean;
 }
 export interface ReadOnlySourcesList {
+    someSourceIsBeingDeleted: boolean;
     sources: ReadOnlySource[];
 }
 

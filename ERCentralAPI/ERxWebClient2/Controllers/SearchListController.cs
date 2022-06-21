@@ -455,9 +455,39 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+
+
+		[HttpPost("[action]")]
+		public IActionResult UpdateSearchName([FromBody] JSONSearchName data)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					DataPortal<Search> dp = new DataPortal<Search>();
+					Search res = dp.Fetch(new SingleCriteria<Search, int>(data.SearchID));
+					res.Title = data.SearchName;
+					res = res.Save(); // asking object to save itself
+					//return Ok(res.Result);
+					return Ok(true);
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Contact data portal error");
+				return StatusCode(500, e.Message);
+			}
+		}
+
+
 	}
 
-
+	public class JSONSearchName
+	{
+		public int SearchID = 0;
+		public string SearchName = "";
+	}
 	public class SearchID
 	{
 		public int searchId = 0;

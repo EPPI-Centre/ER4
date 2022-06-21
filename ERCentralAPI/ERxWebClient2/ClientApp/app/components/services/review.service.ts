@@ -149,10 +149,51 @@ export class ReviewService extends BusyAwareService {
     }
 
 
+    public RemoveReviewer(reviewerID: number): Promise<boolean> { // could make this async directly
+        this._BusyMethods.push("RemoveReviewer");
+        //let body = JSON.stringify({ contactID: reviewerID });
+
+        let _reviewerID = { Value: reviewerID };
+        let body = JSON.stringify(_reviewerID);
+
+        return this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/RemoveReviewer',
+            body).toPromise()
+            .then(
+                (result) => {
+                    this.RemoveBusy("RemoveReviewer");
+                    return true;
+                }, error => {
+                    this.modalService.GenericError(error);
+                    this.RemoveBusy("RemoveReviewer");
+                    return false;
+                }
+            );
+    }
+
+
+    public UpdateReviewerRole(role: string, reviewerID: number): Promise<boolean> { // could make this async directly
+        this._BusyMethods.push("UpdateReviewerRole");
+        let body = JSON.stringify({ role: role, contactID: reviewerID });
+
+        return this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/UpdateReviewerRole',
+            body).toPromise()
+            .then(
+                (result) => {
+                    this.RemoveBusy("UpdateReviewerRole");
+                    return true;
+                }, error => {
+                    this.modalService.GenericError(error);
+                    this.RemoveBusy("UpdateReviewerRole");
+                    return false;
+                }
+            );
+    }
+
+
     public async UpdateReviewName(reviewName: string): Promise<boolean> {
         this._BusyMethods.push("UpdateReviewName");
 
-        let _ReviewName: ReviewRename = { ReviewName: reviewName };        
+        let _ReviewName = { Value: reviewName };        
         let body = JSON.stringify(_ReviewName);
 
         return this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/UpdateReviewName',
@@ -170,8 +211,49 @@ export class ReviewService extends BusyAwareService {
     }
 
 
+    public async InviteReviewer(reviewerEmail: string): Promise<boolean> {
+        let res = await this.AddNewReviewer(reviewerEmail);
+        // res = 0 - everything OK
+        // res = 1 - email not found
+        // res = 2 - there is more than 1 account with this email address
+        // res = 3 - API call failed, error has been shown already
+
+        if (res == 0) {
+            return true;
+        }
+        else {
+            if (res == 1) {
+                this.modalService.GenericErrorMessage("This email was not found in the database.<br>" +
+                    "Are sure an EPPI-Reviewer account exists with this email address?<br>" +
+                    "New accounts can be created in the ACCOUNT MANAGER that can be found at " +
+                    "<a href=\"https://eppi.ioe.ac.uk/cms/er4 \"target=\"_blank\">https://eppi.ioe.ac.uk/cms/er4</a>");
+            } else if (res == 2) {
+                this.modalService.GenericErrorMessage("There is more than 1 account with this email address.<br>Please contact EPPISupport@ucl.ac.uk for assistance.");
+            }
+            return false;
+        }
+    }
 
 
+    public AddNewReviewer(reviewerEmail: string): Promise<number> {
+        this._BusyMethods.push("AddUpdateAccount");
+
+        let _ReviewerEmail = { Value: reviewerEmail };
+        let body = JSON.stringify(_ReviewerEmail);
+
+        return this._httpC.post<number>(this._baseUrl + 'api/AccountManager/AddReviewer',
+            body).toPromise()
+            .then(
+                (result) => {
+                    this.RemoveBusy("UpdateAccount");
+                    return result;
+                }, error => {
+                    this.modalService.GenericError(error);
+                    this.RemoveBusy("UpdateAccount");
+                    return 3;
+                }
+            );
+    }
 
 
 
@@ -186,6 +268,9 @@ export interface Contact {
     username: string;
     email: string;
     ContactId: number;
+
+    expiry: string;
+    role: string;
 }
 
 
@@ -210,8 +295,6 @@ export class Review {
 	reviewName: string = '';
 }
 
-export class ReviewRename {
-    ReviewName: string = '';
-}
+
 
 

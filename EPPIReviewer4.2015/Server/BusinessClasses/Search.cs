@@ -51,6 +51,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(ReviewIdProperty);
             }
+            set
+            {
+                SetProperty(ReviewIdProperty, value);
+            }
         }
 
 		public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
@@ -91,6 +95,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(SearchNoProperty);
             }
+            set
+            {
+                SetProperty(SearchNoProperty, value);
+            }
         }
 
 		public static readonly PropertyInfo<string> AnswersProperty = RegisterProperty<string>(new PropertyInfo<string>("Answers", "Answers", string.Empty));
@@ -130,6 +138,15 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(SearchDateProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<Boolean> ResultProperty = RegisterProperty<Boolean>(new PropertyInfo<Boolean>("Result", "Result"));
+        public Boolean Result
+        {
+            get
+            {
+                return GetProperty(ResultProperty);
             }
         }
 
@@ -182,6 +199,39 @@ namespace BusinessLibrary.BusinessClasses
              */
         }
 
+
+        protected void DataPortal_Fetch(SingleCriteria<Search, int> criteria)
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_SearchGet", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@SEARCH_ID", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            LoadProperty<int>(SearchIdProperty, reader.GetInt32("Search_ID"));
+                            LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
+                            LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
+                            LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
+                            LoadProperty<string>(TitleProperty, reader.GetString("SEARCH_TITLE"));
+                            LoadProperty<int>(SearchNoProperty, reader.GetInt32("SEARCH_NO"));
+                            LoadProperty<string>(AnswersProperty, reader.GetString("ANSWERS"));
+                            LoadProperty<int>(HitsNoProperty, reader.GetInt32("HITS_NO"));
+                            LoadProperty<bool>(IsClassifierResultProperty, reader.GetBoolean("IS_CLASSIFIER_RESULT"));
+                            LoadProperty<SmartDate>(SearchDateProperty, reader.GetSmartDate("SEARCH_DATE"));
+                        }
+                    }
+                }
+                connection.Close();
+            }
+        }
+
         protected override void DataPortal_Update()
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -193,8 +243,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@SEARCH_ID", ReadProperty(SearchIdProperty)));
                     command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", ReadProperty(TitleProperty)));
-					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-					command.ExecuteNonQuery();
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.ExecuteNonQuery();
                 }
                 connection.Close();
             }

@@ -23,6 +23,7 @@ import { WorkAllocationComp } from '../WorkAllocations/WorkAllocationComp.compon
 import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
+import { EditReviewComponent } from '../Review/editReview.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -101,14 +102,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
     @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
     @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
-    @ViewChild(SetupConfigurableReports) private SetupConfigurableReports!: SetupConfigurableReports; 
+    @ViewChild(SetupConfigurableReports) private SetupConfigurableReports!: SetupConfigurableReports;
+    @ViewChild('EditReviewComp') EditReviewComp!: EditReviewComponent;
     //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
 	public stats: ReviewStatisticsCountsCommand | null = null;
 	public countDown: any | undefined;
 	public count: number = 60;
-	public isSourcesPanelVisible: boolean = false;
+    public isSourcesPanelVisible: boolean = false;
+    public isReviewersPanelVisible: boolean = false;
 	public isReviewPanelCollapsed: boolean = false;
 	public isWorkAllocationsPanelCollapsed: boolean = false;
 	private statsSub: Subscription = new Subscription();
@@ -918,6 +921,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.isSourcesPanelVisible) return '&uarr;';
         else return '&darr;';
     }
+    public get ReviewersPanelTogglingSymbol(): string {
+        if (this.isReviewersPanelVisible) return '&uarr;';
+        else return '&darr;';
+    }
 	IncludedItemsList() {
         this.IncludedItemsListNoTabChange();
 		this.tabstrip.selectTab(1);
@@ -972,6 +979,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.SourcesService.FetchSources();
         }
         this.isSourcesPanelVisible = !this.isSourcesPanelVisible;
+    }
+    toggleReviewersPanel() {
+        if (!this.isReviewersPanelVisible) {
+            this.reviewInfoService.FetchReviewMembers();
+            //this.ReviewersService.FetchSources();
+        }
+        this.isReviewersPanelVisible = !this.isReviewersPanelVisible;
     }
     getDaysLeftAccount() {
 
@@ -1094,6 +1108,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 		if (this.ComparisonComp) {
 			this.ComparisonComp.Clear();
+        }
+        if (this.EditReviewComp) {
+            this.EditReviewComp.CloseEditReview();
         }
         if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
         if (this.SetupConfigurableReports) this.SetupConfigurableReports.Clear();

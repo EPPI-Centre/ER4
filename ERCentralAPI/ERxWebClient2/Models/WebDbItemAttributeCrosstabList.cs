@@ -259,7 +259,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
 #if WEBDB
                     command.Parameters.Add(new SqlParameter("@WebDbId", criteria.webDbId));
-                    if (criteria.setIdSegments > 0 && criteria.segmentsParent >0)
+                    if (criteria.setIdSegments > 0 )
                     {
                         LoadProperty(SetIdSegmentsProperty, criteria.setIdSegments);
                         LoadProperty(AttibuteIdSegmentsProperty, criteria.segmentsParent);

@@ -16,7 +16,14 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 @Component({
     selector: 'SourcesComp',
     templateUrl: './sources.component.html',
-    providers: []
+    providers: [],
+    styles: [
+        `@keyframes oscillate {
+          0%   {transform:rotate(35deg);}
+          50% {transform:rotate(-35deg);}
+          100% {transform:rotate(35deg);}
+        }`
+    ]
 })
 
 export class SourcesComponent implements OnInit, OnDestroy {
@@ -187,8 +194,11 @@ export class SourcesComponent implements OnInit, OnDestroy {
             return this.SourcesService.IsSourceNameValid(this._CurrentSource.source_Name, this._CurrentSource.source_ID);
         };
     }
+    public get SomeSourceIsBeingDeleted(): boolean {
+        return this.SourcesService.SomeSourceIsBeingDeleted;
+    }
     CanDeleteSourceForever(): boolean {
-        if (this._CurrentSource == null || !this.CanWrite()) return false;
+        if (this._CurrentSource == null || !this.CanWrite() || this.SourcesService.SomeSourceIsBeingDeleted) return false;
         else if (this._CurrentSource.isFlagDeleted && this._CurrentSource.isMasterOf == 0) return true;
         else return false;
     }
@@ -199,26 +209,34 @@ export class SourcesComponent implements OnInit, OnDestroy {
             this.SourcesService.DeleteSourceForever(this._CurrentSource.source_ID);
         }
     }
-    SourceDeletedForever(sourceId: Number) {
+    SourceDeletedForever(sourceId: number) {
         //console.log("SourceDeletedForever", sourceId);
         if (this._CurrentSource && this._CurrentSource.source_ID == sourceId) {
-            this.showDeletedForeverNotification(this._CurrentSource.source_Name, this.SourcesService.LastDeleteForeverStatus);
+            this.showDeletedForeverNotification(this._CurrentSource.source_Name, this.SourcesService.LastDeleteForeverStatus, sourceId);
             this._CurrentSource = null;
         }
         else {//user might have changed source!!!
-            this.showDeletedForeverNotification("*missing name*", this.SourcesService.LastDeleteForeverStatus);
+            this.showDeletedForeverNotification("*missing name*", this.SourcesService.LastDeleteForeverStatus, sourceId);
         }
         this.ItemListService.Refresh();
         this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
     }
-    public showDeletedForeverNotification(sourcename: string, status: string): void {
+    public showDeletedForeverNotification(sourcename: string, status: string, sourceId: number): void {
         console.log('got into showDeletedForeverNotification');
         let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
         let contentSt: string = "";
-        if (status == "Success") {
+        if (status == "No deletion is running") {
             typeElement = "success";
             contentSt = 'Permanent deletion of source "' + sourcename + '" completed successfully.';
-        }//type: { style: 'error', icon: true }
+        }
+        else if (status == "Deletion running for SourceId: " + sourceId.toString()) {
+            typeElement = "success";
+            contentSt = 'Permanent deletion of source "' + sourcename + '" is running (it can take some time!)';
+        }
+        else if (status.indexOf("Deletion is  already running for a different source") > -1) {
+            typeElement = "error";
+            contentSt = 'Permanent deletion of source "' + sourcename + '" did not start, because another source is being deleted.';
+        }
         else {//this is moot. We're now handling errors in the service...
             typeElement = "error";
             contentSt = 'Permanent deletion of source "' + sourcename + '" failed, if the problem persists, please contact EPPISupport.';

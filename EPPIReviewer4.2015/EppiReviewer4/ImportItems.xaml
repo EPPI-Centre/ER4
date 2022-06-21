@@ -8,9 +8,11 @@
              xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input" 
              xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
              xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+             xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
              GotFocus="UserControl_GotFocus" >
-    
+
     <UserControl.Resources>
+        <helper:SourceNameTextColour x:Key="SourceNameTextColour"/>
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         <cslaXAML:CslaDataProvider x:Key="SourcesData"
                            ManageObjectLifetime="True"
@@ -59,13 +61,33 @@
                         </Grid.ColumnDefinitions>
                         <cslaXAML:BusyAnimation x:Name="loadingInSourceAnimation" Grid.Row="0" Grid.Column="0" IsRunning="{Binding Source={StaticResource SourcesData}, Path=IsBusy, Mode=OneWay}"/>
                         <telerikGridView:RadGridView IsReadOnly="True"  ShowGroupPanel="False" ShowColumnHeaders="True"
-                                 SelectionChanged="grView0_SelectionChanged" AutoGenerateColumns="False"   
+                                 SelectionChanged="grView0_SelectionChanged" AutoGenerateColumns="False" 
+                                                     
                                  ItemsSource="{Binding Source={StaticResource SourcesData}, Path=Data.Sources}"
                                  x:Name="grView0" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                                <telerikGridView:RadGridView.Resources>
+                                    <Style TargetType="Tgrid:GridViewRow">
+                                        <Setter Property="IsEnabled" Value="{Binding IsNotBeingDeleted, Mode=OneWay}"/>
+                                    </Style>
+                                </telerikGridView:RadGridView.Resources>
                             <telerikGridView:RadGridView.Columns>
-                                <telerikGridView:GridViewDataColumn Header="Name" DataMemberBinding="{Binding Source_Name}"  ></telerikGridView:GridViewDataColumn>
-                                    <!--<telerikGridView:GridViewDataColumn DataMemberBinding="{Binding Source_ID}" IsVisible="False"></telerikGridView:GridViewDataColumn>--> 
-                            </telerikGridView:RadGridView.Columns>
+                                    <telerikGridView:GridViewDataColumn Header="Name">
+                                        <telerikGridView:GridViewColumn.CellStyle>
+
+                                            <Style TargetType="Tgrid:GridViewCell">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Tgrid:GridViewCell" >
+                                                            <TextBlock Text="{Binding Source_Name}" Margin="4,2" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                                           Foreground="{Binding DeleteUndeleteAction, Converter={StaticResource SourceNameTextColour}}" >
+                                                            </TextBlock>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </telerikGridView:GridViewColumn.CellStyle>
+                                    </telerikGridView:GridViewDataColumn>
+                                </telerikGridView:RadGridView.Columns>
                         </telerikGridView:RadGridView>
                         <TextBox  x:Name="ROSourceName" Text="{Binding Path=Source_Name}"
                                   Background="AntiqueWhite" IsReadOnly="True" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
@@ -177,13 +199,15 @@
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=isMasterOf}" VerticalAlignment="Top"/>
                                     <TextBlock Grid.Row="3" Grid.Column="2" Text="Associated Outcomes: " VerticalAlignment="Top"/>
                                     <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding Path=Outcomes}" VerticalAlignment="Top"/>
-                                    <TextBlock Grid.Row="4" Grid.Column="2" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Right"
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" TextAlignment="Right"
                                        Text="Only deleted sources that do not contain master items of duplicates may be deleted permanentely:"/>
                                     <Button Grid.Row="4" Grid.Column="3" x:Name="DeleteSourceForeverButton"  Click="DeleteSourceForeverButton_Click" 
                                     Width="35" Height="35" VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <Image Width="18" Height="22" Source="Icons/SearchDeleteAll.png"
 						                    ToolTipService.ToolTip="Delete source Forever" />
                                     </Button>
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Right" VerticalAlignment="Top"
+                                       Text="Concurrent 'permanent deletions' of sources are not permitted, only one source at the time can be 'deleted permanently'."/>
 
                                 </Grid>
                                 <Border Margin="5" BorderBrush="Black" BorderThickness="1" Background="AntiqueWhite" VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="2" >

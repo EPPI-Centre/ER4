@@ -37,6 +37,7 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy{
         this._ReviewInfo = ri;
         this.ReviewInfoChanged.emit();
     }
+
 	public get Contacts(): Contact[] {
 
 		if (this._ReviewContacts) return this._ReviewContacts;
@@ -213,7 +214,10 @@ export interface iReviewInfo {
 }
 export class Contact {
 
-	 contactName: string = '';
-	 contactId: number = 0;
+	contactName: string = '';
+    contactId: number = 0;
+    email: string = '';
+    expiry: string = '';
+    role: string = '';
 }
 

@@ -9,12 +9,12 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using BusinessLibrary.Security;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
-using BusinessLibrary.Security;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -27,10 +27,21 @@ namespace BusinessLibrary.BusinessClasses
             SetProperty(ReviewNameProperty, Name);
             SetProperty(ContactIdProperty, ContactID);
         }
+
+        public Review(string Name)
+        {
+            MarkOld();
+            ReviewName = Name;
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            SetProperty(ReviewIdProperty, ri.ReviewId);
+            MarkDirty();
+        }
+
+
 #if SILVERLIGHT
     public Review() { }  
 #else
-		public Review() { }
+        public Review() { }
 #endif
 
         public override string ToString()
@@ -109,14 +120,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #if !SILVERLIGHT
-
-
-        protected void DataPortal_Fetch()
-        {
-
-        }
-
-
 
         protected override void DataPortal_Insert()
         {

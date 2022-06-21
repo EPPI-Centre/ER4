@@ -38,6 +38,7 @@ export class searchService extends BusyAwareService implements OnDestroy {
 	//@Output() searchesChanged = new EventEmitter();
     //public crit: CriteriaSearch = new CriteriaSearch();
 	public searchToBeDeleted: string = '';//WHY string?
+	public searchToBeUpdated: string = '';//WHY string?
 
 	public get SearchList(): Search[] {
 
@@ -72,6 +73,7 @@ export class searchService extends BusyAwareService implements OnDestroy {
 		console.log("clear in Searches Service");
 		this._SearchList = [];
 		this.searchToBeDeleted = "";
+		this.searchToBeUpdated = "";
 		this.cmdSearches = new SearchCodeCommand();
         //this.crit = new CriteriaSearch();
         //this._isBusy = false;
@@ -111,6 +113,35 @@ export class searchService extends BusyAwareService implements OnDestroy {
             }
 			);
 	}
+
+
+	public async UpdateSearchName(searchName: string, searchId: string): Promise<boolean> {
+		this._BusyMethods.push("UpdateSearchName");
+		let _SearchName: SearchNameUpdate = { SearchId: searchId, SearchName: searchName};
+		let body = JSON.stringify(_SearchName);
+
+		return this._httpC.post<Search>(this._baseUrl + 'api/SearchList/UpdateSearchName',
+			body).toPromise()
+			.then(
+				(result) => {
+					this.RemoveBusy("UpdateSearchName");
+
+					// just update that line (rather than reloading all searches).
+					let parsedInt: number = parseInt(searchId);
+					let tmpIndex: number = this.SearchList.findIndex(x => x.searchId == parsedInt);
+					if (tmpIndex > -1) this.SearchList[tmpIndex].title = _SearchName.SearchName;
+					return true;
+				}, error => {
+					this.modalService.GenericError(error); //actual error
+					//this.modalService.GenericErrorMessage("There was an error updating the search name. Please contact eppisupport@ucl.ac.uk");
+					this.RemoveBusy("UpdateSearchName");
+					return false;
+				}
+			);
+	}
+
+
+
 }
 
 export class Search {
@@ -145,6 +176,11 @@ export class SearchCodeCommand {
 	public _scoreTwo: number = 0;
 	public _sourceIds: string = '';
 	public _searchWhat: string = '';
+}
+
+export interface SearchNameUpdate {
+	SearchId: string;
+	SearchName: string;
 }
 
 
