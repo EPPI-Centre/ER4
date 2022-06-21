@@ -8,6 +8,7 @@ import { FileRestrictions, SelectEvent, ClearEvent, UploadEvent, RemoveEvent, Fi
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
+import { ConfigService } from '../services/config.service';
 
 
 @Component({
@@ -20,11 +21,14 @@ export class ItemDocListComp implements OnInit, OnDestroy {
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         private ItemCodingService: ItemCodingService,
         public ItemDocsService: ItemDocsService,
-        private confirmationDialogService: ConfirmationDialogService,
-        @Inject('BASE_URL') private _baseUrl: string
+      private confirmationDialogService: ConfirmationDialogService,
+      configService: ConfigService
 
     ) {
-    }
+      this._baseUrl = configService.baseUrl;
+      this.uploadSaveUrl = this._baseUrl + 'api/ItemDocumentList/Upload';
+  }
+  private _baseUrl: string = "";
     public me: string = "I don't know";
     public sub: Subscription | null = null;
     public ShowUpload: boolean = false;
