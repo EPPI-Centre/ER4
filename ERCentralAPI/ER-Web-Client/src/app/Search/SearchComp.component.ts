@@ -18,6 +18,7 @@ import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { Helpers } from '../helpers/HelperMethods';
+import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -43,7 +44,11 @@ export class SearchComp implements OnInit, OnDestroy {
         public _reviewerIdentityServ: ReviewerIdentityService,
     ) {
 
-    }
+  }
+
+  faArrowsRotate = faArrowsRotate;
+  faSpinner = faSpinner;
+
     ngOnInit() {
 
         //console.log("SearchComp init:", this.InstanceId);
