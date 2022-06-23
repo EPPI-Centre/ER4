@@ -754,11 +754,12 @@ namespace BusinessLibrary.BusinessClasses
                             if (authors[x] != " " && authors[x] != "")
                             {
                                 //SG change 22/06/2022
-                                //make sure we're not evaluating authors that have too little data, we demand that at least one name field has 2 chars or more
+                                //make sure we're not evaluating authors that have too little data, we demand to have at least 2 chars between first, middle and last names.
                                 AutH autH = NormaliseAuth.singleAuth(authors[x], x + 1, 0);
-                                if (autH != null && (autH.FirstName.Length > 1 || autH.LastName.Length > 1 || autH.MiddleName.Length > 1))
+                                //if (autH != null && (autH.FirstName.Length > 0 || autH.LastName.Length > 0 || autH.MiddleName.Length > 0))
+                                if (autH != null && (autH.FirstName.Length + autH.LastName.Length + autH.MiddleName.Length > 1))
                                 {
-                                alist.Add(autH);
+                                    alist.Add(autH);
                                 }
                             }
                         }
@@ -910,23 +911,23 @@ namespace BusinessLibrary.BusinessClasses
                 // If none of the above, just calculate the basic similarity score. One includes boost for exact match on DOI
                 if (doiMatch == 1)
                 {
-                    ret = ((titleSimilarity / 100 * 1.75) +
+                    ret = ((titleSimilarity / 100 * 1.83) + //(titleSimilarity / 100 * 1.75) +
                         (volumeMatch * 0.5) +
-                        (pageMatch * 0.5) +
+                        (pageMatch * 0.67) + //(pageMatch * 0.5)
                         (yearMatch * 0.5) +
                         (journalJaro / 100 * 1) +
                         (doiMatch) +
-                        (AuthorComparison * 1.25)) / 6.5;
+                        (AuthorComparison * 1)) / 6.5; //(AuthorComparison * 1.25)
                 }
                 else
                 {
                     // if no doi match, then the standard similarity algorithm applies
-                    ret = ((titleSimilarity / 100 * 1.75) +
+                    ret = ((titleSimilarity / 100 * 1.83) + //(titleSimilarity / 100 * 1.75) +
                         (volumeMatch * 0.5) +
-                        (pageMatch * 0.5) +
+                        (pageMatch * 0.67) + //(pageMatch * 0.5)
                         (yearMatch * 0.5) +
                         (journalJaro / 100 * 1) +
-                        (AuthorComparison * 1.25)) / 5.5;
+                        (AuthorComparison * 1)) / 5.5; //(AuthorComparison * 1.25)
                 }
 
                 // Final sanity checks to prevent auto-matches on questionable records
@@ -989,14 +990,18 @@ namespace BusinessLibrary.BusinessClasses
                 int totalAuthors = 0;
                 if (ic1.GetAuthors() != null) totalAuthors = ic1.GetAuthors().Count;
                 else return 0.0;//can't compare authors if one ref has no authors...
-
+                int MaxAuthors = totalAuthors;
                 //Added by SG on 22/06/2022: if number of authors differs between the two refs, but the 2 refs _are_ duplicates,
                 //then usually we want to consider the smaller value (of "total authors"), because the higher number is likely to be due to:
                 //1. Authors parsed wrong, which happens when some authors have many names, or when org names pollute the authors field.
                 //2. One ref truncates authors with "et al." (or similar) which happens for refs with many authors, sometimes.
                 //In both cases we should consider the smaller number, as otherwise we add "penalty" to bad parsing or the truncation
                 //Moreover, this trick helps to ensure we'll get Symmetric results (i.e. comparing RefA with RefB returns the same vaue of comparing RefB with RefA)
-                if (ic2.GetAuthors() != null && ic2.GetAuthors().Count < totalAuthors)
+                if (ic2.GetAuthors() == null)
+                {
+                    return 0.0; //ditto, nothing to compare
+                }
+                else if (ic2.GetAuthors().Count < totalAuthors)
                 {
                     totalAuthors = ic2.GetAuthors().Count;
                     //given that ic2 has less authors than ic1 we also want to make sure ic2 goes in the "outer" foreach cycle below,
@@ -1005,6 +1010,9 @@ namespace BusinessLibrary.BusinessClasses
                     ItemComparison tmp = ic1;
                     ic1 = ic2;
                     ic2 = tmp;
+                } else
+                {
+                    MaxAuthors = ic2.GetAuthors().Count;//it's more or equal to n of auth. in ic1
                 }
 
                 double lastWithLast = 0;
@@ -1061,7 +1069,29 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 ret = Math.Max(lastWithLast / totalAuthors, firstWithLast / totalAuthors);
-                if (ret > 1) ret = 1;
+                if (ret > 1) ret = 1;//just in case "cycling" found more matches than the total we could expect (might, if the cycles have a bug!)
+
+                //finally, we adjust in case we had fewer authors in one ref
+                if (MaxAuthors != totalAuthors)
+                {
+                    //baseMaxScore goes down proportionally depending on authors count difference between the 2 refs
+                    //it's 1 when author counts are equal, approaching 0 as the difference increases
+                    //as such, we could use it to account for the missing (by definition) matches, but we don't want to
+                    //because sometimes missing some authors doesn't mean much.
+                    double baseMaxScore = 1 - (((double)MaxAuthors - totalAuthors) / MaxAuthors);
+                    double adjustedBaseMaxScore = baseMaxScore + ((1 - baseMaxScore) * 0.33);
+                    //thus adjustedBaseMaxScore increases by "one third of (1-baseMaxScore)". So, it gets closer to 1, but never quite there.
+                    //overall, we are "guessing" that there is a 0.33 probability that a single missing author in one of the refs doesn't mean they are not duplicates.
+
+                    ret = ret * adjustedBaseMaxScore;//thus, somewhat less.
+                    //EXAMPLE: ref1 has 10 authors, ref2 has 9 authors.
+                    //All authors in ref2 match. Without _any_ adjustment, score would be 1
+                    //adjusting with baseMaxScore would give us 0.9, meaning that the "missing" author
+                    //penalises as much as an author that did exist (both refs had 10 authors) and does not match, which is not right.
+                    //instead we still penalise, but not as much as a genuine author mismatch
+                    //returning 0.933 instead of 0.9
+                }
+
                 return ret > 0.3 ? ret : 0;
             }
             private double doCompareAuthors(string a1, string a2)
