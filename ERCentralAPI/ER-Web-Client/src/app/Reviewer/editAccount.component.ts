@@ -27,7 +27,11 @@ export class EditAccountComponent implements OnInit {
     contactName: '',
     username: '',
     email: '',
-    ContactId: -1
+    ContactId: -1,
+
+    expiry: '',
+    role: ''
+
   };
   public isExpanded: boolean = false;
     public oldPassword: string = '';

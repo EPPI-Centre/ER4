@@ -63,6 +63,7 @@ import { QuickCodingReportComponent } from './Reports/quickcodingreport.componen
 import { NewReviewComponent } from './Review/newreview.component';
 import { EditAccountComponent } from './Reviewer/editAccount.component';
 import { EditReviewComponent } from './Review/editReview.component';
+import { ReviewerListComponent } from './Reviewer/reviewerList.component';
 import { RunLingo3G } from './CodesetTrees/runlingo3g.component';
 import { armDetailsComp } from './ArmsAndTimePoints/armDetailsComp.component';
 import { CodesetTree4QuickQuestionReportComponent } from './CodesetTrees/codesetTree4QuickQuestionReport.component';
@@ -204,6 +205,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     NewReviewComponent,
     EditAccountComponent,
     EditReviewComponent,
+    ReviewerListComponent,
     RunLingo3G,
     WorkAllocationComp,
     WorkAllocationContactListComp,

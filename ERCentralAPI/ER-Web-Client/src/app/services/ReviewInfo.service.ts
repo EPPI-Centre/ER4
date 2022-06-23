@@ -214,7 +214,13 @@ export interface iReviewInfo {
 }
 export class Contact {
 
-	 contactName: string = '';
-	 contactId: number = 0;
+	contactName: string = '';
+    contactId: number = 0;
+
+    email: string = '';
+    expiry: string = '';
+    role: string = '';
+
+    isExpired: number = 1;
 }
 

@@ -14,35 +14,40 @@
                                     <reviewStatisticsComp (tabSelectEvent)="GoToItemList()"></reviewStatisticsComp>
                                 </div>
                                 <div class="col-md-5 col-sm-12 p-0">
-                                    <div class="card card-body ReviewsBg  mt-md-0 mt-sm-2 ">
-                                        <div class="row p-0">
-                                            <button type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewPanel()"
-                                                    [attr.aria-expanded]="!isReviewPanelCollapsed">
-                                                My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-primary m-1" (click)="toggleWorkAllocationsPanel()"
-                                                    [attr.aria-expanded]="!isWorkAllocationsPanelCollapsed">
-                                                My Work <span [innerHTML]="WorkAllocationsPanelTogglingSymbol"></span>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-primary m-1" (click)="toggleSourcesPanel()"
-                                                    >
-                                                Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
-                                            </button>
-                                        </div>
-                                        <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
-                                                         style="max-height: 520px;"></readonlyreviews>
-                                        <!--WorkAllocationContactListComp needs to be instantiated and hidden/shown: do NOT use ngIf clause-->
-                                        <WorkAllocationContactListComp #WorkAllocationContactList
-                                                                       (criteriaChange)='LoadContactWorkAllocList($event)'
-                                                                       (AllocationClicked)="GoToItemList()"
-                                                                       [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
-                                                                       resizable r-directions="['right']" r-flex="true"
-                                                                       class="mt-2"
-                                                                       Context="FullUI"
-                                                                       style="max-height: 420px;"></WorkAllocationContactListComp>
-                                        <ROSourcesList *ngIf="isSourcesPanelVisible" class="mt-1"
-                                                       style="max-height: 420px;"></ROSourcesList>
+                                  <div class="card card-body ReviewsBg  mt-md-0 mt-sm-2 ">
+                                    <div class="row p-0">
+                                      <button type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewPanel()"
+                                              [attr.aria-expanded]="!isReviewPanelCollapsed">
+                                        My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+                                      </button>
+                                      <button type="button" class="btn btn-outline-primary m-1" (click)="toggleWorkAllocationsPanel()"
+                                              [attr.aria-expanded]="!isWorkAllocationsPanelCollapsed">
+                                        My Work <span [innerHTML]="WorkAllocationsPanelTogglingSymbol"></span>
+                                      </button>
+                                      <button type="button" class="btn btn-outline-primary m-1" (click)="toggleSourcesPanel()">
+                                        Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
+                                      </button>
+                                      <button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
+                                              >
+                                        Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
+                                      </button>
                                     </div>
+                                    <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
+                                                     style="max-height: 520px;"></readonlyreviews>
+                                    <!--WorkAllocationContactListComp needs to be instantiated and hidden/shown: do NOT use ngIf clause-->
+                                    <WorkAllocationContactListComp #WorkAllocationContactList
+                                                                   (criteriaChange)='LoadContactWorkAllocList($event)'
+                                                                   (AllocationClicked)="GoToItemList()"
+                                                                   [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
+                                                                   resizable r-directions="['right']" r-flex="true"
+                                                                   class="mt-2"
+                                                                   Context="FullUI"
+                                                                   style="max-height: 420px;"></WorkAllocationContactListComp>
+                                    <ROSourcesList *ngIf="isSourcesPanelVisible" class="mt-1"
+                                                   style="max-height: 420px;"></ROSourcesList>
+                                    <reviewerList *ngIf="isReviewersPanelVisible" class="mt-1"
+                                                  style="max-height: 420px;"></reviewerList>
+                                  </div>
 
                                     <div *ngIf="HasSreeningList">
                                         <div class="border border-primary rounded align-content-end row p-1 mx-0 mt-1">

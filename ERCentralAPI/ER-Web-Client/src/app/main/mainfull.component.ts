@@ -115,7 +115,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public countDown: any | undefined;
 	public count: number = 60;
 	public isSourcesPanelVisible: boolean = false;
-	public isReviewPanelCollapsed: boolean = false;
+    public isReviewPanelCollapsed: boolean = false;
+    public isReviewersPanelVisible: boolean = false;
 	public isWorkAllocationsPanelCollapsed: boolean = false;
 	private statsSub: Subscription = new Subscription();
 	private InstanceId: number = Math.random();
@@ -655,7 +656,21 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
 		this.ItemListService.FetchWithCrit(crit, listDescription);
 
-	}
+    }
+
+    public get ReviewersPanelTogglingSymbol(): string {
+      if (this.isReviewersPanelVisible) return '&uarr;';
+      else return '&darr;';
+    }
+
+    toggleReviewersPanel() {
+      if (!this.isReviewersPanelVisible) {
+        this.reviewInfoService.FetchReviewMembers();
+        //this.ReviewersService.FetchSources();
+      }
+      this.isReviewersPanelVisible = !this.isReviewersPanelVisible;
+    }
+
     ShowHideCodes() {
         this.CodesAreCollapsed = !this.CodesAreCollapsed;
     }
@@ -921,6 +936,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return '&darr;';
 	}
 
+
+
+
     public get WorkAllocationsPanelTogglingSymbol(): string {
         if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
         else return '&darr;';
@@ -929,6 +947,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.isSourcesPanelVisible) return '&uarr;';
         else return '&darr;';
     }
+
+
 	IncludedItemsList() {
         this.IncludedItemsListNoTabChange();
     this.SelectTab(1);
