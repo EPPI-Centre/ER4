@@ -13,7 +13,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
     templateUrl: './home.component.html'
   , providers: []
   , styles: [
-    `@keyframes oscillate {
+    `@keyframes glowingText {
       0% { background-color:#FFFADD; margin-left:1rem; }
     50% { background-color:#BAEEBA; margin-left:1rem;}
     100% { background-color:#FFFADD; margin-left:1rem; } 
