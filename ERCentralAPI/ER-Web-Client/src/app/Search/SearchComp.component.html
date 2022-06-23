@@ -301,7 +301,7 @@
                 <kendo-grid-checkbox-column [width]="40" headerClass="p-2" class="pr-1 pl-2 py-0">
                     <ng-template kendoGridHeaderTemplate>
                         <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
-                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                          <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
                         </button>
                     </ng-template>
                 </kendo-grid-checkbox-column>
@@ -314,7 +314,7 @@
                 <kendo-grid-column field="modelTitle" title="Title" [width]="360" class="px-1 py-0 m-1">
                     <ng-template kendoGridCellTemplate let-dataItem>
                         <div (click)="ModelNameEdit(dataItem.modelId, dataItem.modelTitle)" class="btn btn-sm btn-light">
-                            <i class="fa fa-edit"></i>
+                          <span class="k-icon k-i-edit"></span>
                         </div>
                         {{dataItem.modelTitle}}
                     </ng-template>
@@ -353,7 +353,7 @@
                 <kendo-grid-checkbox-column [width]="40" headerClass="p-2" class="pr-1 pl-2 py-0">
                     <ng-template kendoGridHeaderTemplate>
                         <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
-                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                          <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
                         </button>
                     </ng-template>
                 </kendo-grid-checkbox-column>
@@ -536,17 +536,10 @@
             </kendo-grid-column>
             <kendo-grid-column field="searchNo" title="No" [width]="60" class="px-1 py-0 m-1">
             </kendo-grid-column>
-            <!--<kendo-grid-column width="30px" class="px-1 py-0 m-1" field="" title="">
-                <ng-template kendoGridCellTemplate let-dataItem>
-                    <div class="btn btn-sm btn-light">
-                        <i class="fa fa-edit"></i>
-                    </div>
-                </ng-template>
-            </kendo-grid-column>-->
             <kendo-grid-column field="title" title="Name" [width]="360" class="px-1 py-0 m-1">
                 <ng-template kendoGridCellTemplate let-dataItem>
                     <div (click)="SearchNameEdit(dataItem.searchId, dataItem.searchNo, dataItem.title)" class="btn btn-sm btn-light">
-                        <i class="fa fa-edit"></i>
+                      <span class="k-icon k-i-edit"></span>
                     </div>
                     {{dataItem.title}}
                 </ng-template>

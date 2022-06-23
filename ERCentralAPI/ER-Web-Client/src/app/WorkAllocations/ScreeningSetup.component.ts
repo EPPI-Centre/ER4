@@ -13,6 +13,7 @@ import { ItemListService } from '../services/ItemList.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -33,7 +34,11 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         private ConfirmationDialogService: ConfirmationDialogService,
         private PriorityScreeningService: PriorityScreeningService,
         private ItemListService: ItemListService
-	) { }
+  ) { }
+
+  faArrowsRotate = faArrowsRotate;
+  faSpinner = faSpinner;
+
     ngOnInit() {
         this.PriorityScreeningService.Fetch();
         this.RevInfoSub = this.ReviewInfoService.ReviewInfoChanged.subscribe(() => this.RefreshRevinfo());

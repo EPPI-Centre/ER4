@@ -663,7 +663,7 @@
                         Pre-configured maps:
                         <button class="btn btn-sm btn-outline-primary py-0 ml-auto mr-1 my-auto" [disabled]="EditingMap !== null || EditingSomething" (click)="CreateMap()">Create map</button>
                         <button *ngIf="(CurrentMaps.length > 0 || EditingMap !== null)" class="btn btn-sm btn-outline-primary py-0 mx-1 my-auto" (click)="ShowMapsMiniHelp = !ShowMapsMiniHelp">
-                            <i class="text-primary fa fa-question "></i>
+                          <span style="font-weight:bold;color:blue">?</span>
                         </button>
                         <div *ngIf="ShowMapsMiniHelp; then MapsMiniHelp;"></div>
                     </div>
@@ -678,44 +678,33 @@
 
                                 <div class="row col-12 p-1 mx-0 ">
                                     <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                                        <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                            <i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns:
-                                        </div>
+                                      <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                        <span class="k-icon k-i-table-column-insert-left k-color-info"></span>&nbsp;Columns:
+                                      </div>
                                         <div class="rounded bg-white col w-100">
                                             Code: {{map.columnsPublicAttributeName}} <br />
                                             Tool: {{map.columnsPublicSetName}}
                                         </div>
                                     </div>
                                     <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                                        <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                            <i class="text-primary mx-1 fa fa-bars mr-1"></i>Rows:
-                                        </div>
+                                      <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                        <span class="k-icon k-i-table-row-insert-above k-color-info"></span>&nbsp;Rows:
+                                      </div>
                                         <div class="rounded bg-white col w-100">
                                             Code: {{map.rowsPublicAttributeName}} <br />
                                             Tool: {{map.rowsPublicSetName}}
                                         </div>
                                     </div>
                                     <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                                        <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                            <i class="text-success mx-1 fa fa-comments mr-1"></i>Segments:
-                                        </div>
+                                      <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                        <span class="k-icon k-i-chart-bubble k-color-success"></span>&nbsp;Segments:
+                                      </div>
                                         <div class="rounded bg-white col w-100">
                                             Code: {{map.segmentsPublicAttributeName}} <br />
                                             Tool: {{map.segmentsPublicSetName}}
                                         </div>
                                     </div>
                                 </div>
-
-                                <!--
-                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns parent code: <strong>{{map.columnsPublicAttributeName}}</strong></div>
-                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1 fa-rotate-90"></i>Columns tool: <strong>{{map.columnsPublicSetName}}</strong></div>
-
-                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1"></i>Rows parent code: <strong>{{map.rowsPublicAttributeName}}</strong></div>
-                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-primary mx-1 fa fa-bars mr-1"></i>Rows tool: <strong>{{map.rowsPublicSetName}}</strong></div>
-
-                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-success mx-1 fa fa-comments mr-1"></i>Segments parent code: <strong>{{map.segmentsPublicAttributeName}}</strong></div>
-                            <div class="col-auto mt-1 mx-1 p-1 border border-info rounded"><i class="text-success mx-1 fa fa-comments mr-1"></i>Segments tool: <strong>{{map.segmentsPublicSetName}}</strong></div>
-                            -->
 
                                 <div class="m-0 col-12 p-0 ">
                                     <div class="m-1 border border-info rounded">
@@ -797,8 +786,16 @@
                             <div  class="row col-12 p-1 mx-0 ">
                                 <div class="col row m-1 p-0 border border-info rounded">
                                     <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        Columns:
-                                        <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetColumnsNode()">Set</button>
+                                      <table width="100%">
+                                        <tr>
+                                          <td>
+                                            Columns:
+                                          </td>
+                                          <td style="text-align:right">
+                                            <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetColumnsNode()">Set</button>
+                                          </td>
+                                        </tr>
+                                      </table>   
                                     </div>
                                     <div class="rounded bg-white col w-100">
                                         Code: {{EditingMap.columnsPublicAttributeName}} <br />
@@ -806,20 +803,36 @@
                                     </div>
                                 </div>
                                 <div class="col row m-1 p-0 border border-info rounded">
-                                    <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        Rows:
-                                        <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetRowsNode()">Set</button>
-                                    </div>
+                                  <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                    <table width="100%">
+                                      <tr>
+                                        <td>
+                                          Rows:
+                                        </td>
+                                        <td style="text-align:right">
+                                          <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetRowsNode()">Set</button>
+                                        </td>
+                                      </tr>
+                                    </table>                                   
+                                  </div>
                                     <div class="rounded bg-white col w-100">
                                         Code: {{EditingMap.rowsPublicAttributeName}} <br />
                                         Tool: {{EditingMap.rowsPublicSetName}}
                                     </div>
                                 </div>
                                 <div class="col row m-1 p-0 border border-info rounded">
-                                    <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        Segments:
-                                        <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapSegments" (click)="SetSegmentsNode()">Set</button>
-                                    </div>
+                                  <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                    <table width="100%">
+                                      <tr>
+                                        <td>
+                                          Segments:
+                                        </td>
+                                        <td style="text-align:right">
+                                          <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapSegments" (click)="SetSegmentsNode()">Set</button>
+                                        </td>
+                                      </tr>
+                                    </table>                                   
+                                  </div>
                                     <div class="rounded bg-white col w-100">
                                         Code: {{EditingMap.segmentsPublicAttributeName}} <br />
                                         Tool: {{EditingMap.segmentsPublicSetName}}
