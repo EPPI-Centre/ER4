@@ -120,7 +120,11 @@ namespace ERxWebClient2.Controllers
                     }
                     if (ToSave)
                     {
-                        IDG = IDG.Save();
+                        Csla.Core.MobileList<ItemDuplicateGroupMember> t = IDG.Members;
+                        IDG.Members = new Csla.Core.MobileList<ItemDuplicateGroupMember>();
+                        IDG.Members = t;
+                        
+                        IDG = IDG.Save(true);
                         return Ok(IDG);
                     }
                     else
