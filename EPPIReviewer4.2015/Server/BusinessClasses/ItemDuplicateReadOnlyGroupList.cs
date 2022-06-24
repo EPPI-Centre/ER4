@@ -911,23 +911,23 @@ namespace BusinessLibrary.BusinessClasses
                 // If none of the above, just calculate the basic similarity score. One includes boost for exact match on DOI
                 if (doiMatch == 1)
                 {
-                    ret = ((titleSimilarity / 100 * 1.83) + //(titleSimilarity / 100 * 1.75) +
+                    ret = ((titleSimilarity / 100 * 1.87) + //(titleSimilarity / 100 * 1.75) +
                         (volumeMatch * 0.5) +
-                        (pageMatch * 0.67) + //(pageMatch * 0.5)
+                        (pageMatch * 0.66) + //(pageMatch * 0.5)
                         (yearMatch * 0.5) +
                         (journalJaro / 100 * 1) +
                         (doiMatch) +
-                        (AuthorComparison * 1)) / 6.5; //(AuthorComparison * 1.25)
+                        (AuthorComparison * 1)) / 6.53; //(AuthorComparison * 1.25)
                 }
                 else
                 {
                     // if no doi match, then the standard similarity algorithm applies
-                    ret = ((titleSimilarity / 100 * 1.83) + //(titleSimilarity / 100 * 1.75) +
+                    ret = ((titleSimilarity / 100 * 1.87) + //(titleSimilarity / 100 * 1.75) +
                         (volumeMatch * 0.5) +
-                        (pageMatch * 0.67) + //(pageMatch * 0.5)
+                        (pageMatch * 0.66) + //(pageMatch * 0.5)
                         (yearMatch * 0.5) +
                         (journalJaro / 100 * 1) +
-                        (AuthorComparison * 1)) / 5.5; //(AuthorComparison * 1.25)
+                        (AuthorComparison * 1)) / 5.53; //(AuthorComparison * 1.25)
                 }
 
                 // Final sanity checks to prevent auto-matches on questionable records
