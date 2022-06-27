@@ -323,11 +323,11 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
                 retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title.replace(/</g, "&lt;") + ". Paper presented at " + Item.parentTitle.replace(/</g, "&lt;") + ", " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
                 break;
             case 6: //Document From Internet Site
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.publisher.replace(/</g, "&lt;") + ". " + URL +
+            retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.publisher.replace(/</g, "&lt;") + ". " + Item.url +
                     (Item.availability == "" ? "" : " [Accessed " + Item.availability.replace(/</g, "&lt;") + "] ") + ".";
                 break;
             case 7: //Web Site
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". (" + Item.year + "). <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + Item.publisher.replace(/</g, "&lt;") + ". " + URL +
+            retVal = ItemListService.CleanAuthors(Item.authors) + ". (" + Item.year + "). <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + Item.publisher.replace(/</g, "&lt;") + ". " + Item.url +
                     (Item.availability == "" ? "" : " [Accessed " + Item.availability.replace(/</g, "&lt;") + "] ") + ".";
                 break;
             case 8: //DVD, Video, Media
@@ -390,10 +390,10 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". In: " + currentItem.parentTitle + ", " + currentItem.city + ". " + currentItem.publisher + ", p" + currentItem.pages;
 				break;
 			case 6: //Document From Internet Site
-				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") <a href='" + URL + "'>" + currentItem.title + "</a>. " + currentItem.publisher;
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") <a href='" + currentItem.url + "'>" + currentItem.title + "</a>. " + currentItem.publisher;
 				break;
 			case 7: //Web Site
-				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") <a href='" + URL + "'>" + currentItem.title + "</a> " + (currentItem.availability == "" ? "" : " [online; accessed: " + currentItem.availability + "]");
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") <a href='" + currentItem.url + "'>" + currentItem.title + "</a> " + (currentItem.availability == "" ? "" : " [online; accessed: " + currentItem.availability + "]");
 				break;
 			case 8: //DVD, Video, Media
 				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + (currentItem.availability == "" ? "" : " [online; accessed: " + currentItem.availability + "]");
@@ -422,7 +422,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 		switch (currentItem.typeId) {
 			case 1: //Report
 				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ", pp." + currentItem.pages + ". " +
-					(currentItem.url == "" ? "" : "Available at: ") + URL + ".";
+					(currentItem.url == "" ? "" : "Available at: ") + currentItem.url + ".";
 				break;
 			case 2: //Book, Whole
 				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ".";
@@ -435,14 +435,14 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 				break;
 			case 5: //Conference Proceedings
 				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". In: " + currentItem.parentTitle + ". " + currentItem.city + ": " + currentItem.publisher + ", pp." + currentItem.pages + ". " +
-					(currentItem.url == "" ? "" : "Available at: ") + URL + ".";
+          (currentItem.url == "" ? "" : "Available at: ") + currentItem.url + ".";
 				break;
 			case 6: //Document From Internet Site
-				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. [online] " + currentItem.publisher + ". Available at: " + URL +
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. [online] " + currentItem.publisher + ". Available at: " + currentItem.url +
 					(currentItem.availability == "" ? "" : " [Accessed: " + currentItem.availability + "] ") + ".";
 				break;
 			case 7: //Web Site
-				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. [online] " + currentItem.publisher + ". Available at: " + URL +
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. [online] " + currentItem.publisher + ". Available at: " + currentItem.url +
 					(currentItem.availability == "" ? "" : " [Accessed: " + currentItem.availability + "] ") + ".";
 				break;
 			case 8: //DVD, Video, Media
