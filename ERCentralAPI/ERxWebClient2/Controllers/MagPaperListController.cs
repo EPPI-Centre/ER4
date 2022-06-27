@@ -112,7 +112,8 @@ namespace ERxWebClient2.Controllers
                         PaperIds = crit.paperIds,
                         DateFrom = crit.dateFrom,
                         DateTo = crit.dateTo,
-                        MagSearchText = crit.magSearchText,
+                        //following James' rewriting 27/06/2022, temporary(?) fix
+                        //MagSearchText = crit.magSearchText,
                         MagAutoUpdateRunId = crit.magAutoUpdateRunId,
                         AutoUpdateOrderBy = crit.autoUpdateOrderBy,
                         AutoUpdateAutoUpdateScore = crit.autoUpdateAutoUpdateScore,
