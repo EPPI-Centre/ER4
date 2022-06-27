@@ -449,6 +449,9 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
                             
                             let currentSourceData: Source = res;
 
+                            let searchString: string = currentSourceData.searchString;
+                            searchString = searchString.replace(/(?:\r\n|\r|\n)/g, '<br>');
+
                             report += "<tr>"
                             report += "<td>Database name/platform</td>";
                             report += "<td><b>" + currentSourceData.sourceDataBase + "</b></td>";
@@ -480,7 +483,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
                             report += "</tr>"
                             report += "<tr>"
                             report += "<td>Search string</td>";
-                            report += "<td>" + currentSourceData.searchString + "</td>";
+                            report += "<td>" + searchString + "</td>";
                             report += "</tr>"
                             report += "<tr>"
                             report += "<td colspan='2' style='border:0px'>&nbsp;</td>";
@@ -544,6 +547,9 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             // this is a detailed report of a single source
             let currentSource: Source = reportParameter;
 
+            let searchString: string = currentSource.searchString;
+            searchString = searchString.replace(/(?:\r\n|\r|\n)/g, '<br>');
+
             report +=  "<h3>Source report</h3>";
             report += "<table border='1' cellspacing='0' cellpadding='2'>";
 
@@ -582,7 +588,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
             report += "</tr>"
             report += "<tr>"
             report += "<td>Search string</td>";
-            report += "<td>" + currentSource.searchString + "</td>";
+            report += "<td>" + searchString + "</td>";
             report += "</tr>"
             report += "<tr>"
             report += "<td>Items coded</td>";
