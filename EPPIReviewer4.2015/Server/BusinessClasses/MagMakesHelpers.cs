@@ -746,7 +746,8 @@ namespace BusinessLibrary.BusinessClasses
             string endpoint = configuration["OpenAlexEndpoint"];
             string responseText = "";
 
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             HttpWebRequest request = WebRequest.CreateHttp(configuration["OpenAlexEndpoint"] + expression);
             request.UserAgent = "mailto:" + configuration["OpenAlexEmailHeader"];
 
