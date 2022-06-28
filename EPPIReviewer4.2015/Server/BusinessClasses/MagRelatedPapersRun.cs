@@ -391,10 +391,10 @@ namespace BusinessLibrary.BusinessClasses
                     if (this.Mode != "New items in MAG") // This mode is likely never used now, so the if can go
                     {
 #if CSLA_NETCORE
-            System.Threading.Tasks.Task.Run(() => RunMagRelatedPapersRun(ri.UserId, ri.ReviewId));
+            System.Threading.Tasks.Task.Run(() => RunOpenAlexRelatedPapersRun(ri.UserId, ri.ReviewId));
 #else
                         //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
-                        HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunMagRelatedPapersRun(ri.UserId, ri.ReviewId, cancellationToken));
+                        HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunOpenAlexRelatedPapersRun(ri.UserId, ri.ReviewId, cancellationToken));
 #endif
                     }
                 }
@@ -494,6 +494,175 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(FilteredProperty, reader.GetString("FILTERED"));
             returnValue.MarkOld();
             return returnValue;
+        }
+
+        private async void RunOpenAlexRelatedPapersRun(int ContactId, int ReviewId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            // 1. Get a list of the Seed IDs
+            List<string> Ids = new List<string>(); 
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunGetSeedIds", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", this.MagRelatedRunId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", this.AttributeId));
+                    using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            Ids.Add(reader.GetInt64("PaperId").ToString());
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            // 2. Look up each of the IDs in OpenAlex and download the relevant data
+            if (Ids.Count > 0)
+            {
+                int count = 0;
+                List<string> results = new List<string>();
+                while (count < Ids.Count)
+                {
+                    string query = "";
+                    for (int i = count; i < Ids.Count && i < count + 50; i++)
+                    {
+                        if (query == "")
+                        {
+                            query = "W" + Ids[i].ToString();
+                        }
+                        else
+                        {
+                            query += "|W" + Ids[i].ToString();
+                        }
+                    }
+                    MagMakesHelpers.OaPaperFilterResult resp = MagMakesHelpers.EvaluateOaPaperFilter("openalex_id:https://openalex.org/" + query, "50", "1", false);
+                    foreach (MagMakesHelpers.OaPaper pm in resp.results)
+                    {
+                        if (pm.id != null)
+                        {
+                            switch (this.Mode)
+                            {
+                                case "Recommended by":
+                                    foreach (string s in pm.related_works)
+                                    {
+                                        addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                    }
+                                    break;
+                                case "Bibliography":
+                                    foreach (string s in pm.referenced_works)
+                                    {
+                                        addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                    }
+                                    break;
+                                case "Cited by":
+                                    getCitedWorks(pm.id, results);
+                                    break;
+                                case "BiCitation":
+                                    foreach (string s in pm.referenced_works)
+                                    {
+                                        addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                    }
+                                    getCitedWorks(pm.id, results);
+                                    break;
+                                case "Bi-Citation AND Recommendations":
+                                    foreach (string s in pm.referenced_works)
+                                    {
+                                        addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                    }
+                                    foreach (string s in pm.related_works)
+                                    {
+                                        addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                    }
+                                    getCitedWorks(pm.id, results);
+                                    break;
+                            }
+                        }
+                    }
+                    count += 50;
+                }
+                // 3. save the IDs in the database
+                DataTable dt = new DataTable("Ids");
+                dt.Columns.Add("MAG_RELATED_PAPERS_ID");
+                dt.Columns.Add("REVIEW_ID");
+                dt.Columns.Add("MAG_RELATED_RUN_ID");
+                dt.Columns.Add("PaperId");
+                dt.Columns.Add("SimilarityScore");
+
+                foreach (string s in results)
+                {
+                    DataRow newRow = dt.NewRow();
+                    newRow["MAG_RELATED_PAPERS_ID"] = 0; // doesn't matter what is in here - it's auto-assigned in the database
+                    newRow["REVIEW_ID"] = ReviewId;
+                    newRow["MAG_RELATED_RUN_ID"] = this.MagRelatedRunId;
+                    newRow["PaperId"] = s;
+                    newRow["SimilarityScore"] = 0;
+                    dt.Rows.Add(newRow);
+                }
+                
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                    {
+                        sbc.DestinationTableName = "TB_MAG_RELATED_PAPERS";
+                        sbc.BatchSize = 1000;
+                        sbc.WriteToServer(dt);
+                    }
+
+                    using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsUpdatePostRun", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
+                        command.Parameters.Add(new SqlParameter("@N_PAPERS", dt.Rows.Count));
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                }
+            }
+            else
+            { // nothing in the seeds, so nothing in the results (UI should prevent this)
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    
+                    using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsUpdatePostRun", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
+                        command.Parameters.Add(new SqlParameter("@N_PAPERS", 0));
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                }
+            }
+
+
+
+
+        }
+
+        private void addUniqueToList(List<string> Ids, string Id)
+        {
+            if (!Ids.Contains(Id))
+            {
+                Ids.Add(Id);
+            }
+        }
+
+        private void getCitedWorks(string Id, List<string> results)
+        {
+            List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor("cites:" + Id, false);
+            foreach (MagMakesHelpers.OaPaperFilterResult fr in res)
+            {
+                foreach (MagMakesHelpers.OaPaper p in fr.results)
+                {
+                    addUniqueToList(results, p.id.Replace("https://openalex.org/W", ""));
+                }
+            }
+
         }
 
         private async void RunMagRelatedPapersRun(int ContactId, int ReviewId, CancellationToken cancellationToken = default(CancellationToken))

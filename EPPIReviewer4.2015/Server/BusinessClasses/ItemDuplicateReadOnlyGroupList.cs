@@ -719,6 +719,27 @@ namespace BusinessLibrary.BusinessClasses
                 TITLE = MagMakesHelpers.CleanText(TITLE);
             }
 
+            public ItemComparison(MagMakesHelpers.OaPaper pm)
+            {
+                ITEM_ID = Convert.ToInt64(pm.id.Replace("https://openalex.org/W", ""));
+                AUTHORS = MagMakesHelpers.getAuthors(pm.authorships);
+                TITLE = pm.title;
+                PARENT_TITLE = pm.host_venue != null && pm.host_venue.display_name != null  ? pm.host_venue.display_name : "";
+                PARENT_TITLE = MagMakesHelpers.CleanText(PARENT_TITLE.Replace("&", "and"));
+                YEAR = DateTime.Parse(pm.publication_date).Year.ToString();
+                VOLUME = pm.biblio != null ? pm.biblio.volume : "";
+                PAGES = pm.biblio != null ? pm.biblio.first_page + "-" + pm.biblio.last_page : "";
+                ISSUE = pm.biblio.issue;
+                DOI = pm.doi != null ? pm.doi.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
+                ABSTRACT = "";
+                HAS_CODES = 0;
+                IS_MASTER = 0;
+                TYPE_ID = MagMakesHelpers.GetErEquivalentPubTypeFromOa(pm.type);
+                if (!Comparator.ErratumRegex.IsMatch(TITLE))
+                    TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
+                TITLE = MagMakesHelpers.CleanText(TITLE);
+            }
+
             public ItemComparison(Item i)
             {
                 ITEM_ID = i.ItemId;

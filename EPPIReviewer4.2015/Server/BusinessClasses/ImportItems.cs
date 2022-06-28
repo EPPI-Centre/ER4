@@ -1263,6 +1263,8 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             returnValue.Included = true;
             return returnValue;
         }
+
+        
         
         public static readonly PropertyInfo<MobileList<ItemIncomingData>> IncomingItemsProperty = RegisterProperty<MobileList<ItemIncomingData>>(new PropertyInfo<MobileList<ItemIncomingData>>("IncomingItems", "IncomingItems"));
         public MobileList<ItemIncomingData> IncomingItems
@@ -2003,7 +2005,17 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             
 
         }
-        
+
+        public bool AddUnique(ItemIncomingData i)
+        {
+            if (!this.IncomingItems.Exists(element => element.OldItemId == i.OldItemId))
+            {
+                this.IncomingItems.Add(i);
+                return true;
+            }
+            return false;
+        }
+
 #endif
         public void buildShortTitles()
         {

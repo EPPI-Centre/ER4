@@ -175,11 +175,9 @@ namespace BusinessLibrary.BusinessClasses
         public static void doComparison(Item i, MagMakesHelpers.OaPaper pm)
         {
             ItemDuplicateReadOnlyGroupList.Comparator comparator = new ItemDuplicateReadOnlyGroupList.Comparator();
-            /*
             pm.matchingScore = comparator.CompareItems(new ItemDuplicateReadOnlyGroupList.ItemComparison(i),
                 new ItemDuplicateReadOnlyGroupList.ItemComparison(pm));
 
-            */
             //pm.titleLeven = HaBoLevenshtein(pm.DN, i.Title);
             //pm.volumeMatch = pm.V == i.Volume ? 1 : 0;
             //pm.pageMatch = pm.FP == i.FirstPage() ? 1 : 0;
@@ -215,12 +213,8 @@ namespace BusinessLibrary.BusinessClasses
         public static void doMakesPapersComparison(MagMakesHelpers.OaPaper i, MagMakesHelpers.OaPaper pm)
         {
             ItemDuplicateReadOnlyGroupList.Comparator comparator = new ItemDuplicateReadOnlyGroupList.Comparator();
-            /*
             pm.matchingScore = comparator.CompareItems(new ItemDuplicateReadOnlyGroupList.ItemComparison(i),
                 new ItemDuplicateReadOnlyGroupList.ItemComparison(pm));
-
-
-    */
 
             //pm.titleLeven = HaBoLevenshtein(pm.DN, i.DN);
             //pm.volumeMatch = pm.V == i.V ? 1 : 0;

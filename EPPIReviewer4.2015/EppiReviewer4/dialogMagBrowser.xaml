@@ -242,7 +242,7 @@
 
                                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                                     <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Margin="5,5,5,5" Content="Add new search for related papers" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
-                                    <HyperlinkButton x:Name="LBOpenPmidSearch" Margin="5,5,5,5" Content="Add search by PubMed ID" Tag="ClickToOpen" IsTabStop="False" Click="LBOpenPmidSearch_Click"></HyperlinkButton>
+                                    <!--"<HyperlinkButton x:Name="LBOpenPmidSearch" Margin="5,5,5,5" Content="Add search by PubMed ID" Tag="ClickToOpen" IsTabStop="False" Click="LBOpenPmidSearch_Click"></HyperlinkButton>-->
                                     <HyperlinkButton x:Name="LBOpenFiltersRelatedRun" Margin="5,5,5,5" Content="OpenFilters" Tag="Open" IsTabStop="False" Click="LBOpenFiltersRelatedRun_Click"></HyperlinkButton>
                                 </StackPanel>
                                 
@@ -265,8 +265,8 @@
                                         <TextBlock Text="Search mode" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <ComboBox x:Name="ComboRelatedPapersMode" Margin="5,5,5,5" VerticalAlignment="Center" Width="320" SelectionChanged="ComboRelatedPapersMode_SelectionChanged">
                                             <ComboBoxItem Content="Papers 'recommended' by known items ('Recommended by')" Tag="Recommended by"></ComboBoxItem>
-                                            <ComboBoxItem Content="Papers that 'recommend' known items ('That recommend')" Tag="That recommend"></ComboBoxItem>
-                                            <ComboBoxItem Content="Bi-directional recommendation relationships ('Recommendations')" Tag="Recommendations" IsSelected="True"></ComboBoxItem>
+                                            <!--"<ComboBoxItem Content="Papers that 'recommend' known items ('That recommend')" Tag="That recommend"></ComboBoxItem>-->
+                                            <!--<ComboBoxItem Content="Bi-directional recommendation relationships ('Recommendations')" Tag="Recommendations" IsSelected="True"></ComboBoxItem>-->
                                             <ComboBoxItem Content="Papers in the bibliography of known items ('Bibliography')" Tag="Bibliography"></ComboBoxItem>
                                             <ComboBoxItem Content="Papers that cite known items ('Cited by')" Tag="Cited by"></ComboBoxItem>
                                             <ComboBoxItem Content="Bi-directional citation relationships" Tag="BiCitation"></ComboBoxItem>
@@ -371,6 +371,7 @@
                                         <TextBlock Text="Filter from title field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <TextBox x:Name="RelatedRunTextFilterTitle" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
                                     </StackPanel>
+                                    <!--
                                     <StackPanel Grid.Row="4" Orientation="Horizontal">
                                         <TextBlock Text="Filter these pub types" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <telerik:RadComboBox x:Name="ComboRelatedRunPubTypeFilter" Margin="40,5,5,5" Width="200" VerticalAlignment="Center" >
@@ -385,7 +386,7 @@
                                                 <CheckBox x:Name="cbRelatedRunFilterPubTypeThesis" Tag="9" Content="Thesis"></CheckBox>
                                             </telerik:RadComboBox.Items>
                                         </telerik:RadComboBox>
-                                    </StackPanel>
+                                    </StackPanel>-->
                                 </Grid>
 
                             </Grid>

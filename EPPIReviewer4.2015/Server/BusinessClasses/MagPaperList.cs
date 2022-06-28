@@ -433,14 +433,14 @@ namespace BusinessLibrary.BusinessClasses
 
                         if (Ids != "")
                         {
-                            searchString = "openalex_id:https://openalex.org/W" + Ids;
+                            searchString = "openalex_id:https://openalex.org/" + Ids;
                             MagMakesHelpers.OaPaperFilterResult pmr = MagMakesHelpers.EvaluateOaPaperFilter(searchString, itemCount.ToString(), "1", false);
                             if (pmr.results != null && pmr.results.Length > 0)
                             {
                                 int index = 0;
                                 using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                                 {
-                                    while (reader.Read())
+                                    while (reader.Read() && index < pmr.results.Length)
                                     {
                                         MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pmr.results[index], reader);
                                         if (mp != null)

@@ -2217,8 +2217,8 @@ namespace EppiReviewer4
                         DataLakeTimer.Start();
                         RadWindow.Alert("Running... (The grid below will refresh every 30 seconds)");
                         RowCreateNewPmidSearch.Height = new GridLength(0);
-                        LBOpenPmidSearch.Content = "Add search by PubMed ID";
-                        LBOpenPmidSearch.Tag = "ClickToOpen";
+                        //LBOpenPmidSearch.Content = "Add search by PubMed ID";
+                        //LBOpenPmidSearch.Tag = "ClickToOpen";
                     }
                 }
             }
@@ -2233,15 +2233,15 @@ namespace EppiReviewer4
             if ((sender as HyperlinkButton).Tag.ToString() == "ClickToOpen")
             {
                 RowCreateNewPmidSearch.Height = new GridLength(50, GridUnitType.Auto);
-                LBOpenPmidSearch.Content = "Adding search by PubMed ID (Click to close)";
-                LBOpenPmidSearch.Tag = "ClickToClose";
+                //LBOpenPmidSearch.Content = "Adding search by PubMed ID (Click to close)";
+                //LBOpenPmidSearch.Tag = "ClickToClose";
                 tbRelatedPapersRunDescription.Text = "";
             }
             else
             {
                 RowCreateNewPmidSearch.Height = new GridLength(0);
-                LBOpenPmidSearch.Content = "Add search by PubMed ID";
-                LBOpenPmidSearch.Tag = "ClickToOpen";
+                //LBOpenPmidSearch.Content = "Add search by PubMed ID";
+                //LBOpenPmidSearch.Tag = "ClickToOpen";
             }
         }
 
@@ -2346,6 +2346,7 @@ namespace EppiReviewer4
 
         private string getRelatedRunPubTypeFilters()
         {
+            /*
             string ret = addPubTypeFilter(cbRelatedRunFilterPubTypeJournal, "");
             ret = addPubTypeFilter(cbRelatedRunFilterPubTypeUnknown, ret);
             ret = addPubTypeFilter(cbRelatedRunFilterPubTypeConferencePaper, ret);
@@ -2355,6 +2356,8 @@ namespace EppiReviewer4
             ret = addPubTypeFilter(cbRelatedRunFilterPubTypeRepository, ret);
             ret = addPubTypeFilter(cbRelatedRunFilterPubTypeThesis, ret);
             return ret;
+            */
+            return "";
         }
 
         private void HyperlinkButton_Click_5(object sender, RoutedEventArgs e)
@@ -2437,6 +2440,7 @@ namespace EppiReviewer4
                 RelatedRunTextFilterURL.Text = "";
                 RelatedRunTextFilterDOI.Text = "";
                 RelatedRunTextFilterTitle.Text = "";
+                /*
                 cbRelatedRunFilterPubTypeJournal.IsChecked = false;
                 cbRelatedRunFilterPubTypeConferencePaper.IsChecked = false;
                 cbRelatedRunFilterPubTypeBookChapter.IsChecked = false;
@@ -2445,6 +2449,7 @@ namespace EppiReviewer4
                 cbRelatedRunFilterPubTypeRepository.IsChecked = false;
                 cbRelatedRunFilterPubTypeThesis.IsChecked = false;
                 cbRelatedRunFilterPubTypeUnknown.IsChecked = false;
+                */
             }
         }
 
@@ -3447,6 +3452,11 @@ namespace EppiReviewer4
         {
             if (HyperLinkMagSearchDoSearch.IsEnabled == false)
             {
+                RadWindow.Alert("A search is already running");
+                return;
+            }
+            if (HyperLinkMagSearchDoSearch.IsEnabled == false)
+            {
                 return; // for some reason disabled hyperlinks still work??
             }
             if (ComboMagSearchSelect.SelectedIndex != 2 && TextBoxMagSearch.Text == "")
@@ -3574,6 +3584,7 @@ namespace EppiReviewer4
             HyperLinkMagSearchDoSearch.IsEnabled = true;
             SearchDataGrid.IsEnabled = true;
             MagSearchComboCombine.IsEnabled = true;
+            HyperLinkMagSearchDoSearch.IsEnabled = true;
         }
 
         private void HyperlinkButton_Click_15(object sender, RoutedEventArgs e)
@@ -3595,7 +3606,7 @@ namespace EppiReviewer4
 
         private void MagSearchComboCombine_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            const int MaxHitCount = 50000; // We could put this in web.config
+            const int MaxHitCount = 40000; // We could put this in web.config
             if (MagSearchComboCombine.SelectedIndex == -1)
             {
                 return;
@@ -3651,6 +3662,7 @@ namespace EppiReviewer4
             MagSearchComboCombine.SelectedIndex = -1;
             MagSearchComboCombine.IsEnabled = false;
             SearchDataGrid.IsEnabled = false;
+            HyperLinkMagSearchDoSearch.IsEnabled = false;
             RadWindow.Alert("Combining searches now\nThis can take a while...");
         }
 

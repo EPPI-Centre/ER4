@@ -747,18 +747,28 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-            WebRequest request = WebRequest.Create(configuration["OpenAlexEndpoint"] + expression);
-            ((System.Net.HttpWebRequest)request).UserAgent = ".NET Framework";
-            request.Headers["email"] = configuration["OpenAlexEmailHeader"];
+            HttpWebRequest request = WebRequest.CreateHttp(configuration["OpenAlexEndpoint"] + expression);
+            request.UserAgent = "mailto:" + configuration["OpenAlexEmailHeader"];
 
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
+            try
             {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
+                WebResponse response = request.GetResponse();
+                using (Stream dataStream = response.GetResponseStream())
+                {
+                    StreamReader sreader = new StreamReader(dataStream);
+                    responseText = sreader.ReadToEnd();
+                }
+                response.Close();
             }
-            response.Close();
-
+            catch (WebException e)
+            {
+                //string s = (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.
+                if (e.Message.Contains("429"))
+                {
+                    System.Threading.Thread.Sleep(500);
+                    return doOaRequest(expression);
+                }
+            }
             return responseText;
         }
 
@@ -771,23 +781,21 @@ namespace BusinessLibrary.BusinessClasses
             // Hard to tell whether it's better or worse removing stopwords
             searchText = (removeStopwords(" " + searchText + " ")).Trim();
             string[] words = searchText.Split(' ');
+            Array.Sort(words);
+            searchText = string.Join(" ", words.Take(10));
             if (searchText != "")
             {
-                searchText = "AND(W='" + string.Join(",", words).Replace(",", "',W='") + "')"; // words.Take(6)).Replace(",", "',W='") + "')";
+                //searchText = "AND(W='" + string.Join(",", words).Replace(",", "',W='") + "')"; // words.Take(6)).Replace(",", "',W='") + "')";
                 var jsonsettings = new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 };
 
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-
 
                 string searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
-
-                string queryString = @"/evaluate?expr=" +
-                    searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
+                
+                /*
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
                 if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
                 {//this would fail entire URL is too long or the query string is.
@@ -807,161 +815,22 @@ namespace BusinessLibrary.BusinessClasses
                             FullRequestStr = MagInfo.MakesEndPoint + queryString;
                         }
                     }
-                }
+                }*/
+
                 //WebRequest request = WebRequest.Create(FullRequestStr);
                 try
                 {
-                    HttpClient client = new HttpClient();
-                    var response = client.GetAsync(FullRequestStr).Result;
+                    string responseText = doOaRequest(@"works?filter=display_name.search:" + searchTextEncoded);
 
-                    var resp = response.Content.ReadAsStringAsync().Result;
-                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(resp, jsonsettings);
-                    if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
+                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.OaPaperFilterResult>(responseText, jsonsettings);
+                    if (respJson != null && respJson.results != null && respJson.results.Length > 0)
                     {
-                        foreach (PaperMakes pm in respJson.entities)
+                        foreach (MagMakesHelpers.Result r in respJson.results)
                         {
-                            /*
-                            var found = PaperList.Find(e => e.Id == pm.Id);
+                            var found = PaperList.Find(e => e.id == r.id);
                             if (found == null)
                             {
-                                PaperList.Add(pm);
-                            }
-                            */
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-#if !CSLA_NETCORE
-                    //not clear what to do on ER4, how do we log this?
-                    Console.WriteLine(e.Message, searchText);
-#elif WEBDB
-                    WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
-#else
-                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
-#endif
-                    return PaperList;
-                }
-            }
-            return PaperList;
-        }
-
-        private static List<PaperMakes> GetCandidateMatchesTake2(string text, string MakesDeploymentStatus)
-        {//will try searching again, but truncating the search string when we find a problem word (if possible)
-            List<PaperMakes> PaperList = new List<PaperMakes>();
-            string searchText = RestoreGreekLetters(text);
-
-            if (searchText != "")
-            {
-                var jsonsettings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
-
-                string responseText = "";
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-                string queryString = @"/interpret?query=" +
-                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
-
-                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
-                WebResponse response = request.GetResponse();
-                using (Stream dataStream = response.GetResponseStream())
-                {
-                    StreamReader sreader = new StreamReader(dataStream);
-                    responseText = sreader.ReadToEnd();
-                }
-                response.Close();
-
-                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
-                {
-                    foreach (MakesInterpretation i in respJson.interpretations)
-                    {
-                        foreach (MakesInterpretationRule r in i.rules)
-                        {
-                            foreach (PaperMakes pm in r.output.entities)
-                            {
-                                var found = PaperList.Find(e => e.Id == pm.Id);
-                                if (found == null)
-                                {
-                                    PaperList.Add(pm);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return PaperList;
-        }
-
-        public static List<PaperMakes> GetCandidateMatchesOnAuthorsAndJournal(string text, string MakesDeploymentStatus = "LIVE", bool TryAgain = false)
-        {
-            List<PaperMakes> PaperList = new List<PaperMakes>();
-
-            string searchText = CleanText(text);
-            // Hard to tell whether it's better or worse removing stopwords
-            searchText = (removeStopwords(" " + searchText + " ")).Trim();
-            if (searchText != "")
-            {
-                var jsonsettings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
-
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-
-
-                //string searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
-                string searchTextEncoded = searchText;
-                string queryString = @"/interpret?query=" +
-                    searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
-                string FullRequestStr = MagInfo.MakesEndPoint + queryString;
-                if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
-                {//this would fail entire URL is too long or the query string is.
-                    int attempts = 0;
-                    int maxattempts = searchText.Count(found => found == ',');
-                    while ((FullRequestStr.Length >= 2048 || queryString.Length >= 1024) && attempts < maxattempts)
-                    {
-                        attempts++;
-                        int truncateAt = searchText.LastIndexOf(" ");
-                        if (truncateAt != -1)
-                        {
-                            searchText = searchText.Substring(0, truncateAt);
-                            searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);
-                            queryString = @"/evaluate?expr=" +
-                                searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                                "&complete=0&count=100&offset=0&timeout=2000&model=latest";
-                            FullRequestStr = MagInfo.MakesEndPoint + queryString;
-                        }
-                    }
-                }
-                //WebRequest request = WebRequest.Create(FullRequestStr);
-                try
-                {
-                    HttpClient client = new HttpClient();
-                    var response = client.GetAsync(FullRequestStr).Result;
-
-                    var resp = response.Content.ReadAsStringAsync().Result;
-                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(resp, jsonsettings);
-                    if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
-                    {
-                        foreach (MakesInterpretation mi in respJson.interpretations)
-                        {
-                            foreach (MakesInterpretationRule r in mi.rules)
-                            {
-                                foreach (PaperMakes pm in r.output.entities)
-                                {
-                                    var found = PaperList.Find(e => e.Id == pm.Id);
-                                    if (found == null)
-                                    {
-                                        PaperList.Add(pm);
-                                    }
-                                }
+                                PaperList.Add(r);
                             }
                         }
                     }
@@ -982,11 +851,11 @@ namespace BusinessLibrary.BusinessClasses
             return PaperList;
         }
 
+        
+       
         public static List<OaPaper> GetCandidateMatchesOnDOI(string DOI)
         {
             List<OaPaper> PaperList = new List<OaPaper>();
-            //string searchText = RestoreGreekLetters(text);
-
             if (DOI != null && DOI != "")
             {
                 var jsonsettings = new JsonSerializerSettings
@@ -995,156 +864,20 @@ namespace BusinessLibrary.BusinessClasses
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 };
 
-                string responseText = "";
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("tmp");
-                string queryString = @"/evaluate?expr=DOI='" +
-                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim())
-                    + "'&entityCount=5&attributes=" +
-                    System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                    "&complete=0&count=10&offset=0&timeout=2000&model=latest";
-                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
-                WebResponse response = request.GetResponse();
-                using (Stream dataStream = response.GetResponseStream())
+                if (DOI.IndexOf("doi.org") == -1 && DOI.IndexOf("DOI.ORG") == -1)
                 {
-                    StreamReader sreader = new StreamReader(dataStream);
-                    responseText = sreader.ReadToEnd();
+                    DOI = "https://doi.org/" + DOI;
                 }
-                response.Close();
 
-                /*
-                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
+                string responseText = doOaRequest(@"works/" + DOI);
+
+                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.OaPaper>(responseText, jsonsettings);
+                if (respJson != null)
                 {
-                    foreach (PaperMakes i in respJson.entities)
-                    {
-                        var found = PaperList.Find(e => e.Id == i.Id);
-                        if (found == null)
-                        {
-                            PaperList.Add(i);
-                        }
-                    }
+                    PaperList.Add(respJson);
                 }
-                */
             }
             return PaperList;
-        }
-
-        private static PaperMakesResponse doMakesRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                //"&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,I,J.JN,J.JId,V,FP,LP,RId,IA,S" +
-                appendPageInfo);
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-
-            PaperMakesResponse respJson = JsonConvert.DeserializeObject<PaperMakesResponse>(responseText, jsonsettings);
-            return respJson;
-        }
-
-
-
-        private static MakesResponseFoS doMakesRequestFoS(string query, string appendPageInfo, string MakesDeploymentStatus)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                //"&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,I,J.JN,J.JId,V,FP,LP,RId,IA,S" +
-                appendPageInfo);
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-
-            MakesResponseFoS respJson = JsonConvert.DeserializeObject<MakesResponseFoS>(responseText, jsonsettings);
-            return respJson;
-        }
-
-        private static MakesInterpretResponse doMakesInterpretRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                //"&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,C.CId,C.CN,CC,D,DN,DOI,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,LP,PB,PCS.CId,PCS.CN,Pt,RId,S,Ti,Ty,V,VFN,VSN,W,Y") +
-                "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,CC,D,DN,DOI,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,Pt,RId,S,Ti,Ty,V,W,Y") +
-                "&complete=1&count=10&normalize=1&model=latest");
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-
-            MakesInterpretResponse respJson = JsonConvert.DeserializeObject<MakesInterpretResponse>(responseText, jsonsettings);
-            return respJson;
-        }
-
-        private static MakesCalcHistogramResponse doMakesCalcHistogramRequest(string query, string MakesDeploymentStatus)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            MakesCalcHistogramResponse respJson = null;
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=" + System.Web.HttpUtility.UrlEncode("F.FN,Id"));
-            try
-            {
-                WebResponse response = request.GetResponse();
-                using (Stream dataStream = response.GetResponseStream())
-                {
-                    StreamReader sreader = new StreamReader(dataStream);
-                    responseText = sreader.ReadToEnd();
-                }
-                response.Close();
-
-                respJson = JsonConvert.DeserializeObject<MakesCalcHistogramResponse>(responseText, jsonsettings);
-            }
-            catch (Exception e)
-            {
-#if !CSLA_NETCORE
-                //not clear what to do on ER4, how do we log this?
-                Console.WriteLine(e.Message, query);
-#elif WEBDB
-                    WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", query);
-#else
-                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", query);
-#endif
-            }
-            return respJson;
         }
 
 
@@ -1316,6 +1049,56 @@ namespace BusinessLibrary.BusinessClasses
                 default:
                     return "Unknown";
             }
+        }
+
+        public static int GetErEquivalentPubTypeFromOa(string Pt)
+        {
+            switch (Pt)
+            {
+                case "peer-review":
+                case "other":
+                case "reference-entry":
+                case "component":
+                case "proceedings-series":
+                case "report-series":
+                case "standard":
+                case "posted-content":
+                case "grant":
+                case "book-series":
+                case "standard-series":
+                    return 12; //unknown
+                case "journal-article":
+                case "proceedings-article":
+                    return 14; // journal article
+                case "2":
+                    return 12; // patent
+                case "3":
+                    return 1; // journal article, as they put the conference in the journal name field
+                case "book-section":
+                case "book-chapter":
+                    return 3; // book chapter
+                case "monograph":
+                case "report":
+                case "book-part":
+                case "book":
+                case "journal-volume":
+                case "book-set":
+                case "journal":
+                case "proceedings":
+                case "reference-book":
+                case "journal-issue":
+                case "edited-book":
+                    return 2; // book
+                case "book-track": // Book reference entry (whatever that is - mapping to generic)
+                    return 12;
+                case "dataset": // dataset
+                    return 12;
+                case "8": // repository
+                    return 12;
+                case "dissertation": // thesis
+                    return 4;
+            }
+            return 12; // just in case
         }
 
         public static readonly Regex CleanTextWhiteList = new Regex("[^a-zA-Z0-9 ]");
