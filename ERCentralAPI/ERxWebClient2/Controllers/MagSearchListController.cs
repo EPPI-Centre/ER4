@@ -297,10 +297,11 @@ namespace ERxWebClient2.Controllers
                 {
 
                         MagSearch newSearch = new MagSearch();
-                        newSearch.SetCombinedSearches(mVCMagCombinedSearch.magSearchListCombine.ToList(), mVCMagCombinedSearch.logicalOperator);
+                    //following James' rewriting 27/06/2022, temporary(?) NON-fix
+                    //newSearch.SetCombinedSearches(mVCMagCombinedSearch.magSearchListCombine.ToList(), mVCMagCombinedSearch.logicalOperator);
                         
-                        DataPortal<MagSearch> dp = new DataPortal<MagSearch>();
-                        newSearch = dp.Execute(newSearch);
+                    //    DataPortal<MagSearch> dp = new DataPortal<MagSearch>();
+                    //    newSearch = dp.Execute(newSearch);
 
                     return Ok(newSearch);
                
