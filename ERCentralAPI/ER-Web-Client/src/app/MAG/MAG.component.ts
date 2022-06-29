@@ -15,6 +15,7 @@ import { MAGAdminService } from '../services/MAGAdmin.service';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ItemListService } from '../services/ItemList.service';
 import { ClassifierService } from '../services/classifier.service';
+import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'MAG',
@@ -39,6 +40,9 @@ export class MAGComp implements OnInit, OnDestroy {
     ) {
 
     }
+
+  faArrowsRotate = faArrowsRotate;
+  faSpinner = faSpinner;
 
     ngOnInit() {
         this.subItemIDinPath = this.route.params.subscribe(params => {

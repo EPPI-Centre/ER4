@@ -13,22 +13,22 @@
 
         <div class="col-sm-10 col-lg-10">
             <h2 class="card-title"></h2>
-            <table>
+            <table width="100%">
                 <tr>
-                    <td>
+                    <td style="width:75%">
                         <h2 class="font-weight-light">Keep review up-to-date (subscribe review to auto-updates)</h2>
                     </td>
-                    <td style="padding-left:10px">
+                    <td >
                         <div *ngIf="!basicPanel">
                             <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"  (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                                more details <i class="fa fa-arrow-circle-down"></i>
+                                more details <span class="k-icon k-i-arrow-chevron-down"></span>
                             </a>
                         </div>
                         <div *ngIf="basicPanel">
                             <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"  (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                                more details <i class="fa fa-arrow-circle-up"></i>
+                                more details <span class="k-icon k-i-arrow-chevron-up"></span>
                             </a>
                         </div>
                     </td>
@@ -68,13 +68,13 @@
         <div *ngIf="!basicSearchPanel">
             <a (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
                href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                Create new auto-update subscription <i class="fa fa-arrow-circle-down"></i>
+                Create new auto-update subscription <span class="k-icon k-i-arrow-chevron-down"></span>
             </a>
         </div>
         <div *ngIf="basicSearchPanel">
             <a (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
                href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                Adding "New auto-update subscription" (click to close) <i class="fa fa-arrow-circle-up"></i>
+                Adding "New auto-update subscription" (click to close) <span class="k-icon k-i-arrow-chevron-up"></span>
             </a>
         </div>
 
@@ -150,7 +150,7 @@
                     <div class="card-title h4 mb-0">
                         Auto update tasks (they run when new data arrive)
                         <button class="btn btn-sm btn-outline-success mx-1 mt-auto mb-1 py-0 px-1 " (click)="Refresh()">
-                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                          <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
                         </button>
                     </div>
                     <div *ngIf="AutoRefreshIsOn" class="small alert-danger rounded border border-danger my-auto pb-1 px-1 ">

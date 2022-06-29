@@ -1,8 +1,8 @@
 <div class="containsAtoolbar row m-0 ">
     <div class="m-0 col pr-1">
         <kendo-toolbar>
-            <kendo-toolbar-button [iconClass]="'fa fa-lg fa-arrow-circle-left text-primary'" (click)="Back()" [disabled]="!CanGoBackwards"></kendo-toolbar-button>
-            <kendo-toolbar-button [iconClass]="'fa fa-lg fa-arrow-circle-right text-primary'" (click)="Forward()" [disabled]="!CanGoForward"></kendo-toolbar-button>
+            <kendo-toolbar-button [iconClass]="'k-icon k-i-arrow-left'" (click)="Back()" [disabled]="!CanGoBackwards"></kendo-toolbar-button>
+            <kendo-toolbar-button [iconClass]="'k-icon k-i-arrow-right'" (click)="Forward()" [disabled]="!CanGoForward"></kendo-toolbar-button>
 
             <kendo-toolbar-button [text]="'Bring up-to-date'" (click)="AutoUpdateHome()" [disabled]="DisableButton('RelatedPapers')" aria-controls="collapseExample"></kendo-toolbar-button>
             <kendo-toolbar-button [text]="'Keep up-to-date'" (click)="KeepUpdated()" [disabled]="DisableButton('KeepUpdated')" aria-controls="collapseExample"></kendo-toolbar-button>

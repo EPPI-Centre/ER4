@@ -11,22 +11,22 @@
 
         <div class="col-sm-10 col-lg-10">
             <h2 class="card-title"></h2>
-            <table>
+            <table width="100%">
                 <tr>
-                    <td>
+                    <td style="width:60%">
                         <h2 class="font-weight-light">Bring review up to date (find related papers)</h2>
                     </td>
-                    <td style="padding-left:10px">
+                    <td >
                         <div *ngIf="!basicPanel">
                             <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                                more details <i class="fa fa-arrow-circle-down"></i>
+                                more details <span class="k-icon k-i-arrow-chevron-down"></span>
                             </a>
                         </div>
                         <div *ngIf="basicPanel">
                             <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                                more details <i class="fa fa-arrow-circle-up"></i>
+                                more details <span class="k-icon k-i-arrow-chevron-up"></span>
                             </a>
                         </div>
                     </td>
@@ -62,13 +62,13 @@
     <div *ngIf="!basicSearchPanel">
         <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
            href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Add new search for related papers <i class="fa fa-arrow-circle-down"></i>
+            Add new search for related papers <span class="k-icon k-i-arrow-chevron-down"></span>
         </a>
     </div>
     <div *ngIf="basicSearchPanel">
         <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
            href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Add new search for related papers <i class="fa fa-arrow-circle-up"></i>
+            Add new search for related papers <span class="k-icon k-i-arrow-chevron-up"></span>
         </a>
     </div>
 
@@ -213,8 +213,8 @@
             <div class="card-body">
                 <div class="row mx-1">
                     <div class="card-title h4 mb-0">Related Paper Searches</div>
-                    <button class="btn btn-sm btn-outline-success mx-1 my-auto py-0 px-1 " (click)="Refresh()">
-                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                    <button class="btn btn-sm btn-outline-success mx-1 my-0 pb-1 px-1 " (click)="Refresh()">
+                      <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
                     </button>
                 </div>
                 <div class="col-12 alert-secondary p-2 m-2 card">

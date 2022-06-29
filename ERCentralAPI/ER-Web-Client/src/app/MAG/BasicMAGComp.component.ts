@@ -34,6 +34,7 @@ export class BasicMAGComp implements OnInit {
     ) {
 
     }
+
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
     @Input() OuterContext: string | null = null;
     @Output() PleaseGoTo = new EventEmitter<string>();
@@ -297,4 +298,3 @@ export class BasicMAGComp implements OnInit {
             });
         }
 }
-	
