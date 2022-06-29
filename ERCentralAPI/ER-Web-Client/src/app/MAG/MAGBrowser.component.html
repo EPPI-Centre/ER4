@@ -31,13 +31,13 @@
                             <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == false">
                                 <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList()" 
                                         [disabled]="_magBrowserService.currentMagPaper.linkedITEM_ID > 0">
-                                    Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i>
+                                    Selected papers&nbsp;<span class="k-icon k-i-plus"></span>
                                 </button>
                             </div>
                             <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == true ">
                                 <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()"
                                         [disabled]="_magBrowserService.currentMagPaper.linkedITEM_ID > 0">
-                                    Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i>
+                                    Selected papers&nbsp;<span class="k-icon k-i-minus"></span>
                                 </button>
                             </div>
                         </td>
@@ -52,7 +52,7 @@
                             <div>
                                 <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
                                    href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                                    more details
+                                    more details <span class="k-icon k-i-arrow-chevron-down"></span>
                                 </a>
                             </div>
                             <!--<div *ngIf="basicPanel">
@@ -173,9 +173,15 @@
                                                     {{item.shortRecord}}
                                                 </td>
                                                 <td title="'Select/Unselect reference'">
-                                                    <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MAGList.papers)"
-                                                            [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
-                                                    </button>
+
+                                                  <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MAGList.papers)">
+                                                    <span [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'"> </span>
+                                                  </button>
+
+                                                  <!--<button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MAGList.papers)"
+                                                          [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'">
+                                                  </button>-->
+
                                                 </td>
                                                 <td title="Model score"
                                                     *ngIf="_magBrowserService.MAGList.papers == _magBrowserService.MAGOriginalList.papers && ListType.startsWith('Auto update results')">
@@ -218,9 +224,13 @@
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
                                             <td (click)="GetMagPaperRef(item, _magBrowserService.MagCitationsByPaperList.papers )">{{item.fullRecord}}</td>
                                             <td>
-                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
-                                                        [class]="IsCurrentPaperSelected(item.paperId) == true ? 'btn fa fa-minus' : 'btn fa fa-plus'">
-                                                </button>
+                                              <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)">
+                                                <span [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'"> </span>
+                                              </button>
+
+                                              <!--<button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
+                                                      [class]="IsCurrentPaperSelected(item.paperId) == true ? 'k-icon k-i-minus' : 'k-icon k-i-plus'">
+                                              </button>-->
                                             </td>
                                         </tr>
                                     </tbody>
@@ -244,9 +254,14 @@
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.selectedPapers">
                                             <td (click)="GetMagPaperRef(item,_magBrowserService.selectedPapers)">{{item.fullRecord}}</td>
                                             <td>
-                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.selectedPapers)"
-                                                        [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
-                                                </button>
+                                              <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.selectedPapers)">
+                                                <span [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'"> </span>
+                                              </button>
+
+
+                                                <!--<button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.selectedPapers)"
+                                                        [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'">
+                                                </button>-->
                                             </td>
                                         </tr>
                                     </tbody>
@@ -270,10 +285,17 @@
                                                 {{item.shortRecord}}
                                             </td>
                                             <td>
-                                                <button [disabled]="!CanSelectMagItem(item)"
-                                                        (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)"
-                                                        [class]="IsCurrentPaperSelected(item.paperId) == true ? 'btn fa fa-minus' : 'btn fa fa-plus'">
-                                                </button>
+                                              <button [disabled]="!CanSelectMagItem(item)"
+                                                      class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)">
+                                                <span [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'"> </span>
+                                              </button>
+
+
+
+                                              <!--<button [disabled]="!CanSelectMagItem(item)"
+                                                      (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)"
+                                                      [class]="IsCurrentPaperSelected(item.paperId) == true ? 'k-icon k-i-minus' : 'k-icon k-i-plus'">
+                                              </button>-->
                                             </td>
                                             <td title="Model score"
                                                 *ngIf="ListType.startsWith('Auto update results')">

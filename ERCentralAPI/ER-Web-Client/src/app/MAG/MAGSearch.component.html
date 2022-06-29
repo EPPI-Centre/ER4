@@ -54,7 +54,7 @@
                                                 <input class="form-control col border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="magSearchInput"
                                                        placeholder="Wildcards will work, e.g. physic* " />
                                                 <button (click)="UpdateTopicResults()" class="col-auto btn btn-primary btn-sm text-white" [disabled]="magSearchInput.length < 3" title="Search for topics">
-                                                    <i class="fa fa-search"></i>
+                                                  <span class="k-icon k-i-search"></span>
                                                 </button>
                                             </div>
 
@@ -222,7 +222,7 @@
                                     [disabled]="!CanRunSearch()"
                                     (click)="RunMAGSearch()">
                                 Search&nbsp;&nbsp;
-                                <i class="fa fa-search"></i>
+                              <span class="k-icon k-i-search"></span>
                             </button>
                         </div>
 
@@ -348,7 +348,7 @@
                                 <button class="btn btn-primary btn-lg btn-sm text-white"
                                         [disabled]="!CanCombineSearches()" (click)="CombineSearches()">
                                     {{CombineButtonText}}
-                                    <i class="ml-1 fa fa-search"></i>
+                                  <span class="k-icon k-i-search"></span>
                                 </button>
                             </div>
                         </div>
@@ -374,7 +374,7 @@
                         </td>
                         <td style="padding-left:5px;vertical-align:top">
                             <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success mx-1 mt-auto " (click)="FetchMagSearches()">
-                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                              <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
                             </button>&nbsp;
                             <button class="btn btn-sm btn-danger"
                                     [disabled]="!CanDeleteSearch()"
@@ -385,12 +385,12 @@
                         <td style="padding-left:5px;vertical-align:top">
                             <div *ngIf="!basicFilterPanel">
                                 <a (click)="basicFilterPanel = !basicFilterPanel" class="btn btn-info btn-sm text-white">
-                                    Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-down"></i>
+                                    Import filters&nbsp;&nbsp;<span class="k-icon k-i-arrow-chevron-down"></span>
                                 </a>
                             </div>
                             <div *ngIf="basicFilterPanel">
                                 <a (click)="basicFilterPanel = !basicFilterPanel" class="btn btn-info btn-sm text-white">
-                                    Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-up"></i>
+                                    Import filters&nbsp;&nbsp;<span class="k-icon k-i-arrow-chevron-up"></span>
                                 </a>
                             </div>
                         </td>
@@ -468,11 +468,11 @@
                                 </td>
                                 <td class="" style="min-width:65px;text-align:center">
                                     <button *ngIf="item.magFolder !== MagFolder" (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Re-Run (update)">
-                                        <i class="fa fa-play-circle" aria-hidden="true"></i>
+                                      <span class="k-icon k-i-play-sm"></span>
                                     </button>
                                     <button *ngIf="item.magFolder == MagFolder" (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
                                             class="btn btn-primary btn-sm text-white align-content-center">
-                                        <i class="fa fa-download" aria-hidden="true"></i>
+                                      <span class="k-icon k-i-download"></span>
                                     </button>
                                 </td>
                                 <!--<td class="small" style="min-width:40px;text-align:center">
