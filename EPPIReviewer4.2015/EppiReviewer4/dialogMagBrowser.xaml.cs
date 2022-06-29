@@ -3623,6 +3623,12 @@ namespace EppiReviewer4
             string searchDesc = "";
             foreach (MagSearch ms in SearchDataGrid.SelectedItems)
             {
+                if (ms.IsOASearch == false)
+                {
+                    RadWindow.Alert("Sorry, old searches cannot be combined now we have\nmoved to OpenAlex");
+                    MagSearchComboCombine.SelectedIndex = -1;
+                    return;
+                }
                 searches.Add(ms);
                 if (!ms.SearchIdsStored)
                 {
