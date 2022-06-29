@@ -19,13 +19,13 @@
                         <div *ngIf="!basicPanel">
                             <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                                more details <i class="fa fa-arrow-circle-down"></i>
+                                more details <span class="k-icon k-i-arrow-chevron-down"></span>
                             </a>
                         </div>
                         <div *ngIf="basicPanel">
                             <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                                more details <i class="fa fa-arrow-circle-up"></i>
+                                more details <span class="k-icon k-i-arrow-chevron-up"></span>
                             </a>
                         </div>
                     </td>
@@ -74,7 +74,7 @@
                 Clear all non-manual matches in review
             </button>
             <button class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand()">
-                <i class="fa fa-refresh" aria-hidden="true"></i>
+              <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
             </button>
         </div>
     </div>
@@ -210,12 +210,12 @@
                     <h4 class="font-weight-light">Locate by OpenAlex ID</h4>
                     <div class="col-sm-12 col-lg-6">
                         <div class="row">
-                            <div class="col-10" >
+                            <div class="col-7" >
                                 <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
                                        class="form-control text-center col-12"
                                        [(ngModel)]="magPaperId" />
                             </div>
-                            <div class="col-2"
+                            <div class="col-5"
                                 style="padding-left: 10px;">
                                 <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()"
                                         class="btn btn-primary btn-sm text-white">
@@ -242,7 +242,7 @@
 
                 </div>
 
-                <div class="col-sm-12 col-lg-5 mb-5">
+                <div class="col-sm-12 col-lg-6 mb-5">
                     <h4 class="font-weight-light">Search OpenAlex by topic</h4>
                     <table class="col-sm-12">
                         <tr class="col-12">
@@ -253,7 +253,7 @@
                             </td>
                             <td >
                                 <button [disabled]="!CanGetTopics()"
-                                        (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
+                                        (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><span class="k-icon k-i-search"></span></button>
                             </td>
                         </tr>
                     </table>
