@@ -678,6 +678,9 @@ namespace BusinessLibrary.BusinessClasses
                             case "Publication year":
                                 MagSearchText += ",publication_year:" + Date1;
                                 break;
+                            case "Created after":
+                                MagSearchText += ",from_created_date:" + Date1;
+                                break;
                         }
                     }
                     resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", false);
