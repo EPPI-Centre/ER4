@@ -225,6 +225,11 @@ namespace BusinessLibrary.BusinessClasses
             public double journalJaro { get; set; }
             public double allAuthorsLeven { get; set; }
             public double matchingScore { get; set; }
+
+            public string IdInteger
+            { 
+                get { return this.id.Replace("https://openalex.org/W", ""); }
+            }
         }
 
         // The Ids class is used in Works and Concepts
@@ -386,6 +391,11 @@ namespace BusinessLibrary.BusinessClasses
             public string works_api_url { get; set; }
             public string updated_date { get; set; }
             public string created_date { get; set; }
+
+            public string IdInteger
+            {
+                get { return this.id.Replace("https://openalex.org/C", ""); }
+            }
         }
 
         public class International
@@ -659,7 +669,7 @@ namespace BusinessLibrary.BusinessClasses
             bool done = false;
             while (done == false)
             {
-                string query = "works?" + filterOrSearch + "=" + expression + "&page=1&per_page=10&cursor=" + cursor;
+                string query = "works?" + filterOrSearch + "=" + expression + "&page=1&per_page=100&cursor=" + cursor;
                 string responseText = doOaRequest(query);
                 OaPaperFilterResult respJson = JsonConvert.DeserializeObject<OaPaperFilterResult>(responseText, jsonsettings);
                 if (respJson != null && respJson.results != null)
@@ -673,6 +683,37 @@ namespace BusinessLibrary.BusinessClasses
                 else
                 {
                     done = true;
+                }
+            }
+            return results;
+        }
+
+        public static List<OaPaper> downloadTheseOpenAlexPapers(string [] Ids)
+        {
+            List<OaPaper> results = new List<OaPaper>();
+            if (Ids.Length > 0)
+            {
+                int count = 0;
+                while (count < Ids.Length)
+                {
+                    string query = "";
+                    for (int i = count; i < Ids.Length && i < count + 50; i++)
+                    {
+                        if (query == "")
+                        {
+                            query = "W" + Ids[i].ToString();
+                        }
+                        else
+                        {
+                            query += "|W" + Ids[i].ToString();
+                        }
+                    }
+                    MagMakesHelpers.OaPaperFilterResult resp = MagMakesHelpers.EvaluateOaPaperFilter("openalex_id:https://openalex.org/" + query, "50", "1", false);
+                    foreach (MagMakesHelpers.OaPaper pm in resp.results)
+                    {
+                        results.Add(pm);
+                    }
+                    count += 50;
                 }
             }
             return results;

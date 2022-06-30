@@ -3360,7 +3360,7 @@ namespace EppiReviewer4
                 }
                 else
                 {
-                    if (ComboMagSearchDateLimit.SelectedIndex > 4)
+                    if (ComboMagSearchDateLimit.SelectedIndex > 5)
                     {
                         MagSearchDate1.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
                         MagSearchDate2.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
@@ -3375,7 +3375,7 @@ namespace EppiReviewer4
                         MagSearchDate1.SelectedDate = DateTime.Now;
                     }
                     StackPanelMagSearchDates.Visibility = Visibility.Visible;
-                    if (ComboMagSearchDateLimit.SelectedIndex == 4 || ComboMagSearchDateLimit.SelectedIndex == 8)
+                    if (ComboMagSearchDateLimit.SelectedIndex == 5 || ComboMagSearchDateLimit.SelectedIndex == 9)
                     {
                         MagSearchDateText1.Visibility = Visibility.Visible;
                         MagSearchDateText2.Visibility = Visibility.Visible;
@@ -3512,22 +3512,26 @@ namespace EppiReviewer4
                 {
                     case 1:
                         newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
-                        newSearch.DateFilter = "Published on";
+                        newSearch.DateFilter = "Created after";
                         break;
                     case 2:
                         newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
-                        newSearch.DateFilter = "Published before";
+                        newSearch.DateFilter = "Published on";
                         break;
                     case 3:
                         newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
-                        newSearch.DateFilter = "Published after";
+                        newSearch.DateFilter = "Published before";
                         break;
                     case 4:
+                        newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        newSearch.DateFilter = "Published after";
+                        break;
+                    case 5:
                         newSearch.Date1 = MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
                         newSearch.Date2 = MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd");
                         newSearch.DateFilter = "Published between";
                         break;
-                    case 5:
+                    case 6:
                         newSearch.Date1 = MagSearchDate1.SelectedDate.Value.Year.ToString();
                         newSearch.DateFilter = "Publication year";
                         break;
@@ -3623,6 +3627,12 @@ namespace EppiReviewer4
             string searchDesc = "";
             foreach (MagSearch ms in SearchDataGrid.SelectedItems)
             {
+                if (ms.IsOASearch == false)
+                {
+                    RadWindow.Alert("Sorry, old searches cannot be combined now we have\nmoved to OpenAlex");
+                    MagSearchComboCombine.SelectedIndex = -1;
+                    return;
+                }
                 searches.Add(ms);
                 if (!ms.SearchIdsStored)
                 {

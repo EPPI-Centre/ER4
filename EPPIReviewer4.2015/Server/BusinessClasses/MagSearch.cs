@@ -575,6 +575,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<bool> IsOASearchProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsOASearch", "IsOASearch", true));
+        public bool IsOASearch
+        {
+            get
+            {
+                return (this.MagFolder == null || this.MagFolder == "") ? true : false ;
+            }
+            
+        }
+
 
 
         //protected override void AddAuthorizationRules()
@@ -668,6 +678,9 @@ namespace BusinessLibrary.BusinessClasses
                             case "Publication year":
                                 MagSearchText += ",publication_year:" + Date1;
                                 break;
+                            case "Created after":
+                                MagSearchText += ",from_created_date:" + Date1;
+                                break;
                         }
                     }
                     resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", false);
@@ -700,7 +713,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SEARCH_NO", 0)); // set in the SP
                     command.Parameters.Add(new SqlParameter("@HITS_NO", HitsNo)); 
                     command.Parameters.Add(new SqlParameter("@SEARCH_DATE", SearchDate));
-                    command.Parameters.Add(new SqlParameter("@MAG_FOLDER", MagInfo.MagFolder));
+                    command.Parameters.Add(new SqlParameter("@MAG_FOLDER", DBNull.Value));
                     command.Parameters.Add(new SqlParameter("@MAG_SEARCH_TEXT", MagSearchText));
                     command.Parameters.Add(new SqlParameter("@MAG_SEARCH_ID", 0));
                     command.Parameters["@MAG_SEARCH_ID"].Direction = ParameterDirection.Output;

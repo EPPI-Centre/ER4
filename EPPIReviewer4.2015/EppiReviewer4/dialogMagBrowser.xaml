@@ -270,7 +270,7 @@
                                             <ComboBoxItem Content="Papers in the bibliography of known items ('Bibliography')" Tag="Bibliography"></ComboBoxItem>
                                             <ComboBoxItem Content="Papers that cite known items ('Cited by')" Tag="Cited by"></ComboBoxItem>
                                             <ComboBoxItem Content="Bi-directional citation relationships" Tag="BiCitation"></ComboBoxItem>
-                                            <ComboBoxItem Content="Bi-directional recommendation AND citation relationships ('Bi-Citation AND Recommendations)'" Tag="Bi-Citation AND Recommendations"></ComboBoxItem>
+                                            <ComboBoxItem Content="Bi-directional citation AND recommendations ('Bi-Citation AND Recommendations)'" Tag="Bi-Citation AND Recommendations"></ComboBoxItem>
                                         </ComboBox>
                                     </StackPanel>
 
@@ -1079,6 +1079,7 @@
 
                                     <ComboBox x:Name="ComboMagSearchDateLimit" Grid.Row="3" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchDateLimit_SelectionChanged">
                                         <ComboBoxItem Content="No date limit" IsSelected="True"></ComboBoxItem>
+                                        <ComboBoxItem Content="OpenAlex created date from"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date exactly"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date before"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date after"></ComboBoxItem>
@@ -1167,7 +1168,7 @@
                                         <telerikGridView:RadGridView.Columns>
                                             <telerikGridView:GridViewSelectColumn UniqueName="columnSelectMagSearch" Width="Auto">
                                                 <telerikGridView:GridViewSelectColumn.Header>
-                                                    <CheckBox Tag="MagSearchGrid" Click="CheckBox_Click" />
+                                                    <CheckBox Tag="MagSearchGrid" Click="CheckBox_Click" IsEnabled="{Binding IsOASearch}" />
                                                 </telerikGridView:GridViewSelectColumn.Header>
                                             </telerikGridView:GridViewSelectColumn>
                                             <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding SearchNo}" Header="" Width="30"></telerikGridView:GridViewDataColumn>
@@ -1193,14 +1194,14 @@
                                             <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <HyperlinkButton Content="Rerun" Click="HyperlinkButton_Click_15"/>
+                                                        <HyperlinkButton Content="Rerun" Click="HyperlinkButton_Click_15" IsEnabled="{Binding IsOASearch}"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <HyperlinkButton Content="Import" Click="HyperlinkButton_Click_16" Tag="MagSearchResults" ToolTipService.ToolTip="Import all records from this search"/>
+                                                        <HyperlinkButton Content="Import" Click="HyperlinkButton_Click_16" Tag="MagSearchResults" ToolTipService.ToolTip="Import all records from this search" IsEnabled="{Binding IsOASearch}"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
@@ -1214,7 +1215,7 @@
                                             <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <HyperlinkButton Content="List" Click="HyperlinkButton_Click_14"/>
+                                                        <HyperlinkButton Content="List" Click="HyperlinkButton_Click_14" IsEnabled="{Binding IsOASearch}"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
