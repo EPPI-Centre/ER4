@@ -17,6 +17,7 @@
 
     <UserControl.Resources>
 
+        <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
         <cslaXAML:CslaDataProvider x:Key="PaperListData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"
@@ -1194,7 +1195,9 @@
                                             <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <HyperlinkButton Content="Rerun" Click="HyperlinkButton_Click_15" IsEnabled="{Binding IsOASearch}"/>
+                                                        <HyperlinkButton Content="Rerun" Click="HyperlinkButton_Click_15" 
+                                                                         Visibility="{Binding SearchIdsStored, Converter={StaticResource ReverseEditTrueFalseVisibility}, Mode=OneWay}" 
+                                                                         IsEnabled="{Binding IsOASearch}"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>

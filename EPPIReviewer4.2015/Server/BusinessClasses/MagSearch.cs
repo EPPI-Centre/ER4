@@ -866,6 +866,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<DateTime>(SearchDateProperty, reader.GetDateTime("SEARCH_DATE"));
             returnValue.LoadProperty<string>(MagFolderProperty, reader.GetString("MAG_FOLDER"));
             returnValue.LoadProperty<string>(MagSearchTextProperty, reader.GetString("MAG_SEARCH_TEXT"));
+            returnValue.LoadProperty<bool>(SearchIdsStoredProperty, reader.GetBoolean("SEARCH_IDS_STORED"));
             returnValue.MarkOld();
             return returnValue;
         }

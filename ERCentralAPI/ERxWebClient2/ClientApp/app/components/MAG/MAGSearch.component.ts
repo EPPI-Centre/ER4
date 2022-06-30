@@ -157,7 +157,7 @@ export class MAGSearchComponent implements OnInit {
         this.SearchTextTopic = topic.fieldOfStudyId.toString();
     }
     public CanImportMagPapers(item: MagSearch): boolean {
-        if (item.magFolder != this.MagFolder) return false;
+        if (!item.isOASearch) return false;
         else if (item != null && item.magSearchId > 0 && item.hitsNo > 0 && this.HasWriteRights) {
             return true;
         } else {

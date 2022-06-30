@@ -408,7 +408,9 @@ export class MagSearch {
     searchDate: Date = new Date();
     magFolder: string = '';
     magSearchText: string = '';
-    contactName: string = '';
+      contactName: string = '';
+      isOASearch: boolean = false;
+      searchIdsStored: boolean = false;
     add: boolean = false;
 }
 

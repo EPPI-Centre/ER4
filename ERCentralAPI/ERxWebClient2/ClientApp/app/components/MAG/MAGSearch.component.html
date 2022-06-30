@@ -436,7 +436,7 @@
                                 <th class="" width="2">OpenAlex Version</th>
                                 <th class="" width="2">User</th>
                                 <th class="" width="2">Date</th>
-                                <th class="" width="2" style="text-align:center">Hits</th>
+                                <th class="" width="2" style="text-align:center" title="Number of 'current' hits might be bigger, as new results appear in OpenAlex">Hits (min.)</th>
                                 <th class="" width="1" style="min-width:40px;text-align:center;font-size:0.76em;">Re-run/import</th>
                                 <!--<th class="" width="1" style="min-width:40px;text-align:center">Import</th>-->
 
@@ -444,7 +444,7 @@
                         </thead>
 
                         <tbody>
-                            <tr *ngFor="let item of MagSearchList" class="small" [ngClass]="{'font-italic': item.magFolder != MagFolder, 'font-weight-bold': item.magFolder == MagFolder }">
+                            <tr *ngFor="let item of MagSearchList" class="small" [ngClass]="{'font-italic': !CanImportMagPapers(item), 'font-weight-bold': CanImportMagPapers(item) }">
                                 <td class="">
                                     <input class="ml-1" style="zoom: 1.2;"
                                            type="checkbox"
@@ -460,10 +460,10 @@
                                     <div (click)="GetItems(item)" class="btn btn-link btn-sm font-weight-bold">{{ item.hitsNo}}</div>
                                 </td>
                                 <td class="" style="min-width:65px;text-align:center">
-                                    <button *ngIf="item.magFolder !== MagFolder" (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Re-Run (update)">
+                                    <button *ngIf="item.isOASearch && !item.searchIdsStored" (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Re-Run (update)">
                                         <i class="fa fa-play-circle" aria-hidden="true"></i>
                                     </button>
-                                    <button *ngIf="item.magFolder == MagFolder" (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
+                                    <button *ngIf="item.isOASearch" (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
                                             class="btn btn-primary btn-sm text-white align-content-center">
                                         <i class="fa fa-download" aria-hidden="true"></i>
                                     </button>
