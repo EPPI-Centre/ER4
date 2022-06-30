@@ -1,11 +1,4 @@
-﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="searchMAG"></HeaderComponent>
-
-<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
-        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
-    Close/back
-</button>
-
-<MAGHeaderBar Context="searchMAG"></MAGHeaderBar>-->
+﻿
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 <div class="container col-12">
@@ -23,12 +16,12 @@
                                 <select class="col-sm-12 col-lg-12 form-control mb-1" name="WordsInSelection"
                                         [(ngModel)]="WordsInSelection">
                                     <option [value]="0" [selected]="WordsInSelection == 0">Word(s) in title</option>
-                                    <option [value]="1">Word(s) in abstract</option>
-                                    <option [value]="2">Author name(s)</option>
-                                    <option [value]="3">Topic</option>
-                                    <option [value]="4">OpenAlex ID</option>
-                                    <option [value]="5">Journal</option>
-                                    <option [value]="6">Custom</option>
+                                    <option [value]="1">Word(s) in title/abstract</option>
+                                    <!--<option [value]="2">Author name(s)</option>-->
+                                    <option [value]="2">Topic</option>
+                                    <option [value]="3">OpenAlex ID</option>
+                                    <!--<option [value]="5">Journal</option>
+                                    <option [value]="6">Custom</option>-->
                                 </select>
                             </div>
                         </div>
@@ -41,7 +34,7 @@
                         </div>
                     </div>
 
-                    <div *ngIf="WordsInSelection == 3">
+                    <div *ngIf="WordsInSelection == 2">
                         <table width="100%">
                             <tr>
                                 <td style="padding-left:15px;padding-bottom:10px; padding-right:10px">
@@ -98,9 +91,9 @@
                                     <option [ngValue]="3">Publication date after</option>
                                     <option [ngValue]="4">Publication dates between</option>
                                     <option [ngValue]="5">Publication year exactly</option>
-                                    <option [ngValue]="6">Publication year before</option>
+                                    <!--<option [ngValue]="6">Publication year before</option>
                                     <option [ngValue]="7">Publication year after</option>
-                                    <option [ngValue]="8">Publication years between</option>
+                                    <option [ngValue]="8">Publication years between</option>-->
                                 </select>
                             </div>
                         </div>
@@ -200,7 +193,7 @@
                     </div>
 
                     <div class="col-12 row mb-2">
-                        <div class="col-sm-6 ">
+                        <!--<div class="col-sm-6 ">
                             <div ngbDropdown>
                                 <select class="col-12 form-control mb-1" name="PublicationTypeSelection"
                                         [(ngModel)]="PublicationTypeSelection">
@@ -216,11 +209,11 @@
                                     <option [ngValue]="9">Repository</option>
                                 </select>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="col-sm-6 pt-1">
                             <button class="btn btn-primary btn-lg btn-sm text-white"
                                     [disabled]="!CanRunSearch()"
-                                    (click)="RunMAGSearch()">
+                                    (click)="RunOpenAlexSearch()">
                                 Search&nbsp;&nbsp;
                                 <i class="fa fa-search"></i>
                             </button>

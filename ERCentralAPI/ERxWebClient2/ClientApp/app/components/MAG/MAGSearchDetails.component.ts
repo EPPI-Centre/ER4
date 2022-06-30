@@ -196,7 +196,7 @@ export class MAGSearchDetailsComponent implements OnInit {
             selectionCriteria.pageSize = 20;
             selectionCriteria.pageNumber = 0;
             selectionCriteria.listType = "MagSearchResultsList";
-            selectionCriteria.magSearchText = item.magSearchText;
+            //selectionCriteria.magSearchText = item.magSearchText;
             //this._magBrowserService.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList")
             //    .then(
             //        () => {
@@ -269,15 +269,15 @@ export class MAGSearchDetailsComponent implements OnInit {
         if (this.SearchTextTopicDisplayName != '') {
             this.magSearchInput = this.SearchTextTopicDisplayName;
         }
-        this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
-            this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
+        //this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
+        //    this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
 
-                () => {
-                    this.FetchMagSearches();
-                    let msg: string = 'You have created a new search';
-                    this._notificationService.showMAGRunMessage(msg);
-                }
-            );
+        //        () => {
+        //            this.FetchMagSearches();
+        //            let msg: string = 'You have created a new search';
+        //            this._notificationService.showMAGRunMessage(msg);
+        //        }
+        //    );
     }
     public AdvancedFeatures() {
 

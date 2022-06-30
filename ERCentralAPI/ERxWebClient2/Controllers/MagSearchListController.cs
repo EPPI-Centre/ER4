@@ -113,109 +113,15 @@ namespace ERxWebClient2.Controllers
             try
             {
                 if (!SetCSLAUser4Writing()) return Forbid();
-                DateTime magSearchDate1 = DateTime.Parse(mVCMagSearch.magSearchDate1); 
-                DateTime magSearchDate2 = DateTime.Parse(mVCMagSearch.magSearchDate2); 
-
-
-                MagSearch newSearch = new MagSearch();
-                switch (mVCMagSearch.wordsInSelection)
-                {
-                    case 0:
-                        newSearch.MagSearchText = newSearch.GetSearchTextTitle(mVCMagSearch.magSearchInput);
-                        newSearch.SearchText = "Title: " + mVCMagSearch.magSearchInput;
-                        break;
-                    case 1:
-                        newSearch.MagSearchText = newSearch.GetSearchTextAbstract(mVCMagSearch.magSearchInput);
-                        newSearch.SearchText = "Abstract: " + mVCMagSearch.magSearchInput;
-                        break;
-                    case 2:
-                        newSearch.MagSearchText = newSearch.GetSearchTextAuthors(mVCMagSearch.magSearchInput);
-                        newSearch.SearchText = "Authors: " + mVCMagSearch.magSearchInput;
-                        break;
-                    case 3:
-                        newSearch.MagSearchText = newSearch.GetSearchTextFieldOfStudy(mVCMagSearch.magSearchCurrentTopic);
-                        newSearch.SearchText = "Topic: " + mVCMagSearch.magSearchInput;
-                        break;
-                    case 4:
-                        newSearch.MagSearchText = newSearch.GetSearchTextMagIds(mVCMagSearch.magSearchInput);
-                        if (newSearch.MagSearchText.Contains("Error"))
-                        {
-                            throw new InvalidOperationException(newSearch.MagSearchText);
-                        }
-                        newSearch.SearchText = "MAG ID(s): " + mVCMagSearch.magSearchInput;
-                        break;
-                    case 5:
-                        newSearch.MagSearchText = newSearch.GetSearchTextJournals(mVCMagSearch.magSearchInput);
-                        newSearch.SearchText = "Journal: " + mVCMagSearch.magSearchInput;
-                        break;
-                    default:
-                        newSearch.MagSearchText = mVCMagSearch.magSearchInput;
-                        newSearch.SearchText = "Custom: " + mVCMagSearch.magSearchInput;
-                        break;
-                }
-
-                if (mVCMagSearch.dateLimitSelection > 0)
-                {
-                    switch (mVCMagSearch.dateLimitSelection)
-                    {
-                        case 1:
-                            newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextPubDateExactly(magSearchDate1.ToString("yyyy-MM-dd")) + ")";
-                            newSearch.SearchText += " AND published on: " + magSearchDate1.ToString("yyyy-MM-dd");
-                            break;
-                        case 2:
-                            newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextPubDateBefore(magSearchDate1.ToString("yyyy-MM-dd")) + ")";
-                            newSearch.SearchText += " AND published before: " + magSearchDate1.ToString("yyyy-MM-dd");
-                            break;
-                        case 3:
-                            newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextPubDateFrom(magSearchDate1.ToString("yyyy-MM-dd")) + ")";
-                            newSearch.SearchText += " AND published after: " + magSearchDate1.ToString("yyyy-MM-dd");
-                            break;
-                        case 4:
-                            newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextPubDateBetween(magSearchDate1.ToString("yyyy-MM-dd"),
-                                    magSearchDate2.ToString("yyyy-MM-dd")) + ")";
-                            newSearch.SearchText += " AND published between: " + magSearchDate1.ToString("yyyy-MM-dd") + " and " +
-                                magSearchDate2.ToString("yyyy-MM-dd");
-                            break;
-                        case 5:
-                            newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextYearExactly(magSearchDate1.Year.ToString()) + ")";
-                            newSearch.SearchText += " AND year of publication: " + magSearchDate1.Year.ToString();
-                            break;
-                        case 6:
-                            newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextYearBefore(magSearchDate1.Year.ToString()) + ")";
-                            newSearch.SearchText += " AND year of publication before: " + magSearchDate1.Year.ToString();
-                            break;
-                        case 7:
-                            newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextYearAfter(magSearchDate1.Year.ToString()) + ")";
-                            newSearch.SearchText += " AND year of publication after: " + magSearchDate1.Year.ToString();
-                            break;
-                        case 8:
-                            newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextYearBetween(magSearchDate1.Year.ToString(),
-                                    magSearchDate2.Year.ToString()) + ")";
-                            newSearch.SearchText += " AND year of publication between: " + magSearchDate1.Year.ToString() + " and " +
-                                magSearchDate2.Year.ToString();
-                            break;
-                    }
-                }
-
-                if (mVCMagSearch.publicationTypeSelection > 0)
-                {
-                    newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                        newSearch.GetSearchTextPublicationType((mVCMagSearch.publicationTypeSelection - 1).ToString()) + ")";
-                    newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(mVCMagSearch.publicationTypeSelection - 1);
-                }
-
+                
+                MagSearch newSearch = mVCMagSearch.toMagNewSearch();
                 DataPortal<MagSearch> dp = new DataPortal<MagSearch>();
                 newSearch = dp.Execute(newSearch);
+                //newSearch isn't complete with all of the data, so we just get the full list and return that, in one go (because getting the list is cheap!).
+                DataPortal<MagSearchList> dp2 = new DataPortal<MagSearchList>();
+                MagSearchList result = dp2.Fetch();
 
-                return Ok(newSearch);
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -384,15 +290,22 @@ namespace ERxWebClient2.Controllers
 
     public class MVCMagSearchBuilder
     {
-        public int wordsInSelection { get; set; }
-        public string magSearchInput { get; set; }
-        public int publicationTypeSelection { get; set; }
+        public MagSearch toMagNewSearch()
+        {
+            MagSearch res = new MagSearch();
+            res.SearchText = searchText;
+            res.MagSearchText = magSearchText;
+            res.DateFilter = dateFilter;
+            res.Date1 = date1;
+            res.Date2 = date2;
+            return res;
+        }
+        public string searchText { get; set; }
+        public string magSearchText { get; set; }
+        public string dateFilter { get; set; }
+        public string date1 { get; set; }
+        public string date2 { get; set; }
 
-        public int dateLimitSelection { get; set; }
-        public string magSearchDate1 { get; set; }
-        public string magSearchDate2 { get; set; }
-
-        public string magSearchCurrentTopic { get; set; }
     }
 
     public class MVCMagCombinedSearch

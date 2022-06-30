@@ -6,13 +6,14 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
-import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem, MagSearchBuilder } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGTopicsService } from '../services/MAGTopics.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { ModalService } from '../services/modal.service';
+import { formatDate } from '@angular/common';
 
 @Component({
     selector: 'MAGSearch',
@@ -30,8 +31,8 @@ export class MAGSearchComponent implements OnInit {
         private router: Router,
         private _mAGBrowserHistoryService: MAGBrowserHistoryService,
         private _magTopicsService: MAGTopicsService,
-        private MAGAdminService: MAGAdminService
-
+          private MAGAdminService: MAGAdminService,
+          private NotificationService: NotificationService
     ) {
 
     }
@@ -304,49 +305,145 @@ export class MAGSearchComponent implements OnInit {
     }
     public RunMAGSearch() {
 
-        if (this.DateLimitSelection == 4 ) {
+        //if (this.DateLimitSelection == 4 ) {
 
-            this.magSearchDate1 = this.valueKendoDatepicker1;
-            this.magSearchDate2 = this.valueKendoDatepicker2;
+        //    this.magSearchDate1 = this.valueKendoDatepicker1;
+        //    this.magSearchDate2 = this.valueKendoDatepicker2;
 
-        } else if (this.DateLimitSelection == 5 || this.DateLimitSelection == 6 ||
-            this.DateLimitSelection == 7) {
+        //} else if (this.DateLimitSelection == 5 || this.DateLimitSelection == 6 ||
+        //    this.DateLimitSelection == 7) {
 
-            this.magSearchDate1 = new Date(this.valueYearPicker3+1,0 ,0,0,0,0,0);
+        //    this.magSearchDate1 = new Date(this.valueYearPicker3+1,0 ,0,0,0,0,0);
   
-        } else if (this.DateLimitSelection == 8) {
+        //} else if (this.DateLimitSelection == 8) {
 
-            this.magSearchDate1 = new Date(this.valueYearPicker3+1, 0, 0, 0, 0, 0, 0);
-            this.magSearchDate2 = new Date(this.valueYearPicker4+1, 0, 0, 0, 0, 0, 0);        
+        //    this.magSearchDate1 = new Date(this.valueYearPicker3+1, 0, 0, 0, 0, 0, 0);
+        //    this.magSearchDate2 = new Date(this.valueYearPicker4+1, 0, 0, 0, 0, 0, 0);        
 
-        }else{
+        //}else{
 
-            this.magSearchDate1 = this.valueKendoDatepicker3;
-        }
+        //    this.magSearchDate1 = this.valueKendoDatepicker3;
+        //}
 
-        let title: string = "";
-        if (this.WordsInSelection != 3) title = this.magSearchInput;
-        else title = this.SearchTextTopicDisplayName;
-        this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
-            title, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
+        //let title: string = "";
+        //if (this.WordsInSelection != 3) title = this.magSearchInput;
+        //else title = this.SearchTextTopicDisplayName;
+        //this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
+        //    title, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
 
-                () => {
-                    this.FetchMagSearches();
-                    this.DateLimitSelection = 0;
+        //        () => {
+        //            this.FetchMagSearches();
+        //            this.DateLimitSelection = 0;
 
-                    if (this.WordsInSelection == 3) {
-                        //cleanup the topics...
-                        this.SearchTextTopicsResults = [];
-                        this.SearchTextTopic = "";
-                        this.SearchedTopic = "";
-                        this.SearchTextTopicDisplayName = "";
-                    }
-                    //let msg: string = 'You have created a new search';
-                    //this._confirmationDialogService.showMAGRunMessage(msg);
-                }
-            );
+        //            if (this.WordsInSelection == 3) {
+        //                //cleanup the topics...
+        //                this.SearchTextTopicsResults = [];
+        //                this.SearchTextTopic = "";
+        //                this.SearchedTopic = "";
+        //                this.SearchTextTopicDisplayName = "";
+        //            }
+        //            //let msg: string = 'You have created a new search';
+        //            //this._confirmationDialogService.showMAGRunMessage(msg);
+        //        }
+        //    );
     }
-    
+      public RunOpenAlexSearch() {
+            let newSearch: MagSearchBuilder = new MagSearchBuilder();
+            switch (this.WordsInSelection) {
+                  case 0:
+                        newSearch.magSearchText = this.magSearchInput; 
+                        newSearch.searchText = '\u00AC'+ "Title: " + this.magSearchInput;
+                        break;
+                  case 1:
+                        newSearch.magSearchText = this.magSearchInput; 
+                        newSearch.searchText = '\u00AC'+ "Title and abstract: " + this.magSearchInput; 
+                        break;
+                  case 2:
+                        newSearch.magSearchText = this.SearchTextTopic; 
+                        newSearch.searchText = '\u00AC'+ "Topic: " + this.SearchTextTopicDisplayName; 
+                        break;
+                  case 3:
+                        newSearch.magSearchText = this.GetSearchTextMagIds(this.magSearchInput);
+                        if (newSearch.magSearchText.length < 1) {
+                              //maybe show an error notification??
+                              return;
+                        }
+                        newSearch.searchText = '\u00AC'+ "OpenAlex ID(s): " + newSearch.magSearchText;
+                        break;
+                  default:
+                        return;
+            }
+            if (this.DateLimitSelection > 0) {
+                  switch (this.DateLimitSelection) {
+                        case 1:
+                              newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
+                              newSearch.dateFilter = "Published on";
+                              break;
+                        case 2:
+                              newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
+                              newSearch.dateFilter = "Published before";
+                              break;
+                        case 3:
+                              newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
+                              newSearch.dateFilter = "Published after";
+                              break;
+                        case 4:
+                              newSearch.date1 = formatDate(this.valueKendoDatepicker1, "yyyy-MM-dd", 'en-GB');
+                              newSearch.date2 = formatDate(this.valueKendoDatepicker2, "yyyy-MM-dd", 'en-GB');
+                              newSearch.dateFilter = "Published between";
+                              break;
+                        case 5:
+                              newSearch.date1 = this.valueYearPicker3.toString();
+                              newSearch.dateFilter = "Publication year";
+                              break;
+                  }
+            }
+            else {
+                  newSearch.dateFilter = "";
+            }
+            
+            if (newSearch.magSearchText.length > 2000) {
+                  this.modalService.GenericErrorMessage("Sorry, the search string is too long.<br />Please consider dividing it in two and then combining the results.");
+                  return;
+            }
+            this._magSearchService.CreateMagSearch(newSearch).then(
+
+                  () => {
+                        //this.FetchMagSearches();
+                        this.DateLimitSelection = 0;
+
+                        if (this.WordsInSelection == 3) {
+                              //cleanup the topics...
+                              this.SearchTextTopicsResults = [];
+                              this.SearchTextTopic = "";
+                              this.SearchedTopic = "";
+                              this.SearchTextTopicDisplayName = "";
+                        }
+                        this.NotificationService.show({
+                              content: "New search was created",
+                              animation: { type: 'slide', duration: 400 },
+                              hideAfter: 2500,
+                              position: { horizontal: 'center', vertical: 'top' },
+                              type: { style: "info", icon: true }
+                        });
+                  }
+            );
+      }
+      public GetSearchTextMagIds(searchText: string): string {
+            let res:string = "";
+            const numbers = this.magSearchInput.split(',');
+            if (!numbers || numbers.length == 0) return '';
+            else {
+                  for (const numTx of numbers) {
+                        let test = Number.parseInt(numTx);
+                        if (!isNaN(test) && test > 0) {
+                              if (res == "") res = "W" + numTx;
+                              else res += "|W" + numTx;
+                        } 
+                  }
+            }
+            return res;
+      }
 
     public Back() {
         this.router.navigate(['Main']);
@@ -504,16 +601,26 @@ export class MAGSearchComponent implements OnInit {
     }
     public CanRunSearch(): boolean {
         if (!this.HasWriteRights) return false;
-        else if (this.WordsInSelection != 3 && this.magSearchInput == "" ) {
+        
+        else if (this.WordsInSelection == 2 && this.SearchTextTopic == "") {
             return false;
         }
-        else if (this.WordsInSelection == 3 && this.SearchTextTopic == "") {
+        else if (this.WordsInSelection != 2 && this.magSearchInput == "") {
             return false;
         }
-        else {
-            return true;
-        }
-    }
+        else if (this.WordsInSelection == 3) {
+              const numbers = this.magSearchInput.split(',');
+              if (!numbers || numbers.length == 0) return false;
+              else {
+                    for (const numTx of numbers) {
+                          let test = Number.parseInt(numTx);
+                          if (isNaN(test)) return false;
+                          else if (test < 1) return false;
+                    }
+              }
+          }
+          return true;
+      }
 
     public CanDeleteSearch(): boolean {
         if (this.AllSelectedItems.length == 0 || !this.HasWriteRights) {

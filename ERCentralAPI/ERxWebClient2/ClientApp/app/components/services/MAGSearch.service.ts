@@ -2,7 +2,7 @@ import {  Inject, Injectable} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { MagSearch } from './MAGClasses.service';
+import { MagSearch, MagSearchBuilder } from './MAGClasses.service';
 
 @Injectable({
     providedIn: 'root',
@@ -89,22 +89,17 @@ export class magSearchService extends BusyAwareService {
             );
     }
 
-    CreateMagSearch(wordsInSelection: number, dateLimitSelection: number, publicationTypeSelection: number,
-        magSearchInput: string, magSearchDate1: Date, magSearchDate2: Date, magSearchCurrentTopic: string) {
+      CreateMagSearch(newSearch: MagSearchBuilder) {
 
         this._BusyMethods.push("CreateMagSearch");
-        let body = JSON.stringify({
-            wordsInSelection: wordsInSelection, dateLimitSelection: dateLimitSelection, publicationTypeSelection: publicationTypeSelection,
-            magSearchInput: magSearchInput, magSearchDate1: magSearchDate1, magSearchDate2: magSearchDate2,
-            magSearchCurrentTopic: magSearchCurrentTopic});
-         return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/CreateMagSearch',
-            body).toPromise()
+         return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/CreateMagSearch',
+               newSearch).toPromise()
 
             .then(
 
-                (result: MagSearch) => {
+                (result: MagSearch[]) => {
                      this.RemoveBusy("CreateMagSearch");
-                    this.MagSearchList.push(result);
+                    this.MagSearchList = result;
                     return this.MagSearchList;
                
             }, error => {

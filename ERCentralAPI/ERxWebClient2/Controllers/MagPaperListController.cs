@@ -112,8 +112,7 @@ namespace ERxWebClient2.Controllers
                         PaperIds = crit.paperIds,
                         DateFrom = crit.dateFrom,
                         DateTo = crit.dateTo,
-                        //following James' rewriting 27/06/2022, temporary(?) fix
-                        //MagSearchText = crit.magSearchText,
+                        MagSearchId = crit.magSearchId,
                         MagAutoUpdateRunId = crit.magAutoUpdateRunId,
                         AutoUpdateOrderBy = crit.autoUpdateOrderBy,
                         AutoUpdateAutoUpdateScore = crit.autoUpdateAutoUpdateScore,
@@ -156,7 +155,7 @@ namespace ERxWebClient2.Controllers
         public int numResults { get; set; }
         public string dateFrom { get; set; }
         public string dateTo { get; set; }
-        public string magSearchText { get; set; }
+        public string magSearchId { get; set; }
         public int magAutoUpdateRunId { get; set; }
         public string autoUpdateOrderBy { get; set; }        
         public double autoUpdateAutoUpdateScore { get; set; }  
