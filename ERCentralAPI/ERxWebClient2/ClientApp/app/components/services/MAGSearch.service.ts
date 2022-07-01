@@ -98,7 +98,10 @@ export class magSearchService extends BusyAwareService {
             .then(
 
                 (result: MagSearch[]) => {
-                     this.RemoveBusy("CreateMagSearch");
+                        this.RemoveBusy("CreateMagSearch");
+                        for (var i = 0; i < result.length; i++) {
+                              result[i].add = false;
+                        }
                     this.MagSearchList = result;
                     return this.MagSearchList;
                
@@ -132,32 +135,14 @@ export class magSearchService extends BusyAwareService {
             );
     }
 
-    CombineSearches(magSearchListCombine: MagSearch[], logicalOperator: string) {
 
-        this._BusyMethods.push("CombineSearches");
-        let body = JSON.stringify({
-            magSearchListCombine: magSearchListCombine, logicalOperator: logicalOperator });
-        return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/CombineMagSearches',
-            body).toPromise()
 
-            .then(result => {
-                this.RemoveBusy("CombineSearches");
-                this.MagSearchList.push(result);
-                return this.MagSearchList;
-            }, error => {
-                    this.RemoveBusy("CombineSearches");
-                this.modalService.GenericError(error);
-            }
-            );
-
-    }
-
-    ImportMagSearches(magSearchText: string, searchText: string,
+    ImportMagSearches(magSearchId: string, searchText: string,
         FilterOutJournal: string = "", FilterOutURL: string = "", FilterOutDOI: string = "", FilterOutTitle: string = ""): Promise<any> {
                                                                  
         this._BusyMethods.push("ImportMagSearches");            
         let body = JSON.stringify({
-            magSearchText: magSearchText, searchText: searchText
+              magSearchId: magSearchId, searchText: searchText
             , FilterOutJournal: FilterOutJournal
             , FilterOutURL: FilterOutURL
             , FilterOutDOI: FilterOutDOI

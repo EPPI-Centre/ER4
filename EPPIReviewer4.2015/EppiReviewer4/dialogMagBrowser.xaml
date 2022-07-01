@@ -1080,7 +1080,7 @@
 
                                     <ComboBox x:Name="ComboMagSearchDateLimit" Grid.Row="3" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchDateLimit_SelectionChanged">
                                         <ComboBoxItem Content="No date limit" IsSelected="True"></ComboBoxItem>
-                                        <ComboBoxItem Content="OpenAlex created date from"></ComboBoxItem>
+                                        <ComboBoxItem Content="OpenAlex date after"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date exactly"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date before"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date after"></ComboBoxItem>

@@ -166,7 +166,7 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpPost("[action]")]
-        public IActionResult ImportMagSearchPapers([FromBody] MVCMagSearchText magSearch)
+        public IActionResult ImportMagSearchPapers([FromBody] MVCMagSearchImport magSearch)
         {
             try
             {
@@ -176,7 +176,7 @@ namespace ERxWebClient2.Controllers
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
                         0, 0, "", 0, 0, 0, 0, magSearch.FilterOutJournal.Trim(), magSearch.FilterOutDOI.Trim(),
-                        magSearch.FilterOutURL.Trim(), magSearch.FilterOutTitle.Trim(), magSearch.magSearchText, "OpenAlex search: " + magSearch.searchText);
+                        magSearch.FilterOutURL.Trim(), magSearch.FilterOutTitle.Trim(), magSearch.magSearchId, "OpenAlex search: " + magSearch.searchText);
 
                     command = dp2.Execute(command);
 
@@ -314,9 +314,9 @@ namespace ERxWebClient2.Controllers
         public string logicalOperator  { get; set; }
     }
 
-    public class MVCMagSearchText
+    public class MVCMagSearchImport
     {
-        public string magSearchText { get; set; }
+        public string magSearchId { get; set; }
         public string searchText { get; set; }
         public string FilterOutJournal { get; set; }
         public string FilterOutURL { get; set; }

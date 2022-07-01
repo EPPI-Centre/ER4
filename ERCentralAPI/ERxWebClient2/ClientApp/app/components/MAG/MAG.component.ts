@@ -111,37 +111,30 @@ export class MAGComp implements OnInit, OnDestroy {
     public IHaveImportedSomething: boolean = false;
     private subItemIDinPath: Subscription | null = null;
 
-    public HelpAndFeebackContext: string = "openalex\\bringuptodate";
-
-    public get Context(): string {
-        if (this.NavBar2) {
+      public get HelpAndFeebackContext(): string {
             switch (this.NavBar2.Context) {
-                case "RelatedPapers":
-                    this.HelpAndFeebackContext = "openalex\\bringuptodate";
-                    break;
-                case "KeepUpdated":
-                    this.HelpAndFeebackContext = "openalex\\keepupdated";
-                    break;
-                case "Advanced":
-                    this.HelpAndFeebackContext = "openalex\\advanced";
-                    break;
-                case "History":
-                    this.HelpAndFeebackContext = "openalex\\history";
-                    break;
-                case "matching":
-                    this.HelpAndFeebackContext = "openalex\\matching";
-                    break;
-                case "Admin":
-                    this.HelpAndFeebackContext = "openalex\\admin";
-                    break;
-                case "MagSearch":
-                    this.HelpAndFeebackContext = "openalex\\search";
-                    break;
-                default:
-                    // RelatedPapers
-                    this.HelpAndFeebackContext = "openalex\\bringuptodate";
+                  case "RelatedPapers":
+                        return "openalex\\bringuptodate";
+                  case "KeepUpdated":
+                        return "openalex\\keepupdated";
+                  case "Advanced":
+                        return "openalex\\history";
+                  case "History":
+                        return "openalex\\history";
+                  case "matching":
+                        return "openalex\\matching";
+                  case "Admin":
+                        return "openalex\\admin";
+                  case "MagSearch":
+                        return "openalex\\search";
+                  default:
+                        // RelatedPapers
+                        return "openalex\\bringuptodate";
             }
+      } 
 
+      public get Context(): string {
+            if (this.NavBar2) {
             return this.NavBar2.Context;
         }
         else return "MAG: unspecified page";
@@ -149,32 +142,6 @@ export class MAGComp implements OnInit, OnDestroy {
     public ChangeContext(val: string) {
         //console.log("Main MAG: context is changing (from, to)", this.Context, val);
         if (this.NavBar2) {
-            switch (this.NavBar2.Context) {
-                case "RelatedPapers":
-                    this.HelpAndFeebackContext = "openalex\\bringuptodate";
-                    break;
-                case "KeepUpdated":
-                    this.HelpAndFeebackContext = "openalex\\keepupdated";
-                    break;
-                case "Advanced":
-                    this.HelpAndFeebackContext = "openalex\\advanced";
-                    break;
-                case "History":
-                    this.HelpAndFeebackContext = "openalex\\history";
-                    break;
-                case "matching":
-                    this.HelpAndFeebackContext = "openalex\\matching";
-                    break;
-                case "Admin":
-                    this.HelpAndFeebackContext = "openalex\\admin";
-                    break;
-                case "MagSearch":
-                    this.HelpAndFeebackContext = "openalex\\search";
-                    break;
-                default:
-                    // RelatedPapers
-                    this.HelpAndFeebackContext = "openalex\\bringuptodate";
-            }
             this.NavBar2.Context = val;
         }
     }

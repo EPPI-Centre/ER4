@@ -19,14 +19,14 @@
                                     <option [value]="1">Word(s) in title/abstract</option>
                                     <!--<option [value]="2">Author name(s)</option>-->
                                     <option [value]="2">Topic</option>
-                                    <option [value]="3">OpenAlex ID</option>
+                                    <option [value]="3">OpenAlex ID(s)</option>
                                     <!--<option [value]="5">Journal</option>
                                     <option [value]="6">Custom</option>-->
                                 </select>
                             </div>
                         </div>
 
-                        <div class="col-sm-6" *ngIf="WordsInSelection != 3">
+                        <div class="col-sm-6" *ngIf="WordsInSelection != '2'">
                             <input id="magSearchInput" name="magSearchInput" type="text" class="form-control" [(ngModel)]="magSearchInput"
                                    placeholder="Enter search text (e.g. physic*) " />
 
@@ -34,7 +34,7 @@
                         </div>
                     </div>
 
-                    <div *ngIf="WordsInSelection == 2">
+                    <div *ngIf="WordsInSelection == '2'">
                         <table width="100%">
                             <tr>
                                 <td style="padding-left:15px;padding-bottom:10px; padding-right:10px">
@@ -80,17 +80,18 @@
 
                     </div>
 
-                    <div class="col-12 row mb-2">
+                    <div class="col-12 row mb-2" *ngIf="WordsInSelection != '1'">
                         <div class="col-sm-6">
                             <div ngbDropdown>
-                                <select class="col-12 form-control mb-1" name="DateLimitSelection"
+                                <select class="col-12 form-control mb-1" name="DateLimitSelection" 
                                         [(ngModel)]="DateLimitSelection">
                                     <option [ngValue]="0" [selected]="DateLimitSelection == 0">No date limit</option>
-                                    <option [ngValue]="1">Publication date exactly</option>
-                                    <option [ngValue]="2">Publication date before</option>
-                                    <option [ngValue]="3">Publication date after</option>
-                                    <option [ngValue]="4">Publication dates between</option>
-                                    <option [ngValue]="5">Publication year exactly</option>
+                                    <option [ngValue]="1">OpenAlex date after</option>
+                                    <option [ngValue]="2">Publication date exactly</option>
+                                    <option [ngValue]="3">Publication date before</option>
+                                    <option [ngValue]="4">Publication date after</option>
+                                    <option [ngValue]="5">Publication dates between</option>
+                                    <option [ngValue]="6">Publication year exactly</option>
                                     <!--<option [ngValue]="6">Publication year before</option>
                                     <option [ngValue]="7">Publication year after</option>
                                     <option [ngValue]="8">Publication years between</option>-->
@@ -99,7 +100,7 @@
                         </div>
 
                         <div class="col-sm-6">
-                            <div *ngIf="DateLimitSelection == 4 ">
+                            <div *ngIf="DateLimitSelection == 5 ">
                                 <table width="100%">
                                     <tr>
                                         <td>
@@ -121,7 +122,7 @@
                                     </tr>
                                 </table>
                             </div>
-                            <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3">
+                            <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2 || DateLimitSelection == 3 || DateLimitSelection == 4">
                                 <div class="m-1 p-1"><b>Date</b></div>
                                 <div>
                                     <div class="example-wrapper">
@@ -130,7 +131,7 @@
                                 </div>
                             </div>
                             <div >
-                                <div *ngIf="DateLimitSelection == 5 ">
+                                <div *ngIf="DateLimitSelection == 6 ">
                                     This year:
                                     <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
                                                           name="n1" [format]="'#####'"
@@ -141,7 +142,7 @@
                                                           class="border border-dark rounded mb-1"
                                                           style="width: 105px;"></kendo-numerictextbox>
                                 </div>
-                                <div *ngIf="DateLimitSelection == 6 ">
+                                <!--<div *ngIf="DateLimitSelection == 6 ">
                                     Before this year:
                                     <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
                                                           name="n1" [format]="'#####'"
@@ -186,7 +187,7 @@
                                                               class="border border-dark rounded mb-1"
                                                               style="width: 105px;"></kendo-numerictextbox>
                                     </div>
-                                </div>
+                                </div>-->
                             </div>
 
                         </div>
@@ -244,7 +245,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row col-12">
+                        <!--<div class="row col-12">
                             <div class="col-auto">(optional) Filter by date:</div>
                             <div ngbDropdown class="col-auto">
                                 <select class="form-control mb-1" name="DateLimitSelectionCombine" [disabled]="!CanDeleteSearch()"
@@ -260,8 +261,8 @@
                                     <option [ngValue]="8">Publication years between</option>
                                 </select>
                             </div>
-                        </div>
-                        <div *ngIf="DateLimitSelectionCombine > 0 && CanDeleteSearch()">
+                        </div>-->
+                        <!--<div *ngIf="DateLimitSelectionCombine > 0 && CanDeleteSearch()">
                             <ng-container [ngSwitch]="DateLimitSelectionCombine">
                                 <div *ngSwitchCase="1">
                                     Exact date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
@@ -335,12 +336,12 @@
                                 </div>
                                 <div *ngSwitchDefault></div>
                             </ng-container>
-                        </div>
+                        </div>-->
                         <div class="col-12 row mt-2 mx-0 p-0">
                             <div class="col-auto">
                                 <button class="btn btn-primary btn-lg btn-sm text-white"
                                         [disabled]="!CanCombineSearches()" (click)="CombineSearches()">
-                                    {{CombineButtonText}}
+                                    Combine Searches
                                     <i class="ml-1 fa fa-search"></i>
                                 </button>
                             </div>
@@ -433,7 +434,6 @@
                                 <th class="" width="1">#</th>
                                 <th class="" width="6" style="min-width:50px">Name</th>
                                 <th class="" width="5" style="min-width:50px">Search string</th>
-                                <th class="" width="2">OpenAlex Version</th>
                                 <th class="" width="2">User</th>
                                 <th class="" width="2">Date</th>
                                 <th class="" width="2" style="text-align:center" title="Number of 'current' hits might be bigger, as new results appear in OpenAlex">Hits (min.)</th>
@@ -453,11 +453,10 @@
                                 <td class="">{{item.searchNo}}</td>
                                 <td class="" style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.searchText}}>{{item.searchText}}</td>
                                 <td class="" style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.magSearchText}}>{{item.magSearchText | truncate}} </td>
-                                <td class="">{{item.magFolder}}</td>
                                 <td class="">{{item.contactName}}</td>
                                 <td class="">{{FormatDate2(item.searchDate)}}</td>
                                 <td class=" p-0" style="vertical-align:middle;text-align:center">
-                                    <div (click)="GetItems(item)" class="btn btn-link btn-sm font-weight-bold">{{ item.hitsNo}}</div>
+                                    <button (click)="GetItems(item)" [disabled]="item.isOASearch == false || item.hitsNo < 1" class="btn btn-link btn-sm font-weight-bold">{{ item.hitsNo}}</button>
                                 </td>
                                 <td class="" style="min-width:65px;text-align:center">
                                     <button *ngIf="item.isOASearch && !item.searchIdsStored" (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Re-Run (update)">
