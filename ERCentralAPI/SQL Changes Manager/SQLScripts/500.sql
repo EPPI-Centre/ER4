@@ -24,7 +24,7 @@ GO
 -- Create date: 
 -- Description:	gets a single magSearch on demand
 -- =============================================
-CREATE PROCEDURE [dbo].[st_MagSearch] 
+CREATE or alter PROCEDURE [dbo].[st_MagSearch] 
 	-- Add the parameters for the stored procedure here
 	@REVIEW_ID INT,
 	@MAG_SEARCH_ID INT
