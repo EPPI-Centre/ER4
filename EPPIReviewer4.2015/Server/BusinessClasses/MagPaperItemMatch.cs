@@ -153,25 +153,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         // Also see the algorithm in ItemDuplicateReadOnlyGroupList.cs. They should (probably) be identical
-        public static void doComparison(Item i, MagMakesHelpers.PaperMakes pm)
-        {
-            ItemDuplicateReadOnlyGroupList.Comparator comparator = new ItemDuplicateReadOnlyGroupList.Comparator();
-            pm.matchingScore = comparator.CompareItems(new ItemDuplicateReadOnlyGroupList.ItemComparison(i),
-                new ItemDuplicateReadOnlyGroupList.ItemComparison(pm));
-            //pm.titleLeven = HaBoLevenshtein(pm.DN, i.Title);
-            //pm.volumeMatch = pm.V == i.Volume ? 1 : 0;
-            //pm.pageMatch = pm.FP == i.FirstPage() ? 1 : 0;
-            //pm.yearMatch = pm.Y.ToString() == i.Year ? 1 : 0;
-            //pm.journalJaro = pm.J != null ? Jaro(pm.J.JN, i.ParentTitle) : 0;
-            //pm.allAuthorsLeven = Jaro(MagMakesHelpers.getAuthors(pm.AA).Replace(",", " "), i.Authors.Replace(";", " "));
-            //pm.matchingScore = ((pm.titleLeven / 100 * 2.71) +
-            //    (pm.volumeMatch * 0.02) +
-            //    (pm.pageMatch * 0.18) +
-            //    (pm.yearMatch * 0.82) +
-            //    (pm.journalJaro * 0.55) +
-            //    (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
-        }
-
+       
         public static void doComparison(Item i, MagMakesHelpers.OaPaper pm)
         {
             ItemDuplicateReadOnlyGroupList.Comparator comparator = new ItemDuplicateReadOnlyGroupList.Comparator();
@@ -192,24 +174,7 @@ namespace BusinessLibrary.BusinessClasses
             //    (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
         }
 
-        public static void doMakesPapersComparison(MagMakesHelpers.PaperMakes i, MagMakesHelpers.PaperMakes pm)
-        {
-            ItemDuplicateReadOnlyGroupList.Comparator comparator = new ItemDuplicateReadOnlyGroupList.Comparator();
-            pm.matchingScore = comparator.CompareItems(new ItemDuplicateReadOnlyGroupList.ItemComparison(i),
-                new ItemDuplicateReadOnlyGroupList.ItemComparison(pm));
-            //pm.titleLeven = HaBoLevenshtein(pm.DN, i.DN);
-            //pm.volumeMatch = pm.V == i.V ? 1 : 0;
-            //pm.pageMatch = pm.FP == i.FP ? 1 : 0;
-            //pm.yearMatch = pm.Y == i.Y ? 1 : 0;
-            //pm.journalJaro = pm.J != null && i.J != null ? Jaro(pm.J.JN, i.J.JN) : 0;
-            //pm.allAuthorsLeven = Jaro(MagMakesHelpers.getAuthors(pm.AA).Replace(",", " "), MagMakesHelpers.getAuthors(i.AA).Replace(",", " "));
-            //pm.matchingScore = ((pm.titleLeven / 100 * 2.71) +
-            //    (pm.volumeMatch * 0.02) +
-            //    (pm.pageMatch * 0.18) +
-            //    (pm.yearMatch * 0.82) +
-            //    (pm.journalJaro * 0.55) +
-            //    (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
-        }
+        
         public static void doMakesPapersComparison(MagMakesHelpers.OaPaper i, MagMakesHelpers.OaPaper pm)
         {
             ItemDuplicateReadOnlyGroupList.Comparator comparator = new ItemDuplicateReadOnlyGroupList.Comparator();

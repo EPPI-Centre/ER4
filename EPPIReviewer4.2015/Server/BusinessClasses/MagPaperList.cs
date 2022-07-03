@@ -462,7 +462,6 @@ namespace BusinessLibrary.BusinessClasses
                      //  These query MAKES for the list of PaperIds and then we look up in our database to see whether they are in the review.
                 {
                     MagMakesHelpers.OaPaper mpParent = null;
-                    MagMakesHelpers.FieldOfStudyMakes fosParent = null;
                     bool doSearch = false;
                     bool setPageToOne = false;
 

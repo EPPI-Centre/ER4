@@ -23,168 +23,7 @@ namespace BusinessLibrary.BusinessClasses
 {
     public class MagMakesHelpers
     {
-        // from a paper query
-        public class PaperMakesResponse
-        {
-            public string expr { get; set; }
-            public List<PaperMakes> entities { get; set; }
-        }
-
-        public class PaperMakes
-        {
-            public List<PaperMakesAuthor> AA { get; set; }
-            public string BT { get; set; }
-            // not bothering with conference information - less important outside computer science
-            public Int32 CC { get; set; }
-            public DateTime D { get; set; }
-            public string DN { get; set; }
-            public string DOI { get; set; }
-            public Int32 ECC { get; set; }
-            public List<PaperMakesFieldOfStudy> F { get; set; }
-            public string FP { get; set; }
-            public string I { get; set; }
-            //public PaperMakesInvertedAbstract IA { get; set; }
-            public string IA { get; set; }
-            public Int64 Id { get; set; }
-            public List<PaperMakesJournal> J { get; set; }
-            //public PaperMakesJournal J { get; set; }
-            public string LP { get; set; }
-            public string PB { get; set; }
-            public string Pt { get; set; }
-            public List<Int64> RId { get; set; }
-            //public List<PaperMakesSource> S { get; set; }
-            public string S { get; set; }
-            public string Ti { get; set; }
-            public string V { get; set; }
-            public string VFN { get; set; }
-            public string VSN { get; set; }
-            public Int32 Y { get; set; }
-
-            // These are NOT part of the Microsoft data model, but are used in matching
-            public double titleLeven { get; set; }
-            public double volumeMatch { get; set; }
-            public double pageMatch { get; set; }
-            public double yearMatch { get; set; }
-            public double journalJaro { get; set; }
-            public double allAuthorsLeven { get; set; }
-            public double matchingScore { get; set; }
-        }
-
-        public class PaperMakesAuthor
-        {
-            public Int64 AfId { get; set; }
-            public string AfN { get; set; }
-            public Int64 AuId { get; set; }
-            public string AuN { get; set; }
-            public string DAuN { get; set; }
-            public string DAfN { get; set; }
-            public Int32 S { get; set; }
-        }
-
-        public class PaperMakesFieldOfStudy
-        {
-            public string DFN { get; set; }
-            public Int64 FId { get; set; }
-            public string FN { get; set; }
-        }
-
-        public class PaperMakesJournal
-        {
-            public Int64 JId { get; set; }
-            public string JN { get; set; }
-            public string DJN { get; set; }
-        }
-
-        public class PaperMakesSource
-        {
-            public string Ty { get; set; }
-            public string U { get; set; }
-        }
-
-        // from a field of study query
-        public class FieldOfStudyMakes
-        {
-            public Int32 CC { get; set; }
-            public string DFN { get; set; }
-            public Int32 ECC { get; set; }
-            public Int32 FL { get; set; }
-            public string FN { get; set; }
-            public List<FieldOfStudyRelationshipMakes> FC { get; set; }
-            public List<FieldOfStudyRelationshipMakes> FP { get; set; }
-            public Int64 Id { get; set; }
-            public Int32 PC { get; set; }
-        }
-
-        public class FieldOfStudyRelationshipMakes
-        {
-            public Int64 FId { get; set; }
-            public string FN { get; set; }
-        }
-
-        public class MakesResponseFoS
-        {
-            public string expr { get; set; }
-            public List<FieldOfStudyMakes> entities { get; set; }
-        }
-
-        public class PaperMakesInvertedAbstract
-        {
-            public Int32 IndexLength { get; set; }
-            public Dictionary<string, int[]> InvertedIndex { get; set; }
-        }
-
-        // from the interpret query type
-
-        public class MakesInterpretResponse
-        {
-            public string query { get; set; }
-            public List<MakesInterpretation> interpretations { get; set; }
-        }
-
-        public class MakesInterpretation
-        {
-            public string logprob { get; set; }
-            public string parse { get; set; }
-            public List<MakesInterpretationRule> rules { get; set; }
-        }
-
-        /// Looks like this has been removed. Early August 2020
-        public class MakesInterpretationRule
-        {
-            public string name { get; set; }
-            public MakesInterpretationOutput output { get; set; }
-        }
-
-
-        public class MakesInterpretationOutput
-        {
-            public string type { get; set; }
-            public string value { get; set; }
-            public List<PaperMakes> entities { get; set; }
-        }
-
-        // Calc histogram query
-        public class MakesCalcHistogramResponse
-        {
-            public string expr { get; set; }
-            public int num_entities { get; set; }
-            public List<histograms> histograms { get; set; }
-        }
-
-        public class histograms
-        {
-            public string attribute { get; set; }
-            public string distinct_values { get; set; }
-            public int total_count { get; set; }
-            public List<histogram> histogram { get; set; }
-        }
-        public class histogram
-        {
-            public string value { get; set; }
-            public double logprob { get; set; }
-            public int count { get; set; }
-        }
-
+       
         // ******************************************** OpenAlex objects ***************************************************************
 
         // Single WORK returned by e.g. https://api.openalex.org/W1767272795
@@ -592,26 +431,6 @@ namespace BusinessLibrary.BusinessClasses
         // ******************************************** end OpenAlex objects *********************************************
 
 
-        public static string getAuthors(List<PaperMakesAuthor> authors)
-        {
-            string tmp = "";
-            if (authors != null)
-            {
-                foreach (PaperMakesAuthor author in authors)
-                {
-                    if (tmp == "")
-                    {
-                        tmp = author.AuN;
-                    }
-                    else
-                    {
-                        tmp += ", " + author.AuN;
-                    }
-                }
-            }
-            return tmp;
-        }
-
         public static string getAuthors(Authorship[] authors)
         {
             string tmp = "";
@@ -630,27 +449,6 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             return tmp;
-        }
-
-        public static string getErStyleAuthors(List<PaperMakesAuthor> authors)
-        {
-            string ret = "";
-            if (authors != null)
-            {
-                for (int x = 0; x < authors.Count; x++)
-                {
-                    AuthorsHandling.AutH author = AuthorsHandling.NormaliseAuth.singleAuth(authors[x].DAuN, x + 1, 0, true);
-                    if (ret == "")
-                    {
-                        ret = author.FullName;
-                    }
-                    else
-                    {
-                        ret += "; " + author.FullName;
-                    }
-                }
-            }
-            return ret;
         }
 
         public static List<OaPaperFilterResult> downloadOaPaperFilterUsingCursor(string expression, bool doSearch)
@@ -787,7 +585,6 @@ namespace BusinessLibrary.BusinessClasses
             string endpoint = configuration["OpenAlexEndpoint"];
             string responseText = "";
 
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             HttpWebRequest request = WebRequest.CreateHttp(configuration["OpenAlexEndpoint"] + expression);
             request.UserAgent = "mailto:" + configuration["OpenAlexEmailHeader"];
@@ -804,7 +601,6 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (WebException e)
             {
-                //string s = (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.
                 if (e.Message.Contains("429"))
                 {
                     System.Threading.Thread.Sleep(500);
@@ -928,33 +724,6 @@ namespace BusinessLibrary.BusinessClasses
             OaPaper pmr = EvaluateSingleOaPaper(PaperId.ToString());
 
             return pmr;
-        }
-
-        public static string ReconstructInvertedAbstract(PaperMakesInvertedAbstract ab)
-        {
-            if (ab == null) { return ""; }
-            try
-            {
-                //var j = (JObject)JsonConvert.DeserializeObject(str);
-                //int indexLength = j["IndexLength"].ToObject<int>();
-                int indexLength = ab.IndexLength;
-                //Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
-                Dictionary<string, int[]> invertedIndex = ab.InvertedIndex;
-                string[] abstractStr = new string[indexLength];
-                foreach (var pair in invertedIndex)
-                {
-                    string word = pair.Key;
-                    foreach (var index in pair.Value)
-                    {
-                        abstractStr[index] = word;
-                    }
-                }
-                return String.Join(" ", abstractStr);
-            }
-            catch
-            {
-                return "";
-            }
         }
 
         public static string ReconstructInvertedAbstract(Dictionary<string, int[]> ab)

@@ -542,7 +542,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
-                        command.Parameters.Add(new SqlParameter("@N_PAPERS", 0));
+                        command.Parameters.Add(new SqlParameter("@N_PAPERS", (int)0));
                         command.ExecuteNonQuery();
                     }
                     connection.Close();

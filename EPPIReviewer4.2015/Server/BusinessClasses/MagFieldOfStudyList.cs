@@ -52,7 +52,6 @@ namespace BusinessLibrary.BusinessClasses
 
             if (selectionCriteria.ListType == "FieldOfStudySearchList")
             {
-                // MagMakesHelpers.MakesInterpretResponse respJson = MagMakesHelpers.InterpretQuery(searchString);
                 MagMakesHelpers.OaConceptFilterResult concepts = MagMakesHelpers.EvaluateOaConceptFilter(selectionCriteria.SearchText, "50", "1", true);
 
                 var fosDict = new Dictionary<string, int>();
@@ -73,9 +72,9 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
                 {
-                    MagMakesHelpers.PaperMakesFieldOfStudy newPmfos = new MagMakesHelpers.PaperMakesFieldOfStudy();
-                    newPmfos.FId = Convert.ToInt64(eachFos.Key.Split('¬')[0]);
-                    newPmfos.DFN = eachFos.Key.Split('¬')[1];
+                    MagMakesHelpers.OaFullConcept newPmfos = new MagMakesHelpers.OaFullConcept();
+                    newPmfos.id = "https://openalex.org/C" + eachFos.Key.Split('¬')[0];
+                    newPmfos.display_name = eachFos.Key.Split('¬')[1];
                     Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
                 }
                 RaiseListChangedEvents = true;
@@ -83,35 +82,38 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (selectionCriteria.ListType == "PaperFieldOfStudyList") // these are paper entities not fields of study
             {
-                var fosDict = new Dictionary<string, int>();
-                string searchString = "openalex_id:https://openalex.org/W" + selectionCriteria.PaperIdList.Replace(",", "|https://openalex.org/W");
-                MagMakesHelpers.OaPaperFilterResult pmr = MagMakesHelpers.EvaluateOaPaperFilter(searchString, "50", "1", false);
-                if (pmr.results != null && pmr.results.Length > 0)
+                if (selectionCriteria.PaperIdList != "")
                 {
-                    foreach (MagMakesHelpers.OaPaper fosm in pmr.results)
+                    var fosDict = new Dictionary<string, int>();
+                    string searchString = "openalex_id:https://openalex.org/W" + selectionCriteria.PaperIdList.Replace(",", "|https://openalex.org/W");
+                    MagMakesHelpers.OaPaperFilterResult pmr = MagMakesHelpers.EvaluateOaPaperFilter(searchString, "50", "1", false);
+                    if (pmr.results != null && pmr.results.Length > 0)
                     {
-                        if (fosm.concepts != null)
+                        foreach (MagMakesHelpers.OaPaper fosm in pmr.results)
                         {
-                            foreach (MagMakesHelpers.Concept pmfos in fosm.concepts)
+                            if (fosm.concepts != null)
                             {
-                                string key = pmfos.id.ToString().Replace("https://openalex.org/C", "") + "¬" + pmfos.display_name;
-                                if (!fosDict.ContainsKey(key))
+                                foreach (MagMakesHelpers.Concept pmfos in fosm.concepts)
                                 {
-                                    fosDict.Add(key, 1);
-                                }
-                                else
-                                {
-                                    fosDict[key] = fosDict[key] + 1;
+                                    string key = pmfos.id.ToString().Replace("https://openalex.org/C", "") + "¬" + pmfos.display_name;
+                                    if (!fosDict.ContainsKey(key))
+                                    {
+                                        fosDict.Add(key, 1);
+                                    }
+                                    else
+                                    {
+                                        fosDict[key] = fosDict[key] + 1;
+                                    }
                                 }
                             }
                         }
-                    }
-                    foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
-                    {
-                        MagMakesHelpers.PaperMakesFieldOfStudy newPmfos = new MagMakesHelpers.PaperMakesFieldOfStudy();
-                        newPmfos.FId = Convert.ToInt64(eachFos.Key.Split('¬')[0]);
-                        newPmfos.DFN = eachFos.Key.Split('¬')[1];
-                        Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
+                        foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
+                        {
+                            MagMakesHelpers.OaFullConcept newPmfos = new MagMakesHelpers.OaFullConcept();
+                            newPmfos.id = "https://openalex.org/C" + eachFos.Key.Split('¬')[0];
+                            newPmfos.display_name = eachFos.Key.Split('¬')[1];
+                            Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
+                        }
                     }
                 }
             }

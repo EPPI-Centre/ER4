@@ -694,31 +694,6 @@ namespace BusinessLibrary.BusinessClasses
                 TITLE = MagMakesHelpers.CleanText(TITLE, true);
             }
 
-            public ItemComparison(MagMakesHelpers.PaperMakes pm)
-            {
-                ITEM_ID = pm.Id;
-                AUTHORS = MagMakesHelpers.getErStyleAuthors(pm.AA);
-                TITLE = pm.DN;
-                PARENT_TITLE = pm.J != null && pm.J[0] != null && pm.J[0].JN != null ? pm.J[0].JN : "";
-                //PARENT_TITLE = pm.J != null && pm.J != null ? pm.J.JN : "";
-                if (PARENT_TITLE == "")
-                    PARENT_TITLE = pm.VFN != null ? pm.VFN : "";
-                PARENT_TITLE = MagMakesHelpers.CleanText(PARENT_TITLE.Replace("&", "and"));
-                YEAR = pm.Y.ToString();
-                VOLUME = pm.V != null ? pm.V.ToString() : "";
-                PAGES = pm.FP != "" ? pm.FP + "-" + pm.LP : "";
-                ISSUE = pm.I;
-                DOI = pm.DOI != null ? pm.DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
-                ABSTRACT = "";
-                HAS_CODES = 0;
-                IS_MASTER = 0;
-                TYPE_ID = MagMakesHelpers.GetErEquivalentPubType(pm.Pt);
-                //line below was: if (TITLE.IndexOf("Erratum") == -1)
-                if (!Comparator.ErratumRegex.IsMatch(TITLE))
-                    TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
-                TITLE = MagMakesHelpers.CleanText(TITLE);
-            }
-
             public ItemComparison(MagMakesHelpers.OaPaper pm)
             {
                 ITEM_ID = Convert.ToInt64(pm.id.Replace("https://openalex.org/W", ""));

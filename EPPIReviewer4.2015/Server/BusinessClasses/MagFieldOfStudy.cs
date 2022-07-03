@@ -353,7 +353,7 @@ namespace BusinessLibrary.BusinessClasses
             */
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudy(MagMakesHelpers.FieldOfStudyMakes fos)
+        internal static MagFieldOfStudy GetMagFieldOfStudy(MagMakesHelpers.OaFullConcept fos)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             /*
@@ -363,9 +363,9 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(PaperCountProperty, reader.GetInt64("PaperCount"));
             //returnValue.LoadProperty<decimal>(SimilarityScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity"))); // Getting the float data type into c# is a pain
             */
-            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, fos.Id);
-            returnValue.LoadProperty<string>(DisplayNameProperty, fos.DFN);
-            returnValue.LoadProperty<Int32>(num_timesProperty, fos.CC);
+            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, Convert.ToInt64(fos.id.Replace("https://openalex.org/C", "")));
+            returnValue.LoadProperty<string>(DisplayNameProperty, fos.display_name);
+            returnValue.LoadProperty<Int32>(num_timesProperty, fos.cited_by_count);
             //returnValue.LoadProperty<Int64>(PaperCountProperty, fos.PC);
 
             returnValue.MarkOld();
@@ -392,7 +392,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(MagMakesHelpers.PaperMakesFieldOfStudy pmfos)
+        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(MagMakesHelpers.OaFullConcept pmfos)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             /*
@@ -402,8 +402,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(PaperCountProperty, reader.GetInt64("PaperCount"));
             //returnValue.LoadProperty<decimal>(SimilarityScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity"))); // Getting the float data type into c# is a pain
             */
-            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, pmfos.FId);
-            returnValue.LoadProperty<string>(DisplayNameProperty, pmfos.DFN);
+            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, Convert.ToInt64(pmfos.id.Replace("https://openalex.org/C", "")));
+            returnValue.LoadProperty<string>(DisplayNameProperty, pmfos.display_name);
             //returnValue.LoadProperty<Int32>(num_timesProperty, pmfos.c);
             //returnValue.LoadProperty<Int64>(PaperCountProperty, fos.PC);
 
