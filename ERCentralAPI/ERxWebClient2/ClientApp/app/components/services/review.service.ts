@@ -236,7 +236,7 @@ export class ReviewService extends BusyAwareService {
 
 
     public AddNewReviewer(reviewerEmail: string): Promise<number> {
-        this._BusyMethods.push("AddUpdateAccount");
+        this._BusyMethods.push("AddAccount");
 
         let _ReviewerEmail = { Value: reviewerEmail };
         let body = JSON.stringify(_ReviewerEmail);
@@ -245,11 +245,11 @@ export class ReviewService extends BusyAwareService {
             body).toPromise()
             .then(
                 (result) => {
-                    this.RemoveBusy("UpdateAccount");
+                    this.RemoveBusy("AddAccount");
                     return result;
                 }, error => {
                     this.modalService.GenericError(error);
-                    this.RemoveBusy("UpdateAccount");
+                    this.RemoveBusy("AddAccount");
                     return 3;
                 }
             );

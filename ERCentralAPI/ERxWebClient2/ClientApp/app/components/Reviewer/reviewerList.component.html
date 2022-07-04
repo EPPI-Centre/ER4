@@ -45,8 +45,8 @@
                 <td class="p-1 align-middle ">{{member.contactName}}</td>
                 <td class="p-1 align-middle ">{{member.email}}</td>
                 <td [ngStyle]="{'background-color':member.isExpired == 1 ? '#dc3545' : '#28a745'}" style="color:white;" class="p-1 align-middle ">{{member.expiry}}</td>
-                <td class="p-1 align-middle ">
-                    <select #AllocateOptionsDropDown class="form-control" name="RoleOptions"
+                <td class="px-1 py-0 align-middle ">
+                    <select #AllocateOptionsDropDown class="form-control px-1" name="RoleOptions"
                             style="min-width: 60px" (change)="SetRelevantDropDownValues($event.target.value, member)">
                         <option *ngFor="let item of RoleOptions" [value]="item.key"
                                 [selected]="item.value == member.role">
@@ -54,7 +54,7 @@
                         </option>
                     </select>
                 </td>
-                <td class="p-1 align-middle" width="30px">
+                <td class="p-0 align-middle" width="30px">
                     <button (click)="RemoveReviewer(member)" class="btn btn-sm btn-success" title="Remove from review"><i class="fa fa-trash"></i></button>
                 </td>
             </tr>

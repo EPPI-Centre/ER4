@@ -116,7 +116,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
                     ReviewMembers res = new ReviewMembers(data.role, data.contactId);
                     res = res.Save();
@@ -138,7 +138,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
                     ReviewMembers res = new ReviewMembers(data.Value);
                     res = res.Save();
@@ -159,7 +159,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
                     //ReviewMembers res = new ReviewMembers(data.Value);
                     ReviewMembers res = DataPortal.Fetch<ReviewMembers>(new SingleCriteria<ReviewMembers, string>(data.Value));
@@ -177,7 +177,11 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-
+        private bool UserIsAdmin()
+        {
+            ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+            return ri.Roles.Contains("AdminUser");
+        }
 
 
     }
