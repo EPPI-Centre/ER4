@@ -981,11 +981,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.isSourcesPanelVisible = !this.isSourcesPanelVisible;
     }
     toggleReviewersPanel() {
-        if (!this.isReviewersPanelVisible) {
-            this.reviewInfoService.FetchReviewMembers();
-            //this.ReviewersService.FetchSources();
-        }
-        this.isReviewersPanelVisible = !this.isReviewersPanelVisible;
+        //if (!this.isReviewersPanelVisible) {
+        //    this.reviewInfoService.FetchReviewMembers();
+        //    //this.ReviewersService.FetchSources();
+        //}
+        //this.isReviewersPanelVisible = !this.isReviewersPanelVisible;
     }
     getDaysLeftAccount() {
 

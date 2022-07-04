@@ -102,13 +102,31 @@ export class ReviewerListComponent implements OnInit {
         }
     }
 
-    async InviteReviewerIntoReview() {
-        let result = await this.AccountManagerService.InviteReviewer(this.reviewerEmail.trim());
-            if (result == true) {
-                // close the invite area and reload the list to show the new reviewer 
-                this.isAddReviewerExpanded = false;
-                this.reviewInfoService.FetchReviewMembers();
-            }
+      async InviteReviewerIntoReview() {
+            const msg: string = "You're about to try adding:<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+                  + this.reviewerEmail.trim()
+                  + "</strong></div>to this review.<br />"
+                  + "Please note that <strong>no notification email</strong> will be sent. If you wish to notify your collaborator via email, either email them manually or use the "
+                  + "<a href='https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935' target='_blank'>Account Manager</a>.";
+            this.ConfirmationDialogService.confirm('Invite member?', msg, false, '', 'Invite!', 'Cancel', "sm")
+                  .then(
+                        async (confirmed: any) => {
+                              //console.log('User confirmed source (un/)delete:', confirmed);
+                              if (confirmed) {
+                                    let result = await this.AccountManagerService.InviteReviewer(this.reviewerEmail.trim());
+                                    if (result == true) {
+                                          // close the invite area and reload the list to show the new reviewer 
+                                          this.isAddReviewerExpanded = false;
+                                          this.reviewInfoService.FetchReviewMembers();
+                                    }
+                              } else {
+                                    //alert('did not confirm');
+                              }
+                        }
+                  )
+                  .catch(() => {
+                        //console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)');
+                  });
     }
 
     async RemoveReviewerFromReview(member: Contact) {
