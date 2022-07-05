@@ -81,9 +81,9 @@
                     </div>
 
                     <div class="col-12 row mb-2" *ngIf="WordsInSelection != '1'">
-                        <div class="col-sm-6">
-                            <div ngbDropdown>
-                                <select class="col-12 form-control mb-1" name="DateLimitSelection" 
+                        <div class="row mx-0 col-sm-6">
+                            <div ngbDropdown class="col-12 px-0">
+                                <select class=" form-control mb-1" name="DateLimitSelection" 
                                         [(ngModel)]="DateLimitSelection">
                                     <option [ngValue]="0" [selected]="DateLimitSelection == 0">No date limit</option>
                                     <option [ngValue]="1">OpenAlex date after</option>
@@ -97,6 +97,9 @@
                                     <option [ngValue]="8">Publication years between</option>-->
                                 </select>
                             </div>
+                            <div *ngIf="DateLimitSelection >0 && DateLimitSelection < 6 && DateLimitSelection != 2" 
+                                 class="small rounded alert-info my-auto px-2 py-1 col-12 mx-0 ">
+                                <strong>Note:</strong> date filters use "greater than" and "less than" logic.</div>
                         </div>
 
                         <div class="col-sm-6">
