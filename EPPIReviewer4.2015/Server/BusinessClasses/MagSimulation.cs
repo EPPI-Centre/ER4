@@ -621,6 +621,7 @@ namespace BusinessLibrary.BusinessClasses
                 "Results.tsv",
                 "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle",
                 mci.MagFolder,
+                "",
                 FosThreshold.ToString(),
                 folderPrefix,
                 ScoreThreshold.ToString(),

@@ -1632,12 +1632,10 @@
 
                                     <ToolkitRef:WrapPanel Grid.Row="0"  Orientation="Horizontal">
                                         <TextBlock Text="Maintenance processes" Margin="5,5,5,5"></TextBlock>
-                                        <HyperlinkButton x:Name="LBCopyNewOaData" Content="Copy new OpenAlexData" Click="LBCopyNewOaData_Click"  IsTabStop="False" Margin="0,5,5,5" Foreground="Red" Visibility="Collapsed"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBCopyNewOaData" Content="Copy new OpenAlexData" Click="LBCopyNewOaData_Click"  IsTabStop="False" Margin="0,5,5,5" Foreground="Red" Visibility="Collapsed" IsEnabled="False"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBCurrentInfoCreate" Content="Add new OpenAlex to MAKES list" Click="LBCurrentInfoCreate_Click"  Foreground="Red" IsTabStop="False" Margin="0,5,5,5" Visibility="Collapsed"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBCreateParquetFiles" Content="1. Create parquet files for new OpenAlex" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,5,5,5" Tag="Prepare parquet"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBDownloadNewPaperIds" Content="2. Download new PaperIds" Click="LBCreateParquetFiles_Click" IsTabStop="False" Margin="0,5,5,5" Tag="GetNewPaperIds"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBGetMissingAbstracts" Content="3. Get missing abstracts for new OpenAlex API" Click="LBGetMissingAbstracts_Click" IsTabStop="False" Margin="5,5,5,5" Tag="Get abstracts that may not have been present when items first created"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="x. Identify ID changes BEFORE switching to new OpenAlex" Click="CheckChangedPaperIds_Click" Visibility="Collapsed" IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBGetMissingAbstracts" Content="3. Get missing abstracts for new OpenAlex API" Click="LBGetMissingAbstracts_Click" IsTabStop="False" Margin="5,5,5,5" IsEnabled="False" Tag="Get abstracts that may not have been present when items first created"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="x. Identify ID changes BEFORE switching to new OpenAlex" Click="CheckChangedPaperIds_Click" Visibility="Collapsed" IsEnabled="False" IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
                                         
                                     </ToolkitRef:WrapPanel>
                                     <StackPanel Grid.Row="1" Orientation="Horizontal">

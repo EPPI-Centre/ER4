@@ -3,7 +3,7 @@
 <MAGHeaderBar2 #NavBar2 (PleaseGoTo)="ChangeContext($event)" [MustMatchItems]="MustMatchItems" (PleaseGoBackHome)="BackHome()"  (IHaveImportedSomething)="IHaveImportedSomething = true"></MAGHeaderBar2>
 <div class="row col-12 mx-0 p-0">
     <div class=" small mx-auto my-1 px-2 py-0 rounded bg-white">
-        <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3754" target="_blank">OpenAlex Dataset</a>: <strong>{{MagFolder}}</strong> Matched items: <strong>{{MatchedCount}}</strong>
+        <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3754" target="_blank">Autoupdate last run on</a>: <strong>{{MagFolder}}</strong> Matched items: <strong>{{MatchedCount}}</strong>
     </div>
 </div>
 <div *ngIf="MustMatchItems" class="row col-12 mx-0 p-2"> 

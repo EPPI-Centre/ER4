@@ -296,12 +296,12 @@ namespace EppiReviewer4
                             if (!found)
                             {
                                 LBCurrentInfoCreate.Visibility = Visibility.Visible;
-                                LBCopyNewOaData.Visibility = Visibility.Visible;
+                                //LBCopyNewOaData.Visibility = Visibility.Visible;
                             }
                             else
                             {
                                 LBCurrentInfoCreate.Visibility = Visibility.Collapsed;
-                                LBCopyNewOaData.Visibility = Visibility.Collapsed;
+                                //LBCopyNewOaData.Visibility = Visibility.Collapsed;
                             }
                         }
                     }
@@ -696,7 +696,7 @@ namespace EppiReviewer4
             {
                 if (mci.MagOnline == true)
                 {
-                    tbAcademicTitle.Text = "OpenAlex dataset: " + mci.MagFolder;
+                    tbAcademicTitle.Text = "Last autoupdate run on: " + mci.MagFolder;
                 }
                 else
                 {
@@ -4768,7 +4768,7 @@ namespace EppiReviewer4
                     provider.Refresh();
                 }
             }
-            tbAcademicTitle.Text = "OpenAlex dataset: " + CurrentTempMagCurrentInfo.MagFolder;
+            tbAcademicTitle.Text = "Last autoupdate run on: " + CurrentTempMagCurrentInfo.MagFolder;
             CurrentTempMagCurrentInfo = null;
             CslaDataProvider provider2 = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             provider2.Refresh();
