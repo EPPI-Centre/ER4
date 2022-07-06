@@ -417,7 +417,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _RevId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _Cid));
-                        command.CommandTimeout = 90; //three times the usual 30s...
+                        command.CommandTimeout = 120; //three times the usual 30s...
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
                             string currentSearchText = "";
