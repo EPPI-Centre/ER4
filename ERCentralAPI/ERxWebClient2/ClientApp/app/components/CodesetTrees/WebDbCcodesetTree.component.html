@@ -6,7 +6,7 @@
 	
     <div class="me">
         <tree-root #tree class="bg-dark" *ngIf="nodes" [nodes]="nodes" [options]="options"
-                   (activate)="NodeSelected($event.node.data)" inert
+                   (activate)="NodeSelected($event.node.data)"
                    [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}">
             <ng-template class="bg-warning" #treeNodeTemplate let-node let-index="index">
                 <span *ngIf="node.data.nodeType == 'ReviewSet'">

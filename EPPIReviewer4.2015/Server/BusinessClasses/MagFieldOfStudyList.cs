@@ -44,94 +44,58 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
        
 #else
-        
-
         protected void DataPortal_Fetch(MagFieldOfStudyListSelectionCriteria selectionCriteria)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
-            string searchString = "";
 
-            switch (selectionCriteria.ListType)
-            {
-                case "PaperFieldOfStudyList":
-                    searchString = selectionCriteria.PaperIdList == "" ? "" : 
-                        searchString = "OR(Id=" + selectionCriteria.PaperIdList.Replace(",", ", Id=") +
-                            @")&attributes=Id,F.DFN,F.FId,F.FN";
-                    break;
-                case "FieldOfStudyParentsList":
-                    searchString = "Id=" + selectionCriteria.FieldOfStudyId.ToString() +
-                        @"&attributes=Id,CC,DFN,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
-                    break;
-                case "FieldOfStudyChildrenList":
-                    searchString = "Id=" + selectionCriteria.FieldOfStudyId.ToString() +
-                        @"&attributes=Id,CC,DFN,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
-                    break;
-                case "FieldOfStudySearchList":
-                    searchString = selectionCriteria.SearchText;
-                    break;
-            }
 
-            if (searchString != "")
+            if (selectionCriteria.ListType == "FieldOfStudySearchList")
             {
-                if (selectionCriteria.ListType == "FieldOfStudySearchList")
+                MagMakesHelpers.OaConceptFilterResult concepts = MagMakesHelpers.EvaluateOaConceptFilter(selectionCriteria.SearchText, "50", "1", true);
+
+                var fosDict = new Dictionary<string, int>();
+                if (concepts != null && concepts.results != null && concepts.results.Length > 0)
                 {
-                    MagMakesHelpers.MakesInterpretResponse respJson = MagMakesHelpers.InterpretQuery(searchString);
-                    var fosDict = new Dictionary<string, int>();
-                    if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                    foreach (MagMakesHelpers.OaFullConcept c in concepts.results)
                     {
-                        foreach (MagMakesHelpers.MakesInterpretation i in respJson.interpretations)
+                        string key = c.id.Replace("https://openalex.org/C", "") + "¬" + c.display_name;
+                        if (!fosDict.ContainsKey(key))
                         {
-                            foreach (MagMakesHelpers.MakesInterpretationRule r in i.rules)
-                            {
-                                foreach (MagMakesHelpers.PaperMakes pm in r.output.entities)
-                                {
-                                    if (pm.F != null)
-                                    {
-                                        foreach (MagMakesHelpers.PaperMakesFieldOfStudy pmfos in pm.F)
-                                        {
-                                            if (MagPaperItemMatch.HaBoLevenshtein(pmfos.DFN, selectionCriteria.SearchText) > 20)
-                                            {
-                                                string key = pmfos.FId.ToString() + "¬" + pmfos.DFN;
-                                                if (!fosDict.ContainsKey(key))
-                                                {
-                                                    fosDict.Add(key, 1);
-                                                }
-                                                else
-                                                {
-                                                    fosDict[key] = fosDict[key] + 1;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            fosDict.Add(key, 1);
+                        }
+                        else
+                        {
+                            fosDict[key] = fosDict[key] + 1;
                         }
                     }
-                    foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
-                    {
-                        MagMakesHelpers.PaperMakesFieldOfStudy newPmfos = new MagMakesHelpers.PaperMakesFieldOfStudy();
-                        newPmfos.FId = Convert.ToInt64(eachFos.Key.Split('¬')[0]);
-                        newPmfos.DFN = eachFos.Key.Split('¬')[1];
-                        Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
-                    }
-                    RaiseListChangedEvents = true;
-                    return;
                 }
-                if (selectionCriteria.ListType == "PaperFieldOfStudyList") // these are paper entities not fields of study
+                foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
+                {
+                    MagMakesHelpers.OaFullConcept newPmfos = new MagMakesHelpers.OaFullConcept();
+                    newPmfos.id = "https://openalex.org/C" + eachFos.Key.Split('¬')[0];
+                    newPmfos.display_name = eachFos.Key.Split('¬')[1];
+                    Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
+                }
+                RaiseListChangedEvents = true;
+                return;
+            }
+            if (selectionCriteria.ListType == "PaperFieldOfStudyList") // these are paper entities not fields of study
+            {
+                if (selectionCriteria.PaperIdList != "")
                 {
                     var fosDict = new Dictionary<string, int>();
-                    //var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
-                    MagMakesHelpers.PaperMakesResponse pmr = MagMakesHelpers.EvaluateExpressionNoPaging(searchString);
-                    if (pmr.entities != null && pmr.entities.Count > 0)
+                    string searchString = "openalex_id:https://openalex.org/W" + selectionCriteria.PaperIdList.Replace(",", "|https://openalex.org/W");
+                    MagMakesHelpers.OaPaperFilterResult pmr = MagMakesHelpers.EvaluateOaPaperFilter(searchString, "50", "1", false);
+                    if (pmr.results != null && pmr.results.Length > 0)
                     {
-                        foreach (MagMakesHelpers.PaperMakes fosm in pmr.entities)
+                        foreach (MagMakesHelpers.OaPaper fosm in pmr.results)
                         {
-                            if (fosm.F != null)
+                            if (fosm.concepts != null)
                             {
-                                foreach (MagMakesHelpers.PaperMakesFieldOfStudy pmfos in fosm.F)
+                                foreach (MagMakesHelpers.Concept pmfos in fosm.concepts)
                                 {
-                                    string key = pmfos.FId.ToString() + "¬" + pmfos.DFN;
+                                    string key = pmfos.id.ToString().Replace("https://openalex.org/C", "") + "¬" + pmfos.display_name;
                                     if (!fosDict.ContainsKey(key))
                                     {
                                         fosDict.Add(key, 1);
@@ -145,105 +109,44 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
                         {
-                            MagMakesHelpers.PaperMakesFieldOfStudy newPmfos = new MagMakesHelpers.PaperMakesFieldOfStudy();
-                            newPmfos.FId = Convert.ToInt64(eachFos.Key.Split('¬')[0]);
-                            newPmfos.DFN = eachFos.Key.Split('¬')[1];
+                            MagMakesHelpers.OaFullConcept newPmfos = new MagMakesHelpers.OaFullConcept();
+                            newPmfos.id = "https://openalex.org/C" + eachFos.Key.Split('¬')[0];
+                            newPmfos.display_name = eachFos.Key.Split('¬')[1];
                             Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
                         }
                     }
                 }
-                else
-                {
-                    //var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText, jsonsettings);
-                    MagMakesHelpers.MakesResponseFoS mrFoS = MagMakesHelpers.EvaluateFieldOfStudyExpression(searchString);
-                    if (mrFoS.entities != null && mrFoS.entities.Count > 0)
-                    {
-                        foreach (MagMakesHelpers.FieldOfStudyMakes fosm in mrFoS.entities)
-                        {
-                            if (selectionCriteria.ListType == "FieldOfStudyParentsList")
-                            {
-                                if (fosm.FP != null && fosm.FP.Count > 0)
-                                {
-                                    foreach (MagMakesHelpers.FieldOfStudyRelationshipMakes fosrm in fosm.FP)
-                                        Add(MagFieldOfStudy.GetMagFieldOfStudyRelationship(fosrm));
-                                }
-                            }
-                            else
-                            {
-                                if (fosm.FC != null && fosm.FC.Count > 0)
-                                {
-                                    foreach (MagMakesHelpers.FieldOfStudyRelationshipMakes fosrm in fosm.FC)
-                                        Add(MagFieldOfStudy.GetMagFieldOfStudyRelationship(fosrm));
-                                }
-                            }
-
-                        }
-                    }
-                }
             }
-
-            /*
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            else
             {
-                connection.Open();
-                using (SqlCommand command = SpecifyListCommand(connection, selectionCriteria, ri))
+                MagMakesHelpers.OaFullConcept mrFoS = MagMakesHelpers.EvaluateSingleConcept(selectionCriteria.FieldOfStudyId.ToString());
+                if (mrFoS != null)
                 {
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    if (selectionCriteria.ListType == "FieldOfStudyParentsList")
                     {
-                        while (reader.Read())
+                        if (mrFoS.ancestors != null && mrFoS.ancestors.Length > 0)
                         {
-                            Add(MagFieldOfStudy.GetMagFieldOfStudy(reader));
+                            foreach (MagMakesHelpers.Ancestor fosrm in mrFoS.ancestors)
+                                Add(MagFieldOfStudy.GetAncestor(fosrm));
+                        }
+                    }
+                    else
+                    {
+                        string query = "ancestors.id:https://openalex.org/C" + selectionCriteria.FieldOfStudyId.ToString();
+                        MagMakesHelpers.OaConceptFilterResult children = MagMakesHelpers.EvaluateOaConceptFilter(query, "50", "1", false);
+                        if (children != null && children.results.Length > 0)
+                        {
+                            foreach (MagMakesHelpers.OaFullConcept concept in children.results)
+                                Add(MagFieldOfStudy.GetConcept(concept));
                         }
                     }
                 }
-                connection.Close();
             }
-            */
+
             RaiseListChangedEvents = true;
         }
 
-        //private SqlCommand SpecifyListCommand(SqlConnection connection, MagFieldOfStudyListSelectionCriteria criteria, ReviewerIdentity ri)
-        //{
-        //    SqlCommand command = null;
-        //    switch (criteria.ListType)
-        //    {
-        //        case "PaperFieldOfStudyList":
-        //            command = new SqlCommand("st_AggregateFoSPaperList", connection);
-        //            command.CommandType = System.Data.CommandType.StoredProcedure;
-        //            command.Parameters.Add(new SqlParameter("@PaperIdList", criteria.PaperIdList));
-        //            break;
-        //        case "FieldOfStudyParentsList":
-        //            command = new SqlCommand("st_FieldsOfStudyParentsList", connection);
-        //            command.CommandType = System.Data.CommandType.StoredProcedure;
-        //            command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
-        //            break;
-        //        case "FieldOfStudyChildrenList":
-        //            command = new SqlCommand("st_FieldsOfStudyChildrenList", connection);
-        //            command.CommandType = System.Data.CommandType.StoredProcedure;
-        //            command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
-        //            break;
-        //            /* NOT CURRENTLY IMPLEMENTED
-        //        case "FieldOfStudyRelatedFoSList":
-        //            command = new SqlCommand("st_FieldsOfStudyRelatedFoSList", connection);
-        //            command.CommandType = System.Data.CommandType.StoredProcedure;
-        //            command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
-        //            break;
-        //            */
-        //            /*
-        //        case "FieldOfStudySearchList":
-        //            FullTextSearch fts = new FullTextSearch(criteria.SearchText);
-        //            command = new SqlCommand("st_FieldsOfStudySearch", connection);
-        //            command.CommandType = System.Data.CommandType.StoredProcedure;
-        //            command.Parameters.Add(new SqlParameter("@SearchText", fts.NormalForm));
-        //            break;
-        //            */
-        //    }
-        //    return command;
-        //}
-
-
-
-
+        
 #endif
 
     }

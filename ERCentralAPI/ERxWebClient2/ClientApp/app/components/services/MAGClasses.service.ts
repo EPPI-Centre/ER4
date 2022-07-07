@@ -142,7 +142,7 @@ export class MVCMagPaperListSelectionCriteria {
     numResults: number = 0;
     dateFrom: string = '';
     dateTo: string = '';
-    magSearchText = '';
+    magSearchId: string = '';
     magAutoUpdateRunId: number = 0;
     autoUpdateOrderBy: string = '';
     autoUpdateAutoUpdateScore: number = 0.20;//can't be less than 0.20!
@@ -408,8 +408,18 @@ export class MagSearch {
     searchDate: Date = new Date();
     magFolder: string = '';
     magSearchText: string = '';
-    contactName: string = '';
+      contactName: string = '';
+      isOASearch: boolean = false;
+      searchIdsStored: boolean = false;
     add: boolean = false;
+}
+
+export class MagSearchBuilder {
+      searchText: string = '';
+      magSearchText: string = '';
+      dateFilter: string = '';
+      date1: string = '';
+      date2: string = '';
 }
 
 export interface MagAutoUpdateRun {

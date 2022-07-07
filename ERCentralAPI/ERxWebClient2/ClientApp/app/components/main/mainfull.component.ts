@@ -110,7 +110,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public stats: ReviewStatisticsCountsCommand | null = null;
 	public countDown: any | undefined;
 	public count: number = 60;
-	public isSourcesPanelVisible: boolean = false;
+    public isSourcesPanelVisible: boolean = false;
+    public isReviewersPanelVisible: boolean = false;
 	public isReviewPanelCollapsed: boolean = false;
 	public isWorkAllocationsPanelCollapsed: boolean = false;
 	private statsSub: Subscription = new Subscription();
@@ -920,6 +921,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.isSourcesPanelVisible) return '&uarr;';
         else return '&darr;';
     }
+    public get ReviewersPanelTogglingSymbol(): string {
+        if (this.isReviewersPanelVisible) return '&uarr;';
+        else return '&darr;';
+    }
 	IncludedItemsList() {
         this.IncludedItemsListNoTabChange();
 		this.tabstrip.selectTab(1);
@@ -974,6 +979,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.SourcesService.FetchSources();
         }
         this.isSourcesPanelVisible = !this.isSourcesPanelVisible;
+    }
+    toggleReviewersPanel() {
+        //if (!this.isReviewersPanelVisible) {
+        //    this.reviewInfoService.FetchReviewMembers();
+        //    //this.ReviewersService.FetchSources();
+        //}
+        //this.isReviewersPanelVisible = !this.isReviewersPanelVisible;
     }
     getDaysLeftAccount() {
 

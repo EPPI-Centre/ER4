@@ -195,40 +195,39 @@ namespace BusinessLibrary.BusinessClasses
                 return;
             }
 
-            // 3. Run through the list of PaperIds, hit MAKES and get the topics
+            // 3. Run through the list of PaperIds, hit OpenAlex and get the topics
             int count = 0;
             int numAdded = 0;
             List<PaperData> PapersData = new List<PaperData>();
             while (count < ItemsData.Count)
             {
                 string query = "";
-                for (int i = count; i < ItemsData.Count && i < count + 100; i++)
+                for (int i = count; i < ItemsData.Count && i < count + 50; i++)
                 {
                     if (query == "")
                     {
-                        query = "Id=" + ItemsData[i].PaperId.ToString();
+                        query = "W" + ItemsData[i].PaperId.ToString();
                     }
                     else
                     {
-                        query += ",Id=" + ItemsData[i].PaperId.ToString();
+                        query += "|W" + ItemsData[i].PaperId.ToString();
                     }
                 }
-                
-                MagMakesHelpers.PaperMakesResponse resp = MagMakesHelpers.EvaluateExpressionNoPagingWithCount("OR(" + query + ")", "100");
-                foreach (MagMakesHelpers.PaperMakes pm in resp.entities)
+
+                MagMakesHelpers.OaPaperFilterResult resp = MagMakesHelpers.EvaluateOaPaperFilter("openalex_id:https://openalex.org/" + query, "50", "1", false);
+                foreach (MagMakesHelpers.OaPaper pm in resp.results)
                 {
                     MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
                     if (mp.PaperId > 0 && mp.FieldsOfStudy != null && mp.FieldsOfStudy != "")
                     {
                         foreach (string f in mp.FieldsOfStudy.Split(','))
                         {
-                            PapersData.Add(new PaperData{ FoS =  Convert.ToInt64(f), PaperId = mp.PaperId });
+                            PapersData.Add(new PaperData { FoS = Convert.ToInt64(f), PaperId = mp.PaperId });
                         }
                         numAdded++;
                     }
-
                 }
-                count += 100;
+                count += 50;
             }
 
             int enough = 0;
@@ -294,10 +293,11 @@ namespace BusinessLibrary.BusinessClasses
         
         private bool isValidFos(Int64 fos)
         {
-            MagMakesHelpers.FieldOfStudyMakes check = MagMakesHelpers.EvaluateSingleFieldOfStudyId(fos.ToString());
+            MagMakesHelpers.OaFullConcept check = MagMakesHelpers.EvaluateSingleConcept(fos.ToString());
             if (check != null)
             {
-                if (check.FL > 0 && check.FP == null)
+                //if (check.FL > 0 && check.FP == null)
+                if (check.level > 0 && ((check.ancestors == null) || (check.ancestors != null && check.ancestors.Length == 0)))
                     return false;
                 else
                     return true;
@@ -315,11 +315,11 @@ namespace BusinessLibrary.BusinessClasses
             // need to create it. However, also need to create parents (probably)
 
             // first, get the MAKES record of our current attribute for creation
-            MagMakesHelpers.FieldOfStudyMakes fos = MagMakesHelpers.EvaluateSingleFieldOfStudyId(FoSId);
+            MagMakesHelpers.OaFullConcept fos = MagMakesHelpers.EvaluateSingleConcept(FoSId.ToString());
             if (fos != null)
             {
                 // next, check to see if it's a root node. If it is, we create and return it
-                if (fos.FL == 0 || fos.FP == null) // shouldn't have to check for null, but some non FL topics have null parents??!
+                if (fos.level == 0 || fos.ancestors == null || (fos.ancestors != null && fos.ancestors.Length == 0)) // shouldn't have to check for null, but some non FL topics have null parents??!
                 {
                     aset = new AttributeSet
                     {
@@ -328,12 +328,12 @@ namespace BusinessLibrary.BusinessClasses
                         AttributeTypeId = 2,
                         AttributeSetDescription = "",
                         AttributeOrder = rs.Attributes.Count,
-                        AttributeName = fos.DFN,
+                        AttributeName = fos.display_name,
                         AttributeDescription = "",
-                        ExtURL = "https://explore.openalex.org/C" + fos.Id,
+                        ExtURL = /*"https://openalex.org/C" +*/ fos.id,
                         ExtType = "OpenAlex",
                         ContactId = ContactId,
-                        OriginalAttributeID = fos.Id
+                        OriginalAttributeID = Convert.ToInt64(fos.id.Replace("https://openalex.org/C", ""))
                     };
                     AttributeSet.CreateNew(aset);
                     rs.Attributes.Add(aset);
@@ -341,19 +341,19 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 
                 // it's not a root node, therefore we have to check for a parent    
-                if (fos.FP != null)
+                if (fos.level > 0)
                 {
                     AttributeSet parentAttribute = null;
                                     
-                    foreach (MagMakesHelpers.FieldOfStudyRelationshipMakes p in fos.FP)
+                    foreach (MagMakesHelpers.Ancestor p in fos.ancestors)
                     {
-                        parentAttribute = rs.GetAttributeSetFromOriginalAttributeId(p.FId);
+                        parentAttribute = rs.GetAttributeSetFromOriginalAttributeId(Convert.ToInt64(fos.id.Replace("https://openalex.org/C", "")));
                         if (parentAttribute != null)
                             break;
                     }
                     if (parentAttribute == null)
                     {
-                        parentAttribute = GetOrCreateAttribute(rs, fos.FP[0].FId.ToString(), ContactId, ReviewId);
+                        parentAttribute = GetOrCreateAttribute(rs, fos.ancestors[0].id.ToString().Replace("https://openalex.org/C", ""), ContactId, ReviewId);
                     }
 
                     if (parentAttribute != null)
@@ -365,12 +365,12 @@ namespace BusinessLibrary.BusinessClasses
                             AttributeTypeId = 2,
                             AttributeSetDescription = "",
                             AttributeOrder = parentAttribute.Attributes.Count,
-                            AttributeName = fos.DFN,
+                            AttributeName = fos.display_name,
                             AttributeDescription = "",
-                            ExtURL = "https://explore.openalex.org/C" + fos.Id,
+                            ExtURL = /*"https://openalex.org/C" +*/ fos.id,
                             ExtType = "OpenAlex",
                             ContactId = ContactId,
-                            OriginalAttributeID = fos.Id
+                            OriginalAttributeID = Convert.ToInt64(fos.id.Replace("https://openalex.org/C", ""))
                         };
                         AttributeSet.CreateNew(aset);
                         parentAttribute.Attributes.Add(aset);

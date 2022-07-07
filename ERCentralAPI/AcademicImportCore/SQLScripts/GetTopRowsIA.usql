@@ -1,11 +1,26 @@
-﻿@PaperAbstractsInvertedIndex = PaperAbstractsInvertedIndex("wasb://mag-2021-12-06@eppimag/");
+﻿//@PaperAbstractsInvertedIndex = PaperAbstractsInvertedIndex("wasb://mag-2021-12-06@eppimag/");
+//
+//@result =
+//    SELECT *
+//    FROM @PaperAbstractsInvertedIndex
+//    ORDER BY @PaperAbstractsInvertedIndex.PaperId
+//    FETCH FIRST 500 ROWS;    
+//
+//OUTPUT @result
+//TO "wasb://experiments@eppimag/JT_tests/IA.txt"
+//USING Outputters.Tsv(quoting : false);
+
+
+@Papers = Papers("wasb://mag-2021-12-06@eppimag/");
+@PaperReferences = PaperReferences("wasb://mag-2021-12-06@eppimag/");
 
 @result =
-    SELECT *
-    FROM @PaperAbstractsInvertedIndex
-    ORDER BY @PaperAbstractsInvertedIndex.PaperId
-    FETCH FIRST 500 ROWS;    
+    SELECT P.Doi, P.PaperId, Pr.PaperReferenceId
+    FROM @Papers AS P
+         INNER JOIN @PaperReferences AS Pr ON Pr.PaperId == P.PaperId
+    WHERE Doi == "10.1080/02687030444000958" OR Doi == "10.1080/02687030802635832" OR Doi == "10.1111/J.1365-2788.2006.00926.X" OR Doi == "10.1345/APH.1C449" OR
+        Doi == "10.1080/10410236.2015.1037425" OR Doi == "10.1111/J.1468-3148.2006.00334.X" OR Doi == "10.1080/02687038.2011.626845" OR Doi == "10.1111/1460-6984.12206";
 
 OUTPUT @result
-TO "wasb://experiments@eppimag/JT_tests/IA.txt"
+TO "wasb://experiments@eppimag/JT_tests/DOI_CHECK.txt"
 USING Outputters.Tsv(quoting : false);

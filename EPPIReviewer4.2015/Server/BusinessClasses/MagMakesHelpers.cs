@@ -23,44 +23,40 @@ namespace BusinessLibrary.BusinessClasses
 {
     public class MagMakesHelpers
     {
-        // from a paper query
-        public class PaperMakesResponse
-        {
-            public string expr { get; set; }
-            public List<PaperMakes> entities { get; set; }
-        }
+       
+        // ******************************************** OpenAlex objects ***************************************************************
 
-        public class PaperMakes
+        // Single WORK returned by e.g. https://api.openalex.org/W1767272795
+        public class OaPaper
         {
-            public List<PaperMakesAuthor> AA { get; set; }
-            public string BT { get; set; }
-            // not bothering with conference information - less important outside computer science
-            public Int32 CC { get; set; }
-            public DateTime D { get; set; }
-            public string DN { get; set; }
-            public string DOI { get; set; }
-            public Int32 ECC { get; set; }
-            public List<PaperMakesFieldOfStudy> F { get; set; }
-            public string FP { get; set; }
-            public string I { get; set; }
-            //public PaperMakesInvertedAbstract IA { get; set; }
-            public string IA { get; set; }
-            public Int64 Id { get; set; }
-            public List<PaperMakesJournal> J { get; set; }
-            //public PaperMakesJournal J { get; set; }
-            public string LP { get; set; }
-            public string PB { get; set; }
-            public string Pt { get; set; }
-            public List<Int64> RId { get; set; }
-            //public List<PaperMakesSource> S { get; set; }
-            public string S { get; set; }
-            public string Ti { get; set; }
-            public string V { get; set; }
-            public string VFN { get; set; }
-            public string VSN { get; set; }
-            public Int32 Y { get; set; }
+            public string id { get; set; }
+            public string doi { get; set; }
+            public string title { get; set; }
+            public string display_name { get; set; }
+            public int publication_year { get; set; }
+            public string publication_date { get; set; }
+            public Ids ids { get; set; }
+            public Host_Venue host_venue { get; set; }
+            public string type { get; set; }
+            public Open_Access open_access { get; set; }
+            public Authorship[] authorships { get; set; }
+            public int cited_by_count { get; set; }
+            public Biblio biblio { get; set; }
+            public bool is_retracted { get; set; }
+            public bool is_paratext { get; set; }
+            public Concept[] concepts { get; set; }
+            public Mesh[] mesh { get; set; }
+            public Alternate_Host_Venues[] alternate_host_venues { get; set; }
+            public string[] referenced_works { get; set; }
+            public string[] related_works { get; set; }
+            //public Abstract_Inverted_Index abstract_inverted_index { get; set; }
+            public Dictionary<string, int[]> abstract_inverted_index { get; set; }
+            public string cited_by_api_url { get; set; }
+            public Counts_By_Year[] counts_by_year { get; set; }
+            public string updated_date { get; set; }
+            public string created_date { get; set; }
 
-            // These are NOT part of the Microsoft data model, but are used in matching
+            // These are NOT part of the OpenAlex data model, but are used in matching
             public double titleLeven { get; set; }
             public double volumeMatch { get; set; }
             public double pageMatch { get; set; }
@@ -68,270 +64,582 @@ namespace BusinessLibrary.BusinessClasses
             public double journalJaro { get; set; }
             public double allAuthorsLeven { get; set; }
             public double matchingScore { get; set; }
+
+            public string IdInteger
+            { 
+                get { return this.id.Replace("https://openalex.org/W", ""); }
+            }
         }
 
-        public class PaperMakesAuthor
+        // The Ids class is used in Works and Concepts
+        public class Ids
         {
-            public Int64 AfId { get; set; }
-            public string AfN { get; set; }
-            public Int64 AuId { get; set; }
-            public string AuN { get; set; }
-            public string DAuN { get; set; }
-            public string DAfN { get; set; }
-            public Int32 S { get; set; }
+            public string openalex { get; set; }
+            public string doi { get; set; }
+            public string mag { get; set; }
+            public string pmid { get; set; }
+
+            // Just for concepts
+            public string wikidata { get; set; }
+            public string wikipedia { get; set; }
+            public string[] umls_cui { get; set; }
         }
 
-        public class PaperMakesFieldOfStudy
+        public class Host_Venue
         {
-            public string DFN { get; set; }
-            public Int64 FId { get; set; }
-            public string FN { get; set; }
-        }
-
-        public class PaperMakesJournal
-        {
-            public Int64 JId { get; set; }
-            public string JN { get; set; }
-            public string DJN { get; set; }
-        }
-
-        public class PaperMakesSource
-        {
-            public string Ty { get; set; }
-            public string U { get; set; }
-        }
-
-        // from a field of study query
-        public class FieldOfStudyMakes
-        {
-            public Int32 CC { get; set; }
-            public string DFN { get; set; }
-            public Int32 ECC { get; set; }
-            public Int32 FL { get; set; }
-            public string FN { get; set; }
-            public List<FieldOfStudyRelationshipMakes> FC { get; set; }
-            public List<FieldOfStudyRelationshipMakes> FP { get; set; }
-            public Int64 Id { get; set; }
-            public Int32 PC { get; set; }
-        }
-
-        public class FieldOfStudyRelationshipMakes
-        {
-            public Int64 FId { get; set; }
-            public string FN { get; set; }
-        }
-
-        public class MakesResponseFoS
-        {
-            public string expr { get; set; }
-            public List<FieldOfStudyMakes> entities { get; set; }
-        }
-
-        public class PaperMakesInvertedAbstract
-        {
-            public Int32 IndexLength { get; set; }
-            public Dictionary<string, int[]> InvertedIndex { get; set; }
-        }
-
-        // from the interpret query type
-
-        public class MakesInterpretResponse
-        {
-            public string query { get; set; }
-            public List<MakesInterpretation> interpretations { get; set; }
-        }
-
-        public class MakesInterpretation
-        {
-            public string logprob { get; set; }
-            public string parse { get; set; }
-            public List<MakesInterpretationRule> rules { get; set; }
-        }
-
-        /// Looks like this has been removed. Early August 2020
-        public class MakesInterpretationRule
-        {
-            public string name { get; set; }
-            public MakesInterpretationOutput output { get; set; }
-        }
-        
-
-        public class MakesInterpretationOutput
-        {
+            public string id { get; set; }
+            public string issn_l { get; set; }
+            public string[] issn { get; set; }
+            public string display_name { get; set; }
+            public string publisher { get; set; }
             public string type { get; set; }
-            public string value { get; set; }
-            public List<PaperMakes> entities { get; set; }
-        }
-        
-        // Calc histogram query
-        public class MakesCalcHistogramResponse
-        {
-            public string expr { get; set; }
-            public int num_entities { get; set; }
-            public List<histograms> histograms { get; set; }
+            public string url { get; set; }
+            public bool is_oa { get; set; }
+            public string version { get; set; }
+            public string license { get; set; }
         }
 
-        public class histograms
+        public class Open_Access
         {
-            public string attribute { get; set; }
-            public string distinct_values { get; set; }
-            public int total_count { get; set; }
-            public List<histogram> histogram { get; set; }
+            public bool is_oa { get; set; }
+            public string oa_status { get; set; }
+            public string oa_url { get; set; }
         }
-        public class histogram
+
+        public class Biblio
         {
-            public string value { get; set; }
-            public double logprob { get; set; }
+            public string volume { get; set; }
+            public string issue { get; set; }
+            public string first_page { get; set; }
+            public string last_page { get; set; }
+        }
+
+        public class Abstract_Inverted_Index
+        {
+            public Dictionary<string, Object> InvertedIndex { get; set; } = new Dictionary<string, Object>();
+        }
+
+        public class Authorship
+        {
+            public string author_position { get; set; }
+            public Author author { get; set; }
+            public Institution[] institutions { get; set; }
+            public string raw_affiliation_string { get; set; }
+        }
+
+        public class Author
+        {
+            public string id { get; set; }
+            public string display_name { get; set; }
+            public string orcid { get; set; }
+        }
+
+        public class Institution
+        {
+            public string id { get; set; }
+            public string display_name { get; set; }
+            public object ror { get; set; }
+            public string country_code { get; set; }
+            public object type { get; set; }
+        }
+
+        public class Concept
+        {
+            public string id { get; set; }
+            public string wikidata { get; set; }
+            public string display_name { get; set; }
+            public int level { get; set; }
+            public string score { get; set; }
+        }
+
+        public class Mesh
+        {
+            public string descriptor_ui { get; set; }
+            public string descriptor_name { get; set; }
+            public string qualifier_ui { get; set; }
+            public string qualifier_name { get; set; }
+            public bool is_major_topic { get; set; }
+        }
+
+        public class Alternate_Host_Venues
+        {
+            public object id { get; set; }
+            public string display_name { get; set; }
+            public string type { get; set; }
+            public string url { get; set; }
+            public bool is_oa { get; set; }
+            public string version { get; set; }
+            public string license { get; set; }
+        }
+
+        public class Counts_By_Year
+        {
+            public int year { get; set; }
+            public int cited_by_count { get; set; }
+
+            // for concepts
+            public int works_count { get; set; }
+        }
+
+
+        // ************************* Multiple WORKS returned by a filter search **************************
+        // the OaPaper is called a 'Result'
+        // search e.g. https://api.openalex.org/works?filter=openalex_id:https://openalex.org/W2159419601|https://openalex.org/W2741809807
+
+        public class OaPaperFilterResult
+        {
+            public Meta meta { get; set; }
+            public Result[] results { get; set; }
+            public object[] group_by { get; set; }
+        }
+
+        public class Meta
+        {
             public int count { get; set; }
+            public int db_response_time_ms { get; set; }
+            public int page { get; set; }
+            public int per_page { get; set; }
+            public string next_cursor { get; set; }
+        }
+
+        public class Result : OaPaper
+        {
+            // Nothing in here, as it's an OaPaper with a different name
+        }
+
+        // ******************************************** Single CONCEPT **************************************
+        // from e.g. https://api.openalex.org/C2778407487
+
+
+        public class OaFullConcept // ('full' concept, as the Works object has a 'dehydrated' concept within it)
+        {
+            public string id { get; set; }
+            public string wikidata { get; set; }
+            public string display_name { get; set; }
+            public int level { get; set; }
+            public string description { get; set; }
+            public int works_count { get; set; }
+            public int cited_by_count { get; set; }
+            public Ids ids { get; set; }
+            public string image_url { get; set; }
+            public string image_thumbnail_url { get; set; }
+            public International international { get; set; }
+            public Ancestor[] ancestors { get; set; }
+            public Related_Concepts[] related_concepts { get; set; }
+            public Counts_By_Year[] counts_by_year { get; set; }
+            public string works_api_url { get; set; }
+            public string updated_date { get; set; }
+            public string created_date { get; set; }
+
+            public string IdInteger
+            {
+                get { return this.id.Replace("https://openalex.org/C", ""); }
+            }
+        }
+
+        public class International
+        {
+            public Display_Name display_name { get; set; }
+            public Description description { get; set; }
+        }
+
+        public class Display_Name
+        {
+            public string ar { get; set; }
+            public string be { get; set; }
+            public string bn { get; set; }
+            public string ca { get; set; }
+            public string da { get; set; }
+            public string de { get; set; }
+            public string en { get; set; }
+            public string eo { get; set; }
+            public string es { get; set; }
+            public string et { get; set; }
+            public string fa { get; set; }
+            public string fr { get; set; }
+            public string hr { get; set; }
+            public string hu { get; set; }
+            public string id { get; set; }
+            public string it { get; set; }
+            public string ja { get; set; }
+            public string kkcyrl { get; set; }
+            public string ko { get; set; }
+            public string ky { get; set; }
+            public string nb { get; set; }
+            public string nn { get; set; }
+            public string pl { get; set; }
+            public string ru { get; set; }
+            public string sv { get; set; }
+            public string tr { get; set; }
+            public string uk { get; set; }
+            public string ur { get; set; }
+            public string vi { get; set; }
+            public string yue { get; set; }
+            public string zh { get; set; }
+            public string zhcn { get; set; }
+            public string zhhans { get; set; }
+            public string zhhant { get; set; }
+            public string cs { get; set; }
+            public string fi { get; set; }
+            public string he { get; set; }
+            public string pt { get; set; }
+            public string ptbr { get; set; }
+            public string zhhk { get; set; }
+            public string eu { get; set; }
+            public string nl { get; set; }
+            public string el { get; set; }
+            public string gl { get; set; }
+            public string io { get; set; }
+            public string _is { get; set; }
+            public string lv { get; set; }
+            public string sk { get; set; }
+            public string af { get; set; }
+            public string ast { get; set; }
+            public string az { get; set; }
+            public string ba { get; set; }
+            public string betarask { get; set; }
+            public string bg { get; set; }
+            public string br { get; set; }
+            public string bs { get; set; }
+            public string cy { get; set; }
+            public string dech { get; set; }
+            public string enca { get; set; }
+            public string engb { get; set; }
+            public string fo { get; set; }
+            public string ga { get; set; }
+            public string hi { get; set; }
+            public string hsb { get; set; }
+            public string ht { get; set; }
+            public string hy { get; set; }
+            public string ia { get; set; }
+            public string ka { get; set; }
+            public string kab { get; set; }
+            public string kn { get; set; }
+            public string kulatn { get; set; }
+            public string kw { get; set; }
+            public string lb { get; set; }
+            public string lt { get; set; }
+            public string mi { get; set; }
+            public string mk { get; set; }
+            public string mr { get; set; }
+            public string ms { get; set; }
+            public string msarab { get; set; }
+            public string mt { get; set; }
+            public string oc { get; set; }
+            public string ro { get; set; }
+            public string scn { get; set; }
+            public string sco { get; set; }
+            public string se { get; set; }
+            public string sl { get; set; }
+            public string smn { get; set; }
+            public string sms { get; set; }
+            public string sq { get; set; }
+            public string sr { get; set; }
+            public string srec { get; set; }
+            public string srel { get; set; }
+            public string ta { get; set; }
+            public string te { get; set; }
+            public string tg { get; set; }
+            public string tgcyrl { get; set; }
+            public string th { get; set; }
+            public string tl { get; set; }
+            public string tt { get; set; }
+            public string vec { get; set; }
+            public string xmf { get; set; }
+            public string yo { get; set; }
+            public string zhtw { get; set; }
+            public string zhsg { get; set; }
+        }
+
+        public class Description
+        {
+            public string ar { get; set; }
+            public string de { get; set; }
+            public string en { get; set; }
+            public string fr { get; set; }
+            public string it { get; set; }
+            public string nb { get; set; }
+            public string nn { get; set; }
+            public string pl { get; set; }
+            public string ru { get; set; }
+            public string et { get; set; }
+            public string es { get; set; }
+            public string ca { get; set; }
+            public string da { get; set; }
+            public string fa { get; set; }
+            public string nl { get; set; }
+            public string az { get; set; }
+            public string betarask { get; set; }
+            public string bg { get; set; }
+            public string br { get; set; }
+            public string cs { get; set; }
+            public string cy { get; set; }
+            public string fi { get; set; }
+            public string ga { get; set; }
+            public string gl { get; set; }
+            public string he { get; set; }
+            public string hsb { get; set; }
+            public string hu { get; set; }
+            public string id { get; set; }
+            public string mr { get; set; }
+            public string ms { get; set; }
+            public string mt { get; set; }
+            public string ptbr { get; set; }
+            public string ro { get; set; }
+            public string scn { get; set; }
+            public string sl { get; set; }
+            public string ta { get; set; }
+            public string te { get; set; }
+            public string tl { get; set; }
+            public string tr { get; set; }
+            public string uk { get; set; }
+            public string zh { get; set; }
+            public string sr { get; set; }
+        }
+
+        public class Ancestor
+        {
+            public string id { get; set; }
+            public string wikidata { get; set; }
+            public string display_name { get; set; }
+            public int level { get; set; }
+        }
+
+        public class Related_Concepts
+        {
+            public string id { get; set; }
+            public object wikidata { get; set; }
+            public string display_name { get; set; }
+            public int level { get; set; }
+            public float score { get; set; }
         }
 
 
-        public static string getAuthors(List<PaperMakesAuthor> authors)
+
+        // ******************************************** LIST OF CONCEPTS: from filter or search *************************
+        // e.g. https://api.openalex.org/concepts?filter=ancestors.id:https://openalex.org/C2522767166&page=1&per_page=50
+        // e.g. https://api.openalex.org/concepts?search=equity&page=1&per_page=10
+
+        public class OaConceptFilterResult
+        {
+            public Meta meta { get; set; }
+            public OaFullConcept[] results { get; set; }
+            public object[] group_by { get; set; }
+        }
+
+
+        // ******************************************** end OpenAlex objects *********************************************
+
+
+        public static string getAuthors(Authorship[] authors)
         {
             string tmp = "";
             if (authors != null)
             {
-                foreach (PaperMakesAuthor author in authors)
+                foreach (Authorship author in authors)
                 {
                     if (tmp == "")
                     {
-                        tmp = author.AuN;
+                        tmp = author.author.display_name;
                     }
                     else
                     {
-                        tmp += ", " + author.AuN;
+                        tmp += ", " + author.author.display_name;
                     }
                 }
             }
             return tmp;
         }
 
-        public static string getErStyleAuthors(List<PaperMakesAuthor> authors)
+        public static List<OaPaperFilterResult> downloadOaPaperFilterUsingCursor(string expression, bool doSearch)
         {
-            string ret = "";
-            if (authors != null)
+            List<OaPaperFilterResult> results = new List<OaPaperFilterResult>();
+            var jsonsettings = new JsonSerializerSettings
             {
-                for (int x = 0; x < authors.Count; x++)
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            string filterOrSearch = "filter";
+            if (doSearch == true)
+                filterOrSearch = "search";
+            string cursor = "*";
+            
+            bool done = false;
+            while (done == false)
+            {
+                string query = "works?" + filterOrSearch + "=" + expression + "&page=1&per_page=100&cursor=" + cursor;
+                string responseText = doOaRequest(query);
+                OaPaperFilterResult respJson = JsonConvert.DeserializeObject<OaPaperFilterResult>(responseText, jsonsettings);
+                if (respJson != null && respJson.results != null)
                 {
-                    AuthorsHandling.AutH author = AuthorsHandling.NormaliseAuth.singleAuth(authors[x].DAuN, x + 1, 0, true);
-                    if (ret == "")
-                    {
-                        ret = author.FullName;
-                    }
-                    else
-                    {
-                        ret += "; " + author.FullName;
-                    }
+                    results.Add(respJson);
+                }
+                if (respJson.meta != null && respJson.meta.next_cursor != null && respJson.meta.next_cursor != "")
+                {
+                    cursor = respJson.meta.next_cursor;
+                }
+                else
+                {
+                    done = true;
                 }
             }
-            return ret;
+            return results;
         }
 
-
-        public static PaperMakesResponse EvaluateSinglePaperId(string PaperId, string MakesDeploymentStatus = "LIVE")
+        public static List<OaPaper> downloadTheseOpenAlexPapers(string [] Ids)
         {
-            string query = @"/evaluate?expr=Id=" + PaperId;
-            return doMakesRequest(query, "", MakesDeploymentStatus);
+            List<OaPaper> results = new List<OaPaper>();
+            if (Ids.Length > 0)
+            {
+                int count = 0;
+                while (count < Ids.Length)
+                {
+                    string query = "";
+                    for (int i = count; i < Ids.Length && i < count + 50; i++)
+                    {
+                        if (query == "")
+                        {
+                            query = "W" + Ids[i].ToString();
+                        }
+                        else
+                        {
+                            query += "|W" + Ids[i].ToString();
+                        }
+                    }
+                    MagMakesHelpers.OaPaperFilterResult resp = MagMakesHelpers.EvaluateOaPaperFilter("openalex_id:https://openalex.org/" + query, "50", "1", false);
+                    foreach (MagMakesHelpers.OaPaper pm in resp.results)
+                    {
+                        results.Add(pm);
+                    }
+                    count += 50;
+                }
+            }
+            return results;
         }
 
-
-        public static PaperMakesResponse EvaluateExpressionNoPaging(string expression, string MakesDeploymentStatus = "LIVE")
-        {
-            string query = @"/evaluate?expr=" + expression;
-            return doMakesRequest(query, "", MakesDeploymentStatus);
-        }
-
-        public static PaperMakesResponse EvaluateExpressionNoPagingWithCount(string expression, string count, string MakesDeploymentStatus = "LIVE")
-        {
-            string query = query = @"/evaluate?expr=" + expression;
-            string appendPageInfo = @"&count=" + count;
-            return doMakesRequest(query, appendPageInfo, MakesDeploymentStatus);
-        }
-
-        public static PaperMakesResponse EvaluateExpressionWithPaging(string searchString, string PageSize, string offSet, string MakesDeploymentStatus = "LIVE")
-        {
-            string query = query = @"/evaluate?expr=" + searchString;
-            string appendPageInfo = @"&count=" + PageSize + "&offset=" + offSet;
-            return doMakesRequest(query, appendPageInfo, MakesDeploymentStatus);
-        }
-
-        public static MakesResponseFoS EvaluateFieldOfStudyExpression(string expression, string MakesDeploymentStatus = "LIVE")
-        {
-            string query = @"/evaluate?expr=" + expression;
-            return doMakesRequestFoS(query, "", MakesDeploymentStatus);
-        }
-
-        public static MakesInterpretResponse InterpretQuery(string expression, string MakesDeploymentStatus = "LIVE")
-        {
-            string query = @"/interpret?query=" + System.Web.HttpUtility.UrlEncode(CleanText(expression));
-            return doMakesInterpretRequest(query, "", MakesDeploymentStatus);
-        }
-
-        public static MakesCalcHistogramResponse CalcHistoramCount(string expression, string MakesDeploymentStatus = "LIVE")
-        {
-            string query = @"/calchistogram?expr=" + expression;
-            return doMakesCalcHistogramRequest(query, MakesDeploymentStatus);
-        }
-
-        public static FieldOfStudyMakes EvaluateSingleFieldOfStudyId(string FosId, string MakesDeploymentStatus = "LIVE")
+        public static OaPaperFilterResult EvaluateOaPaperFilter(string expression, string PageSize, string PageNo, bool doSearch)
         {
             var jsonsettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
-
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + @"/evaluate?expr=Id=" +
-                FosId.ToString() + @"&attributes=Id,CC,DFN,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN");
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-            var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesResponseFoS>(responseText, jsonsettings);
-            if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
-            {
-                return respJson.entities[0];
-            }
-            else
-                return null;
+            string filterOrSearch = "filter";
+            if (doSearch == true)
+                filterOrSearch = "search";
+            string query = "works?" + filterOrSearch + "=" + expression + "&page=" + PageNo + "&per_page=" + PageSize;
+            string responseText = doOaRequest(query);
+            OaPaperFilterResult respJson = JsonConvert.DeserializeObject<OaPaperFilterResult>(responseText, jsonsettings);
+            return respJson;
         }
 
-        public static List<PaperMakes> GetCandidateMatches(string text, string MakesDeploymentStatus = "LIVE", bool TryAgain = false)
+        public static OaPaper EvaluateSingleOaPaper(string PaperId)
         {
-            List<PaperMakes> PaperList = new List<PaperMakes>();
-            
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            string responseText = doOaRequest("works/https://openalex.org/W" + PaperId);
+            return JsonConvert.DeserializeObject<OaPaper>(responseText, jsonsettings);
+        }
+
+        // the OpenAlex API syntax is pretty much identical for filters and searches, so can use one helper for both with the doSearch switch
+        public static OaConceptFilterResult EvaluateOaConceptFilter(string expression, string PageSize, string PageNo, bool doSearch)
+        {
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            string filterOrSearch = "filter";
+            if (doSearch == true)
+                filterOrSearch = "search";
+            string query = "concepts?" + filterOrSearch + "=" + expression + "&page=" + PageNo + "&per_page=" + PageSize;
+            string responseText = doOaRequest(query);
+            OaConceptFilterResult respJson = JsonConvert.DeserializeObject<OaConceptFilterResult>(responseText, jsonsettings);
+            return respJson;
+        }
+
+        public static OaFullConcept EvaluateSingleConcept(string ConceptId)
+        {
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            string responseText = doOaRequest("concepts/https://openalex.org/C" + ConceptId);
+            return JsonConvert.DeserializeObject<OaFullConcept>(responseText, jsonsettings);
+        }
+
+
+        
+
+        public static string doOaRequest(string expression)
+        {
+#if (CSLA_NETCORE)
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+#else
+            var configuration = ConfigurationManager.AppSettings;
+#endif
+            string endpoint = configuration["OpenAlexEndpoint"];
+            string responseText = "";
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            HttpWebRequest request = WebRequest.CreateHttp(configuration["OpenAlexEndpoint"] + expression);
+            request.UserAgent = "mailto:" + configuration["OpenAlexEmailHeader"];
+
+            try
+            {
+                WebResponse response = request.GetResponse();
+                using (Stream dataStream = response.GetResponseStream())
+                {
+                    StreamReader sreader = new StreamReader(dataStream);
+                    responseText = sreader.ReadToEnd();
+                }
+                response.Close();
+            }
+            catch (WebException e)
+            {
+                if (e.Message.Contains("429"))
+                {
+                    System.Threading.Thread.Sleep(500);
+                    return doOaRequest(expression);
+                }
+            }
+            return responseText;
+        }
+
+
+        public static List<OaPaper> GetCandidateMatches(string text, string MakesDeploymentStatus = "LIVE", bool TryAgain = false)
+        {
+            List<OaPaper> PaperList = new List<OaPaper>();
+
             string searchText = CleanText(text);
             // Hard to tell whether it's better or worse removing stopwords
             searchText = (removeStopwords(" " + searchText + " ")).Trim();
             string[] words = searchText.Split(' ');
+            Array.Sort(words);
+            searchText = string.Join(" ", words.Take(10));
             if (searchText != "")
             {
-                searchText = "AND(W='" + string.Join(",", words).Replace(",", "',W='") + "')"; // words.Take(6)).Replace(",", "',W='") + "')";
+                //searchText = "AND(W='" + string.Join(",", words).Replace(",", "',W='") + "')"; // words.Take(6)).Replace(",", "',W='") + "')";
                 var jsonsettings = new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 };
 
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
 
-                
                 string searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
-
-                string queryString =  @"/evaluate?expr=" +
-                    searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
+                
+                /*
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
                 if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
                 {//this would fail entire URL is too long or the query string is.
                     int attempts = 0;
                     int maxattempts = searchText.Count(found => found == ',');
-                    while ((FullRequestStr.Length >= 2048 || queryString.Length >=1024) && attempts < maxattempts)
+                    while ((FullRequestStr.Length >= 2048 || queryString.Length >= 1024) && attempts < maxattempts)
                     {
                         attempts++;
                         int truncateAt = searchText.LastIndexOf(",");
@@ -345,24 +653,22 @@ namespace BusinessLibrary.BusinessClasses
                             FullRequestStr = MagInfo.MakesEndPoint + queryString;
                         }
                     }
-                }
+                }*/
+
                 //WebRequest request = WebRequest.Create(FullRequestStr);
                 try
                 {
-                    HttpClient client = new HttpClient();
-                    var response = client.GetAsync(FullRequestStr).Result;
+                    string responseText = doOaRequest(@"works?filter=display_name.search:" + searchTextEncoded);
 
-                    var resp = response.Content.ReadAsStringAsync().Result;
-                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(resp, jsonsettings);
-                    if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
+                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.OaPaperFilterResult>(responseText, jsonsettings);
+                    if (respJson != null && respJson.results != null && respJson.results.Length > 0)
                     {
-                        foreach (PaperMakes pm in respJson.entities)
+                        foreach (MagMakesHelpers.Result r in respJson.results)
                         {
-
-                            var found = PaperList.Find(e => e.Id == pm.Id);
+                            var found = PaperList.Find(e => e.id == r.id);
                             if (found == null)
                             {
-                                PaperList.Add(pm);
+                                PaperList.Add(r);
                             }
                         }
                     }
@@ -383,147 +689,11 @@ namespace BusinessLibrary.BusinessClasses
             return PaperList;
         }
 
-        private static List<PaperMakes> GetCandidateMatchesTake2(string text, string MakesDeploymentStatus)
-        {//will try searching again, but truncating the search string when we find a problem word (if possible)
-            List<PaperMakes> PaperList = new List<PaperMakes>();
-            string searchText = RestoreGreekLetters(text);
-
-            if (searchText != "")
-            {
-                var jsonsettings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
-
-                string responseText = "";
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-                string queryString = @"/interpret?query=" +
-                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
-
-                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
-                WebResponse response = request.GetResponse();
-                using (Stream dataStream = response.GetResponseStream())
-                {
-                    StreamReader sreader = new StreamReader(dataStream);
-                    responseText = sreader.ReadToEnd();
-                }
-                response.Close();
-
-                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
-                {
-                    foreach (MakesInterpretation i in respJson.interpretations)
-                    {
-                        foreach (MakesInterpretationRule r in i.rules)
-                        {
-                            foreach (PaperMakes pm in r.output.entities)
-                            {
-                                var found = PaperList.Find(e => e.Id == pm.Id);
-                                if (found == null)
-                                {
-                                    PaperList.Add(pm);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            return PaperList;
-        }
-
-        public static List<PaperMakes> GetCandidateMatchesOnAuthorsAndJournal(string text, string MakesDeploymentStatus = "LIVE", bool TryAgain = false)
+        
+       
+        public static List<OaPaper> GetCandidateMatchesOnDOI(string DOI)
         {
-            List<PaperMakes> PaperList = new List<PaperMakes>();
-
-            string searchText = CleanText(text);
-            // Hard to tell whether it's better or worse removing stopwords
-            searchText = (removeStopwords(" " + searchText + " ")).Trim();
-            if (searchText != "")
-            {
-                var jsonsettings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
-
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-
-
-                //string searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
-                string searchTextEncoded = searchText;
-                string queryString = @"/interpret?query=" +
-                    searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
-                string FullRequestStr = MagInfo.MakesEndPoint + queryString;
-                if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
-                {//this would fail entire URL is too long or the query string is.
-                    int attempts = 0;
-                    int maxattempts = searchText.Count(found => found == ',');
-                    while ((FullRequestStr.Length >= 2048 || queryString.Length >= 1024) && attempts < maxattempts)
-                    {
-                        attempts++;
-                        int truncateAt = searchText.LastIndexOf(" ");
-                        if (truncateAt != -1)
-                        {
-                            searchText = searchText.Substring(0, truncateAt);
-                            searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);
-                            queryString = @"/evaluate?expr=" +
-                                searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                                "&complete=0&count=100&offset=0&timeout=2000&model=latest";
-                            FullRequestStr = MagInfo.MakesEndPoint + queryString;
-                        }
-                    }
-                }
-                //WebRequest request = WebRequest.Create(FullRequestStr);
-                try
-                {
-                    HttpClient client = new HttpClient();
-                    var response = client.GetAsync(FullRequestStr).Result;
-
-                    var resp = response.Content.ReadAsStringAsync().Result;
-                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(resp, jsonsettings);
-                    if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
-                    {
-                        foreach (MakesInterpretation mi in respJson.interpretations)
-                        {
-                            foreach (MakesInterpretationRule r in mi.rules)
-                            {
-                                foreach (PaperMakes pm in r.output.entities)
-                                {
-                                    var found = PaperList.Find(e => e.Id == pm.Id);
-                                    if (found == null)
-                                    {
-                                        PaperList.Add(pm);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-#if !CSLA_NETCORE
-                    //not clear what to do on ER4, how do we log this?
-                    Console.WriteLine(e.Message, searchText);
-#elif WEBDB
-                    WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
-#else
-                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
-#endif
-                    return PaperList;
-                }
-            }
-            return PaperList;
-        }
-
-        public static List<PaperMakes> GetCandidateMatchesOnDOI(string DOI, string MakesDeploymentStatus = "LIVE")
-        {//will try searching again, but truncating the search string when we find a problem word (if possible)
-            List<PaperMakes> PaperList = new List<PaperMakes>();
-            //string searchText = RestoreGreekLetters(text);
-
+            List<OaPaper> PaperList = new List<OaPaper>();
             if (DOI != null && DOI != "")
             {
                 var jsonsettings = new JsonSerializerSettings
@@ -532,188 +702,46 @@ namespace BusinessLibrary.BusinessClasses
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 };
 
-                string responseText = "";
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-                string queryString = @"/evaluate?expr=DOI='" +
-                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim())
-                    + "'&entityCount=5&attributes=" +
-                    System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,AA.DAuN") +
-                    "&complete=0&count=10&offset=0&timeout=2000&model=latest";
-                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
-                WebResponse response = request.GetResponse();
-                using (Stream dataStream = response.GetResponseStream())
+                if (DOI.IndexOf("doi.org") == -1 && DOI.IndexOf("DOI.ORG") == -1)
                 {
-                    StreamReader sreader = new StreamReader(dataStream);
-                    responseText = sreader.ReadToEnd();
+                    DOI = "https://doi.org/" + DOI;
                 }
-                response.Close();
 
-                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
+                string responseText = doOaRequest(@"works/" + DOI);
+
+                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.OaPaper>(responseText, jsonsettings);
+                if (respJson != null)
                 {
-                    foreach (PaperMakes i in respJson.entities)
-                    {
-                        var found = PaperList.Find(e => e.Id == i.Id);
-                        if (found == null)
-                        {
-                            PaperList.Add(i);
-                        }
-                    }
+                    PaperList.Add(respJson);
                 }
             }
             return PaperList;
         }
 
-        private static PaperMakesResponse doMakesRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
+
+        public static OaPaper GetPaperMakesFromMakes(Int64 PaperId)
         {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
+            OaPaper pmr = EvaluateSingleOaPaper(PaperId.ToString());
 
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                //"&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,I,J.JN,J.JId,V,FP,LP,RId,IA,S" +
-                appendPageInfo);
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-
-            PaperMakesResponse respJson = JsonConvert.DeserializeObject<PaperMakesResponse>(responseText, jsonsettings);
-            return respJson;
-        }
-        private static MakesResponseFoS doMakesRequestFoS(string query, string appendPageInfo, string MakesDeploymentStatus)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                //"&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,I,J.JN,J.JId,V,FP,LP,RId,IA,S" +
-                appendPageInfo);
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-
-            MakesResponseFoS respJson = JsonConvert.DeserializeObject<MakesResponseFoS>(responseText, jsonsettings);
-            return respJson;
+            return pmr;
         }
 
-        private static MakesInterpretResponse doMakesInterpretRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                //"&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,C.CId,C.CN,CC,D,DN,DOI,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,LP,PB,PCS.CId,PCS.CN,Pt,RId,S,Ti,Ty,V,VFN,VSN,W,Y") +
-                "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,CC,D,DN,DOI,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,Pt,RId,S,Ti,Ty,V,W,Y") +
-                "&complete=1&count=10&normalize=1&model=latest");
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-            
-            MakesInterpretResponse respJson = JsonConvert.DeserializeObject<MakesInterpretResponse>(responseText, jsonsettings);
-            return respJson;
-        }
-
-        private static MakesCalcHistogramResponse doMakesCalcHistogramRequest(string query, string MakesDeploymentStatus)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            MakesCalcHistogramResponse respJson = null;
-            string responseText = "";
-            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=" + System.Web.HttpUtility.UrlEncode("F.FN,Id"));
-            try
-            {
-                WebResponse response = request.GetResponse();
-                using (Stream dataStream = response.GetResponseStream())
-                {
-                    StreamReader sreader = new StreamReader(dataStream);
-                    responseText = sreader.ReadToEnd();
-                }
-                response.Close();
-
-                respJson = JsonConvert.DeserializeObject<MakesCalcHistogramResponse>(responseText, jsonsettings);
-            }
-            catch (Exception e)
-            {
-#if !CSLA_NETCORE
-                //not clear what to do on ER4, how do we log this?
-                Console.WriteLine(e.Message, query);
-#elif WEBDB
-                    WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", query);
-#else
-                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", query);
-#endif
-            }
-            return respJson;
-        }
-
-
-        public static PaperMakes GetPaperMakesFromMakes(Int64 PaperId, string MakesDeploymentStatus = "LIVE")
-        {
-            PaperMakesResponse pmr = EvaluateSinglePaperId(PaperId.ToString(), MakesDeploymentStatus);
-
-            if (pmr.entities != null && pmr.entities.Count > 0)
-            {
-                return pmr.entities[0];
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public static string ReconstructInvertedAbstract(PaperMakesInvertedAbstract ab)
+        public static string ReconstructInvertedAbstract(Dictionary<string, int[]> ab)
         {
             if (ab == null) { return ""; }
             try
             {
-                //var j = (JObject)JsonConvert.DeserializeObject(str);
-                //int indexLength = j["IndexLength"].ToObject<int>();
-                int indexLength = ab.IndexLength;
                 //Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
-                Dictionary<string, int[]> invertedIndex = ab.InvertedIndex;
-                string[] abstractStr = new string[indexLength];
-                foreach (var pair in invertedIndex)
+                string[] abstractStr = new string[10000];
+                foreach (var pair in ab)
                 {
-                    string word = pair.Key;
-                    foreach (var index in pair.Value)
+                    string word = (string)pair.Key;
+                    foreach (var index in (int[])pair.Value)
                     {
                         abstractStr[index] = word;
                     }
                 }
-                return String.Join(" ", abstractStr);
+                return String.Join(" ", abstractStr).Trim();
             }
             catch
             {
@@ -834,6 +862,56 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static int GetErEquivalentPubTypeFromOa(string Pt)
+        {
+            switch (Pt)
+            {
+                case "peer-review":
+                case "other":
+                case "reference-entry":
+                case "component":
+                case "proceedings-series":
+                case "report-series":
+                case "standard":
+                case "posted-content":
+                case "grant":
+                case "book-series":
+                case "standard-series":
+                    return 12; //unknown
+                case "journal-article":
+                case "proceedings-article":
+                    return 14; // journal article
+                case "2":
+                    return 12; // patent
+                case "3":
+                    return 1; // journal article, as they put the conference in the journal name field
+                case "book-section":
+                case "book-chapter":
+                    return 3; // book chapter
+                case "monograph":
+                case "report":
+                case "book-part":
+                case "book":
+                case "journal-volume":
+                case "book-set":
+                case "journal":
+                case "proceedings":
+                case "reference-book":
+                case "journal-issue":
+                case "edited-book":
+                    return 2; // book
+                case "book-track": // Book reference entry (whatever that is - mapping to generic)
+                    return 12;
+                case "dataset": // dataset
+                    return 12;
+                case "8": // repository
+                    return 12;
+                case "dissertation": // thesis
+                    return 4;
+            }
+            return 12; // just in case
+        }
+
         public static readonly Regex CleanTextWhiteList = new Regex("[^a-zA-Z0-9 ]");
         public static readonly Regex CleanTextBlackList = new Regex("[!-/:-@[-`{-¿"
                         + Char.ConvertFromUtf32(697) + "-" + Char.ConvertFromUtf32(866)//using the unicode codes because they look odd and might not work in VS
@@ -845,10 +923,10 @@ namespace BusinessLibrary.BusinessClasses
                         );//these are ranges of the unicode chars that contain various symbols, pretty much stopping before the arabic range because ignorance...
 
         //private static int DebugCounter = 0; //this should be commented out in production!
-        public static string CleanText(string text, bool UseLighterTouch = false )
+        public static string CleanText(string text, bool UseLighterTouch = false)
         {
             if (text == null || text == "") return "";
-            
+
             Dictionary<string, string> charMap = EuropeanCharacterMap();
             foreach (KeyValuePair<string, string> replacement in charMap)
             {
@@ -904,7 +982,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         private static string RestoreGreekLetters(string text)
         {
-            
+
             Dictionary<string, string> charMap = GreekLettersMap();
 
             foreach (KeyValuePair<string, string> replacement in charMap)

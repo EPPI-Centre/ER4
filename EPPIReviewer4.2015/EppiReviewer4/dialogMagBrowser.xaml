@@ -17,6 +17,7 @@
 
     <UserControl.Resources>
 
+        <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
         <cslaXAML:CslaDataProvider x:Key="PaperListData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"
@@ -242,7 +243,7 @@
 
                                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                                     <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Margin="5,5,5,5" Content="Add new search for related papers" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
-                                    <HyperlinkButton x:Name="LBOpenPmidSearch" Margin="5,5,5,5" Content="Add search by PubMed ID" Tag="ClickToOpen" IsTabStop="False" Click="LBOpenPmidSearch_Click"></HyperlinkButton>
+                                    <!--"<HyperlinkButton x:Name="LBOpenPmidSearch" Margin="5,5,5,5" Content="Add search by PubMed ID" Tag="ClickToOpen" IsTabStop="False" Click="LBOpenPmidSearch_Click"></HyperlinkButton>-->
                                     <HyperlinkButton x:Name="LBOpenFiltersRelatedRun" Margin="5,5,5,5" Content="OpenFilters" Tag="Open" IsTabStop="False" Click="LBOpenFiltersRelatedRun_Click"></HyperlinkButton>
                                 </StackPanel>
                                 
@@ -265,12 +266,12 @@
                                         <TextBlock Text="Search mode" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <ComboBox x:Name="ComboRelatedPapersMode" Margin="5,5,5,5" VerticalAlignment="Center" Width="320" SelectionChanged="ComboRelatedPapersMode_SelectionChanged">
                                             <ComboBoxItem Content="Papers 'recommended' by known items ('Recommended by')" Tag="Recommended by"></ComboBoxItem>
-                                            <ComboBoxItem Content="Papers that 'recommend' known items ('That recommend')" Tag="That recommend"></ComboBoxItem>
-                                            <ComboBoxItem Content="Bi-directional recommendation relationships ('Recommendations')" Tag="Recommendations" IsSelected="True"></ComboBoxItem>
+                                            <!--"<ComboBoxItem Content="Papers that 'recommend' known items ('That recommend')" Tag="That recommend"></ComboBoxItem>-->
+                                            <!--<ComboBoxItem Content="Bi-directional recommendation relationships ('Recommendations')" Tag="Recommendations" IsSelected="True"></ComboBoxItem>-->
                                             <ComboBoxItem Content="Papers in the bibliography of known items ('Bibliography')" Tag="Bibliography"></ComboBoxItem>
                                             <ComboBoxItem Content="Papers that cite known items ('Cited by')" Tag="Cited by"></ComboBoxItem>
                                             <ComboBoxItem Content="Bi-directional citation relationships" Tag="BiCitation"></ComboBoxItem>
-                                            <ComboBoxItem Content="Bi-directional recommendation AND citation relationships ('Bi-Citation AND Recommendations)'" Tag="Bi-Citation AND Recommendations"></ComboBoxItem>
+                                            <ComboBoxItem Content="Bi-directional citation AND recommendations ('Bi-Citation AND Recommendations)'" Tag="Bi-Citation AND Recommendations"></ComboBoxItem>
                                         </ComboBox>
                                     </StackPanel>
 
@@ -371,6 +372,7 @@
                                         <TextBlock Text="Filter from title field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <TextBox x:Name="RelatedRunTextFilterTitle" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
                                     </StackPanel>
+                                    <!--
                                     <StackPanel Grid.Row="4" Orientation="Horizontal">
                                         <TextBlock Text="Filter these pub types" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <telerik:RadComboBox x:Name="ComboRelatedRunPubTypeFilter" Margin="40,5,5,5" Width="200" VerticalAlignment="Center" >
@@ -385,7 +387,7 @@
                                                 <CheckBox x:Name="cbRelatedRunFilterPubTypeThesis" Tag="9" Content="Thesis"></CheckBox>
                                             </telerik:RadComboBox.Items>
                                         </telerik:RadComboBox>
-                                    </StackPanel>
+                                    </StackPanel>-->
                                 </Grid>
 
                             </Grid>
@@ -1059,12 +1061,12 @@
                                     <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Text="New search" FontWeight="Bold"></TextBlock>
                                     <ComboBox x:Name="ComboMagSearchSelect" Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchSelect_SelectionChanged">
                                         <ComboBoxItem Content="Word(s) in title" IsSelected="True"></ComboBoxItem>
-                                        <ComboBoxItem Content="Word(s) in abstract"></ComboBoxItem>
-                                        <ComboBoxItem Content="Author name(s)"></ComboBoxItem>
+                                        <ComboBoxItem Content="Word(s) in title/abstract"></ComboBoxItem>
                                         <ComboBoxItem Content="Topic"></ComboBoxItem>
                                         <ComboBoxItem Content="OpenAlex ID"></ComboBoxItem>
-                                        <ComboBoxItem Content="Journal"></ComboBoxItem>
-                                        <ComboBoxItem Content="Custom"></ComboBoxItem>
+                                        <!--<ComboBoxItem Content="Journal"></ComboBoxItem> -->
+                                        <!--<ComboBoxItem Content="Custom"></ComboBoxItem> -->
+                                        <!--<ComboBoxItem Content="Author name(s)"></ComboBoxItem>-->
                                     </ComboBox>
                                     <TextBox x:Name="TextBoxMagSearch" Grid.Row="1" Grid.Column="1" Margin="5,5,5,5" TextChanged="TextBoxMagSearch_TextChanged"></TextBox>
                                     <cslaXAML:BusyAnimation x:Name="BusyRunningMagSearch"  Grid.Row="1" Grid.Column="2"/>
@@ -1078,14 +1080,12 @@
 
                                     <ComboBox x:Name="ComboMagSearchDateLimit" Grid.Row="3" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchDateLimit_SelectionChanged">
                                         <ComboBoxItem Content="No date limit" IsSelected="True"></ComboBoxItem>
+                                        <ComboBoxItem Content="OpenAlex date after"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date exactly"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date before"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date after"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication dates between"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication year exactly"></ComboBoxItem>
-                                        <ComboBoxItem Content="Publication year before"></ComboBoxItem>
-                                        <ComboBoxItem Content="Publication year after"></ComboBoxItem>
-                                        <ComboBoxItem Content="Publication years between"></ComboBoxItem>
                                     </ComboBox>
 
                                     <StackPanel x:Name="StackPanelMagSearchDates" Grid.Row="3" Grid.Column="1" Visibility="Collapsed" Orientation="Horizontal">
@@ -1095,7 +1095,7 @@
                                         <telerik:RadDatePicker x:Name="MagSearchDate2" Margin="5,5,5,5" HorizontalAlignment="Center"></telerik:RadDatePicker>
                                     </StackPanel>
 
-                                    <ComboBox x:Name="ComboMagSearchPubTypeLimit" Grid.Row="4" Grid.Column="0" Margin="5,5,5,5">
+                                    <ComboBox x:Name="ComboMagSearchPubTypeLimit" Grid.Row="4" Grid.Column="0" Margin="5,5,5,5" IsEnabled="False" Visibility="Collapsed">
                                         <ComboBoxItem Content="All publication types" IsSelected="True"></ComboBoxItem>
                                         <ComboBoxItem Content="Unknown types" Tag="0"></ComboBoxItem>
                                         <ComboBoxItem Content="Journal article" Tag="1"></ComboBoxItem>
@@ -1112,7 +1112,8 @@
                                     <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="5" Grid.Column="0" Content="Run search!" Margin="5,5,5,5" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
 
                                     <TextBlock Grid.Row="0" Grid.Column="4" Text="Combine / filter existing searches"  Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" FontWeight="Bold"></TextBlock>
-                                    <ComboBox x:Name="ComboMagSearchDateLimitFilter" Grid.Row="1" Grid.Column="4" Margin="5,5,5,5" SelectionChanged="ComboMagSearchDateLimitFilter_SelectionChanged">
+                                    <TextBlock Grid.Row="1" Grid.Column="4" Text="(warning: combining searches is currently a slow process)" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+                                    <!--<ComboBox x:Name="ComboMagSearchDateLimitFilter" Grid.Row="1" Grid.Column="4" Margin="5,5,5,5" SelectionChanged="ComboMagSearchDateLimitFilter_SelectionChanged">
                                         <ComboBoxItem Content="No date limit" IsSelected="True"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date exactly"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication date before"></ComboBoxItem>
@@ -1122,7 +1123,7 @@
                                         <ComboBoxItem Content="Publication year before"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication year after"></ComboBoxItem>
                                         <ComboBoxItem Content="Publication years between"></ComboBoxItem>
-                                    </ComboBox>
+                                    </ComboBox>-->
 
                                     <StackPanel x:Name="StackPanelMagSearchDatesFilter" Grid.Row="1" Grid.Column="5" Visibility="Collapsed" Orientation="Horizontal">
                                         <TextBlock x:Name="MagSearchDateText1Filter" Text="from" Margin="5,11,5,5" HorizontalAlignment="Center"></TextBlock>
@@ -1168,7 +1169,7 @@
                                         <telerikGridView:RadGridView.Columns>
                                             <telerikGridView:GridViewSelectColumn UniqueName="columnSelectMagSearch" Width="Auto">
                                                 <telerikGridView:GridViewSelectColumn.Header>
-                                                    <CheckBox Tag="MagSearchGrid" Click="CheckBox_Click" />
+                                                    <CheckBox Tag="MagSearchGrid" Click="CheckBox_Click" IsEnabled="{Binding IsOASearch}" />
                                                 </telerikGridView:GridViewSelectColumn.Header>
                                             </telerikGridView:GridViewSelectColumn>
                                             <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding SearchNo}" Header="" Width="30"></telerikGridView:GridViewDataColumn>
@@ -1186,7 +1187,7 @@
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding MagFolder}" Width="80" Header="OpenAlex version"></telerikGridView:GridViewDataColumn>
+                                            <!--<telerikGridView:GridViewDataColumn DataMemberBinding="{Binding MagFolder}" Width="80" Header="OpenAlex version"></telerikGridView:GridViewDataColumn>-->
                                             <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding ContactName}" Width="100" Header="User"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding SearchDate, StringFormat='{}{0:MM/dd/yyyy}'}" Width="60" Header="Date"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding HitsNo}" Header="Hits" Width="70"></telerikGridView:GridViewDataColumn>
@@ -1194,28 +1195,30 @@
                                             <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <HyperlinkButton Content="Rerun" Click="HyperlinkButton_Click_15"/>
+                                                        <HyperlinkButton Content="Rerun" Click="HyperlinkButton_Click_15" 
+                                                                         Visibility="{Binding SearchIdsStored, Converter={StaticResource ReverseEditTrueFalseVisibility}, Mode=OneWay}" 
+                                                                         IsEnabled="{Binding IsOASearch}"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <HyperlinkButton Content="Import" Click="HyperlinkButton_Click_16" Tag="MagSearchResults" ToolTipService.ToolTip="Import all records from this search"/>
+                                                        <HyperlinkButton Content="Import" Click="HyperlinkButton_Click_16" Tag="MagSearchResults" ToolTipService.ToolTip="Import all records from this search" IsEnabled="{Binding IsOASearch}"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn Width="120" SortingState="None" IsReadOnly="True">
+                                            <!--<telerikGridView:GridViewDataColumn Width="120" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <HyperlinkButton Content="Import latest OpenAlex" Click="HyperlinkButton_Click_16" Tag="MagSearchResultsLatestMAG" ToolTipService.ToolTip="Filter import to include only records in the latest deployment of OpenAlex"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
-                                            </telerikGridView:GridViewDataColumn>
+                                            </telerikGridView:GridViewDataColumn>-->
                                             <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <HyperlinkButton Content="List" Click="HyperlinkButton_Click_14"/>
+                                                        <HyperlinkButton Content="List" Click="HyperlinkButton_Click_14" IsEnabled="{Binding IsOASearch}"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
@@ -1629,12 +1632,10 @@
 
                                     <ToolkitRef:WrapPanel Grid.Row="0"  Orientation="Horizontal">
                                         <TextBlock Text="Maintenance processes" Margin="5,5,5,5"></TextBlock>
-                                        <HyperlinkButton x:Name="LBCopyNewOaData" Content="Copy new OpenAlexData" Click="LBCopyNewOaData_Click"  IsTabStop="False" Margin="0,5,5,5" Foreground="Red" Visibility="Collapsed"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBCopyNewOaData" Content="Copy new OpenAlexData" Click="LBCopyNewOaData_Click"  IsTabStop="False" Margin="0,5,5,5" Foreground="Red" Visibility="Collapsed" IsEnabled="False"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBCurrentInfoCreate" Content="Add new OpenAlex to MAKES list" Click="LBCurrentInfoCreate_Click"  Foreground="Red" IsTabStop="False" Margin="0,5,5,5" Visibility="Collapsed"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBCreateParquetFiles" Content="1. Create parquet files for new OpenAlex" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,5,5,5" Tag="Prepare parquet"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBDownloadNewPaperIds" Content="2. Download new PaperIds" Click="LBCreateParquetFiles_Click" IsTabStop="False" Margin="0,5,5,5" Tag="GetNewPaperIds"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBGetMissingAbstracts" Content="3. Get missing abstracts for new OpenAlex API" Click="LBGetMissingAbstracts_Click" IsTabStop="False" Margin="5,5,5,5" Tag="Get abstracts that may not have been present when items first created"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="x. Identify ID changes BEFORE switching to new OpenAlex" Click="CheckChangedPaperIds_Click" Visibility="Collapsed" IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBGetMissingAbstracts" Content="3. Get missing abstracts for new OpenAlex API" Click="LBGetMissingAbstracts_Click" IsTabStop="False" Margin="5,5,5,5" IsEnabled="False" Tag="Get abstracts that may not have been present when items first created"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="x. Identify ID changes BEFORE switching to new OpenAlex" Click="CheckChangedPaperIds_Click" Visibility="Collapsed" IsEnabled="False" IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
                                         
                                     </ToolkitRef:WrapPanel>
                                     <StackPanel Grid.Row="1" Orientation="Horizontal">
