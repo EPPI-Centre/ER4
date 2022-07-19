@@ -484,62 +484,64 @@ namespace BusinessLibrary.BusinessClasses
             //if (r.Next(1, 3) > 1) throw new Exception("what happens now??");
 
             bool matchedOnMAKES = false;
-                MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(SeekingPaperId);
+                MagMakesHelpers.OaPaper pm = MagMakesHelpers.GetPaperMakesFromMakes(SeekingPaperId);
                 if (pm != null)
                 {
-                    List<MagMakesHelpers.PaperMakes> candidatePapersOnDOI = MagMakesHelpers.GetCandidateMatchesOnDOI(pm.DOI, "PENDING");
+                    List<MagMakesHelpers.OaPaper> candidatePapersOnDOI = MagMakesHelpers.GetCandidateMatchesOnDOI(pm.doi);
                     if (candidatePapersOnDOI != null && candidatePapersOnDOI.Count > 0)
                     {
-                        foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnDOI)
+                        foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnDOI)
                         {
                             MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
                         }
                     }
                     if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                     {
-                        List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(pm.DN, "PENDING");
+                        List<MagMakesHelpers.OaPaper> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(pm.display_name, "PENDING");
                         if (candidatePapersOnTitle != null && candidatePapersOnTitle.Count > 0)
                         {
-                            foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
+                            foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnTitle)
                             {
                                 MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
                             }
-                            foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
+                            foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnTitle)
                             {
-                                var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
+                                var found = candidatePapersOnDOI.Find(e => e.id == cpm.id);
                                 if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchThreshold)
                                 {
                                     candidatePapersOnDOI.Add(cpm);
                                 }
                             }
+                            /*
                             // add in matching on journals / authors if we don't have an exact match on title
                             if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                             {
                                 List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal =
                                     //MagMakesHelpers.GetCandidateMatches(MagMakesHelpers.getAuthors(pm.AA) + " " + (pm.J != null ? pm.J[0].JN : ""));
-                                    MagMakesHelpers.GetCandidateMatchesOnAuthorsAndJournal(MagMakesHelpers.getAuthors(pm.AA) + " " + (pm.J != null && pm.J[0] != null ? pm.J[0].JN : ""));
-                                foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
+                                    MagMakesHelpers.GetCandidateMatchesOnAuthorsAndJournal(MagMakesHelpers.getAuthors(pm.authorships) + " " + (pm.host_venue != null && pm.host_venue.display_name != null ? pm.host_venue.display_name : ""));
+                                foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnAuthorJournal)
                                 {
                                     MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
                                 }
-                                foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
+                                foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnAuthorJournal)
                                 {
-                                    var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
+                                    var found = candidatePapersOnDOI.Find(e => e.id == cpm.Id);
                                     if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchThreshold)
                                     {
                                         candidatePapersOnDOI.Add(cpm);
                                     }
                                 }
                             }
+                            */
                         }
                     }
                     if (candidatePapersOnDOI.Count > 0)
                     {
-                        MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnDOI.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
+                        MagMakesHelpers.OaPaper TopMatch = candidatePapersOnDOI.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
                         if (TopMatch.matchingScore > MagPaperItemMatch.AutoMatchThreshold)
                         {
                             matchedOnMAKES = true;
-                            return rowId.ToString() + "," + TopMatch.matchingScore + "," + TopMatch.Id;
+                            return rowId.ToString() + "," + TopMatch.matchingScore + "," + TopMatch.id;
                         }
                     }
                 }
@@ -567,58 +569,61 @@ namespace BusinessLibrary.BusinessClasses
                         if (i != null)
                         {
                             // EXACTLY the same code logic is used in MagPaperItemMatch EXCEPT - we use the PENDING deployment of MAKES and we're only interested in matches above the auto-match threshold
-                            List<MagMakesHelpers.PaperMakes> candidatePapersOnDOI = MagMakesHelpers.GetCandidateMatchesOnDOI(i.DOI, "PENDING");
+                            List<MagMakesHelpers.OaPaper> candidatePapersOnDOI = MagMakesHelpers.GetCandidateMatchesOnDOI(i.DOI);
                             if (candidatePapersOnDOI != null && candidatePapersOnDOI.Count > 0)
                             {
-                                foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnDOI)
+                                foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnDOI)
                                 {
                                     MagPaperItemMatch.doComparison(i, cpm);
                                 }
                             }
                             if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                             {
-                                List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "PENDING", true);
+                                List<MagMakesHelpers.OaPaper> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "PENDING", true);
                                 if (candidatePapersOnTitle != null && candidatePapersOnTitle.Count > 0)
                                 {
-                                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
+                                    foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnTitle)
                                     {
                                         MagPaperItemMatch.doComparison(i, cpm);
                                     }
                                 }
-                                foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
+                                foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnTitle)
                                 {
-                                    var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
+                                    var found = candidatePapersOnDOI.Find(e => e.id == cpm.id);
                                     if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchThreshold)
                                     {
                                         candidatePapersOnDOI.Add(cpm);
                                     }
                                 }
+                                /*
                                 // add in matching on journals / authors if we don't have an exact match on title
                                 if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                                 {
-                                    List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal =
+                                    List<MagMakesHelpers.OaPaper> candidatePapersOnAuthorJournal =
                                         MagMakesHelpers.GetCandidateMatchesOnAuthorsAndJournal(i.Authors + " " + i.ParentTitle, "PENDING", false);
-                                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
+                                    foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnAuthorJournal)
                                     {
                                         MagPaperItemMatch.doComparison(i, cpm);
                                     }
-                                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
+                                    foreach (MagMakesHelpers.OaPaper cpm in candidatePapersOnAuthorJournal)
                                     {
-                                        var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
+                                        var found = candidatePapersOnDOI.Find(e => e.id == cpm.id);
                                         if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchThreshold)
                                         {
                                             candidatePapersOnDOI.Add(cpm);
                                         }
                                     }
                                 }
+                                */
+
                             }
                             if (candidatePapersOnDOI.Count > 0)
                             {
-                                MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnDOI.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
+                                MagMakesHelpers.OaPaper TopMatch = candidatePapersOnDOI.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
 
                                 if (TopMatch.matchingScore > MagPaperItemMatch.AutoMatchThreshold)
                                 {
-                                    return rowId.ToString() + "," + TopMatch.matchingScore + "," + TopMatch.Id;
+                                    return rowId.ToString() + "," + TopMatch.matchingScore + "," + TopMatch.id;
                                 }
                             }
                         }

@@ -180,6 +180,8 @@ namespace BusinessLibrary.BusinessClasses
                                     catch
                                     {
                                         resultQueue.Enqueue("ERROR: " + ItemId);
+                                        MagLog.UpdateLogEntry("Running", "Review: " + ReviewId + ", total: " + totalCount.ToString() +
+                                            ", errors: " + errorCount.ToString() + ", last: " + ItemId.ToString(), MagLogId);// maxThreadCount.ToString(), MagLogId);
                                     }
                                     finally
                                     {
@@ -221,55 +223,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        /*
-        private SqlCommand SpecifyCommand(SqlConnection connection, ReviewerIdentity ri)
-        {
-            SqlCommand command = null;
-            switch (_FindOrRemove)
-            {
-                case "FindMatches":
-                    if (_AllInReview == true)
-                    {
-                        //command = new SqlCommand("st_MatchItemsToPapers", connection); - now doing via worker process
-                        command = new SqlCommand("st_MatchItemsToPapersAddJob", connection);
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                    }
-                    else if (_ATTRIBUTE_ID != 0)
-                    {   // this is currently unused. Should probably add a job rather than run immediately
-                        command = new SqlCommand("st_MatchItemsToPapersWithAttribute", connection);
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));
-                    }
-                    else if (_ITEM_ID != 0)
-                    {
-                        command = new SqlCommand("st_MatchItemsToPapersSingleItem", connection);
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@ITEM_ID", _ITEM_ID));
-                    }
-                    break;
-                case "RemoveMatches":
-                    if (_AllInReview == true)
-                    {
-                        command = new SqlCommand("st_MagMatchItemsRemove", connection);
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                    }
-                    else if (_ATTRIBUTE_ID != 0)
-                    {
-                        command = new SqlCommand("st_MagMatchItemsRemove", connection);
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));
-                    }
-                    else if (_ITEM_ID != 0)
-                    {
-                        command = new SqlCommand("st_MagMatchItemsRemove", connection);
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@ITEM_ID", _ITEM_ID));
-                    }
-                    break;
-            }
-            return command;
-        }
-        */
+        
 
 #endif
 

@@ -123,7 +123,7 @@ export class MAGBrowserHistoryService extends BusyAwareService implements OnDest
                         return this.ShowSearchPage(browsePosition);
                         //break;
                     case "MagSearchPapersList":
-                        return this.ShowMagSearchPapersList(mbh.paperFullRecord, browsePosition);
+                        return this.ShowMagSearchPapersList(mbh.paperId, browsePosition);
                         //break;
 
                 }
@@ -270,10 +270,10 @@ export class MAGBrowserHistoryService extends BusyAwareService implements OnDest
         return "MagSearch";
     }
 
-    private ShowMagSearchPapersList(searchSt: string, pos: number): string {
+    private ShowMagSearchPapersList(SearcId: number, pos: number): string {
         //console.log("Going to MagSearchPapersList Page...");
         let search = new MagSearch();
-        search.magSearchText = searchSt;
+          search.magSearchId = SearcId;
         this._magBrowserService.GetMagItemsForSearch(search);
         this.currentBrowsePosition = pos;
         return "MagSearchPapersList";

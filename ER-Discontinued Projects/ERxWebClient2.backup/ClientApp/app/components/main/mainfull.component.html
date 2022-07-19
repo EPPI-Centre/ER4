@@ -28,6 +28,11 @@
                                                     [attr.aria-expanded]="!isSourcesPanelCollapsed">
                                                 Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
                                             </button>
+                                            <!--<button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
+                                                    [attr.aria-expanded]="!isReviewersPanelCollapsed">
+                                                Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
+                                            </button>-->
+
                                         </div>
                                         <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                                          style="max-height: 520px;"></readonlyreviews>
@@ -42,6 +47,8 @@
                                                                        style="max-height: 420px;"></WorkAllocationContactListComp>
                                         <ROSourcesList *ngIf="isSourcesPanelVisible" class="mt-1"
                                                        style="max-height: 420px;"></ROSourcesList>
+                                        <!--<reviewerList *ngIf="isReviewersPanelVisible" class="mt-1"
+                                                       style="max-height: 420px;"></reviewerList>-->
                                     </div>
 
                                     <div *ngIf="HasSreeningList">

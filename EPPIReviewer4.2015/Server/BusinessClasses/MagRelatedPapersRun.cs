@@ -209,32 +209,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(PmidsProperty, value);
             }
         }
-        /*
-        public static readonly PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
-        public bool Checked
-        {
-            get
-            {
-                return GetProperty(CheckedProperty);
-            }
-            set
-            {
-                SetProperty(CheckedProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<bool> IrrelevantProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Irrelevant", "Irrelevant", false));
-        public bool Irrelevant
-        {
-            get
-            {
-                return GetProperty(IrrelevantProperty);
-            }
-            set
-            {
-                SetProperty(IrrelevantProperty, value);
-            }
-        }
-        */
+        
         public static readonly PropertyInfo<bool> AutoReRunProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AutoReRun", "AutoReRun", false));
         public bool AutoReRun
         {
@@ -248,82 +223,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        /*
-        public static readonly PropertyInfo<MagRelatedPapersRunList> CitationsProperty = RegisterProperty<MagRelatedPapersRunList>(new PropertyInfo<MagRelatedPapersRunList>("Citations", "Citations"));
-        public MagRelatedPapersRunList Citations
-        {
-            get
-            {
-                return GetProperty(CitationsProperty);
-            }
-            set
-            {
-                SetProperty(CitationsProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagRelatedPapersRunList> CitedByProperty = RegisterProperty<MagRelatedPapersRunList>(new PropertyInfo<MagRelatedPapersRunList>("CitedBy", "CitedBy"));
-        public MagRelatedPapersRunList CitedBy
-        {
-            get
-            {
-                return GetProperty(CitedByProperty);
-            }
-            set
-            {
-                SetProperty(CitedByProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagRelatedPapersRunList> RecommendedProperty = RegisterProperty<MagRelatedPapersRunList>(new PropertyInfo<MagRelatedPapersRunList>("Recommended", "Recommended"));
-        public MagRelatedPapersRunList Recommended
-        {
-            get
-            {
-                return GetProperty(RecommendedProperty);
-            }
-            set
-            {
-                SetProperty(RecommendedProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagRelatedPapersRunList> RecommendedByProperty = RegisterProperty<MagRelatedPapersRunList>(new PropertyInfo<MagRelatedPapersRunList>("RecommendedBy", "RecommendedBy"));
-        public MagRelatedPapersRunList RecommendedBy
-        {
-            get
-            {
-                return GetProperty(RecommendedByProperty);
-            }
-            set
-            {
-                SetProperty(RecommendedByProperty, value);
-            }
-        }
         
-        public void GetRelatedFieldOfStudyList(string listType)
-        {
-            DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
-            dp.FetchCompleted += (o, e2) =>
-            {
-                if (e2.Object != null)
-                {
-                    if (e2.Error == null)
-                    {
-                        this.Citations = e2.Object;
-                        //this.MarkClean(); // don't want the object marked as 'dirty' just because it's loaded a new list
-                    }
-                }
-                if (e2.Error != null)
-                {
-#if SILVERLIGHT
-                    System.Windows.MessageBox.Show(e2.Error.Message);
-#endif
-                }
-            };
-            MagRelatedPapersRunListSelectionCriteria sc = new BusinessClasses.MagRelatedPapersRunListSelectionCriteria();
-            sc.MagRelatedPapersRunId = this.FieldOfStudyId;
-            sc.ListType = listType;
-            dp.BeginFetch(sc);
-        }
-        */
 
 
 
@@ -388,10 +288,10 @@ namespace BusinessLibrary.BusinessClasses
                     if (this.Mode != "New items in MAG") // This mode is likely never used now, so the if can go
                     {
 #if CSLA_NETCORE
-            System.Threading.Tasks.Task.Run(() => RunMagRelatedPapersRun(ri.UserId, ri.ReviewId));
+            System.Threading.Tasks.Task.Run(() => RunOpenAlexRelatedPapersRun(ri.UserId, ri.ReviewId));
 #else
                         //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
-                        HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunMagRelatedPapersRun(ri.UserId, ri.ReviewId, cancellationToken));
+                        HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunOpenAlexRelatedPapersRun(ri.UserId, ri.ReviewId, cancellationToken));
 #endif
                     }
                 }
@@ -491,6 +391,206 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(FilteredProperty, reader.GetString("FILTERED"));
             returnValue.MarkOld();
             return returnValue;
+        }
+
+        private async void RunOpenAlexRelatedPapersRun(int ContactId, int ReviewId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            // 1. Get a list of the Seed IDs
+            List<string> Ids = new List<string>(); 
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunGetSeedIds", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", this.MagRelatedRunId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", this.AttributeId));
+                    using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            Ids.Add(reader.GetInt64("PaperId").ToString());
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            // 1.5: check that there aren't crazy numbers of seed items!
+            if (Ids.Count > 500)
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+
+                    using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsUpdatePostRun", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
+                        command.Parameters.Add(new SqlParameter("@N_PAPERS", 0));
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                }
+                return;
+            }
+
+            // 2. Look up each of the IDs in OpenAlex and download the relevant data
+            List<MagMakesHelpers.OaPaper> seeds = MagMakesHelpers.downloadTheseOpenAlexPapers(Ids.ToArray());
+            List<string> results = new List<string>();
+            if (seeds.Count > 0)
+            {
+                foreach (MagMakesHelpers.OaPaper pm in seeds)
+                {
+                    if (pm.id != null)
+                    {
+                        switch (this.Mode)
+                        {
+                            case "Recommended by":
+                                foreach (string s in pm.related_works)
+                                {
+                                    addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                    
+                                }
+                                results = DoDateFilter(results);
+                                break;
+                            case "Bibliography":
+                                foreach (string s in pm.referenced_works)
+                                {
+                                    addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                }
+                                results = DoDateFilter(results);
+                                break;
+                            case "Cited by":
+                                getCitedWorks(pm.id, results);
+                                break;
+                            case "BiCitation":
+                                foreach (string s in pm.referenced_works)
+                                {
+                                    addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                }
+                                results = DoDateFilter(results);
+                                getCitedWorks(pm.id, results);
+                                break;
+                            case "Bi-Citation AND Recommendations":
+                                foreach (string s in pm.referenced_works)
+                                {
+                                    addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                }
+                                foreach (string s in pm.related_works)
+                                {
+                                    addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
+                                }
+                                results = DoDateFilter(results);
+                                getCitedWorks(pm.id, results);
+                                break;
+                        }
+                    }
+                }
+                
+
+            
+                // 3. save the IDs in the database
+                DataTable dt = new DataTable("Ids");
+                dt.Columns.Add("MAG_RELATED_PAPERS_ID");
+                dt.Columns.Add("REVIEW_ID");
+                dt.Columns.Add("MAG_RELATED_RUN_ID");
+                dt.Columns.Add("PaperId");
+                dt.Columns.Add("SimilarityScore");
+
+                foreach (string s in results)
+                {
+                    DataRow newRow = dt.NewRow();
+                    newRow["MAG_RELATED_PAPERS_ID"] = 0; // doesn't matter what is in here - it's auto-assigned in the database
+                    newRow["REVIEW_ID"] = ReviewId;
+                    newRow["MAG_RELATED_RUN_ID"] = this.MagRelatedRunId;
+                    newRow["PaperId"] = s;
+                    newRow["SimilarityScore"] = 0;
+                    dt.Rows.Add(newRow);
+                }
+                
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                    {
+                        sbc.DestinationTableName = "TB_MAG_RELATED_PAPERS";
+                        sbc.BatchSize = 1000;
+                        sbc.WriteToServer(dt);
+                    }
+
+                    using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsUpdatePostRun", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
+                        command.Parameters.Add(new SqlParameter("@N_PAPERS", dt.Rows.Count));
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                }
+            }
+            else
+            { // nothing in the seeds, so nothing in the results (UI should prevent this)
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    
+                    using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsUpdatePostRun", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
+                        command.Parameters.Add(new SqlParameter("@N_PAPERS", (int)0));
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                }
+            }
+        }
+
+        private void addUniqueToList(List<string> Ids, string Id)
+        {
+            if (!Ids.Contains(Id))
+            {
+                Ids.Add(Id);
+            }
+        }
+
+        private void getCitedWorks(string Id, List<string> results)
+        {
+            string query = "cites:" + Id;
+            if (this.DateFrom != null)
+            {
+                query += ",from_publication_date:" + DateFrom.Date.Year.ToString() + "-" + DateFrom.Date.Month.ToString("D2") + "-" + DateFrom.Date.Day.ToString("D2");
+            }
+            List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(query, false);
+            foreach (MagMakesHelpers.OaPaperFilterResult fr in res)
+            {
+                foreach (MagMakesHelpers.OaPaper p in fr.results)
+                {
+                    addUniqueToList(results, p.id.Replace("https://openalex.org/W", ""));
+                }
+            }
+        }
+
+        private List<string> DoDateFilter(List<string> results)
+        {
+            if (DateFrom == null)
+            {
+                return results;
+            }
+            else
+            {
+                List<MagMakesHelpers.OaPaper> papers = MagMakesHelpers.downloadTheseOpenAlexPapers(results.ToArray());
+                results.Clear();
+                foreach (MagMakesHelpers.OaPaper p in papers)
+                {
+                    if (Convert.ToDateTime(p.publication_date) >= DateFrom.Date)
+                    {
+                        addUniqueToList(results, p.IdInteger);
+                    }
+                }
+                return results;
+            }
         }
 
         private async void RunMagRelatedPapersRun(int ContactId, int ReviewId, CancellationToken cancellationToken = default(CancellationToken))

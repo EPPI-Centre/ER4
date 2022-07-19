@@ -294,6 +294,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> FieldsOfStudyListStringProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldsOfStudyListString", "FieldsOfStudyListString", "AutoUpdate"));
+        public string FieldsOfStudyListString
+        {
+            get
+            {
+                return GetProperty(FieldsOfStudyListStringProperty);
+            }
+            set
+            {
+                SetProperty(FieldsOfStudyListStringProperty, value);
+            }
+        }
+
 
 
         //protected override void AddAuthorizationRules()

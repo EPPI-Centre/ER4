@@ -31,7 +31,7 @@ namespace BusinessLibrary.BusinessClasses
         //static string keyVaultUri = "https://ucl.vault.azure.net/";
 
         public static string runADFPipeline(int ContactId, string TrainFileName, string InferenceFileName,
-            string ResultsFileName, string ModelFileName, string MagVersion, string PreFilterThreshold,
+            string ResultsFileName, string ModelFileName, string MagVersion, string OldMagVersion, string PreFilterThreshold,
             string FolderName, string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
             string ReviewSampleSize, string prepare_data, string process_train, string process_inference, string train_model,
             string score_papers, CancellationToken cancellationToken = default(CancellationToken))
@@ -66,7 +66,7 @@ namespace BusinessLibrary.BusinessClasses
             };
 
             Dictionary<string, object> parameters = readParameters(TrainFileName, InferenceFileName, ResultsFileName,
-                ModelFileName, MagVersion, PreFilterThreshold, FolderName, AcceptanceThreshold, ReviewRunVersion,
+                ModelFileName, MagVersion, OldMagVersion, PreFilterThreshold, FolderName, AcceptanceThreshold, ReviewRunVersion,
                 OverwriteRawProcessedData, ReviewSampleSize, prepare_data, process_train, process_inference, train_model,
                 score_papers);
 
@@ -141,7 +141,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static Dictionary<string, object> readParameters(string TrainFileName, string InferenceFileName,
-            string ResultsFileName, string ModelFileName, string MagVersion, string PreFilterThreshold, string FolderName,
+            string ResultsFileName, string ModelFileName, string MagVersion, string OldMagVersion, string PreFilterThreshold, string FolderName,
             string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
             string ReviewSampleSize, string prepare_data, string process_train, string process_inference, string train_model,
             string score_papers)
@@ -166,6 +166,7 @@ namespace BusinessLibrary.BusinessClasses
             parameters.Add("exp_new_papers_file_name", InferenceFileName);
             parameters.Add("exp_experiment_label", FolderName);
             parameters.Add("mag_version", "OpenAlexData/" + MagVersion);
+            parameters.Add("old_mag_version", "OpenAlexData/" + OldMagVersion);
 
             // set from web.config
             parameters.Add("databricks_cluster_id", AzureSettings.databricks_cluster_id);

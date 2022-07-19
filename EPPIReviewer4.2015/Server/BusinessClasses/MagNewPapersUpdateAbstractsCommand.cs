@@ -123,10 +123,10 @@ namespace BusinessLibrary.BusinessClasses
                 connection2.Open();
                 foreach (ItemPapers ip in ItemList)
                 {
-                    MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(ip.PaperId, "LIVE");
-                    if (pm != null && pm.IA != null)
+                    MagMakesHelpers.OaPaper pm = MagMakesHelpers.GetPaperMakesFromMakes(ip.PaperId);
+                    if (pm != null && pm.abstract_inverted_index != null)
                     {
-                        string ab = MagMakesHelpers.ReconstructInvertedAbstract(pm.IA);
+                        string ab = MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index);
                         if (ab != "")
                         {
                             using (SqlCommand command2 = new SqlCommand("st_MagUpdateMissingAbstract", connection2))

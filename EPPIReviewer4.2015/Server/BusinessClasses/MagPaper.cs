@@ -155,8 +155,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        /*
         public static readonly PropertyInfo<SmartDate> DateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("Date", "Date"));
         public SmartDate SmartDate
+        {
+            get
+            {
+                return GetProperty(DateProperty);
+            }
+        }
+        */
+
+        public static readonly PropertyInfo<string> DateProperty = RegisterProperty<string>(new PropertyInfo<string>("Date", "Date", ""));
+        public string SmartDate
         {
             get
             {
@@ -315,6 +326,31 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(FieldsOfStudyProperty);
             }
+        }
+
+        public static readonly PropertyInfo<string> FieldsOfStudyListProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldsOfStudyList", "FieldsOfStudyList", string.Empty));
+        public string FieldsOfStudyList
+        {
+            get
+            {
+                return GetProperty(FieldsOfStudyListProperty);
+            }
+        }
+
+        public static MagFieldOfStudyList GetFieldOfStudyAsList(string FieldsOfStudyListString)
+        {
+            MagFieldOfStudyList retval = new MagFieldOfStudyList();
+
+            foreach (string s in FieldsOfStudyListString.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
+            {
+                MagFieldOfStudy newFos = new MagFieldOfStudy();
+                string[] IdAndLabel = s.Split('¬');
+                newFos.FieldOfStudyId = Convert.ToInt64(IdAndLabel[0]);
+                newFos.DisplayName = IdAndLabel[1];
+                newFos.NormalizedName = IdAndLabel[1];
+                retval.Add(newFos);
+            }
+            return retval;
         }
 
         public static readonly PropertyInfo<string> PdfLinksProperty = RegisterProperty<string>(new PropertyInfo<string>("PdfLinks", "PdfLinks", string.Empty));
@@ -583,7 +619,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(criteria.Value);
+                        MagMakesHelpers.OaPaper pm = MagMakesHelpers.GetPaperMakesFromMakes(criteria.Value);
                         if (pm != null)
                         {
                             if (reader.Read())
@@ -643,7 +679,7 @@ namespace BusinessLibrary.BusinessClasses
         public static MagPaper GetMagPaperFromMakes(Int64 PaperId, SafeDataReader reader)
         {
             MagPaper returnValue = new MagPaper();
-            MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(PaperId);
+            MagMakesHelpers.OaPaper pm = MagMakesHelpers.GetPaperMakesFromMakes(PaperId);
             if (pm != null)
             {
                 fillValues(returnValue, pm, reader);
@@ -657,7 +693,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         // Can send a reader as null in some situations, but most fields contained in PaperMakes object
-        internal static MagPaper GetMagPaperFromPaperMakes(MagMakesHelpers.PaperMakes pm, SafeDataReader reader)
+        internal static MagPaper GetMagPaperFromPaperMakes(MagMakesHelpers.OaPaper pm, SafeDataReader reader)
         {
             MagPaper returnValue = new MagPaper();
             if (pm != null)
@@ -672,126 +708,94 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        public static void fillValues(MagPaper returnValue, MagMakesHelpers.PaperMakes pm, SafeDataReader reader)
+        public static void fillValues(MagPaper returnValue, MagMakesHelpers.OaPaper pm, SafeDataReader reader)
         {
             TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
-            returnValue.LoadProperty<Int64>(PaperIdProperty, pm.Id);
-            returnValue.LoadProperty<string>(DOIProperty, pm.DOI);
-            returnValue.LoadProperty<string>(DocTypeProperty, pm.Pt);
-            returnValue.LoadProperty<string>(PaperTitleProperty, (pm.Ti == null || pm.Ti == "" ? "" : pm.Ti));
-            returnValue.LoadProperty<string>(OriginalTitleProperty, pm.DN);
+            returnValue.LoadProperty<Int64>(PaperIdProperty, Convert.ToInt64(pm.id.Replace("https://openalex.org/W", "")));
+            returnValue.LoadProperty<string>(DOIProperty, pm.doi);
+            returnValue.LoadProperty<string>(DocTypeProperty, pm.type);
+            returnValue.LoadProperty<string>(PaperTitleProperty, (pm.display_name == null || pm.display_name == "" ? "" : pm.display_name));
+            returnValue.LoadProperty<string>(OriginalTitleProperty, pm.display_name);
             //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
-            returnValue.LoadProperty<Int32>(YearProperty, pm.Y);
-            returnValue.LoadProperty<SmartDate>(DateProperty, pm.D);
-            returnValue.LoadProperty<string>(PublisherProperty, pm.PB);
+            returnValue.LoadProperty<Int32>(YearProperty, pm.publication_year);
+            returnValue.LoadProperty<string>(DateProperty, pm.publication_date);
+            returnValue.LoadProperty<string>(PublisherProperty, pm.host_venue.publisher);
             //if (pm.J != null && pm.J[0] != null)
-            if (pm.J != null)
+            if (pm.host_venue != null)
             {
-                returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J[0].JId);
-                returnValue.LoadProperty<string>(JournalProperty, pm.J[0].JN != null ? myTI.ToTitleCase(pm.J[0].JN) : "");
-                //returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
-                //returnValue.LoadProperty<string>(JournalProperty, pm.J.DJN != null ? myTI.ToTitleCase(pm.J.DJN) : "");
+                //returnValue.LoadProperty<Int64>(JournalIdProperty, pm.host_venue.id);
+                returnValue.LoadProperty<string>(JournalProperty, pm.host_venue.display_name);
             }
-            if (returnValue.GetProperty(JournalProperty) == "" && pm.VFN != null)
+            
+            returnValue.LoadProperty<string>(VolumeProperty, pm.biblio.volume);
+            returnValue.LoadProperty<string>(IssueProperty, pm.biblio.issue);
+            returnValue.LoadProperty<string>(FirstPageProperty, pm.biblio.first_page);
+            returnValue.LoadProperty<string>(LastPageProperty, pm.biblio.last_page);
+            if (pm.referenced_works != null)
             {
-                // get conferences (MAG puts lots of conference papers in and the conference goes in the 'journal' field)
-                returnValue.LoadProperty<string>(JournalProperty, myTI.ToTitleCase(pm.VFN));
-            }
-            //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
-            //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
-            returnValue.LoadProperty<string>(VolumeProperty, pm.V);
-            returnValue.LoadProperty<string>(IssueProperty, pm.I);
-            returnValue.LoadProperty<string>(FirstPageProperty, pm.FP);
-            returnValue.LoadProperty<string>(LastPageProperty, pm.LP);
-            if (pm.RId != null)
-            {
-                returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.RId.Count);
-                string r = ""; // not changing in case I break something, but this looks like r is never used?? (JT)
-                foreach (Int64 RId in pm.RId)
+                returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.referenced_works.Length);
+                string r = "";
+                foreach (string RId in pm.referenced_works)
                 {
                     if (r == "")
                         r = RId.ToString();
                     else
                         r += "," + RId.ToString();
                 }
+                returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.referenced_works.Length);
             }
             else
             {
                 returnValue.LoadProperty<Int64>(ReferenceCountProperty, 0);
             }
-            if (pm.F != null)
+            if (pm.concepts != null)
             {
                 string f = "";
-                foreach (MagMakesHelpers.PaperMakesFieldOfStudy fos in pm.F)
+                string fs = "";
+                foreach (MagMakesHelpers.Concept c in pm.concepts)
                 {
                     if (f == "")
                     {
-                        f = fos.FId.ToString();
+                        f = c.id.Replace("https://openalex.org/C", ""); 
+
+                       fs = c.id.Replace("https://openalex.org/C", "") + "¬" + c.display_name;
                     }
                     else
                     {
-                        f += "," + fos.FId.ToString();
+                        f += "," + c.id.Replace("https://openalex.org/C", "");
+                        fs += Environment.NewLine + c.id.Replace("https://openalex.org/C", "") + "¬" + c.display_name;
                     }
                 }
                 returnValue.LoadProperty<string>(FieldsOfStudyProperty, f);
+                returnValue.LoadProperty<string>(FieldsOfStudyListProperty, fs);
             }
             else
             {
                 returnValue.LoadProperty<string>(FieldsOfStudyProperty, "");
             }
-            returnValue.LoadProperty<Int64>(CitationCountProperty, pm.CC);
+            returnValue.LoadProperty<Int64>(CitationCountProperty, pm.cited_by_count);
             //returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
-            if (pm.AA != null)
+            if (pm.authorships != null)
             {
                 string a = "";
-                foreach (MagMakesHelpers.PaperMakesAuthor pma in pm.AA)
+                foreach (MagMakesHelpers.Authorship pma in pm.authorships)
                 {
                     if (a == "")
                     {
-                        a = pma.DAuN;
+                        a = pma.author.display_name;
                     }
                     else
                     {
-                        a += ", " + pma.DAuN;
+                        a += ", " + pma.author.display_name;
                     }
                 }
                 returnValue.LoadProperty<string>(AuthorsProperty, a);
             }
-            returnValue.LoadProperty<string>(AbstractProperty, MagMakesHelpers.ReconstructInvertedAbstract(pm.IA));
-            if (pm.S != null)
+            returnValue.LoadProperty<string>(AbstractProperty, MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index));
+            if (pm.host_venue != null)
             {
-                string u = "";
-                string p = "";
-                //List<MagMakesHelpers.PaperMakesSource> pmList = pm.S;
-                var j = (JArray)JsonConvert.DeserializeObject(pm.S);
-                List <MagMakesHelpers.PaperMakesSource> pmList = j.ToObject<List<MagMakesHelpers.PaperMakesSource>>();
-                foreach (MagMakesHelpers.PaperMakesSource pms in pmList)
-                {
-                    if (pms.Ty == "3")
-                    {
-                        if (p == "")
-                        {
-                            p = pms.U;
-                        }
-                        else
-                        {
-                            p += ";" + pms.U;
-                        }
-                    }
-                    else
-                    {
-                        if (u == "")
-                        {
-                            u = pms.U;
-                        }
-                        else
-                        {
-                            u += ";" + pms.U;
-                        }
-                    }
-                }
-                returnValue.LoadProperty<string>(URLsProperty, u);
-                returnValue.LoadProperty<string>(PdfLinksProperty, p);
+                returnValue.LoadProperty<string>(URLsProperty, pm.host_venue.url);
+                //returnValue.LoadProperty<string>(PdfLinksProperty, p);
             }
             if (reader != null)
             {
@@ -809,8 +813,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        
+
 
 #endif
-    }
+        }
 }

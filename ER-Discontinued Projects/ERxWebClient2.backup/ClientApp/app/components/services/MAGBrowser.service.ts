@@ -221,7 +221,7 @@ export class MAGBrowserService extends BusyAwareService implements OnDestroy {
         crit.pageSize = 20;
         crit.pageNumber = 0;
         crit.listType = "MagSearchResultsList";
-        crit.magSearchText = item.magSearchText;
+        crit.magSearchId = item.magSearchId.toString();
         return this.GetMagOrigList(crit);
     }
     public GetPaperListForTopic(FieldOfStudyId: number): Promise<boolean> {

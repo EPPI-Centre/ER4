@@ -110,13 +110,40 @@ export class MAGComp implements OnInit, OnDestroy {
     @ViewChild('NavBar2') NavBar2!: MAGHeaderBar2Comp;
     public IHaveImportedSomething: boolean = false;
     private subItemIDinPath: Subscription | null = null;
-    public get Context(): string {
-        if (this.NavBar2) return this.NavBar2.Context;
+
+      public get HelpAndFeebackContext(): string {
+            switch (this.NavBar2.Context) {
+                  case "RelatedPapers":
+                        return "openalex\\bringuptodate";
+                  case "KeepUpdated":
+                        return "openalex\\keepupdated";
+                  case "Advanced":
+                        return "openalex\\history";
+                  case "History":
+                        return "openalex\\history";
+                  case "matching":
+                        return "openalex\\matching";
+                  case "Admin":
+                        return "openalex\\admin";
+                  case "MagSearch":
+                        return "openalex\\search";
+                  default:
+                        // RelatedPapers
+                        return "openalex\\bringuptodate";
+            }
+      } 
+
+      public get Context(): string {
+            if (this.NavBar2) {
+            return this.NavBar2.Context;
+        }
         else return "MAG: unspecified page";
     }
     public ChangeContext(val: string) {
         //console.log("Main MAG: context is changing (from, to)", this.Context, val);
-        if (this.NavBar2) this.NavBar2.Context = val;
+        if (this.NavBar2) {
+            this.NavBar2.Context = val;
+        }
     }
     public get MustMatchItems(): boolean {
         if (this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded > 0) return false;

@@ -193,17 +193,20 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("running", "Main update. SeedIds uploaded: " + SeedIds.ToString() +
                 " Folder:" + folderPrefix, logId);
 
+            /*
             if (!WriteNewIdsFileOnBlob(uploadFileName, ContactId, folderPrefix, cancellationToken))
             {
                 MagLog.UpdateLogEntry("Stopped", "Failed getting new IDs" + " Folder:" + folderPrefix,
                 ContactId);
                 return;
             }
+            */
+
             MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")" +
                 " Folder:" + folderPrefix, logId);
 
             string result = MagContReviewPipeline.runADFPipeline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
-                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, _fosThreshold.ToString(), folderPrefix,
+                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, _CurrentMagVersion, _fosThreshold.ToString(), folderPrefix,
                 _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), prepare_data, process_train,
                 process_inference, train_model, score_papers, cancellationToken);
             if (result == "Succeeded")
@@ -370,7 +373,7 @@ namespace BusinessLibrary.BusinessClasses
 //#endif
             int logId = MagLog.SaveLogEntry("ContReview process", "running", "Updating parquet to: " + _NextMagVersion, ContactId);
             string result = MagContReviewPipeline.runADFPipeline(ContactId, "NoTrainFile", "NoInferenceFile",
-                "NoResultsFile", "NoModelFile", _NextMagVersion, _fosThreshold.ToString(), "",
+                "NoResultsFile", "NoModelFile", _NextMagVersion, _CurrentMagVersion, _fosThreshold.ToString(), "",
                 _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), "true", "false",
                 "false", "false", "false");
             if (result == "Succeeded")
