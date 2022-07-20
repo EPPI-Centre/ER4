@@ -2,7 +2,7 @@ import {  Inject, Injectable} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { MagSearch } from './MAGClasses.service';
+import { MagSearch, MagSearchBuilder } from './MAGClasses.service';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -32,7 +32,7 @@ export class magSearchService extends BusyAwareService {
         this._httpC.get<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/FetchMagSearchList')
              .subscribe(result => {
                  this.RemoveBusy("FetchMagSearchList");
-                 console.log('inside fetch', result);
+                 //console.log('inside fetch', result);
                  for (var i = 0; i < result.length; i++) {
                      result[i].add = false;
                  }
@@ -90,22 +90,19 @@ export class magSearchService extends BusyAwareService {
             );
     }
 
-    CreateMagSearch(wordsInSelection: number, dateLimitSelection: number, publicationTypeSelection: number,
-        magSearchInput: string, magSearchDate1: Date, magSearchDate2: Date, magSearchCurrentTopic: string) {
-
+    CreateMagSearch(newSearch: MagSearchBuilder) {
         this._BusyMethods.push("CreateMagSearch");
-        let body = JSON.stringify({
-            wordsInSelection: wordsInSelection, dateLimitSelection: dateLimitSelection, publicationTypeSelection: publicationTypeSelection,
-            magSearchInput: magSearchInput, magSearchDate1: magSearchDate1, magSearchDate2: magSearchDate2,
-            magSearchCurrentTopic: magSearchCurrentTopic});
-         return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/CreateMagSearch',
-            body).toPromise()
+		return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/CreateMagSearch',
+               newSearch).toPromise()
 
             .then(
 
-                (result: MagSearch) => {
-                     this.RemoveBusy("CreateMagSearch");
-                    this.MagSearchList.push(result);
+                (result: MagSearch[]) => {
+                        this.RemoveBusy("CreateMagSearch");
+                        for (var i = 0; i < result.length; i++) {
+                              result[i].add = false;
+                        }
+                    this.MagSearchList = result;
                     return this.MagSearchList;
                
             }, error => {
@@ -138,32 +135,32 @@ export class magSearchService extends BusyAwareService {
             );
     }
 
-    CombineSearches(magSearchListCombine: MagSearch[], logicalOperator: string) {
+    // CombineSearches(magSearchListCombine: MagSearch[], logicalOperator: string) {
 
-        this._BusyMethods.push("CombineSearches");
-        let body = JSON.stringify({
-            magSearchListCombine: magSearchListCombine, logicalOperator: logicalOperator });
-        return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/CombineMagSearches',
-            body).toPromise()
+        // this._BusyMethods.push("CombineSearches");
+        // let body = JSON.stringify({
+            // magSearchListCombine: magSearchListCombine, logicalOperator: logicalOperator });
+        // return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/CombineMagSearches',
+            // body).toPromise()
 
-            .then(result => {
-                this.RemoveBusy("CombineSearches");
-                this.MagSearchList.push(result);
-                return this.MagSearchList;
-            }, error => {
-                    this.RemoveBusy("CombineSearches");
-                this.modalService.GenericError(error);
-            }
-            );
+            // .then(result => {
+                // this.RemoveBusy("CombineSearches");
+                // this.MagSearchList.push(result);
+                // return this.MagSearchList;
+            // }, error => {
+                    // this.RemoveBusy("CombineSearches");
+                // this.modalService.GenericError(error);
+            // }
+            // );
 
-    }
+    // }
 
-    ImportMagSearches(magSearchText: string, searchText: string,
+    ImportMagSearches(magSearchId: string, searchText: string,
         FilterOutJournal: string = "", FilterOutURL: string = "", FilterOutDOI: string = "", FilterOutTitle: string = ""): Promise<any> {
                                                                  
         this._BusyMethods.push("ImportMagSearches");            
         let body = JSON.stringify({
-            magSearchText: magSearchText, searchText: searchText
+              magSearchId: magSearchId, searchText: searchText
             , FilterOutJournal: FilterOutJournal
             , FilterOutURL: FilterOutURL
             , FilterOutDOI: FilterOutDOI

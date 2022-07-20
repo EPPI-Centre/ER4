@@ -713,6 +713,6 @@ export interface PMincomingItems {
     notes: string;
     searchDescr: string;
     sourceDB: string;
-    dateOfSearch: string;
+    dateOfSerach: string;
     dateOfImport: string;
 }

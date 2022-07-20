@@ -152,6 +152,8 @@ namespace BusinessLibrary.BusinessClasses
         public static string exp_experiments_container { get { return AzureMagSettings["exp_experiments_container"]; } }
         public static string exp_run_suffix { get { return AzureMagSettings["exp_run_suffix"]; } }
         public static string AzureSearchMAGApiKey { get { return AzureMagSettings["AzureSearchMAGApi-key"]; } }
+        public static string OpenAlexEndpoint { get { return AzureMagSettings["OpenAlexEndpoint"]; } }
+        public static string OpenAlexEmailHeader { get { return AzureMagSettings["OpenAlexEmailHeader"]; } }
 
 
         public static string blobConnection { get { return ClassifierSettings["blobConnection"]; } }

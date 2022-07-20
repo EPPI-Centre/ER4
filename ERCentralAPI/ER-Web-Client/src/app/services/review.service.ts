@@ -227,7 +227,7 @@ export class ReviewService extends BusyAwareService {
         if (res == 1) {
           this.modalService.GenericErrorMessage("This email was not found in the database.<br>" +
             "Are sure an EPPI-Reviewer account exists with this email address?<br>" +
-            "New accounts can be created in the ACCOUNT MANAGER that can be found at " +
+            "New accounts can be created in the ACCOUNT MANAGER, found at " +
             "<a href=\"https://eppi.ioe.ac.uk/cms/er4 \"target=\"_blank\">https://eppi.ioe.ac.uk/cms/er4</a>");
         } else if (res == 2) {
           this.modalService.GenericErrorMessage("There is more than 1 account with this email address.<br>Please contact EPPISupport@ucl.ac.uk for assistance.");
@@ -238,7 +238,7 @@ export class ReviewService extends BusyAwareService {
 
 
     public AddNewReviewer(reviewerEmail: string): Promise<number> {
-      this._BusyMethods.push("AddUpdateAccount");
+      this._BusyMethods.push("AddAccount");
 
       let _ReviewerEmail = { Value: reviewerEmail };
       let body = JSON.stringify(_ReviewerEmail);
@@ -247,11 +247,11 @@ export class ReviewService extends BusyAwareService {
         body).toPromise()
         .then(
           (result) => {
-            this.RemoveBusy("UpdateAccount");
+            this.RemoveBusy("AddAccount");
             return result;
           }, error => {
             this.modalService.GenericError(error);
-            this.RemoveBusy("UpdateAccount");
+            this.RemoveBusy("AddAccount");
             return 3;
           }
         );
@@ -295,7 +295,3 @@ export class Review {
 	reviewId: number = 0;
 	reviewName: string = '';
 }
-
-
-
-

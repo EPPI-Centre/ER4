@@ -577,19 +577,13 @@ namespace BusinessLibrary.BusinessClasses
 
         public static string doOaRequest(string expression)
         {
-#if (CSLA_NETCORE)
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-#elif WEBDB
-                    WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
-#else
-            var configuration = ConfigurationManager.AppSettings;
-#endif
-            string endpoint = configuration["OpenAlexEndpoint"];
+
+            string endpoint = AzureSettings.OpenAlexEndpoint;
             string responseText = "";
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-            HttpWebRequest request = WebRequest.CreateHttp(configuration["OpenAlexEndpoint"] + expression);
-            request.UserAgent = "mailto:" + configuration["OpenAlexEmailHeader"];
+            HttpWebRequest request = WebRequest.CreateHttp(endpoint + expression);
+            request.UserAgent = "mailto:" + AzureSettings.OpenAlexEmailHeader;
 
             try
             {

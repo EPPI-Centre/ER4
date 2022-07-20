@@ -338,4 +338,3 @@ export class MAGSearchDetailsComponent implements OnInit {
     //    }
     //}
 }
-

@@ -149,18 +149,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> RoleProperty = RegisterProperty<string>(new PropertyInfo<string>("role", "role"));
-        public string Role
-        {
-            get
-            {
-                return GetProperty(RoleProperty);
-            }
-            set
-            {
-                SetProperty(RoleProperty, value);
-            }
-        }
+        
 
         public static readonly PropertyInfo<string> ExpiryProperty = RegisterProperty<string>(new PropertyInfo<string>("expiry", "expiry"));
         public string Expiry
@@ -185,28 +174,6 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(IsExpiredProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<string> ExpiryProperty = RegisterProperty<string>(new PropertyInfo<string>("expiry", "expiry"));
-        public string Expiry
-        {
-            get
-            {
-                return GetProperty(ExpiryProperty);
-            }
-            set
-            {
-                SetProperty(ExpiryProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<int> IsExpiredProperty = RegisterProperty<int>(new PropertyInfo<int>("isExpired", "isExpired"));
-        public int IsExpired
-        {
-            get
-            {
-                return GetProperty(IsExpiredProperty);
             }
         }
 
