@@ -252,7 +252,38 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+		
+		[HttpPost("[action]")]
+		public IActionResult SearchWithDuplicateReferences([FromBody] CodeCommand cmdIn)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
 
+					SearchForItemsWithDuplicateRefsCommand cmd = new SearchForItemsWithDuplicateRefsCommand(
+						cmdIn._title,
+						cmdIn._included
+						);
+					DataPortal<SearchForItemsWithDuplicateRefsCommand> dp = new DataPortal<SearchForItemsWithDuplicateRefsCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+
+				}
+				else
+				{
+
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Searches containing just one file has failed");
+				return StatusCode(500, e.Message);
+			}
+		}
+		
 
 		[HttpPost("[action]")]
 		public IActionResult SearchText([FromBody] CodeCommand cmdIn)
