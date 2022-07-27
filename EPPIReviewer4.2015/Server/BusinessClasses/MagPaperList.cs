@@ -373,6 +373,8 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
        
 #else
+        //this member ensures we can't have an infinite loop of calls to DataPortal_Fetch via RebuildAndReFetch(...)
+        bool isFirstRebuild = true;
         protected void DataPortal_Fetch(MagPaperListSelectionCriteria selectionCriteria)
         {
              // There are two types of list: one where we look up the items in SQL first, and one where the list comes from OpenAlex, and
@@ -384,7 +386,7 @@ namespace BusinessLibrary.BusinessClasses
             string Ids = "";
             string searchString = "";
             int itemCount = 0;
-            List<double> similarityScores = new List<double>();
+            Dictionary<Int64, double> similarityScores = new Dictionary<Int64, double>(); //key is the paperId, value the similarity score
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -419,7 +421,7 @@ namespace BusinessLibrary.BusinessClasses
                                 if (selectionCriteria.ListType == "MagRelatedPapersRunList" ||
                                     selectionCriteria.ListType == "MagAutoUpdateRunPapersList")
                                 {
-                                    similarityScores.Add(reader.GetDouble("SimilarityScore"));
+                                    similarityScores.Add(reader.GetInt64("PaperId"), reader.GetDouble("SimilarityScore"));
                                 }
                                 itemCount++;
                             }
@@ -435,24 +437,51 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             searchString = "openalex_id:https://openalex.org/" + Ids;
                             MagMakesHelpers.OaPaperFilterResult pmr = MagMakesHelpers.EvaluateOaPaperFilter(searchString, itemCount.ToString(), "1", false);
-                            if (pmr.results != null && pmr.results.Length > 0)
+                            if (pmr == null)
+                            {//we have IDs to use to ask for the full papers to OA, but request failed.
+                                //this sometimes happens when we asked for too many IDs (50+ or thereabout?)
+                                //whatever the cause, our stored list of IDs didn't work, so we'll re-evaluate the matches, IF we're dealing with a ItemMatchedPapersList
+                                if (selectionCriteria.ListType == "ItemMatchedPapersList")
+                                {
+                                    RebuildAndReFetch(selectionCriteria);
+                                    return;//RebuildAndReFetch calls DataPortal_Fetch, we return here to be sure we don't execute code below this line twice...
+                                }
+                            }
+                            if (pmr != null && pmr.results != null && pmr.results.Length > 0)
                             {
+                                Int64 papID = -1;
+                                Item? i = null;
                                 int index = 0;
+                                List<MagMakesHelpers.Result> PapersDone = new List<MagMakesHelpers.Result>();
                                 using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                                 {
                                     while (reader.Read() && index < pmr.results.Length)
                                     {
-                                        MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pmr.results[index], reader);
-                                        if (mp != null)
+                                        papID = reader.GetInt64("PaperId");
+                                        MagMakesHelpers.Result? temp = pmr.results.FirstOrDefault(f => (f != null && (f.id == "https://openalex.org/W" + papID.ToString() || f.ids.mag == papID.ToString())), null);
+                                        if (temp != null)
                                         {
-                                            if (similarityScores.Count > index)
-                                                mp.SimilarityScore = similarityScores[index];
-                                            this.Add(mp);
+                                            PapersDone.Add(temp);
+                                            MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(temp, reader);
+                                            if (mp != null)
+                                            {
+                                                if (similarityScores.Count > index)
+                                                    mp.SimilarityScore = similarityScores[papID];
+                                                this.Add(mp);
+                                            }
+                                            index++;
                                         }
-                                        index++;
+                                        else if(selectionCriteria.ListType == "ItemMatchedPapersList")
+                                        {//temp result is NULL, meaning that one of the PaperIds we stored as matches for the current ITEM was not returned by the OpenAlex query
+                                         //=> our stored list is outdated and we'll re-build it
+                                            this.Clear();//in case we have added some already
+                                            RebuildAndReFetch(selectionCriteria); 
+                                            return;//RebuildAndReFetch calls DataPortal_Fetch, we return here to be sure we don't execute code below this line twice...
+                                        }
                                     }
                                 }
                             }
+
                         }
                     }
                 }
@@ -667,8 +696,28 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-
             RaiseListChangedEvents = true;
+        }
+
+        private void RebuildAndReFetch(MagPaperListSelectionCriteria selectionCriteria)
+        {
+            //check: is this the second time we're trying this? If so, ABORT. Otherwise we might continue forever...
+            if (isFirstRebuild == false)
+            {
+                return;
+            }
+            isFirstRebuild = false;//see above: prevent infinite recursion!
+
+            //first, clear current matches...
+            MagMatchItemsToPapersCommand CommandToWipe = new MagMatchItemsToPapersCommand("ALL", false, selectionCriteria.ITEM_ID, 0);
+            CommandToWipe = DataPortal.Execute(CommandToWipe);
+
+            //second, re-lookup matches...
+            MagMatchItemsToPapersCommand CommandToLookup = new MagMatchItemsToPapersCommand("FindMatches", false, selectionCriteria.ITEM_ID, 0);
+            CommandToWipe = DataPortal.Execute(CommandToLookup);
+
+            //third, fetch again!!
+            DataPortal_Fetch(selectionCriteria);
         }
 
         private SqlCommand SpecifyListPaperIdsCommand(SqlConnection connection, MagPaperListSelectionCriteria criteria, ReviewerIdentity ri)

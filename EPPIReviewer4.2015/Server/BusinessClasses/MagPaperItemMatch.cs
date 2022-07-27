@@ -121,12 +121,14 @@ namespace BusinessLibrary.BusinessClasses
                     */
 
                 }
-
+                candidatePapersOnDOI.Sort(new MagMakesHelpers.SortOaPapersByMatchingScore());//orders by score, DESC. Needed to limit the max N of matches we allow to save.
+                int CommittedMatches = 0;
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
                     foreach (MagMakesHelpers.OaPaper pm in candidatePapersOnDOI) {
-                        if (pm.matchingScore > AutoMatchMinScore)
+                        if (CommittedMatches >= 40) break;//MAX 40 matches per item!! (SG add: 27/07/2022)
+                        else if (pm.matchingScore > AutoMatchMinScore)
                         {
                             using (SqlCommand command = new SqlCommand("st_MagMatchedPapersInsert", connection))
                             {
@@ -139,6 +141,12 @@ namespace BusinessLibrary.BusinessClasses
                                 command.Parameters.Add(new SqlParameter("@AutoMatchScore", pm.matchingScore));
                                 command.ExecuteNonQuery();
                             }
+                            CommittedMatches++;
+                        }
+                        else
+                        {
+                            //stop here as pm.matchingScore is less or equal to AutoMatchMinScore and scores from now on will also be (list has been sorted!)
+                            break;
                         }
                     }
                     connection.Close();
