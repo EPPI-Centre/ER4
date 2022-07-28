@@ -63,14 +63,15 @@ export class MAGBrowser implements OnInit, OnDestroy {
     ngAfterViewChecked () {
 
         this._eventEmitterService.selectedButtonPressed.subscribe(
-            () => {
+            (val: boolean) => {
                 if (this.tabstrip != null) {
 
                     this.tabstrip.selectTab(2);
-
+                  if (val == true) {
                     this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse topic: SelectedPapers "
-                        , "SelectedPapers", 0, "", "", 0, "", "",
-                        0, "", "", 0));
+                      , "SelectedPapers", 0, "", "", 0, "", "",
+                      0, "", "", 0));
+                  }
                 }
             }
         );

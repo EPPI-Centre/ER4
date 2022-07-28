@@ -183,17 +183,25 @@ export class MAGBrowserHistoryService extends BusyAwareService implements OnDest
         else return "";
             
     }
-    public ShowMAGMatchesPage(incOrExc: string, pos: number): string {
-        if (incOrExc == 'included') {
-            //this._eventEmitterService.getMatchedIncludedItemsEvent.emit();
-        } else if (incOrExc == 'excluded') {
+  public ShowMAGMatchesPage(incOrExc: string, pos: number): string {
+    if (incOrExc == 'included') {
+      this.currentBrowsePosition = pos;
+        this._magBrowserService.GetMatchedMagIncludedList();
+          return 'MatchesIncluded';//this._eventEmitterService.getMatchedIncludedItemsEvent.emit();
+    } else if (incOrExc == 'excluded') {
+      this.currentBrowsePosition = pos;
+        this._magBrowserService.GetMatchedMagExcludedList();
+          return 'MatchesExcluded';
            // this._eventEmitterService.getMatchedExcludedItemsEvent.emit();
-        } else if (incOrExc == 'all') {
+    } else if (incOrExc == 'all') {
+      this.currentBrowsePosition = pos;
+        this._magBrowserService.GetMatchedMagAllList();
+          return 'MatchesIncludedAndExcluded';
             //this._eventEmitterService.getMatchedAllItemsEvent.emit();
         } else {
             //          there is an error
         }
-        return "";
+        return "";//'MatchesIncluded','MatchesExcluded','MatchesIncludedAndExcluded'
     }
     public async ShowAllWithThisCode(attributeId: string, pos: number): Promise<string> {
 

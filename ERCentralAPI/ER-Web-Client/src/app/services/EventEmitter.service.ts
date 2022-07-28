@@ -13,7 +13,7 @@ export class EventEmitterService {
 	public UserInput: string = '';
 	public tool: boolean = false;
 	public CloseReportsSectionEmitter = new EventEmitter();
-	public selectedButtonPressed: EventEmitter<boolean> = new EventEmitter();
+	public selectedButtonPressed: EventEmitter<boolean> = new EventEmitter();//passes "true" as value if it the listener needs to create the browsehistory entry
 	//public getMatchedIncludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	//public getMatchedExcludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	//public getMatchedAllItemsEvent: EventEmitter<boolean> = new EventEmitter();
