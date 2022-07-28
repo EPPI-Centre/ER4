@@ -12,6 +12,7 @@ import { iTimePoint } from './ArmTimepointLinkList.service';
 import { ConfigService } from './config.service';
 
 
+
 @Injectable({
 
 	providedIn: 'root',
@@ -22,7 +23,7 @@ import { ConfigService } from './config.service';
 export class ItemListService extends BusyAwareService implements OnDestroy {
 
 	private _itemListOptions: ItemListOptions = new ItemListOptions();
-    constructor(
+  constructor(
         private _httpC: HttpClient,
       configService: ConfigService,
         private EventEmitterService: EventEmitterService,
@@ -160,23 +161,11 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
             }
             );
     }
-    public FetchAdditionalItemDetails() {
-        console.log("FetchAdditionalItemDetails");
-        if (this._currentItem.itemId !== 0) {
-            this._BusyMethods.push("FetchAdditionalItemDetails");
-            let body = JSON.stringify({ Value: this._currentItem.itemId });
-            this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData', body)
-                .subscribe(
-                    result => {
-                        this._CurrentItemAdditionalData = result;
-                    }, error => {
-                        this.ModalService.GenericError(error);
-                        this.RemoveBusy("FetchAdditionalItemDetails");
-                    }
-                    , () => { this.RemoveBusy("FetchAdditionalItemDetails"); }
-                );
-        }
-    }
+
+
+
+
+
     
     public UpdateItem(item: Item) {
         this._BusyMethods.push("UpdateItem");
@@ -524,6 +513,85 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         return retVal;
     }
 
+
+  public FetchAdditionalItemDetails() {
+    console.log("FetchAdditionalItemDetails");
+    if (this._currentItem.itemId !== 0) {
+      this._BusyMethods.push("FetchAdditionalItemDetails");
+      let body = JSON.stringify({ Value: this._currentItem.itemId });
+      this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData', body)
+        .subscribe(
+          result => {
+            this._CurrentItemAdditionalData = result;
+          }, error => {
+            this.ModalService.GenericError(error);
+            this.RemoveBusy("FetchAdditionalItemDetails");
+          }
+          , () => { this.RemoveBusy("FetchAdditionalItemDetails"); }
+        );
+    }
+  }
+
+
+  public FetchAdditionalItemDetailsAsync(Id: number): Promise<iAdditionalItemDetails | boolean> {
+    this._BusyMethods.push("FetchAdditionalItemDetailsAsync");
+    let ErrMsg = "Something went wrong when getting the duplicates. \r\n If the problem persists, please contact EPPISupport.";
+    let body = JSON.stringify({ Value: Id });
+
+    return this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData',
+      body).toPromise()
+      .then(
+        (result) => {
+          //if (!result || result.length < 1) this.modalService.GenericErrorMessage(ErrMsg);
+          // a false result just means there aren't any links (and we want to know that)
+          this.RemoveBusy("FetchAdditionalItemDetailsAsync");
+          return result;
+        }
+        , (error) => {
+          this.ModalService.GenericError(error);
+          this.RemoveBusy("FetchAdditionalItemDetailsAsync");
+          return false;
+        }
+      ).catch((caught) => {
+        this.ModalService.GenericError(caught);
+        this.RemoveBusy("FetchAdditionalItemDetailsAsync");
+        return false;
+      });
+  }
+
+
+  public async GetDuplicatesReport01(currentItem: Item, lastItemID: number): Promise<any> {
+    let retVal: string = "";
+    let res = await this.FetchAdditionalItemDetailsAsync(currentItem.itemId);
+
+    if ((res != false) && (res != true)) {
+      let lastRowInTable: boolean = false;
+      let additionalDetails: iAdditionalItemDetails = res;
+
+      retVal += "<tr style=\"vertical-align:top;\">";
+      retVal += "<td>" + currentItem.itemId + "</td>";
+      retVal += "<td>" + currentItem.typeName + "</td>";
+      retVal += "<td>" + currentItem.shortTitle + "</td>";
+      retVal += "<td>" + currentItem.title + "</td>";
+      retVal += "<td>" + currentItem.parentTitle + "</td>";
+      retVal += "<td>" + additionalDetails.source.source_Name + "</td>";
+
+      if (additionalDetails.duplicates.length > 0) {
+          retVal += "<td>";
+          for (var j = 0; j < additionalDetails.duplicates.length; j++) {         
+            let currentDuplicate: iItemDuplicatesReadOnly = additionalDetails.duplicates[j];
+            retVal += currentDuplicate.sourceName + " (" + currentDuplicate.itemId + ")";         
+            retVal += "<br>"
+          }
+          retVal += "</td>"
+        }
+        else {
+          retVal += "<td>" + "No duplicates" + "</td>";          
+        }
+        retVal += "</tr>";
+      }
+      return retVal;
+    }
 
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');

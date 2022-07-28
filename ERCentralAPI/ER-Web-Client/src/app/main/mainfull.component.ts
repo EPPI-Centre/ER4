@@ -269,6 +269,38 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
                 return report; 
             }
         }
+        else if (style == "DUPLICATE01") {
+           for (var k = 0; k < items.length; k++) {
+              let currentItem: Item = items[k];
+              let lastItemID: number = items[items.length - 1].itemId;
+
+              if (k == 0) {
+                report += "<h3>Duplicate and Source report</h3>";
+                report += "<table border='1' cellspacing='0' cellpadding='2'>";
+                report += "<tr>"
+                report += "<td><b>Master Id</b></td>";
+                report += "<td><b>Publication type</b></td>";
+                report += "<td><b>Short title</b></td>";
+                report += "<td><b>Title</b></td>";
+                report += "<td><b>Journal</b></td>";
+                report += "<td><b>Source</b></td>";
+                report += "<td><b>Duplicates<br>Source (Id)</b></td>";
+                report += "</tr>"
+              }
+            
+             report += await this.ItemListService.GetDuplicatesReport01(currentItem, lastItemID);
+
+           }
+
+          if (report == "") {
+            report = "No duplicate records to show";
+            return report;
+          }
+          else { // we should only reach this if we are done generating the table
+            report += "</table><p>&nbsp;</p>";
+            return report;
+          }
+        }
         else { 
             for (var i = 0; i < items.length; i++) {
                 let currentItem: Item = items[i];
@@ -430,6 +462,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
                 // for displaying in a new tab rather than a file
                 //Helpers.OpenInNewWindow(await this.ShowHideExportReferences('LINKS'), this._baseUrl);
             }
+        },
+        {
+          text: 'Duplicate report 1',
+          click: async () => {
+            let DuplicateReport1: any = await this.ShowHideExportReferences('DUPLICATE01');
+            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport1, this._baseUrl, "Duplicate Table"));
+            saveAs(dataURI, "Duplicate table.html");
+
+            // for displaying in a new tab rather than a file
+            //Helpers.OpenInNewWindow(await this.ShowHideExportReferences('LINKS'), this._baseUrl);
+          }
         }
     ];
     public ImportOrNewDDData: Array<any> = [{
