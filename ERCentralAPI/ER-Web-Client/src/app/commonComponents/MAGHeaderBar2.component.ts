@@ -90,12 +90,12 @@ export class MAGHeaderBar2Comp implements OnInit {
     
     public Selected() {
         if (this.Context == "MAGBrowser") {
-            this._eventEmitterService.selectedButtonPressed.emit();
+            this._eventEmitterService.selectedButtonPressed.emit(true);
         } else {
             this.Context = "SelectedPapers";
             this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse topic: SelectedPapers "
                 , "SelectedPapers", 0, "", "", 0, "", "", 0, "", "", 0));
-            this._eventEmitterService.selectedButtonPressed.emit();
+          setTimeout(() => this._eventEmitterService.selectedButtonPressed.emit(false), 40);
             //this.router.navigate(['MAGBrowser']).then(
             //    async (res) => {
             //        if (res) {

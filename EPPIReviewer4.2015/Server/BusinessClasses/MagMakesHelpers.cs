@@ -71,6 +71,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        //SG addition 27/07/2022 simple comparer to order OaPaper(s) by matchingScores 
+        public class SortOaPapersByMatchingScore : IComparer<OaPaper>
+        {
+            public int Compare(OaPaper e1, OaPaper e2)
+            {
+                return e1.matchingScore.CompareTo(e2.matchingScore) * -1; //times minus one because we want the bigger vals on top
+            }
+        }
+
         // The Ids class is used in Works and Concepts
         public class Ids
         {

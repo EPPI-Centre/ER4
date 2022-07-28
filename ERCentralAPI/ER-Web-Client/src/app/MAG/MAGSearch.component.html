@@ -470,11 +470,11 @@
                                 </td>
                                 <td class="" style="min-width:65px;text-align:center">
                                     <button *ngIf="item.isOASearch && !item.searchIdsStored" (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Re-Run (update)">
-                                        <i class="fa fa-play-circle" aria-hidden="true"></i>
+                                      <span class="k-icon k-i-play-sm"></span>
                                     </button>
                                     <button *ngIf="item.isOASearch" (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
                                             class="btn btn-primary btn-sm text-white align-content-center">
-                                        <i class="fa fa-download" aria-hidden="true"></i>
+                                      <span class="k-icon k-i-download"></span>
                                     </button>
                                 </td>
                                 <!--<td class="small" style="min-width:40px;text-align:center">
