@@ -450,7 +450,7 @@ namespace BusinessLibrary.BusinessClasses
                             if (pmr != null && pmr.results != null && pmr.results.Length > 0)
                             {
                                 Int64 papID = -1;
-                                Item? i = null;
+                                Item i = null;
                                 int index = 0;
                                 List<MagMakesHelpers.Result> PapersDone = new List<MagMakesHelpers.Result>();
                                 using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
@@ -458,7 +458,7 @@ namespace BusinessLibrary.BusinessClasses
                                     while (reader.Read() && index < pmr.results.Length)
                                     {
                                         papID = reader.GetInt64("PaperId");
-                                        MagMakesHelpers.Result? temp = pmr.results.FirstOrDefault(f => (f != null && (f.id == "https://openalex.org/W" + papID.ToString() || f.ids.mag == papID.ToString())), null);
+                                        MagMakesHelpers.Result temp = pmr.results.FirstOrDefault(f => (f != null && (f.id == "https://openalex.org/W" + papID.ToString() || f.ids.mag == papID.ToString())));
                                         if (temp != null)
                                         {
                                             PapersDone.Add(temp);

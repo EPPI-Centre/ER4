@@ -27,10 +27,10 @@
                                       <button type="button" class="btn btn-outline-primary m-1" (click)="toggleSourcesPanel()">
                                         Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
                                       </button>
-                                      <button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
+                                      <!--<button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
                                               >
                                         Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
-                                      </button>
+                                      </button>-->
                                     </div>
                                     <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                                      style="max-height: 520px;"></readonlyreviews>
