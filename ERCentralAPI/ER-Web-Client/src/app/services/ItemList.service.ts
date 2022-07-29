@@ -515,35 +515,27 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 
 
   public FetchAdditionalItemDetails() {
-    console.log("FetchAdditionalItemDetails");
-    if (this._currentItem.itemId !== 0) {
-      this._BusyMethods.push("FetchAdditionalItemDetails");
-      let body = JSON.stringify({ Value: this._currentItem.itemId });
-      this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData', body)
-        .subscribe(
-          result => {
-            this._CurrentItemAdditionalData = result;
-          }, error => {
-            this.ModalService.GenericError(error);
-            this.RemoveBusy("FetchAdditionalItemDetails");
+    if (this._currentItem.itemId > 0) {
+      this.FetchAdditionalItemDetailsAsync(this._currentItem.itemId).then(
+        //using the "then((val)=> {...}) structure makes this method "fire and forget":
+        //code inside {...} executes whenever FetchAdditionalItemDetailsAsync returns some "val"
+        (val) => {
+        if (typeof (val) != "boolean") {
+          this._CurrentItemAdditionalData = val;
           }
-          , () => { this.RemoveBusy("FetchAdditionalItemDetails"); }
-        );
+        });
     }
   }
 
 
   public FetchAdditionalItemDetailsAsync(Id: number): Promise<iAdditionalItemDetails | boolean> {
     this._BusyMethods.push("FetchAdditionalItemDetailsAsync");
-    let ErrMsg = "Something went wrong when getting the duplicates. \r\n If the problem persists, please contact EPPISupport.";
     let body = JSON.stringify({ Value: Id });
 
     return this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData',
       body).toPromise()
       .then(
         (result) => {
-          //if (!result || result.length < 1) this.modalService.GenericErrorMessage(ErrMsg);
-          // a false result just means there aren't any links (and we want to know that)
           this.RemoveBusy("FetchAdditionalItemDetailsAsync");
           return result;
         }

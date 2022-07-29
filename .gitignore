@@ -224,3 +224,5 @@ FakesAssemblies/
 /ERCentralAPI/WebDatabasesMVC/upgrade-assistant.clef
 /ERCentralAPI/ER-Web/ClientApp/.angular/cache
 /ERCentralAPI/ER-Web/LogFiles
+/ERCentralAPI/ERxWebClient2/wwwroot/dist
+/ERCentralAPI/ERxWebClient2/Properties
