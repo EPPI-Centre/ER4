@@ -552,7 +552,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
   }
 
 
-  public async GetDuplicatesReport01(currentItem: Item, lastItemID: number): Promise<any> {
+  public async GetDuplicatesReport01(currentItem: Item, lastItemID: number): Promise<string> {
     let retVal: string = "";
     let res = await this.FetchAdditionalItemDetailsAsync(currentItem.itemId);
 
@@ -572,8 +572,8 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
           retVal += "<td>";
           for (var j = 0; j < additionalDetails.duplicates.length; j++) {         
             let currentDuplicate: iItemDuplicatesReadOnly = additionalDetails.duplicates[j];
-            retVal += currentDuplicate.sourceName + " (" + currentDuplicate.itemId + ")";         
-            retVal += "<br>"
+            if (j == 0) retVal += "<div>" + currentDuplicate.sourceName + " (" + currentDuplicate.itemId + ")</div>";
+            else retVal += "<div class='mt-1'>" + currentDuplicate.sourceName + " (" + currentDuplicate.itemId + ")</div>"; 
           }
           retVal += "</td>"
         }

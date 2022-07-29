@@ -1,4 +1,4 @@
-﻿
+
 
 //this class should only contain static methods.
 //it's a collection of methods that can be used by any component/service. Main purpose is to avoid replication.
@@ -163,7 +163,7 @@ export class Helpers {
     public static AddHTMLFrame(report: string, baseUrl: string, title?: string, addExcelStyleHack: boolean = false): string {
         //used to save reports
         if (title === undefined) title = "EPPI-Reviewer Coding Report";
-        let res = "<HTML id='content'><HEAD><title>" + title + "</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' />"; 
+        let res = "<HTML id='content'><HEAD><title>" + title + "</title><link rel='stylesheet' href='" + baseUrl + "styles.css' />"; 
         if (addExcelStyleHack) res += "<style type='text/css'> br { mso-data-placement: same-cell;} </style>"
         res += "</HEAD><BODY class='m-2' id='body'>" + report;
         //res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";

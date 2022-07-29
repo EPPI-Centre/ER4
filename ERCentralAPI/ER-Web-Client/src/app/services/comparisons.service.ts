@@ -212,7 +212,7 @@ export class ComparisonsService extends BusyAwareService implements OnDestroy {
 	}
 
 	private AddHTMLFrame(report: string): string {
-		let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Comparison Report</title><link rel='stylesheet' href='" + this._baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
+		let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Comparison Report</title><link rel='stylesheet' href='" + this._baseUrl + "styles.css' /></HEAD><BODY class='m-2' id='body'>" + report;
 		//res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
 		//res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
 		res += "</BODY></HTML>";
