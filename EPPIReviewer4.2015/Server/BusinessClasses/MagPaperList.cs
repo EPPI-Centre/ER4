@@ -421,7 +421,11 @@ namespace BusinessLibrary.BusinessClasses
                                 if (selectionCriteria.ListType == "MagRelatedPapersRunList" ||
                                     selectionCriteria.ListType == "MagAutoUpdateRunPapersList")
                                 {
-                                    similarityScores.Add(reader.GetInt64("PaperId"), reader.GetDouble("SimilarityScore"));
+                                    Int64 tint = reader.GetInt64("PaperId");
+                                    //similarityScores refers to the "Related/AutoUpdate" results, so it's always the same
+                                    //the check ensures we don't add the same paper twice, which would break the list we're building
+                                    if (!similarityScores.ContainsKey(tint))
+                                        similarityScores.Add(tint, reader.GetDouble("SimilarityScore"));
                                 }
                                 itemCount++;
                             }

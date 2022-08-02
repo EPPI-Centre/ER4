@@ -207,6 +207,7 @@ export class MagPaper {
     canBeSelected: string = 'false';
     abstract: string = '';
     autoMatchScore: number = 0;
+    similarityScore: number = 0;
     manualTrueMatch: boolean = false;
     manualFalseMatch: boolean = false;
     findOnWeb: string = '';
