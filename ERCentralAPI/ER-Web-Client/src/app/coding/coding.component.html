@@ -8,7 +8,8 @@
 		<div class=""
 			 [ngClass]="{'bg-light':IsSmallScreen(),
                     'row d-flex flex-wrap-reverse ml-1 mr-1':!IsSmallScreen() }">
-			<button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen"  class="btn btn-success p-1 CodesBtnL" (click)="ShowHideCodes()">
+			<button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen" class="btn btn-success p-1 CodesBtnL" (click)="ShowHideCodes()"
+              style="min-width: 28px;">
 				<div class="CodesBtnContent">
 					<span class="k-icon k-i-arrow-right"></span>
 					Codes
@@ -21,7 +22,8 @@
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
                             , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
 
-				<button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success p-1 CodesBtnR" (click)="ShowHideCodes()">
+				<button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success p-1 CodesBtnR" (click)="ShowHideCodes()"
+                  style="min-width: 28px;">
 					<div class="CodesBtnContent">
 						<span class="k-icon k-i-arrow-left"></span>
 						Codes
