@@ -741,7 +741,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (ShowItemId) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.ItemId + "</td>";
                     if (ShowOldItemId) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.oldItemId + "</td>"; 
                     if (ShowShortTitle) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.ShortTitle + "</td>";
-                    if (ShowFullTitle) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.FullTitle + "/td>";
+                    if (ShowFullTitle) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.FullTitle + "</td>";
                     if (ShowYear) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.Year + "</td>";
                     if (ShowAbstract) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.Abstract + "</td>";
                     //ItemRow += "<td><p style='margin-left:5px; margin-right:5px;'>" + rit.ShortTitle + "</p></td>";

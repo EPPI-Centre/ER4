@@ -10,12 +10,61 @@
   </head>
   <body>
     <app-root>
-      <p>
-        Loading...
-      </p>
+      <p id="LoadingPara">Loading...</p>
       <p>Please note that this app <b>cannot work in Internet Explorer</b>.</p>
       <p>Supported browsers include all fairly recent versions of Edge, FireFox, Safari (including iOS) and Chrome.</p>
+      <p id="wrongURLwarning" style="display:none;"> EPPI-Reviewer Web can't load correctly from this URL. Will try to <strong>redirect to the correct page</strong>. Click <button onclick="CancelRedirectionAction()">here</button> to cancel and correct this yourself.</p>
     </app-root>
     <script src="assets/lib/webviewer.min.js"></script>
+    <script>
+      let cancelRedirectUp = false;
+      function CheckIfscriptsAreLoaded() {
+        if (typeof JScriptsLoadedCorrectly === 'undefined') {
+          console.log("App loaded from the wrong url, will try redirecting.");
+          ShowRedirectWarning();
+          setTimeout(() => { TryGoingUp(); }, 2000);
+        } else {
+          console.log("App loaded from a correct URL.");
+        }
+      }
+      function ShowRedirectWarning() {
+        let el = document.getElementById('wrongURLwarning');
+        if (el) {
+          el.style.display = 'block';
+        }
+      }
+      function CancelRedirectionAction() {
+        cancelRedirectUp = true;
+        let el = document.getElementById('wrongURLwarning');
+        if (el) {
+          el.innerHTML = 'EPPI-Reviewer Web failed to load. Please browse to the correct URL manually. <br /> [Often, clicking "back" and then "refresh" once or twice will be enough!]';
+        }
+        let el2 = document.getElementById('LoadingPara');
+        if (el2) {
+          el2.style.display = 'none';
+        }
+      }
+      function TryGoingUp() {
+        var curr = window.location;
+        console.log("Location", curr);
+        if (window.location.href.endsWith('/home')) {
+          //console.log("going up 2 levels");
+          setTimeout(() => { if (cancelRedirectUp == false) window.location.href = curr.href + "/../../home"; }, 2000);
+        }
+        else {
+          //console.log("going up 1 level");
+          setTimeout(() => { if (cancelRedirectUp == false) window.location.href = curr.href + "/../home"; }, 2000);
+        }
+      }
+
+      var loader = setInterval(function () {
+        if (document.readyState !== "complete") return;
+        clearInterval(loader);
+        CheckIfscriptsAreLoaded();
+        // document.write("Document loaded successful!");
+      }, 300);
+
+    </script>
+    <script src="assets/URLchecker.js"></script>
   </body>
 </html>
