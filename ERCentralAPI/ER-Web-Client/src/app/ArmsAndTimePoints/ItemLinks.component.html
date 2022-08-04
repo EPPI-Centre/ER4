@@ -1,0 +1,219 @@
+<!-- Editable table -->
+<div class="card">
+	<h5 class="m-1 p-1 font-weight-bold">
+		Linked Items
+		<button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right"
+				(click)="ShowItemLinks = !ShowItemLinks">
+			{{ShowHideBtnText}}
+		</button>
+		<button class="btn btn-outline-success btn-sm px-1 py-0 mb-1 mr-1 float-right" [disabled]="!HasWriteRights"
+				(click)="CreateLink()">
+			Add new Link...
+		</button>
+		<button *ngIf="ItemLinks.length > 0" class="btn btn-outline-secondary btn-sm px-1 py-0 mb-1 mr-1 float-right" 
+				(click)="CreateLinkReport()">
+			Report&nbsp;<span class="k-icon k-i-table k-icon-sm"></span>
+		</button>
+	</h5>
+	
+	<div class="card-body pt-2" style="max-height:60vh;overflow:auto;">
+		<div class="bg-light" *ngIf="ShowItemLinks">
+			<div class="">
+				<div *ngIf="EditingLink != null" class="m-2 border border-primary rounded ">
+					<div class="row mx-0 text-primary font-weight-bold">
+						Add/Edit Linked Item
+					</div>
+					<div *ngIf="EditingLink.itemIdPrimary < 1 || EditingLink.itemLinkId < 1" class="row py-1 mx-0">
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">(Find) Item ID:</div>
+						<div class="col row px-1 py-0 mx-0">
+							<input class="mb-auto" type="number" [(ngModel)]="ItemIdTofind" />
+							<button class="btn btn-outline-success btn-sm px-1 py-0 my-0 ml-1 mb-auto" [disabled]="ItemIdTofind < 1 || (item != undefined && item.itemId == ItemIdTofind)"
+									(click)="FindItemById()">
+								Find Item...
+							</button>
+							<div *ngIf="item != undefined && item.itemId == ItemIdTofind" class="small ml-1 px-1 rounded alert-danger my-auto">
+								This is the current item: can't link an item to itself.
+							</div>
+						</div>
+					</div>
+					<div class="row mx-0">
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">(Current) Item ID</div>
+						<div *ngIf="EditingLink.itemIdSecondary > 0" class="col px-1 py-0"> {{EditingLink.itemIdSecondary}}</div>
+						<div *ngIf="EditingLink.itemIdSecondary < 1" class="col px-1 py-0">
+							<span class="mx-1 px-1 rounded alert-danger">N/A</span>
+						</div>
+					</div>
+					<div class="row mx-0">
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">Short title</div>
+						<div class="col px-1 py-0">{{EditingLink.shortTitle}}</div>
+					</div>
+					<div class="row mx-0">
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">Title</div>
+						<div class="col px-1 py-0 small font-weight-bold">{{EditingLink.title}}</div>
+					</div>
+					<div class="row mx-0">
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">Description:</div>
+						<div class="col m-0 px-1 py-0 row">
+							<input class="form-control mb-auto" type="text" maxlength="200" [(ngModel)]="EditingLink.description" />
+							<div *ngIf="!CanSaveLink && CantSaveLinkMessage == '' && this.EditingLink.itemIdSecondary > 0 && this.EditingLink.description.trim().length < 3" 
+								 class="small alert-danger rounded px-1 mr-auto">Please enter a description (3 characters or longer).</div>
+						</div>
+					</div>
+					<div class="row mx-0">
+						<button [disabled]="!CanSaveLink"
+								class="btn btn-success mt-1 p-1 m-1" (click)="SaveLink()">
+							Save
+						</button>
+						<button class="btn btn-danger mt-1 py-1 px-2 m-1"
+								(click)="CancelEditing()">
+							Cancel
+						</button>
+						<div *ngIf="!CanSaveLink" class="small rounded alert-danger px-1 my-auto">{{CantSaveLinkMessage}}</div>
+					</div>
+				</div>
+
+				<table *ngIf="ItemLinks.length > 0" class="table table-bordered table-responsive-md table-striped text-center table-sm p-1">
+					<tr>
+						<th class="text-center" width="5">ID</th>
+						<th class="text-center" width="15">Short Title</th>
+						<th class="text-center" width="15">Description</th>
+						<th class="text-center" width="5">Actions</th>
+					</tr>
+					<tr *ngFor="let link of ItemLinks">
+						<td>{{link.itemIdSecondary}}</td>
+						<td>{{link.shortTitle}}</td>
+						<td>{{link.description}}</td>
+						<td style="white-space:nowrap;">
+
+							<button (click)="EditLink(link)"
+									[disabled]="!HasWriteRights"
+									type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
+								Edit
+							</button>
+							<button (click)="ViewLinkedItemDetails(link)"
+									title="View linked Item details"
+									type="button" rounded="true" size="sm" class="btn btn-outline-success p-1 m-1">
+                                <span class="k-icon k-i-eye"></span>
+							</button>
+							<button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
+									[disabled]="!HasWriteRights" (click)="DeleteLink(link)">
+								<span class="k-icon k-i-delete "></span>
+							</button>
+						</td>
+					</tr>
+				</table>
+
+				<div *ngIf="LinkedItemDetails != null" class="m-2 border border-primary rounded alert-info small">
+					<div class="row mx-0 ">
+						<div class=" mx-1 my-auto font-weight-bold">Linked Item Description:</div>
+						<div class=" mr-auto my-auto mt-1 px-1 alert-light">
+							{{DescriptionForItemDetails}}
+						</div>
+						<button class="btn btn-outline-primary py-0 px-2 mr-1 ml-auto my-1"
+								(click)="CloseLinkedItemDetails()">
+							Close
+						</button>
+					</div>
+					<div class="row mx-0 border-top border-info">
+						<div class="font-weight-bold m-1">Type:</div>
+						<div class=" mr-auto mt-1 px-1 bg-white">
+							{{LinkedItemDetails.typeName}}
+						</div>
+						<div class=" m-1 font-weight-bold">Id:</div>
+						<div class=" mr-auto mt-1 px-1 bg-white">
+							{{LinkedItemDetails.itemId}}
+						</div>
+						<ng-container *ngIf="LinkedItemDetails.oldItemId != ''">
+							<div class=" font-weight-bold m-1">Imported ID:</div>
+							<div class=" mr-auto mt-1 px-1 bg-white">
+								{{LinkedItemDetails.oldItemId}}
+							</div>
+						</ng-container>
+						<div class=" font-weight-bold m-1">Year:</div>
+						<div class=" mr-auto mt-1 px-1 bg-white">
+							{{LinkedItemDetails.year}}
+						</div>
+						<ng-container *ngIf="LinkedItemDetails.isDupilcate">
+							<div class="font-weight-bold m-1">Item is</div>
+							<div class=" mr-auto mt-1 px-1 bg-white font-weight-bold">Duplicate</div>
+						</ng-container>
+						<ng-container *ngIf="!LinkedItemDetails.isDupilcate">
+							<ng-container [ngSwitch]="LinkedItemDetails.itemStatus">
+								<ng-container *ngSwitchCase="'I'">
+									<div class="font-weight-bold m-1">Item is</div>
+									<div class=" mr-auto mt-1 px-1 bg-white">Included</div>
+								</ng-container>
+								<ng-container *ngSwitchCase="'E'">
+									<div class="font-weight-bold m-1">Item is</div>
+									<div class=" mr-auto mt-1 px-1 bg-white font-weight-bold">Excluded</div>
+								</ng-container>
+								<ng-container *ngSwitchCase="'D'">
+									<div class="font-weight-bold m-1">Item is</div>
+									<div class=" mr-auto mt-1 px-1 bg-white font-weight-bold">Deleted</div>
+								</ng-container>
+								<ng-container *ngSwitchCase="'S'">
+									<div class="font-weight-bold m-1">Item is</div>
+									<div class="mr-auto mt-1 px-1 bg-white font-weight-bold">In a Deleted Source</div>
+								</ng-container>
+							</ng-container>
+						</ng-container>
+					</div>
+					<div class="row mx-0 border-top border-info">
+						<div class=" font-weight-bold m-1">Title:</div>
+						<div class=" mr-1 mt-1 px-1 bg-white">
+							{{LinkedItemDetails.title}}
+						</div>
+					</div>
+					<div class="mx-0 border-top border-info">
+						<div class="font-weight-bold m-1">Abstract:</div>
+						<div class="mr-1 mt-1 px-1 bg-white" style="max-height:15vh;overflow:auto;">
+							{{LinkedItemDetails.abstract}}
+						</div>
+					</div>
+					<div class="row mx-0 border-top border-info">
+						<div class="font-weight-bold m-1">Authors:</div>
+						<div class="mr-1 mt-1 px-1 bg-white">
+							{{LinkedItemDetails.authors}}
+						</div>
+					</div>
+					<div class="row mx-0 border-top border-info">
+						<div class="font-weight-bold m-1">Journal:</div>
+						<div class="mr-1 mt-1 px-1 bg-white">
+							{{LinkedItemDetails.parentTitle}}
+						</div>
+					</div>
+					<div class="row mx-0 border-top border-info">
+						<div class="font-weight-bold m-1">Pages:</div>
+						<div class="mr-auto mt-1 px-1 bg-white">
+							{{LinkedItemDetails.pages}}
+						</div>
+						<div class="font-weight-bold m-1">Volume:</div>
+						<div class="mr-auto mt-1 px-1 bg-white">
+							{{LinkedItemDetails.volume}}
+						</div>
+						<div class="font-weight-bold m-1">Issue:</div>
+						<div class="mr-auto mt-1 px-1 bg-white">
+							{{LinkedItemDetails.issue}}
+						</div>
+						<div class="font-weight-bold m-1">Month:</div>
+						<div class="mr-auto mt-1 px-1 bg-white">
+							{{LinkedItemDetails.month}}
+						</div>
+					</div>
+					<div *ngIf="LinkedItemDetails.url !=''" class="row mx-0 border-top border-info">
+						<div class="font-weight-bold m-1">URL:</div>
+						<div class="mr-1 mt-1 px-1 bg-white">
+							{{LinkedItemDetails.url}}
+						</div>
+					</div>
+					<div *ngIf="LinkedItemDetails.doi !=''" class="row mx-0 border-top border-info">
+						<div class="font-weight-bold m-1">DOI:</div>
+						<div class="mr-1 mt-1 px-1 bg-white">
+							{{LinkedItemDetails.doi}}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

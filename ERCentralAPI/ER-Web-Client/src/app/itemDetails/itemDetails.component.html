@@ -1,0 +1,291 @@
+
+<div *ngIf="item" class="row col-12 card card-body pt-0 px-0 mx-0" [ngClass]="{'alert-dark' : item.itemStatus == 'D' || item.itemStatus == 'S' , 'bg-light': item.itemStatus == 'I' || item.itemStatus == 'E'}">
+    
+    <div class="row col-12 p-0 m-0 justify-content-around ">
+        <div class="row p-0 m-0 col">
+			<div *ngIf="HasPDF" class="mb-1 ml-1 mr-0 mt-0 text-success" title="Open the first PDF uploaded to this ref..." style="cursor:pointer;" (click)="OpenFirstPDF()">
+				<span class="k-icon k-i-pdf" style="font-size:1.2em"></span>
+			</div>
+            <div class="small m-1">Ref. Type:</div>
+            <div class="small font-weight-bold mr-1 mt-1">
+                {{item.typeName}}
+            </div>
+        </div>
+
+        <div class="row p-0 m-0 col justify-content-end"
+             style="">
+            <div class="dropdown small mr-1">
+                <button class="btn btn-outline-info dropdown-toggle btn-sm px-1 py-0" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <fa-icon [icon]="faBook" class="my-0"></fa-icon>&nbsp;Find on:
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+					<div class="dropdown-item small text-muted" >OpenAlex (coming soon)</div>
+					<!--<a class="dropdown-item small" (click)="FindReferenceOnMicrosoftAcademic(item)" [disabled]="true">OpenAlex</a>-->
+                    <a class="dropdown-item small" (click)="FindReferenceOnGoogle(item)">Google</a>
+                    <a class="dropdown-item small" (click)="FindReferenceOnGoogleScholar(item)">Google Scholar</a>
+                </div>
+            </div>
+            <div class="my-auto mx-1 ">Show optional fields?</div>
+            <span class="brightSwitch" style="zoom:75%;">
+                <kendo-switch name="showOptionalFieldsSW" class="small small mt-0"
+                              [(ngModel)]="showOptionalFields"
+                              [onLabel]="'Yes'"
+                              [offLabel]="'No'"></kendo-switch>
+            </span>
+            <button *ngIf="CanEdit" class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="EditItem()"
+                    style="width:46px;height:23px;">
+                Edit
+            </button>
+        </div>
+
+    </div>
+    <div *ngIf="ShowHighlights" class="row col-12 p-1 mx-0" style="min-width: 200px;">
+        <button [disabled]="!HasWriteRights || NoTextSelected" *ngIf="Context == 'CodingFull'" class="btn btn-sm py-0 px-1 my-1 ml-0 mr-1 btn-outline-success" (click)="AddRelevantTerm(true)">Add relevant term</button>
+        <button [disabled]="!HasWriteRights|| NoTextSelected" *ngIf="Context == 'CodingFull'" class="btn btn-sm py-0 px-1 my-1 ml-0 mr-1 btn-outline-info" (click)="AddRelevantTerm(false)">Add irrelevant term</button>
+        <button [disabled]="!HasWriteRights|| NoTextSelected" *ngIf="Context == 'CodingFull'" class="btn btn-sm py-0 px-1 my-1 ml-0 mr-1 btn-outline-danger" (click)="RemoveTerm()">Remove term</button>
+        <button *ngIf="Context == 'CodingFull'" class="btn btn-sm py-0 px-1 my-1 ml-0 mr-1 btn-outline-primary" (click)="ShowHideTermsList()">
+            Show/Hide Terms
+        </button>
+        <div class="dropdown mr-1">
+            <button class="btn btn-outline-dark dropdown-toggle btn-sm px-1 py-0 my-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<span class="k-icon k-i-edit"></span>&nbsp;Change Style:
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'Default'}" (click)="SetHighlightStyle('Default')">Default</a>
+                <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'EPPI-Reviewer 4'}" (click)="SetHighlightStyle('EPPI-Reviewer 4')">EPPI-Reviewer 4</a>
+                <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'Black & White'}" (click)="SetHighlightStyle('Black & White')">Black &amp; White</a>
+                <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'Subtle'}" (click)="SetHighlightStyle('Subtle')">Subtle</a>
+            </div>
+        </div>
+        <!--<kendo-splitbutton (buttonClick)="changeTermsColours()" [data]="data" [icon]="paste">
+            Select colour style
+        </kendo-splitbutton>-->
+    </div>
+	<div class="row col-12 p-1 m-1 mt-2">
+
+			<div *ngIf="ShowHighlights" class="row col-12" (textSelect)="renderRectangles($event)"><h4 [innerHTML]="HTitle"></h4></div>
+			<div *ngIf="!ShowHighlights" class="row col-12"  (textSelect)="renderRectangles($event)"><h4>{{item.title}}</h4></div>
+			<div *ngIf="ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
+			<div *ngIf="!ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
+			
+			<div class="row w-100 p-0 m-0 border-bottom   ">
+				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
+				<div class="col p-1 m-1 bg-white">
+					{{item.authors}}
+				</div>
+			</div>
+			<div *ngIf="!FieldsByType(item.typeId).parentTitle.optional || showOptionalFields"
+				 class="row w-100 p-0 m-0 border-bottom   ">
+				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentTitle.txt}}</div>
+				<div class="col p-1 m-1 bg-white">
+					{{item.parentTitle}}
+				</div>
+			</div>
+
+			<div class="row w-100 p-0 m-0 border-bottom   ">
+				<div *ngIf="item.isDupilcate" class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
+					<div class="col p-1 m-1 bg-white">{{item.masterItemId}}</div>
+				</div>
+				<div *ngIf="item.itemStatus == 'I'" class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+					<div class="col p-1 m-1 bg-white">Included</div>
+				</div>
+				<div *ngIf="item.itemStatus == 'E'" class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+					<div class="col p-1 m-1 bg-white">Excluded</div>
+				</div>
+				<div *ngIf="item.itemStatus == 'D'" class="col-4 row p-0 m-0 font-weight-bold">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+					<div class="col p-1 m-1 bg-white">Deleted</div>
+				</div>
+				<div *ngIf="item.itemStatus == 'S' && ! item.isDupilcate" class="col-4 row p-0 m-0 font-weight-bold">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+					<div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
+				</div>
+
+				<div class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
+					<div class="col p-1 m-1 bg-white">{{item.itemId}}</div>
+				</div>
+				<div class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
+					<div class="col p-1 m-1 bg-white">{{item.oldItemId}}</div>
+				</div>
+			</div>
+			<div *ngIf="!FieldsByType(item.typeId).parentAuthors.optional || showOptionalFields"
+				 class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentAuthors.txt}}</div>
+				<div class="col p-1 m-1 bg-white">
+					{{item.parentAuthors}}
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Year</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.year}}
+					</div>
+				</div>
+				<div *ngIf="!FieldsByType(item.typeId).standardNumber.optional || showOptionalFields"
+					 class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).standardNumber.txt}}</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.standardNumber}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Short Title</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.shortTitle}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Pages</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.pages}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Volume</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.volume}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Issue</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.issue}}
+					</div>
+				</div>
+			</div>
+            <div class="row w-100 p-0 m-0 border-bottom   ">
+                <div *ngIf="URLLink == ''; else elseURLBlock" class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                    Url
+                </div>
+                <ng-template #elseURLBlock>
+                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                        <a href="{{URLLink}}" target="_blank">Url</a>
+                    </div>
+                </ng-template>
+                <div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
+                    {{item.url}}
+                </div>
+            </div>
+            <div class="row w-100 p-0 m-0 border-bottom  ">
+                <div class="w-50 row p-0 m-0">
+                    <div *ngIf="DOILink == ''; else elseDOIBlock" class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                        DOI
+                    </div>
+                    <ng-template #elseDOIBlock>
+                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                            <a href="{{DOILink}}" target="_blank">DOI</a>
+                        </div>
+                    </ng-template>
+                    <div class="col p-1 m-1 bg-white ">
+                        {{item.doi}}
+                    </div>
+                </div>
+                <div class="w-50 row p-0 m-0">
+                    <div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>
+                    <div class="col p-1 m-1 bg-white">
+                        {{item.availability}}
+                    </div>
+                </div>
+            </div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.edition}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.publisher}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Month</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.month}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">City</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.city}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Country</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.country}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Institution</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.institution}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
+					<div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+						{{item.comments}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
+					<div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+						{{item.keywords}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 small">
+				<div class="col-3 row p-0 m-0 font-weight-bold">
+					Created by: {{item.createdBy}}
+				</div>
+				<div class="col-3 row p-0 m-0 ">
+					Created on: {{item.dateCreated}}
+				</div>
+				<div class="col-3 row p-0 m-0 font-weight-bold">
+					Edited by: {{item.editedBy}}
+				</div>
+				<div class="col-3 row p-0 m-0 ">
+					Edited on: {{item.dateEdited}}
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 small">
+				<div *ngIf="CurrentItemAdditionalData && CurrentItemAdditionalData.source" class="col-6 row p-0 m-0 font-weight-bold">
+					Source: {{CurrentItemAdditionalData.source.source_Name}}
+				</div>
+				<div *ngIf="!CurrentItemAdditionalData || !CurrentItemAdditionalData.source" class="col-6 row p-0 m-0 font-weight-bold">
+					Source: N/A
+				</div>
+				<div *ngIf="CurrentItemAdditionalData && CurrentItemAdditionalData.duplicates" class="col-6 row py-0 pl-1 pr-0 m-0 ">
+					Duplicate IDs: <span *ngFor="let dup of CurrentItemAdditionalData.duplicates"
+							   class="rounded alert-danger ml-1">{{dup.itemId}}</span>
+				</div>
+				<div *ngIf="!CurrentItemAdditionalData || !CurrentItemAdditionalData.duplicates" class="col-6 row p-0 m-0 ">
+					Duplicate IDs: N/A
+				</div>
+			</div>
+
+		</div>
+	</div>
+<div *ngIf="item" class="row col-12 mt-1 card card-body bg-light ml-1" style="overflow-x:auto;">
+    <ItemDocListComp #ItemDocListComp class="" [itemID]="item.itemId" [ShowViewButton]="ShowDocViewButton"></ItemDocListComp>
+</div>
+

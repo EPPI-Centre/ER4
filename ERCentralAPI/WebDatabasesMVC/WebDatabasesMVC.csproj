@@ -1,30 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
-  
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <UserSecretsId>7bdb3e02-b18e-4b18-9864-0eac30216ee2</UserSecretsId>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;CSLA_NETCORE; WEBDB</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;CSLA_NETCORE; WEBDB</DefineConstants>
   </PropertyGroup>
-
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  
   <ItemGroup>
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSet.cs" Link="Models\AttributeSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetList.cs" Link="Models\AttributeSetList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeTypes.cs" Link="Models\AttributeTypes.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AuthorsHandling.cs" Link="Models\AuthorsHandling.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AzureSettingsAndBlobOperations.cs" Link="Models\AzureSettingsAndBlobOperations.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Item.cs" Link="Models\Item.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArm.cs" Link="Models\ItemArm.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArmList.cs" Link="Models\ItemArmList.cs" />
@@ -62,28 +57,27 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Data\FullTextSearch.cs" Link="Models\FullTextSearch.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CredentialsCriteria.cs" Link="Models\Security\CredentialsCriteria.cs" />
-    <Compile Include="..\ERxWebClient2\Controllers\AbstractClasses\CSLAController.cs" Link="Controllers\AbstractClasses\CSLAController.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDB.cs" Link="Models\WebDB.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeChildFrequency.cs" Link="Models\WebDbItemAttributeChildFrequency.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeChildFrequencyList.cs" Link="Models\WebDbItemAttributeChildFrequencyList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstab.cs" Link="Models\WebDbItemAttributeCrosstab.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstabList.cs" Link="Models\WebDbItemAttributeCrosstabList.cs" />
-
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemSet.cs" Link="Models\WebDbItemSet.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbItemSetList.cs" Link="Models\WebDbItemSetList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbMap.cs" Link="Models\WebDbMap.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbMapList.cs" Link="Models\WebDbMapList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbReadOnlyItemAttributeList.cs" Link="Models\WebDbReadOnlyItemAttributeList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbReviewSet.cs" Link="Models\WebDbReviewSet.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbReviewSetsList.cs" Link="Models\WebDbReviewSetsList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDBsList.cs" Link="Models\WebDBsList.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbYearFrequency.cs" Link="Models\WebDbYearFrequency.cs" />
-    <Compile Include="..\ERxWebClient2\Models\WebDbYearFrequencyList.cs" Link="Models\WebDbYearFrequencyList.cs" />
-    <Compile Include="..\PubmedImport\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
-    <Compile Include="..\PubmedImport\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
+    <Compile Include="..\ER-Web\Controllers\AbstractClasses\CSLAController.cs" Link="Controllers\AbstractClasses\CSLAController.cs" />
+    <Compile Include="..\ER-Web\Models\WebDB.cs" Link="Models\WebDB.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemAttributeChildFrequency.cs" Link="Models\WebDbItemAttributeChildFrequency.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemAttributeChildFrequencyList.cs" Link="Models\WebDbItemAttributeChildFrequencyList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemAttributeCrosstab.cs" Link="Models\WebDbItemAttributeCrosstab.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemAttributeCrosstabList.cs" Link="Models\WebDbItemAttributeCrosstabList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemSet.cs" Link="Models\WebDbItemSet.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbItemSetList.cs" Link="Models\WebDbItemSetList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbMap.cs" Link="Models\WebDbMap.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbMapList.cs" Link="Models\WebDbMapList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbReadOnlyItemAttributeList.cs" Link="Models\WebDbReadOnlyItemAttributeList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbReviewSet.cs" Link="Models\WebDbReviewSet.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbReviewSetsList.cs" Link="Models\WebDbReviewSetsList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDBsList.cs" Link="Models\WebDBsList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbYearFrequency.cs" Link="Models\WebDbYearFrequency.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbYearFrequencyList.cs" Link="Models\WebDbYearFrequencyList.cs" />
+    <Compile Include="..\ER-Web\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
+    <Compile Include="..\ER-Web\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
   </ItemGroup>
-
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.12.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.7" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
@@ -91,17 +85,17 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
     <PackageReference Include="CSLA-ASPNETCORE-MVC" Version="4.7.200" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.326103">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Controllers\AbstractClasses\" />
     <Folder Include="wwwroot\NewFolder\" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Update="wwwroot\HeaderImages\.Placehoder">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
 </Project>

@@ -599,6 +599,9 @@
 	  <None Update="SQLScripts\478.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <None Update="SQLScripts\480.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="SQLScripts\482.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
@@ -620,18 +623,33 @@
 	  <None Update="SQLScripts\494.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <None Update="SQLScripts\496.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="SQLScripts\498.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-	  <None Update="SQLScripts\500.sql">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="SQLScripts\502.sql">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="SQLScripts\504.sql">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
+      <None Update="SQLScripts\500.sql">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLScripts\502.sql">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLScripts\504.sql">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLScripts\506.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLScripts\508.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLScripts\510.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLScripts\512.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     <None Update="SQLScripts\MagCurrentInfoInsert.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

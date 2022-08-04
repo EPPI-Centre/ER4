@@ -1,0 +1,64 @@
+<div>
+	<div style="max-height: 810px; height:680px; overflow: auto" >
+		<table class=" table-condensed border p-0 m-0" >
+            <thead>
+                <tr *ngIf="!ShowNewTermPanel">
+                    <td colspan="4">
+                        <button (click)="OpenRowPanel()"
+                                class="btn btn-sm btn-outline-primary">
+                                <span class="k-icon k-i-plus k-color-info"></span>
+                            New term
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Review Term</th>
+                    <td class="small font-weight-bold">Relevant?</td>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                <tr *ngIf="ShowNewTermPanel" class="border border-info rounded">
+                    <td><input class="form-control" type="text" [(ngModel)]="newReviewTerm" /></td>
+                    <td><input class="form-control" type="checkbox" [(ngModel)]="newReviewIncluded" /></td>
+                    <td>
+                        <button [disabled]="newReviewTerm == ''" title="Save new term"
+                                class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
+                          <span class="k-icon k-i-floppy"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
+                          <span class="k-icon k-i-close"></span>
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngFor="let term of TermsList">
+                    <td>
+                        <input class="form-control" type="text"
+                               [(ngModel)]="term.reviewerTerm" />
+                    </td>
+                    <td>
+                        <input class="form-control" type="checkbox" [(ngModel)]="term.included" />
+                    </td>
+                    <td>
+                        <button [disabled]="!HasWriteRights" title="Update"
+                                class="btn btn-sm btn-outline-info"
+                                (click)="Update(term)">
+                          <span class="k-icon k-i-floppy"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button [disabled]="!HasWriteRights" title="Delete"
+                                class="btn btn-sm btn-outline-danger"
+                                (click)="Remove(term)">
+                          <span class="k-icon k-i-trash"></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+		</table>
+	</div>
+</div>

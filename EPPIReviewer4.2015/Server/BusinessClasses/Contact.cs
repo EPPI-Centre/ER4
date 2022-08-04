@@ -45,11 +45,15 @@ namespace BusinessLibrary.BusinessClasses
         */
         public Contact() { }
 
-#region properties
         public override string ToString()
         {
             return contactName;
         }
+
+
+
+        #region properties
+
 
 
 
@@ -145,6 +149,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        
 
         public static readonly PropertyInfo<string> ExpiryProperty = RegisterProperty<string>(new PropertyInfo<string>("expiry", "expiry"));
         public string Expiry
@@ -165,6 +170,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(IsExpiredProperty);
+            }
+            set
+            {
+                SetProperty(IsExpiredProperty, value);
             }
         }
 

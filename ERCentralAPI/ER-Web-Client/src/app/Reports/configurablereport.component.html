@@ -1,0 +1,271 @@
+<div class="container px-1 col-12 fullBordersInTabs">
+	<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
+	<div style="min-width:190px;">
+		<div class="row col-12 m-0 p-0">
+			<label class="col-2 px-0 mt-1">Items:</label>
+			<select class="col-9 form-control mb-1"
+					[(ngModel)]="ReportCommonParams.itemsChoice"
+					(change)="ItemsChoiceChange()">
+				<option [disabled]="!HasSelectedItems" [selected]="ReportCommonParams.itemsChoice == 'All selected items'">All selected items</option>
+				<option [selected]="ReportCommonParams.itemsChoice == 'Items with this code'">Items with this code</option>
+			</select>
+		</div>
+		<div class="row col-12 m-0 p-0" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
+			<label class="col-2 px-0 mt-1">Selected code:</label>
+            <div class="col-9 m-0 p-0">
+                <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-12 mb-1"
+                        (click)="isCollapsedCodingTool = !isCollapsedCodingTool"
+                        aria-controls="collapseCodeTreeCodingToolReports">
+                    {{DropdownSelectedCodingTool?.name}}
+                </button>
+                <div class="dropdown-menu col-12 ml-0 my-0" id="collapseCodeTreeCodingToolReports"
+                     [ngbCollapse]="!isCollapsedCodingTool">
+                    <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+                                     [MaxHeight]="400" #CodingToolTreeReports
+                                     (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
+                                     [rootsOnly]="false">
+                    </codesetSelector>
+                </div>
+            </div>
+		</div>
+		<div class="row col-12 m-0 p-0">
+			<label class="col-2 px-0 mt-1">Order by:</label>
+			<select class="col-9 form-control mb-1" style="min-width:190px;"
+					[(ngModel)]="ReportCommonParams.orderByChoice" (change)="OrderByChoiceChange()">
+				<option> Short title</option>
+				<option> Title</option>
+				<option> Year</option>
+				<option> Item Id</option>
+				<option> Imported Id</option>
+			</select>
+		</div>
+	</div>
+		<div class="font-weight-bold">Reports</div>
+		<kendo-tabstrip style="min-height:360px; " (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
+			<kendo-tabstrip-tab [title]="'Standard'" [selected]="true">
+				<ng-template kendoTabContent>
+                    <div class="row col-12 px-0 mx-0">
+                        <div class="row col-12">
+                            <div class="pl-0 mt-2 font-weight-bold mr-1">Report Name:</div>
+                            <div class="col">
+                                <select class="form-control mb-1" style="min-width:190px;"
+                                        (change)="ChangedReport($event)"
+                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportStandard.report || ReportStandard.report.name == '[Please select...]' || ReportStandard.report.reportId == undefined )}"
+                                        [(ngModel)]="ReportStandard.report">
+                                    <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
+                                    <!--<option class="font-weight-light font-italic alert-warning"
+                                            selected
+                                            [ngValue]="PleaseSelectReport">
+                                        {{PleaseSelectReport.name}}
+                                    </option>-->
+                                    <option *ngFor="let item of Reports"
+                                            [ngValue]="item">
+                                        {{ item.name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2 mx-0 p-1 border border-dark">
+                            <div class="col-12  pl-0">Display Options:</div>
+                            <div class="col-6 mb-1" style="min-width: 400px;">
+                                <div class="col-12 row">
+                                    <input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
+                                           type="checkbox" value="true" name="ItemId"
+                                           [(ngModel)]="ReportStandard.showItemId">Item Id
+                                </div>
+                                <div class="col-12 row">
+                                    <input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
+                                           type="checkbox" value="false" name="ImportedId"
+                                           [(ngModel)]="ReportStandard.showOldItemId">Imported Id
+                                </div>
+                                <div class="col-12 row">
+                                    <input [disabled]="ReportCommonParams.orderByChoice == 'Short title'" class="m-1 p-1"
+                                           type="checkbox" value="true" name="ShortTitle"
+                                           [(ngModel)]="ReportStandard.showShortTitle">Short title
+                                </div>
+                                <div class="col-12 row">
+                                    <input [disabled]="ReportCommonParams.orderByChoice == 'Title'" class="m-1 p-1"
+                                           type="checkbox" value="false" name="Title"
+                                           [(ngModel)]="ReportStandard.showFullTitle">Title
+                                </div>
+                            </div>
+
+                            <div class="col-6 mb-1" style="min-width: 400px;">
+                                <div class="col-12 row">
+                                    <input [disabled]="ReportCommonParams.orderByChoice == 'Year'" class="m-1 p-1" type="checkbox"
+                                           value="true" name="Year"
+                                           [(ngModel)]="ReportStandard.showYear">Year
+                                </div>
+                                <div class="col-12 row">
+                                    <input class="m-1 p-1" type="checkbox" value="false" name="Abstract"
+                                           [(ngModel)]="ReportStandard.showAbstract">Abstract
+                                </div>
+                                <div class="col-12 row">
+                                    <input class="m-1 p-1" type="checkbox" value="true" name="UncodedItems"
+                                           [(ngModel)]="ReportStandard.showUncodedItems">Uncoded Items
+                                </div>
+                                <div class="col-12 row">
+                                    <input class="m-1 p-1" type="checkbox" value="false" name="AddBulletstoCodes"
+                                           [(ngModel)]="ReportStandard.showBullets">Add Bullets to Codes
+                                </div>
+
+                            </div>
+
+                            <div class="col-6 mx-0 px-0">
+                                <div class="col-auto row rounded border border-info px-1 mx-0 pt-2 pb-2 ">
+                                    <div class="col-auto">Alignment:</div>
+                                    <div class="col-auto">
+                                        <input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
+                                               [(ngModel)]="ReportStandard.isHorizontal">Horizontal
+                                    </div>
+                                    <div class="col-auto">
+                                        <input class="m-1 p-1" type="radio" [value]="false" name="Alignment"
+                                               [(ngModel)]="ReportStandard.isHorizontal">Vertical
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 row mb-1  mx-0 px-0">
+                                <div class="col-auto px-1 ml-2 mt-2">
+                                    Additional Text Tag:
+                                </div>
+                                <div class="col-sm-auto px-1">
+                                    <input class="m-1 p-1 form-control" type="text" value="[info]"
+                                           name="AdditionalTextTag" [(ngModel)]="ReportStandard.txtInfoTag">
+                                </div>
+                            </div>
+                            
+
+                        </div>
+                    </div>
+				</ng-template>
+			</kendo-tabstrip-tab>
+			<kendo-tabstrip-tab [title]="'Risk Of Bias'">
+                <ng-template kendoTabContent>
+                    <div class="row col-12 px-0 mx-0">
+                        <div class="row col-12">
+                            <div class="pl-0 mt-2 font-weight-bold mr-1">Report Name:</div>
+                            <div class="col">
+                                <select class="form-control mb-1" style="min-width:190px;"
+                                        (change)="ChangedReport($event)"
+                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportRiskOfBias.report || ReportRiskOfBias.report.name == '[Please select...]' || ReportRiskOfBias.report.reportId == undefined )}"
+                                        [(ngModel)]="ReportRiskOfBias.report">
+                                    <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
+                                    <option *ngFor="let item of ReportCollectionROB"
+                                            [ngValue]="item">
+                                        {{ item.name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row col-12 mt-2 mx-0 p-1 border border-dark">
+                            <div class="">
+                                <input [disabled]="true" [hidden]="true"
+                                       class="m-1 p-1" type="checkbox" name="showRiskOfBias" value="true"
+                                       [(ngModel)]="ReportRiskOfBias.showRiskOfBias">
+                            </div>
+                            <p class=" mb-0">Display Options (show):</p>
+                            <div class="col-12">
+                                <div class="col-12 row">
+                                    <input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
+                                           type="checkbox" value="true" name="ItemId"
+                                           [(ngModel)]="ReportRiskOfBias.showItemId">Item Id
+                                </div>
+                                <div class="col-12 row">
+                                    <input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
+                                           type="checkbox" value="false" name="ImportedId"
+                                           [(ngModel)]="ReportRiskOfBias.showOldID">Imported Id
+                                </div>
+                                <div class="col-12 row mb-1">
+                                    <input class="m-1 p-1"
+                                           type="checkbox" value="false" name="UncodedItems"
+                                           [(ngModel)]="ReportRiskOfBias.showUncodedItems">Uncoded Items
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-12 row">
+                            <div class="mt-3 mb-2 p-2 ml-0 alert-info rounded">
+                                <b>Risk of Bias</b> reports are "Question" reports shown as Risk of Bias figures.
+                                The <b>order</b> of the classification codes in the risk of bias codeset <b>must be</b>:
+                                <ul>
+                                    <li> Low (1 code only)</li>
+                                    <li> High ( 1 code only)</li>
+                                    <li> Unclear ( 1 or more)</li>
+                                </ul>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </ng-template>
+			</kendo-tabstrip-tab>
+			<kendo-tabstrip-tab [title]="'Outcomes'">
+                <ng-template kendoTabContent>
+                    <div class="row col-12 px-0 mx-0">
+                        <div class="row col-12">
+                            <div class="col-sm-auto mt-2 font-weight-bold">Report Name:</div>
+                            <div class="col">
+                                <select class="form-control mb-1" style="min-width:190px;"
+                                        (change)="ChangedReport($event)"
+                                        [ngClass]="{'font-weight-light alert-warning' : (!ReportOutcomes.report || ReportOutcomes.report.name == '[Please select...]' || ReportOutcomes.report.reportId == undefined )}"
+                                        [(ngModel)]="ReportOutcomes.report">
+                                    <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
+                                    <option *ngFor="let item of ReportCollectionOutcomes"
+                                            [ngValue]="item">
+                                        {{ item.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col"></div>
+                        </div>
+                        <div class="row col-12">
+                            <div *ngIf="outcomesHidden"
+                                 class="col-12 row">
+                                <input [disabled]="true" [hidden]="true"
+                                       class="m-1 p-1" type="checkbox" value="true" name="Outcomes"
+                                       [(ngModel)]="ReportOutcomes.showOutcomes">
+                            </div>
+                        </div>
+                        <div class="row col-12 mt-2 mx-0 p-1 border border-dark">
+                            <p class="mb-0">Display Options (show):</p>
+                            <div class="col-12 row">
+                                <input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
+                                       type="checkbox" value="true" name="ItemId"
+                                       [(ngModel)]="ReportOutcomes.showItemId">Item Id
+                            </div>
+                            <div class="col-12 row mb-1">
+                                <input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
+                                       type="checkbox" value="false" name="ImportedId"
+                                       [(ngModel)]="ReportOutcomes.showOldItemId">Imported Id
+                            </div>
+                        </div>
+                        <div class="row col-12">
+                            <p class="mt-3 mb-2 p-2 ml-1 alert-info rounded">
+                                <b>Outcomes reports</b> will produce a table containing numeric outcome data. The report is optimised for exporting data in a <b>tabular format</b>.<br />
+                                The table will include <b>only</b> outcomes for items associated with the codes included in the answer report selected.
+                            </p>
+                        </div>
+                    </div>
+                </ng-template>
+			</kendo-tabstrip-tab>
+		</kendo-tabstrip>
+		<div class="col-12 row p-0 mx-1 justify-content-center" *ngIf="sectionShow == 'Standard'">
+			<div class="col-12 col-md-12  m-0 p-0"></div>
+			<div class="col-12 col-md-12  m-0 p-0">
+				<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
+						[disabled]="!CheckOptionsAreCorrectForReports ">
+					Run/view
+				</button>
+				<button (click)="SaveReport()" [disabled]="!GeneratedReport"
+						title="Save as Html (Supports opening in Word)"
+						type="button" class="btn btn-outline-primary  ml-1 mr-1">
+					<span class="k-icon k-i-save"></span>
+				</button>
+				<button class="btn btn-outline-secondary ml-1"
+						(click)="CloseReportsSection()">
+					Cancel
+				</button>
+			</div>
+		</div>
+	</div>
+
+

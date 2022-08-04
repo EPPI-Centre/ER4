@@ -81,14 +81,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AppSettings");
-
-#else
-            var configuration = ConfigurationManager.AppSettings;
-
-#endif
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             if (_FindOrRemove == "FindMatches")
             {
@@ -99,14 +92,14 @@ namespace BusinessLibrary.BusinessClasses
                 else
                 {
                     int MagLogId = MagLog.SaveLogEntry("MAG matching", "Starting", "Review: " + ri.ReviewId +
-                        ", Threads: " + configuration["MagMatchItemsMaxThreadCount"], ri.UserId);
+                        ", Threads: " + AzureSettings.MagMatchItemsMaxThreadCount, ri.UserId);
 
 #if CSLA_NETCORE
-            System.Threading.Tasks.Task.Run(() => doMatchItems(ri.ReviewId, MagLogId, Convert.ToInt32(configuration["MagMatchItemsMaxThreadCount"])));
+            System.Threading.Tasks.Task.Run(() => doMatchItems(ri.ReviewId, MagLogId, Convert.ToInt32(AzureSettings.MagMatchItemsMaxThreadCount)));
 #else
                     //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
                     HostingEnvironment.QueueBackgroundWorkItem(cancellationToken =>
-                        doMatchItems(ri.ReviewId, MagLogId, Convert.ToInt32(configuration["MagMatchItemsMaxThreadCount"]), cancellationToken));
+                        doMatchItems(ri.ReviewId, MagLogId, int.Parse(AzureSettings.MagMatchItemsMaxThreadCount), cancellationToken));
 #endif
                 }
             }

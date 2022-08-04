@@ -16,8 +16,6 @@ using System.Configuration;
 #if !SILVERLIGHT
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data.SqlClient;
 using System.Data;
 using System.Collections.Concurrent;
@@ -141,7 +139,7 @@ namespace BusinessLibrary.BusinessClasses
                         MagLog.UpdateLogEntry("Stopped", "Error in datalake job", TaskMagLogId);
                         return;
                     }
-                    missingCount = await DownloadMissingIdsFile(uploadFileName);
+                    missingCount = DownloadMissingIdsFile(uploadFileName);
                     if (missingCount == -1)
                     {
                         MagLog.UpdateLogEntry("Stopped", "Error in missingCount", TaskMagLogId);
@@ -237,43 +235,17 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task<bool> UploadIdsFile(string fileName)
         {
-
-#if (CSLA_NETCORE)
-
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
-
-#else
-            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
-#endif
-
+            string storageAccountName = AzureSettings.MAGStorageAccount;
+            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
             storageConnectionString += storageAccountKey;
 
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("uploads");
-            CloudBlockBlob blockBlobData;
-
             try
             {
-                blockBlobData = container.GetBlockBlobReference(Path.GetFileName(fileName));
                 using (var fileStream = System.IO.File.OpenRead(fileName))
                 {
-
-
-#if (!CSLA_NETCORE)
-                    blockBlobData.UploadFromStream(fileStream);
-#else
-
-				await blockBlobData.UploadFromFileAsync(fileName);
-
-
-#endif
-
+                    BlobOperations.UploadStream(storageConnectionString, "uploads", Path.GetFileName(fileName), fileStream);
                 }
                 File.Delete(fileName);
                 return true;
@@ -298,55 +270,30 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private async Task<int> DownloadMissingIdsFile(string uploadFileName)
+        private int DownloadMissingIdsFile(string uploadFileName)
         {
-
-#if (CSLA_NETCORE)
-
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
-
-#else
-            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
-#endif
-
-            //string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            //string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+            //var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = AzureSettings.MAGStorageAccount;
+            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
             storageConnectionString += storageAccountKey;
 
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer containerUp = blobClient.GetContainerReference("uploads");
-            CloudBlobContainer containerDown = blobClient.GetContainerReference("results");
+            //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            //CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            //CloudBlobContainer containerUp = blobClient.GetContainerReference("uploads");
+            //CloudBlobContainer containerDown = blobClient.GetContainerReference("results");
 
             // cleaning up the file that was uploaded
-            CloudBlockBlob blockBlobUploadData = containerUp.GetBlockBlobReference(Path.GetFileName(uploadFileName));
+            //CloudBlockBlob blockBlobUploadData = containerUp.GetBlockBlobReference(Path.GetFileName(uploadFileName));
+
+            BlobOperations.DeleteIfExists(storageConnectionString, "uploads", Path.GetFileName(uploadFileName));
+
+            //CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(Path.GetFileName("CheckPaperIdChangesResults.tsv"));
 
 
-#if (!CSLA_NETCORE)
-                blockBlobUploadData.DeleteIfExists();
-#else
-
-                await blockBlobUploadData.DeleteIfExistsAsync();
-#endif
-
-
-
-            CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(Path.GetFileName("CheckPaperIdChangesResults.tsv"));
-
-#if (!CSLA_NETCORE)
-             byte[] myFile = Encoding.UTF8.GetBytes(blockBlobDownloadData.DownloadText());
-#else
-            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
-            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
-
-#endif
-            MemoryStream ms = new MemoryStream(myFile);
+            MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(storageConnectionString, "results", "CheckPaperIdChangesResults.tsv");
 
             DataTable dt = new DataTable("Ids");
             dt.Columns.Add("Identity");
@@ -387,33 +334,18 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-
-#if (!CSLA_NETCORE)
-                blockBlobDownloadData.DeleteIfExists();
-#else
-
-            await blockBlobDownloadData.DeleteIfExistsAsync();
-#endif
-
-
+            BlobOperations.DeleteIfExists(storageConnectionString, "results", "CheckPaperIdChangesResults.tsv");
             return lineCount;
         }
 
         private string LookupMissingIdsInNewMakes(int ContactId, int MagLogId, int missingCount, int currentlyUsed)
         {
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
-
-#else
-            var configuration = ConfigurationManager.AppSettings;
-
-#endif
             int PaperTotalCount = 0;
             int PaperTotalFound = 0;
             int activeThreadCount = 0;
             int notMatchedCount = 0;
-            int maxThreadCount = Convert.ToInt32(configuration["MagMatchItemsMaxThreadCount"]);
+            int maxThreadCount = Convert.ToInt32(AzureSettings.MagMatchItemsMaxThreadCount);
             int errorCount = 0;
             string result;
             string returnString = "ERROR: LookupMissingIdsInNewMakes did not complete";

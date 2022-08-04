@@ -1,0 +1,181 @@
+<div class="row border border-primary rounded m-1 p-1">
+    <div class="col container m-0 p-0">
+        <div class="row m-0">
+            <div *ngIf="Aim==''" style="max-height:300px;overflow:auto"
+                 class="col-12 col-md-9 p-sm-0 align-self-start
+                  bg-light">
+                <div *ngFor="let cSet of CodeSets" class="ml-1">
+                    <input class="m-2" type="checkbox" [(ngModel)]="cSet.isSelected" />
+                    <span>{{cSet.name}}</span>
+                </div>
+            </div>
+            <div *ngIf="Aim=='QuickQuestionReport'" style="max-height:300px;overflow:auto"
+                 class="col-12 col-md-9 p-sm-0 align-self-start
+                  bg-light">
+                <codesetTree4QuickQuestionReport [MaxHeight]="298" #QuestionSelector></codesetTree4QuickQuestionReport>
+            </div>
+            <div class="col-12 col-md-3 pt-sm-1 row m-0 justify-content-end">
+                <table *ngIf="Aim=='QuickQuestionReport'">
+                    <tr>
+                        <td>
+                            Include Title? <input class="m-1" type="checkbox" [(ngModel)]="QuickQuestionReportOptions.IncludeFullTitle" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Show InfoBox Text? <input class="m-1" type="checkbox" [(ngModel)]="QuickQuestionReportOptions.ShowInfobox" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Show Coded Text? <input class="m-1" type="checkbox" [(ngModel)]="QuickQuestionReportOptions.ShowCodedText" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Show Code IDs? <input class="m-1" type="checkbox" [(ngModel)]="QuickQuestionReportOptions.ShowCodeIds" />
+                        </td>
+                    </tr>
+                </table>
+                <table class="align-self-end" style="min-width:180px;margin-right:5px;">
+                    <tr *ngIf="Aim==''">
+                        <td></td>
+                        <td>
+                            JSON report? <input class="m-1" type="checkbox" [(ngModel)]="JsonReport" />
+                        </td>
+                    </tr>
+                    <tr *ngIf="Aim==''">
+                        <td></td>
+                        <td>
+                            <div class="d-block">
+                                <input class="mt-1 mx-1 d-inline" type="radio" name="ReportOnRname" [disabled]="!HasSelectedItems"
+                                       value="selecteditems" (click)="ReportOnRnameClick()" [(ngModel)]="ReportOn">
+
+                                <div class="mr-2 d-inline">Selected items</div>
+                            </div>
+                            <div class="d-block">
+                                <input class="mt-1 mx-1 d-inline" type="radio" name="ReportOnRname"
+                                       value="currentpage" (click)="ReportOnRnameClick()" [(ngModel)]="ReportOn">
+                                <div class="mr-2 d-inline">This Page</div>
+                            </div>
+                            <div class="d-block">
+                                <input class="mt-1 mx-1 d-inline" type="radio" name="ReportOnRname"
+                                       value="currentlist" (click)="ReportOnRnameClick()" [(ngModel)]="ReportOn">
+                                <div class="mr-2 d-inline">This whole list</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button (click)="StartQuickReport()" [disabled]="!CanStartReport"
+                                    type="button" class="btn btn-success float-right col-12">
+                                Get Report
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button (click)="OpenInNewWindow()" [disabled]="!CanSaveReport || ReportIsMassive"
+                                    type="button" class="btn btn-outline-primary col-9 float-right">
+                                &nbsp;View/Print&nbsp;
+                            </button>
+                            <button (click)="SaveReport()" [disabled]="!CanSaveReport"
+                                    title="Save as Html (Supports opening in Word)"
+                                    type="button" class="btn btn-outline-primary float-right col-3">
+                                <span class="k-icon k-i-save"></span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button (click)="Close()"
+                                    type="button" class="btn btn-outline-info float-right col-12">
+                                Close
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="ReportIsMassive">
+                        <td></td>
+                        <td >
+                            <div class="border border-danger rounded p-1 m-1 alert-danger small" >
+                                Current report is <strong>big</strong> and might take some time be opened/saved/rendered. 
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!--<div class="row col-10" style="position:absolute;bottom:6.1em;right:0.1em;">
+            </div>
+            <div class="row col-10" style="position:absolute;bottom:3.1em;right:0.1em;">
+
+
+            </div>
+            <div class="row col-10" style="position:absolute;bottom:0.1em;right:0.1em;">
+
+            </div>-->
+        </div>
+    </div>
+    <div *ngIf="GettingReport" class="col-12 mt-2 pt-2 bg-white ">
+        <div class="col">
+            {{ReportProgress}}
+            <button (click)="CancelQuickReport()" [disabled]="!CanStartReport"
+                    type="button" class="btn btn-outline-danger btn-sm py-0">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="ReportPanelName == 'NotifyChrome'"
+         class="col-12 my-2 py-2 border border-info rounded alert-info"
+         style="max-height:440px;overflow:auto">
+        Json reports can be very slow to appear when using Chrome, so it won't show here.
+        <div *ngIf="!GettingReport && ((JsonReport && JsonReportContent.length > 0) || (!JsonReport && ReportHTML.length > 0))"
+             class="row justify-content-center">
+            <div class="border border-info rounded py-1 px-1 m-1 bg-white">
+                Report is ready, please click on the 'View/Print' and/or "Save" buttons:
+                <button (click)="SaveReport()" [disabled]="!CanSaveReport"
+                        title="Save as Html (Supports opening in Word)"
+                        type="button" class="btn btn-outline-primary ">
+                    <span class="k-icon k-i-save"></span>
+                </button>
+                <button (click)="OpenInNewWindow()" [disabled]="(ReportHTML.length == 0 &&!JsonReport)  || GettingReport"
+                        type="button" class="btn btn-outline-primary mr-1">
+                    &nbsp;View/Print&nbsp;
+                </button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="ReportPanelName == 'NotifyLongChrome'"
+         class="col-12 my-2 py-2 border border-info rounded alert-info"
+         style="max-height:440px;overflow:auto">
+        Json reports can be very slow to appear when using Chrome, so it won't show here.
+        <div *ngIf="!GettingReport && ((JsonReport && JsonReportContent.length > 0) || (!JsonReport && ReportHTML.length > 0))"
+             class="row justify-content-center">
+            <div class="border border-info rounded py-1 px-1 m-1 bg-white">
+                Report is ready, but is too long for displaying it within this App. Please save the report instead.
+                <button (click)="SaveReport()" [disabled]="!CanSaveReport"
+                        title="Save as Html (Supports opening in Word)"
+                        type="button" class="btn btn-outline-primary ">
+                    <span class="k-icon k-i-save"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="ReportPanelName == 'HTMLReport'"
+         class="col-12 mt-2 pt-2 border-top border-success"
+         style="max-height:440px;overflow:auto" [innerHTML]="ReportHTML">
+    </div>
+    <code *ngIf="ReportPanelName == 'JsonReport'"
+          class="col-12 mt-2 pt-2 border-top border-success"
+          style="max-height:440px;overflow:auto">
+        {{JsonReportContent}}
+    </code>
+    <div *ngIf="ReportPanelName == 'NotifyLong'"
+         class="col-12 mt-2 pt-2 border-top border-success"
+         style="max-height:440px;overflow:auto">
+        This report is likely to be too long to be shown here; your browser will save it as soon as it's ready (it might ask you where to save it).
+    </div>
+</div>

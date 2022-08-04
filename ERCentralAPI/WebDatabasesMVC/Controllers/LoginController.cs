@@ -21,7 +21,7 @@ namespace WebDatabasesMVC.Controllers
 {
     //[Route("Login")]
     //[Route("Login/Login")]
-    public class LoginController : Controller
+    public class LoginController : Microsoft.AspNetCore.Mvc.Controller
     {
         private static string _HeaderImagesFolder;
         private string HeaderImagesFolder
@@ -186,7 +186,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
-        ActionResult DoFail()
+        Microsoft.AspNetCore.Mvc.ActionResult DoFail()
         {
             return Forbid();
         }

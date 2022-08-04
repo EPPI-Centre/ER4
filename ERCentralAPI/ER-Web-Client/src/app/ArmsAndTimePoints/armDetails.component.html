@@ -1,0 +1,81 @@
+<!-- Editable table -->
+<div class="card">
+	<h5 class="m-1 p-1 font-weight-bold">
+		Arms
+		<button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right"
+				(click)="ShowArms = !ShowArms">
+			{{ShowArmsBtnText}}
+		</button>
+	</h5>
+
+
+
+	<div class="card-body" style="max-height:360px;overflow:auto;">
+		<div id="table" class="bg-light" *ngIf="ShowArms">
+			<form #ArmsForm="ngForm" class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
+				<div *ngIf="!editTitle">Create new study arm:</div>
+				<div *ngIf="editTitle">Update study arm:</div>
+				<input #titleModel="ngModel" name="n1"
+					   required minlength="3"
+					   pattern="^(?!\s*$).+" class="form-control"
+					   type="text" [(ngModel)]="title" />
+				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched) && titleModel.errors"
+					 class="alert alert-danger p-1 mb-1 small">
+
+					<div *ngIf="titleModel.errors.pattern">
+						Arm name cannot be empty
+					</div>
+
+					<div *ngIf="titleModel.errors.required">
+						Arm name is required
+					</div>
+					<div *ngIf="titleModel.errors.minlength">
+						Arm name must be at least 3 characters long
+					</div>
+
+				</div>
+				<div class="col-md-12 row">
+					<button *ngIf="editTitle !== true" [disabled]="!HasWriteRights || titleModel.invalid || title ==''"
+							class="btn btn-success mt-1 p-1 m-1" (click)="add(title)">
+						Add New Study Arm
+					</button>
+					<button *ngIf="editTitle == true"
+							[disabled]="!HasWriteRights || !editTitle || title ==''"
+							class="btn btn-success mt-1 p-1 m-1"
+							(click)="updateList(currentArm)">
+						Update study arm
+					</button>
+					<button [disabled]="title =='' && !editTitle"
+							class="btn btn-danger mt-1 p-1 m-1"
+							(click)="Clear()">
+						Cancel
+					</button> 
+				</div>
+			</form>
+				<!---->
+				<table *ngIf="armsList.length > 0" class="table table-bordered table-sm table-striped text-center">
+					<tr>
+						<th class="text-center">Arm Title</th>
+						<th class="text-center">Actions</th>
+					</tr>
+					<tr *ngFor="let arm of armsList; let key = index">
+						<td >{{arm.title}}</td>
+                        <td style="white-space:nowrap;">
+                            <button (click)="editTitle=true; setArm(arm, key)"
+                                    [disabled]="!HasWriteRights"
+                                    type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 mx-1">
+                                Edit
+                            </button>
+                            <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 mx-1"
+                                    [disabled]="!HasWriteRights" (click)="removeWarning(key)">
+                                <span class="k-icon k-i-delete "></span>
+                            </button>
+                        </td>
+					</tr>
+				</table>
+				
+			</div>
+	</div>
+
+</div>
+<!-- Editable table -->

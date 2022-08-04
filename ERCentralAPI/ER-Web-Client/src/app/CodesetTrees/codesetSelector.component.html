@@ -1,0 +1,18 @@
+<div class="bg-light" *ngIf="!rootsOnly"
+     [ngStyle]="{'max-height.px': MaxHeight}" style="overflow-y:auto;">
+  <kendo-treeview #tree
+                  [nodes]="nodes"
+                  class="bg-light"
+                  textField="name"
+                  (selectionChange)="NodeSelected($event)"
+                  kendoTreeViewExpandable
+                  kendoTreeViewHierarchyBinding
+                  childrenField="attributes">
+    <ng-template kendoTreeViewNodeTemplate let-data>
+      <span [ngClass]="{'ScreeningSet' : data.subTypeName == 'Screening',
+                            'AdminSet' : data.subTypeName == 'Administration',
+                            'ExcludeCode' : data.subTypeName == 'Exclude'
+                            }" class="mx-1">{{data.name}}</span>
+    </ng-template>
+  </kendo-treeview>
+</div>

@@ -1,0 +1,3 @@
+{
+  "APIBaseUrl": "https://localhost:44344"
+}

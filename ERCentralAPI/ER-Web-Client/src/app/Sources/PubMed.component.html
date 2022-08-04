@@ -1,0 +1,176 @@
+<div class="card bg-light mt-2 col-md-12 mb-2" [ngClass]="{disableThisAndChildren:!CanWrite()}">
+    <div *ngIf="WizPhase==1" class="row m-0">
+        <div class="col-12 alert alert-info mt-1">
+            <p>You can search <strong><a href="https://www.ncbi.nlm.nih.gov/pubmed/" target="_blank">PubMed</a> directly</strong> from here.</p> 
+            <p>PubMed is a free resource that is developed and maintained by the National Center for Biotechnology Information 
+            (<a href="https://www.ncbi.nlm.nih.gov/" target="_blank">NCBI</a>),
+            at the U.S. National Library of Medicine (<a href="https://www.nlm.nih.gov/" target="_blank">NLM</a>), 
+            located at the National Institutes of Health (<a href="https://www.nih.gov/" target="_blank">NIH</a>).</p>
+        </div>
+		<h5>Step 1: Enter search string</h5>
+        <form class="col-12 row"  #NewPmSearchForm="ngForm">
+            <div class="form-group col-12">
+				<label for="searchString">Search String </label>
+                <textarea class="form-control" id="newsearchStringTA"
+                          [(ngModel)]="NewSearchString" required
+                          name="NewSearchString" rows="3"></textarea>
+            </div>
+            <button type="button" class="btn btn-primary m-1" [disabled]="NewSearchString.trim().length < 2" (click)="DoNewSearch()">Search PubMed</button>
+        </form>
+    </div>
+    <div *ngIf="WizPhase==1.5">
+        Phase 1.5: uploading <button (click)="back()">back/cancel</button> <br />
+    </div>
+    <div *ngIf="WizPhase==2" class="row m-0">
+        <div class="col-12">
+			<div class="col-12">Step 2: Preview and import</div>
+            <div class="col-4">
+                <button type="button" class="btn btn-outline-info m-1" (click)="back()">back</button>
+                <button *ngIf="DataToCheck" type="button" class="btn btn-outline-primary m-1" (click)="togglePreviewPanel()">
+                    {{togglePreviewPanelButtonText}}
+                </button>
+            </div>
+                
+        </div>
+        <div *ngIf="DataToCheck && DataToCheck.itemsList" class="col-12">
+            <div class="row">
+                <div class="col-6">
+                    Results: Total references = <strong>{{DataToCheck.queMax }}</strong>
+                </div>
+
+                <!--<div *ngIf="!PreviewResultsAreGood() && this.DataToCheck && this.DataToCheck.totalReferences == 1" class="alert alert-danger col-6">
+                    Parsing this file with the chosen filter ({{currentFilterName}}) found only one reference.
+                    <strong>Are you sure you picked the right filter?</strong>
+                </div>-->
+
+            </div>
+            <div [ngbCollapse]="!ShowPreviewTable" class="alert alert-info">
+                <div class="col-12 mb-1">
+                    <div class="bg-white border border-dark m-2 p-1">
+                        <strong>Search Summary </strong><div class="bg-white p-1">{{DataToCheck.summary}}</div>
+                    </div>
+                </div>
+                <div class="col-12 mb-1">
+                    <div class="row align-items-center">
+                        <div class="m-1">Show Results from Item:&nbsp;</div>
+                        <kendo-numerictextbox [(ngModel)]="AdjustedShowStart" 
+                                              [min]="1" [format]="'n0'" 
+                                              [max]="AdjustedMax()"
+                                              [autoCorrect]="true" 
+                                              class="border border-dark rounded"
+                                              style="width: 110px;"></kendo-numerictextbox>
+                        <div class="m-1">
+                            &nbsp;to Item:&nbsp;
+                        </div>
+                        <kendo-numerictextbox [(ngModel)]="AdjustedShowEnd" 
+                                              [max]="AdjustedMax()"
+                                              [format]="'n0'" [min]="AdjustedShowStart" 
+                                              [autoCorrect]="true"
+                                              class="border border-dark rounded"
+                                              style="width: 130px;"></kendo-numerictextbox>
+                        <button class="btn btn-outline-info ml-2" (click)="GetSearchPreview()">Show</button>
+                    </div>
+                </div>
+                <div class="col-12 bg-white p-0" style="max-height:300px; overflow-y:scroll;">
+                    <table class="table-striped table table-bordered small" >
+                        <tbody>
+                            <tr>
+                                <th class="p-0" style="width:20%; min-width:50px">Journal</th>
+                                <th class="p-0" style="width:50%; min-width:150px">Title</th>
+                                <th class="p-0" style="width:10%; min-width:50px">Authors</th>
+                                <th class="p-0" style="width:10%; min-width:50px">Pages</th>
+                                <th class="p-0" style="width:10%; min-width:50px">Year</th>
+                            </tr>
+
+                            <tr *ngFor="let item of DataToCheck.itemsList.incomingItems" class="p-0">
+                                <td class="p-0 align-middle justify-content-center">
+                                    {{item.parent_title}}
+                                </td>
+                                <td class="p-1 align-middle">{{item.title}}</td>
+                                <td class="p-1 align-middle ">{{AuthorsString(item.authorsLi)}}</td>
+                                <td class="p-1 align-middle ">{{item.pages}}</td>
+                                <td class="p-1 align-middle ">{{item.year}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="!DataToCheck || !DataToCheck.itemsList" class="col-12">
+            The search returned no references. <strong>Please revise your string.</strong>
+        </div>
+        <form *ngIf="DataToCheck && DataToCheck.itemsList" (ngSubmit)="onSubmit()" class="col-12 row" #NewSourceForm="ngForm">
+            <div class="form-group col-6">
+                <label for="source_Name">Source Name</label>
+                <input type="text" class="form-control" id="Sourcename"
+                       [(ngModel)]="DataToCheck.itemsList.sourceName" name="source_Name"
+                       #name="ngModel">
+                <div [hidden]="IsSourceNameValid() != 1"
+                     class="alert alert-danger">
+                    Name is required
+                </div>
+                <div [hidden]="IsSourceNameValid() != 2"
+                     class="alert alert-danger">
+                    There is another source with this name, please change it.
+                </div>
+            </div>
+            <div class="form-group col-6">
+                <div>
+                    Date of search:
+                    {{FormatDate(DataToCheck.itemsList.dateOfSerach)}}
+                </div>
+                <div>
+                    Database: PubMed
+                </div>
+            </div>
+            <div class="form-group col-12">
+                <label for="searchString">Search String</label>
+                <div class="bg-white border" id="searchString">{{DataToCheck.queryStr}}</div>
+            </div>
+            <div class="form-group col-12">
+				<label for="searchDescription">Description (optional)</label>
+                <input type="text" class="form-control" id="searchDescription"
+                       [(ngModel)]="DataToCheck.itemsList.searchDescr" name="searchDescription"
+                       >
+            </div>
+            <div class="form-group col-12">
+				<label for="searchnotes">Notes (optional)</label>
+                <input type="text" class="form-control" id="searchnotes"
+                       [(ngModel)]="DataToCheck.itemsList.notes" name="searchnotes">
+            </div>
+            <!--<div class="col-12">
+                <button type="submit" class="btn btn-success mb-1" [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.totalReferences == 0">Upload!</button>
+            </div>-->
+            <div class="col-12">
+                <div colspan="5" class="row mb-1 align-items-center">
+                    <div>Import from Item:&nbsp;</div>
+                    <kendo-numerictextbox [(ngModel)]="AdjustedSaveStart"
+                                          [min]="1" [format]="'n0'"
+                                          [max]="AdjustedMax()"
+                                          [autoCorrect]="true"
+                                          class="border border-dark rounded"
+                                          style="width: 130px;"
+                                          name="importFrom"></kendo-numerictextbox>
+                    <div>
+                        &nbsp;to Item&nbsp;
+                    </div>
+                    <kendo-numerictextbox [(ngModel)]="AdjustedSaveEnd"
+                                          [min]="AdjustedSaveStart" [format]="'n0'"
+                                          [max]="AdjustedMax()"
+                                          [autoCorrect]="true"
+                                          class="border border-dark rounded"
+                                          style="width: 130px;"
+                                          name="importTo"></kendo-numerictextbox>
+                    <button class="btn btn-success ml-2" (click)="ImportPmSearch()" type="button"
+                            [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.queMax == 0 || !ImportRangeOK">
+                        &nbsp;Import&nbsp;
+                    </button>
+                </div>
+                <div [hidden]="ImportRangeOK"
+                     class="alert alert-danger small">
+                    Maximum items per import is 10,000
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

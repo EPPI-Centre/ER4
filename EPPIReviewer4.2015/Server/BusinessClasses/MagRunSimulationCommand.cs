@@ -276,7 +276,8 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            //using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;

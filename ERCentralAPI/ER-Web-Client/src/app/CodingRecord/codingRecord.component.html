@@ -1,0 +1,64 @@
+<div class="container col-12 p-0">
+    <!--<h2><b>Coding Record</b></h2>-->
+    <div class="row mx-0">
+        <div class="row col-12 mb-1">
+            <button (click)="RunComparison()" class="btn btn-outline-primary mt-0 mb-1 ml-1">Run Comparison</button>
+            <button (click)="SaveReportAsHtml(ComparisonReportHTML)" [disabled]="ComparisonReportHTML.length == 0"
+                    title="Save as Html (Supports opening in Word)"
+                    type="button" class="btn btn-sm btn-outline-primary mt-0 mb-1 mr-1">
+                <span class="k-icon k-i-save"></span>
+            </button>
+            <button (click)="LiveComparison()" class="btn btn btn-outline-secondary mt-0 mb-1 mx-1">Live Comparison</button>
+            <button *ngIf="!IsServiceBusy" title="Refresh Coding Record" class="btn btn-sm btn-outline-success mt-0 mb-1 mx-1 p-0 px-2" (click)="RefreshCodingRecord()">
+              <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+            </button>
+            <div class="ml-2 mt-2 mb-1 pl-1">
+                <i *ngIf="IsServiceBusy" class="fa fa-spinner fa-spin text-success " style=""></i>
+            </div>
+        </div>
+    </div>
+    <div class="p-0 row mx-0">
+        <kendo-grid [data]="DataSourceModel"
+                    [style.height.vh]="70"
+                    [style.max-height.vh]="70"
+                    [sort]="sort"
+                    [sortable]="{
+                    allowUnsort: allowUnsort,
+                    mode: 'single'
+                    }"
+                    (sortChange)="sortChangeModel($event)">
+            <kendo-grid-column title=" " [width]="20" class="p-1"  headerClass="p-1 small">
+                <ng-template kendoGridCellTemplate let-item>
+                    <input type="checkbox" [(ngModel)]="item.isSelected" (change)="checkboxChange(item)" />
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="setName" title="Coding Tool" [width]="250" class="p-1" headerClass="p-1 small font-weight-bold">
+            </kendo-grid-column>
+            <kendo-grid-column field="contactName" title="Reviewer" [width]="200" class="p-1" headerClass="p-1 small font-weight-bold">
+            </kendo-grid-column>
+            <kendo-grid-column field="isCompleted" title="Completed" [width]="82" class="p-1" headerClass="p-1 small font-weight-bold">
+                <ng-template kendoGridCellTemplate let-item>
+                    <img *ngIf="item.isCompleted" title="Coding complete: these codes can appear in reports and be found in searches" src="assets/CodingComplete.png" class="mr-1" />
+                    <img *ngIf="!item.isCompleted" title="Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png" class="mr-1" /><br />
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="isLocked" title="Locked?" [width]="62" class="p-1" headerClass="p-1 small font-weight-bold">
+                <ng-template kendoGridCellTemplate let-item>
+                    <img *ngIf="item.isLocked" title="Coding locked: you can't change the codes already entered"
+                          src="assets/CodingLocked.png" class="mr-1" />
+                    <div *ngIf="!item.isLocked">No</div>
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column title="" [width]="92" class="p-1" headerClass="p-1 small">
+                <ng-template kendoGridCellTemplate let-item>
+                    <button class="btn btn-sm btn-info" (click)="ViewSingleCodingReport(item, true)">View</button>
+                    <button (click)="ViewSingleCodingReport(item, false)"
+                            title="Save as Html (Supports opening in Word)"
+                            type="button" class="btn btn-sm btn-outline-info ml-1">
+                        <span class="k-icon k-i-save"></span>
+                    </button>
+                </ng-template>
+            </kendo-grid-column>
+        </kendo-grid>
+    </div>
+</div>

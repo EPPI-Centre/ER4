@@ -1,0 +1,152 @@
+﻿@using System.IO;
+@using System.Security.Claims;
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EPPI-Vis</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/Kendo/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/Kendo/kendo.all.min.js"></script>
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>EPPI-Centre WebDatabase Application</title>
+    <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+    <link rel="icon" href="~/assets/img/EPPI-Centre.ico" type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <script src="~/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+        WebFont.load({
+            google: { "families": ["Lato:300,400,700,900"] },
+            custom: { "families": ["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css'] },
+            active: function () {
+                sessionStorage.fonts = true;
+            }
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/atlantis.css">
+
+    <!-- CSS Just for demo purpose, don't include it in your project -->
+    <link rel="stylesheet" href="~/assets/css/demo.css">
+</head>
+<body>
+
+
+
+
+
+    <div class="wrapper">
+
+
+
+
+        <div class="main-header">
+            <form method="post" asp-controller="Login" asp-action="DoLogin">
+
+                <div class="row">
+                    <div class="col-md-2 logo-header" data-background-color="blue">
+                        <img src="~/assets/img/logo.svg" alt="navbar brand" class="navbar-brand">
+                    </div>
+                    
+                    <div class="col-md-2" style="background-color:#1269DB">
+                        <table>
+                            <tr>
+                                <td style="padding:5px 0px 0px 0px">
+                                    @if (ViewBag.Id != null && ViewBag.Id > 0)
+                                    {
+                                    @Html.TextBox("id",(string)ViewBag.Id.ToString(), new { @class="p-2 align-self-center m-1" } )
+                                    }
+                                    else
+                                    {
+                                    <input class="p-2 align-self-center m-1" id="id" placeholder="Webdatabase ID" name="id" type="text" />
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                        
+                    </div>
+
+                    <div class="col-md-8" style="background-color:#1269DB">
+                        <table>
+                            <tr>
+                                <td style="padding:5px 0px 0px 0px">
+                                    @if (ViewBag.Username != null)
+                                    {
+                                    @Html.TextBox("username",(string)ViewBag.Username, new { @class="p-2 align-self-center m-1" } )
+                                    }
+                                    else
+                                    {
+                                    <input class="p-2 align-self-center m-1" id="username" placeholder="Username" name="username" type="text" />
+                                    }
+                                    <input class="p-2 align-self-center m-1" id="password" placeholder="Password" name="password" type="password" />
+                                    <input class="p-2 btn btn-success btn-round btn-sm" type="submit" value="Access" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+
+
+
+        @RenderBody()
+
+        <!-- End Custom template -->
+    </div>
+
+
+   
+    <!-- End Navbar -->
+    <!--   Core JS Files   -->
+    <!--<script src="~/assets/js/core/jquery.3.2.1.min.js"></script>-->
+    <script src="~/assets/js/core/popper.min.js"></script>
+    <script src="~/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery UI -->
+    <script src="~/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="~/assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="~/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+
+    <!-- Chart JS -->
+    <script src="~/assets/js/plugin/chart.js/chart.min.js"></script>
+
+    <!-- jQuery Sparkline -->
+    <script src="~/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+    <!-- Chart Circle -->
+    <script src="~/assets/js/plugin/chart-circle/circles.min.js"></script>
+
+    <!-- Datatables -->
+    <script src="~/assets/js/plugin/datatables/datatables.min.js"></script>
+
+    <!-- Bootstrap Notify -->
+    <script src="~/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <!-- jQuery Vector Maps -->
+    <script src="~/assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+    <!-- Sweet Alert -->
+    <script src="~/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+    <!-- Atlantis JS -->
+    <script src="~/assets/js/atlantis.min.js"></script>
+
+</body>
+</html>

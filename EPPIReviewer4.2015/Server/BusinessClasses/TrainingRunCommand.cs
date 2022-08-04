@@ -27,10 +27,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure;
 //using Microsoft.Azure;
 using System.Configuration;
 using System.Text.RegularExpressions;
@@ -214,21 +210,14 @@ namespace BusinessLibrary.BusinessClasses
                 //justIndexed = task.Result;
 
                 //LINE below in MVC/CORE env makes the controller send the response without waiting... We're OK with this, for now.
-                justIndexed = await UploadDataToAzureBlob(ReviewID, ri.UserId, RevInfo.ScreeningIndexed); 
-                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = blobClient.GetContainerReference("uploads");
-                CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Vectors.csv");
+                justIndexed = UploadDataToAzureBlob(ReviewID, ri.UserId, RevInfo.ScreeningIndexed); 
+                //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+                //CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                //CloudBlobContainer container = blobClient.GetContainerReference("uploads");
+                //CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Vectors.csv");
 
-#if (!CSLA_NETCORE)
-                if (RevInfo.ScreeningIndexed == false || justIndexed || !blockBlobData.Exists())
-#else
-                Task<bool> task2 = blockBlobData.ExistsAsync();
-                while (!task2.IsCompleted) Thread.Sleep(100);
-                bool blockBlobDataExistsRes =  task2.Result;
 
-                if (RevInfo.ScreeningIndexed == false || justIndexed || !blockBlobDataExistsRes)
-#endif
+                if (RevInfo.ScreeningIndexed == false || justIndexed || !BlobOperations.ThisBlobExist(blobConnection, "uploads", NameBase + "ReviewId" + RevInfo.ReviewId + "Vectors.csv"))
                 {//vectorise if:
                     //(currently user-set) flag forcing (re)indexing is set to FALSE ( = need to create index)
                     //OR we just built the index anyway (make sure vectors are up to date)
@@ -250,18 +239,11 @@ namespace BusinessLibrary.BusinessClasses
                 await InvokeBatchExecutionService(RevInfo, "BuildAndScore");
 
                 // Stage 6: bring the data down from Azure BLOB and write to the tb_training item table
-                
-                container = blobClient.GetContainerReference("results");
-                CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + ".csv");
-#if (!CSLA_NETCORE)
-                byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-#else
-                Task<string> task3 = blockBlob.DownloadTextAsync();
-                while (!task3.IsCompleted) Thread.Sleep(100);
-                byte[] myFile = Encoding.UTF8.GetBytes(task3.Result);
-#endif
 
-                MemoryStream ms = new MemoryStream(myFile);
+
+                //byte[] myFile = Encoding.UTF8.GetBytes(BlobOperations.GetBlobAsMemoryStream(blobConnection, "results", NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + ".csv"));
+
+                MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "results", NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + ".csv");
 
                 DataTable dt = new DataTable("Scores");
                 dt.Columns.Add("SCORE");
@@ -391,7 +373,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     catch (Exception e)
                     {
-                        ERxWebClient2.Startup.Logger.LogError(e, "List creation in TrainingRunCommand failed", command.Parameters);
+                        Program.Logger.Error(e, "List creation in TrainingRunCommand failed", command.Parameters);
                         
                         //the line below was (probably) creating the "review needs indexing" bug: when an exception happened (timeout?)
                         //then RevInfo.ScreeningIndexed = false was set in the lines below... (07/08/2019)
@@ -494,38 +476,34 @@ namespace BusinessLibrary.BusinessClasses
 
         //private bool UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
 
-        private async Task<bool> UploadDataToAzureBlob(int ReviewID, int UserId, bool ScreeningIndexed)
+        private bool UploadDataToAzureBlob(int ReviewID, int UserId, bool ScreeningIndexed)
 
         {
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+            //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+            
             //StringBuilder data = new StringBuilder();
             StringBuilder labels = new StringBuilder();
             //data.Append("\"REVIEW_ID\",\"ITEM_ID\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"" + Environment.NewLine);
             labels.Append("\"REVIEW_ID\",\"ITEM_ID\",\"LABEL\"" + Environment.NewLine);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("uploads");
-            CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + ".csv");
-            CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv");
-#if (!CSLA_NETCORE)
-                if (!ScreeningIndexed
-                ||
-                !blockBlobData.Exists()
-                ||
-                !blockBlobLabels.Exists()
-                )
-#else
-            bool blockBlobDataExists = await blockBlobData.ExistsAsync();
-            bool blockBlobLabelsExists = await blockBlobLabels.ExistsAsync();
 
+            //CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            //CloudBlobContainer container = blobClient.GetContainerReference("uploads");
+            //CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + ".csv");
+            //CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv");
+
+            List<string> blobs = new List<string>() 
+                        { NameBase + "ReviewId" + RevInfo.ReviewId + ".csv", 
+                        NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv" };
+
+            Dictionary<string, bool> BlobsExist = BlobOperations.TheseBlobsExist(blobConnection, "uploads", blobs);
+            //we only do something if we need to index the review, or one of the two csv files is missing
             if (!ScreeningIndexed
                 ||
-                !blockBlobDataExists
+                !BlobsExist[blobs[0]]
                 ||
-                !blockBlobLabelsExists
+                !BlobsExist[blobs[1]]
                 )
-#endif
-
             {//we only do something if: 
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
@@ -585,23 +563,15 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                     connection.Close();
-#if (!CSLA_NETCORE)
+
                     using (var fileStream = System.IO.File.OpenRead(fileName))
                     {
-                        blockBlobData.UploadFromStream(fileStream);
+                        BlobOperations.UploadStream(blobConnection, "uploads", blobs[0], fileStream);
                     }
                     File.Delete(fileName);
                     //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
-                    blockBlobLabels.UploadText(labels.ToString());
-#else
-                    using (var fileStream = System.IO.File.OpenRead(fileName))
-                    {
-                        await blockBlobData.UploadFromStreamAsync(fileStream);
-                    }
-                    File.Delete(fileName);
-                    //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
-                    await blockBlobLabels.UploadTextAsync(labels.ToString());
-#endif
+                    BlobOperations.UploadString(blobConnection, "uploads", blobs[1], labels.ToString());
+
                 }
                 return true;//we actually did re-index
             }
@@ -613,7 +583,6 @@ namespace BusinessLibrary.BusinessClasses
         private async void UpdateAzureIncludeExcludeData(int ReviewID)
 #endif
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
             StringBuilder labels = new StringBuilder();
             labels.Append("\"REVIEW_ID\",\"ITEM_ID\",\"LABEL\"" + Environment.NewLine);
 
@@ -641,36 +610,21 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 connection.Close();
-
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = blobClient.GetContainerReference("uploads");
-                CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv");
-#if (!CSLA_NETCORE)
-                blockBlobLabels.UploadText(labels.ToString());
-#else
-                await blockBlobLabels.UploadTextAsync(labels.ToString());
-#endif
-
+                BlobOperations.UploadString(blobConnection, "uploads", NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv", labels.ToString());
             }
         }
 
         private async void DoSimulation(int ReviewID, int UserId)
         {
             // Delete existing results file (if any)
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("simulations");
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + ReviewID.ToString() + ".csv");
-#if (!CSLA_NETCORE)
-            blockBlob.DeleteIfExists();
-#else
-            await blockBlob.DeleteIfExistsAsync();
-#endif
+
+            BlobOperations.DeleteIfExists(blobConnection, "simulations", NameBase + "ReviewId" + ReviewID.ToString() + ".csv");
+
             // Simple: upload data if needed
             bool justIndexed = false;
             if (RevInfo.ScreeningIndexed == false)
             {
-                await UploadDataToAzureBlob(ReviewID, UserId, false); // ScreeningIndexed == false because we're not vectorising (line below)
+                UploadDataToAzureBlob(ReviewID, UserId, false); // ScreeningIndexed == false because we're not vectorising (line below)
                 //await InvokeBatchExecutionService(RevInfo, "Vectorise"); commented out - don't need to Vectorise
                 justIndexed = true;
             }
@@ -687,23 +641,14 @@ namespace BusinessLibrary.BusinessClasses
 #if (!CSLA_NETCORE)
         private void FetchSimulationResults(int ReviewID)
 #else
-        private async void FetchSimulationResults(int ReviewID)
+        private void FetchSimulationResults(int ReviewID)
 #endif
         {
             // Stage 6: bring the data down from Azure BLOB and write to the tb_training item table
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("simulations");
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + ReviewID.ToString() + ".csv");
-
             try // if the simulation hasn't finished yet, there will be no file
             {
-#if (!CSLA_NETCORE)
-                byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-#else
-                byte[] myFile = Encoding.UTF8.GetBytes(await blockBlob.DownloadTextAsync());
-#endif
-                MemoryStream ms = new MemoryStream(myFile);
+
+                MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "simulations", NameBase + "ReviewId" + ReviewID.ToString() + ".csv"); // new MemoryStream(myFile);
                 SimulationResults = System.Text.Encoding.UTF8.GetString(ms.ToArray());
             }
             catch
@@ -754,14 +699,14 @@ namespace BusinessLibrary.BusinessClasses
             Console.WriteLine(responseContent);
         }
 
-        // these should all be stored in app.config really
-        const string blobConnection = "***REMOVED***";
-        const string BaseUrlBuildAndScore = "***REMOVED***";
-        const string apiKeyBuildAndScore = "***REMOVED***"; //EPPI-R - build + score (blob storage)
-        const string BaseUrlVectorise = "***REMOVED***";
-        const string apiKeyVectorise = "***REMOVED***"; //EPPI-R AL: index review
-        const string BaseUrlSimulation5 = "***REMOVED***";
-        const string apiKeySimulation5 = "***REMOVED***"; // EPPI-R: active learning simulation (x10)
+        
+        static string blobConnection = AzureSettings.blobConnection;
+        static string BaseUrlBuildAndScore = AzureSettings.BaseUrlBuildAndScore;
+        static string apiKeyBuildAndScore = AzureSettings.apiKeyBuildAndScore;
+        static string BaseUrlVectorise = AzureSettings.BaseUrlVectorise;
+        static string apiKeyVectorise = AzureSettings.apiKeyVectorise;
+        static string BaseUrlSimulation5 = AzureSettings.BaseUrlSimulation5;
+        static string apiKeySimulation5 = AzureSettings.apiKeySimulation5;
         const string TempPath = @"UserTempUploads/ReviewId";
 
         public static string NameBase

@@ -73,9 +73,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return GetProperty(IsEditableProperty) && 
-                    Csla.Rules.BusinessRules.HasPermission( AuthorizationActions.EditObject, this);
-                    // Csla.Security.AuthorizationRules.CanEditObject(this.GetType());
+                return GetProperty(IsEditableProperty);
             }
             set
             {
@@ -157,7 +155,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void AddBusinessRules()
         {
-            BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser" )); 
+            //BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser" )); 
         }
         public bool ShowScores()
         {
@@ -507,6 +505,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
                 LoadProperty(GroupIDProperty, criteria.Value);
+                LoadProperty(IsEditableProperty, ri.HasWriteRights());
                 GetManualMembers();
             }
         }
@@ -535,7 +534,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (this.getMaster() == null)
                 Console.WriteLine(this.GroupID);
-            IsEditable = this.getMaster().IsEditable;
+            IsEditable = IsEditable && this.getMaster().IsEditable;
         }
         protected override void DataPortal_DeleteSelf()
         {

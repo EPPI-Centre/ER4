@@ -19,9 +19,6 @@ using System.IO;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
-using System.Configuration;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 #if !CSLA_NETCORE
 using System.Web.Hosting;
 #endif
@@ -216,7 +213,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);
-                int NewIds = await DownloadResultsAsync(folderPrefix, ReviewId);
+                int NewIds = DownloadResultsAsync(folderPrefix, ReviewId);
 
                 if (NewIds == -1)
                 {
@@ -279,45 +276,40 @@ namespace BusinessLibrary.BusinessClasses
                     return;
                 }
 
-                await downloadNewIds(logId);
+                downloadNewIds(logId);
             }
         }
 
-        private async Task<bool> downloadNewIds(int logId)
+        private bool downloadNewIds(int logId)
         {
             int paperCount = 0;
-#if (CSLA_NETCORE)
-
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
-
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" +
-                ERxWebClient2.Startup.Configuration.GetSection("MAGStorageAccount") + ";AccountKey=" +
-                ERxWebClient2.Startup.Configuration.GetSection("MAGStorageAccountKey"));
-
-#else
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" +
-                ConfigurationManager.AppSettings["MAGStorageAccount"] + ";AccountKey=" +
-                ConfigurationManager.AppSettings["MAGStorageAccountKey"]);
-#endif
 
 
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("open-alex");
-            CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference("OpenAlexData/" + _NextMagVersion + "/NewPaperIds.tsv");
+            //var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = AzureSettings.MAGStorageAccount;
+            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
+            string storageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName
+                + ";AccountKey=" + storageAccountKey;
+            
+            //CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" +
+            //    ERxWebClient2.Startup.Configuration.GetSection("MAGStorageAccount") + ";AccountKey=" +
+            //    ERxWebClient2.Startup.Configuration.GetSection("MAGStorageAccountKey"));
+
+            //CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            //CloudBlobContainer container = blobClient.GetContainerReference("open-alex");
+            //CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference("OpenAlexData/" + _NextMagVersion + "/NewPaperIds.tsv");
 
             try
             {
-                string Results1 = await blockBlobDataResults.DownloadTextAsync();
-                byte[] myFile = Encoding.UTF8.GetBytes(Results1);
+                //string Results1 = await blockBlobDataResults.DownloadTextAsync();
+                //byte[] myFile = Encoding.UTF8.GetBytes(Results1);
 
                 DataTable dt = new DataTable("TB_MAG_NEW_PAPERS");
                 dt.Columns.Add("MAG_NEW_PAPERS_ID");
                 dt.Columns.Add("PaperId");
                 dt.Columns.Add("MagVersion");
 
-                MemoryStream msIds = new MemoryStream(myFile);
+                MemoryStream msIds = BlobOperations.DownloadBlobAsMemoryStream(storageAccountConnectionString, "open-alex", "OpenAlexData/" + _NextMagVersion + "/NewPaperIds.tsv"); 
                 using (var readerIds = new StreamReader(msIds))
                 {
                     string line;
@@ -394,9 +386,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private async void doDownloadResultsOnly(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
+        private void doDownloadResultsOnly(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            int NewIds = await DownloadResultsAsync(_specificFolder, ReviewId);
+            int NewIds = DownloadResultsAsync(_specificFolder, ReviewId);
             if (NewIds == -1)
             {
                 MagLog.UpdateLogEntry("Stopped", "IDs downloaded = -1. Folder:" +
@@ -456,40 +448,24 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task<bool> UploadSeedIdsFileToBlobAsync(string fileName, string folderPrefix)
         {
-#if (CSLA_NETCORE)
-
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
-
-#else
-            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
-#endif
+            string storageAccountName = AzureSettings.MAGStorageAccount;
+            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
             storageConnectionString += storageAccountKey;
 
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("experiments");
-            CloudBlockBlob blockBlobData;
+            //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            //CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            //CloudBlobContainer container = blobClient.GetContainerReference("experiments");
+            //CloudBlockBlob blockBlobData;
 
             try
             {
-                blockBlobData = container.GetBlockBlobReference(folderPrefix + "/" + Path.GetFileName(fileName));
+                //blockBlobData = container.GetBlockBlobReference(folderPrefix + "/" + Path.GetFileName(fileName));
                 using (var fileStream = System.IO.File.OpenRead(fileName))
                 {
-
-
-#if (!CSLA_NETCORE)
-                    blockBlobData.UploadFromStream(fileStream);
-#else
-
-					await blockBlobData.UploadFromFileAsync(fileName);
-#endif
-
+                    BlobOperations.UploadStream(storageConnectionString, "experiments", folderPrefix + "/" + Path.GetFileName(fileName), fileStream);
                 }
                 File.Delete(fileName);
                 return true;
@@ -510,22 +486,14 @@ namespace BusinessLibrary.BusinessClasses
                 return false;
         }
 
-        private async Task<int> DownloadResultsAsync(string folder, int ReviewId)
+        private int DownloadResultsAsync(string folder, int ReviewId)
         {
-#if (CSLA_NETCORE)
+            string storageAccountName = AzureSettings.MAGStorageAccount;
+            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
-
-#else
-            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
-#endif
-
-            CloudBlobDirectory dir;
-            CloudBlob blob;
-            BlobContinuationToken continuationToken = null;
+            //CloudBlobDirectory dir;
+            //CloudBlob blob;
+            //BlobContinuationToken continuationToken = null;
             int lineCount = 0;
 
             string storageConnectionString =
@@ -534,32 +502,36 @@ namespace BusinessLibrary.BusinessClasses
 
             try
             {
-                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = blobClient.GetContainerReference("experiments");
+                //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+                //CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                //CloudBlobContainer container = blobClient.GetContainerReference("experiments");
                 //string JobId = Guid.NewGuid().ToString();
-                do
-                {
-                    BlobResultSegment resultSegment = await container.ListBlobsSegmentedAsync(folder + "/tmp",
-                    true, BlobListingDetails.Metadata, 100, continuationToken, null, null);
+                //do
+                //{
+                    List<BlobInHierarchy> resultSegment = BlobOperations.Blobfilenames(storageConnectionString, "experiments", folder + "/tmp");
+                    //BlobResultSegment resultSegment = await container.ListBlobsSegmentedAsync(folder + "/tmp",
+                    //true, BlobListingDetails.Metadata, 100, continuationToken, null, null);
 
-                    foreach (var blobItem in resultSegment.Results)
+                    //foreach (var blobItem in resultSegment.Results)
+                    foreach (BlobInHierarchy blobItem in resultSegment)
                     {
-                        // A hierarchical listing may return both virtual directories and blobs.
-                        if (blobItem is CloudBlobDirectory)
+                        //// A hierarchical listing may return both virtual directories and blobs.
+                        //if (blobItem is CloudBlobDirectory)
+                        //{
+                        //    dir = (CloudBlobDirectory)blobItem;
+                        //}
+                        //else
+                        if (blobItem.IsFile)
                         {
-                            dir = (CloudBlobDirectory)blobItem;
-                        }
-                        else
-                        {
-                            blob = (CloudBlob)blobItem;
-                            if (blob.Name.StartsWith(folder + "/tmp/part"))
+                            //blob = (CloudBlob)blobItem;
+                            //if (blob.Name.StartsWith(folder + "/tmp/part"))
+                            if (blobItem.BlobName.StartsWith(folder + "/tmp"))
                             {
-                                CloudBlockBlob blockBlobDownloadData = container.GetBlockBlobReference(blob.Name);
-                                string resultantString = await blockBlobDownloadData.DownloadTextAsync();
-                                byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
+                                //CloudBlockBlob blockBlobDownloadData = container.GetBlockBlobReference(blob.Name);
+                                //string resultantString = await blockBlobDownloadData.DownloadTextAsync();
+                                //byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
 
-                                MemoryStream ms = new MemoryStream(myFile);
+                                MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(storageConnectionString, "experiments", blobItem.BlobName) ;// new MemoryStream(myFile);
 
                                 DataTable dt = new DataTable("Ids");
                                 dt.Columns.Add("MAG_AUTO_UPDATE_RUN_PAPER_ID");
@@ -614,9 +586,9 @@ namespace BusinessLibrary.BusinessClasses
                     }
 
                     // Get the continuation token and loop until it is null.
-                    continuationToken = resultSegment.ContinuationToken;
+                    //continuationToken = resultSegment.ContinuationToken;
 
-                } while (continuationToken != null);
+                //} while (continuationToken != null);
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();

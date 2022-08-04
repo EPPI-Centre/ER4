@@ -1,0 +1,50 @@
+<div *ngIf="!ShowUpload && HasWriteRights && showUpload">
+    <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Upload</button>
+</div>
+<div *ngIf="ShowUpload && showUpload" class="row ml-2 bg-white mr-1 p-0">
+    <kendo-upload class="" [autoUpload]="true"
+                  [saveUrl]="uploadSaveUrl"
+                  [restrictions]="uploadRestrictions"
+                  (upload)="uploadEventHandler($event)"
+                  (complete)="completeEventHandler()">
+    </kendo-upload>
+    <div class="">
+        <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false">Cancel</button>
+    </div>
+</div>
+<div class="row ml-2 border-info mr-1"
+     *ngIf="ItemDocsService._itemDocs && ItemDocsService._itemDocs.length > 0">
+    <div class="col-12 p-0"><b>Documents:</b></div>
+    <div class="col-12 p-0" style="max-height: 200px; overflow:auto;">
+        <table class="table table-bordered table-striped table-sm " >
+            <thead>
+                <tr>
+                    <th width="1" style="min-width:45px;">Id</th>
+                    <th >Ref</th>
+                    <th >File Name</th>
+                    <th width="1" style="min-width:145px; max-width:145px!important;" class="">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let ItemDocument of ItemDocsService._itemDocs">
+                    <td class="">{{ ItemDocument.itemDocumentId }}</td>
+                    <td class="">{{ ItemDocument.shortTitle }}</td>
+                    <td class="">{{ ItemDocument.title }}</td>
+                    <td class="p-0 m-0 align-middle">
+                        <button *ngIf="ShowViewButton && ItemDocument.extension.toLowerCase() == '.pdf'" 
+                                class="btn btn-outline-success btn-sm mr-1  px-1 py-0" title="View" 
+                                (click)="DownloadDoc(ItemDocument.itemDocumentId, true)">
+                          <span class="k-icon k-i-eye"></span>
+                        </button>
+                        <button class="btn btn-outline-info btn-sm px-1 py-0" (click)="DownloadDoc(ItemDocument.itemDocumentId, false)">
+                            Download
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm ml-1 px-1 py-0" title="Delete" (click)="DeleteDoc(ItemDocument.itemDocumentId)">
+                          <span class="k-icon k-i-trash"></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

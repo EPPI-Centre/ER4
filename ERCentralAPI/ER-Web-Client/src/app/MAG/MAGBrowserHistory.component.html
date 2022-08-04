@@ -1,0 +1,60 @@
+<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowsingHistory"></HeaderComponent>
+
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+    Close/back
+</button>
+
+<MAGHeaderBar Context="MAGBrowsingHistory"></MAGHeaderBar>-->
+
+
+<div class="container col-12">
+    <div class="row">
+
+        <div class="col-md-12 mb-5">
+            <h2 class="card-title"></h2>
+            <div class="card h-100">
+                <div class="card-body">
+
+                    <h3 class="font-weight-light">OpenAlex browsing history</h3>
+                    <!--<h4 class="font-weight-light text-sm-left">
+                        Current Microsoft Academic Graph Dataset:<br />
+                        <i> {{_magAdminService.latestMAGName}} </i>
+                    </h4>-->
+                    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+                    <a class="btn btn-danger text-white align-content-centerp-2 m-2" (click)="ClearHistory()"> Clear all history <span class="k-icon k-i-trash"></span></a>
+                    <div class="col-12 alert-secondary p-2 m-2 card" style="min-width:150px;max-height:70vh; overflow:auto;">
+
+                        <table class="table table-sm  table-striped" >
+                            <thead>
+                                <tr>
+                                    <th class="">
+                                        Page
+                                    </th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of _MAGBrowserHistoryService._MAGBrowserHistoryList;  let i = index">
+
+                                    <td class="btn btn-sm btn-link mt-1" (click)="GoToUrl(i)">{{item.title}}</td>
+                                    <td>{{item.dateBrowsed.toLocaleDateString(undefined, {  year: 'numeric', month: 'short', day: 'numeric' })}}</td>
+                                    <td>{{item.dateBrowsed.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}}</td>
+                                    <td class=""><button class="btn btn-sm btn-outline-danger" (click)="RemoveUrl(i)"><span class="k-icon k-i-trash"></span></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+
+<!--<statusbar></statusbar>-->

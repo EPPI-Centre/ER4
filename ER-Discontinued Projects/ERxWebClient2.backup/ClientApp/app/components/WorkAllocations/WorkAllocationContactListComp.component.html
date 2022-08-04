@@ -1,0 +1,31 @@
+<p *ngIf="!ContactWorkAllocations"><em>Loading your Allocations...</em></p>
+
+<div class="card card-link mb-2" *ngIf="Context == 'CodingOnly' && HasScreeningList()">
+    <div class="align-content-end p-1 m-1">The Screening List is <b>Enabled and Ready</b>: <button (click)="StartScreening()" class="btn btn-primary">Click Here</button> to start screening.</div>
+</div>
+<table class='table table-responsive'  style="height: 240px;" *ngIf="ContactWorkAllocations">
+    <thead>
+        <tr class="small">
+            <th>Codes to apply</th>
+            <th>Group</th>
+            <th>Allocated</th>
+            <th>Started</th>
+            <th>Remaining</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let alloc of ContactWorkAllocations; let i = index">
+            <td>{{ alloc.setName }}</td>
+            <td>{{ alloc.attributeName }}</td>
+            <td id="waAll-{{alloc.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ alloc.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationList')">
+            <div class="btn btn-link">{{ alloc.totalAllocation }}</div>
+            </td>
+            <td id="waStarted-{{alloc.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waStarted-'+ alloc.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListStarted')">
+                <div class="btn btn-link">{{ alloc.totalStarted }}</div>
+            </td>
+            <td id="waRemaining-{{alloc.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waRemaining-'+ alloc.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListRemaining')">
+                <div class="btn btn-link">{{ alloc.totalRemaining }}</div>
+            </td>
+        </tr>
+    </tbody>
+</table>

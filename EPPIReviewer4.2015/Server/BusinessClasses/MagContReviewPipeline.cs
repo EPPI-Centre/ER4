@@ -11,9 +11,6 @@ using System.Threading;
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Azure.KeyVault.Core;
 using System.Configuration;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using System.Threading.Tasks;
 
 
 //using Azure.Identity;
@@ -41,22 +38,15 @@ namespace BusinessLibrary.BusinessClasses
         {
 
 
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
 
-#else
-            var configuration = ConfigurationManager.AppSettings;
-
-#endif
-
-            string tenantID = configuration["tenantID"];
-            string appClientId = configuration["appClientId"];
-            string appClientSecret = configuration["appClientSecret"];
-            string subscriptionId = configuration["subscriptionId"];
-            string resourceGroup = configuration["resourceGroup"];
-            string dataFactoryName = configuration["dataFactoryName"];
-            string pipelineName = configuration["pipelineName"];
+            string tenantID = AzureSettings.tenantID;
+            string appClientId = AzureSettings.appClientId;
+            string appClientSecret = AzureSettings.appClientSecret;
+            string subscriptionId = AzureSettings.subscriptionId;
+            string resourceGroup = AzureSettings.resourceGroup;
+            string dataFactoryName = AzureSettings.dataFactoryName;
+            string pipelineName = AzureSettings.pipelineName;
             int MagLogId = 0;
             if (prepare_data == "true")
             {
@@ -159,13 +149,7 @@ namespace BusinessLibrary.BusinessClasses
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
 
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-#else
-            var configuration = ConfigurationManager.AppSettings;
-
-#endif
             // NEW PARAMETERS FOR NOTEBOOKS V.2
             // set from client / business objects
             parameters.Add("ml_min_review_size", 5);
@@ -185,15 +169,15 @@ namespace BusinessLibrary.BusinessClasses
             parameters.Add("old_mag_version", "OpenAlexData/" + OldMagVersion);
 
             // set from web.config
-            parameters.Add("databricks_cluster_id", configuration["databricks_cluster_id"]);
-            parameters.Add("DynamicAnnotation", configuration["DynamicAnnotation"]);
-            parameters.Add("ml_pipeline_id", configuration["ml_pipeline_id"]);
-            parameters.Add("sa_account_name", configuration["sa_account_name"]);
-            parameters.Add("sa_secret_scope_name", configuration["sa_secret_scope_name"]);
-            parameters.Add("sa_secret_scope_key", configuration["sa_secret_scope_key"]);
-            parameters.Add("db_database_schema_version", configuration["db_database_schema_version"]);
-            parameters.Add("exp_experiments_container", configuration["exp_experiments_container"]);
-            parameters.Add("exp_run_suffix", configuration["exp_run_suffix"]);
+            parameters.Add("databricks_cluster_id", AzureSettings.databricks_cluster_id);
+            parameters.Add("DynamicAnnotation", AzureSettings.DynamicAnnotation);
+            parameters.Add("ml_pipeline_id", AzureSettings.ml_pipeline_id);
+            parameters.Add("sa_account_name", AzureSettings.sa_account_name);
+            parameters.Add("sa_secret_scope_name", AzureSettings.sa_secret_scope_name);
+            parameters.Add("sa_secret_scope_key", AzureSettings.sa_secret_scope_key);
+            parameters.Add("db_database_schema_version", AzureSettings.db_database_schema_version);
+            parameters.Add("exp_experiments_container", AzureSettings.exp_experiments_container);
+            parameters.Add("exp_run_suffix", AzureSettings.exp_run_suffix);
           
             return parameters;
         }

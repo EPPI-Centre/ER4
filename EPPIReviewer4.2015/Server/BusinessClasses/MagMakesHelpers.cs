@@ -71,6 +71,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        //SG addition 27/07/2022 simple comparer to order OaPaper(s) by matchingScores 
+        public class SortOaPapersByMatchingScore : IComparer<OaPaper>
+        {
+            public int Compare(OaPaper e1, OaPaper e2)
+            {
+                return e1.matchingScore.CompareTo(e2.matchingScore) * -1; //times minus one because we want the bigger vals on top
+            }
+        }
+
         // The Ids class is used in Works and Concepts
         public class Ids
         {
@@ -577,17 +586,13 @@ namespace BusinessLibrary.BusinessClasses
 
         public static string doOaRequest(string expression)
         {
-#if (CSLA_NETCORE)
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-#else
-            var configuration = ConfigurationManager.AppSettings;
-#endif
-            string endpoint = configuration["OpenAlexEndpoint"];
+
+            string endpoint = AzureSettings.OpenAlexEndpoint;
             string responseText = "";
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-            HttpWebRequest request = WebRequest.CreateHttp(configuration["OpenAlexEndpoint"] + expression);
-            request.UserAgent = "mailto:" + configuration["OpenAlexEmailHeader"];
+            HttpWebRequest request = WebRequest.CreateHttp(endpoint + expression);
+            request.UserAgent = "mailto:" + AzureSettings.OpenAlexEmailHeader;
 
             try
             {
@@ -681,7 +686,7 @@ namespace BusinessLibrary.BusinessClasses
 #elif WEBDB
                     WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
 #else
-                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
+                    Program.Logger.Error(e, "Searching on MAKES failed for text: ", searchText);
 #endif
                     return PaperList;
                 }

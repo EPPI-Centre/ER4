@@ -1,0 +1,125 @@
+<div *ngIf="!isExpanded" class="">
+    <button (click)="Expand()" class="btn btn-outline-primary m-1">
+        Edit Account
+    </button>
+</div>
+
+
+<div *ngIf="isExpanded" class="container col-12 pr-0 pl-0 border border-dark rounded bg-light" style="overflow:auto;">
+    <table>
+        <tr>
+            <td style="min-width: 150px; vertical-align: top; padding-top:3px" width="320">
+                <div class="container">
+                    <div class="mr-1"><b>Name</b></div>
+                    <input class="mb-1 w-100" type="text"
+                           id="ContactName" name="ContactName"
+                           [(ngModel)]="CurrentAccount.contactName" />
+                    <div [hidden]="CurrentAccount.contactName.trim().length > 1"
+                         class="p-1 alert alert-danger small font-weight-bold">
+                        Name is too short
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="mr-1"><b>Email</b></div>
+                    <input class="mb-1 w-100" type="text"
+                           id="email" name="email"
+                           [(ngModel)]="CurrentAccount.email" />
+                </div>
+                <div class="container">
+                    <div class="mr-1"><b>Confirm email</b></div>
+                    <input class="mb-1 w-100" type="text"
+                           id="ConfirmEmail" name="ConfirmEmail"
+                           [(ngModel)]="confirmEmail" />
+                    <div [hidden]="CurrentAccount.email == confirmEmail"
+                         class="p-1 alert alert-danger small font-weight-bold">
+                        Emails do not match
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="mr-1"><b>Username</b></div>
+                    <input class="mb-1 w-100" type="text"
+                           id="username" name="Username"
+                           [(ngModel)]="CurrentAccount.username" />
+                    <div [hidden]="CurrentAccount.username.length >= 4"
+                         class="p-1 alert alert-danger small font-weight-bold">
+                        Username too short
+                    </div>
+                </div>
+
+            </td>
+            <td style="vertical-align: top; padding-top: 3px">
+                <div class="">
+                    <button [disabled]="CurrentAccount.email != confirmEmail ||  CurrentAccount.contactName.trim().length <= 1 || this.newPassword != this.confirmNewPassword || CurrentAccount.username.length < 4 || !OldPasswordNeeded || !CheckPassword"
+                            (click)="SaveAccount()"
+                            class="btn btn-success m-1">
+                        Save
+                    </button>
+                    <button (click)="CloseEditAccount()" class="btn btn-outline-info m-1">Cancel</button>
+                </div>
+                <b>Username</b> must be at least 4 characters long and unique.<br />
+            </td>
+
+        </tr>
+    </table>
+    <hr />
+    <table>
+        <tr>
+            <td style="min-width: 150px; vertical-align: top; padding-bottom: 3px" width="320">
+                <div class="container">
+                    <div class="mr-1"><b>Existing password</b></div>
+                    <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
+                           id="OldPassword" name="OldPassword"
+                           [(ngModel)]="oldPassword" />
+                    <input *ngIf="ShowPasswords" class="mb-1 w-100" type="text"
+                           id="OldPassword" name="OldPassword"
+                           [(ngModel)]="oldPassword" />
+                    <div [hidden]="OldPasswordNeeded"
+                         class="p-1 alert alert-danger small font-weight-bold">
+                        Enter existing password
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="mr-1"><b>New password</b></div>
+                    <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
+                           id="NewPassword" name="NewPassword"
+                           [(ngModel)]="newPassword" />
+                    <input *ngIf="ShowPasswords" class="mb-1 w-100" type="text"
+                           id="NewPassword" name="NewPassword"
+                           [(ngModel)]="newPassword" />
+                    <div [hidden]="CheckPassword"
+                         class="p-1 alert alert-danger small font-weight-bold">
+                        Password conditions not met
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="mr-1"><b>Confirm new password</b></div>
+                    <input *ngIf="!ShowPasswords" class="mb-1 w-100" type="password"
+                           id="ConfirmNewPassword" name="ConfirmNewPassword"
+                           [(ngModel)]="confirmNewPassword" />
+                    <input *ngIf="ShowPasswords" class="mb-1 w-100" type="text"
+                           id="ConfirmNewPassword" name="ConfirmNewPassword"
+                           [(ngModel)]="confirmNewPassword" />
+                    <div [hidden]="newPassword == confirmNewPassword"
+                         class="p-1 alert alert-danger small font-weight-bold">
+                        Passwords do not match
+                    </div>
+                </div>
+            </td>
+            <td style="vertical-align: top; padding-bottom: 3px">
+                Leave the "new" password fields blank to keep your existing password.<br />
+                <button *ngIf="oldPassword.length !=0 || newPassword.length !=0 || confirmNewPassword.length !=0 " (click)="ShowPasswords = !ShowPasswords" class="btn btn-sm btn-primary">
+                  <span class="k-icon k-i-eye"></span> Show passwords
+                </button>
+                <br />
+                <b>Passwords</b> must be at least 8 characters and contain at least one lower case letter, one upper case letter, one digit and no spaces.<br />
+
+
+
+            </td>
+        </tr>
+
+    </table>
+
+</div>
+
+
