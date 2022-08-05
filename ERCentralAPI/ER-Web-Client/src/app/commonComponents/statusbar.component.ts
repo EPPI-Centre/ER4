@@ -30,7 +30,7 @@ export class StatusBarComponent implements OnInit {
     public modalMsg: string = '';
     public testlgtC: any;
     //public statusClass: string = 'bg-light';
-    public IsAdmin: boolean = false;
+    //public IsAdmin: boolean = false;
     public isMoreButtonVisible = false;
     private fullMsg: string = '';
      
@@ -41,7 +41,7 @@ export class StatusBarComponent implements OnInit {
 
     ngOnInit() {
 
-        this.IsAdmin = this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin;
+        //this.IsAdmin = this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin;
 
         //localStorage.getItem('currentErUser');
 
