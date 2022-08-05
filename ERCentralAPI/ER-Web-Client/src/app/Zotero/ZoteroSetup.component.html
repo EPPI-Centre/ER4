@@ -1,0 +1,137 @@
+<div class="container col-12">
+	<div class="col-12 col-md-12 px-1 card bg-dark">
+		<div class=" h-100 w-100">			
+			<div>
+				<div class="col-12 row flex-fill">
+					<div class="col-md-5 font-weight-light text-sm-left text-white align-content-center">
+						<h4><b> User Information </b></h4>
+					</div>
+					<div class="col-md-5 font-weight-light text-sm-left text-white align-content-center">
+						<h4><b> Zotero Groups Information </b></h4>
+						<i>(A Zotero shared group must be linked to only one ERWeb review)</i>
+					</div>
+				</div>
+				<div class="col-12 row ">
+					<div class="col-md-5 col-sm-12 mb-2 flex-column card fa-border alert-primary p-2 m-2">
+						<div class="font-weight-light text-sm-left ">
+							<span class="font-weight-bold"> Current ERWeb Review: </span>{{currentReview}}
+						</div>
+						<div class="font-weight-light text-sm-left">
+							<span class="font-weight-bold">
+								Total items in current review:
+							</span> {{totalItemsInCurrentReview}}
+						</div>
+						<div class="font-weight-light text-sm-left">
+							<span class="font-weight-bold">
+								ERWeb UserName:
+							</span> {{zoteroUserName}}
+						</div>
+						<div class="font-weight-light text-sm-left">
+							<span class="font-weight-bold">
+								Zotero UserID:
+							</span>{{zoteroUserID}}
+						</div>
+						<div class="font-weight-light text-sm-left">
+							<span class="font-weight-bold">
+								Zotero API Key:
+							</span> {{zoteroUserKey}}
+						</div>
+
+						<div class="font-weight-light text-sm-left ">
+							<span class="font-weight-bold">
+								Zotero Storage Limit:
+							</span> MB (Not yet implemented)
+						</div>
+
+						<div class="font-weight-light text-sm-left ">
+							<span class="font-weight-bold">
+								Last Sync Date:
+							</span> (Not yet implemented)
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-12 card card-deck fa-border alert-primary row p-0 m-0 w-100 p-2 m-2" style="max-height:600px; overflow:auto;">
+						<table class="table table-bordered table-striped">
+							<thead>
+								<tr>
+									<td>
+										<div class="m-1 p-1 font-weight-light text-sm-left">GroupID</div>
+
+									</td>
+									<td>
+										<div class="m-1 p-1 font-weight-light text-sm-left">Group Name</div>
+
+									</td>
+									<td>
+										<div class="m-1 p-1 font-weight-light text-sm-left">Version</div>
+
+									</td>
+									<td>
+										<div class="m-1 p-1 font-weight-light text-sm-left">Group Being Synced</div>
+
+									</td>
+									<td>
+										Add / Remove Zotero token for this group
+									</td>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let item of groupMeta; index as i" class="small" style="cursor: pointer;">
+									<td (click)="changeGroupBeingSynced(item)" class="">{{item.id}}</td>
+									<td (click)="changeGroupBeingSynced(item)" class="">{{item.data.name}}</td>
+									<td (click)="changeGroupBeingSynced(item)" class="">{{item.version}}</td>
+									<td (click)="changeGroupBeingSynced(item)" [ngClass]="{'font-weight-bold': item.groupBeingSynced === item.id}">{{item.groupBeingSynced}}</td>
+									<td>
+										<button [disabled]="HasLinkedReviewID(item.data)" class="btn btn-success p-1 m-1" (click)="AddLinkedReviewID(item.data)">Add</button>
+										<button [disabled]="!HasLinkedReviewID(item.data)" class="btn btn-danger p-1 m-1" (click)="RemoveCurrentReviewAT(item)">Remove </button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="col-md-3 font-weight-light text-sm-left text-white align-content-center">
+						<h4><b> Api Key Information </b></h4>
+						<i>(Only one Zotero api key can be associated to an ERWeb review)</i>
+					</div>
+					<div class="col-md-4 col-sm-12 card card-deck fa-border
+						 alert-primary row p-0 m-0 w-100 p-2 m-2"
+						 style="max-height:600px; overflow:auto;" *ngIf="apiKeys.length > 0">
+						<table class="table table-bordered table-striped">
+							<thead>
+								<tr>
+									<td>
+										<div class="m-1 p-1 font-weight-light text-sm-left">key</div>
+
+									</td>
+									<td>
+										<div class="m-1 p-1 font-weight-light text-sm-left">userID</div>
+
+									</td>
+									<td>
+										<div class="m-1 p-1 font-weight-light text-sm-left">username</div>
+
+									</td>
+									<td>
+										Remove ApiKey (Removing means re-registering Oauth with Zotero)
+									</td>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let item of apiKeys; index as i" class="small" style="cursor: pointer;">
+									<td class="">{{item.key}}</td>
+									<td class="">{{item.userID}}</td>
+									<td class="">{{item.username}}</td>
+									<td>
+										<button class="btn btn-danger p-1 m-1" (click)="RemoveApiKey(item)">Remove </button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -126,6 +126,10 @@ import { IconsModule } from '@progress/kendo-angular-icons';
 import { ConfigService } from './services/config.service';
 import { Observable, ObservableInput, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { ZoteroManagerComponent } from './Zotero/ZoteroManager.component';
+import { ZoteroSetupComponent } from './Zotero/ZoteroSetup.component';
+import { ZoteroSyncComponent } from './Zotero/ZoteroSync.component';
+import { ZoteroHeaderBarComp } from './commonComponents/ZoteroHeaderBar.component';
 
 
 
@@ -249,7 +253,11 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     SetupConfigurableReports,
     FreqXtabMapsComp,
     ReconcilingCodesetTreeComponent,
-    VisLogComp
+    VisLogComp,
+    ZoteroManagerComponent,
+    ZoteroSetupComponent,
+    ZoteroSyncComponent,
+    ZoteroHeaderBarComp
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -308,6 +316,12 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'Duplicates', component: DuplicatesComponent },
       { path: 'SiteAdmin', component: SiteAdminComponent },
       { path: 'WebDBs', component: WebDBsComponent },
+      { path: 'ZoteroManager', component: ZoteroManagerComponent },
+      { path: 'ZoteroSync', component: ZoteroSyncComponent },
+      { path: 'ZoteroSetup', component: ZoteroSetupComponent },
+      { path: 'Zotero', component: ZoteroManagerComponent },
+      { path: 'Zotero/:oauth_token/:oauth_verifier', component: ZoteroManagerComponent },
+      { path: 'Zotero/:error', component: ZoteroManagerComponent },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,

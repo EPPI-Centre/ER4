@@ -1,0 +1,15 @@
+﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Zotero Manager" [Context]="Context"></HeaderComponent>
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+<ZoteroHeaderBar #NavBarZotero (PleaseGoTo)="ChangeContext($event)" (PleaseGoBackHome)="BackHome()"></ZoteroHeaderBar>
+<ng-container [ngSwitch]="Context">
+	<div *ngSwitchCase="'ZoteroSync'">
+		<ZoteroSync (PleaseGoTo)="ChangeContext($event)"></ZoteroSync>
+	</div>
+	<div *ngSwitchCase="'ZoteroSetup'">
+		<ZoteroSetup (PleaseGoTo)="ChangeContext($event)"></ZoteroSetup>
+	</div>
+	<div *ngSwitchDefault>
+		<h4>Error...</h4>
+	</div>
+</ng-container>
+<statusbar></statusbar>

@@ -1,0 +1,239 @@
+using System.Text;
+using Csla;
+using Csla.Security;
+using Csla.Core;
+using Csla.Serialization;
+using Csla.Silverlight;
+//using Csla.Validation;
+using Csla.DataPortalClient;
+using System.IO;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+
+//using Csla.Configuration;
+
+#if !SILVERLIGHT
+using System.Data.SqlClient;
+using BusinessLibrary.Data;
+using Csla.Data;
+using BusinessLibrary.Security;
+using System.Configuration;
+using System.Data;
+using System.Threading;
+using System.Collections;
+using System.Globalization;
+using System.Linq;
+#endif
+
+namespace BusinessLibrary.BusinessClasses
+{
+    [Serializable]
+    public class ZoteroERWebReviewItem : BusinessBase<ZoteroERWebReviewItem>
+    {
+        public static void GetZoteroERWebReviewItem(EventHandler<DataPortalResult<ZoteroERWebReviewItem>> handler)
+        {
+            DataPortal<ZoteroERWebReviewItem> dp = new DataPortal<ZoteroERWebReviewItem>();
+            dp.FetchCompleted += handler;
+            dp.BeginFetch();
+        }
+
+#if SILVERLIGHT
+    public ZoteroERWebReviewItem() { }
+
+        
+#else
+        public ZoteroERWebReviewItem() { }
+#endif
+
+        public static readonly PropertyInfo<long> Zotero_item_review_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("Zotero_item_review_ID", "Zotero_item_review_ID", 0m));
+        public long Zotero_item_review_ID
+        {
+            get
+            {
+                return GetProperty(Zotero_item_review_IDProperty);
+            }
+            set
+            {
+                SetProperty(Zotero_item_review_IDProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<string> ItemKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemKey", "ItemKey", ""));
+        [JsonProperty]
+        public string ItemKey
+        {
+            get
+            {
+                return GetProperty(ItemKeyProperty);
+            }
+            set
+            {
+                SetProperty(ItemKeyProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<string> LibraryIDProperty = RegisterProperty<string>(new PropertyInfo<string>("LibraryID", "LibraryID", ""));
+        public string LibraryID
+        {
+            get
+            {
+                return GetProperty(LibraryIDProperty);
+            }
+            set
+            {
+                SetProperty(LibraryIDProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ITEM_REVIEW_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_REVIEW_ID", "ITEM_REVIEW_ID", 0m));
+        public long ITEM_REVIEW_ID
+        {
+            get
+            {
+                return GetProperty(ITEM_REVIEW_IDProperty);
+            }
+            set
+            {
+                SetProperty(ITEM_REVIEW_IDProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> VersionProperty = RegisterProperty<string>(new PropertyInfo<string>("Version", "Version", ""));
+        public string Version
+        {
+            get
+            {
+                return GetProperty(VersionProperty);
+            }
+            set
+            {
+                SetProperty(VersionProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ItemIDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_ID", "ITEM_ID", 0m));
+        public long ItemID
+        {
+            get
+            {
+                return GetProperty(ItemIDProperty);
+            }
+            set
+            {
+                SetProperty(ItemIDProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("SHORT_TITLE", "SHORT_TITLE", ""));
+        public string ShortTitle
+        {
+            get
+            {
+                return GetProperty(ShortTitleProperty);
+            }
+            set
+            {
+                SetProperty(ShortTitleProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("TITLE", "TITLE", ""));
+        public string Title
+        {
+            get
+            {
+                return GetProperty(TitleProperty);
+            }
+            set
+            {
+                SetProperty(TitleProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<DateTime> LAST_MODIFIEDProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LAST_MODIFIED", "LAST_MODIFIED", DateTime.Now));
+        public DateTime LAST_MODIFIED
+        {
+            get
+            {
+                return GetProperty(LAST_MODIFIEDProperty);
+            }
+            set
+            {
+                SetProperty(LAST_MODIFIEDProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> TypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("TYPE_NAME", "TYPE_NAME", ""));
+        public string TypeName
+        {
+            get
+            {
+                return GetProperty(TypeNameProperty);
+            }
+            set
+            {
+                SetProperty(TypeNameProperty, value);
+            }
+        }
+
+
+#if !SILVERLIGHT
+
+
+        protected void DataPortal_Fetch(SingleCriteria<ZoteroERWebReviewItem, string> criteria)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ItemsInERWebANDZotero", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
+                            LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
+                            LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));                            
+                            LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
+                            LoadProperty<string>(VersionProperty, reader.GetString("Version"));
+                            LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
+                            LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
+                            LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
+                            LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
+
+                            MarkOld();
+                        }
+                    }
+                }
+                connection.Close();
+            }
+        }
+       
+
+        internal static ZoteroERWebReviewItem GetZoteroERWebReviewItem(SafeDataReader reader)
+        {
+            ZoteroERWebReviewItem returnValue = new ZoteroERWebReviewItem();
+            returnValue.LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
+            returnValue.LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
+            returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
+            returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
+            returnValue.LoadProperty<string>(VersionProperty, reader.GetString("Version"));
+            returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
+            returnValue.LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
+            returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
+            //returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
+            returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
+
+            returnValue.MarkOld();
+
+            return returnValue;
+        }
+#endif
+    }
+}

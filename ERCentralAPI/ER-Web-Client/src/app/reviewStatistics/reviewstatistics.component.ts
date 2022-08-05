@@ -110,7 +110,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 			//&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
 		) return true;
 		return false;
-	}
+  }
+  public get ReviewIsZoteroEnabled(): boolean {
+    //if (this._reviewInfoService.ReviewInfo.magEnabled
+    //	//&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
+    //) return true;
+    return true;
+  }
 	public get HasSkippedFullStats(): boolean {
 		if (this.reviewSetsService.ReviewSets.length == 0) return false;
 		else return this.codesetStatsServ.SkippedFullStats;
@@ -181,7 +187,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	}
 	public OpenMAG() {
 		this.router.navigate(['MAG']);
-	}
+    }
+    public OpenZotero() {
+      this.router.navigate(['ZoteroManager']);
+    }
 	IncludedItemsList() {
         this.ItemListService.GetIncludedItems();
 		this.tabSelectEvent.emit();

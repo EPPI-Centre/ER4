@@ -6,6 +6,7 @@ using System.Text;
 using Serilog;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.Builder;
+using ERxWebClient2.Zotero;
 
 try
 {
@@ -50,7 +51,7 @@ try
     SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
 
     // Add services to the container.
-
+    builder.Services.AddSingleton<ZoteroConcurrentDictionary>();
     builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
     {//this is needed to allow serialising CSLA child objects:
      //they all have a "Parent" field which creates a reference loop.
