@@ -19,7 +19,7 @@ export class ReviewerIdentityService implements OnDestroy {
     constructor(private router: Router,
         private _httpC: HttpClient,
         private ReviewInfoService: ReviewInfoService,
-        //@Inject('BASE_URL') private _baseUrl: string,
+        @Inject('BASE_URL') private _AngularBaseUrl: string,
         private customRouteReuseStrategy: RouteReuseStrategy,
         private ReviewerTermsService: ReviewerTermsService,
         private modalService: ModalService,
@@ -584,7 +584,7 @@ export class ReviewerIdentityService implements OnDestroy {
     public GoToArchie() {
         //
         let url = "";
-        let redirectUri = this._baseUrl.toLowerCase() + "ArchieCallBack";
+        let redirectUri = this._AngularBaseUrl.toLowerCase() + "ArchieCallBack";
         //redirectUri = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";//temporary!!!!!!!
         if (this._baseUrl.indexOf("://eppi.ioe.ac.uk") != -1) {
             //this is the production environment, go there
