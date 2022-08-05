@@ -90,7 +90,7 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> OauthProcessGet([FromQuery] string erWebuserId, [FromQuery] long reviewID)
+        public async Task<IActionResult> OauthProcess([FromQuery] string erWebuserId, [FromQuery] long reviewID)
         {
             try
             {
@@ -218,7 +218,7 @@ namespace ERxWebClient2.Controllers
                     _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ReviewID, access_oauth_Token_Secret);
                     _zoteroConcurrentDictionary.Session.TryUpdate("apiKey-" + ReviewID, access_oauth_Token_Secret, "");
                 }
-                var firstGroup = await this.GroupMetaDataGet(access_userId, userDetails.userId.ToString(), userDetails.reviewId);
+                var firstGroup = await this.GroupMetaData(access_userId, userDetails.userId.ToString(), userDetails.reviewId);
 
                 if (firstGroup.Count == 0)
                 {
@@ -307,7 +307,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                var getKeyResult = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                var getKeyResult = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                 DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
                 SingleCriteria<ZoteroReviewCollectionList, long> criteria =
                         new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt64(reviewId));
@@ -330,7 +330,7 @@ namespace ERxWebClient2.Controllers
                 if (!SetCSLAUser4Writing()) return Unauthorized();
                 if (string.IsNullOrEmpty(reviewId)) return Unauthorized();
 
-                var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                 var zoteroApiKey = apiKey.Value.ToString();
                 if (string.IsNullOrEmpty(zoteroApiKey))
                 {
@@ -407,11 +407,11 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> GroupIdPost([FromBody] GroupPayload groupPayload)
+        public async Task<IActionResult> GroupId([FromBody] GroupPayload groupPayload)
         {
             try
             {
-                var apiKey = await ApiKeyGet(Convert.ToInt64(groupPayload.reviewId), Convert.ToInt32(groupPayload.userId));
+                var apiKey = await ApiKey(Convert.ToInt64(groupPayload.reviewId), Convert.ToInt32(groupPayload.userId));
                 var zoteroApiKey = apiKey.Value.ToString();
                 var result = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string currentGroupID);
                 if (result)
@@ -447,12 +447,12 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> CollectionPost([FromBody] string payload, string userId, long reviewId)
+        public async Task<IActionResult> Collection([FromBody] string payload, string userId, long reviewId)
         {
             try
             {
                 if (!SetCSLAUser4Writing()) return Unauthorized();
-                var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                 var zoteroApiKey = apiKey.Value.ToString();
                 var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                 if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
@@ -468,7 +468,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "CollectionPost has an error");
+                _logger.LogException(e, "Collection post has an error");
                 var message = "";
                 if (e.Message.Contains("403"))
                 {
@@ -483,13 +483,13 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> GroupMemberGet([FromQuery] string groupId, string userId, string reviewId)
+        public async Task<IActionResult> GroupMember([FromQuery] string groupId, string userId, string reviewId)
         {
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
 
-                var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                 var zoteroApiKey = apiKey.Value.ToString();
                 var GetKeyUri = new UriBuilder($"{baseUrl}/groups/{groupId}/settings/members");
                 SetZoteroHttpService(GetKeyUri, zoteroApiKey);
@@ -514,12 +514,12 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> UserPermissionsGet([FromQuery] string userId, long reviewId)
+        public async Task<IActionResult> UserPermissions([FromQuery] string userId, long reviewId)
         {
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
-                var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                 var zoteroApiKey = apiKey.Value.ToString();
                 var GetKeyUri = new UriBuilder($"{baseUrl}/keys/current");
                 SetZoteroHttpService(GetKeyUri, zoteroApiKey);
@@ -544,7 +544,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<List<Group>> GroupMetaDataGet([FromQuery] string zoteroUserId, [FromQuery] string userId, long reviewId)
+        public async Task<List<Group>> GroupMetaData([FromQuery] string zoteroUserId, [FromQuery] string userId, long reviewId)
         {
             try
             {
@@ -628,13 +628,13 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemsGet(string userId, long reviewId)
+        public async Task<IActionResult> Items(string userId, long reviewId)
         {
             try
             {
                 if (SetCSLAUser4Writing())
                 {
-                    var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                    var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                     var zoteroApiKey = apiKey.Value.ToString();
                     var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey,
                         out string groupIDBeingSynced);
@@ -664,7 +664,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<Collection> ItemsItemIdGet([FromQuery] string itemKey, string userId, long reviewId)
+        public async Task<Collection> ItemsItemId([FromQuery] string itemKey, string userId, long reviewId)
         {
             Collection item = new Collection();
             try
@@ -672,7 +672,7 @@ namespace ERxWebClient2.Controllers
 
                 if (SetCSLAUser())
                 {
-                    var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                    var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                     var zoteroApiKey = apiKey.Value.ToString();
                     var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                     if (!groupIDResult) return item;
@@ -692,7 +692,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<JsonResult> ApiKeyGet([FromQuery] long reviewID, [FromQuery] int userId, [FromQuery] int groupId = -1, [FromQuery] bool deleteApiKey = false)
+        public async Task<JsonResult> ApiKey([FromQuery] long reviewID, [FromQuery] int userId, [FromQuery] int groupId = -1, [FromQuery] bool deleteApiKey = false)
         {
             try
             {
@@ -792,7 +792,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemKeyVersionLocalGet([FromQuery] string ItemKey, string ItemType)
+        public async Task<IActionResult> ItemKeyVersionLocal([FromQuery] string ItemKey, string ItemType)
         {
             try
             {
@@ -815,13 +815,13 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemsItemKeyGet([FromQuery] string itemKey, [FromQuery] string userId, [FromQuery] long reviewId)
+        public async Task<IActionResult> ItemsItemKey([FromQuery] string itemKey, [FromQuery] string userId, [FromQuery] long reviewId)
         {
             try
             {
                 if (SetCSLAUser())
                 {
-                    var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                    var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                     var zoteroApiKey = apiKey.Value.ToString();
                     var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                     if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
@@ -850,7 +850,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemIdLocalGet([FromQuery] string itemReviewID)
+        public async Task<IActionResult> ItemIdLocal([FromQuery] string itemReviewID)
         {
             try
             {
@@ -877,7 +877,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemReviewIdsGet([FromQuery] string itemIds)
+        public async Task<IActionResult> ItemReviewIds([FromQuery] string itemIds)
         {
             try
             {
@@ -916,7 +916,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemsERWebAndZoteroGet()
+        public async Task<IActionResult> ItemsERWebAndZotero()
         {
             try
             {
@@ -939,7 +939,7 @@ namespace ERxWebClient2.Controllers
 
         // 3 TODO remove direct database code logic leave to find out how to do a rollback with CSLA here
         [HttpPost("[action]")]
-        public async Task<IActionResult> ItemsItemsIdLocalPost([FromBody] Collection collection)
+        public async Task<IActionResult> ItemsItemsIdLocal([FromBody] Collection collection)
         {
             try
             {
@@ -1025,7 +1025,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> ItemsLocalPost([FromBody] Collection[] collectionItems, [FromQuery] string userId, [FromQuery] long reviewId)
+        public async Task<IActionResult> ItemsLocal([FromBody] Collection[] collectionItems, [FromQuery] string userId, [FromQuery] long reviewId)
         {
             try
             {
@@ -1079,7 +1079,7 @@ namespace ERxWebClient2.Controllers
                     if (!SetCSLAUser4Writing()) return Unauthorized();
                     if (collection == null || collection.data == null) return Ok(false);
 
-                    var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                    var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                     var zoteroApiKey = apiKey.Value.ToString();
                     var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                     if (!groupIDResult) throw new Exception("Concurrent Zotero session error");
@@ -1221,7 +1221,7 @@ namespace ERxWebClient2.Controllers
                             var IndexLastSlash = collection.links.attachment.href.LastIndexOf('/');
                             var keyLength = collection.links.attachment.href.Length - IndexLastSlash;
                             var attachmentKey = collection.links.attachment.href.Substring(IndexLastSlash + 1, keyLength - 1);
-                            var result = await this.ItemsItemKeyGet(attachmentKey, userId, reviewId);
+                            var result = await this.ItemsItemKey(attachmentKey, userId, reviewId);
 
                             var resultCollection = result as OkObjectResult;
                             var attachmentCollection = JsonConvert.DeserializeObject<Collection>(resultCollection.Value.ToString());
@@ -1357,7 +1357,7 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemReviewIdsLocalGet([FromQuery] string reviewID)
+        public async Task<IActionResult> ItemReviewIdsLocal([FromQuery] string reviewID)
         {
             try
             {
@@ -1417,7 +1417,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> GroupsGroupIdItemsPost([FromBody] List<iItemReviewID> items, [FromQuery] string userId, [FromQuery] long reviewId)
+        public async Task<IActionResult> GroupsGroupIdItems([FromBody] List<iItemReviewID> items, [FromQuery] string userId, [FromQuery] long reviewId)
         {
             List<Item> localItems = new List<Item>();
             List<CollectionData> zoteroItems = new List<CollectionData>();
@@ -1432,7 +1432,7 @@ namespace ERxWebClient2.Controllers
             {
                 if (!SetCSLAUser4Writing()) return Unauthorized();
 
-                var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                 var zoteroApiKey = apiKey.Value.ToString();
                 var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                 if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
@@ -1899,7 +1899,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<IActionResult> GroupsGroupdIdItemsPut([FromBody] List<iItemReviewIDZoteroKey> items, [FromQuery] string userId, [FromQuery] long reviewId)
+        public async Task<IActionResult> GroupsGroupdIdItems([FromBody] List<iItemReviewIDZoteroKey> items, [FromQuery] string userId, [FromQuery] long reviewId)
         {
             List<Item> localItems = new List<Item>();
             List<BookWhole> zoteroItems = new List<BookWhole>();
@@ -1907,14 +1907,14 @@ namespace ERxWebClient2.Controllers
             try
             {
                 if (!SetCSLAUser4Writing()) return Unauthorized();
-                var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
                 var zoteroApiKey = apiKey.Value.ToString();
                 var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                 if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
 
                 var itemIDs = items.Select(x => x.itemID);
                 var itemkey = items.Select(x => x.itemKey);
-                var zoteroItemContent = await ItemsItemIdGet(itemkey.FirstOrDefault(), userId, reviewId);
+                var zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault(), userId, reviewId);
 
                 if (!SetCSLAUser4Writing()) return Unauthorized();
 
@@ -1950,7 +1950,7 @@ namespace ERxWebClient2.Controllers
                     var actualCode = response.StatusCode;
                     if (actualCode == System.Net.HttpStatusCode.NoContent)
                     {
-                        zoteroItemContent = await ItemsItemIdGet(itemkey.FirstOrDefault(), userId, reviewId);
+                        zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault(), userId, reviewId);
 
                         DataPortal<ZoteroItemReview> dp = new DataPortal<ZoteroItemReview>();
                         SingleCriteria<ZoteroReviewItem, long> criteria =
