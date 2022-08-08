@@ -339,7 +339,7 @@ export class ZoteroService extends BusyAwareService {
     public async fetchERWebItemsToPushToZotero(itemIds: string): Promise<string[]> {
         this._BusyMethods.push("fetchERWebItemsToPushToZotero");
 
-        return this._httpC.get<string[]>(this._baseUrl + 'api/Zotero/ItemReviewIdsGet?itemIds=' + itemIds)
+        return this._httpC.get<string[]>(this._baseUrl + 'api/Zotero/ItemReviewIds?itemIds=' + itemIds)
             .toPromise().then(result => {
                 this.RemoveBusy("fetchERWebItemsToPushToZotero");
                 return result;
