@@ -100,6 +100,12 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
     return (this.ReviewSetsService.IsBusy);
   }
+
+  //used as input (not 2-way binding) by the kendo-treeview
+  public get selectedKeys(): string[] {
+    if (this.SelectedNodeData) return [this.SelectedNodeData.id];
+    else return [];
+  }
   public CanWriteCoding(data: singleNode) {
     return this.ReviewSetsService.CanWriteCoding(data)
   }
@@ -140,6 +146,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
 
     let node = data as SetAttribute;
     if (node != null && node.isSelected) {
+      this.NodeSelectedInternal(data);
       this._outcomeService.outcomesChangedEE.emit(node);
     }
   }
@@ -159,9 +166,26 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
       return null;
     }
   }
+  public SelectedNodeData: singleNode | null = null;
+  public SelectedCodeDescription: string = "";
 
+  NodeSelected(event: TreeItem) {
+    let node: singleNode = event.dataItem;
+    this.NodeSelectedInternal(node);
+  }
+  private NodeSelectedInternal(node: singleNode) {
+    if (node) {
+      this.ReviewSetsService.selectedNode = node;
+      this.SelectedNodeData = node;
+      this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+      this.FetchPDFHighlights();
+    }
+  }
   CheckBoxClicked(event: any, data: singleNode,) {
+    //First: user selected a checkbox, so we change the "selected/active" code, no matter what, this is to keep things tidy for PDF coding, mostly...
+    this.NodeSelectedInternal(data);
     let checkPassed: boolean = true;
+    //console.log("ev:", event.bubbles, event.cancelBubble);
     if (event.target) checkPassed = event.target.checked;//if we ticked the checkbox, it's OK to carry on, otherwise we need to check
     if (!checkPassed) {
       this.DeletingData = data;
@@ -287,9 +311,10 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     this.ShowCompleteUncompletePanelForSetId = 0;
   }
   openInfoBox(data: singleNode) {
+    //makes the "current/acitve code" change to the code for which the user has clicked on the "info" button.
+    this.NodeSelectedInternal(data);
     //const tmp: any = new InfoBoxModalContent();
     let modalComp = this.modalService.open(InfoBoxModalContent);
-
     modalComp.componentInstance.InfoBoxTextInput = data.additionalText;
     modalComp.componentInstance.focus(this.ReviewSetsService.CanWriteCoding(data));
     //let tBox = this.renderer.selectRootElement('#InfoBoxText');
@@ -298,8 +323,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     modalComp.result.then((infoTxt) => {
       data.additionalText = infoTxt;
       if (!data.isSelected) {
-
-
         this.CheckBoxClickedAfterCheck('InfoboxTextAdded', data);//checkbox is not ticked: we are adding this code
       }
       else {
@@ -313,17 +336,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     );
 
   }
-  public SelectedNodeData: singleNode | null = null;
-  public SelectedCodeDescription: string = "";
-
-  NodeSelected(event: TreeItem) {
-    let node: singleNode = event.dataItem;
-    //alert('in node: ' + node.name)
-    this.ReviewSetsService.selectedNode = node;
-    this.SelectedNodeData = node;
-    this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-    this.FetchPDFHighlights();
-  }
+  
   FetchPDFHighlights() {
     const att = this.SelectedNodeData as SetAttribute;
     if (att && att.nodeType == "SetAttribute") {
