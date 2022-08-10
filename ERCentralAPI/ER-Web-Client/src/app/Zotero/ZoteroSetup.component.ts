@@ -161,7 +161,8 @@ export class ZoteroSetupComponent implements OnInit {
                                                     this._zoteroService.currentGroupBeingSynced = group.groupBeingSynced;
                                                     this._zoteroService.editApiKeyPermissions = true;
                                                }
-                                            }
+                                          }
+                                          this.changeGroupBeingSynced(this.groupMeta[0]);
                                             return;
                                         }
                                     }
