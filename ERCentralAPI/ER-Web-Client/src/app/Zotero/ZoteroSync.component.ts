@@ -162,8 +162,7 @@ export class ZoteroSyncComponent implements OnInit {
 
     public async RemoveCurrentReviewAT(group: GroupData) {
 
-        await this._zoteroService.UpdateGroupToReview(this.currentReview.toString(), group.id.toString(),
-            this._ReviewerIdentityServ.reviewerIdentity.userId.toString(), true).then(
+        await this._zoteroService.UpdateGroupToReview(group.id.toString(),true).then(
                 async () => {
                     let indexG = this.groupMeta.indexOf(group);
                     this.groupMeta[indexG].groupBeingSynced = false;
@@ -202,8 +201,7 @@ export class ZoteroSyncComponent implements OnInit {
     }
 
     public async AddLinkedReviewID(group: GroupData) {
-        await this._zoteroService.UpdateGroupToReview(this.currentReview.toString(), group.id.toString(),
-            this._ReviewerIdentityServ.reviewerIdentity.userId.toString(), false).then(
+        await this._zoteroService.UpdateGroupToReview(group.id.toString(), false).then(
                 async () => {
                     await this.FetchLinkedReviewID();
                 });
@@ -217,8 +215,7 @@ export class ZoteroSyncComponent implements OnInit {
     }
 
     public async FetchLinkedReviewID(): Promise<void> {
-        await this._zoteroService.FetchGroupToReviewLinks(this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString(),
-            this._ReviewerIdentityServ.reviewerIdentity.userId.toString()).then(
+        await this._zoteroService.FetchGroupToReviewLinks().then(
                 async (zoteroReviewCollectionList: ZoteroReviewCollectionList) => {
                     this.zoteroCollectionList = zoteroReviewCollectionList;
                     if (zoteroReviewCollectionList.ZoteroReviewCollectionList.length > 0) {
@@ -264,7 +261,7 @@ export class ZoteroSyncComponent implements OnInit {
     }
 
     async UpdateGroupMetaData(groupId: number, userId: number, currentReview: number) {
-        await this._zoteroService.postGroupMetaData(groupId, userId, currentReview);
+        await this._zoteroService.postGroupMetaData(groupId);
     }
 
     async getErWebObjects() {
@@ -391,7 +388,7 @@ export class ZoteroSyncComponent implements OnInit {
 
     async fetchZoteroObjectVersionsAsync(): Promise<void> {
         this.ObjectZoteroList = [];
-        this._zoteroService.fetchZoteroObjectVersionsAsync(this._ReviewerIdentityServ.reviewerIdentity.userId, this.currentReview).then(
+        this._zoteroService.fetchZoteroObjectVersionsAsync().then(
             (objects) => {
                 this.ObjectZoteroList = objects;
                 this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
@@ -418,7 +415,7 @@ export class ZoteroSyncComponent implements OnInit {
     }
 
     async fetchERWebObjectVersionsAsync(): Promise<void> {
-        await this._zoteroService.fetchERWebObjectsNotInZoteroAsync(this.currentReview).then(
+        await this._zoteroService.fetchERWebObjectsNotInZoteroAsync().then(
             (result) => {
                 this.ObjectERWebList = [];
                 this.ObjectsInERWebNotInZotero = [];
@@ -463,7 +460,7 @@ export class ZoteroSyncComponent implements OnInit {
 
     async PullConfirmZoteroItems(): Promise<void> {
         this.Pulling = true;
-        this._zoteroService.fetchZoteroObjectVersionsAsync(this._ReviewerIdentityServ.reviewerIdentity.userId, this.currentReview).then(
+        this._zoteroService.fetchZoteroObjectVersionsAsync().then(
             (objects) => {
                 this.ObjectZoteroList = objects;
                 this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
@@ -538,8 +535,7 @@ export class ZoteroSyncComponent implements OnInit {
         var arrayOfItemsToPullIntoErWeb: Collection[] = [];
         for (var i = 0; i < this.objectKeysExistsNeedingSyncing.length; i++) {
             var itemKey = this.objectKeysExistsNeedingSyncing[i];
-            await this._zoteroService.fetchZoteroObjectAsync(itemKey, this._ReviewerIdentityServ.reviewerIdentity.userId,
-                this.currentReview).then(
+            await this._zoteroService.fetchZoteroObjectAsync(itemKey).then(
                     (itemCollection) => {
                         arrayOfItemsToPullIntoErWeb.push(itemCollection);
                     });
@@ -552,8 +548,7 @@ export class ZoteroSyncComponent implements OnInit {
                 collectionOfItemsToInsert.push(item);
             }
 
-            await this._zoteroService.insertZoteroObjectIntoERWebAsync(collectionOfItemsToInsert, this._ReviewerIdentityServ.reviewerIdentity.userId.toString(),
-                this.currentReview).then(
+            await this._zoteroService.insertZoteroObjectIntoERWebAsync(collectionOfItemsToInsert).then(
                     async (result: boolean) => {
                         if (!result) {
                             if (keyResults.find(x => x === item.key)) return;
@@ -594,7 +589,7 @@ export class ZoteroSyncComponent implements OnInit {
         for (var i = 0; i < this.objectKeysNotExistsNeedingSyncing.length; i++) {
             var item = this.objectKeysNotExistsNeedingSyncing[i];
             if (item === null || item.data === null || item.key.length === 0) return;
-            await this._zoteroService.fetchZoteroObjectAsync(item.key, this._ReviewerIdentityServ.reviewerIdentity.userId, this.currentReview)
+            await this._zoteroService.fetchZoteroObjectAsync(item.key)
                 .then(
                     (itemCollection) => {
                         arrayOfItemsToPullIntoErWeb.push(itemCollection);
@@ -608,8 +603,7 @@ export class ZoteroSyncComponent implements OnInit {
             itemsToInsertIntoErWeb.push(item);
         }
 
-        await this._zoteroService.insertZoteroObjectIntoERWebAsync(itemsToInsertIntoErWeb, this._ReviewerIdentityServ.reviewerIdentity.userId.toString(),
-            this.currentReview).then(
+        await this._zoteroService.insertZoteroObjectIntoERWebAsync(itemsToInsertIntoErWeb).then(
                 async (result: boolean) => {
                     if (!result) {
                         if (keyResults.find(x => x === item.key)) return;
@@ -705,8 +699,7 @@ export class ZoteroSyncComponent implements OnInit {
                 .then(async (confirm: any) => {
                     if (confirm === true) {
 
-                        await this._zoteroService.postERWebItemsToZotero(this.ObjectERWebList,
-                            this._ReviewerIdentityServ.reviewerIdentity.userId, this.currentReview)
+                        await this._zoteroService.postERWebItemsToZotero(this.ObjectERWebList)
                             .then(
                                 async (result) => {
                                     if (result.toString() === "true") {

@@ -218,7 +218,7 @@ namespace ERxWebClient2.Controllers
                     _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ReviewID, access_oauth_Token_Secret);
                     _zoteroConcurrentDictionary.Session.TryUpdate("apiKey-" + ReviewID, access_oauth_Token_Secret, "");
                 }
-                var firstGroup = await this.GroupMetaData(access_userId, userDetails.userId.ToString(), userDetails.reviewId);
+                var firstGroup = await this.GroupMetaData(access_userId);
 
                 if (firstGroup.Count == 0)
                 {
@@ -303,14 +303,18 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> FetchGroupToReviewLinks([FromQuery] string reviewId, [FromQuery] string userId)
+        public async Task<IActionResult> FetchGroupToReviewLinks()
         {
             try
             {
-                var getKeyResult = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
+                if (!SetCSLAUser()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+                var getKeyResult = await ApiKey();
                 DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
                 SingleCriteria<ZoteroReviewCollectionList, long> criteria =
-                        new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt64(reviewId));
+                        new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt64(ri.ReviewId));
                 var reviewCollectionList = await dp.FetchAsync(criteria);
 
                 return Ok(reviewCollectionList);
@@ -323,15 +327,16 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> UpdateGroupToReview([FromBody] string groupId, string reviewId, string userId, string deleteLink)
+        public async Task<IActionResult> UpdateGroupToReview([FromBody] string groupId, string deleteLink)
         {
             try
             {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-                if (string.IsNullOrEmpty(reviewId)) return Unauthorized();
+                if (!SetCSLAUser()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
 
-                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                var zoteroApiKey = apiKey.Value.ToString();
+                var apiKey = await ApiKey();
+                var zoteroApiKey = apiKey?.Value?.ToString();
                 if (string.IsNullOrEmpty(zoteroApiKey))
                 {
                     return Unauthorized();
@@ -339,10 +344,10 @@ namespace ERxWebClient2.Controllers
                 DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
 
                 SingleCriteria<ZoteroReviewCollectionList, long> criteria =
-                        new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt16(reviewId));
+                        new SingleCriteria<ZoteroReviewCollectionList, long>(ri.ReviewId);
                 var reviewCollection = await dp.FetchAsync(criteria);
 
-                var reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.LibraryID == groupId && x.REVIEW_ID.ToString() == reviewId);
+                var reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.LibraryID == groupId && x.REVIEW_ID.ToString() == ri.ReviewId.ToString());
                 var deleteReviewLink = Convert.ToBoolean(deleteLink);
 
                 if (reviewCollectionItem == null && !deleteReviewLink)
@@ -352,8 +357,8 @@ namespace ERxWebClient2.Controllers
                     {
                         ApiKey = zoteroApiKey,
                         LibraryID = groupId,
-                        USER_ID = Convert.ToInt16(userId),
-                        REVIEW_ID = Convert.ToInt16(reviewId),
+                        USER_ID = ri.UserId,
+                        REVIEW_ID = ri.ReviewId,
                         DateCreated = DateTime.Now,
                         GroupBeingSynced = Convert.ToInt32(groupId)
                     };
@@ -377,8 +382,8 @@ namespace ERxWebClient2.Controllers
                     }
                     reviewCollectionItem.ApiKey = zoteroApiKey;
                     reviewCollectionItem.LibraryID = groupId;
-                    reviewCollectionItem.USER_ID = Convert.ToInt16(userId);
-                    reviewCollectionItem.REVIEW_ID = Convert.ToInt16(reviewId);
+                    reviewCollectionItem.USER_ID = ri.UserId;
+                    reviewCollectionItem.REVIEW_ID = ri.ReviewId;
                     reviewCollectionItem.DateCreated = DateTime.Now;
                     reviewCollectionItem.GroupBeingSynced = Convert.ToInt32(groupId);
 
@@ -397,39 +402,36 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        public class GroupPayload
-        {
-            public string groupId { get; set; }
-            public string userId { get; set; }
-
-            public string reviewId { get; set; }
-        }
 
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> GroupId([FromBody] GroupPayload groupPayload)
+        public async Task<IActionResult> GroupId([FromBody] string groupId)
         {
             try
             {
-                var apiKey = await ApiKey(Convert.ToInt64(groupPayload.reviewId), Convert.ToInt32(groupPayload.userId));
-                var zoteroApiKey = apiKey.Value.ToString();
+                if (!SetCSLAUser()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+                var apiKey = await ApiKey();
+                var zoteroApiKey = apiKey?.Value?.ToString();
                 var result = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string currentGroupID);
                 if (result)
                 {
-                    _zoteroConcurrentDictionary.Session.TryUpdate("groupIDBeingSynced-" + zoteroApiKey, groupPayload.groupId.ToString(), currentGroupID);
+                    _zoteroConcurrentDictionary.Session.TryUpdate("groupIDBeingSynced-" + zoteroApiKey, groupId, currentGroupID);
                 }
                 else
                 {
-                    _zoteroConcurrentDictionary.Session.TryAdd("groupIDBeingSynced-" + zoteroApiKey, groupPayload.groupId.ToString());
+                    _zoteroConcurrentDictionary.Session.TryAdd("groupIDBeingSynced-" + zoteroApiKey, groupId);
                 }
                 var dp = new DataPortal<ZoteroReviewCollectionList>();
                 var criteria =
-                       new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt64(groupPayload.reviewId));
+                       new SingleCriteria<ZoteroReviewCollectionList, long>(ri.ReviewId);
                 var reviewCollection = await dp.FetchAsync(criteria);
                 var reviewCollectionItem = reviewCollection.FirstOrDefault();
                 if (reviewCollectionItem != null)
                 {
-                    reviewCollectionItem.GroupBeingSynced = Convert.ToInt32(groupPayload.groupId);
+                    reviewCollectionItem.GroupBeingSynced = Convert.ToInt32(groupId);
                     reviewCollectionItem = reviewCollectionItem.Save();
                 }
                 else
@@ -447,13 +449,15 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> Collection([FromBody] string payload, string userId, long reviewId)
+        public async Task<IActionResult> Collection([FromBody] string payload)
         {
             try
             {
                 if (!SetCSLAUser4Writing()) return Unauthorized();
-                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                var zoteroApiKey = apiKey.Value.ToString();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                var apiKey = await ApiKey();
+                var zoteroApiKey = apiKey?.Value?.ToString();
                 var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                 if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
 
@@ -483,14 +487,16 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> GroupMember([FromQuery] string groupId, string userId, string reviewId)
+        public async Task<IActionResult> GroupMember([FromQuery] string groupId)
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
 
-                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                var zoteroApiKey = apiKey.Value.ToString();
+                var apiKey = await ApiKey();
+                var zoteroApiKey = apiKey?.Value?.ToString();
                 var GetKeyUri = new UriBuilder($"{baseUrl}/groups/{groupId}/settings/members");
                 SetZoteroHttpService(GetKeyUri, zoteroApiKey);
                 var responseString = await _zoteroService.GetUserPermissions(GetKeyUri.ToString());
@@ -514,13 +520,16 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> UserPermissions([FromQuery] string userId, long reviewId)
+        public async Task<IActionResult> UserPermissions()
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
-                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                var zoteroApiKey = apiKey.Value.ToString();
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+                var apiKey = await ApiKey();
+                var zoteroApiKey = apiKey?.Value?.ToString();
                 var GetKeyUri = new UriBuilder($"{baseUrl}/keys/current");
                 SetZoteroHttpService(GetKeyUri, zoteroApiKey);
                 var responseString = await _zoteroService.GetUserPermissions(GetKeyUri.ToString());
@@ -544,12 +553,15 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<List<Group>> GroupMetaData([FromQuery] string zoteroUserId, [FromQuery] string userId, long reviewId)
+        public async Task<List<Group>> GroupMetaData([FromQuery] string zoteroUserId)
         {
             try
             {
-                if (!SetCSLAUser()) return new List<Group>();
-                var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewId.ToString(), out string zoteroApiKey);
+                if (!SetCSLAUser4Writing()) return new List<Group>();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+                var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId.ToString(), out string zoteroApiKey);
                 var GETGroupsUri = new UriBuilder($"{baseUrl}/users/{zoteroUserId}/groups");
                 SetZoteroHttpService(GETGroupsUri, zoteroApiKey);
                 var groups = await _zoteroService.GetCollections<Group>(GETGroupsUri.ToString());
@@ -567,7 +579,7 @@ namespace ERxWebClient2.Controllers
                 // need to fetch the group being synced from the db and then find that group in the list that is returned!!
                 var dp = new DataPortal<ZoteroReviewCollectionList>();
                 var criteria =
-                       new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt64(reviewId));
+                       new SingleCriteria<ZoteroReviewCollectionList, long>(ri.ReviewId);
                 var reviewCollection = await dp.FetchAsync(criteria);
                 var reviewCollectionItem = reviewCollection.FirstOrDefault();
                 if (reviewCollectionItem != null)
@@ -590,12 +602,15 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<ApiKey[]> FetchApiKeys([FromQuery] string userId, long reviewId)
+        public async Task<ApiKey[]> FetchApiKeys()
         {
             try
             {
                 if (!SetCSLAUser()) return new ApiKey[] { };
-                var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewId.ToString(), out string zoteroApiKey);
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                
+                var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId.ToString(), out string zoteroApiKey);
                 var GETApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zoteroApiKey}");
                 SetZoteroHttpService(GETApiKeysUri, zoteroApiKey);
                 var key = await _zoteroService.GetApiKey(GETApiKeysUri.ToString());
@@ -609,12 +624,14 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpDelete("[action]")]
-        public async Task<IActionResult> DeleteZoteroApiKey([FromQuery] string userId, long reviewId)
+        public async Task<IActionResult> DeleteZoteroApiKey()
         {
             try
             {
                 if (!SetCSLAUser()) return Ok(false);
-                var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewId.ToString(), out string zoteroApiKey);
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId.ToString(), out string zoteroApiKey);
                 var DELETEApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zoteroApiKey}");
                 SetZoteroHttpService(DELETEApiKeysUri, zoteroApiKey);
                 var result = await _zoteroService.DeleteApiKey(DELETEApiKeysUri.ToString());
@@ -628,14 +645,16 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> Items(string userId, long reviewId)
+        public async Task<IActionResult> Items()
         {
             try
             {
                 if (SetCSLAUser4Writing())
                 {
-                    var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                    var zoteroApiKey = apiKey.Value.ToString();
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                    var apiKey = await ApiKey();
+                    var zoteroApiKey = apiKey?.Value?.ToString();
                     var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey,
                         out string groupIDBeingSynced);
                     if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
@@ -664,7 +683,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<Collection> ItemsItemId([FromQuery] string itemKey, string userId, long reviewId)
+        public async Task<Collection> ItemsItemId([FromQuery] string itemKey)
         {
             Collection item = new Collection();
             try
@@ -672,8 +691,10 @@ namespace ERxWebClient2.Controllers
 
                 if (SetCSLAUser())
                 {
-                    var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                    var zoteroApiKey = apiKey.Value.ToString();
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                    var apiKey = await ApiKey();
+                    var zoteroApiKey = apiKey?.Value?.ToString();
                     var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                     if (!groupIDResult) return item;
                     var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
@@ -692,7 +713,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<JsonResult> ApiKey([FromQuery] long reviewID, [FromQuery] int userId, [FromQuery] int groupId = -1, [FromQuery] bool deleteApiKey = false)
+        public async Task<JsonResult> ApiKey([FromQuery] int groupId = -1, [FromQuery] bool deleteApiKey = false)
         {
             try
             {
@@ -705,11 +726,12 @@ namespace ERxWebClient2.Controllers
                     };
                     return Json(error);
                 }
-
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
                 UserDetails userDetails = new UserDetails
                 {
-                    reviewId = reviewID,
-                    userId = userId
+                    reviewId = ri.ReviewId,
+                    userId = ri.UserId
                 };
 
                 SingleCriteria<ZoteroReviewCollectionList, long> criteria =
@@ -722,11 +744,11 @@ namespace ERxWebClient2.Controllers
                 ZoteroReviewCollection reviewCollectionItem;
                 if (groupId == -1)
                 {
-                    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == reviewID);
+                    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == ri.ReviewId);
                 }
                 else
                 {
-                    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == reviewID && x.LibraryID == groupId.ToString());
+                    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == ri.ReviewId && x.LibraryID == groupId.ToString());
                 }
 
                 if (deleteApiKey && reviewCollection.Count > 0 && reviewCollectionItem != null)
@@ -758,7 +780,7 @@ namespace ERxWebClient2.Controllers
                     };
                     return Json(error);
                 }
-                if (reviewID != result.FirstOrDefault().REVIEW_ID)
+                if (ri.ReviewId != result.FirstOrDefault().REVIEW_ID)
                 {
                     var error = new JsonErrorModel
                     {
@@ -767,12 +789,12 @@ namespace ERxWebClient2.Controllers
                     };
                     return Json(error);
                 }
-                var apiOutResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewID, out string apiKeyOut);
+                var apiOutResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId, out string apiKeyOut);
                 if (!string.IsNullOrEmpty(result.FirstOrDefault().ApiKey) && !apiOutResult)
                 {
-                    _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + reviewID, result.FirstOrDefault().ApiKey);
+                    _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ri.ReviewId, result.FirstOrDefault().ApiKey);
                 }
-                _zoteroConcurrentDictionary.Session.TryAdd("reviewID", reviewID.ToString());
+                _zoteroConcurrentDictionary.Session.TryAdd("reviewID", ri.ReviewId.ToString());
 
                 // TODO create an object here to bring back both strings that are required
                 //result.ApiKey, result.LibraryID
@@ -815,14 +837,16 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemsItemKey([FromQuery] string itemKey, [FromQuery] string userId, [FromQuery] long reviewId)
+        public async Task<IActionResult> ItemsItemKey([FromQuery] string itemKey)
         {
             try
             {
                 if (SetCSLAUser())
                 {
-                    var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                    var zoteroApiKey = apiKey.Value.ToString();
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                    var apiKey = await ApiKey();
+                    var zoteroApiKey = apiKey?.Value?.ToString();
                     var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                     if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
                     var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey + "");
@@ -1058,12 +1082,14 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> ItemsLocal([FromBody] Collection[] collectionItems, [FromQuery] string userId, [FromQuery] long reviewId)
+        public async Task<IActionResult> ItemsLocal([FromBody] Collection[] collectionItems)
         {
             try
             {
 
                 if (!SetCSLAUser4Writing()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
 
                 var forSaving = new IncomingItemsList();
                 var incomingItems = new MobileList<ItemIncomingData>();
@@ -1112,8 +1138,8 @@ namespace ERxWebClient2.Controllers
                     if (!SetCSLAUser4Writing()) return Unauthorized();
                     if (collection == null || collection.data == null) return Ok(false);
 
-                    var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                    var zoteroApiKey = apiKey.Value.ToString();
+                    var apiKey = await ApiKey();
+                    var zoteroApiKey = apiKey?.Value?.ToString();
                     var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                     if (!groupIDResult) throw new Exception("Concurrent Zotero session error");
 
@@ -1254,7 +1280,7 @@ namespace ERxWebClient2.Controllers
                             var IndexLastSlash = collection.links.attachment.href.LastIndexOf('/');
                             var keyLength = collection.links.attachment.href.Length - IndexLastSlash;
                             var attachmentKey = collection.links.attachment.href.Substring(IndexLastSlash + 1, keyLength - 1);
-                            var result = await this.ItemsItemKey(attachmentKey, userId, reviewId);
+                            var result = await this.ItemsItemKey(attachmentKey);
 
                             var resultCollection = result as OkObjectResult;
                             var attachmentCollection = JsonConvert.DeserializeObject<Collection>(resultCollection.Value.ToString());
@@ -1390,15 +1416,18 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemReviewIdsLocal([FromQuery] string reviewID)
+        public async Task<IActionResult> ItemReviewIdsLocal()
         {
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
 
                 DataPortal<ZoteroReviewItemsNotInZotero> dp = new DataPortal<ZoteroReviewItemsNotInZotero>();
                 SingleCriteria<Item, Int64> criteria =
-                    new SingleCriteria<Item, long>(int.Parse(reviewID));
+                    new SingleCriteria<Item, long>(ri.ReviewId);
                 var zoteroReviewItemsNotInZotero = dp.Fetch(criteria);
 
                 List<iItemReviewID> itemReviewIDs = new List<iItemReviewID>();
@@ -1450,7 +1479,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> GroupsGroupIdItems([FromBody] List<iItemReviewID> items, [FromQuery] string userId, [FromQuery] long reviewId)
+        public async Task<IActionResult> GroupsGroupIdItems([FromBody] List<iItemReviewID> items)
         {
             List<Item> localItems = new List<Item>();
             List<CollectionData> zoteroItems = new List<CollectionData>();
@@ -1465,8 +1494,8 @@ namespace ERxWebClient2.Controllers
             {
                 if (!SetCSLAUser4Writing()) return Unauthorized();
 
-                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                var zoteroApiKey = apiKey.Value.ToString();
+                var apiKey = await ApiKey();
+                var zoteroApiKey = apiKey?.Value?.ToString();
                 var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                 if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
 
@@ -1643,7 +1672,7 @@ namespace ERxWebClient2.Controllers
                     }
                     if (erWebZoteroItemDocs.Count() > 0)
                     {
-                        await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zoteroItems, userId);
+                        await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zoteroItems);
                     }
                 }
                 if (numberOfFailedItems == 0)
@@ -1671,7 +1700,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        private async Task UploadERWebDocumentsToZoteroAsync(List<ErWebZoteroItemDocument> erWebZoteroItemDocs, List<CollectionData> zoteroItems, string userId)
+        private async Task UploadERWebDocumentsToZoteroAsync(List<ErWebZoteroItemDocument> erWebZoteroItemDocs, List<CollectionData> zoteroItems)
         {
             var counter = 0;
             foreach (var itemDoc in erWebZoteroItemDocs)
@@ -1932,7 +1961,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<IActionResult> GroupsGroupdIdItems([FromBody] List<iItemReviewIDZoteroKey> items, [FromQuery] string userId, [FromQuery] long reviewId)
+        public async Task<IActionResult> GroupsGroupdIdItems([FromBody] List<iItemReviewIDZoteroKey> items)
         {
             List<Item> localItems = new List<Item>();
             List<BookWhole> zoteroItems = new List<BookWhole>();
@@ -1940,14 +1969,14 @@ namespace ERxWebClient2.Controllers
             try
             {
                 if (!SetCSLAUser4Writing()) return Unauthorized();
-                var apiKey = await ApiKey(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-                var zoteroApiKey = apiKey.Value.ToString();
+                var apiKey = await ApiKey();
+                var zoteroApiKey = apiKey?.Value?.ToString();
                 var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
                 if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
 
                 var itemIDs = items.Select(x => x.itemID);
                 var itemkey = items.Select(x => x.itemKey);
-                var zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault(), userId, reviewId);
+                var zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault());
 
                 if (!SetCSLAUser4Writing()) return Unauthorized();
 
@@ -1983,7 +2012,7 @@ namespace ERxWebClient2.Controllers
                     var actualCode = response.StatusCode;
                     if (actualCode == System.Net.HttpStatusCode.NoContent)
                     {
-                        zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault(), userId, reviewId);
+                        zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault());
 
                         DataPortal<ZoteroItemReview> dp = new DataPortal<ZoteroItemReview>();
                         SingleCriteria<ZoteroReviewItem, long> criteria =
