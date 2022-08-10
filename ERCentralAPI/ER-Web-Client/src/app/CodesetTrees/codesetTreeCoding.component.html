@@ -72,14 +72,17 @@
         </div>
       </ng-template>
     </tree-root>-->
-    <kendo-treeview #tree
+    <kendo-treeview #tree id="CodesetTreeCodingComponentId"
                     [nodes]="nodes"
                     class="text-wrap text-break"
                     textField="name"
                     (selectionChange)="NodeSelected($event)"
+                    kendoTreeViewSelectable
                     kendoTreeViewExpandable
                     kendoTreeViewHierarchyBinding
-                    childrenField="attributes">
+                    childrenField="attributes"
+                    [selectedKeys]="selectedKeys"
+                    selectBy="id">
       <ng-template kendoTreeViewNodeTemplate let-data>
         <span *ngIf="data.nodeType == 'ReviewSet'" class="ml-0 mr-1">
           <img *ngIf="data.codingIsFinal" title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />

@@ -114,7 +114,8 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
-    
+    Csla.SmartDate.SetDefaultFormatString("dd/MM/yyyy");
+
 
     app.Run();
 }
