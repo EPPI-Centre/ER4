@@ -440,7 +440,7 @@ export class ZoteroService extends BusyAwareService {
     public DeleteZoteroApiKey(reviewId: number, userId: number, groupId:number): Promise<string> {
         this._BusyMethods.push("DeleteZoteroApiKey");
 
-        return this._httpC.get<string>(this._baseUrl + 'api/Zotero/ApiKeyGet?reviewId=' + reviewId + '&userId=' + userId
+        return this._httpC.get<string>(this._baseUrl + 'api/Zotero/ApiKey?reviewId=' + reviewId + '&userId=' + userId
             + '&deleteApiKey=true' + '&groupId=' + groupId)
             .toPromise().then(result => {
                 this.RemoveBusy("DeleteZoteroApiKey");

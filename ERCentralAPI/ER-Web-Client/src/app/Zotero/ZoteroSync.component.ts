@@ -79,7 +79,7 @@ export class ZoteroSyncComponent implements OnInit {
         this.zoteroUserID = this._ReviewerIdentityServ.reviewerIdentity.userId;
         this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
         this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
-        
+      if (this._reviewSetsService.ReviewSets.length = 0) this._reviewSetsService.GetReviewSets(false);
     }
 
     public CodingSets(set_id: number): StatsCompletion[] {
