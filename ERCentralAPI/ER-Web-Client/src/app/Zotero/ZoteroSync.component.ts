@@ -760,7 +760,8 @@ export class ZoteroSyncComponent implements OnInit {
                         if (zoteroItemVersion !== undefined) {
                             if (zoteroItemVersion.version == localVersion) {
                                 if (stateRow !== undefined) {
-                                    // check for an attachment, if so check its state separately                                    
+                                    // check for an attachment, if so check its state separately
+                                  console.log('Got here:' + JSON.stringify(zoteroItemVersion.links.attachment));
                                     if (zoteroItemVersion.links.attachment === null) {
                                         stateRow.syncState = SyncState.upToDate
                                     } else {
@@ -768,7 +769,7 @@ export class ZoteroSyncComponent implements OnInit {
                                         // TODO currently this is incorrect
                                         // it needs to check that the stored itemreviewId in middle man table
                                         // has a linked doc in itemDocuments...!!
-
+                                      console.log('Check itemreviewId has a linked doc: ' + JSON.stringify(zoteroReviewItemResult));
                                         await this.CheckAttachmentExistsAsync(zoteroReviewItemResult).then(
                                             (result: boolean) => {
                                                 var syncState: SyncState;

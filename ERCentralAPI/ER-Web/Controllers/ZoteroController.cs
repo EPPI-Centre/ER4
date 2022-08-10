@@ -1029,6 +1029,9 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
+
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+
                 var forSaving = new IncomingItemsList();
                 var incomingItems = new MobileList<ItemIncomingData>();
                 for (int j = 0; j < collectionItems.Length; j++)
@@ -1332,7 +1335,7 @@ namespace ERxWebClient2.Controllers
                         new SingleCriteria<ItemDocument, long>(parentItemID.ITEM_ID);
                     var doc = dpDoc.Fetch(criteriaDoc);
 
-                    if (doc.ItemDocumentId > -1)
+                    if (doc.ItemDocumentId > 0)
                     {
                         return Ok(true);
                     }

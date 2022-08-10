@@ -291,7 +291,7 @@ namespace BusinessLibrary.BusinessClasses
                         if (reader.Read())
                         {
                             LoadProperty<Int64>(ItemDocumentIdProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
-                            LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
+                            LoadProperty<string>(TitleProperty, reader.GetString("DOCUMENT_TITLE"));
                         }
                     }
                 }
