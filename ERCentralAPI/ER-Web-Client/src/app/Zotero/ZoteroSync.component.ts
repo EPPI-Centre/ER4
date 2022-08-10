@@ -477,7 +477,7 @@ export class ZoteroSyncComponent implements OnInit {
 
                     return 0;
                 });
-                this.objectSyncState = [...objects.map(x => <IObjectSyncState>{ objectKey: x.key, syncState: SyncState.doesNotExist })];
+                this.objectSyncState = [...objects.map(x => <IObjectSyncState>{ objectKey: x.key, syncState: SyncState.doesNotExist || SyncState.attachmentDoesNotExist })];
             }
         ).then(
             () => {
@@ -777,8 +777,13 @@ export class ZoteroSyncComponent implements OnInit {
                                                     syncState = SyncState.upToDate;
                                                 }
                                                 else {
-                                                    syncState = SyncState.attachmentDoesNotExist;
-
+                                                  syncState = SyncState.attachmentDoesNotExist;
+                                                  if (zoteroItemVersion !== undefined) {
+                                                    this.attachmentKeyToSync = this.GetAttachmentKey(zoteroItemVersion.links.attachment.href);
+                                                    var attachmentToInsert = this.ObjectZoteroList.filter(x => x.key ===
+                                                      this.attachmentKeyToSync)[0];
+                                                    this.objectKeysNotExistsNeedingSyncing.push(attachmentToInsert);
+                                                  }                                                  
                                                 }
                                                 console.log('what!! syncstate ' + syncState);
                                                 if (stateRow !== undefined && syncState != undefined) {
@@ -851,7 +856,15 @@ export class ZoteroSyncComponent implements OnInit {
             return await this._zoteroService.fetchERWebAttachmentState(parentToAttachment_REVIEW_ID.toString());
         }
         return false;
-    }
+  }
+
+  private GetAttachmentKey(attachment: string): string {
+    if (attachment === null) throw Error();
+    var indexSlash = attachment.lastIndexOf('/');
+    var attachmentKey = attachment.substr(indexSlash+1, attachment.length - indexSlash - 1);
+    console.log('attachmentKey' + attachmentKey);
+    return attachmentKey;
+  }
 
     ngOnDestroy() {
     }

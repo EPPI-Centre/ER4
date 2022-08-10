@@ -1024,6 +1024,39 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        private int MapFromZoteroTypeToERWebTypeID(string zoteroItemType)
+        {
+            int erWebTypeId = -1;
+            
+//1   Report
+//2   Book, Whole
+//3   Book, Chapter
+//4   Dissertation
+//5   Conference Proceedings
+//6   Document From Internet Site
+//7   Web Site
+//8   DVD, Video, Media
+//9   Research project
+//10  Article In A Periodical
+//11  Interview
+//12  Generic
+//14  Journal, Article
+            switch (zoteroItemType)
+            {
+                case "journalArticle":
+                    erWebTypeId = 14;
+                    break;
+                case "attachment":
+                    erWebTypeId = 12;
+                    break;
+                default:
+                    // code block
+                    break;
+            }
+            return erWebTypeId;
+
+        }
+
         [HttpPost("[action]")]
         public async Task<IActionResult> ItemsLocal([FromBody] Collection[] collectionItems, [FromQuery] string userId, [FromQuery] long reviewId)
         {
@@ -1039,16 +1072,13 @@ namespace ERxWebClient2.Controllers
                     var collectionItem = collectionItems[j];
                     ItemIncomingData itemIncomingData = new ItemIncomingData
                     {
-                        // TODO populate this properly with all fields later
-                        // best way is to reuse a method from Zotero types...
-                        Abstract = collectionItem.data.abstractNote,
-                        Year = collectionItem.data.date,
+                        Abstract = collectionItem.data.abstractNote ?? "",
+                        Year = collectionItem.data.date ?? "0",
                         Title = collectionItem.data.title,
-                        Short_title = collectionItem.data.shortTitle,
-                        Type_id = 14, // collectionItem.data.itemType, TODO create map from type to typeid
+                        Short_title = collectionItem.data.shortTitle ?? "",
+                        Type_id = MapFromZoteroTypeToERWebTypeID(collectionItem.data.itemType),
                         AuthorsLi = new AuthorsHandling.AutorsList(),
                         pAuthorsLi = new MobileList<AuthorsHandling.AutH>(),
-
                     };
                     incomingItems.Add(itemIncomingData);
                 }
@@ -1145,10 +1175,10 @@ namespace ERxWebClient2.Controllers
                         var parentItemID = dpItemReview.Fetch(criteriaItemReview);
 
                         //get filename before downloading the file
-                        var GetFileNameUri = new UriBuilder(collection.links.attachment.href);
-                        SetZoteroHttpService(GetFileNameUri, zoteroApiKey);
-                        var fileNameResponse = await _zoteroService.GetCollectionItem(GetFileNameUri.ToString());
-                        var fileName = fileNameResponse.data.title;
+                        //var GetFileNameUri = new UriBuilder(collection.links.attachment.href);
+                        //SetZoteroHttpService(GetFileNameUri, zoteroApiKey);
+                        //var fileNameResponse = await _zoteroService.GetCollectionItem(GetFileNameUri.ToString());
+                        var fileName = collection.data.title ;//fileNameResponse.data.title;
 
                         var GetFileUri = new UriBuilder($"{baseUrl}/groups/{ groupIDBeingSynced}/items/{key}/file");
                         SetZoteroHttpService(GetFileUri, zoteroApiKey);

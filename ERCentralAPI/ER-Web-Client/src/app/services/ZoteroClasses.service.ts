@@ -244,6 +244,7 @@ export class Meta {
     created: string = '';
     lastModified: string = '';
     numItems: number = 0;
+    numChildren: number = 0;
 }
 
 //createdByUser: Object { id: 8317548, username: "pat1odriscoll", name: "", … }
