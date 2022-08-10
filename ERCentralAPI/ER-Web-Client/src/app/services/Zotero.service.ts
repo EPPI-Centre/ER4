@@ -32,8 +32,8 @@ export class ZoteroService extends BusyAwareService {
     public async RemoveApiKey(apiKey: UserKey, userId: number, currentReview: number): Promise<boolean> {
 
         this._BusyMethods.push("RemoveApiKey");
-        return this._httpC.delete<boolean>(this._baseUrl + 'api/Zotero/DeleteZoteroApiKey?userId='
-            + userId.toString() + '&reviewId=' + currentReview)
+        return this._httpC.delete<boolean>(this._baseUrl + 'api/Zotero/DeleteZoteroApiKey'
+            )
             .toPromise().then(result => {                
                 this.RemoveBusy("RemoveApiKey");
                 return result;
@@ -47,10 +47,10 @@ export class ZoteroService extends BusyAwareService {
 
   }
 
-    public async UpdateGroupToReview(reviewId: string, groupId: string, userId: string, deleteLink: boolean): Promise<ZoteroReviewCollection> {
+    public async UpdateGroupToReview(groupId: string, deleteLink: boolean): Promise<ZoteroReviewCollection> {
     
         this._BusyMethods.push("UpdateGroupToReview");
-        return this._httpC.post<ZoteroReviewCollection>(this._baseUrl + 'api/Zotero/UpdateGroupToReview?reviewId=' + reviewId + '&userId=' + userId.toString() + '&deleteLink=' + deleteLink.toString(), groupId.toString() )
+        return this._httpC.post<ZoteroReviewCollection>(this._baseUrl + 'api/Zotero/UpdateGroupToReview?deleteLink=' + deleteLink.toString(), groupId.toString() )
             .toPromise().then(result => {
                 this.RemoveBusy("UpdateGroupToReview");
                 return true;
@@ -61,11 +61,12 @@ export class ZoteroService extends BusyAwareService {
                     return error;
                 }
             );
-    }
-    public async FetchGroupToReviewLinks(reviewId: string,  userId: string): Promise<ZoteroReviewCollectionList> {
+  }
+
+    public async FetchGroupToReviewLinks(): Promise<ZoteroReviewCollectionList> {
       
         this._BusyMethods.push("FetchGroupToReviewLinks");
-        return this._httpC.get<ZoteroReviewCollection[]>(this._baseUrl + 'api/Zotero/FetchGroupToReviewLinks?reviewId=' + reviewId + '&userId=' + userId.toString())
+        return this._httpC.get<ZoteroReviewCollection[]>(this._baseUrl + 'api/Zotero/FetchGroupToReviewLinks')
             .toPromise().then(result => {
                 let zoteroReviewCollectionList = new ZoteroReviewCollectionList();
                 for (var i = 0; i < result.length; i++) {
@@ -82,11 +83,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-
-    public async fetchApiKeys(reviewId: number, userId: number): Promise<UserKey[]>  {
+    public async fetchApiKeys(): Promise<UserKey[]>  {
 
         this._BusyMethods.push("fetchApiKeys");
-        return this._httpC.get<UserKey[]>(this._baseUrl + 'api/Zotero/FetchApiKeys?reviewId=' + reviewId + '&userId=' + userId.toString())
+        return this._httpC.get<UserKey[]>(this._baseUrl + 'api/Zotero/FetchApiKeys')
             .toPromise().then(result => {
                 this.RemoveBusy("fetchApiKeys");
                 return result;
@@ -99,9 +99,9 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public FetchUserZoteroSubscriptions(userId: number, currentReview: number) {
+    public FetchUserZoteroSubscriptions() {
         this._BusyMethods.push("FetchUserZoteroSubscriptions");
-        return this._httpC.get<UserSubscription>(this._baseUrl + 'api/Zotero/Usersubscription?userId=' + userId.toString() + '&reviewId=' + currentReview)
+        return this._httpC.get<UserSubscription>(this._baseUrl + 'api/Zotero/Usersubscription' )
             .toPromise().then(result => {
                 
                 this.RemoveBusy("FetchUserZoteroSubscriptions");
@@ -115,9 +115,9 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async fetchUserZoteroPermissions(userID: number, reviewId: number): Promise<UserKey>  {
+    public async fetchUserZoteroPermissions(): Promise<UserKey>  {
         this._BusyMethods.push("fetchUserZoteroPermissions");
-        return this._httpC.get<UserKey>(this._baseUrl + 'api/Zotero/UserPermissions?userId='+userID.toString() + '&reviewId=' + reviewId)
+        return this._httpC.get<UserKey>(this._baseUrl + 'api/Zotero/UserPermissions')
             .toPromise().then(result => {
                 this.RemoveBusy("fetchUserZoteroPermissions");
                 this.userKeyInfo = result;
@@ -131,10 +131,9 @@ export class ZoteroService extends BusyAwareService {
         );
     }
 
-    public async GroupMemberGet(groupId: string, reviewId: number): Promise<boolean> {
+    public async GroupMemberGet(groupId: string): Promise<boolean> {
         this._BusyMethods.push("GroupMemberGet");
-        return this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/GroupMember?groupId=' + groupId + '&userId=' + this.userKeyInfo.userID
-            + '&reviewId=' + reviewId)
+        return this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/GroupMember?groupId=' + groupId )
             .toPromise().then(result => {
                 this.RemoveBusy("GroupMemberGet");
                 return result;
@@ -147,12 +146,11 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public fetchGroupMetaData(userId: number, reviewId: number): Promise<Group[]> {
+    public fetchGroupMetaData(): Promise<Group[]> {
         
         this._BusyMethods.push("fetchGroupMetaData");
 
-        return this._httpC.get<Group[]>(this._baseUrl + 'api/Zotero/GroupMetaData?zoteroUserId=' + this.userKeyInfo.userID + '&userId=' + userId.toString()
-            + '&reviewId=' + reviewId )
+        return this._httpC.get<Group[]>(this._baseUrl + 'api/Zotero/GroupMetaData?zoteroUserId=' + this.userKeyInfo.userID)
             .toPromise().then(result => {
                 if (result.length === 0) {
                     console.log('this is zero even though controller returns data!!');
@@ -173,11 +171,10 @@ export class ZoteroService extends BusyAwareService {
             });
     }
 
-    public async postGroupMetaData(groupId: number, userId: number, reviewId: number): Promise<boolean> {
-      this._BusyMethods.push("GroupId");
-      var GroupPayload = { 'groupId': groupId.toString(), 'userId': userId.toString(), 'reviewId': reviewId.toString() };
+    public async postGroupMetaData(groupId: number): Promise<boolean> {
+      this._BusyMethods.push("GroupId");     
 
-      return this._httpC.post<number>(this._baseUrl + 'api/Zotero/GroupId', GroupPayload
+      return this._httpC.post<number>(this._baseUrl + 'api/Zotero/GroupId', groupId
         )
             .toPromise().then(result => {
               this.RemoveBusy("GroupId");
@@ -222,10 +219,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async fetchZoteroObjectVersionsAsync(userId: number, reviewId: number): Promise<TypeCollection[]> {
+    public async fetchZoteroObjectVersionsAsync(): Promise<TypeCollection[]> {
         this._BusyMethods.push("fetchZoteroObjectVersionsAsync");
  
-        return this._httpC.get<TypeCollection[]>(this._baseUrl + 'api/Zotero/Items?userId=' + userId.toString() + '&reviewId=' + reviewId)
+        return this._httpC.get<TypeCollection[]>(this._baseUrl + 'api/Zotero/Items')
             .toPromise().then(result => {
                 this.RemoveBusy("fetchZoteroObjectVersionsAsync");
                 console.log('zotero items in service: ', result);
@@ -239,10 +236,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async fetchERWebObjectsNotInZoteroAsync(reviewID: number): Promise<IERWebObjects[]> {
+    public async fetchERWebObjectsNotInZoteroAsync(): Promise<IERWebObjects[]> {
         this._BusyMethods.push("fetchERWebObjectNotInZoteroAsync");
   
-        return this._httpC.get<IERWebObjects[]>(this._baseUrl + 'api/Zotero/ItemReviewIdsLocal?reviewID=' + reviewID)
+        return this._httpC.get<IERWebObjects[]>(this._baseUrl + 'api/Zotero/ItemReviewIdsLocal')
             .toPromise().then(result => {
                 this.RemoveBusy("fetchERWebObjectNotInZoteroAsync");
                 return result;
@@ -271,11 +268,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async fetchZoteroObjectAsync(itemKey: string, userId: number, reviewId: number): Promise<TypeCollection> {
+    public async fetchZoteroObjectAsync(itemKey: string): Promise<TypeCollection> {
         this._BusyMethods.push("fetchZoteroObjectAsync");
 
-        return this._httpC.get<TypeCollection>(this._baseUrl + 'api/Zotero/ItemsItemKey?itemKey=' + itemKey + '&userId=' + userId.toString()
-            + '&reviewId=' + reviewId)
+        return this._httpC.get<TypeCollection>(this._baseUrl + 'api/Zotero/ItemsItemKey?itemKey=' + itemKey)
             .toPromise().then(result => {
                 this.RemoveBusy("fetchZoteroObjectAsync");
                 return result;
@@ -304,10 +300,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async insertZoteroObjectIntoERWebAsync(items: TypeCollection[], userId: string, reviewId: number): Promise<boolean> {
+    public async insertZoteroObjectIntoERWebAsync(items: TypeCollection[]): Promise<boolean> {
         this._BusyMethods.push("insertZoteroObjectInERWebAsync");
 
-        return this._httpC.post<TypeCollection[]>(this._baseUrl + 'api/Zotero/ItemsLocal?userId=' + userId.toString() + '&reviewId=' + reviewId + '', items)
+        return this._httpC.post<TypeCollection[]>(this._baseUrl + 'api/Zotero/ItemsLocal', items)
             .toPromise().then(result => {
                 this.RemoveBusy("insertZoteroObjectInERWebAsync");
                 return result;
@@ -368,7 +364,7 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async postERWebItemsToZotero(items: IERWebObjects[], userId: number, reviewId: number): Promise<string> {
+    public async postERWebItemsToZotero(items: IERWebObjects[]): Promise<string> {
         this._BusyMethods.push("postERWebItemsToZotero");
 
         if (items.length === 0) {
@@ -376,7 +372,7 @@ export class ZoteroService extends BusyAwareService {
             return 'The number of items to post is zero!';
         }
 
-        return this._httpC.post<string>(this._baseUrl + 'api/Zotero/GroupsGroupIdItems?userId=' + userId.toString() + '&reviewId=' + reviewId, items)
+        return this._httpC.post<string>(this._baseUrl + 'api/Zotero/GroupsGroupIdItems', items)
             .toPromise().then(result => {
                 this.RemoveBusy("postERWebItemsToZotero");
                 return result;
@@ -421,10 +417,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public GetZoteroApiKey(reviewId: number, userId: number): Promise<string> {
+    public GetZoteroApiKey(): Promise<string> {
         this._BusyMethods.push("GetZoteroApiKey");
 
-        return this._httpC.get<string>(this._baseUrl + 'api/Zotero/ApiKey?reviewId=' + reviewId + '&userId=' + userId )
+        return this._httpC.get<string>(this._baseUrl + 'api/Zotero/ApiKey')
             .toPromise().then(result => {
                 this.RemoveBusy("GetZoteroApiKey");
                 return result;
@@ -437,11 +433,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public DeleteZoteroApiKey(reviewId: number, userId: number, groupId:number): Promise<string> {
+    public DeleteZoteroApiKey( groupId:number): Promise<string> {
         this._BusyMethods.push("DeleteZoteroApiKey");
 
-        return this._httpC.get<string>(this._baseUrl + 'api/Zotero/ApiKey?reviewId=' + reviewId + '&userId=' + userId
-            + '&deleteApiKey=true' + '&groupId=' + groupId)
+        return this._httpC.get<string>(this._baseUrl + 'api/Zotero/ApiKey?deleteApiKey=true' + '&groupId=' + groupId)
             .toPromise().then(result => {
                 this.RemoveBusy("DeleteZoteroApiKey");
                 return result;
@@ -454,10 +449,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async CollectionPost(collection: string, userId: number, reviewId: number): Promise<any> {
+    public async CollectionPost(collection: string): Promise<any> {
       this._BusyMethods.push("Collection");
 
-        return this._httpC.post<any>(this._baseUrl + 'api/Zotero/Collection?userId=' + userId + 'reviewId=' + reviewId +'', collection)
+        return this._httpC.post<any>(this._baseUrl + 'api/Zotero/Collection', collection)
             .toPromise().then(result => {
               this.RemoveBusy("Collection");
                 return result;
