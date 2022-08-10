@@ -218,7 +218,7 @@ namespace ERxWebClient2.Controllers
                     _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ReviewID, access_oauth_Token_Secret);
                     _zoteroConcurrentDictionary.Session.TryUpdate("apiKey-" + ReviewID, access_oauth_Token_Secret, "");
                 }
-                var firstGroup = await this.GroupMetaData(access_userId);
+                var firstGroup = await this.GetGroups(access_userId, reviewID.ToString());
 
                 if (firstGroup.Count == 0)
                 {
@@ -556,52 +556,57 @@ namespace ERxWebClient2.Controllers
         public async Task<List<Group>> GroupMetaData([FromQuery] string zoteroUserId)
         {
             try
-            {
-                if (!SetCSLAUser4Writing()) return new List<Group>();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+			{
+				if (!SetCSLAUser4Writing()) return new List<Group>();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				if (ri == null) throw new ArgumentNullException("Not sure why this is null");
 
-                var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId.ToString(), out string zoteroApiKey);
-                var GETGroupsUri = new UriBuilder($"{baseUrl}/users/{zoteroUserId}/groups");
-                SetZoteroHttpService(GETGroupsUri, zoteroApiKey);
-                var groups = await _zoteroService.GetCollections<Group>(GETGroupsUri.ToString());
-                if (groups.Count > 0)
-                {
-                    var groupIDBeingSynced = groups.FirstOrDefault().id.ToString();
-                    _zoteroConcurrentDictionary.Session.TryAdd("groupIDBeingSynced-" + zoteroApiKey, groupIDBeingSynced);
-                }
-                else
-                {
-                    // TODO remove everything from dictionary and Database and tell user no groups have been set so revoking
-
-                }
-
-                // need to fetch the group being synced from the db and then find that group in the list that is returned!!
-                var dp = new DataPortal<ZoteroReviewCollectionList>();
-                var criteria =
-                       new SingleCriteria<ZoteroReviewCollectionList, long>(ri.ReviewId);
-                var reviewCollection = await dp.FetchAsync(criteria);
-                var reviewCollectionItem = reviewCollection.FirstOrDefault();
-                if (reviewCollectionItem != null)
-                {
-                    var groupIDBeingSynced = reviewCollectionItem.GroupBeingSynced;
-                    var group = groups.FirstOrDefault(x => x.id == groupIDBeingSynced);
-                    if (group != null)
-                    {
-                        group.groupBeingSynced = groupIDBeingSynced;
-                    }
-                }
-
-                return groups;
-            }
-            catch (Exception e)
+				return await GetGroups(zoteroUserId, ri.ReviewId.ToString());
+			}
+			catch (Exception e)
             {
                 _logger.LogException(e, "Fetching GroupMetaDataAsync has an error");
                 return new List<Group>();
             }
         }
 
-        [HttpGet("[action]")]
+		private async Task<List<Group>> GetGroups(string zoteroUserId, string reviewId)
+		{
+			var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewId, out string zoteroApiKey);
+			var GETGroupsUri = new UriBuilder($"{baseUrl}/users/{zoteroUserId}/groups");
+			SetZoteroHttpService(GETGroupsUri, zoteroApiKey);
+			var groups = await _zoteroService.GetCollections<Group>(GETGroupsUri.ToString());
+			if (groups.Count > 0)
+			{
+				var groupIDBeingSynced = groups.FirstOrDefault().id.ToString();
+				_zoteroConcurrentDictionary.Session.TryAdd("groupIDBeingSynced-" + zoteroApiKey, groupIDBeingSynced);
+			}
+			else
+			{
+				// TODO remove everything from dictionary and Database and tell user no groups have been set so revoking
+
+			}
+
+			// need to fetch the group being synced from the db and then find that group in the list that is returned!!
+			var dp = new DataPortal<ZoteroReviewCollectionList>();
+			var criteria =
+				   new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt64(reviewId));
+			var reviewCollection = await dp.FetchAsync(criteria);
+			var reviewCollectionItem = reviewCollection.FirstOrDefault();
+			if (reviewCollectionItem != null)
+			{
+				var groupIDBeingSynced = reviewCollectionItem.GroupBeingSynced;
+				var group = groups.FirstOrDefault(x => x.id == groupIDBeingSynced);
+				if (group != null)
+				{
+					group.groupBeingSynced = groupIDBeingSynced;
+				}
+			}
+
+			return groups;
+		}
+
+		[HttpGet("[action]")]
         public async Task<ApiKey[]> FetchApiKeys()
         {
             try

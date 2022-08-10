@@ -151,13 +151,12 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
                                     this.ChangeContext("ZoteroSetup");
                                 }
                             } else {
-                                this.ChangeContext("ZoteroSetup");
+                             
                             }
                         });               
             }
         });
     }
-
 
     public BackHome() {
         this._router.navigate(['Main']);
