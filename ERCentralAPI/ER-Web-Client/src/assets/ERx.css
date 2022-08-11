@@ -119,30 +119,16 @@ body {
   color: #04070b;
   background-color: #e1e4eb;
 }
+.containsAtoolbar .k-button.k-selected {
+  border-color: #020206;
+  color: #04070b;
+  background-color: #d1d1d1;
+}
 .k-tabstrip-items-wrapper .k-item {
   color: #808080 ;
 }
-/*.containsAtoolbar .k-toolbar {
-    background-color: #f1f1f8;
-    padding: .25rem .25rem ;
-}
-.containsAtoolbar .k-button {
-    border-color: #04070b;
-    color: #04070b;
-    background-color: #e1e4eb;
-    font-size: 0.9em;
-    padding: .25rem .25rem !important;
-}
-.containsAtoolbar .k-button.k-state-active {
-    
-    border-color: #04070b;
-}
-.containsAtoolbar .k-button-icon {
-    height: calc(2px + 0.75rem + 1.25em);
-}*/
-/*.containsAtoolbar .k-button-icon {
-    height: auto;
-}*/
+
+
 .k-list .k-item.k-state-focused {
   box-shadow: inset 0 0 0 1px rgba(33,37,41,0.45) !important;
 }
