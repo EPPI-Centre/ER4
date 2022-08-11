@@ -57,48 +57,56 @@
             </div>
         </div>
         <div *ngIf="WizStep > 2">
-            <div class="row m-0">
-                <div class="col-12 col-sm-4 m-0 p-0">
-                    <div class="row p-1 m-2 bg-white border border-dark rounded">
-                        This screen allows you to select individual Coding Tool(s) to import into your review.<br />
-                        You can select a Coding Tool from the list below and see it displayed in the centre column.<br />
-                        The Coding Tools that are already in your review are displayed in the third column.<br />
-                    </div>
-                    <div *ngIf="WizStep == 2.1" class="col-12">
-                        Available Coding Tools (public)
-                    </div>
-                    <div *ngIf="WizStep == 2.2" class="col-12">
-                        Available Coding Tools (personal)
-                    </div>
-                    <div class="col-12" style="max-height:600px; overflow-y:auto;">
-                        <button *ngFor="let set of ReviewSets4Copy" role="group" type="button" class="btn col-12"
-                                [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
-                                    ,'btn-outline-info' :(!SelectedSet4Copy || !SelectedSet4Copy.set_id || SelectedSet4Copy.set_id != set.set_id)}"
-                                (click)="SelectSet4Copy(set)">
-                            {{set.set_name}}
-                        </button>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-4 bg-white border border-dark rounded">
-                    <div>Coding Tool Preview:</div>
-                    <codesetTree4Copy [SelectedCodeset]="SelectedSet4Copy" [MaxHeight]="500"></codesetTree4Copy>
-                </div>
-                <div class="col-12 col-sm-4">
-                    <codesetTreeMain [MaxHeight]="500"></codesetTreeMain>
-                </div>
+          <div class="row m-0">
+            <div class="col-12 m-0 p-0">
+              <div class="row p-1 m-2 bg-white border border-dark rounded">
+                This screen allows you to select individual Coding Tool(s) to import into your review.<br />
+                You can select a Coding Tool from the list below and see it displayed in the centre column. The Coding Tools that are already in your review are displayed in the third column.<br />
+              </div>
             </div>
-            <div class="row align-bottom justify-content-center mt-2 col-12">
+            </div>
+              <div class="row m-0">
+                <div class="col-sm-12 col-md-4 m-0 p-0">
+                  <div *ngIf="WizStep == 2.1" class="col-12">
+                    Available Coding Tools (public)
+                  </div>
+                  <div *ngIf="WizStep == 2.2" class="col-12">
+                    Available Coding Tools (personal)
+                  </div>
+                  <div class="col-12" [ngStyle]="{'max-height.px': codingtoolsMaxHeight}" style="overflow-y:auto;">
+                    <button *ngFor="let set of ReviewSets4Copy" role="group" type="button" class="btn col-12"
+                            [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
+                                    ,'btn-outline-info' :(!SelectedSet4Copy || !SelectedSet4Copy.set_id || SelectedSet4Copy.set_id != set.set_id)}"
+                            (click)="SelectSet4Copy(set)">
+                      {{set.set_name}}
+                    </button>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 mt-0 mb-0 d-flex flex-column align-self-stretch">
+                    <div class="align-self-start w-100">Coding Tool Preview:</div>
+                    <div class="align-self-stretch h-100">
+                      <div class="p-1 bg-white border border-dark rounded h-100">
+                        <codesetTree4Copy [SelectedCodeset]="SelectedSet4Copy" [MaxHeight]="codingtoolsMaxHeight"></codesetTree4Copy>
+                      </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 ">
+                  <div class="border-bottom border-dark">Current tools:</div>
+                  <codesetTreeMain [MaxHeight]="codingtoolsMaxHeight"></codesetTreeMain>
+                </div>
+              </div>
+              <div class="row align-bottom justify-content-center mt-2 col-12">
                 <button class="btn btn-outline-secondary ml-1"
                         (click)="CancelActivity()" style="width:200px;">
-                    Cancel
+                  Cancel
                 </button>
                 <button type="submit" (click)="ImportSelectedSet()" class="btn btn-success ml-2 mr-2"
                         [ngClass]="{disableThisAndChildren:!CanWrite()}"
                         [disabled]="!SelectedSet4Copy">
-                    Import Selected
+                  Import Selected
                 </button>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
-</div>
 <statusbar *ngIf="IsStandalone" class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

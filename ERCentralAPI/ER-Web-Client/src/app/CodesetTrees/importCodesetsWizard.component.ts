@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, Output, Input, OnDestroy,  } from '@angular/
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, HostListener } from '@angular/core';
 import { ReviewSetsEditingService, ReadOnlyTemplateReview } from '../services/ReviewSetsEditing.service';
 import { Helpers } from '../helpers/HelperMethods';
 
@@ -32,13 +32,22 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
         else if (!this.ReviewerIdentityServ.HasWriteRights) {
             this.router.navigate(['Main']);
         }
-		else {
+        else {
+          this.getScreenSize(null);
             this.ReviewSetsEditingService.FetchReviewTemplates();
         }
     }
     @Input() IsStandalone: boolean = true;
     @Output()
-    PleaseCloseMe = new EventEmitter();
+  PleaseCloseMe = new EventEmitter();
+  private screenHeight: number = 0;
+  @HostListener('window:resize', ['$event'])
+  getScreenSize(event: any) {
+    this.screenHeight = window.innerHeight;
+  }
+  public get codingtoolsMaxHeight(): number {
+    return this.screenHeight * 0.7;
+  }
     public WizStep: number = 1;
     public get TemplateReviews(): ReadOnlyTemplateReview[] {
         return this.ReviewSetsEditingService.ReadOnlyTemplateReviews;
@@ -137,7 +146,11 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
     }
     SelectSet4Copy(set: ReviewSet) {
         this._SelectedSet4Copy = set;
-    }
+  }
+
+
+
+
     async ImportSelectedSet() {
         if (!this._SelectedSet4Copy) return;
         else {
