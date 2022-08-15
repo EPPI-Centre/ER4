@@ -333,10 +333,10 @@ namespace BusinessLibrary.BusinessClasses
             Contact returnValue = new Contact();
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<string>(contactNameProperty, reader.GetString("CONTACT_NAME"));
-            //returnValue.LoadProperty<string>(EmailProperty, reader.GetString("EMAIL"));
-            //returnValue.LoadProperty<string>(ExpiryProperty, reader.GetString("EXPIRY_DATE"));
-            //returnValue.LoadProperty<string>(RoleProperty, reader.GetString("ROLE_NAME"));
-            //returnValue.LoadProperty<int>(IsExpiredProperty, reader.GetInt32("IS_EXPIRED"));
+            returnValue.LoadProperty<string>(EmailProperty, reader.GetString("EMAIL"));
+            returnValue.LoadProperty<string>(ExpiryProperty, reader.GetString("EXPIRY_DATE"));
+            returnValue.LoadProperty<string>(RoleProperty, reader.GetString("ROLE_NAME"));
+            returnValue.LoadProperty<int>(IsExpiredProperty, reader.GetInt32("IS_EXPIRED"));
             returnValue.MarkOld();
             return returnValue;
         }
