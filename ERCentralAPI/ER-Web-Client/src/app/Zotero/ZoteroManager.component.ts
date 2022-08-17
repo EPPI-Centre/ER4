@@ -122,13 +122,11 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
                 this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
                 this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
 
-                await this._zoteroService.GetZoteroApiKey(this._ReviewerIdentityServ.reviewerIdentity.reviewId,
-                    this._ReviewerIdentityServ.reviewerIdentity.userId).then(
+                await this._zoteroService.GetZoteroApiKey().then(
                         async (zoteroApiKey) => {
                             if (zoteroApiKey && zoteroApiKey.length > 0) {
 
-                                await this._zoteroService.fetchGroupMetaData(this._ReviewerIdentityServ.reviewerIdentity.userId,
-                                    this.currentReview).then(
+                                await this._zoteroService.fetchGroupMetaData().then(
                                         async (groups: Group[]) => {
 
                                             console.log('why is this zero?: ' + JSON.stringify(groups));
@@ -153,21 +151,19 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
                                     this.ChangeContext("ZoteroSetup");
                                 }
                             } else {
-                                this.ChangeContext("ZoteroSetup");
+                             
                             }
                         });               
             }
         });
     }
 
-
     public BackHome() {
         this._router.navigate(['Main']);
     }
 
     public async FetchLinkedReviewID(): Promise<void> {
-        await this._zoteroService.FetchGroupToReviewLinks(this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString(),
-            this._ReviewerIdentityServ.reviewerIdentity.userId.toString()).then(
+        await this._zoteroService.FetchGroupToReviewLinks().then(
                 async (zoteroReviewCollectionList: ZoteroReviewCollectionList) => {
                     this.zoteroCollectionList = zoteroReviewCollectionList;
                     if (zoteroReviewCollectionList.ZoteroReviewCollectionList.length > 0) {

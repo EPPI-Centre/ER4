@@ -84,7 +84,6 @@ export class SearchComp implements OnInit, OnDestroy {
     public ModelId = -1;
     public AttributeId = 0;
     public SourceId = 0;
-    private _listSources: any[] = [];
     public selected?: ReadOnlySource;
     public NewSearchSection: boolean = false;
     public LogicSection: boolean = false;
@@ -108,7 +107,6 @@ export class SearchComp implements OnInit, OnDestroy {
     public LowerScoreThreshold: number = 50;
     public UpperScoreThreshold: number = 50;
     public ShowSources: boolean = false;
-    public ReviewSources: ReadOnlySource[] = [];
     public CurrentSearchNameEditing: boolean = false;
     public searchN: string = '';
     public searchId: string = 'N/A';
@@ -156,7 +154,11 @@ export class SearchComp implements OnInit, OnDestroy {
     }
     public get isSearchServiceBusy(): boolean {
         return this._searchService.IsBusy;
-    }
+  }
+
+  public get ReviewSources(): ReadOnlySource[] {
+    return this._sourcesService.ReviewSources;
+  }
     public setSelectableSettings(): void {
 
         this.selectableSettings = {
@@ -1172,8 +1174,6 @@ export class SearchComp implements OnInit, OnDestroy {
                 break;
             }
             case 11: {
-
-                this.ReviewSources = this._sourcesService.ReviewSources;
                 if (this.ReviewSources.length > 0) {
 
                     this.ShowSources = true;

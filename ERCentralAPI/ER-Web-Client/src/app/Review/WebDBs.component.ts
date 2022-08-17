@@ -16,7 +16,6 @@ import { FileRestrictions, UploadEvent, SelectEvent } from '@progress/kendo-angu
 
 export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	constructor(private router: Router,
-		@Inject('BASE_URL') private _baseUrl: string,
 		private WebDBService: WebDBService,
 		private ReviewerIdentityService: ReviewerIdentityService,
 		private ReviewSetsService: ReviewSetsService,
@@ -59,7 +58,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public ShowPassword: boolean = false;
 	public ShowLogs: boolean = false;
 	public isCollapsedFilterCode: boolean = false;
-	public uploadSaveUrl = this._baseUrl + 'api/WebDB/UploadImage'; 
+  public get uploadSaveUrl(): string {
+    return this.WebDBService.BaseUrl + 'api/WebDB/UploadImage';
+  }
 	public uploadRestrictions: FileRestrictions = {
 		allowedExtensions: [
 			'.jpg'

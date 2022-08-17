@@ -83,14 +83,12 @@ export class ZoteroSetupComponent implements OnInit {
         this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
         this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
         var groupId = 0;
-        this._zoteroService.GetZoteroApiKey(this._ReviewerIdentityServ.reviewerIdentity.reviewId,
-            this._ReviewerIdentityServ.reviewerIdentity.userId).then(
+        this._zoteroService.GetZoteroApiKey().then(
                 (zoteroApiKey) => {
                     this.currentApiKey = zoteroApiKey;
                     if (this.currentApiKey && this.currentApiKey.length > 0) {
                         
-                       this._zoteroService.fetchApiKeys(
-                           this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId).then(
+                       this._zoteroService.fetchApiKeys().then(
                                async (userKeys) => {
 
                                    this.apiKeys = userKeys;
@@ -100,11 +98,10 @@ export class ZoteroSetupComponent implements OnInit {
                         // ALREADY HAS A ZOTERO API KEY
                         this.FetchLinkedReviewID();
                         this.zoteroEditKeyLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + zoteroApiKey;
-                        this._zoteroService.fetchUserZoteroPermissions(this._ReviewerIdentityServ.reviewerIdentity.userId,
-                            this.currentReview).then(
+                        this._zoteroService.fetchUserZoteroPermissions().then(
                                 async () => {
 
-                                    await this._zoteroService.fetchGroupMetaData(this._ReviewerIdentityServ.reviewerIdentity.userId, this.currentReview).then(
+                                    await this._zoteroService.fetchGroupMetaData().then(
                                         async (meta) => {
                                             this.groupMeta = meta;
                                         });
@@ -117,7 +114,7 @@ export class ZoteroSetupComponent implements OnInit {
                                             type: { style: "info", icon: true },
                                             closable: true
                                         });
-                                        await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                        await this._zoteroService.DeleteZoteroApiKey(-1);
 
                                         return;
                                     }
@@ -136,7 +133,7 @@ export class ZoteroSetupComponent implements OnInit {
                                                 type: { style: "info", icon: true },
                                                 closable: true
                                             });
-                                            await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                            await this._zoteroService.DeleteZoteroApiKey(-1);
 
                                             return;
                                         } else {
@@ -149,7 +146,7 @@ export class ZoteroSetupComponent implements OnInit {
                                                     type: { style: "info", icon: true },
                                                     closable: true
                                                 });
-                                                await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                                await this._zoteroService.DeleteZoteroApiKey(-1);
 
                                                 return;
                                             }
@@ -161,7 +158,8 @@ export class ZoteroSetupComponent implements OnInit {
                                                     this._zoteroService.currentGroupBeingSynced = group.groupBeingSynced;
                                                     this._zoteroService.editApiKeyPermissions = true;
                                                }
-                                            }
+                                          }
+                                          this.changeGroupBeingSynced(this.groupMeta[0]);
                                             return;
                                         }
                                     }
@@ -176,7 +174,7 @@ export class ZoteroSetupComponent implements OnInit {
                                             type: { style: "info", icon: true },
                                             closable: true
                                         });
-                                        await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                        await this._zoteroService.DeleteZoteroApiKey(-1);
 
                                         return;
                                     }
@@ -200,7 +198,7 @@ export class ZoteroSetupComponent implements OnInit {
                                                     }
                                                 }
                                                 await this.FetchLinkedReviewID();
-                                                this._zoteroService.fetchGroupMetaData(this._ReviewerIdentityServ.reviewerIdentity.userId, this.currentReview).then(
+                                                this._zoteroService.fetchGroupMetaData().then(
                                                     async (meta) => {
                                                         this.groupMeta = meta;
                                                         if (!!this.groupMeta[0]) {
@@ -242,7 +240,7 @@ export class ZoteroSetupComponent implements OnInit {
                                                                 type: { style: "info", icon: true },
                                                                 closable: true
                                                             });
-                                                            await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                                            await this._zoteroService.DeleteZoteroApiKey(-1);
 
                                                         }
                                                     }
@@ -257,12 +255,12 @@ export class ZoteroSetupComponent implements OnInit {
                                                     type: { style: "error", icon: true },
                                                     closable: true
                                                 });
-                                                await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                                await this._zoteroService.DeleteZoteroApiKey(-1);
 
 
                                             }
                                         } else {
-                                            await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                            await this._zoteroService.DeleteZoteroApiKey(-1);
 
                                         }
                                     }
@@ -297,7 +295,7 @@ export class ZoteroSetupComponent implements OnInit {
                                                             type: { style: "info", icon: true },
                                                             closable: true
                                                         });
-                                                        await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                                        await this._zoteroService.DeleteZoteroApiKey(-1);
 
                                                     }
 
@@ -310,7 +308,7 @@ export class ZoteroSetupComponent implements OnInit {
                                             type: { style: "info", icon: true },
                                             closable: true
                                         });
-                                        await this._zoteroService.DeleteZoteroApiKey(this.currentReview, this._ReviewerIdentityServ.reviewerIdentity.userId, -1);
+                                        await this._zoteroService.DeleteZoteroApiKey(-1);
 
                                     }
                                 }).catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
@@ -374,7 +372,7 @@ export class ZoteroSetupComponent implements OnInit {
 
     async fetchZoteroObjectVersionsAsync(): Promise<void> {
         this.ObjectZoteroList = [];
-        this._zoteroService.fetchZoteroObjectVersionsAsync(this._ReviewerIdentityServ.reviewerIdentity.userId, this.currentReview).then(
+        this._zoteroService.fetchZoteroObjectVersionsAsync().then(
             (objects) => {
                 this.ObjectZoteroList = objects;
                 this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
@@ -571,7 +569,7 @@ export class ZoteroSetupComponent implements OnInit {
 
 
     async fetchERWebObjectVersionsAsync(): Promise<void> {
-        await this._zoteroService.fetchERWebObjectsNotInZoteroAsync(this.currentReview).then(
+        await this._zoteroService.fetchERWebObjectsNotInZoteroAsync().then(
             (result) => {
                 this.ObjectERWebList = [];
                 this.ObjectsInERWebNotInZotero = [];
@@ -631,8 +629,7 @@ export class ZoteroSetupComponent implements OnInit {
 
     public async RemoveCurrentReviewAT(group: Group) {
 
-        await this._zoteroService.UpdateGroupToReview(this.currentReview.toString(), group.id.toString(),
-            this._ReviewerIdentityServ.reviewerIdentity.userId.toString(), true).then(
+        await this._zoteroService.UpdateGroupToReview( group.id.toString(), true).then(
                 async () => {
                     let indexG = this.groupMeta.indexOf(group);
                     this.groupMeta[indexG].data.groupBeingSynced = false;
@@ -690,9 +687,7 @@ export class ZoteroSetupComponent implements OnInit {
 
 
     public async AddLinkedReviewID(group: GroupData) {
-
-        await this._zoteroService.UpdateGroupToReview(this.currentReview.toString(), group.id.toString(),
-            this._ReviewerIdentityServ.reviewerIdentity.userId.toString(), false).then(
+        await this._zoteroService.UpdateGroupToReview(group.id.toString(), false).then(
                 async () => {
                     await this.FetchLinkedReviewID();
                 });
@@ -706,8 +701,7 @@ export class ZoteroSetupComponent implements OnInit {
     }
 
     public async FetchLinkedReviewID(): Promise<void> {
-        await this._zoteroService.FetchGroupToReviewLinks(this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString(),
-            this._ReviewerIdentityServ.reviewerIdentity.userId.toString()).then(
+        await this._zoteroService.FetchGroupToReviewLinks().then(
                 async (zoteroReviewCollectionList: ZoteroReviewCollectionList) => {
                     this.zoteroCollectionList = zoteroReviewCollectionList;
                     if (zoteroReviewCollectionList.ZoteroReviewCollectionList.length > 0) {
@@ -725,7 +719,7 @@ export class ZoteroSetupComponent implements OnInit {
     }
    
     async UpdateGroupMetaData(groupId: number, userId: number, currentReview: number) {
-        await this._zoteroService.postGroupMetaData(groupId, userId, currentReview);
+        await this._zoteroService.postGroupMetaData(groupId);
     }
 
     public get IsReportsServiceBusy(): boolean {

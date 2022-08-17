@@ -277,16 +277,16 @@
                     <div *ngIf="mode == '2' && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode?.name}}) is a Coding Tool.</div>
                 </div>
                 <div *ngIf="mode == '3' && ReviewSources">
+                  <div>
                     <div>
-                        <div ngbDropdown>
-                            <select class="btn btn-secondary mt-3" id="dropdownBasicSources"
-                                    ngbDropdownToggle [(ngModel)]="selected">
-                                <option [value]="item.source_ID" *ngFor="let item of ReviewSources">
-                                    {{DisplayFriendlySourceNames(item)}}
-                                </option>
-                            </select>
-                        </div>
+                      <select class="btn btn-outline-primary mt-3" id="dropdownBasicSources"
+                              [(ngModel)]="selected">
+                        <option [value]="item.source_ID" *ngFor="let item of ReviewSources">
+                          {{DisplayFriendlySourceNames(item)}}
+                        </option>
+                      </select>
                     </div>
+                  </div>
                 </div>
             </div>
 

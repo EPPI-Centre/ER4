@@ -219,10 +219,10 @@
 
 									</td>
 									<td>
-										<span class="bg-warning" *ngIf="object.meta.numItems === 0">
+										<span class="bg-warning" *ngIf="object.meta.numItems === 0 && object.meta.numChildren === 0">
 											No Attachment
 										</span>
-										<span class="bg-success" *ngIf="object.meta.numItems > 0">
+										<span class="bg-success" *ngIf="object.meta.numItems > 0 || object.meta.numChildren > 0">
 											Attachment
 										</span>
 									</td>
