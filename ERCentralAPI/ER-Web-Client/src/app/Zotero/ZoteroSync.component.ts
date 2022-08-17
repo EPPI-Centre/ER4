@@ -208,7 +208,7 @@ export class ZoteroSyncComponent implements OnInit {
                     await this.FetchLinkedReviewID();
                 });
         this._notificationService.show({
-            content: " You have added Zotero authenticaiton for group: " + group.id.toString(),
+            content: " You currently have Zotero authenticaiton for group: " + group.id.toString(),
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "info", icon: true },

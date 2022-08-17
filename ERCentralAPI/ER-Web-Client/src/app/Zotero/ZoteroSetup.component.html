@@ -65,24 +65,19 @@
 									<td>
 										<div class="m-1 p-1 font-weight-light text-sm-left">Version</div>
 
-									</td>
-									<td>
-										<div class="m-1 p-1 font-weight-light text-sm-left">Group Being Synced</div>
-
-									</td>
+									</td>									
 									<td>
 										Add / Remove Zotero token for this group
 									</td>
 								</tr>
 							</thead>
 							<tbody>
-								<tr *ngFor="let item of groupMeta; index as i" class="small" style="cursor: pointer;">
-									<td (click)="changeGroupBeingSynced(item)" class="">{{item.id}}</td>
-									<td (click)="changeGroupBeingSynced(item)" class="">{{item.data.name}}</td>
-									<td (click)="changeGroupBeingSynced(item)" class="">{{item.version}}</td>
-									<td (click)="changeGroupBeingSynced(item)" [ngClass]="{'font-weight-bold': item.groupBeingSynced === item.id}">{{item.groupBeingSynced}}</td>
+								<tr *ngFor="let item of groupMeta; index as i" class="small">
+									<td  [ngClass]="{'font-weight-bold': item.groupBeingSynced === item.id}">{{item.id}}</td>
+									<td  class="">{{item.data.name}}</td>
+									<td  class="">{{item.version}}</td>
 									<td>
-										<button [disabled]="HasLinkedReviewID(item.data)" class="btn btn-success p-1 m-1" (click)="AddLinkedReviewID(item.data)">Add</button>
+										<button [disabled]="!HasLinkedReviewID(item.data)" class="btn btn-success p-1 m-1" (click)="changeGroupBeingSynced(item)">Add</button>
 										<button [disabled]="!HasLinkedReviewID(item.data)" class="btn btn-danger p-1 m-1" (click)="RemoveCurrentReviewAT(item)">Remove </button>
 									</td>
 								</tr>

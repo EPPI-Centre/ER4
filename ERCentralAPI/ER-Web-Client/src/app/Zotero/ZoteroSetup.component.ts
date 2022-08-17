@@ -231,7 +231,7 @@ export class ZoteroSetupComponent implements OnInit {
                                                                 }
                                                             }
 
-                                                            this.changeGroupBeingSynced(this.groupMeta[0]);
+                                                            //this.changeGroupBeingSynced(this.groupMeta[0]);
 
                                                         }
                                                         else {
@@ -648,10 +648,8 @@ export class ZoteroSetupComponent implements OnInit {
                             position: { horizontal: 'center', vertical: 'top' },
                             type: { style: "info", icon: true },
                             closable: true
-                        });
-                      
+                        });                      
                     }
-
                 });
         this._notificationService.show({
             content: " You have removed the Zotero authentication for group: " + group.id.toString(),
@@ -660,9 +658,6 @@ export class ZoteroSetupComponent implements OnInit {
             type: { style: "info", icon: true },
             closable: true
         });
-        if (this.groupMeta.length == 0) {
-           
-        }
     }
 
     public HasLinkedReviewID(group: GroupData): boolean {
@@ -670,14 +665,39 @@ export class ZoteroSetupComponent implements OnInit {
         return index > -1;
     }
 
+    public async changeGroupBeingSynced(group: Group) {
+      await this.FetchLinkedReviewID();
+     
+
+        await this.AddLinkedReviewID(group.data);
+
+        await this.UpdateGroupMetaData(group.id, this._ReviewerIdentityServ.reviewerIdentity.userId,
+          this.currentReview);
+
+        for (var i = 0; i < this.groupMeta.length; i++) {
+          if (this.groupMeta[i].id === group.id) {
+            this.groupMeta[i].groupBeingSynced = group.id;
+            this._zoteroService.currentGroupBeingSynced = this.groupMeta[i].id;
+
+          } else {
+            this.groupMeta[i].groupBeingSynced = 0;
+          }
+        }
+        this._zoteroService.editApiKeyPermissions = true;
+        await this.getErWebObjects();
+   
+    }
+
+
     public async AddLinkedReviewID(group: GroupData) {
+
         await this._zoteroService.UpdateGroupToReview(this.currentReview.toString(), group.id.toString(),
             this._ReviewerIdentityServ.reviewerIdentity.userId.toString(), false).then(
                 async () => {
                     await this.FetchLinkedReviewID();
                 });
         this._notificationService.show({
-            content: " You have added Zotero authenticaiton for group: " + group.id.toString(),
+            content: " You currently have Zotero authenticaiton for group: " + group.id.toString(),
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "info", icon: true },
@@ -703,37 +723,7 @@ export class ZoteroSetupComponent implements OnInit {
         }
         return true;
     }
-
-    public async changeGroupBeingSynced(group: Group) {
-        await this.FetchLinkedReviewID();
-        let index = this.zoteroCollectionList.ZoteroReviewCollectionList.findIndex(x => x.libraryID === group.id.toString());
-        if (index === -1) {
-            this._notificationService.show({
-                content: "You must add this group in order to sync with it",
-                animation: { type: 'slide', duration: 400 },
-                position: { horizontal: 'center', vertical: 'top' },
-                type: { style: "warning", icon: true },
-                closable: true
-            });
-            return;
-        } else {
-            
-            await this.UpdateGroupMetaData(group.id, this._ReviewerIdentityServ.reviewerIdentity.userId,
-                this.currentReview);
-            for (var i = 0; i < this.groupMeta.length; i++) {
-                if (this.groupMeta[i].id === group.id) {
-                    this.groupMeta[i].groupBeingSynced = group.id;                    
-                    this._zoteroService.currentGroupBeingSynced = this.groupMeta[i].id;
-                    
-                } else {
-                    this.groupMeta[i].groupBeingSynced = 0;
-                }
-            }
-            this._zoteroService.editApiKeyPermissions = true;
-            await this.getErWebObjects();            
-        }
-    }
-
+   
     async UpdateGroupMetaData(groupId: number, userId: number, currentReview: number) {
         await this._zoteroService.postGroupMetaData(groupId, userId, currentReview);
     }
