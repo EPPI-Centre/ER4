@@ -640,6 +640,26 @@ namespace ERxWebClient2.Controllers
                 var DELETEApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zoteroApiKey}");
                 SetZoteroHttpService(DELETEApiKeysUri, zoteroApiKey);
                 var result = await _zoteroService.DeleteApiKey(DELETEApiKeysUri.ToString());
+
+                // if it is deleted from Zotero then it needs to be deleted locally also!!
+                if (result)
+                {
+                    DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
+
+                    SingleCriteria<ZoteroReviewCollectionList, long> criteria =
+                            new SingleCriteria<ZoteroReviewCollectionList, long>(ri.ReviewId);
+                    var reviewCollection = await dp.FetchAsync(criteria);
+
+
+                    var reviewCollectionItems = reviewCollection.Where(x => x.ApiKey == zoteroApiKey);
+                    for (int i = 0; i < reviewCollectionItems.Count(); i++)
+                    {
+                        var item = reviewCollectionItems.ElementAt(i);
+                        item.Delete();
+                        item = item.Save();
+                    }
+                }
+
                 return Ok(result);
             }
             catch (Exception e)

@@ -196,7 +196,8 @@ export class ZoteroSetupComponent implements OnInit {
                                                         this._zoteroService.currentGroupBeingSynced = group.groupBeingSynced;
                                                         this._zoteroService.editApiKeyPermissions = true;
                                                     }
-                                                }
+                                              }
+                                              this.changeGroupBeingSynced(this.groupMeta[0]);
                                                 await this.FetchLinkedReviewID();
                                                 this._zoteroService.fetchGroupMetaData().then(
                                                     async (meta) => {
@@ -662,6 +663,7 @@ export class ZoteroSetupComponent implements OnInit {
         return index > -1;
     }
 
+   // Logic in here should change depending on what we want to happen
     public async changeGroupBeingSynced(group: Group) {
       await this.FetchLinkedReviewID();
      
