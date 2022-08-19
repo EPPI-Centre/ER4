@@ -61,7 +61,7 @@ export class ZoteroSetupComponent implements OnInit {
     public itemsWithThisCode: Item[] = [];
     public isCollapsed = false;
     public zoteroLink: string = '';
-    public zoteroEditKeyLink: string = '';
+    //public zoteroEditKeyLink: string = '';
     public reviewLinkText: string[] = [];
     public currentLinkedReviewId: string = '';
     public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();
@@ -83,10 +83,9 @@ export class ZoteroSetupComponent implements OnInit {
         this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
         this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
         var groupId = 0;
-        this._zoteroService.GetZoteroApiKey().then(
-                (zoteroApiKey) => {
-                    this.currentApiKey = zoteroApiKey;
-                    if (this.currentApiKey && this.currentApiKey.length > 0) {
+        this._zoteroService.CheckZoteroApiKey().then(
+                (zoteroApiKeyResult) => {
+                    if (zoteroApiKeyResult === true) {
                         
                        this._zoteroService.fetchApiKeys().then(
                                async (userKeys) => {
@@ -94,10 +93,9 @@ export class ZoteroSetupComponent implements OnInit {
                                    this.apiKeys = userKeys;
                                 });
 
-
                         // ALREADY HAS A ZOTERO API KEY
                         this.FetchLinkedReviewID();
-                        this.zoteroEditKeyLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + zoteroApiKey;
+                        //this.zoteroEditKeyLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + zoteroApiKey;
                         this._zoteroService.fetchUserZoteroPermissions().then(
                                 async () => {
 
@@ -784,7 +782,6 @@ export class ZoteroSetupComponent implements OnInit {
                 closable: true
             });
         }
-        this.currentApiKey = "";
         this._zoteroService.editApiKeyPermissions = false;
         this._zoteroService.currentGroupBeingSynced = 0;
         this._router.navigate(['Main']);

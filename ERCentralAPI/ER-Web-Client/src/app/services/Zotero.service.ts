@@ -417,10 +417,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public GetZoteroApiKey(): Promise<string> {
+    public CheckZoteroApiKey(): Promise<boolean> {
         this._BusyMethods.push("GetZoteroApiKey");
 
-        return this._httpC.get<string>(this._baseUrl + 'api/Zotero/ApiKey')
+        return this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/CheckApiKey')
             .toPromise().then(result => {
                 this.RemoveBusy("GetZoteroApiKey");
                 return result;

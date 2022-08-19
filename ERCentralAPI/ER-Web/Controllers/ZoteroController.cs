@@ -838,6 +838,99 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+
+        [HttpGet("[action]")]
+        public async Task<JsonResult> CheckApiKey([FromQuery] int groupId = -1, [FromQuery] bool deleteApiKey = false)
+        {
+            try
+            {
+                if (!SetCSLAUser())
+                {
+                    var error = new JsonErrorModel
+                    {
+                        ErrorCode = 403,
+                        ErrorMessage = "Forbidden"
+                    };
+                    return Json(error);
+                }
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                UserDetails userDetails = new UserDetails
+                {
+                    reviewId = ri.ReviewId,
+                    userId = ri.UserId
+                };
+
+                SingleCriteria<ZoteroReviewCollectionList, long> criteria =
+                        new SingleCriteria<ZoteroReviewCollectionList, long>(userDetails.reviewId);
+
+                DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
+
+                var reviewCollection = await dp.FetchAsync(criteria);
+
+                ZoteroReviewCollection reviewCollectionItem;
+                if (groupId == -1)
+                {
+                    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == ri.ReviewId);
+                }
+                else
+                {
+                    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == ri.ReviewId && x.LibraryID == groupId.ToString());
+                }
+
+                if (deleteApiKey && reviewCollection.Count > 0 && reviewCollectionItem != null)
+                {
+                    reviewCollectionItem.Delete();
+                    reviewCollectionItem = reviewCollectionItem.Save();
+                    return Json("DeletedApiKey");
+                }
+
+                var result = await dp.FetchAsync(criteria);
+                if (result == null || result.Count() == 0)
+                {                    
+                    return Json("");
+                }
+                if (string.IsNullOrEmpty(result.FirstOrDefault().ApiKey))
+                {
+                    var error = new JsonErrorModel
+                    {
+                        ErrorCode = 403,
+                        ErrorMessage = "Forbidden"
+                    };
+                    return Json(error);
+                }
+                if (ri.ReviewId != result.FirstOrDefault().REVIEW_ID)
+                {
+                    var error = new JsonErrorModel
+                    {
+                        ErrorCode = 403,
+                        ErrorMessage = "Forbidden"
+                    };
+                    return Json(error);
+                }
+                var apiOutResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId, out string apiKeyOut);
+                if (!string.IsNullOrEmpty(result.FirstOrDefault().ApiKey) && !apiOutResult)
+                {
+                    _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ri.ReviewId, result.FirstOrDefault().ApiKey);
+                }
+                _zoteroConcurrentDictionary.Session.TryAdd("reviewID", ri.ReviewId.ToString());
+
+                return Json(true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Get Zotero ApiKey has an error");
+                var error = new JsonErrorModel
+                {
+                    ErrorCode = 500,
+                    ErrorMessage = e.Message
+                };
+
+                return Json(error);
+            }
+        }
+
+
         [HttpGet("[action]")]
         public async Task<IActionResult> ItemKeyVersionLocal([FromQuery] string ItemKey, string ItemType)
         {

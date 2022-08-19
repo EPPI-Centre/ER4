@@ -71,7 +71,7 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
     private zoteroUserName: string = '';
     public isCollapsed = false;
     public zoteroLink: string = '';
-    public zoteroEditKeyLink: string = '';
+    //public zoteroEditKeyLink: string = '';
     public reviewLinkText: string[] = [];
     public currentLinkedReviewId: string = '';
     public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();
@@ -122,9 +122,9 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
                 this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
                 this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
 
-                await this._zoteroService.GetZoteroApiKey().then(
-                        async (zoteroApiKey) => {
-                            if (zoteroApiKey && zoteroApiKey.length > 0) {
+                await this._zoteroService.CheckZoteroApiKey().then(
+                        async (zoteroApiKeyResult) => {
+                              if (zoteroApiKeyResult===true) {
 
                                 await this._zoteroService.fetchGroupMetaData().then(
                                         async (groups: Group[]) => {
@@ -144,14 +144,14 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
 
                                 if (this._zoteroService.editApiKeyPermissions) {
                                     // ALREADY HAS A SHARED GROUP WITH  PERMISSIONS ASSOCIATED WITH THIS API KEY
-                                    this.zoteroEditKeyLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + zoteroApiKey;
+                                    //this.zoteroEditKeyLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + zoteroApiKey;
                                     this.ChangeContext("ZoteroSync");
 
                                 } else {
                                     this.ChangeContext("ZoteroSetup");
                                 }
                             } else {
-                             
+                              console.log('No active Zotero API Key');
                             }
                         });               
             }

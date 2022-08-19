@@ -63,7 +63,7 @@ export class ZoteroSyncComponent implements OnInit {
     public itemsWithThisCode: Item[] = [];
     public isCollapsed = false;
     public zoteroLink: string = '';
-    public zoteroEditKeyLink: string = '';
+    //public zoteroEditKeyLink: string = '';
     public reviewLinkText: string[] = [];
     public currentLinkedReviewId: string = '';
     public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();
