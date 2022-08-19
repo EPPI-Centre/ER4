@@ -154,6 +154,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+
+        public static readonly PropertyInfo<Int64> TotalCountProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("TotalCount", "TotalCount"));
+        public Int64 TotalCount
+        {
+            get
+            {
+                return GetProperty(TotalCountProperty);
+            }
+        }
+
         /*
         public static readonly PropertyInfo<MagFieldOfStudyList> CitationsProperty = RegisterProperty<MagFieldOfStudyList>(new PropertyInfo<MagFieldOfStudyList>("Citations", "Citations"));
         public MagFieldOfStudyList Citations
@@ -392,7 +402,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(MagMakesHelpers.OaFullConcept pmfos)
+        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(MagMakesHelpers.OaFullConcept pmfos, Int64 totalCount)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             /*
@@ -404,6 +414,7 @@ namespace BusinessLibrary.BusinessClasses
             */
             returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, Convert.ToInt64(pmfos.id.Replace("https://openalex.org/C", "")));
             returnValue.LoadProperty<string>(DisplayNameProperty, pmfos.display_name);
+            returnValue.LoadProperty<Int64>(TotalCountProperty, totalCount);
             //returnValue.LoadProperty<Int32>(num_timesProperty, pmfos.c);
             //returnValue.LoadProperty<Int64>(PaperCountProperty, fos.PC);
 

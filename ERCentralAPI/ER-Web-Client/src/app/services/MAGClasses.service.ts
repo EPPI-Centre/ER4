@@ -101,6 +101,8 @@ export class MVCMagFieldOfStudyListSelectionCriteria {
     listType: string = '';
     paperIdList: string = '';
     SearchTextTopics: string = '';
+    pageNumber: number = 1;
+
 
 }
 export class MVCMagOrigPaperListSelectionCriteria {
@@ -153,6 +155,7 @@ export class MvcMagFieldOfStudyListSelectionCriteria {
     listType: string = '';
     paperIdList: string = '';
     SearchTextTopics: string = '';
+    pageNumber: number = 1;
 
 }
 
@@ -169,6 +172,7 @@ export class MagFieldOfStudy {
     createdDate: Date = new Date();
     num_times: number = 0;
     externalMagLink: string = '';
+    totalCount: number = 0;
 
 }
 

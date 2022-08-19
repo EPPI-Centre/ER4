@@ -349,7 +349,7 @@ export class MAGBrowserService extends BusyAwareService implements OnDestroy {
         selectionCriteria.listType = FieldOfStudy;
         selectionCriteria.fieldOfStudyId = FieldOfStudyId;
         selectionCriteria.SearchTextTopics = '';
-
+        selectionCriteria.pageNumber = 1;
         return this._magTopicsService.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
 
             (result: MagFieldOfStudy[] | boolean) => {
