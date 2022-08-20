@@ -557,6 +557,10 @@ namespace ERxWebClient2.Controllers
         {
             try
 			{
+                if (string.IsNullOrEmpty(zoteroUserId) || zoteroUserId == "undefined")
+                {
+                    throw new ArgumentNullException("zoteroUserId needs to be populated");
+                }
 				if (!SetCSLAUser4Writing()) return new List<Group>();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				if (ri == null) throw new ArgumentNullException("Not sure why this is null");

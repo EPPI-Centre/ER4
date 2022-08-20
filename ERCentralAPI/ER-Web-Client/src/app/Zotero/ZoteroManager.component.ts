@@ -76,6 +76,7 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
     public currentLinkedReviewId: string = '';
     public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();
     public DetailsForSetId: number = 0;
+    public ZoteroApiKeyResult: boolean = false;
 
     ngOnDestroy() {
         if (this.errorInPath) {
@@ -123,8 +124,13 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
                 this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
 
                 await this._zoteroService.CheckZoteroApiKey().then(
-                        async (zoteroApiKeyResult) => {
-                              if (zoteroApiKeyResult===true) {
+                  async (zoteroApiKeyResult) => {
+                              console.log('result is: ', zoteroApiKeyResult);
+                    if (zoteroApiKeyResult === true) {
+
+                                console.log('got here 1');
+                      this.ZoteroApiKeyResult = zoteroApiKeyResult;
+
 
                                 await this._zoteroService.fetchGroupMetaData().then(
                                         async (groups: Group[]) => {

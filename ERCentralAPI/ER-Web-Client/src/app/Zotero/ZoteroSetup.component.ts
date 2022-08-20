@@ -1,4 +1,4 @@
-import { Component,  OnInit } from '@angular/core';
+import { Component,  Input,  OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { CodesetStatisticsService, StatsCompletion } from '../services/codesetstatistics.service';
@@ -37,6 +37,7 @@ export class ZoteroSetupComponent implements OnInit {
 
     }
 
+  @Input() ZoteroApiKeyResult: boolean = true;
     private maxAllowedItemsToBePushedToZotero: number = 10;
     private objectKeysNotExistsNeedingSyncing: Collection[] = [];
     private objectKeysExistsNeedingSyncing: string[] = [];

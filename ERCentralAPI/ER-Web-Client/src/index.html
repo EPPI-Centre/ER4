@@ -50,6 +50,9 @@
         if (window.location.href.endsWith('/home')) {
           //console.log("going up 2 levels");
           setTimeout(() => { if (cancelRedirectUp == false) window.location.href = curr.href + "/../../home"; }, 2000);
+        } else if (window.location.href.endsWith('Zotero/unauthorised')) {
+          //console.log("going up 2 levels");
+          setTimeout(() => { if (cancelRedirectUp == false) window.location.href = curr.href + "/../../Zotero"; }, 2000);
         }
         else {
           //console.log("going up 1 level");
