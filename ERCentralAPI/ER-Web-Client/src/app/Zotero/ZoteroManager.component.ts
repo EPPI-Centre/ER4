@@ -22,7 +22,6 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
         private _notificationService: NotificationService,
         private _zoteroService: ZoteroService,
         private _router: Router,
-        private _codesetStatsServ: CodesetStatisticsService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private cdr: ChangeDetectorRef
     ) {
@@ -71,7 +70,6 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
     private zoteroUserName: string = '';
     public isCollapsed = false;
     public zoteroLink: string = '';
-    //public zoteroEditKeyLink: string = '';
     public reviewLinkText: string[] = [];
     public currentLinkedReviewId: string = '';
     public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();

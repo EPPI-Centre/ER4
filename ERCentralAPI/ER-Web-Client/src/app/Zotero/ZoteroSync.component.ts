@@ -9,7 +9,10 @@ import { Criteria, Item, ItemListService } from '../services/ItemList.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSet, ReviewSetsService, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ZoteroService } from '../services/Zotero.service';
-import { Collection, GroupData, IERWebANDZoteroReviewItem, IERWebObjects, IERWebZoteroObjects, IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList } from '../services/ZoteroClasses.service';
+import {
+  Collection, GroupData, IERWebANDZoteroReviewItem, IERWebObjects, IERWebZoteroObjects,
+  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList
+} from '../services/ZoteroClasses.service';
 
 @Component({
     selector: 'ZoteroSync',
@@ -79,7 +82,25 @@ export class ZoteroSyncComponent implements OnInit {
         this.zoteroUserID = this._ReviewerIdentityServ.reviewerIdentity.userId;
         this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
         this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
-      if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(false);
+
+        if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(false);
+        let cr: Criteria = new Criteria();
+        cr.showDeleted = false;
+        cr.pageNumber = 0;
+        cr.searchId = 44982;
+        let ListDescription: string = 'Coded with: Include';
+        cr.listType = 'GetItemSearchList';
+        this._ItemListService.FetchWithCrit(cr, ListDescription);
+        this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
+        this._codesetStatsServ.GetReviewStatisticsCountsCommand(true, true);
+        this._zoteroService.fetchERWebItemsToPushToZotero(this._ItemListService.ItemList.items.map(x => x.itemId).join(',')).then(
+          (itemReviewIDs: string[]) => {
+
+          }
+        );
+
+        this.totalItemsInCurrentReview = this._codesetStatsServ.ReviewStats.itemsIncluded;
+        this.FetchLinkedReviewID();
     }
 
     public CodingSets(set_id: number): StatsCompletion[] {
