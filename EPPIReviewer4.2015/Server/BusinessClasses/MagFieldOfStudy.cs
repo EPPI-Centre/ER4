@@ -156,7 +156,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         public static readonly PropertyInfo<Int64> TotalCountProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("TotalCount", "TotalCount"));
-        public Int64 TotalCount
+        public Int64 TotalCount //refers to the tot N of topics in the parent list!!
         {
             get
             {
