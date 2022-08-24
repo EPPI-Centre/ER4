@@ -316,12 +316,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'Duplicates', component: DuplicatesComponent },
       { path: 'SiteAdmin', component: SiteAdminComponent },
       { path: 'WebDBs', component: WebDBsComponent },
-      { path: 'ZoteroManager', component: ZoteroManagerComponent },
-      { path: 'ZoteroSync', component: ZoteroSyncComponent },
-      { path: 'ZoteroSetup', component: ZoteroSetupComponent },
       { path: 'Zotero', component: ZoteroManagerComponent },
-      { path: 'Zotero/:oauth_token/:oauth_verifier', component: ZoteroManagerComponent },
-      { path: 'Zotero/:error', component: ZoteroManagerComponent },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,

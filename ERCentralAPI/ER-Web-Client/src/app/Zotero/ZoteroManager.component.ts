@@ -84,7 +84,7 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
 
     ngOnInit() {
 
-        this.errorInPath = this.route.params.subscribe(async params => {
+        this.errorInPath = this.route.queryParams.subscribe(async params => {
             this.error = params['error'];
             if (this.error === 'nogroups') {
                 var contentError: string = 'You have either no groups created in Zotero as requested, or you have not selected read/write permissions';
@@ -95,9 +95,9 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
                     type: { style: "error", icon: true },
                     closable: true
                 });
-                this._router.navigate(['Main']);
+                //this._router.navigate(['Main']);
 
-            } else if (this.error === 'unathorised') {
+            } else if (this.error === 'unauthorised') {
                 var contentError: string = 'Zotero sometimes fails with unauthorised, please try up to three attempts to resolve';
                 this._notificationService.show({
                     content: contentError,
@@ -106,7 +106,7 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
                     type: { style: "error", icon: true },
                     closable: true
                 });
-                this._router.navigate(['Zotero']);
+                //this._router.navigate(['Zotero']);
             }
             else {
                 if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
@@ -123,17 +123,17 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
 
                 await this._zoteroService.CheckZoteroApiKey().then(
                   async (zoteroApiKeyResult) => {
-                              console.log('result is: ', zoteroApiKeyResult);
+                              //console.log('result is: ', zoteroApiKeyResult);
                     if (zoteroApiKeyResult === true) {
 
-                                console.log('got here 1');
+                                //console.log('got here 1');
                       this.ZoteroApiKeyResult = zoteroApiKeyResult;
 
 
                                 await this._zoteroService.fetchGroupMetaData().then(
                                         async (groups: Group[]) => {
 
-                                            console.log('why is this zero?: ' + JSON.stringify(groups));
+                                            //console.log('why is this zero?: ' + JSON.stringify(groups));
                                             for (var i = 0; i < groups.length; i++) {
                                                 var group = groups[i];
                                                 if (group.groupBeingSynced > 0) {

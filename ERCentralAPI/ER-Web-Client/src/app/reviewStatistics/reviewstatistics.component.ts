@@ -189,7 +189,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		this.router.navigate(['MAG']);
     }
     public OpenZotero() {
-      this.router.navigate(['ZoteroManager']);
+      this.router.navigate(['Zotero']);
     }
 	IncludedItemsList() {
         this.ItemListService.GetIncludedItems();

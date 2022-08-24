@@ -222,7 +222,7 @@ namespace ERxWebClient2.Controllers
 
                 if (firstGroup.Count == 0)
                 {
-                    return Redirect(callbackUrl + "/nogroups");
+                    return Redirect(callbackUrl + "?error=nogroups");
                 }
                 if (resultCollection.ApiKey.Length == 0)
                 {
@@ -275,7 +275,7 @@ namespace ERxWebClient2.Controllers
                 if (e.Message == "Response status code does not indicate success: 401 (Unauthorized).")
                 {
                     _logger.LogException(e, "Zotero Oauth Verify Process has the classic Unauthorized error");
-                    return Redirect(callbackUrl + "/unauthorised");
+                    return Redirect(callbackUrl + "?error=unauthorised");
                 }
                 _logger.LogException(e, "Zotero Oauth Verify Process has an error");
                 return StatusCode(500, e.Message);
