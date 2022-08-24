@@ -14,7 +14,7 @@ namespace ERxWebClient2.Zotero
             _bookItem = collection;
         }
 
-        ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb()
+        ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb(Item newERWebItem)
         {
             try
             {
@@ -29,12 +29,10 @@ namespace ERxWebClient2.Zotero
                 var parseDateModifiedResult = SmartDate.TryParse(_bookItem.dateModified, ref smartDateModified);
                 if (!parseDateModifiedResult) throw new System.Exception("Date parsing exception");
 
-                Item newERWebItem = new Item
-                {
-                    Title = _bookItem.bookTitle,
-                    TypeId = 3,
-                    TypeName = "Book, Chapter"
-                };
+                newERWebItem.Title = _bookItem.bookTitle;
+                newERWebItem.TypeId = 3;
+                newERWebItem.TypeName = "Book, Chapter";
+
                 newERWebItem.ParentTitle = _bookItem.title;
                 newERWebItem.ShortTitle = _bookItem.shortTitle;
                 newERWebItem.URL = _bookItem.url;

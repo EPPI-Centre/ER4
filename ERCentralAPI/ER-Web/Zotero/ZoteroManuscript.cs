@@ -13,7 +13,7 @@ namespace ERxWebClient2.Zotero
             _journalArticle = journal;
         }
 
-        public ERWebItem MapReferenceFromZoteroToErWeb()
+        public ERWebItem MapReferenceFromZoteroToErWeb(Item newERWebItem)
         {
             try
             {
@@ -27,38 +27,34 @@ namespace ERxWebClient2.Zotero
                 var parseDateModifiedResult = SmartDate.TryParse(_journalArticle.dateModified, ref smartDateModified);
                 if (!parseDateModifiedResult) throw new System.Exception("Date parsing exception");
 
-                Item newERWebItem = new Item
-                {
-                    Title = _journalArticle.title,
-                    TypeId = 14,
-                    TypeName = "Journal, Article",
-                    ShortTitle = _journalArticle.shortTitle,
-                    ParentTitle = _journalArticle.parentTitle,
-                    DateCreated = smartDateAdded,
-                    CreatedBy = _journalArticle.createdBy,
-                    DateEdited = smartDateModified,
-                    EditedBy = _journalArticle.editedBy,
-                    Year = smartDate.Date.Year.ToString(),  
-                    Month = smartDate.Date.Month.ToString(), 
-                    StandardNumber = _journalArticle.ISSN,
-                    City = _journalArticle.archiveLocation,
-                    Country = _journalArticle.place,//TODO COuntry and city fix
-                    Publisher = _journalArticle.publicationTitle,
-                    Institution = _journalArticle.institution,
-                    Volume = _journalArticle.volume,
-                    Pages = _journalArticle.pages,
-                    Edition = _journalArticle.edition,
-                    Issue = _journalArticle.issue,
-                    IsLocal = false, //TODO what is this
-                    Availability = "", //TODO what is this,
-                    URL = _journalArticle.url,
-                    MasterItemId = 0,//TODO what is this,
-                    Abstract = _journalArticle.abstractNote,
-                    Comments = _journalArticle.comments,
-                    DOI = _journalArticle.DOI,
-                    Keywords = "",          
-                   
-                };
+                newERWebItem.Title = _journalArticle.title;
+                newERWebItem.TypeId = 14;
+                newERWebItem.TypeName = "Journal; Article";
+                newERWebItem.ShortTitle = _journalArticle.shortTitle;
+                newERWebItem.ParentTitle = _journalArticle.parentTitle;
+                newERWebItem.DateCreated = smartDateAdded;
+                newERWebItem.CreatedBy = _journalArticle.createdBy;
+                newERWebItem.DateEdited = smartDateModified;
+                newERWebItem.EditedBy = _journalArticle.editedBy;
+                newERWebItem.Year = smartDate.Date.Year.ToString();
+                newERWebItem.Month = smartDate.Date.Month.ToString();
+                newERWebItem.StandardNumber = _journalArticle.ISSN;
+                newERWebItem.City = _journalArticle.archiveLocation;
+                newERWebItem.Country = _journalArticle.place;//TODO COuntry and city fix
+                newERWebItem.Publisher = _journalArticle.publicationTitle;
+                newERWebItem.Institution = _journalArticle.institution;
+                newERWebItem.Volume = _journalArticle.volume;
+                newERWebItem.Pages = _journalArticle.pages;
+                newERWebItem.Edition = _journalArticle.edition;
+                newERWebItem.Issue = _journalArticle.issue;
+                newERWebItem.IsLocal = false; //TODO what is this
+                newERWebItem.Availability = ""; //TODO what is this;
+                newERWebItem.URL = _journalArticle.url;
+                newERWebItem.MasterItemId = 0;//TODO what is this;
+                newERWebItem.Abstract = _journalArticle.abstractNote;
+                newERWebItem.Comments = _journalArticle.comments;
+                newERWebItem.DOI = _journalArticle.DOI;
+                newERWebItem.Keywords = "";
                 string consolidatedAuthors = "";
                 foreach (var creator in _journalArticle.creators)
                 {

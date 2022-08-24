@@ -1139,7 +1139,7 @@ namespace ERxWebClient2.Controllers
 
                             var itemFetch = dpFetchItem.Fetch(criteriaItem);
 
-                            var updatedErWebItem = UpdateItemWithZoteroItem(collection);
+                            await UpdateMiddleAndLeftTableItem(collection);
 
                             // TODO check update has happened as expected
                             itemFetch = dpFetchItem.Execute(itemFetch);
@@ -1212,6 +1212,10 @@ namespace ERxWebClient2.Controllers
                 if (!SetCSLAUser4Writing()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+
+                // TODO Need to not pull if it already exists locally!
+
 
                 var forSaving = new IncomingItemsList();
                 var incomingItems = new MobileList<ItemIncomingData>();
@@ -1298,7 +1302,7 @@ namespace ERxWebClient2.Controllers
                             //need to insert the parent here then continue with the child attachment
                             ZoteroReviewItem zoteroItemParent = new ZoteroReviewItem();
                             IMapZoteroReference referenceParent = _concreteReferenceCreator.GetReference(collection);
-                            var erWebItemParent = referenceParent.MapReferenceFromZoteroToErWeb();
+                            var erWebItemParent = referenceParent.MapReferenceFromZoteroToErWeb(new Item());
                             erWebItemParent.Item.IsIncluded = true;
                             parentItem.ITEM_REVIEW_ID = itemsInserted[i].ITEM_REVIEW_ID;
                             zoteroItemParent = new ZoteroReviewItem
@@ -1322,11 +1326,19 @@ namespace ERxWebClient2.Controllers
                             new SingleCriteria<ZoteroItemReview, long>(parentItem.ITEM_REVIEW_ID);
                         var parentItemID = dpItemReview.Fetch(criteriaItemReview);
 
-                        //get filename before downloading the file
-                        //var GetFileNameUri = new UriBuilder(collection.links.attachment.href);
-                        //SetZoteroHttpService(GetFileNameUri, zoteroApiKey);
-                        //var fileNameResponse = await _zoteroService.GetCollectionItem(GetFileNameUri.ToString());
-                        var fileName = collection.data.title ;//fileNameResponse.data.title;
+                        string fileName = "";
+                        if(collection.links.attachment != null)
+                        {
+                            //get filename before downloading the file
+                            var GetFileNameUri = new UriBuilder(collection.links.attachment.href);
+                            SetZoteroHttpService(GetFileNameUri, zoteroApiKey);
+                            var fileNameResponse = await _zoteroService.GetCollectionItem(GetFileNameUri.ToString());
+                            fileName = fileNameResponse.data.title;
+                        }
+                        else
+                        {
+                            fileName = collection.data.title;//fileNameResponse.data.title;
+                        }                                               
 
                         var GetFileUri = new UriBuilder($"{baseUrl}/groups/{ groupIDBeingSynced}/items/{key}/file");
                         SetZoteroHttpService(GetFileUri, zoteroApiKey);
@@ -1369,15 +1381,28 @@ namespace ERxWebClient2.Controllers
 
                     var zoteroReviewItem = dpRI.Fetch(criteria);
 
+                    // Means we already have a version of it
                     if (zoteroReviewItem.Zotero_item_review_ID != 0)
                     {
-                        return Ok();
+                        var localModifiedDate = zoteroReviewItem.LAST_MODIFIED.ToUniversalTime();
+                        var zoteroModifiedDate = DateTime.Parse(collection.data.dateModified).ToUniversalTime();
+                        // check if it is the same version
+                        if (localModifiedDate == zoteroModifiedDate)
+                        {
+                            return Ok();
+                        }
+                        else
+                        {
+                            // TODO Need to update middle table       
+                            await UpdateMiddleAndLeftTableItem(collection);
+                            continue;
+                        }
                     }
 
                     ZoteroReviewItem zoteroItem = new ZoteroReviewItem();
                     IMapZoteroReference reference = _concreteReferenceCreator.GetReference(collection);
 
-                    var erWebItem = reference.MapReferenceFromZoteroToErWeb();
+                    var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
                     erWebItem.Item.IsIncluded = true;
 
                     if (key.Length > 0)
@@ -1493,6 +1518,33 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        private async Task UpdateMiddleAndLeftTableItem(Collection collection)
+        {
+            DataPortal<ZoteroReviewItem> dpGetMiddleTableItem = new DataPortal<ZoteroReviewItem>();
+            SingleCriteria<ZoteroReviewItem, string> criteriaUpdate =
+              new SingleCriteria<ZoteroReviewItem, string>(collection.data.key);
+            var result = await dpGetMiddleTableItem.FetchAsync(criteriaUpdate);
+
+            DataPortal<ZoteroItemReview> dpGetItemId = new DataPortal<ZoteroItemReview>();
+            SingleCriteria<ZoteroItemReview, Int64> criteriaItemId =
+                new SingleCriteria<ZoteroItemReview, long>(result.ITEM_REVIEW_ID);
+            var itemId = dpGetItemId.Fetch(criteriaItemId);
+
+            DataPortal<Item> dpFetchItem = new DataPortal<Item>();
+            SingleCriteria<Item, Int64> criteriaItem =
+                new SingleCriteria<Item, long>(itemId.ITEM_ID);
+            var itemFetch = dpFetchItem.Fetch(criteriaItem);
+
+            IMapZoteroReference referenceUpdate = _concreteReferenceCreator.GetReference(collection);
+            var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
+
+            result.LAST_MODIFIED = DateTime.Now;
+            result.LibraryID = collection.library.id.ToString();
+            result.Version = collection.version.ToString();
+            result.TypeName = erWebItemUpdate.Item.TypeName;
+            result = result.Save();
+            erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
+        }
 
         [HttpGet("[action]")]
         public async Task<IActionResult> ErWebDocumentExists([FromQuery] long itemReviewId)
@@ -2165,23 +2217,23 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        private Item UpdateItemWithZoteroItem(Collection zoteroItem)
-        {
-            try
-            {
-                var concreteReferenceCreator = ConcreteReferenceCreator.Instance;
-                var reference = concreteReferenceCreator.GetReference(zoteroItem);
-                var erWebItem = reference.MapReferenceFromZoteroToErWeb();
+        //private Item UpdateItemWithZoteroItem(Collection zoteroItem)
+        //{
+        //    try
+        //    {
+        //        var concreteReferenceCreator = ConcreteReferenceCreator.Instance;
+        //        var reference = concreteReferenceCreator.GetReference(zoteroItem);
+        //        var erWebItem = reference.MapReferenceFromZoteroToErWeb();
 
-                DataPortal<Item> dp = new DataPortal<Item>();
-                var updatedErWebItem = dp.Update(erWebItem.Item);
-                return updatedErWebItem;
-            }
-            catch (Exception)
-            {
-                throw new Exception("Error updating erWebItem with Zotero item");
-            }
-        }
+        //        DataPortal<Item> dp = new DataPortal<Item>();
+        //        var updatedErWebItem = dp.Update(erWebItem.Item);
+        //        return updatedErWebItem;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw new Exception("Error updating erWebItem with Zotero item");
+        //    }
+        //}
 
         public string GetSignedUrl(string ReviewID, string urlWithParameters, string userToken, string userSecret, string verifier)
         {

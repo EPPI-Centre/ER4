@@ -424,7 +424,7 @@ export class ZoteroSyncComponent implements OnInit {
                     return 0;
                 });
 
-                this.objectSyncState = [...objects.filter(x => x.data.itemType !== 'attachment').map(x => <IObjectSyncState>{ objectKey: x.key, syncState: SyncState.doesNotExist })];
+                this.objectSyncState = [...objects.filter(x => x.data.itemType !== 'attachment').map(x => <IObjectSyncState>{ objectKey: x.key, syncState: SyncState.upToDate })];
             }
         ).then(
             async () => {
@@ -482,7 +482,8 @@ export class ZoteroSyncComponent implements OnInit {
     async PullConfirmZoteroItems(): Promise<void> {
         this.Pulling = true;
         this._zoteroService.fetchZoteroObjectVersionsAsync().then(
-            (objects) => {
+          (objects) => {
+            console.log('objects: ' + JSON.stringify(objects));
                 this.ObjectZoteroList = objects;
                 this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
                     if (a.data.key > b.data.key) {
