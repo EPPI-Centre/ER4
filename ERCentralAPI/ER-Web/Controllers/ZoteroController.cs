@@ -1212,10 +1212,44 @@ namespace ERxWebClient2.Controllers
                 if (!SetCSLAUser4Writing()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                int countItemsToBeInserted = 0;
 
+                for (int j = 0; j < collectionItems.Length; j++)
+                {
+                    var collectionItem = collectionItems[j];
+                    DataPortal<ZoteroReviewItem> dpRI = new DataPortal<ZoteroReviewItem>();
+                    SingleCriteria<ZoteroReviewItem, string> criteria =
+                        new SingleCriteria<ZoteroReviewItem, string>(collectionItem.data.key);
 
-                // TODO Need to not pull if it already exists locally!
+                    var zoteroReviewItem = dpRI.Fetch(criteria);
 
+                    // Means we already have a version of it
+                    if (zoteroReviewItem.Zotero_item_review_ID != 0)
+                    {
+                        var localModifiedDate = zoteroReviewItem.LAST_MODIFIED.ToUniversalTime();
+                        var zoteroModifiedDate = DateTime.Parse(collectionItem.data.dateModified).ToUniversalTime();
+                        // check if it is the same version
+                        if (localModifiedDate == zoteroModifiedDate)
+                        {
+                            return Ok();
+                        }
+                        else
+                        {
+                            // TODO Need to update middle table       
+                            await UpdateMiddleAndLeftTableItem(collectionItem);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        countItemsToBeInserted++;
+                    }
+                }
+
+                if(countItemsToBeInserted == 0)
+                {
+                    return Ok(true);
+                }
 
                 var forSaving = new IncomingItemsList();
                 var incomingItems = new MobileList<ItemIncomingData>();
@@ -1261,8 +1295,22 @@ namespace ERxWebClient2.Controllers
                 for (int i = 0; i < collectionItems.Length; i++)
                 {
                     var collection = collectionItems[i];
-                    if (!SetCSLAUser4Writing()) return Unauthorized();
                     if (collection == null || collection.data == null) return Ok(false);
+                    DataPortal<ZoteroReviewItem> dpRI = new DataPortal<ZoteroReviewItem>();
+                    SingleCriteria<ZoteroReviewItem, string> criteria =
+                        new SingleCriteria<ZoteroReviewItem, string>(collection.data.key);
+
+                    var zoteroReviewItem = dpRI.Fetch(criteria);
+                    if (zoteroReviewItem.Zotero_item_review_ID != 0)
+                    {
+                        var localModifiedDate = zoteroReviewItem.LAST_MODIFIED.ToUniversalTime();
+                        var zoteroModifiedDate = DateTime.Parse(collection.data.dateModified).ToUniversalTime();
+                        // check if it is the same version
+                        if (localModifiedDate == zoteroModifiedDate)
+                        {
+                            return Ok(true);
+                        }
+                    }
 
                     var apiKey = await ApiKey();
                     var zoteroApiKey = apiKey?.Value?.ToString();
@@ -1374,30 +1422,8 @@ namespace ERxWebClient2.Controllers
                         }
                         continue;
                     }
+                                      
 
-                    DataPortal<ZoteroReviewItem> dpRI = new DataPortal<ZoteroReviewItem>();
-                    SingleCriteria<ZoteroReviewItem, string> criteria =
-                        new SingleCriteria<ZoteroReviewItem, string>(collection.data.key);
-
-                    var zoteroReviewItem = dpRI.Fetch(criteria);
-
-                    // Means we already have a version of it
-                    if (zoteroReviewItem.Zotero_item_review_ID != 0)
-                    {
-                        var localModifiedDate = zoteroReviewItem.LAST_MODIFIED.ToUniversalTime();
-                        var zoteroModifiedDate = DateTime.Parse(collection.data.dateModified).ToUniversalTime();
-                        // check if it is the same version
-                        if (localModifiedDate == zoteroModifiedDate)
-                        {
-                            return Ok();
-                        }
-                        else
-                        {
-                            // TODO Need to update middle table       
-                            await UpdateMiddleAndLeftTableItem(collection);
-                            continue;
-                        }
-                    }
 
                     ZoteroReviewItem zoteroItem = new ZoteroReviewItem();
                     IMapZoteroReference reference = _concreteReferenceCreator.GetReference(collection);

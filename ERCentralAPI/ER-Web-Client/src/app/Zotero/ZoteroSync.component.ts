@@ -482,7 +482,7 @@ export class ZoteroSyncComponent implements OnInit {
     async PullConfirmZoteroItems(): Promise<void> {
         this.Pulling = true;
         this._zoteroService.fetchZoteroObjectVersionsAsync().then(
-          (objects) => {
+          async (objects) => {
             console.log('objects: ' + JSON.stringify(objects));
                 this.ObjectZoteroList = objects;
                 this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
@@ -496,33 +496,35 @@ export class ZoteroSyncComponent implements OnInit {
 
                     return 0;
                 });
-                this.objectSyncState = [...objects.map(x => <IObjectSyncState>{ objectKey: x.key, syncState: SyncState.doesNotExist || SyncState.attachmentDoesNotExist })];
+                //this.objectSyncState = [...objects.map(x => <IObjectSyncState>{ objectKey: x.key, syncState: SyncState.doesNotExist || SyncState.attachmentDoesNotExist || SyncState.behind })];
             }
         ).then(
-            () => {
+            async () => {
 
-                var filtered: Collection[] = [];
-                for (var i = 0; i < this.ObjectZoteroList.length; i++) {
-                    var zoteroItemKey = this.ObjectZoteroList[i].key;
-                    var index = this.ObjectsInERWebAndZotero.findIndex(x => x.itemKey === zoteroItemKey);
-                    if (index === -1) {
-                        filtered.push(this.ObjectZoteroList[i])
+                console.log('this.objectSyncState: ' + JSON.stringify(this.objectSyncState));
+                var updateOrInsertIntoErWeb: Collection[] = [];
+                for (var i = 0; i < this.objectSyncState.length; i++) {
+                  var zoteroItemKey = this.objectSyncState[i].objectKey;
+                  var index = this.ObjectsInERWebAndZotero.findIndex(x => x.itemKey === zoteroItemKey);
+                  //console.log('index: ' + index);
+                  if (index > -1 && this.ObjectZoteroList[i].data.itemType !== 'attachment') {
+                      updateOrInsertIntoErWeb.push(this.ObjectZoteroList[i])
                     }
                 }
 
-                const itemsToSync = filtered.map(y => y.key).join(',');
-                if (filtered.length === 0) {
+                const itemsToSync = updateOrInsertIntoErWeb.map(y => y.key).join(',');
+                if (updateOrInsertIntoErWeb.length === 0) {
                     this._notificationService.show({
                         content: "No Zotero object/s to pull",
                         animation: { type: 'slide', duration: 400 },
                         position: { horizontal: 'center', vertical: 'top' },
                         type: { style: "info", icon: true },
                         closable: true
-                    });
+                    });                    
                     return;
                 }
                 let msg: string = 'Are you sure you want to pull these object/s into ERWeb? ';
-
+                console.log('filtered: ' + JSON.stringify(updateOrInsertIntoErWeb));
                 this._confirmationDialogService.confirm('Zotero Sync', msg, false, '', 'Pull Data')
                     .then(async (confirm: boolean) => {
                         if (confirm === true) {
@@ -554,23 +556,26 @@ export class ZoteroSyncComponent implements OnInit {
 
     async PullZoteroItems(): Promise<void> {
 
-        var arrayOfItemsToPullIntoErWeb: Collection[] = [];
-        for (var i = 0; i < this.objectKeysExistsNeedingSyncing.length; i++) {
+          var arrayOfItemsToPullIntoErWeb: Collection[] = [];
+          console.log('we will pull these: ' + JSON.stringify(this.objectKeysExistsNeedingSyncing));
+          for (var i = 0; i < this.objectKeysExistsNeedingSyncing.length; i++) {
             var itemKey = this.objectKeysExistsNeedingSyncing[i];
             await this._zoteroService.fetchZoteroObjectAsync(itemKey).then(
-                    (itemCollection) => {
-                        arrayOfItemsToPullIntoErWeb.push(itemCollection);
-                    });
+              (itemCollection) => {
+                arrayOfItemsToPullIntoErWeb.push(itemCollection);
+              });
+          }
 
             let errCount = 0;
-            var keyResults: string[] = [];
-            var collectionOfItemsToInsert = [];
-            for (var i = 0; i < arrayOfItemsToPullIntoErWeb.length; i++) {
-                var item = arrayOfItemsToPullIntoErWeb[i];
-                collectionOfItemsToInsert.push(item);
-            }
+            //var keyResults: string[] = [];
+            //var collectionOfItemsToInsert = [];
+            //for (var i = 0; i < arrayOfItemsToPullIntoErWeb.length; i++) {
+            //    var item = arrayOfItemsToPullIntoErWeb[i];
+            //    collectionOfItemsToInsert.push(item);
+            //}
 
-            await this._zoteroService.insertZoteroObjectIntoERWebAsync(collectionOfItemsToInsert).then(
+            console.log('we will pull these collectionOfItemsToInsert: ' + JSON.stringify(arrayOfItemsToPullIntoErWeb));
+            await this._zoteroService.insertZoteroObjectIntoERWebAsync(arrayOfItemsToPullIntoErWeb).then(
                     async (result: boolean) => {
                         if (!result) {
                             if (keyResults.find(x => x === item.key)) return;
@@ -605,7 +610,7 @@ export class ZoteroSyncComponent implements OnInit {
             }
             this.Pulling = false;
             await this.getErWebObjects();
-        }
+       
 
         arrayOfItemsToPullIntoErWeb = [];
         for (var i = 0; i < this.objectKeysNotExistsNeedingSyncing.length; i++) {
@@ -617,7 +622,7 @@ export class ZoteroSyncComponent implements OnInit {
                         arrayOfItemsToPullIntoErWeb.push(itemCollection);
                     });
         }
-        let errCount = 0;
+        errCount = 0;
         var keyResults: string[] = [];
         var itemsToInsertIntoErWeb = [];
         for (var i = 0; i < arrayOfItemsToPullIntoErWeb.length; i++) {
@@ -754,7 +759,7 @@ export class ZoteroSyncComponent implements OnInit {
 
     async checkSyncState(): Promise<void> {
         this.ItemsInERWebANDInZotero = [];
-
+        let href = '';
         this.ObjectZoteroList.forEach(
             async (item) => {
                 if (item.key.length > 0) {
@@ -777,7 +782,12 @@ export class ZoteroSyncComponent implements OnInit {
                                 if (stateRow !== undefined) {
                                     // check for an attachment, if so check its state separately
                                   console.log('Got here:' + JSON.stringify(zoteroItemVersion.links.attachment));
-                                    if (zoteroItemVersion.links.attachment === null) {
+                                  if (zoteroItemVersion.links.attachment !== null && zoteroItemVersion.links.attachment !== undefined) {
+                                    href = zoteroItemVersion.links.attachment.href;
+                                    console.log('testing href: ' + JSON.stringify(href));
+                                  }
+                                  
+                                  if (zoteroItemVersion.links.attachment === null || zoteroItemVersion.links.attachment === undefined) {
                                         stateRow.syncState = SyncState.upToDate
                                     } else {
 
@@ -794,7 +804,7 @@ export class ZoteroSyncComponent implements OnInit {
                                                 else {
                                                   syncState = SyncState.attachmentDoesNotExist;
                                                   if (zoteroItemVersion !== undefined) {
-                                                    this.attachmentKeyToSync = this.GetAttachmentKey(zoteroItemVersion.links.attachment.href);
+                                                    this.attachmentKeyToSync = this.GetAttachmentKey(href);
                                                     var attachmentToInsert = this.ObjectZoteroList.filter(x => x.key ===
                                                       this.attachmentKeyToSync)[0];
                                                     this.objectKeysNotExistsNeedingSyncing.push(attachmentToInsert);
