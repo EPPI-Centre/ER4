@@ -1,26 +1,18 @@
-using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
 using ERxWebClient2.Services;
-using System.Net.Http;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using Csla;
 using BusinessLibrary.Security;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System.Data.SqlClient;
-using System.Linq;
 using Newtonsoft.Json;
 using System.Text;
 using Csla.Data;
 using ERxWebClient2.Zotero;
-using System.IO;
 using System.Net;
 using System.Data;
-using Microsoft.Extensions.Configuration;
 using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla.Core;
 
@@ -296,10 +288,6 @@ namespace ERxWebClient2.Controllers
             var removeoauthTimeStamp = _zoteroConcurrentDictionary.Session.TryRemove("oauthTimeStamp-" + reviewIDOut, out string oauthTimeStamp);
             var removeoauthNonce = _zoteroConcurrentDictionary.Session.TryRemove("oauthNonce-" + reviewIDOut, out string oauthNonce);
 
-
-            //if (!removeuserId || !removeReviewID || !removeZotero_temp_token || !removeZotero_token_secret || !removeZoteroApiKey 
-            //    || !removeoauthTimeStamp || !removeoauthNonce) 
-            //    throw new Exception("Error removing session variables");
         }
 
         [HttpGet("[action]")]
@@ -1174,19 +1162,19 @@ namespace ERxWebClient2.Controllers
         {
             int erWebTypeId = -1;
             
-//1   Report
-//2   Book, Whole
-//3   Book, Chapter
-//4   Dissertation
-//5   Conference Proceedings
-//6   Document From Internet Site
-//7   Web Site
-//8   DVD, Video, Media
-//9   Research project
-//10  Article In A Periodical
-//11  Interview
-//12  Generic
-//14  Journal, Article
+                //1   Report
+                //2   Book, Whole
+                //3   Book, Chapter
+                //4   Dissertation
+                //5   Conference Proceedings
+                //6   Document From Internet Site
+                //7   Web Site
+                //8   DVD, Video, Media
+                //9   Research project
+                //10  Article In A Periodical
+                //11  Interview
+                //12  Generic
+                //14  Journal, Article
             switch (zoteroItemType)
             {
                 case "journalArticle":
@@ -1963,43 +1951,7 @@ namespace ERxWebClient2.Controllers
                 counter++;
             }
         }
-
-        //    [HttpGet("[action]")]
-        //    public async Task<IActionResult> Usersubscription(string userId, long reviewId)
-        //    {
-        //        try
-        //        {
-        //            if (SetCSLAUser4Writing())
-        //            {
-        //                var apiKey = await ApiKeyGet(Convert.ToInt64(reviewId), Convert.ToInt32(userId));
-        //                var zoteroApiKey = apiKey.Value.ToString();
-        //                UriBuilder GetUserSubscriptionUri = new UriBuilder($"{baseUrl}/storage/usersubscription");
-        //                SetZoteroHttpService(GetUserSubscriptionUri, zoteroApiKey);
-        //                var response = await _zoteroService.GetDocument(GetUserSubscriptionUri.ToString());
-
-        //                return Ok();
-        //            }
-        //else
-        //{
-        //                return Forbid();
-        //}
-        //        }
-        //        catch(Exception e)
-        //        {
-        //            _logger.LogException(e, "UpdateZoteroObjectInERWebAsync has an error");
-        //            var message = "";
-        //            if (e.Message.Contains("403"))
-        //            {
-        //                message += "No Zotero API Token; either it has been revoked or never created";
-        //            }
-        //            else
-        //            {
-        //                message += e.Message;
-        //            }
-        //            return StatusCode(500, message);
-        //        }
-        //    }
-
+              
         private async Task UploadFileBytesToZoteroAsync(byte[] fileBytes, string fileKey, string name, string reviewId, long itemDocumentID)
         {
             try
@@ -2242,24 +2194,6 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
-        //private Item UpdateItemWithZoteroItem(Collection zoteroItem)
-        //{
-        //    try
-        //    {
-        //        var concreteReferenceCreator = ConcreteReferenceCreator.Instance;
-        //        var reference = concreteReferenceCreator.GetReference(zoteroItem);
-        //        var erWebItem = reference.MapReferenceFromZoteroToErWeb();
-
-        //        DataPortal<Item> dp = new DataPortal<Item>();
-        //        var updatedErWebItem = dp.Update(erWebItem.Item);
-        //        return updatedErWebItem;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw new Exception("Error updating erWebItem with Zotero item");
-        //    }
-        //}
 
         public string GetSignedUrl(string ReviewID, string urlWithParameters, string userToken, string userSecret, string verifier)
         {

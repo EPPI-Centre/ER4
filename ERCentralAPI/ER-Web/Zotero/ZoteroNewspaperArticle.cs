@@ -64,31 +64,5 @@ namespace ERxWebClient2.Zotero
                 throw;
             }
         }
-
-//        {itemType: "newspaperArticle", title: "",…}
-//    ISSN: ""
-//abstractNote: ""
-//accessDate: ""
-//archive: ""
-//archiveLocation: ""
-//callNumber: ""
-//collections: []
-//    creators: [{creatorType: "author", firstName: "", lastName: ""}]
-//date: ""
-//edition: ""
-//extra: ""
-//itemType: "newspaperArticle"
-//language: ""
-//libraryCatalog: ""
-//pages: ""
-//place: ""
-//publicationTitle: ""
-//relations: { }
-//rights: ""
-//section: ""
-//shortTitle: ""
-//tags:[]
-//title: ""
-//url: ""
     }
 }

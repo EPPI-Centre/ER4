@@ -93,8 +93,6 @@ export interface UserKey {
 
 export interface UserSubscription {
 
-
-
 }
 
 
@@ -145,7 +143,6 @@ export class GroupItem {
     sync: string = '';
 }
 
-// need to look at a generic collection to capture any type of item
 export class TypeCollection {
     key: string = '';
     version: number = 0;
@@ -153,7 +150,6 @@ export class TypeCollection {
     links: any;
     meta: any;
     data: CollectionData = new CollectionData();
-    //syncState: boolean = false;
 }
 
 export class Book {
@@ -221,7 +217,7 @@ export class BookRecieved {
     collections: any[] = [];
     relations: any;
     dateAdded: string = '';
-    dateModified: string = ''; //31
+    dateModified: string = ''; 
 }
 
 export class CreatorsItem {
@@ -233,26 +229,18 @@ export class CreatorsItem {
 export class Collection {
     key: string = '';
     version: number = 0;
-    library: any; //= new Library;
+    library: any; 
     links: Links = new Links();
-    meta: Meta = new Meta(); // TODO check
+    meta: Meta = new Meta(); 
     data: CollectionData = new CollectionData();
 }
 
-//TODO change meta to the below.
 export class Meta {
     created: string = '';
     lastModified: string = '';
     numItems: number = 0;
     numChildren: number = 0;
 }
-
-//createdByUser: Object { id: 8317548, username: "pat1odriscoll", name: "", … }
-//creatorSummary: "jghjgfhj"
-//numChildren: 1
-//    <prototype>: Object { … }
-//​
-//version: 468
 
 export class CollectionData {
 

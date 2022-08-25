@@ -1,7 +1,6 @@
 ﻿using BusinessLibrary.BusinessClasses;
 using Csla;
 using ERxWebClient2.Controllers;
-using Newtonsoft.Json;
 
 namespace ERxWebClient2.Zotero
 {
@@ -72,28 +71,5 @@ namespace ERxWebClient2.Zotero
             }
 
         }
-
-//        {itemType: "manuscript", title: "", creators: [{creatorType: "author", firstName: "", lastName: ""}],…}
-//abstractNote: ""
-//accessDate: ""
-//archive: ""
-//archiveLocation: ""
-//callNumber: ""
-//collections:[]
-//creators:[{ creatorType: "author", firstName: "", lastName: ""}]
-//date: ""
-//extra: ""
-//itemType: "manuscript"
-//language: ""
-//libraryCatalog: ""
-//manuscriptType: ""
-//numPages: ""
-//place: ""
-//relations: { }
-//rights: ""
-//shortTitle: ""
-//tags:[]
-//title: ""
-//url: ""
     }
 }
