@@ -105,6 +105,16 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroColl
 DROP PROCEDURE [dbo].[st_ZoteroCollectionCreate]
 GO
 
+/****** Object:  StoredProcedure [dbo].[st_ZoteroReviewConnection]    Script Date: 05/11/2021 20:04:52 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroReviewConnection') 
+DROP PROCEDURE [dbo].[st_ZoteroReviewConnection]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ZoteroConnectionCreate]    Script Date: 05/11/2021 20:04:52 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroConnectionCreate') 
+DROP PROCEDURE [dbo].[st_ZoteroConnectionCreate]
+GO
+
 --
 /****** Object:  StoredProcedure [dbo].[st_ItemReviewItem]   Script Date: 05/11/2021 20:04:52 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ItemReviewItem') 
@@ -117,11 +127,21 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroCollectionUpdate') 
 DROP PROCEDURE [dbo].[st_ZoteroCollectionUpdate]
 GO
+--
+/****** Object:  StoredProcedure [dbo].[st_ZoteroConnectionUpdate]  Script Date: 05/11/2021 20:04:52 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroConnectionUpdate') 
+DROP PROCEDURE [dbo].[st_ZoteroConnectionUpdate]
+GO
 
 --
 /****** Object:  StoredProcedure [dbo].[st_ZoteroCollectionDelete]  Script Date: 05/11/2021 20:04:52 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroCollectionDelete') 
 DROP PROCEDURE [dbo].[st_ZoteroCollectionDelete]
+GO
+--
+/****** Object:  StoredProcedure [dbo].[st_ZoteroConnectionDelete]  Script Date: 05/11/2021 20:04:52 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroConnectionDelete') 
+DROP PROCEDURE [dbo].[st_ZoteroConnectionDelete]
 GO
 
 /****** Object:  StoredProcedure [dbo].[st_ItemsInERWebANDZotero]  Script Date: 05/11/2021 20:04:52 ******/

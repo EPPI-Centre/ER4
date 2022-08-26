@@ -43,38 +43,61 @@ GO
 USE [Reviewer]
 GO
 
-/****** Object:  Table [dbo].[TB_ZOTERO_REVIEW_COLLECTION]    Script Date: 21/07/2022 15:41:03 ******/
+
+/****** Object:  Table [dbo].[TB_Zotero_Review_Collection]    Script Date: 15/09/2021 10:36:49 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_REVIEW_COLLECTION]') AND type in (N'U'))
 DROP TABLE [dbo].[TB_ZOTERO_REVIEW_COLLECTION]
 GO
 
-/****** Object:  Table [dbo].[TB_ZOTERO_REVIEW_COLLECTION]    Script Date: 21/07/2022 15:41:03 ******/
+/****** Object:  Table [dbo].[TB_ZOTERO_REVIEW_CONNECTION]    Script Date: 21/07/2022 15:41:03 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_REVIEW_CONNECTION]') AND type in (N'U'))
+DROP TABLE [dbo].[TB_ZOTERO_REVIEW_CONNECTION]
+GO
+
+/****** Object:  Table [dbo].[TB_ZOTERO_REVIEW_CONNECTION]    Script Date: 21/07/2022 15:41:03 ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[TB_ZOTERO_REVIEW_COLLECTION](
-	[CollectionKey] [nvarchar](50) NOT NULL,
+CREATE TABLE [dbo].[TB_ZOTERO_REVIEW_CONNECTION](
+	[ZOTERO_CONNECTION_ID] [int] IDENTITY(1,1) NOT NULL,
 	[LibraryId] [nvarchar](50) NOT NULL,
+	[ZoteroUserId] [Int] NOT NULL,
 	[ApiKey] [nvarchar](50) NOT NULL,
-	[ReviewId] [bigint] NOT NULL,
+	[ReviewId] [int] NOT NULL UNIQUE,
 	[UserId] [int] NULL,
-	[ParentCollection] [nvarchar](50) NULL,
-	[CollectionName] [nvarchar](50) NOT NULL,
 	[Version] [bigint] NOT NULL,
-	[DateCreated] [date] NOT NULL,
-	[GroupBeingSynced] [int] NOT NULL,
- CONSTRAINT [PK_TB_ZOTERO_REVIEW_COLLECTION] PRIMARY KEY CLUSTERED 
+	[DateCreated] [date] NOT NULL
+ CONSTRAINT [PK_TB_ZOTERO_REVIEW_CONNECTION] PRIMARY KEY CLUSTERED 
 (
-	[LibraryId] ASC,
-	[ApiKey] ASC,
-	[ReviewId] ASC
+	ZOTERO_CONNECTION_ID ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-
+ALTER TABLE dbo.TB_ZOTERO_REVIEW_CONNECTION ADD CONSTRAINT
+	FK_TB_ZOTERO_REVIEW_CONNECTION_TB_REVIEW FOREIGN KEY
+	(
+	ReviewId
+	) REFERENCES dbo.TB_REVIEW
+	(
+	REVIEW_ID
+	) ON UPDATE  NO ACTION 
+	 ON DELETE  NO ACTION 
+	
+GO
+ALTER TABLE dbo.TB_ZOTERO_REVIEW_CONNECTION ADD CONSTRAINT
+	FK_TB_ZOTERO_REVIEW_CONNECTION_TB_CONTACT FOREIGN KEY
+	(
+	UserId
+	) REFERENCES dbo.TB_CONTACT
+	(
+	CONTACT_ID
+	) ON UPDATE  NO ACTION 
+	 ON DELETE  NO ACTION 
+	
+GO
 
 
 IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES
@@ -352,18 +375,18 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroReviewCollection]    Script Date: 05/04/2022 11:33:58 ******/
+/****** Object:  StoredProcedure [dbo].[st_ZoteroReviewConnection]    Script Date: 05/04/2022 11:33:58 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE OR ALTER     Procedure [dbo].[st_ZoteroReviewCollection](
-@ReviewID nvarchar(50) NULL)
+CREATE OR ALTER     Procedure [dbo].[st_ZoteroReviewConnection](
+@ReviewID int)
 as
 Begin
-	SELECT * FROM [dbo].[TB_ZOTERO_REVIEW_COLLECTION]
+	SELECT * FROM [dbo].[TB_ZOTERO_REVIEW_CONNECTION]
 	WHERE ReviewId = @ReviewID;
 End
 
@@ -372,29 +395,24 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroCollectionCreate]    Script Date: 01/06/2022 11:31:16 ******/
+/****** Object:  StoredProcedure [dbo].[st_ZoteroConnectionCreate]    Script Date: 01/06/2022 11:31:16 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE OR ALTER     Procedure [dbo].[st_ZoteroCollectionCreate](
-@CollectionKey nvarchar(50) NULL,
+CREATE OR ALTER     Procedure [dbo].[st_ZoteroConnectionCreate](
 @LibraryID nvarchar(50) NULL,
 @ApiKey nvarchar(50) NULL,
+@ZoteroUserId int NULL,
 @USER_ID INT NULL,
-@REVIEW_ID BIGINT NULL,
-@ParentCollection nvarchar(50) NULL,
-@CollectionName nvarchar(50) NULL, 
-@Version nvarchar(50) NULL, 
-@DateCreated date NULL,
-@GroupBeingSynced INT null)
+@REVIEW_ID BIGINT NULL)
 as
 Begin
-
-
-	INSERT INTO [dbo].[TB_ZOTERO_REVIEW_COLLECTION]([CollectionKey],[LibraryID],[ApiKey],[UserId], [ReviewId],[ParentCollection],[CollectionName],[Version],[DateCreated], [GroupBeingSynced])
-	VALUES(@CollectionKey,@LibraryID,@ApiKey,@USER_ID, @REVIEW_ID,@ParentCollection,@CollectionName,@Version,@DateCreated, @GroupBeingSynced)
+	declare @check int = (select count(*) from TB_ZOTERO_REVIEW_CONNECTION where ReviewId = @REVIEW_ID)
+	if (@check > 0) THROW 51000, 'Review is already in use.', 1;
+	INSERT INTO [dbo].[TB_ZOTERO_REVIEW_CONNECTION]([LibraryID], [ZoteroUserId], [ApiKey], [UserId], [ReviewId], DateCreated, [Version])
+	VALUES(@LibraryID,@ZoteroUserId,@ApiKey,@USER_ID, @REVIEW_ID, GETDATE(),0)
 	   
 End
 GO
@@ -457,18 +475,18 @@ USE [Reviewer]
 GO
 
 
-CREATE  OR ALTER  Procedure [dbo].[st_ZoteroCollectionUpdate](
-@LibraryID nvarchar(50) NULL,
-@ApiKey nvarchar(50) NULL,
-@USER_ID INT NULL,
-@REVIEW_ID BIGINT NULL,
-@GroupBeingSynced INT NULL)
+CREATE  OR ALTER  Procedure [dbo].[st_ZoteroConnectionUpdate](
+@LibraryID nvarchar(50),
+@ZoteroUserId int,
+@ApiKey nvarchar(50),
+@USER_ID INT,
+@REVIEW_ID INT)
 as
 Begin
 
-UPDATE [dbo].[TB_ZOTERO_REVIEW_COLLECTION]
-SET ReviewId=@REVIEW_ID, GroupBeingSynced = @GroupBeingSynced
-WHERE ApiKey = @ApiKey AND UserId=@USER_ID AND LibraryID = @LibraryID
+UPDATE [dbo].[TB_ZOTERO_REVIEW_CONNECTION]
+SET LibraryID = @LibraryID, ApiKey = @ApiKey , UserId = @USER_ID , ZoteroUserId = @ZoteroUserId
+WHERE ReviewId = @REVIEW_ID
 
 END
 
@@ -486,16 +504,13 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE OR ALTER Procedure [dbo].[st_ZoteroCollectionDelete](
-@LibraryID nvarchar(50) NULL,
-@USER_ID INT NULL,
-@REVIEW_ID BIGINT NULL)
+CREATE OR ALTER Procedure [dbo].[st_ZoteroConnectionDelete](
+@ApiKey nvarchar(50), @REVIEW_ID INT)
 as
 Begin
 
-DELETE FROM [dbo].[TB_ZOTERO_REVIEW_COLLECTION]
-WHERE UserId=@USER_ID AND ReviewId=@REVIEW_ID AND LibraryId = @LibraryID
-
+DELETE FROM [dbo].[TB_ZOTERO_REVIEW_CONNECTION]
+WHERE ApiKey = @ApiKey AND ReviewId = @REVIEW_ID
 END
 
 GO

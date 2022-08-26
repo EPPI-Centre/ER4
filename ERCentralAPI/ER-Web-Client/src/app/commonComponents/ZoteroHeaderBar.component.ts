@@ -27,10 +27,9 @@ export class ZoteroHeaderBarComp implements OnInit {
     ngOnInit() {
 
     }
-    public Context: string = "ZoteroSetup";
+    public Context: string = "Loading...";
     @Output() PleaseGoTo = new EventEmitter<string>();
     @Output() PleaseGoBackHome = new EventEmitter<string>();
-    @Output() IHaveImportedSomething = new EventEmitter<void>();
 
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
@@ -45,35 +44,11 @@ export class ZoteroHeaderBarComp implements OnInit {
     public DisableButton(destination: string) {
         if (this.Context == undefined || !this.HasWriteRights) return false;
         else if (this.Context == destination) return true;
-        //else if (this.MustMatchItems && destination != "matching" && destination != "MagSearch") return true;
         else return false;
     }
-    public CheckKeyAndGroup(): boolean {
-
-        return !this._zoteroService.editApiKeyPermissions;
-    }
-    public get CanGoForward(): boolean {
-        //if (this._mAGBrowserHistoryService.currentBrowsePosition <
-        //    this._mAGBrowserHistoryService._MAGBrowserHistoryList.length - 1)
-            return true;
-        //else return false;
-    }
-    public get CanGoBackwards(): boolean {
-    /*    if (this._mAGBrowserHistoryService.currentBrowsePosition > 0)*/
-            return true;
-        //else return false;
-    }
-    public async Forward() {
-        //let res = await this._mAGBrowserHistoryService.NavigateToThisPoint(this._mAGBrowserHistoryService.currentBrowsePosition + 1);
-        //if (res != "") this.PleaseGoTo.emit(res);
-        //this._location.forward();
-    }
-    public async Back() {
-        //let res = await this._mAGBrowserHistoryService.NavigateToThisPoint(this._mAGBrowserHistoryService.currentBrowsePosition - 1);
-        //if (res != "") this.PleaseGoTo.emit(res);
-        //this._location.back();
-    }
-
+  public CanSync(): boolean {
+    return !this._zoteroService.hasPermissions;
+  }
     public ZoteroSync() {                
         this.Context = "ZoteroSync";
     }

@@ -36,7 +36,6 @@ export class ZoteroSetupComponent implements OnInit {
 
     @Input() ZoteroApiKeyResult: boolean = true;
     public currentReview: number = 0;
-    public groupMeta: Group[] = [];
     public zoteroUserID: number = 0;
     public totalItemsInCurrentReview: number = 0;
     public zoteroUserName: string = '';
@@ -56,229 +55,199 @@ export class ZoteroSetupComponent implements OnInit {
     public ZoteroObjectsThatAreNotAttachmentsLength: number = 0;
     public ObjectsInERWebAndZotero: IERWebANDZoteroReviewItem[] = [];
     public DetailsForSetId: number = 0;
-    public apiKeys: UserKey[] = [];
+  public apiKeys: UserKey[] = [];
+  public get groupMeta(): Group[] {
+    return this._zoteroService.groupMeta;
+  }
+
 
     ngOnDestroy() {
     }
 
     ngOnInit() {
-        this._zoteroService.editApiKeyPermissions = false;
+        //this._zoteroService.editApiKeyPermissions = false;
         this.zoteroUserName = this._ReviewerIdentityServ.reviewerIdentity.name;
         this.zoteroUserID = this._ReviewerIdentityServ.reviewerIdentity.userId;
         this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
-        this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
-        var groupId = 0;
-        this._zoteroService.CheckZoteroApiKey().then(
-                (zoteroApiKeyResult) => {
-                    if (zoteroApiKeyResult === true) {
+      this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
+
+      if (!this._zoteroService.hasPermissions) {
+        if (this._zoteroService.ErrorMessage == "data not fetched" && this._zoteroService.IsBusy == false) {
+          this._zoteroService.CheckZoteroPermissions().then((res) => {
+            if (res == false && this._zoteroService.ErrorMessage == "No API Key") {
+              this.BeginOauthProcess();
+            } else this._zoteroService.fetchGroupMetaData();
+          });
+        } else if (this._zoteroService.ErrorMessage == "No API Key") {
+          this.BeginOauthProcess();
+        } else this._zoteroService.fetchGroupMetaData();
+      } else this._zoteroService.fetchGroupMetaData();
+
+        //this._zoteroService.CheckZoteroApiKey().then(
+        //        (zoteroApiKeyResult) => {
+        //            if (zoteroApiKeyResult === true) {
                         
-                       this._zoteroService.fetchApiKeys().then(
-                               async (userKeys) => {
+        //               this._zoteroService.fetchApiKeys().then(
+        //                       async (userKeys) => {
 
-                                   this.apiKeys = userKeys;
-                                });
+        //                           this.apiKeys = userKeys;
+        //                        });
 
-                        // ALREADY HAS A ZOTERO API KEY
-                        this.FetchLinkedReviewID();
-                        //this.zoteroEditKeyLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + zoteroApiKey;
-                        this._zoteroService.fetchUserZoteroPermissions().then(
-                                async () => {
+        //                // ALREADY HAS A ZOTERO API KEY
+        //                this.FetchLinkedReviewID();
+        //                //this.zoteroEditKeyLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + zoteroApiKey;
+        //                this._zoteroService.fetchUserZoteroPermissions().then(
+        //                        async () => {
 
-                                    await this._zoteroService.fetchGroupMetaData().then(
-                                        async (meta) => {
-                                            this.groupMeta = meta;
-                                        });
+        //                            await this._zoteroService.fetchGroupMetaData().then(
+        //                                async (meta) => {
+        //                                    this.groupMeta = meta;
+        //                                });
 
-                                    if (this.groupMeta.length === 0) {
-                                        this._notificationService.show({
-                                            content: " You have no available groups; please create an accessible/shared group within Zotero",
-                                            animation: { type: 'slide', duration: 400 },
-                                            position: { horizontal: 'center', vertical: 'top' },
-                                            type: { style: "info", icon: true },
-                                            closable: true
-                                        });
-                                        await this._zoteroService.DeleteZoteroApiKey(-1);
+        //                            if (this.groupMeta.length === 0) {
+        //                                this._notificationService.show({
+        //                                    content: " You have no available groups; please create an accessible/shared group within Zotero",
+        //                                    animation: { type: 'slide', duration: 400 },
+        //                                    position: { horizontal: 'center', vertical: 'top' },
+        //                                    type: { style: "info", icon: true },
+        //                                    closable: true
+        //                                });
+        //                                await this._zoteroService.DeleteZoteroApiKey(-1);
 
-                                        return;
-                                    }
+        //                                return;
+        //                            }
 
-                                    var perGroup: PerGroupPermissions;
-                                    var groupsAll: Groups = this._zoteroService.ZoteroPermissions.access.groups as Groups;
-                                    if (groupsAll.all === undefined) {
-                                        perGroup = this._zoteroService.ZoteroPermissions.access.groups as PerGroupPermissions;
+        //                            var perGroup: PerGroupPermissions;
+        //                            var groupsAll: Groups = this._zoteroService.ZoteroPermissions.access.groups as Groups;
+        //                            if (groupsAll.all === undefined) {
+        //                                perGroup = this._zoteroService.ZoteroPermissions.access.groups as PerGroupPermissions;
 
-                                        var firstGroup = perGroup[this.groupMeta[0].id];
-                                        if (firstGroup === undefined) {
-                                            this._notificationService.show({
-                                                content: " You have no available groups; please create an accessible/shared group within Zotero",
-                                                animation: { type: 'slide', duration: 400 },
-                                                position: { horizontal: 'center', vertical: 'top' },
-                                                type: { style: "info", icon: true },
-                                                closable: true
-                                            });
-                                            await this._zoteroService.DeleteZoteroApiKey(-1);
+        //                                var firstGroup = perGroup[this.groupMeta[0].id];
+        //                                if (firstGroup === undefined) {
+        //                                    this._notificationService.show({
+        //                                        content: " You have no available groups; please create an accessible/shared group within Zotero",
+        //                                        animation: { type: 'slide', duration: 400 },
+        //                                        position: { horizontal: 'center', vertical: 'top' },
+        //                                        type: { style: "info", icon: true },
+        //                                        closable: true
+        //                                    });
+        //                                    await this._zoteroService.DeleteZoteroApiKey(-1);
 
-                                            return;
-                                        } else {
-                                            // PER GROUP LOGIC GOES HERE
-                                            if (firstGroup.library === false || firstGroup.write === false) {
-                                                this._notificationService.show({
-                                                    content: " You have no available groups; please create an accessible/shared group within Zotero",
-                                                    animation: { type: 'slide', duration: 400 },
-                                                    position: { horizontal: 'center', vertical: 'top' },
-                                                    type: { style: "info", icon: true },
-                                                    closable: true
-                                                });
-                                                await this._zoteroService.DeleteZoteroApiKey(-1);
+        //                                    return;
+        //                                } else {
+        //                                    // PER GROUP LOGIC GOES HERE
+        //                                    if (firstGroup.library === false || firstGroup.write === false) {
+        //                                        this._notificationService.show({
+        //                                            content: " You have no available groups; please create an accessible/shared group within Zotero",
+        //                                            animation: { type: 'slide', duration: 400 },
+        //                                            position: { horizontal: 'center', vertical: 'top' },
+        //                                            type: { style: "info", icon: true },
+        //                                            closable: true
+        //                                        });
+        //                                        await this._zoteroService.DeleteZoteroApiKey(-1);
 
-                                                return;
-                                            }
+        //                                        return;
+        //                                    }
 
-                                            this._zoteroService.hasPermissions = true;
-                                            for (var i = 0; i < this.groupMeta.length; i++) {
-                                                var group = this.groupMeta[i];
-                                                if (group.groupBeingSynced > 0) {
-                                                    this._zoteroService.currentGroupBeingSynced = group.groupBeingSynced;
-                                                    this._zoteroService.editApiKeyPermissions = true;
-                                               }
-                                          }
-                                          this.changeGroupBeingSynced(this.groupMeta[0]);
-                                            return;
-                                        }
-                                    }
+        //                                    this._zoteroService.hasPermissions = true;
+        //                                    for (var i = 0; i < this.groupMeta.length; i++) {
+        //                                        var group = this.groupMeta[i];
+        //                                        if (group.groupBeingSynced > 0) {
+        //                                            this._zoteroService.currentGroupBeingSynced = group.groupBeingSynced;
+        //                                            //this._zoteroService.editApiKeyPermissions = true;
+        //                                       }
+        //                                  }
+        //                                  this.changeGroupBeingSynced(this.groupMeta[0]);
+        //                                    return;
+        //                                }
+        //                            }
 
-                                    if (this._zoteroService.ZoteroPermissions.access.user.library === undefined ||
-                                        this._zoteroService.ZoteroPermissions.access.groups === undefined ||
-                                        groupsAll.all === undefined) {
-                                        this._notificationService.show({
-                                            content: " You have no available groups; please create an accessible/shared group within Zotero",
-                                            animation: { type: 'slide', duration: 400 },
-                                            position: { horizontal: 'center', vertical: 'top' },
-                                            type: { style: "info", icon: true },
-                                            closable: true
-                                        });
-                                        await this._zoteroService.DeleteZoteroApiKey(-1);
+        //                            if (this._zoteroService.ZoteroPermissions.access.user.library === undefined ||
+        //                                this._zoteroService.ZoteroPermissions.access.groups === undefined ||
+        //                                groupsAll.all === undefined) {
+        //                                this._notificationService.show({
+        //                                    content: " You have no available groups; please create an accessible/shared group within Zotero",
+        //                                    animation: { type: 'slide', duration: 400 },
+        //                                    position: { horizontal: 'center', vertical: 'top' },
+        //                                    type: { style: "info", icon: true },
+        //                                    closable: true
+        //                                });
+        //                                await this._zoteroService.DeleteZoteroApiKey(-1);
 
-                                        return;
-                                    }
+        //                                return;
+        //                            }
 
-                                    if (this._zoteroService.ZoteroPermissions.access.user.library || groupsAll.all.library) {
-                                        this.zoteroUserID = this._zoteroService.ZoteroPermissions.userID;
-                                        this.zoteroUserKey = this._zoteroService.ZoteroPermissions.key;
+        //                            if (this._zoteroService.ZoteroPermissions.access.user.library || groupsAll.all.library) {
+        //                                this.zoteroUserID = this._zoteroService.ZoteroPermissions.userID;
+        //                                this.zoteroUserKey = this._zoteroService.ZoteroPermissions.key;
 
-                                        if (this.zoteroUserKey.length > 0) {
+        //                                if (this.zoteroUserKey.length > 0) {
 
-                                            if (this._zoteroService.ZoteroPermissions.access.user.files &&
-                                                this._zoteroService.ZoteroPermissions.access.user.library &&
-                                                groupsAll.all.write &&
-                                                groupsAll.all.library) {
-                                                this._zoteroService.hasPermissions = true;
-                                                for (var i = 0; i < this.groupMeta.length; i++) {
-                                                    var group = this.groupMeta[i];
-                                                    if (group.groupBeingSynced > 0) {
-                                                        this._zoteroService.currentGroupBeingSynced = group.groupBeingSynced;
-                                                        this._zoteroService.editApiKeyPermissions = true;
-                                                    }
-                                              }
-                                              this.changeGroupBeingSynced(this.groupMeta[0]);
-                                                await this.FetchLinkedReviewID();
-                                                this._zoteroService.fetchGroupMetaData().then(
-                                                    async (meta) => {
-                                                        this.groupMeta = meta;
-                                                        if (!!this.groupMeta[0]) {
-                                                            groupId = this.groupMeta[0].id;                                                                                                                     
+        //                                    if (this._zoteroService.ZoteroPermissions.access.user.files &&
+        //                                        this._zoteroService.ZoteroPermissions.access.user.library &&
+        //                                        groupsAll.all.write &&
+        //                                        groupsAll.all.library) {
+        //                                        this._zoteroService.hasPermissions = true;
+        //                                        for (var i = 0; i < this.groupMeta.length; i++) {
+        //                                            var group = this.groupMeta[i];
+        //                                            if (group.groupBeingSynced > 0) {
+        //                                                this._zoteroService.currentGroupBeingSynced = group.groupBeingSynced;
+        //                                                //this._zoteroService.editApiKeyPermissions = true;
+        //                                            }
+        //                                      }
+        //                                      this.changeGroupBeingSynced(this.groupMeta[0]);
+        //                                        await this.FetchLinkedReviewID();
+        //                                        this._zoteroService.fetchGroupMetaData().then(
+        //                                            async (meta) => {
+        //                                                this.groupMeta = meta;
+        //                                                if (!!this.groupMeta[0]) {
+        //                                                    groupId = this.groupMeta[0].id;                                                                                                                     
 
-                                                            //TODO CHECK
-                                                            ////this.changeGroupBeingSynced(this.groupMeta[0]);
+        //                                                    //TODO CHECK
+        //                                                    ////this.changeGroupBeingSynced(this.groupMeta[0]);
 
-                                                        }
-                                                        else {
-                                                            this._notificationService.show({
-                                                                content: " You have no available groups; please create an accessible group within Zotero",
-                                                                animation: { type: 'slide', duration: 400 },
-                                                                position: { horizontal: 'center', vertical: 'top' },
-                                                                type: { style: "info", icon: true },
-                                                                closable: true
-                                                            });
-                                                            await this._zoteroService.DeleteZoteroApiKey(-1);
+        //                                                }
+        //                                                else {
+        //                                                    this._notificationService.show({
+        //                                                        content: " You have no available groups; please create an accessible group within Zotero",
+        //                                                        animation: { type: 'slide', duration: 400 },
+        //                                                        position: { horizontal: 'center', vertical: 'top' },
+        //                                                        type: { style: "info", icon: true },
+        //                                                        closable: true
+        //                                                    });
+        //                                                    await this._zoteroService.DeleteZoteroApiKey(-1);
 
-                                                        }
-                                                    }
+        //                                                }
+        //                                            }
 
-                                                );
-                                            } else {
-                                                var contentError: string = ' You have not selected read/write permissions on your relevant Zotero group/s';
-                                                this._notificationService.show({
-                                                    content: contentError,
-                                                    animation: { type: 'slide', duration: 400 },
-                                                    position: { horizontal: 'center', vertical: 'top' },
-                                                    type: { style: "error", icon: true },
-                                                    closable: true
-                                                });
-                                                await this._zoteroService.DeleteZoteroApiKey(-1);
+        //                                        );
+        //                                    } else {
+        //                                        var contentError: string = ' You have not selected read/write permissions on your relevant Zotero group/s';
+        //                                        this._notificationService.show({
+        //                                            content: contentError,
+        //                                            animation: { type: 'slide', duration: 400 },
+        //                                            position: { horizontal: 'center', vertical: 'top' },
+        //                                            type: { style: "error", icon: true },
+        //                                            closable: true
+        //                                        });
+        //                                        await this._zoteroService.DeleteZoteroApiKey(-1);
 
 
-                                            }
-                                        } else {
-                                            await this._zoteroService.DeleteZoteroApiKey(-1);
+        //                                    }
+        //                                } else {
+        //                                    await this._zoteroService.DeleteZoteroApiKey(-1);
 
-                                        }
-                                    }
-                                });
-                    } else {
-                        // NEEDS TO AUTHORISE
-                        let title = "Authorise Zotero"
-                        let msg = 'Please confirm whether you wish to authorise Zotero with your ERWeb account (you must already have created a Zotero account and have at least one group created)';
-                        if (this._ActivatedRoute.snapshot.queryParamMap.get('error') == 'Unauthorized') {
-                            title = "Authorise Zotero: please retry"
-                            msg = 'You need to try again: the authorisation with Zotero sometimes fails at the "verification" step. <br />Most of the times, trying again solves the problem.'
-                        }
-                        this._confirmationDialogService.confirm(title, msg, false, '')
-                            .then(
-                                async (confirmed: any) => {
-                                    if (confirmed) {
-                                        this._confirmationDialogService.confirm('IMPORTANT', 'When authorising Zotero you must set the key permissions to read/write for a specific group; do not just click ACCEPT DEFAULTS, (you must already have created a Zotero account and have at least one group created) ', false, '')
-                                            .then(
-                                                async (confirmedMsg: any) => {
-                                                    if (confirmedMsg) {
-                                                        this._zoteroService.OauthProcessGet(this._ReviewerIdentityServ.reviewerIdentity.userId, this._ReviewerIdentityServ.reviewerIdentity.reviewId)
-                                                            .then(
-                                                                (token: any) => {
-                                                                    this.zoteroLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + token.toString();
-                                                                    window.location.href = this.zoteroLink;
-                                                                });
-                                                    } else {
-                                                        this._notificationService.show({
-                                                            content: " You have cancelled Zotero authorisation",
-                                                            animation: { type: 'slide', duration: 400 },
-                                                            position: { horizontal: 'center', vertical: 'top' },
-                                                            type: { style: "info", icon: true },
-                                                            closable: true
-                                                        });
-                                                        await this._zoteroService.DeleteZoteroApiKey(-1);
-
-                                                    }
-
-                                                });
-                                    } else {
-                                        this._notificationService.show({
-                                            content: " You have cancelled Zotero authorisation",
-                                            animation: { type: 'slide', duration: 400 },
-                                            position: { horizontal: 'center', vertical: 'top' },
-                                            type: { style: "info", icon: true },
-                                            closable: true
-                                        });
-                                        await this._zoteroService.DeleteZoteroApiKey(-1);
-
-                                    }
-                                }).catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
-                    }
-                });
+        //                                }
+        //                            }
+        //                        });
+        //            } else {
+        //                // NEEDS TO AUTHORISE
+                        
+        //            }
+        //        });
     }
 
-    public CodingSets(set_id: number): StatsCompletion[] {
-        return this._codesetStatsServ.tmpCodesets.filter(x => x.setId == set_id);
-    }
+    
 
     public get IsServiceBusy(): boolean {
 
@@ -287,9 +256,54 @@ export class ZoteroSetupComponent implements OnInit {
 
     Clear() {
       this.apiKeys = [];
-      this.groupMeta = [];
+      //this.groupMeta = [];
     }
+  private BeginOauthProcess() {
+    let title = "Authorise Zotero"
+    let msg = 'Please confirm whether you wish to authorise Zotero with your ERWeb account (you must already have created a Zotero account and have at least one group created)';
+    if (this._zoteroService.ErrorMessage == "unauthorised") {
+      title = "Authorise Zotero: please retry"
+      msg = 'You need to try again: the authorisation with Zotero sometimes fails at the "verification" step. <br />Most of the times, trying again solves the problem.'
+    }
+    this._confirmationDialogService.confirm(title, msg, false, '')
+      .then(
+        async (confirmed: any) => {
+          if (confirmed) {
+            this._confirmationDialogService.confirm('IMPORTANT', 'When authorising Zotero you must set the key permissions to read/write for a specific group; do not just click ACCEPT DEFAULTS, (you must already have created a Zotero account and have at least one group created) ', false, '')
+              .then(
+                async (confirmedMsg: any) => {
+                  if (confirmedMsg) {
+                    this._zoteroService.OauthProcessGet(this._ReviewerIdentityServ.reviewerIdentity.userId, this._ReviewerIdentityServ.reviewerIdentity.reviewId)
+                      .then(
+                        (token: any) => {
+                          this.zoteroLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + token.toString();
+                          window.location.href = this.zoteroLink;
+                        });
+                  } else {
+                    this._notificationService.show({
+                      content: " You have cancelled Zotero authorisation",
+                      animation: { type: 'slide', duration: 400 },
+                      position: { horizontal: 'center', vertical: 'top' },
+                      type: { style: "info", icon: true },
+                      closable: true
+                    });
+                    await this._zoteroService.DeleteZoteroApiKey(-1);
 
+                  }
+
+                });
+          } else {
+            this._notificationService.show({
+              content: " You have cancelled Zotero authorisation",
+              animation: { type: 'slide', duration: 400 },
+              position: { horizontal: 'center', vertical: 'top' },
+              type: { style: "info", icon: true },
+              closable: true
+            });
+          }
+        }).catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+  }
+  
     public async RemoveCurrentReviewAT(group: Group) {
 
         await this._zoteroService.UpdateGroupToReview( group.id.toString(), true).then(
@@ -327,13 +341,13 @@ export class ZoteroSetupComponent implements OnInit {
 
    // Logic in here should change depending on what we want to happen
     public async changeGroupBeingSynced(group: Group) {
-      await this.FetchLinkedReviewID();
+      //await this.FetchLinkedReviewID();
      
 
         await this.AddLinkedReviewID(group.data);
 
-        await this.UpdateGroupMetaData(group.id, this._ReviewerIdentityServ.reviewerIdentity.userId,
-          this.currentReview);
+        //await this.UpdateGroupMetaData(group.id, this._ReviewerIdentityServ.reviewerIdentity.userId,
+        //  this.currentReview);
 
         for (var i = 0; i < this.groupMeta.length; i++) {
           if (this.groupMeta[i].id === group.id) {
@@ -344,14 +358,14 @@ export class ZoteroSetupComponent implements OnInit {
             this.groupMeta[i].groupBeingSynced = 0;
           }
         }
-        this._zoteroService.editApiKeyPermissions = true;
+        //this._zoteroService.editApiKeyPermissions = true;
    
     }
 
     public async AddLinkedReviewID(group: GroupData) {
         await this._zoteroService.UpdateGroupToReview(group.id.toString(), false).then(
                 async () => {
-                    await this.FetchLinkedReviewID();
+                    //await this.FetchLinkedReviewID();
                 });
         this._notificationService.show({
             content: " You currently have Zotero authenticaiton for group: " + group.id.toString(),
@@ -381,7 +395,7 @@ export class ZoteroSetupComponent implements OnInit {
     }
    
     async UpdateGroupMetaData(groupId: number, userId: number, currentReview: number) {
-        await this._zoteroService.postGroupMetaData(groupId);
+      await this._zoteroService.MarkGroupForSync(groupId);
     }
 
     public get IsReportsServiceBusy(): boolean {
@@ -421,8 +435,8 @@ export class ZoteroSetupComponent implements OnInit {
                 closable: true
             });
         }
-        this._zoteroService.editApiKeyPermissions = false;
+        this._zoteroService.hasPermissions = false;
         this._zoteroService.currentGroupBeingSynced = 0;
-        this._router.navigate(['Main']);
+        //this._router.navigate(['Main']);
     }
 }

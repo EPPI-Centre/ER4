@@ -193,7 +193,7 @@ namespace BusinessLibrary.BusinessClasses
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
 				connection.Open();
-				using (SqlCommand command = new SqlCommand("st_ZoteroReviewCollection", connection))
+				using (SqlCommand command = new SqlCommand("st_ZoteroReviewConnection", connection))
 				{
 					command.CommandType = System.Data.CommandType.StoredProcedure;
 					command.Parameters.Add(new SqlParameter("@ReviewID", criteria.Value));

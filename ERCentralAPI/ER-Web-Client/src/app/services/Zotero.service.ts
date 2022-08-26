@@ -18,18 +18,59 @@ export class ZoteroService extends BusyAwareService {
     ) {
       super(configService);
     }
-    @Output() SendGroupSelectedToZoteroSync = new EventEmitter<string>();
+    
     public currentGroupBeingSynced: number = 0;
-    public editApiKeyPermissions: boolean = false;
-    public hasPermissions: boolean = false;
+    //public editApiKeyPermissions: boolean = false;
+  public hasPermissions: boolean = false;//overall flag. When True, user can pull/push.
+  private _errorMessage: string = "data not fetched";//should be empty when no error is present
+  public get ErrorMessage(): string {
+    if (this.hasPermissions == true) return "";//no error: the overall flag is in control.
+    else return this._errorMessage;
+  }
+  public SetError(errorMsg: string) {
+    if (errorMsg == "") {
+      this._errorMessage = "";
+      this.hasPermissions = true;
+    }
+    else {
+      this._errorMessage = errorMsg;
+      this.hasPermissions = true;
+    }
+  }
+  public groupMeta: Group[] = [];
     public get ZoteroPermissions() {
             return this.userKeyInfo;
     }
     public set ZoteroPermissions(value: UserKey) {
         this.userKeyInfo = value;
     }
-    private userKeyInfo: UserKey = <UserKey>{};
-    public async RemoveApiKey(apiKey: UserKey, userId: number, currentReview: number): Promise<boolean> {
+  private userKeyInfo: UserKey = <UserKey>{};
+  public async CheckZoteroPermissions(): Promise<boolean> {
+    this._errorMessage = "data not fetched";
+    this.hasPermissions = false;
+    const WeHaveTheAPIKey = await this.CheckZoteroApiKey();
+    if (WeHaveTheAPIKey == true) {
+      this._errorMessage = "";
+      this.hasPermissions = true;
+    } else this._errorMessage = WeHaveTheAPIKey.toString();
+    return this.hasPermissions;
+  }
+  private CheckZoteroApiKey(): Promise<boolean | string> {
+    this._BusyMethods.push("GetZoteroApiKey");
+
+    return this._httpC.get<boolean|string>(this._baseUrl + 'api/Zotero/CheckApiKey')
+      .toPromise().then(result => {
+        this.RemoveBusy("GetZoteroApiKey");
+        return result;
+      },
+        error => {
+          this.RemoveBusy("GetZoteroApiKey");
+          this.modalService.GenericError(error);
+          return error;
+        }
+      );
+  }
+  public async RemoveApiKey(apiKey: UserKey, userId: number, currentReview: number): Promise<boolean> {
 
         this._BusyMethods.push("RemoveApiKey");
         return this._httpC.delete<boolean>(this._baseUrl + 'api/Zotero/DeleteZoteroApiKey'
@@ -47,10 +88,10 @@ export class ZoteroService extends BusyAwareService {
 
   }
 
-    public async UpdateGroupToReview(groupId: string, deleteLink: boolean): Promise<ZoteroReviewCollection> {
+    public async UpdateGroupToReview(groupId: string, deleteLink: boolean): Promise<boolean> {
     
         this._BusyMethods.push("UpdateGroupToReview");
-        return this._httpC.post<ZoteroReviewCollection>(this._baseUrl + 'api/Zotero/UpdateGroupToReview?deleteLink=' + deleteLink.toString(), groupId.toString() )
+      return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/UpdateGroupToReview?deleteLink=' + deleteLink.toString(), groupId.toString() )
             .toPromise().then(result => {
                 this.RemoveBusy("UpdateGroupToReview");
                 return true;
@@ -58,7 +99,7 @@ export class ZoteroService extends BusyAwareService {
                 error => {
                     this.RemoveBusy("UpdateGroupToReview");
                     this.modalService.GenericError(error);
-                    return error;
+                    return false;
                 }
             );
   }
@@ -149,13 +190,14 @@ export class ZoteroService extends BusyAwareService {
     public fetchGroupMetaData(): Promise<Group[]> {
         
         this._BusyMethods.push("fetchGroupMetaData");
-
-        return this._httpC.get<Group[]>(this._baseUrl + 'api/Zotero/GroupMetaData?zoteroUserId=' + this.userKeyInfo.userID)
+      this.groupMeta = []
+        return this._httpC.get<Group[]>(this._baseUrl + 'api/Zotero/GroupMetaData')
             .toPromise().then(result => {
                 if (result.length === 0) {
                     console.log('this is zero even though controller returns data!!');
                 }
-                this.RemoveBusy("fetchGroupMetaData");
+              this.RemoveBusy("fetchGroupMetaData");
+              this.groupMeta = result;
                 return result;
             },
                 error => {
@@ -171,17 +213,17 @@ export class ZoteroService extends BusyAwareService {
             });
     }
 
-    public async postGroupMetaData(groupId: number): Promise<boolean> {
-      this._BusyMethods.push("GroupId");     
+    public async MarkGroupForSync(groupId: number): Promise<boolean> {
+      this._BusyMethods.push("MarkGroupForSync");     
 
-      return this._httpC.post<number>(this._baseUrl + 'api/Zotero/GroupId', groupId
+      return this._httpC.post<number>(this._baseUrl + 'api/Zotero/MarkGroupForSync', groupId
         )
             .toPromise().then(result => {
-              this.RemoveBusy("GroupId");
+              this.RemoveBusy("MarkGroupForSync");
                 return result;
             },
                 error => {
-                  this.RemoveBusy("GroupId");
+                  this.RemoveBusy("MarkGroupForSync");
                     this.modalService.GenericError(error);
                     return error;
                 }
@@ -404,7 +446,7 @@ export class ZoteroService extends BusyAwareService {
     public OauthProcessGet(erWebUserID: number, reviewId: number): Promise<any> {
         this._BusyMethods.push("OauthProcessGet");
 
-        return this._httpC.get<any>(this._baseUrl + 'api/Zotero/OauthProcess?erWebUserID=' + erWebUserID + "&reviewID=" + reviewId )
+        return this._httpC.get<any>(this._baseUrl + 'api/Zotero/StartOauthProcess')
             .toPromise().then(result => {
                 this.RemoveBusy("OauthProcessGet");
                 return result;
@@ -417,21 +459,7 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public CheckZoteroApiKey(): Promise<boolean> {
-        this._BusyMethods.push("GetZoteroApiKey");
-
-        return this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/CheckApiKey')
-            .toPromise().then(result => {
-                this.RemoveBusy("GetZoteroApiKey");
-                return result;
-            },
-                error => {
-                    this.RemoveBusy("GetZoteroApiKey");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            );
-    }
+    
 
     public DeleteZoteroApiKey( groupId:number): Promise<string> {
         this._BusyMethods.push("DeleteZoteroApiKey");
@@ -449,21 +477,21 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async CollectionPost(collection: string): Promise<any> {
-      this._BusyMethods.push("Collection");
+    //public async CollectionPost(collection: string): Promise<any> {
+    //  this._BusyMethods.push("Collection");
 
-        return this._httpC.post<any>(this._baseUrl + 'api/Zotero/Collection', collection)
-            .toPromise().then(result => {
-              this.RemoveBusy("Collection");
-                return result;
-            },
-                error => {
-                  this.RemoveBusy("Collection");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            );
-    }
+    //    return this._httpC.post<any>(this._baseUrl + 'api/Zotero/Collection', collection)
+    //        .toPromise().then(result => {
+    //          this.RemoveBusy("Collection");
+    //            return result;
+    //        },
+    //            error => {
+    //              this.RemoveBusy("Collection");
+    //                this.modalService.GenericError(error);
+    //                return error;
+    //            }
+    //        );
+    //}
 
     public async GetZoteroCollections(zoteroApiKey: string):Promise<number> {
         this._BusyMethods.push("GetZoteroCollections");

@@ -1,8 +1,8 @@
 <div class="containsAtoolbar row m-0 ">
     <div class="m-0 col pr-1">
         <kendo-toolbar>            
-            <kendo-toolbar-button [text]="'ZoteroSync'" (click)="ZoteroSync()" [disabled]="CheckKeyAndGroup() " aria-controls="collapseExample"></kendo-toolbar-button>
-            <kendo-toolbar-button [text]="'ZoteroSetup'" (click)="ZoteroSetup()" [disabled]="DisableButton('ZoteroSetup')" aria-controls="collapseExample"></kendo-toolbar-button>
+            <kendo-toolbar-button [text]="'Sync'" (click)="ZoteroSync()" [disabled]="!CanSync() || DisableButton('ZoteroSync') " aria-controls="collapseExample"></kendo-toolbar-button>
+            <kendo-toolbar-button [text]="'Connect to Zotero'" (click)="ZoteroSetup()" [disabled]="DisableButton('ZoteroSetup')" aria-controls="collapseExample"></kendo-toolbar-button>
         </kendo-toolbar>
     </div>
     <button class="col-auto page-link rounded mt-0 mb-auto py-1 px-2 "

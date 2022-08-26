@@ -32,8 +32,7 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
     }
 
     @ViewChild('NavBarZotero') NavBarZotero!: ZoteroHeaderBarComp;
-    private error: any;
-    private errorInPath: Subscription | null = null;
+    private errorInPathSub: Subscription | null = null;
     public get HelpAndFeebackContext(): string {
         switch (this.NavBarZotero.Context) {
             case "ZoteroSetup":
@@ -65,9 +64,7 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
 
         return this._zoteroService.IsBusy;
     }
-    private currentReview: number = 0;
-    private zoteroUserID: number = 0;
-    private zoteroUserName: string = '';
+    
     public isCollapsed = false;
     public zoteroLink: string = '';
     public reviewLinkText: string[] = [];
@@ -77,102 +74,65 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
     public ZoteroApiKeyResult: boolean = false;
 
     ngOnDestroy() {
-        if (this.errorInPath) {
-            this.errorInPath.unsubscribe();
+      if (this.errorInPathSub) {
+        this.errorInPathSub.unsubscribe();
         }
     }
 
-    ngOnInit() {
-
-        this.errorInPath = this.route.queryParams.subscribe(async params => {
-            this.error = params['error'];
-            if (this.error === 'nogroups') {
-                var contentError: string = 'You have either no groups created in Zotero as requested, or you have not selected read/write permissions';
-                this._notificationService.show({
-                    content: contentError,
-                    animation: { type: 'slide', duration: 400 },
-                    position: { horizontal: 'center', vertical: 'top' },
-                    type: { style: "error", icon: true },
-                    closable: true
-                });
-                //this._router.navigate(['Main']);
-
-            } else if (this.error === 'unauthorised') {
-                var contentError: string = 'Zotero sometimes fails with unauthorised, please try up to three attempts to resolve';
-                this._notificationService.show({
-                    content: contentError,
-                    animation: { type: 'slide', duration: 400 },
-                    position: { horizontal: 'center', vertical: 'top' },
-                    type: { style: "error", icon: true },
-                    closable: true
-                });
-                //this._router.navigate(['Zotero']);
-            }
-            else {
-                if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
-                    this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
-                    this._router.navigate(['home']);
-                }
-                else if (!this._ReviewerIdentityServ.HasWriteRights) {
-                    this._router.navigate(['Main']);
-                }
-                this.zoteroUserName = this._ReviewerIdentityServ.reviewerIdentity.name;
-                this.zoteroUserID = this._ReviewerIdentityServ.reviewerIdentity.userId;
-                this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
-                this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
-
-                await this._zoteroService.CheckZoteroApiKey().then(
-                  async (zoteroApiKeyResult) => {
-                              //console.log('result is: ', zoteroApiKeyResult);
-                    if (zoteroApiKeyResult === true) {
-
-                                //console.log('got here 1');
-                      this.ZoteroApiKeyResult = zoteroApiKeyResult;
-
-
-                                await this._zoteroService.fetchGroupMetaData().then(
-                                        async (groups: Group[]) => {
-
-                                            //console.log('why is this zero?: ' + JSON.stringify(groups));
-                                            for (var i = 0; i < groups.length; i++) {
-                                                var group = groups[i];
-                                                if (group.groupBeingSynced > 0) {
-                                                    this._zoteroService.currentGroupBeingSynced = group.groupBeingSynced;
-                                                    this._zoteroService.editApiKeyPermissions = true;
-                                                }
-                                            }
-                                        });
-
-                                // ALREADY HAS A ZOTERO API KEY
-                                await this.FetchLinkedReviewID();
-
-                                if (this._zoteroService.editApiKeyPermissions) {
-                                    // ALREADY HAS A SHARED GROUP WITH  PERMISSIONS ASSOCIATED WITH THIS API KEY
-                                    //this.zoteroEditKeyLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + zoteroApiKey;
-                                    this.ChangeContext("ZoteroSync");
-
-                                } else {
-                                    this.ChangeContext("ZoteroSetup");
-                                }
-                            } else {
-                              console.log('No active Zotero API Key');
-                            }
-                        });               
-            }
-        });
+  ngOnInit() {
+    if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
+      this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
+      this._router.navigate(['home']);
     }
+    else if (!this._ReviewerIdentityServ.HasWriteRights) {
+      this._router.navigate(['Main']);
+    }
+    else {
+      this.errorInPathSub = this.route.queryParams.subscribe(async params => {
+        const err: any = params['error'];
+        if (err === 'nogroups') {
+          var contentError: string = 'You have either no groups created in Zotero as requested, or you have not selected read/write permissions';
+          this._notificationService.show({
+            content: contentError,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "error", icon: true },
+            closable: true
+          });
+          this._zoteroService.SetError(err);
+          //this._router.navigate(['Main']);
+        }
+        else if (err === 'unauthorised') {
+          var contentError: string = 'Zotero sometimes fails with unauthorised, please try up to three attempts to resolve';
+          this._notificationService.show({
+            content: contentError,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "error", icon: true },
+            closable: true
+          });
+          this._zoteroService.SetError(err);
+          //this._router.navigate(['Zotero']);
+        }
+        else {
+
+          await this._zoteroService.CheckZoteroPermissions().then(
+            () => {
+
+                if (this._zoteroService.hasPermissions) {
+                  // ALREADY HAS A SHARED GROUP WITH  PERMISSIONS ASSOCIATED WITH THIS API KEY
+                  this.ChangeContext("ZoteroSync");
+
+                } else {
+                  this.ChangeContext("ZoteroSetup");
+                }
+            });
+        }
+      });
+    }
+  }
 
     public BackHome() {
         this._router.navigate(['Main']);
-    }
-
-    public async FetchLinkedReviewID(): Promise<void> {
-        await this._zoteroService.FetchGroupToReviewLinks().then(
-                async (zoteroReviewCollectionList: ZoteroReviewCollectionList) => {
-                    this.zoteroCollectionList = zoteroReviewCollectionList;
-                    if (zoteroReviewCollectionList.ZoteroReviewCollectionList.length > 0) {
-                        this.currentLinkedReviewId = zoteroReviewCollectionList.ZoteroReviewCollectionList[0].revieW_ID.toString();
-                    }
-                });
     }
 }

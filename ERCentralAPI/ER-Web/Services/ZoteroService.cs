@@ -69,7 +69,7 @@ namespace ERxWebClient2.Services
 			response.EnsureSuccessStatusCode();
 			return response;
 		}
-		public async Task<string> GetKey(string requestUri)
+		public async Task<string> DoGetReq(string requestUri)
 		{
 			var response = await _httpProvider.GetAsync(requestUri);
 			response.EnsureSuccessStatusCode();

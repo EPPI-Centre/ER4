@@ -99,7 +99,7 @@
 			</div>
 		</div>
 		<div class="col-md-4 flex-column pull-right">
-			<div *ngIf="_zoteroService.editApiKeyPermissions">
+			<div *ngIf="_zoteroService.hasPermissions">
 				<div class="col-12 alert-primary  card" *ngIf="ObjectsInERWebAndZotero.length > 0">
 					<h6><b>Items with this code that are also in Zotero group </b></h6>
 					<div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
@@ -162,7 +162,7 @@
 			<ng-template #elseBlock>Content to render when value is null.</ng-template>
 		</div>
 		<div class="col-md-4 flex-column pull-right">
-			<div *ngIf="_zoteroService.editApiKeyPermissions">
+			<div *ngIf="_zoteroService.hasPermissions">
 				<div class="col-12 alert-primary  card" *ngIf="ObjectZoteroList.length > 0">
 					<h6><b>Items in the Zotero group </b></h6>
 					<div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
