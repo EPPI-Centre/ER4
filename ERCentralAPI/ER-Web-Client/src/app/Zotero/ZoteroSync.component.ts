@@ -252,35 +252,7 @@ export class ZoteroSyncComponent implements OnInit {
     }
     return true;
   }
-  public async changeGroupBeingSynced(group: GroupData) {
-
-    await this.FetchLinkedReviewID();
-
-    let index = this.zoteroCollectionList.ZoteroReviewCollectionList.findIndex(x => x.libraryID === group.id.toString());
-    if (index === -1) {
-      this._notificationService.show({
-        content: "You must add this group in order to sync with it",
-        animation: { type: 'slide', duration: 400 },
-        position: { horizontal: 'center', vertical: 'top' },
-        type: { style: "warning", icon: true },
-        closable: true
-      });
-      return;
-    } else {
-      await this.UpdateGroupMetaData(group.id, this._ReviewerIdentityServ.reviewerIdentity.userId,
-        this.currentReview);
-      for (var i = 0; i < this.groupMeta.length; i++) {
-        if (this.groupMeta[i].id === group.id) {
-          this.groupMeta[i].groupBeingSynced = true;
-          this._zoteroService.currentGroupBeingSynced = this.groupMeta[i].id;
-        } else {
-          this.groupMeta[i].groupBeingSynced = false;
-        }
-      }
-      await this.getErWebObjects();
-    }
-  }
-
+  
 
   async getErWebObjects() {
     this.ObjectZoteroList = [];
