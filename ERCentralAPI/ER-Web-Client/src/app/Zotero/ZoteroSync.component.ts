@@ -281,9 +281,6 @@ export class ZoteroSyncComponent implements OnInit {
     }
   }
 
-  async UpdateGroupMetaData(groupId: number, userId: number, currentReview: number) {
-    await this._zoteroService.postGroupMetaData(groupId);
-  }
 
   async getErWebObjects() {
     this.ObjectZoteroList = [];

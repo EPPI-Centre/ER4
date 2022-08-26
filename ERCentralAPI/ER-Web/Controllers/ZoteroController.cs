@@ -1325,7 +1325,7 @@ namespace ERxWebClient2.Controllers
 
                     ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
                     //var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
-                    if (!groupIDResult) throw new Exception("Concurrent Zotero session error");
+                    //if (!groupIDResult) throw new Exception("Concurrent Zotero session error");
 
                     var key = collection.key;
                     var version = collection.version;
@@ -1488,7 +1488,7 @@ namespace ERxWebClient2.Controllers
                                 new SingleCriteria<ZoteroItemReview, long>(parentItem.ITEM_REVIEW_ID);
                             var parentItemID = dpItemReview.Fetch(criteriaItemReview);
 
-                            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{ groupIDBeingSynced}/items/{attachmentCollection.data.key}/file");
+                            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{attachmentCollection.data.key}/file");
                             SetZoteroHttpService(GetFileUri, zrc.ApiKey);
 
                             //act
@@ -2226,7 +2226,8 @@ namespace ERxWebClient2.Controllers
             {
                 var concreteReferenceCreator = ConcreteReferenceCreator.Instance;
                 var reference = concreteReferenceCreator.GetReference(zoteroItem);
-                var erWebItem = reference.MapReferenceFromZoteroToErWeb();
+                //CHANGE from SG 26/08/2022 which is needed to compile, but code below clearly can't work :-(
+                var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
 
                 DataPortal<Item> dp = new DataPortal<Item>();
                 var updatedErWebItem = dp.Update(erWebItem.Item);
