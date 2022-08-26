@@ -366,13 +366,8 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async postERWebItemsToZotero(items: IERWebObjects[]): Promise<string> {
+    public async postERWebItemsToZotero(items: string[]): Promise<string> {
         this._BusyMethods.push("postERWebItemsToZotero");
-
-        if (items.length === 0) {
-            console.log('The number of items to post is zero!');
-            return 'The number of items to post is zero!';
-        }
 
         return this._httpC.post<string>(this._baseUrl + 'api/Zotero/GroupsGroupIdItems', items)
             .toPromise().then(result => {

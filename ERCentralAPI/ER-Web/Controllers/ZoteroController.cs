@@ -1604,11 +1604,11 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> ItemReviewIdsLocal()
+        public async Task<List<iItemReviewID>> ItemReviewIdsLocal(string[] itemIds)
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (!SetCSLAUser()) return new List<iItemReviewID>();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 if (ri == null) throw new ArgumentNullException("Not sure why this is null");
 
@@ -1627,16 +1627,18 @@ namespace ERxWebClient2.Controllers
                         itemReviewID = item.ITEM_REVIEW_ID,
                         itemDocumentID = item.ITEM_DOCUMENT_ID
                     };
-                    itemReviewIDs.Add(itemReviewID);
-
+                    if (itemIds.Contains(item.ITEM_ID.ToString()))
+                    {
+                        itemReviewIDs.Add(itemReviewID);
+                    }
                 }
                 // TODO only ever do the first ten items in dev and staging only in production optimise for lots
-                return Ok(itemReviewIDs);
+                return itemReviewIDs;
             }
             catch (Exception e)
             {
                 _logger.LogException(e, "ItemReviewIdsLocalGet has an error");
-                return StatusCode(500, e.Message);
+                return new List<iItemReviewID>();
             }
         }
 
@@ -1667,8 +1669,11 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> GroupsGroupIdItems([FromBody] List<iItemReviewID> items)
+        public async Task<IActionResult> GroupsGroupIdItems([FromBody] string[] itemIds)
         {
+
+            var items = await ItemReviewIdsLocal(itemIds);
+
             List<Item> localItems = new List<Item>();
             List<CollectionData> zoteroItems = new List<CollectionData>();
             List<ErWebZoteroItemDocument> erWebZoteroItemDocs = new List<ErWebZoteroItemDocument>();
@@ -1676,7 +1681,7 @@ namespace ERxWebClient2.Controllers
             var failedItemsMsg = "These items failed when posting to Zotero: ";
             var numberOfFailedItems = 0;
 
-            if (items.Count == 0) throw new Exception("Items to push to Zotero is empty!");
+            if (items.Count == 0) return Ok("false");
 
             try
             {
