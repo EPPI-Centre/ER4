@@ -13,7 +13,7 @@ namespace ERxWebClient2.Zotero
             _conferenceProceeding = conferenceProceeding;
         }
 
-        public ERWebItem MapReferenceFromZoteroToErWeb()
+        public ERWebItem MapReferenceFromZoteroToErWeb(Item newERWebItem)
         {
             try
             {
@@ -27,37 +27,35 @@ namespace ERxWebClient2.Zotero
                 var parseDateModifiedResult = SmartDate.TryParse(_conferenceProceeding.dateModified, ref smartDateModified);
                 if (!parseDateModifiedResult) throw new System.Exception("Date parsing exception");
 
-                Item newERWebItem = new Item
-                {
-                    Title = _conferenceProceeding.title,
-                    TypeId = 5,
-                    TypeName = "Conference Proceedings",
-                    ShortTitle = _conferenceProceeding.shortTitle,
-                    ParentTitle = _conferenceProceeding.parentTitle,
-                    DateCreated = smartDateAdded,
-                    CreatedBy = _conferenceProceeding.createdBy,
-                    DateEdited = smartDateModified,
-                    EditedBy = _conferenceProceeding.editedBy,
-                    Year = smartDate.Date.Year.ToString(), 
-                    Month = smartDate.Date.Month.ToString(), 
-                    StandardNumber = _conferenceProceeding.ISSN,
-                    City = _conferenceProceeding.place,
-                    Country = _conferenceProceeding.place,//TODO COuntry and city fix
-                    Publisher = _conferenceProceeding.publisher,
-                    Institution=  _conferenceProceeding.institution,
-                    Volume = _conferenceProceeding.volume,
-                    Pages = _conferenceProceeding.pages,
-                    Edition = _conferenceProceeding.edition,
-                    Issue = _conferenceProceeding.issue,
-                    IsLocal = false, //TODO what is this
-                    Availability = "", //TODO what is this,
-                    URL = _conferenceProceeding.url,
-                    MasterItemId = 0,//TODO what is this,
-                    Abstract = _conferenceProceeding.abstractNote ,
-                    Comments = _conferenceProceeding.comments,
-                    DOI = _conferenceProceeding.DOI,
-                    Keywords = "" //TODO what is this,         
-                };
+
+                newERWebItem.Title = _conferenceProceeding.title;
+                newERWebItem.TypeId = 5;
+                newERWebItem.TypeName = "Conference Proceedings";
+                newERWebItem.ShortTitle = _conferenceProceeding.shortTitle;
+                newERWebItem.ParentTitle = _conferenceProceeding.parentTitle;
+                newERWebItem.DateCreated = smartDateAdded;
+                newERWebItem.CreatedBy = _conferenceProceeding.createdBy;
+                newERWebItem.DateEdited = smartDateModified;
+                newERWebItem.EditedBy = _conferenceProceeding.editedBy;
+                newERWebItem.Year = smartDate.Date.Year.ToString(); 
+                newERWebItem.Month = smartDate.Date.Month.ToString();
+                newERWebItem.StandardNumber = _conferenceProceeding.ISSN;
+                newERWebItem.City = _conferenceProceeding.place;
+                newERWebItem.Country = _conferenceProceeding.place;//TODO COuntry and city fix
+                newERWebItem.Publisher = _conferenceProceeding.publisher;
+                newERWebItem.Institution = _conferenceProceeding.institution;
+                newERWebItem.Volume = _conferenceProceeding.volume;
+                newERWebItem.Pages = _conferenceProceeding.pages;
+                newERWebItem.Edition = _conferenceProceeding.edition;
+                newERWebItem.Issue = _conferenceProceeding.issue;
+                newERWebItem.IsLocal = false; //TODO what is this
+                newERWebItem.Availability = ""; //TODO what is this,
+                newERWebItem.URL = _conferenceProceeding.url;
+                newERWebItem.MasterItemId = 0;//TODO what is this,
+                newERWebItem.Abstract = _conferenceProceeding.abstractNote;
+                newERWebItem.Comments = _conferenceProceeding.comments;
+                newERWebItem.DOI = _conferenceProceeding.DOI;
+                newERWebItem.Keywords = "";
                 string consolidatedAuthors = "";
                 foreach (var creator in _conferenceProceeding.creators)
                 {

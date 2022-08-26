@@ -8,7 +8,7 @@ namespace ERxWebClient2.Zotero
 {
     public interface IMapZoteroReference
     {
-        ERWebItem MapReferenceFromZoteroToErWeb();
+        ERWebItem MapReferenceFromZoteroToErWeb(Item newERWebItem);
     }
 
     public class ERWebItem

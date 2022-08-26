@@ -18,11 +18,10 @@ namespace ERxWebClient2.Zotero
             _attachment = collection;
         }
 
-        ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb()
+        ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb(Item item)
         {
             try
             {
-
                 ItemDocument newERWebDocument = new ItemDocument();
 
                 newERWebDocument.Title = _attachment.title;

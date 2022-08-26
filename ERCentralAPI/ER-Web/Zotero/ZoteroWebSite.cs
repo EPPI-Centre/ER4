@@ -1,11 +1,6 @@
 ﻿using BusinessLibrary.BusinessClasses;
 using Csla;
 using ERxWebClient2.Controllers;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ERxWebClient2.Zotero
 {
@@ -18,7 +13,7 @@ namespace ERxWebClient2.Zotero
             _webSite = collection;
         }
 
-        ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb()
+        ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb(Item newERWebItem)
         {
 
             try
@@ -34,25 +29,22 @@ namespace ERxWebClient2.Zotero
                 var parseDateModifiedResult = SmartDate.TryParse(_webSite.accessDate, ref smartDateModified);
                 if (!parseDateModifiedResult) throw new System.Exception("Date parsing exception");
 
-                Item newERWebItem = new Item
-                {
-                    Title = _webSite.title,
-                    TypeId = 7,
-                    TypeName = "Web Site",
-                    Abstract = _webSite.abstractNote,
-                    DateCreated = smartDateAdded,
-                    DateEdited = smartDateModified,
-                    Edition = _webSite.edition,
-                    Institution = _webSite.place,
-                    Pages = _webSite.numPages,
-                    Publisher = _webSite.publisher,
-                    ShortTitle = _webSite.shortTitle,
-                    URL = _webSite.url,
-                    Country = _webSite.language,
-                    Year = smartDate.Date.Year.ToString(),
-                    Month = smartDate.Date.Month.ToString(),
+                newERWebItem.Title = _webSite.title;
+                newERWebItem.TypeId = 7;
+                newERWebItem.TypeName = "Web Site";
+                newERWebItem.Abstract = _webSite.abstractNote;
+                newERWebItem.DateCreated = smartDateAdded;
+                newERWebItem.DateEdited = smartDateModified;
+                newERWebItem.Edition = _webSite.edition;
+                newERWebItem.Institution = _webSite.place;
+                newERWebItem.Pages = _webSite.numPages;
+                newERWebItem.Publisher = _webSite.publisher;
+                newERWebItem.ShortTitle = _webSite.shortTitle;
+                newERWebItem.URL = _webSite.url;
+                newERWebItem.Country = _webSite.language;
+                newERWebItem.Year = smartDate.Date.Year.ToString();
+                newERWebItem.Month = smartDate.Date.Month.ToString();
 
-                };
                 string consolidatedAuthors = "";
                 foreach (var creator in _webSite.creators)
                 {

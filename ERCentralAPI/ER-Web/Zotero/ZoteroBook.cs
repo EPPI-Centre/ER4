@@ -14,12 +14,10 @@ namespace ERxWebClient2.Zotero
             _bookItem = collection;
         }
 
-        ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb()
+        ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb(Item newERWebItem)
         {
             try
             {
-
-                Item newERWebItem = new Item();
                 var smartDate = new SmartDate();
                 var parseDateResult = SmartDate.TryParse(_bookItem.date, ref smartDate);
                 if (!parseDateResult) throw new System.Exception("Date parsing exception");
