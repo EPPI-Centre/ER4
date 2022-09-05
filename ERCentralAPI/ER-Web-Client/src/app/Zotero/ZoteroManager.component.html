@@ -6,7 +6,7 @@
 		<ZoteroSync (PleaseGoTo)="ChangeContext($event)"></ZoteroSync>
 	</div>
 	<div *ngSwitchCase="'ZoteroSetup'">
-		<ZoteroSetup [ZoteroApiKeyResult]="ZoteroApiKeyResult" (PleaseGoTo)="ChangeContext($event)"></ZoteroSetup>
+		<ZoteroSetup (PleaseGoTo)="ChangeContext($event)"></ZoteroSetup>
 	</div>
 	<div *ngSwitchDefault>
 		<h4>Loading...</h4>

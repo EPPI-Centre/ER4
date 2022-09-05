@@ -1,9 +1,8 @@
-import { AfterContentChecked, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Subscription } from 'rxjs';
 import { ZoteroHeaderBarComp } from '../commonComponents/ZoteroHeaderBar.component';
-import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ZoteroService } from '../services/Zotero.service';
 import { Group, ZoteroReviewCollectionList } from '../services/ZoteroClasses.service';
@@ -14,7 +13,7 @@ import { Group, ZoteroReviewCollectionList } from '../services/ZoteroClasses.ser
     providers: []
 })
 
-export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
+export class ZoteroManagerComponent implements OnInit {
 
 
     constructor(
@@ -22,14 +21,11 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
         private _notificationService: NotificationService,
         private _zoteroService: ZoteroService,
         private _router: Router,
-        private _ReviewerIdentityServ: ReviewerIdentityService,
-        private cdr: ChangeDetectorRef
+        private _ReviewerIdentityServ: ReviewerIdentityService
     ) {
         
     }
-    ngAfterContentChecked(): void {
-        this.cdr.detectChanges();
-    }
+
 
     @ViewChild('NavBarZotero') NavBarZotero!: ZoteroHeaderBarComp;
     private errorInPathSub: Subscription | null = null;
@@ -48,12 +44,19 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
         if (this.NavBarZotero) {
             return this.NavBarZotero.Context;
         }
-        else return "Zotero: unspecified page";
+        else return "Loading...";
     }
     public ChangeContext(val: any) {
-        if (this.NavBarZotero) {
+      if (this.NavBarZotero) {
+        this.NavBarZotero.Context = val;
+      }
+      else {
+        setTimeout(() => {
+          if (this.NavBarZotero) {
             this.NavBarZotero.Context = val;
-        }
+          }
+        }, 800);//wait almost one second before trying again...
+      }
     }
 
     public GetCurrentGroup() : number {
@@ -71,7 +74,6 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
     public currentLinkedReviewId: string = '';
     public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();
     public DetailsForSetId: number = 0;
-    public ZoteroApiKeyResult: boolean = false;
 
     ngOnDestroy() {
       if (this.errorInPathSub) {
@@ -100,7 +102,7 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
             closable: true
           });
           this._zoteroService.SetError(err);
-          //this._router.navigate(['Main']);
+           this.ChangeContext("ZoteroSetup");
         }
         else if (err === 'unauthorised') {
           var contentError: string = 'Zotero sometimes fails with unauthorised, please try up to three attempts to resolve';
@@ -112,7 +114,7 @@ export class ZoteroManagerComponent implements OnInit, AfterContentChecked {
             closable: true
           });
           this._zoteroService.SetError(err);
-          //this._router.navigate(['Zotero']);
+          this.ChangeContext("ZoteroSetup");
         }
         else {
 

@@ -53,7 +53,7 @@ export class Group {
     links: GroupLinks = new GroupLinks();
     meta: GroupMeta = new GroupMeta();
     data: GroupData = new GroupData();
-    groupBeingSynced: number = 0;
+    groupBeingSynced: boolean = false;
 }
 
 

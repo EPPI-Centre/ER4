@@ -103,7 +103,7 @@ namespace ERxWebClient2.Controllers
 		public GroupLinks links { get; set; }
 		public GroupMeta meta { get; set; }
 		public GroupData data { get; set; }
-		public int groupBeingSynced { get; set; }
+		public bool groupBeingSynced { get; set; }
 	}
 
 	public abstract class CollectionData

@@ -34,7 +34,7 @@ export class ZoteroService extends BusyAwareService {
     }
     else {
       this._errorMessage = errorMsg;
-      this.hasPermissions = true;
+      this.hasPermissions = false;
     }
   }
   public groupMeta: Group[] = [];
@@ -66,27 +66,11 @@ export class ZoteroService extends BusyAwareService {
         error => {
           this.RemoveBusy("GetZoteroApiKey");
           this.modalService.GenericError(error);
-          return error;
+          return "CheckZoteroApiKey failed";
         }
       );
   }
-  public async RemoveApiKey(apiKey: UserKey, userId: number, currentReview: number): Promise<boolean> {
-
-        this._BusyMethods.push("RemoveApiKey");
-        return this._httpC.delete<boolean>(this._baseUrl + 'api/Zotero/DeleteZoteroApiKey'
-            )
-            .toPromise().then(result => {                
-                this.RemoveBusy("RemoveApiKey");
-                return result;
-            },
-                error => {
-                    this.RemoveBusy("RemoveApiKey");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            );
-
-  }
+  
 
     public async UpdateGroupToReview(groupId: string, deleteLink: boolean): Promise<boolean> {
     
@@ -123,55 +107,6 @@ export class ZoteroService extends BusyAwareService {
                 }
             );
     }
-
-    public async fetchApiKeys(): Promise<UserKey[]>  {
-
-        this._BusyMethods.push("fetchApiKeys");
-        return this._httpC.get<UserKey[]>(this._baseUrl + 'api/Zotero/FetchApiKeys')
-            .toPromise().then(result => {
-                this.RemoveBusy("fetchApiKeys");
-                return result;
-            },
-                error => {
-                    this.RemoveBusy("fetchApiKeys");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            );
-    }
-
-    public FetchUserZoteroSubscriptions() {
-        this._BusyMethods.push("FetchUserZoteroSubscriptions");
-        return this._httpC.get<UserSubscription>(this._baseUrl + 'api/Zotero/Usersubscription' )
-            .toPromise().then(result => {
-                
-                this.RemoveBusy("FetchUserZoteroSubscriptions");
-                return result;
-            },
-                error => {
-                    this.RemoveBusy("FetchUserZoteroSubscriptions");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            );
-    }
-
-    public async fetchUserZoteroPermissions(): Promise<UserKey>  {
-        this._BusyMethods.push("fetchUserZoteroPermissions");
-        return this._httpC.get<UserKey>(this._baseUrl + 'api/Zotero/UserPermissions')
-            .toPromise().then(result => {
-                this.RemoveBusy("fetchUserZoteroPermissions");
-                this.userKeyInfo = result;
-                return result;
-            },
-                error => {
-                    this.RemoveBusy("fetchUserZoteroPermissions");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-        );
-    }
-
     public async GroupMemberGet(groupId: string): Promise<boolean> {
         this._BusyMethods.push("GroupMemberGet");
         return this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/GroupMember?groupId=' + groupId )
@@ -456,23 +391,27 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    
 
-    public DeleteZoteroApiKey( groupId:number): Promise<string> {
-        this._BusyMethods.push("DeleteZoteroApiKey");
+  public DeleteZoteroApiKey(): Promise<boolean> {
+    this._BusyMethods.push("DeleteZoteroApiKey");
 
-        return this._httpC.get<string>(this._baseUrl + 'api/Zotero/ApiKey?deleteApiKey=true' + '&groupId=' + groupId)
-            .toPromise().then(result => {
-                this.RemoveBusy("DeleteZoteroApiKey");
-                return result;
-            },
-                error => {
-                    this.RemoveBusy("DeleteZoteroApiKey");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            );
-    }
+    return this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/DeleteZoteroApiKey')
+      .toPromise().then(result => {
+        this.RemoveBusy("DeleteZoteroApiKey");
+        if (result == true) {
+          this.groupMeta = [];
+          this._errorMessage = "No API Key";
+          this.hasPermissions = false;
+        }
+        return result;
+      },
+        error => {
+          this.RemoveBusy("DeleteZoteroApiKey");
+          this.modalService.GenericError(error);
+          return false;
+        }
+      );
+  }
 
     //public async CollectionPost(collection: string): Promise<any> {
     //  this._BusyMethods.push("Collection");
@@ -505,8 +444,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public Clear() {
-        //this._ZoteroList = [];
+  public Clear() {
+    this.groupMeta = [];
+    this._errorMessage = "data not fetched";
+    this.hasPermissions = false;
     }
 }
 

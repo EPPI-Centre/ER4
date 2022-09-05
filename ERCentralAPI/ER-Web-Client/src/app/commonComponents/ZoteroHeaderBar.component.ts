@@ -47,7 +47,7 @@ export class ZoteroHeaderBarComp implements OnInit {
         else return false;
     }
   public CanSync(): boolean {
-    return !this._zoteroService.hasPermissions;
+    return this._zoteroService.hasPermissions;
   }
     public ZoteroSync() {                
         this.Context = "ZoteroSync";

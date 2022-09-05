@@ -409,6 +409,7 @@ CREATE OR ALTER     Procedure [dbo].[st_ZoteroConnectionCreate](
 @REVIEW_ID BIGINT NULL)
 as
 Begin
+	--first check: ensure 
 	declare @check int = (select count(*) from TB_ZOTERO_REVIEW_CONNECTION where ReviewId = @REVIEW_ID)
 	if (@check > 0) THROW 51000, 'Review is already in use.', 1;
 	INSERT INTO [dbo].[TB_ZOTERO_REVIEW_CONNECTION]([LibraryID], [ZoteroUserId], [ApiKey], [UserId], [ReviewId], DateCreated, [Version])

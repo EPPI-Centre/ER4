@@ -1,131 +1,345 @@
 <div class="container col-12">
-	<div class="col-12 col-md-12 px-1 card bg-dark">
-		<div class=" h-100 w-100">			
-			<div>
-				<div class="col-12 row flex-fill">
-					<div class="col-md-5 font-weight-light text-sm-left text-white align-content-center">
-						<h4><b> User Information </b></h4>
-					</div>
-					<div class="col-md-5 font-weight-light text-sm-left text-white align-content-center">
-						<h4><b> Zotero Groups Information </b></h4>
-						<i>(A Zotero shared group must be linked to only one ERWeb review)</i>
-					</div>
-				</div>
-				<div class="col-12 row ">
-					<div class="col-md-5 col-sm-12 mb-2 flex-column card fa-border alert-primary p-2 m-2">
-						<div class="font-weight-light text-sm-left ">
-							<span class="font-weight-bold"> Current ERWeb Review: </span>{{currentReview}}
-						</div>
-						<div class="font-weight-light text-sm-left">
-							<span class="font-weight-bold">
-								Total items in current review:
-							</span> {{totalItemsInCurrentReview}}
-						</div>
-						<div class="font-weight-light text-sm-left">
-							<span class="font-weight-bold">
-								ERWeb UserName:
-							</span> {{zoteroUserName}}
-						</div>
-						<div class="font-weight-light text-sm-left">
-							<span class="font-weight-bold">
-								Zotero UserID:
-							</span>{{zoteroUserID}}
-						</div>
-						<div class="font-weight-light text-sm-left">
-							<span class="font-weight-bold">
-								Zotero API Key:
-							</span> {{zoteroUserKey}}
-						</div>
+  <ng-container [ngSwitch]="UIphase">
+    <div *ngSwitchCase="'BeginOauthProcess'" class="">
+      <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
+      <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
+    </div>
+    <div *ngSwitchCase="'ViewSettings'">
+      ViewSettings
+      <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
+    </div>
+    <div *ngSwitchCase="'PickGroup'">
+      Pick Group
+      <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
+    </div>
+    <div *ngSwitchCase="'TryAgain'">
+      TryAgain<br />
+      BeginOauthProcess [lots of instructions here!!]
+      <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()">Start Setup</button>
+    </div>
+    <div *ngSwitchCase="'ResetAndRestartOauthProcess'">
+      ResetAndRestartOauthProcess
+      <div class="col-12 ">
+        <div>
+          You appear to have set-up the Zotero connnection, however, the attempt to verify that the connection is working failed. Perhaps you deleted the "API Key" on
+          the Zotero side/website. If that's the case, you will need to <strong>Reset and restart</strong> to setup the connection again. <br />
+          If you wish to do so, please click on the "Reset" button below. Otherwise <strong>Please check</strong>
+          your API Key settings in the <a href="https://www.zotero.org/settings/keys" target="_blank">Zotero</a> pages.
+        </div>
+        <button class="btn btn-danger p-1 m-1" (click)="ResetAndRestart()">Reset</button>
+      </div>
+    </div>
+    <div *ngSwitchDefault>
+      Unknown Phase - ResetAndRestartOauthProcess?
+    </div>
+  </ng-container>
+  <div style="display:none;">
+    <ng-container [ngSwitch]="InstructionsShown">
+      <div *ngSwitchCase="'NWcreateGroupLibInZotero'" #InstructionsForNewWindow>
+        <ng-container *ngTemplateOutlet="createGroupLibInZotero"></ng-container>
+      </div>
+      <div *ngSwitchCase="'NWinviteCollaborators'" #InstructionsForNewWindow>
+        <ng-container *ngTemplateOutlet="inviteCollaborators"></ng-container>
+      </div>
+      <div *ngSwitchCase="'NWobtainAPIKey'" #InstructionsForNewWindow>
+        <ng-container *ngTemplateOutlet="obtainAPIKey"></ng-container>
+      </div>
+      <div *ngSwitchDefault></div>
+    </ng-container>
 
-						<div class="font-weight-light text-sm-left ">
-							<span class="font-weight-bold">
-								Zotero Storage Limit:
-							</span> MB (Not yet implemented)
-						</div>
+  </div>
 
-						<div class="font-weight-light text-sm-left ">
-							<span class="font-weight-bold">
-								Last Sync Date:
-							</span> (Not yet implemented)
-						</div>
-					</div>
+  <ng-template #groupsEtAl>
+    <div class="col-12 col-md-12 px-1 card bg-light">
+      <div class=" h-100 w-100">
+        <div>
+          <div class="col-12 row flex-fill">
+            <div class="col-md-5 font-weight-light text-sm-left  align-content-center">
+              <h4><b> User Information </b></h4>
+            </div>
+            <div class="col-md-5 font-weight-light text-sm-left  align-content-center">
+              <h4><b> Zotero Groups Information </b></h4>
+              <i>(A Zotero shared group must be linked to only one ERWeb review)</i>
+            </div>
+          </div>
+          <div class="col-12 row p-0 mx-1">
+            <div class="col-sm-5 col-12 px-1 mb-2 flex-column card alert-primary">
+              <div class="font-weight-light text-sm-left ">
+                <span class="font-weight-bold"> Current ERWeb Review: </span>{{currentReview}}
+              </div>
+              <div class="font-weight-light text-sm-left">
+                <span class="font-weight-bold">
+                  Total items in current review:
+                </span> {{totalItemsInCurrentReview}}
+              </div>
+              <div class="font-weight-light text-sm-left">
+                <span class="font-weight-bold">
+                  ERWeb UserName:
+                </span> {{zoteroUserName}}
+              </div>
+              <div class="font-weight-light text-sm-left">
+                <span class="font-weight-bold">
+                  Zotero UserID:
+                </span>{{zoteroUserID}}
+              </div>
+              <div class="font-weight-light text-sm-left">
+                <span class="font-weight-bold">
+                  Zotero API Key:
+                </span> {{zoteroUserKey}}
+              </div>
 
-					<div class="col-md-4 col-sm-12 card card-deck fa-border alert-primary row p-0 m-0 w-100 p-2 m-2" style="max-height:600px; overflow:auto;">
-						<table class="table table-bordered table-striped">
-							<thead>
-								<tr>
-									<td>
-										<div class="m-1 p-1 font-weight-light text-sm-left">GroupID</div>
+              <div class="font-weight-light text-sm-left ">
+                <span class="font-weight-bold">
+                  Zotero Storage Limit:
+                </span> MB (Not yet implemented)
+              </div>
 
-									</td>
-									<td>
-										<div class="m-1 p-1 font-weight-light text-sm-left">Group Name</div>
-
-									</td>
-									<td>
-										<div class="m-1 p-1 font-weight-light text-sm-left">Version</div>
-
-									</td>									
-									<td>
-										Add / Select Zotero Linked token for this group
-									</td>
-								</tr>
-							</thead>
-							<tbody>
-								<tr *ngFor="let item of groupMeta; index as i" class="small">
-									<td  [ngClass]="{'font-weight-bold': item.groupBeingSynced === item.id}">{{item.id}}</td>
-									<td  class="">{{item.data.name}}</td>
-									<td  class="">{{item.version}}</td>
-									<td>
-										<button  class="btn btn-success p-1 m-1" (click)="changeGroupBeingSynced(item)">Add</button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-				<div class="col-12">
-					<div class="col-md-3 font-weight-light text-sm-left text-white align-content-center">
-						<h4><b> Api Key Information </b></h4>
-						<i>(Only one Zotero api key can be associated to an ERWeb review)</i>
-					</div>
-					<div class="col-md-4 col-sm-12 card card-deck fa-border
+              <div class="font-weight-light text-sm-left ">
+                <span class="font-weight-bold">
+                  Last Sync Date:
+                </span> (Not yet implemented)
+              </div>
+              <div class="font-weight-light text-sm-left ">
+                <span class="font-weight-bold">
+                  Service ErrorMessage:
+                </span> {{ErrorMessage}}
+              </div>
+            </div>
+            <div class="col-sm-7 col-12 row p-0 m-0 " style="max-height:600px; overflow:auto;">
+              <table class="table table-sm table-bordered table-striped mx-1">
+                <thead>
+                  <tr>
+                    <td>
+                      <div class="m-1 p-1 ">GroupID</div>
+                    </td>
+                    <td>
+                      <div class="m-1 p-1 ">Group Name</div>
+                    </td>
+                    <td>
+                      <div class="m-1 p-1 ">Version</div>
+                    </td>
+                    <td>
+                      <div class="m-1 p-1 ">Status</div>
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of groupMeta; index as i" class="" [ngClass]="{'font-weight-bold': item.groupBeingSynced == true}">
+                    <td>
+                      {{item.id}}
+                    </td>
+                    <td class="">{{item.data.name}}</td>
+                    <td class="">{{item.version}}</td>
+                    <td>
+                      <ng-container [ngSwitch]="item.groupBeingSynced">
+                        <div *ngSwitchCase="true" class="mx-auto row">
+                          <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
+                        </div>
+                        <div *ngSwitchCase="false" class="mx-auto row">
+                          <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(item)">Select</button>
+                        </div>
+                        <div *ngSwitchDefault>
+                          <h4>uh?</h4>
+                        </div>
+                      </ng-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="col-sm-6 col-12">
+              <h4><b> Api Key Information </b></h4>
+              <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Delete Key</button>
+              <i>(Only one Zotero api key can be associated to an ERWeb review)</i>
+            </div>
+            <div class="col-12 col-sm-6 card card-deck fa-border
 						 alert-primary row p-0 m-0 w-100 p-2 m-2"
-						 style="max-height:600px; overflow:auto;" *ngIf="apiKeys.length > 0">
-						<table class="table table-bordered table-striped">
-							<thead>
-								<tr>
-									<td>
-										<div class="m-1 p-1 font-weight-light text-sm-left">key</div>
+                 style="max-height:600px; overflow:auto;" *ngIf="apiKeys.length > 0">
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <td>
+                      <div class="m-1 p-1 font-weight-light text-sm-left">key</div>
 
-									</td>
-									<td>
-										<div class="m-1 p-1 font-weight-light text-sm-left">userID</div>
+                    </td>
+                    <td>
+                      <div class="m-1 p-1 font-weight-light text-sm-left">userID</div>
 
-									</td>
-									<td>
-										<div class="m-1 p-1 font-weight-light text-sm-left">username</div>
+                    </td>
+                    <td>
+                      <div class="m-1 p-1 font-weight-light text-sm-left">username</div>
 
-									</td>
-									<td>
-										Remove ApiKey (Removing means re-registering Oauth with Zotero)
-									</td>
-								</tr>
-							</thead>
-							<tbody>
-								<tr *ngFor="let item of apiKeys; index as i" class="small" style="cursor: pointer;">
-									<td class="">{{item.key}}</td>
-									<td class="">{{item.userID}}</td>
-									<td class="">{{item.username}}</td>
-									<td>
-										<button class="btn btn-danger p-1 m-1" (click)="RemoveApiKey(item)">Remove </button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                    </td>
+                    <td>
+                      Remove ApiKey (Removing means re-registering Oauth with Zotero)
+                    </td>
+                  </tr>
+                </thead>
+                <!--<tbody>
+                  <tr *ngFor="let item of apiKeys; index as i" class="small" style="cursor: pointer;">
+                    <td class="">{{item.key}}</td>
+                    <td class="">{{item.userID}}</td>
+                    <td class="">{{item.username}}</td>
+                    <td>
+                      <button class="btn btn-danger p-1 m-1" (click)="RemoveApiKey(item)">Remove </button>
+                    </td>
+                  </tr>
+                </tbody>-->
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #SetupOverview>
+    <div>
+      <p>
+        Setting up a link to Zotero <strong>requires attention</strong>, but is normally done only once (per review).<br />
+        In Zotero, <strong>Group Libraries</strong> allow to share data with collaborators, which is ideal for shared reviews, but will work equally well for private reviews.
+        Thus, EPPI-Reviewer allows to exchange data with Zotero Group Libraries <i>only</i>. This is done by associating <strong>One Review</strong> with <strong>One Group Library</strong>.
+        Behind the scenes, this One-To-One relation is made possible by obtaining (and storing) a unique "API Key" from Zotero, which defines EPPI-Reviewer permissions to access a signle Group Library.<br />
+        [You can, if you wish, create a <strong>Private</strong> group library and include only yourself in it, in case the EPPI-Reviewer data should remain private to you.]
+      </p>
+      <h5>Setup process summary:</h5>
+      <p>Each step requires to make a number of choices, to see the <strong>recommended settings</strong> please click on the "Show me" buttons.</p>
+      <ol>
+        <li>
+          <strong>Before proceeding:</strong> create a Group Library in Zotero (can be done <a href="https://www.zotero.org/groups/new" target="_blank">here</a>).
+          <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="InstructionsShown = 'createGroupLibInZotero'">Show me</button>
+          <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="ShowInstructionsInNewWindow('NWcreateGroupLibInZotero')">Show me (new tab)</button>
+          <div *ngIf="InstructionsShown == 'createGroupLibInZotero'" class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
+            <ng-container *ngTemplateOutlet="createGroupLibInZotero"></ng-container>
+          </div>
+        </li>
+        <li>
+          (Optional) Invite collaborators into the Group Library (also done in Zotero).
+          <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="InstructionsShown = 'inviteCollaborators'">Show me</button>
+          <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="ShowInstructionsInNewWindow('NWinviteCollaborators')">Show me (new tab)</button>
+          <div *ngIf="InstructionsShown == 'inviteCollaborators'" class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
+            <ng-container *ngTemplateOutlet="inviteCollaborators"></ng-container>
+          </div>
+        </li>
+        <li>
+          Obtain an "API Key", granting EPPI-Reviewer permission to exchange data with Zotero on your behalf.<br />
+          Note: <span class="alert-warning">the default permissions offered by Zotero <strong>Will NOT work</strong>, please read and follow the instructions instead.</span>
+          <button class="btn btn-sm btn-outline-primary px-1 py-0 ml-1 mr-1" (click)="InstructionsShown = 'obtainAPIKey'">Show me</button>
+          <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="ShowInstructionsInNewWindow('NWobtainAPIKey')">Show me (new tab)</button>
+          <div *ngIf="InstructionsShown == 'obtainAPIKey'" class="border border-info rounded bg-light col-12 my-1 p-1 mx-0" >
+            <div style="max-height:50vh; overflow:auto;"><ng-container *ngTemplateOutlet="obtainAPIKey"></ng-container></div>
+          </div>
+        </li>
+        <li>
+          Done! If you followed these instructions, EPPI-Reviewer will automatically open the "Sync" tab to move data to/from EPPI-Reviewer/Zotero.
+        </li>
+      </ol>
+    </div>
+    <div class="row mx-1 px-1">
+      <div class="m-2 border border-primary rounded bg-light p-1 mx-auto">
+        <strong>Safety controls</strong><br />
+        <div class="border-bottom border-dark">
+          <input type="checkbox" [(ngModel)]="SafetyCheck1" class="my-auto mx-1" />
+          Yes, I <strong>have created</strong> a Zotero Group Library to exchange data with this review.
+        </div>
+        <div>
+          <input type="checkbox" [(ngModel)]="SafetyCheck2" class="my-auto mx-1" />
+          Yes, I <strong>have followed</strong> the instructions to set the <strong>correct permissions</strong> on the Zotero side.
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #createGroupLibInZotero>
+    <div>
+      <p>
+        EPPI-Reviewer can be used to exchange data with Zotero group libraries, and <strong>only Group libraries</strong>.
+        This is because group libraries can be used to work collaboratively, or not (depending on who you invite in the library),
+        thus they allow to extend the collaborative process in Zotero, when required.<br />
+        Therefore, <strong>before</strong> you can setup a connection to Zotero, you <strong>need to setup a suitable Group Library</strong>.<br />
+        Here is how:
+      </p>
+      <ol>
+        <li>Go to the Zotero <a href="https://www.zotero.org/groups/new" target="_blank">create group library</a> page. (Might ask you to login.)</li>
+        <li>Give the new library a name. We recommend to use something like the ReviewID number to make the purpose of the library clear.</li>
+        <li>
+          Pick a type of Library. Re recommend to use the "<strong>Private Membership</strong>" kind as it's the safer option.<br />
+          Options are:
+          <ul>
+            <li class="alert-danger px-1"><strong><span class="k-icon k-i-cancel k-color-danger mb-1"></span> Public, Open Membership</strong>. We reccomend to <strong>avoid this option</strong> as anyone could edit/delete your data</li>
+            <li class="alert-info px-1"><strong>Public, Closed Membership</strong>. This option is safer, although not recommended, as it's not clear what advantages come with making such libraries "public".</li>
+            <li class="alert-success px-1"><strong><span class="k-icon k-i-check-outline k-color-success mb-1"></span> Private Membership</strong>. Is the <strong>recommended</strong> option</li>
+          </ul>
+          Click "<strong>Create Group</strong>".
+        </li>
+        <li>If you picked the "private" group type, the default settings are ok, giving all group members "Edit" rights; otherwise, customise according to your own needs/plans.</li>
+        <li>Click on <strong>Save Settings</strong>. It's all done, you can close the Zotero page, if you wish.</li>
+      </ol>
+    </div>
+    <button (click)="InstructionsShown = ''" class="btn btn-sm btn-outline-dark px-1 py-0 my-1">Close</button>
+  </ng-template>
+  <ng-template #inviteCollaborators>
+    <div>
+      <p class="mb-1">
+        In case you want to allow collaborators to work on the Group Library you've created, you will need to provide access via the Zotero Group Library page.
+        To do so, you'd first need to know their Zotero username(s), or the email address your collaborators have used for their Zotero account.<br />
+        <strong>This step is optional and can be done at any time.</strong><br />
+        The process is fairly simple:
+      </p>
+      <ol>
+        <li>
+          Go to the <a href="https://www.zotero.org/groups" target="_blank">Groups page</a> on the Zotero website.
+        </li>
+        <li>
+          Find the Group you want to use for EPPI-Reviewer data, click on the "<strong>Manage Members</strong>" link for it and then onf the "<strong>Send More Invitations</strong>" link at the bottom.
+        </li>
+        <li>
+          Type in the comma separated list of usernames/emails for the people you wish to invite and click on "Invite Members".
+        </li>
+      </ol>
+      That's it. All done.
+    </div>
+    <button (click)="InstructionsShown = ''" class="btn btn-sm btn-outline-dark px-1 py-0 my-1">Close</button>
+  </ng-template>
+  <ng-template #obtainAPIKey>
+    <div>
+      <p class="mb-1">
+        This last step starts in EPPI-Reviewer ("Start setup" button below). However, you will need to
+        <strong><span class="k-icon k-i-warning mb-1"></span>change the default settings<span class="k-icon k-i-warning mb-1"></span></strong> in the Zotero page you'll be sent to.<br />
+        This is <strong class="alert-warning px-1"><span class="k-icon k-i-warning mb-1"></span>EXTREMELY IMPORTANT<span class="k-icon k-i-warning mb-1"></span></strong>
+        as <strong>accepting the default Zotero settings Will Not Work</strong>.<br />
+        Step by step instructions:
+      </p>
+      <ol>
+        <li>Tick the two "safety" checkboxes above the "Start setup" button. This is to confirm that you have (1) already created a group library, and (2) read these instructions.</li>
+        <li>Click on the "<strong>Start setup</strong>" button, this will send you to a Zotero page, where you might be asked to login.</li>
+        <li>
+          Click on "Change permissions"<br />
+          <img src="assets/Images/ZoteroSetup1.gif" />
+        </li>
+        <li>
+          Ensure that the "Personal Library\Allow library access" option is <strong>NOT ticked</strong>. (This is to protect your personal Zotero data!)<br />
+          <img src="assets/Images/ZoteroSetup2.gif" />
+        </li>
+        <li>
+          Tick the "<strong>Specific Groups\Per Group Permissions</strong>" option. This allows to grant access to what's needed and <i>only</i> what's needed.<br />
+          <img src="assets/Images/ZoteroSetup3.gif" />
+        </li>
+        <li>
+          Find the Group Library you created to share data with EPPI-Reviewer and <strong>tick the "Read/Write" option</strong>. This allows EPPI-Reviewer to exchange data between the current review and
+          <i>only</i> this Group Library.<br />
+          <img src="assets/Images/ZoteroSetup4.gif" />
+        </li>
+        <li>
+          Click "<strong>Save Key</strong>" at the bottom of the page.
+        </li>
+        <li>Zotero will redirect you back to this same EPPI-Reviewer page. Behind the scenes, EPPI-Reviewer will obtain an "API Key" wich will grant it "permissions" to interact with Zotero data, as specified above.</li>
+        <li><strong>NOTE:</strong> Sometimes the API-Key obtained by EPPI-Reviewer fails to work. In this case, you will be asked to "<strong>try again</strong>".<br />
+        In our experience, it is extremely unlikely that you will need more than 2 or 3 attempts.</li>
+      </ol>
+    </div>
+    <button (click)="InstructionsShown = ''" class="btn btn-sm btn-outline-dark px-1 py-0 my-1">Close</button>
+  </ng-template>
 </div>
