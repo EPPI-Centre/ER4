@@ -7,11 +7,12 @@ import { ConfigurableReportService } from '../services/configurablereport.servic
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { Item } from '../services/ItemList.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { singleNode } from '../services/ReviewSets.service';
 import { ZoteroService } from '../services/Zotero.service';
 import {
     Collection, Group, GroupData, IERWebANDZoteroReviewItem,
-    IObjectsInERWebNotInZotero, UserKey, ZoteroReviewCollectionList
+    IObjectsInERWebNotInZotero, ZoteroReviewCollectionList
 } from '../services/ZoteroClasses.service';
 
 @Component({
@@ -22,15 +23,13 @@ import {
 
 export class ZoteroSetupComponent implements OnInit {
     constructor(
-        private route: ActivatedRoute,
         private _notificationService: NotificationService,
         private _zoteroService: ZoteroService,
-        private _router: Router,
-        private _ActivatedRoute: ActivatedRoute,
         private _confirmationDialogService: ConfirmationDialogService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _codesetStatsServ: CodesetStatisticsService,
       private _configurablereportServ: ConfigurableReportService,
+      private reviewInfoService: ReviewInfoService,
       @Inject('BASE_URL') private _baseUrl: string
     ) {
 
@@ -48,7 +47,25 @@ export class ZoteroSetupComponent implements OnInit {
   public SafetyCheck1 = false;
   public SafetyCheck2 = false;
 
-
+  public get CurrentUserOwnsTheApiKey(): boolean {
+    if (!this._zoteroService.ZoteroPermissions
+      || this._zoteroService.ZoteroPermissions.zoteroConnectionId == undefined
+      || this._zoteroService.ZoteroPermissions.zoteroConnectionId == null
+      || this._zoteroService.ZoteroPermissions.zoteroConnectionId < 1
+    ) {
+      return false;
+    } else {
+      if (this._zoteroService.ZoteroPermissions.erUserId == this._ReviewerIdentityServ.reviewerIdentity.userId) return true;
+    }
+    return false;
+  }
+  public get NameOfAPIKeyOwner(): string {
+    if (!this._zoteroService.ZoteroPermissions || !this._zoteroService.ZoteroPermissions.erUserId) return "[Unknown: unspecified error]";
+    else return this.reviewInfoService.ContactNameById(this._zoteroService.ZoteroPermissions.erUserId);
+  }
+  public get ErrorMessage(): string {
+    return this._zoteroService.ErrorMessage;
+  }
 
     public zoteroUserID: number = 0;
     public totalItemsInCurrentReview: number = 0;
@@ -68,13 +85,11 @@ export class ZoteroSetupComponent implements OnInit {
     public ZoteroObjectsThatAreNotAttachmentsLength: number = 0;
     public ObjectsInERWebAndZotero: IERWebANDZoteroReviewItem[] = [];
     public DetailsForSetId: number = 0;
-  public apiKeys: UserKey[] = [];
+  
   public get groupMeta(): Group[] {
     return this._zoteroService.groupMeta;
   }
-  public get ErrorMessage(): string {
-    return this._zoteroService.ErrorMessage;
-  }
+
 
     ngOnDestroy() {
     }
@@ -83,6 +98,7 @@ export class ZoteroSetupComponent implements OnInit {
         this.zoteroUserName = this._ReviewerIdentityServ.reviewerIdentity.name;
         this.zoteroUserID = this._ReviewerIdentityServ.reviewerIdentity.userId;
       this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
+      if (this.reviewInfoService.Contacts.length == 0) this.reviewInfoService.FetchReviewMembers();
       this.CheckForStatus();
     }
 
@@ -103,7 +119,9 @@ export class ZoteroSetupComponent implements OnInit {
         this._UIphase = "TryAgain";
       } else if (this._zoteroService.ErrorMessage == "nogroups") {
         this._UIphase = "TryAgain";
-      } 
+      } else if (this._zoteroService.ErrorMessage == "No write access to Group Library") {
+        this._UIphase = "ResetAndRestartOauthProcess";
+      }
       else {
         this._UIphase = "PickGroup";
         this._zoteroService.fetchGroupMetaData().then(
@@ -165,7 +183,7 @@ export class ZoteroSetupComponent implements OnInit {
     }
 
     Clear() {
-      this.apiKeys = [];
+      //this.apiKeys = [];
       //this.groupMeta = [];
   }
   public ResetAndRestart() {

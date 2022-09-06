@@ -402,11 +402,13 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE OR ALTER     Procedure [dbo].[st_ZoteroConnectionCreate](
-@LibraryID nvarchar(50) NULL,
-@ApiKey nvarchar(50) NULL,
-@ZoteroUserId int NULL,
-@USER_ID INT NULL,
-@REVIEW_ID BIGINT NULL)
+	@LibraryID nvarchar(50) NULL,
+	@ApiKey nvarchar(50) NULL,
+	@ZoteroUserId int NULL,
+	@USER_ID INT NULL,
+	@REVIEW_ID BIGINT NULL,
+	@ZOTERO_CONNECTION_ID INT OUT
+)
 as
 Begin
 	--first check: ensure 
@@ -414,7 +416,7 @@ Begin
 	if (@check > 0) THROW 51000, 'Review is already in use.', 1;
 	INSERT INTO [dbo].[TB_ZOTERO_REVIEW_CONNECTION]([LibraryID], [ZoteroUserId], [ApiKey], [UserId], [ReviewId], DateCreated, [Version])
 	VALUES(@LibraryID,@ZoteroUserId,@ApiKey,@USER_ID, @REVIEW_ID, GETDATE(),0)
-	   
+	set @ZOTERO_CONNECTION_ID = SCOPE_IDENTITY()
 End
 GO
 

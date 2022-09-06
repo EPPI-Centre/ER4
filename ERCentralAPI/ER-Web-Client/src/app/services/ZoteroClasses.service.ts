@@ -79,16 +79,15 @@ export interface Groups {
 }
 
 
-export interface Access {
-    user: User;
-    groups: Groups| PerGroupPermissions;
-}
 
-export interface UserKey {
-    key: string;
-    userID: number;
-    username: string;
-    access: Access;
+
+export interface ApiKeyInfo {
+  zoteroConnectionId: number;
+  libraryId: string;
+  rEVIEW_ID: number;
+  erUserId: number;
+  zoteroUserId: number;
+  status: string;
 }
 
 export interface UserSubscription {

@@ -2,7 +2,7 @@ import { EventEmitter, Inject, Injectable, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Collection, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, TypeCollection, UserKey, UserSubscription, ZoteroReviewCollection, ZoteroReviewCollectionList } from './ZoteroClasses.service';
+import { ApiKeyInfo, Collection, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, TypeCollection, ZoteroReviewCollection, ZoteroReviewCollectionList } from './ZoteroClasses.service';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -38,13 +38,13 @@ export class ZoteroService extends BusyAwareService {
     }
   }
   public groupMeta: Group[] = [];
-    public get ZoteroPermissions() {
+  private userKeyInfo: ApiKeyInfo = <ApiKeyInfo>{};
+  public get ZoteroPermissions(): ApiKeyInfo{
             return this.userKeyInfo;
     }
-    public set ZoteroPermissions(value: UserKey) {
+  public set ZoteroPermissions(value: ApiKeyInfo) {
         this.userKeyInfo = value;
     }
-  private userKeyInfo: UserKey = <UserKey>{};
   public async CheckZoteroPermissions(): Promise<boolean> {
     this._errorMessage = "data not fetched";
     this.hasPermissions = false;
@@ -57,11 +57,27 @@ export class ZoteroService extends BusyAwareService {
   }
   private CheckZoteroApiKey(): Promise<boolean | string> {
     this._BusyMethods.push("GetZoteroApiKey");
-
-    return this._httpC.get<boolean|string>(this._baseUrl + 'api/Zotero/CheckApiKey')
-      .toPromise().then(result => {
+    this.userKeyInfo = <ApiKeyInfo>{};
+    this.groupMeta = [];
+    return this._httpC.get<ApiKeyInfo|string>(this._baseUrl + 'api/Zotero/CheckApiKey')
+      .toPromise().then(async result => {
         this.RemoveBusy("GetZoteroApiKey");
-        return result;
+        if (typeof result == "string") {
+          //ApiKeyInfo could not be collected: something is wrong with it!
+          await this.GetApiKey();
+          return result;
+        }
+        else {//All is good if the Status value == "OK"
+          const aki = result as ApiKeyInfo;
+          this.userKeyInfo = result;
+          if (aki.status && aki.status != "OK") return aki.status;
+          else if (aki.status == undefined || aki.status == null) {
+            return "unexpected error";
+          }
+          else {
+            return true;
+          }
+        }
       },
         error => {
           this.RemoveBusy("GetZoteroApiKey");
@@ -70,7 +86,23 @@ export class ZoteroService extends BusyAwareService {
         }
       );
   }
-  
+  public async GetApiKey(): Promise<void> {
+    //used only when we need to get the API Key in order to understand what the problem is!
+    this._BusyMethods.push("GetApiKey");
+    this.userKeyInfo = <ApiKeyInfo>{};
+    this.groupMeta = [];
+    return this._httpC.get<ApiKeyInfo>(this._baseUrl + 'api/Zotero/GetApiKey')
+      .toPromise().then(result => {
+        this.RemoveBusy("GetApiKey");
+        this.userKeyInfo = result;
+      }, error => {
+        this.RemoveBusy("GetApiKey");
+        this.modalService.GenericError(error);
+      }).catch(caught => {
+        this.RemoveBusy("GetApiKey");
+        this.modalService.GenericError(caught);
+      });
+  }
 
     public async UpdateGroupToReview(groupId: string, deleteLink: boolean): Promise<boolean> {
     

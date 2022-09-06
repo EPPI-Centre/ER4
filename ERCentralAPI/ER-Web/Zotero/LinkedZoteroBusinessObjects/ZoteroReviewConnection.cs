@@ -14,6 +14,20 @@ namespace BusinessLibrary.BusinessClasses
     public class ZoteroReviewConnection : BusinessBase<ZoteroReviewConnection>
     {
         public ZoteroReviewConnection() { }
+
+        public static readonly PropertyInfo<int> ZoteroConnectionIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ZoteroConnectionId", "ZoteroConnectionId"));
+        public int ZoteroConnectionId
+        {
+            get
+            {
+                return GetProperty(ZoteroConnectionIdProperty);
+            }
+            set
+            {
+                SetProperty(ZoteroConnectionIdProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<string> LibraryIdProperty = RegisterProperty<string>(new PropertyInfo<string>("LibraryID", "LibraryID", ""));
         public string LibraryId
         {
@@ -57,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> USER_IDProperty = RegisterProperty<int>(new PropertyInfo<int>("USER_ID", "USER_ID", 0));
-        public int USER_ID
+        public int ErUserId
         {
             get
             {
@@ -84,12 +98,11 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                if (REVIEW_ID < 1) return "no review: invalid";
-                else if (ApiKey == "") return "no API Key: invalid";
+                if (ZoteroConnectionId < 1 || ApiKey == "") return "No API Key";
                 else //API key exists...
                 {
-                    if (LibraryId == "") return "no Zotero Library: invalid";
-                    else return "valid";
+                    if (LibraryId == "") return "No Group Library";
+                    else return "OK";
                 }
             }
         }
@@ -104,6 +117,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ReviewID", ri.ReviewId));
+
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())
@@ -114,7 +128,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<int>(ZoteroUserIdProperty, reader.GetInt32("ZoteroUserId"));
                             LoadProperty<int>(REVIEW_IDProperty, reader.GetInt32("ReviewId"));
                             LoadProperty<int>(USER_IDProperty, reader.GetInt32("UserId"));
-
+                            LoadProperty<int>(ZoteroConnectionIdProperty, reader.GetInt32("ZOTERO_CONNECTION_ID"));
                             MarkOld();
                         }
                     }
@@ -129,7 +143,7 @@ namespace BusinessLibrary.BusinessClasses
             {//we reached this point from the oAuth callback done by Zotero, so we can't use the authenticated user to find the right data,
                 //we need to use the values supplied inside the object
                 localREVIEW_ID = REVIEW_ID;
-                localCONTACT_ID = USER_ID;
+                localCONTACT_ID = ErUserId;
             }
             else
             {//got here from an Angular client call, we know who the user is for sure, so we'll use the revieweIdentity object, which is safer
@@ -149,7 +163,11 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ApiKey", ApiKey));
                     command.Parameters.Add(new SqlParameter("@USER_ID", localCONTACT_ID));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", localREVIEW_ID));
+                    command.Parameters.Add(new SqlParameter("@ZOTERO_CONNECTION_ID", System.Data.SqlDbType.Int));
+                    command.Parameters["@ZOTERO_CONNECTION_ID"].Value = 0;
+                    command.Parameters["@ZOTERO_CONNECTION_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
+                    LoadProperty(ZoteroUserIdProperty, command.Parameters["@ZOTERO_CONNECTION_ID"].Value);
                 }
                 connection.Close();
             }

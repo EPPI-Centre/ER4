@@ -212,7 +212,7 @@ namespace ERxWebClient2.Controllers
                 List<int> GroupIds = await GetGroupsPermissions(access_userId, reviewId.ToString(), access_oauth_Token);
 
                 ZoteroReviewConnection zRc = new ZoteroReviewConnection();
-                zRc.USER_ID = contactId;
+                zRc.ErUserId = contactId;
                 zRc.REVIEW_ID = reviewId;
                 zRc.ApiKey = access_oauth_Token;
                 int ZoteroUserId;
@@ -524,13 +524,29 @@ namespace ERxWebClient2.Controllers
             }
         }
         /// <summary>
-        /// Returns 2 values: ApiKey and ZoteroUserId
+        /// Returns ZoteroReviewConnection for the current review (if any)
         /// </summary>
         /// <returns></returns>
-        public ZoteroReviewConnection ApiKey()
+        private ZoteroReviewConnection ApiKey()
         {
             ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
             return zrc;
+        }
+        [HttpGet("[action]")]
+        public IActionResult GetApiKey()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                ZoteroReviewConnection zrc = ApiKey();
+                if (zrc.ZoteroConnectionId > 0) return Ok(zrc);
+                else return StatusCode(404, "no API Key");
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in GetApiKey");
+                return StatusCode(500, e.Message);
+            }
         }
 
 
@@ -756,68 +772,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        [HttpGet("[action]")]
-        public async Task<IActionResult> Items()
-        {
-            try
-            {
-                if (SetCSLAUser4Writing())
-                {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-                    ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
-                    
-                    var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
-                    SetZoteroHttpService(GETGroupsUri, zrc.ApiKey);
-                    var items = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString());
-                    return Ok(items);
-
-                }
-                else return Forbid();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "FetchZoteroObjects list has an error");
-                var message = "";
-                if (e.Message.Contains("403"))
-                {
-                    message += "No Zotero API Token; either it has been revoked or never created";
-                }
-                else
-                {
-                    message += e.Message;
-                }
-                return StatusCode(500, message);
-            }
-        }
-
-        [HttpGet("[action]")]
-        public async Task<Collection> ItemsItemId([FromQuery] string itemKey)
-        {
-            Collection item = new Collection();
-            try
-            {
-
-                if (SetCSLAUser())
-                {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-                    ZoteroReviewConnection zrc = ApiKey();
-                    string groupIDBeingSynced = zrc.LibraryId;
-                    var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
-                    SetZoteroHttpService(GETItemUri, zrc.ApiKey);
-                    item = await _zoteroService.GetCollectionItem(GETItemUri.ToString());
-                    return item;
-
-                }
-                else return new Collection();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "FetchZoteroObjects list has an error");
-                return item;
-            }
-        }
+        
 
         [HttpGet("[action]")]
         public async Task<JsonResult> OLDApiKey([FromQuery] int groupId = -1, [FromQuery] bool deleteApiKey = false)
@@ -932,20 +887,18 @@ namespace ERxWebClient2.Controllers
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 if (ri == null) throw new ArgumentNullException("Not sure why this is null");
                 ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
-                if (zrc == null || string.IsNullOrEmpty(zrc.ApiKey)) return Json("No API Key");
-                else if (string.IsNullOrEmpty(zrc.LibraryId)) return Json("No Group Library");
+                if (zrc == null) return Json("No API Key");
+                else if (zrc.Status != "OK") return Ok(zrc);//nothing more to check...
                 else
                 {
-                    Phase = "GetGroupsPermissions";
                     //OK we have an API Key and a Group Library ID, but will they work?
+                    Phase = "GetGroupsPermissions";
                     List<int> Gids = await GetGroupsPermissions(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey);
                     int gid;
                     int.TryParse(zrc.LibraryId, out gid);
-                    if (Gids.Contains(gid)) return Ok(true);
+                    if (Gids.Contains(gid)) return Ok(zrc);
                     else return Json("No write access to Group Library");
                 }
-
-
             }
             catch (Exception e)
             {
@@ -958,7 +911,68 @@ namespace ERxWebClient2.Controllers
                 else return StatusCode(500, e.Message);//something not predictable happened!
             }
         }
+        [HttpGet("[action]")]
+        public async Task<IActionResult> Items()
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                    ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 
+                    var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
+                    SetZoteroHttpService(GETGroupsUri, zrc.ApiKey);
+                    var items = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString());
+                    return Ok(items);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "FetchZoteroObjects list has an error");
+                var message = "";
+                if (e.Message.Contains("403"))
+                {
+                    message += "No Zotero API Token; either it has been revoked or never created";
+                }
+                else
+                {
+                    message += e.Message;
+                }
+                return StatusCode(500, message);
+            }
+        }
+
+        [HttpGet("[action]")]
+        public async Task<Collection> ItemsItemId([FromQuery] string itemKey)
+        {
+            Collection item = new Collection();
+            try
+            {
+
+                if (SetCSLAUser())
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                    ZoteroReviewConnection zrc = ApiKey();
+                    string groupIDBeingSynced = zrc.LibraryId;
+                    var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
+                    SetZoteroHttpService(GETItemUri, zrc.ApiKey);
+                    item = await _zoteroService.GetCollectionItem(GETItemUri.ToString());
+                    return item;
+
+                }
+                else return new Collection();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "FetchZoteroObjects list has an error");
+                return item;
+            }
+        }
 
         [HttpGet("[action]")]
         public async Task<IActionResult> ItemKeyVersionLocal([FromQuery] string ItemKey, string ItemType)
@@ -1974,7 +1988,7 @@ namespace ERxWebClient2.Controllers
                             var fileBytes = stBytes;
 
                             //2) Now upload to Zotero
-                            await UploadFileBytesToZoteroAsync(fileBytes, parentItemKey, name, reviewId, itemDoc.itemDocumentId);
+                            await UploadFileBytesToZoteroAsync(fileBytes, parentItemKey, name, RevId.ToString(), itemDoc.itemDocumentId);
                         }
                     }
 
