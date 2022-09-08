@@ -27,7 +27,6 @@ export class ZoteroSetupComponent implements OnInit {
         private _zoteroService: ZoteroService,
         private _confirmationDialogService: ConfirmationDialogService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _codesetStatsServ: CodesetStatisticsService,
       private _configurablereportServ: ConfigurableReportService,
       private reviewInfoService: ReviewInfoService,
       @Inject('BASE_URL') private _baseUrl: string
@@ -135,6 +134,9 @@ export class ZoteroSetupComponent implements OnInit {
       setTimeout(() => { this._zoteroService.fetchGroupMetaData(); }, 50);
     }
   }
+  public get IsServiceBusy(): boolean {
+    return this._zoteroService.IsBusy;
+  }
 
   private async WaitforNotBusyService() {
     const maxTries = 62;//2 tries per sec 31 sec in total
@@ -177,10 +179,7 @@ export class ZoteroSetupComponent implements OnInit {
     }
     return true;
   }
-    public get IsServiceBusy(): boolean {
-
-        return this._zoteroService.IsBusy || this._codesetStatsServ.IsBusy;
-    }
+    
 
     Clear() {
       //this.apiKeys = [];
@@ -329,10 +328,4 @@ export class ZoteroSetupComponent implements OnInit {
     public get HasAdminRights(): boolean {
         return this._ReviewerIdentityServ.HasAdminRights;
     }
-
-    public get HasReviewStats(): boolean {
-        return this._codesetStatsServ.ReviewStats.itemsIncluded != -1;
-    }
-
-    
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Subscription } from 'rxjs';
@@ -13,7 +13,7 @@ import { Group, ZoteroReviewCollectionList } from '../services/ZoteroClasses.ser
     providers: []
 })
 
-export class ZoteroManagerComponent implements OnInit {
+export class ZoteroManagerComponent implements AfterViewInit {
 
 
     constructor(
@@ -25,7 +25,64 @@ export class ZoteroManagerComponent implements OnInit {
     ) {
         
     }
+  ngAfterViewInit() { //ngOnInit() {
+    if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
+      this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
+      this._router.navigate(['home']);
+    }
+    else if (!this._ReviewerIdentityServ.HasWriteRights) {
+      this._router.navigate(['Main']);
+    }
+    else {
+      this.errorInPathSub = this.route.queryParams.subscribe(async params => {
+        const err: string = params['error'];
+        if (err && err.length > 0) {
+          //we received an error in the querystring coming back from the oAuth loop,
+          //we put this error in the service and go to the setup page, where "what to do" logic will make the "setup" decisions
+          this._zoteroService.SetError(err);
+          this.ChangeContext("ZoteroSetup");
+        }
+        else {
 
+          await this._zoteroService.CheckZoteroPermissions().then(
+            () => {
+
+              if (this._zoteroService.hasPermissions) {
+                // ALREADY HAS A SHARED GROUP WITH  PERMISSIONS ASSOCIATED WITH THIS API KEY
+                this.ChangeContext("ZoteroSync");
+
+              } else {
+                this.ChangeContext("ZoteroSetup");
+              }
+            });
+        }
+        //if (err === 'nogroups') {
+        //  var contentError: string = 'You have either no groups created in Zotero as requested, or you have not selected read/write permissions';
+        //  this._notificationService.show({
+        //    content: contentError,
+        //    animation: { type: 'slide', duration: 400 },
+        //    position: { horizontal: 'center', vertical: 'top' },
+        //    type: { style: "error", icon: true },
+        //    closable: true
+        //  });
+        //  this._zoteroService.SetError(err);
+        //   this.ChangeContext("ZoteroSetup");
+        //}
+        //else if (err === 'unauthorised') {
+        //  var contentError: string = 'Zotero sometimes fails with unauthorised, please try up to three attempts to resolve';
+        //  this._notificationService.show({
+        //    content: contentError,
+        //    animation: { type: 'slide', duration: 400 },
+        //    position: { horizontal: 'center', vertical: 'top' },
+        //    type: { style: "error", icon: true },
+        //    closable: true
+        //  });
+        //  this._zoteroService.SetError(err);
+        //  this.ChangeContext("ZoteroSetup");
+        //}
+      });
+    }
+  }
 
     @ViewChild('NavBarZotero') NavBarZotero!: ZoteroHeaderBarComp;
     private errorInPathSub: Subscription | null = null;
@@ -48,9 +105,10 @@ export class ZoteroManagerComponent implements OnInit {
     }
     public ChangeContext(val: any) {
       if (this.NavBarZotero) {
-        this.NavBarZotero.Context = val;
+        setTimeout(() => { this.NavBarZotero.Context = val; }, 20);//we do it "out of thread" with a little delay, to avoid the "value changed after checking" error)
       }
       else {
+        //when this.NavBarZotero doesn't exist, it's normally because we're still initialising.
         setTimeout(() => {
           if (this.NavBarZotero) {
             this.NavBarZotero.Context = val;
@@ -62,12 +120,6 @@ export class ZoteroManagerComponent implements OnInit {
     public GetCurrentGroup() : number {
         return this._zoteroService.currentGroupBeingSynced;
     }
-
-    public get IsServiceBusy(): boolean {
-
-        return this._zoteroService.IsBusy;
-    }
-    
     public isCollapsed = false;
     public zoteroLink: string = '';
     public reviewLinkText: string[] = [];
@@ -80,60 +132,6 @@ export class ZoteroManagerComponent implements OnInit {
         this.errorInPathSub.unsubscribe();
         }
     }
-
-  ngOnInit() {
-    if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
-      this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
-      this._router.navigate(['home']);
-    }
-    else if (!this._ReviewerIdentityServ.HasWriteRights) {
-      this._router.navigate(['Main']);
-    }
-    else {
-      this.errorInPathSub = this.route.queryParams.subscribe(async params => {
-        const err: any = params['error'];
-        if (err === 'nogroups') {
-          var contentError: string = 'You have either no groups created in Zotero as requested, or you have not selected read/write permissions';
-          this._notificationService.show({
-            content: contentError,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "error", icon: true },
-            closable: true
-          });
-          this._zoteroService.SetError(err);
-           this.ChangeContext("ZoteroSetup");
-        }
-        else if (err === 'unauthorised') {
-          var contentError: string = 'Zotero sometimes fails with unauthorised, please try up to three attempts to resolve';
-          this._notificationService.show({
-            content: contentError,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "error", icon: true },
-            closable: true
-          });
-          this._zoteroService.SetError(err);
-          this.ChangeContext("ZoteroSetup");
-        }
-        else {
-
-          await this._zoteroService.CheckZoteroPermissions().then(
-            () => {
-
-                if (this._zoteroService.hasPermissions) {
-                  // ALREADY HAS A SHARED GROUP WITH  PERMISSIONS ASSOCIATED WITH THIS API KEY
-                  this.ChangeContext("ZoteroSync");
-
-                } else {
-                  this.ChangeContext("ZoteroSetup");
-                }
-            });
-        }
-      });
-    }
-  }
-
     public BackHome() {
         this._router.navigate(['Main']);
     }

@@ -108,7 +108,6 @@ export class ZoteroSyncComponent implements OnInit {
   }
 
   public get IsServiceBusy(): boolean {
-
     return this._zoteroService.IsBusy || this._codesetStatsServ.IsBusy;
   }
 

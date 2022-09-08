@@ -1,5 +1,5 @@
 <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Zotero Manager" [Context]="Context"></HeaderComponent>
-<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+<!--<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>-->
 <ZoteroHeaderBar #NavBarZotero (PleaseGoTo)="ChangeContext($event)" (PleaseGoBackHome)="BackHome()"></ZoteroHeaderBar>
 <ng-container [ngSwitch]="Context">
 	<div *ngSwitchCase="'ZoteroSync'">
