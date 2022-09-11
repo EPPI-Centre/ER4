@@ -430,9 +430,11 @@ export class ZoteroSyncComponent implements OnInit {
             };
 
           if (this.ObjectsInERWebAndZotero.length === 0) {
+            console.log('newItem not in zotero: ' + JSON.stringify(newItem));
             this.ObjectsInERWebNotInZotero.push(newItem);
           }
           if (this.ObjectsInERWebAndZotero.map(x => x.itemID).indexOf(newItem.itemId) === -1) {
+            console.log('newItem not in zotero: ' + JSON.stringify(newItem));
             this.ObjectsInERWebNotInZotero.push(newItem);
           }
           
