@@ -109,7 +109,7 @@ namespace ERxWebClient2.Controllers
 	public abstract class CollectionData
 	{
 		public string key { get; set; }
-		public int? version { get; set; } = null;
+		public long? version { get; set; } = null;
 		public string itemType { get; set; }
 		public string title { get; set; }
 		public CreatorsItem[] creators { get; set; }
@@ -245,7 +245,7 @@ namespace ERxWebClient2.Controllers
 	public class Collection
 	{
 		public string key { get; set; }
-		public int version { get; set; }
+		public long version { get; set; }
 		public Library library { get; set; }
 		public Links links { get; set; }
 		public JObject meta { get; set; }

@@ -102,8 +102,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> VersionProperty = RegisterProperty<string>(new PropertyInfo<string>("Version", "Version", ""));
-        public string Version
+        public static readonly PropertyInfo<long> VersionProperty = RegisterProperty<long>(new PropertyInfo<long>("Version", "Version", 0m));
+        public long Version
         {
             get
             {
@@ -201,7 +201,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
                             LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));                            
                             LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
-                            LoadProperty<string>(VersionProperty, reader.GetString("Version"));
+                            LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
                             LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
                             LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
                             LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
@@ -223,7 +223,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
             returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
             returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
-            returnValue.LoadProperty<string>(VersionProperty, reader.GetString("Version"));
+            returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
             returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
             returnValue.LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));

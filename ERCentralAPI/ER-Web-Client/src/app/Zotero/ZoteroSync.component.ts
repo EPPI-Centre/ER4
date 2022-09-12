@@ -635,6 +635,7 @@ export class ZoteroSyncComponent implements OnInit {
     if (this.ObjectERWebMetaDataAheadOfZoteroList.length > 0) {
       // TODO check this just does ten items at a time
       this.ObjectERWebMetaDataAheadOfZoteroList = this.ObjectERWebMetaDataAheadOfZoteroList.slice(0, 10);
+      console.log('this.ObjectERWebMetaDataAheadOfZoteroList: ' + JSON.stringify(this.ObjectERWebMetaDataAheadOfZoteroList));
       let msg: string = 'Are you sure you wish to PUSH these items in Zotero? (Only the first ten items will be pushed given Zotero limitations) ' + this.ObjectERWebMetaDataAheadOfZoteroList.map(x => x.itemID.toString()).join(',');
       this._confirmationDialogService.confirm('Zotero Sync', msg, false, '')
         .then(async (confirm: boolean) => {

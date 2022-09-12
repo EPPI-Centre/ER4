@@ -1185,7 +1185,7 @@ namespace ERxWebClient2.Controllers
                             zoteroItem.ITEM_REVIEW_ID = zoteroItem.ITEM_REVIEW_ID;
                             zoteroItem.LAST_MODIFIED = DateTime.Now;
                             zoteroItem.LibraryID = collection.library.id.ToString();
-                            zoteroItem.Version = receivedZoteroItem.version.ToString();
+                            zoteroItem.Version = receivedZoteroItem.version ?? 0;
 
                             zoteroItem = dpFetch.Update(zoteroItem);
                             ctx.Commit();
@@ -1395,7 +1395,7 @@ namespace ERxWebClient2.Controllers
                                 ITEM_REVIEW_ID = parentItem.ITEM_REVIEW_ID,
                                 LAST_MODIFIED = DateTime.Now,
                                 LibraryID = collection.library.id.ToString(),
-                                Version = version.ToString(),
+                                Version = version,
                                 TypeName = erWebItemParent.Item.TypeName
                             };
 
@@ -1475,7 +1475,7 @@ namespace ERxWebClient2.Controllers
                             ITEM_REVIEW_ID = itemsInserted[i].ITEM_REVIEW_ID,
                             LAST_MODIFIED = DateTime.Now,
                             LibraryID = collection.library.id.ToString(),
-                            Version = version.ToString(),
+                            Version = version,
                             TypeName = erWebItem.Item.TypeName
                         };
 
@@ -1552,7 +1552,7 @@ namespace ERxWebClient2.Controllers
                                 ITEM_REVIEW_ID = parentItem.ITEM_REVIEW_ID,
                                 LAST_MODIFIED = DateTime.Now,
                                 LibraryID = attachmentCollection.library.id.ToString(),
-                                Version = version.ToString(),
+                                Version = version,
                                 TypeName = "attachment" //TODO magic string for now
                             };
 
@@ -1602,7 +1602,7 @@ namespace ERxWebClient2.Controllers
 
             result.LAST_MODIFIED = DateTime.Now;
             result.LibraryID = collection.library.id.ToString();
-            result.Version = collection.version.ToString();
+            result.Version = collection.version;
             result.TypeName = erWebItemUpdate.Item.TypeName;
             result = result.Save();
             erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
@@ -1786,7 +1786,7 @@ namespace ERxWebClient2.Controllers
                             failedItemsMsg += item.FirstOrDefault()["message"];
                         }
 
-                        var version = keyValues["successful"]["0"]["version"].ToString();
+                        var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
                         var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
 
                         foreach (var item in keyValues["success"].Children())
@@ -1864,7 +1864,7 @@ namespace ERxWebClient2.Controllers
                             failedItemsMsg += item.FirstOrDefault()["message"];
                         }
 
-                        var version = keyValues["successful"]["0"]["version"].ToString();
+                        var version = Convert.ToInt64( keyValues["successful"]["0"]["version"].ToString());
                         var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
 
                         foreach (var item in keyValues["success"].Children())
@@ -1937,7 +1937,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, message);
             }
         }
-
+        
         private async Task UploadERWebDocumentsToZoteroAsync(List<ErWebZoteroItemDocument> erWebZoteroItemDocs, List<CollectionData> zoteroItems, int RevId)
         {
             var counter = 0;
@@ -2226,7 +2226,7 @@ namespace ERxWebClient2.Controllers
                         var zoteroReviewItemFetch = dp2.Fetch(criteria);
 
                         zoteroReviewItemFetch.ItemKey = itemkey.FirstOrDefault();
-                        zoteroReviewItemFetch.Version = zoteroItemContent.version.ToString();
+                        zoteroReviewItemFetch.Version = zoteroItemContent.version;
 
                         // TODO this might need to be changed to an update somehow...
                         zoteroReviewItemFetch = dp2.Execute(zoteroReviewItemFetch);
