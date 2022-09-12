@@ -63,6 +63,7 @@ namespace ERxWebClient2.Services
 			_httpProvider = httpProvider;
 		}
 
+		// TODO remove when testing is over
 		public async Task<HttpResponseMessage> GetTokenOauth(string requestUri)
 		{
 			var response = await _httpProvider.GetAsync(requestUri);
@@ -114,6 +115,7 @@ namespace ERxWebClient2.Services
 			return listedItems;
 		}
 
+		// TODO remove when testing is over
 		public async Task<List<object>> GetItems(string requestUri)
 		{
 			GetItemsUri = new UriBuilder($"{baseUrl}/users/475425/collections/9KH9TNSJ/items");
@@ -123,6 +125,7 @@ namespace ERxWebClient2.Services
 			return JsonConvert.DeserializeObject<List<object>>(json); ;
 		}
 
+		// TODO remove when testing is over
 		public async Task<HttpResponseMessage> CollectionPost(string payload, string requestUri)
 		{
 			HttpContent exampleCollection = new StringContent(payload, Encoding.UTF8, "application/json");
@@ -141,6 +144,16 @@ namespace ERxWebClient2.Services
 			return response;
 		}
 
+		public async Task<HttpResponseMessage> UpdateItem(string payload, string requestUri)
+		{
+			HttpContent exampleItem = new StringContent(payload, Encoding.UTF8, "application/json");
+
+			var response = await _httpProvider.PutAsync(requestUri, exampleItem);
+			response.EnsureSuccessStatusCode();
+			return response;
+		}
+
+		// TODO remove when testing is over
 		public async Task<HttpResponseMessage> DeleteCollection(string requestUri)
 		{
 			var response = await _httpProvider.DeleteAsync(requestUri);
@@ -148,6 +161,7 @@ namespace ERxWebClient2.Services
 			return response;
 		}
 
+		// TODO remove when testing is over
 		public async Task<HttpResponseMessage> UpdateCollection<T>(string payload, string requestUri)
 		{
 			HttpContent exampleCollection = new StringContent(payload, Encoding.UTF8, "application/json");
@@ -194,6 +208,7 @@ namespace ERxWebClient2.Services
 			return JsonConvert.DeserializeObject<Collection>(json); ;
 		}
 
+		// TODO remove when testing is over
 		public async Task<JObject> GetDocument(string requestUri)
 		{
 			var response = await _httpProvider.GetAsync(requestUri);
@@ -202,6 +217,7 @@ namespace ERxWebClient2.Services
 			return JsonConvert.DeserializeObject<JObject>(json); ;
 		}
 
+		// TODO remove when testing is over
 		public async Task<ApiKey> GetApiKey(string requestUri)
 		{
 			var response = await _httpProvider.GetAsync(requestUri);
@@ -223,6 +239,7 @@ namespace ERxWebClient2.Services
 			}
 		}
 
+		// TODO remove when testing is over
 		public async Task<JArray> GetDocumentArray(string requestUri)
 		{
 			var response = await _httpProvider.GetAsync(requestUri);
@@ -238,6 +255,7 @@ namespace ERxWebClient2.Services
 			return response;
 		}
 
+		// TODO remove when testing is over
 		public async Task<JObject> POSTAuth(string payload, string requestUri)
 		{
 			HttpContent examplePDF = new StringContent(payload, Encoding.UTF8, "application/json");
@@ -247,6 +265,7 @@ namespace ERxWebClient2.Services
 			return JsonConvert.DeserializeObject<JObject>(json);
 		}
 
+		// TODO remove when testing is over
 		public async Task<string> POSTOAuth(string payload, string requestUri)
 		{
 			HttpContent examplePDF = new StringContent(payload, Encoding.UTF8, "application/json");
@@ -256,6 +275,7 @@ namespace ERxWebClient2.Services
 			return json;
 		}
 
+		// TODO remove when testing is over
 		public async Task<string> POSTForm(IEnumerable<KeyValuePair<string, string>> payload, string requestUri)
 		{
 			HttpContent examplePDF = new FormUrlEncodedContent(payload);
@@ -274,7 +294,6 @@ namespace ERxWebClient2.Services
 			return json;
 		}
 
-
 		public async Task<JObject> POSTJDocument(string payload, string requestUri)
 		{
 			HttpContent examplePDF = new StringContent(payload, Encoding.UTF8, "application/x-www-form-urlencoded");
@@ -283,6 +302,8 @@ namespace ERxWebClient2.Services
 			var json = await response.Content.ReadAsStringAsync();
 			return JsonConvert.DeserializeObject<JObject>(json);
 		}
+
+		// TODO remove when testing is over
 		public async Task<JObject> POSTFile(string payload, string requestUri, string contentType)
 		{
 			HttpContent examplePDF = new StringContent(payload, Encoding.UTF8, "application/x-www-form-urlencoded");
