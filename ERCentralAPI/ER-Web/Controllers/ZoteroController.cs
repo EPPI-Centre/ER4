@@ -168,8 +168,8 @@ namespace ERxWebClient2.Controllers
                 _zoteroConcurrentDictionary.Session.TryRemove("TempOAuthData-" + oauth_token, out string? throwAway);
                 if (!CouldFindDictKey || tempDicVal == null || tempDicVal.Length < 1)
                 {
-                    Redirect(callbackUrl + "?error=noDictVals");
-                    return null;
+                    _logger.LogError("Zotero OauthVerifyGet failed. No Dictionary values found for token: '" + oauth_token +"'.");
+                    return Redirect(callbackUrl + "?error=nodictvals");
                 }
                 string[] vals = tempDicVal.Split(';');
                 if (vals.Length != 5) Redirect(callbackUrl + "?error=noDictVals");
@@ -177,9 +177,19 @@ namespace ERxWebClient2.Controllers
                 string timeStamp = vals[0];
                 string nonce = vals[1];
                 int reviewId;
-                if (!int.TryParse(vals[2], out reviewId)) Redirect(callbackUrl + "?error=noDictVals");
+                if (!int.TryParse(vals[2], out reviewId))
+                {
+                    _logger.LogError("Zotero OauthVerifyGet failed. Coud not parse review ID for dictionary value: (" 
+                        + oauth_token + ") '" + tempDicVal + "'.");
+                    return Redirect(callbackUrl + "?error=nodictvals");
+                }
                 int contactId;
-                if (!int.TryParse(vals[3], out contactId)) Redirect(callbackUrl + "?error=noDictVals");
+                if (!int.TryParse(vals[3], out contactId))
+                {
+                    _logger.LogError("Zotero OauthVerifyGet failed. Coud not parse contact ID for dictionary value: ("
+                        + oauth_token + ") '" + tempDicVal + "'.");
+                    return Redirect(callbackUrl + "?error=nodictvals");
+                }
                 string zotero_token_secret = vals[4];
 
                 string url = zotero_access_token_endpoint;
@@ -204,8 +214,7 @@ namespace ERxWebClient2.Controllers
                 var indexOfThirdEquals = remainingStringresponseFour.IndexOf('=');
                 var indexOfThirdAnd = remainingStringresponseFour.IndexOf('&');
                 var access_userId = remainingStringresponseFour.Substring(indexOfThirdEquals + 1, indexOfThirdAnd - indexOfThirdEquals - 1);
-                //We CAN'T save ZoteroReviewConnection in here, because user isn't authenticated, but we can tell the client what to do...
-                // thus: check how many GroupIds the user has write access to, and react in 1 of 3 ways:
+                //Check how many GroupIds the user has write access to, and react in 1 of 3 ways:
                 //1. no groups -> specific error
                 //2. 1 group only. Perfect, save the data, with Zotero GROUP_ID;
                 //3. Many groups, meh. User needs to use the UI to pick the group (no instructions needed by the client), save data without GROUP_ID.
@@ -215,8 +224,8 @@ namespace ERxWebClient2.Controllers
                 zRc.ErUserId = contactId;
                 zRc.REVIEW_ID = reviewId;
                 zRc.ApiKey = access_oauth_Token;
-                int ZoteroUserId;
-                if (int.TryParse(access_userId, out ZoteroUserId)) zRc.ZoteroUserId = ZoteroUserId;
+
+                zRc.ZoteroUserId = int.Parse(access_userId);//we don't "tryParse" as it's not clear what to do if this fails: we don't want to save the API Key if we don't know who it belongs to.
                 if (GroupIds.Count == 0)
                 {
                     //tell the client things are bad: can't setup any sync, as we don't have access to any groups
@@ -261,7 +270,7 @@ namespace ERxWebClient2.Controllers
                 if (jGroups != null)
                 {
                     IList<JToken> list = jGroups;
-                    if (jGroups["all"] != null && jGroups["all"]["library"] != null && jGroups["all"]["library"].Value<bool>() == true)
+                    if (jGroups["all"] != null && jGroups["all"]["library"] != null && jGroups["all"]["library"].Value<bool>() == true && jGroups["all"]["write"].Value<bool>() == true)
                     {
                         //user gave acess to ALL groups, so we can proceed, as minimum requirements are met
                         //we need to return all groups, though!

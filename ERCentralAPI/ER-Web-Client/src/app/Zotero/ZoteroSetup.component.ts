@@ -1,4 +1,4 @@
-import { Component,  ElementRef,  Inject,  Input,  OnInit, ViewChild } from '@angular/core';
+import { Component,  ElementRef,  EventEmitter,  Inject,  Input,  OnInit, Output, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Helpers } from '../helpers/HelperMethods';
@@ -65,6 +65,8 @@ export class ZoteroSetupComponent implements OnInit {
   public get ErrorMessage(): string {
     return this._zoteroService.ErrorMessage;
   }
+  @Output() PleaseGoTo = new EventEmitter<string>();
+
 
     public zoteroUserID: number = 0;
     public totalItemsInCurrentReview: number = 0;
@@ -105,11 +107,11 @@ export class ZoteroSetupComponent implements OnInit {
     if (this._zoteroService.IsBusy) await this.WaitforNotBusyService();
     if (!this._zoteroService.hasPermissions) {
       if (this._zoteroService.ErrorMessage == "data not fetched" && this._zoteroService.IsBusy == false) {
-        this._zoteroService.CheckZoteroPermissions().then((res) => {
-          if (res == false && this._zoteroService.ErrorMessage == "No API Key") {
-            this._UIphase = "BeginOauthProcess";
-          } else this._zoteroService.fetchGroupMetaData();
-        });
+        let res = await this._zoteroService.CheckZoteroPermissions();
+        let eM = this._zoteroService.ErrorMessage;
+        if (res == false && eM == "No API Key") {
+          this._UIphase = "BeginOauthProcess";
+        } else this._zoteroService.fetchGroupMetaData();
       } else if (this._zoteroService.ErrorMessage == "No API Key" || this._zoteroService.ErrorMessage == "CheckZoteroApiKey failed") {
         this._UIphase = "BeginOauthProcess";
       } else if (this._zoteroService.ErrorMessage == "Invalid API Key") {
@@ -117,6 +119,8 @@ export class ZoteroSetupComponent implements OnInit {
       } else if (this._zoteroService.ErrorMessage == "unauthorised") {
         this._UIphase = "TryAgain";
       } else if (this._zoteroService.ErrorMessage == "nogroups") {
+        this._UIphase = "NoGroups";//similar to try again!
+      } else if (this._zoteroService.ErrorMessage == "nodictvals") {
         this._UIphase = "TryAgain";
       } else if (this._zoteroService.ErrorMessage == "No write access to Group Library") {
         this._UIphase = "ResetAndRestartOauthProcess";
@@ -188,7 +192,7 @@ export class ZoteroSetupComponent implements OnInit {
   public ResetAndRestart() {
     this._zoteroService.DeleteZoteroApiKey().then(() => {
       this._UIphase = "BeginOauthProcess";
-      this.BeginOauthProcess();
+      //this.BeginOauthProcess();
     });
   }
   public DeleteApiKey() {
@@ -267,7 +271,8 @@ export class ZoteroSetupComponent implements OnInit {
 
         //await this.UpdateGroupMetaData(group.id, this._ReviewerIdentityServ.reviewerIdentity.userId,
         //  this.currentReview);
-
+      if (this._zoteroService.hasPermissions == true) {
+        //console.log(1);
         for (var i = 0; i < this.groupMeta.length; i++) {
           if (this.groupMeta[i].id === group.id) {
             this.groupMeta[i].groupBeingSynced = true;
@@ -277,22 +282,23 @@ export class ZoteroSetupComponent implements OnInit {
             this.groupMeta[i].groupBeingSynced = false;
           }
         }
+      } else if (this._zoteroService.hasPermissions == false) {
+
+        //console.log(2);
+        //things _might_ be good now, so we'll make very sure and get our API to check again.
+        this._zoteroService.SetError("data not fetched");//makes the "checkForStatus()" method try again from scratch...
+        this.CheckForStatus().then(() => {
+
+          //console.log(3);
+          if (this._zoteroService.hasPermissions == true) this.PleaseGoTo.emit("ZoteroSync");
+        });        
+      }
         //this._zoteroService.editApiKeyPermissions = true;
    
     }
 
     public async AddLinkedReviewID(group: GroupData) {
-        await this._zoteroService.UpdateGroupToReview(group.id.toString(), false).then(
-                async () => {
-                    //await this.FetchLinkedReviewID();
-                });
-        this._notificationService.show({
-            content: " You currently have Zotero authenticaiton for group: " + group.id.toString(),
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
+      await this._zoteroService.UpdateGroupToReview(group.id.toString(), false);
     }
 
     public async FetchLinkedReviewID(): Promise<void> {

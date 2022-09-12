@@ -103,7 +103,8 @@ export class ZoteroManagerComponent implements AfterViewInit {
         }
         else return "Loading...";
     }
-    public ChangeContext(val: any) {
+  public ChangeContext(val: any) {
+    //console.log("ChangeContext", val);
       if (this.NavBarZotero) {
         setTimeout(() => { this.NavBarZotero.Context = val; }, 20);//we do it "out of thread" with a little delay, to avoid the "value changed after checking" error)
       }
