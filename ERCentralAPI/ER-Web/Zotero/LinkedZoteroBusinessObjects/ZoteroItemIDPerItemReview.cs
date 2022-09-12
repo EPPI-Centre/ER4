@@ -85,7 +85,7 @@ namespace BusinessLibrary.BusinessClasses
 #if !SILVERLIGHT
 
 
-        protected void DataPortal_Fetch(SingleCriteria<Item, Int64> criteria)
+        protected void DataPortal_Fetch(SingleCriteria<Int64> criteria)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {

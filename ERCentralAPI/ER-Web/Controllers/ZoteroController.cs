@@ -482,6 +482,73 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        ///<summary>
+        /// Updates Zotero items with changes to local ERWeb items that have changed
+        /// <paramref name="items"/>
+        /// <returns>IActionResult</returns>
+        /// </summary>
+        [HttpPut("[action]")]
+        public async Task<IActionResult> UpdateERWebItemsInZoteroAsync([FromBody] List<iItemReviewID> items)
+        {
+            if (!SetCSLAUser4Writing()) return Unauthorized();
+            ZoteroReviewConnection zrc = ApiKey();
+            string groupIDBeingSynced = zrc.LibraryId;
+            var localItems = new List<Item>();
+            var zoteroItems = new List<CollectionData>();
+
+            // 1 - get the items as listed in the parameter argument from the local db which would already changed
+            foreach (var item in items)
+            {
+                DataPortal<Item> dpItemFetch = new DataPortal<Item>();
+                SingleCriteria<Item, Int64> criteriaItem =
+                    new SingleCriteria<Item, Int64>(item.itemID);
+
+                var itemResult = await dpItemFetch.FetchAsync(criteriaItem);
+                localItems.Add(itemResult);
+            }
+            var _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
+            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
+           
+            HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
+            _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
+
+            // 3 - Finally push using a post or a put to Zotero to update the items that should be already present
+            var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
+            SetZoteroHttpService(PUTItemsUri, zrc.ApiKey);
+
+            // 2 - Convert these items to their Zotero counter parts using the factory pattern class already created
+            foreach (var item in localItems)
+            {
+                DataPortal<ZoteroItemReviewIDs> dp = new DataPortal<ZoteroItemReviewIDs>();
+                SingleCriteria<string> criteria =
+              new SingleCriteria<string>(item.ItemId.ToString());
+
+                var itemReviewIds = dp.Fetch(criteria);
+
+                foreach (var itemReviewId in itemReviewIds)
+                {
+                    var zoteroItemContent = await ItemsItemId(itemReviewId.ITEM_REVIEW_ID.ToString());
+                    var payload = JsonConvert.SerializeObject(zoteroItemContent);
+                    var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString());
+                    var actualContent = await response.Content.ReadAsStringAsync();
+                    if (actualContent.Contains("success"))
+                    {
+                        var test = "Blah";
+                    }
+                    else
+                    {
+                        throw new Exception("PUTTING to Zotero has failed");
+                    }
+                }
+
+            }
+
+            return Ok(true);
+        }
+
+
         /// <summary>
         /// sets the supplied groupId to the one being used, unless removeLink is true, in which case sets the groupId to "no group" (empty string)
         /// </summary>
@@ -1194,7 +1261,7 @@ namespace ERxWebClient2.Controllers
                             zoteroItem.ITEM_REVIEW_ID = zoteroItem.ITEM_REVIEW_ID;
                             zoteroItem.LAST_MODIFIED = DateTime.Now;
                             zoteroItem.LibraryID = collection.library.id.ToString();
-                            zoteroItem.Version = receivedZoteroItem.version.ToString();
+                            zoteroItem.Version = receivedZoteroItem.version ?? 0;
 
                             zoteroItem = dpFetch.Update(zoteroItem);
                             ctx.Commit();
@@ -1404,7 +1471,7 @@ namespace ERxWebClient2.Controllers
                                 ITEM_REVIEW_ID = parentItem.ITEM_REVIEW_ID,
                                 LAST_MODIFIED = DateTime.Now,
                                 LibraryID = collection.library.id.ToString(),
-                                Version = version.ToString(),
+                                Version = version,
                                 TypeName = erWebItemParent.Item.TypeName
                             };
 
@@ -1484,7 +1551,7 @@ namespace ERxWebClient2.Controllers
                             ITEM_REVIEW_ID = itemsInserted[i].ITEM_REVIEW_ID,
                             LAST_MODIFIED = DateTime.Now,
                             LibraryID = collection.library.id.ToString(),
-                            Version = version.ToString(),
+                            Version = version,
                             TypeName = erWebItem.Item.TypeName
                         };
 
@@ -1561,7 +1628,7 @@ namespace ERxWebClient2.Controllers
                                 ITEM_REVIEW_ID = parentItem.ITEM_REVIEW_ID,
                                 LAST_MODIFIED = DateTime.Now,
                                 LibraryID = attachmentCollection.library.id.ToString(),
-                                Version = version.ToString(),
+                                Version = version,
                                 TypeName = "attachment" //TODO magic string for now
                             };
 
@@ -1611,7 +1678,7 @@ namespace ERxWebClient2.Controllers
 
             result.LAST_MODIFIED = DateTime.Now;
             result.LibraryID = collection.library.id.ToString();
-            result.Version = collection.version.ToString();
+            result.Version = collection.version;
             result.TypeName = erWebItemUpdate.Item.TypeName;
             result = result.Save();
             erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
@@ -1795,7 +1862,7 @@ namespace ERxWebClient2.Controllers
                             failedItemsMsg += item.FirstOrDefault()["message"];
                         }
 
-                        var version = keyValues["successful"]["0"]["version"].ToString();
+                        var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
                         var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
 
                         foreach (var item in keyValues["success"].Children())
@@ -1873,7 +1940,7 @@ namespace ERxWebClient2.Controllers
                             failedItemsMsg += item.FirstOrDefault()["message"];
                         }
 
-                        var version = keyValues["successful"]["0"]["version"].ToString();
+                        var version = Convert.ToInt64( keyValues["successful"]["0"]["version"].ToString());
                         var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
 
                         foreach (var item in keyValues["success"].Children())
@@ -1946,7 +2013,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, message);
             }
         }
-
+        
         private async Task UploadERWebDocumentsToZoteroAsync(List<ErWebZoteroItemDocument> erWebZoteroItemDocs, List<CollectionData> zoteroItems, int RevId)
         {
             var counter = 0;
@@ -2235,7 +2302,7 @@ namespace ERxWebClient2.Controllers
                         var zoteroReviewItemFetch = dp2.Fetch(criteria);
 
                         zoteroReviewItemFetch.ItemKey = itemkey.FirstOrDefault();
-                        zoteroReviewItemFetch.Version = zoteroItemContent.version.ToString();
+                        zoteroReviewItemFetch.Version = zoteroItemContent.version;
 
                         // TODO this might need to be changed to an update somehow...
                         zoteroReviewItemFetch = dp2.Execute(zoteroReviewItemFetch);

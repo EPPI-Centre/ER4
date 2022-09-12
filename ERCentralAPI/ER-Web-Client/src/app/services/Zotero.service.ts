@@ -393,7 +393,7 @@ export class ZoteroService extends BusyAwareService {
 
     public async updateERWebItemsInZotero(items: IERWebObjects[]): Promise<boolean> {
         this._BusyMethods.push("updateERWebItemsInZotero");
-
+      console.log('data in the service is like so: ' + JSON.stringify(items));
         return this._httpC.put<IERWebObjects[]>(this._baseUrl + 'api/Zotero/UpdateERWebItemsInZoteroAsync', items)
             .toPromise().then(result => {
                 this.RemoveBusy("updateERWebItemsInZotero");
