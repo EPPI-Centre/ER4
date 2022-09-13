@@ -1,4 +1,4 @@
-<div class="container col-12" style="min-height:50vh;">
+<div class="container col-12 px-1" style="min-height:50vh;">
   <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
   <ng-container [ngSwitch]="UIphase">
     <div *ngSwitchCase="'BeginOauthProcess'" class="">
@@ -8,8 +8,7 @@
     <div *ngSwitchCase="'ViewSettings'">
       <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
     </div>
-    <div *ngSwitchCase="'PickGroup'">
-      Pick Group
+    <div *ngSwitchCase="'PickGroup'">      
       <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
     </div>
     <div *ngSwitchCase="'TryAgain'">
@@ -53,7 +52,7 @@
       <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
     </div>
     <div *ngSwitchCase="'ResetAndRestartOauthProcess'">
-      <div class="col-12 ">
+      <div class="col-12 row mx-0 px-1 py-2 bg-light mt-1">
         <div *ngIf="CurrentUserOwnsTheApiKey;else doesntown ">
           <div>
             You appear to have set-up the Zotero connnection, however, the attempt to verify that the connection is working failed. Perhaps you deleted the "API Key" on
@@ -63,7 +62,7 @@
             your API Key settings in the <a href="https://www.zotero.org/settings/keys" target="_blank">Zotero</a> page.
             [The most recently used API Key is probably the one that needs checking.]
           </div>
-          <button class="btn btn-danger p-1 m-1" (click)="ResetAndRestart()">Reset</button>
+          <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Reset</button>
         </div>
       </div>
       <ng-template #doesntown>
@@ -102,9 +101,9 @@
 
   </div>
   <ng-template #groupsEtAl>
-    <div class="col-12 row h-100 bg-light">
-      <div class="col-12 col-sm-6">
-        <h5>Key info</h5>
+    <div class="col-12 row mx-0 px-1 py-2 bg-light mt-1">
+      <div class="col-12 col-sm-6 p-2 ">
+        <h5>API Key info</h5>
         <ng-container [ngSwitch]="ErrorMessage">
           <div *ngSwitchCase="''">
             <!--No error message, all is good-->
@@ -125,34 +124,54 @@
               </ul>
             </div>
             <div *ngIf="!CurrentUserOwnsTheApiKey">
-              The API Key is owned by {{NameOfAPIKeyOwner}}. This means that <strong>data pushed to Zotero will contribute to their own "Storage Quota" in Zotero</strong>, and theirs only.<br />
-              If you are running out of Zotero storage space, {{NameOfAPIKeyOwner}} may purchase storage there, or perhaps you could agree to re-create the API key so to make it belong to a Zotero user that does have free space.<br />
-              You can click <a href="https://www.zotero.org/settings/storage" target="_blank">Here</a> to check <strong>your own</strong> quota in Zotero (which currently does not apply to data coming from EPPI-Reviewer).
+              <p>The API Key is owned by {{NameOfAPIKeyOwner}}. This means that <strong>data pushed to Zotero will contribute to their own "Storage Quota" in Zotero</strong>, and theirs only.</p>
+              <p>
+                If you are running out of Zotero storage space, {{NameOfAPIKeyOwner}} may purchase storage there, or perhaps you could agree to re-create the API key
+                so to make it belong to a Zotero user that does have free space.
+              </p>
+              <p>
+                You can click <a href="https://www.zotero.org/settings/storage" target="_blank">Here</a> to check <strong>your own</strong>
+                quota in Zotero (which currently does not apply to data coming from EPPI-Reviewer).
+              </p>
+            </div>
+          </div>
+          <div *ngSwitchCase="'No Group Library'">
+            <div *ngIf="CurrentUserOwnsTheApiKey">
+              Your API Key is valid and provides write access to at least one group library. Please select a group library on the right.<br />
+              Otherwise please delete the API key and setup a new one.
+            </div>
+            <div *ngIf="!CurrentUserOwnsTheApiKey">
+              The API Key is valid and provides write access to at least one group library. However, you do not <strong>own the API key</strong>.<br />
+              Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
             </div>
           </div>
           <div *ngSwitchDefault>
-            The current API key (if any) is not valid. Error message is:<br />
+            The current settings and API key (if any) are/is not sufficient or are incomplete/incorrect. Error message is:<br />
             <strong>{{ErrorMessage}}</strong>
           </div>
         </ng-container>
-        <div *ngIf="HasAdminRights">
+        <div *ngIf="CurrentUserOwnsTheApiKey">
           <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!HasWriteRights || !CurrentUserOwnsTheApiKey">Delete API Key</button>
         </div>
-        <div *ngIf="!HasAdminRights" class="mx-0 px-0 mb-1 row">
+        <div *ngIf="!CurrentUserOwnsTheApiKey" class="mx-0 px-0 mb-1 row">
           <div class="bg-white rounded border border-info col-auto px-1">
-            You do not have admin rights in this review, this page is restricted to "read-only".
+            You do not own the API Key, only <strong>{{NameOfAPIKeyOwner}}</strong> can delete it.
           </div>
         </div>
       </div>
-      <div class="col-12 col-sm-6">
+      <div class="col-12 col-sm-6 p-2 border border-primary rounded ">
         <h5>Group Library info</h5>
         <ng-container [ngSwitch]="groupMeta.length">
           <div *ngSwitchCase="0">
             This API Key provides access to zero group libraries.
-            <div *ngIf="CurrentUserOwnsTheApiKey">
+            <div *ngIf="CurrentUserOwnsTheApiKey == true">
               You can change the API key setting <a href="https://www.zotero.org/settings/keys" target="_blank">here</a>.<br />
               If you need to <i>first</i> create a Zotero Group Library you can do so <a href="https://www.zotero.org/groups/new" target="_blank">here</a> (<strong>private groups are <i>recommended</i>!</strong>).<br />
               Otherwise you can delete the API Key below and start again.
+            </div>
+            <div *ngIf="CurrentUserOwnsTheApiKey == false">
+              In order to exchange data With Zotero, the API Key needs to provide access to one Group library.<br />
+              Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete/correct the configuration.
             </div>
           </div>
           <div *ngSwitchCase="1">
@@ -164,13 +183,17 @@
               <div><strong>Group Name:</strong> {{groupMeta[0].data.name}}</div>
             </div>
             <div class="row mx-0 px-0">
-              <strong>Status:</strong>
               <ng-container [ngSwitch]="groupMeta[0].groupBeingSynced">
-                <div *ngSwitchCase="true" class="mx-1 row">
+                <div *ngSwitchCase="true" class="mx-0 px-0 row">
+                  <strong>Status:</strong>
                   <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
                 </div>
-                <div *ngSwitchCase="false" class="mx-1 row">
-                  <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(groupMeta[0])" [disabled]="HasAdminRights == false || HasWriteRights == false">Select</button>
+                <div *ngSwitchCase="false" class="mx-0 px-0 row">
+                  <div>Please click here to
+                  <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(groupMeta[0])"
+                          [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">Select</button>
+                  this group for "syncing":</div>
+                  
                 </div>
                 <div *ngSwitchDefault>
                   <h4>Unknown</h4>
@@ -179,19 +202,62 @@
             </div>
           </div>
           <div *ngSwitchDefault class="">
+            <ng-container [ngSwitch]="ErrorMessage">
+              <div *ngSwitchCase="''">
+                <div *ngIf="CurrentUserOwnsTheApiKey == true">
+                  The current API key provides access to multiple groups. You can change what group is currently being used below.<br />
+                  However, it's usually best to make this decision once and never change it: <br />
+                  ideally, <em>one Group Library</em> should be linked to one and only one EPPI-Reviewer review.
+                </div>
+                <div *ngIf="CurrentUserOwnsTheApiKey == false">
+                  The current API key provides access to multiple groups. You can see what group is currently being used below.<br />
+                  If the group needs to be changed (not recommended), please ask the owner of the Key ({{NameOfAPIKeyOwner}}) to visit this page and make the change.<br />
+                </div>
+              </div>
+              <div *ngSwitchCase="'No write access to Group Library'">
+                <div *ngIf="CurrentUserOwnsTheApiKey == true">
+                  The current API key provides access to multiple groups, but is configured to use a group for which <strong>it does not provide "Write" access</strong>. <br />
+                  <strong>You need to pick one group</strong>, ensuring the API key does provide write access to it.<br />
+                  Please select one group from the list below.
+                </div>
+                <div *ngIf="CurrentUserOwnsTheApiKey == false">
+                  The current API key provides access to multiple groups, but is configured to use a group for which <strong>it does not provide "Write" access</strong>. <br />
+                  The owner of the Key ({{NameOfAPIKeyOwner}}) <strong>needs to pick one group</strong>, ensuring the API key does provide write access to it.<br />
+                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
+                </div>
+              </div>
+              <div *ngSwitchCase="'No write access'">
+                <div *ngIf="CurrentUserOwnsTheApiKey == true">
+                  The current API key does not seem to work: you need to pick one group library, but the key does not provide access to any group.<br />
+                  Please retry:<br />
+                  <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Reset</button>
+                </div>
+                <div *ngIf="CurrentUserOwnsTheApiKey == false">
+                  The current API key does not seem to work: the owner of the Key ({{NameOfAPIKeyOwner}}) would need to pick one group library to use, but the key does not provide access to any group.<br />
+                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
+                </div>
+              </div>
+              <div *ngSwitchDefault>
+                <div *ngIf="CurrentUserOwnsTheApiKey == true">
+                  <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
+                  Please retry:<br />
+                  <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Reset</button>
+                </div>
+                <div *ngIf="CurrentUserOwnsTheApiKey == false">
+                  <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
+                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
+                </div>
+              </div>
+            </ng-container>
             <div *ngIf="ErrorMessage == ''">
-              The current API key provides access to multiple groups. You can change what group is currently being used below.<br />
-              However, it's usually best to make this decision once and never change it: ideally, <em>one Group Library</em> should be linked to one and only one EPPI-Reviewer review.
-            </div>
-            <div *ngIf="ErrorMessage == 'No Group Library'">
-              The current API key provides access to multiple groups. <strong>You need to pick one group</strong>, ensuring the API key does provide write access to it.<br />
-              Please select one group from the list below.
+              
             </div>
 
+            <div *ngIf="ErrorMessage == 'No Group Library'">
+              
+            </div>
             <div *ngIf="ErrorMessage != 'No Group Library' && ErrorMessage !=''">
-              The current API key does not seem to work: you need to pick one group library, but the key does not provide access to any group.<br />
-              The current "status message" is: <strong>{{ErrorMessage}}</strong>. Please retry:<br />
-              <button class="btn btn-danger p-1 m-1" (click)="ResetAndRestart()">Reset</button>
+              
             </div>
             <table class="table table-sm table-bordered table-striped mx-1">
               <thead>
@@ -223,7 +289,8 @@
                         <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
                       </div>
                       <div *ngSwitchCase="false" class="mx-auto row">
-                        <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(item)">Select</button>
+                        <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(item)"
+                                [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">Select</button>
                       </div>
                       <div *ngSwitchDefault>
                         <h4>uh?</h4>
@@ -238,112 +305,7 @@
       </div>
     </div>
   </ng-template>
-  <ng-template #groupsEtAlOLD>
-    <div class="col-12 col-md-12 px-1 card bg-light">
-      <div class=" h-100 w-100">
-        <div>
-          <div class="col-12 row flex-fill">
-            <div class="col-md-5 font-weight-light text-sm-left  align-content-center">
-              <h4><b> User Information </b></h4>
-            </div>
-            <div class="col-md-5 font-weight-light text-sm-left  align-content-center">
-              <h4><b> Zotero Groups Information </b></h4>
-              <i>(A Zotero shared group must be linked to only one ERWeb review)</i>
-            </div>
-          </div>
-          <div class="col-12 row p-0 mx-1">
-            <div class="col-sm-5 col-12 px-1 mb-2 flex-column card alert-primary">
-              <div class="font-weight-light text-sm-left ">
-                <span class="font-weight-bold"> Current ERWeb Review: </span>{{currentReview}}
-              </div>
-              <div class="font-weight-light text-sm-left">
-                <span class="font-weight-bold">
-                  Total items in current review:
-                </span> {{totalItemsInCurrentReview}}
-              </div>
-              <div class="font-weight-light text-sm-left">
-                <span class="font-weight-bold">
-                  ERWeb UserName:
-                </span> {{zoteroUserName}}
-              </div>
-              <div class="font-weight-light text-sm-left">
-                <span class="font-weight-bold">
-                  Zotero UserID:
-                </span>{{zoteroUserID}}
-              </div>
-              <div class="font-weight-light text-sm-left">
-                <span class="font-weight-bold">
-                  Zotero API Key:
-                </span> {{zoteroUserKey}}
-              </div>
-
-              <div class="font-weight-light text-sm-left ">
-                <span class="font-weight-bold">
-                  Zotero Storage Limit:
-                </span> MB (Not yet implemented)
-              </div>
-
-              <div class="font-weight-light text-sm-left ">
-                <span class="font-weight-bold">
-                  Last Sync Date:
-                </span> (Not yet implemented)
-              </div>
-              <div class="font-weight-light text-sm-left ">
-                <span class="font-weight-bold">
-                  Service ErrorMessage:
-                </span> {{ErrorMessage}}
-              </div>
-            </div>
-            <div class="col-sm-7 col-12 row p-0 m-0 " style="max-height:600px; overflow:auto;">
-
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="col-sm-6 col-12">
-              <h4><b> Api Key Information </b></h4>
-              <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Delete Key</button>
-              <i>(Only one Zotero api key can be associated to an ERWeb review)</i>
-            </div>
-            <!--<div class="col-12 col-sm-6 card card-deck fa-border
-               alert-primary row p-0 m-0 w-100 p-2 m-2"
-                   style="max-height:600px; overflow:auto;" *ngIf="apiKeys.length > 0">
-                <table class="table table-bordered table-striped">
-                  <thead>
-                    <tr>
-                      <td>
-                        <div class="m-1 p-1 font-weight-light text-sm-left">key</div>
-
-                      </td>
-                      <td>
-                        <div class="m-1 p-1 font-weight-light text-sm-left">userID</div>
-
-                      </td>
-                      <td>
-                        <div class="m-1 p-1 font-weight-light text-sm-left">username</div>
-
-                      </td>
-                      <td>
-                        Remove ApiKey (Removing means re-registering Oauth with Zotero)
-                      </td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let item of apiKeys; index as i" class="small" style="cursor: pointer;">
-                      <td class="">{{item.key}}</td>
-                      <td class="">{{item.userID}}</td>
-                      <td class="">{{item.username}}</td>
-                      <td>
-                        <button class="btn btn-danger p-1 m-1" (click)="RemoveApiKey(item)">Remove </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>-->
-          </div>
-        </div>
-      </div>
-    </div>
-  </ng-template>
+  
 
   <ng-template #SetupOverview>
     <div>

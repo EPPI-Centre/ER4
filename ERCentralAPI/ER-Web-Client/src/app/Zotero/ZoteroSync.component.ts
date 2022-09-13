@@ -220,20 +220,6 @@ export class ZoteroSyncComponent implements OnInit {
     return index > -1;
   }
 
-  public async AddLinkedReviewID(group: GroupData) {
-    await this._zoteroService.UpdateGroupToReview(group.id.toString(), false).then(
-      async () => {
-        await this.FetchLinkedReviewID();
-      });
-    this._notificationService.show({
-      content: " You currently have Zotero authenticaiton for group: " + group.id.toString(),
-      animation: { type: 'slide', duration: 400 },
-      position: { horizontal: 'center', vertical: 'top' },
-      type: { style: "info", icon: true },
-      closable: true
-    });
-  }
-
   public async FetchLinkedReviewID(): Promise<void> {
     await this._zoteroService.FetchGroupToReviewLinks().then(
       async (zoteroReviewCollectionList: ZoteroReviewCollectionList) => {

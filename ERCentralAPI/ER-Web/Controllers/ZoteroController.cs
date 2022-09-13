@@ -730,22 +730,29 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<List<Group>> GroupMetaData()
+        public async Task<IActionResult> GroupMetaData()
         {
             try
 			{
                 
-				if (!SetCSLAUser4Writing()) return new List<Group>();
+				if (!SetCSLAUser4Writing()) return Unauthorized();
                 ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				if (ri == null) throw new ArgumentNullException("Not sure why this is null");
 
-				return await GetGroups(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey, true, zrc.LibraryId);
+				List<Group> TempGroups = await GetGroups(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey, true, zrc.LibraryId);
+                List<int> ids = await GetGroupsPermissions(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey);//list of group IDs for which we have write rights
+                List<Group> result = new List<Group>();
+                foreach (Group tGr in TempGroups)
+                {
+                    if (ids.Contains(tGr.id)) result.Add(tGr);
+                }
+                return Ok(result);
 			}
 			catch (Exception e)
             {
                 _logger.LogException(e, "Fetching GroupMetaDataAsync has an error");
-                return new List<Group>();
+                return StatusCode(500, e.Message);
             }
         }
         /// <summary>
@@ -960,6 +967,7 @@ namespace ERxWebClient2.Controllers
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
+
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 if (ri == null) throw new ArgumentNullException("Not sure why this is null");
                 ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
@@ -973,7 +981,8 @@ namespace ERxWebClient2.Controllers
                     int gid;
                     int.TryParse(zrc.LibraryId, out gid);
                     if (Gids.Contains(gid)) return Ok(zrc);
-                    else return Json("No write access to Group Library");
+                    else if (Gids.Count > 0) return Json("No write access to Group Library");
+                    else return Json("No write access");
                 }
             }
             catch (Exception e)
