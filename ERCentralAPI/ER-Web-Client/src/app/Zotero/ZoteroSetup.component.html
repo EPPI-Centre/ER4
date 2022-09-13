@@ -348,17 +348,17 @@
   <ng-template #SetupOverview>
     <div>
       <p>
+        The Zotero Manager allows you to share data between EPPI-Reviewer and Zotero.<br />
         Setting up a link to Zotero <strong>requires attention</strong>, but is normally done only once (per review).<br />
-        In Zotero, <strong>Group Libraries</strong> allow to share data with collaborators, which is ideal for shared reviews, but will work equally well for private reviews.
-        Thus, EPPI-Reviewer allows to exchange data with Zotero Group Libraries <i>only</i>. This is done by associating <strong>One Review</strong> with <strong>One Group Library</strong>.
-        Behind the scenes, this One-To-One relation is made possible by obtaining (and storing) a unique "API Key" from Zotero, which defines EPPI-Reviewer permissions to access a single Group Library.<br />
-        [You can, if you wish, create a <strong>Private</strong> group library and include only yourself in it, in case the EPPI-Reviewer data should remain private to you.]
+        In Zotero, <strong>Group Libraries</strong> allow you to share data with collaborators making them ideal for both shared and private EPPI-Reviewer reviews.
+        This is done by associating <strong>One EPPI-Reviewer review</strong> with <strong>One Zotero Group Library</strong>.<br />
+        Behind the scenes, this one-to-one relation is made possible by obtaining (and storing) a unique "API Key" from Zotero, which defines EPPI-Reviewer permissions to access a single Group Library.<br />       
       </p>
       <h5>Setup process summary:</h5>
-      <p>Each step requires to make a number of choices, to see the <strong>recommended settings</strong> please click on the "Show me" buttons.</p>
+      <p>Please complete each step and read the "Show me" help to see the <strong>recommended settings</strong>.</p>
       <ol>
         <li>
-          <strong>Before proceeding:</strong> create a Group Library in Zotero (can be done <a href="https://www.zotero.org/groups/new" target="_blank">here</a>).
+          <strong>Before proceeding:</strong> create a Group Library in Zotero (this can be done <a href="https://www.zotero.org/groups/new" target="_blank">here</a>).
           <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="InstructionsShown = 'createGroupLibInZotero'">Show me</button>
           <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="ShowInstructionsInNewWindow('NWcreateGroupLibInZotero')">Show me (new tab)</button>
           <div *ngIf="InstructionsShown == 'createGroupLibInZotero'" class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
@@ -383,7 +383,7 @@
           </div>
         </li>
         <li>
-          Done! If you followed these instructions, EPPI-Reviewer will automatically open the "Sync" tab to move data to/from EPPI-Reviewer/Zotero.
+          Done! If you followed these instructions, EPPI-Reviewer will automatically open the "Sync" tab where you can move data to/from EPPI-Reviewer/Zotero.
         </li>
       </ol>
     </div>
@@ -392,7 +392,7 @@
         <strong>Safety controls</strong><br />
         <div class="border-bottom border-dark">
           <input type="checkbox" [(ngModel)]="SafetyCheck1" class="my-auto mx-1" />
-          Yes, I <strong>have created</strong> a Zotero Group Library to exchange data with this review.
+          Yes, I <strong>have created</strong> a Zotero Group Library for exchanging data with this review.
         </div>
         <div>
           <input type="checkbox" [(ngModel)]="SafetyCheck2" class="my-auto mx-1" />
@@ -405,27 +405,27 @@
   <ng-template #createGroupLibInZotero>
     <div>
       <p>
-        EPPI-Reviewer can be used to exchange data with Zotero group libraries, and <strong>only Group libraries</strong>.
-        This is because group libraries can be used to work collaboratively, or not (depending on who you invite in the library),
-        thus they allow to extend the collaborative process in Zotero, when required.<br />
-        Therefore, <strong>before</strong> you can setup a connection to Zotero, you <strong>need to setup a suitable Group Library</strong>.<br />
-        Here is how:
+        EPPI-Reviewer can be used to exchange data with <b>Zotero group libraries </b><i>only</i>.
+        Group libraries can be used for working collaboratively or independantly depending on who you invite into the library.<br />
+        Therefore, <strong>before</strong> you can set up a connection to Zotero, you <strong>need to set up a suitable Group Library</strong>.<br />
+        The steps are:
       </p>
       <ol>
-        <li>Go to the Zotero <a href="https://www.zotero.org/groups/new" target="_blank">create group library</a> page. (Might ask you to login.)</li>
-        <li>Give the new library a name. We recommend to use something like the ReviewID number to make the purpose of the library clear.</li>
+        <li>Go to the Zotero <a href="https://www.zotero.org/groups/new" target="_blank">create group library</a> page. You might be asked to login (or create an account if you do not have one already).</li>
+        <li>Give the new library a name. We recommend including the EPPI-Reviewer ReviewID number or review name to make the purpose of the library clear.</li>
         <li>
-          Pick a type of Library. Re recommend to use the "<strong>Private Membership</strong>" kind as it's the safer option.<br />
-          Options are:
+          Pick a type of Library. We recommend using "<strong>Private Membership</strong>" as it's the safer option.<br />
+          The options are:
           <ul>
-            <li class="alert-danger px-1"><strong><span class="k-icon k-i-cancel k-color-danger mb-1"></span> Public, Open Membership</strong>. We reccomend to <strong>avoid this option</strong> as anyone could edit/delete your data</li>
-            <li class="alert-info px-1"><strong>Public, Closed Membership</strong>. This option is safer, although not recommended, as it's not clear what advantages come with making such libraries "public".</li>
+            <li class="alert-danger px-1"><strong><span class="k-icon k-i-cancel k-color-danger mb-1"></span> Public, Open Membership</strong>. We recommend <strong>avoiding this option</strong> as anyone could edit/delete your data</li>
+            <li class="alert-info px-1">
+              <strong><span class="k-icon k-i-close-outline k-color-info mb-1"></span> Public, Closed Membership</strong>. This option is safer <strong>but not recommended</strong> as your data may be publicly visible</li>
             <li class="alert-success px-1"><strong><span class="k-icon k-i-check-outline k-color-success mb-1"></span> Private Membership</strong>. Is the <strong>recommended</strong> option</li>
           </ul>
           Click "<strong>Create Group</strong>".
         </li>
-        <li>If you picked the "private" group type, the default settings are ok, giving all group members "Edit" rights; otherwise, customise according to your own needs/plans.</li>
-        <li>Click on <strong>Save Settings</strong>. It's all done, you can close the Zotero page, if you wish.</li>
+        <li>If you picked the "Private" group type the default settings are ok. All group members will have "Edit" rights but you can customise according to your own needs/plans.</li>
+        <li>Click on <strong>Save Settings</strong>. You can now close the Zotero page, if you wish.</li>
       </ol>
     </div>
     <button (click)="InstructionsShown = ''" class="btn btn-sm btn-outline-dark px-1 py-0 my-1">Close</button>
@@ -434,16 +434,16 @@
     <div>
       <p class="mb-1">
         In case you want to allow collaborators to work on the Group Library you've created, you will need to provide access via the Zotero Group Library page.
-        To do so, you'd first need to know their Zotero username(s), or the email address your collaborators have used for their Zotero account.<br />
+        To do so, you need to know their Zotero username(s), or the email address your collaborators have used for their Zotero account.<br />
         <strong>This step is optional and can be done at any time.</strong><br />
-        The process is fairly simple:
+        The process is:
       </p>
       <ol>
         <li>
           Go to the <a href="https://www.zotero.org/groups" target="_blank">Groups page</a> on the Zotero website.
         </li>
         <li>
-          Find the Group you want to use for EPPI-Reviewer data, click on the "<strong>Manage Members</strong>" link for it and then onf the "<strong>Send More Invitations</strong>" link at the bottom.
+          Find the Group you want to use for EPPI-Reviewer data, click on the "<strong>Manage Members</strong>" link for it and then on the "<strong>Send More Invitations</strong>" link at the bottom.
         </li>
         <li>
           Type in the comma separated list of usernames/emails for the people you wish to invite and click on "Invite Members".
@@ -456,15 +456,14 @@
   <ng-template #obtainAPIKey>
     <div>
       <p class="mb-1">
-        This last step starts in EPPI-Reviewer ("Start setup" button below). However, you will need to
-        <strong><span class="k-icon k-i-warning mb-1"></span>change the default settings<span class="k-icon k-i-warning mb-1"></span></strong> in the Zotero page you'll be sent to.<br />
+        This last step starts in EPPI-Reviewer. If you click <b>Show me (new tab)</b> these instructions will be easily accessible.<br />
+        To proceed you must confirm you have followed the "Safey controls" and then click <b>Start Setup</b>.<br />
+        The <b>New private key</b> Zotero page will open where you must <strong><span class="k-icon k-i-warning mb-1"></span>change the default settings<span class="k-icon k-i-warning mb-1"></span></strong><br />
         This is <strong class="alert-warning px-1"><span class="k-icon k-i-warning mb-1"></span>EXTREMELY IMPORTANT<span class="k-icon k-i-warning mb-1"></span></strong>
         as <strong>accepting the default Zotero settings Will Not Work</strong>.<br />
         Step by step instructions:
       </p>
       <ol>
-        <li>Tick the two "safety" checkboxes above the "Start setup" button. This is to confirm that you have (1) already created a group library, and (2) read these instructions.</li>
-        <li>Click on the "<strong>Start setup</strong>" button, this will send you to a Zotero page, where you might be asked to login.</li>
         <li>
           Click on "Change permissions"<br />
           <img src="assets/Images/ZoteroSetup1.gif" />
@@ -485,7 +484,7 @@
         <li>
           Click "<strong>Save Key</strong>" at the bottom of the page.
         </li>
-        <li>Zotero will redirect you back to this same EPPI-Reviewer page. Behind the scenes, EPPI-Reviewer will obtain an "API Key" wich will grant it "permissions" to interact with Zotero data, as specified above.</li>
+        <li>Zotero will redirect you back to the "Sync" tab in the EPPI-Reviewer Zotero Manager page. Behind the scenes, EPPI-Reviewer will obtain an "API Key" wich will grant it "permissions" to interact with Zotero data, as specified above.</li>
         <li>
           <strong>NOTE:</strong> Sometimes the API-Key obtained by EPPI-Reviewer fails to work. In this case, you will be asked to "<strong>try again</strong>".<br />
           In our experience, it is extremely unlikely that you will need more than 2 or 3 attempts.
