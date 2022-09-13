@@ -1,19 +1,12 @@
-import { Component,  ElementRef,  EventEmitter,  Inject,  Input,  OnInit, Output, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component,  ElementRef,  EventEmitter, Inject, OnInit, Output, ViewChild } from '@angular/core';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Helpers } from '../helpers/HelperMethods';
-import { CodesetStatisticsService, StatsCompletion } from '../services/codesetstatistics.service';
 import { ConfigurableReportService } from '../services/configurablereport.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
-import { Item } from '../services/ItemList.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
-import { singleNode } from '../services/ReviewSets.service';
 import { ZoteroService } from '../services/Zotero.service';
-import {
-    Collection, Group, GroupData, IERWebANDZoteroReviewItem,
-    IObjectsInERWebNotInZotero, ZoteroReviewCollectionList
-} from '../services/ZoteroClasses.service';
+import {Group, GroupData } from '../services/ZoteroClasses.service';
 
 @Component({
     selector: 'ZoteroSetup',
@@ -32,17 +25,19 @@ export class ZoteroSetupComponent implements OnInit {
       @Inject('BASE_URL') private _baseUrl: string
     ) {
 
-    }
-
-  public get currentReview(): number {
-    return this._ReviewerIdentityServ.reviewerIdentity.reviewId;
   }
+  ngOnInit() {
+    if (this.reviewInfoService.Contacts.length == 0) this.reviewInfoService.FetchReviewMembers();
+    this.CheckForStatus();
+  }
+
+  @ViewChild('InstructionsForNewWindow') InstructionsForNewWindow!: ElementRef;
+  @Output() PleaseGoTo = new EventEmitter<string>();
   private _UIphase = "Get Key";//used to decide what to show on the UI, this is the top level variable for the main "switch" in the UI.
   public get UIphase(): string {
     return this._UIphase;
   }
   public InstructionsShown: string = "";
-  @ViewChild('InstructionsForNewWindow') InstructionsForNewWindow!: ElementRef;
   public SafetyCheck1 = false;
   public SafetyCheck2 = false;
 
@@ -53,8 +48,8 @@ export class ZoteroSetupComponent implements OnInit {
       || this._zoteroService.ZoteroPermissions.zoteroConnectionId < 1
     ) {
       return false;
-    } else {
-      if (this._zoteroService.ZoteroPermissions.erUserId == this._ReviewerIdentityServ.reviewerIdentity.userId) return true;
+    } else if (this._zoteroService.ZoteroPermissions.erUserId == this._ReviewerIdentityServ.reviewerIdentity.userId) {
+      return true;
     }
     return false;
   }
@@ -65,44 +60,12 @@ export class ZoteroSetupComponent implements OnInit {
   public get ErrorMessage(): string {
     return this._zoteroService.ErrorMessage;
   }
-  @Output() PleaseGoTo = new EventEmitter<string>();
-
-
-    public zoteroUserID: number = 0;
-    public totalItemsInCurrentReview: number = 0;
-    public zoteroUserName: string = '';
-    public zoteroUserKey: string = '';
-
-    public CurrentDropdownSelectedCode: singleNode | null = null;
-    public ObjectsInERWebNotInZotero: IObjectsInERWebNotInZotero[] = [];
-    public ItemsInERWebANDInZotero: Collection[] = [];
-    public codingSetData: StatsCompletion[] = [];
-    public itemsWithThisCode: Item[] = [];
-    public isCollapsed = false;
-    public zoteroLink: string = '';
-    public reviewLinkText: string[] = [];
-    public currentLinkedReviewId: string = '';
-    public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();
-    public ZoteroObjectsThatAreNotAttachmentsLength: number = 0;
-    public ObjectsInERWebAndZotero: IERWebANDZoteroReviewItem[] = [];
-    public DetailsForSetId: number = 0;
   
   public get groupMeta(): Group[] {
     return this._zoteroService.groupMeta;
   }
 
-
-    ngOnDestroy() {
-    }
-
-    ngOnInit() {
-        this.zoteroUserName = this._ReviewerIdentityServ.reviewerIdentity.name;
-        this.zoteroUserID = this._ReviewerIdentityServ.reviewerIdentity.userId;
-      this.currentLinkedReviewId = this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString();
-      if (this.reviewInfoService.Contacts.length == 0) this.reviewInfoService.FetchReviewMembers();
-      this.CheckForStatus();
-    }
-
+  //main "gateway" method, checks for many things, so to decide what the UI will show.
   private async CheckForStatus() {
     if (this._zoteroService.IsBusy) await this.WaitforNotBusyService();
     if (!this._zoteroService.hasPermissions) {
@@ -123,7 +86,14 @@ export class ZoteroSetupComponent implements OnInit {
       } else if (this._zoteroService.ErrorMessage == "nodictvals") {
         this._UIphase = "TryAgain";
       } else if (this._zoteroService.ErrorMessage == "No write access to Group Library") {
-        this._UIphase = "ResetAndRestartOauthProcess";
+        this._UIphase = "ViewSettings";//"ResetAndRestartOauthProcess";
+        this._zoteroService.fetchGroupMetaData().then(
+          () => {
+            if (this._zoteroService.groupMeta.length == 0) this._UIphase = "ResetAndRestartOauthProcess";
+          }
+        );
+      } else if (this._zoteroService.ErrorMessage == "No write access") {
+        this._UIphase = "ResetAndRestartOauthProcess";//"ResetAndRestartOauthProcess";
       }
       else {
         this._UIphase = "PickGroup";
@@ -135,7 +105,7 @@ export class ZoteroSetupComponent implements OnInit {
       }
     } else {
       this._UIphase = "ViewSettings";
-      setTimeout(() => { this._zoteroService.fetchGroupMetaData(); }, 50);
+      setTimeout(() => { this._zoteroService.fetchGroupMetaData(); }, 20);
     }
   }
   public get IsServiceBusy(): boolean {
@@ -183,18 +153,7 @@ export class ZoteroSetupComponent implements OnInit {
     }
     return true;
   }
-    
-
-    Clear() {
-      //this.apiKeys = [];
-      //this.groupMeta = [];
-  }
-  public ResetAndRestart() {
-    this._zoteroService.DeleteZoteroApiKey().then(() => {
-      this._UIphase = "BeginOauthProcess";
-      //this.BeginOauthProcess();
-    });
-  }
+   
   public DeleteApiKey() {
     this._zoteroService.DeleteZoteroApiKey().then(() => { this._UIphase = "BeginOauthProcess"; });
   }
@@ -212,8 +171,7 @@ export class ZoteroSetupComponent implements OnInit {
             this._zoteroService.OauthProcessGet(this._ReviewerIdentityServ.reviewerIdentity.userId, this._ReviewerIdentityServ.reviewerIdentity.reviewId)
               .then(
                 (token: any) => {
-                  this.zoteroLink = 'https://www.zotero.org/oauth/authorize?oauth_token=' + token.toString();
-                  window.location.href = this.zoteroLink;
+                  window.location.href = 'https://www.zotero.org/oauth/authorize?oauth_token=' + token.toString();
                 });
           } else {
             this._notificationService.show({
@@ -227,106 +185,36 @@ export class ZoteroSetupComponent implements OnInit {
         }).catch(() => { });
   }
   
-    public async RemoveCurrentReviewAT(group: Group) {
+    
 
-        await this._zoteroService.UpdateGroupToReview( group.id.toString(), true).then(
-                async () => {
-                    let indexG = this.groupMeta.indexOf(group);
-                    this.groupMeta[indexG].data.groupBeingSynced = false;
-                    await this.FetchLinkedReviewID();
-                    let index = this.zoteroCollectionList.ZoteroReviewCollectionList.findIndex(x => x.libraryID === group.id.toString());
-                    if (index > -1) {
-                        this.zoteroCollectionList.ZoteroReviewCollectionList.splice(index, 1);
-                    }
-                    if (this.zoteroCollectionList.ZoteroReviewCollectionList.length === 0) {
-                        this._notificationService.show({
-                            content: "You have no syncable groups remaining please reauthorise with Zotero",
-                            animation: { type: 'slide', duration: 400 },
-                            position: { horizontal: 'center', vertical: 'top' },
-                            type: { style: "info", icon: true },
-                            closable: true
-                        });                      
-                    }
-                });
-        this._notificationService.show({
-            content: " You have removed the Zotero authentication for group: " + group.id.toString(),
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
-    }
+  public async changeGroupBeingSynced(group: Group) {
+    await this._zoteroService.UpdateGroupToReview(group.id.toString(), false);
+    if (this._zoteroService.hasPermissions == true) {
+      //console.log(1);
+      for (var i = 0; i < this.groupMeta.length; i++) {
+        if (this.groupMeta[i].id === group.id) {
+          this.groupMeta[i].groupBeingSynced = true;
+          this._zoteroService.currentGroupBeingSynced = this.groupMeta[i].id;
 
-    public HasLinkedReviewID(group: GroupData): boolean {
-        let index = this.zoteroCollectionList.ZoteroReviewCollectionList.findIndex(x => x.libraryID === group.id.toString());
-        return index > -1;
-    }
-
-   // Logic in here should change depending on what we want to happen
-    public async changeGroupBeingSynced(group: Group) {
-      //await this.FetchLinkedReviewID();
-     
-
-        await this.AddLinkedReviewID(group.data);
-
-        //await this.UpdateGroupMetaData(group.id, this._ReviewerIdentityServ.reviewerIdentity.userId,
-        //  this.currentReview);
-      if (this._zoteroService.hasPermissions == true) {
-        //console.log(1);
-        for (var i = 0; i < this.groupMeta.length; i++) {
-          if (this.groupMeta[i].id === group.id) {
-            this.groupMeta[i].groupBeingSynced = true;
-            this._zoteroService.currentGroupBeingSynced = this.groupMeta[i].id;
-
-          } else {
-            this.groupMeta[i].groupBeingSynced = false;
-          }
+        } else {
+          this.groupMeta[i].groupBeingSynced = false;
         }
-      } else if (this._zoteroService.hasPermissions == false) {
-
-        //console.log(2);
-        //things _might_ be good now, so we'll make very sure and get our API to check again.
-        this._zoteroService.SetError("data not fetched");//makes the "checkForStatus()" method try again from scratch...
-        this.CheckForStatus().then(() => {
-
-          //console.log(3);
-          if (this._zoteroService.hasPermissions == true) this.PleaseGoTo.emit("ZoteroSync");
-        });        
       }
-        //this._zoteroService.editApiKeyPermissions = true;
-   
-    }
+    } else if (this._zoteroService.hasPermissions == false) {
 
-    public async AddLinkedReviewID(group: GroupData) {
-      await this._zoteroService.UpdateGroupToReview(group.id.toString(), false);
-    }
+      //console.log(2);
+      //things _might_ be good now, so we'll make very sure and get our API to check again.
+      this._zoteroService.SetError("data not fetched");//makes the "checkForStatus()" method try again from scratch...
+      this.CheckForStatus().then(() => {
 
-    public async FetchLinkedReviewID(): Promise<void> {
-        await this._zoteroService.FetchGroupToReviewLinks().then(
-                async (zoteroReviewCollectionList: ZoteroReviewCollectionList) => {
-                    this.zoteroCollectionList = zoteroReviewCollectionList;
-                    if (zoteroReviewCollectionList.ZoteroReviewCollectionList.length > 0) {
-                        this.currentLinkedReviewId = zoteroReviewCollectionList.ZoteroReviewCollectionList[0].revieW_ID.toString();
-                    }
-                });
+        //console.log(3);
+        if (this._zoteroService.hasPermissions == true) this.PleaseGoTo.emit("ZoteroSync");
+      });
     }
+    //this._zoteroService.editApiKeyPermissions = true;
 
-    public CanGetCurrentStatus(): boolean {
-        let index = this.zoteroCollectionList.ZoteroReviewCollectionList.findIndex(x => x.libraryID === this._zoteroService.currentGroupBeingSynced.toString());
-        if (index === -1) {
-            return false;
-        }
-        return true;
-    }
-   
-    async UpdateGroupMetaData(groupId: number, userId: number, currentReview: number) {
-      await this._zoteroService.MarkGroupForSync(groupId);
-    }
+  }
 
-    public get IsReportsServiceBusy(): boolean {
-        return this._configurablereportServ.IsBusy;
-    }
-  
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
