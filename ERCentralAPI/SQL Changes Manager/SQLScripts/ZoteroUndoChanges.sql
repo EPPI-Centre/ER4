@@ -1,7 +1,16 @@
 ﻿
 USE [Reviewer]
 GO
-
+IF EXISTS (SELECT 1 FROM sys.objects WHERE [name] = N'tr_ZoteroCheckItem' AND [type] = 'TR')
+BEGIN
+    DROP TRIGGER [dbo].[tr_ZoteroCheckItem]
+END
+GO
+IF EXISTS (SELECT 1 FROM sys.objects WHERE [name] = N'ZoteroCheckItem' AND [type] = 'TR')
+BEGIN
+    DROP TRIGGER [dbo].[ZoteroCheckItem]
+END
+GO
 /****** Object:  Table [dbo].[Zotero_Item_Review]    Script Date: 15/09/2021 09:33:38 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_REVIEW]') AND type in (N'U'))
 DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]

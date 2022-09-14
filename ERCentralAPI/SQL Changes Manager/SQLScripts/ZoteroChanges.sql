@@ -1,12 +1,13 @@
 ﻿USE [Reviewer]
 GO
 
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
-GO
 
 /****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 11/09/2022 14:13:25 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_REVIEW]') AND type in (N'U'))
-DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+begin
+	ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
+	DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+end
 GO
 
 /****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 11/09/2022 14:13:25 ******/
@@ -38,7 +39,7 @@ GO
 
 USE [Reviewer]
 GO
-CREATE OR ALTER Trigger [dbo].[ZoteroCheckItem] 
+CREATE OR ALTER Trigger [dbo].[tr_ZoteroCheckItem] 
 On [dbo].[TB_ITEM]  AFTER UPDATE AS 
 BEGIN     
     UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW] 
