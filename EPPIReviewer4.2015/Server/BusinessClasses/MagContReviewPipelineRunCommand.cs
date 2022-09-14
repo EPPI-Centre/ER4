@@ -525,7 +525,7 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             //blob = (CloudBlob)blobItem;
                             //if (blob.Name.StartsWith(folder + "/tmp/part"))
-                            if (blobItem.BlobName.StartsWith(folder + "/tmp"))
+                            if (blobItem.BlobName.StartsWith(folder + "/tmp/part"))
                             {
                                 //CloudBlockBlob blockBlobDownloadData = container.GetBlockBlobReference(blob.Name);
                                 //string resultantString = await blockBlobDownloadData.DownloadTextAsync();
@@ -594,6 +594,7 @@ namespace BusinessLibrary.BusinessClasses
                     connection.Open();
                     using (SqlCommand command = new SqlCommand("st_MagContReviewInsertResults", connection))
                     {
+                        command.CommandTimeout = 900;
                         command.Parameters.Add(new SqlParameter("@MAG_VERSION", _NextMagVersion));
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.ExecuteNonQuery();
