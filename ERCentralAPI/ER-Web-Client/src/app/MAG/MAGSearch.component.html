@@ -35,7 +35,7 @@
 
                         <div class="col-sm-6" *ngIf="WordsInSelection != '2'">
                             <input id="magSearchInput" name="magSearchInput" type="text" class="form-control" [(ngModel)]="magSearchInput"
-                                   placeholder="Enter search text (e.g. physic*) " />
+                                   placeholder="Enter search text" />
 
 
                         </div>
@@ -52,7 +52,7 @@
                                             <div class="row m-0">1. Search OpenAlex for topics:</div>
                                             <div class="row m-0">
                                                 <input class="form-control col border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="magSearchInput"
-                                                       placeholder="Wildcards will work, e.g. physic* " />
+                                                       placeholder="Topic search: wildcards will not work" />
                                                 <button (click)="UpdateTopicResults()" class="col-auto btn btn-primary btn-sm text-white" [disabled]="magSearchInput.length < 3" title="Search for topics">
                                                   <span class="k-icon k-i-search"></span>
                                                 </button>

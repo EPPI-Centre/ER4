@@ -585,6 +585,92 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
       return retVal;
     }
 
+  public async GetDuplicatesReport02(currentItem: Item, uniqueSources:string[]): Promise<string> {
+    let retVal: string = "";
+    let res = await this.FetchAdditionalItemDetailsAsync(currentItem.itemId);
+
+    if ((res != false) && (res != true)) {
+      let additionalDetails: iAdditionalItemDetails = res;
+      let listOfDuplicateIDs = "";
+
+      for (let j = 0; j < additionalDetails.duplicates.length; j++) {
+        let currentDuplicate: iItemDuplicatesReadOnly = additionalDetails.duplicates[j];
+        listOfDuplicateIDs += currentDuplicate.itemId;
+        listOfDuplicateIDs += ",";
+      }
+      // remove the trailing '.'
+      listOfDuplicateIDs = listOfDuplicateIDs.substring(0, listOfDuplicateIDs.length - 1)
+
+      retVal += "<tr style=\"vertical-align:top;\">";
+      retVal += "<td>" + currentItem.shortTitle + "</td>";
+      retVal += "<td>" + currentItem.year + "</td>";
+      retVal += "<td>" + currentItem.itemId + "<br>(" + listOfDuplicateIDs + ")" + "</td>";
+      retVal += "<td>" + currentItem.typeName + "</td>";
+
+      // Get the master source
+      const sourcePosition = [];
+      for (let m = 0; m < uniqueSources.length; m++) {
+        if (additionalDetails.source.source_Name == uniqueSources[m]) {
+          sourcePosition[m] = 'm'
+        }    
+      }
+
+      // get the duplicate source       
+      for (let m = 0; m < uniqueSources.length; m++) {
+        for (let j = 0; j < additionalDetails.duplicates.length; j++) {
+          const currentDuplicate: iItemDuplicatesReadOnly = additionalDetails.duplicates[j];
+          if (currentDuplicate.sourceName == uniqueSources[m]) {
+            if (sourcePosition[m] == 'm') {
+              sourcePosition[m] = 'xm';
+            }
+            else {
+              sourcePosition[m] = 'x';
+            }
+          }
+        }
+      }
+
+      // use sourcePosition[] to build the row
+      for (let m = 0; m < uniqueSources.length; m++) {
+        if (sourcePosition[m] == 'x') {
+          retVal += "<td style='text-align:center'>X</td>";
+        }
+        else if (sourcePosition[m] == 'm') {
+          retVal += "<td style='text-align:center'>M</td>";
+        }
+        else if (sourcePosition[m] == 'xm') {
+          retVal += "<td style='text-align:center'>MX</td>";
+        }
+        else {
+          retVal += "<td></td>";
+        }
+      }
+
+      retVal += "</tr>";
+    }
+    return retVal;
+  }
+
+  public async GetSourcesDuplicatesReport02(currentItem: Item): Promise<string> {
+    let retVal: string = "";
+    let res = await this.FetchAdditionalItemDetailsAsync(currentItem.itemId);
+
+    if ((res != false) && (res != true)) {
+      let additionalDetails: iAdditionalItemDetails = res;
+
+      retVal += additionalDetails.source.source_Name + "⌐"; 
+
+      if (additionalDetails.duplicates.length > 0) {
+        for (var j = 0; j < additionalDetails.duplicates.length; j++) {
+          let currentDuplicate: iItemDuplicatesReadOnly = additionalDetails.duplicates[j];
+          retVal += currentDuplicate.sourceName + "⌐";
+        }
+      }
+    }
+    return retVal;
+  }
+
+
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
         items.items = orderBy(items.items, this.sort); 
