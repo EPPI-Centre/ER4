@@ -304,15 +304,15 @@ export class ZoteroSyncComponent implements OnInit {
     await this._zoteroService.fetchERWebAndZoteroAlreadySyncedItems().then(
       async (objects) => {
         for (var i = 0; i < objects.length; i++) {
-          if (objects[i].libraryID == this._zoteroService.currentGroupBeingSynced.toString()) {
+          //if (objects[i].libraryID == this._zoteroService.currentGroupBeingSynced.toString()) {
             let itemKey = objects[i].itemKey;
             if (this.ObjectsInERWebAndZotero.findIndex(x => x.itemKey === itemKey) > -1) {
             } else {
-              if (objects[i].libraryID === this._zoteroService.currentGroupBeingSynced.toString()) {
+              //if (objects[i].libraryID === this._zoteroService.currentGroupBeingSynced.toString()) {
                 this.ObjectsInERWebAndZotero.push(objects[i]);
-              }
+              //}
             }
-          }
+          //}
         }
         this.ObjectsInERWebAndZotero = this.ObjectsInERWebAndZotero.sort((a, b) => a.itemKey.localeCompare(b.itemKey));
                
