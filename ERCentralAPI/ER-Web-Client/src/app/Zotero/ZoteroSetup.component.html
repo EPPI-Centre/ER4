@@ -214,6 +214,14 @@
                   If the group needs to be changed (not recommended), please ask the owner of the Key ({{NameOfAPIKeyOwner}}) to visit this page and make the change.<br />
                 </div>
               </div>
+              <div *ngSwitchCase="'No Group Library'">
+                <div *ngIf="CurrentUserOwnsTheApiKey">
+                  Please select the group library to use below.
+                </div>
+                <div *ngIf="!CurrentUserOwnsTheApiKey">
+                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration by selecting one of the groups below.
+                </div>
+              </div>
               <div *ngSwitchCase="'No write access to Group Library'">
                 <div *ngIf="CurrentUserOwnsTheApiKey == true">
                   The current API key provides access to multiple groups, but is configured to use a group for which <strong>it does not provide "Write" access</strong>. <br />
@@ -240,6 +248,7 @@
               <div *ngSwitchDefault>
                 <div *ngIf="CurrentUserOwnsTheApiKey == true">
                   <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
+                  Error message is: <em>{{ErrorMessage}}</em><br />
                   Please retry:<br />
                   <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Reset</button>
                 </div>
