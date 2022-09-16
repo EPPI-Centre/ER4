@@ -139,7 +139,14 @@ partial class Program
     {
         DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
         string LogFilename = logDir.FullName + @"\" + "ERxWebClient2-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-        if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+        if (!System.IO.File.Exists(LogFilename))
+        {
+            using (FileStream fs = System.IO.File.Create(LogFilename))
+            {
+                fs.Close();
+            }
+        }
+        //System.IO.File.Create(LogFilename);
         return LogFilename;
     }
     private  static  Serilog.ILogger? _Logger;
