@@ -1,16 +1,15 @@
 ﻿USE [Reviewer]
 GO
 
-
-/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 11/09/2022 14:13:25 ******/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_REVIEW]') AND type in (N'U'))
-begin
-	ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
-	DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
-end
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
 GO
 
-/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 11/09/2022 14:13:25 ******/
+/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 16/09/2022 13:50:12 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_REVIEW]') AND type in (N'U'))
+DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+GO
+
+/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 16/09/2022 13:50:12 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -24,7 +23,8 @@ CREATE TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW](
 	[ITEM_REVIEW_ID] [bigint] NOT NULL,
 	[Version] [bigint] NULL,
 	[LAST_MODIFIED] [datetime] NULL,
-	[TypeName] [nvarchar](50) NULL
+	[TypeName] [nvarchar](50) NULL,
+	[SyncState] [int] NULL
 ) ON [PRIMARY]
 GO
 
@@ -35,23 +35,6 @@ ON DELETE CASCADE
 GO
 
 ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] CHECK CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
-GO
-
-USE [Reviewer]
-GO
-CREATE OR ALTER Trigger [dbo].[tr_ZoteroCheckItem] 
-On [dbo].[TB_ITEM]  AFTER UPDATE AS 
-BEGIN     
-    UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW] 
-    SET LAST_MODIFIED = CAST(GETDATE() AS DATETIME), [Version] = [Version]+1
-	from [dbo].[TB_ZOTERO_ITEM_REVIEW] ZIR
-	WHERE ZIR.ITEM_REVIEW_ID = 
-	(select ITEM_REVIEW_ID 
-	FROM TB_ITEM_REVIEW IR
-	INNER JOIN INSERTED TI
-	ON IR.ITEM_ID = TI.ITEM_ID)
-END
-
 GO
 
 USE [Reviewer]

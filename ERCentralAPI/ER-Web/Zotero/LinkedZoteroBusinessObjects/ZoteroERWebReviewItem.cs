@@ -181,6 +181,28 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public enum SyncState
+        {
+            doesNotExist,
+            behind,
+            upToDate,
+            ahead,
+            attachmentDoesNotExist
+        }
+
+        public static readonly PropertyInfo<SyncState> StateProperty = RegisterProperty<SyncState>(new PropertyInfo<SyncState>("STATE", "STATE", SyncState.doesNotExist));
+        public SyncState State
+        {
+            get
+            {
+                return GetProperty(StateProperty);
+            }
+            set
+            {
+                SetProperty(StateProperty, value);
+            }
+        }
+
 
 #if !SILVERLIGHT
 
@@ -206,6 +228,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
                             LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
                             LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
+                            LoadProperty<SyncState>(StateProperty, (SyncState)reader.GetInt16("STATE"));
 
                             MarkOld();
                         }
@@ -229,7 +252,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
             //returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
             returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
-
+            returnValue.LoadProperty<SyncState>(StateProperty, (SyncState)reader.GetInt16("STATE"));
             returnValue.MarkOld();
 
             return returnValue;
