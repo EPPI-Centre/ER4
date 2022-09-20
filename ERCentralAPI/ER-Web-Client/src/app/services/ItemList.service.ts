@@ -604,7 +604,12 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
       retVal += "<tr style=\"vertical-align:top;\">";
       retVal += "<td>" + currentItem.shortTitle + "</td>";
       retVal += "<td>" + currentItem.year + "</td>";
-      retVal += "<td>" + currentItem.itemId + "<br>(" + listOfDuplicateIDs + ")" + "</td>";
+      if (listOfDuplicateIDs == "") {
+        retVal += "<td>" + currentItem.itemId + "</td>";
+      }
+      else {
+        retVal += "<td>" + currentItem.itemId + "<br style=\"mso-data-placement: same-cell;\">(" + listOfDuplicateIDs + ")" + "</td>";
+      }
       retVal += "<td>" + currentItem.typeName + "</td>";
 
       // Get the master source
@@ -620,7 +625,10 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         for (let j = 0; j < additionalDetails.duplicates.length; j++) {
           const currentDuplicate: iItemDuplicatesReadOnly = additionalDetails.duplicates[j];
           if (currentDuplicate.sourceName == uniqueSources[m]) {
-            if (sourcePosition[m] == 'm') {
+            if (sourcePosition[m] == 'xm') {
+              sourcePosition[m] = 'xm';
+            }
+            else if (sourcePosition[m] == 'm') {
               sourcePosition[m] = 'xm';
             }
             else {

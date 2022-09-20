@@ -318,19 +318,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
           // create the header for the report
           report += "<h3>Duplicate and Source report</h3>";
-          report += "M - master source&nbsp;&nbsp;&nbsp;&nbsp;X - duplicate source<br>";
+          report += "M - master source&nbsp;&nbsp;&nbsp;&nbsp;X - duplicate source<br style=\"mso-data-placement: same-cell;\">";
           report += "<table border='1' cellspacing='0' cellpadding='2'>";
           report += "<tr style=\"vertical-align:top;\">";
           report += "<td><b>Short title</b></td>";
-          report += "<td><b>Year of<br>publication</b></td>";
-          report += "<td><b>Master Id<br>(Duplicate Ids)</b></td>";
+          report += "<td><b>Year of<br style=\"mso-data-placement: same-cell;\">publication</b></td>";
+          report += "<td><b>Master Id<br style=\"mso-data-placement: same-cell;\">(Duplicate Ids)</b></td>";
           report += "<td><b>Reference type</b></td>";
           for (let l = 0; l < uniqueSources.length; l++) {
             if (uniqueSources[l] == "") {
-              report += "<td><b>Source</b><br><br>Manually created</td>";
+              report += "<td><b>Source</b><br style=\"mso-data-placement: same-cell;\"><br style=\"mso-data-placement: same-cell;\">Manually created</td>";
             }
             else {
-              report += "<td><b>Source</b><br><br>" + uniqueSources[l] + "</td>";
+              report += "<td><b>Source</b><br style=\"mso-data-placement: same-cell;\"><br style=\"mso-data-placement: same-cell;\">" + uniqueSources[l] + "</td>";
             }
           }
           report += "</tr>"
