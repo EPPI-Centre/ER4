@@ -31,7 +31,7 @@
         <div class="alert alert-warning border border-danger mx-auto">
           <h4 class="text-center"><span class="k-icon k-i-warning mb-1"></span> Sorry, please try again. <span class="k-icon k-i-warning mb-1"></span></h4>
           <p>
-            EPPI-Reviewer could obtain and API Key from Zotero, but the Key does <strong>not grant read and write access to <em>any</em> group library</strong>!<br />
+            EPPI-Reviewer could obtain an API Key from Zotero, but the Key does <strong>not grant read and write access to <em>any</em> group library</strong>!<br />
             This could be due to:
           </p>
             <ul>
@@ -137,8 +137,8 @@
           </div>
           <div *ngSwitchCase="'No Group Library'">
             <div *ngIf="CurrentUserOwnsTheApiKey">
-              Your API Key is valid and provides write access to at least one group library. Please select a group library on the right.<br />
-              Otherwise please delete the API key and setup a new one.
+              Your API Key is valid and provides write access to at least one group library. Please select a group library on the right.<br /><br />
+              If the group you require is not listed, please Delete the API key to return to the setup process.
             </div>
             <div *ngIf="!CurrentUserOwnsTheApiKey">
               The API Key is valid and provides write access to at least one group library. However, you do not <strong>own the API key</strong>.<br />
@@ -175,7 +175,7 @@
             </div>
           </div>
           <div *ngSwitchCase="1">
-            The current API key provides access to exactly one group (<strong>good!</strong>):
+            The current API key provides access to one group:
             <div class="row mx-0 px-0">
               <div><strong>Group Id:</strong> {{groupMeta[0].id}}</div>
             </div>
@@ -185,15 +185,19 @@
             <div class="row mx-0 px-0">
               <ng-container [ngSwitch]="groupMeta[0].groupBeingSynced">
                 <div *ngSwitchCase="true" class="mx-0 px-0 row">
-                  <strong>Status:</strong>
+                  <strong>Status:</strong>&nbsp;
                   <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
                 </div>
                 <div *ngSwitchCase="false" class="mx-0 px-0 row">
-                  <div>Please click here to
-                  <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(groupMeta[0])"
-                          [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">Select</button>
-                  this group for "syncing":</div>
-                  
+                  <div>
+                    Please click here to
+                    <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(groupMeta[0])"
+                            [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">
+                      Select
+                    </button>
+                    this group for "syncing":
+                  </div>
+
                 </div>
                 <div *ngSwitchDefault>
                   <h4>Unknown</h4>
