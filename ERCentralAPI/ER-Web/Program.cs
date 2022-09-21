@@ -52,7 +52,7 @@ try
 
     // Add services to the container.
     builder.Services.AddSingleton<ZoteroConcurrentDictionary>();
-    builder.Services.AddSingleton(SqlHelper);
+    //builder.Services.AddSingleton(SqlHelper);
     DataConnection.DataConnectionConfigure(SqlHelper);
     builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
     {//this is needed to allow serialising CSLA child objects:

@@ -60,6 +60,7 @@ namespace WebDatabasesMVC
             }
             Logger = logger;
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)Startup.Configuration, logger);
+            BusinessLibrary.Data.DataConnection.DataConnectionConfigure(Program.SqlHelper);
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
