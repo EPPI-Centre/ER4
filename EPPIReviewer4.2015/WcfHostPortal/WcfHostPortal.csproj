@@ -43,6 +43,7 @@
     <ExcludeGeneratedDebugSymbol>true</ExcludeGeneratedDebugSymbol>
     <Prefer32Bit>false</Prefer32Bit>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PublishDatabases>false</PublishDatabases>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -166,7 +167,6 @@
     <Content Include="ArchieCallBack.aspx" />
     <Content Include="clientaccesspolicy.xml" />
     <Content Include="ClientBin\EppiReviewer4.xap" />
-    <Content Include="ClientBin\RadEditorHelper.xap" />
     <Content Include="crossdomain.xml" />
     <Content Include="Default.aspx" />
     <Content Include="eppi.ico" />
@@ -222,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <None Include="Properties\PublishProfiles\File System.pubxml" />
     <None Include="Properties\PublishProfiles\FileSystem.pubxml" />
     <None Include="Properties\PublishProfiles\IIS -Stable.pubxml" />
     <None Include="Properties\PublishProfiles\Local folder to copy.pubxml" />
