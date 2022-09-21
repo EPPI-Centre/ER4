@@ -6,8 +6,7 @@ using Newtonsoft.Json;
 namespace ERxWebClient2.Controllers
 {
 
-
-	public class ApiKey
+	public class ZoteroApiKey
 	{
 		public string key { get; set; }
 		public long userID { get; set; }

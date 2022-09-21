@@ -141,6 +141,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        //SyncStateProperty
+        public static readonly PropertyInfo<int> SyncStateProperty = RegisterProperty<int>(new PropertyInfo<int>("SyncState", "SyncState", 0));
+        public int SyncState
+        {
+            get
+            {
+                return GetProperty(SyncStateProperty);
+            }
+            set
+            {
+                SetProperty(SyncStateProperty, value);
+            }
+        }
 
 #if !SILVERLIGHT
 
@@ -165,6 +178,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
                             LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
                             LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
+                            LoadProperty<int>(SyncStateProperty, reader.GetInt32("SyncState"));
                             MarkOld();
                         }
                     }
@@ -192,6 +206,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
                     command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(ITEM_REVIEW_IDProperty)));
                     command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
+                    command.Parameters.Add(new SqlParameter("@SyncState", ReadProperty(SyncStateProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -216,6 +231,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
                     command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(ITEM_REVIEW_IDProperty)));
                     command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
+                    command.Parameters.Add(new SqlParameter("@SyncState", ReadProperty(SyncStateProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -250,7 +266,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
             returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
             returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
-
+            returnValue.LoadProperty<int>(SyncStateProperty, reader.GetInt32("SyncSTate"));
             returnValue.MarkOld();
 
             return returnValue;

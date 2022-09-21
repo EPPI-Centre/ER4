@@ -218,12 +218,12 @@ namespace ERxWebClient2.Services
 		}
 
 		// TODO remove when testing is over
-		public async Task<ApiKey> GetApiKey(string requestUri)
+		public async Task<ZoteroApiKey> GetApiKey(string requestUri)
 		{
 			var response = await _httpProvider.GetAsync(requestUri);
 			response.EnsureSuccessStatusCode();
 			var json = await response.Content.ReadAsStringAsync();
-			var key = JsonConvert.DeserializeObject<ApiKey>(json);
+			var key = JsonConvert.DeserializeObject<ZoteroApiKey>(json);
 			return key;
 		}
 

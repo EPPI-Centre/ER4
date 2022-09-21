@@ -57,13 +57,23 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         while (reader.Read())
                         {
+                            ZoteroItemIDPerItemReview zoteroItemIDPerItemReview = new ZoteroItemIDPerItemReview();
                             if (reader["ITEM_REVIEW_ID"] != null)
                             {
-                                var itemReviewID = reader["ITEM_REVIEW_ID"] == DBNull.Value ? 0 : (long)reader["ITEM_REVIEW_ID"];
-                                ZoteroItemIDPerItemReview zoteroItemIDPerItemReview = new ZoteroItemIDPerItemReview();
-                                zoteroItemIDPerItemReview.ITEM_REVIEW_ID = itemReviewID;
-                                Add(zoteroItemIDPerItemReview);
+                                var itemReviewID = reader["ITEM_REVIEW_ID"] == DBNull.Value ? 0 : (long)reader["ITEM_REVIEW_ID"];                                
+                                zoteroItemIDPerItemReview.ITEM_REVIEW_ID = itemReviewID;                               
                             }
+                            if (reader["ITEM_ID"] != null)
+                            {
+                                var itemID = reader["ITEM_ID"] == DBNull.Value ? 0 : (long)reader["ITEM_ID"];
+                                zoteroItemIDPerItemReview.ITEM_ID = itemID;
+                            }
+                            if (reader["ITEM_REVIEW_ID"] != null)
+                            {
+                                var itemDocID = reader["ITEM_DOCUMENT_ID"] == DBNull.Value ? 0 : (long)reader["ITEM_DOCUMENT_ID"];
+                                zoteroItemIDPerItemReview.ITEM_DOCUMENT_ID = itemDocID;
+                            }
+                            Add(zoteroItemIDPerItemReview);
                         }
                     }
                 }

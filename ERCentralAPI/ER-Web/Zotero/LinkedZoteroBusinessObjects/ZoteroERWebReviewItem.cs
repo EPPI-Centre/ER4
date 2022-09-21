@@ -181,7 +181,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public enum SyncState
+        public enum State
         {
             doesNotExist,
             behind,
@@ -190,8 +190,8 @@ namespace BusinessLibrary.BusinessClasses
             attachmentDoesNotExist
         }
 
-        public static readonly PropertyInfo<SyncState> StateProperty = RegisterProperty<SyncState>(new PropertyInfo<SyncState>("STATE", "STATE", SyncState.doesNotExist));
-        public SyncState State
+        public static readonly PropertyInfo<State> StateProperty = RegisterProperty<State>(new PropertyInfo<State>("SYNC_STATE", "SYNC_STATE", State.doesNotExist));
+        public State SyncState
         {
             get
             {
@@ -212,9 +212,10 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ItemsInERWebANDZotero", connection))
+                using (SqlCommand command = new SqlCommand("st_ItemInERWebANDZotero", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ItemReviewId", criteria.Value));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())
@@ -228,7 +229,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
                             LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
                             LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
-                            LoadProperty<SyncState>(StateProperty, (SyncState)reader.GetInt16("STATE"));
+                            LoadProperty<State>(StateProperty, (State)reader.GetInt32("SyncState"));
 
                             MarkOld();
                         }
@@ -252,7 +253,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
             //returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
             returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
-            returnValue.LoadProperty<SyncState>(StateProperty, (SyncState)reader.GetInt16("STATE"));
+            returnValue.LoadProperty<State>(StateProperty, (State)reader.GetInt32("SyncState"));
             returnValue.MarkOld();
 
             return returnValue;

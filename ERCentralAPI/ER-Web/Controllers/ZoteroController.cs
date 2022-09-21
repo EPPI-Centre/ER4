@@ -41,7 +41,7 @@ namespace ERxWebClient2.Controllers
         private IConfiguration _configuration; // THIS IS THREAD SAFE AS services.AddSingleton(Configuration);
         private OAuthParameters _oAuth;   //THREAD SAFE Singleton
 
-        private void SetZoteroHttpService(UriBuilder uri, string zoteroApiKey, bool ifNoneMatchHeader = false)
+        public void SetZoteroHttpService(UriBuilder uri, string zoteroApiKey, bool ifNoneMatchHeader = false)
         {
             var _httpClient = new HttpClient
             {
@@ -603,7 +603,7 @@ namespace ERxWebClient2.Controllers
         /// Returns ZoteroReviewConnection for the current review (if any)
         /// </summary>
         /// <returns></returns>
-        private ZoteroReviewConnection ApiKey()
+        public ZoteroReviewConnection ApiKey()
         {
             ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
             return zrc;
@@ -2299,14 +2299,14 @@ namespace ERxWebClient2.Controllers
                         zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault());
 
                         DataPortal<ZoteroItemReview> dp = new DataPortal<ZoteroItemReview>();
-                        SingleCriteria<ZoteroReviewItem, long> criteria =
-                      new SingleCriteria<ZoteroReviewItem, long>(item.ItemId);
+                        SingleCriteria<ZoteroItemReview, long> criteria =
+                      new SingleCriteria<ZoteroItemReview, long>(item.ItemId);
 
                         var zoteroReviewItem = dp.Fetch(criteria);
 
                         DataPortal<ZoteroReviewItem> dp2 = new DataPortal<ZoteroReviewItem>();
-                        SingleCriteria<ZoteroReviewItem, long> criteria2 =
-                      new SingleCriteria<ZoteroReviewItem, long>(zoteroReviewItem.ITEM_REVIEW_ID);
+                        SingleCriteria<ZoteroReviewItem, string> criteria2 =
+                      new SingleCriteria<ZoteroReviewItem, string>(zoteroReviewItem.ITEM_REVIEW_ID.ToString());
 
                         var zoteroReviewItemFetch = dp2.Fetch(criteria);
 

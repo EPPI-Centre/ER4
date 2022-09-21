@@ -134,21 +134,22 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 29/04/2022 14:24:48 ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 19/09/2022 13:50:22 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE OR ALTER   Procedure [dbo].[st_ItemReviewZoteroUpdate](
+CREATE OR ALTER     Procedure [dbo].[st_ItemReviewZoteroUpdate](
 @Zotero_item_review_ID bigint NULL,
 @ItemKey nvarchar(50) NULL,
 @LibraryID nvarchar(50) NULL, 
 @ITEM_REVIEW_ID bigint NULL, 
 @Version nvarchar(50) NULL, 
 @LAST_MODIFIED date NULL,
-@TypeName nvarchar(50) NULL)
+@TypeName nvarchar(50) NULL,
+@SyncState int NULL)
 as
 BEGIN
         UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
@@ -157,12 +158,12 @@ BEGIN
 		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
 		[Version] =@Version, 
 		[LAST_MODIFIED] =@LAST_MODIFIED,
-		[TypeName] = @TypeName
+		[TypeName] = @TypeName,
+		[SyncState] = @SyncState
         WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
 END
 
 GO
-
 
 USE [Reviewer]
 GO
@@ -204,24 +205,25 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewCreate]    Script Date: 29/04/2022 14:22:58 ******/
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewCreate]    Script Date: 19/09/2022 13:48:55 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER   Procedure [dbo].[st_ZoteroItemReviewCreate](
+CREATE OR ALTER     Procedure [dbo].[st_ZoteroItemReviewCreate](
 @ItemKey nvarchar(50) NULL,
 @LibraryID nvarchar(50) NULL, 
 @Version nvarchar(50) NULL, 
 @LAST_MODIFIED date NULL,
 @ITEM_REVIEW_ID BIGINT NULL,
-@TypeName nvarchar(50) NULL)
+@TypeName nvarchar(50) NULL,
+@SyncState int NULL)
 as
 Begin
 
 
-	INSERT INTO [dbo].[TB_ZOTERO_ITEM_REVIEW]([ItemKey], [LibraryID],[ITEM_REVIEW_ID], [Version], [LAST_MODIFIED], [TypeName])
-	VALUES(@ItemKey, @LibraryID,@ITEM_REVIEW_ID, @Version, @LAST_MODIFIED, @TypeName)
+	INSERT INTO [dbo].[TB_ZOTERO_ITEM_REVIEW]([ItemKey], [LibraryID],[ITEM_REVIEW_ID], [Version], [LAST_MODIFIED], [TypeName], [SyncState])
+	VALUES(@ItemKey, @LibraryID,@ITEM_REVIEW_ID, @Version, @LAST_MODIFIED, @TypeName, @SyncState)
 	   
 End
 
@@ -256,23 +258,25 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_Read_Zotero_Fetch_Item_Review_IDs]    Script Date: 27/09/2021 13:45:51 ******/
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewIDs]    Script Date: 18/09/2022 15:56:50 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE OR ALTER Procedure [dbo].[st_ZoteroItemReviewIDs](
+CREATE OR ALTER  Procedure [dbo].[st_ZoteroItemReviewIDs](
 @ItemIds nvarchar(50) NULL)
 as
 Begin	
-  SELECT [ITEM_REVIEW_ID]
-  FROM [Reviewer].[dbo].[TB_ITEM_REVIEW]
-  Where ITEM_ID IN (SELECT value FROM [dbo].[fn_Split_int](@ItemIds, ','))
+  SELECT TIR.ITEM_REVIEW_ID, TIR.ITEM_REVIEW_ID, TID.ITEM_DOCUMENT_ID
+  FROM [Reviewer].[dbo].[TB_ITEM_REVIEW] TIR
+  INNER JOIN TB_ITEM_DOCUMENT TID
+  on TID.ITEM_ID = TIR.ITEM_ID
+  Where TIR.ITEM_ID IN (SELECT value FROM [dbo].[fn_Split_int](@ItemIds, ','))
 End
 
-GO
+
 
 GO
 
@@ -517,17 +521,17 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ItemsInERWebANDZotero]    Script Date: 24/06/2022 19:38:25 ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemsInERWebANDZotero]    Script Date: 19/09/2022 13:58:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE OR ALTER  Procedure [dbo].[st_ItemsInERWebANDZotero]
+CREATE OR ALTER    Procedure [dbo].[st_ItemsInERWebANDZotero]
 as
 Begin	
-  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName
+  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName, ZIR.SyncState
   FROM [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW] ZIR
   INNER JOIN [Reviewer].[dbo].[TB_ITEM_REVIEW] IR
   ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
@@ -631,6 +635,33 @@ SET NOCOUNT ON
 	ORDER BY DATE_CREATED DESC
 
 SET NOCOUNT OFF
+
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemsInERWebANDZotero]    Script Date: 17/09/2022 16:59:06 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER    Procedure [dbo].[st_ItemInERWebANDZotero]
+(
+@ItemReviewId [bigint]
+)
+as
+Begin	
+  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName, ZIR.SyncState
+  FROM [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW] ZIR
+  INNER JOIN [Reviewer].[dbo].[TB_ITEM_REVIEW] IR
+  ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+  INNER JOIN [Reviewer].[dbo].[TB_ITEM] I
+  ON IR.ITEM_ID = I.ITEM_ID
+  WHERE ZIR.ITEM_REVIEW_ID = @ItemReviewId
+  ORDER BY I.SHORT_TITLE
+End
 
 GO
 
