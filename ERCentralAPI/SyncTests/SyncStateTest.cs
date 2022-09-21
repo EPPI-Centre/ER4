@@ -246,26 +246,28 @@ namespace SyncTests
             return syncStateResults;
         }
 
-        //private void UpdateSyncStatusOfDocumentItem(Dictionary<long, SyncState> syncStateResults, Item erWebItem, 
-        //    ItemDocument erWebItemDocument)
-        //{
-        //        //Compare item with Zotero
-        //        var zoteroAttachment = GetZoteroAttachment(erWebItem);
-        //        // does not assume attachments below
-        //        if (erWebItemDocument.DateEdited == zoteroAttachment.DateEdited)
-        //        {
-        //            syncStateResults.Add(erWebItem.ItemId, SyncState.upToDate);
+        private void UpdateSyncStatusOfDocumentItem(Dictionary<long, State> syncStateResults, Item erWebItem, Collection zoteroItem)
+        {
+            var parentKey = zoteroItem.key;
+            var index = zoteroItem.links.attachment.href.LastIndexOf('/');
+            var lengthOfAttachmentStr = zoteroItem.links.attachment.href.Length - index;
+            var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
+            var zoteroAttachmentLastModified = GetZoteroAttachmentAsync(fileKey);
 
-        //        }
-        //        else if (erWebItemDocument.DateEdited > zoteroAttachment.DateEdited)
-        //        {
-        //            syncStateResults.Add(erWebItem.ItemId, SyncState.ahead);
-        //        }
-        //        else
-        //        {
-        //            syncStateResults.Add(erWebItem.ItemId, SyncState.behind);
-        //        }
-        //}
+            if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 0)
+            {
+                syncStateResults.Add(erWebItem.ItemId, State.upToDate);
+
+            }
+            else if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 1)
+            {
+                syncStateResults.Add(erWebItem.ItemId, State.ahead);
+            }
+            else
+            {
+                syncStateResults.Add(erWebItem.ItemId, State.behind);
+            }
+        }
 
         private async Task UpdateSyncStatusOfItemAsync(Dictionary<long, State> syncStateResults, ZoteroItemIDPerItemReview item)
         {
@@ -278,12 +280,13 @@ namespace SyncTests
             {
                 var zoteroItem = await GetZoteroConvertedItemAsync(localSyncedItem.ItemKey);
                 var zoteroItemDateLastModified = Convert.ToDateTime(zoteroItem.data.dateModified);
-                // TODO does not assume attachments below
-                if (localSyncedItem.LAST_MODIFIED == zoteroItemDateLastModified)
+
+                var lastModified = localSyncedItem.LAST_MODIFIED.ToUniversalTime();
+                if (lastModified.CompareTo( zoteroItemDateLastModified.ToUniversalTime()) == 0)
                 {
                     syncStateResults.TryAdd(item.ITEM_ID, State.upToDate);
                 }
-                else if (localSyncedItem.LAST_MODIFIED > zoteroItemDateLastModified)
+                else if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 1)
                 {
                     syncStateResults.TryAdd(item.ITEM_ID, State.ahead);
                 }
@@ -292,12 +295,11 @@ namespace SyncTests
                     syncStateResults.TryAdd(item.ITEM_ID, State.behind);
                 }
 
-                
-                //if (item.ITEM_DOCUMENT_ID > 0)
-                //{
-                //    var itemDocument = GetErWebDocument(item);
-                //    UpdateSyncStatusOfDocumentItem(syncStateResults, erWebItem, itemDocument);
-                //}
+
+                if (item.ITEM_DOCUMENT_ID > 0)
+                {
+                    UpdateSyncStatusOfDocumentItem(syncStateResults, GetErWebItem(item.ITEM_ID),  zoteroItem);
+                }
             }
             else
             {
@@ -305,15 +307,29 @@ namespace SyncTests
             }
         }
 
-        private ItemDocument GetErWebDocument(long item)
+        private Item GetErWebItem(long itemId)
         {
-            return new ItemDocument();
+            var dp = new DataPortal<Item>();
+            var criteria = new SingleCriteria<Item, long>(itemId);
+            var item = dp.Fetch(criteria);
+            return item;
         }
 
-        //private object GetZoteroAttachment(Item erWebItem)
-        //{
+        private async Task<DateTime> GetZoteroAttachmentAsync(string itemKey)
+        {
+            // Need to get fileKey before this
 
-        //}
+            ZoteroReviewConnection zrc = ApiKey();
+            string groupIDBeingSynced = zrc.LibraryId;
+            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{itemKey}/file");
+            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+
+            //act
+            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+            var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+            return DateTime.Parse(lastModifiedDate ?? "").ToUniversalTime();
+         
+        }
 
         public void SetZoteroHttpService(UriBuilder uri, string zoteroApiKey, bool ifNoneMatchHeader = false)
         {
@@ -341,7 +357,8 @@ namespace SyncTests
             return zoteroItem;
         }
 
-        //private Item GetSyncedErWebItem(long itemReviewId){
+        //private Item GetSyncedErWebItem(long itemReviewId)
+        //{
         //    var criteria = new SingleCriteria<ZoteroItemReview, long>(itemReviewId);
         //    var dp = new DataPortal<ZoteroItemReview>();
         //    var item = dp.Fetch(criteria);
