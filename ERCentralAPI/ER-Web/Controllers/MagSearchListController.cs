@@ -265,7 +265,7 @@ namespace ERxWebClient2.Controllers
             get; set;
         }
 
-        public DateTime searchDate
+        public string searchDate
         {
             get; set;
         }

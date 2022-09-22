@@ -5,7 +5,7 @@
             <td width="200px">
                 <div class="d-flex col-auto mx-auto">
                     <div class="px-1 col-auto row mx-auto my-auto rounded border border-info bg-light">
-                        <div class="my-auto border-info border-right py-1 px-2">
+                        <div class="my-auto  py-1 px-2">
                             <input type="radio" value="dateFrom" name="logDate" [(ngModel)]="visLogDate" (click)="RetrieveLogFrom()">&nbsp;From
                         </div>
                         <div class="my-auto py-1 px-2">
@@ -31,8 +31,7 @@
                     <tr>
                         <td>
                             &nbsp;<b>Log type</b>&nbsp;
-                        </td>
-                        <td>
+                        
                             <div ngbDropdown>
                                 <select class="col-12 form-control mb-1" name="LogTypeSelection" [(ngModel)]="LogTypeSelection" (change)="RetrieveLog()">
                                     <option [ngValue]="0" [selected]="LogTypeSelection == 0">All</option>

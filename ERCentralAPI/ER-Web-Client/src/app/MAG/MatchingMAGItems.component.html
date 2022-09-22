@@ -243,31 +243,52 @@
                 </div>
 
                 <div class="col-sm-12 col-lg-6 mb-5">
-                    <h4 class="font-weight-light">Search OpenAlex by topic</h4>
-                    <table class="col-sm-12">
-                        <tr class="col-12">
-                            <td class="col-12">
-                                <input class="form-control col-12 border border-dark"  type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
-                                       placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
+                  <h4 class="font-weight-light">Search OpenAlex by topic</h4>
+                  <table class="col-sm-12">
+                    <tr class="col-12">
+                      <td class="col-12">
+                        <input class="form-control col-12 border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
+                               placeholder="Search for topics here. 2 letters minimum. No wild cards." />
 
-                            </td>
-                            <td >
-                                <button [disabled]="!CanGetTopics()"
-                                        (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><span class="k-icon k-i-search"></span></button>
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="row " style="max-width:1450px;overflow:auto;">
-                        <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
-                            <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"
-                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                                {{item.displayName}}
-                            </div>
-                        </div>
+                      </td>
+                      <td>
+                        <button [disabled]="!CanGetTopics()"
+                                (click)="UpdateTopicResults('new')" class="btn btn-primary btn-sm text-white">
+                          <span class="k-icon k-i-search"></span>
+                        </button>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <div *ngIf="SearchTextTopicResultsLength > 0">
+                    &nbsp;{{SearchTextTopicResultsLength}} topics found&nbsp;&nbsp;&nbsp;
+                    Page {{SearchTextTopicResultsPageNumber}} of {{SearchTextTopicResultsTotalPages}}&nbsp;
+                    <button [disabled]="SearchTextTopicResultsPageNumber == 1"
+                            (click)="UpdateTopicResultsPrevious('step')" class="btn btn-primary btn-sm text-white">
+                      <span class="k-icon k-i-chevron-left"></span>
+                    </button>
+                    &nbsp;
+                    <button [disabled]="SearchTextTopicResultsPageNumber == SearchTextTopicResultsTotalPages"
+                            (click)="UpdateTopicResultsNext('step')" class="btn btn-primary btn-sm text-white">
+                      <span class="k-icon k-i-chevron-right"></span>
+                    </button>
+                  </div>
+
+                  <div class="card" style="max-width: 1450px; overflow: auto; text-align: left; max-height: 500px; overflow-y: scroll;">
+                    <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
+                      <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="btn border border-0"
+                           [ngStyle]="{'background-color': 'light-blue', 'color': 'black', 'text-align':'left'}">
+                        {{item.displayName}}
+                      </div>
                     </div>
+                  </div>
+                  <div *ngIf="SearchTextTopicResultsLength < 0">
+                    no results
+                  </div>
+
                 </div>
 
-            </div>
+                </div>
         </div>
     </div>
 </div>

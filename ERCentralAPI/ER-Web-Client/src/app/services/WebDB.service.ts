@@ -33,7 +33,10 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     private clearSub: Subscription | null = null;
 
     @Output() PleaseRedrawTheTree = new EventEmitter();
-    public EppiVisBaseUrl: string = "";
+  public EppiVisBaseUrl: string = "";
+  public get BaseUrl(): string {
+    return this._baseUrl;
+  }
     private _WebDBs: iWebDB[] = [];
     public MissingAttributes: MissingAttribute[] = [];
     public get WebDBs(): iWebDB[] {

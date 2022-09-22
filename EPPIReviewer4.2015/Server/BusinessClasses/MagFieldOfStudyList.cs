@@ -42,7 +42,7 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
 #if SILVERLIGHT
-       
+
 #else
         protected void DataPortal_Fetch(MagFieldOfStudyListSelectionCriteria selectionCriteria)
         {
@@ -52,7 +52,11 @@ namespace BusinessLibrary.BusinessClasses
 
             if (selectionCriteria.ListType == "FieldOfStudySearchList")
             {
-                MagMakesHelpers.OaConceptFilterResult concepts = MagMakesHelpers.EvaluateOaConceptFilter(selectionCriteria.SearchText, "50", "1", true);
+                string pageNumber = selectionCriteria.PageNumber.ToString();
+                if (pageNumber == "0") {
+                    pageNumber = "1";
+                }
+                MagMakesHelpers.OaConceptFilterResult concepts = MagMakesHelpers.EvaluateOaConceptFilter(selectionCriteria.SearchText, "50", pageNumber, true);
 
                 var fosDict = new Dictionary<string, int>();
                 if (concepts != null && concepts.results != null && concepts.results.Length > 0)
@@ -69,13 +73,15 @@ namespace BusinessLibrary.BusinessClasses
                             fosDict[key] = fosDict[key] + 1;
                         }
                     }
+
+                    int totalResults = concepts.meta.count;
                 }
                 foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
                 {
                     MagMakesHelpers.OaFullConcept newPmfos = new MagMakesHelpers.OaFullConcept();
                     newPmfos.id = "https://openalex.org/C" + eachFos.Key.Split('¬')[0];
                     newPmfos.display_name = eachFos.Key.Split('¬')[1];
-                    Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
+                    Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos, concepts.meta.count));
                 }
                 RaiseListChangedEvents = true;
                 return;
@@ -112,7 +118,7 @@ namespace BusinessLibrary.BusinessClasses
                             MagMakesHelpers.OaFullConcept newPmfos = new MagMakesHelpers.OaFullConcept();
                             newPmfos.id = "https://openalex.org/C" + eachFos.Key.Split('¬')[0];
                             newPmfos.display_name = eachFos.Key.Split('¬')[1];
-                            Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
+                            Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos, 0));
                         }
                     }
                 }
@@ -150,8 +156,8 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
     }
-        // used to define the parameters for the query.
-        [Serializable]
+    // used to define the parameters for the query.
+    [Serializable]
         public class MagFieldOfStudyListSelectionCriteria : BusinessBase //Csla.CriteriaBase
         {
             public MagFieldOfStudyListSelectionCriteria() { }
@@ -185,7 +191,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
-        public static readonly PropertyInfo<string> SearchTextProperty = RegisterProperty<string>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<string>("SearchText", "SearchText", ""));
+            public static readonly PropertyInfo<string> SearchTextProperty = RegisterProperty<string>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<string>("SearchText", "SearchText", ""));
             public string SearchText
             {
                 get { return ReadProperty(SearchTextProperty); }
@@ -194,9 +200,17 @@ namespace BusinessLibrary.BusinessClasses
                     SetProperty(SearchTextProperty, value);
                 }
             }
+        
+
+            public static readonly PropertyInfo<Int64> PageNumberProperty = RegisterProperty<Int64>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<Int64>("PageNumber", "PageNumber"));
+            public Int64 PageNumber
+            {
+                get { return ReadProperty(PageNumberProperty); }
+                set
+                {
+                    SetProperty(PageNumberProperty, value);
+                }
+            }
         }
-
-
-    
 
 }
