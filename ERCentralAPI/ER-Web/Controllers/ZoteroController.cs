@@ -15,6 +15,7 @@ using System.Net;
 using System.Data;
 using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla.Core;
+using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 
 namespace ERxWebClient2.Controllers
 {
@@ -458,6 +459,126 @@ namespace ERxWebClient2.Controllers
         //    var removeoauthNonce = _zoteroConcurrentDictionary.Session.TryRemove("oauthNonce-" + reviewIDOut, out string oauthNonce);
 
         //}
+
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> FetchSyncState(ZoteroItemReviewIDs zoteroItemReviewIDs)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                var syncStateResults = new Dictionary<long, State>();
+                foreach (var item in zoteroItemReviewIDs)
+                {
+                    await UpdateSyncStatusOfItemAsync(syncStateResults, item);
+                }
+                return Ok(syncStateResults);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Fetch GroupToReview has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        private async Task<Collection> GetZoteroConvertedItemAsync(string itemKey)
+        {
+
+            ZoteroReviewConnection zrc = ApiKey();
+            string groupIDBeingSynced = zrc.LibraryId;
+            var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
+            SetZoteroHttpService(GETItemUri, zrc.ApiKey);
+            var zoteroItem = await _zoteroService.GetCollectionItem(GETItemUri.ToString());
+            return zoteroItem;
+        }
+
+        private async Task UpdateSyncStatusOfItemAsync(Dictionary<long, State> syncStateResults, ZoteroItemIDPerItemReview item)
+        {
+            // 1 - Convert from itemReviewId to itemKey
+            var dp = new DataPortal<ZoteroERWebReviewItem>();
+            var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(item.ITEM_REVIEW_ID.ToString());
+            var localSyncedItem = dp.Fetch(criteria);
+
+            if (localSyncedItem.Zotero_item_review_ID > 0)
+            {
+                var zoteroItem = await GetZoteroConvertedItemAsync(localSyncedItem.ItemKey);
+                var zoteroItemDateLastModified = Convert.ToDateTime(zoteroItem.data.dateModified);
+
+                var lastModified = localSyncedItem.LAST_MODIFIED.ToUniversalTime();
+                if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 0)
+                {
+                    syncStateResults.TryAdd(item.ITEM_ID, State.upToDate);
+                }
+                else if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 1)
+                {
+                    syncStateResults.TryAdd(item.ITEM_ID, State.ahead);
+                }
+                else
+                {
+                    syncStateResults.TryAdd(item.ITEM_ID, State.behind);
+                }
+
+
+                if (item.ITEM_DOCUMENT_ID > 0)
+                {
+                    UpdateSyncStatusOfDocumentItem(syncStateResults, GetErWebItem(item.ITEM_ID), zoteroItem);
+                }
+            }
+            else
+            {
+                syncStateResults.TryAdd(item.ITEM_ID, State.doesNotExist);
+            }
+        }
+
+
+        private Item GetErWebItem(long itemId)
+        {
+            var dp = new DataPortal<Item>();
+            var criteria = new SingleCriteria<Item, long>(itemId);
+            var item = dp.Fetch(criteria);
+            return item;
+        }
+
+        private async Task<DateTime> GetZoteroAttachmentAsync(string itemKey)
+        {
+            // Need to get fileKey before this
+
+            ZoteroReviewConnection zrc = ApiKey();
+            string groupIDBeingSynced = zrc.LibraryId;
+            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{itemKey}/file");
+            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+
+            //act
+            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+            var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+            return DateTime.Parse(lastModifiedDate ?? "").ToUniversalTime();
+
+        }
+
+        private void UpdateSyncStatusOfDocumentItem(Dictionary<long, State> syncStateResults, Item erWebItem, Collection zoteroItem)
+        {
+            var parentKey = zoteroItem.key;
+            var index = zoteroItem.links.attachment.href.LastIndexOf('/');
+            var lengthOfAttachmentStr = zoteroItem.links.attachment.href.Length - index;
+            var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
+            var zoteroAttachmentLastModified = GetZoteroAttachmentAsync(fileKey);
+
+            if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 0)
+            {
+                syncStateResults.Add(erWebItem.ItemId, State.upToDate);
+
+            }
+            else if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 1)
+            {
+                syncStateResults.Add(erWebItem.ItemId, State.ahead);
+            }
+            else
+            {
+                syncStateResults.Add(erWebItem.ItemId, State.behind);
+            }
+        }
+
+
 
         [HttpGet("[action]")]
         public async Task<IActionResult> FetchGroupToReviewLinks()
