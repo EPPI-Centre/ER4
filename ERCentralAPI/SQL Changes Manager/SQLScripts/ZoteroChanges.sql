@@ -269,13 +269,12 @@ CREATE OR ALTER  Procedure [dbo].[st_ZoteroItemReviewIDs](
 @ItemIds nvarchar(50) NULL)
 as
 Begin	
-  SELECT TIR.ITEM_REVIEW_ID, TIR.ITEM_REVIEW_ID, TID.ITEM_DOCUMENT_ID
+  SELECT TIR.ITEM_REVIEW_ID, TIR.ITEM_ID, TID.ITEM_DOCUMENT_ID
   FROM [Reviewer].[dbo].[TB_ITEM_REVIEW] TIR
   INNER JOIN TB_ITEM_DOCUMENT TID
   on TID.ITEM_ID = TIR.ITEM_ID
   Where TIR.ITEM_ID IN (SELECT value FROM [dbo].[fn_Split_int](@ItemIds, ','))
 End
-
 
 
 GO
