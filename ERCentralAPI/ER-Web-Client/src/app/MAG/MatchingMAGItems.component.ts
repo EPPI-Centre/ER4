@@ -63,6 +63,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public ListSubType: string = '';
     public SearchTextTopics: TopicLink[] = [];
     public SearchTextTopicsResults: TopicLink[] = [];
+    public SearchTextTopicResultsPageNumber: number = 1;
+    public SearchTextTopicResultsLength: number = 0;
+    public SearchTextTopicResultsTotalPages: number = 0;
     public magPaperId: number = 0;
     public basicPanel: boolean = false;
 
@@ -148,45 +151,88 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
 
-    public UpdateTopicResults() {
+    public UpdateTopicResultsPrevious(step: string) {
+      this.SearchTextTopicResultsPageNumber -= 1;
+      this.SearchTextTopicsResults = [];
+      this.UpdateTopicResults(step);
+    } 
 
-        
-        if (this.SearchTextTopic.length > 2 ) {
- 
-            let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-            criteriaFOSL.fieldOfStudyId = 0;
-            criteriaFOSL.listType = 'FieldOfStudySearchList';
-            criteriaFOSL.paperIdList = '';
-            criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
-            this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+    public UpdateTopicResultsNext(step: string) {
+      this.SearchTextTopicResultsPageNumber += 1;
+      this.SearchTextTopicsResults = [];
+      this.UpdateTopicResults(step);
+    } 
 
-                (results: MagFieldOfStudy[] | boolean) => {
-                    if (results != false) {
-                        let FosList: MagFieldOfStudy[] = results as MagFieldOfStudy[];
-                        let i: number = 1.7;
-                        let cnt: number = 0;
-                        for (var fos of FosList) {
-                            let item: TopicLink = new TopicLink();
-                            item.displayName = fos.displayName;
-                            item.fontSize = i;
-                            item.fieldOfStudyId = fos.fieldOfStudyId;
-
-                            this.SearchTextTopicsResults[cnt] = item;
-                            cnt += 1;
-                            if (i > 0.1) {
-                                i -= 0.01;
-                            }
-                        }
-                        return;
-                    }
-                }
-            );
-
-        } else {
-
-            this.SearchTextTopics = [];
-            this.SearchTextTopicsResults = [];
+    public UpdateTopicResults(caller: string) {
+      if (this.SearchTextTopic.length > 2) {
+        if (caller == "new") {
+          // this is a new call so initialise
+          this.SearchTextTopicsResults = [];
+          this.SearchTextTopicResultsLength = 0;
+          this.SearchTextTopicResultsTotalPages = 1;
+          this.SearchTextTopicResultsPageNumber = 1;
         }
+        else {
+          // this is a step call
+
+        }
+
+        let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+        criteriaFOSL.fieldOfStudyId = 0;
+        criteriaFOSL.listType = 'FieldOfStudySearchList';
+        criteriaFOSL.paperIdList = '';
+        criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
+        criteriaFOSL.pageNumber = this.SearchTextTopicResultsPageNumber;
+        this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+
+          (results: MagFieldOfStudy[] | boolean) => {
+            if (results != false) {
+
+              let FosList: MagFieldOfStudy[] = results as MagFieldOfStudy[];
+              this.SearchTextTopicResultsLength = FosList[0].totalCount;
+
+              this.SearchTextTopicResultsPageNumber = criteriaFOSL.pageNumber;
+
+              if (FosList[0].totalCount > 50) {
+                this.SearchTextTopicResultsTotalPages = Math.trunc(FosList[0].totalCount / 50);
+                const intoNextPage = FosList[0].totalCount % 50;
+                if (intoNextPage > 0) {
+                  this.SearchTextTopicResultsTotalPages += 1;
+                }
+              }
+              else {
+                this.SearchTextTopicResultsTotalPages = 1;
+                this.SearchTextTopicResultsPageNumber = 1;
+              }
+
+              let i: number = 1.7;
+              let cnt: number = 0;
+
+              for (var fos of FosList) {
+                let item: TopicLink = new TopicLink();
+                item.displayName = fos.displayName;
+                item.fontSize = i;
+                item.fieldOfStudyId = fos.fieldOfStudyId;
+
+                this.SearchTextTopicsResults[cnt] = item;
+
+                cnt += 1;
+                if (i > 0.1) {
+                  i -= 0.01;
+                }
+              }
+              return;
+            }
+            else {
+              this.SearchTextTopicResultsLength = -1;
+            }
+          }
+        );
+
+      } else {       
+          this.SearchTextTopics = [];
+          this.SearchTextTopicsResults = [];
+      }
     }
     public async FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
 
@@ -320,7 +366,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetTopics(): boolean {
 
-        if (this.SearchTextTopic.trim() != "") {
+        if (this.SearchTextTopic.trim().length > 2) {
             return true;
         } else {
             return false;

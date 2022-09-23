@@ -33,8 +33,8 @@ namespace ERxWebClient2.Controllers
                         FieldOfStudyId = crit.fieldOfStudyId,
                         ListType = crit.listType,
                         PaperIdList = crit.paperIdList,
-                        SearchText = crit.SearchTextTopics
-
+                        SearchText = crit.SearchTextTopics,
+                        PageNumber = crit.pageNumber
                     };
 
                 var result = dp.Fetch(selectionCriteria);
@@ -56,6 +56,7 @@ namespace ERxWebClient2.Controllers
         public string listType { get; set; }
         public string paperIdList { get; set; }
         public string SearchTextTopics { get; set; }
+        public Int64 pageNumber { get; set; }
 
     }
 }
