@@ -544,7 +544,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.NewReference();
         }
     }];
-
+  public ReportButtonStyle(btnName: string): string {
+    switch (btnName) {
+      case "ShowHideQuickReport":
+        if (this._ShowQuickReport || this._ShowQuickQuestionReport) return "k-selected-splitbutton";
+        break;
+      default:
+        return "";
+    }
+    return "";
+  }
     public get ShowQuickReport(): boolean {
         
         return this._ShowQuickReport;

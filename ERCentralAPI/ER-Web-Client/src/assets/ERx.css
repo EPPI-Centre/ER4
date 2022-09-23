@@ -124,6 +124,11 @@ body {
   color: #04070b;
   background-color: #d1d1d1;
 }
+.containsAtoolbar .k-button.k-selected-splitbutton {
+  border-color: #020206;
+  color: #04070b;
+  background-color: #d1d1d1;
+}
 .k-tabstrip-items-wrapper .k-item {
   color: #808080 ;
 }
