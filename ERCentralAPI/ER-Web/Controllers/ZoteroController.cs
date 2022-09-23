@@ -15,6 +15,7 @@ using System.Net;
 using System.Data;
 using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla.Core;
+using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 
 namespace ERxWebClient2.Controllers
 {
@@ -104,10 +105,7 @@ namespace ERxWebClient2.Controllers
                 //tokenSecret is needed also for signing the request, added last because we receive it from Zotero
 
                 string dictionaryVal = _oAuth.timeStamp + ";" + _oAuth.nonce + ";" + reviewID +";" + ri.UserId + ";";
-
-                //_zoteroConcurrentDictionary.Session.TryAdd("oauthTimeStamp-" + reviewID, _oAuth.timeStamp);
-                //_zoteroConcurrentDictionary.Session.TryAdd("oauthNonce-" + reviewID, _oAuth.nonce);
-
+                          
                 var requestZoteroUri = new UriBuilder(oauthURL);
                 var _httpClient = new HttpClient();
                 _httpClient.BaseAddress = new Uri(requestZoteroUri.ToString());
@@ -136,17 +134,8 @@ namespace ERxWebClient2.Controllers
                 var oauth_token_secret = secretString.Substring(equalsIndex + 1);
 
                 _zoteroConcurrentDictionary.Session.TryRemove("TempOAuthData-" + TemporaryToken, out string? throwAway);
-                //_zoteroConcurrentDictionary.Session.TryRemove("zotero_temp_token-" + reviewID, out string zotero_temp_tokenOut);
-                //_zoteroConcurrentDictionary.Session.TryRemove("erWebuserId-" + TemporaryToken, out string erWebuserIdOut);
-                //_zoteroConcurrentDictionary.Session.TryRemove("zotero_token_secret-" + TemporaryToken, out string zotero_token_secretOut);
-                //_zoteroConcurrentDictionary.Session.TryRemove("reviewID", out string reviewIDOut);
-
+                
                 _zoteroConcurrentDictionary.Session.TryAdd("TempOAuthData-" + TemporaryToken, dictionaryVal + oauth_token_secret);
-
-                //_zoteroConcurrentDictionary.Session.TryAdd("zotero_temp_token-" + reviewID, TemporaryToken);
-                //_zoteroConcurrentDictionary.Session.TryAdd("erWebuserId-" + TemporaryToken, ri.UserId.ToString());
-                //_zoteroConcurrentDictionary.Session.TryAdd("zotero_token_secret-" + TemporaryToken, zotero_token_secret);
-                //_zoteroConcurrentDictionary.Session.TryAdd("reviewID", reviewID.ToString());
 
                 return Json(TemporaryToken);
             }
@@ -311,153 +300,170 @@ namespace ERxWebClient2.Controllers
             return res;
         }
 
-        //[AllowAnonymous]
-        //[HttpGet("[action]")]
-        //public async Task<IActionResult> OLDOauthVerifyGet([FromQuery] string oauth_token, [FromQuery] string oauth_verifier)
-        //{
-        //    try
-        //    {
-        //        var eRWebuserIdResult = _zoteroConcurrentDictionary.Session.TryGetValue("erWebuserId-" + oauth_token, out string erWebuserId);
-        //        var reviewIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("reviewID", out string ReviewID);
-        //        var tempTokenResult = _zoteroConcurrentDictionary.Session.TryGetValue("zotero_temp_token-" + ReviewID, out string zotero_temp_token);
+        [HttpGet("[action]")]
+        public async Task<IActionResult> FetchSyncState(ZoteroItemReviewIDs zoteroItemReviewIDs)
+        {
+			try
+			{
+				//if (!SetCSLAUser()) return Unauthorized();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                var syncStateResults = new Dictionary<long, State>();
+                foreach (var item in zoteroItemReviewIDs)
+                {
+                    await UpdateSyncStatusOfItemAsync(syncStateResults, item);
+                }
+                return Ok(syncStateResults);
+		        }
+                    catch (Exception e)
+                    {
+                        _logger.LogException(e, "Fetch SyncState has an error");
+                        return StatusCode(500, e.Message);
+	        }
+        }
 
-        //        if (!tempTokenResult) return StatusCode(400, "temp token is null");
-        //        if (!eRWebuserIdResult) return StatusCode(400, "eRWebuserId is null");
-        //        if (!reviewIDResult) return StatusCode(400, "reviewID is null");
-        //        var reviewID = Convert.ToInt64(ReviewID);
-        //        if (!zotero_temp_token.Equals(oauth_token)) return Unauthorized();
+        public async Task<Collection> GetZoteroConvertedItemAsync(string itemKey)
+        {
 
-        //        string verifier = oauth_verifier;
-        //        string tokenValue = oauth_token;
-        //        string url = zotero_access_token_endpoint;
-        //        var getSecretTokenResult = _zoteroConcurrentDictionary.Session.TryGetValue("zotero_token_secret-" + oauth_token, out string zotero_token_secret);
-        //        if (!getSecretTokenResult) return StatusCode(400, "zotero_token_secret is null");
+            ZoteroReviewConnection zrc = ApiKey();
+            string groupIDBeingSynced = zrc.LibraryId;
+            var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
+            SetZoteroHttpService(GETItemUri, zrc.ApiKey);
+            var zoteroItem = await _zoteroService.GetCollectionItem(GETItemUri.ToString());
+            return zoteroItem;
+        }
 
-        //        //TODO need to build something in to retry this for a longer time period if it fails at
-        //        // first and just say waiting on Zotero
-        //        var signedURL = "";// GetSignedUrl(ReviewID, url, tokenValue, zotero_token_secret, verifier);
+        public async Task UpdateSyncStatusOfItemAsync(Dictionary<long, State> syncStateResults, ZoteroItemIDPerItemReview item)
+        {
+            // 1 - Convert from itemReviewId to itemKey
+            var dp = new DataPortal<ZoteroERWebReviewItem>();
+            var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(item.ITEM_REVIEW_ID.ToString());
+            var localSyncedItem = dp.Fetch(criteria);
 
-        //        var accessZoteroUri = new UriBuilder(signedURL);
-        //        var _httpClient = new HttpClient();
-        //        _httpClient.BaseAddress = new Uri(accessZoteroUri.ToString());
+            if (localSyncedItem.Zotero_item_review_ID > 0)
+            {
+                var zoteroItem = await GetZoteroConvertedItemAsync(localSyncedItem.ItemKey);
+                var zoteroItemDateLastModified = Convert.ToDateTime(zoteroItem.data.dateModified);
 
-        //        var httpClientProviderF = new HttpClientProvider(_httpClient);
-        //        _zoteroService.SetZoteroServiceHttpProvider(httpClientProviderF);
-        //        var responseThree = await _zoteroService.DoGetReq(accessZoteroUri.ToString());
+                var lastModified = localSyncedItem.LAST_MODIFIED.ToUniversalTime();
+                var result = syncStateResults.TryGetValue(item.ITEM_ID, out State state);
+                if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 0)
+                {
+                    if (result)
+                    {
+                        syncStateResults[item.ITEM_ID]= State.upToDate;
+					}
+					else
+					{
+                        syncStateResults.TryAdd(item.ITEM_ID, State.upToDate);
 
-        //        var access_oauth_TokenIndex = responseThree.IndexOf('=');
-        //        var indexOfAccessAnd = responseThree.IndexOf('&');
-        //        var access_oauth_Token = responseThree.Substring(access_oauth_TokenIndex + 1, indexOfAccessAnd - access_oauth_TokenIndex - 1);
-        //        var remainingStringresponseThree = responseThree.Substring(indexOfAccessAnd + 1);
-        //        var indexOfSecondEquals = remainingStringresponseThree.IndexOf('=');
-        //        var indexOfSecondAnd = remainingStringresponseThree.IndexOf('&');
-        //        access_oauth_Token_Secret = remainingStringresponseThree.Substring(indexOfSecondEquals + 1, indexOfSecondAnd - indexOfSecondEquals - 1);
-        //        var remainingStringresponseFour = remainingStringresponseThree.Substring(indexOfSecondAnd + 1);
-        //        var indexOfThirdEquals = remainingStringresponseFour.IndexOf('=');
-        //        var indexOfThirdAnd = remainingStringresponseFour.IndexOf('&');
-        //        var access_userId = remainingStringresponseFour.Substring(indexOfThirdEquals + 1, indexOfThirdAnd - indexOfThirdEquals - 1);
+                    }                    
+                }
+                else if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 1)
+                {
 
-        //        var remainingStringresponseFive = remainingStringresponseFour.Substring(indexOfThirdAnd + 1);
-        //        var indexOfFourthEquals = remainingStringresponseFive.IndexOf('=');
-        //        var access_user_name = remainingStringresponseFive.Substring(indexOfFourthEquals + 1);
-        //        var apiKeyURL = $"{baseUrl}/users/" + access_userId + "/collections?limit=1&key=" + access_oauth_Token_Secret + "";
-        //        var responseCollections = await _zoteroService.DoGetReq(apiKeyURL);
-        //        JArray collections = JsonConvert.DeserializeObject<JArray>(responseCollections);
+                    if (result)
+                    {
+                        syncStateResults[item.ITEM_ID] = State.ahead;
+                    }
+                    else
+                    {
+                        syncStateResults.TryAdd(item.ITEM_ID, State.ahead);
 
-        //        DataPortal<ZoteroReviewCollection> dp = new DataPortal<ZoteroReviewCollection>();
-        //        UserDetails userDetails = new UserDetails();
-        //        userDetails.reviewId = Convert.ToInt64(ReviewID);
-        //        userDetails.userId = Convert.ToInt16(erWebuserId);
+                    }
+                }
+                else
+                {
+                    if (result)
+                    {
+                        syncStateResults[item.ITEM_ID] = State.behind;
+                    }
+                    else
+                    {
+                        syncStateResults.TryAdd(item.ITEM_ID, State.behind);
+                    }
+                }
 
-        //        SingleCriteria<ZoteroReviewCollection, long> criteria =
-        //                new SingleCriteria<ZoteroReviewCollection, long>(userDetails.reviewId);
 
-        //        var resultCollection = await dp.FetchAsync(criteria);
+                if (item.ITEM_DOCUMENT_ID > 0)
+                {
+                    var erWebItem = GetErWebItem(item.ITEM_ID);
+                    await UpdateSyncStatusOfDocumentItemAsync(syncStateResults, erWebItem, zoteroItem);
+                }
+            }
+            else
+            {
+                syncStateResults.TryAdd(item.ITEM_ID, State.doesNotExist);
+            }
+        }
 
-        //        if (!string.IsNullOrEmpty(access_oauth_Token_Secret))
-        //        {
-        //            _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ReviewID, access_oauth_Token_Secret);
-        //            _zoteroConcurrentDictionary.Session.TryUpdate("apiKey-" + ReviewID, access_oauth_Token_Secret, "");
-        //        }
-        //        var firstGroup = await this.GetGroups(access_userId, reviewID.ToString(), "");
+        private Item GetErWebItem(long itemId)
+        {
+            var dp = new DataPortal<Item>();
+            var criteria = new SingleCriteria<Item, long>(itemId);
+            var item = dp.Fetch(criteria);
+            return item;
+        }
 
-        //        if (firstGroup.Count == 0)
-        //        {
-        //            return Redirect(callbackUrl + "?error=nogroups");
-        //        }
-        //        if (resultCollection.ApiKey.Length == 0)
-        //        {
-        //            if (collections.Count > 0)
-        //            {
-        //                foreach (var collection in collections)
-        //                {
-        //                    var reviewCollection = new ZoteroReviewCollection
-        //                    {
-        //                        ApiKey = access_oauth_Token_Secret,
-        //                        CollectionKey = collection["key"].ToString(),
-        //                        LibraryID = firstGroup.FirstOrDefault().id.ToString(),
-        //                        USER_ID = Convert.ToInt16(erWebuserId),
-        //                        REVIEW_ID = reviewID,
-        //                        ParentCollection = collection["data"]["parentCollection"].ToString(),
-        //                        CollectionName = collection["data"]["name"].ToString(),
-        //                        Version = Convert.ToInt64(collection["data"]["version"].ToString()),
-        //                        DateCreated = DateTime.Now
-        //                    };
-        //                    reviewCollection = dp.Execute(reviewCollection);
-        //                    _zoteroConcurrentDictionary.Session.TryAdd("libraryId-" + reviewID + collection["library"]["id"].ToString(), collection["library"]["id"].ToString());
-        //                }
+        private async Task<DateTime> GetZoteroAttachmentAsync(string itemKey)
+        {
+            // Need to get fileKey before this
 
-        //            }
-        //            else
-        //            {
-        //                var reviewCollection = new ZoteroReviewCollection
-        //                {
-        //                    ApiKey = access_oauth_Token_Secret,
-        //                    CollectionKey = "",
-        //                    LibraryID = "",
-        //                    USER_ID = Convert.ToInt16(erWebuserId),
-        //                    REVIEW_ID = reviewID,
-        //                    ParentCollection = "",
-        //                    CollectionName = "",
-        //                    Version = 0,
-        //                    DateCreated = DateTime.Now
-        //                };
-        //                reviewCollection = dp.Execute(reviewCollection);
-        //            }
-        //        }
+            ZoteroReviewConnection zrc = ApiKey();
+            string groupIDBeingSynced = zrc.LibraryId;
+            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{itemKey}/file");
+            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
 
-        //        return Redirect(callbackUrl);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        // On error ensure groupIdBeingSynced is being removed
-        //        var removeGroupIdSynced = _zoteroConcurrentDictionary.Session.TryRemove("groupIDBeingSynced-" + oauth_token, out string groupIdSync);
+            //act
+            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+            var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+            return DateTime.Parse(lastModifiedDate ?? "").ToUniversalTime();
 
-        //        if (e.Message == "Response status code does not indicate success: 401 (Unauthorized).")
-        //        {
-        //            _logger.LogException(e, "Zotero Oauth Verify Process has the classic Unauthorized error");
-        //            return Redirect(callbackUrl + "?error=unauthorised");
-        //        }
-        //        _logger.LogException(e, "Zotero Oauth Verify Process has an error");
-        //        return StatusCode(500, e.Message);
-        //    }
-        //    finally
-        //    {
-        //        RemoveSessionVariablesNoLongerRequired(oauth_token);
-        //    }
-        //}
+        }
 
-        //private void RemoveSessionVariablesNoLongerRequired(string oauth_token)
-        //{
-        //    var removeuserId = _zoteroConcurrentDictionary.Session.TryRemove("erWebuserId-" + oauth_token, out string erWebuserIdOut);
-        //    var removeReviewID = _zoteroConcurrentDictionary.Session.TryRemove("reviewID", out string reviewIDOut);
-        //    var removeZotero_temp_token = _zoteroConcurrentDictionary.Session.TryRemove("zotero_temp_token-" + reviewIDOut, out string zotero_temp_tokenOut);
-        //    var removeZotero_token_secret = _zoteroConcurrentDictionary.Session.TryRemove("zotero_token_secret-" + oauth_token, out string zotero_token_secretOut);
-        //    var removeZoteroApiKey = _zoteroConcurrentDictionary.Session.TryRemove("apiKey-" + reviewIDOut, out string zotero_api_key);
-        //    var removeoauthTimeStamp = _zoteroConcurrentDictionary.Session.TryRemove("oauthTimeStamp-" + reviewIDOut, out string oauthTimeStamp);
-        //    var removeoauthNonce = _zoteroConcurrentDictionary.Session.TryRemove("oauthNonce-" + reviewIDOut, out string oauthNonce);
+        private async Task UpdateSyncStatusOfDocumentItemAsync(Dictionary<long, State> syncStateResults, Item erWebItem, Collection zoteroItem)
+        {
+            var parentKey = zoteroItem.key;
+            var index = zoteroItem.links.attachment.href.LastIndexOf('/');
+            var lengthOfAttachmentStr = zoteroItem.links.attachment.href.Length - index;
+            var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
+            var zoteroAttachmentLastModified = await GetZoteroAttachmentAsync(fileKey);
+            var result = syncStateResults.TryGetValue(erWebItem.ItemId, out State state);
+            if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 0)
+            {
+                if (result)
+                {
+                    syncStateResults[erWebItem.ItemId] = State.upToDate;
+                }
+                else
+                {
+                    syncStateResults.TryAdd(erWebItem.ItemId, State.upToDate);
 
-        //}
+                }
+            }
+            else if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 1)
+            {
+                if (result)
+                {
+                    syncStateResults[erWebItem.ItemId] = State.ahead;
+                }
+                else
+                {
+                    syncStateResults.TryAdd(erWebItem.ItemId, State.ahead);
+                }
+            }
+            else
+            {
+                if (result)
+                {
+                    syncStateResults[erWebItem.ItemId] = State.behind;
+                }
+                else
+                {
+                    syncStateResults.TryAdd(erWebItem.ItemId, State.behind);
+                }
+            }
+        }
+
 
         [HttpGet("[action]")]
         public async Task<IActionResult> FetchGroupToReviewLinks()
@@ -2348,8 +2354,6 @@ namespace ERxWebClient2.Controllers
 
         public string GetSignedUrl(string timestamp, string nonce, string ReviewID, string urlWithParameters, string userToken, string userSecret, string verifier)
         {
-            //_zoteroConcurrentDictionary.Session.TryGetValue("oauthTimeStamp-" + ReviewID, out string timestamp);
-            //_zoteroConcurrentDictionary.Session.TryGetValue("oauthNonce-" + ReviewID, out string nonce);
             var signature = OAuthHelper.createSignature(new Uri(urlWithParameters), clientKey,
                                                         clientSecret,
                                                         userToken, userSecret, "GET", timestamp, nonce,

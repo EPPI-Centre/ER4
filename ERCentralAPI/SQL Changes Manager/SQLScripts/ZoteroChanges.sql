@@ -1,12 +1,14 @@
 ﻿USE [Reviewer]
 GO
 
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
 GO
 
 /****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 16/09/2022 13:50:12 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_REVIEW]') AND type in (N'U'))
-DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+begin
+	ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
+	DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+end
 GO
 
 /****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 16/09/2022 13:50:12 ******/
@@ -269,13 +271,12 @@ CREATE OR ALTER  Procedure [dbo].[st_ZoteroItemReviewIDs](
 @ItemIds nvarchar(50) NULL)
 as
 Begin	
-  SELECT TIR.ITEM_REVIEW_ID, TIR.ITEM_REVIEW_ID, TID.ITEM_DOCUMENT_ID
+  SELECT TIR.ITEM_REVIEW_ID, TIR.ITEM_ID, TID.ITEM_DOCUMENT_ID
   FROM [Reviewer].[dbo].[TB_ITEM_REVIEW] TIR
   INNER JOIN TB_ITEM_DOCUMENT TID
   on TID.ITEM_ID = TIR.ITEM_ID
   Where TIR.ITEM_ID IN (SELECT value FROM [dbo].[fn_Split_int](@ItemIds, ','))
 End
-
 
 
 GO

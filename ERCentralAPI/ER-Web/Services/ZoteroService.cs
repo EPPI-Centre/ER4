@@ -250,9 +250,9 @@ namespace ERxWebClient2.Services
 
 		public async Task<HttpResponseMessage> GetDocumentHeader(string requestUri)
 		{
-			var response = await _httpProvider.GetAsync(requestUri);
-			response.EnsureSuccessStatusCode();
-			return response;
+				var response = await _httpProvider.GetAsync(requestUri);
+				response.EnsureSuccessStatusCode();
+				return response;
 		}
 
 		// TODO remove when testing is over
