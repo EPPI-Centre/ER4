@@ -105,10 +105,7 @@ namespace ERxWebClient2.Controllers
                 //tokenSecret is needed also for signing the request, added last because we receive it from Zotero
 
                 string dictionaryVal = _oAuth.timeStamp + ";" + _oAuth.nonce + ";" + reviewID +";" + ri.UserId + ";";
-
-                //_zoteroConcurrentDictionary.Session.TryAdd("oauthTimeStamp-" + reviewID, _oAuth.timeStamp);
-                //_zoteroConcurrentDictionary.Session.TryAdd("oauthNonce-" + reviewID, _oAuth.nonce);
-
+                          
                 var requestZoteroUri = new UriBuilder(oauthURL);
                 var _httpClient = new HttpClient();
                 _httpClient.BaseAddress = new Uri(requestZoteroUri.ToString());
@@ -137,17 +134,8 @@ namespace ERxWebClient2.Controllers
                 var oauth_token_secret = secretString.Substring(equalsIndex + 1);
 
                 _zoteroConcurrentDictionary.Session.TryRemove("TempOAuthData-" + TemporaryToken, out string? throwAway);
-                //_zoteroConcurrentDictionary.Session.TryRemove("zotero_temp_token-" + reviewID, out string zotero_temp_tokenOut);
-                //_zoteroConcurrentDictionary.Session.TryRemove("erWebuserId-" + TemporaryToken, out string erWebuserIdOut);
-                //_zoteroConcurrentDictionary.Session.TryRemove("zotero_token_secret-" + TemporaryToken, out string zotero_token_secretOut);
-                //_zoteroConcurrentDictionary.Session.TryRemove("reviewID", out string reviewIDOut);
-
+                
                 _zoteroConcurrentDictionary.Session.TryAdd("TempOAuthData-" + TemporaryToken, dictionaryVal + oauth_token_secret);
-
-                //_zoteroConcurrentDictionary.Session.TryAdd("zotero_temp_token-" + reviewID, TemporaryToken);
-                //_zoteroConcurrentDictionary.Session.TryAdd("erWebuserId-" + TemporaryToken, ri.UserId.ToString());
-                //_zoteroConcurrentDictionary.Session.TryAdd("zotero_token_secret-" + TemporaryToken, zotero_token_secret);
-                //_zoteroConcurrentDictionary.Session.TryAdd("reviewID", reviewID.ToString());
 
                 return Json(TemporaryToken);
             }
@@ -312,155 +300,6 @@ namespace ERxWebClient2.Controllers
             return res;
         }
 
-        //[AllowAnonymous]
-        //[HttpGet("[action]")]
-        //public async Task<IActionResult> OLDOauthVerifyGet([FromQuery] string oauth_token, [FromQuery] string oauth_verifier)
-        //{
-        //    try
-        //    {
-        //        var eRWebuserIdResult = _zoteroConcurrentDictionary.Session.TryGetValue("erWebuserId-" + oauth_token, out string erWebuserId);
-        //        var reviewIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("reviewID", out string ReviewID);
-        //        var tempTokenResult = _zoteroConcurrentDictionary.Session.TryGetValue("zotero_temp_token-" + ReviewID, out string zotero_temp_token);
-
-        //        if (!tempTokenResult) return StatusCode(400, "temp token is null");
-        //        if (!eRWebuserIdResult) return StatusCode(400, "eRWebuserId is null");
-        //        if (!reviewIDResult) return StatusCode(400, "reviewID is null");
-        //        var reviewID = Convert.ToInt64(ReviewID);
-        //        if (!zotero_temp_token.Equals(oauth_token)) return Unauthorized();
-
-        //        string verifier = oauth_verifier;
-        //        string tokenValue = oauth_token;
-        //        string url = zotero_access_token_endpoint;
-        //        var getSecretTokenResult = _zoteroConcurrentDictionary.Session.TryGetValue("zotero_token_secret-" + oauth_token, out string zotero_token_secret);
-        //        if (!getSecretTokenResult) return StatusCode(400, "zotero_token_secret is null");
-
-        //        //TODO need to build something in to retry this for a longer time period if it fails at
-        //        // first and just say waiting on Zotero
-        //        var signedURL = "";// GetSignedUrl(ReviewID, url, tokenValue, zotero_token_secret, verifier);
-
-        //        var accessZoteroUri = new UriBuilder(signedURL);
-        //        var _httpClient = new HttpClient();
-        //        _httpClient.BaseAddress = new Uri(accessZoteroUri.ToString());
-
-        //        var httpClientProviderF = new HttpClientProvider(_httpClient);
-        //        _zoteroService.SetZoteroServiceHttpProvider(httpClientProviderF);
-        //        var responseThree = await _zoteroService.DoGetReq(accessZoteroUri.ToString());
-
-        //        var access_oauth_TokenIndex = responseThree.IndexOf('=');
-        //        var indexOfAccessAnd = responseThree.IndexOf('&');
-        //        var access_oauth_Token = responseThree.Substring(access_oauth_TokenIndex + 1, indexOfAccessAnd - access_oauth_TokenIndex - 1);
-        //        var remainingStringresponseThree = responseThree.Substring(indexOfAccessAnd + 1);
-        //        var indexOfSecondEquals = remainingStringresponseThree.IndexOf('=');
-        //        var indexOfSecondAnd = remainingStringresponseThree.IndexOf('&');
-        //        access_oauth_Token_Secret = remainingStringresponseThree.Substring(indexOfSecondEquals + 1, indexOfSecondAnd - indexOfSecondEquals - 1);
-        //        var remainingStringresponseFour = remainingStringresponseThree.Substring(indexOfSecondAnd + 1);
-        //        var indexOfThirdEquals = remainingStringresponseFour.IndexOf('=');
-        //        var indexOfThirdAnd = remainingStringresponseFour.IndexOf('&');
-        //        var access_userId = remainingStringresponseFour.Substring(indexOfThirdEquals + 1, indexOfThirdAnd - indexOfThirdEquals - 1);
-
-        //        var remainingStringresponseFive = remainingStringresponseFour.Substring(indexOfThirdAnd + 1);
-        //        var indexOfFourthEquals = remainingStringresponseFive.IndexOf('=');
-        //        var access_user_name = remainingStringresponseFive.Substring(indexOfFourthEquals + 1);
-        //        var apiKeyURL = $"{baseUrl}/users/" + access_userId + "/collections?limit=1&key=" + access_oauth_Token_Secret + "";
-        //        var responseCollections = await _zoteroService.DoGetReq(apiKeyURL);
-        //        JArray collections = JsonConvert.DeserializeObject<JArray>(responseCollections);
-
-        //        DataPortal<ZoteroReviewCollection> dp = new DataPortal<ZoteroReviewCollection>();
-        //        UserDetails userDetails = new UserDetails();
-        //        userDetails.reviewId = Convert.ToInt64(ReviewID);
-        //        userDetails.userId = Convert.ToInt16(erWebuserId);
-
-        //        SingleCriteria<ZoteroReviewCollection, long> criteria =
-        //                new SingleCriteria<ZoteroReviewCollection, long>(userDetails.reviewId);
-
-        //        var resultCollection = await dp.FetchAsync(criteria);
-
-        //        if (!string.IsNullOrEmpty(access_oauth_Token_Secret))
-        //        {
-        //            _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ReviewID, access_oauth_Token_Secret);
-        //            _zoteroConcurrentDictionary.Session.TryUpdate("apiKey-" + ReviewID, access_oauth_Token_Secret, "");
-        //        }
-        //        var firstGroup = await this.GetGroups(access_userId, reviewID.ToString(), "");
-
-        //        if (firstGroup.Count == 0)
-        //        {
-        //            return Redirect(callbackUrl + "?error=nogroups");
-        //        }
-        //        if (resultCollection.ApiKey.Length == 0)
-        //        {
-        //            if (collections.Count > 0)
-        //            {
-        //                foreach (var collection in collections)
-        //                {
-        //                    var reviewCollection = new ZoteroReviewCollection
-        //                    {
-        //                        ApiKey = access_oauth_Token_Secret,
-        //                        CollectionKey = collection["key"].ToString(),
-        //                        LibraryID = firstGroup.FirstOrDefault().id.ToString(),
-        //                        USER_ID = Convert.ToInt16(erWebuserId),
-        //                        REVIEW_ID = reviewID,
-        //                        ParentCollection = collection["data"]["parentCollection"].ToString(),
-        //                        CollectionName = collection["data"]["name"].ToString(),
-        //                        Version = Convert.ToInt64(collection["data"]["version"].ToString()),
-        //                        DateCreated = DateTime.Now
-        //                    };
-        //                    reviewCollection = dp.Execute(reviewCollection);
-        //                    _zoteroConcurrentDictionary.Session.TryAdd("libraryId-" + reviewID + collection["library"]["id"].ToString(), collection["library"]["id"].ToString());
-        //                }
-
-        //            }
-        //            else
-        //            {
-        //                var reviewCollection = new ZoteroReviewCollection
-        //                {
-        //                    ApiKey = access_oauth_Token_Secret,
-        //                    CollectionKey = "",
-        //                    LibraryID = "",
-        //                    USER_ID = Convert.ToInt16(erWebuserId),
-        //                    REVIEW_ID = reviewID,
-        //                    ParentCollection = "",
-        //                    CollectionName = "",
-        //                    Version = 0,
-        //                    DateCreated = DateTime.Now
-        //                };
-        //                reviewCollection = dp.Execute(reviewCollection);
-        //            }
-        //        }
-
-        //        return Redirect(callbackUrl);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        // On error ensure groupIdBeingSynced is being removed
-        //        var removeGroupIdSynced = _zoteroConcurrentDictionary.Session.TryRemove("groupIDBeingSynced-" + oauth_token, out string groupIdSync);
-
-        //        if (e.Message == "Response status code does not indicate success: 401 (Unauthorized).")
-        //        {
-        //            _logger.LogException(e, "Zotero Oauth Verify Process has the classic Unauthorized error");
-        //            return Redirect(callbackUrl + "?error=unauthorised");
-        //        }
-        //        _logger.LogException(e, "Zotero Oauth Verify Process has an error");
-        //        return StatusCode(500, e.Message);
-        //    }
-        //    finally
-        //    {
-        //        RemoveSessionVariablesNoLongerRequired(oauth_token);
-        //    }
-        //}
-
-        //private void RemoveSessionVariablesNoLongerRequired(string oauth_token)
-        //{
-        //    var removeuserId = _zoteroConcurrentDictionary.Session.TryRemove("erWebuserId-" + oauth_token, out string erWebuserIdOut);
-        //    var removeReviewID = _zoteroConcurrentDictionary.Session.TryRemove("reviewID", out string reviewIDOut);
-        //    var removeZotero_temp_token = _zoteroConcurrentDictionary.Session.TryRemove("zotero_temp_token-" + reviewIDOut, out string zotero_temp_tokenOut);
-        //    var removeZotero_token_secret = _zoteroConcurrentDictionary.Session.TryRemove("zotero_token_secret-" + oauth_token, out string zotero_token_secretOut);
-        //    var removeZoteroApiKey = _zoteroConcurrentDictionary.Session.TryRemove("apiKey-" + reviewIDOut, out string zotero_api_key);
-        //    var removeoauthTimeStamp = _zoteroConcurrentDictionary.Session.TryRemove("oauthTimeStamp-" + reviewIDOut, out string oauthTimeStamp);
-        //    var removeoauthNonce = _zoteroConcurrentDictionary.Session.TryRemove("oauthNonce-" + reviewIDOut, out string oauthNonce);
-
-        //}
-
-
         [HttpGet("[action]")]
         public async Task<IActionResult> FetchSyncState(ZoteroItemReviewIDs zoteroItemReviewIDs)
         {
@@ -474,13 +313,13 @@ namespace ERxWebClient2.Controllers
                     await UpdateSyncStatusOfItemAsync(syncStateResults, item);
                 }
                 return Ok(syncStateResults);
-		}
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Fetch SyncState has an error");
-                return StatusCode(500, e.Message);
-	}
-}
+		        }
+                    catch (Exception e)
+                    {
+                        _logger.LogException(e, "Fetch SyncState has an error");
+                        return StatusCode(500, e.Message);
+	        }
+        }
 
         public async Task<Collection> GetZoteroConvertedItemAsync(string itemKey)
         {
@@ -2515,8 +2354,6 @@ namespace ERxWebClient2.Controllers
 
         public string GetSignedUrl(string timestamp, string nonce, string ReviewID, string urlWithParameters, string userToken, string userSecret, string verifier)
         {
-            //_zoteroConcurrentDictionary.Session.TryGetValue("oauthTimeStamp-" + ReviewID, out string timestamp);
-            //_zoteroConcurrentDictionary.Session.TryGetValue("oauthNonce-" + ReviewID, out string nonce);
             var signature = OAuthHelper.createSignature(new Uri(urlWithParameters), clientKey,
                                                         clientSecret,
                                                         userToken, userSecret, "GET", timestamp, nonce,

@@ -116,7 +116,7 @@ namespace SyncTests
         }
 
         [Test] //TODO should check mock database eventually
-        public void CheckSyncStatusOfItemsInBoth()
+        public void CheckSyncStatusOfItemsInBothTest()
         {
             var dpItemsInBoth = new DataPortal<ZoteroERWebReviewItemList>();
             var result = dpItemsInBoth.Fetch();
@@ -129,7 +129,7 @@ namespace SyncTests
 
 
         [Test]
-        public async Task CheckSyncStatusOfListOfItemIdsAsync()
+        public async Task CheckSyncStatusOfListOfItemIdsAsyncTest()
         {
             var resultantSyncStateDictionary = await UpdateSyncStateOfLocalItemsRelativeToZoteroAsync(_zoteroItemReviewIds);
 
@@ -140,7 +140,7 @@ namespace SyncTests
 
 
         [TestCase("2471361, 2471362")]
-        public async Task UpdateListOfLocalItemsBehindZoteroAsync(string listOfLocalItemReviewIdsBehindZotero)
+        public async Task UpdateListOfLocalItemsBehindZoteroAsyncTest(string listOfLocalItemReviewIdsBehindZotero)
         {
             var resultantSyncStateDictionary = await PushBehindLocalItemsToZoteroAsync(listOfLocalItemReviewIdsBehindZotero);
 
