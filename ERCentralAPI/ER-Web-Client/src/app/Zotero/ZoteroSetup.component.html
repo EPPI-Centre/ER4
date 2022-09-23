@@ -56,8 +56,8 @@
         <div *ngIf="CurrentUserOwnsTheApiKey;else doesntown ">
           <div>
             You appear to have set-up the Zotero connnection, however, the attempt to verify that the connection is working failed. Perhaps you deleted the "API Key" on
-            the Zotero side/website. If that's the case, you will need to <strong>Reset and restart</strong> to setup the connection again. <br />
-            If you wish to do so, please click on the "Reset" button below. <br />
+            the Zotero side/website. If that's the case, you will need to <strong>Reset</strong> and repeat the Zotero connection process. <br />
+            If you wish to do so, please click on the <strong>Reset</strong> button below. <br />
             Otherwise, it's possible that your API Key does not provide write access to any group. In such cases (and similar) <strong>please check</strong>
             your API Key settings in the <a href="https://www.zotero.org/settings/keys" target="_blank">Zotero</a> page.
             [The most recently used API Key is probably the one that needs checking.]
@@ -146,7 +146,7 @@
             </div>
           </div>
           <div *ngSwitchDefault>
-            The current settings and API key (if any) are/is not sufficient or are incomplete/incorrect. Error message is:<br />
+            The current settings and API key (if any) are incomplete or not correct. Error message is:<br />
             <strong>{{ErrorMessage}}</strong>
           </div>
         </ng-container>
