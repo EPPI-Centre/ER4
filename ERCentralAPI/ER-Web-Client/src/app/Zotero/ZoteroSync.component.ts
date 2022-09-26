@@ -37,7 +37,7 @@ export class ZoteroSyncComponent implements OnInit {
 
   }
 
-  private maxAllowedItemsToBePushedToZotero: number = 10;
+  //private maxAllowedItemsToBePushedToZotero: number = 10;
   @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
   CanOnlySelectRoots() {
     return true;
@@ -66,7 +66,6 @@ export class ZoteroSyncComponent implements OnInit {
   public itemsWithThisCode: Item[] = [];
   public isCollapsed = false;
   public zoteroLink: string = '';
-  //public zoteroEditKeyLink: string = '';
   public reviewLinkText: string[] = [];
   public currentLinkedReviewId: string = '';
   public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();
@@ -76,6 +75,7 @@ export class ZoteroSyncComponent implements OnInit {
   private Pushing: boolean = false;
   private Pulling: boolean = false;
   public dropdownBasic1: boolean = false;
+  private itemsListCriteria: Criteria = new Criteria();
 
   ngOnInit() {
     this.zoteroUserName = this._ReviewerIdentityServ.reviewerIdentity.name;
@@ -84,13 +84,17 @@ export class ZoteroSyncComponent implements OnInit {
     this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
 
     if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(false);
-    let cr: Criteria = new Criteria();
-    cr.showDeleted = false;
-    cr.pageNumber = 0;
-    cr.searchId = 44982;
+
+    this.itemsListCriteria.showDeleted = false;
+    this.itemsListCriteria.pageNumber = 0;
+    this.itemsListCriteria.searchId = 44982;
+    this.itemsListCriteria.onlyIncluded = true;
+    this.itemsListCriteria.attributeid = 0;
+    this.itemsListCriteria.attributeSetIdList = "";
     let ListDescription: string = 'Coded with: Include';
-    cr.listType = 'GetItemSearchList';
-    this._ItemListService.FetchWithCrit(cr, ListDescription);
+    this.itemsListCriteria.listType = 'StandardItemList';
+    this._ItemListService.FetchWithCrit(this.itemsListCriteria, ListDescription);
+
     this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
     this._codesetStatsServ.GetReviewStatisticsCountsCommand(true, true);
     this._zoteroService.fetchERWebItemsToPushToZotero(this._ItemListService.ItemList.items.map(x => x.itemId).join(',')).then(
@@ -100,7 +104,7 @@ export class ZoteroSyncComponent implements OnInit {
     );
 
         this.totalItemsInCurrentReview = this._codesetStatsServ.ReviewStats.itemsIncluded;
-        //this.FetchLinkedReviewID();
+
     }
 
   public CodingSets(set_id: number): StatsCompletion[] {
@@ -259,9 +263,9 @@ export class ZoteroSyncComponent implements OnInit {
             return;
 
     } else {
-      this.Clear();
-      this.itemsWithThisCode = this._ItemListService.ItemList.items;
-      await this.fetchZoteroObjectVersionsAsync();     
+        this.Clear();
+        this.itemsWithThisCode = this._ItemListService.ItemList.items;
+        await this.fetchZoteroObjectVersionsAsync();     
     }
   }
 
@@ -395,10 +399,6 @@ export class ZoteroSyncComponent implements OnInit {
         var itemId = this.itemsWithThisCode[j].itemId;
 
         if (itemId === item.itemId) {
-            if (this.ObjectsInERWebNotInZotero.length > this.maxAllowedItemsToBePushedToZotero) {
-              break;
-            }
-
             if (this.ObjectERWebList.map(x => x.itemID).indexOf(item.itemId) == -1) {
               let ErWebObject = <IERWebObjects>{
                 itemID : item.itemId,
@@ -416,11 +416,9 @@ export class ZoteroSyncComponent implements OnInit {
             };
 
           if (this.ObjectsInERWebAndZotero.length === 0) {
-            console.log('newItem not in zotero: ' + JSON.stringify(newItem));
             this.ObjectsInERWebNotInZotero.push(newItem);
           }
           if (this.ObjectsInERWebAndZotero.map(x => x.itemID).indexOf(newItem.itemId) === -1) {
-            console.log('newItem not in zotero: ' + JSON.stringify(newItem));
             this.ObjectsInERWebNotInZotero.push(newItem);
           }
           
@@ -503,56 +501,60 @@ export class ZoteroSyncComponent implements OnInit {
   async PullZoteroItems(): Promise<void> {
 
     var arrayOfItemsToPullIntoErWeb: Collection[] = [];
-    console.log('we will pull these: ' + JSON.stringify(this.objectKeysExistsNeedingSyncing));
-    for (var i = 0; i < this.objectKeysExistsNeedingSyncing.length; i++) {
-      var itemKey = this.objectKeysExistsNeedingSyncing[i];
-      await this._zoteroService.fetchZoteroObjectAsync(itemKey).then(
-        (itemCollection) => {
-          arrayOfItemsToPullIntoErWeb.push(itemCollection);
-        });
-    }
-    let errCount = 0;
-    if (arrayOfItemsToPullIntoErWeb.length > 0) {
-      console.log('we will pull these collectionOfItemsToInsert: ' + JSON.stringify(arrayOfItemsToPullIntoErWeb));
-      await this._zoteroService.insertZoteroObjectIntoERWebAsync(arrayOfItemsToPullIntoErWeb).then(
-        async (result: boolean) => {
-          if (!result) {
-            if (keyResults.find(x => x === item.key)) return;
-            console.log('There was an error with this one: ' + JSON.stringify(item));
-            errCount++
-          } else {
-            console.log('There was NOT an error with this one: ' + JSON.stringify(item));
-          }
-        });
 
-      if (errCount > 0) {
-        var errMsg = "Zotero object/s insertion into ERWeb has failed";
-        this._notificationService.show({
-          content: errMsg,
-          animation: { type: 'slide', duration: 400 },
-          position: { horizontal: 'center', vertical: 'top' },
-          type: { style: "error", icon: true },
-          closable: true
-        });
-      } else {
-        this._notificationService.show({
-          content: " Zotero object/s has been pulled into ERWeb",
-          animation: { type: 'slide', duration: 400 },
-          position: { horizontal: 'center', vertical: 'top' },
-          type: { style: "info", icon: true },
-          closable: true
-        });
-        this.ObjectERWebList = [];
-        this.objectKeysNotExistsNeedingSyncing = [];
-        this.objectKeysExistsNeedingSyncing = [];
-        await this.fetchZoteroObjectVersionsAsync();
+    if (this.objectKeysExistsNeedingSyncing.length) {
+
+      for (var i = 0; i < this.objectKeysExistsNeedingSyncing.length; i++) {
+        var itemKey = this.objectKeysExistsNeedingSyncing[i];
+        await this._zoteroService.fetchZoteroObjectAsync(itemKey).then(
+          (itemCollection) => {
+            if (arrayOfItemsToPullIntoErWeb.findIndex(x => x.key === itemKey) === -1) {
+              arrayOfItemsToPullIntoErWeb.push(itemCollection);
+            }            
+          });
       }
-      this.Pulling = false;
-      await this.getErWebObjects();
-    }
+      let errCount = 0;
+      if (arrayOfItemsToPullIntoErWeb.length > 0) {
+        await this._zoteroService.insertZoteroObjectIntoERWebAsync(arrayOfItemsToPullIntoErWeb).then(
+          async (result: boolean) => {
+            if (!result) {
+              if (keyResults.find(x => x === item.key)) return;
+              console.log('There was an error with this one: ' + JSON.stringify(item));
+              errCount++
+            } else {
+              console.log('There was NOT an error with this one: ' + JSON.stringify(item));
+            }
+          });
 
+        if (errCount > 0) {
+          var errMsg = "Zotero object/s insertion into ERWeb has failed";
+          this._notificationService.show({
+            content: errMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "error", icon: true },
+            closable: true
+          });
+        } else {
+          this._notificationService.show({
+            content: " Zotero object/s has been pulled into ERWeb",
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+          });
+          this.ObjectERWebList = [];
+          this.objectKeysNotExistsNeedingSyncing = [];
+          this.objectKeysExistsNeedingSyncing = [];
+          await this.fetchZoteroObjectVersionsAsync();
+        }
+        this.Pulling = false;
+        await this.getErWebObjects();
+      }
+    }   
 
     if (this.objectKeysNotExistsNeedingSyncing.length > 0) {
+    
       arrayOfItemsToPullIntoErWeb = [];
       for (var i = 0; i < this.objectKeysNotExistsNeedingSyncing.length; i++) {
         var item = this.objectKeysNotExistsNeedingSyncing[i];
@@ -560,18 +562,15 @@ export class ZoteroSyncComponent implements OnInit {
         await this._zoteroService.fetchZoteroObjectAsync(item.key)
           .then(
             (itemCollection) => {
-              arrayOfItemsToPullIntoErWeb.push(itemCollection);
+              if (arrayOfItemsToPullIntoErWeb.findIndex(x => x.key === item.key) === -1) {
+                arrayOfItemsToPullIntoErWeb.push(itemCollection);
+              }
             });
       }
-      errCount = 0;
+      let errCount = 0;
       var keyResults: string[] = [];
-      var itemsToInsertIntoErWeb = [];
-      for (var i = 0; i < arrayOfItemsToPullIntoErWeb.length; i++) {
-        var item = arrayOfItemsToPullIntoErWeb[i];
-        itemsToInsertIntoErWeb.push(item);
-      }
 
-      await this._zoteroService.insertZoteroObjectIntoERWebAsync(itemsToInsertIntoErWeb).then(
+      await this._zoteroService.insertZoteroObjectIntoERWebAsync(arrayOfItemsToPullIntoErWeb).then(
         async (result: boolean) => {
           if (!result) {
             if (keyResults.find(x => x === item.key)) return;

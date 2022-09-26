@@ -29,6 +29,7 @@ namespace SyncTests
         private string baseUrl;
         private ConcreteReferenceCreator _concreteReferenceCreator;
         private ZoteroController _zoteroController;
+        private SourcesController _sourcesController;
 
         [SetUp]
         public void Setup()
@@ -55,9 +56,16 @@ namespace SyncTests
 
             var dictionary = new ZoteroConcurrentDictionary();
             var logger = new LoggerConfiguration().CreateBootstrapLogger();
-            var microsoftLogger = new SerilogLoggerFactory(logger)
-                    .CreateLogger<ZoteroController>(); // creates an instance of ILogger<IMyService>
-            _zoteroController = new ZoteroController(_configuration, microsoftLogger, dictionary);           
+            var zoteroLogger = new SerilogLoggerFactory(logger)
+                    .CreateLogger<ZoteroController>(); 
+            _zoteroController = new ZoteroController(_configuration, zoteroLogger, dictionary);
+            var sourcesLogger = new SerilogLoggerFactory(logger)
+                   .CreateLogger<SourcesController>();
+            _sourcesController = new SourcesController(sourcesLogger);
+
+            UploadOrCheckSource source = new UploadOrCheckSource();
+            
+            _sourcesController.UploadSource(source);
 
         }
 

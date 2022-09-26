@@ -310,10 +310,7 @@ export class ZoteroService extends BusyAwareService {
     }
 
     public async insertZoteroObjectIntoERWebAsync(items: TypeCollection[]): Promise<boolean> {
-      this._BusyMethods.push("insertZoteroObjectInERWebAsync");
-
-      console.log('items to insert: ' + JSON.stringify(items));
-       
+      this._BusyMethods.push("insertZoteroObjectInERWebAsync");       
         return this._httpC.post<TypeCollection[]>(this._baseUrl + 'api/Zotero/ItemsLocal', items)
             .toPromise().then(result => {
                 this.RemoveBusy("insertZoteroObjectInERWebAsync");
