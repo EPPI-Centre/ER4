@@ -41,7 +41,7 @@
 		</div>
 	</div>
 		<div class="font-weight-bold">Reports</div>
-		<kendo-tabstrip style="min-height:360px; " (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
+		<kendo-tabstrip style="min-height:160px; " (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
 			<kendo-tabstrip-tab [title]="'Standard'" [selected]="true">
 				<ng-template kendoTabContent>
                     <div class="row col-12 px-0 mx-0">
@@ -248,9 +248,8 @@
                 </ng-template>
 			</kendo-tabstrip-tab>
 		</kendo-tabstrip>
-		<div class="col-12 row p-0 mx-1 justify-content-center" *ngIf="sectionShow == 'Standard'">
-			<div class="col-12 col-md-12  m-0 p-0"></div>
-			<div class="col-12 col-md-12  m-0 p-0">
+		<div class="col-12 row p-0 mx-1 justify-content-center">
+			<div class="col-12 col-md-12  mx-0 my-1 p-0">
 				<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
 						[disabled]="!CheckOptionsAreCorrectForReports ">
 					Run/view

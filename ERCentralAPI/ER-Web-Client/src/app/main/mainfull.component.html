@@ -88,16 +88,16 @@
                                                                [data]="ImportOrNewDDData"
                                                                style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
                                     <!--<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>-->
-                                    <kendo-toolbar-button [text]="'Cluster'" [title]="'Automatically generate codes'"
+                                    <kendo-toolbar-button [text]="'Cluster'" [title]="'Automatically generate codes'" [selected]="RefsTabActivePanel == 'Cluster'"
                                                           (click)="ShowHideClusterCommand()"></kendo-toolbar-button>
                                     <kendo-toolbar-splitbutton [text]="'Coding Report'" (buttonClick)="ShowHideQuickReport()"
                                                                [data]="QuickReportsDDData"
-                                                               [buttonClass]="ReportButtonStyle('ShowHideQuickReport')"
+                                                               [buttonClass]="ReportSplitButtonStyle('ShowHideQuickReport')"
                                                                style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
                                     <kendo-toolbar-button [icon]="'delete'" [disabled]="!HasSelectedItems || !HasWriteRights"
                                                           (click)="DeleteRelevantItems()">
                                     </kendo-toolbar-button>
-                                    <kendo-toolbar-button [text]="'In/Exclude'"
+                                    <kendo-toolbar-button [text]="'In/Exclude'" [selected]="RefsTabActivePanel == 'IncludeExclude'"
                                                           [disabled]="!HasWriteRights"
                                                           (click)="AllocateRelevantItems()">
                                     </kendo-toolbar-button>
@@ -109,13 +109,13 @@
 
                                     </kendo-toolbar-splitbutton>
 
-                                    <kendo-toolbar-button [text]="'Run Reports'"
+                                    <kendo-toolbar-button [text]="'Run Reports'" [selected]="RefsTabActivePanel == 'RunReports'"
                                                           (click)="RunConfigurableReports()">
                                     </kendo-toolbar-button>
                                 </kendo-toolbar>
 
                             </div>
-                            <div class="rounded alert alert-info col-lg-6 col-md-8 col-sm-10 d-flex container px-1" *ngIf="AllIncOrExcShow">
+                            <div class="rounded alert alert-info col-lg-6 col-md-8 col-sm-10 d-flex container px-1" *ngIf="RefsTabActivePanel == 'IncludeExclude'">
                                 <div class="container px-1">
                                     <div class="col-12 font-weight-bold p-0 text-center">Assign documents as Included or Excluded</div>
                                     <div class="row mt-2 mx-1 border-bottom">
@@ -166,19 +166,19 @@
                                             Assign
                                         </button>
                                         <button class="btn btn-outline-secondary ml-1"
-                                                (click)="CloseSection()" style="width:120px;">
+                                                (click)="ClosePanel()" style="width:120px;">
                                             Cancel
                                         </button>
                                     </div>
                                 </div>
                             </div>
                             <div class="rounded alert alert-info col-12 d-flex container px-1"
-                                 style="min-width:500px;overflow:auto;" *ngIf="RunReportsShow">
-                                <configurablereport></configurablereport>
+                                 style="min-width:500px;overflow:auto;" *ngIf="RefsTabActivePanel == 'RunReports'">
+                                <configurablereport (PleaseCloseMe)="ClosePanel()"></configurablereport>
                             </div>
-                            <quickcodingreport *ngIf="ShowQuickReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
-                            <quickcodingreport *ngIf="ShowQuickQuestionReport" Aim="QuickQuestionReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
-                            <RunLingo3G *ngIf="ShowClusterCommand" (PleaseCloseMe)="CloseClusterCommand()" (PleaseOpenTheCodes)="OpenCodesPanel()"></RunLingo3G>
+                            <quickcodingreport *ngIf="RefsTabActivePanel == 'QuickReport'" (PleaseCloseMe)="ClosePanel()"></quickcodingreport>
+                            <quickcodingreport *ngIf="RefsTabActivePanel == 'QuickQuestionReport'" Aim="QuickQuestionReport" (PleaseCloseMe)="ClosePanel()"></quickcodingreport>
+                            <RunLingo3G *ngIf="RefsTabActivePanel == 'Cluster'" (PleaseCloseMe)="ClosePanel()" (PleaseOpenTheCodes)="OpenCodesPanel()"></RunLingo3G>
                             <div class="card card-body bg-light p-1" style="min-height:300px;">
                                 <ItemListComp #ItemList Context="FullUI" [ShowItemsTable]="ShowItemsTable" resizable r-directions="['right']" r-flex="true"></ItemListComp>
                             </div>
@@ -194,13 +194,14 @@
 
                                     </kendo-toolbar-buttongroup>
                                     <kendo-toolbar-buttongroup>
-                                        <kendo-toolbar-button [toggleable]="true" text="Run Reports" [iconClass]="RunReportsShow2 ? 'k-icon k-i-arrow-chevron-up ml-0 mr-0' : 'k-icon k-i-arrow-chevron-down ml-0 mr-0'" (click)="RunConfigurableReports2()" [selected]="RunReportsShow2"></kendo-toolbar-button>
+                                        <kendo-toolbar-button text="Run Reports" [iconClass]="RunReportsShow2 ? 'k-icon k-i-arrow-chevron-up ml-0 mr-0' : 'k-icon k-i-arrow-chevron-down ml-0 mr-0'"
+                                                              (click)="RunConfigurableReports2()" [selected]="RunReportsShow2"></kendo-toolbar-button>
                                     </kendo-toolbar-buttongroup>
                                 </kendo-toolbar>
                             </div>
                             <div  *ngIf="RunReportsShow2" class="rounded alert alert-info col-12 d-flex container px-1"
                                  style="min-width:500px;overflow:auto;">
-                                <configurablereport></configurablereport>
+                                <configurablereport (PleaseCloseMe)="RunReportsShow2 = false"></configurablereport>
                             </div>
                             <FreqXtabMaps [hidden]="reportsShowWhat !== 'AllFreq'" #FreqXtabMapsComp></FreqXtabMaps>
                             <SetupConfigurableReports [hidden]="reportsShowWhat !== 'ReportsCfg'" #SetupConfigurableReports></SetupConfigurableReports>

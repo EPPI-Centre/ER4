@@ -1,10 +1,8 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ViewChild, EventEmitter, Output } from '@angular/core';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { iConfigurableReport, ConfigurableReportService, ReportStandard, ReportOutcomes, ReportRiskOfBias, CommonReportFields } from '../services/configurablereport.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
@@ -19,10 +17,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		private ItemListService: ItemListService,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private configurablereportServ: ConfigurableReportService,
-		private EventEmitterServ: EventEmitterService,
 		private _confirmationDialogService: ConfirmationDialogService
 	) { }
-
+  @Output() PleaseCloseMe = new EventEmitter();
 	public ReportStandard: ReportStandard = new ReportStandard();
 	public ReportOutcomes: ReportOutcomes = new ReportOutcomes();
 	public ReportRiskOfBias: ReportRiskOfBias = new ReportRiskOfBias();
@@ -60,7 +57,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
 	public showROB: boolean = false;
 	public reportHTML: string = '';
-	public sectionShow: string = 'Standard';
 	public GeneratedReport: boolean = false;
 	public QuestionReports: iConfigurableReport[] = [];
 	public AnswerReports: iConfigurableReport[] = [];
@@ -129,12 +125,10 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			this.GeneratedReport = false;
 		}
 	}
-	public CloseReportsSection() {
-
-		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
-		this.Clear();
-
-	}
+  public CloseReportsSection() {
+    this.PleaseCloseMe.emit();
+    this.Clear();
+  }
 	public Clear() {
 
 		
