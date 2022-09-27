@@ -305,7 +305,7 @@ namespace ERxWebClient2.Controllers
         {
 			try
 			{
-				//if (!SetCSLAUser()) return Unauthorized();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 var syncStateResults = new Dictionary<long, State>();
                 foreach (var item in zoteroItemReviewIDs)

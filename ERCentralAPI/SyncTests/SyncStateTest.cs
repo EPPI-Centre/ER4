@@ -46,7 +46,7 @@ namespace SyncTests
             baseUrl = _configuration["ZoteroSettings:baseUrl"];
 
             DataConnection.DataConnectionConfigure(SqlHelper);
-            SetAuthenticationToBeChangedWithoutRealParamValues();
+            ClaimsPrincipal user = WasBuildToken(SetAuthenticationToBeChangedWithoutRealParamValues() );
 
             string itemIds = "2526686, 2526687";
 
@@ -59,36 +59,39 @@ namespace SyncTests
             var zoteroLogger = new SerilogLoggerFactory(logger)
                     .CreateLogger<ZoteroController>(); 
             _zoteroController = new ZoteroController(_configuration, zoteroLogger, dictionary);
+            SetControllerUserContext(_zoteroController, user);
             var sourcesLogger = new SerilogLoggerFactory(logger)
                    .CreateLogger<SourcesController>();
             _sourcesController = new SourcesController(sourcesLogger);
-
+            SetControllerUserContext(_sourcesController, user);
             UploadOrCheckSource source = new UploadOrCheckSource();
             
             _sourcesController.UploadSource(source);
 
         }
 
-        private void SetAuthenticationToBeChangedWithoutRealParamValues()
+        private ReviewerIdentity SetAuthenticationToBeChangedWithoutRealParamValues()
         {
-            string username = "qtnvpod";
-            string password = "CrapBirkbeck1";
+            string username = "sg";
+            string password = "ePageuke3";
             int reviewId = 7;
             string LoginMode = "";
-            string roles = "";
+            string roles = ""; 
             ReviewerIdentity ri = ReviewerIdentity.GetIdentity(username, password, reviewId, LoginMode, null);
             if (ri.IsAuthenticated)
             {
-                ri.Token = BuildToken(ri);
+                //ri.Token = BuildToken(ri);
             }
+            else throw new UnauthorizedAccessException();
 
             ReviewerPrincipal principal = new ReviewerPrincipal(ri);
             Csla.ApplicationContext.User = principal;
 
             var test = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            return test;
         }
 
-        private string BuildToken(ReviewerIdentity ri)
+        private ClaimsPrincipal WasBuildToken(ReviewerIdentity ri)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AppSettings:EPPIApiClientSecret"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -106,16 +109,29 @@ namespace SyncTests
             {
                 riCI.AddClaim(new Claim(ClaimTypes.Role, userRole));
             }
-            var token = new JwtSecurityToken(_configuration["AppSettings:EPPIApiUrl"],
-              _configuration["AppSettings:EPPIApiClientName"],
-              riCI.Claims,
-              notBefore: DateTime.Now.AddSeconds(-60),
-              expires: DateTime.Now.AddHours(6),
-              //expires: DateTime.Now.AddSeconds(15),
-              signingCredentials: creds);
+            return new ClaimsPrincipal(riCI);
+            //var token = new JwtSecurityToken(_configuration["AppSettings:EPPIApiUrl"],
+            //  _configuration["AppSettings:EPPIApiClientName"],
+            //  riCI.Claims,
+            //  notBefore: DateTime.Now.AddSeconds(-60),
+            //  expires: DateTime.Now.AddHours(6),
+            //  //expires: DateTime.Now.AddSeconds(15),
+            //  signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            //return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        private void SetControllerUserContext(Controller controller, ClaimsPrincipal user)
+        {
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new Microsoft.AspNetCore.Http.DefaultHttpContext
+                {
+                    User = user
+                }
+            };
+        }
+
 
         [TearDown]
         public void TearDown()
