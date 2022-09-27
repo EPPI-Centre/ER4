@@ -122,36 +122,16 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 	private subscr: Subscription = new Subscription();
 
     public get DOILink(): string {
-        if (this.item == undefined || this.item.doi.trim() == "") return "";
+        if (this.item == undefined) return "";
         else {
-            const chk = this.item.doi.toLowerCase();
-            const ind = chk.indexOf('doi.org/');
-            if (chk.startsWith("http://")
-                || chk.startsWith("https://")
-            ) {
-                if (ind > 6 && ind < 12) return this.item.doi;
-                else return "";
-            }
-            else if (ind == -1 && chk.indexOf('/') > 0) {
-                return "https://doi.org/" + this.item.doi;
-            }
-            else return "";
+          return Helpers.DOILink(this.item.doi);
         }
     }
     //adapted from:https://stackoverflow.com/a/43467144 
     public get URLLink(): string {
-        if (this.item == undefined || this.item.url.trim() == "") return "";
+        if (this.item == undefined) return "";
         else {
-            const st: string = this.item.url;
-            let url;
-            try {
-                url = new URL(st);
-            } catch (_) {
-                return "";
-            }
-            if (url.protocol === "http:" || url.protocol === "https:") {
-                return url.href;
-            } else return "";
+            return Helpers.URLLink(this.item.url);
         }
     }
 

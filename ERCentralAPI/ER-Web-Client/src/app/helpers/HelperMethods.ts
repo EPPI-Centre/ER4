@@ -258,7 +258,41 @@ export class Helpers {
             .replace(/&gt;/g, '>')
             .replace(/&amp;/g, '&')
             .replace(/'&#x2F;'/g, '/');
+  }
+
+  public static DOILink(DOIst: string): string {
+    if (DOIst.trim() == "") return "";
+    else {
+      const chk = DOIst.toLowerCase();
+      const ind = chk.indexOf('doi.org/');
+      if (chk.startsWith("http://")
+        || chk.startsWith("https://")
+      ) {
+        if (ind > 6 && ind < 12) return DOIst;
+        else return "";
+      }
+      else if (ind == -1 && chk.indexOf('/') > 0) {
+        return "https://doi.org/" + DOIst;
+      }
+      else return "";
     }
+  }
+  //adapted from:https://stackoverflow.com/a/43467144 
+  public static URLLink(UrlSt: string): string {
+    if (UrlSt.trim() == "") return "";
+    else {
+      const st: string = UrlSt;
+      let url;
+      try {
+        url = new URL(st);
+      } catch (_) {
+        return "";
+      }
+      if (url.protocol === "http:" || url.protocol === "https:") {
+        return url.href;
+      } else return "";
+    }
+  }
 }
 export interface SubstituteString {
     searchFor: string;

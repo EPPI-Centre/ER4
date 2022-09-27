@@ -68,7 +68,7 @@
                                         <p>
                                             <b>Abstract:</b>
                                         <p>{{_magBrowserService.currentMagPaper.abstract}}</p>
-                                        <b>Doi: </b><a href="http://{{_magBrowserService.currentMagPaper.doi}}" target="_blank">{{_magBrowserService.currentMagPaper.doi}}</a><br />
+                                        <b>Doi: </b><a href="{{DOILink(_magBrowserService.currentMagPaper.doi)}}" target="_blank">{{_magBrowserService.currentMagPaper.doi}}</a><br />
                                         <b>Pdf links:</b>
                                         <div *ngFor="let item of GetPDFLinks()">
                                             <a href="{{item}}" target="_blank">
