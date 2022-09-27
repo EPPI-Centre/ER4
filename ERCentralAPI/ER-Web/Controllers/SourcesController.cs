@@ -18,7 +18,7 @@ namespace ERxWebClient2.Controllers
     public class SourcesController : CSLAController
     {
         
-		public SourcesController(ILogger<SearchListController> logger) : base(logger)
+		public SourcesController(ILogger<SourcesController> logger) : base(logger)
         { }
 
         [HttpGet("[action]")]
