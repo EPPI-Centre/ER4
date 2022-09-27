@@ -741,7 +741,7 @@ namespace ERxWebClient2.Controllers
             try
 			{
                 
-				if (!SetCSLAUser4Writing()) return Unauthorized();
+				if (!SetCSLAUser()) return Unauthorized();
                 ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				if (ri == null) throw new ArgumentNullException("Not sure why this is null");
@@ -825,12 +825,13 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
+                //user can delete the API key, even in read-only, IF they own the Key
+                if (!SetCSLAUser()) return Unauthorized();
 
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
                 ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
                 if (zrc == null || string.IsNullOrEmpty(zrc.ApiKey)) return StatusCode(400, "Nothing to delete");
+                if (ri == null || zrc.ErUserId != ri.UserId) return Unauthorized();
                 var DELETEApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zrc.ApiKey}");
                 SetZoteroHttpService(DELETEApiKeysUri, zrc.ApiKey);
                 bool result = true;

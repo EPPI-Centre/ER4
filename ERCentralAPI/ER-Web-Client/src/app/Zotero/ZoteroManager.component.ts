@@ -30,9 +30,6 @@ export class ZoteroManagerComponent implements AfterViewInit {
       this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
       this._router.navigate(['home']);
     }
-    else if (!this._ReviewerIdentityServ.HasWriteRights) {
-      this._router.navigate(['Main']);
-    }
     else {
       this.errorInPathSub = this.route.queryParams.subscribe(async params => {
         const err: string = params['error'];

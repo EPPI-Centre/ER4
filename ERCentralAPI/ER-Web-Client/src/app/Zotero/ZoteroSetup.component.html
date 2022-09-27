@@ -62,7 +62,7 @@
             your API Key settings in the <a href="https://www.zotero.org/settings/keys" target="_blank">Zotero</a> page.
             [The most recently used API Key is probably the one that needs checking.]
           </div>
-          <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Reset</button>
+          <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
         </div>
       </div>
       <ng-template #doesntown>
@@ -151,7 +151,7 @@
           </div>
         </ng-container>
         <div *ngIf="CurrentUserOwnsTheApiKey">
-          <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!HasWriteRights || !CurrentUserOwnsTheApiKey">Delete API Key</button>
+          <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Delete API Key</button>
         </div>
         <div *ngIf="!CurrentUserOwnsTheApiKey" class="mx-0 px-0 mb-1 row">
           <div class="bg-white rounded border border-info col-auto px-1">
@@ -242,7 +242,7 @@
                 <div *ngIf="CurrentUserOwnsTheApiKey == true">
                   The current API key does not seem to work: you need to pick one group library, but the key does not provide access to any group.<br />
                   Please retry:<br />
-                  <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Reset</button>
+                  <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
                 </div>
                 <div *ngIf="CurrentUserOwnsTheApiKey == false">
                   The current API key does not seem to work: the owner of the Key ({{NameOfAPIKeyOwner}}) would need to pick one group library to use, but the key does not provide access to any group.<br />
@@ -254,7 +254,7 @@
                   <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
                   Error message is: <em>{{ErrorMessage}}</em><br />
                   Please retry:<br />
-                  <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()">Reset</button>
+                  <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
                 </div>
                 <div *ngIf="CurrentUserOwnsTheApiKey == false">
                   <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
