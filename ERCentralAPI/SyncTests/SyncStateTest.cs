@@ -57,7 +57,7 @@ namespace SyncTests
             var dictionary = new ZoteroConcurrentDictionary();
             var logger = new LoggerConfiguration().CreateBootstrapLogger();
             var zoteroLogger = new SerilogLoggerFactory(logger)
-                    .CreateLogger<ZoteroController>(); 
+                    .CreateLogger<Controller>(); 
             _zoteroController = new ZoteroController(_configuration, zoteroLogger, dictionary);
             SetControllerUserContext(_zoteroController, user);
             var sourcesLogger = new SerilogLoggerFactory(logger)
@@ -72,8 +72,8 @@ namespace SyncTests
 
         private ReviewerIdentity SetAuthenticationToBeChangedWithoutRealParamValues()
         {
-            string username = "sg";
-            string password = "ePageuke3";
+            string username = "qtnvpod";
+            string password = "CrapBirkbeck1";
             int reviewId = 7;
             string LoginMode = "";
             string roles = ""; 
