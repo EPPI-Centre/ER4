@@ -48,7 +48,13 @@ namespace SyncTests
             DataConnection.DataConnectionConfigure(SqlHelper);
             ClaimsPrincipal user = WasBuildToken(SetAuthenticationToBeChangedWithoutRealParamValues() );
 
-            string itemIds = "2526686, 2526687";
+            // My set up is like so, with one item being found in Zotero
+            // which contains a child attachment (which is different to a straight attachment item)
+            // the attachment supersedes the state of the original item, meaning
+            // after pulling, one may need to push as well after attachment is updated
+            // but parent item may for instance be ahead.
+            string itemIds = "2680363, 2680364";
+            
 
             var dp = new DataPortal<ZoteroItemReviewIDs>();
             var criteria = new SingleCriteria<string>(itemIds);
@@ -193,7 +199,7 @@ namespace SyncTests
             Assert.IsNotNull(okResult);
 
             var actualResult = okResult.Value as Dictionary<long, State>;
-            Assert.That(State.ahead, Is.EqualTo(actualResult?.FirstOrDefault().Value)); 
+            Assert.That(State.attachmentAhead, Is.EqualTo(actualResult?.FirstOrDefault().Value)); 
         }
 
         // 1 - Helper method for test will not be required when DB is setup for testing

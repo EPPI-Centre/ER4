@@ -187,7 +187,9 @@ namespace BusinessLibrary.BusinessClasses
             behind,
             upToDate,
             ahead,
-            attachmentDoesNotExist
+            attachmentDoesNotExist,
+            attachmentAhead,
+            attachmentBehind
         }
 
         public static readonly PropertyInfo<State> StateProperty = RegisterProperty<State>(new PropertyInfo<State>("SYNC_STATE", "SYNC_STATE", State.doesNotExist));
