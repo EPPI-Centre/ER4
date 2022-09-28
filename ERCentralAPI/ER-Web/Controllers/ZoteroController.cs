@@ -428,38 +428,26 @@ namespace ERxWebClient2.Controllers
             var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
             var zoteroAttachmentLastModified = await GetZoteroAttachmentAsync(fileKey);
             var result = syncStateResults.TryGetValue(erWebItem.ItemId, out State state);
+            // Here override the state of an item based on the child attachment
+            // A separate non child attachment will have already had its sync state set
+            // If attachment in a different state to parent then should 
             if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 0)
             {
-                if (result)
-                {
-                    syncStateResults[erWebItem.ItemId] = State.upToDate;
-                }
-                else
-                {
-                    syncStateResults.TryAdd(erWebItem.ItemId, State.upToDate);
-
-                }
+                // I think do nothing here to change original state
             }
             else if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 1)
             {
                 if (result)
                 {
-                    syncStateResults[erWebItem.ItemId] = State.ahead;
-                }
-                else
-                {
-                    syncStateResults.TryAdd(erWebItem.ItemId, State.ahead);
+
+                    syncStateResults[erWebItem.ItemId] = State.attachmentAhead;
                 }
             }
             else
             {
                 if (result)
                 {
-                    syncStateResults[erWebItem.ItemId] = State.behind;
-                }
-                else
-                {
-                    syncStateResults.TryAdd(erWebItem.ItemId, State.behind);
+                    syncStateResults[erWebItem.ItemId] = State.attachmentBehind;
                 }
             }
         }
