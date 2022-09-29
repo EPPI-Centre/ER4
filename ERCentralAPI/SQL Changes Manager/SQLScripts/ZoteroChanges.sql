@@ -668,26 +668,38 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroDocumentIdsPerItemReviewId]    
-Script Date: 28/09/2022 19:52:28 ******/
+/****** Object:  StoredProcedure [dbo].[st_ZoteroERWebReviewItemList]    Script Date: 19/09/2022 13:58:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER procedure [dbo].[st_ZoteroDocumentIdsPerItemReviewId]
+
+
+CREATE OR ALTER Procedure [dbo].[st_ZoteroERWebReviewItemList]
 (
-	@ITEM_REVIEW_ID INT
+	@AttributeId bigint,
+	@ReviewId int
 )
-As
-BEGIN
-SET NOCOUNT ON
+as
+Begin	
+  declare @ids table (ItemId bigint, ItemReviewId bigint, Primary key(ItemId, ItemReviewId))
 
-	Select ITEM_DOCUMENT_ID
-	FROM TB_ITEM_DOCUMENT
-	WHERE ITEM_ID =(Select ITEM_ID from TB_ITEM_REVIEW
-	WHERE ITEM_REVIEW_ID = @ITEM_REVIEW_ID	)
+  --to start, find the itemIDs we want, we'll use this table for both results we return
+  Insert into @ids Select ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
+  inner join TB_ITEM_ATTRIBUTE tia on ir.REVIEW_ID = @ReviewId and tia.ATTRIBUTE_ID = @AttributeId and ir.ITEM_ID = tia.ITEM_ID and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
+  inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
 
-SET NOCOUNT OFF
-END
+  --first set of results, the data we want about ITEMs
+  select I.ITEM_ID, I.DATE_EDITED, zi.ItemKey from @ids ids
+  inner join TB_ITEM I on ids.ItemId = I.ITEM_ID
+  LEFT JOIN TB_ZOTERO_ITEM_REVIEW zi on zi.ITEM_REVIEW_ID = ids.ItemReviewId
+
+  --2nd set of results, the data about DOCUMENTS
+  select id.ITEM_ID, id.ITEM_DOCUMENT_ID, zid.FileKey from @ids ids
+  inner join TB_ITEM_DOCUMENT id on ids.ItemId = id.ITEM_ID
+  left join TB_ZOTERO_ITEM_DOCUMENT zid on id.ITEM_DOCUMENT_ID = zid.ITEM_DOCUMENT_ID
+
+End
+
 GO
 

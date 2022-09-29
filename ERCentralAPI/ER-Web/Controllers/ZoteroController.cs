@@ -38,7 +38,6 @@ namespace ERxWebClient2.Controllers
         // all above strings are inherently thread safe
         private ConcreteReferenceCreator _concreteReferenceCreator; //THREAD SAFE Singleton
         private ZoteroConcurrentDictionary _zoteroConcurrentDictionary;   //THREAD SAFE type
-        private ILogger<ZoteroController> _logger;   //THREAD SAFE Singleton
         private IConfiguration _configuration; // THIS IS THREAD SAFE AS services.AddSingleton(Configuration);
         private OAuthParameters _oAuth;   //THREAD SAFE Singleton
 
@@ -58,10 +57,10 @@ namespace ERxWebClient2.Controllers
             _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
         }
 
-        public ZoteroController(IConfiguration appConfiguration, ILogger<ZoteroController> logger, ZoteroConcurrentDictionary zoteroConcurrentDictionary) : base(logger)
+        public ZoteroController(IConfiguration appConfiguration, ILogger<Controller> logger, ZoteroConcurrentDictionary zoteroConcurrentDictionary) : base(logger)
         {
             _configuration = appConfiguration;
-            _logger = logger;
+            
             _zoteroService = ZoteroService.Instance;
             
             AdmConnStr = appConfiguration.GetSection("AppSettings")["ER4DB"];
