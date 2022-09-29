@@ -169,3 +169,8 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ItemIDFromSource') 
 DROP PROCEDURE [dbo].[st_ItemIDFromSource]
 GO
+
+/****** Object:  StoredProcedure [dbo].[st_ZoteroERWebReviewItemList]  ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroERWebReviewItemList') 
+DROP PROCEDURE [dbo].[st_ZoteroERWebReviewItemList]
+GO
