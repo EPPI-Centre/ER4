@@ -314,8 +314,8 @@ namespace BusinessLibrary.BusinessClasses
             //returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
             returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("DATE_EDITED"));
             returnValue.LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
-            returnValue.LoadProperty<long>(ItemDocumentIDProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
-            returnValue.LoadProperty<string>(FileKeyProperty, reader.GetString("FileKey"));
+
+
             //returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
             //returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
             //returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
@@ -323,6 +323,19 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.MarkOld();
 
             return returnValue;
+        }
+
+        internal static ZoteroERWebReviewItem GetZoteroERWebReviewItemBottomSet(SafeDataReader reader)
+        {
+            ZoteroERWebReviewItem returnValue = new ZoteroERWebReviewItem();
+
+            returnValue.LoadProperty<long>(ItemDocumentIDProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
+            returnValue.LoadProperty<string>(FileKeyProperty, reader.GetString("FileKey"));
+
+            returnValue.MarkOld();
+
+            return returnValue;
+
         }
 #endif
     }

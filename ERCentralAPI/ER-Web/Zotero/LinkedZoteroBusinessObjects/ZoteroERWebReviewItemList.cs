@@ -58,6 +58,14 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             Add(ZoteroERWebReviewItem.GetZoteroERWebReviewItem(reader));
                         }
+
+                        reader.NextResult();
+
+                        while (reader.Read())
+                        {
+                            Add(ZoteroERWebReviewItem.GetZoteroERWebReviewItemBottomSet(reader));
+                        }
+
                     }
                 }
                 connection.Close();
