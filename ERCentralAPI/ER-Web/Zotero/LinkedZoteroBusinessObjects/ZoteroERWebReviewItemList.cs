@@ -40,15 +40,18 @@ namespace BusinessLibrary.BusinessClasses
 #else
 
 
-        protected void DataPortal_Fetch()
+        protected void DataPortal_Fetch(SingleCriteria<ZoteroERWebReviewItemList, string> criteria)
         {
             RaiseListChangedEvents = false;
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ItemsInERWebANDZotero", connection))
+                using (SqlCommand command = new SqlCommand("st_ZoteroErWebReviewItemList", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@AttributeId", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())

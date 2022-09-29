@@ -666,4 +666,28 @@ End
 
 GO
 
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroDocumentIdsPerItemReviewId]    
+Script Date: 28/09/2022 19:52:28 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER procedure [dbo].[st_ZoteroDocumentIdsPerItemReviewId]
+(
+	@ITEM_REVIEW_ID INT
+)
+As
+BEGIN
+SET NOCOUNT ON
+
+	Select ITEM_DOCUMENT_ID
+	FROM TB_ITEM_DOCUMENT
+	WHERE ITEM_ID =(Select ITEM_ID from TB_ITEM_REVIEW
+	WHERE ITEM_REVIEW_ID = @ITEM_REVIEW_ID	)
+
+SET NOCOUNT OFF
+END
+GO
 
