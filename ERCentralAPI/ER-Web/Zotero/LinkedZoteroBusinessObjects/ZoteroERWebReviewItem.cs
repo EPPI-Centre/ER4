@@ -44,7 +44,9 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        public ZoteroERWebReviewItem() { }
+        public ZoteroERWebReviewItem() {
+            this.PdfList = new MobileList<ZoteroERWebItemDocument> ();
+        }
 #endif
 
         public static readonly PropertyInfo<long> Zotero_item_review_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("Zotero_item_review_ID", "Zotero_item_review_ID", 0m));
