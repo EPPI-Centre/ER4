@@ -394,7 +394,7 @@ namespace ERxWebClient2.Controllers
                     // we wish to obtain the list of docs and call the logic for checking state
                     // This has to change to incroporate a new state
                     //var erWebItem = GetErWebItem(item.ITEM_ID);
-                    await GetPdfSyncStateAsync(syncStateResults, localSyncedItem.PdfList, zoteroItem);
+                    //await GetPdfSyncStateAsync(syncStateResults, localSyncedItem.PdfList, zoteroItem);
 
                 }
             }
@@ -413,14 +413,14 @@ namespace ERxWebClient2.Controllers
             {
                 var zoteroPdf = await GetZoteroAttachmentAsync(zoteroItem);
                 // just need to check existence
-                if (zoteroPdfExists)
-                {
-                    syncStateResults.TryAdd(documentId, ErWebState.pdfExists);
-                }
-                else
-                {
-                    syncStateResults.TryAdd(documentId, ErWebState.pdfDoesNotExist);
-                }                
+                //if (zoteroPdfExists)
+                //{
+                //    syncStateResults.TryAdd(documentId, ErWebState.pdfExists);
+                //}
+                //else
+                //{
+                //    syncStateResults.TryAdd(documentId, ErWebState.pdfDoesNotExist);
+                //}                
             }
         }
 
@@ -442,12 +442,12 @@ namespace ERxWebClient2.Controllers
 
             ZoteroReviewConnection zrc = ApiKey();
             string groupIDBeingSynced = zrc.LibraryId;
-            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{itemKey}/file");
+            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{fileKey}/file");
             SetZoteroHttpService(GetFileUri, zrc.ApiKey);
 
             var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
             //var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
-            //return DateTime.Parse(lastModifiedDate ?? "").ToUniversalTime();
+            return DateTime.Now.ToUniversalTime();
 
         }
 
@@ -461,6 +461,8 @@ namespace ERxWebClient2.Controllers
 
             //act
             var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+
+            return DateTime.Now.ToUniversalTime();
 
         }
 
