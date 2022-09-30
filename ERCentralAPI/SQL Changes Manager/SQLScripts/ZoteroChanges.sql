@@ -666,6 +666,7 @@ End
 
 GO
 
+
 USE [Reviewer]
 GO
 /****** Object:  StoredProcedure [dbo].[st_ZoteroERWebReviewItemList]    Script Date: 19/09/2022 13:58:12 ******/
@@ -690,12 +691,13 @@ Begin
   inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
 
   --first set of results, the data we want about ITEMs
-  select I.ITEM_ID, I.DATE_EDITED, zi.ItemKey from @ids ids
+  select I.ITEM_ID, I.DATE_EDITED,zi.TypeName,zi.ITEM_REVIEW_ID, zi.Zotero_item_review_ID, zi.ItemKey, zi.LibraryID, zi.[Version], zi.LAST_MODIFIED, I.TITLE, I.SHORT_TITLE, zi.SyncState
+  from @ids ids
   inner join TB_ITEM I on ids.ItemId = I.ITEM_ID
   LEFT JOIN TB_ZOTERO_ITEM_REVIEW zi on zi.ITEM_REVIEW_ID = ids.ItemReviewId
 
   --2nd set of results, the data about DOCUMENTS
-  select id.ITEM_ID, id.ITEM_DOCUMENT_ID, zid.FileKey from @ids ids
+  select id.ITEM_ID, id.ITEM_DOCUMENT_ID,id.DOCUMENT_TITLE, zid.FileKey from @ids ids
   inner join TB_ITEM_DOCUMENT id on ids.ItemId = id.ITEM_ID
   left join TB_ZOTERO_ITEM_DOCUMENT zid on id.ITEM_DOCUMENT_ID = zid.ITEM_DOCUMENT_ID
 

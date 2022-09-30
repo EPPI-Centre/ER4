@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using static BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument;
+using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 
 namespace ERxWebClient2.Controllers
 {
@@ -141,6 +143,13 @@ namespace ERxWebClient2.Controllers
 		public string websiteType { get; set; }
 		public List<CreatorsItem> creators { get; set; }
 	}
+	public class SyncStateDictionaries
+	{
+		public Dictionary<long, ErWebState> itemSyncStateResults { get; set; }
+		public Dictionary<long, DocumentSyncState> docSyncStateResults { get; set; }
+
+	}
+
 
 	public class CollectionType : CollectionData
 	{

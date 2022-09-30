@@ -1,30 +1,11 @@
-using System.Text;
 using Csla;
-using Csla.Security;
 using Csla.Core;
-using Csla.Serialization;
-using Csla.Silverlight;
-//using Csla.Validation;
-using Csla.DataPortalClient;
-using System.IO;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
-
-//using Csla.Configuration;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
-using BusinessLibrary.Security;
-using System.Configuration;
-using System.Data;
-using System.Threading;
-using System.Collections;
-using System.Globalization;
-using System.Linq;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -40,9 +21,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #if SILVERLIGHT
-    public ZoteroERWebReviewItem() { }
-
-        
+        public ZoteroERWebReviewItem() { }        
 #else
         public ZoteroERWebReviewItem() {
             this.PdfList = new MobileList<ZoteroERWebItemDocument> ();
@@ -188,9 +167,7 @@ namespace BusinessLibrary.BusinessClasses
             doesNotExist,
             behind,
             upToDate,
-            ahead,
-            pdfDoesNotExist,
-            pdfExists
+            ahead
         }
 
 
@@ -220,32 +197,6 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        //public static readonly PropertyInfo<string> FileKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("FILE_KEY", "FILE_KEY", ""));
-        //public string FileKey
-        //{
-        //    get
-        //    {
-        //        return GetProperty(FileKeyProperty);
-        //    }
-        //    set
-        //    {
-        //        SetProperty(FileKeyProperty, value);
-        //    }
-        //}
-
-        //public static readonly PropertyInfo<long> ItemDocumentIDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_DOCUMENT_ID", "ITEM_DOCUMENT_ID", 0m));
-        //public long ItemDocumentID
-        //{
-        //    get
-        //    {
-        //        return GetProperty(ItemDocumentIDProperty);
-        //    }
-        //    set
-        //    {
-        //        SetProperty(ItemDocumentIDProperty, value);
-        //    }
-        //}
-
 
 #if !SILVERLIGHT
 
@@ -273,72 +224,33 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
                             LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
                             LoadProperty<ErWebState>(StateProperty, (ErWebState)reader.GetInt32("SyncState"));
-                            //LoadProperty<List<int>>(PdfListProperty, GetPdfList(criteria));
                             MarkOld();
                         }
                     }
                 }
                 connection.Close();
             }
-        }
+        }       
        
-
-        //internal static List<int> GetPdfList(SingleCriteria<ZoteroERWebReviewItem, string> criteria)
-        //{
-        //    var documentList = new List<int>();
-        //    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-        //    {
-        //        connection.Open();
-        //        using (SqlCommand command = new SqlCommand("st_ZoteroDocumentIdsPerItemReviewId", connection))
-        //        {
-        //            command.CommandType = System.Data.CommandType.StoredProcedure;
-        //            command.Parameters.Add(new SqlParameter("@ItemReviewId", criteria.Value));
-        //            using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-        //            {
-        //                while (reader.Read())
-        //                {
-        //                    documentList.Add(reader.GetInt32("ITEM_DCOUMENT_ID"));
-        //                }
-        //            }
-        //        }
-        //        connection.Close();
-        //    }
-        //    return documentList;
-        //}
 
         internal static ZoteroERWebReviewItem GetZoteroERWebReviewItem(SafeDataReader reader)
         {
             ZoteroERWebReviewItem returnValue = new ZoteroERWebReviewItem();
-            //returnValue.LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
+            returnValue.LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
             returnValue.LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
-            //returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
-            //returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
-            //returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
+            returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
+            returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
+            returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
             returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("DATE_EDITED"));
             returnValue.LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
-
-
-            //returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
-            //returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
-            //returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
-            //returnValue.LoadProperty<ErWebState>(StateProperty, (ErWebState)reader.GetInt32("SyncState"));
+            returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
+            returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
+            returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
+            returnValue.LoadProperty<ErWebState>(StateProperty, (ErWebState)reader.GetInt32("SyncState"));
             returnValue.MarkOld();
 
             return returnValue;
         }
-
-        //internal static ZoteroERWebReviewItem GetZoteroERWebReviewItemBottomSet(SafeDataReader reader)
-        //{
-        //    ZoteroERWebReviewItem returnValue = new ZoteroERWebReviewItem();
-
-        //    returnValue.LoadProperty<long>(ItemDocumentIDProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
-        //    returnValue.LoadProperty<string>(FileKeyProperty, reader.GetString("FileKey"));
-
-        //    returnValue.MarkOld();
-
-        //    return returnValue;
-
-        //}
 #endif
     }
 }
