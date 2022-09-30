@@ -18,12 +18,13 @@ using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using Serilog.Extensions.Logging;
 using Microsoft.Extensions.Logging;
+using static BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument;
 
 namespace SyncTests
 {
     public class SyncTests
     {
-        private ZoteroItemReviewIDs _zoteroItemReviewIds;
+        private ZoteroERWebReviewItemList _zoteroERWebReviewItemList;
         private IConfigurationRoot _configuration;
         private ZoteroService _zoteroService;
         private string baseUrl;
@@ -53,12 +54,12 @@ namespace SyncTests
             // the attachment supersedes the state of the original item, meaning
             // after pulling, one may need to push as well after attachment is updated
             // but parent item may for instance be ahead.
-            string itemIds = "2680363, 2680364";
+            string attributeId = "1079";
             
 
-            var dp = new DataPortal<ZoteroItemReviewIDs>();
-            var criteria = new SingleCriteria<string>(itemIds);
-            _zoteroItemReviewIds = dp.Fetch(criteria);
+            var dp = new DataPortal<ZoteroERWebReviewItemList>();
+            var criteria = new SingleCriteria<ZoteroERWebReviewItemList, string>(attributeId);
+            _zoteroERWebReviewItemList = dp.Fetch(criteria);
 
             var dictionary = new ZoteroConcurrentDictionary();
             var logger = new LoggerConfiguration().CreateBootstrapLogger();
@@ -142,7 +143,7 @@ namespace SyncTests
         [TearDown]
         public void TearDown()
         {
-            _zoteroItemReviewIds.Clear();
+            _zoteroERWebReviewItemList.Clear();
         }
 
         [Test] //TODO should check mock database eventually
@@ -151,7 +152,7 @@ namespace SyncTests
             var dpItemsInBoth = new DataPortal<ZoteroERWebReviewItemList>();
             var result = dpItemsInBoth.Fetch();
 
-            var itemsInZotero = result.Select(x => x.ITEM_REVIEW_ID).Intersect(_zoteroItemReviewIds.Select(x => x.ITEM_REVIEW_ID));
+            var itemsInZotero = result.Select(x => x.ITEM_REVIEW_ID).Intersect(_zoteroERWebReviewItemList.Select(x => x.ITEM_REVIEW_ID));
 
             Assert.That(itemsInZotero.Any());
 
@@ -161,7 +162,7 @@ namespace SyncTests
         [Test]
         public async Task CheckSyncStatusOfListOfItemIdsAsyncTest()
         {
-            var resultantSyncStateDictionary = await UpdateSyncStateOfLocalItemsRelativeToZoteroAsync(_zoteroItemReviewIds);
+            var resultantSyncStateDictionary = await UpdateSyncStateOfLocalItemsRelativeToZoteroAsync(_zoteroERWebReviewItemList);
 
             var countOfUpToDate = resultantSyncStateDictionary.Count(x => x.Value == ErWebState.upToDate);
 
@@ -194,12 +195,14 @@ namespace SyncTests
         [Test]
         public async Task FetchSyncStateTest()
         {
-            var actionResult = await _zoteroController.FetchSyncState(_zoteroItemReviewIds);
+            var actionResult = await _zoteroController.FetchSyncState("1079");
             var okResult = actionResult as OkObjectResult;
             Assert.IsNotNull(okResult);
 
-            var actualResult = okResult.Value as Dictionary<long, ErWebState>;
-            Assert.That(ErWebState.ahead, Is.EqualTo(actualResult?.FirstOrDefault().Value)); 
+            var actualResult = okResult.Value as SyncStateDictionaries;
+
+            Assert.That(ErWebState.behind, Is.EqualTo(actualResult.itemSyncStateResults.FirstOrDefault().Value));
+            Assert.That(DocumentSyncState.upToDate, Is.EqualTo(actualResult.docSyncStateResults.FirstOrDefault().Value));
         }
 
         // 1 - Helper method for test will not be required when DB is setup for testing
@@ -282,14 +285,15 @@ namespace SyncTests
         }
 
         // 3 - Helper method for test will not be required when DB is setup for testing
-        private async Task<IDictionary<long, ErWebState>> UpdateSyncStateOfLocalItemsRelativeToZoteroAsync(ZoteroItemReviewIDs itemList)
+        private async Task<IDictionary<long, ErWebState>> UpdateSyncStateOfLocalItemsRelativeToZoteroAsync(ZoteroERWebReviewItemList zoteroERWebReviewItems)
         {
-            var syncStateResults = new Dictionary<long, ErWebState>();
-            foreach (var item in itemList)
+            var itemSyncStateResults = new Dictionary<long, ErWebState>();
+            var docSyncStateResults = new Dictionary<long, DocumentSyncState>();
+            foreach (var item in zoteroERWebReviewItems)
             {
-                await _zoteroController.UpdateSyncStatusOfItemAsync(syncStateResults, item);
+                await _zoteroController.UpdateSyncStatusOfItemAsync(itemSyncStateResults, docSyncStateResults, item);
             }
-            return syncStateResults;
+            return itemSyncStateResults;
         }    
     }
 }

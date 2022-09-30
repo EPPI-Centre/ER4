@@ -51,14 +51,28 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@AttributeId", criteria.Value));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ReviewId", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
                         {
+                            Add(ZoteroERWebReviewItem.GetZoteroERWebReviewItem(reader));
+                        }
+
+                        reader.NextResult();
+
+                        while (reader.Read())
+                        {
                             var itemId = reader.GetInt64("ITEM_ID");
                             var currentItem = this.Where(f => f.ItemID == itemId).FirstOrDefault();
-                            currentItem.PdfList.Add(new ZoteroERWebItemDocument(reader.GetInt64("ItemDocument_ID"), null, ZoteroERWebItemDocument.DocumentSyncState.existsOnlyOnER);
+                            if (currentItem != null)
+                            {
+                                var zoteroDoc = new ZoteroERWebItemDocument(reader.GetInt64("ITEM_DOCUMENT_ID"), reader.GetString("DOCUMENT_TITLE"),  reader.GetString("FileKey"), ZoteroERWebItemDocument.DocumentSyncState.existsOnlyOnER);
+                                if (zoteroDoc != null)
+                                {
+                                    currentItem.PdfList.Add(zoteroDoc);
+                                }                                
+                            }
                         }
                     }
                 }

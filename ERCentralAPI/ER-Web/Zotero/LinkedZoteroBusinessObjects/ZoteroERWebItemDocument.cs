@@ -11,20 +11,19 @@ namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
     public class ZoteroERWebItemDocument : BusinessBase<ZoteroERWebItemDocument>
-    {        
+    {
+        public ZoteroERWebItemDocument()
+        {
+                
+        }
 
-#if SILVERLIGHT
-       public ZoteroERWebItemDocument() { }
-
-        
-#else
-        public ZoteroERWebItemDocument(long item_Document_Id, string doc_Zotero_Key, DocumentSyncState documentSyncState) {
+        public ZoteroERWebItemDocument(long item_Document_Id,string documentTitle, string doc_Zotero_Key, DocumentSyncState documentSyncState) {
 
             Item_Document_Id = item_Document_Id;
+            DOCUMENT_TITLE = documentTitle;
             Doc_Zotero_Key = doc_Zotero_Key;
             SyncState = documentSyncState;
         }
-#endif
 
         public static readonly PropertyInfo<long> Item_Document_IdProperty = RegisterProperty<long>(new PropertyInfo<long>("Item_Document_Id", "Item_Document_Id", 0m));
         public long Item_Document_Id
@@ -36,6 +35,19 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(Item_Document_IdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> DOCUMENT_TITLEProperty = RegisterProperty<string>(new PropertyInfo<string>("DOCUMENT_TITLE", "DOCUMENT_TITLE", ""));
+        public string DOCUMENT_TITLE
+        {
+            get
+            {
+                return GetProperty(DOCUMENT_TITLEProperty);
+            }
+            set
+            {
+                SetProperty(DOCUMENT_TITLEProperty, value);
             }
         }
 
@@ -52,8 +64,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> DocumentSyncStateProperty = RegisterProperty<int>(new PropertyInfo<int>("DocumentSyncState", "DocumentSyncState", 0));
-        public int SyncState
+        public static readonly PropertyInfo<DocumentSyncState> DocumentSyncStateProperty = RegisterProperty<DocumentSyncState>(new PropertyInfo<DocumentSyncState>("DocumentSyncState", "DocumentSyncState", DocumentSyncState.existsOnlyOnER));
+        public DocumentSyncState SyncState
         {
             get
             {
@@ -99,19 +111,4 @@ namespace BusinessLibrary.BusinessClasses
         }     
 #endif
     }
-
-    //SERGIO: was trying to this with parameter because of the compilation error
-    //internal class ZoteroERWebItemDocumentSelectionCriteria
-    //{
-    //    private Type type;
-    //    private long itemDocumentId;
-    //    private string docZoteroKey;
-
-    //    public ZoteroERWebItemDocumentSelectionCriteria(Type type, long itemDocumentId, string docZoteroKey)
-    //    {
-    //        LoadProperty(ComparisonIdProperty, comparisonId);
-    //        LoadProperty(ParentAttributeIdProperty, parentAttributeId);
-    //        LoadProperty(SetIdProperty, setId);
-    //    }
-    //}
 }
