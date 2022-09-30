@@ -306,7 +306,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                var syncStateResults = new Dictionary<long, State>();
+                var syncStateResults = new Dictionary<long, ErWebState>();
                 foreach (var item in zoteroItemReviewIDs)
                 {
                     await UpdateSyncStatusOfItemAsync(syncStateResults, item);
@@ -331,42 +331,48 @@ namespace ERxWebClient2.Controllers
             return zoteroItem;
         }
 
-        public async Task UpdateSyncStatusOfItemAsync(Dictionary<long, State> syncStateResults, ZoteroItemIDPerItemReview item)
+        public async Task UpdateSyncStatusOfItemAsync(Dictionary<long, ErWebState> syncStateResults, ZoteroItemIDPerItemReview item)
         {
             // 1 - Convert from itemReviewId to itemKey
             var dp = new DataPortal<ZoteroERWebReviewItem>();
             var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(item.ITEM_REVIEW_ID.ToString());
             var localSyncedItem = dp.Fetch(criteria);
 
+            await GetItemSyncState(syncStateResults, item, localSyncedItem);
+        }
+
+        private async Task GetItemSyncState(Dictionary<long, ErWebState> syncStateResults, ZoteroItemIDPerItemReview item, 
+            ZoteroERWebReviewItem localSyncedItem)
+        {
             if (localSyncedItem.Zotero_item_review_ID > 0)
             {
                 var zoteroItem = await GetZoteroConvertedItemAsync(localSyncedItem.ItemKey);
                 var zoteroItemDateLastModified = Convert.ToDateTime(zoteroItem.data.dateModified);
 
                 var lastModified = localSyncedItem.LAST_MODIFIED.ToUniversalTime();
-                var result = syncStateResults.TryGetValue(item.ITEM_ID, out State state);
+                var result = syncStateResults.TryGetValue(item.ITEM_ID, out ErWebState state);
                 if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 0)
                 {
                     if (result)
                     {
-                        syncStateResults[item.ITEM_ID]= State.upToDate;
-					}
-					else
-					{
-                        syncStateResults.TryAdd(item.ITEM_ID, State.upToDate);
+                        syncStateResults[item.ITEM_ID] = ErWebState.upToDate;
+                    }
+                    else
+                    {
+                        syncStateResults.TryAdd(item.ITEM_ID, ErWebState.upToDate);
 
-                    }                    
+                    }
                 }
                 else if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 1)
                 {
 
                     if (result)
                     {
-                        syncStateResults[item.ITEM_ID] = State.ahead;
+                        syncStateResults[item.ITEM_ID] = ErWebState.ahead;
                     }
                     else
                     {
-                        syncStateResults.TryAdd(item.ITEM_ID, State.ahead);
+                        syncStateResults.TryAdd(item.ITEM_ID, ErWebState.ahead);
 
                     }
                 }
@@ -374,24 +380,47 @@ namespace ERxWebClient2.Controllers
                 {
                     if (result)
                     {
-                        syncStateResults[item.ITEM_ID] = State.behind;
+                        syncStateResults[item.ITEM_ID] = ErWebState.behind;
                     }
                     else
                     {
-                        syncStateResults.TryAdd(item.ITEM_ID, State.behind);
+                        syncStateResults.TryAdd(item.ITEM_ID, ErWebState.behind);
                     }
                 }
 
 
                 if (item.ITEM_DOCUMENT_ID > 0)
                 {
-                    var erWebItem = GetErWebItem(item.ITEM_ID);
-                    await UpdateSyncStatusOfDocumentItemAsync(syncStateResults, erWebItem, zoteroItem);
+                    // we wish to obtain the list of docs and call the logic for checking state
+                    // This has to change to incroporate a new state
+                    //var erWebItem = GetErWebItem(item.ITEM_ID);
+                    await GetPdfSyncStateAsync(syncStateResults, localSyncedItem.PdfList, zoteroItem);
+
                 }
             }
             else
             {
-                syncStateResults.TryAdd(item.ITEM_ID, State.doesNotExist);
+                syncStateResults.TryAdd(item.ITEM_ID, ErWebState.doesNotExist);
+            }
+        }
+
+        private async Task GetPdfSyncStateAsync(Dictionary<long, ErWebState> syncStateResults, List<int> documentIds, Collection zoteroItem)
+        {
+            // 1 - First variable just use it to update
+            // 2 - Loop from the documents and check their dates against Zotero's list
+            // 3 - UPdate sync dictionary accordingly
+            foreach (var documentId in documentIds)
+            {
+                var zoteroPdf = await GetZoteroAttachmentAsync(zoteroItem);
+                // just need to check existence
+                if (zoteroPdfExists)
+                {
+                    syncStateResults.TryAdd(documentId, ErWebState.pdfExists);
+                }
+                else
+                {
+                    syncStateResults.TryAdd(documentId, ErWebState.pdfDoesNotExist);
+                }                
             }
         }
 
@@ -403,10 +432,28 @@ namespace ERxWebClient2.Controllers
             return item;
         }
 
+        private async Task<DateTime> GetZoteroAttachmentAsync(Collection zoteroItem)
+        {
+            var parentKey = zoteroItem.key;
+            var index = zoteroItem.links.attachment.href.LastIndexOf('/');
+            var lengthOfAttachmentStr = zoteroItem.links.attachment.href.Length - index;
+            var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
+            var zoteroAttachmentLastModified = await GetZoteroAttachmentAsync(fileKey);
+
+            ZoteroReviewConnection zrc = ApiKey();
+            string groupIDBeingSynced = zrc.LibraryId;
+            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{itemKey}/file");
+            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+
+            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+            //var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+            //return DateTime.Parse(lastModifiedDate ?? "").ToUniversalTime();
+
+        }
+
         private async Task<DateTime> GetZoteroAttachmentAsync(string itemKey)
         {
-            // Need to get fileKey before this
-
+            
             ZoteroReviewConnection zrc = ApiKey();
             string groupIDBeingSynced = zrc.LibraryId;
             var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{itemKey}/file");
@@ -414,42 +461,40 @@ namespace ERxWebClient2.Controllers
 
             //act
             var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
-            var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
-            return DateTime.Parse(lastModifiedDate ?? "").ToUniversalTime();
 
         }
 
-        private async Task UpdateSyncStatusOfDocumentItemAsync(Dictionary<long, State> syncStateResults, Item erWebItem, Collection zoteroItem)
-        {
-            var parentKey = zoteroItem.key;
-            var index = zoteroItem.links.attachment.href.LastIndexOf('/');
-            var lengthOfAttachmentStr = zoteroItem.links.attachment.href.Length - index;
-            var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
-            var zoteroAttachmentLastModified = await GetZoteroAttachmentAsync(fileKey);
-            var result = syncStateResults.TryGetValue(erWebItem.ItemId, out State state);
-            // Here override the state of an item based on the child attachment
-            // A separate non child attachment will have already had its sync state set
-            // If attachment in a different state to parent then should 
-            if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 0)
-            {
-                // I think do nothing here to change original state
-            }
-            else if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 1)
-            {
-                if (result)
-                {
+        //private async Task UpdateSyncStatusOfDocumentItemAsync(Dictionary<long, ErWebState> syncStateResults, Item erWebItem, Collection zoteroItem)
+        //{
+        //    var parentKey = zoteroItem.key;
+        //    var index = zoteroItem.links.attachment.href.LastIndexOf('/');
+        //    var lengthOfAttachmentStr = zoteroItem.links.attachment.href.Length - index;
+        //    var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
+        //    var zoteroAttachmentLastModified = await GetZoteroAttachmentAsync(fileKey);
+        //    var result = syncStateResults.TryGetValue(erWebItem.ItemId, out ErWebState state);
+        //    // Here override the state of an item based on the child attachment
+        //    // A separate non child attachment will have already had its sync state set
+        //    // If attachment in a different state to parent then should 
+        //    if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 0)
+        //    {
+        //        // I think do nothing here to change original state
+        //    }
+        //    else if (DateTime.Parse(erWebItem.DateEdited).ToUniversalTime().CompareTo(zoteroAttachmentLastModified) == 1)
+        //    {
+        //        if (result)
+        //        {
 
-                    syncStateResults[erWebItem.ItemId] = State.attachmentAhead;
-                }
-            }
-            else
-            {
-                if (result)
-                {
-                    syncStateResults[erWebItem.ItemId] = State.attachmentBehind;
-                }
-            }
-        }
+        //            syncStateResults[erWebItem.ItemId] = ErWebState.attachmentAhead;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (result)
+        //        {
+        //            syncStateResults[erWebItem.ItemId] = ErWebState.attachmentBehind;
+        //        }
+        //    }
+        //}
 
 
         [HttpGet("[action]")]

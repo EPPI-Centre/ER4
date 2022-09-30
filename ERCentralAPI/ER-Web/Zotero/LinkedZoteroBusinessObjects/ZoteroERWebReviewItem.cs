@@ -181,19 +181,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public enum State
+        public enum ErWebState
         {
             doesNotExist,
             behind,
             upToDate,
             ahead,
-            attachmentDoesNotExist,
-            attachmentAhead,
-            attachmentBehind
+            pdfDoesNotExist,
+            pdfExists
         }
 
-        public static readonly PropertyInfo<State> StateProperty = RegisterProperty<State>(new PropertyInfo<State>("SYNC_STATE", "SYNC_STATE", State.doesNotExist));
-        public State SyncState
+
+        public static readonly PropertyInfo<ErWebState> StateProperty = RegisterProperty<ErWebState>(new PropertyInfo<ErWebState>("SYNC_STATE", "SYNC_STATE", ErWebState.doesNotExist));
+        public ErWebState SyncState
         {
             get
             {
@@ -204,6 +204,45 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(StateProperty, value);
             }
         }
+
+        public static readonly PropertyInfo<MobileList<ZoteroERWebItemDocument>> PdfListProperty = RegisterProperty<MobileList<ZoteroERWebItemDocument>>(new PropertyInfo<MobileList<ZoteroERWebItemDocument>>("PDF_LIST", "PDF_LIST", new MobileList<ZoteroERWebItemDocument>()));
+        public MobileList<ZoteroERWebItemDocument> PdfList
+        {
+            get
+            {
+                return GetProperty(PdfListProperty);
+            }
+            set
+            {
+                SetProperty(PdfListProperty, value);
+            }
+        }
+
+        //public static readonly PropertyInfo<string> FileKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("FILE_KEY", "FILE_KEY", ""));
+        //public string FileKey
+        //{
+        //    get
+        //    {
+        //        return GetProperty(FileKeyProperty);
+        //    }
+        //    set
+        //    {
+        //        SetProperty(FileKeyProperty, value);
+        //    }
+        //}
+
+        //public static readonly PropertyInfo<long> ItemDocumentIDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_DOCUMENT_ID", "ITEM_DOCUMENT_ID", 0m));
+        //public long ItemDocumentID
+        //{
+        //    get
+        //    {
+        //        return GetProperty(ItemDocumentIDProperty);
+        //    }
+        //    set
+        //    {
+        //        SetProperty(ItemDocumentIDProperty, value);
+        //    }
+        //}
 
 
 #if !SILVERLIGHT
@@ -231,8 +270,8 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
                             LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
                             LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
-                            LoadProperty<State>(StateProperty, (State)reader.GetInt32("SyncState"));
-
+                            LoadProperty<ErWebState>(StateProperty, (ErWebState)reader.GetInt32("SyncState"));
+                            //LoadProperty<List<int>>(PdfListProperty, GetPdfList(criteria));
                             MarkOld();
                         }
                     }
@@ -242,24 +281,62 @@ namespace BusinessLibrary.BusinessClasses
         }
        
 
+        //internal static List<int> GetPdfList(SingleCriteria<ZoteroERWebReviewItem, string> criteria)
+        //{
+        //    var documentList = new List<int>();
+        //    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+        //    {
+        //        connection.Open();
+        //        using (SqlCommand command = new SqlCommand("st_ZoteroDocumentIdsPerItemReviewId", connection))
+        //        {
+        //            command.CommandType = System.Data.CommandType.StoredProcedure;
+        //            command.Parameters.Add(new SqlParameter("@ItemReviewId", criteria.Value));
+        //            using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+        //            {
+        //                while (reader.Read())
+        //                {
+        //                    documentList.Add(reader.GetInt32("ITEM_DCOUMENT_ID"));
+        //                }
+        //            }
+        //        }
+        //        connection.Close();
+        //    }
+        //    return documentList;
+        //}
+
         internal static ZoteroERWebReviewItem GetZoteroERWebReviewItem(SafeDataReader reader)
         {
             ZoteroERWebReviewItem returnValue = new ZoteroERWebReviewItem();
-            returnValue.LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
+            //returnValue.LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
             returnValue.LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
-            returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
-            returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
-            returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
-            returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
+            //returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
+            //returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
+            //returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
+            returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("DATE_EDITED"));
             returnValue.LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
-            returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
+
+
+            //returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
             //returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
-            returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
-            returnValue.LoadProperty<State>(StateProperty, (State)reader.GetInt32("SyncState"));
+            //returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
+            //returnValue.LoadProperty<ErWebState>(StateProperty, (ErWebState)reader.GetInt32("SyncState"));
             returnValue.MarkOld();
 
             return returnValue;
         }
+
+        //internal static ZoteroERWebReviewItem GetZoteroERWebReviewItemBottomSet(SafeDataReader reader)
+        //{
+        //    ZoteroERWebReviewItem returnValue = new ZoteroERWebReviewItem();
+
+        //    returnValue.LoadProperty<long>(ItemDocumentIDProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
+        //    returnValue.LoadProperty<string>(FileKeyProperty, reader.GetString("FileKey"));
+
+        //    returnValue.MarkOld();
+
+        //    return returnValue;
+
+        //}
 #endif
     }
 }
