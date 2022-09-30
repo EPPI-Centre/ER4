@@ -1347,7 +1347,7 @@ namespace ERxWebClient2.Controllers
                         // check if it is the same version
                         if (localModifiedDate == zoteroModifiedDate)
                         {
-                            return Ok();
+                            //return Ok();
                         }
                         else
                         {

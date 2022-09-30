@@ -11,7 +11,7 @@ import { ReviewSet, ReviewSetsService, SetAttribute, singleNode } from '../servi
 import { ZoteroService } from '../services/Zotero.service';
 import {
   Collection, GroupData, IERWebANDZoteroReviewItem, IERWebObjects, IERWebZoteroObjects,
-  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList
+  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList
 } from '../services/ZoteroClasses.service';
 
 @Component({
@@ -500,7 +500,9 @@ export class ZoteroSyncComponent implements OnInit {
 
   async PullZoteroItems(): Promise<void> {
 
-    var arrayOfItemsToPullIntoErWeb: Collection[] = [];
+    var arrayOfItemsToPullIntoErWeb: Collection[] = [];//this one will change!
+    let arrayOfItemsToPullIntoErWeb2: IZoteroERWebReviewItem[] = [];//we'll be getting this straight from one API call...
+
 
     if (this.objectKeysExistsNeedingSyncing.length) {
 
@@ -569,6 +571,17 @@ export class ZoteroSyncComponent implements OnInit {
       }
       let errCount = 0;
       var keyResults: string[] = [];
+
+      //code above will change (mostly disappear), once we have an API call that gives us our IZoteroERWebReviewItem[]
+      //code below is only necessary to build our IZoteroERWebReviewItem[], until the API call is done
+      for (const it of arrayOfItemsToPullIntoErWeb) {
+        const state = this.getSyncStateOfObject(it.data.key);
+        console.log("state:", state);
+        if (it.meta.numItems > 0) console.log("numItems!", it.meta.numItems);
+        else if (it.meta.numChildren > 0) console.log("numChildren!", it.meta.numChildren);
+      }
+      if (arrayOfItemsToPullIntoErWeb) return;
+
 
       await this._zoteroService.insertZoteroObjectIntoERWebAsync(arrayOfItemsToPullIntoErWeb).then(
         async (result: boolean) => {

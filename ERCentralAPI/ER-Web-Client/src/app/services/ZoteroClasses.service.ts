@@ -344,3 +344,22 @@ export interface IObjectsInERWebNotInZotero {
     typeName: string;
     documentAttached: boolean;
 }
+
+export interface IZoteroERWebReviewItem {
+  itemId: number | null;
+  itemKey: string | null;
+  itemState: SyncState;
+  hasDocsOutofSync: boolean;
+  documents: IDocSyncState[];
+}
+export interface IDocSyncState {
+  itemDocument_id: number | null;
+  docZoterokey: string | null;
+  documentSyncState: DocSyncState;
+}
+
+export enum DocSyncState {
+  existsOnlyOnER,
+  existsOnlyOnZotero,
+  upToDate
+}
