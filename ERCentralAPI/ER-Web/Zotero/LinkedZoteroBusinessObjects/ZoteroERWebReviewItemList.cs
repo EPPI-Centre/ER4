@@ -56,16 +56,10 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         while (reader.Read())
                         {
-                            Add(ZoteroERWebReviewItem.GetZoteroERWebReviewItem(reader));
+                            var itemId = reader.GetInt64("ITEM_ID");
+                            var currentItem = this.Where(f => f.ItemID == itemId).FirstOrDefault();
+                            currentItem.PdfList.Add(new ZoteroERWebItemDocument(reader.GetInt64("ItemDocument_ID"), null, ZoteroERWebItemDocument.DocumentSyncState.existsOnlyOnER);
                         }
-
-                        reader.NextResult();
-
-                        while (reader.Read())
-                        {
-                            Add(ZoteroERWebReviewItem.GetZoteroERWebReviewItemBottomSet(reader));
-                        }
-
                     }
                 }
                 connection.Close();

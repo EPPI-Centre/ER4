@@ -205,8 +205,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<List<int>> PdfListProperty = RegisterProperty<List<int>>(new PropertyInfo<List<int>>("PDF_LIST", "PDF_LIST", new List<int>()));
-        public List<int> PdfList
+        public static readonly PropertyInfo<MobileList<ZoteroERWebItemDocument>> PdfListProperty = RegisterProperty<MobileList<ZoteroERWebItemDocument>>(new PropertyInfo<MobileList<ZoteroERWebItemDocument>>("PDF_LIST", "PDF_LIST", new MobileList<ZoteroERWebItemDocument>()));
+        public MobileList<ZoteroERWebItemDocument> PdfList
         {
             get
             {
@@ -218,31 +218,31 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> FileKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("FILE_KEY", "FILE_KEY", ""));
-        public string FileKey
-        {
-            get
-            {
-                return GetProperty(FileKeyProperty);
-            }
-            set
-            {
-                SetProperty(FileKeyProperty, value);
-            }
-        }
+        //public static readonly PropertyInfo<string> FileKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("FILE_KEY", "FILE_KEY", ""));
+        //public string FileKey
+        //{
+        //    get
+        //    {
+        //        return GetProperty(FileKeyProperty);
+        //    }
+        //    set
+        //    {
+        //        SetProperty(FileKeyProperty, value);
+        //    }
+        //}
 
-        public static readonly PropertyInfo<long> ItemDocumentIDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_DOCUMENT_ID", "ITEM_DOCUMENT_ID", 0m));
-        public long ItemDocumentID
-        {
-            get
-            {
-                return GetProperty(ItemDocumentIDProperty);
-            }
-            set
-            {
-                SetProperty(ItemDocumentIDProperty, value);
-            }
-        }
+        //public static readonly PropertyInfo<long> ItemDocumentIDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_DOCUMENT_ID", "ITEM_DOCUMENT_ID", 0m));
+        //public long ItemDocumentID
+        //{
+        //    get
+        //    {
+        //        return GetProperty(ItemDocumentIDProperty);
+        //    }
+        //    set
+        //    {
+        //        SetProperty(ItemDocumentIDProperty, value);
+        //    }
+        //}
 
 
 #if !SILVERLIGHT
@@ -325,18 +325,18 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static ZoteroERWebReviewItem GetZoteroERWebReviewItemBottomSet(SafeDataReader reader)
-        {
-            ZoteroERWebReviewItem returnValue = new ZoteroERWebReviewItem();
+        //internal static ZoteroERWebReviewItem GetZoteroERWebReviewItemBottomSet(SafeDataReader reader)
+        //{
+        //    ZoteroERWebReviewItem returnValue = new ZoteroERWebReviewItem();
 
-            returnValue.LoadProperty<long>(ItemDocumentIDProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
-            returnValue.LoadProperty<string>(FileKeyProperty, reader.GetString("FileKey"));
+        //    returnValue.LoadProperty<long>(ItemDocumentIDProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
+        //    returnValue.LoadProperty<string>(FileKeyProperty, reader.GetString("FileKey"));
 
-            returnValue.MarkOld();
+        //    returnValue.MarkOld();
 
-            return returnValue;
+        //    return returnValue;
 
-        }
+        //}
 #endif
     }
 }
