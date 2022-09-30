@@ -52,8 +52,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> DocumentSyncStateProperty = RegisterProperty<int>(new PropertyInfo<int>("DocumentSyncState", "DocumentSyncState", 0));
-        public int SyncState
+        public static readonly PropertyInfo<DocumentSyncState> DocumentSyncStateProperty = RegisterProperty<DocumentSyncState>(new PropertyInfo<DocumentSyncState>("DocumentSyncState", "DocumentSyncState", DocumentSyncState.existsOnlyOnER));
+        public DocumentSyncState SyncState
         {
             get
             {
