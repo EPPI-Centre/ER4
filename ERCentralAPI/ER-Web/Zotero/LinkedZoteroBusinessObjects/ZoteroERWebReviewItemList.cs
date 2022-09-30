@@ -65,7 +65,10 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             var itemId = reader.GetInt64("ITEM_ID");
                             var currentItem = this.Where(f => f.ItemID == itemId).FirstOrDefault();
-                            currentItem.PdfList.Add(new ZoteroERWebItemDocument(reader.GetInt64("ItemDocument_ID"), null, ZoteroERWebItemDocument.DocumentSyncState.existsOnlyOnER));
+                            if (currentItem != null)
+                            {
+                                currentItem.PdfList.Add(new ZoteroERWebItemDocument(reader.GetInt64("ItemDocument_ID"), null, ZoteroERWebItemDocument.DocumentSyncState.existsOnlyOnER));
+                            }
                         }
                     }
                 }

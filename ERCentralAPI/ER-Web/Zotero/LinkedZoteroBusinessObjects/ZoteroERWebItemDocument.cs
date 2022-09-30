@@ -11,20 +11,18 @@ namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
     public class ZoteroERWebItemDocument : BusinessBase<ZoteroERWebItemDocument>
-    {        
+    {
+        public ZoteroERWebItemDocument()
+        {
+                
+        }
 
-#if SILVERLIGHT
-       public ZoteroERWebItemDocument() { }
-
-        
-#else
         public ZoteroERWebItemDocument(long item_Document_Id, string doc_Zotero_Key, DocumentSyncState documentSyncState) {
 
             Item_Document_Id = item_Document_Id;
             Doc_Zotero_Key = doc_Zotero_Key;
             SyncState = documentSyncState;
         }
-#endif
 
         public static readonly PropertyInfo<long> Item_Document_IdProperty = RegisterProperty<long>(new PropertyInfo<long>("Item_Document_Id", "Item_Document_Id", 0m));
         public long Item_Document_Id
