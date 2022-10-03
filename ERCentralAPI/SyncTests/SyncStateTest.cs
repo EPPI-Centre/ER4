@@ -204,33 +204,49 @@ namespace SyncTests
             Assert.That(DocumentSyncState.upToDate, Is.EqualTo(actualResult.docSyncStateResults.FirstOrDefault().Value));
         }
 
-        [TestCase("1079", 1, 1)]
-        [TestCase("1082", 1, 0)]
-        public void GetLocalStatusofItemsWithThisCode(string attributeId, int expectedNumberOfItemsWithThisCode, 
+        //[TestCase("1079", 1, 1)]
+        //[TestCase("1082", 1, 0)]
+        [TestCase("84001", "84255", 22, 0)]//SG, this works in my DB, sorry for commenting out things for you...
+        public void GetLocalStatusofItemsWithThisCode(string attributeId, string attributeSetId, int expectedNumberOfItemsWithThisCode, 
             int expectedNumberOfZoteroItemsWithThisCode)
         {
             ZoteroERWebReviewItemList result;
             ItemList ActualItemsWithThisCode;
-            GetItemsWithThisCodeAndZoteroItemsWithThisCode(attributeId, out result, out ActualItemsWithThisCode);
+            GetItemsWithThisCodeAndZoteroItemsWithThisCode(attributeId, attributeSetId, out result, out ActualItemsWithThisCode);
 
-            Assert.That(result.Count(), Is.EqualTo(expectedNumberOfZoteroItemsWithThisCode));
+            //this tests that we're getting _what we expect_
+            Assert.That(result.Count(), Is.EqualTo(expectedNumberOfItemsWithThisCode));
+
+            //this tests that if we ask ER for "items with this code", we get the same number we did expect, 
+            //I [SG] didn't ask for this, and to do this, we need the AttributeSetId, which I've added as input
             Assert.That(ActualItemsWithThisCode.Count(), Is.EqualTo(expectedNumberOfItemsWithThisCode));
 
+            int count = result.Where(f => f.ItemKey != "").Count();//I.e. get all items that do have a ZoteroKey
+
+            //now we know how many items "with this code" exist in Zotero (according to ER)
+            //which is Zero, at this time (3 Oct 2022) as we can't push properly right now
+            Assert.That(count, Is.EqualTo(expectedNumberOfZoteroItemsWithThisCode));
         }
 
-        private (ZoteroERWebReviewItemList, ItemList) GetItemsWithThisCodeAndZoteroItemsWithThisCode(string attributeId, out ZoteroERWebReviewItemList result, out ItemList ActualItemsWithThisCode)
+        private (ZoteroERWebReviewItemList, ItemList) 
+            GetItemsWithThisCodeAndZoteroItemsWithThisCode(
+            string attributeId, string attributeSetId, out ZoteroERWebReviewItemList result, out ItemList ActualItemsWithThisCode)
         {
-            var dpZoteroErWebItemList = new DataPortal<ZoteroERWebReviewItemList>();
+            //var dpZoteroErWebItemList = new DataPortal<ZoteroERWebReviewItemList>();
+            
             var crit = new SingleCriteria<ZoteroERWebReviewItemList, string>(attributeId);
-
-            result = dpZoteroErWebItemList.Fetch(crit);
+            //result = dpZoteroErWebItemList.Fetch(crit);
+            
+            //quicker to write code, no need to create a dataportal explicitly
+            result = DataPortal.Fetch<ZoteroERWebReviewItemList>(crit);
 
             // Now make local call to itemsWithThisCode and Verify the answer
             var dp = new DataPortal<ItemList>();
             var criteria = new SelectionCriteria();
             criteria.OnlyIncluded = true;
-            criteria.WithAttributesIds = attributeId;
+            criteria.AttributeSetIdList = attributeSetId;
             criteria.ListType = "StandardItemList";
+            criteria.PageSize = 10000; //crazy big, so to have all items in one page!
             ActualItemsWithThisCode = dp.Fetch(criteria);
 
             return (result, ActualItemsWithThisCode);
