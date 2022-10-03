@@ -142,14 +142,14 @@ export class GroupItem {
     sync: string = '';
 }
 
-export class TypeCollection {
-    key: string = '';
-    version: number = 0;
-    library: any;
-    links: any;
-    meta: any;
-    data: CollectionData = new CollectionData();
-}
+//export class TypeCollection {
+//    key: string = '';
+//    version: number = 0;
+//    library: any;
+//    links: any;
+//    meta: any;
+//    data: CollectionData = new CollectionData();
+//}
 
 export class Book {
     key: string = '';
@@ -225,21 +225,21 @@ export class CreatorsItem {
     lastName: string = '';
 }
 
-export class Collection {
-    key: string = '';
-    version: number = 0;
-    library: any; 
-    links: Links = new Links();
-    meta: Meta = new Meta(); 
-    data: CollectionData = new CollectionData();
-}
+//export class Collection {
+//    key: string = '';
+//    version: number = 0;
+//    library: any; 
+//    links: Links = new Links();
+//    meta: Meta = new Meta(); 
+//    data: CollectionData = new CollectionData();
+//}
 
-export class Meta {
-    created: string = '';
-    lastModified: string = '';
-    numItems: number = 0;
-    numChildren: number = 0;
-}
+//export class Meta {
+//    created: string = '';
+//    lastModified: string = '';
+//    numItems: number = 0;
+//    numChildren: number = 0;
+//}
 
 export class CollectionData {
 
@@ -255,6 +255,7 @@ export class CollectionData {
     date: string = '';
     language: string = '';
     shortTitle: string = '';
+    publicationTitle: string = '';
     url: string = '';
     accessDate: string = '';
     archive: string = '';
@@ -271,40 +272,37 @@ export class CollectionData {
     parentItem: string = '';
 }
 
-export class Library {
-    type: string = '';
-    id: number = 0;
-    name: string = '';
-    links: Links = new Links();
-}
+//export class Library {
+//    type: string = '';
+//    id: number = 0;
+//    name: string = '';
+//    links: Links = new Links();
+//}
 
-export class Links {
-    alternate: Alternate = new Alternate();
-    self: Self = new Self();
-    attachment: Attachment = new Attachment();
-}
+//export class Links {
+//    alternate: Alternate = new Alternate();
+//    self: Self = new Self();
+//    attachment: Attachment = new Attachment();
+//}
 
-export class Alternate {
-    href: string = '';
-    type: string = '';
-}
+//export class Alternate {
+//    href: string = '';
+//    type: string = '';
+//}
 
-export class Self {
-    href: string = '';
-    type: string = '';
-}
+//export class Self {
+//    href: string = '';
+//    type: string = '';
+//}
 
-export class Up {
-    href: string = '';
-    type: string = '';
-}
 
-export class Attachment {
-    href: string = '';
-    type: string = '';
-    attachmentSize: number = 0;
-    attachmentType: string = '';
-}
+
+//export class Attachment {
+//    href: string = '';
+//    type: string = '';
+//    attachmentSize: number = 0;
+//    attachmentType: string = '';
+//}
 
 export class ZoteroReviewCollection {
     collectionKey: string = '';
@@ -362,4 +360,67 @@ export enum DocSyncState {
   existsOnlyOnER,
   existsOnlyOnZotero,
   upToDate
+}
+export class ZoteroItem {
+  constructor(izjo: iZoteroJobject) {
+    const t = izjo.data;
+    this.key = t.key;
+    this.title = t.title;
+    this.shortTitle = t.shortTitle;
+    this.parentTitle = t.publicationTitle;
+    this.dateModified = t.dateModified;
+    this.itemType = t.itemType;
+  }
+  key: string = "";
+  title: string = "";
+  shortTitle: string = "";
+  parentTitle: string = "";
+  dateModified: string = "";
+  itemType: string = "";
+  attachments: ZoteroAttachment[] = [];
+}
+export class ZoteroAttachment {
+  constructor(izjo: iZoteroJobject) {
+    this.key = izjo.data.key;
+    this.filename = izjo.data.title;
+    this.dateModified = izjo.data.dateModified;
+  }
+  key: string = "";
+  filename: string = "";
+  dateModified: string = "";
+}
+export interface iZoteroJobject {
+  key: string;
+  version: number;
+  library: iZoteroLibrary;
+  links: iZoteroLinks;
+  meta: iZoteroMeta;
+  data: CollectionData;
+}
+export interface iZoteroLibrary {
+  type: string;
+  id: number;
+  name: string;
+  links: iZoteroLinks;
+}
+
+export interface iZoteroMeta {
+  created: string;
+  lastModified: string;
+  numItems: number;
+  numChildren: number;
+}
+
+export interface iZoteroLinks {
+  alternate: iZoteroTypeRefPair;
+  self: iZoteroTypeRefPair;
+  attachment: iZoteroAttachment;
+}
+export interface iZoteroTypeRefPair {
+  href: string;
+  type: string;
+}
+export interface iZoteroAttachment extends iZoteroTypeRefPair {
+  attachmentSize: number;
+  attachmentType: string;
 }

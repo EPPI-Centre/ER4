@@ -1031,7 +1031,7 @@ namespace ERxWebClient2.Controllers
             }
         }
         [HttpGet("[action]")]
-        public async Task<IActionResult> Items()
+        public async Task<IActionResult> ZoteroItems()
         {
             try
             {

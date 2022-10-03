@@ -2,7 +2,7 @@ import { EventEmitter, Inject, Injectable, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ApiKeyInfo, Collection, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, TypeCollection, ZoteroReviewCollection, ZoteroReviewCollectionList } from './ZoteroClasses.service';
+import { ApiKeyInfo, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, iZoteroJobject, ZoteroItem, ZoteroAttachment, ZoteroReviewCollection, ZoteroReviewCollectionList } from './ZoteroClasses.service';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -44,7 +44,15 @@ export class ZoteroService extends BusyAwareService {
     }
   public set ZoteroPermissions(value: ApiKeyInfo) {
         this.userKeyInfo = value;
-    }
+  }
+
+  private _ZoteroItems: ZoteroItem[] = [];
+  public get ZoteroItems(): ZoteroItem[] {
+    return this._ZoteroItems;
+  }
+
+
+
   public async CheckZoteroPermissions(): Promise<boolean> {
     this._errorMessage = "data not fetched";
     this.hasPermissions = false;
@@ -228,21 +236,39 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async fetchZoteroObjectVersionsAsync(): Promise<TypeCollection[]> {
-        this._BusyMethods.push("fetchZoteroObjectVersionsAsync");
- 
-        return this._httpC.get<TypeCollection[]>(this._baseUrl + 'api/Zotero/Items')
-            .toPromise().then(result => {
-                this.RemoveBusy("fetchZoteroObjectVersionsAsync");
-                console.log('zotero items in service: ', result);
-                return result;
-            },
-                error => {
-                    this.RemoveBusy("fetchZoteroObjectVersionsAsync");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            );
+    public  fetchZoteroObjectVersionsAsync() {
+      this._BusyMethods.push("fetchZoteroObjectVersionsAsync");
+      this._ZoteroItems = [];
+      return this._httpC.get<iZoteroJobject[]>(this._baseUrl + 'api/Zotero/ZoteroItems')
+        .subscribe(result => {
+          //we're getting what Zotero provides at /groups/{zrc.LibraryId}/items?sort=title
+          //which is jumble of refs and attachments, so we'll digest this result
+          //might be better to digest on the server side, or not. Hard to say for now (03 Oct 2022)
+          const References = result.filter(f => f.data.itemType !== 'attachment');//ugh, hopefully this is only references and not also other stuff!
+          const Attachments = result.filter(f => f.data.itemType == 'attachment');
+          for (let iref of References) {//create the ZoteroItem, add it to our list of zoteroItems
+            let ref = new ZoteroItem(iref);
+            this._ZoteroItems.push(ref);
+          }
+          //now we have all ZoteroItems, but we need to put the attachments in them;
+          for (let iAtt of Attachments) {
+            let Att = new ZoteroAttachment(iAtt);
+            //now find its parent...
+            const ind = this._ZoteroItems.findIndex(f => f.key == iAtt.data.parentItem);
+            if (ind > -1) {
+              //OK, found it, otherwise it's an attachment with no parent and we don't know what to do with it.
+              this._ZoteroItems[ind].attachments.push(Att);
+            }
+          }
+
+          this.RemoveBusy("fetchZoteroObjectVersionsAsync");
+        },
+          error => {
+            this.RemoveBusy("fetchZoteroObjectVersionsAsync");
+            this.modalService.GenericError(error);
+            return error;
+          }
+        );
     }
 
     public async fetchERWebObjectsNotInZoteroAsync(): Promise<IERWebObjects[]> {
@@ -261,7 +287,7 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async getVersionOfItemInErWebAsync(item: Collection) {
+  public async getVersionOfItemInErWebAsync(item: iZoteroJobject) {
         this._BusyMethods.push("getVersionOfItemInErWeb");
         return this._httpC.get<IZoteroReviewItem>(this._baseUrl + 'api/Zotero/ItemKeyVersionLocal?ItemKey=' + item.key + '&ItemType=' + item.data.itemType)
             .toPromise().then(result => {
@@ -277,10 +303,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async fetchZoteroObjectAsync(itemKey: string): Promise<TypeCollection> {
+  public async fetchZoteroObjectAsync(itemKey: string): Promise<iZoteroJobject> {
         this._BusyMethods.push("fetchZoteroObjectAsync");
 
-        return this._httpC.get<TypeCollection>(this._baseUrl + 'api/Zotero/ItemsItemKey?itemKey=' + itemKey)
+    return this._httpC.get<iZoteroJobject>(this._baseUrl + 'api/Zotero/ItemsItemKey?itemKey=' + itemKey)
             .toPromise().then(result => {
                 this.RemoveBusy("fetchZoteroObjectAsync");
                 return result;
@@ -293,10 +319,10 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async updateZoteroObjectInERWebAsync(item: Collection): Promise<boolean> {
+  public async updateZoteroObjectInERWebAsync(item: iZoteroJobject): Promise<boolean> {
         this._BusyMethods.push("updateZoteroObjectInERWebAsync");
 
-        return this._httpC.post<Collection>(this._baseUrl + 'api/Zotero/ItemsItemsIdLocal', item)
+    return this._httpC.post<iZoteroJobject>(this._baseUrl + 'api/Zotero/ItemsItemsIdLocal', item)
             .toPromise().then(result => {
                 this.RemoveBusy("updateZoteroObjectInERWebAsync");
                 return result;
@@ -309,9 +335,9 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async insertZoteroObjectIntoERWebAsync(items: TypeCollection[]): Promise<boolean> {
+  public async insertZoteroObjectIntoERWebAsync(items: iZoteroJobject[]): Promise<boolean> {
       this._BusyMethods.push("insertZoteroObjectInERWebAsync");       
-        return this._httpC.post<TypeCollection[]>(this._baseUrl + 'api/Zotero/ItemsLocal', items)
+    return this._httpC.post<iZoteroJobject[]>(this._baseUrl + 'api/Zotero/ItemsLocal', items)
             .toPromise().then(result => {
                 this.RemoveBusy("insertZoteroObjectInERWebAsync");
                 return result;

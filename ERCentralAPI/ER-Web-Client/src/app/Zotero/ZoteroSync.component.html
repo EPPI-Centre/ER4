@@ -175,35 +175,36 @@
 							<thead>
 								<tr>
 									<th>Object Key</th>
-									<th>Version</th>
+									<!--<th>Version</th>-->
 									<th>Short Title</th>
 									<th>ItemType</th>
-									<th>Library name</th>
-									<th>Library type</th>
+									<!--<th>Library name</th>
+									<th>Library type</th>-->
 									<th>Sync State</th>
 									<th>Attachment</th>
 								</tr>
 							</thead>
 							<tbody *ngFor="let object of ObjectZoteroList">
-								<tr *ngIf="ObjectTypeValidity(object)">
+								<!--<tr *ngIf="ObjectTypeValidity(object)">-->
+								<tr >
 									<td width="6">
 										{{object.key}}
 									</td>
-									<td width="6">
+									<!--<td width="6">
 										{{object.version}}
+									</td>-->
+									<td>
+										{{object.shortTitle}}
 									</td>
 									<td>
-										{{object.data.shortTitle}}
+										{{object.itemType}}
 									</td>
-									<td>
-										{{object.data.itemType}}
-									</td>
-									<td width="6">
+									<!--<td width="6">
 										{{object.library.name}}
 									</td>
 									<td width="6">
 										{{object.library.type}}
-									</td>
+									</td>-->
 									<td width="6">
 
 										<span class="bg-danger" *ngIf="getSyncStateOfObject(object.key) === 0">
@@ -224,15 +225,15 @@
 
 									</td>
 									<td>
-										<span class="bg-warning" *ngIf="object.meta.numItems === 0 && object.meta.numChildren === 0">
+										<span class="bg-warning" *ngIf="object.attachments.length === 0">
 											No Attachment
 										</span>
-										<span class="bg-success" *ngIf="object.meta.numItems > 0 || object.meta.numChildren > 0">
+										<span class="bg-success" *ngIf="object.attachments.length > 0">
 											Attachment
 										</span>
 									</td>
 								</tr>
-						</table>
+</table>
 					</div>
 				</div>
 			</div>

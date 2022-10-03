@@ -10,8 +10,8 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSet, ReviewSetsService, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ZoteroService } from '../services/Zotero.service';
 import {
-  Collection, GroupData, IERWebANDZoteroReviewItem, IERWebObjects, IERWebZoteroObjects,
-  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList
+  iZoteroJobject, GroupData, IERWebANDZoteroReviewItem, IERWebObjects, IERWebZoteroObjects,
+  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList, ZoteroItem
 } from '../services/ZoteroClasses.service';
 
 @Component({
@@ -43,7 +43,7 @@ export class ZoteroSyncComponent implements OnInit {
     return true;
   }
 
-  private objectKeysNotExistsNeedingSyncing: Collection[] = [];
+  private objectKeysNotExistsNeedingSyncing: iZoteroJobject[] = [];
   private objectKeysExistsNeedingSyncing: string[] = [];
   private objectSyncState: IObjectSyncState[] = [];
   private currentReview: number = 0;
@@ -52,7 +52,6 @@ export class ZoteroSyncComponent implements OnInit {
   private totalItemsInCurrentReview: number = 0;
   private zoteroUserName: string = '';
   private zoteroUserKey: string = '';
-  public ObjectZoteroList: Collection[] = [];
   private ObjectERWebList: IERWebObjects[] = [];
   private ObjectERWebMetaDataAheadOfZoteroList: IERWebZoteroObjects[] = [];
   private hasPermissions: boolean = false;
@@ -61,7 +60,7 @@ export class ZoteroSyncComponent implements OnInit {
 
   public CurrentDropdownSelectedCode: singleNode | null = null;
   public ObjectsInERWebNotInZotero: IObjectsInERWebNotInZotero[] = [];
-  public ItemsInERWebANDInZotero: Collection[] = [];
+  public ItemsInERWebANDInZotero: iZoteroJobject[] = [];
   public codingSetData: StatsCompletion[] = [];
   public itemsWithThisCode: Item[] = [];
   public isCollapsed = false;
@@ -93,19 +92,23 @@ export class ZoteroSyncComponent implements OnInit {
     this.itemsListCriteria.attributeSetIdList = "";
     let ListDescription: string = 'Coded with: Include';
     this.itemsListCriteria.listType = 'StandardItemList';
-    this._ItemListService.FetchWithCrit(this.itemsListCriteria, ListDescription);
+    //this._ItemListService.FetchWithCrit(this.itemsListCriteria, ListDescription);
 
     this.currentReview = this._ReviewerIdentityServ.reviewerIdentity.reviewId;
-    this._codesetStatsServ.GetReviewStatisticsCountsCommand(true, true);
-    this._zoteroService.fetchERWebItemsToPushToZotero(this._ItemListService.ItemList.items.map(x => x.itemId).join(',')).then(
-      (itemReviewIDs: string[]) => {
+    //this._codesetStatsServ.GetReviewStatisticsCountsCommand(true, true);
+    //this._zoteroService.fetchERWebItemsToPushToZotero(this._ItemListService.ItemList.items.map(x => x.itemId).join(',')).then(
+    //  (itemReviewIDs: string[]) => {
 
-      }
-    );
-
-        this.totalItemsInCurrentReview = this._codesetStatsServ.ReviewStats.itemsIncluded;
-
+    //  }
+    //);
+    this.totalItemsInCurrentReview = this._codesetStatsServ.ReviewStats.itemsIncluded;
+    this.fetchZoteroObjectVersions();
     }
+
+
+  public get ObjectZoteroList(): ZoteroItem[] {
+    return this._zoteroService.ZoteroItems;
+  } 
 
   public CodingSets(set_id: number): StatsCompletion[] {
     return this._codesetStatsServ.tmpCodesets.filter(x => x.setId == set_id);
@@ -121,7 +124,7 @@ export class ZoteroSyncComponent implements OnInit {
 
   public CloseCodeDropDown() {
     this.codingSetData = [];
-    this._ItemListService.Clear();
+    //this._ItemListService.Clear();
 
     if (this.WithOrWithoutCodeSelector !== null) {
       let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
@@ -131,7 +134,7 @@ export class ZoteroSyncComponent implements OnInit {
         cr.attributeid = CurrentDropdownSelectedCode.attribute_id;
         cr.attributeSetIdList = CurrentDropdownSelectedCode.attributeSetId.toString();
         cr.listType = 'StandardItemList';
-        this._ItemListService.FetchWithCrit(cr, "Included Items");
+        //this._ItemListService.FetchWithCrit(cr, "Included Items");
       }
       this.CurrentDropdownSelectedCode = CurrentDropdownSelectedCode;
     }
@@ -140,11 +143,12 @@ export class ZoteroSyncComponent implements OnInit {
   }
 
   public CountZoteroObjectsThatAreNotAttachments(): void {
-    let objects = this.ObjectZoteroList.map(x => x.data.itemType !== 'attachment');
-    this.ZoteroObjectsThatAreNotAttachmentsLength = objects.length;
+    //let objects = this.ObjectZoteroList.map(x => x.data.itemType !== 'attachment');
+    //this.ZoteroObjectsThatAreNotAttachmentsLength = objects.length;
+    this.ZoteroObjectsThatAreNotAttachmentsLength = this.ObjectZoteroList.length;
   }
 
-  public ObjectTypeValidity(object: Collection): boolean {
+  public ObjectTypeValidity(object: iZoteroJobject): boolean {
     return object.data.itemType !== 'attachment';
   }
 
@@ -244,13 +248,12 @@ export class ZoteroSyncComponent implements OnInit {
   
 
   async getErWebObjects() {
-    this.ObjectZoteroList = [];
+    //this.ObjectZoteroList = [];
     this.ObjectsInERWebAndZotero = [];
     if (this.Pushing || this.Pulling) {
       return;
     }
-
-      if (!this._zoteroService.hasPermissions) {
+    if (!this._zoteroService.hasPermissions) {
             this._notificationService.show({
                 content: "You must select a group on the setup page in order to check the current sync status",
                 animation: { type: 'slide', duration: 400 },
@@ -264,8 +267,8 @@ export class ZoteroSyncComponent implements OnInit {
 
     } else {
         this.Clear();
-        this.itemsWithThisCode = this._ItemListService.ItemList.items;
-        await this.fetchZoteroObjectVersionsAsync();     
+        //this.itemsWithThisCode = this._ItemListService.ItemList.items;
+        //await this.fetchZoteroObjectVersionsAsync();     
     }
   }
 
@@ -328,8 +331,7 @@ export class ZoteroSyncComponent implements OnInit {
     var itemKeys: string[] = [];
     if (!this.Pushing && !this.Pulling) {
       
-      var correctLengthOfRightHandTable = this.ObjectZoteroList.filter(x => x.data.itemType !== 'attachment'
-        && x.library.id === this._zoteroService.currentGroupBeingSynced).length;
+      var correctLengthOfRightHandTable = this.ObjectZoteroList.length;
       if (correctLengthOfRightHandTable !== this.ObjectsInERWebAndZotero.length) {
         for (var i = 0; i < this.ObjectsInERWebAndZotero.length; i++) {
           let itemKey = this.ObjectsInERWebAndZotero[i].itemKey;
@@ -355,38 +357,43 @@ export class ZoteroSyncComponent implements OnInit {
     }
   }
 
-  async fetchZoteroObjectVersionsAsync(): Promise<void> {
-    this.ObjectZoteroList = [];
-    this._zoteroService.fetchZoteroObjectVersionsAsync().then(
-      (objects) => {
-        this.ObjectZoteroList = objects;
-        this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
-          if (a.data.key > b.data.key) {
-            return 1;
-          }
+  //async fetchZoteroObjectVersionsAsync(): Promise<void> {
+//  {
+//  //this.ObjectZoteroList = [];
+//  this._zoteroService.fetchZoteroObjectVersionsAsync().then(
+//    (objects) => {
+//      this.ObjectZoteroList = objects;
+//      this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
+//        if (a.data.key > b.data.key) {
+//          return 1;
+//        }
 
-          if (a.data.key < b.data.key) {
-            return -1;
-          }
+//        if (a.data.key < b.data.key) {
+//          return -1;
+//        }
 
-          return 0;
-        });
+//        return 0;
+//      });
 
-        this.objectSyncState = [...objects.filter(x => x.data.itemType !== 'attachment').map(x => <IObjectSyncState>{ objectKey: x.key, syncState: SyncState.upToDate })];
-      }
-    )
-      .then(
-      async () => {
-          await this.fetchERWebAndZoteroAlreadySyncedItems().then(
-            async () => {
-              await this.checkSyncState();
-              await this.fetchERWebObjectVersionsAsync(); 
-              await this.DeleteLocallyItemsRemovedFromZotero();
-              this.Pulling = false;
-              this.Pushing = false;
-            });
-      }
-    )
+//      this.objectSyncState = [...objects.filter(x => x.data.itemType !== 'attachment').map(x => <IObjectSyncState>{ objectKey: x.key, syncState: SyncState.upToDate })];
+//    }
+//  )
+//    .then(
+//      async () => {
+//        await this.fetchERWebAndZoteroAlreadySyncedItems().then(
+//          async () => {
+//            await this.checkSyncState();
+//            await this.fetchERWebObjectVersionsAsync();
+//            await this.DeleteLocallyItemsRemovedFromZotero();
+//            this.Pulling = false;
+//            this.Pushing = false;
+//          });
+//      }
+//    )
+//}
+  fetchZoteroObjectVersions() {
+    //this.ObjectZoteroList = [];
+    this._zoteroService.fetchZoteroObjectVersionsAsync();
   }
 
   async fetchERWebObjectVersionsAsync(): Promise<void> {
@@ -427,80 +434,81 @@ export class ZoteroSyncComponent implements OnInit {
     }
 
     this.ObjectsInERWebAndZotero = this.ObjectsInERWebAndZotero.sort((a, b) => a.itemKey.localeCompare(b.itemKey));
-    await this.checkSyncState();
+    //await this.checkSyncState();
   }
 
   async PullConfirmZoteroItems(): Promise<void> {
-    this.Pulling = true;
-    this._zoteroService.fetchZoteroObjectVersionsAsync().then(
-      async (objects) => {
-        console.log('objects: ' + JSON.stringify(objects));
-        this.ObjectZoteroList = objects;
-        this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
-          if (a.data.key > b.data.key) {
-            return 1;
-          }
+    //this.Pulling = true;
 
-          if (a.data.key < b.data.key) {
-            return -1;
-          }
+    //this._zoteroService.fetchZoteroObjectVersionsAsync().then(
+    //  async (objects) => {
+    //    console.log('objects: ' + JSON.stringify(objects));
+    //    this.ObjectZoteroList = objects;
+    //    this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
+    //      if (a.data.key > b.data.key) {
+    //        return 1;
+    //      }
 
-          return 0;
-        });
-      }
-    ).then(
-      async () => {
+    //      if (a.data.key < b.data.key) {
+    //        return -1;
+    //      }
 
-        var updateOrInsertIntoErWeb: boolean = false;
-        for (var i = 0; i < this.objectSyncState.length; i++) {
-          if (this.objectSyncState[i].syncState !== SyncState.upToDate) {
-            updateOrInsertIntoErWeb = true;
-          }
-        }
+    //      return 0;
+    //    });
+    //  }
+    //).then(
+    //  async () => {
 
-        if (updateOrInsertIntoErWeb === false) {
-          this._notificationService.show({
-            content: "No Zotero object/s to pull",
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-          });
-          return;
-        }
-        let msg: string = 'Are you sure you want to pull these object/s into ERWeb? ';
-        this._confirmationDialogService.confirm('Zotero Sync', msg, false, '', 'Pull Data')
-          .then(async (confirm: boolean) => {
-            if (confirm === true) {
-              await this.PullZoteroItems();
+    //    var updateOrInsertIntoErWeb: boolean = false;
+    //    for (var i = 0; i < this.objectSyncState.length; i++) {
+    //      if (this.objectSyncState[i].syncState !== SyncState.upToDate) {
+    //        updateOrInsertIntoErWeb = true;
+    //      }
+    //    }
 
-              async () => {
-                await this.fetchERWebAndZoteroAlreadySyncedItems();
-                await this.checkSyncState();
-                await this.getErWebObjects();
+    //    if (updateOrInsertIntoErWeb === false) {
+    //      this._notificationService.show({
+    //        content: "No Zotero object/s to pull",
+    //        animation: { type: 'slide', duration: 400 },
+    //        position: { horizontal: 'center', vertical: 'top' },
+    //        type: { style: "info", icon: true },
+    //        closable: true
+    //      });
+    //      return;
+    //    }
+    //    let msg: string = 'Are you sure you want to pull these object/s into ERWeb? ';
+    //    this._confirmationDialogService.confirm('Zotero Sync', msg, false, '', 'Pull Data')
+    //      .then(async (confirm: boolean) => {
+    //        if (confirm === true) {
+    //          await this.PullZoteroItems();
 
-              }
+    //          async () => {
+    //            await this.fetchERWebAndZoteroAlreadySyncedItems();
+    //            await this.checkSyncState();
+    //            await this.getErWebObjects();
 
-            } else {
-              this.Clear();
-              this.itemsWithThisCode = this._ItemListService.ItemList.items;
-              await this.fetchERWebObjectVersionsAsync().then(
-                async () => {
-                  await this.fetchZoteroObjectVersionsAsync();
-                  this.Pulling = false;
-                }
-              );
+    //          }
 
-              return;
-            }
-          });
-      }
-    )
+    //        } else {
+    //          this.Clear();
+    //          this.itemsWithThisCode = this._ItemListService.ItemList.items;
+    //          await this.fetchERWebObjectVersionsAsync().then(
+    //            async () => {
+    //              //await this.fetchZoteroObjectVersionsAsync();
+    //              this.Pulling = false;
+    //            }
+    //          );
+
+    //          return;
+    //        }
+    //      });
+    //  }
+    //)
   }
 
   async PullZoteroItems(): Promise<void> {
 
-    var arrayOfItemsToPullIntoErWeb: Collection[] = [];//this one will change!
+    var arrayOfItemsToPullIntoErWeb: iZoteroJobject[] = [];//this one will change!
     let arrayOfItemsToPullIntoErWeb2: IZoteroERWebReviewItem[] = [];//we'll be getting this straight from one API call...
 
 
@@ -548,7 +556,7 @@ export class ZoteroSyncComponent implements OnInit {
           this.ObjectERWebList = [];
           this.objectKeysNotExistsNeedingSyncing = [];
           this.objectKeysExistsNeedingSyncing = [];
-          await this.fetchZoteroObjectVersionsAsync();
+          //await this.fetchZoteroObjectVersionsAsync();
         }
         this.Pulling = false;
         await this.getErWebObjects();
@@ -614,7 +622,7 @@ export class ZoteroSyncComponent implements OnInit {
         this.ObjectERWebList = [];
         this.objectKeysNotExistsNeedingSyncing = [];
         this.objectKeysExistsNeedingSyncing = [];
-        await this.fetchZoteroObjectVersionsAsync();
+        //await this.fetchZoteroObjectVersionsAsync();
       }
       this.Pulling = false;
       await this.getErWebObjects();
@@ -648,8 +656,8 @@ export class ZoteroSyncComponent implements OnInit {
                     type: { style: "info", icon: true },
                     closable: true
                   });
-                  await this.fetchZoteroObjectVersionsAsync();
-                  await this.checkSyncState();
+                  //await this.fetchZoteroObjectVersionsAsync();
+                  //await this.checkSyncState();
                   await this.getErWebObjects();
                 } else {
                   this._notificationService.show({
@@ -700,7 +708,7 @@ export class ZoteroSyncComponent implements OnInit {
                       closable: true
                     });
                   }
-                  await this.checkSyncState();
+                  //await this.checkSyncState();
                   await this.getErWebObjects();
                   this.Pushing = false;
                 });
@@ -711,119 +719,119 @@ export class ZoteroSyncComponent implements OnInit {
     }
   }
 
-  async checkSyncState(): Promise<void> {
-    this.ItemsInERWebANDInZotero = [];
-    let href = '';
-    this.ObjectZoteroList.forEach(
-      async (item) => {
-        if (item.key.length > 0) {
+  //async checkSyncState(): Promise<void> {
+  //  this.ItemsInERWebANDInZotero = [];
+  //  let href = '';
+  //  this.ObjectZoteroList.forEach(
+  //    async (item) => {
+  //      if (item.key.length > 0) {
 
-          let zoteroReviewItemResult: IZoteroReviewItem = await this._zoteroService.getVersionOfItemInErWebAsync(item);
-          if (zoteroReviewItemResult === null) return;
-          let localItemVersion = zoteroReviewItemResult.version;
-          let zoteroItemVersion = this.ObjectZoteroList.find(x => x == item);
-          let localVersion = parseInt(localItemVersion) || -1;
-          var stateRow = this.objectSyncState.find(x => x.objectKey === item.key);
-          if (localVersion == -1) {
-            this.objectKeysNotExistsNeedingSyncing.push(item);
-            var stateRow = this.objectSyncState.find(x => x.objectKey === item.key);
-            if (stateRow) {
-              stateRow.syncState = SyncState.doesNotExist;
-            }
-          } else {
-            if (zoteroItemVersion !== undefined) {
-              if (zoteroItemVersion.version == localVersion) {
-                if (stateRow !== undefined) {
-                  // check for an attachment, if so check its state separately
-                  console.log('Got here:' + JSON.stringify(zoteroItemVersion.links.attachment));
-                  if (zoteroItemVersion.links.attachment !== null && zoteroItemVersion.links.attachment !== undefined) {
-                    href = zoteroItemVersion.links.attachment.href;
-                    console.log('testing href: ' + JSON.stringify(href));
-                  }
+  //        let zoteroReviewItemResult: IZoteroReviewItem = await this._zoteroService.getVersionOfItemInErWebAsync(item);
+  //        if (zoteroReviewItemResult === null) return;
+  //        let localItemVersion = zoteroReviewItemResult.version;
+  //        let zoteroItemVersion = this.ObjectZoteroList.find(x => x == item);
+  //        let localVersion = parseInt(localItemVersion) || -1;
+  //        var stateRow = this.objectSyncState.find(x => x.objectKey === item.key);
+  //        if (localVersion == -1) {
+  //          this.objectKeysNotExistsNeedingSyncing.push(item);
+  //          var stateRow = this.objectSyncState.find(x => x.objectKey === item.key);
+  //          if (stateRow) {
+  //            stateRow.syncState = SyncState.doesNotExist;
+  //          }
+  //        } else {
+  //          if (zoteroItemVersion !== undefined) {
+  //            if (zoteroItemVersion.version == localVersion) {
+  //              if (stateRow !== undefined) {
+  //                // check for an attachment, if so check its state separately
+  //                console.log('Got here:' + JSON.stringify(zoteroItemVersion.links.attachment));
+  //                if (zoteroItemVersion.links.attachment !== null && zoteroItemVersion.links.attachment !== undefined) {
+  //                  href = zoteroItemVersion.links.attachment.href;
+  //                  console.log('testing href: ' + JSON.stringify(href));
+  //                }
 
-                  if (zoteroItemVersion.links.attachment === null || zoteroItemVersion.links.attachment === undefined) {
-                    stateRow.syncState = SyncState.upToDate
-                  } else {
+  //                if (zoteroItemVersion.links.attachment === null || zoteroItemVersion.links.attachment === undefined) {
+  //                  stateRow.syncState = SyncState.upToDate
+  //                } else {
 
-                    // TODO currently this is incorrect
-                    // it needs to check that the stored itemreviewId in middle man table
-                    // has a linked doc in itemDocuments...!!
-                    console.log('Check itemreviewId has a linked doc: ' + JSON.stringify(zoteroReviewItemResult));
-                    await this.CheckAttachmentExistsAsync(zoteroReviewItemResult).then(
-                      (result: boolean) => {
-                        var syncState: SyncState;
-                        if (result === true) {
-                          syncState = SyncState.upToDate;
-                        }
-                        else {
-                          syncState = SyncState.attachmentDoesNotExist;
-                          if (zoteroItemVersion !== undefined) {
-                            this.attachmentKeyToSync = this.GetAttachmentKey(href);
-                            var attachmentToInsert = this.ObjectZoteroList.filter(x => x.key ===
-                              this.attachmentKeyToSync)[0];
-                            this.objectKeysNotExistsNeedingSyncing.push(attachmentToInsert);
-                          }
-                        }
-                        console.log('what!! syncstate ' + syncState);
-                        if (stateRow !== undefined && syncState != undefined) {
-                          stateRow.syncState = syncState;
-                          // TODO when changed to use versions
-                          //if (syncState === SyncState.doesNotExist ||
-                          //    syncState === SyncState.attachmentDoesNotExist) {
-                          //    console.log('what!!');
-                          //    var attachmentToInsert = this.ObjectZoteroList.filter(x => x.key ===
-                          //        this.attachmentKeyToSync)[0];
-                          //    this.objectKeysNotExistsNeedingSyncing.push(attachmentToInsert);
-                          //}
-                        }
-                      }
-                    );
-                  }
-                }
-              } else if (localVersion < zoteroItemVersion.version) {
-                if (stateRow !== undefined) {
-                  stateRow.syncState = SyncState.behind;
-                }
-                this.objectKeysExistsNeedingSyncing.push(item.key);
-              } else if (localVersion > zoteroItemVersion.version) {
-                if (stateRow !== undefined) {
-                  stateRow.syncState = SyncState.ahead;
-                  if (zoteroReviewItemResult.iteM_REVIEW_ID) {
-                    await this._zoteroService.fetchItemIDPerItemReviewID(zoteroReviewItemResult.iteM_REVIEW_ID.toString()).then(
-                      (itemID: string) => {
-                        var itemLocallyAhead = <IERWebZoteroObjects>{ itemID: parseInt(itemID), itemReviewID: zoteroReviewItemResult.iteM_REVIEW_ID, itemkey: item.key, version: zoteroReviewItemResult.version, itemDocumentID: -1 };  //TODO need to populate correctly when necessary
-                        this.ObjectERWebMetaDataAheadOfZoteroList.push(itemLocallyAhead);
-                      }
-                    )
-                  }
-                }
-                this.objectKeysExistsNeedingSyncing.push(item.key);
-              }
-            }
-          }
-        }
-      }
-    );
+  //                  // TODO currently this is incorrect
+  //                  // it needs to check that the stored itemreviewId in middle man table
+  //                  // has a linked doc in itemDocuments...!!
+  //                  console.log('Check itemreviewId has a linked doc: ' + JSON.stringify(zoteroReviewItemResult));
+  //                  await this.CheckAttachmentExistsAsync(zoteroReviewItemResult).then(
+  //                    (result: boolean) => {
+  //                      var syncState: SyncState;
+  //                      if (result === true) {
+  //                        syncState = SyncState.upToDate;
+  //                      }
+  //                      else {
+  //                        syncState = SyncState.attachmentDoesNotExist;
+  //                        if (zoteroItemVersion !== undefined) {
+  //                          this.attachmentKeyToSync = this.GetAttachmentKey(href);
+  //                          var attachmentToInsert = this.ObjectZoteroList.filter(x => x.key ===
+  //                            this.attachmentKeyToSync)[0];
+  //                          this.objectKeysNotExistsNeedingSyncing.push(attachmentToInsert);
+  //                        }
+  //                      }
+  //                      console.log('what!! syncstate ' + syncState);
+  //                      if (stateRow !== undefined && syncState != undefined) {
+  //                        stateRow.syncState = syncState;
+  //                        // TODO when changed to use versions
+  //                        //if (syncState === SyncState.doesNotExist ||
+  //                        //    syncState === SyncState.attachmentDoesNotExist) {
+  //                        //    console.log('what!!');
+  //                        //    var attachmentToInsert = this.ObjectZoteroList.filter(x => x.key ===
+  //                        //        this.attachmentKeyToSync)[0];
+  //                        //    this.objectKeysNotExistsNeedingSyncing.push(attachmentToInsert);
+  //                        //}
+  //                      }
+  //                    }
+  //                  );
+  //                }
+  //              }
+  //            } else if (localVersion < zoteroItemVersion.version) {
+  //              if (stateRow !== undefined) {
+  //                stateRow.syncState = SyncState.behind;
+  //              }
+  //              this.objectKeysExistsNeedingSyncing.push(item.key);
+  //            } else if (localVersion > zoteroItemVersion.version) {
+  //              if (stateRow !== undefined) {
+  //                stateRow.syncState = SyncState.ahead;
+  //                if (zoteroReviewItemResult.iteM_REVIEW_ID) {
+  //                  await this._zoteroService.fetchItemIDPerItemReviewID(zoteroReviewItemResult.iteM_REVIEW_ID.toString()).then(
+  //                    (itemID: string) => {
+  //                      var itemLocallyAhead = <IERWebZoteroObjects>{ itemID: parseInt(itemID), itemReviewID: zoteroReviewItemResult.iteM_REVIEW_ID, itemkey: item.key, version: zoteroReviewItemResult.version, itemDocumentID: -1 };  //TODO need to populate correctly when necessary
+  //                      this.ObjectERWebMetaDataAheadOfZoteroList.push(itemLocallyAhead);
+  //                    }
+  //                  )
+  //                }
+  //              }
+  //              this.objectKeysExistsNeedingSyncing.push(item.key);
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //  );
 
 
-    var tempListOfDocumentsFromZotero = this.ObjectZoteroList.filter(x => x.data.itemType === 'attachment');
-    var tempListOfNonDocumentsFromZotero = this.ObjectZoteroList.filter(x => x.data.itemType !== 'attachment');
-    this.ObjectZoteroList = [];
-    this.ObjectZoteroList = tempListOfNonDocumentsFromZotero.concat(tempListOfDocumentsFromZotero);
+  //  var tempListOfDocumentsFromZotero = this.ObjectZoteroList.filter(x => x.data.itemType === 'attachment');
+  //  var tempListOfNonDocumentsFromZotero = this.ObjectZoteroList.filter(x => x.data.itemType !== 'attachment');
+  //  this.ObjectZoteroList = [];
+  //  this.ObjectZoteroList = tempListOfNonDocumentsFromZotero.concat(tempListOfDocumentsFromZotero);
 
-    this.Pushing = false;
-    this.Pulling = false;
-    this.ObjectsInERWebAndZotero = this.ObjectsInERWebAndZotero.sort((a, b) => a.itemKey.localeCompare(b.itemKey));
-    this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
-      if (a.data.key > b.data.key) {
-        return 1;
-      }
-      if (a.data.key < b.data.key) {
-        return -1;
-      }
-      return 0;
-    });
-  }
+  //  this.Pushing = false;
+  //  this.Pulling = false;
+  //  this.ObjectsInERWebAndZotero = this.ObjectsInERWebAndZotero.sort((a, b) => a.itemKey.localeCompare(b.itemKey));
+  //  this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
+  //    if (a.data.key > b.data.key) {
+  //      return 1;
+  //    }
+  //    if (a.data.key < b.data.key) {
+  //      return -1;
+  //    }
+  //    return 0;
+  //  });
+  //}
 
   async CheckAttachmentExistsAsync(zoteroReviewItemResult: IZoteroReviewItem): Promise<boolean> {
 
@@ -881,7 +889,7 @@ export class ZoteroSyncComponent implements OnInit {
     this.ObjectERWebList = [];
     this.ObjectsInERWebNotInZotero = [];
     this.ObjectsInERWebAndZotero = [];
-    this.ObjectZoteroList = [];
+    //this.ObjectZoteroList = [];
     this.ItemsInERWebANDInZotero = [];
     this.ObjectERWebMetaDataAheadOfZoteroList = [];
   }
