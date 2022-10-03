@@ -54,8 +54,7 @@ namespace SyncTests
             // the attachment supersedes the state of the original item, meaning
             // after pulling, one may need to push as well after attachment is updated
             // but parent item may for instance be ahead.
-            string attributeId = "1079";
-            
+            string attributeId = "1079";            
 
             var dp = new DataPortal<ZoteroERWebReviewItemList>();
             var criteria = new SingleCriteria<ZoteroERWebReviewItemList, string>(attributeId);
@@ -204,6 +203,39 @@ namespace SyncTests
             Assert.That(ErWebState.behind, Is.EqualTo(actualResult.itemSyncStateResults.FirstOrDefault().Value));
             Assert.That(DocumentSyncState.upToDate, Is.EqualTo(actualResult.docSyncStateResults.FirstOrDefault().Value));
         }
+
+        [TestCase("1079", 1, 1)]
+        [TestCase("1082", 1, 0)]
+        public void GetLocalStatusofItemsWithThisCode(string attributeId, int expectedNumberOfItemsWithThisCode, 
+            int expectedNumberOfZoteroItemsWithThisCode)
+        {
+            ZoteroERWebReviewItemList result;
+            ItemList ActualItemsWithThisCode;
+            GetItemsWithThisCodeAndZoteroItemsWithThisCode(attributeId, out result, out ActualItemsWithThisCode);
+
+            Assert.That(result.Count(), Is.EqualTo(expectedNumberOfZoteroItemsWithThisCode));
+            Assert.That(ActualItemsWithThisCode.Count(), Is.EqualTo(expectedNumberOfItemsWithThisCode));
+
+        }
+
+        private (ZoteroERWebReviewItemList, ItemList) GetItemsWithThisCodeAndZoteroItemsWithThisCode(string attributeId, out ZoteroERWebReviewItemList result, out ItemList ActualItemsWithThisCode)
+        {
+            var dpZoteroErWebItemList = new DataPortal<ZoteroERWebReviewItemList>();
+            var crit = new SingleCriteria<ZoteroERWebReviewItemList, string>(attributeId);
+
+            result = dpZoteroErWebItemList.Fetch(crit);
+
+            // Now make local call to itemsWithThisCode and Verify the answer
+            var dp = new DataPortal<ItemList>();
+            var criteria = new SelectionCriteria();
+            criteria.OnlyIncluded = true;
+            criteria.WithAttributesIds = attributeId;
+            criteria.ListType = "StandardItemList";
+            ActualItemsWithThisCode = dp.Fetch(criteria);
+
+            return (result, ActualItemsWithThisCode);
+        }
+
 
         // 1 - Helper method for test will not be required when DB is setup for testing
         private async Task<IDictionary<long, ErWebState>> PushBehindLocalItemsToZoteroAsync(string listOfLocalItemReviewIdsBehindZotero)
