@@ -315,15 +315,7 @@ namespace ERxWebClient2.Controllers
 
                 var result = dpZoteroErWebItemList.Fetch(crit);
 
-                foreach (var item in result)
-                {
-                    await UpdateSyncStatusOfItemAsync(itemSyncStateResults, docSyncStateResults, item);
-                }
-                SyncStateDictionaries results = new SyncStateDictionaries();
-                results.itemSyncStateResults = itemSyncStateResults;
-                results.docSyncStateResults = docSyncStateResults;
-
-                    return Ok(results);
+                return Ok(result);
 		    }
             catch (Exception e)
             {
