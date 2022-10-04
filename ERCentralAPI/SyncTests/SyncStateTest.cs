@@ -194,7 +194,7 @@ namespace SyncTests
         [Test]
         public async Task FetchSyncStateTest()
         {
-            var actionResult = await _zoteroController.FetchSyncState("1079");
+            var actionResult = await _zoteroController.FetchZoteroERWebReviewItemList("1079");
             var okResult = actionResult as OkObjectResult;
             Assert.IsNotNull(okResult);
 

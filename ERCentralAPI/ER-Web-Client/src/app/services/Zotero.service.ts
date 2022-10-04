@@ -2,7 +2,7 @@ import { EventEmitter, Inject, Injectable, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ApiKeyInfo, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, iZoteroJobject, ZoteroItem, ZoteroAttachment, ZoteroReviewCollection, ZoteroReviewCollectionList } from './ZoteroClasses.service';
+import { ApiKeyInfo, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, iZoteroJobject, ZoteroItem, ZoteroAttachment, ZoteroReviewCollection, ZoteroReviewCollectionList, iZoteroERWebReviewItemList } from './ZoteroClasses.service';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -51,6 +51,10 @@ export class ZoteroService extends BusyAwareService {
     return this._ZoteroItems;
   }
 
+  private _zoteroERWebReviewItemList: iZoteroERWebReviewItemList[] = [];
+  public get ZoteroERWebReviewItemList() {
+    return this._zoteroERWebReviewItemList;
+  }
 
 
   public async CheckZoteroPermissions(): Promise<boolean> {
@@ -146,7 +150,8 @@ export class ZoteroService extends BusyAwareService {
                     return error;
                 }
             );
-    }
+  }
+
     public async GroupMemberGet(groupId: string): Promise<boolean> {
         this._BusyMethods.push("GroupMemberGet");
         return this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/GroupMember?groupId=' + groupId )
@@ -317,7 +322,25 @@ export class ZoteroService extends BusyAwareService {
                     return error;
                 }
             );
-    }
+  }
+
+  public async fetchZoteroERWebReviewItemListAsync(attributeId: string): Promise<iZoteroERWebReviewItemList[]> {
+    this._BusyMethods.push("fetchZoteroERWebReviewItemListAsync");
+
+    return this._httpC.get<iZoteroERWebReviewItemList[]>(this._baseUrl +
+      'api/Zotero/FetchZoteroERWebReviewItemList?attributeId=' + attributeId)
+      .toPromise().then(result => {
+        this.RemoveBusy("fetchZoteroERWebReviewItemListAsync");
+        this._zoteroERWebReviewItemList = result;
+        return result;
+      },
+        error => {
+          this.RemoveBusy("fetchZoteroERWebReviewItemListAsync");
+          this.modalService.GenericError(error);
+          return error;
+        }
+      );
+  }
 
   public async updateZoteroObjectInERWebAsync(item: iZoteroJobject): Promise<boolean> {
         this._BusyMethods.push("updateZoteroObjectInERWebAsync");

@@ -68,36 +68,25 @@
 	</div>
 	<div class="col-12 row">
 		<div class="col-md-4 flex-column pull-left">
-			<div class="col-md-12 alert-primary card" *ngIf="ObjectsInERWebNotInZotero.length > 0">
+			<div class="col-md-12 alert-primary card" *ngIf="ZoteroERWebReviewItemList.length > 0">
 				<h6><b>Items with this code</b></h6>
 				<div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
 					<table class="table table-sm table-striped p-2 m-2">
 						<thead>
 							<tr>
 								<th>ItemType</th>
-								<th>Short Title</th>
-								<th>ItemId (just for prototype checks)</th>
-								<th>Zotero Status</th>
-								<th>Document Attached</th>
+								<th>Short Title</th>								
 							</tr>
 						</thead>
-						<tbody *ngFor="let object of ObjectsInERWebNotInZotero; index as i">
+						<tbody *ngFor="let object of ZoteroERWebReviewItemList; index as i">
 							<tr>
 								<td>
-									{{ object.typeName}}
+									{{ object.zotero_item_review_ID}}
 								</td>
 								<td width="26">
 									{{ object.shortTitle}}
 								</td>
-								<td>
-									{{ object.itemId}}
-								</td>
-								<td class="alert-danger">
-									Not present In Zotero
-								</td>
-								<td width="26">
-									{{object.documentAttached}}
-								</td>
+								
 							</tr>
 					</table>
 				</div>

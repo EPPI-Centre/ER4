@@ -301,25 +301,22 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> FetchSyncState(string attributeId)
+        public async Task<IActionResult> FetchZoteroERWebReviewItemList([FromQuery] string attributeId)
         {
 			try
 			{
 				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                var itemSyncStateResults = new Dictionary<long, ErWebState>();
-                var docSyncStateResults = new Dictionary<long, DocumentSyncState>();
-
                 var dpZoteroErWebItemList = new DataPortal<ZoteroERWebReviewItemList>();
                 var crit = new SingleCriteria<ZoteroERWebReviewItemList, string>(attributeId);
 
-                var result = dpZoteroErWebItemList.Fetch(crit);
+                var result = await dpZoteroErWebItemList.FetchAsync(crit);
 
                 return Ok(result);
 		    }
             catch (Exception e)
             {
-                _logger.LogException(e, "Fetch SyncState has an error");
+                _logger.LogException(e, "FetchZoteroERWebReviewItemList has an error");
                 return StatusCode(500, e.Message);
             }
         }
@@ -1022,6 +1019,7 @@ namespace ERxWebClient2.Controllers
                 else return StatusCode(500, e.Message);//something not predictable happened!
             }
         }
+
         [HttpGet("[action]")]
         public async Task<IActionResult> ZoteroItems()
         {

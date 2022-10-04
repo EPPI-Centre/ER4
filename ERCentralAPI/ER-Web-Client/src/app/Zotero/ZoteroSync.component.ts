@@ -11,7 +11,7 @@ import { ReviewSet, ReviewSetsService, SetAttribute, singleNode } from '../servi
 import { ZoteroService } from '../services/Zotero.service';
 import {
   iZoteroJobject, GroupData, IERWebANDZoteroReviewItem, IERWebObjects, IERWebZoteroObjects,
-  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList, ZoteroItem
+  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList, ZoteroItem, iZoteroERWebReviewItemList
 } from '../services/ZoteroClasses.service';
 
 @Component({
@@ -76,6 +76,7 @@ export class ZoteroSyncComponent implements OnInit {
   public dropdownBasic1: boolean = false;
   private itemsListCriteria: Criteria = new Criteria();
 
+
   ngOnInit() {
     this.zoteroUserName = this._ReviewerIdentityServ.reviewerIdentity.name;
     this.zoteroUserID = this._ReviewerIdentityServ.reviewerIdentity.userId;
@@ -108,7 +109,11 @@ export class ZoteroSyncComponent implements OnInit {
 
   public get ObjectZoteroList(): ZoteroItem[] {
     return this._zoteroService.ZoteroItems;
-  } 
+  }
+
+  public get ZoteroERWebReviewItemList() {
+    return this._zoteroService.ZoteroERWebReviewItemList;
+  }
 
   public CodingSets(set_id: number): StatsCompletion[] {
     return this._codesetStatsServ.tmpCodesets.filter(x => x.setId == set_id);
@@ -249,6 +254,8 @@ export class ZoteroSyncComponent implements OnInit {
 
   async getErWebObjects() {
     //this.ObjectZoteroList = [];
+   
+
     this.ObjectsInERWebAndZotero = [];
     if (this.Pushing || this.Pulling) {
       return;
@@ -268,7 +275,11 @@ export class ZoteroSyncComponent implements OnInit {
     } else {
         this.Clear();
         //this.itemsWithThisCode = this._ItemListService.ItemList.items;
-        //await this.fetchZoteroObjectVersionsAsync();     
+        //await this.fetchZoteroObjectVersionsAsync();
+      let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
+      if (CurrentDropdownSelectedCode !== null) {
+        this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString());
+      }   
     }
   }
 

@@ -397,6 +397,19 @@ export interface iZoteroJobject {
   meta: iZoteroMeta;
   data: CollectionData;
 }
+export interface iZoteroERWebReviewItemList {
+  zotero_item_review_ID: number;
+  itemKey: string ;
+  libraryID: string ;
+  iTEM_REVIEW_ID: number ;
+  version: number;
+  dATE_EDITED: string;
+  iTEM_ID: number ;
+  shortTitle: string ;
+  tITLE: string;
+  typeName: string;
+  syncState: string;
+}
 export interface iZoteroLibrary {
   type: string;
   id: number;
