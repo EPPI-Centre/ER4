@@ -205,8 +205,9 @@ namespace SyncTests
         }
 
         //[TestCase("1079", 1, 1)]
-        //[TestCase("1082", 1, 0)]
-        [TestCase("84001", "84255", 22, 0)]//SG, this works in my DB, sorry for commenting out things for you...
+        //[TestCase("1082", 1, 0)] 
+        [TestCase( "1095", "1291", 1544, 0)]
+        //[TestCase("84001", "84255", 22, 0)]//SG, this works in my DB, sorry for commenting out things for you...
         public void GetLocalStatusofItemsWithThisCode(string attributeId, string attributeSetId, int expectedNumberOfItemsWithThisCode, 
             int expectedNumberOfZoteroItemsWithThisCode)
         {
