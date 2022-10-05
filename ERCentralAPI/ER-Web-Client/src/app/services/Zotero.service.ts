@@ -11,6 +11,7 @@ import {
   ZoteroERWebItemDoc
 } from './ZoteroClasses.service';
 import { ConfigService } from './config.service';
+import { forEach } from 'lodash';
 
 @Injectable({
     providedIn: 'root',
@@ -249,19 +250,18 @@ export class ZoteroService extends BusyAwareService {
             );
     }
 
-    public async deleteMiddleMan(itemKey: string): Promise<string> {
-        this._BusyMethods.push("deleteMiddleMan");
-        return this._httpC.post<string>(this._baseUrl + 'api/Zotero/DeleteMiddleMan?itemKey=' + itemKey, itemKey)
-            .toPromise().then(result => {
-                this.RemoveBusy("deleteMiddleMan");
-                return result;
-            },
-                error => {
-                    this.RemoveBusy("deleteMiddleMan");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            );
+    public deleteERZoterolinkstoItemsAndDocs(ItemKeys: string, DocKeys:string) {
+      this._BusyMethods.push("deleteERZoterolinkstoItemsAndDocs");
+      const body = { itemKeys: ItemKeys, docKeys: DocKeys };
+      return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/DeleteLinkedDocsAndItems', body).subscribe(
+        result => {
+          this.RemoveBusy("deleteERZoterolinkstoItemsAndDocs");
+        },
+        error => {
+          this.RemoveBusy("deleteERZoterolinkstoItemsAndDocs");
+          this.modalService.GenericError(error);
+        }
+      );
     }
 
     public  fetchZoteroObjectVersionsAsync() {
@@ -343,16 +343,21 @@ export class ZoteroService extends BusyAwareService {
               //this one exists in TB_ZOTERO_ITEM_REVIEW but not in Zotero, has been deleted there, we need to delete it from TB_ZOTERO_ITEM_REVIEW
               //console.log("state1", zri.syncState);
               ToDeleteItems.push(zri);
+              for (let att of zri.pdfList) {
+                ToDeleteAttachments.push(att);
+              }
             }
             //console.log("state2", zri.syncState);
-            this._zoteroERWebReviewItemList.push(zri);
+            //this._zoteroERWebReviewItemList.push(zri);
           }
           this.RemoveBusy("fetchZoteroObjectVersionsAsync");
 
           //FINALLY: call the next "fire and forget" method which will DELETE records in TB_ZOTERO_ITEM_REVIEW and TB_ZOTERO_ITEM_DOCUMENT
           //these are records of things that were "paired" (existed both in ER and Zotero sides), but has disappeared on the Zotero end
           //so we want to make sure the ER side is updated accordingly
-          this.DeleteEntitiesThatWereDeletedOnZoteroSide(ToDeleteAttachments, ToDeleteItems);
+          if (ToDeleteAttachments.length > 0 || ToDeleteItems.length > 0) {
+            this.DeleteEntitiesThatWereDeletedOnZoteroSide(ToDeleteAttachments, ToDeleteItems);
+          }
         },
           error => {
             this.modalService.GenericError(error);
@@ -363,8 +368,16 @@ export class ZoteroService extends BusyAwareService {
   }
   private DeleteEntitiesThatWereDeletedOnZoteroSide(ToDeleteAttachments: ZoteroERWebItemDoc[], ToDeleteItems: ZoteroERWebReviewItem[]) {
     //DELETE records in TB_ZOTERO_ITEM_REVIEW and TB_ZOTERO_ITEM_DOCUMENT
-    //TODO: first delete the PDFs/Attachments (TB_ZOTERO_ITEM_DOCUMENT), then delete the items (TB_ZOTERO_ITEM_REVIEW)
-    //we need "awaitable" methods for this, so to do things in sequence, not all concurrently.
+    let ItemKeys: string = "", DocKeys: string = "";
+    for (let itm of ToDeleteItems) {
+      ItemKeys += itm.itemKey + ",";
+    }
+    ItemKeys = ItemKeys.substring(0, ItemKeys.length - 1);
+    for (let doc of ToDeleteAttachments) {
+      DocKeys += doc.doc_Zotero_Key + ",";
+    }
+    DocKeys = DocKeys.substring(0, DocKeys.length - 1);
+    this.deleteERZoterolinkstoItemsAndDocs(ItemKeys, DocKeys);
   }
   private AddOffsetTimeToDate(indate: Date, minsToAdd: number) {
     //snatched from: https://code.tutsplus.com/tutorials/how-to-add-and-subtract-time-from-a-date-in-javascript--cms-37207

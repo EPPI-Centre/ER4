@@ -164,8 +164,19 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroItem
 DROP PROCEDURE [dbo].[st_ZoteroItemReviewDelete]
 GO
 
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewDeleteInBulk]  Script Date: 05/11/2021 20:04:52 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroItemReviewDeleteInBulk') 
+DROP PROCEDURE [dbo].[st_ZoteroItemReviewDeleteInBulk]
+GO
 
-/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewDelete]  Script Date: 05/11/2021 20:04:52 ******/
+
+/****** Object:  StoredProcedure [dbo].st_ZoteroItemDocumentDeleteInBulk]  Script Date: 05/11/2021 20:04:52 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroItemDocumentDeleteInBulk') 
+DROP PROCEDURE [dbo].[st_ZoteroItemDocumentDeleteInBulk]
+GO
+
+
+/****** Object:  StoredProcedure [dbo].[st_ItemIDFromSource]  Script Date: 05/11/2021 20:04:52 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ItemIDFromSource') 
 DROP PROCEDURE [dbo].[st_ItemIDFromSource]
 GO

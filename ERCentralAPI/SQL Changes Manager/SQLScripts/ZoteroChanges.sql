@@ -520,28 +520,28 @@ END
 
 GO
 
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ItemsInERWebANDZotero]    Script Date: 19/09/2022 13:58:12 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
+--USE [Reviewer]
+--GO
+--/****** Object:  StoredProcedure [dbo].[st_ItemsInERWebANDZotero]    Script Date: 19/09/2022 13:58:12 ******/
+--SET ANSI_NULLS ON
+--GO
+--SET QUOTED_IDENTIFIER ON
+--GO
 
 
-CREATE OR ALTER    Procedure [dbo].[st_ItemsInERWebANDZotero]
-as
-Begin	
-  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName, ZIR.SyncState
-  FROM [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW] ZIR
-  INNER JOIN [Reviewer].[dbo].[TB_ITEM_REVIEW] IR
-  ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
-  INNER JOIN [Reviewer].[dbo].[TB_ITEM] I
-  ON IR.ITEM_ID = I.ITEM_ID
-  ORDER BY I.SHORT_TITLE
-End
+--CREATE OR ALTER    Procedure [dbo].[st_ItemsInERWebANDZotero]
+--as
+--Begin	
+--  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName, ZIR.SyncState
+--  FROM [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW] ZIR
+--  INNER JOIN [Reviewer].[dbo].[TB_ITEM_REVIEW] IR
+--  ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+--  INNER JOIN [Reviewer].[dbo].[TB_ITEM] I
+--  ON IR.ITEM_ID = I.ITEM_ID
+--  ORDER BY I.SHORT_TITLE
+--End
 
-GO
+--GO
 
 USE [Reviewer]
 GO
@@ -686,9 +686,20 @@ Begin
   declare @ids table (ItemId bigint, ItemReviewId bigint, Primary key(ItemId, ItemReviewId))
 
   --to start, find the itemIDs we want, we'll use this table for both results we return
-  Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
-  inner join TB_ITEM_ATTRIBUTE tia on ir.REVIEW_ID = @ReviewId and tia.ATTRIBUTE_ID = @AttributeId and ir.ITEM_ID = tia.ITEM_ID and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
-  inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+
+  if @AttributeId > 0
+  BEGIN
+	--getting "items with this code", this is used to drive the "left side" table in the UI, showing what can be done with Items to the user
+	  Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
+	  inner join TB_ITEM_ATTRIBUTE tia on ir.REVIEW_ID = @ReviewId and tia.ATTRIBUTE_ID = @AttributeId and ir.ITEM_ID = tia.ITEM_ID and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
+	  inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+  END
+  ELSE
+  BEGIN
+	--no meaningful @AttributeId, so we get ALL items known to be present in Zotero, this is used to find out the sync state of refs present on the Zotero side.
+	Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
+	inner join TB_ZOTERO_ITEM_REVIEW zi on ir.REVIEW_ID = @ReviewId and ir.ITEM_REVIEW_ID = zi.ITEM_REVIEW_ID --and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
+  END
 
   --first set of results, the data we want about ITEMs
   select I.ITEM_ID, I.DATE_EDITED,zi.TypeName,zi.ITEM_REVIEW_ID, zi.Zotero_item_review_ID, zi.ItemKey, zi.LibraryID, zi.[Version], zi.LAST_MODIFIED, I.TITLE, I.SHORT_TITLE, zi.SyncState
@@ -704,4 +715,56 @@ Begin
 End
 
 GO
+
+USE [Reviewer]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER   Procedure [dbo].[st_ZoteroItemReviewDeleteInBulk](
+@ItemKeys varchar(8000) ,
+@ReviewId int 
+)
+as
+Begin
+
+	DELETE FROM [dbo].[TB_ZOTERO_ITEM_REVIEW]
+	WHERE ITEM_REVIEW_ID in (
+		select ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir 
+		inner join TB_ZOTERO_ITEM_REVIEW zi on ir.REVIEW_ID = @ReviewId and ir.ITEM_REVIEW_ID = zi.ITEM_REVIEW_ID
+		inner join dbo.fn_Split(@ItemKeys, ',') s on s.value = zi.ItemKey
+	)
+	   
+End
+
+GO
+
+USE [Reviewer]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER   Procedure [dbo].[st_ZoteroItemDocumentDeleteInBulk](
+@DocumentKeys varchar(8000),
+@ReviewId int 
+)
+as
+Begin
+
+	DELETE FROM [dbo].[TB_ZOTERO_ITEM_DOCUMENT]
+	WHERE ITEM_DOCUMENT_ID in (
+		select id.ITEM_DOCUMENT_ID from TB_ITEM_REVIEW ir 
+		inner join TB_ITEM_DOCUMENT id on ir.REVIEW_ID = @ReviewId and ir.ITEM_ID = id.ITEM_ID
+		inner join TB_ZOTERO_ITEM_DOCUMENT zi on  id.ITEM_DOCUMENT_ID = zi.ITEM_DOCUMENT_ID
+		inner join dbo.fn_Split(@DocumentKeys, ',') s on s.value = zi.FileKey
+	)
+	   
+End
+
+GO
+
 
