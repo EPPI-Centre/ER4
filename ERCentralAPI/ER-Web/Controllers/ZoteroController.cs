@@ -300,6 +300,27 @@ namespace ERxWebClient2.Controllers
             return res;
         }
 
+        [HttpPost("[action]")]
+        public async Task<IActionResult> PushZoteroErWebReviewItemList([FromBody] ZoteroERWebReviewItem[] zoteroERWebReviewItems)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+                var fillControllerHere = zoteroERWebReviewItems;
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "ZoteroErWebReviewItemList has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+
         [HttpGet("[action]")]
         public async Task<IActionResult> FetchZoteroERWebReviewItemList([FromQuery] string attributeId)
         {

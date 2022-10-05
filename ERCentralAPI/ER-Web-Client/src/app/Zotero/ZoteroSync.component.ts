@@ -642,9 +642,12 @@ export class ZoteroSyncComponent implements OnInit {
   }
 
   async PushERWebItems() {
-    this.Pushing = true;
-    await this.fetchERWebAndZoteroAlreadySyncedItems();
-    await this.PushAndCallStatus();
+
+    await this._zoteroService.PushZoteroErWebReviewItemList();
+
+    //this.Pushing = true;
+    //await this.fetchERWebAndZoteroAlreadySyncedItems();
+    //await this.PushAndCallStatus();
 
   }
 
