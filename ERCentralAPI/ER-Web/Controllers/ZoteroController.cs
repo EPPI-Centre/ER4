@@ -1027,14 +1027,17 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
                     ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 
                     var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
                     SetZoteroHttpService(GETGroupsUri, zrc.ApiKey);
                     var items = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString());
-                    return Ok(items);
+
+                    ZoteroERWebReviewItemList pairedItems = DataPortal.Fetch<ZoteroERWebReviewItemList>(new SingleCriteria<ZoteroERWebReviewItemList, string>((-1).ToString()));
+                    ZoteroItemsResult res = new ZoteroItemsResult();
+                    res.zoteroItems = items;
+                    res.pairedItems = pairedItems;
+                    return Ok(res);
 
                 }
                 else return Forbid();
@@ -2384,6 +2387,15 @@ namespace ERxWebClient2.Controllers
                                           signature);
 
             return signedUrl;
+        }
+        /// <summary>
+        /// Used to ship raw unfiltered data to Cleint, 
+        /// contains all the data needed to "know" what can be done (pull, push, nothing?) with refs present on the Zotero End
+        /// </summary>
+        private class ZoteroItemsResult
+        {
+            public List<object>? zoteroItems { get; set; }//what Zotero API told us, "as is"
+            public ZoteroERWebReviewItemList? pairedItems { get; set; }//Items for which we "know" their "ZoteroKey" - client will do the pairing 
         }
     }
 }
