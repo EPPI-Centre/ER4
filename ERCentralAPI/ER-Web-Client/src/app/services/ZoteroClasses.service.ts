@@ -322,13 +322,7 @@ export class ZoteroReviewCollectionList {
     ZoteroReviewCollectionList: ZoteroReviewCollection[] = [];
 }
 
-export enum SyncState {
-    doesNotExist,
-    behind,
-    upToDate,
-    ahead,
-    attachmentDoesNotExist
-}
+
 
 export interface IObjectSyncState {
     objectKey: string;
@@ -353,14 +347,10 @@ export interface IZoteroERWebReviewItem {
 export interface IDocSyncState {
   itemDocument_id: number | null;
   docZoterokey: string | null;
-  documentSyncState: DocSyncState;
+  documentSyncState: any;// DocSyncState;
 }
 
-export enum DocSyncState {
-  existsOnlyOnER,
-  existsOnlyOnZotero,
-  upToDate
-}
+
 export class ZoteroItem {
   constructor(izjo: iZoteroJobject) {
     const t = izjo.data;
@@ -378,6 +368,7 @@ export class ZoteroItem {
   dateModified: string = "";
   itemType: string = "";
   attachments: ZoteroAttachment[] = [];
+  syncState: SyncState = SyncState.notSet;
 }
 export class ZoteroAttachment {
   constructor(izjo: iZoteroJobject) {
@@ -388,6 +379,7 @@ export class ZoteroAttachment {
   key: string = "";
   filename: string = "";
   dateModified: string = "";
+  syncState: SyncState = SyncState.notSet;
 }
 export interface iZoteroJobject {
   key: string;
@@ -397,19 +389,7 @@ export interface iZoteroJobject {
   meta: iZoteroMeta;
   data: CollectionData;
 }
-export interface iZoteroERWebReviewItemList {
-  zotero_item_review_ID: number;
-  itemKey: string ;
-  libraryID: string ;
-  iTEM_REVIEW_ID: number ;
-  version: number;
-  dATE_EDITED: string;
-  iTEM_ID: number ;
-  shortTitle: string ;
-  tITLE: string;
-  typeName: string;
-  syncState: string;
-}
+
 export interface iZoteroLibrary {
   type: string;
   id: number;
@@ -436,4 +416,66 @@ export interface iZoteroTypeRefPair {
 export interface iZoteroAttachment extends iZoteroTypeRefPair {
   attachmentSize: number;
   attachmentType: string;
+}
+
+export interface iZoteroERWebReviewItem {
+  itemID: number;
+  itemKey: string;
+  lasT_MODIFIED: string;
+  pdfList: iZoteroERWebItemDoc[];
+  shortTitle: number;
+  syncState: SyncState;
+  title: string;
+}
+export interface iZoteroERWebItemDoc {
+  doc_Zotero_Key: string;
+  documenT_TITLE: string;
+  item_Document_Id: number;
+  syncState: SyncState;
+}
+
+export enum SyncState {
+  notSet,
+  upToDate,
+  canPush,
+  canPull
+}
+
+export class ZoteroERWebReviewItem {
+  constructor(data: iZoteroERWebReviewItem) {
+    this.itemID = data.itemID;
+    this.itemKey = data.itemKey;
+    this.lasT_MODIFIED = data.lasT_MODIFIED;
+    this.shortTitle = data.shortTitle;
+    this.syncState = data.syncState;
+    this.title = data.title;
+    this.pdfList = [];
+    for (let ip of data.pdfList) {
+      let pdf = new ZoteroERWebItemDoc(ip);
+      this.pdfList.push(pdf);
+    }
+  }
+  public get HasPdf(): boolean {
+    if (this.pdfList.length == 0) return false;
+    else return true;
+  }
+  itemID: number;
+  itemKey: string;
+  lasT_MODIFIED: string;
+  pdfList: iZoteroERWebItemDoc[];
+  shortTitle: number;
+  syncState: SyncState;
+  title: string;
+}
+export class ZoteroERWebItemDoc {
+  constructor(data: iZoteroERWebItemDoc) {
+    this.documenT_TITLE = data.documenT_TITLE;
+    this.doc_Zotero_Key = data.doc_Zotero_Key;
+    this.item_Document_Id = data.item_Document_Id;
+    this.syncState = data.syncState;
+  }
+  doc_Zotero_Key: string;
+  documenT_TITLE: string;
+  item_Document_Id: number;
+  syncState: SyncState;
 }

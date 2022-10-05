@@ -20,8 +20,8 @@
 		</div>
 		<div class="col-12 col-md-2">
 			<button *ngIf="!IsServiceBusy" class="col-md-6 btn btn-success mx-1 mt-auto "
-					[disabled]="!HasRunMetaInfo"
-					(click)="PullConfirmZoteroItems()">
+							[disabled]="!HasRunMetaInfo"
+							(click)="PullConfirmZoteroItems()">
 				<i class="fa fa-long-arrow-left" aria-hidden="true">PULL &nbsp;</i>
 			</button>
 		</div>
@@ -40,7 +40,7 @@
 					</ol>
 				</div>
 				<button class="btn btn-primary m-2 p-1 col-md-5"
-						(click)="getErWebObjects()">
+								(click)="getErWebObjects()">
 					&nbsp;Current Status&nbsp;
 				</button>
 
@@ -49,13 +49,13 @@
 
 			</div>
 			<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-md-5 p-1 m-1" id="dropdownTree"
-					(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
-					[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 50px;">
+							(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
+							[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 50px;">
 				&nbsp;{{CurrentDropdownSelectedCode?.name}}
 			</button>
 			<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 				<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
-								 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+												 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 			</div>
 		</div>
 		<div *ngIf="itemsWithThisCode.length > 0" class="font-weight-bold text-sm-left text-black-50 align-content-center col-md-12">
@@ -67,95 +67,47 @@
 		</div>
 	</div>
 	<div class="col-12 row">
-		<div class="col-md-4 flex-column pull-left">
+		<div class="col-md-6 flex-column pull-left">
 			<div class="col-md-12 alert-primary card" *ngIf="ZoteroERWebReviewItemList.length > 0">
 				<h6><b>Items with this code</b></h6>
 				<div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
 					<table class="table table-sm table-striped p-2 m-2">
 						<thead>
 							<tr>
-								<th>ItemType</th>
-								<th>Short Title</th>								
+								<th>ItemId</th>
+								<th>Short Title</th>
+								<th>attach?</th>
+								<th>state</th>
 							</tr>
 						</thead>
 						<tbody *ngFor="let object of ZoteroERWebReviewItemList; index as i">
 							<tr>
 								<td>
-									{{ object.zotero_item_review_ID}}
+									{{ object.itemID}}
 								</td>
-								<td width="26">
+								<td>
 									{{ object.shortTitle}}
 								</td>
-								
+								<td>
+									{{ object.HasPdf}}
+								</td>
+								<td>
+									<ng-container [ngSwitch]="object.syncState">
+										{{object.syncState}}
+										<div *ngSwitchCase="0" class="">N/A</div>
+										<div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
+										<div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
+										<div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info"></div>
+									</ng-container>
+								</td>
+
 							</tr>
 					</table>
 				</div>
 			</div>
 		</div>
-		<div class="col-md-4 flex-column pull-right">
-			<div *ngIf="_zoteroService.hasPermissions">
-				<div class="col-12 alert-primary  card" *ngIf="ObjectsInERWebAndZotero.length > 0">
-					<h6><b>Items with this code that are also in Zotero group </b></h6>
-					<div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
-						<table class="table table-sm table-striped p-2 m-2">
-							<thead>
-								<tr>
-									<th>Object Key</th>
-									<th>Version</th>
-									<th>Short Title</th>
-									<th>ITEM_ID</th>
-									<th>ITEM_REVIEW_ID</th>
-									<th>Item Type</th>
-									<th>Sync Status</th>
-								</tr>
-							</thead>
-							<tbody *ngFor="let object of ObjectsInERWebAndZotero">
-								<tr>
 
-									<td>
-										{{object.itemKey}}
-									</td>
-									<td>
-										{{object.version}}
-									</td>
-									<td>
-										{{object.shortTitle}}
-									</td>
-									<td>
-										{{object.itemID}}
-									</td>
-									<td width="6">
-										{{object.iteM_REVIEW_ID}}
-									</td>
-									<td width="6">
-										{{object.typeName}}
-									</td>
-									<td width="6">
-										<span class="bg-danger" *ngIf="getSyncStateOfObject(object.itemKey) === 0">
-											Object does not exist locally&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-										<span class="bg-warning" *ngIf="getSyncStateOfObject(object.itemKey) === 1">
-											Local object behind Zotero&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-										<span class="bg-primary" *ngIf="getSyncStateOfObject(object.itemKey) === 2">
-											Up to date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-										<span class="bg-success" *ngIf="getSyncStateOfObject(object.itemKey) === 3">
-											Local Object ahead of Zotero&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-										<span class="bg-info" *ngIf="getSyncStateOfObject(object.itemKey) === 4">
-											Attachment not present in ERWeb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<ng-template #elseBlock>Content to render when value is null.</ng-template>
-		</div>
-		<div class="col-md-4 flex-column pull-right">
+		<div class="col-md-6 flex-column pull-right">
 			<div *ngIf="_zoteroService.hasPermissions">
 				<div class="col-12 alert-primary  card" *ngIf="ObjectZoteroList.length > 0">
 					<h6><b>Items in the Zotero group </b></h6>
@@ -175,7 +127,7 @@
 							</thead>
 							<tbody *ngFor="let object of ObjectZoteroList">
 								<!--<tr *ngIf="ObjectTypeValidity(object)">-->
-								<tr >
+								<tr>
 									<td width="6">
 										{{object.key}}
 									</td>
@@ -208,10 +160,6 @@
 										<span class="bg-success" *ngIf="getSyncStateOfObject(object.key) === 3">
 											Local Object ahead of Zotero&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 										</span>
-										<span class="bg-info" *ngIf="getSyncStateOfObject(object.key) === 4">
-											Attachment not present in ERWeb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-
 									</td>
 									<td>
 										<span class="bg-warning" *ngIf="object.attachments.length === 0">
@@ -222,7 +170,7 @@
 										</span>
 									</td>
 								</tr>
-</table>
+						</table>
 					</div>
 				</div>
 			</div>

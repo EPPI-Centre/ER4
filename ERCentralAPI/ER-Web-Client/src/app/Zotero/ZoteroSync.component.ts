@@ -11,7 +11,7 @@ import { ReviewSet, ReviewSetsService, SetAttribute, singleNode } from '../servi
 import { ZoteroService } from '../services/Zotero.service';
 import {
   iZoteroJobject, GroupData, IERWebANDZoteroReviewItem, IERWebObjects, IERWebZoteroObjects,
-  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList, ZoteroItem, iZoteroERWebReviewItemList
+  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList, ZoteroItem, ZoteroERWebReviewItem
 } from '../services/ZoteroClasses.service';
 
 @Component({
@@ -111,7 +111,7 @@ export class ZoteroSyncComponent implements OnInit {
     return this._zoteroService.ZoteroItems;
   }
 
-  public get ZoteroERWebReviewItemList() {
+  public get ZoteroERWebReviewItemList(): ZoteroERWebReviewItem[] {
     return this._zoteroService.ZoteroERWebReviewItemList;
   }
 
@@ -166,7 +166,7 @@ export class ZoteroSyncComponent implements OnInit {
     if (index > -1) {
       return this.objectSyncState[index].syncState;
     } else {
-      return SyncState.doesNotExist;
+      return SyncState.notSet;
     }
   }
 
@@ -889,7 +889,7 @@ export class ZoteroSyncComponent implements OnInit {
 
   get HasERWebMetaInfo(): boolean {
 
-    var objectsNeedPushingToZotero: boolean = this.objectSyncState.findIndex(x => x.syncState === SyncState.ahead) !== -1 ||
+    var objectsNeedPushingToZotero: boolean = this.objectSyncState.findIndex(x => x.syncState === SyncState.canPush) !== -1 ||
       this.ObjectERWebList.length > 0;
 
     var hasPermission: boolean = this._zoteroService.hasPermissions;

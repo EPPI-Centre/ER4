@@ -2,7 +2,12 @@ import { EventEmitter, Inject, Injectable, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ApiKeyInfo, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, iZoteroJobject, ZoteroItem, ZoteroAttachment, ZoteroReviewCollection, ZoteroReviewCollectionList, iZoteroERWebReviewItemList } from './ZoteroClasses.service';
+import {
+  ApiKeyInfo, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, iZoteroJobject, ZoteroItem, ZoteroAttachment, ZoteroReviewCollection, ZoteroReviewCollectionList,
+  iZoteroERWebReviewItem,
+  ZoteroERWebReviewItem,
+  SyncState
+} from './ZoteroClasses.service';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -51,7 +56,7 @@ export class ZoteroService extends BusyAwareService {
     return this._ZoteroItems;
   }
 
-  private _zoteroERWebReviewItemList: iZoteroERWebReviewItemList[] = [];
+  private _zoteroERWebReviewItemList: ZoteroERWebReviewItem[] = [];
   public get ZoteroERWebReviewItemList() {
     return this._zoteroERWebReviewItemList;
   }
@@ -340,20 +345,48 @@ export class ZoteroService extends BusyAwareService {
             );
   }
 
-  public async fetchZoteroERWebReviewItemListAsync(attributeId: string): Promise<iZoteroERWebReviewItemList[]> {
+  public async fetchZoteroERWebReviewItemListAsync(attributeId: string) {
     this._BusyMethods.push("fetchZoteroERWebReviewItemListAsync");
-
-    return this._httpC.get<iZoteroERWebReviewItemList[]>(this._baseUrl +
+    this._zoteroERWebReviewItemList = [];
+    return this._httpC.get<iZoteroERWebReviewItem[]>(this._baseUrl +
       'api/Zotero/FetchZoteroERWebReviewItemList?attributeId=' + attributeId)
-      .toPromise().then(result => {
+      .subscribe(result => {
+        for (let rr of result) {
+          let zri = new ZoteroERWebReviewItem(rr);
+          if (zri.itemKey != "") {
+            let ind = this._ZoteroItems.findIndex(f => f.key == zri.itemKey);
+            if (ind > -1) {
+              //OK, this item exists on both ends... Can we push, pull or is it uptodate?
+              let ZI = this._ZoteroItems[ind];
+              let dateER = new Date(zri.lasT_MODIFIED);
+              let dateZT = new Date(ZI.dateModified);
+              if (dateER > dateZT) {
+                zri.syncState = SyncState.canPush;
+                ZI.syncState = SyncState.canPull;
+              }
+              else if (dateER < dateZT) {
+                zri.syncState = SyncState.canPull;
+                ZI.syncState = SyncState.canPush;
+              }
+              else {
+                zri.syncState = SyncState.upToDate;
+                ZI.syncState = SyncState.upToDate;
+              }
+              console.log("state0", zri.syncState, ind);
+            } 
+          }
+          else {
+              console.log("state1", zri.syncState);
+              zri.syncState = SyncState.canPush;
+            }
+          console.log("state2", zri.syncState);
+          this._zoteroERWebReviewItemList.push(zri);
+        }
         this.RemoveBusy("fetchZoteroERWebReviewItemListAsync");
-        this._zoteroERWebReviewItemList = result;
-        return result;
       },
         error => {
           this.RemoveBusy("fetchZoteroERWebReviewItemListAsync");
           this.modalService.GenericError(error);
-          return error;
         }
       );
   }
