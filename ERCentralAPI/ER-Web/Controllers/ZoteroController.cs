@@ -307,8 +307,42 @@ namespace ERxWebClient2.Controllers
             {
                 if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                ZoteroReviewConnection zrc = ApiKey();
+                string groupIDBeingSynced = zrc.LibraryId;
 
-                var fillControllerHere = zoteroERWebReviewItems;
+                var postResult = await PushItemsForThisGroupToZotero(zoteroERWebReviewItems, zrc, groupIDBeingSynced);
+                if (!postResult) throw new Exception("Pushing to Zotero failed miserably");
+
+                var updateResult = await UpdatingItemsInZotero(zoteroERWebReviewItems, zrc, groupIDBeingSynced);
+                if (!updateResult) throw new Exception("Updating items to Zotero failed miserably");
+
+                // 3 Next go through the attachments and decide whether they exist or not
+                foreach (var parentItemWithChildrenList in zoteroERWebReviewItems.Where(x => x.PdfList.Count > 0)
+                    .Select(x => new { x.PdfList, x.ItemID, x.ItemKey } ))
+                {
+                    var itemId = parentItemWithChildrenList.ItemID;
+                    var parentZoteroKey = parentItemWithChildrenList.ItemKey;
+                    var erWebZoteroItemDocs = new List<ErWebZoteroItemDocument>();
+                    foreach (var pdf in parentItemWithChildrenList.PdfList)
+                    {
+                        if (string.IsNullOrEmpty(pdf.Doc_Zotero_Key))
+                        {
+                            var itemDoc = new ErWebZoteroItemDocument
+                            {
+                                itemId = itemId,
+                                parentItemFileKey = parentZoteroKey,
+                                itemDocumentId = pdf.Item_Document_Id
+                            };
+                            erWebZoteroItemDocs.Add(itemDoc);
+                        }
+                    }
+                    // 4 upload docs not in Zotero
+                    await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zrc.REVIEW_ID);
+                }
+
+                // 5 now edit the middle tables for items and docs with the relevant updated times of the sync
+
+
 
                 return Ok();
             }
@@ -319,7 +353,77 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        private async Task<bool> UpdatingItemsInZotero(ZoteroERWebReviewItem[] zoteroERWebReviewItems, ZoteroReviewConnection zrc, string groupIDBeingSynced)
+        {
+            //putting
+            var _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
+            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
 
+            HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
+            _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
+
+            // 3 - Finally push using a post or a put to Zotero to update the items that should be already present
+            var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
+            SetZoteroHttpService(PUTItemsUri, zrc.ApiKey);
+
+            var localItems = zoteroERWebReviewItems.Where(x => !string.IsNullOrEmpty(x.ItemKey));
+            // 2 - Convert these items to their Zotero counter parts using the factory pattern class already created
+            var result = false;
+            foreach (var item in localItems)
+            {
+                var zoteroItemContent = await ItemsItemId(item.ITEM_REVIEW_ID.ToString());
+                var payload = JsonConvert.SerializeObject(zoteroItemContent);
+                var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString());
+                var actualContent = await response.Content.ReadAsStringAsync();
+                if (actualContent.Contains("success"))
+                {
+                    result = true;
+                }
+                this._logger.LogError("Putting to Zotero has failed");
+            }
+            return result;
+        }
+
+        private async Task<bool> PushItemsForThisGroupToZotero(ZoteroERWebReviewItem[] zoteroERWebReviewItems, ZoteroReviewConnection zrc, string groupIDBeingSynced)
+        {
+            var localItems = new List<Item>();
+            var zoteroItems = new List<CollectionData>();
+
+            // 1 GetAll itemids in question that have no itemKeys hence need to be pushed
+            // 2 decide whether they are a PUT or a POST and create a method to do whichever one
+            foreach (var itemId in zoteroERWebReviewItems.Where(x => string.IsNullOrEmpty(x.ItemKey)).Select(x => x.ItemID))
+            {
+                var erWebLocalItem = GetErWebItem(itemId);
+                localItems.Add(erWebLocalItem);
+                var erWebItem = new ERWebItem
+                {
+                    Item = erWebLocalItem
+                };
+                var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
+                var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
+                zoteroItems.Add(zoteroItem);
+            }
+
+            var POSTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
+            SetZoteroHttpService(POSTItemUri, zrc.ApiKey);
+
+            var response = new HttpResponseMessage();
+            var result = false;
+            if (zoteroItems.Count() > 0)
+            {
+                var payload = JsonConvert.SerializeObject(zoteroItems);
+
+                response = await _zoteroService.CreateItem(payload, POSTItemUri.ToString());
+                var actualContent = await response.Content.ReadAsStringAsync();
+                if (actualContent.Contains("success"))
+                {
+                    result = true;
+                }
+                this._logger.LogError("Pushing to Zotero has failed");
+            }
+            return result;
+        }
 
         [HttpGet("[action]")]
         public async Task<IActionResult> FetchZoteroERWebReviewItemList([FromQuery] string attributeId)
@@ -341,9 +445,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
-      
-
+        
         public async Task<Collection> GetZoteroConvertedItemAsync(string itemKey)
         {
 
@@ -2040,7 +2142,7 @@ namespace ERxWebClient2.Controllers
                     }
                     if (erWebZoteroItemDocs.Count() > 0)
                     {
-                        await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zoteroItems, zrc.REVIEW_ID);
+                        await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zrc.REVIEW_ID);
                     }
                 }
                 if (numberOfFailedItems == 0)
@@ -2068,7 +2170,8 @@ namespace ERxWebClient2.Controllers
             }
         }
         
-        private async Task UploadERWebDocumentsToZoteroAsync(List<ErWebZoteroItemDocument> erWebZoteroItemDocs, List<CollectionData> zoteroItems, int RevId)
+        private async Task UploadERWebDocumentsToZoteroAsync(List<ErWebZoteroItemDocument> erWebZoteroItemDocs, 
+             int RevId)
         {
             var counter = 0;
             foreach (var itemDoc in erWebZoteroItemDocs)
@@ -2118,20 +2221,19 @@ namespace ERxWebClient2.Controllers
                             var fileBytes = stBytes;
 
                             //2) Now upload to Zotero
-                            await UploadFileBytesToZoteroAsync(fileBytes, parentItemKey, name, RevId.ToString(), itemDoc.itemDocumentId);
+                            await UploadFileBytesToZoteroAsync(fileBytes, parentItemKey, name);
                         }
                     }
-
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("");
+                    this._logger.LogError("uploading docs to Zotero failed");
                 }
                 counter++;
             }
         }
               
-        private async Task UploadFileBytesToZoteroAsync(byte[] fileBytes, string fileKey, string name, string reviewId, long itemDocumentID)
+        private async Task UploadFileBytesToZoteroAsync(byte[] fileBytes, string fileKey, string name)
         {
             try
             {
