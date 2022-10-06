@@ -23,10 +23,15 @@
                             }" class="mx-1">
       {{data.name}}
     </span>
+    <fa-icon *ngIf="CanMoveDown(data) && CanWriteAndServicesIdle" [icon]="faAngleDoubleDown" class="fa-xs my-0 p-0 ml-1 mr-0 btn-link border-0"
+               (click)="MoveDownNodeFull(data)" style="cursor: pointer"></fa-icon>
     <fa-icon *ngIf="CanMoveDown(data) && CanWriteAndServicesIdle" [icon]="faCaretDown" class="my-0 p-0 ml-1 mr-0 btn-link border-0"
              (click)="MoveDownNode(data)" style="cursor: pointer;"></fa-icon>
-    <fa-icon  *ngIf="CanMoveUp(data) && CanWriteAndServicesIdle" [icon]="faCaretUp" class="my-0 p-0 ml-1 mr-0 btn-link border-0"
+
+    <fa-icon *ngIf="CanMoveUp(data) && CanWriteAndServicesIdle" [icon]="faCaretUp" class="my-0 p-0 ml-1 mr-0 btn-link border-0"
              (click)="MoveUpNode(data)" style="cursor: pointer;"></fa-icon>
+    <fa-icon *ngIf="CanMoveUp(data) && CanWriteAndServicesIdle" [icon]="faAngleDoubleUp" class="fa-xs my-0 p-0 ml-1 mr-0 btn-link border-0"
+             (click)="MoveUpNodeFull(data)" style="cursor: pointer;"></fa-icon>
   </ng-template>
 </kendo-treeview>
 

@@ -4,7 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { TreeItem } from '@progress/kendo-angular-treeview';
-import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp, faAngleDoubleDown, faAngleDoubleUp, faEject } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
     selector: 'codesetTreeEdit',
@@ -31,6 +31,9 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
     @Input() CanWriteAndServicesIdle: boolean = false;
   faCaretDown = faCaretDown;
   faCaretUp = faCaretUp;
+  faAngleDoubleDown = faAngleDoubleDown;
+  faAngleDoubleUp = faAngleDoubleUp;
+  faEject = faEject;
     public CanWrite(): boolean {
         if (this.CanChangeSelectedCode) {
             return this.CanWriteAndServicesIdle;
@@ -109,6 +112,34 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
         //    let MyAtt = node as SetAttribute;
         //    if (MyAtt) this.MoveDownAttribute(MyAtt);
         //}
+    }
+    async MoveUpNodeFull(node: singleNode) {
+      await this.ReviewSetsEditingService.MoveUpNodeFull(node);
+      //and notify the tree:
+      this.RefreshLocalTree();
+      //if (node.nodeType == 'ReviewSet') {
+      //    let MySet = node as ReviewSet;
+      //    if (MySet) this.MoveUpSet(MySet);
+      //}
+      //else {
+      //    let MyAtt = node as SetAttribute;
+      //    if (MyAtt) {
+      //        this.MoveUpAttribute(MyAtt);
+      //    }
+      //}
+    }
+    async MoveDownNodeFull(node: singleNode) {
+      await this.ReviewSetsEditingService.MoveDownNodeFull(node);
+      //and notify the tree:
+      this.RefreshLocalTree();
+      //if (node.nodeType == 'ReviewSet') {
+      //    let MySet = node as ReviewSet;
+      //    if (MySet) this.MoveDownSet(MySet);
+      //}
+      //else {
+      //    let MyAtt = node as SetAttribute;
+      //    if (MyAtt) this.MoveDownAttribute(MyAtt);
+      //}
     }
     
 
