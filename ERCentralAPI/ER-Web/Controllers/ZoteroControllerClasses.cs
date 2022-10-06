@@ -146,7 +146,7 @@ namespace ERxWebClient2.Controllers
 	public class SyncStateDictionaries
 	{
 		public Dictionary<long, ErWebState> itemSyncStateResults { get; set; }
-		public Dictionary<long, DocumentSyncState> docSyncStateResults { get; set; }
+		public Dictionary<long, ErWebState> docSyncStateResults { get; set; }
 
 	}
 

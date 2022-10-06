@@ -370,6 +370,7 @@ namespace ERxWebClient2.Controllers
             var localItems = zoteroERWebReviewItems.Where(x => !string.IsNullOrEmpty(x.ItemKey));
             // 2 - Convert these items to their Zotero counter parts using the factory pattern class already created
             var result = false;
+            if (localItems.Count() == 0) result = true;//otherwise we react with failure, even if this step wasn't needed...
             foreach (var item in localItems)
             {
                 var zoteroItemContent = await ItemsItemId(item.ITEM_REVIEW_ID.ToString());
@@ -380,7 +381,10 @@ namespace ERxWebClient2.Controllers
                 {
                     result = true;
                 }
-                this._logger.LogError("Putting to Zotero has failed");
+                else
+                {
+                    this._logger.LogError("Putting to Zotero has failed");
+                }
             }
             return result;
         }
@@ -416,12 +420,17 @@ namespace ERxWebClient2.Controllers
 
                 response = await _zoteroService.CreateItem(payload, POSTItemUri.ToString());
                 var actualContent = await response.Content.ReadAsStringAsync();
+                //we NEED to parse this response, so to learn (and add to zoteroERWebReviewItems), the Keys for the items we pushed
                 if (actualContent.Contains("success"))
                 {
                     result = true;
                 }
-                this._logger.LogError("Pushing to Zotero has failed");
+                else
+                {
+                    this._logger.LogError("Pushing to Zotero has failed");
+                }
             }
+            else { result = true; }//all is good if this phase didn't need to do anything, so we can't report failure
             return result;
         }
 
@@ -457,92 +466,92 @@ namespace ERxWebClient2.Controllers
             return zoteroItem;
         }
 
-        public async Task UpdateSyncStatusOfItemAsync(Dictionary<long, ErWebState> syncStateResults, 
-            Dictionary<long, DocumentSyncState> docSyncStateResults,
-            ZoteroERWebReviewItem item)
-        {
+        //public async Task UpdateSyncStatusOfItemAsync(Dictionary<long, ErWebState> syncStateResults, 
+        //    Dictionary<long, DocumentSyncState> docSyncStateResults,
+        //    ZoteroERWebReviewItem item)
+        //{
 
-            await GetItemSyncState(syncStateResults, docSyncStateResults, item);
-        }
+        //    await GetItemSyncState(syncStateResults, docSyncStateResults, item);
+        //}
 
-        private async Task GetItemSyncState(Dictionary<long, ErWebState> syncStateResults,
-            Dictionary<long, DocumentSyncState> docSyncStateResults,
-            ZoteroERWebReviewItem localSyncedItem)
-        {
-            if (localSyncedItem.Zotero_item_review_ID > 0)
-            {
-                var zoteroItem = await GetZoteroConvertedItemAsync(localSyncedItem.ItemKey);
-                var zoteroItemDateLastModified = Convert.ToDateTime(zoteroItem.data.dateModified);
+        //private async Task GetItemSyncState(Dictionary<long, ErWebState> syncStateResults,
+        //    Dictionary<long, DocumentSyncState> docSyncStateResults,
+        //    ZoteroERWebReviewItem localSyncedItem)
+        //{
+        //    if (localSyncedItem.Zotero_item_review_ID > 0)
+        //    {
+        //        var zoteroItem = await GetZoteroConvertedItemAsync(localSyncedItem.ItemKey);
+        //        var zoteroItemDateLastModified = Convert.ToDateTime(zoteroItem.data.dateModified);
 
-                var lastModified = localSyncedItem.LAST_MODIFIED.ToUniversalTime();
-                var result = syncStateResults.TryGetValue(localSyncedItem.ItemID, out ErWebState state);
-                if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 0)
-                {
-                    if (result)
-                    {
-                        syncStateResults[localSyncedItem.ItemID] = ErWebState.upToDate;
-                    }
-                    else
-                    {
-                        syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.upToDate);
+        //        var lastModified = localSyncedItem.LAST_MODIFIED.ToUniversalTime();
+        //        var result = syncStateResults.TryGetValue(localSyncedItem.ItemID, out ErWebState state);
+        //        if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 0)
+        //        {
+        //            if (result)
+        //            {
+        //                syncStateResults[localSyncedItem.ItemID] = ErWebState.upToDate;
+        //            }
+        //            else
+        //            {
+        //                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.upToDate);
 
-                    }
-                }
-                else if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 1)
-                {
+        //            }
+        //        }
+        //        else if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 1)
+        //        {
 
-                    if (result)
-                    {
-                        syncStateResults[localSyncedItem.ItemID] = ErWebState.ahead;
-                    }
-                    else
-                    {
-                        syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.ahead);
+        //            if (result)
+        //            {
+        //                syncStateResults[localSyncedItem.ItemID] = ErWebState.ahead;
+        //            }
+        //            else
+        //            {
+        //                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.ahead);
 
-                    }
-                }
-                else
-                {
-                    if (result)
-                    {
-                        syncStateResults[localSyncedItem.ItemID] = ErWebState.behind;
-                    }
-                    else
-                    {
-                        syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.behind);
-                    }
-                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (result)
+        //            {
+        //                syncStateResults[localSyncedItem.ItemID] = ErWebState.behind;
+        //            }
+        //            else
+        //            {
+        //                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.behind);
+        //            }
+        //        }
 
 
-                if (localSyncedItem.PdfList.Count() > 0)
-                {
-                    await GetPdfSyncStateAsync(localSyncedItem, zoteroItem, docSyncStateResults);
-                }
-            }
-            else
-            {
-                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.doesNotExist);
-            }
-        }
+        //        if (localSyncedItem.PdfList.Count() > 0)
+        //        {
+        //            await GetPdfSyncStateAsync(localSyncedItem, zoteroItem, docSyncStateResults);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.doesNotExist);
+        //    }
+        //}
 
-        private async Task GetPdfSyncStateAsync(ZoteroERWebReviewItem item,
-            Collection zoteroItem, Dictionary<long, DocumentSyncState> docSyncStateResults)
-        {
+        //private async Task GetPdfSyncStateAsync(ZoteroERWebReviewItem item,
+        //    Collection zoteroItem, Dictionary<long, DocumentSyncState> docSyncStateResults)
+        //{
 
-            var zoteroPdf = await GetZoteroAttachmentNamesAsync(zoteroItem);
-            foreach (var document in item.PdfList)
-            {
-                var erWebDoc = document.DOCUMENT_TITLE;
-                if (erWebDoc.Equals(zoteroPdf))
-                {
-                    docSyncStateResults.TryAdd(document.Item_Document_Id, DocumentSyncState.upToDate);
-                }
-                else
-                {
-                    docSyncStateResults.TryAdd(document.Item_Document_Id, DocumentSyncState.existsOnlyOnER);
-                }
-            }            
-        }
+        //    var zoteroPdf = await GetZoteroAttachmentNamesAsync(zoteroItem);
+        //    foreach (var document in item.PdfList)
+        //    {
+        //        var erWebDoc = document.DOCUMENT_TITLE;
+        //        if (erWebDoc.Equals(zoteroPdf))
+        //        {
+        //            docSyncStateResults.TryAdd(document.Item_Document_Id, DocumentSyncState.upToDate);
+        //        }
+        //        else
+        //        {
+        //            docSyncStateResults.TryAdd(document.Item_Document_Id, DocumentSyncState.existsOnlyOnER);
+        //        }
+        //    }            
+        //}
 
         private Item GetErWebItem(long itemId)
         {
@@ -581,7 +590,7 @@ namespace ERxWebClient2.Controllers
             return "";
         }
 
-        private async Task<DocumentSyncState> GetZoteroAttachmentStateAsync(string itemKey)
+        private async Task<ZoteroERWebReviewItem.ErWebState> GetZoteroAttachmentStateAsync(string itemKey)
         {
             
             ZoteroReviewConnection zrc = ApiKey();
@@ -594,11 +603,11 @@ namespace ERxWebClient2.Controllers
             var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
             if (!string.IsNullOrEmpty(lastModifiedDate))
             {
-                return DocumentSyncState.upToDate;
+                return ZoteroERWebReviewItem.ErWebState.upToDate;
             }
             else
             {
-                return DocumentSyncState.existsOnlyOnER;
+                return ZoteroERWebReviewItem.ErWebState.canPush;
             }
         }
 

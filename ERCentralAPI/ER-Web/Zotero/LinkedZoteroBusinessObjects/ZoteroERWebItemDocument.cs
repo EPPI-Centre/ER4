@@ -17,7 +17,7 @@ namespace BusinessLibrary.BusinessClasses
                 
         }
 
-        public ZoteroERWebItemDocument(long item_Document_Id,string documentTitle, string doc_Zotero_Key, DocumentSyncState documentSyncState) {
+        public ZoteroERWebItemDocument(long item_Document_Id,string documentTitle, string doc_Zotero_Key, ZoteroERWebReviewItem.ErWebState documentSyncState) {
 
             Item_Document_Id = item_Document_Id;
             DOCUMENT_TITLE = documentTitle;
@@ -64,8 +64,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<DocumentSyncState> DocumentSyncStateProperty = RegisterProperty<DocumentSyncState>(new PropertyInfo<DocumentSyncState>("DocumentSyncState", "DocumentSyncState", DocumentSyncState.existsOnlyOnER));
-        public DocumentSyncState SyncState
+        public static readonly PropertyInfo<ZoteroERWebReviewItem.ErWebState> DocumentSyncStateProperty = RegisterProperty<ZoteroERWebReviewItem.ErWebState>(new PropertyInfo<ZoteroERWebReviewItem.ErWebState>("DocumentSyncState", "DocumentSyncState", ZoteroERWebReviewItem.ErWebState.notSet));
+        public ZoteroERWebReviewItem.ErWebState SyncState
         {
             get
             {
@@ -77,12 +77,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public enum DocumentSyncState
-        {
-            existsOnlyOnER,
-            existsOnlyOnZotero,
-            upToDate
-        }
+        
         
 
 #if !SILVERLIGHT

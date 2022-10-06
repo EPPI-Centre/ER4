@@ -164,14 +164,14 @@ namespace BusinessLibrary.BusinessClasses
 
         public enum ErWebState
         {
-            doesNotExist,
-            behind,
+            notSet,
             upToDate,
-            ahead
+            canPush,
+            canPull
         }
 
 
-        public static readonly PropertyInfo<ErWebState> StateProperty = RegisterProperty<ErWebState>(new PropertyInfo<ErWebState>("SYNC_STATE", "SYNC_STATE", ErWebState.doesNotExist));
+        public static readonly PropertyInfo<ErWebState> StateProperty = RegisterProperty<ErWebState>(new PropertyInfo<ErWebState>("SYNC_STATE", "SYNC_STATE", ErWebState.notSet));
         public ErWebState SyncState
         {
             get
