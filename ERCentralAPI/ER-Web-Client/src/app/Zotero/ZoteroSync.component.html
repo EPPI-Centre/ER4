@@ -89,11 +89,20 @@
 									{{ object.shortTitle}}
 								</td>
 								<td>
-									{{ object.HasPdf}}
+									<div class="bg-warning" *ngIf="!object.HasPdf">
+										No Docs
+									</div>
+									<div class="bg-success" *ngIf="object.HasPdf">
+										Doc(s)
+										<ng-container [ngSwitch]="object.HasPdfToPush">
+											<div *ngSwitchCase="true" class="k-icon k-i-arrow-right k-color-info"></div>
+											<div *ngSwitchCase="false" class="k-icon k-i-success k-color-info"></div>
+											<div *ngSwitchDefault>Uh??</div>
+										</ng-container>
+									</div>
 								</td>
 								<td>
 									<ng-container [ngSwitch]="object.syncState">
-										{{object.syncState}}
 										<div *ngSwitchCase="0" class="">N/A</div>
 										<div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
 										<div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
@@ -107,74 +116,59 @@
 			</div>
 		</div>
 
-		<div class="col-md-6 flex-column pull-right">
-			<div *ngIf="_zoteroService.hasPermissions">
-				<div class="col-12 alert-primary  card" *ngIf="ObjectZoteroList.length > 0">
-					<h6><b>Items in the Zotero group </b></h6>
-					<div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
-						<table class="table table-sm table-striped p-2 m-2">
-							<thead>
-								<tr>
-									<th>Object Key</th>
-									<!--<th>Version</th>-->
-									<th>Short Title</th>
-									<th>ItemType</th>
-									<!--<th>Library name</th>
-									<th>Library type</th>-->
-									<th>Sync State</th>
-									<th>Attachment</th>
-								</tr>
-							</thead>
-							<tbody *ngFor="let object of ObjectZoteroList">
-								<!--<tr *ngIf="ObjectTypeValidity(object)">-->
-								<tr>
-									<td width="6">
-										{{object.key}}
-									</td>
-									<!--<td width="6">
-										{{object.version}}
-									</td>-->
-									<td>
-										{{object.shortTitle}}
-									</td>
-									<td>
-										{{object.itemType}}
-									</td>
-									<!--<td width="6">
-										{{object.library.name}}
-									</td>
-									<td width="6">
-										{{object.library.type}}
-									</td>-->
-									<td width="6">
-
-										<span class="bg-danger" *ngIf="getSyncStateOfObject(object.key) === 0">
-											Object does not exist locally&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-										<span class="bg-warning" *ngIf="getSyncStateOfObject(object.key) === 1">
-											Local object behind Zotero&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-										<span class="bg-primary" *ngIf="getSyncStateOfObject(object.key) === 2">
-											Up to date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-										<span class="bg-success" *ngIf="getSyncStateOfObject(object.key) === 3">
-											Local Object ahead of Zotero&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										</span>
-									</td>
-									<td>
-										<span class="bg-warning" *ngIf="object.attachments.length === 0">
-											No Attachment
-										</span>
-										<span class="bg-success" *ngIf="object.attachments.length > 0">
-											Attachment
-										</span>
-									</td>
-								</tr>
-						</table>
-					</div>
-				</div>
-			</div>
-			<ng-template #elseBlock>Content to render when value is null.</ng-template>
-		</div>
+    <div class="col-md-6 flex-column pull-right">
+      <div *ngIf="_zoteroService.hasPermissions">
+        <div class="col-12 alert-primary  card" *ngIf="ObjectZoteroList.length > 0">
+          <h6><b>Items in the Zotero group </b></h6>
+          <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
+            <table class="table table-sm table-striped p-2 m-2">
+              <thead>
+                <tr>
+                  <th>Sync State</th>
+                  <th>Object Key</th>
+                  <th>Short Title</th>
+                  <th>ItemType</th>
+                  <th>Attachment</th>
+                </tr>
+              </thead>
+              <tbody *ngFor="let object of ObjectZoteroList">
+                <tr>
+                  <td>
+                    <ng-container [ngSwitch]="object.syncState">
+                      <div *ngSwitchCase="0" class="">N/A</div>
+                      <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
+                      <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
+                      <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info"></div>
+                    </ng-container>
+                  </td>
+                  <td>
+                    {{object.key}}
+                  </td>
+                  <td>
+                    {{object.shortTitle}}
+                  </td>
+                  <td>
+                    {{object.itemType}}
+                  </td>
+                  <td>
+                    <div class="bg-warning" *ngIf="!object.HasAttachments">
+                      No Attachment
+                    </div>
+                    <div class="bg-success" *ngIf="object.HasAttachments">
+                      Attachment(s)
+                      <ng-container [ngSwitch]="object.HasAttachmentsToPull">
+                        <div *ngSwitchCase="true" class="k-icon k-i-arrow-left k-color-info"></div>
+                        <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info"></div>
+				        <div *ngSwitchDefault>Uh??</div>
+                      </ng-container>
+                    </div>
+                  </td>
+                </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <ng-template #elseBlock>Content to render when value is null.</ng-template>
+    </div>
 	</div>
 </div>

@@ -27,12 +27,7 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch();
         }
 
-
-#if SILVERLIGHT
         public ZoteroERWebReviewItemList() { }
-#else
-        public ZoteroERWebReviewItemList() { }
-#endif
 
 
 #if SILVERLIGHT

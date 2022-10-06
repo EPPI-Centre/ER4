@@ -1150,14 +1150,17 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
                     ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 
                     var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
                     SetZoteroHttpService(GETGroupsUri, zrc.ApiKey);
                     var items = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString());
-                    return Ok(items);
+
+                    ZoteroERWebReviewItemList pairedItems = DataPortal.Fetch<ZoteroERWebReviewItemList>(new SingleCriteria<ZoteroERWebReviewItemList, string>((-1).ToString()));
+                    ZoteroItemsResult res = new ZoteroItemsResult();
+                    res.zoteroItems = items;
+                    res.pairedItems = pairedItems;
+                    return Ok(res);
 
                 }
                 else return Forbid();
@@ -1925,19 +1928,90 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> DeleteMiddleMan([FromQuery] string itemKey)
+        public  IActionResult DeleteLinkedDocsAndItems([FromBody] ZoteroLinksToDelete incomingkeys )
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                //we go directly to the DB, bypassing CSLA!!
 
-                DataPortal<ZoteroReviewItem> dp = new DataPortal<ZoteroReviewItem>();
-                SingleCriteria<ZoteroReviewItem, string> criteriaDelete =
-                   new SingleCriteria<ZoteroReviewItem, string>(itemKey);
-                var zoteroReviewItemsNotInZotero = dp.Fetch(criteriaDelete);
-
-                zoteroReviewItemsNotInZotero.Delete();
-                zoteroReviewItemsNotInZotero = zoteroReviewItemsNotInZotero.Save();
+                //but we need to make sure we're not passing a list of keys that's longer than 8000 chars...
+                List<string> UseableItemKeys = new List<string>();
+                List<string> UseableDocKeys = new List<string>();
+                string? itemKeys = incomingkeys.itemKeys, docKeys = incomingkeys.docKeys;
+                if (itemKeys != null && itemKeys !="")
+                {
+                    if (itemKeys.Length > 8000)
+                    {
+                        //ugh, this is painful... Alright, we'll do it in batches of a bit more than 7000 chars...
+                        string[] tmp = itemKeys.Split(',' ,StringSplitOptions.RemoveEmptyEntries);
+                        string tmpList = "";
+                        foreach(string oneKey in tmp)
+                        {
+                            if (tmpList.Length > 7000)
+                            {
+                                tmpList += oneKey;
+                                UseableItemKeys.Add(tmpList);
+                                tmpList = "";
+                            }
+                            else
+                            {
+                                tmpList += oneKey + ",";
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        UseableItemKeys.Add(itemKeys);
+                    }
+                }
+                if (docKeys != null && docKeys !="")
+                {
+                    if (docKeys.Length > 8000)
+                    {
+                        //ugh, this is painful... Alright, we'll do it in batches of a bit more than 7000 chars...
+                        string[] tmp = docKeys.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                        string tmpList = "";
+                        foreach (string oneKey in tmp)
+                        {
+                            if (tmpList.Length > 7000)
+                            {
+                                tmpList += oneKey;
+                                UseableDocKeys.Add(tmpList);
+                                tmpList = "";
+                            }
+                            else
+                            {
+                                tmpList += oneKey + ",";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        UseableDocKeys.Add(docKeys);
+                    }
+                }
+                SQLHelper sQLHelper = new SQLHelper(_configuration, _logger);
+                using (SqlConnection connection = new SqlConnection(BusinessLibrary.Data.DataConnection.ConnectionString))
+                {
+                    SqlParameter[] parameters = new SqlParameter[2];
+                    parameters[0] = new SqlParameter("@DocumentKeys", "");
+                    parameters[1] = new SqlParameter("@ReviewId", ri.ReviewId);
+                    foreach (string keys in UseableDocKeys)
+                    {
+                        parameters[0].Value = keys;
+                        sQLHelper.ExecuteNonQuerySP(connection, "st_ZoteroItemDocumentDeleteInBulk", parameters);
+                    }
+                    SqlParameter[] parameters2 = new SqlParameter[2];
+                    parameters2[0] = new SqlParameter("@ItemKeys", ""); 
+                    parameters2[1] = new SqlParameter("@ReviewId", ri.ReviewId);
+                    foreach (string keys in UseableItemKeys)
+                    {
+                        parameters2[0].Value = keys;
+                        sQLHelper.ExecuteNonQuerySP(connection, "st_ZoteroItemReviewDeleteInBulk", parameters2);
+                    }
+                }
 
                 return Ok(true);
             }
@@ -2507,6 +2581,20 @@ namespace ERxWebClient2.Controllers
                                           signature);
 
             return signedUrl;
+        }
+        /// <summary>
+        /// Used to ship raw unfiltered data to Cleint, 
+        /// contains all the data needed to "know" what can be done (pull, push, nothing?) with refs present on the Zotero End
+        /// </summary>
+        private class ZoteroItemsResult
+        {
+            public List<object>? zoteroItems { get; set; }//what Zotero API told us, "as is"
+            public ZoteroERWebReviewItemList? pairedItems { get; set; }//Items for which we "know" their "ZoteroKey" - client will do the pairing 
+        }
+        public class ZoteroLinksToDelete
+        {
+            public string? itemKeys { get; set; }//what Zotero API told us, "as is"
+            public string? docKeys { get; set; }//Items for which we "know" their "ZoteroKey" - client will do the pairing 
         }
     }
 }

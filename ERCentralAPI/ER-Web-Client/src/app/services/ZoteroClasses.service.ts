@@ -241,36 +241,36 @@ export class CreatorsItem {
 //    numChildren: number = 0;
 //}
 
-export class CollectionData {
+//export class CollectionData {
 
-    key: string = '';
-    version: number = 0;
-    itemType: string = '';
-    title: string = '';
-    creators: any[] = [];
-    abstractNote: string = '';
-    series: string = '';
-    seriesNumber: string = '';
-    volume: string = '';
-    date: string = '';
-    language: string = '';
-    shortTitle: string = '';
-    publicationTitle: string = '';
-    url: string = '';
-    accessDate: string = '';
-    archive: string = '';
-    archiveLocation: string = '';
-    libraryCatalog: string = '';
-    callNumber: string = '';
-    rights: string = '';
-    extra: string = '';
-    tags: any;
-    collections: any[] = [];
-    relations: any;
-    dateAdded: string = '';
-    dateModified: string = '';
-    parentItem: string = '';
-}
+//    key: string = '';
+//    version: number = 0;
+//    itemType: string = '';
+//    title: string = '';
+//    creators: any[] = [];
+//    abstractNote: string = '';
+//    series: string = '';
+//    seriesNumber: string = '';
+//    volume: string = '';
+//    date: string = '';
+//    language: string = '';
+//    shortTitle: string = '';
+//    publicationTitle: string = '';
+//    url: string = '';
+//    accessDate: string = '';
+//    archive: string = '';
+//    archiveLocation: string = '';
+//    libraryCatalog: string = '';
+//    callNumber: string = '';
+//    rights: string = '';
+//    extra: string = '';
+//    tags: any;
+//    collections: any[] = [];
+//    relations: any;
+//    dateAdded: string = '';
+//    dateModified: string = '';
+//    parentItem: string = '';
+//}
 
 //export class Library {
 //    type: string = '';
@@ -361,6 +361,20 @@ export class ZoteroItem {
     this.dateModified = t.dateModified;
     this.itemType = t.itemType;
   }
+  public get HasAttachments(): boolean {
+    if (this.attachments.length == 0) return false;
+    else return true;
+  }
+  public get HasAttachmentsToPull(): boolean {
+    const ind = this.attachments.findIndex(f => f.syncState == SyncState.canPull);
+    if (ind == -1) return false;
+    else return true;
+  }
+  public FindAttachmentByZoteroKey(key: string): ZoteroAttachment | null {
+    const ind = this.attachments.findIndex(f => f.key == key);
+    if (ind == -1) return null;
+    else return this.attachments[ind];
+  }
   key: string = "";
   title: string = "";
   shortTitle: string = "";
@@ -381,13 +395,18 @@ export class ZoteroAttachment {
   dateModified: string = "";
   syncState: SyncState = SyncState.notSet;
 }
+
+export interface iZoteroItemsResult {
+  zoteroItems: iZoteroJobject[];
+  pairedItems: iZoteroERWebReviewItem[];
+}
 export interface iZoteroJobject {
   key: string;
   version: number;
   library: iZoteroLibrary;
   links: iZoteroLinks;
   meta: iZoteroMeta;
-  data: CollectionData;
+  data: iCollectionData;
 }
 
 export interface iZoteroLibrary {
@@ -417,6 +436,38 @@ export interface iZoteroAttachment extends iZoteroTypeRefPair {
   attachmentSize: number;
   attachmentType: string;
 }
+
+export interface iCollectionData {
+
+  key: string;
+  version: number;
+  itemType: string;
+  title: string;
+  creators: any[];
+  abstractNote: string;
+  series: string;
+  seriesNumber: string;
+  volume: string;
+  date: string;
+  language: string;
+  shortTitle: string;
+  publicationTitle: string;
+  url: string;
+  accessDate: string;
+  archive: string;
+  archiveLocation: string;
+  libraryCatalog: string;
+  callNumber: string;
+  rights: string;
+  extra: string;
+  tags: any;
+  collections: any[];
+  relations: any;
+  dateAdded: string;
+  dateModified: string;
+  parentItem: string;
+}
+
 
 export interface iZoteroERWebReviewItem {
   itemID: number;
@@ -457,6 +508,11 @@ export class ZoteroERWebReviewItem {
   }
   public get HasPdf(): boolean {
     if (this.pdfList.length == 0) return false;
+    else return true;
+  }
+  public get HasPdfToPush(): boolean {
+    const ind = this.pdfList.findIndex(f => f.syncState == SyncState.canPush);
+    if (ind == -1) return false;
     else return true;
   }
   itemID: number;

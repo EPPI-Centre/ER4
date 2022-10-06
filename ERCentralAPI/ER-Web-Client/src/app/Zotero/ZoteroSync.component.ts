@@ -174,22 +174,22 @@ export class ZoteroSyncComponent implements OnInit {
 
     for (var i = 0; i < itemKeys.length; i++) {
       var itemKey = itemKeys[i];
-      await this._zoteroService.deleteMiddleMan(itemKey).then(
-        (result) => {
-          let indexSecond = this.ObjectsInERWebAndZotero.findIndex(x => x.itemKey === itemKey);
-          if (indexSecond > -1) {
-            this.ObjectsInERWebAndZotero.splice(indexSecond, 1);
-          }
-          this.ObjectsInERWebAndZotero = this.ObjectsInERWebAndZotero.sort((a, b) => a.itemKey.localeCompare(b.itemKey));
-          this._notificationService.show({
-            content: "ERWeb has deleted the following object: " + itemKey + ", as it has been removed from Zotero",
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "warning", icon: true },
-            closable: true
-          });
-        }
-      );
+      //await this._zoteroService.deleteMiddleMan(itemKey).then(
+      //  (result) => {
+      //    let indexSecond = this.ObjectsInERWebAndZotero.findIndex(x => x.itemKey === itemKey);
+      //    if (indexSecond > -1) {
+      //      this.ObjectsInERWebAndZotero.splice(indexSecond, 1);
+      //    }
+      //    this.ObjectsInERWebAndZotero = this.ObjectsInERWebAndZotero.sort((a, b) => a.itemKey.localeCompare(b.itemKey));
+      //    this._notificationService.show({
+      //      content: "ERWeb has deleted the following object: " + itemKey + ", as it has been removed from Zotero",
+      //      animation: { type: 'slide', duration: 400 },
+      //      position: { horizontal: 'center', vertical: 'top' },
+      //      type: { style: "warning", icon: true },
+      //      closable: true
+      //    });
+      //  }
+      //);
     }
   }
 
