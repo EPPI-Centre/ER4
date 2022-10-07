@@ -39,15 +39,117 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
 
-      // TODO Need to create all of these...
-      //  [FileKey]
-      //,[ITEM_DOCUMENT_ID]
-      //,[parentItem]
-      //,[Version]
-      //,[LAST_MODIFIED]
-      //,[SimpleText]
-      //,[FileName]
-      //,[Extension]
+        public static readonly PropertyInfo<string> FileKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("FileKey", "FileKey", ""));
+        public string FileKey
+        {
+            get
+            {
+                return GetProperty(FileKeyProperty);
+            }
+            set
+            {
+                SetProperty(FileKeyProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ITEM_DOCUMENT_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_DOCUMENT_ID", "ITEM_DOCUMENT_ID", 0m));
+        public long ITEM_DOCUMENT_ID
+        {
+            get
+            {
+                return GetProperty(ITEM_DOCUMENT_IDProperty);
+            }
+            set
+            {
+                SetProperty(ITEM_DOCUMENT_IDProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<string> parentItemProperty = RegisterProperty<string>(new PropertyInfo<string>("parentItem", "parentItem", ""));
+        public string parentItem
+        {
+            get
+            {
+                return GetProperty(parentItemProperty);
+            }
+            set
+            {
+                SetProperty(parentItemProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<string> VersionProperty = RegisterProperty<string>(new PropertyInfo<string>("Version", "Version", ""));
+        public string Version
+        {
+            get
+            {
+                return GetProperty(VersionProperty);
+            }
+            set
+            {
+                SetProperty(VersionProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<DateTime> LAST_MODIFIEDProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LAST_MODIFIED", "LAST_MODIFIED", 0m));
+        public DateTime LAST_MODIFIED
+        {
+            get
+            {
+                return GetProperty(LAST_MODIFIEDProperty);
+            }
+            set
+            {
+                SetProperty(LAST_MODIFIEDProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<string> SimpleTextProperty = RegisterProperty<string>(new PropertyInfo<string>("SimpleText", "SimpleText", 0m));
+        public string SimpleText
+        {
+            get
+            {
+                return GetProperty(SimpleTextProperty);
+            }
+            set
+            {
+                SetProperty(SimpleTextProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<string> FileNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FileName", "FileName", ""));
+        public string FileName
+        {
+            get
+            {
+                return GetProperty(FileNameProperty);
+            }
+            set
+            {
+                SetProperty(FileNameProperty, value);
+            }
+        }
+
+
+        public static readonly PropertyInfo<string> ExtensionProperty = RegisterProperty<string>(new PropertyInfo<string>("Extension", "Extension", ""));
+        public string Extension
+        {
+            get
+            {
+                return GetProperty(ExtensionProperty);
+            }
+            set
+            {
+                SetProperty(ExtensionProperty, value);
+            }
+        }
+
+
 
 
         public static readonly PropertyInfo<long> ITEM_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_ID", "ITEMID", 0m));
