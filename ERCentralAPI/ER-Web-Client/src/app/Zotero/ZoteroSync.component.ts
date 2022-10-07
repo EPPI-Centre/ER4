@@ -62,7 +62,6 @@ export class ZoteroSyncComponent implements OnInit {
   public ObjectsInERWebNotInZotero: IObjectsInERWebNotInZotero[] = [];
   public ItemsInERWebANDInZotero: iZoteroJobject[] = [];
   public codingSetData: StatsCompletion[] = [];
-  public itemsWithThisCode: Item[] = [];
   public isCollapsed = false;
   public zoteroLink: string = '';
   public reviewLinkText: string[] = [];
@@ -157,8 +156,11 @@ export class ZoteroSyncComponent implements OnInit {
     return object.data.itemType !== 'attachment';
   }
 
-  public get hasItems(): boolean {
-    return (this.itemsWithThisCode.length > 0);
+  public get ItemsToPushCount(): number {
+    return this._zoteroService.ZoteroERWebReviewItemList.filter(f=> f.syncState == SyncState.canPush || f.HasPdfToPush).length;
+  }
+  public get NameOfCurrentLibrary() {
+    return this._zoteroService.NameOfCurrentLibrary;
   }
 
   public getSyncStateOfObject(key: string): SyncState {
@@ -170,10 +172,10 @@ export class ZoteroSyncComponent implements OnInit {
     }
   }
 
-  public async StateOfMiddleMan(itemKeys: string[]): Promise<void> {
+  //public async StateOfMiddleMan(itemKeys: string[]): Promise<void> {
 
-    for (var i = 0; i < itemKeys.length; i++) {
-      var itemKey = itemKeys[i];
+  //  for (var i = 0; i < itemKeys.length; i++) {
+  //    var itemKey = itemKeys[i];
       //await this._zoteroService.deleteMiddleMan(itemKey).then(
       //  (result) => {
       //    let indexSecond = this.ObjectsInERWebAndZotero.findIndex(x => x.itemKey === itemKey);
@@ -190,8 +192,8 @@ export class ZoteroSyncComponent implements OnInit {
       //    });
       //  }
       //);
-    }
-  }
+  //  }
+  //}
 
   public async RemoveCurrentReviewAT(group: GroupData) {
 
@@ -338,26 +340,26 @@ export class ZoteroSyncComponent implements OnInit {
     );
   }
 
-  public async DeleteLocallyItemsRemovedFromZotero(): Promise<void> {
-    var itemKeys: string[] = [];
-    if (!this.Pushing && !this.Pulling) {
+  //public async DeleteLocallyItemsRemovedFromZotero(): Promise<void> {
+  //  var itemKeys: string[] = [];
+  //  if (!this.Pushing && !this.Pulling) {
       
-      var correctLengthOfRightHandTable = this.ObjectZoteroList.length;
-      if (correctLengthOfRightHandTable !== this.ObjectsInERWebAndZotero.length) {
-        for (var i = 0; i < this.ObjectsInERWebAndZotero.length; i++) {
-          let itemKey = this.ObjectsInERWebAndZotero[i].itemKey;
+  //    var correctLengthOfRightHandTable = this.ObjectZoteroList.length;
+  //    if (correctLengthOfRightHandTable !== this.ObjectsInERWebAndZotero.length) {
+  //      for (var i = 0; i < this.ObjectsInERWebAndZotero.length; i++) {
+  //        let itemKey = this.ObjectsInERWebAndZotero[i].itemKey;
 
-          let index = this.ObjectZoteroList.findIndex(x => x.key === itemKey);
-          if (index === -1) {
-            if (this.ObjectsInERWebAndZotero[i].libraryID === this._zoteroService.currentGroupBeingSynced.toString()) {
-              itemKeys.push(itemKey)
-            }
-          }
-        }
-        await this.StateOfMiddleMan(itemKeys);
-      }
-    }
-  }
+  //        let index = this.ObjectZoteroList.findIndex(x => x.key === itemKey);
+  //        if (index === -1) {
+  //          if (this.ObjectsInERWebAndZotero[i].libraryID === this._zoteroService.currentGroupBeingSynced.toString()) {
+  //            itemKeys.push(itemKey)
+  //          }
+  //        }
+  //      }
+  //      await this.StateOfMiddleMan(itemKeys);
+  //    }
+  //  }
+  //}
 
   public async GetObjectsDeletedFromZotero(object: IERWebANDZoteroReviewItem): Promise<boolean> {
     let index: number = this.ObjectZoteroList.findIndex(x => x.key === object.itemKey);
@@ -407,46 +409,7 @@ export class ZoteroSyncComponent implements OnInit {
     this._zoteroService.fetchZoteroObjectVersionsAsync();
   }
 
-  async fetchERWebObjectVersionsAsync(): Promise<void> {
-    this.ObjectERWebList = [];
-    this.ObjectsInERWebNotInZotero = [];
-    for (var i = 0; i < this._ItemListService.ItemList.items.length; i++) {
-      var item = this._ItemListService.ItemList.items[i];
-      // TODO only ever do the first ten items
-      for (var j = 0; j < this.itemsWithThisCode.length; j++) {
-        var itemId = this.itemsWithThisCode[j].itemId;
-
-        if (itemId === item.itemId) {
-            if (this.ObjectERWebList.map(x => x.itemID).indexOf(item.itemId) == -1) {
-              let ErWebObject = <IERWebObjects>{
-                itemID : item.itemId,
-                itemDocumentID: 0,
-                itemReviewID: 0
-              };
-              this.ObjectERWebList.push(ErWebObject);
-            }
-            var newItem = <IObjectsInERWebNotInZotero>{
-              itemId: item.itemId,
-              itemReviewId: 0, //item.itemReviewID,
-              shortTitle: this.itemsWithThisCode[j].shortTitle,
-              typeName: this.itemsWithThisCode[j].typeName,
-              documentAttached: false // item.itemDocumentID === 0 ? false : true
-            };
-
-          if (this.ObjectsInERWebAndZotero.length === 0) {
-            this.ObjectsInERWebNotInZotero.push(newItem);
-          }
-          if (this.ObjectsInERWebAndZotero.map(x => x.itemID).indexOf(newItem.itemId) === -1) {
-            this.ObjectsInERWebNotInZotero.push(newItem);
-          }
-          
-          }
-        }
-    }
-
-    this.ObjectsInERWebAndZotero = this.ObjectsInERWebAndZotero.sort((a, b) => a.itemKey.localeCompare(b.itemKey));
-    //await this.checkSyncState();
-  }
+  
 
   async PullConfirmZoteroItems(): Promise<void> {
     //this.Pulling = true;

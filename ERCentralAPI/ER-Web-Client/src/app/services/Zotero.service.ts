@@ -53,7 +53,11 @@ export class ZoteroService extends BusyAwareService {
   public set ZoteroPermissions(value: ApiKeyInfo) {
         this.userKeyInfo = value;
   }
-
+  public get NameOfCurrentLibrary(): string {
+    const gl = this.groupMeta.find(f => f.groupBeingSynced);
+    if (gl) return gl.data.name;
+    return "[Unknown]";
+  }
   private _ZoteroItems: ZoteroItem[] = [];
   public get ZoteroItems(): ZoteroItem[] {
     return this._ZoteroItems;
