@@ -82,136 +82,139 @@ namespace ERxWebClient2.Controllers
 
                 using (SqlConnection conn = new SqlConnection(sQLHelper.ER4DB))
                 {
-                        conn.Open();
-
-                    using (SqlDataReader dr = sQLHelper.ExecuteQuerySP(conn, "st_ItemDocumentBin", DOC_ID, REV_ID))
+                    conn.Open();
+                    using (SqlCommand? cmd = sQLHelper.BuildSPCommand(conn, "st_ItemDocumentBin", parameters))
                     {
-
-
-                        dr.Read();
-                        // CHANGE THIS AT THE END
-                        if (!dr.HasRows) return NotFound();
-                        Response.Headers.Clear();
-
-                        string type = (string)dr["DOCUMENT_EXTENSION"];
-                        string name = (string)dr["DOCUMENT_TITLE"];
-
-                        name = System.Web.HttpUtility.UrlEncode( name.Replace(type, "") + type);
-                        if (name.IndexOf(type) == -1) name = name + type;
-
-                        switch (type.ToLower())
+                        if (cmd == null) return StatusCode(500, "Could not collect data from database");
+                        using (SqlDataReader dr = cmd.ExecuteReader())
                         {
-                            case ".pdf":
-                                Response.Headers.Clear();
-                                Response.ContentType = @"application/pdf";
-                                Response.Headers.Add("Content-Disposition", "inline; filename=" + name);
-                                break;
-                            case ".doc":
-                                Response.Headers.Clear();
-                                Response.ContentType = @"application/msword";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".docx":
-                                Response.Headers.Clear();
-                                Response.ContentType = @"application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".ppt":
-                                Response.ContentType = @"application/vnd.ms-powerpoint";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".pps":
-                                Response.ContentType = @"application/vnd.ms-powerpoint";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".pptx":
-                                Response.ContentType = @"application/vnd.openxmlformats-officedocument.presentationml.presentation";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".ppsx":
-                                Response.ContentType = @"application/vnd.openxmlformats-officedocument.presentationml.slideshow";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".xls":
-                                Response.ContentType = @"application/vnd.ms-excel";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".xlsx":
-                                Response.ContentType = @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".htm":
-                                Response.ContentType = @"text/html";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".html":
-                                Response.ContentType = @"text/html";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".odt":
-                                Response.ContentType = @"application/vnd.oasis.opendocument.text";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".ods":
-                                Response.ContentType = @"application/vnd.oasis.opendocument.spreadsheet";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".odp":
-                                Response.ContentType = @"application/vnd.oasis.opendocument.presentation";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".ps":
-                                Response.ContentType = @"application/postscript";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".eps":
-                                Response.ContentType = @"application/postscript";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case ".csv":
-                                Response.ContentType = @"application/vnd.ms-excel";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            case "txt":
-                            case ".txt":
-                                Response.ContentType = @"text/plain";
-                                Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
-                                break;
-                            default:
-                                Response.ContentType = @"text/plain";
-                                //Response.Body.("page not found");
-                                // CHANGE THIS STUFF
-                                return null;
-                        }
-                        FileContentResult result;
-                        if (type.ToLower() != ".txt")
-                        {
-                            Response.Headers.Add("Content-Length", ((byte[])dr["DOCUMENT_BINARY"]).Length.ToString());
-                            result = new FileContentResult((byte[])dr["DOCUMENT_BINARY"], Response.ContentType)
+                            dr.Read();
+                            // CHANGE THIS AT THE END
+                            if (!dr.HasRows) return NotFound();
+                            Response.Headers.Clear();
+
+                            string type = (string)dr["DOCUMENT_EXTENSION"];
+                            string name = (string)dr["DOCUMENT_TITLE"];
+
+                            name = System.Web.HttpUtility.UrlEncode(name.Replace(type, "") + type);
+                            if (name.IndexOf(type) == -1) name = name + type;
+
+                            switch (type.ToLower())
                             {
-                                FileDownloadName = name
-                            };
-                        }
-                        else
-                        {
-                            byte[] stBytes = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
-                            Response.Headers.Add("Content-Length", stBytes.Length.ToString());
-                            result = new FileContentResult(stBytes, Response.ContentType)
+                                case ".pdf":
+                                    Response.Headers.Clear();
+                                    Response.ContentType = @"application/pdf";
+                                    Response.Headers.Add("Content-Disposition", "inline; filename=" + name);
+                                    break;
+                                case ".doc":
+                                    Response.Headers.Clear();
+                                    Response.ContentType = @"application/msword";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".docx":
+                                    Response.Headers.Clear();
+                                    Response.ContentType = @"application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".ppt":
+                                    Response.ContentType = @"application/vnd.ms-powerpoint";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".pps":
+                                    Response.ContentType = @"application/vnd.ms-powerpoint";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".pptx":
+                                    Response.ContentType = @"application/vnd.openxmlformats-officedocument.presentationml.presentation";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".ppsx":
+                                    Response.ContentType = @"application/vnd.openxmlformats-officedocument.presentationml.slideshow";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".xls":
+                                    Response.ContentType = @"application/vnd.ms-excel";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".xlsx":
+                                    Response.ContentType = @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".htm":
+                                    Response.ContentType = @"text/html";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".html":
+                                    Response.ContentType = @"text/html";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".odt":
+                                    Response.ContentType = @"application/vnd.oasis.opendocument.text";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".ods":
+                                    Response.ContentType = @"application/vnd.oasis.opendocument.spreadsheet";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".odp":
+                                    Response.ContentType = @"application/vnd.oasis.opendocument.presentation";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".ps":
+                                    Response.ContentType = @"application/postscript";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".eps":
+                                    Response.ContentType = @"application/postscript";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case ".csv":
+                                    Response.ContentType = @"application/vnd.ms-excel";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                case "txt":
+                                case ".txt":
+                                    Response.ContentType = @"text/plain";
+                                    Response.Headers.Add("Content-Disposition", "attachment; filename=" + name);
+                                    break;
+                                default:
+                                    Response.ContentType = @"text/plain";
+                                    //Response.Body.("page not found");
+                                    return StatusCode(404, "Unrecognised data");
+                            }
+                            FileContentResult result;
+                            if (type.ToLower() != ".txt")
                             {
-                                FileDownloadName = name
-                            };
+                                Response.Headers.Add("Content-Length", ((byte[])dr["DOCUMENT_BINARY"]).Length.ToString());
+                                result = new FileContentResult((byte[])dr["DOCUMENT_BINARY"], Response.ContentType)
+                                {
+                                    FileDownloadName = name
+                                };
+                            }
+                            else
+                            {
+                                byte[] stBytes = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
+                                Response.Headers.Add("Content-Length", stBytes.Length.ToString());
+                                result = new FileContentResult(stBytes, Response.ContentType)
+                                {
+                                    FileDownloadName = name
+                                };
+                            }
+                            //provisional test: can we get the extracted text?
+                            //if (type.ToLower() == ".pdf")
+                            //{
+
+                                //var bin = dr["DOCUMENT_BINARY"];
+                                //PdfFormatProvider provider = new PdfFormatProvider();
+                                //RadFixedDocument document = provider.Import((byte[])dr["DOCUMENT_BINARY"]);
+                                //TextFormatProvider textFormatProvider = new TextFormatProvider();
+                                //string text = textFormatProvider.Export(document);
+                            //}
+                            cmd.Cancel();//we found in the logs that closing/disposing of the SQLdatareader sometimes times out
+                            //calling [command].Cancel() is supposed to speed it up 
+                            //https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqldatareader.close?view=netframework-4.8#remarks
+                            return result;
                         }
-                        //provisional test: can we get the extracted text?
-                        if (type.ToLower() == ".pdf")
-                        {
-                            
-                            //var bin = dr["DOCUMENT_BINARY"];
-                            //PdfFormatProvider provider = new PdfFormatProvider();
-                            //RadFixedDocument document = provider.Import((byte[])dr["DOCUMENT_BINARY"]);
-                            //TextFormatProvider textFormatProvider = new TextFormatProvider();
-                            //string text = textFormatProvider.Export(document);
-                        }
-                        return result;
                     }
                 }
             }

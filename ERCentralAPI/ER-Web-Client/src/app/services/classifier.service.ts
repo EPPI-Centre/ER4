@@ -203,46 +203,47 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		);
 	}
 	
-	Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number) {
-		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
-		MVCcmd._title = modeltitle;
-		if (ModelId > 0) {//the model is a custom one
-			let ind = this.ClassifierContactAllModelList.findIndex(f => f.modelId == ModelId);
-			if (ind == -1) return;//no point trying to apply a model we can't find the model list...
+  Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number): Promise<string | boolean> {
+    let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+    MVCcmd._title = modeltitle;
+    if (ModelId > 0) {//the model is a custom one
+      let ind = this.ClassifierContactAllModelList.findIndex(f => f.modelId == ModelId);
+      if (ind == -1) return new Promise(() => { return false; });//no point trying to apply a model we can't find the model list...
 
-			if (this._reviewInfoService.ReviewInfo.reviewId != this.ClassifierContactAllModelList[ind].reviewId) {
-				//we're recording the ReviewID only if the model was built in another review
-				MVCcmd._title = modeltitle + " (Review ID: " + this.ClassifierContactAllModelList[ind].reviewId + ")";
-			}
-		}
-		MVCcmd._attributeIdOn = -1;
-		MVCcmd._attributeIdNotOn = -1;
-		MVCcmd._attributeIdClassifyTo = AttributeId;
-		MVCcmd._classifierId = ModelId;
-		MVCcmd._sourceId = SourceId;
-		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+      if (this._reviewInfoService.ReviewInfo.reviewId != this.ClassifierContactAllModelList[ind].reviewId) {
+        //we're recording the ReviewID only if the model was built in another review
+        MVCcmd._title = modeltitle + " (Review ID: " + this.ClassifierContactAllModelList[ind].reviewId + ")";
+      }
+    }
+    MVCcmd._attributeIdOn = -1;
+    MVCcmd._attributeIdNotOn = -1;
+    MVCcmd._attributeIdClassifyTo = AttributeId;
+    MVCcmd._classifierId = ModelId;
+    MVCcmd._sourceId = SourceId;
+    MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
 
-        this._BusyMethods.push("Apply");
+    this._BusyMethods.push("Apply");
 
-		//const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+    //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
-		this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/ApplyClassifier'//'api/Classifier/ApplyClassifierAsync'
-			,MVCcmd
-		)
-			.subscribe(result => {
-				
-				console.log(result);
-				this.RemoveBusy("Apply");
-				},
-            error => {
-                this.RemoveBusy("Apply");
-				this.modalService.GenericError(error);
-				}
-				, () => {
-                    this.RemoveBusy("Apply");
-				}
-			);
-	}
+    return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/ApplyClassifier'//'api/Classifier/ApplyClassifierAsync'
+      , MVCcmd
+    ).toPromise().then(result => {
+      //console.log(result);
+      this.RemoveBusy("Apply");
+      return result.returnMessage;
+    },
+      error => {
+        this.modalService.GenericError(error);
+        this.RemoveBusy("Apply");
+        return false;
+      }
+    ).catch(caught =>  {
+      this.RemoveBusy("Apply");
+      this.modalService.GenericError(caught);
+      return false;
+    });
+  }
 
 
 	public async UpdateModelName(modelName: string, modelNumber: string): Promise<boolean> {

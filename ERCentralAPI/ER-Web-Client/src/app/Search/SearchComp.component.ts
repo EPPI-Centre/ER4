@@ -112,6 +112,10 @@ export class SearchComp implements OnInit, OnDestroy {
     public searchId: string = 'N/A';
     public popUpTitle: string = '';
 
+  public get ClassifierServiceIsBusy(): boolean {
+    return this.classifierService.IsBusy;
+  }
+
     public get DataSourceSearches(): GridDataResult {
         return {
             data: orderBy(this._searchService.SearchList, this.sortSearches).slice(this.skip, this.skip + this.pageSize),
@@ -480,51 +484,42 @@ export class SearchComp implements OnInit, OnDestroy {
         return false;
         // 
     }
-    CanApplyModel(): boolean {
-
-        if (this.modelNum == 7 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
-
-            return true;
-        }
-        else if (this.modelNum == 7 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
-            //alert('custom models');
-            return true;
-
-        }
-        else if (this.modelNum == 7 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
-
-            //alert('custom models');
-            return true;
-        }
-        else if (this.modelNum == 8 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress) {
-
-            return true;
-        }
-        else if (this.modelNum == 8 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
-            //alert('custom models');
-            return true;
-
-        }
-        else if (this.modelNum == 8 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
-
-            //alert('custom models');
-            return true;
-        }
-        else if (this.modelNum < 7 && this.modelNum != 0) {
-            if (this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
-                return true;
-            } else if (this.ApplySource && this.selected != null) {
-                return true;
-            } else if (this.ApplyAll) {
-                //console.log('yes step 2');
-                return true;
-            }
-
-        }
-
-        return false;
-
+  CanApplyModel(): boolean {
+    if (this.modelIsInProgress || this.classifierService.IsBusy) return false;
+    else if (this.modelNum == 7 && this.ModelSelected && this.ApplySource && this.selected != null) {
+      return true;
     }
+    else if (this.modelNum == 7 && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
+      //alert('custom models');
+      return true;
+    }
+    else if (this.modelNum == 7 && this.ModelSelected && this.ApplyAll) {
+      //alert('custom models');
+      return true;
+    }
+    else if (this.modelNum == 8 && this.ModelSelected && this.ApplySource && this.selected != null) {
+      return true;
+    }
+    else if (this.modelNum == 8 && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
+      //alert('custom models');
+      return true;
+    }
+    else if (this.modelNum == 8 && this.ModelSelected && this.ApplyAll) {
+      //alert('custom models');
+      return true;
+    }
+    else if (this.modelNum < 7 && this.modelNum != 0) {
+      if (this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
+        return true;
+      } else if (this.ApplySource && this.selected != null) {
+        return true;
+      } else if (this.ApplyAll) {
+        //console.log('yes step 2');
+        return true;
+      }
+    }
+    return false;
+  }
 
     private hideAfter: number = 900;
     chooseCodeMessage() {
@@ -585,7 +580,6 @@ export class SearchComp implements OnInit, OnDestroy {
                     console.log('User confirmed:', confirmed);
                     if (confirmed) {
                         this.RunModel();
-                        this.ModelSection = false;
                     }
                     else {
                         //alert('pressed cancel close dialog');
@@ -623,82 +617,84 @@ export class SearchComp implements OnInit, OnDestroy {
 
     }
 
-    RunModel() {
+  async RunModel() {
+    if (this.CanWrite()) {
+      this.AttributeId = -1;
+      this.SourceId = -2;
 
+      if (this.mode == '1') {
+        // standard
+      } else if (this.mode == '2') {
+        //then set the attributeid to begin with
+        this.AttributeId = this._reviewSetsService.selectedNode ? Number(this._reviewSetsService.selectedNode.id.substr(1, this._reviewSetsService.selectedNode.id.length - 1)) : -1;
+      } else if (this.mode == '3') {
+        this.SourceId = Number(this.selected);
+      } else {
+        alert('You must apply the model to some items');
+        return;
+      }
+      if (this.modelNum == 1) {
+        this.modelTitle = 'RCT';
+        this.ModelId = -1;
+      } else if (this.modelNum == 2) {
+        this.modelTitle = 'Systematic review';
+        this.ModelId = -2;
+      } else if (this.modelNum == 3) {
+        this.modelTitle = 'Economic evaluation';
+        this.ModelId = -3;
+      } else if (this.modelNum == 4) {
+        this.modelTitle = 'New Cochrane RCT classifier model';
+        this.ModelId = -4;
+      } else if (this.modelNum == 5) {
+        this.modelTitle = 'COVID-19 map categories';
+        this.ModelId = -5;
+      } else if (this.modelNum == 6) {
+        this.modelTitle = 'Long COVID binary model';
+        this.ModelId = -6;
+      } else {
+        return;
+      }
+      //alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
+      let res = await this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 
-        this.AttributeId = -1;
-        this.SourceId = -2;
-
-        if (this.mode == '1') {
-            // standard
-
-        } else if (this.mode == '2') {
-
-            //then set the attributeid to begin with
-            this.AttributeId = this._reviewSetsService.selectedNode ? Number(this._reviewSetsService.selectedNode.id.substr(1, this._reviewSetsService.selectedNode.id.length - 1)) : -1;
-
-        } else if (this.mode == '3') {
-            // not implmented
-
-            this.SourceId = Number(this.selected);
-
-        } else {
-            //
-            alert('You must apply the model to some items');
-            return;
+      if (res != false) {//we get "false" if an error happened...
+        if (res == "Successful upload of data") {
+          this.notificationService.show({
+            content: 'Job Submitted. Results will appear as search results (please refresh them in a few minutes)',
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true,
+            hideAfter: 3000
+          });
         }
-
-
-        if (this.modelNum == 1) {
-
-            this.modelTitle = 'RCT';
-            this.ModelId = -1;
-
-        } else if (this.modelNum == 2) {
-
-            this.modelTitle = 'Systematic review';
-            this.ModelId = -2;
-
-        } else if (this.modelNum == 3) {
-
-            this.modelTitle = 'Economic evaluation';
-            this.ModelId = -3;
-
-        } else if (this.modelNum == 4) {
-
-            this.modelTitle = 'New Cochrane RCT classifier model';
-            this.ModelId = -4;
-
-        } else if (this.modelNum == 5) {
-            this.modelTitle = 'COVID-19 map categories';
-            this.ModelId = -5;
-
-        } else if (this.modelNum == 6) {
-            this.modelTitle = 'Long COVID binary model';
-            this.ModelId = -6;
-
-        } else {
-
+        else if (res == "") {
+          this.notificationService.show({
+            content: 'Job Submitted, but returned no status. Results might appear as search results (please refresh them in a few minutes), otherwise try again',
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "warning", icon: true },
+            closable: true,
+            hideAfter: 3000
+          });
         }
-
-        if (this.CanWrite()) {
-
-            //alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
-            this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
-            //Very sorry notification show
-
-
-            this.notificationService.show({
-                content: 'Refresh List to see results',
-                animation: { type: 'slide', duration: 400 },
-                position: { horizontal: 'center', vertical: 'top' },
-                type: { style: "warning", icon: true },
-                closable: true,
-                hideAfter: 3000
-            });
-
+        else {
+          this.notificationService.show({
+            content: 'Job Submitted, with status: ' + res + '.',
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "warning", icon: true },
+            closable: true,
+            hideAfter: 3000
+          });
         }
+        this.ModelSection = false;
+      }
+      else {
+        //we don't show anything, because the error is handled in the service.
+      }
     }
+  }
 
     SelectModel(model: string) {
         this.ModelSelected = true;
