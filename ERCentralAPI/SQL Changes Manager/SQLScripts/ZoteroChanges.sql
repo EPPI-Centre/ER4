@@ -1,17 +1,15 @@
 ﻿USE [Reviewer]
 GO
 
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM]
 GO
 
-/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 16/09/2022 13:50:12 ******/
+/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 08/10/2022 14:58:31 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_REVIEW]') AND type in (N'U'))
-begin
-	ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
-	DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
-end
+DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
 GO
 
-/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 16/09/2022 13:50:12 ******/
+/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 08/10/2022 14:58:31 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -22,22 +20,26 @@ CREATE TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW](
 	[Zotero_item_review_ID] [bigint] IDENTITY(1,1) NOT NULL,
 	[ItemKey] [nvarchar](50) NULL,
 	[LibraryID] [nvarchar](50) NOT NULL,
-	[ITEM_REVIEW_ID] [bigint] NOT NULL,
+	[ITEM_ID] [bigint] NOT NULL,
 	[Version] [bigint] NULL,
+	[TITLE] [nvarchar](50) NOT NULL,
+	[SHORT_TITLE] [nvarchar](50) NOT NULL,
+	[ITEM_REVIEW_ID] [bigint] NOT NULL,
 	[LAST_MODIFIED] [datetime] NULL,
-	[TypeName] [nvarchar](50) NULL,
-	[SyncState] [int] NULL
+	[TypeName] [nvarchar](50) NULL
 ) ON [PRIMARY]
 GO
 
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]  WITH CHECK ADD  CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW] FOREIGN KEY([ITEM_REVIEW_ID])
-REFERENCES [dbo].[TB_ITEM_REVIEW] ([ITEM_REVIEW_ID])
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]  WITH CHECK ADD  
+CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM] FOREIGN KEY([ITEM_ID])
+REFERENCES [dbo].[TB_ITEM] ([ITEM_ID])
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] CHECK CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] CHECK CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM]
 GO
+
 
 USE [Reviewer]
 GO
@@ -102,15 +104,15 @@ GO
 USE [Reviewer]
 GO
 
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT] DROP CONSTRAINT [FK__TB_ZOTERO__ITEM___25FB487A]
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT] DROP CONSTRAINT [FK__TB_ZOTERO__ItemD__569E7FD5]
 GO
 
-/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_DOCUMENT]    Script Date: 07/10/2022 15:00:41 ******/
+/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_DOCUMENT]    Script Date: 09/10/2022 15:49:56 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_DOCUMENT]') AND type in (N'U'))
 DROP TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT]
 GO
 
-/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_DOCUMENT]    Script Date: 07/10/2022 15:00:41 ******/
+/****** Object:  Table [dbo].[TB_ZOTERO_ITEM_DOCUMENT]    Script Date: 09/10/2022 15:49:56 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -118,9 +120,9 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT](
-	[FileKey] [nvarchar](50) NOT NULL,
-	[ITEM_DOCUMENT_ID] [bigint] NULL,
-	[parentItem] [nvarchar](50) NULL,
+	[DocZoteroKey] [nvarchar](50) NOT NULL,
+	[ItemDocumentId] [bigint] NULL,
+	[ParentItem] [nvarchar](50) NULL,
 	[Version] [nvarchar](50) NOT NULL,
 	[LAST_MODIFIED] [datetime] NULL,
 	[SimpleText] [nvarchar](max) NULL,
@@ -128,43 +130,48 @@ CREATE TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT](
 	[Extension] [nvarchar](5) NULL,
  CONSTRAINT [PK_TB_ZOTERO_ITEM_DOCUMENT] PRIMARY KEY CLUSTERED 
 (
-	[FileKey] ASC
+	[DocZoteroKey] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT]  WITH CHECK ADD FOREIGN KEY([ITEM_DOCUMENT_ID])
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT]  WITH CHECK ADD FOREIGN KEY([ItemDocumentId])
 REFERENCES [dbo].[TB_ITEM_DOCUMENT] ([ITEM_DOCUMENT_ID])
 GO
 
+
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 19/09/2022 13:50:22 ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 09/10/2022 14:26:06 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE OR ALTER     Procedure [dbo].[st_ItemReviewZoteroUpdate](
+CREATE OR ALTER       Procedure [dbo].[st_ItemReviewZoteroUpdate](
 @Zotero_item_review_ID bigint NULL,
 @ItemKey nvarchar(50) NULL,
 @LibraryID nvarchar(50) NULL, 
+@ITEM_ID bigint NULL, 
 @ITEM_REVIEW_ID bigint NULL, 
 @Version nvarchar(50) NULL, 
 @LAST_MODIFIED date NULL,
-@TypeName nvarchar(50) NULL,
-@SyncState int NULL)
+@SHORT_TITLE nvarchar(50) NULL,
+@TITLE nvarchar(50) NULL,
+@TypeName nvarchar(50) NULL)
 as
 BEGIN
         UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
         SET    [ItemKey] = @ItemKey,
 		[LibraryID] =@LibraryID, 
+		[ITEM_ID] = @ITEM_ID,
 		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
 		[Version] =@Version, 
 		[LAST_MODIFIED] =@LAST_MODIFIED,
 		[TypeName] = @TypeName,
-		[SyncState] = @SyncState
+		[SHORT_TITLE] = @SHORT_TITLE,
+		[TITLE] = @TITLE
         WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
 END
 
@@ -208,31 +215,72 @@ END
 
 GO
 
+
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewCreate]    Script Date: 19/09/2022 13:48:55 ******/
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewCreate]    Script Date: 08/10/2022 15:31:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER     Procedure [dbo].[st_ZoteroItemReviewCreate](
+CREATE OR ALTER Procedure [dbo].[st_ZoteroItemReviewCreate](
 @ItemKey nvarchar(50) NULL,
 @LibraryID nvarchar(50) NULL, 
 @Version nvarchar(50) NULL, 
+@TITLE nvarchar(50) NULL, 
+@SHORT_TITLE nvarchar(50) NULL, 
 @LAST_MODIFIED date NULL,
+@ITEM_ID BIGINT NULL,
 @ITEM_REVIEW_ID BIGINT NULL,
-@TypeName nvarchar(50) NULL,
-@SyncState int NULL)
+@TypeName nvarchar(50) NULL)
 as
 Begin
 
 
-	INSERT INTO [dbo].[TB_ZOTERO_ITEM_REVIEW]([ItemKey], [LibraryID],[ITEM_REVIEW_ID], [Version], [LAST_MODIFIED], [TypeName], [SyncState])
-	VALUES(@ItemKey, @LibraryID,@ITEM_REVIEW_ID, @Version, @LAST_MODIFIED, @TypeName, @SyncState)
+	INSERT INTO [dbo].[TB_ZOTERO_ITEM_REVIEW]([ItemKey], 
+	[LibraryID],[ITEM_ID],[ITEM_REVIEW_ID], [Version], 
+	[LAST_MODIFIED], [TypeName], [TITLE], [SHORT_TITLE])
+	VALUES(@ItemKey, @LibraryID,@ITEM_ID, @ITEM_REVIEW_ID, @Version, @LAST_MODIFIED, @TypeName, @TITLE, @SHORT_TITLE)
 	   
 End
 
 GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 08/10/2022 14:44:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER       Procedure [dbo].[st_ZoteroItemReviewUpdate](
+@Zotero_item_review_ID bigint NULL,
+@ItemKey nvarchar(50) NULL,
+@LibraryID nvarchar(50) NULL, 
+@ITEM_REVIEW_ID bigint NULL, 
+@Version nvarchar(50) NULL, 
+@TITLE nvarchar(50) NULL, 
+@SHORT_TITLE nvarchar(50) NULL, 
+@LAST_MODIFIED date NULL,
+@TypeName nvarchar(50) NULL)
+as
+BEGIN
+        UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+        SET    [ItemKey] = @ItemKey,
+		[LibraryID] =@LibraryID, 
+		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
+		[Version] =@Version, 
+		[LAST_MODIFIED] =@LAST_MODIFIED,
+		[TypeName] = @TypeName,
+		[TITLE] = @TITLE,
+		[SHORT_TITLE] = @SHORT_TITLE
+        WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
+END
+
+GO
+
 
 USE [Reviewer]
 GO
@@ -644,20 +692,22 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ItemsInERWebANDZotero]    Script Date: 17/09/2022 16:59:06 ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemInERWebANDZotero]    Script Date: 09/10/2022 13:32:15 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE OR ALTER    Procedure [dbo].[st_ItemInERWebANDZotero]
+CREATE OR ALTER      Procedure [dbo].[st_ItemInERWebANDZotero]
 (
 @ItemReviewId [bigint]
 )
 as
 Begin	
-  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName, ZIR.SyncState
+  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, 
+  ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, 
+  IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName
   FROM [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW] ZIR
   INNER JOIN [Reviewer].[dbo].[TB_ITEM_REVIEW] IR
   ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
@@ -669,51 +719,38 @@ End
 
 GO
 
-
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroERWebReviewItemList]    Script Date: 19/09/2022 13:58:12 ******/
+/****** Object:  StoredProcedure [dbo].[st_ZoteroERWebReviewItemList]    Script Date: 10/10/2022 09:56:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-
-CREATE OR ALTER Procedure [dbo].[st_ZoteroERWebReviewItemList]
+ALTER     Procedure [dbo].[st_ZoteroERWebReviewItemList]
 (
 	@AttributeId bigint,
 	@ReviewId int
 )
 as
 Begin	
-  declare @ids table (ItemId bigint, ItemReviewId bigint, Primary key(ItemId, ItemReviewId))
+  declare @ids table (ItemId bigint, ITEM_REVIEW_ID bigint, Primary key(ItemId, ITEM_REVIEW_ID))
 
   --to start, find the itemIDs we want, we'll use this table for both results we return
-
-  if @AttributeId > 0
-  BEGIN
-	--getting "items with this code", this is used to drive the "left side" table in the UI, showing what can be done with Items to the user
-	  Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
-	  inner join TB_ITEM_ATTRIBUTE tia on ir.REVIEW_ID = @ReviewId and tia.ATTRIBUTE_ID = @AttributeId and ir.ITEM_ID = tia.ITEM_ID and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
-	  inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
-  END
-  ELSE
-  BEGIN
-	--no meaningful @AttributeId, so we get ALL items known to be present in Zotero, this is used to find out the sync state of refs present on the Zotero side.
-	Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
-	inner join TB_ZOTERO_ITEM_REVIEW zi on ir.REVIEW_ID = @ReviewId and ir.ITEM_REVIEW_ID = zi.ITEM_REVIEW_ID --and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
-  END
+  Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
+  inner join TB_ITEM_ATTRIBUTE tia on ir.REVIEW_ID = @ReviewId and tia.ATTRIBUTE_ID = @AttributeId and ir.ITEM_ID = tia.ITEM_ID and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
+  inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
 
   --first set of results, the data we want about ITEMs
-  select I.ITEM_ID, I.DATE_EDITED,zi.TypeName,zi.ITEM_REVIEW_ID, zi.Zotero_item_review_ID, zi.ItemKey, zi.LibraryID, zi.[Version], zi.LAST_MODIFIED, I.TITLE, I.SHORT_TITLE, zi.SyncState
+  select I.ITEM_ID, I.DATE_EDITED,zi.TypeName,ids.ITEM_REVIEW_ID, zi.Zotero_item_review_ID, zi.ItemKey, zi.LibraryID, zi.[Version], zi.LAST_MODIFIED, I.TITLE, I.SHORT_TITLE
   from @ids ids
   inner join TB_ITEM I on ids.ItemId = I.ITEM_ID
-  LEFT JOIN TB_ZOTERO_ITEM_REVIEW zi on zi.ITEM_REVIEW_ID = ids.ItemReviewId
+  LEFT JOIN TB_ZOTERO_ITEM_REVIEW zi on zi.ITEM_REVIEW_ID = ids.ITEM_REVIEW_ID
 
   --2nd set of results, the data about DOCUMENTS
-  select id.ITEM_ID, id.ITEM_DOCUMENT_ID,id.DOCUMENT_TITLE, zid.FileKey from @ids ids
+  select id.ITEM_ID, id.ITEM_DOCUMENT_ID,id.DOCUMENT_TITLE, zid.DocZoteroKey from @ids ids
   inner join TB_ITEM_DOCUMENT id on ids.ItemId = id.ITEM_ID
-  left join TB_ZOTERO_ITEM_DOCUMENT zid on id.ITEM_DOCUMENT_ID = zid.ITEM_DOCUMENT_ID
+  left join TB_ZOTERO_ITEM_DOCUMENT zid on id.ITEM_DOCUMENT_ID = zid.ItemDocumentId
 
 End
 
@@ -770,4 +807,31 @@ End
 
 GO
 
+USE [Reviewer]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER   Procedure [dbo].[st_ZoteroItemDocumentCreate](
+@ParentItem  nvarchar(50) NULL, 
+@DocZoteroKey  nvarchar(50) NULL,
+@ItemDocumentId  bigint  NULL, 
+@LAST_MODIFIED date NULL,
+@Version nvarchar(50) NULL, 
+@SimpleText  nvarchar(50) NULL, 
+@FileName  nvarchar(50) NULL, 
+@Extension  nvarchar(50) NULL)
+as
+Begin
+
+	INSERT INTO [dbo].[TB_ZOTERO_ITEM_DOCUMENT](
+	[ParentItem], [DocZoteroKey], [ItemDocumentId], [LAST_MODIFIED], [Version],
+	[SimpleText], [FileName], [Extension])
+	VALUES(@ParentItem, @DocZoteroKey,@ItemDocumentId,@LAST_MODIFIED ,
+	@Version, @SimpleText, @FileName , @Extension )
+	   
+End
+
+GO
 

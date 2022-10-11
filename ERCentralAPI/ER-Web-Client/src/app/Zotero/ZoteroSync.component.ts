@@ -11,7 +11,8 @@ import { ReviewSet, ReviewSetsService, SetAttribute, singleNode } from '../servi
 import { ZoteroService } from '../services/Zotero.service';
 import {
   iZoteroJobject, GroupData, IERWebANDZoteroReviewItem, IERWebObjects, IERWebZoteroObjects,
-  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState, ZoteroReviewCollectionList, ZoteroItem, ZoteroERWebReviewItem
+  IObjectsInERWebNotInZotero, IObjectSyncState, IZoteroERWebReviewItem, IZoteroReviewItem, SyncState,
+  ZoteroReviewCollectionList, ZoteroItem, ZoteroERWebReviewItem
 } from '../services/ZoteroClasses.service';
 
 @Component({

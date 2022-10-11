@@ -269,6 +269,7 @@ export class ZoteroService extends BusyAwareService {
       this._ZoteroItems = [];
       return this._httpC.get<iZoteroItemsResult>(this._baseUrl + 'api/Zotero/ZoteroItems')
         .subscribe(result => {
+          this.RemoveBusy("fetchZoteroObjectVersionsAsync");
           let AttachKeys: string[] = [];//used to figure out what Attachments are in TB_ZOTERO_ITEM_DOCUMENT, but not present on Zotero end, anymore. We'll delete them
           let ToDeleteItems: ZoteroERWebReviewItem[] = [];//used to track what references are in TB_ZOTERO_ITEM_REVIEW, but not present on Zotero end, anymore. We'll delete them
           let ToDeleteAttachments: ZoteroERWebItemDoc[] = [];//used to track what PDFs/Attachments are in TB_ZOTERO_ITEM_DOCUMENT, but not present on Zotero end, anymore. We'll delete them
@@ -350,7 +351,6 @@ export class ZoteroService extends BusyAwareService {
             //console.log("state2", zri.syncState);
             //this._zoteroERWebReviewItemList.push(zri);
           }
-          this.RemoveBusy("fetchZoteroObjectVersionsAsync");
 
           //FINALLY: call the next "fire and forget" method which will DELETE records in TB_ZOTERO_ITEM_REVIEW and TB_ZOTERO_ITEM_DOCUMENT
           //these are records of things that were "paired" (existed both in ER and Zotero sides), but has disappeared on the Zotero end

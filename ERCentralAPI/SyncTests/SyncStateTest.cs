@@ -151,7 +151,7 @@ namespace SyncTests
             var dpItemsInBoth = new DataPortal<ZoteroERWebReviewItemList>();
             var result = dpItemsInBoth.Fetch();
 
-            var itemsInZotero = result.Select(x => x.ITEM_REVIEW_ID).Intersect(_zoteroERWebReviewItemList.Select(x => x.ITEM_REVIEW_ID));
+            var itemsInZotero = result.Select(x => x.iteM_REVIEW_ID).Intersect(_zoteroERWebReviewItemList.Select(x => x.iteM_REVIEW_ID));
 
             Assert.That(itemsInZotero.Any());
 

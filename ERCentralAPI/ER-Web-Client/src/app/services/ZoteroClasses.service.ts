@@ -471,12 +471,14 @@ export interface iCollectionData {
 
 export interface iZoteroERWebReviewItem {
   itemID: number;
+  iteM_REVIEW_ID: number;
   itemKey: string;
   lasT_MODIFIED: string;
   pdfList: iZoteroERWebItemDoc[];
   shortTitle: number;
   syncState: SyncState;
   title: string;
+  version: number;
 }
 export interface iZoteroERWebItemDoc {
   doc_Zotero_Key: string;
@@ -495,11 +497,13 @@ export enum SyncState {
 export class ZoteroERWebReviewItem {
   constructor(data: iZoteroERWebReviewItem) {
     this.itemID = data.itemID;
+    this.iteM_REVIEW_ID = data.iteM_REVIEW_ID;
     this.itemKey = data.itemKey;
     this.lasT_MODIFIED = data.lasT_MODIFIED;
     this.shortTitle = data.shortTitle;
     this.syncState = data.syncState;
     this.title = data.title;
+    this.version = data.version;
     this.pdfList = [];
     for (let ip of data.pdfList) {
       let pdf = new ZoteroERWebItemDoc(ip);
@@ -516,13 +520,16 @@ export class ZoteroERWebReviewItem {
     else return true;
   }
   itemID: number;
+  iteM_REVIEW_ID: number;
   itemKey: string;
   lasT_MODIFIED: string;
   pdfList: iZoteroERWebItemDoc[];
   shortTitle: number;
+  version: number;
   syncState: SyncState;
   title: string;
 }
+
 export class ZoteroERWebItemDoc {
   constructor(data: iZoteroERWebItemDoc) {
     this.documenT_TITLE = data.documenT_TITLE;

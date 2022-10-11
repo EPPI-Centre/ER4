@@ -28,7 +28,8 @@ namespace BusinessLibrary.BusinessClasses
         }
 #endif
 
-        public static readonly PropertyInfo<long> Zotero_item_review_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("Zotero_item_review_ID", "Zotero_item_review_ID", 0m));
+        public static readonly PropertyInfo<long> Zotero_item_review_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("Zotero_item_review_ID",
+            "Zotero_item_review_ID", 0m));
         public long Zotero_item_review_ID
         {
             get
@@ -43,7 +44,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         public static readonly PropertyInfo<string> ItemKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemKey", "ItemKey", ""));
-        [JsonProperty]
+        //[JsonProperty]
         public string ItemKey
         {
             get
@@ -70,16 +71,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<long> ITEM_REVIEW_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("ITEM_REVIEW_ID", "ITEM_REVIEW_ID", 0m));
-        public long ITEM_REVIEW_ID
+        public static readonly PropertyInfo<long> iteM_REVIEW_IDProperty = RegisterProperty<long>(new PropertyInfo<long>("iteM_REVIEW_ID", "iteM_REVIEW_ID", 0m));
+        public long iteM_REVIEW_ID
         {
             get
             {
-                return GetProperty(ITEM_REVIEW_IDProperty);
+                return GetProperty(iteM_REVIEW_IDProperty);
             }
             set
             {
-                SetProperty(ITEM_REVIEW_IDProperty, value);
+                SetProperty(iteM_REVIEW_IDProperty, value);
             }
         }
 
@@ -171,19 +172,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        public static readonly PropertyInfo<ErWebState> StateProperty = RegisterProperty<ErWebState>(new PropertyInfo<ErWebState>("SYNC_STATE", "SYNC_STATE", ErWebState.notSet));
-        public ErWebState SyncState
-        {
-            get
-            {
-                return GetProperty(StateProperty);
-            }
-            set
-            {
-                SetProperty(StateProperty, value);
-            }
-        }
-
         public static readonly PropertyInfo<MobileList<ZoteroERWebItemDocument>> PdfListProperty = RegisterProperty<MobileList<ZoteroERWebItemDocument>>(new PropertyInfo<MobileList<ZoteroERWebItemDocument>>("PDF_LIST", "PDF_LIST", new MobileList<ZoteroERWebItemDocument>()));
         public MobileList<ZoteroERWebItemDocument> PdfList
         {
@@ -217,21 +205,94 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
                             LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
                             LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));                            
-                            LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
+                            LoadProperty<long>(iteM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
                             LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
                             LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
                             LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
                             LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
                             LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
-                            LoadProperty<ErWebState>(StateProperty, (ErWebState)reader.GetInt32("SyncState"));
                             MarkOld();
                         }
                     }
                 }
                 connection.Close();
             }
-        }       
-       
+        }
+
+
+        protected override void DataPortal_Insert()
+        {
+            AddNew();
+        }
+
+        private void AddNew()
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ZoteroItemReviewCreate", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
+                    command.Parameters.Add(new SqlParameter("@LibraryID", ReadProperty(LibraryIDProperty)));
+                    command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
+                    command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(ItemIDProperty)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(iteM_REVIEW_IDProperty)));
+                    command.Parameters.Add(new SqlParameter("@TITLE", ReadProperty(TitleProperty)));
+                    command.Parameters.Add(new SqlParameter("@SHORT_TITLE", ReadProperty(ShortTitleProperty)));
+                    command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
+                    command.ExecuteNonQuery();
+
+                }
+                connection.Close();
+            }
+        }
+
+
+        protected override void DataPortal_Update()
+        {
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ItemReviewZoteroUpdate", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Zotero_item_review_ID", ReadProperty(Zotero_item_review_IDProperty)));
+                    command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
+                    command.Parameters.Add(new SqlParameter("@LibraryID", ReadProperty(LibraryIDProperty)));
+                    command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
+                    command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(ItemIDProperty)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(iteM_REVIEW_IDProperty)));
+                    command.Parameters.Add(new SqlParameter("@TITLE", ReadProperty(TitleProperty)));
+                    command.Parameters.Add(new SqlParameter("@SHORT_TITLE", ReadProperty(ShortTitleProperty)));
+                    command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+        }
+
+
+        protected override void DataPortal_DeleteSelf()
+        {
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ZoteroItemReviewDelete", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+        }
 
         internal static ZoteroERWebReviewItem GetZoteroERWebReviewItem(SafeDataReader reader)
         {
@@ -239,18 +300,19 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
             returnValue.LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
             returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
-            returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
+            returnValue.LoadProperty<long>(iteM_REVIEW_IDProperty, reader.GetInt64("iteM_REVIEW_ID"));
             returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
             returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("DATE_EDITED"));
             returnValue.LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
             returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
             returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
-            returnValue.LoadProperty<ErWebState>(StateProperty, (ErWebState)reader.GetInt32("SyncState"));
             returnValue.MarkOld();
 
             return returnValue;
         }
+
+
 #endif
     }
 }

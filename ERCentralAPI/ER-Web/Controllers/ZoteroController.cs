@@ -42,7 +42,7 @@ namespace ERxWebClient2.Controllers
         private IConfiguration _configuration; // THIS IS THREAD SAFE AS services.AddSingleton(Configuration);
         private OAuthParameters _oAuth;   //THREAD SAFE Singleton
 
-        public void SetZoteroHttpService(UriBuilder uri, string zoteroApiKey, bool ifNoneMatchHeader = false)
+        public void SetZoteroHttpService(UriBuilder uri, string zoteroApiKey, bool ifNoneMatchHeader = false, bool IfUnmodifiedSinceVersion = false, string version = null)
         {
             var _httpClient = new HttpClient
             {
@@ -53,6 +53,10 @@ namespace ERxWebClient2.Controllers
             if (ifNoneMatchHeader)
             {
                 _httpClient.DefaultRequestHeaders.Add("If-None-Match", "*");
+            }
+            if (IfUnmodifiedSinceVersion)
+            {
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("If-Unmodified-Since-Version", version);
             }
             var httpClientProvider = new HttpClientProvider(_httpClient);
             _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
@@ -311,12 +315,20 @@ namespace ERxWebClient2.Controllers
                 string groupIDBeingSynced = zrc.LibraryId;
 
                 var zoteroERWebReviewItemsWithAZoteroKey = zoteroERWebReviewItems.Where(x => string.IsNullOrEmpty(x.ItemKey));
-                var postResult = await PushItemsForThisGroupToZotero(zoteroERWebReviewItemsWithAZoteroKey, zrc, groupIDBeingSynced);
-                if (!postResult) throw new Exception("Pushing to Zotero failed miserably");
+                var itemsWithAZoteroKey = zoteroERWebReviewItems.Where(x => !string.IsNullOrEmpty(x.ItemKey)).ToList();
 
-                var itemsWithAZoteroKey = zoteroERWebReviewItems.Where(x => !string.IsNullOrEmpty(x.ItemKey));
-                var updateResult = await UpdatingItemsInZotero(itemsWithAZoteroKey, zrc, groupIDBeingSynced);
-                if (!updateResult) throw new Exception("Updating items to Zotero failed miserably");
+                if(zoteroERWebReviewItemsWithAZoteroKey.Count() > 0)
+                {
+                    var postResult = await PushItemsForThisGroupToZotero(zoteroERWebReviewItemsWithAZoteroKey, zrc, groupIDBeingSynced);
+                    if (!postResult) throw new Exception("Pushing to Zotero failed miserably");
+                }
+            
+                if(itemsWithAZoteroKey.Count() > 0)
+                {
+                    var updateResult = await UpdatingItemsInZotero(itemsWithAZoteroKey, zrc, groupIDBeingSynced);
+                    if (!updateResult) throw new Exception("Updating items to Zotero failed miserably");
+                }
+               
 
                 foreach (var parentItemWithChildrenList in zoteroERWebReviewItems.Where(x => x.PdfList.Count > 0)
                     .Select(x => new { x.PdfList, x.ItemID, x.ItemKey } ))
@@ -326,13 +338,23 @@ namespace ERxWebClient2.Controllers
                     var erWebZoteroItemDocs = new List<ErWebZoteroItemDocument>();
                     foreach (var pdf in parentItemWithChildrenList.PdfList)
                     {
-                        if (string.IsNullOrEmpty(pdf.Doc_Zotero_Key))
+
+                        if (pdf.ItemDocumentId == 0)
+                        {
+                            var dp = new DataPortal<ItemDocument>();
+                            var crit = new SingleCriteria<ItemDocument, Int64>(itemId);
+                            var itemDocument  = dp.Fetch(crit);
+                            pdf.ItemDocumentId = itemDocument.ItemDocumentId;
+                        }
+
+
+                        if (string.IsNullOrEmpty(pdf.DocZoteroKey))
                         {
                             var itemDoc = new ErWebZoteroItemDocument
                             {
                                 itemId = itemId,
                                 parentItemFileKey = parentZoteroKey,
-                                itemDocumentId = pdf.Item_Document_Id
+                                itemDocumentId = pdf.ItemDocumentId
                             };
                             erWebZoteroItemDocs.Add(itemDoc);
                         }
@@ -350,36 +372,43 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        private async Task<bool> UpdatingItemsInZotero(IEnumerable<ZoteroERWebReviewItem> zoteroERWebReviewItems, ZoteroReviewConnection zrc, string groupIDBeingSynced)
+        private async Task<bool> UpdatingItemsInZotero(IEnumerable<ZoteroERWebReviewItem> zoteroERWebReviewItems,
+            ZoteroReviewConnection zrc, string groupIDBeingSynced)
         {
-            //putting
-            var _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
-            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
 
-            HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
-            _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
-
-            // 3 - Finally push using a post or a put to Zotero to update the items that should be already present
-            var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
-            SetZoteroHttpService(PUTItemsUri, zrc.ApiKey);
-
-            var localItems = zoteroERWebReviewItems.Where(x => !string.IsNullOrEmpty(x.ItemKey));
-            // 2 - Convert these items to their Zotero counter parts using the factory pattern class already created
             var result = false;
             var count = 0;
             var failedItemsMsg = "";
             var numberOfFailedItems = 0;
-            if (localItems.Count() == 0) result = true;//otherwise we react with failure, even if this step wasn't needed...
-            foreach (var item in localItems)
+            if (zoteroERWebReviewItems.Count() == 0) result = false;//otherwise we react with failure, even if this step wasn't needed...
+            foreach (var item in zoteroERWebReviewItems)
             {
-                var zoteroItemContent = await ItemsItemId(item.ITEM_REVIEW_ID.ToString());
-                var payload = JsonConvert.SerializeObject(zoteroItemContent);
+                var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + item.ItemKey);
+                SetZoteroHttpService(PUTItemsUri, zrc.ApiKey, false, true, item.Version.ToString());
+
+                // get the local item and update Zotero item here
+                var criteria = new SingleCriteria<Item, Int64>(item.ItemID);
+                var localItem = DataPortal.Fetch<Item>(criteria);
+
+                if(localItem == null) throw new Exception("This local item does not exist");
+
+                var erWebItem = new ERWebItem
+                {
+                    Item = localItem
+                };
+                var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
+                var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
+                zoteroItem.version = item.Version;
+
+                if (zoteroItem == null) throw new Exception("This Zotero item does not exist");
+
+                var payload = JsonConvert.SerializeObject(zoteroItem);
                 var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString());
                 var actualContent = await response.Content.ReadAsStringAsync();
-                if (actualContent.Contains("success"))
+                if (actualContent.Contains(""))
                 {
                     numberOfFailedItems = UpdateTheseRecentlyPushedItemsLocally(zoteroERWebReviewItems, ref failedItemsMsg, ref count, actualContent);
+                    if (numberOfFailedItems == 0) result = true;
                 }
                 else
                 {
@@ -429,7 +458,15 @@ namespace ERxWebClient2.Controllers
                 //we NEED to parse this response, so to learn (and add to zoteroERWebReviewItems), the Keys for the items we pushed
                 if (actualContent.Contains("success"))
                 {
-                    numberOfFailedItems = UpdateTheseRecentlyPushedItemsLocally(zoteroERWebReviewItems, ref failedItemsMsg, ref count, actualContent);
+                    numberOfFailedItems = InsertTheseRecentlyPushedItemsLocally(zoteroERWebReviewItems, ref failedItemsMsg, ref count, actualContent);
+                    if(numberOfFailedItems > 0)
+                    {
+
+                    }
+                    else
+                    {
+                        result = true;
+                    }
                 }
                 else
                 {
@@ -440,8 +477,9 @@ namespace ERxWebClient2.Controllers
             return result;
         }
 
-        private static int UpdateTheseRecentlyPushedItemsLocally(IEnumerable<ZoteroERWebReviewItem> zoteroERWebReviewItems, ref string failedItemsMsg, ref int count, string actualContent)
-        {
+        private static int InsertTheseRecentlyPushedItemsLocally(IEnumerable<ZoteroERWebReviewItem> zoteroERWebReviewItems, ref string failedItemsMsg, ref int count, string actualContent)
+        {          
+
             int numberOfFailedItems;
             JObject keyValues = JsonConvert.DeserializeObject<JObject>(actualContent);
 
@@ -453,6 +491,8 @@ namespace ERxWebClient2.Controllers
 
             var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
             var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
+            var itemCount = 0;
+            DataPortal<ZoteroERWebReviewItem> dp = new DataPortal<ZoteroERWebReviewItem>();
 
             foreach (var item in keyValues["success"].Children())
             {
@@ -463,14 +503,55 @@ namespace ERxWebClient2.Controllers
                     key = keyJson.ToString() ?? "";
                 }
 
-                var zoteroItemToUpdateLocallyMiddleTable = zoteroERWebReviewItems.FirstOrDefault(x => x.ItemKey == key);
-                DataPortal<ZoteroReviewItem> dp2 = new DataPortal<ZoteroReviewItem>();
-                zoteroItemToUpdateLocallyMiddleTable = zoteroItemToUpdateLocallyMiddleTable.Save();
+                var middleManElement = zoteroERWebReviewItems.ElementAt(itemCount);
+                middleManElement.ItemKey = key;
+                               
+
+                //INSERT
+                var zoteroItemToInsert = new ZoteroERWebReviewItem
+                {
+                    ItemKey = middleManElement.ItemKey,
+                    ItemID = middleManElement.ItemID,
+                    iteM_REVIEW_ID = middleManElement.iteM_REVIEW_ID,
+                    LAST_MODIFIED = DateTime.Now,
+                    LibraryID = libraryId,
+                    Version = version,
+                    TypeName = middleManElement.TypeName,
+                    ShortTitle = middleManElement.ShortTitle,
+                    Title = middleManElement.Title
+                };
+
+                zoteroItemToInsert = dp.Execute(zoteroItemToInsert);       
 
                 count++;
             }
 
             return numberOfFailedItems;
+        }
+
+
+        private static int UpdateTheseRecentlyPushedItemsLocally(IEnumerable<ZoteroERWebReviewItem> zoteroERWebReviewItems, ref string failedItemsMsg, ref int count, string actualContent)
+        {
+
+            foreach (var middleManElement in zoteroERWebReviewItems)
+            {
+
+                DataPortal<ZoteroERWebReviewItem> dp = new DataPortal<ZoteroERWebReviewItem>();
+                var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(middleManElement.iteM_REVIEW_ID.ToString());
+                var zoteroItemToUpdate = dp.Fetch(criteria);
+
+                if (middleManElement != null && middleManElement.ItemID > 0)
+                {
+                    zoteroItemToUpdate.LAST_MODIFIED = DateTime.Now;
+                    zoteroItemToUpdate.Version +=1;
+
+                    zoteroItemToUpdate = dp.Execute(zoteroItemToUpdate);
+                }
+
+                count++;
+            }                           
+
+            return 0;
         }
 
         [HttpGet("[action]")]
@@ -2343,7 +2424,9 @@ namespace ERxWebClient2.Controllers
                             var fileBytes = stBytes;
 
                             //2) Now upload to Zotero
-                            await UploadFileBytesToZoteroAsync(fileBytes, parentItemKey, name, itemDoc.itemDocumentId);
+                            var uploadKeyString =await UploadFileBytesToZoteroAsync(fileBytes, parentItemKey, name, itemDoc.itemDocumentId);
+
+                            await InsertUploadedDocLocally(parentItemKey, itemDoc.itemDocumentId, name, uploadKeyString, type);
                         }
                     }
                 }
@@ -2355,7 +2438,7 @@ namespace ERxWebClient2.Controllers
             }
         }
               
-        private async Task UploadFileBytesToZoteroAsync(byte[] fileBytes, string fileKey, string name, long itemDocumentId)
+        private async Task<string> UploadFileBytesToZoteroAsync(byte[] fileBytes, string fileKey, string name, long itemDocumentId)
         {
             try
             {
@@ -2400,7 +2483,7 @@ namespace ERxWebClient2.Controllers
                 long filesize = fileBytes.Length;
                 var hash = md5Content;
 
-                var PDFAuthUri = new UriBuilder($"{baseUrl}/groups/{ groupIDBeingSynced}/items/{key}/file");
+                var PDFAuthUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file");
                 SetZoteroHttpService(PDFAuthUri, zoteroApiKey, true);
 
                 dt = DateTime.Now;
@@ -2416,7 +2499,7 @@ namespace ERxWebClient2.Controllers
 
                 if (responseJObject["exists"] != null)
                 {
-                    return;
+                    return key.ToString();
                 }
 
                 var url = responseJObject["url"].ToString();
@@ -2477,43 +2560,45 @@ namespace ERxWebClient2.Controllers
                     wr = null;
                 }
 
-                var fileURI = new UriBuilder($"{baseUrl}/groups/{ groupIDBeingSynced}/items/{key}/file");
+                var fileURI = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file");
                 SetZoteroHttpService(fileURI, zoteroApiKey, true);
 
                 var uploadKeyString = uploadKey.ToString();
                 var payloadUpload = $"upload={uploadKeyString}";
-                var responseRegisterUpload = await _zoteroService.POSTDocument(payloadUpload, $"{baseUrl}/groups/{ groupIDBeingSynced}/items/{key}/file");
+                var responseRegisterUpload = await _zoteroService.POSTDocument(payloadUpload, $"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file");
                 if (!string.IsNullOrEmpty(responseRegisterUpload))
                 {
                     throw new Exception("Registering upload in Zotero Error");
                 }
 
-                int startIndex = filename.IndexOf('.') + 1;
-                int extLength = filename.Length - startIndex;
-
-
-                //TODO Need to fetch first and check if it is present in the table then update or insert accordingly
-
-                var zoteroItemDocumentToInsert = new ZoteroReviewItemDocument
-                {
-                    FileKey = uploadKeyString,
-                    ITEM_DOCUMENT_ID = itemDocumentId,
-                    parentItem = fileKey,
-                    Version = "blah",
-                    LAST_MODIFIED = DateTime.Now,
-                    SimpleText = "blah",
-                    FileName = filename,
-                    Extension = filename.Substring(startIndex, extLength)
-                };
-
-                DataPortal<ZoteroReviewItemDocument> dp2 = new DataPortal<ZoteroReviewItemDocument>();
-                zoteroItemDocumentToInsert = dp2.Execute(zoteroItemDocumentToInsert);
+                return key.ToString();
 
             }
             catch (Exception ex)
             {
                 throw new Exception("Uploading file to Zotero Error: " + ex.Message);
             }
+        }
+
+        private static Task InsertUploadedDocLocally(string fileKey, long itemDocumentId, string filename, 
+            string uploadKeyString, string extension)
+        {
+            var zoteroItemDocumentToInsert = new ZoteroERWebItemDocument
+            {
+                DocZoteroKey = uploadKeyString,
+                ItemDocumentId = itemDocumentId,
+                ParentItem = fileKey,
+                Version = 0, // TODO check with Sergio
+                LAST_MODIFIED = DateTime.Now,
+                SimpleText = "blah",  // TODO check with Sergio
+                FileName = filename,
+                Extension = extension
+            };
+
+            DataPortal<ZoteroERWebItemDocument> dp2 = new DataPortal<ZoteroERWebItemDocument>();
+            zoteroItemDocumentToInsert = dp2.Execute(zoteroItemDocumentToInsert);
+
+            return Task.CompletedTask;
         }
 
         [HttpPut("[action]")]
