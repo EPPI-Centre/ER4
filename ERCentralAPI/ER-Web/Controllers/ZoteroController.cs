@@ -336,28 +336,23 @@ namespace ERxWebClient2.Controllers
                     var itemId = parentItemWithChildrenList.ItemID;
                     var parentZoteroKey = parentItemWithChildrenList.ItemKey;
                     var erWebZoteroItemDocs = new List<ErWebZoteroItemDocument>();
+                    var dp = new DataPortal<ItemDocumentList>();
+                    var crit = new SingleCriteria<ItemDocumentList, Int64>(itemId);
+                    var itemDocumentList = dp.Fetch(crit);
+                    var pdfCount = 0;
                     foreach (var pdf in parentItemWithChildrenList.PdfList)
                     {
-
-                        if (pdf.ItemDocumentId == 0)
-                        {
-                            var dp = new DataPortal<ItemDocument>();
-                            var crit = new SingleCriteria<ItemDocument, Int64>(itemId);
-                            var itemDocument  = dp.Fetch(crit);
-                            pdf.ItemDocumentId = itemDocument.ItemDocumentId;
-                        }
-
-
                         if (string.IsNullOrEmpty(pdf.DocZoteroKey))
                         {
                             var itemDoc = new ErWebZoteroItemDocument
                             {
                                 itemId = itemId,
                                 parentItemFileKey = parentZoteroKey,
-                                itemDocumentId = pdf.ItemDocumentId
+                                itemDocumentId = itemDocumentList[pdfCount].ItemDocumentId
                             };
                             erWebZoteroItemDocs.Add(itemDoc);
                         }
+                        pdfCount++;
                     }
 
                     await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zrc.REVIEW_ID);
