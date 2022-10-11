@@ -320,7 +320,7 @@ namespace BusinessLibrary.BusinessClasses
 
 				if (positiveClassCount < 2 || negativeClasscount < 2)
 				{
-					_returnMessage = "Insufficient data";
+					_returnMessage = "Error, Insufficient data";
 					return 0;
 				}
 				// upload data to blob
@@ -389,7 +389,7 @@ namespace BusinessLibrary.BusinessClasses
 				}
 				catch(Exception e)
 				{
-					_returnMessage = "BuildFailed";
+					_returnMessage = "Error, BuildFailed";
 					_title += " (failed)";
 					accuracy = -0.99;
 					auc = -0.99;
@@ -496,7 +496,7 @@ namespace BusinessLibrary.BusinessClasses
 					}
                     if (ModelReviewId == -1)
                     {
-							_returnMessage = "Model not found";
+							_returnMessage = "Error, Model not found";
 							//the query above didn't find the current model, so we can't/should not continue...
                         return;
                     }
@@ -1150,7 +1150,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (rowcount == 0)
             {
-                _returnMessage = "Zero rows to score!";
+                _returnMessage = "Error, Zero rows to score!";
                 return;
             }
 

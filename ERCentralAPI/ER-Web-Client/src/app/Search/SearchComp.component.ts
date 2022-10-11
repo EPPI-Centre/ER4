@@ -678,6 +678,16 @@ export class SearchComp implements OnInit, OnDestroy {
             hideAfter: 3000
           });
         }
+        else if ((res as string).startsWith("Error") ) {
+          this.notificationService.show({
+            content: 'Job Submitted, but returned an error. Please try again, if it happens again, please contact EPPISupport.',
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "error", icon: true },
+            closable: true,
+            hideAfter: 3000
+          });
+        }
         else {
           this.notificationService.show({
             content: 'Job Submitted, with status: ' + res + '.',
