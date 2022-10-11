@@ -658,7 +658,7 @@ export class SearchComp implements OnInit, OnDestroy {
       let res = await this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 
       if (res != false) {//we get "false" if an error happened...
-        if (res == "Successful upload of data") {
+        if (res == "Successful upload of data" || res == "The data will be submitted and scored. Please monitor the list of search results for output.") {
           this.notificationService.show({
             content: 'Job Submitted. Results will appear as search results (please refresh them in a few minutes)',
             animation: { type: 'slide', duration: 400 },
