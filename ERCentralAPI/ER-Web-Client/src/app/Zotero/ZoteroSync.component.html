@@ -1,178 +1,163 @@
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 <div class="container col-12">
-	<div class="col-12 row card-footer">
-		<div class="col-12 col-md-3 font-weight-light text-sm-left text-black-50 align-content-center">
-			<h3><b>ERWeb Objects </b></h3>
-			<i>(When items are available below press push to send them to Zotero)</i>
-		</div>
-		<div class="col-12 col-md-2">
-			<button 
-					class="col-md-5 btn btn-warning m-1 p-1"
-					(click)="PushERWebItems()">
-				&nbsp;&nbsp;
-				<i class="fa fa-long-arrow-right">PUSH &nbsp;</i>
-			</button>
-		</div>
-		<div class="col-12 col-md-3 font-weight-light text-sm-left align-content-lg-start text-black-50 row p-2 ml-2">
-			<h3><b>&nbsp;Zotero Objects</b></h3>
-			<i>(When items are available below press pull to insert them into ERWeb)</i>
-
-		</div>
-		<div class="col-12 col-md-2">
-			<button *ngIf="!IsServiceBusy" class="col-md-6 btn btn-success mx-1 mt-auto "
-							[disabled]="!HasRunMetaInfo"
-							(click)="PullConfirmZoteroItems()">
-				<i class="fa fa-long-arrow-left" aria-hidden="true">PULL &nbsp;</i>
-			</button>
-		</div>
-	</div>
-
-	<div class="col-12 row card-footer container-fluid">
-		<div ngbDropdown class="col-12 col-md-4 row">
-			<div class="col-md-6 font-weight-light text-sm-left text-white align-content-center">
-			</div>
-			<div class="col-12 col-md-12 row">
-				<div class="col-md-8">
-					<ol>
-						<li>The left table will show items in ERWeb only</li>
-						<li>The middle table will show items that are in both Zotero and ERWeb</li>
-						<li>The right table will show items in Zotero only</li>
-					</ol>
-				</div>
-				<button class="btn btn-primary m-2 p-1 col-md-5"
-								(click)="getErWebObjects()">
-					&nbsp;Current Status&nbsp;
-				</button>
-
-				<div class="col-md-1">
-				</div>
-
-			</div>
-			<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-md-5 p-1 m-1" id="dropdownTree"
-							(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
-							[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 50px;">
-				&nbsp;{{CurrentDropdownSelectedCode?.name}}
-			</button>
-			<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-				<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
-												 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-			</div>
-		</div>
-		<div *ngIf="itemsWithThisCode.length > 0" class="font-weight-bold text-sm-left text-black-50 align-content-center col-md-12">
-			Items With this Code has {{ObjectsInERWebNotInZotero.length}} items
-		</div>
-		<div class="col-12 col-md-4">
-		</div>
-		<div class="col-12 col-md-4">
-		</div>
-	</div>
-	<div class="col-12 row">
-		<div class="col-md-6 flex-column pull-left">
-			<div class="col-md-12 alert-primary card" *ngIf="ZoteroERWebReviewItemList.length > 0">
-				<h6><b>Items with this code</b></h6>
-				<div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
-					<table class="table table-sm table-striped p-2 m-2">
-						<thead>
-							<tr>
-								<th>ItemId</th>
-								<th>ItemReviewId</th>
-								<th>Short Title</th>
-								<th>attach?</th>
-								<th>state</th>
-							</tr>
-						</thead>
-						<tbody *ngFor="let object of ZoteroERWebReviewItemList; index as i">
-							<tr>
-								<td>
-									{{ object.itemID}}
-								</td>
-								<td>
-									{{ object.iteM_REVIEW_ID}}
-								</td>
-								<td>
-									{{ object.shortTitle}}
-								</td>
-								<td>
-									<div class="bg-warning" *ngIf="!object.HasPdf">
-										No Docs
-									</div>
-									<div class="bg-success" *ngIf="object.HasPdf">
-										Doc(s)
-										<ng-container [ngSwitch]="object.HasPdfToPush">
-											<div *ngSwitchCase="true" class="k-icon k-i-arrow-right k-color-info"></div>
-											<div *ngSwitchCase="false" class="k-icon k-i-success k-color-info"></div>
-											<div *ngSwitchDefault>Uh??</div>
-										</ng-container>
-									</div>
-								</td>
-								<td>
-									<ng-container [ngSwitch]="object.syncState">
-										<div *ngSwitchCase="0" class="">N/A</div>
-										<div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
-										<div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
-										<div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info"></div>
-									</ng-container>
-								</td>
-
-							</tr>
-					</table>
-				</div>
-			</div>
-		</div>
-
-    <div class="col-md-6 flex-column pull-right">
-      <div *ngIf="_zoteroService.hasPermissions">
-        <div class="col-12 alert-primary  card" *ngIf="ObjectZoteroList.length > 0">
-          <h6><b>Items in the Zotero group </b></h6>
-          <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
-            <table class="table table-sm table-striped p-2 m-2">
-              <thead>
-                <tr>
-                  <th>Sync State</th>
-                  <th>Object Key</th>
-                  <th>Short Title</th>
-                  <th>ItemType</th>
-                  <th>Attachment</th>
-                </tr>
-              </thead>
-              <tbody *ngFor="let object of ObjectZoteroList">
-                <tr>
-                  <td>
-                    <ng-container [ngSwitch]="object.syncState">
-                      <div *ngSwitchCase="0" class="">N/A</div>
-                      <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
-                      <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
-                      <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info"></div>
-                    </ng-container>
-                  </td>
-                  <td>
-                    {{object.key}}
-                  </td>
-                  <td>
-                    {{object.shortTitle}}
-                  </td>
-                  <td>
-                    {{object.itemType}}
-                  </td>
-                  <td>
-                    <div class="bg-warning" *ngIf="!object.HasAttachments">
-                      No Attachment
-                    </div>
-                    <div class="bg-success" *ngIf="object.HasAttachments">
-                      Attachment(s)
-                      <ng-container [ngSwitch]="object.HasAttachmentsToPull">
-                        <div *ngSwitchCase="true" class="k-icon k-i-arrow-left k-color-info"></div>
-                        <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info"></div>
-				        <div *ngSwitchDefault>Uh??</div>
-                      </ng-container>
-                    </div>
-                  </td>
-                </tr>
-            </table>
-          </div>
+  <div class="col-12 border-top border-dark">
+    This page allows to exchance data with a <strong>Zotero group library</strong>.<br />
+    <!--<span>The library that this review is connected to is called: {{NameOfCurrentLibrary}}.</span><br />-->
+    You can <strong>push Items</strong> into the Zotero Group Library, by selecting "Items with this code", below.<br />
+    You can also <strong>pull Items</strong> from Zotero and into EPPI-Reviewer. New items will be imported as part of a "new source".<br />
+    To <strong>avoid accidental deletions</strong>, this page does not delete data on either side: pulling and pushing will create or update records, depending on their status.
+  </div>
+  <div class="col-12 row border-top border-dark mx-0">
+    <div class="col-12 col-md-6 px-0">
+      To push items, select a code and from the dropdown and click Get Status
+    </div>
+    <div class="col-12 col-md-6 px-0">
+      To pull items, click on the pull button.
+    </div>
+  </div>
+  <div class="col-12 row mx-0">
+    <div class="col-auto border border-info p-1 rounded bg-light">
+      <div>Step 1, select a code:</div>
+      <div ngbDropdown>
+        <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
+                (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
+                [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 100px;">
+          &nbsp;{{CurrentDropdownSelectedCode?.name}}
+        </button>
+        <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+          <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
+                           (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
         </div>
       </div>
+    </div>
+    <div class="col-auto border border-info p-1 rounded bg-light ml-1">
+      <div>Step 2: click "Get Status"</div>
+      <button class="btn btn-primary m-2 p-1"
+              (click)="getErWebObjects()">
+        Get Status
+      </button>
+    </div>
+  </div>
+
+  <div class="col-12 row">
+    <div class="col-12 col-md-6">
+      <div class="col-md-12 alert-primary card" *ngIf="ZoteroERWebReviewItemList.length > 0">
+        <div class="row mt-1">
+          <div class="my-auto mx-2 h5 font-weight-bold">Items with this code</div>
+          <button class="btn btn-success my-auto ml-auto mr-1 px-1 py-0" (click)="PushERWebItems()"
+                  [disabled]="ItemsToPushCount < 1">
+            <span class="my-auto mx-1">Push</span>
+            <span class="k-icon k-i-arrow-right k-color-info k-icon-md"></span>
+          </button>
+        </div>
+        <div class="col-12">
+          There are {{ZoteroERWebReviewItemList.length}} "Items With this Code". Of these, <strong>{{ItemsToPushCount}} items</strong> can be pushed (including those that only have a pusheable uploaded document).
+        </div>
+        <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
+          <table class="table table-sm table-striped p-2 m-2">
+            <thead>
+              <tr>
+                <th>ItemId</th>
+                <th>Short Title</th>
+                <th>attach?</th>
+                <th>state</th>
+              </tr>
+            </thead>
+            <tbody *ngFor="let object of ZoteroERWebReviewItemList; index as i">
+              <tr>
+                <td>
+                  {{ object.itemID}}
+                </td>
+                <td>
+                  {{ object.shortTitle}}
+                </td>
+                <td>
+                  <div class="bg-warning" *ngIf="!object.HasPdf">
+                    No Docs
+                  </div>
+                  <div class="bg-success" *ngIf="object.HasPdf">
+                    Doc(s)
+                    <ng-container [ngSwitch]="object.HasPdfToPush">
+                      <div *ngSwitchCase="true" class="k-icon k-i-arrow-right k-color-info"></div>
+                      <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info"></div>
+                      <div *ngSwitchDefault>Uh??</div>
+                    </ng-container>
+                  </div>
+                </td>
+                <td>
+                  <ng-container [ngSwitch]="object.syncState">
+                    <div *ngSwitchCase="0" class="">N/A</div>
+                    <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
+                    <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
+                    <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info"></div>
+                  </ng-container>
+                </td>
+
+              </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="col-12 alert-primary card" *ngIf="ObjectZoteroList.length > 0">
+        <div class="row mt-1">
+          <button *ngIf="!IsServiceBusy" class="btn btn-success my-auto ml-1 mr-auto px-1 py-0" [disabled]="!HasRunMetaInfo"
+                  (click)="PullConfirmZoteroItems()">
+            <span class="k-icon k-i-arrow-left k-color-info k-icon-md"></span>
+            <span class="my-auto mx-1">Pull</span>
+          </button>
+          <div class="my-auto mx-2 h5 font-weight-bold">Items in Zotero</div>
+        </div>
+        <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
+          <table class="table table-sm table-striped p-2 m-2">
+            <thead>
+              <tr>
+                <th>Sync State</th>
+                <th>Object Key</th>
+                <th>Short Title</th>
+                <th>ItemType</th>
+                <th>Attachment</th>
+              </tr>
+            </thead>
+            <tbody *ngFor="let object of ObjectZoteroList">
+              <tr>
+                <td>
+                  <ng-container [ngSwitch]="object.syncState">
+                    <div *ngSwitchCase="0" class="">N/A</div>
+                    <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
+                    <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
+                    <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info"></div>
+                  </ng-container>
+                </td>
+                <td>
+                  {{object.key}}
+                </td>
+                <td>
+                  {{object.shortTitle}}
+                </td>
+                <td>
+                  {{object.itemType}}
+                </td>
+                <td>
+                  <div class="bg-warning" *ngIf="!object.HasAttachments">
+                    No Attachment
+                  </div>
+                  <div class="bg-success" *ngIf="object.HasAttachments">
+                    Attachment(s)
+                    <ng-container [ngSwitch]="object.HasAttachmentsToPull">
+                      <div *ngSwitchCase="true" class="k-icon k-i-arrow-left k-color-info"></div>
+                      <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info"></div>
+                      <div *ngSwitchDefault>Uh??</div>
+                    </ng-container>
+                  </div>
+                </td>
+              </tr>
+          </table>
+        </div>
+      </div>
+
       <ng-template #elseBlock>Content to render when value is null.</ng-template>
     </div>
-	</div>
+  </div>
 </div>
