@@ -543,8 +543,8 @@ namespace BusinessLibrary.BusinessClasses
 										}
 									}
 								}
-							}
 							command.Cancel();
+							}
 						}
 					} 
 					catch(Exception ex)
