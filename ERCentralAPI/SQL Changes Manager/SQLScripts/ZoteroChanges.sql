@@ -1,12 +1,12 @@
 ﻿USE [Reviewer]
 GO
 
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM]
-GO
-
 /****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 08/10/2022 14:58:31 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_REVIEW]') AND type in (N'U'))
+BEGIN
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM]
 DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+END
 GO
 
 /****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 08/10/2022 14:58:31 ******/
@@ -103,8 +103,14 @@ GO
 
 USE [Reviewer]
 GO
+IF EXISTS (select * from INFORMATION_SCHEMA.TABLE_CONSTRAINTS where CONSTRAINT_TYPE='FOREIGN KEY' and CONSTRAINT_NAME = 'FK__TB_ZOTERO__ITEM___5DCC36FF')
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT] DROP CONSTRAINT [FK__TB_ZOTERO__ITEM___5DCC36FF]
 
+IF EXISTS (select * from INFORMATION_SCHEMA.TABLE_CONSTRAINTS where CONSTRAINT_TYPE='FOREIGN KEY' and CONSTRAINT_NAME = 'FK__TB_ZOTERO__ItemD__569E7FD5')
 ALTER TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT] DROP CONSTRAINT [FK__TB_ZOTERO__ItemD__569E7FD5]
+GO
+IF EXISTS (select * from INFORMATION_SCHEMA.TABLE_CONSTRAINTS where CONSTRAINT_TYPE='FOREIGN KEY' and CONSTRAINT_NAME = 'FK__TB_ZOTERO__ITEM___25FB487A')
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_DOCUMENT] DROP CONSTRAINT [FK__TB_ZOTERO__ITEM___25FB487A]
 GO
 
 /****** Object:  Table [dbo].[TB_ZOTERO_ITEM_DOCUMENT]    Script Date: 09/10/2022 15:49:56 ******/
@@ -727,7 +733,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-ALTER     Procedure [dbo].[st_ZoteroERWebReviewItemList]
+CREATE OR ALTER     Procedure [dbo].[st_ZoteroERWebReviewItemList]
 (
 	@AttributeId bigint,
 	@ReviewId int
@@ -737,9 +743,19 @@ Begin
   declare @ids table (ItemId bigint, ITEM_REVIEW_ID bigint, Primary key(ItemId, ITEM_REVIEW_ID))
 
   --to start, find the itemIDs we want, we'll use this table for both results we return
-  Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
-  inner join TB_ITEM_ATTRIBUTE tia on ir.REVIEW_ID = @ReviewId and tia.ATTRIBUTE_ID = @AttributeId and ir.ITEM_ID = tia.ITEM_ID and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
-  inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+  if @AttributeId > 0
+  BEGIN
+	--getting "items with this code", this is used to drive the "left side" table in the UI, showing what can be done with Items to the user
+	  Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
+	  inner join TB_ITEM_ATTRIBUTE tia on ir.REVIEW_ID = @ReviewId and tia.ATTRIBUTE_ID = @AttributeId and ir.ITEM_ID = tia.ITEM_ID and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
+	  inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+  END
+  ELSE
+  BEGIN
+	--no meaningful @AttributeId, so we get ALL items known to be present in Zotero, this is used to find out the sync state of refs present on the Zotero side.
+	Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
+	inner join TB_ZOTERO_ITEM_REVIEW zi on ir.REVIEW_ID = @ReviewId and ir.ITEM_REVIEW_ID = zi.ITEM_REVIEW_ID --and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
+  END
 
   --first set of results, the data we want about ITEMs
   select I.ITEM_ID, I.DATE_EDITED,zi.TypeName,ids.ITEM_REVIEW_ID, zi.Zotero_item_review_ID, zi.ItemKey, zi.LibraryID, zi.[Version], zi.LAST_MODIFIED, I.TITLE, I.SHORT_TITLE
@@ -796,11 +812,11 @@ as
 Begin
 
 	DELETE FROM [dbo].[TB_ZOTERO_ITEM_DOCUMENT]
-	WHERE ITEM_DOCUMENT_ID in (
+	WHERE ItemDocumentId in (
 		select id.ITEM_DOCUMENT_ID from TB_ITEM_REVIEW ir 
 		inner join TB_ITEM_DOCUMENT id on ir.REVIEW_ID = @ReviewId and ir.ITEM_ID = id.ITEM_ID
-		inner join TB_ZOTERO_ITEM_DOCUMENT zi on  id.ITEM_DOCUMENT_ID = zi.ITEM_DOCUMENT_ID
-		inner join dbo.fn_Split(@DocumentKeys, ',') s on s.value = zi.FileKey
+		inner join TB_ZOTERO_ITEM_DOCUMENT zi on  id.ITEM_DOCUMENT_ID = zi.ItemDocumentId
+		inner join dbo.fn_Split(@DocumentKeys, ',') s on s.value = zi.DocZoteroKey
 	)
 	   
 End
