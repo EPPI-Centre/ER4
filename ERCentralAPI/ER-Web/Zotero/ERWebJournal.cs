@@ -46,9 +46,9 @@ namespace ERxWebClient2.Zotero
                 journal.callNumber = "";
                 journal.archiveLocation = _item.Country;
                 journal.DOI = _item.DOI;
-                journal.date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                journal.date = _item.Year;
                 journal.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-                journal.dateModified = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+                journal.dateModified = ((DateTime)_item.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
                 journal.series = _item.Edition;
                 journal.extra = "";
                 journal.language = _item.Country;
