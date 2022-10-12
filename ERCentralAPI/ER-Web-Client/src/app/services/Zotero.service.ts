@@ -312,7 +312,8 @@ export class ZoteroService extends BusyAwareService {
               let ZI = this._ZoteroItems[ind];
               let dateER = new Date(zri.lasT_MODIFIED);
               let dateZT = new Date(ZI.dateModified);
-              let dateZTwithOffset = this.AddOffsetTimeToDate(dateZT, 5);//the "last modified" timestamp on ER will come a tad later than the same field on Zotero (we update things on zotero first!)
+              let dateZTwithOffset = this.AddOffsetTimeToDate(dateZT, 5);//zoteroTime comes with precision to Seconds, ER time to milliseconds.
+              //Hence, zoterotime is ~always (999 times out of 1000) less than ER time. We add 5 seconds to zoterotime and then look at intervalse
 
               if (dateER > dateZTwithOffset) {
                 //zri.syncState = SyncState.canPush;
@@ -383,10 +384,10 @@ export class ZoteroService extends BusyAwareService {
     DocKeys = DocKeys.substring(0, DocKeys.length - 1);
     this.deleteERZoterolinkstoItemsAndDocs(ItemKeys, DocKeys);
   }
-  private AddOffsetTimeToDate(indate: Date, minsToAdd: number) {
+  private AddOffsetTimeToDate(indate: Date, secsToAdd: number) {
     //snatched from: https://code.tutsplus.com/tutorials/how-to-add-and-subtract-time-from-a-date-in-javascript--cms-37207
     var numberOfMlSeconds = indate.getTime();
-    var addMlSeconds = minsToAdd * 60 * 1000;
+    var addMlSeconds = secsToAdd * 1000;
     var newDateObj = new Date(numberOfMlSeconds + addMlSeconds);
     return newDateObj;
   }
@@ -453,7 +454,8 @@ export class ZoteroService extends BusyAwareService {
               let ZI = this._ZoteroItems[ind];
               let dateER = new Date(zri.lasT_MODIFIED);
               let dateZT = new Date(ZI.dateModified);
-              let dateZTwithOffset = this.AddOffsetTimeToDate(dateZT, 5);//the "last modified" timestamp on ER will come a tad later than the same field on Zotero (we update things on zotero first!)
+              let dateZTwithOffset = this.AddOffsetTimeToDate(dateZT, 5);//zoteroTime comes with precision to Seconds, ER time to milliseconds.
+              //Hence, zoterotime is ~always (999 times out of 1000) less than ER time. We add 5 seconds to zoterotime and then look at intervals
 
               if (dateER > dateZTwithOffset) {
                 zri.syncState = SyncState.canPush;

@@ -109,6 +109,31 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemIDProperty, value);
             }
         }
+        public static readonly PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("SHORT_TITLE", "SHORT_TITLE", ""));
+        public string ShortTitle
+        {
+            get
+            {
+                return GetProperty(ShortTitleProperty);
+            }
+            set
+            {
+                SetProperty(ShortTitleProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("TITLE", "TITLE", ""));
+        public string Title
+        {
+            get
+            {
+                return GetProperty(TitleProperty);
+            }
+            set
+            {
+                SetProperty(TitleProperty, value);
+            }
+        }
 
 
         public static readonly PropertyInfo<DateTime> LAST_MODIFIEDProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LAST_MODIFIED", "LAST_MODIFIED", DateTime.Now));
@@ -183,6 +208,8 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
                             LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
                             LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
+                            LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
+                            LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
                             MarkOld();
                         }
                     }
@@ -273,6 +300,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("DATE_EDITED"));
             returnValue.LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
+            returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
+            returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
             returnValue.MarkOld();
 
             return returnValue;
