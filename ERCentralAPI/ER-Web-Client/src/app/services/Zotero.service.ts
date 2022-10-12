@@ -331,11 +331,11 @@ export class ZoteroService extends BusyAwareService {
               //THIRD: given the PDFs in this zri , do they still exist on the Zotero end? If not, we'll delete them
               //otherwise, if they do exist, we can't pull them!
               for (let att of zri.pdfList) {
-                let attInd = AttachKeys.findIndex(f => f == att.doc_Zotero_Key);
+                let attInd = AttachKeys.findIndex(f => f == att.docZoteroKey);
                 if (attInd == -1) ToDeleteAttachments.push(att);
                 else {//attachments in elements of _ZoteroItems are created as canPull, but we can't pull this one, as it exists on both sides
                   for (const zit of this._ZoteroItems) {
-                    let zatt = zit.FindAttachmentByZoteroKey(att.doc_Zotero_Key);
+                    let zatt = zit.FindAttachmentByZoteroKey(att.docZoteroKey);
                     if (zatt !== null) {
                       zit.syncState = SyncState.upToDate;
                       break;
@@ -378,7 +378,7 @@ export class ZoteroService extends BusyAwareService {
     }
     ItemKeys = ItemKeys.substring(0, ItemKeys.length - 1);
     for (let doc of ToDeleteAttachments) {
-      DocKeys += doc.doc_Zotero_Key + ",";
+      DocKeys += doc.docZoteroKey + ",";
     }
     DocKeys = DocKeys.substring(0, DocKeys.length - 1);
     this.deleteERZoterolinkstoItemsAndDocs(ItemKeys, DocKeys);
@@ -471,9 +471,9 @@ export class ZoteroService extends BusyAwareService {
 
               //do the same for PDFs/attachments in this zri...
               for (const erDoc of zri.pdfList) {
-                if (erDoc.doc_Zotero_Key != "") {
+                if (erDoc.docZoteroKey != "") {
                   for (const zit of this._ZoteroItems) {
-                    let zatt = zit.FindAttachmentByZoteroKey(erDoc.doc_Zotero_Key);
+                    let zatt = zit.FindAttachmentByZoteroKey(erDoc.docZoteroKey);
                     if (zatt !== null) {
                       erDoc.syncState = SyncState.upToDate;
                       break;

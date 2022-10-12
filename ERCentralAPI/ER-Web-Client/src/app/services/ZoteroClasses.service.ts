@@ -481,7 +481,7 @@ export interface iZoteroERWebReviewItem {
   version: number;
 }
 export interface iZoteroERWebItemDoc {
-  doc_Zotero_Key: string;
+  docZoteroKey: string;
   documenT_TITLE: string;
   item_Document_Id: number;
   syncState: SyncState;
@@ -533,11 +533,11 @@ export class ZoteroERWebReviewItem {
 export class ZoteroERWebItemDoc {
   constructor(data: iZoteroERWebItemDoc) {
     this.documenT_TITLE = data.documenT_TITLE;
-    this.doc_Zotero_Key = data.doc_Zotero_Key;
+    this.docZoteroKey = data.docZoteroKey;
     this.item_Document_Id = data.item_Document_Id;
     this.syncState = data.syncState;
   }
-  doc_Zotero_Key: string;
+  docZoteroKey: string;
   documenT_TITLE: string;
   item_Document_Id: number;
   syncState: SyncState;
