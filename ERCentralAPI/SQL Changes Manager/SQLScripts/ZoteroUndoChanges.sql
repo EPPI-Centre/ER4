@@ -42,6 +42,23 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroItem
 DROP PROCEDURE [dbo].[st_ZoteroItemReviewCreate]
 GO
 
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemInERWebANDZotero]    Script Date: 16/09/2021 20:05:59 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ItemInERWebANDZotero')
+DROP PROCEDURE [dbo].[st_ItemInERWebANDZotero]
+GO
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemDocumentCreate]    Script Date: 16/09/2021 20:05:59 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroItemDocumentCreate')
+DROP PROCEDURE [dbo].[st_ZoteroItemDocumentCreate]
+GO
+
 USE [Reviewer]
 GO
 

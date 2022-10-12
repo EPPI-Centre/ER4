@@ -110,32 +110,6 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("SHORT_TITLE", "SHORT_TITLE", ""));
-        public string ShortTitle
-        {
-            get
-            {
-                return GetProperty(ShortTitleProperty);
-            }
-            set
-            {
-                SetProperty(ShortTitleProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("TITLE", "TITLE", ""));
-        public string Title
-        {
-            get
-            {
-                return GetProperty(TitleProperty);
-            }
-            set
-            {
-                SetProperty(TitleProperty, value);
-            }
-        }
-
 
         public static readonly PropertyInfo<DateTime> LAST_MODIFIEDProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LAST_MODIFIED", "LAST_MODIFIED", DateTime.Now));
         public DateTime LAST_MODIFIED
@@ -209,8 +183,6 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
                             LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
                             LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
-                            LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
-                            LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
                             MarkOld();
                         }
                     }
@@ -239,8 +211,6 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(ItemIDProperty)));
                     command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(iteM_REVIEW_IDProperty)));
-                    command.Parameters.Add(new SqlParameter("@TITLE", ReadProperty(TitleProperty)));
-                    command.Parameters.Add(new SqlParameter("@SHORT_TITLE", ReadProperty(ShortTitleProperty)));
                     command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
                     command.ExecuteNonQuery();
 
@@ -267,8 +237,6 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(ItemIDProperty)));
                     command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(iteM_REVIEW_IDProperty)));
-                    command.Parameters.Add(new SqlParameter("@TITLE", ReadProperty(TitleProperty)));
-                    command.Parameters.Add(new SqlParameter("@SHORT_TITLE", ReadProperty(ShortTitleProperty)));
                     command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
                     command.ExecuteNonQuery();
                 }
@@ -304,8 +272,6 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
             returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("DATE_EDITED"));
             returnValue.LoadProperty<long>(ItemIDProperty, reader.GetInt64("ITEM_ID"));
-            returnValue.LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
-            returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
             returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
             returnValue.MarkOld();
 

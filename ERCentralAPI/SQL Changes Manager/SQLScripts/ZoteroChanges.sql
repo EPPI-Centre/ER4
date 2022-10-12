@@ -22,8 +22,6 @@ CREATE TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW](
 	[LibraryID] [nvarchar](50) NOT NULL,
 	[ITEM_ID] [bigint] NOT NULL,
 	[Version] [bigint] NULL,
-	[TITLE] [nvarchar](50) NOT NULL,
-	[SHORT_TITLE] [nvarchar](50) NOT NULL,
 	[ITEM_REVIEW_ID] [bigint] NOT NULL,
 	[LAST_MODIFIED] [datetime] NULL,
 	[TypeName] [nvarchar](50) NULL
@@ -163,8 +161,6 @@ CREATE OR ALTER       Procedure [dbo].[st_ItemReviewZoteroUpdate](
 @ITEM_REVIEW_ID bigint NULL, 
 @Version nvarchar(50) NULL, 
 @LAST_MODIFIED date NULL,
-@SHORT_TITLE nvarchar(50) NULL,
-@TITLE nvarchar(50) NULL,
 @TypeName nvarchar(50) NULL)
 as
 BEGIN
@@ -175,9 +171,7 @@ BEGIN
 		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
 		[Version] =@Version, 
 		[LAST_MODIFIED] =@LAST_MODIFIED,
-		[TypeName] = @TypeName,
-		[SHORT_TITLE] = @SHORT_TITLE,
-		[TITLE] = @TITLE
+		[TypeName] = @TypeName
         WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
 END
 
@@ -233,8 +227,6 @@ CREATE OR ALTER Procedure [dbo].[st_ZoteroItemReviewCreate](
 @ItemKey nvarchar(50) NULL,
 @LibraryID nvarchar(50) NULL, 
 @Version nvarchar(50) NULL, 
-@TITLE nvarchar(50) NULL, 
-@SHORT_TITLE nvarchar(50) NULL, 
 @LAST_MODIFIED date NULL,
 @ITEM_ID BIGINT NULL,
 @ITEM_REVIEW_ID BIGINT NULL,
@@ -245,8 +237,8 @@ Begin
 
 	INSERT INTO [dbo].[TB_ZOTERO_ITEM_REVIEW]([ItemKey], 
 	[LibraryID],[ITEM_ID],[ITEM_REVIEW_ID], [Version], 
-	[LAST_MODIFIED], [TypeName], [TITLE], [SHORT_TITLE])
-	VALUES(@ItemKey, @LibraryID,@ITEM_ID, @ITEM_REVIEW_ID, @Version, @LAST_MODIFIED, @TypeName, @TITLE, @SHORT_TITLE)
+	[LAST_MODIFIED], [TypeName])
+	VALUES(@ItemKey, @LibraryID,@ITEM_ID, @ITEM_REVIEW_ID, @Version, @LAST_MODIFIED, @TypeName)
 	   
 End
 
@@ -254,7 +246,7 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 08/10/2022 14:44:22 ******/
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewUpdate]    Script Date: 08/10/2022 14:44:22 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -267,8 +259,6 @@ CREATE OR ALTER       Procedure [dbo].[st_ZoteroItemReviewUpdate](
 @LibraryID nvarchar(50) NULL, 
 @ITEM_REVIEW_ID bigint NULL, 
 @Version nvarchar(50) NULL, 
-@TITLE nvarchar(50) NULL, 
-@SHORT_TITLE nvarchar(50) NULL, 
 @LAST_MODIFIED date NULL,
 @TypeName nvarchar(50) NULL)
 as
@@ -279,9 +269,7 @@ BEGIN
 		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
 		[Version] =@Version, 
 		[LAST_MODIFIED] =@LAST_MODIFIED,
-		[TypeName] = @TypeName,
-		[TITLE] = @TITLE,
-		[SHORT_TITLE] = @SHORT_TITLE
+		[TypeName] = @TypeName
         WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
 END
 

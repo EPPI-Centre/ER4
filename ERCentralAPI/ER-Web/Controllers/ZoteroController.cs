@@ -511,9 +511,7 @@ namespace ERxWebClient2.Controllers
                     LAST_MODIFIED = DateTime.Now,
                     LibraryID = libraryId,
                     Version = version,
-                    TypeName = middleManElement.TypeName,
-                    ShortTitle = middleManElement.ShortTitle,
-                    Title = middleManElement.Title
+                    TypeName = middleManElement.TypeName
                 };
 
                 zoteroItemToInsert = dp.Execute(zoteroItemToInsert);       
