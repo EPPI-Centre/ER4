@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Subscription } from 'rxjs';
@@ -13,7 +13,7 @@ import { Group, ZoteroReviewCollectionList } from '../services/ZoteroClasses.ser
     providers: []
 })
 
-export class ZoteroManagerComponent implements AfterViewInit {
+export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
 
 
     constructor(
@@ -128,7 +128,8 @@ export class ZoteroManagerComponent implements AfterViewInit {
     ngOnDestroy() {
       if (this.errorInPathSub) {
         this.errorInPathSub.unsubscribe();
-        }
+      }
+      this._zoteroService.Clear();
     }
     public BackHome() {
         this._router.navigate(['Main']);

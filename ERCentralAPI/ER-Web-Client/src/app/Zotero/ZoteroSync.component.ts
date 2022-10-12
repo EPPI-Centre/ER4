@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -21,7 +21,7 @@ import {
   providers: []
 })
 
-export class ZoteroSyncComponent implements OnInit {
+export class ZoteroSyncComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private _notificationService: NotificationService,
@@ -160,6 +160,10 @@ export class ZoteroSyncComponent implements OnInit {
   public get ItemsToPushCount(): number {
     return this._zoteroService.ZoteroERWebReviewItemList.filter(f=> f.syncState == SyncState.canPush || f.HasPdfToPush).length;
   }
+  public get ItemsToPullCount(): number {
+    return this.ObjectZoteroList.filter(f => f.syncState == SyncState.canPull || f.HasAttachmentsToPull).length;
+  }
+
   public get NameOfCurrentLibrary() {
     return this._zoteroService.NameOfCurrentLibrary;
   }
@@ -607,8 +611,16 @@ export class ZoteroSyncComponent implements OnInit {
 
   async PushERWebItems() {
 
-    await this._zoteroService.PushZoteroErWebReviewItemList();
-
+    const res1 = await this._zoteroService.PushZoteroErWebReviewItemList();
+    if (res1 == true) {
+      const res2 = await this._zoteroService.fetchZoteroObjectVersionsAsync();
+      if (res2 == true) {
+        let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
+        if (CurrentDropdownSelectedCode !== null) {
+          this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString());
+        }   
+      }
+    }
     //this.Pushing = true;
     //await this.fetchERWebAndZoteroAlreadySyncedItems();
     //await this.PushAndCallStatus();
@@ -832,6 +844,7 @@ export class ZoteroSyncComponent implements OnInit {
   }
 
   ngOnDestroy() {
+    
   }
 
   get HasRunMetaInfo(): boolean {

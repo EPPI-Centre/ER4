@@ -50,7 +50,7 @@
             <span class="k-icon k-i-arrow-right k-color-info k-icon-md"></span>
           </button>
         </div>
-        <div class="col-12">
+        <div class="col-12 small">
           There are {{ZoteroERWebReviewItemList.length}} "Items With this Code". Of these, <strong>{{ItemsToPushCount}} items</strong> can be pushed (including those that only have a pusheable uploaded document).
         </div>
         <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
@@ -59,12 +59,12 @@
               <tr>
                 <th>ItemId</th>
                 <th>Short Title</th>
-                <th>attach?</th>
+                <th>Docs?</th>
                 <th>state</th>
               </tr>
             </thead>
             <tbody *ngFor="let object of ZoteroERWebReviewItemList; index as i">
-              <tr>
+              <tr [ngClass]="{'text-black-50': object.syncState != 2}" class="">
                 <td>
                   {{ object.itemID}}
                 </td>
@@ -78,8 +78,8 @@
                   <div class="bg-success" *ngIf="object.HasPdf">
                     Doc(s)
                     <ng-container [ngSwitch]="object.HasPdfToPush">
-                      <div *ngSwitchCase="true" class="k-icon k-i-arrow-right k-color-info"></div>
-                      <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info"></div>
+                      <div *ngSwitchCase="true" class="k-icon k-i-arrow-right k-color-info" title="Contains documents that can be pushed"></div>
+                      <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info mb-1" title="Documents are Up to Date"></div>
                       <div *ngSwitchDefault>Uh??</div>
                     </ng-container>
                   </div>
@@ -87,9 +87,9 @@
                 <td>
                   <ng-container [ngSwitch]="object.syncState">
                     <div *ngSwitchCase="0" class="">N/A</div>
-                    <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
-                    <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
-                    <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info"></div>
+                    <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
+                    <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
+                    <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
                   </ng-container>
                 </td>
 
@@ -108,26 +108,32 @@
             <span class="my-auto mx-1">Pull</span>
           </button>
           <div class="my-auto mx-2 h5 font-weight-bold">Items in Zotero</div>
+          <button class="btn btn-sm btn-outline-success mx-1 my-auto pb-1 px-1 " (click)="fetchZoteroObjectVersions()" title="Refresh list of Zotero references">
+            <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+          </button>
+        </div>
+        <div class="col-12 small">
+          There are {{ObjectZoteroList.length}} references in the Zotero Group Library. Of these, <strong>{{ItemsToPullCount}} items</strong> can be pulled (including those that only have a pulleable uploaded document).
         </div>
         <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
           <table class="table table-sm table-striped p-2 m-2">
             <thead>
               <tr>
-                <th>Sync State</th>
+                <th>State</th>
                 <th>Object Key</th>
                 <th>Short Title</th>
                 <th>ItemType</th>
-                <th>Attachment</th>
+                <th>Docs?</th>
               </tr>
             </thead>
             <tbody *ngFor="let object of ObjectZoteroList">
-              <tr>
+              <tr [ngClass]="{'text-black-50': object.syncState != 3}">
                 <td>
                   <ng-container [ngSwitch]="object.syncState">
                     <div *ngSwitchCase="0" class="">N/A</div>
-                    <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success"></div>
-                    <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info"></div>
-                    <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info"></div>
+                    <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
+                    <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
+                    <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
                   </ng-container>
                 </td>
                 <td>
@@ -141,15 +147,15 @@
                 </td>
                 <td>
                   <div class="bg-warning" *ngIf="!object.HasAttachments">
-                    No Attachment
+                    No Docs
                   </div>
                   <div class="bg-success" *ngIf="object.HasAttachments">
-                    Attachment(s)
                     <ng-container [ngSwitch]="object.HasAttachmentsToPull">
-                      <div *ngSwitchCase="true" class="k-icon k-i-arrow-left k-color-info"></div>
-                      <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info"></div>
-                      <div *ngSwitchDefault>Uh??</div>
+                      <div *ngSwitchCase="true" class="k-icon k-i-arrow-left k-color-info ml-1" title="Contains documents that can be pulled"></div>
+                      <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info mb-1 ml-1" title="Documents are Up to Date"></div>
+                      <div *ngSwitchDefault>?</div>
                     </ng-container>
+                    Doc(s)
                   </div>
                 </td>
               </tr>

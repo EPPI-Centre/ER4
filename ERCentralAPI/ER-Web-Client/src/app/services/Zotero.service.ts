@@ -71,7 +71,8 @@ export class ZoteroService extends BusyAwareService {
   public async PushZoteroErWebReviewItemList(): Promise<boolean> {
 
     this._BusyMethods.push("PushZoteroErWebReviewItemList");
-    return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PushZoteroErWebReviewItemList' , this.ZoteroERWebReviewItemList)
+    const itemsToPush = this.ZoteroERWebReviewItemList.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush);
+    return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PushZoteroErWebReviewItemList', itemsToPush )
       .toPromise().then(result => {
         this.RemoveBusy("PushZoteroErWebReviewItemList");
         return true;
@@ -268,11 +269,11 @@ export class ZoteroService extends BusyAwareService {
       );
     }
 
-    public  fetchZoteroObjectVersionsAsync() {
+    public async fetchZoteroObjectVersionsAsync(): Promise<boolean> {
       this._BusyMethods.push("fetchZoteroObjectVersionsAsync");
       this._ZoteroItems = [];
       return this._httpC.get<iZoteroItemsResult>(this._baseUrl + 'api/Zotero/ZoteroItems')
-        .subscribe(result => {
+        .toPromise().then(result => {
           this.RemoveBusy("fetchZoteroObjectVersionsAsync");
           let AttachKeys: string[] = [];//used to figure out what Attachments are in TB_ZOTERO_ITEM_DOCUMENT, but not present on Zotero end, anymore. We'll delete them
           let ToDeleteItems: ZoteroERWebReviewItem[] = [];//used to track what references are in TB_ZOTERO_ITEM_REVIEW, but not present on Zotero end, anymore. We'll delete them
@@ -338,7 +339,7 @@ export class ZoteroService extends BusyAwareService {
                   for (const zit of this._ZoteroItems) {
                     let zatt = zit.FindAttachmentByZoteroKey(att.docZoteroKey);
                     if (zatt !== null) {
-                      zit.syncState = SyncState.upToDate;
+                      zatt.syncState = SyncState.upToDate;
                       break;
                     }
                   }
@@ -363,13 +364,18 @@ export class ZoteroService extends BusyAwareService {
           if (ToDeleteAttachments.length > 0 || ToDeleteItems.length > 0) {
             this.DeleteEntitiesThatWereDeletedOnZoteroSide(ToDeleteAttachments, ToDeleteItems);
           }
+          return true;
         },
           error => {
             this.modalService.GenericError(error);
             this.RemoveBusy("fetchZoteroObjectVersionsAsync");
-            //return error;
+            return false;
           }
-        );
+      ).catch(caught => {
+        this.modalService.GenericError(caught);
+        this.RemoveBusy("fetchZoteroObjectVersionsAsync");
+        return false;
+      });
   }
   private DeleteEntitiesThatWereDeletedOnZoteroSide(ToDeleteAttachments: ZoteroERWebItemDoc[], ToDeleteItems: ZoteroERWebReviewItem[]) {
     //DELETE records in TB_ZOTERO_ITEM_REVIEW and TB_ZOTERO_ITEM_DOCUMENT
@@ -687,6 +693,8 @@ export class ZoteroService extends BusyAwareService {
     }
 
   public Clear() {
+    this._zoteroERWebReviewItemList = [];
+    this._ZoteroItems = [];
     this.groupMeta = [];
     this._errorMessage = "data not fetched";
     this.hasPermissions = false;
