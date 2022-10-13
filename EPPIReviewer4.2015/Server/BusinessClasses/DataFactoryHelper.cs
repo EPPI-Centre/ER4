@@ -16,8 +16,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-#if !CSLA_NETCORE
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+#if !CSLA_NETCORE
 using Microsoft.Rest.Azure.Authentication;
 #endif
 
@@ -25,15 +25,15 @@ namespace BusinessLibrary.BusinessClasses
 {
     class DataFactoryHelper
     {
-#if (CSLA_NETCORE)
-        public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            //var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
-            throw new NotImplementedException();
-            //return false;
-        }
-#else
+
+        //public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
+        //    CancellationToken cancellationToken = default(CancellationToken))
+        //{
+        //    //var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+        //    throw new NotImplementedException();
+        //    //return false;
+        //}
+
 public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -129,6 +129,6 @@ public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string,
             return true;
         }
 
-#endif
+
     }
 }
