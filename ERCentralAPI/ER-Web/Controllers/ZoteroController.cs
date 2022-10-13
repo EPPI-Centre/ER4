@@ -304,6 +304,9 @@ namespace ERxWebClient2.Controllers
             return res;
         }
 
+
+
+
         [HttpPost("[action]")]
         public async Task<IActionResult> PushZoteroErWebReviewItemList([FromBody] ZoteroERWebReviewItem[] zoteroERWebReviewItems)
         {
@@ -1597,6 +1600,9 @@ namespace ERxWebClient2.Controllers
 
         }
 
+        // TODO going through this to understand how to refactor it to new pattern
+        // where we are syncing via the client
+        // it includes the two below functions and will have to change drastically as it is comparing dates etc.
         [HttpPost("[action]")]
         public async Task<IActionResult> ItemsLocal([FromBody] Collection[] collectionItems)
         {
