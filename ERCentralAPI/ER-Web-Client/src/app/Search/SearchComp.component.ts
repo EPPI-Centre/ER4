@@ -652,7 +652,7 @@ export class SearchComp implements OnInit, OnDestroy {
         this.modelTitle = 'Long COVID binary model';
         this.ModelId = -6;
       } else {
-        return;
+        //return;
       }
       //alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
       let res = await this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
