@@ -323,6 +323,7 @@ export class ZoteroService extends BusyAwareService {
               else if (dateER < dateZT) {
                 //zri.syncState = SyncState.canPull;
                 ZI.syncState = SyncState.canPull;
+                ZI.itemId = zri.itemID;
               }
               else {
                 //zri.syncState = SyncState.upToDate;

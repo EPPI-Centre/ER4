@@ -1439,6 +1439,19 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(HasMAGScoresProperty, value);
             }
         }
+
+        public static readonly PropertyInfo<string> ZoteroKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("ZoteroKey", "ZoteroKey", ""));
+        public string ZoteroKey
+        {
+            get
+            {
+                return GetProperty(ZoteroKeyProperty);
+            }
+            set
+            {
+                SetProperty(ZoteroKeyProperty, value);
+            }
+        }
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };

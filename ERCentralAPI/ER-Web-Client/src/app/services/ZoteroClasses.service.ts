@@ -381,6 +381,7 @@ export class ZoteroItem {
   parentTitle: string = "";
   dateModified: string = "";
   itemType: string = "";
+  itemId: number = 0;
   attachments: ZoteroAttachment[] = [];
   syncState: SyncState = SyncState.notSet;
 }
