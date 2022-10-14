@@ -17,6 +17,7 @@ using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla.Core;
 using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 using static BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 namespace ERxWebClient2.Controllers
 {
