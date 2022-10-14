@@ -129,11 +129,34 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+		public enum ErWebState
+		{
+			notSet,
+			upToDate,
+			canPush,
+			canPull
+		}
+
+		public static readonly PropertyInfo<ErWebState> SyncStateProperty = RegisterProperty<ErWebState>(new PropertyInfo<ErWebState>("SyncState", "SyncState", ErWebState.notSet));
+		public ErWebState SyncState
+		{
+			get
+			{
+				return GetProperty(SyncStateProperty);
+			}
+			set
+			{
+				SetProperty(SyncStateProperty, value);
+			}
+		}
+
+
+
 
 #if !SILVERLIGHT
 
 
-        protected void DataPortal_Fetch(SingleCriteria<ZoteroERWebItemDocument, string> criteria)
+		protected void DataPortal_Fetch(SingleCriteria<ZoteroERWebItemDocument, string> criteria)
         {
             //using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             //{

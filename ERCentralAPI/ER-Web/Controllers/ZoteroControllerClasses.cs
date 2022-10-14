@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using static BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument;
 using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
+using ErWebState = BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument.ErWebState;
 
 namespace ERxWebClient2.Controllers
 {

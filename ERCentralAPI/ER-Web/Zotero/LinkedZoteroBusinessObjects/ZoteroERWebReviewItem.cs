@@ -170,8 +170,22 @@ namespace BusinessLibrary.BusinessClasses
             canPull
         }
 
+		public static readonly PropertyInfo<ErWebState> SyncStateProperty = RegisterProperty<ErWebState>(new PropertyInfo<ErWebState>("SyncState", "SyncState", ErWebState.notSet));
+		public ErWebState SyncState
+		{
+			get
+			{
+				return GetProperty(SyncStateProperty);
+			}
+			set
+			{
+				SetProperty(SyncStateProperty, value);
+			}
+		}
 
-        public static readonly PropertyInfo<MobileList<ZoteroERWebItemDocument>> PdfListProperty = RegisterProperty<MobileList<ZoteroERWebItemDocument>>(new PropertyInfo<MobileList<ZoteroERWebItemDocument>>("PDF_LIST", "PDF_LIST", new MobileList<ZoteroERWebItemDocument>()));
+
+
+		public static readonly PropertyInfo<MobileList<ZoteroERWebItemDocument>> PdfListProperty = RegisterProperty<MobileList<ZoteroERWebItemDocument>>(new PropertyInfo<MobileList<ZoteroERWebItemDocument>>("PDF_LIST", "PDF_LIST", new MobileList<ZoteroERWebItemDocument>()));
         public MobileList<ZoteroERWebItemDocument> PdfList
         {
             get
