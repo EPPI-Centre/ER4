@@ -361,6 +361,10 @@ export class ZoteroItem {
     this.dateModified = t.dateModified;
     this.itemType = t.itemType;
   }
+  public ToZoteroERWebReviewItem(): ZoteroERWebReviewItem {
+    let res = new ZoteroERWebReviewItem(null, this);
+    return res;
+  }
   public get HasAttachments(): boolean {
     if (this.attachments.length == 0) return false;
     else return true;
@@ -476,7 +480,7 @@ export interface iZoteroERWebReviewItem {
   itemKey: string;
   lasT_MODIFIED: string;
   pdfList: iZoteroERWebItemDoc[];
-  shortTitle: number;
+  shortTitle: string;
   syncState: SyncState;
   title: string;
   version: number;
@@ -496,19 +500,45 @@ export enum SyncState {
 }
 
 export class ZoteroERWebReviewItem {
-  constructor(data: iZoteroERWebReviewItem) {
-    this.itemID = data.itemID;
-    this.iteM_REVIEW_ID = data.iteM_REVIEW_ID;
-    this.itemKey = data.itemKey;
-    this.lasT_MODIFIED = data.lasT_MODIFIED;
-    this.shortTitle = data.shortTitle;
-    this.syncState = data.syncState;
-    this.title = data.title;
-    this.version = data.version;
-    this.pdfList = [];
-    for (let ip of data.pdfList) {
-      let pdf = new ZoteroERWebItemDoc(ip);
-      this.pdfList.push(pdf);
+  constructor(data: iZoteroERWebReviewItem | null , data2: ZoteroItem | null = null) {
+    if (data != null) {
+      this.itemID = data.itemID;
+      this.iteM_REVIEW_ID = data.iteM_REVIEW_ID;
+      this.itemKey = data.itemKey;
+      this.lasT_MODIFIED = data.lasT_MODIFIED;
+      this.shortTitle = data.shortTitle;
+      this.syncState = data.syncState;
+      this.title = data.title;
+      this.version = data.version;
+      this.pdfList = [];
+      for (let ip of data.pdfList) {
+        let pdf = new ZoteroERWebItemDoc(ip);
+        this.pdfList.push(pdf);
+      }
+    } else if (data2 != null) {
+      this.itemID = data2.itemId;
+      this.iteM_REVIEW_ID = -1;
+      this.itemKey = data2.key;
+      this.lasT_MODIFIED = data2.dateModified;
+      this.shortTitle = data2.shortTitle;
+      this.syncState = data2.syncState;
+      this.title = data2.title;
+      this.version = -1;
+      this.pdfList = [];
+      for (let ip of data2.attachments) {
+        let pdf = new ZoteroERWebItemDoc(null, ip);
+        this.pdfList.push(pdf);
+      }
+    } else {
+      this.itemID = -1;
+      this.iteM_REVIEW_ID = -1;
+      this.itemKey = "";
+      this.lasT_MODIFIED = "";
+      this.shortTitle = "";
+      this.syncState = SyncState.notSet;
+      this.title = "";
+      this.version = -1;
+      this.pdfList = [];
     }
   }
   public get HasPdf(): boolean {
@@ -525,18 +555,30 @@ export class ZoteroERWebReviewItem {
   itemKey: string;
   lasT_MODIFIED: string;
   pdfList: ZoteroERWebItemDoc[];
-  shortTitle: number;
+  shortTitle: string;
   version: number;
   syncState: SyncState;
   title: string;
 }
 
 export class ZoteroERWebItemDoc {
-  constructor(data: iZoteroERWebItemDoc) {
-    this.documenT_TITLE = data.documenT_TITLE;
-    this.docZoteroKey = data.docZoteroKey;
-    this.item_Document_Id = data.itemDocumentId;
-    this.syncState = data.syncState;
+  constructor(data: iZoteroERWebItemDoc | null, data2: ZoteroAttachment | null = null) {
+    if (data != null) {
+      this.documenT_TITLE = data.documenT_TITLE;
+      this.docZoteroKey = data.docZoteroKey;
+      this.item_Document_Id = data.itemDocumentId;
+      this.syncState = data.syncState;
+    } else if (data2 != null) {
+      this.documenT_TITLE = data2.filename;
+      this.docZoteroKey = data2.key;
+      this.item_Document_Id = -1;
+      this.syncState = data2.syncState;
+    } else {
+      this.documenT_TITLE = "";
+      this.docZoteroKey = "";
+      this.item_Document_Id = -1;
+      this.syncState = SyncState.notSet;
+    }
   }
   docZoteroKey: string;
   documenT_TITLE: string;
