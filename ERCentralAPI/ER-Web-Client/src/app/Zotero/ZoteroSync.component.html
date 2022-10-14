@@ -102,18 +102,18 @@
     <div class="col-12 col-md-6">
       <div class="col-12 alert-primary card" *ngIf="ObjectZoteroList.length > 0">
         <div class="row mt-1">
-          <button *ngIf="!IsServiceBusy" class="btn btn-success my-auto ml-1 mr-auto px-1 py-0" [disabled]="!HasRunMetaInfo"
+          <button *ngIf="!IsServiceBusy" class="btn btn-success my-auto ml-1 mr-auto px-1 py-0" [disabled]="ItemsToPullCount <1 || HasWriteRights == false"
                   (click)="PullConfirmZoteroItems()">
             <span class="k-icon k-i-arrow-left k-color-info k-icon-md"></span>
             <span class="my-auto mx-1">Pull</span>
           </button>
           <div class="my-auto mx-2 h5 font-weight-bold">Items in Zotero</div>
-          <button class="btn btn-sm btn-outline-success mx-1 my-auto pb-1 px-1 " (click)="fetchZoteroObjectVersions()" title="Refresh list of Zotero references">
+          <button class="btn btn-sm btn-outline-success mx-1 my-auto pb-1 px-1 " (click)="RefreshBothTables()" title="Refresh list of Zotero references">
             <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
           </button>
         </div>
         <div class="col-12 small">
-          There are {{ObjectZoteroList.length}} references in the Zotero Group Library. Of these, <strong>{{ItemsToPullCount}} items</strong> can be pulled (including those that only have a pulleable uploaded document).
+          There are {{ObjectZoteroList.length}} references in the Zotero Group Library. Of these, <strong>{{ItemsToPullCount}} item(s)</strong> can be pulled (including those that only have a pulleable uploaded document).
         </div>
         <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
           <table class="table table-sm table-striped p-2 m-2">

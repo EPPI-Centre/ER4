@@ -417,209 +417,47 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   
 
   async PullConfirmZoteroItems(): Promise<void> {
-    //this.Pulling = true;
-
-    //this._zoteroService.fetchZoteroObjectVersionsAsync().then(
-    //  async (objects) => {
-    //    console.log('objects: ' + JSON.stringify(objects));
-    //    this.ObjectZoteroList = objects;
-    //    this.ObjectZoteroList = this.ObjectZoteroList.sort((a, b) => {
-    //      if (a.data.key > b.data.key) {
-    //        return 1;
-    //      }
-
-    //      if (a.data.key < b.data.key) {
-    //        return -1;
-    //      }
-
-    //      return 0;
-    //    });
-    //  }
-    //).then(
-    //  async () => {
-
-    //    var updateOrInsertIntoErWeb: boolean = false;
-    //    for (var i = 0; i < this.objectSyncState.length; i++) {
-    //      if (this.objectSyncState[i].syncState !== SyncState.upToDate) {
-    //        updateOrInsertIntoErWeb = true;
-    //      }
-    //    }
-
-    //    if (updateOrInsertIntoErWeb === false) {
-    //      this._notificationService.show({
-    //        content: "No Zotero object/s to pull",
-    //        animation: { type: 'slide', duration: 400 },
-    //        position: { horizontal: 'center', vertical: 'top' },
-    //        type: { style: "info", icon: true },
-    //        closable: true
-    //      });
-    //      return;
-    //    }
-    //    let msg: string = 'Are you sure you want to pull these object/s into ERWeb? ';
-    //    this._confirmationDialogService.confirm('Zotero Sync', msg, false, '', 'Pull Data')
-    //      .then(async (confirm: boolean) => {
-    //        if (confirm === true) {
-    //          await this.PullZoteroItems();
-
-    //          async () => {
-    //            await this.fetchERWebAndZoteroAlreadySyncedItems();
-    //            await this.checkSyncState();
-    //            await this.getErWebObjects();
-
-    //          }
-
-    //        } else {
-    //          this.Clear();
-    //          this.itemsWithThisCode = this._ItemListService.ItemList.items;
-    //          await this.fetchERWebObjectVersionsAsync().then(
-    //            async () => {
-    //              //await this.fetchZoteroObjectVersionsAsync();
-    //              this.Pulling = false;
-    //            }
-    //          );
-
-    //          return;
-    //        }
-    //      });
-    //  }
-    //)
+    if (this.ItemsToPullCount < 1 || this.HasWriteRights == false) return;
+    this._confirmationDialogService.confirm("Pull Items from Zotero?",
+      "When Pulling, any new items will be imported as a new source. Existing items will be updated.<br />"
+      + "You are about to pull " + this.ItemsToPullCount + " items.", false, ''
+    ).then((confirmed: any) => {
+      if (confirmed) this.PullZoteroItems();
+    });
   }
 
-  async PullZoteroItems(): Promise<void> {
-
-    var arrayOfItemsToPullIntoErWeb: iZoteroJobject[] = [];//this one will change!
-    let arrayOfItemsToPullIntoErWeb2: IZoteroERWebReviewItem[] = [];//we'll be getting this straight from one API call...
-
-
-    if (this.objectKeysExistsNeedingSyncing.length) {
-
-      for (var i = 0; i < this.objectKeysExistsNeedingSyncing.length; i++) {
-        var itemKey = this.objectKeysExistsNeedingSyncing[i];
-        await this._zoteroService.fetchZoteroObjectAsync(itemKey).then(
-          (itemCollection) => {
-            if (arrayOfItemsToPullIntoErWeb.findIndex(x => x.key === itemKey) === -1) {
-              arrayOfItemsToPullIntoErWeb.push(itemCollection);
-            }            
-          });
+  async PullZoteroItems() {
+    let toPull = this._zoteroService.ZoteroItems.filter(f => (f.syncState == SyncState.canPull || f.HasAttachmentsToPull));
+    let pulling: ZoteroERWebReviewItem[] = [];
+    for (let tp of toPull) {
+      let zERi = tp.ToZoteroERWebReviewItem();
+      //we need to remove all PDFs that do NOT need to be pulled
+      const Atts = zERi.pdfList;
+      zERi.pdfList = [];
+      for (let p of Atts) {
+        if (p.syncState == SyncState.canPull) zERi.pdfList.push(p);
       }
-      let errCount = 0;
-      if (arrayOfItemsToPullIntoErWeb.length > 0) {
-        await this._zoteroService.insertZoteroObjectIntoERWebAsync(arrayOfItemsToPullIntoErWeb).then(
-          async (result: boolean) => {
-            if (!result) {
-              if (keyResults.find(x => x === item.key)) return;
-              console.log('There was an error with this one: ' + JSON.stringify(item));
-              errCount++
-            } else {
-              console.log('There was NOT an error with this one: ' + JSON.stringify(item));
-            }
-          });
-
-        if (errCount > 0) {
-          var errMsg = "Zotero object/s insertion into ERWeb has failed";
-          this._notificationService.show({
-            content: errMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "error", icon: true },
-            closable: true
-          });
-        } else {
-          this._notificationService.show({
-            content: " Zotero object/s has been pulled into ERWeb",
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-          });
-          this.ObjectERWebList = [];
-          this.objectKeysNotExistsNeedingSyncing = [];
-          this.objectKeysExistsNeedingSyncing = [];
-          //await this.fetchZoteroObjectVersionsAsync();
-        }
-        this.Pulling = false;
-        await this.getErWebObjects();
-      }
-    }   
-
-    if (this.objectKeysNotExistsNeedingSyncing.length > 0) {
-    
-      arrayOfItemsToPullIntoErWeb = [];
-      for (var i = 0; i < this.objectKeysNotExistsNeedingSyncing.length; i++) {
-        var item = this.objectKeysNotExistsNeedingSyncing[i];
-        if (item === null || item.data === null || item.key.length === 0) return;
-        await this._zoteroService.fetchZoteroObjectAsync(item.key)
-          .then(
-            (itemCollection) => {
-              if (arrayOfItemsToPullIntoErWeb.findIndex(x => x.key === item.key) === -1) {
-                arrayOfItemsToPullIntoErWeb.push(itemCollection);
-              }
-            });
-      }
-      let errCount = 0;
-      var keyResults: string[] = [];
-
-      //code above will change (mostly disappear), once we have an API call that gives us our IZoteroERWebReviewItem[]
-      //code below is only necessary to build our IZoteroERWebReviewItem[], until the API call is done
-      for (const it of arrayOfItemsToPullIntoErWeb) {
-        const state = this.getSyncStateOfObject(it.data.key);
-        console.log("state:", state);
-        if (it.meta.numItems > 0) console.log("numItems!", it.meta.numItems);
-        else if (it.meta.numChildren > 0) console.log("numChildren!", it.meta.numChildren);
-      }
-      if (arrayOfItemsToPullIntoErWeb) return;
-
-
-      await this._zoteroService.insertZoteroObjectIntoERWebAsync(arrayOfItemsToPullIntoErWeb).then(
-        async (result: boolean) => {
-          if (!result) {
-            if (keyResults.find(x => x === item.key)) return;
-            console.log('There was an error with this one: ' + JSON.stringify(item));
-            errCount++
-          } else {
-            console.log('There was NOT an error with this one: ' + JSON.stringify(item));
-          }
-        });
-
-      if (errCount > 0) {
-        var errMsg = "Zotero object/s insertion into ERWeb has failed";
-        this._notificationService.show({
-          content: errMsg,
-          animation: { type: 'slide', duration: 400 },
-          position: { horizontal: 'center', vertical: 'top' },
-          type: { style: "error", icon: true },
-          closable: true
-        });
-      } else {
-        this._notificationService.show({
-          content: " Zotero object/s has been pulled into ERWeb",
-          animation: { type: 'slide', duration: 400 },
-          position: { horizontal: 'center', vertical: 'top' },
-          type: { style: "info", icon: true },
-          closable: true
-        });
-        this.ObjectERWebList = [];
-        this.objectKeysNotExistsNeedingSyncing = [];
-        this.objectKeysExistsNeedingSyncing = [];
-        //await this.fetchZoteroObjectVersionsAsync();
-      }
-      this.Pulling = false;
-      await this.getErWebObjects();
+      pulling.push(zERi);
     }
-
+    const res1 = await this._zoteroService.PullTheseItems(pulling);
+    if (res1 == true) {
+      this.RefreshBothTables();
+    }
   }
-
+  public async RefreshBothTables() {
+    const res2 = await this._zoteroService.fetchZoteroObjectVersionsAsync();
+    if (res2 == true) {
+      let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
+      if (CurrentDropdownSelectedCode !== null) {
+        this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString());
+      }
+    }
+  }
   async PushERWebItems() {
 
     const res1 = await this._zoteroService.PushZoteroErWebReviewItemList();
     if (res1 == true) {
-      const res2 = await this._zoteroService.fetchZoteroObjectVersionsAsync();
-      if (res2 == true) {
-        let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
-        if (CurrentDropdownSelectedCode !== null) {
-          this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString());
-        }   
-      }
+      this.RefreshBothTables();
     }
     //this.Pushing = true;
     //await this.fetchERWebAndZoteroAlreadySyncedItems();

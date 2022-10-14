@@ -85,6 +85,26 @@ export class ZoteroService extends BusyAwareService {
       );
   }
 
+  public async PullTheseItems(Items: ZoteroERWebReviewItem[]): Promise<boolean> {
+
+    this._BusyMethods.push("PullTheseItems");
+    return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PullZoteroErWebReviewItemList', Items)
+      .toPromise().then(result => {
+        this.RemoveBusy("PullTheseItems");
+        return true;
+      },
+        error => {
+          this.RemoveBusy("PullTheseItems");
+          this.modalService.GenericError(error);
+          return false;
+        }
+    ).catch(caught => {
+      this.RemoveBusy("PullTheseItems");
+      this.modalService.GenericError(caught);
+      return false;
+    }
+    );
+  }
 
   public async CheckZoteroPermissions(): Promise<boolean> {
     this._errorMessage = "data not fetched";
