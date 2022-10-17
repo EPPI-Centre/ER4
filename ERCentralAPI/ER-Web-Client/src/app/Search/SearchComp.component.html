@@ -219,7 +219,7 @@
     <div id="ModelSection" *ngIf="ModelSection">
 
         <div class="col-12 row mt-2 border border-primary rounded m-1 p-1">
-            <div class="col-12 col-sm-4 mr-2 mb-2" style="min-width:422px;max-width:422px;">
+            <div class="col-12 col-sm-5 mx-0 mb-2 pl-2" style="min-width:280px;">
                 <div class="font-weight-bold col-12 p-0 mb-2">Step1:	Select a Model</div>
                 <div class="btn-group-vertical col-12 p-0" role="group" aria-label="Basic example">
                     <button (click)="SetModelSelection(6)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==6),'btn-outline-info' :(modelNum!=6)}">Long COVID binary model</button>
@@ -233,7 +233,7 @@
                 </div>
             </div>
 
-            <div id="radioButtonApplyModelSection" *ngIf="radioButtonApplyModelSection" class="col-12 col-sm-7 align-content-start">
+            <div id="radioButtonApplyModelSection" *ngIf="radioButtonApplyModelSection" class="col-12 col-sm-7">
 
                 <div class="font-weight-bold mb-2">Step 2: Choose method to apply</div>
                 <div class="col-12">
@@ -373,7 +373,7 @@
         <div class="col-12 mt-2 mb-2 justify-content-center">
             <button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
                     type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
-                Run Model
+                Run Model <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
             </button>
         </div>
     </div>
