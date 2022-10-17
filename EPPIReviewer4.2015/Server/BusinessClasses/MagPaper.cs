@@ -777,16 +777,25 @@ namespace BusinessLibrary.BusinessClasses
             //returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
             if (pm.authorships != null)
             {
-                string a = "";
+                string a = ""; string adn = "";
                 foreach (MagMakesHelpers.Authorship pma in pm.authorships)
                 {
-                    if (a == "")
+                    if (pma.author.display_name == null)
                     {
-                        a = pma.author.display_name;
+                        adn = "";
+                        //adn = "[unknown name] (ID" + pma.author.id.Replace("https://openalex.org/A", "") + ")";
                     }
                     else
                     {
-                        a += ", " + pma.author.display_name;
+                        adn = pma.author.display_name;
+                    }
+                    if (a == "")
+                    {
+                        a = adn;
+                    }
+                    else
+                    {
+                        a += ", " + adn;
                     }
                 }
                 returnValue.LoadProperty<string>(AuthorsProperty, a);

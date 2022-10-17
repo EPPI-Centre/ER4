@@ -138,6 +138,12 @@ namespace BusinessLibrary.BusinessClasses
 
         public class Author
         {
+            //considered but not done change: this to avoid downstream issues with "null" as Author.displayname
+            //we deal with this possible problem downstream in MagPaper.cs (Fillvalues method)
+            //public Author()
+            //{
+            //    this.display_name = "";
+            //}
             public string id { get; set; }
             public string display_name { get; set; }
             public string orcid { get; set; }
