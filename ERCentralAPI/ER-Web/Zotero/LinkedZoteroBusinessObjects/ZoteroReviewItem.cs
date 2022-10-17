@@ -160,31 +160,31 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(SingleCriteria<ZoteroReviewItem, string> criteria)
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ItemReviewZotero", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ItemKey", criteria.Value)); 
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                    {
-                        if (reader.Read())
-                        {
-                            LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
-                            LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
-                            LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));                            
-                            LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
-                            LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
-                            LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
-                            LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
-                            LoadProperty<int>(SyncStateProperty, reader.GetInt32("SyncState"));
-                            MarkOld();
-                        }
-                    }
-                }
-                connection.Close();
-            }
+            //using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            //{
+            //    connection.Open();
+            //    using (SqlCommand command = new SqlCommand("st_ItemReviewZotero", connection))
+            //    {
+            //        command.CommandType = System.Data.CommandType.StoredProcedure;
+            //        command.Parameters.Add(new SqlParameter("@ItemKey", criteria.Value)); 
+            //        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+            //        {
+            //            if (reader.Read())
+            //            {
+            //                LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
+            //                LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
+            //                LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));                            
+            //                LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
+            //                LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
+            //                LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
+            //                LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
+            //                LoadProperty<int>(SyncStateProperty, reader.GetInt32("SyncState"));
+            //                MarkOld();
+            //            }
+            //        }
+            //    }
+            //    connection.Close();
+            //}
         }
 
         protected override void DataPortal_Insert()
@@ -194,79 +194,79 @@ namespace BusinessLibrary.BusinessClasses
 
         private void AddNew()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ZoteroItemReviewCreate", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
-                    command.Parameters.Add(new SqlParameter("@LibraryID", ReadProperty(LibraryIDProperty)));
-                    command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
-                    command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
-                    command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(ITEM_REVIEW_IDProperty)));
-                    command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
-                    command.Parameters.Add(new SqlParameter("@SyncState", ReadProperty(SyncStateProperty)));
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-            }
+            //using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            //{
+            //    connection.Open();
+            //    using (SqlCommand command = new SqlCommand("st_ZoteroItemReviewCreate", connection))
+            //    {
+            //        command.CommandType = System.Data.CommandType.StoredProcedure;
+            //        command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
+            //        command.Parameters.Add(new SqlParameter("@LibraryID", ReadProperty(LibraryIDProperty)));
+            //        command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
+            //        command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
+            //        command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(ITEM_REVIEW_IDProperty)));
+            //        command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
+            //        command.Parameters.Add(new SqlParameter("@SyncState", ReadProperty(SyncStateProperty)));
+            //        command.ExecuteNonQuery();
+            //    }
+            //    connection.Close();
+            //}
         }
 
 
         protected override void DataPortal_Update()
         {
  
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ItemReviewZoteroUpdate", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@Zotero_item_review_ID", ReadProperty(Zotero_item_review_IDProperty)));
-                    command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
-                    command.Parameters.Add(new SqlParameter("@LibraryID", ReadProperty(LibraryIDProperty)));
-                    command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
-                    command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
-                    command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(ITEM_REVIEW_IDProperty)));
-                    command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
-                    command.Parameters.Add(new SqlParameter("@SyncState", ReadProperty(SyncStateProperty)));
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-            }
+            //using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            //{
+            //    //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            //    connection.Open();
+            //    using (SqlCommand command = new SqlCommand("st_ItemReviewZoteroUpdate", connection))
+            //    {
+            //        command.CommandType = System.Data.CommandType.StoredProcedure;
+            //        command.Parameters.Add(new SqlParameter("@Zotero_item_review_ID", ReadProperty(Zotero_item_review_IDProperty)));
+            //        command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
+            //        command.Parameters.Add(new SqlParameter("@LibraryID", ReadProperty(LibraryIDProperty)));
+            //        command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
+            //        command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
+            //        command.Parameters.Add(new SqlParameter("@ITEM_REVIEW_ID", ReadProperty(ITEM_REVIEW_IDProperty)));
+            //        command.Parameters.Add(new SqlParameter("@TypeName", ReadProperty(TypeNameProperty)));
+            //        command.Parameters.Add(new SqlParameter("@SyncState", ReadProperty(SyncStateProperty)));
+            //        command.ExecuteNonQuery();
+            //    }
+            //    connection.Close();
+            //}
         }
 
 
         protected override void DataPortal_DeleteSelf()
         {
 
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ZoteroItemReviewDelete", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+            //using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            //{
+            //    connection.Open();
+            //    using (SqlCommand command = new SqlCommand("st_ZoteroItemReviewDelete", connection))
+            //    {
+            //        command.CommandType = System.Data.CommandType.StoredProcedure;
                     
-                    command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-            }
+            //        command.Parameters.Add(new SqlParameter("@ItemKey", ReadProperty(ItemKeyProperty)));
+            //        command.ExecuteNonQuery();
+            //    }
+            //    connection.Close();
+            //}
         }
 
         internal static ZoteroReviewItem GetZoteroReviewItem(SafeDataReader reader)
         {
             ZoteroReviewItem returnValue = new ZoteroReviewItem();
-            returnValue.LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
-            returnValue.LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
-            returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
-            returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
-            returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
-            returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
-            returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
-            returnValue.LoadProperty<int>(SyncStateProperty, reader.GetInt32("SyncSTate"));
+            //returnValue.LoadProperty<long>(Zotero_item_review_IDProperty, reader.GetInt64("Zotero_item_review_ID"));
+            //returnValue.LoadProperty<string>(ItemKeyProperty, reader.GetString("ItemKey"));
+            //returnValue.LoadProperty<string>(LibraryIDProperty, reader.GetString("LibraryID"));
+            //returnValue.LoadProperty<long>(ITEM_REVIEW_IDProperty, reader.GetInt64("ITEM_REVIEW_ID"));
+            //returnValue.LoadProperty<long>(VersionProperty, reader.GetInt64("Version"));
+            //returnValue.LoadProperty<DateTime>(LAST_MODIFIEDProperty, reader.GetDateTime("LAST_MODIFIED"));
+            //returnValue.LoadProperty<string>(TypeNameProperty, reader.GetString("TypeName"));
+            //returnValue.LoadProperty<int>(SyncStateProperty, reader.GetInt32("SyncSTate"));
             returnValue.MarkOld();
 
             return returnValue;

@@ -15,6 +15,7 @@ using System.Net;
 using System.Data;
 using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla.Core;
+using AuthorsHandling;
 
 namespace ERxWebClient2.Controllers
 {
@@ -2823,6 +2824,82 @@ namespace ERxWebClient2.Controllers
 
             return signedUrl;
         }
+
+        /// <summary>
+        /// TO BE REPLACED by the real method
+        /// written by SG to try out the extensions to IncomingItemsList
+        /// </summary>
+        /// <returns></returns>
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> PullZoteroErWebReviewItemList2([FromBody] ZoteroERWebReviewItem[] zoteroERWebReviewItems)
+        {
+            try 
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                List<ZoteroERWebReviewItem> toPush = zoteroERWebReviewItems.Where(f => f.ItemID < 1).ToList();
+                MobileList<ItemIncomingData> incomingItems = new MobileList<ItemIncomingData>();
+                foreach (ZoteroERWebReviewItem zoteroERWebReviewItem in toPush)
+                {
+                    var collectionItem = await GetZoteroConvertedItemAsync(zoteroERWebReviewItem.ItemKey);
+                    ItemIncomingData itemIncomingData = new ItemIncomingData
+                    {
+                        Abstract = collectionItem.data.abstractNote ?? "",
+                        Year = collectionItem.data.date ?? "0",
+                        Title = collectionItem.data.title,
+                        Short_title = collectionItem.data.shortTitle ?? "",
+                        Type_id = MapFromZoteroTypeToERWebTypeID(collectionItem.data.itemType),
+                        AuthorsLi = new AuthorsHandling.AutorsList(),
+                        pAuthorsLi = new MobileList<AuthorsHandling.AutH>(),
+                        ZoteroKey = zoteroERWebReviewItem.ItemKey,//new member of ItemIncomingData
+                        DateEdited = DateTime.Parse(collectionItem.data.dateModified)//NB we set the date as found in the Zotero record!!
+                    };
+                    //this bit (and the one above) should sit in a better place, possibly an itemIncomingData constructor that receives a "Collection" and "ZoteroERWebReviewItem" as input parameters
+                    int AuthRank = 0;
+                    foreach (var Zau in collectionItem.data.creators)
+                    {
+                        if (Zau.creatorType == "author")
+                        {
+                            AutH a = new AutH();
+                            a.FirstName = Zau.firstName;
+                            a.MiddleName = "";
+                            a.LastName = Zau.lastName;
+                            a.Role = 0;//only looking for "actual authors" not parent authors which can be Book editors and the like.
+                            a.Rank = AuthRank;
+                            AuthRank++;
+                            itemIncomingData.AuthorsLi.Add(a);
+                        }
+                    }
+                    //itemIncomingData.AuthorsLi.AddRange(NormaliseAuth.processField(ReadProperty(AuthorsProperty), 0));
+                    incomingItems.Add(itemIncomingData);
+                }
+                IncomingItemsList forSaving = new IncomingItemsList
+                {
+                    FilterID = 0,
+                    SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
+                    SourceDB = "Zotero",
+                    DateOfImport = DateTime.Now,
+                    DateOfSearch = DateTime.Now,
+                    Included = true,
+                    Notes = "",
+                    SearchDescr = "Items pulled from Zotero",
+                    SearchStr = "N/A",
+                    IncomingItems = incomingItems
+                };
+                forSaving.buildShortTitles();
+                forSaving = forSaving.Save();//at this point, forSaving.IncomingItems has the NewItemId field populated with the correct (just created) values.
+                //thus the same list can be used to upload PDFs as we have a list of items with ZoteroKey, ItemId and list of (Zotero) PDFs therein.
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Pull In ERWeb has an error");
+                return StatusCode(500, e.Message);
+            }
+            
+        }
+
         /// <summary>
         /// Used to ship raw unfiltered data to Cleint, 
         /// contains all the data needed to "know" what can be done (pull, push, nothing?) with refs present on the Zotero End

@@ -4,7 +4,7 @@ GO
 /****** Object:  Table [dbo].[TB_ZOTERO_ITEM_REVIEW]    Script Date: 08/10/2022 14:58:31 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ZOTERO_ITEM_REVIEW]') AND type in (N'U'))
 BEGIN
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM]
+--ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] DROP CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM]
 DROP TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]
 END
 GO
@@ -18,24 +18,19 @@ GO
 
 CREATE TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW](
 	[Zotero_item_review_ID] [bigint] IDENTITY(1,1) NOT NULL,
-	[ItemKey] [nvarchar](50) NULL,
-	[LibraryID] [nvarchar](50) NOT NULL,
-	[ITEM_ID] [bigint] NOT NULL,
-	[Version] [bigint] NULL,
-	[ITEM_REVIEW_ID] [bigint] NOT NULL,
-	[LAST_MODIFIED] [datetime] NULL,
-	[TypeName] [nvarchar](50) NULL
+	[ItemKey] [nvarchar](50) NOT NULL,
+	[ITEM_REVIEW_ID] [bigint] NOT NULL
 ) ON [PRIMARY]
 GO
 
 ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW]  WITH CHECK ADD  
-CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM] FOREIGN KEY([ITEM_ID])
-REFERENCES [dbo].[TB_ITEM] ([ITEM_ID])
+CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW] FOREIGN KEY([ITEM_REVIEW_ID])
+REFERENCES [dbo].[TB_ITEM_REVIEW] ([ITEM_REVIEW_ID])
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] CHECK CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM]
+ALTER TABLE [dbo].[TB_ZOTERO_ITEM_REVIEW] CHECK CONSTRAINT [FK_tb_ZOTERO_ITEM_REVIEW_tb_ITEM_REVIEW]
 GO
 
 
@@ -144,38 +139,38 @@ REFERENCES [dbo].[TB_ITEM_DOCUMENT] ([ITEM_DOCUMENT_ID])
 GO
 
 
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 09/10/2022 14:26:06 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
+--USE [Reviewer]
+--GO
+--/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 09/10/2022 14:26:06 ******/
+--SET ANSI_NULLS ON
+--GO
+--SET QUOTED_IDENTIFIER ON
+--GO
 
 
-CREATE OR ALTER       Procedure [dbo].[st_ItemReviewZoteroUpdate](
-@Zotero_item_review_ID bigint NULL,
-@ItemKey nvarchar(50) NULL,
-@LibraryID nvarchar(50) NULL, 
-@ITEM_ID bigint NULL, 
-@ITEM_REVIEW_ID bigint NULL, 
-@Version nvarchar(50) NULL, 
-@LAST_MODIFIED date NULL,
-@TypeName nvarchar(50) NULL)
-as
-BEGIN
-        UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
-        SET    [ItemKey] = @ItemKey,
-		[LibraryID] =@LibraryID, 
-		[ITEM_ID] = @ITEM_ID,
-		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
-		[Version] =@Version, 
-		[LAST_MODIFIED] =@LAST_MODIFIED,
-		[TypeName] = @TypeName
-        WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
-END
+--CREATE OR ALTER       Procedure [dbo].[st_ItemReviewZoteroUpdate](
+--@Zotero_item_review_ID bigint NULL,
+--@ItemKey nvarchar(50) NULL,
+--@LibraryID nvarchar(50) NULL, 
+--@ITEM_ID bigint NULL, 
+--@ITEM_REVIEW_ID bigint NULL, 
+--@Version nvarchar(50) NULL, 
+--@LAST_MODIFIED date NULL,
+--@TypeName nvarchar(50) NULL)
+--as
+--BEGIN
+--        UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+--        SET    [ItemKey] = @ItemKey,
+--		[LibraryID] =@LibraryID, 
+--		[ITEM_ID] = @ITEM_ID,
+--		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
+--		[Version] =@Version, 
+--		[LAST_MODIFIED] =@LAST_MODIFIED,
+--		[TypeName] = @TypeName
+--        WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
+--END
 
-GO
+--GO
 
 USE [Reviewer]
 GO
@@ -224,56 +219,54 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE OR ALTER Procedure [dbo].[st_ZoteroItemReviewCreate](
-@ItemKey nvarchar(50) NULL,
-@LibraryID nvarchar(50) NULL, 
-@Version nvarchar(50) NULL, 
-@LAST_MODIFIED date NULL,
-@ITEM_ID BIGINT NULL,
-@ITEM_REVIEW_ID BIGINT NULL,
-@TypeName nvarchar(50) NULL)
+@ItemKey nvarchar(50),
+@ReviewId int, 
+@ITEM_REVIEW_ID BIGINT
+)
 as
 Begin
+	declare @check int = (select count(ITEM_ID) from TB_ITEM_REVIEW where REVIEW_ID = @ReviewId and ITEM_REVIEW_ID = @ITEM_REVIEW_ID)
 
-
-	INSERT INTO [dbo].[TB_ZOTERO_ITEM_REVIEW]([ItemKey], 
-	[LibraryID],[ITEM_ID],[ITEM_REVIEW_ID], [Version], 
-	[LAST_MODIFIED], [TypeName])
-	VALUES(@ItemKey, @LibraryID,@ITEM_ID, @ITEM_REVIEW_ID, @Version, @LAST_MODIFIED, @TypeName)
+	if @check = 1
+	INSERT INTO TB_ZOTERO_ITEM_REVIEW
+	([ItemKey], 
+	[ITEM_REVIEW_ID])
+	VALUES (@ItemKey, @ITEM_REVIEW_ID)
 	   
 End
 
 GO
 
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewUpdate]    Script Date: 08/10/2022 14:44:22 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
+--USE [Reviewer]
+--GO
+--/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewUpdate]    Script Date: 08/10/2022 14:44:22 ******/
+--SET ANSI_NULLS ON
+--GO
+--SET QUOTED_IDENTIFIER ON
+--GO
 
 
-CREATE OR ALTER       Procedure [dbo].[st_ZoteroItemReviewUpdate](
-@Zotero_item_review_ID bigint NULL,
-@ItemKey nvarchar(50) NULL,
-@LibraryID nvarchar(50) NULL, 
-@ITEM_REVIEW_ID bigint NULL, 
-@Version nvarchar(50) NULL, 
-@LAST_MODIFIED date NULL,
-@TypeName nvarchar(50) NULL)
-as
-BEGIN
-        UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
-        SET    [ItemKey] = @ItemKey,
-		[LibraryID] =@LibraryID, 
-		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
-		[Version] =@Version, 
-		[LAST_MODIFIED] =@LAST_MODIFIED,
-		[TypeName] = @TypeName
-        WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
-END
+--CREATE OR ALTER       Procedure [dbo].[st_ZoteroItemReviewUpdate](
+--@Zotero_item_review_ID bigint NULL,
+--@ItemKey nvarchar(50) NULL,
+--@LibraryID nvarchar(50) NULL, 
+--@ITEM_REVIEW_ID bigint NULL, 
+--@Version nvarchar(50) NULL, 
+--@LAST_MODIFIED date NULL,
+--@TypeName nvarchar(50) NULL)
+--as
+--BEGIN
+--        UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
+--        SET    [ItemKey] = @ItemKey,
+--		[LibraryID] =@LibraryID, 
+--		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
+--		[Version] =@Version, 
+--		[LAST_MODIFIED] =@LAST_MODIFIED,
+--		[TypeName] = @TypeName
+--        WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
+--END
 
-GO
+--GO
 
 
 USE [Reviewer]
@@ -596,12 +589,20 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE OR ALTER   Procedure [dbo].[st_ZoteroItemReviewDelete](
-@ItemKey nvarchar(50) NULL)
+@ReviewId int,
+@ItemKey nvarchar(50)
+)
 as
 Begin
 
-	DELETE FROM [dbo].[TB_ZOTERO_ITEM_REVIEW]
-	WHERE ItemKey = @ItemKey
+	declare @check int = (
+		select count(ITEM_ID) from TB_ITEM_REVIEW ir
+		inner join TB_ZOTERO_ITEM_REVIEW zir on ir.REVIEW_ID = @ReviewId and ir.ITEM_REVIEW_ID = zir.ITEM_REVIEW_ID
+	)
+
+	if @check = 1
+		DELETE FROM [dbo].[TB_ZOTERO_ITEM_REVIEW]
+		WHERE ItemKey = @ItemKey
 	   
 End
 
@@ -699,14 +700,17 @@ CREATE OR ALTER      Procedure [dbo].[st_ItemInERWebANDZotero]
 )
 as
 Begin	
-  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, 
-  ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, 
-  IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName
-  FROM [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW] ZIR
-  INNER JOIN [Reviewer].[dbo].[TB_ITEM_REVIEW] IR
-  ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
-  INNER JOIN [Reviewer].[dbo].[TB_ITEM] I
-  ON IR.ITEM_ID = I.ITEM_ID
+  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, 
+  --ZIR.LibraryID, 
+  --ZIR.Version,
+  ZIR.ITEM_REVIEW_ID, I.DATE_EDITED as LAST_MODIFIED, 
+  IR.ITEM_ID, I.SHORT_TITLE, I.TITLE, ty.TYPE_NAME AS TypeName
+  FROM [TB_ZOTERO_ITEM_REVIEW] ZIR
+  INNER JOIN [TB_ITEM_REVIEW] IR
+	ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+  INNER JOIN [TB_ITEM] I
+	ON IR.ITEM_ID = I.ITEM_ID
+  INNER JOIN TB_ITEM_TYPE ty on I.TYPE_ID = ty.TYPE_ID
   WHERE ZIR.ITEM_REVIEW_ID = @ItemReviewId
   ORDER BY I.SHORT_TITLE
 End
@@ -746,9 +750,11 @@ Begin
   END
 
   --first set of results, the data we want about ITEMs
-  select I.ITEM_ID, I.DATE_EDITED,zi.TypeName,ids.ITEM_REVIEW_ID, zi.Zotero_item_review_ID, zi.ItemKey, zi.LibraryID, zi.[Version], zi.LAST_MODIFIED, I.TITLE, I.SHORT_TITLE
+  select I.ITEM_ID, I.DATE_EDITED,
+	t.TYPE_NAME AS TypeName, ids.ITEM_REVIEW_ID, zi.Zotero_item_review_ID, zi.ItemKey, i.DATE_EDITED as LAST_MODIFIED, I.TITLE, I.SHORT_TITLE
   from @ids ids
   inner join TB_ITEM I on ids.ItemId = I.ITEM_ID
+  inner join TB_ITEM_TYPE t on i.TYPE_ID = t.TYPE_ID
   LEFT JOIN TB_ZOTERO_ITEM_REVIEW zi on zi.ITEM_REVIEW_ID = ids.ITEM_REVIEW_ID
 
   --2nd set of results, the data about DOCUMENTS
