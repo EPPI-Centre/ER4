@@ -226,6 +226,29 @@ namespace EPPIDataServices.Helpers
             }
         }
 #endif
+        /// <summary> 
+        /// Call this when you want build a command, given an OPEN connection.
+        /// Code calling it MUST:
+        /// 1. Open (and then dispose of) the connection
+        /// 2. Manage the usage/disposal of the command.
+        /// RETURNS NULL if an exception happened, or the connection isn't open
+        /// </summary> 
+        public SqlCommand? BuildSPCommand(SqlConnection connection, string SPname, params SqlParameter[] parameters)
+        {
+            try
+            {
+                if (connection.State != System.Data.ConnectionState.Open) return null;
+                SqlCommand command = new SqlCommand(SPname, connection);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                if (parameters != null && parameters.Length > 0) command.Parameters.AddRange(parameters);
+                return command;
+            }
+            catch (Exception e)
+            {
+                _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
+                return null;
+            }
+        }
         private void CheckConnection(SqlConnection connection)
         {
             if (connection.State != System.Data.ConnectionState.Open)

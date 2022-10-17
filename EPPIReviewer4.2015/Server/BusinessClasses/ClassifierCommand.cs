@@ -128,11 +128,11 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-		protected override async void DataPortal_Execute()
+		protected override void DataPortal_Execute()
 		{
 			if (_title == "DeleteThisModel~~")
 			{
-				await DeleteModelAsync();
+				DeleteModelAsync();
 				return;
 			}
 			if (_attributeIdOn + _attributeIdNotOn != -2)
@@ -270,50 +270,57 @@ namespace BusinessLibrary.BusinessClasses
                 // be necessary come the use of sql machine learning
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
                 string fileName = tmpDir.FullName + "/ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
-                //SG Edit. WAS:
-                //string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+				//SG Edit. WAS:
+				//string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #endif
-
-                using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
+				try
 				{
-					command.CommandType = System.Data.CommandType.StoredProcedure;
-					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-					command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
-					command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
-					using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+					using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
 					{
-						using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
+						command.CommandType = System.Data.CommandType.StoredProcedure;
+						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+						command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
+						command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
+						using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
 						{
-							file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"");
-							while (reader.Read())
+							using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
 							{
-								if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+								file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"");
+								while (reader.Read())
 								{
-									ItemIds.Add(reader.GetInt64("ITEM_ID"));
-									file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
-										"\"" + reader["LABEL"].ToString() + "\"," +
-										"\"" + CleanText(reader, "title") + "\"," +
-										"\"" + CleanText(reader, "abstract") + "\"," +
-										"\"" + CleanText(reader, "keywords") + "\"");
-									//data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
-									//    "\"" + reader["LABEL"].ToString() + "\"," +
-									//    "\"" + CleanText(reader, "TITLE") + "\"," +
-									//    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
-									//    "\"" + CleanText(reader, "KEYWORDS") + "\"" + Environment.NewLine);
+									if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+									{
+										ItemIds.Add(reader.GetInt64("ITEM_ID"));
+										file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
+											"\"" + reader["LABEL"].ToString() + "\"," +
+											"\"" + CleanText(reader, "title") + "\"," +
+											"\"" + CleanText(reader, "abstract") + "\"," +
+											"\"" + CleanText(reader, "keywords") + "\"");
+										//data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
+										//    "\"" + reader["LABEL"].ToString() + "\"," +
+										//    "\"" + CleanText(reader, "TITLE") + "\"," +
+										//    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
+										//    "\"" + CleanText(reader, "KEYWORDS") + "\"" + Environment.NewLine);
 
-									if (reader["LABEL"].ToString() == "1")
-										positiveClassCount++;
-									else
-										negativeClasscount++;
+										if (reader["LABEL"].ToString() == "1")
+											positiveClassCount++;
+										else
+											negativeClasscount++;
+									}
 								}
 							}
 						}
 					}
+				} 
+				catch(Exception ex)
+                {
+					_returnMessage = "Error at ClassifierGetTrainingData:" + ex.Message;
+					return 0;
 				}
 
 				if (positiveClassCount < 2 || negativeClasscount < 2)
 				{
-					_returnMessage = "Insufficient data";
+					_returnMessage = "Error, Insufficient data";
 					return 0;
 				}
 				// upload data to blob
@@ -382,7 +389,7 @@ namespace BusinessLibrary.BusinessClasses
 				}
 				catch(Exception e)
 				{
-					_returnMessage = "BuildFailed";
+					_returnMessage = "Error, BuildFailed";
 					_title += " (failed)";
 					accuracy = -0.99;
 					auc = -0.99;
@@ -405,7 +412,7 @@ namespace BusinessLibrary.BusinessClasses
 					command2.ExecuteNonQuery();
 					if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
 					{
-						await DeleteModelAsync();
+						DeleteModelAsync();
 					}
 				}
 				connection.Close();
@@ -460,27 +467,37 @@ namespace BusinessLibrary.BusinessClasses
                 int ModelReviewId = -1; //will be used later on so this addition includes later refs to this object.
                 if (modelId > 0) //no need to check for the general pre-built models which are less than zero...
                 {
-                    using (SqlCommand command = new SqlCommand("st_ClassifierContactModels", connection))
+					try
+					{
+						using (SqlCommand command = new SqlCommand("st_ClassifierContactModels", connection))
+						{
+							command.CommandType = System.Data.CommandType.StoredProcedure;
+							command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+							using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+							{
+								while (reader.Read())
+								{
+									int tempModelid = reader.GetInt32("MODEL_ID");
+									if (tempModelid == modelId)
+									{
+										//we found it, we can stop after getting the actual ReviewId where this model was built: we need it for the filename of the model in the blob
+										ModelReviewId = reader.GetInt32("REVIEW_ID");
+										break;
+									}
+								}
+							}
+							command.Cancel();
+						}
+					} 
+					catch(Exception ex)
                     {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                        {
-                            while (reader.Read())
-                            {
-                                int tempModelid = reader.GetInt32("MODEL_ID");
-                                if (tempModelid == modelId)
-                                {
-                                    //we found it, we can stop after getting the actual ReviewId where this model was built: we need it for the filename of the model in the blob
-                                    ModelReviewId = reader.GetInt32("REVIEW_ID");
-                                    break;
-                                }
-                            }
-                        }
-                    }
+						_returnMessage = "Error at ClassifierContactModels:" + ex.Message;
+						return;
+					}
                     if (ModelReviewId == -1)
                     {
-                        //the query above didn't find the current model, so we can't/should not continue...
+							_returnMessage = "Error, Model not found";
+							//the query above didn't find the current model, so we can't/should not continue...
                         return;
                     }
                 }
@@ -494,49 +511,66 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else
                 {
-                    using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
-                    {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
-                        command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
-                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                        {
-                            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
-                            {
-                                file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
-                                while (reader.Read())
-                                {
-                                    if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
-                                    {
-                                        ItemIds.Add(reader.GetInt64("ITEM_ID"));
-                                        file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
-                                            "\"" + reader["LABEL"].ToString() + "\"," +
-                                            "\"" + CleanText(reader, "title") + "\"," +
-                                            "\"" + CleanText(reader, "abstract") + "\"," +
-                                            "\"" + CleanText(reader, "keywords") + "\"," + "\"" + RevInfo.ReviewId.ToString() + "\"");
+					try
+					{
+						using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
+						{
+							command.CommandType = System.Data.CommandType.StoredProcedure;
+							command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+							command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
+							command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
+							using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+							{
+								using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
+								{
+									file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
+									while (reader.Read())
+									{
+										if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+										{
+											ItemIds.Add(reader.GetInt64("ITEM_ID"));
+											file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
+												"\"" + reader["LABEL"].ToString() + "\"," +
+												"\"" + CleanText(reader, "title") + "\"," +
+												"\"" + CleanText(reader, "abstract") + "\"," +
+												"\"" + CleanText(reader, "keywords") + "\"," + "\"" + RevInfo.ReviewId.ToString() + "\"");
 
-                                        //data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
-                                        //    "\"" + reader["LABEL"].ToString() + "\"," +
-                                        //    "\"" + CleanText(reader, "TITLE") + "\"," +
-                                        //    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
-                                        //    "\"" + CleanText(reader, "KEYWORDS") + "\"," + "\"" + ri.ReviewId.ToString() + "\"" + Environment.NewLine);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // upload data to blob
-                    using (var fileStream = System.IO.File.OpenRead(fileName))
+											//data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
+											//    "\"" + reader["LABEL"].ToString() + "\"," +
+											//    "\"" + CleanText(reader, "TITLE") + "\"," +
+											//    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
+											//    "\"" + CleanText(reader, "KEYWORDS") + "\"," + "\"" + ri.ReviewId.ToString() + "\"" + Environment.NewLine);
+										}
+									}
+								}
+							command.Cancel();
+							}
+						}
+					} 
+					catch(Exception ex)
                     {
-						BlobOperations.UploadStream(blobConnection, 
-							"attributemodeldata", 
-							TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv"
-							, fileStream);
-                    }
-                    File.Delete(fileName);
-                    _returnMessage = "Successful upload of data";
+						_returnMessage = "Error at ClassifierGetClassificationData:" + ex.Message;
+						return;
+					}
+
+					// upload data to blob
+					try
+					{
+						using (var fileStream = System.IO.File.OpenRead(fileName))
+						{
+							BlobOperations.UploadStream(blobConnection,
+								"attributemodeldata",
+								TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv"
+								, fileStream);
+						}
+						File.Delete(fileName);
+					}
+					catch (Exception ex)
+					{
+						_returnMessage = "Error at OploadDataToClassify:" + ex.Message;
+						return;
+					}
+					_returnMessage = "Successful upload of data";
 
                     string DataFile = @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv";
                     string ModelFile = @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, ModelReviewId.ToString()) + ".csv";
@@ -566,7 +600,6 @@ namespace BusinessLibrary.BusinessClasses
                         DataTable Scores = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
                         LoadResultsIntoDatabase(Scores, connection, ri);
                     }
-
                     connection.Close();
                 }
             } // end if check for using covid categories / BERT models / SQL database
@@ -694,7 +727,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 
-		private async Task DeleteModelAsync()
+		private void DeleteModelAsync()
 		{
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
@@ -1117,7 +1150,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (rowcount == 0)
             {
-                _returnMessage = "Zero rows to score!";
+                _returnMessage = "Error, Zero rows to score!";
                 return;
             }
 
