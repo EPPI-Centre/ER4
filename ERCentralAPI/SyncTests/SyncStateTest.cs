@@ -174,7 +174,7 @@ namespace SyncTests
         {
             var resultantSyncStateDictionary = await PushBehindLocalItemsToZoteroAsync(listOfLocalItemReviewIdsBehindZotero);
 
-            var countOfUpToDate = resultantSyncStateDictionary.Count(x => x.Value == ErWebState.upToDate);
+            var countOfUpToDate = resultantSyncStateDictionary.Count(x => x.Value == ZoteroERWebReviewItem.ErWebState.upToDate);
 
             Assert.That(countOfUpToDate, Is.EqualTo(2));
         }
@@ -200,8 +200,8 @@ namespace SyncTests
 
             var actualResult = okResult.Value as SyncStateDictionaries;
 
-            Assert.That(ErWebState.canPull, Is.EqualTo(actualResult.itemSyncStateResults.FirstOrDefault().Value));
-            Assert.That(ErWebState.upToDate, Is.EqualTo(actualResult.docSyncStateResults.FirstOrDefault().Value));
+            Assert.That(ZoteroERWebReviewItem.ErWebState.canPull, Is.EqualTo(actualResult.itemSyncStateResults.FirstOrDefault().Value));
+            Assert.That(ZoteroERWebReviewItem.ErWebState.upToDate, Is.EqualTo(actualResult.docSyncStateResults.FirstOrDefault().Value));
         }
 
         //[TestCase("1079", 1, 1)]
@@ -255,9 +255,9 @@ namespace SyncTests
 
 
         // 1 - Helper method for test will not be required when DB is setup for testing
-        private async Task<IDictionary<long, ErWebState>> PushBehindLocalItemsToZoteroAsync(string listOfLocalItemReviewIdsBehindZotero)
+        private async Task<IDictionary<long, ZoteroERWebReviewItem.ErWebState>> PushBehindLocalItemsToZoteroAsync(string listOfLocalItemReviewIdsBehindZotero)
         {
-            Dictionary<long, ErWebState> syncStateResults = new Dictionary<long, ErWebState>();
+            Dictionary<long, ZoteroERWebReviewItem.ErWebState> syncStateResults = new Dictionary<long, ZoteroERWebReviewItem.ErWebState>();
             var listOfItemReviewIdsToPush = listOfLocalItemReviewIdsBehindZotero.Split(',');
             foreach (var itemReviewId in listOfItemReviewIdsToPush)
             {
@@ -280,7 +280,7 @@ namespace SyncTests
                     var result = await PushItemToZotero(localSyncedItem.ItemKey, itemResult, itemReviewId);
                     if (result == true)
                     {
-                        syncStateResults.TryAdd(Convert.ToInt64(itemReviewId), ErWebState.upToDate);
+                        syncStateResults.TryAdd(Convert.ToInt64(itemReviewId), ZoteroERWebReviewItem.ErWebState.upToDate);
                     }
                 }                
             }
@@ -325,7 +325,7 @@ namespace SyncTests
 
                 zoteroReviewItemFetch.ItemKey = itemKey;
                 zoteroReviewItemFetch.Version = zoteroItemContent.version;
-                zoteroReviewItemFetch.SyncState = (int)ErWebState.upToDate;
+                zoteroReviewItemFetch.SyncState = (int)ZoteroERWebReviewItem.ErWebState.upToDate;
 
                 zoteroReviewItemFetch = dp1.Execute(zoteroReviewItemFetch);
                 return true;
@@ -334,10 +334,10 @@ namespace SyncTests
         }
 
         // 3 - Helper method for test will not be required when DB is setup for testing
-        private async Task<IDictionary<long, ErWebState>> UpdateSyncStateOfLocalItemsRelativeToZoteroAsync(ZoteroERWebReviewItemList zoteroERWebReviewItems)
+        private async Task<IDictionary<long, ZoteroERWebReviewItem.ErWebState>> UpdateSyncStateOfLocalItemsRelativeToZoteroAsync(ZoteroERWebReviewItemList zoteroERWebReviewItems)
         {
-            var itemSyncStateResults = new Dictionary<long, ErWebState>();
-            var docSyncStateResults = new Dictionary<long, ErWebState>();
+            var itemSyncStateResults = new Dictionary<long, ZoteroERWebReviewItem.ErWebState>();
+            var docSyncStateResults = new Dictionary<long, ZoteroERWebReviewItem.ErWebState>();
             foreach (var item in zoteroERWebReviewItems)
             {
                 //await _zoteroController.UpdateSyncStatusOfItemAsync(itemSyncStateResults, docSyncStateResults, item);

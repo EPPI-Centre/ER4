@@ -62,7 +62,6 @@ namespace ERxWebClient2.Zotero
                 newZoteroItem.shortTitle = _item.ShortTitle;
                 newZoteroItem.url = _item.URL;
                 newZoteroItem.volume = _item.Volume;
-
                 return newZoteroItem;
 
             }

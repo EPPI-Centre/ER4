@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using static BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument;
 using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 using ErWebState = BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument.ErWebState;
+using BusinessLibrary.BusinessClasses;
 
 namespace ERxWebClient2.Controllers
 {
@@ -146,8 +147,8 @@ namespace ERxWebClient2.Controllers
 	}
 	public class SyncStateDictionaries
 	{
-		public Dictionary<long, ErWebState> itemSyncStateResults { get; set; }
-		public Dictionary<long, ErWebState> docSyncStateResults { get; set; }
+		public Dictionary<long, ZoteroERWebReviewItem.ErWebState> itemSyncStateResults { get; set; }
+		public Dictionary<long, ZoteroERWebReviewItem.ErWebState> docSyncStateResults { get; set; }
 
 	}
 
