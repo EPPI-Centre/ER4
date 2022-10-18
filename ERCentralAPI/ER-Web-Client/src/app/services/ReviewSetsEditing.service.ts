@@ -238,6 +238,35 @@ export class ReviewSetsEditingService extends BusyAwareService {
         );
     }
 
+    public async MoveReviewSet(reviewSetId: number,
+      newSetOrder: number) {
+      this._BusyMethods.push("MoveReviewSet");
+      let rsC: ReviewSetMoveCommand = {
+        ReviewSetId: reviewSetId,
+        ReviewSetOrder: newSetOrder
+      }
+      //console.log("saving reviewSet via command", rs, rsC);
+      return this._httpC.post<ReviewSetMoveCommand>(this._baseUrl + 'api/Codeset/ReviewSetMove', rsC).toPromise().then(
+        data => {
+          this.RemoveBusy("MoveReviewSet");
+          this.PleaseRedrawTheTree.emit();
+          return true;
+        }, error => {
+          this.RemoveBusy("MoveReviewSet");
+          console.log("Error moving Code: ", error);
+          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+          return false;
+        }
+      ).catch(
+        caught => {
+          this.RemoveBusy("MoveSetAttribute");
+          console.log("Error moving Code: ", caught);
+          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+          return false;
+        }
+      );
+    }
+
     CanMoveDown(node: singleNode): boolean {
         if (!this.ReviewSetsService.ReviewSets || this.ReviewSetsService.ReviewSets.length < 1) return false;
         else if (node.nodeType == 'ReviewSet') {
@@ -387,19 +416,20 @@ export class ReviewSetsEditingService extends BusyAwareService {
         return;
       }
 
-      // change of the order of the selected set to the last position
-      rs.order = this.ReviewSetsService.ReviewSets.length - 1;
+      let lastPosition = this.ReviewSetsService.ReviewSets.length - 1;
+
+      // save of the order of the selected set to the first position in the database
+      await this.MoveReviewSet(rs.reviewSetId, lastPosition);
+
+      // change of the order of the local values so it updats on the screen
+      rs.order = lastPosition;
 
       let set: ReviewSet;
       // decrement 'order' for everything from index + 1 to the end
       for (let i = index + 1; i < this.ReviewSetsService.ReviewSets.length; i++) {
         set = this.ReviewSetsService.ReviewSets[i];
         set.order--
-        await this.SaveReviewSet(set);
       }
-
-      // save the one we moved to the end
-      await this.SaveReviewSet(rs);
 
       //now sort by order;
       this.ReviewSetsService.ReviewSets = this.ReviewSetsService.ReviewSets.sort((s1, s2) => {
@@ -434,21 +464,20 @@ export class ReviewSetsEditingService extends BusyAwareService {
         return;
       }
 
-      // change of the order of the selected set to the first position
+      // save of the order of the selected set to the first position in the database
+      await this.MoveReviewSet(rs.reviewSetId, 0);
+
+      // change the order of the local values so it updates on the screen
       rs.order = 0;
 
       let set: ReviewSet;
       // increment 'order' for everything from 0 to index - 1
       for (let i = 0; i < index; i++) {
         set = this.ReviewSetsService.ReviewSets[i];
-        set.order++
-        await this.SaveReviewSet(set);
+        set.order++;
       }
 
-      // save the one we moved to the end
-      await this.SaveReviewSet(rs);
-
-      //now sort by order;
+      //now sort by order on the screen;
       this.ReviewSetsService.ReviewSets = this.ReviewSetsService.ReviewSets.sort((s1, s2) => {
         return s1.order - s2.order;
       });
@@ -532,53 +561,56 @@ export class ReviewSetsEditingService extends BusyAwareService {
     }
 
   private async MoveDownAttributeFull(Att: SetAttribute) {
-      let SortingParent: ReviewSet | SetAttribute | null = null;
-      let index: number = -1;
-      if (Att.parent_attribute_id == 0) { // just below the root so no parent
-        let Set: ReviewSet | null = this.ReviewSetsService.FindSetById(Att.set_id);
-        if (!Set) return;
-        index = Set.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
-        if (index < 0) {
-          //oh! should not happen... do nothing?
-          console.log("MoveDownAttribute fail 1", index);
-          return;
-        }
-        SortingParent = Set;
+    let SortingParent: ReviewSet | SetAttribute | null = null;
+    let index: number = -1;
+    if (Att.parent_attribute_id == 0) { // just below the root so no parent
+      let Set: ReviewSet | null = this.ReviewSetsService.FindSetById(Att.set_id);
+      if (!Set) return;
+      index = Set.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
+      if (index < 0) {
+        //oh! should not happen... do nothing?
+        console.log("MoveDownAttribute fail 1", index);
+        return;
       }
-      else {
-        let Parent: SetAttribute | null = this.ReviewSetsService.FindAttributeById(Att.parent_attribute_id);
-        if (!Parent) return;
-        index = Parent.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
-        if (index < 0) {
-          //oh! should not happen... do nothing?
-          return;
-        }
-        SortingParent = Parent;
-      }
-
-      let endIndex = SortingParent.attributes.length - 1;
-
-      await this.CheckChildrenOrder(SortingParent as singleNode);
-      //all is good: do changes
-
-      let tmpAtt: SetAttribute;
-      // decrement 'order' for everything from index + 1 to the end
-      for (let i = index + 1; i < SortingParent.attributes.length; i++) {
-        tmpAtt = SortingParent.attributes[i];
-        tmpAtt.order--
-        await this.MoveSetAttribute(tmpAtt.attributeSetId, tmpAtt.parent_attribute_id, tmpAtt.parent_attribute_id, tmpAtt.order);
-      }
-
-      // save the one we moved to the end
-      await this.MoveSetAttribute(Att.attributeSetId, Att.parent_attribute_id, Att.parent_attribute_id, endIndex);
-
-      // now sort by attribute_order
-      SortingParent.attributes.sort((s1, s2) => {
-          return s1.attribute_order - s2.attribute_order;
-      });
-
-      this.ReviewSetsService.GetReviewSets(true);
+      SortingParent = Set;
     }
+    else {
+      let Parent: SetAttribute | null = this.ReviewSetsService.FindAttributeById(Att.parent_attribute_id);
+      if (!Parent) return;
+      index = Parent.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
+      if (index < 0) {
+        //oh! should not happen... do nothing?
+        return;
+      }
+      SortingParent = Parent;
+    }
+
+    let endIndex = SortingParent.attributes.length - 1;
+
+    await this.CheckChildrenOrder(SortingParent as singleNode);
+    //all is good: do changes
+
+    // update the order in the database
+    let tmpAtt: SetAttribute;
+    tmpAtt = SortingParent.attributes[index];
+    await this.MoveSetAttribute(tmpAtt.attributeSetId, tmpAtt.parent_attribute_id, tmpAtt.parent_attribute_id, endIndex);
+
+    // decrement 'order' for everything from index + 1 to the end so the screen updates
+    for (let i = index + 1; i < SortingParent.attributes.length; i++) {
+      SortingParent.attributes[i].attribute_order = i - 1;
+      SortingParent.attributes[i].order = i - 1;
+    }
+    SortingParent.attributes[index].attribute_order = endIndex;
+    SortingParent.attributes[index].order = endIndex;
+
+    // now sort by attribute_order
+    SortingParent.attributes.sort((s1, s2) => {
+      return s1.attribute_order - s2.attribute_order;
+    });
+
+    // to redraw the chevrons
+    await this.CheckChildrenOrder(SortingParent as singleNode);
+  }
 
   private async MoveUpAttributeFull(Att: SetAttribute) {
       let SortingParent: ReviewSet | SetAttribute | null = null;//used to update what user sees
@@ -602,27 +634,29 @@ export class ReviewSetsEditingService extends BusyAwareService {
           return;
         }
         SortingParent = Parent;
-    }
+      }
 
       await this.CheckChildrenOrder(SortingParent as singleNode);
 
       let tmpAtt: SetAttribute;
-      // decrement 'order' for everything from from 0 to index - 1
-      for (let i = 0; i < index; i++) {
-        tmpAtt = SortingParent.attributes[i];
-        tmpAtt.order++
-        await this.MoveSetAttribute(tmpAtt.attributeSetId, tmpAtt.parent_attribute_id, tmpAtt.parent_attribute_id, tmpAtt.order);
-      }
+      tmpAtt = SortingParent.attributes[index];
+      await this.MoveSetAttribute(tmpAtt.attributeSetId, tmpAtt.parent_attribute_id, tmpAtt.parent_attribute_id, 0);
 
-      // save the one we moved to the top
-      await this.MoveSetAttribute(Att.attributeSetId, Att.parent_attribute_id, Att.parent_attribute_id, 0);
+      // increment 'order' for everything from from 0 to index - 1
+      for (let i = 0; i < index; i++) {
+        SortingParent.attributes[i].attribute_order = i + 1;
+        SortingParent.attributes[i].order = i + 1;
+      }
+      SortingParent.attributes[index].attribute_order = 0;
+      SortingParent.attributes[index].order = 0;
 
       // now sort by attribute_order
       SortingParent.attributes.sort((s1, s2) => {
         return s1.attribute_order - s2.attribute_order;
       });
 
-      this.ReviewSetsService.GetReviewSets(true);
+      // to redraw the chevrons
+      await this.CheckChildrenOrder(SortingParent as singleNode);
     }
 
     public async MoveSetAttributeInto(MovingAtt: SetAttribute, Destination: singleNode) {
@@ -1228,6 +1262,11 @@ export interface AttributeSetMoveCommand {
     ToId: number;
     AttributeSetId: number;
     attributeOrder: number;
+}
+
+export interface ReviewSetMoveCommand {
+  ReviewSetId: number;
+  ReviewSetOrder: number;
 }
 
 export interface ReviewSetDeleteCommand {

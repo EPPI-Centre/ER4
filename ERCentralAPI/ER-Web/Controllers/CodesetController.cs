@@ -102,6 +102,28 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult ReviewSetMove([FromBody] ReviewSetMoveCommandJSON data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewSetMoveCommand cmd = new ReviewSetMoveCommand(data.ReviewSetId, data.ReviewSetOrder);
+                    DataPortal<ReviewSetMoveCommand> dp = new DataPortal<ReviewSetMoveCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(data);//if no error, all should be OK.
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running ReviewSetUpdateCommand");
+                return StatusCode(500, e.Message);
+            }
+        }
+
         [HttpPost("[action]")]
         public IActionResult ReviewSetCreate([FromBody] ReviewSetUpdateCommandJSON data)
         {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
@@ -426,6 +448,11 @@ namespace ERxWebClient2.Controllers
         public Int64 ToId;
         public Int64 AttributeSetId;
         public int attributeOrder;
+    }
+    public class ReviewSetMoveCommandJSON
+    {
+        public Int64 ReviewSetId;
+        public int ReviewSetOrder;
     }
     public class ReviewSetDeleteCommandJSON
     {
