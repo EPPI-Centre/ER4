@@ -88,7 +88,7 @@ export class ZoteroService extends BusyAwareService {
   public async PullTheseItems(Items: ZoteroERWebReviewItem[]): Promise<boolean> {
 
     this._BusyMethods.push("PullTheseItems");
-    return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PullZoteroErWebReviewItemList', Items)
+    return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PullZoteroErWebReviewItemList2', Items)
       .toPromise().then(result => {
         this.RemoveBusy("PullTheseItems");
         return true;
