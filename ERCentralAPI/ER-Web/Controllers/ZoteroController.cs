@@ -1670,7 +1670,8 @@ namespace ERxWebClient2.Controllers
             InsertNewZoteroItemsIntoSyncTable(zoteroKeysItemsToBeInserted, collectionLibraryToBeInserted, itemsInserted);
         }
 
-        private async Task<IncomingItemsList> InsertNewZoteroItemsIntoErWeb(ZoteroERWebReviewItem[] zoteroERWebReviewItems, List<string> zoteroKeysItemsToBeInserted, IncomingItemsList forSaving, MobileList<ItemIncomingData> incomingItems)
+        private async Task<IncomingItemsList> InsertNewZoteroItemsIntoErWeb(ZoteroERWebReviewItem[] zoteroERWebReviewItems, 
+            List<string> zoteroKeysItemsToBeInserted, IncomingItemsList forSaving, MobileList<ItemIncomingData> incomingItems)
         {
             foreach (var zoteroKey in zoteroKeysItemsToBeInserted)
             {
@@ -1682,31 +1683,35 @@ namespace ERxWebClient2.Controllers
                     resultCollection?.Value?.ToString());
                 var zoteroERWebReviewItem = zoteroERWebReviewItems.FirstOrDefault(x => x.ItemKey == zoteroKey);
 
+                IMapZoteroReference reference = _concreteReferenceCreator.GetReference(collectionItem);
+                
+                var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
+                erWebItem.Item.IsIncluded = true;
+
                 ItemIncomingData itemIncomingData = new ItemIncomingData
                 {
                     Abstract = collectionItem.data.abstractNote ?? "",
                     Year = collectionItem.data.date ?? "0",
                     Title = collectionItem.data.title,
                     Short_title = collectionItem.data.shortTitle ?? "",
-                    Type_id = MapFromZoteroTypeToERWebTypeID(collectionItem.data.itemType),
-                    AuthorsLi = new AuthorsHandling.AutorsList(),
+                    Type_id = erWebItem.Item.TypeId,
+                    AuthorsLi = erWebItem.AuthorsListForIncomingData(collectionItem.data.creators).AuthorsLi,
                     pAuthorsLi = new MobileList<AuthorsHandling.AutH>(),
                 };
                 incomingItems.Add(itemIncomingData);
             }
 
-            // TODO SERGIO WILL EXTEND THIS BUT ALSO NEEDS TO BE CHECKED AS THIS IS A GOD CLASS
             forSaving = new IncomingItemsList
             {
                 FilterID = 0,
-                SourceName = "Zotero_" + DateTime.Now,
+                SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
                 SourceDB = "Zotero",
                 DateOfImport = DateTime.Now,
                 DateOfSearch = DateTime.Now,
                 Included = true,
-                Notes = "ZoteroSource",
-                SearchDescr = "ZoteroSource",
-                SearchStr = "ZoteroSource",
+                Notes = "",
+                SearchDescr = "Items pulled from Zotero",
+                SearchStr = "N/A",
                 IncomingItems = incomingItems
             };
             forSaving.buildShortTitles();
@@ -2910,7 +2915,8 @@ namespace ERxWebClient2.Controllers
         /// written by SG to try out the extensions to IncomingItemsList
         /// </summary>
         /// <returns></returns>
-
+        //TODO it looks like I just need to replace InsertNewZoteroItemsIntoErWeb with this!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         [HttpPost("[action]")]
         public async Task<IActionResult> PullZoteroErWebReviewItemList2([FromBody] ZoteroERWebReviewItem[] zoteroERWebReviewItems)
         {

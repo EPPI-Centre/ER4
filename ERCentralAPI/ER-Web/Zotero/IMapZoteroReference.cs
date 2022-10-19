@@ -1,4 +1,7 @@
-﻿using BusinessLibrary.BusinessClasses;
+﻿using AuthorsHandling;
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.BusinessClasses.ImportItems;
+using ERxWebClient2.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +18,28 @@ namespace ERxWebClient2.Zotero
     {
         public Item Item { get; set; }
         public ItemDocument ItemDocument { get; set; }
-        
+
+        public ItemIncomingData AuthorsListForIncomingData(CreatorsItem[] creators)
+        {
+            var itemIncomingData = new ItemIncomingData();
+            int AuthRank = 0;
+            foreach (var Zau in creators)
+            {
+                if (Zau.creatorType == "author")
+                {
+                    AutH a = new AutH();
+                    a.FirstName = Zau.firstName;
+                    a.MiddleName = "";
+                    a.LastName = Zau.lastName;
+                    a.Role = 0;//only looking for "actual authors" not parent authors which can be Book editors and the like.
+                    a.Rank = AuthRank;
+                    AuthRank++;
+                    itemIncomingData.AuthorsLi.Add(a);
+                }
+            }
+            return itemIncomingData;
+
+        }
+
     }
 }
