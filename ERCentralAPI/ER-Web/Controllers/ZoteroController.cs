@@ -317,7 +317,7 @@ namespace ERxWebClient2.Controllers
 				var zoteroERWebReviewItemsToBePushed = zoteroERWebReviewItems.
                     Where(x => x.SyncState == ZoteroERWebReviewItem.ErWebState.canPush && x.ItemKey.Length == 0);
                 var zoteroItemsToBeUpdated = zoteroERWebReviewItems.
-                    Where(x => x.SyncState != ZoteroERWebReviewItem.ErWebState.canPush && x.ItemKey.Length > 0).ToList();
+                    Where(x => x.SyncState == ZoteroERWebReviewItem.ErWebState.canPush && x.ItemKey.Length > 0).ToList();
 
                 if(zoteroERWebReviewItemsToBePushed.Count() > 0){
                     var postResult = await PushItemsForThisGroupToZotero(zoteroERWebReviewItemsToBePushed, zrc, groupIDBeingSynced);
