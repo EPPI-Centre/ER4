@@ -875,5 +875,25 @@ END
 SET NOCOUNT OFF
 GO
 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER   Procedure [dbo].[st_ZoteroItemDocumentCreate](
+@DocZoteroKey  nvarchar(50),
+@ItemDocumentId  bigint )
+as
+Begin
+
+	INSERT INTO [dbo].[TB_ZOTERO_ITEM_DOCUMENT]([DocZoteroKey], [ItemDocumentId])
+	VALUES( @DocZoteroKey, @ItemDocumentId)
+	   
+End
+
+GO
+
+
+
+
 GO
 

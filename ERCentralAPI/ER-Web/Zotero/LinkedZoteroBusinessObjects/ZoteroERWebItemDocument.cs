@@ -125,31 +125,22 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
-            AddNew();
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ZoteroItemDocumentCreate", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@DocZoteroKey", ReadProperty(DocZoteroKeyProperty)));
+                    command.Parameters.Add(new SqlParameter("@ItemDocumentId", ReadProperty(ItemDocumentIdProperty)));
+                    command.ExecuteNonQuery();
+
+                }
+                connection.Close();
+            }
         }
 
-        private void AddNew()
-        {
-            //using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            //{
-            //    connection.Open();
-            //    using (SqlCommand command = new SqlCommand("st_ZoteroItemDocumentCreate", connection))
-            //    {
-            //        command.CommandType = System.Data.CommandType.StoredProcedure;
-            //        command.Parameters.Add(new SqlParameter("@ParentItem", ReadProperty(ParentItemProperty)));
-            //        command.Parameters.Add(new SqlParameter("@DocZoteroKey", ReadProperty(DocZoteroKeyProperty)));
-            //        command.Parameters.Add(new SqlParameter("@ItemDocumentId", ReadProperty(ItemDocumentIdProperty)));
-            //        command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
-            //        command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
-            //        command.Parameters.Add(new SqlParameter("@SimpleText", ReadProperty(SimpleTextProperty)));
-            //        command.Parameters.Add(new SqlParameter("@FileName", ReadProperty(FileNameProperty)));
-            //        command.Parameters.Add(new SqlParameter("@Extension", ReadProperty(ExtensionProperty)));
-            //        command.ExecuteNonQuery();
 
-            //    }
-            //    connection.Close();
-            //}
-        }
 #endif
     }
 }
