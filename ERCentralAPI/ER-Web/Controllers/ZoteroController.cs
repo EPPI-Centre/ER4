@@ -341,7 +341,7 @@ namespace ERxWebClient2.Controllers
                     var pdfCount = 0;
                     foreach (var pdf in parentItemWithChildrenList.PdfList)
                     {
-                        if (pdf.SyncState == ZoteroERWebItemDocument.ErWebState.canPush)
+                        if (pdf.SyncState == ZoteroERWebReviewItem.ErWebState.canPush)
                         {
                             var itemDoc = new ErWebZoteroItemDocument
                             {
@@ -1609,8 +1609,7 @@ namespace ERxWebClient2.Controllers
                 var zoteroItemsToBeInserted = zoteroERWebReviewItems.Where(x => x.SyncState ==
                 ZoteroERWebReviewItem.ErWebState.canPull && x.ItemID == 0);
 
-                var zoteroKeysItemsToBeInserted = zoteroItemsToBeInserted.Select(x => x.ItemKey).ToList();
-
+                
                 var zoteroItemsToInsertIntoErWeb = new Collection[zoteroKeysItemsToBeUpdated.Count()];
 
                 foreach (var zoteroKey in zoteroKeysItemsToBeUpdated)
@@ -1628,14 +1627,14 @@ namespace ERxWebClient2.Controllers
                         zoteroERWebReviewItem.iteM_REVIEW_ID);
                 }
                
-                var forSaving = await InsertNewZoteroItemsIntoErWeb(zoteroERWebReviewItems, zoteroKeysItemsToBeInserted);
+                var forSaving = await InsertNewZoteroItemsIntoErWeb(zoteroItemsToBeInserted.ToArray());
 
                 foreach (var zoteroERWebReviewItem in zoteroItemsToBeInserted.Where(x => x.PdfList.Any()))
                 {
                     zoteroERWebReviewItem.ItemID = forSaving.IncomingItems.FirstOrDefault(x => x.ZoteroKey == zoteroERWebReviewItem.ItemKey).NewItemId;
                     foreach (var pdf in zoteroERWebReviewItem.PdfList)
                     {
-                        if (pdf.SyncState == ZoteroERWebItemDocument.ErWebState.canPull)
+                        if (pdf.SyncState == ZoteroERWebReviewItem.ErWebState.canPull)
                         {
                             await InsertZoteroChildDocumentInErWeb(zrc, pdf, zoteroERWebReviewItem);
                         }
@@ -1653,13 +1652,13 @@ namespace ERxWebClient2.Controllers
         }
 
 
-        private async Task<IncomingItemsList> InsertNewZoteroItemsIntoErWeb(ZoteroERWebReviewItem[] zoteroERWebReviewItems, 
-            List<string> zoteroKeysItemsToBeInserted)
+        private async Task<IncomingItemsList> InsertNewZoteroItemsIntoErWeb(ZoteroERWebReviewItem[] zoteroERWebReviewItems)
         {
             var forSaving = new IncomingItemsList();
             var incomingItems = new MobileList<ItemIncomingData>();
-            foreach (var zoteroKey in zoteroKeysItemsToBeInserted)
+            foreach (ZoteroERWebReviewItem zri in zoteroERWebReviewItems)
             {
+                string zoteroKey = zri.ItemKey;
                 var result = await this.ItemsItemKey(zoteroKey);
                 var resultCollection = result as OkObjectResult;
                 if (resultCollection?.Value == null) throw new Exception("the collection that " +
@@ -1680,10 +1679,14 @@ namespace ERxWebClient2.Controllers
                     Abstract = collectionItem.data.abstractNote ?? "",
                     Year = collectionItem.data.date ?? "0",
                     Title = collectionItem.data.title,
+                    Parent_title = collectionItem.data.publicationTitle,
                     Short_title = collectionItem.data.shortTitle ?? "",
                     Type_id = erWebItem.Item.TypeId,
                     AuthorsLi = authors.AuthorsLi,
-                    pAuthorsLi = authors.pAuthorsLi
+                    pAuthorsLi = authors.pAuthorsLi,
+                    ZoteroKey = zoteroKey,
+                    DateEdited = DateTime.Parse(collectionItem.data.dateModified)
+                    
                 };
                 incomingItems.Add(itemIncomingData);
             }
@@ -1717,7 +1720,7 @@ namespace ERxWebClient2.Controllers
         private async Task InsertZoteroChildDocumentInErWeb(ZoteroReviewConnection zrc, ZoteroERWebItemDocument pdf,
 			ZoteroERWebReviewItem? zoteroERWebReviewItem)
 		{                        
-                var fileName = pdf.FileName;
+                var fileName = pdf.documenT_TITLE;
                 var key = pdf.DocZoteroKey;
                 var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{key}/file");
                 SetZoteroHttpService(GetFileUri, zrc.ApiKey);
@@ -1738,8 +1741,8 @@ namespace ERxWebClient2.Controllers
                     ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(zoteroERWebReviewItem.ItemID,
                         fileName,
                         ext,
-                        SimpleText
-                        //zoteroERWebReviewItem.ItemKey
+                        SimpleText,
+                        zoteroERWebReviewItem.ItemKey
                         );
                     cmd.doItNow();
                 }
@@ -1748,8 +1751,8 @@ namespace ERxWebClient2.Controllers
                     ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(zoteroERWebReviewItem.ItemID,
                         fileName,
                         ext,
-                        Binary
-                        //zoteroERWebReviewItem.ItemKey
+                        Binary,
+                        zoteroERWebReviewItem.ItemKey
                         );
                     cmd.doItNow();
                 }
@@ -2738,12 +2741,12 @@ namespace ERxWebClient2.Controllers
             {
                 DocZoteroKey = uploadKeyString,
                 ItemDocumentId = itemDocumentId,
-                ParentItem = fileKey,
-                Version = 0, // TODO check with Sergio
-                LAST_MODIFIED = DateTime.Now,
-                SimpleText = "blah",  // TODO check with Sergio
-                FileName = filename,
-                Extension = extension
+                //ParentItem = fileKey,
+                //Version = 0, // TODO check with Sergio
+                //LAST_MODIFIED = DateTime.Now,
+                //SimpleText = "blah",  // TODO check with Sergio
+                documenT_TITLE = filename
+                //Extension = extension
             };
 
             var dp2 = new DataPortal<ZoteroERWebItemDocument>();

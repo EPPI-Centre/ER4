@@ -50,95 +50,40 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> ParentItemProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentItem", "ParentItem", ""));
-        public string ParentItem
+        
+
+
+        public static readonly PropertyInfo<string> documenT_TITLEProperty = RegisterProperty<string>(new PropertyInfo<string>("documenT_TITLE", "documenT_TITLE", ""));
+        public string documenT_TITLE
         {
             get
             {
-                return GetProperty(ParentItemProperty);
+                return GetProperty(documenT_TITLEProperty);
             }
             set
             {
-                SetProperty(ParentItemProperty, value);
+                SetProperty(documenT_TITLEProperty, value);
             }
         }
 
-
-        public static readonly PropertyInfo<DateTime> LAST_MODIFIEDProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LAST_MODIFIED", "LAST_MODIFIED", DateTime.Now));
-        public DateTime LAST_MODIFIED
-        {
-            get
-            {
-                return GetProperty(LAST_MODIFIEDProperty);
-            }
-            set
-            {
-                SetProperty(LAST_MODIFIEDProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<long> VersionProperty = RegisterProperty<long>(new PropertyInfo<long>("Version", "Version", 0m));
-        public long Version
-        {
-            get
-            {
-                return GetProperty(VersionProperty);
-            }
-            set
-            {
-                SetProperty(VersionProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<string> SimpleTextProperty = RegisterProperty<string>(new PropertyInfo<string>("SimpleText", "SimpleText", ""));
-        public string SimpleText
-        {
-            get
-            {
-                return GetProperty(SimpleTextProperty);
-            }
-            set
-            {
-                SetProperty(SimpleTextProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<string> FileNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FileName", "FileName", ""));
-        public string FileName
-        {
-            get
-            {
-                return GetProperty(FileNameProperty);
-            }
-            set
-            {
-                SetProperty(FileNameProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<string> ExtensionProperty = RegisterProperty<string>(new PropertyInfo<string>("Extension", "Extension", ""));
         public string Extension
         {
             get
             {
-                return GetProperty(ExtensionProperty);
-            }
-            set
-            {
-                SetProperty(ExtensionProperty, value);
+                string t = GetProperty(documenT_TITLEProperty);
+                int i = t.LastIndexOf('.');
+                if (i> -1)
+                {
+                    return t.Substring(i+1);
+                }
+                return "";
             }
         }
 
-		public enum ErWebState
-		{
-			notSet,
-			upToDate,
-			canPush,
-			canPull
-		}
+		
 
-		public static readonly PropertyInfo<ErWebState> SyncStateProperty = RegisterProperty<ErWebState>(new PropertyInfo<ErWebState>("SyncState", "SyncState", ErWebState.notSet));
-		public ErWebState SyncState
+		public static readonly PropertyInfo<ZoteroERWebReviewItem.ErWebState> SyncStateProperty = RegisterProperty<ZoteroERWebReviewItem.ErWebState>(new PropertyInfo<ZoteroERWebReviewItem.ErWebState>("SyncState", "SyncState", ZoteroERWebReviewItem.ErWebState.notSet));
+		public ZoteroERWebReviewItem.ErWebState SyncState
 		{
 			get
 			{
@@ -185,25 +130,25 @@ namespace BusinessLibrary.BusinessClasses
 
         private void AddNew()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ZoteroItemDocumentCreate", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ParentItem", ReadProperty(ParentItemProperty)));
-                    command.Parameters.Add(new SqlParameter("@DocZoteroKey", ReadProperty(DocZoteroKeyProperty)));
-                    command.Parameters.Add(new SqlParameter("@ItemDocumentId", ReadProperty(ItemDocumentIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
-                    command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
-                    command.Parameters.Add(new SqlParameter("@SimpleText", ReadProperty(SimpleTextProperty)));
-                    command.Parameters.Add(new SqlParameter("@FileName", ReadProperty(FileNameProperty)));
-                    command.Parameters.Add(new SqlParameter("@Extension", ReadProperty(ExtensionProperty)));
-                    command.ExecuteNonQuery();
+            //using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            //{
+            //    connection.Open();
+            //    using (SqlCommand command = new SqlCommand("st_ZoteroItemDocumentCreate", connection))
+            //    {
+            //        command.CommandType = System.Data.CommandType.StoredProcedure;
+            //        command.Parameters.Add(new SqlParameter("@ParentItem", ReadProperty(ParentItemProperty)));
+            //        command.Parameters.Add(new SqlParameter("@DocZoteroKey", ReadProperty(DocZoteroKeyProperty)));
+            //        command.Parameters.Add(new SqlParameter("@ItemDocumentId", ReadProperty(ItemDocumentIdProperty)));
+            //        command.Parameters.Add(new SqlParameter("@LAST_MODIFIED", ReadProperty(LAST_MODIFIEDProperty)));
+            //        command.Parameters.Add(new SqlParameter("@Version", ReadProperty(VersionProperty)));
+            //        command.Parameters.Add(new SqlParameter("@SimpleText", ReadProperty(SimpleTextProperty)));
+            //        command.Parameters.Add(new SqlParameter("@FileName", ReadProperty(FileNameProperty)));
+            //        command.Parameters.Add(new SqlParameter("@Extension", ReadProperty(ExtensionProperty)));
+            //        command.ExecuteNonQuery();
 
-                }
-                connection.Close();
-            }
+            //    }
+            //    connection.Close();
+            //}
         }
 #endif
     }

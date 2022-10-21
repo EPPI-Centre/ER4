@@ -37,7 +37,7 @@ namespace ERxWebClient2.Zotero
                     a.Rank = AuthRank;
                     AuthRank++;                  
                     itemIncomingData.AuthorsLi.Add(a);                    
-                    itemIncomingData.pAuthorsLi.Add(a);
+                    //itemIncomingData.pAuthorsLi.Add(a);
                 }
             }
             
