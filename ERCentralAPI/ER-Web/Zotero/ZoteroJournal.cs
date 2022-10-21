@@ -18,6 +18,7 @@ namespace ERxWebClient2.Zotero
             try
             {
                 var smartDate = new SmartDate();
+                _journalArticle.date = "2022-10-13T14:41:29Z";
                 var parseDateResult = SmartDate.TryParse(_journalArticle.date, ref smartDate);
                 if (!parseDateResult) throw new System.Exception("Date parsing exception");
                 var smartDateAdded = new SmartDate();

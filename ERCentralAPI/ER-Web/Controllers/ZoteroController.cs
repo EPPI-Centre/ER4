@@ -1673,6 +1673,8 @@ namespace ERxWebClient2.Controllers
                 var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
                 erWebItem.Item.IsIncluded = true;
 
+                var authors = erWebItem.AuthorsListForIncomingData(collectionItem.data.creators);
+
                 ItemIncomingData itemIncomingData = new ItemIncomingData
                 {
                     Abstract = collectionItem.data.abstractNote ?? "",
@@ -1680,8 +1682,8 @@ namespace ERxWebClient2.Controllers
                     Title = collectionItem.data.title,
                     Short_title = collectionItem.data.shortTitle ?? "",
                     Type_id = erWebItem.Item.TypeId,
-                    AuthorsLi = erWebItem.AuthorsListForIncomingData(collectionItem.data.creators).AuthorsLi,
-                    pAuthorsLi = new MobileList<AuthorsHandling.AutH>(),
+                    AuthorsLi = authors.AuthorsLi,
+                    pAuthorsLi = authors.pAuthorsLi
                 };
                 incomingItems.Add(itemIncomingData);
             }
