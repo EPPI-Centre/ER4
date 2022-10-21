@@ -1742,7 +1742,7 @@ namespace ERxWebClient2.Controllers
                         fileName,
                         ext,
                         SimpleText,
-                        zoteroERWebReviewItem.ItemKey
+                        pdf.DocZoteroKey
                         );
                     cmd.doItNow();
                 }
@@ -1752,7 +1752,7 @@ namespace ERxWebClient2.Controllers
                         fileName,
                         ext,
                         Binary,
-                        zoteroERWebReviewItem.ItemKey
+                        pdf.DocZoteroKey
                         );
                     cmd.doItNow();
                 }
