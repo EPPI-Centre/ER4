@@ -1607,11 +1607,8 @@ namespace ERxWebClient2.Controllers
                     .Select(x => x.ItemKey).ToList();
 
                 var zoteroItemsToBeInserted = zoteroERWebReviewItems.Where(x => x.SyncState ==
-                ZoteroERWebReviewItem.ErWebState.canPull && x.ItemID == 0);
-
-                
-                var zoteroItemsToInsertIntoErWeb = new Collection[zoteroKeysItemsToBeUpdated.Count()];
-
+                ZoteroERWebReviewItem.ErWebState.canPull && x.ItemID == 0).ToArray();
+               
                 foreach (var zoteroKey in zoteroKeysItemsToBeUpdated)
                 {
                     var result = await this.ItemsItemKey(zoteroKey);
@@ -1626,17 +1623,29 @@ namespace ERxWebClient2.Controllers
                     await UpdateErWebItemAndSyncTable(collectionItem, zoteroERWebReviewItem.ItemID,
                         zoteroERWebReviewItem.iteM_REVIEW_ID);
                 }
-               
-                var forSaving = await InsertNewZoteroItemsIntoErWeb(zoteroItemsToBeInserted.ToArray());
-
-                foreach (var zoteroERWebReviewItem in zoteroItemsToBeInserted.Where(x => x.PdfList.Any()))
+                IncomingItemsList forSaving = new IncomingItemsList();
+                if (zoteroItemsToBeInserted.Any())
                 {
-                    zoteroERWebReviewItem.ItemID = forSaving.IncomingItems.FirstOrDefault(x => x.ZoteroKey == zoteroERWebReviewItem.ItemKey).NewItemId;
-                    foreach (var pdf in zoteroERWebReviewItem.PdfList)
+                    forSaving = await InsertNewZoteroItemsIntoErWeb(zoteroItemsToBeInserted);
+                }
+                foreach (ZoteroERWebReviewItem zoteroERWebReviewItem in zoteroERWebReviewItems)
+                {
+                    if (zoteroERWebReviewItem.PdfList != null && zoteroERWebReviewItem.PdfList.Count > 0)
                     {
-                        if (pdf.SyncState == ZoteroERWebReviewItem.ErWebState.canPull)
+                        if (zoteroERWebReviewItem.ItemID < 1)//we'll look in forSaving.IncomingItems for the newly created ItemID
                         {
-                            await InsertZoteroChildDocumentInErWeb(zrc, pdf, zoteroERWebReviewItem);
+                            ItemIncomingData? t = forSaving.IncomingItems.FirstOrDefault(x => x.ZoteroKey == zoteroERWebReviewItem.ItemKey);
+                            if (t != null) zoteroERWebReviewItem.ItemID = t.NewItemId;
+                        }
+                        if (zoteroERWebReviewItem.ItemID > 0)//to be very sure: we do NOT try to add PDFs when we don't have the ItemID
+                        {
+                            foreach (var pdf in zoteroERWebReviewItem.PdfList)
+                            {
+                                if (pdf.SyncState == ZoteroERWebReviewItem.ErWebState.canPull)
+                                {
+                                    await InsertZoteroChildDocumentInErWeb(zrc, pdf, zoteroERWebReviewItem);
+                                }
+                            }
                         }
                     }
                 }

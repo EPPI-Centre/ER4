@@ -331,6 +331,9 @@ export class ZoteroService extends BusyAwareService {
             if (ind > -1) {
               //OK, this item exists on both ends... Can we push, pull or is it uptodate?
               let ZI = this._ZoteroItems[ind];
+
+              ZI.itemId = zri.itemID; //we will need to know the ItemId, when pulling...
+
               let dateER = new Date(zri.lasT_MODIFIED);
               let dateZT = new Date(ZI.dateModified);
               let dateZTwithOffset = this.AddOffsetTimeToDate(dateZT, 5);//zoteroTime comes with precision to Seconds, ER time to milliseconds.
@@ -343,7 +346,6 @@ export class ZoteroService extends BusyAwareService {
               else if (dateER < dateZT) {
                 //zri.syncState = SyncState.canPull;
                 ZI.syncState = SyncState.canPull;
-                ZI.itemId = zri.itemID;
               }
               else {
                 //zri.syncState = SyncState.upToDate;
