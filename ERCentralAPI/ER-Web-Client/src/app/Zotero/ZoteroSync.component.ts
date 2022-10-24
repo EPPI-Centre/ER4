@@ -73,6 +73,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     if (this.WithOrWithoutCodeSelector !== null) {
       this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
       this.isCollapsed = false;
+      this.getErWebObjects();//we directly get sync data for "Items with this code".
     }
   }
 
