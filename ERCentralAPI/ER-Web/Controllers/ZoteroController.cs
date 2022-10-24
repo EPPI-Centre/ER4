@@ -545,8 +545,8 @@ namespace ERxWebClient2.Controllers
             return 0;
         }
 
-        [HttpGet("[action]")]
-        public async Task<IActionResult> FetchZoteroERWebReviewItemList([FromQuery] string attributeId)
+        [HttpPost("[action]")]
+        public async Task<IActionResult> FetchZoteroERWebReviewItemList([FromBody] string attributeId)
         {
 			try
 			{

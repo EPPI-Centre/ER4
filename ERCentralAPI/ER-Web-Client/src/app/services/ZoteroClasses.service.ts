@@ -360,6 +360,7 @@ export class ZoteroItem {
     this.parentTitle = t.publicationTitle;
     this.dateModified = t.dateModified;
     this.itemType = t.itemType;
+    this.version = t.version;
   }
   public ToZoteroERWebReviewItem(): ZoteroERWebReviewItem {
     let res = new ZoteroERWebReviewItem(null, this);
@@ -387,6 +388,7 @@ export class ZoteroItem {
   itemType: string = "";
   itemId: number = 0;
   attachments: ZoteroAttachment[] = [];
+  version: number = 0;
   syncState: SyncState = SyncState.notSet;
 }
 export class ZoteroAttachment {

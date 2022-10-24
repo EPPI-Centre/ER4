@@ -469,8 +469,8 @@ export class ZoteroService extends BusyAwareService {
   public async fetchZoteroERWebReviewItemListAsync(attributeId: string) {
     this._BusyMethods.push("fetchZoteroERWebReviewItemListAsync");
     this._zoteroERWebReviewItemList = [];
-    return this._httpC.get<iZoteroERWebReviewItem[]>(this._baseUrl +
-      'api/Zotero/FetchZoteroERWebReviewItemList?attributeId=' + attributeId)
+    return this._httpC.post<iZoteroERWebReviewItem[]>(this._baseUrl +
+      'api/Zotero/FetchZoteroERWebReviewItemList', attributeId)
       .subscribe(result => {
         for (let rr of result) {
           let zri = new ZoteroERWebReviewItem(rr);
@@ -486,6 +486,7 @@ export class ZoteroService extends BusyAwareService {
 
               if (dateER > dateZTwithOffset) {
                 zri.syncState = SyncState.canPush;
+                zri.version = ZI.version;
                 //ZI.syncState = SyncState.canPush;
               }
               else if (dateER < dateZT) {
