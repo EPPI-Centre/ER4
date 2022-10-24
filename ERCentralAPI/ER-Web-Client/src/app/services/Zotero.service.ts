@@ -1,17 +1,15 @@
-import { EventEmitter, Inject, Injectable, Output } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {
-  ApiKeyInfo, Group, IERWebANDZoteroReviewItem, IERWebObjects, IZoteroReviewItem, iZoteroJobject, ZoteroItem, ZoteroAttachment, ZoteroReviewCollection, ZoteroReviewCollectionList,
-  iZoteroERWebReviewItem,
+  ApiKeyInfo, Group, ZoteroItem, ZoteroAttachment, iZoteroERWebReviewItem,
   ZoteroERWebReviewItem,
   SyncState,
   iZoteroItemsResult,
   ZoteroERWebItemDoc
 } from './ZoteroClasses.service';
 import { ConfigService } from './config.service';
-import { forEach } from 'lodash';
 
 @Injectable({
     providedIn: 'root',
@@ -52,11 +50,10 @@ export class ZoteroService extends BusyAwareService {
   public set ZoteroPermissions(value: ApiKeyInfo) {
         this.userKeyInfo = value;
   }
-  //public get NameOfCurrentLibrary(): string {
-  //  const gl = this.groupMeta.find(f => f.groupBeingSynced);
-  //  if (gl) return gl.data.name;
-  //  return "[Unknown]";
-  //}
+  private _LibraryName: string = "[Unknown]";
+  public get NameOfCurrentLibrary(): string {
+    return this._LibraryName;
+  }
   private _ZoteroItems: ZoteroItem[] = [];
   public get ZoteroItems(): ZoteroItem[] {
     return this._ZoteroItems;
@@ -221,6 +218,9 @@ export class ZoteroService extends BusyAwareService {
         //might be better to digest on the server side, or not. Hard to say for now (03 Oct 2022)
         const References = result.zoteroItems.filter(f => f.data.itemType !== 'attachment');//ugh, hopefully this is only references and not also other stuff!
         const Attachments = result.zoteroItems.filter(f => f.data.itemType == 'attachment');
+        if (result.zoteroItems.length > 0) {
+          this._LibraryName = result.zoteroItems[0].library.name;
+        }
         for (let iref of References) {//create the ZoteroItem, add it to our list of zoteroItems
           let ref = new ZoteroItem(iref);
           ref.syncState = SyncState.canPull;//we default to canPull, will change it if/when an item exists in ER-Web (via result.pairedItems)

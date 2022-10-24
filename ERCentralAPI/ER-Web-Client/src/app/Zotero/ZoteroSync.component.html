@@ -11,30 +11,37 @@
       To push items, select a code and from the dropdown and click Get Status
     </div>
     <div class="col-12 col-md-6 px-0">
-      To pull items, click on the pull button.
+      <div>To pull items, click on the pull button.</div>
     </div>
   </div>
   <div class="col-12 row mx-0">
-    <div class="col-auto border border-info p-1 rounded bg-light">
-      <div>Step 1, select a code:</div>
-      <div ngbDropdown>
-        <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
-                (click)="isCollapsed = !isCollapsed"
-                [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 100px;">
-          {{CurrentDropdownSelectedCode?.name}}
-        </button>
-        <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-          <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
-                           (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
+    <div class="col-12 col-md-6 px-0 mx-0 row">
+      <div class="col-auto border border-info p-1 rounded bg-light">
+        <div>Step 1, select a code:</div>
+        <div ngbDropdown>
+          <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
+                  (click)="isCollapsed = !isCollapsed"
+                  [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 100px;">
+            {{CurrentDropdownSelectedCode?.name}}
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+            <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
+                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
+          </div>
         </div>
       </div>
+      <div class="col-auto border border-info p-1 rounded bg-light ml-1">
+        <div>Step 2: click "Get Status"</div>
+        <button class="btn btn-primary m-2 p-1"
+                (click)="getErWebObjects()">
+          Get Status
+        </button>
+      </div>
     </div>
-    <div class="col-auto border border-info p-1 rounded bg-light ml-1">
-      <div>Step 2: click "Get Status"</div>
-      <button class="btn btn-primary m-2 p-1"
-              (click)="getErWebObjects()">
-        Get Status
-      </button>
+    <div  class="col-12 col-md-6 px-0 mx-0 row">
+      <div *ngIf="NameOfCurrentLibrary != '[Unknown]'" class="border rounded border-info bg-light my-auto px-1">
+        Library: <strong>{{NameOfCurrentLibrary}}</strong>
+      </div>
     </div>
   </div>
 
@@ -106,7 +113,10 @@
             <span class="k-icon k-i-arrow-left k-color-info k-icon-md"></span>
             <span class="my-auto mx-1">Pull</span>
           </button>
-          <div class="my-auto mx-2 h5 font-weight-bold">Items in Zotero</div>
+          <div class="my-auto mx-2 h5 font-weight-bold">
+            Items in Zotero
+          </div>
+          
           <button class="btn btn-sm btn-outline-success mx-1 my-auto pb-1 px-1 " (click)="RefreshBothTables()" title="Refresh list of Zotero references">
             <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
           </button>

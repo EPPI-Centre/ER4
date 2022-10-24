@@ -1,11 +1,10 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Subscription } from 'rxjs';
 import { ZoteroHeaderBarComp } from '../commonComponents/ZoteroHeaderBar.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ZoteroService } from '../services/Zotero.service';
-import { Group, ZoteroReviewCollectionList } from '../services/ZoteroClasses.service';
 
 @Component({
     selector: 'ZoteroManager',
@@ -118,7 +117,6 @@ export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
     public zoteroLink: string = '';
     public reviewLinkText: string[] = [];
     public currentLinkedReviewId: string = '';
-    public zoteroCollectionList: ZoteroReviewCollectionList = new ZoteroReviewCollectionList();
     public DetailsForSetId: number = 0;
 
     ngOnDestroy() {

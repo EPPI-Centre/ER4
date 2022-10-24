@@ -61,9 +61,9 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     return this.ObjectZoteroList.filter(f => f.syncState == SyncState.canPull || f.HasAttachmentsToPull).length;
   }
 
-  //public get NameOfCurrentLibrary() {
-  //  return this._zoteroService.NameOfCurrentLibrary;
-  //}
+  public get NameOfCurrentLibrary() {
+    return this._zoteroService.NameOfCurrentLibrary;
+  }
 
   public get IsServiceBusy(): boolean {
     return this._zoteroService.IsBusy || this._codesetStatsServ.IsBusy;
