@@ -43,7 +43,6 @@ export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
 
           await this._zoteroService.CheckZoteroPermissions().then(
             () => {
-
               if (this._zoteroService.hasPermissions) {
                 // ALREADY HAS A SHARED GROUP WITH  PERMISSIONS ASSOCIATED WITH THIS API KEY
                 this.ChangeContext("ZoteroSync");
@@ -115,9 +114,6 @@ export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
       }
     }
 
-    public GetCurrentGroup() : number {
-        return this._zoteroService.currentGroupBeingSynced;
-    }
     public isCollapsed = false;
     public zoteroLink: string = '';
     public reviewLinkText: string[] = [];

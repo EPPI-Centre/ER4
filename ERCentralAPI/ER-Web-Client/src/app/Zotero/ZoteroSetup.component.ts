@@ -194,25 +194,20 @@ export class ZoteroSetupComponent implements OnInit {
       for (var i = 0; i < this.groupMeta.length; i++) {
         if (this.groupMeta[i].id === group.id) {
           this.groupMeta[i].groupBeingSynced = true;
-          this._zoteroService.currentGroupBeingSynced = this.groupMeta[i].id;
-
         } else {
           this.groupMeta[i].groupBeingSynced = false;
         }
       }
     } else if (this._zoteroService.hasPermissions == false) {
-
       //console.log(2);
       //things _might_ be good now, so we'll make very sure and get our API to check again.
       this._zoteroService.SetError("data not fetched");//makes the "checkForStatus()" method try again from scratch...
       this.CheckForStatus().then(() => {
-
         //console.log(3);
         if (this._zoteroService.hasPermissions == true) this.PleaseGoTo.emit("ZoteroSync");
       });
     }
     //this._zoteroService.editApiKeyPermissions = true;
-
   }
 
     public get HasWriteRights(): boolean {
