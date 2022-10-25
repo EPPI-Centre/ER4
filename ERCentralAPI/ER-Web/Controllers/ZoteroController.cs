@@ -906,14 +906,18 @@ namespace ERxWebClient2.Controllers
                     var result = await this.ItemsItemKey(zoteroKey);
 
                     var resultCollection = result as OkObjectResult;
-                    if (resultCollection?.Value == null) throw new Exception("the collection that " +
-                        "has been pulled should not be empty!");
-                    var collectionItem = JsonConvert.DeserializeObject<Collection>(
-                        resultCollection?.Value?.ToString());
-                    var zoteroERWebReviewItem = zoteroERWebReviewItems.FirstOrDefault(x => x.ItemKey == zoteroKey);
-                    // this is assuming they are all items, not docs also yet!
-                    await UpdateErWebItemAndSyncTable(collectionItem, zoteroERWebReviewItem.ItemID,
-                        zoteroERWebReviewItem.iteM_REVIEW_ID);
+                    if (resultCollection != null && resultCollection.Value != null)
+                    {
+                        var collectionItem = JsonConvert.DeserializeObject<Collection>(resultCollection.Value.ToString());
+                        var zoteroERWebReviewItem = zoteroERWebReviewItems.FirstOrDefault(x => x.ItemKey == zoteroKey);
+                        if (collectionItem != null)
+                        {
+                            if (zoteroERWebReviewItem != null) await UpdateErWebItem(collectionItem, zoteroERWebReviewItem.ItemID);
+                            else throw new Exception("The zoteroERWebReviewItem to update is null!");
+                        }
+                        else throw new Exception("The collectionItem that has been pulled should not be empty!");
+                    }
+                    else throw new Exception("The collection that has been pulled should not be empty!");
                 }
                 IncomingItemsList forSaving = new IncomingItemsList();
                 if (zoteroItemsToBeInserted.Any())
@@ -1050,7 +1054,7 @@ namespace ERxWebClient2.Controllers
                 }
         }
 
-        private Task UpdateErWebItemAndSyncTable(Collection collection, long itemId, long itemReviewId )
+        private Task UpdateErWebItem(Collection collection, long itemId)
         {
                 var dpFetchItem = new DataPortal<Item>();
 				SingleCriteria<Item, long> criteriaItem =
@@ -1060,19 +1064,19 @@ namespace ERxWebClient2.Controllers
 				IMapZoteroReference referenceUpdate = _concreteReferenceCreator.GetReference(collection);
 				var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
 
-				var dp = new DataPortal<ZoteroERWebReviewItem>();
-				var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(itemReviewId.ToString());
+				//var dp = new DataPortal<ZoteroERWebReviewItem>();
+				//var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(itemReviewId.ToString());
 
-				var zoteroErWebItem = dp.Fetch(criteria);
+				//var zoteroErWebItem = dp.Fetch(criteria);
 
-				zoteroErWebItem.LAST_MODIFIED = DateTime.Now;
-				zoteroErWebItem.LibraryID = collection.library.id.ToString();
-				zoteroErWebItem.Version = collection.version;
-				zoteroErWebItem.TypeName = erWebItemUpdate.Item.TypeName;
-				zoteroErWebItem.ShortTitle = collection.data.shortTitle;
-				zoteroErWebItem.Title = collection.data.title;
+				//zoteroErWebItem.LAST_MODIFIED = DateTime.Now;
+				//zoteroErWebItem.LibraryID = collection.library.id.ToString();
+				//zoteroErWebItem.Version = collection.version;
+				//zoteroErWebItem.TypeName = erWebItemUpdate.Item.TypeName;
+				//zoteroErWebItem.ShortTitle = collection.data.shortTitle;
+				//zoteroErWebItem.Title = collection.data.title;
 
-				zoteroErWebItem = zoteroErWebItem.Save();
+				//zoteroErWebItem = zoteroErWebItem.Save();
 
 				erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
 

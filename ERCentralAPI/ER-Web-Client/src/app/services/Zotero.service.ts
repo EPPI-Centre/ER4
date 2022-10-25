@@ -272,14 +272,20 @@ export class ZoteroService extends BusyAwareService {
             //THIRD: given the PDFs in this zri , do they still exist on the Zotero end? If not, we'll delete them
             //otherwise, if they do exist, we can't pull them!
             for (let att of zri.pdfList) {
-              let attInd = AttachKeys.findIndex(f => f == att.docZoteroKey);
-              if (attInd == -1) ToDeleteAttachments.push(att);
-              else {//attachments in elements of _ZoteroItems are created as canPull, but we can't pull this one, as it exists on both sides
-                for (const zit of this._ZoteroItems) {
-                  let zatt = zit.FindAttachmentByZoteroKey(att.docZoteroKey);
-                  if (zatt !== null) {
-                    zatt.syncState = SyncState.upToDate;
-                    break;
+              if (att.docZoteroKey == "") {
+                //the attachment exists on the ER side, BUT NOT on the Zot side
+                //nothing to do, but keeping this clause to make the logic "visible"
+              }
+              else {
+                let attInd = AttachKeys.findIndex(f => f == att.docZoteroKey);
+                if (attInd == -1) ToDeleteAttachments.push(att);
+                else {//attachments in elements of _ZoteroItems are created as canPull, but we can't pull this one, as it exists on both sides
+                  for (const zit of this._ZoteroItems) {
+                    let zatt = zit.FindAttachmentByZoteroKey(att.docZoteroKey);
+                    if (zatt !== null) {
+                      zatt.syncState = SyncState.upToDate;
+                      break;
+                    }
                   }
                 }
               }
