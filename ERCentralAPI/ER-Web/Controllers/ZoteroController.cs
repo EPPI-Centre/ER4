@@ -23,23 +23,20 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ZoteroController : CSLAController
     {
-   
         private ZoteroService _zoteroService; 
         private string baseUrl;
-        private static string AdmConnStr;
         private string clientKey;
         private string clientSecret;
         private string callbackUrl; 
         private string zotero_request_token_endpoint;
-        private string zotero_authorize_endpoint;
         private string zotero_access_token_endpoint;
-        private static string access_oauth_Token_Secret = "";
 
         private ConcreteReferenceCreator _concreteReferenceCreator; 
         private ZoteroConcurrentDictionary _zoteroConcurrentDictionary;  
         private IConfiguration _configuration; 
-        private OAuthParameters _oAuth; 
-
+        private OAuthParameters _oAuth;
+        
+        #region constructor_and_setup
         public void SetZoteroHttpService(UriBuilder uri, string zoteroApiKey, bool ifNoneMatchHeader = false, bool IfUnmodifiedSinceVersion = false, string version = null)
         {
             var _httpClient = new HttpClient
@@ -66,7 +63,6 @@ namespace ERxWebClient2.Controllers
             
             _zoteroService = ZoteroService.Instance;
             
-            AdmConnStr = appConfiguration.GetSection("AppSettings")["ER4DB"];
             if (_zoteroConcurrentDictionary == null)
             {
                 _zoteroConcurrentDictionary = zoteroConcurrentDictionary;
@@ -77,13 +73,13 @@ namespace ERxWebClient2.Controllers
             baseUrl = configuration["baseUrl"];
             callbackUrl = configuration["callbackUrl"];
             zotero_request_token_endpoint = configuration["zotero_request_token_endpoint"];
-            zotero_authorize_endpoint = configuration["zotero_authorize_endpoint"];
             zotero_access_token_endpoint = configuration["zotero_access_token_endpoint"];
             _concreteReferenceCreator = ConcreteReferenceCreator.Instance;
             _oAuth = OAuthParameters.Instance;
         }
+        #endregion
 
-
+        #region oAuth_and_related
         [HttpGet("[action]")]
         public async Task<IActionResult> StartOauthProcess()
         {
@@ -199,7 +195,6 @@ namespace ERxWebClient2.Controllers
                 var remainingStringresponseThree = responseThree.Substring(indexOfAccessAnd + 1);
                 var indexOfSecondEquals = remainingStringresponseThree.IndexOf('=');
                 var indexOfSecondAnd = remainingStringresponseThree.IndexOf('&');
-                access_oauth_Token_Secret = remainingStringresponseThree.Substring(indexOfSecondEquals + 1, indexOfSecondAnd - indexOfSecondEquals - 1);
                 
                 var remainingStringresponseFour = remainingStringresponseThree.Substring(indexOfSecondAnd + 1);
                 var indexOfThirdEquals = remainingStringresponseFour.IndexOf('=');
@@ -302,8 +297,254 @@ namespace ERxWebClient2.Controllers
             return res;
         }
 
+        public string GetSignedUrl(string timestamp, string nonce, string ReviewID, string urlWithParameters, string userToken, string userSecret, string verifier)
+        {
+            var signature = OAuthHelper.createSignature(new Uri(urlWithParameters), clientKey,
+                                                        clientSecret,
+                                                        userToken, userSecret, "GET", timestamp, nonce,
+                                                        verifier,
+                                                        out string normalizedUrl,
+                                                        out string normalizedRequestParameters,
+                                                        new Dictionary<string, string>());
 
+            var signedUrl = string.Format("{0}?{1}&oauth_signature={2}", normalizedUrl, normalizedRequestParameters,
+                                          signature);
 
+            return signedUrl;
+        }
+
+        /// <summary>
+        /// sets the supplied groupId to the one being used, unless removeLink is true, in which case sets the groupId to "no group" (empty string)
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="removeLink"></param>
+        /// <returns></returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UpdateGroupToReview([FromBody] int groupId, bool removeLink)
+        {
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+                ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+                if (string.IsNullOrEmpty(zrc.ApiKey))
+                {
+                    return Unauthorized();
+                }
+                if (removeLink == true)
+                {//check that the supplied id is the one we're trying to remove, do so if that's the case
+                    if (zrc.LibraryId == groupId.ToString())
+                    {
+                        zrc.LibraryId = "";
+                        zrc = zrc.Save();
+                        return Ok(zrc);
+                    }
+                    else
+                    {
+                        return StatusCode(400, "Data supplied appears incorrect");//400 is "Bad Request"
+                    }
+                }
+                else
+                {
+                    List<Group> grps = await GetGroups(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey);
+                    Group? g = grps.FirstOrDefault(f => f.id == groupId);
+                    if (g == null) return StatusCode(400, "Data supplied appears incorrect");//400 is "Bad Request"
+                    //if we got here, it's because the group exists, so we assume user has access and set it without further checks.
+                    zrc.LibraryId = groupId.ToString();
+                    zrc = zrc.Save();
+                    return Ok(zrc);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "UpdateGroupToReview has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        /// <summary>
+        /// Returns ZoteroReviewConnection for the current review (if any)
+        /// </summary>
+        /// <returns></returns>
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> CheckApiKey()
+        {
+            string Phase = "prep";
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+                ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+                if (zrc == null) return Json("No API Key");
+                else if (zrc.Status != "OK") return Ok(zrc);//nothing more to check...
+                else
+                {
+                    //OK we have an API Key and a Group Library ID, but will they work?
+                    Phase = "GetGroupsPermissions";
+                    List<int> Gids = await GetGroupsPermissions(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey);
+                    int gid;
+                    int.TryParse(zrc.LibraryId, out gid);
+                    if (Gids.Contains(gid)) return Ok(zrc);
+                    else if (Gids.Count > 0) return Json("No write access to Group Library");
+                    else return Json("No write access");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Get Zotero ApiKey has an error at phase " + Phase);
+                //this is ugly, but has to happen here, because GetGroupsPermissions is called from 2 places, but how to react differs
+                if (Phase == "GetGroupsPermissions" && e.Message == "Response status code does not indicate success: 403 (Forbidden).")
+                {//in this special case, we assume the API Key doesn't work (revoked by user on Zotero page, perhaps!)
+                    return Json("Invalid API Key");
+                }
+                else return StatusCode(500, e.Message);//something not predictable happened!
+            }
+        }
+
+        public ZoteroReviewConnection ApiKey()
+        {
+            ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+            return zrc;
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult GetApiKey()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                ZoteroReviewConnection zrc = ApiKey();
+                if (zrc.ZoteroConnectionId > 0) return Ok(zrc);
+                else return StatusCode(404, "no API Key");
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in GetApiKey");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GroupMetaData()
+        {
+            try
+            {
+
+                if (!SetCSLAUser()) return Unauthorized();
+                ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+                List<Group> TempGroups = await GetGroups(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey, true, zrc.LibraryId);
+                List<int> ids = await GetGroupsPermissions(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey);//list of group IDs for which we have write rights
+                List<Group> result = new List<Group>();
+                foreach (Group tGr in TempGroups)
+                {
+                    if (ids.Contains(tGr.id)) result.Add(tGr);
+                }
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Fetching GroupMetaDataAsync has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        /// <summary>
+        /// if passing alsoCheckIfWeAlreadyHaveAGroupToSinc = True
+        /// then you need to supply the current group library id that is being used (if any).
+        /// As a result, the groups returned will have the groupBeingSynced flag set to "true" for the one group that is being synced.
+        /// </summary>
+        /// <param name="zoteroUserId"></param>
+        /// <param name="reviewId"></param>
+        /// <param name="zoteroApiKey"></param>
+        /// <param name="alsoCheckIfWeAlreadyHaveAGroupToSinc"></param>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+		private async Task<List<Group>> GetGroups(string zoteroUserId, string reviewId, string zoteroApiKey, bool alsoCheckIfWeAlreadyHaveAGroupToSinc = false, string groupId = "")
+        {
+            //var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewId, out string zoteroApiKey);
+            var GETGroupsUri = new UriBuilder($"{baseUrl}/users/{zoteroUserId}/groups");
+            SetZoteroHttpService(GETGroupsUri, zoteroApiKey);
+            List<Group> groups = await _zoteroService.GetCollections<Group>(GETGroupsUri.ToString());
+
+            if (alsoCheckIfWeAlreadyHaveAGroupToSinc)
+            {
+                int grIdint;
+                if (int.TryParse(groupId, out grIdint) && grIdint > 0)
+                {
+                    foreach (Group g in groups)
+                    {
+                        if (g.id == grIdint)
+                        {
+                            g.groupBeingSynced = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return groups;
+        }
+
+        private (ZoteroReviewConnection, string) CheckPermissionsWithZoteroKey()
+        {
+            if (Csla.ApplicationContext.User.Identity is not ReviewerIdentity ri) throw new ArgumentNullException("ReviewerIdentity is null!");
+            ZoteroReviewConnection zrc = ApiKey();
+            string groupIDBeingSynced = zrc.LibraryId;
+            return (zrc, groupIDBeingSynced);
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> DeleteZoteroApiKey()
+        {
+            try
+            {
+                //user can delete the API key, even in read-only, IF they own the Key
+                if (!SetCSLAUser()) return Unauthorized();
+
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+                if (zrc == null || string.IsNullOrEmpty(zrc.ApiKey)) return StatusCode(400, "Nothing to delete");
+                if (ri == null || zrc.ErUserId != ri.UserId) return Unauthorized();
+                var DELETEApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zrc.ApiKey}");
+                SetZoteroHttpService(DELETEApiKeysUri, zrc.ApiKey);
+                bool result = true;
+                try
+                {
+                    result = await _zoteroService.DeleteApiKey(DELETEApiKeysUri.ToString());
+                }
+                catch (Exception e)
+                {//catching here, as it could happen that user wants to "delete" the key BECAUSE they deleted it from Zotero directly
+                    //in such a case, the call above would fail, as there is nothing to delete and we tried to delete it with a Key that doesn't authorise anything
+                    //as the key itself doesn't exist already!
+                    //so we need to finish the job and delete the record in ER as well...
+                    _logger.LogException(e, "Delete Zotero Api Key has an error on deleting the Key from the Zotero side");
+                }
+                // if it is deleted from Zotero then it needs to be deleted locally also!!
+                if (result)
+                {
+                    zrc.Delete();
+                    zrc = zrc.Save();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Delete Zotero Api Key has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        #endregion
+
+        #region SyncStates_Pull_and_push
 
         [HttpPost("[action]")]
         public async Task<IActionResult> PushZoteroErWebReviewItemList([FromBody] ZoteroERWebReviewItem[] zoteroERWebReviewItems)
@@ -566,697 +807,12 @@ namespace ERxWebClient2.Controllers
             }
         }
         
-        public async Task<Collection> GetZoteroConvertedItemAsync(string itemKey)
-        {
-
-			(ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
-			var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
-            SetZoteroHttpService(GETItemUri, zrc.ApiKey);
-            var zoteroItem = await _zoteroService.GetCollectionItem(GETItemUri.ToString());
-            return zoteroItem;
-        }
-
-        //public async Task UpdateSyncStatusOfItemAsync(Dictionary<long, ErWebState> syncStateResults, 
-        //    Dictionary<long, DocumentSyncState> docSyncStateResults,
-        //    ZoteroERWebReviewItem item)
-        //{
-
-        //    await GetItemSyncState(syncStateResults, docSyncStateResults, item);
-        //}
-
-        //private async Task GetItemSyncState(Dictionary<long, ErWebState> syncStateResults,
-        //    Dictionary<long, DocumentSyncState> docSyncStateResults,
-        //    ZoteroERWebReviewItem localSyncedItem)
-        //{
-        //    if (localSyncedItem.Zotero_item_review_ID > 0)
-        //    {
-        //        var zoteroItem = await GetZoteroConvertedItemAsync(localSyncedItem.ItemKey);
-        //        var zoteroItemDateLastModified = Convert.ToDateTime(zoteroItem.data.dateModified);
-
-        //        var lastModified = localSyncedItem.LAST_MODIFIED.ToUniversalTime();
-        //        var result = syncStateResults.TryGetValue(localSyncedItem.ItemID, out ErWebState state);
-        //        if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 0)
-        //        {
-        //            if (result)
-        //            {
-        //                syncStateResults[localSyncedItem.ItemID] = ErWebState.upToDate;
-        //            }
-        //            else
-        //            {
-        //                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.upToDate);
-
-        //            }
-        //        }
-        //        else if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 1)
-        //        {
-
-        //            if (result)
-        //            {
-        //                syncStateResults[localSyncedItem.ItemID] = ErWebState.ahead;
-        //            }
-        //            else
-        //            {
-        //                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.ahead);
-
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (result)
-        //            {
-        //                syncStateResults[localSyncedItem.ItemID] = ErWebState.behind;
-        //            }
-        //            else
-        //            {
-        //                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.behind);
-        //            }
-        //        }
-
-
-        //        if (localSyncedItem.PdfList.Count() > 0)
-        //        {
-        //            await GetPdfSyncStateAsync(localSyncedItem, zoteroItem, docSyncStateResults);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.doesNotExist);
-        //    }
-        //}
-
-        //private async Task GetPdfSyncStateAsync(ZoteroERWebReviewItem item,
-        //    Collection zoteroItem, Dictionary<long, DocumentSyncState> docSyncStateResults)
-        //{
-
-        //    var zoteroPdf = await GetZoteroAttachmentNamesAsync(zoteroItem);
-        //    foreach (var document in item.PdfList)
-        //    {
-        //        var erWebDoc = document.DOCUMENT_TITLE;
-        //        if (erWebDoc.Equals(zoteroPdf))
-        //        {
-        //            docSyncStateResults.TryAdd(document.Item_Document_Id, DocumentSyncState.upToDate);
-        //        }
-        //        else
-        //        {
-        //            docSyncStateResults.TryAdd(document.Item_Document_Id, DocumentSyncState.existsOnlyOnER);
-        //        }
-        //    }            
-        //}
-
         private Item GetErWebItem(long itemId)
         {
             var dp = new DataPortal<Item>();
             var criteria = new SingleCriteria<Item, long>(itemId);
             var item = dp.Fetch(criteria);
             return item;
-        }
-
-        private async Task<string> GetZoteroAttachmentNamesAsync(Collection zoteroItem)
-        {
-            List<string> docNames = new List<string>();
-            var parentKey = zoteroItem.key;
-            var index = zoteroItem.links.attachment.href.LastIndexOf('/');
-            var lengthOfAttachmentStr = zoteroItem.links.attachment.href.Length - index;
-            var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
-
-            return await GetZoteroAttachmentFileNameAsync(fileKey);
-        }
-
-        private async Task<string> GetZoteroAttachmentFileNameAsync(string fileKey)
-        {
-            var zoteroAttachmentLastModified = await GetZoteroAttachmentStateAsync(fileKey);
-
-            ZoteroReviewConnection zrc = ApiKey();
-            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{fileKey}");
-            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
-
-            var zoteroCollection = await _zoteroService.GetCollectionItem(GetFileUri.ToString());
-            if (zoteroCollection != null)
-            {
-                return zoteroCollection.data.title;
-                
-            }
-            return "";
-        }
-
-        private async Task<ZoteroERWebReviewItem.ErWebState> GetZoteroAttachmentStateAsync(string itemKey)
-        {
-            
-            ZoteroReviewConnection zrc = ApiKey();
-            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{itemKey}/file");
-            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
-
-            //act
-            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
-            var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
-            if (!string.IsNullOrEmpty(lastModifiedDate))
-            {
-                return ZoteroERWebReviewItem.ErWebState.upToDate;
-            }
-            else
-            {
-                return ZoteroERWebReviewItem.ErWebState.canPush;
-            }
-        }
-
-       
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> FetchGroupToReviewLinks()
-        {
-            try
-            {
-                if (!SetCSLAUser()) return Unauthorized();
-                //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                //if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-
-                //var getKeyResult = ApiKey();
-                //DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
-                //SingleCriteria<ZoteroReviewCollectionList, long> criteria =
-                //        new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt64(ri.ReviewId));
-                //var reviewCollectionList = await dp.FetchAsync(criteria);
-
-                return Ok("not implemented");
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Fetch GroupToReview has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-        ///<summary>
-        /// Updates Zotero items with changes to local ERWeb items that have changed
-        /// <paramref name="items"/>
-        /// <returns>IActionResult</returns>
-        /// </summary>
-        [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateERWebItemsInZoteroAsync([FromBody] List<iItemReviewID> items)
-        {
-            if (!SetCSLAUser4Writing()) return Unauthorized();
-			(ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
-			var localItems = new List<Item>();
-            var zoteroItems = new List<CollectionData>();
-
-            // 1 - get the items as listed in the parameter argument from the local db which would already changed
-            foreach (var item in items)
-            {
-                DataPortal<Item> dpItemFetch = new DataPortal<Item>();
-                SingleCriteria<Item, Int64> criteriaItem =
-                    new SingleCriteria<Item, Int64>(item.itemID);
-
-                var itemResult = await dpItemFetch.FetchAsync(criteriaItem);
-                localItems.Add(itemResult);
-            }
-            var _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
-            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
-           
-            HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
-            _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
-
-            // 3 - Finally push using a post or a put to Zotero to update the items that should be already present
-            var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
-            SetZoteroHttpService(PUTItemsUri, zrc.ApiKey);
-
-            // 2 - Convert these items to their Zotero counter parts using the factory pattern class already created
-            foreach (var item in localItems)
-            {
-                DataPortal<ZoteroItemReviewIDs> dp = new DataPortal<ZoteroItemReviewIDs>();
-                SingleCriteria<string> criteria =
-              new SingleCriteria<string>(item.ItemId.ToString());
-
-                var itemReviewIds = dp.Fetch(criteria);
-
-                foreach (var itemReviewId in itemReviewIds)
-                {
-                    var zoteroItemContent = await ItemsItemId(itemReviewId.ITEM_REVIEW_ID.ToString());
-                    var payload = JsonConvert.SerializeObject(zoteroItemContent);
-                    var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString());
-                    var actualContent = await response.Content.ReadAsStringAsync();
-                    if (actualContent.Contains("success"))
-                    {
-                        var test = "Blah";
-                    }
-                    else
-                    {
-                        throw new Exception("PUTTING to Zotero has failed");
-                    }
-                }
-
-            }
-
-            return Ok(true);
-        }
-
-
-        /// <summary>
-        /// sets the supplied groupId to the one being used, unless removeLink is true, in which case sets the groupId to "no group" (empty string)
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="removeLink"></param>
-        /// <returns></returns>
-        [HttpPost("[action]")]
-        public async Task<IActionResult> UpdateGroupToReview([FromBody] int groupId, bool removeLink)
-        {
-            try
-            {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-
-                ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
-                if (string.IsNullOrEmpty(zrc.ApiKey))
-                {
-                    return Unauthorized();
-                }
-                if (removeLink == true)
-                {//check that the supplied id is the one we're trying to remove, do so if that's the case
-                    if(zrc.LibraryId == groupId.ToString())
-                    {
-                        zrc.LibraryId = "";
-                        zrc = zrc.Save();
-                        return Ok(zrc);
-                    }
-                    else
-                    {
-                        return StatusCode(400, "Data supplied appears incorrect");//400 is "Bad Request"
-                    }
-                }
-                else
-                {
-                    List<Group> grps = await GetGroups(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey);
-                    Group? g = grps.FirstOrDefault(f => f.id == groupId);
-                    if (g == null) return StatusCode(400, "Data supplied appears incorrect");//400 is "Bad Request"
-                    //if we got here, it's because the group exists, so we assume user has access and set it without further checks.
-                    zrc.LibraryId = groupId.ToString();
-                    zrc = zrc.Save();
-                    return Ok(zrc);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "UpdateGroupToReview has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-        /// <summary>
-        /// Returns ZoteroReviewConnection for the current review (if any)
-        /// </summary>
-        /// <returns></returns>
-        public ZoteroReviewConnection ApiKey()
-        {
-            ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
-            return zrc;
-        }
-
-        [HttpGet("[action]")]
-        public IActionResult GetApiKey()
-        {
-            try
-            {
-                if (!SetCSLAUser()) return Unauthorized();
-                ZoteroReviewConnection zrc = ApiKey();
-                if (zrc.ZoteroConnectionId > 0) return Ok(zrc);
-                else return StatusCode(404, "no API Key");
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Error in GetApiKey");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-
-
-        //PROBABLY not needed? Consider deleting this, the API call in the services, and what this method uses...
-        //[HttpPost("[action]")]
-        //public async Task<IActionResult> Collection([FromBody] string payload)
-        //{
-        //    try
-        //    {
-        //        if (!SetCSLAUser4Writing()) return Unauthorized();
-        //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-        //        if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-        //        ZoteroReviewConnection zrc = ApiKey();
-        //        var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
-        //        if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
-
-        //        UriBuilder GetCollectionsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/collections");
-        //        SetZoteroHttpService(GetCollectionsUri, zrc.ApiKey);
-        //        payload = "[{\"name\" : \"My Collection Test 2\"}]"; // TODO hardcoded remove when ready
-
-        //        var response = await _zoteroService.CollectionPost(payload, GetCollectionsUri.ToString());
-
-        //        return Ok();
-
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogException(e, "Collection post has an error");
-        //        var message = "";
-        //        if (e.Message.Contains("403"))
-        //        {
-        //            message += "No Zotero API Token; either it has been revoked or never created";
-        //        }
-        //        else
-        //        {
-        //            message += e.Message;
-        //        }
-        //        return StatusCode(500, message);
-        //    }
-        //}
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GroupMember([FromQuery] string groupId)
-        {
-            try
-            {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-
-                ZoteroReviewConnection zrc = ApiKey();
-                var GetKeyUri = new UriBuilder($"{baseUrl}/groups/{groupId}/settings/members");
-                SetZoteroHttpService(GetKeyUri, zrc.ApiKey);
-                var responseString = await _zoteroService.GetUserPermissions(GetKeyUri.ToString());
-
-                return Ok(responseString);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Fetching Zotero user permissions has an error");
-                var message = "";
-                if (e.Message.Contains("403"))
-                {
-                    message += "No Zotero API Token; either it has been revoked or never created";
-                }
-                else
-                {
-                    message += e.Message;
-                }
-                return StatusCode(500, message);
-            }
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> UserPermissions()
-        {
-            try
-            {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-
-                ZoteroReviewConnection zrc = ApiKey();
-                var GetKeyUri = new UriBuilder($"{baseUrl}/keys/current");
-                SetZoteroHttpService(GetKeyUri, zrc.ApiKey);
-                var responseString = await _zoteroService.GetUserPermissions(GetKeyUri.ToString());
-
-                return Ok(responseString);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Fetching Zotero user permissions has an error");
-                var message = "";
-                if (e.Message.Contains("403"))
-                {
-                    message += "No Zotero API Token; either it has been revoked or never created";
-                }
-                else
-                {
-                    message += e.Message;
-                }
-                return StatusCode(500, message);
-            }
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GroupMetaData()
-        {
-            try
-			{
-                
-				if (!SetCSLAUser()) return Unauthorized();
-                ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-				if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-
-				List<Group> TempGroups = await GetGroups(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey, true, zrc.LibraryId);
-                List<int> ids = await GetGroupsPermissions(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey);//list of group IDs for which we have write rights
-                List<Group> result = new List<Group>();
-                foreach (Group tGr in TempGroups)
-                {
-                    if (ids.Contains(tGr.id)) result.Add(tGr);
-                }
-                return Ok(result);
-			}
-			catch (Exception e)
-            {
-                _logger.LogException(e, "Fetching GroupMetaDataAsync has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-        /// <summary>
-        /// if passing alsoCheckIfWeAlreadyHaveAGroupToSinc = True
-        /// then you need to supply the current group library id that is being used (if any).
-        /// As a result, the groups returned will have the groupBeingSynced flag set to "true" for the one group that is being synced.
-        /// </summary>
-        /// <param name="zoteroUserId"></param>
-        /// <param name="reviewId"></param>
-        /// <param name="zoteroApiKey"></param>
-        /// <param name="alsoCheckIfWeAlreadyHaveAGroupToSinc"></param>
-        /// <param name="groupId"></param>
-        /// <returns></returns>
-		private async Task<List<Group>> GetGroups(string zoteroUserId, string reviewId, string zoteroApiKey, bool alsoCheckIfWeAlreadyHaveAGroupToSinc = false, string groupId = "")
-		{
-			//var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewId, out string zoteroApiKey);
-			var GETGroupsUri = new UriBuilder($"{baseUrl}/users/{zoteroUserId}/groups");
-			SetZoteroHttpService(GETGroupsUri, zoteroApiKey);
-			List<Group> groups = await _zoteroService.GetCollections<Group>(GETGroupsUri.ToString());
-            
-            if (alsoCheckIfWeAlreadyHaveAGroupToSinc)
-            {
-                int grIdint ;
-                if (int.TryParse(groupId, out grIdint) && grIdint > 0)
-                {
-                    foreach (Group g in groups)
-                    {
-                        if (g.id == grIdint)
-                        {
-                            g.groupBeingSynced = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-			return groups;
-		}
-
-		//[HttpGet("[action]")]
-  //      public async Task<ApiKey[]> FetchApiKeys()
-  //      {
-  //          try
-  //          {
-  //              if (!SetCSLAUser()) return new ApiKey[] { };
-  //              ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-  //              if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-                
-  //              var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId.ToString(), out string zoteroApiKey);
-  //              var GETApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zoteroApiKey}");
-  //              SetZoteroHttpService(GETApiKeysUri, zoteroApiKey);
-  //              var key = await _zoteroService.GetApiKey(GETApiKeysUri.ToString());
-  //              return new ApiKey[] { key };
-  //          }
-  //          catch (Exception e)
-  //          {
-  //              _logger.LogException(e, "FetchApiKeys has an error");
-  //              return new ApiKey[] { };
-  //          }
-  //      }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> DeleteZoteroApiKey()
-        {
-            try
-            {
-                //user can delete the API key, even in read-only, IF they own the Key
-                if (!SetCSLAUser()) return Unauthorized();
-
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
-                if (zrc == null || string.IsNullOrEmpty(zrc.ApiKey)) return StatusCode(400, "Nothing to delete");
-                if (ri == null || zrc.ErUserId != ri.UserId) return Unauthorized();
-                var DELETEApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zrc.ApiKey}");
-                SetZoteroHttpService(DELETEApiKeysUri, zrc.ApiKey);
-                bool result = true;
-                try
-                { 
-                    result = await _zoteroService.DeleteApiKey(DELETEApiKeysUri.ToString());
-                }
-                catch (Exception e)
-                {//catching here, as it could happen that user wants to "delete" the key BECAUSE they deleted it from Zotero directly
-                    //in such a case, the call above would fail, as there is nothing to delete and we tried to delete it with a Key that doesn't authorise anything
-                    //as the key itself doesn't exist already!
-                    //so we need to finish the job and delete the record in ER as well...
-                    _logger.LogException(e, "Delete Zotero Api Key has an error on deleting the Key from the Zotero side");
-                }
-                // if it is deleted from Zotero then it needs to be deleted locally also!!
-                if (result)
-                {
-                    zrc.Delete();
-                    zrc = zrc.Save();
-                }
-
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Delete Zotero Api Key has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-                
-
-        [HttpGet("[action]")]
-        public async Task<JsonResult> OLDApiKey([FromQuery] int groupId = -1, [FromQuery] bool deleteApiKey = false)
-        {
-            try
-            {
-                //if (!SetCSLAUser())
-                //{
-                //    var error = new JsonErrorModel
-                //    {
-                //        ErrorCode = 403,
-                //        ErrorMessage = "Forbidden"
-                //    };
-                //    return Json(error);
-                //}
-                //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                //if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-                //UserDetails userDetails = new UserDetails
-                //{
-                //    reviewId = ri.ReviewId,
-                //    userId = ri.UserId
-                //};
-
-                //SingleCriteria<ZoteroReviewCollectionList, long> criteria =
-                //        new SingleCriteria<ZoteroReviewCollectionList, long>(userDetails.reviewId);
-
-                //DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
-
-                //var reviewCollection = await dp.FetchAsync(criteria);
-
-                //ZoteroReviewCollection reviewCollectionItem;
-                //if (groupId == -1)
-                //{
-                //    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == ri.ReviewId);
-                //}
-                //else
-                //{
-                //    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == ri.ReviewId && x.LibraryID == groupId.ToString());
-                //}
-
-                //if (deleteApiKey && reviewCollection.Count > 0 && reviewCollectionItem != null)
-                //{
-                //    reviewCollectionItem.Delete();
-                //    reviewCollectionItem = reviewCollectionItem.Save();
-                //    return Json("DeletedApiKey");
-                //}
-
-                //var result = await dp.FetchAsync(criteria);
-                //if (result == null || result.Count() == 0)
-                //{
-                //    //               var Result = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewID, out string apiKeyOutFirst);
-                //    //if (Result)
-                //    //{
-                //    //                   return Json(apiKeyOutFirst);
-                //    //}
-                //    //else
-                //    //{
-                //    return Json("");
-                //    //}
-                //}
-                //if (string.IsNullOrEmpty(result.FirstOrDefault().ApiKey))
-                //{
-                //    var error = new JsonErrorModel
-                //    {
-                //        ErrorCode = 403,
-                //        ErrorMessage = "Forbidden"
-                //    };
-                //    return Json(error);
-                //}
-                //if (ri.ReviewId != result.FirstOrDefault().REVIEW_ID)
-                //{
-                //    var error = new JsonErrorModel
-                //    {
-                //        ErrorCode = 403,
-                //        ErrorMessage = "Forbidden"
-                //    };
-                //    return Json(error);
-                //}
-                //var apiOutResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId, out string apiKeyOut);
-                //if (!string.IsNullOrEmpty(result.FirstOrDefault().ApiKey) && !apiOutResult)
-                //{
-                //    _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ri.ReviewId, result.FirstOrDefault().ApiKey);
-                //}
-                //_zoteroConcurrentDictionary.Session.TryAdd("reviewID", ri.ReviewId.ToString());
-
-                //// TODO create an object here to bring back both strings that are required
-                ////result.ApiKey, result.LibraryID
-                //return Json(result.FirstOrDefault().ApiKey);
-                return Json("");
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Get Zotero ApiKey has an error");
-                var error = new JsonErrorModel
-                {
-                    ErrorCode = 500,
-                    ErrorMessage = e.Message
-                };
-
-                return Json(error);
-            }
-        }
-
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> CheckApiKey()
-        {
-            string Phase = "prep";
-            try
-            {
-                if (!SetCSLAUser()) return Unauthorized();
-
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-                ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
-                if (zrc == null) return Json("No API Key");
-                else if (zrc.Status != "OK") return Ok(zrc);//nothing more to check...
-                else
-                {
-                    //OK we have an API Key and a Group Library ID, but will they work?
-                    Phase = "GetGroupsPermissions";
-                    List<int> Gids = await GetGroupsPermissions(zrc.ZoteroUserId.ToString(), ri.ReviewId.ToString(), zrc.ApiKey);
-                    int gid;
-                    int.TryParse(zrc.LibraryId, out gid);
-                    if (Gids.Contains(gid)) return Ok(zrc);
-                    else if (Gids.Count > 0) return Json("No write access to Group Library");
-                    else return Json("No write access");
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Get Zotero ApiKey has an error at phase " + Phase);
-                //this is ugly, but has to happen here, because GetGroupsPermissions is called from 2 places, but how to react differs
-                if (Phase == "GetGroupsPermissions" && e.Message == "Response status code does not indicate success: 403 (Forbidden).")
-                {//in this special case, we assume the API Key doesn't work (revoked by user on Zotero page, perhaps!)
-                    return Json("Invalid API Key");
-                }
-                else return StatusCode(500, e.Message);//something not predictable happened!
-            }
         }
 
         [HttpGet("[action]")]
@@ -1297,58 +853,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        [HttpGet("[action]")]
-        public async Task<Collection> ItemsItemId([FromQuery] string itemKey)
-        {
-            Collection item = new Collection();
-            try
-            {
-
-                if (SetCSLAUser())
-                {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-					(ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
-					var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
-                    SetZoteroHttpService(GETItemUri, zrc.ApiKey);
-                    item = await _zoteroService.GetCollectionItem(GETItemUri.ToString());
-                    return item;
-
-                }
-                else return new Collection();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "FetchZoteroObjects list has an error");
-                return item;
-            }
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> ItemKeyVersionLocal([FromQuery] string ItemKey, string ItemType)
-        {
-            try
-            {
-                if (!SetCSLAUser()) return Unauthorized();
-                if (ItemType == "attachment") return Ok();
-
-                // TODO For now just ignore getting the version of the attachment
-                DataPortal<ZoteroReviewItem> dp = new DataPortal<ZoteroReviewItem>();
-                SingleCriteria<ZoteroReviewItem, string> criteria =
-                    new SingleCriteria<ZoteroReviewItem, string>(ItemKey);
-
-                var result = await dp.FetchAsync(criteria);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Get a Version Of the Item In ErWeb has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> ItemsItemKey([FromQuery] string itemKey)
+        private async Task<IActionResult> ItemsItemKey(string itemKey)
         {
             try
             {
@@ -1379,219 +884,6 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, message);
             }
         }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> ItemIdLocal([FromQuery] string itemReviewID)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(itemReviewID)) return Ok();
-
-                if (SetCSLAUser())
-                {
-                    DataPortal<ZoteroItemIDPerItemReview> dp = new DataPortal<ZoteroItemIDPerItemReview>();
-                    SingleCriteria<long> criteria =
-                            new SingleCriteria<long>(Convert.ToInt64(itemReviewID));
-
-                    var resultItemID = await dp.FetchAsync(criteria);
-                    return Ok(resultItemID);
-
-                }
-                else return Forbid();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "ItemIdLocalGet error");
-                return StatusCode(500, e.Message);
-            }
-
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> ItemReviewIds([FromQuery] string itemIds)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(itemIds)) return Ok();
-
-                if (SetCSLAUser4Writing())
-                {
-
-                    //    // TODO...!
-                    //    // Need to check if they are in Zotero local Table or not
-                    //    // if they are do nothing as the meta check will pick them up
-                    //    // If not we will need to push these items, so build
-                    //    // zoterItem objects list and get ready to post to Zotero
-                    //    // the post is tricky...
-
-
-                    // TODO instead collect the top ten for demo purposes
-                    DataPortal<ZoteroItemReviewIDs> dp = new DataPortal<ZoteroItemReviewIDs>();
-                    SingleCriteria<string> criteria =
-                            new SingleCriteria<string>(itemIds);
-
-                    var result = await dp.FetchAsync(criteria);
-                    var topTenItemReviewIDs = result.Take(10).Select(x => x.ITEM_REVIEW_ID).ToList();
-                    return Ok(topTenItemReviewIDs);
-                    //var testReviewIDS = result.Where( x=> x.ITEM_DOCUMENT_ID != 0).Take(10).ToList();
-                    //return Ok(testReviewIDS);
-
-                }
-                else return Forbid();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "ItemReviewIdsGet has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> ItemsERWebAndZotero()
-        {
-            try
-            {
-                if (SetCSLAUser4Writing())
-                {
-
-                    DataPortal<ZoteroERWebReviewItemList> dp = new DataPortal<ZoteroERWebReviewItemList>();
-                    var result = await dp.FetchAsync();
-                    return Ok(result);
-
-                }
-                else return Forbid();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "ItemsERWebAndZoteroGet has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-        // COMMENTING AS THIS METHOD WILL NOW FAIL; WILL PROBABLY BE REMOVED AS SOME OF THE LOGIC IS IN THE NEW METHODS
-        // AND SOME OF IT ON THE CLIENT
-        //// 3 TODO remove direct database code logic leave to find out how to do a rollback with CSLA here
-        //[HttpPost("[action]")]
-        //public async Task<IActionResult> ItemsItemsIdLocal([FromBody] Collection collection)
-        //{
-        //    try
-        //    {
-        //        if (!SetCSLAUser4Writing()) return Unauthorized();
-
-        //        if (collection == null || collection.data == null) return Ok();
-
-        //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-        //        var receivedZoteroItem = collection.data;
-        //        bool updateLocalVersion = false;
-        //        ZoteroReviewItem zoteroItem = new ZoteroReviewItem();
-        //        DataPortal<ZoteroReviewItem> dpFetch = new DataPortal<ZoteroReviewItem>();
-
-        //        if (!string.IsNullOrEmpty(receivedZoteroItem.key))
-        //        {
-
-        //            SingleCriteria<ZoteroReviewItem, string> criteriaZoteroItem =
-        //           new SingleCriteria<ZoteroReviewItem, string>(receivedZoteroItem.key);
-
-        //            zoteroItem = dpFetch.Fetch(criteriaZoteroItem);
-        //            if (zoteroItem.ITEM_REVIEW_ID > 0)
-        //            {
-        //                updateLocalVersion = true;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return Ok();
-        //        }
-
-        //        long itemId = 0;
-        //        using (SqlConnection connection = new SqlConnection(AdmConnStr))
-        //        {
-        //            connection.Open();
-
-        //            try
-        //            {
-        //                using (var ctx = TransactionManager<SqlConnection, SqlTransaction>.GetManager(AdmConnStr, false))
-        //                {
-
-        //                    DataPortal<ZoteroItemIDByItemReview> dp = new DataPortal<ZoteroItemIDByItemReview>();
-        //                    ZoteroItemIDByItemReviewCriteria criteria =
-        //                            new ZoteroItemIDByItemReviewCriteria(zoteroItem.ITEM_REVIEW_ID, ri.ReviewId);
-
-        //                    var resultItemID = await dp.FetchAsync(criteria);
-
-        //                    DataPortal<Item> dpFetchItem = new DataPortal<Item>();
-        //                    SingleCriteria<Item, Int64> criteriaItem =
-        //                        new SingleCriteria<Item, long>(itemId);
-
-        //                    var itemFetch = dpFetchItem.Fetch(criteriaItem);
-
-        //                    //NB THIS METHOD WILL NOW FAIL!
-        //                    //await UpdateMiddleAndLeftTableItem(collection);
-
-        //                    // TODO check update has happened as expected
-        //                    itemFetch = dpFetchItem.Execute(itemFetch);
-
-        //                    zoteroItem.ItemKey = receivedZoteroItem.key;
-        //                    zoteroItem.ITEM_REVIEW_ID = zoteroItem.ITEM_REVIEW_ID;
-        //                    zoteroItem.LAST_MODIFIED = DateTime.Now;
-        //                    zoteroItem.LibraryID = collection.library.id.ToString();
-        //                    zoteroItem.Version = receivedZoteroItem.version ?? 0;
-
-        //                    zoteroItem = dpFetch.Update(zoteroItem);
-        //                    ctx.Commit();
-        //                }
-
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                _logger.LogException(e, "Error with ItemsItemsIdLocalPost");
-        //                return StatusCode(500, e.Message);
-        //            }
-        //        }
-        //        return Ok(zoteroItem);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogException(e, "ItemsItemsIdLocalPost has an error");
-        //        return StatusCode(500, e.Message);
-        //    }
-        //}
-
-        // TODO THIS SHOULD BE INSIDE THE MAPPING CLASS
-        private int MapFromZoteroTypeToERWebTypeID(string zoteroItemType)
-        {
-            int erWebTypeId = -1;
-            
-                //1   Report
-                //2   Book, Whole
-                //3   Book, Chapter
-                //4   Dissertation
-                //5   Conference Proceedings
-                //6   Document From Internet Site
-                //7   Web Site
-                //8   DVD, Video, Media
-                //9   Research project
-                //10  Article In A Periodical
-                //11  Interview
-                //12  Generic
-                //14  Journal, Article
-            switch (zoteroItemType)
-            {
-                case "journalArticle":
-                    erWebTypeId = 14;
-                    break;
-                case "attachment":
-                    erWebTypeId = 12;
-                    break;
-                default:
-                    // code block
-                    break;
-            }
-            return erWebTypeId;
-
-        }
-
 
         [HttpPost("[action]")]
         public async Task<IActionResult> PullZoteroErWebReviewItemList([FromBody] 
@@ -1660,7 +952,6 @@ namespace ERxWebClient2.Controllers
 			}
         }
 
-
         private async Task<IncomingItemsList> InsertNewZoteroItemsIntoErWeb(ZoteroERWebReviewItem[] zoteroERWebReviewItems)
         {
             var forSaving = new IncomingItemsList();
@@ -1718,14 +1009,6 @@ namespace ERxWebClient2.Controllers
             return forSaving;
         }
 
-        private (ZoteroReviewConnection, string) CheckPermissionsWithZoteroKey()
-        {
-            if (Csla.ApplicationContext.User.Identity is not ReviewerIdentity ri) throw new ArgumentNullException("ReviewerIdentity is null!");
-            ZoteroReviewConnection zrc = ApiKey();
-            string groupIDBeingSynced = zrc.LibraryId;
-            return (zrc, groupIDBeingSynced);
-        }
-
         private async Task InsertZoteroChildDocumentInErWeb(ZoteroReviewConnection zrc, ZoteroERWebItemDocument pdf,
 			ZoteroERWebReviewItem? zoteroERWebReviewItem)
 		{                        
@@ -1767,350 +1050,6 @@ namespace ERxWebClient2.Controllers
                 }
         }
 
-
-        // TODO going through this to understand how to refactor it to new pattern
-        // where we are syncing via the client
-        // it includes the two below functions and will have to change drastically as it is comparing dates etc.
-        [HttpPost("[action]")]
-        public async Task<IActionResult> ItemsLocal([FromBody] Collection[] collectionItems)
-        {
-            try
-            {
-
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-                int countItemsToBeInserted = 0;
-
-                for (int j = 0; j < collectionItems.Length; j++)
-                {
-                    var collectionItem = collectionItems[j];
-                    DataPortal<ZoteroReviewItem> dpRI = new DataPortal<ZoteroReviewItem>();
-                    SingleCriteria<ZoteroReviewItem, string> criteria =
-                        new SingleCriteria<ZoteroReviewItem, string>(collectionItem.data.key);
-
-                    var zoteroReviewItem = dpRI.Fetch(criteria);
-
-                    // Means we already have a version of it
-                    if (zoteroReviewItem.Zotero_item_review_ID != 0)
-                    {
-                        var localModifiedDate = zoteroReviewItem.LAST_MODIFIED.ToUniversalTime();
-                        var zoteroModifiedDate = DateTime.Parse(collectionItem.data.dateModified).ToUniversalTime();
-                        // check if it is the same version
-                        if (localModifiedDate == zoteroModifiedDate)
-                        {
-                            //return Ok();
-                        }
-                        else
-                        {
-							//NB THIS METHOD WILL NOW FAIL!
-							//await UpdateMiddleAndLeftTableItem(collectionItem);
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        countItemsToBeInserted++;
-                    }
-                }
-
-                if(countItemsToBeInserted == 0)
-                {
-                    return Ok(true);
-                }
-
-                var forSaving = new IncomingItemsList();
-                var incomingItems = new MobileList<ItemIncomingData>();
-                for (int j = 0; j < collectionItems.Length; j++)
-                {
-                    var collectionItem = collectionItems[j];
-                    ItemIncomingData itemIncomingData = new ItemIncomingData
-                    {
-                        Abstract = collectionItem.data.abstractNote ?? "",
-                        Year = collectionItem.data.date ?? "0",
-                        Title = collectionItem.data.title,
-                        Short_title = collectionItem.data.shortTitle ?? "",
-                        Type_id = MapFromZoteroTypeToERWebTypeID(collectionItem.data.itemType),
-                        AuthorsLi = new AuthorsHandling.AutorsList(),
-                        pAuthorsLi = new MobileList<AuthorsHandling.AutH>(),
-                    };
-                    incomingItems.Add(itemIncomingData);
-                }
-
-                forSaving = new IncomingItemsList
-                {
-                    FilterID = 0,
-                    SourceName = "Zotero_" + DateTime.Now,
-                    SourceDB = "Zotero",
-                    DateOfImport = DateTime.Now,
-                    DateOfSearch = DateTime.Now,
-                    Included = true,
-                    Notes = "TestZoteroSource",
-                    SearchDescr = "TestZoteroSource",
-                    SearchStr = "TestZoteroSource",
-                    IncomingItems = incomingItems
-                };
-                forSaving.buildShortTitles();
-                forSaving = forSaving.Save();
-
-
-                var itemReviewIdsInserted = new List<long>();
-
-                var dpZoteroItemIdsPerSource = new DataPortal<ZoteroItemSourceList>();
-                var criteriaSource = new SingleCriteria<ZoteroItemSourceList, Int32>(forSaving.SourceID);
-                var itemsInserted = dpZoteroItemIdsPerSource.Fetch(criteriaSource);
-
-                for (int i = 0; i < collectionItems.Length; i++)
-                {
-                    var collection = collectionItems[i];
-                    if (collection == null || collection.data == null) return Ok(false);
-                    DataPortal<ZoteroReviewItem> dpRI = new DataPortal<ZoteroReviewItem>();
-                    SingleCriteria<ZoteroReviewItem, string> criteria =
-                        new SingleCriteria<ZoteroReviewItem, string>(collection.data.key);
-
-                    var zoteroReviewItem = dpRI.Fetch(criteria);
-                    if (zoteroReviewItem.Zotero_item_review_ID != 0)
-                    {
-                        var localModifiedDate = zoteroReviewItem.LAST_MODIFIED.ToUniversalTime();
-                        var zoteroModifiedDate = DateTime.Parse(collection.data.dateModified).ToUniversalTime();
-                        // check if it is the same version
-                        if (localModifiedDate == zoteroModifiedDate)
-                        {
-                            return Ok(true);
-                        }
-                    }
-
-                    ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
-                    //var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
-                    //if (!groupIDResult) throw new Exception("Concurrent Zotero session error");
-
-                    var key = collection.key;
-                    var version = collection.version;
-                    // This pulls a straight attachment
-                    if (collection.data.itemType == "attachment" || collection.links.attachment != null)
-                    {
-                        string parentKey = "";
-
-                        if (collection.data.itemType == "attachment")
-                        {
-                            parentKey = collection.data.parentItem;
-                        }
-                        else
-                        {
-                            parentKey = collection.key;
-                            var index = collection.links.attachment.href.LastIndexOf('/');
-                            var lengthOfAttachmentStr = collection.links.attachment.href.Length - index;
-                            key = collection.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
-                        }
-
-                        DataPortal<ZoteroReviewItem> dpCheckParent = new DataPortal<ZoteroReviewItem>();
-                        SingleCriteria<ZoteroReviewItem, string> criteriaCheckParent =
-                            new SingleCriteria<ZoteroReviewItem, string>(parentKey);
-
-                        if (string.IsNullOrEmpty(parentKey))
-                            throw new NotImplementedException("Only attachments with a parent can be imported currently");
-
-                        var parentItem = dpCheckParent.Fetch(criteriaCheckParent);
-
-                        if (parentItem.ITEM_REVIEW_ID == 0)
-                        {
-                            //need to insert the parent here then continue with the child attachment
-                            ZoteroReviewItem zoteroItemParent = new ZoteroReviewItem();
-                            IMapZoteroReference referenceParent = _concreteReferenceCreator.GetReference(collection);
-                            var erWebItemParent = referenceParent.MapReferenceFromZoteroToErWeb(new Item());
-                            erWebItemParent.Item.IsIncluded = true;
-                            parentItem.ITEM_REVIEW_ID = itemsInserted[i].ITEM_REVIEW_ID;
-                            zoteroItemParent = new ZoteroReviewItem
-                            {
-                                ItemKey = parentKey,
-                                ITEM_REVIEW_ID = parentItem.ITEM_REVIEW_ID,
-                                LAST_MODIFIED = DateTime.Now,
-                                LibraryID = collection.library.id.ToString(),
-                                Version = version,
-                                TypeName = erWebItemParent.Item.TypeName
-                            };
-
-                            DataPortal<ZoteroReviewItem> dpParent = new DataPortal<ZoteroReviewItem>();
-                            zoteroItemParent = dpParent.Execute(zoteroItemParent);
-
-                            //return Ok("Parent Item not yet inserted into ERWeb");
-                        }
-
-                        DataPortal<ZoteroItemReview> dpItemReview = new DataPortal<ZoteroItemReview>();
-                        SingleCriteria<ZoteroItemReview, long> criteriaItemReview =
-                            new SingleCriteria<ZoteroItemReview, long>(parentItem.ITEM_REVIEW_ID);
-                        var parentItemID = dpItemReview.Fetch(criteriaItemReview);
-
-                        string fileName = "";
-                        if(collection.links.attachment != null)
-                        {
-                            //get filename before downloading the file
-                            var GetFileNameUri = new UriBuilder(collection.links.attachment.href);
-                            SetZoteroHttpService(GetFileNameUri, zrc.ApiKey);
-                            var fileNameResponse = await _zoteroService.GetCollectionItem(GetFileNameUri.ToString());
-                            fileName = fileNameResponse.data.title;
-                        }
-                        else
-                        {
-                            fileName = collection.data.title;//fileNameResponse.data.title;
-                        }                                               
-
-                        var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{key}/file");
-                        SetZoteroHttpService(GetFileUri, zrc.ApiKey);
-
-                        //act
-                        var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
-                        var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
-                        var fileStream = await response.Content.ReadAsStreamAsync();
-                        
-                        int ind = fileName.LastIndexOf(".");
-                        string ext = fileName.Substring(ind);
-                        Stream stream = fileStream;
-                        byte[] Binary = new byte[stream.Length];
-                        stream.Read(Binary, 0, (int)stream.Length);
-                        if (ext.ToLower() == ".txt")
-                        {
-                            string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
-                            ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(parentItemID.ITEM_ID,
-                                fileName,
-                                ext,
-                                SimpleText
-                                );
-                            cmd.doItNow();
-                        }
-                        else
-                        {
-                            ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(parentItemID.ITEM_ID,
-                                fileName,
-                                ext,
-                                Binary
-                                );
-                            cmd.doItNow();
-                        }
-                        continue;
-                    }
-                                      
-
-
-                    ZoteroReviewItem zoteroItem = new ZoteroReviewItem();
-                    IMapZoteroReference reference = _concreteReferenceCreator.GetReference(collection);
-
-                    var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
-                    erWebItem.Item.IsIncluded = true;
-
-                    if (key.Length > 0)
-                    {
-                        zoteroItem = new ZoteroReviewItem
-                        {
-                            ItemKey = key,
-                            ITEM_REVIEW_ID = itemsInserted[i].ITEM_REVIEW_ID,
-                            LAST_MODIFIED = DateTime.Now,
-                            LibraryID = collection.library.id.ToString(),
-                            Version = version,
-                            TypeName = erWebItem.Item.TypeName
-                        };
-
-                        DataPortal<ZoteroReviewItem> dp = new DataPortal<ZoteroReviewItem>();
-                        zoteroItem = dp.Execute(zoteroItem);
-
-                        //This pulls a parent item's attachment
-                        if (collection.links.attachment != null)
-                        {
-                            // need to call the attachment data from Zotero
-                            var IndexLastSlash = collection.links.attachment.href.LastIndexOf('/');
-                            var keyLength = collection.links.attachment.href.Length - IndexLastSlash;
-                            var attachmentKey = collection.links.attachment.href.Substring(IndexLastSlash + 1, keyLength - 1);
-                            var result = await this.ItemsItemKey(attachmentKey);
-
-                            var resultCollection = result as OkObjectResult;
-                            var attachmentCollection = JsonConvert.DeserializeObject<Collection>(resultCollection.Value.ToString());
-
-                            var parentKey = attachmentCollection.data.parentItem;
-                            DataPortal<ZoteroReviewItem> dpCheckParent = new DataPortal<ZoteroReviewItem>();
-                            SingleCriteria<ZoteroReviewItem, string> criteriaCheckParent =
-                                new SingleCriteria<ZoteroReviewItem, string>(parentKey);
-
-                            if (string.IsNullOrEmpty(parentKey)) throw new NotImplementedException("Only attachments with a parent can be imported currently");
-
-                            var parentItem = dpCheckParent.Fetch(criteriaCheckParent);
-
-                            if (parentItem.ITEM_REVIEW_ID == 0)
-                            {
-                                //TODO Later do smarter logic 
-                                return Ok("Parent Item not yet inserted into ERWeb");
-                            }
-
-                            DataPortal<ZoteroItemReview> dpItemReview = new DataPortal<ZoteroItemReview>();
-                            SingleCriteria<ZoteroItemReview, long> criteriaItemReview =
-                                new SingleCriteria<ZoteroItemReview, long>(parentItem.ITEM_REVIEW_ID);
-                            var parentItemID = dpItemReview.Fetch(criteriaItemReview);
-
-                            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{attachmentCollection.data.key}/file");
-                            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
-
-                            //act
-                            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
-                            var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
-                            var fileStream = await response.Content.ReadAsStreamAsync();
-                            var fileName = attachmentCollection.data.title;
-                            int ind = fileName.LastIndexOf(".");
-                            string ext = fileName.Substring(ind);
-                            Stream stream = fileStream;
-                            byte[] Binary = new byte[stream.Length];
-                            stream.Read(Binary, 0, (int)stream.Length);
-                            if (ext.ToLower() == ".txt")
-                            {
-                                string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
-                                ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(parentItemID.ITEM_ID,
-                                    fileName,
-                                    ext,
-                                    SimpleText
-                                    );
-                                cmd.doItNow();
-                            }
-                            else
-                            {
-                                ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(parentItemID.ITEM_ID,
-                                    fileName,
-                                    ext,
-                                    Binary
-                                    );
-                                cmd.doItNow();
-                            }
-                            var zoteroItemPostAttachment = new ZoteroReviewItem
-                            {
-                                ItemKey = attachmentCollection.key,
-                                ITEM_REVIEW_ID = parentItem.ITEM_REVIEW_ID,
-                                LAST_MODIFIED = DateTime.Now,
-                                LibraryID = attachmentCollection.library.id.ToString(),
-                                Version = version,
-                                TypeName = "attachment" //TODO magic string for now
-                            };
-
-                            // TODO not sure what to do with the attachment insert it into the
-                            // zoteroDoc table or simply into the ZoteroItemReview table for now...?
-                            DataPortal<ZoteroReviewItem> dpf = new DataPortal<ZoteroReviewItem>();
-                            zoteroItemPostAttachment = dpf.Execute(zoteroItemPostAttachment);
-                            return Ok(true);
-                        }
-                    }
-                    else
-                    {
-                        return Ok(true);
-                    }
-
-                }
-
-                return Ok(true);
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "ItemsLocalPost has an error");
-                return Ok(false);
-            }
-        }
-
         private Task UpdateErWebItemAndSyncTable(Collection collection, long itemId, long itemReviewId )
         {
                 var dpFetchItem = new DataPortal<Item>();
@@ -2139,90 +1078,6 @@ namespace ERxWebClient2.Controllers
 
                 return Task.CompletedTask;
         }
-
-        [HttpGet("[action]")]
-        public async Task<IActionResult> ErWebDocumentExists([FromQuery] long itemReviewId)
-        {
-            try
-            {
-                if (!SetCSLAUser()) return Unauthorized();
-
-                DataPortal<ZoteroItemReview> dpItemReview = new DataPortal<ZoteroItemReview>();
-                SingleCriteria<ZoteroItemReview, long> criteriaItemReview =
-                    new SingleCriteria<ZoteroItemReview, long>(itemReviewId);
-                var parentItemID = dpItemReview.Fetch(criteriaItemReview);
-
-                if (parentItemID.ITEM_ID > -1)
-                {
-                    DataPortal<ItemDocument> dpDoc = new DataPortal<ItemDocument>();
-                    SingleCriteria<ItemDocument, long> criteriaDoc =
-                        new SingleCriteria<ItemDocument, long>(parentItemID.ITEM_ID);
-                    var doc = dpDoc.Fetch(criteriaDoc);
-
-                    if (doc.ItemDocumentId > 0)
-                    {
-                        return Ok(true);
-                    }
-                    else
-                    {
-                        return Ok(false);
-                    }
-                }
-                else
-                {
-                    // TODO error
-                }
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "ErWebDocumentExists has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-
-        [HttpGet("[action]")]
-        public async Task<List<iItemReviewID>> ItemReviewIdsLocal(string[] itemIds)
-        {
-            try
-            {
-                if (!SetCSLAUser()) return new List<iItemReviewID>();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (ri == null) throw new ArgumentNullException("Not sure why this is null");
-
-
-                DataPortal<ZoteroReviewItemsNotInZotero> dp = new DataPortal<ZoteroReviewItemsNotInZotero>();
-                SingleCriteria<Item, Int64> criteria =
-                    new SingleCriteria<Item, long>(ri.ReviewId);
-                var zoteroReviewItemsNotInZotero = dp.Fetch(criteria);
-
-                List<iItemReviewID> itemReviewIDs = new List<iItemReviewID>();
-                foreach (var item in zoteroReviewItemsNotInZotero)
-                {
-                    var itemReviewID = new iItemReviewID
-                    {
-                        itemID = item.ITEM_ID,
-                        itemReviewID = item.ITEM_REVIEW_ID,
-                        itemDocumentID = item.ITEM_DOCUMENT_ID
-                    };
-                    if (itemIds.Contains(item.ITEM_ID.ToString()))
-                    {
-                        itemReviewIDs.Add(itemReviewID);
-                    }
-                }
-                // TODO only ever do the first ten items in dev and staging only in production optimise for lots
-                return itemReviewIDs;
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "ItemReviewIdsLocalGet has an error");
-                return new List<iItemReviewID>();
-            }
-        }
-
-
 
         [HttpPost("[action]")]
         public  IActionResult DeleteLinkedDocsAndItems([FromBody] ZoteroLinksToDelete incomingkeys )
@@ -2319,226 +1174,6 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        [HttpPost("[action]")]
-        public async Task<IActionResult> GroupsGroupIdItems([FromBody] string[] itemIds)
-        {
-
-            var items = await ItemReviewIdsLocal(itemIds);
-
-            List<Item> localItems = new List<Item>();
-            List<CollectionData> zoteroItems = new List<CollectionData>();
-            List<ErWebZoteroItemDocument> erWebZoteroItemDocs = new List<ErWebZoteroItemDocument>();
-
-            var failedItemsMsg = "These items failed when posting to Zotero: ";
-            var numberOfFailedItems = 0;
-
-            if (items.Count == 0) return Ok("false");
-
-            try
-            {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-				(ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
-				// 0 -dataportal fetch for documents
-				var itemIDsWithDocuments = items.Where(x => x.itemDocumentID > 0);
-
-                // 1 - dataportal fetch for items
-                var itemIDsWithoutDocuments = items.Where(x => x.itemDocumentID == 0);
-                DataPortal<Item> dp = new DataPortal<Item>();
-
-                foreach (var item in itemIDsWithoutDocuments)
-                {
-                    SingleCriteria<Item, Int64> criteria =
-                        new SingleCriteria<Item, Int64>(item.itemID);
-
-                    var itemResult = await dp.FetchAsync(criteria);
-                    localItems.Add(itemResult);
-                }
-
-                var POSTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
-                SetZoteroHttpService(POSTItemUri, zrc.ApiKey);
-
-                // 2 - map this item to an object that can be a valid payload (difficult)
-                var count = 0;
-                HttpResponseMessage response = new HttpResponseMessage();
-                foreach (var item in localItems)
-                {
-                    var erWebItem = new ERWebItem
-                    {
-                        Item = item
-                    };
-                    var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
-                    var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
-                    zoteroItems.Add(zoteroItem);
-                }
-
-                if (zoteroItems.Count() > 0)
-                {
-                    var payload = JsonConvert.SerializeObject(zoteroItems);
-
-                    response = await _zoteroService.CreateItem(payload, POSTItemUri.ToString());
-                    var actualContent = await response.Content.ReadAsStringAsync();
-                    if (actualContent.Contains("success"))
-                    {
-                        JObject keyValues = JsonConvert.DeserializeObject<JObject>(actualContent);
-
-                        numberOfFailedItems = keyValues["failed"].Count();
-                        foreach (var item in keyValues["failed"].Children())
-                        {
-                            failedItemsMsg += item.FirstOrDefault()["message"];
-                        }
-
-                        var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
-                        var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
-
-                        foreach (var item in keyValues["success"].Children())
-                        {
-                            List<object> values = new List<object>();
-                            var key = "";
-                            foreach (var keyJson in item.Children())
-                            {
-                                key = keyJson.ToString() ?? "";
-                            }
-
-                            zoteroItems[count].key = key;
-                            var itemReviewID = items.FirstOrDefault(x => x.itemID == localItems[count].ItemId).itemReviewID;
-                            var zoteroItemToInsert = new ZoteroReviewItem
-                            {
-                                ItemKey = key,
-                                ITEM_REVIEW_ID = itemReviewID,
-                                LAST_MODIFIED = DateTime.Now,
-                                LibraryID = libraryId,
-                                Version = version,
-                                TypeName = localItems[count].TypeName
-                            };
-
-                            DataPortal<ZoteroReviewItem> dp2 = new DataPortal<ZoteroReviewItem>();
-                            zoteroItemToInsert = dp2.Execute(zoteroItemToInsert);
-
-                            count++;
-                        }
-
-                    }
-                }
-
-                //TODO index is incorrect somehow getting documents attacjed to wrong parents
-                if (itemIDsWithDocuments.Count() > 0)
-                {
-                    // TODO advanced:  if the key is not present for the associated item to an itemDocument
-                    // then find this item locally and push to Zotero 
-                    // next get the key and continue as expected
-                    // for some reason have to do this again it loses the context!!!
-                    // TODO:  
-                    if (!SetCSLAUser4Writing()) return Unauthorized();
-                    zoteroItems.Clear();
-                    int countItems = 0;
-                    var itemIDsDistinctWithDocuments = itemIDsWithDocuments.Select(x => x.itemID).Distinct().ToList();
-                    foreach (var itemId in itemIDsDistinctWithDocuments)
-                    {
-                        var itemDoc = itemIDsWithDocuments.FirstOrDefault(y => y.itemID == itemId);
-                        DataPortal<Item> dpItem = new DataPortal<Item>();
-                        SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(itemDoc.itemID);
-                        var item = dpItem.Fetch(criteria);
-                        var erWebItem = new ERWebItem
-                        {
-                            Item = item
-                        };
-                        var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
-                        var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
-                        zoteroItems.Add(zoteroItem);
-                        countItems++;
-                    }
-
-                    //PUSH items that have documents
-                    var payload = JsonConvert.SerializeObject(zoteroItems);
-                    count = 0;
-                    response = await _zoteroService.CreateItem(payload, POSTItemUri.ToString());
-                    var actualContent = await response.Content.ReadAsStringAsync();
-                    if (actualContent.Contains("success"))
-                    {
-                        //TODO since this parent item is now in Zotero we need to insert
-                        // into the ERWebZotero table as a record  
-                        JObject keyValues = JsonConvert.DeserializeObject<JObject>(actualContent);
-
-                        numberOfFailedItems = keyValues["failed"].Count();
-                        foreach (var item in keyValues["failed"].Children())
-                        {
-                            failedItemsMsg += item.FirstOrDefault()["message"];
-                        }
-
-                        var version = Convert.ToInt64( keyValues["successful"]["0"]["version"].ToString());
-                        var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
-
-                        foreach (var item in keyValues["success"].Children())
-                        {
-                            List<object> values = new List<object>();
-                            var key = "";
-                            foreach (var keyJson in item.Children())
-                            {
-                                key = keyJson.ToString() ?? "";
-                            }
-                            var itemWithDoc = itemIDsWithDocuments.FirstOrDefault(x => x.itemID == itemIDsDistinctWithDocuments[count]);
-                            // okay what I am doing here is just uploading the first document associated with the item in question
-                            // TODO advanced add all documents associated with an item...
-                            // for now have to repeat process... of pushnig items...
-                            if (itemWithDoc != null)
-                            {
-                                var itemDoc = new ErWebZoteroItemDocument
-                                {
-                                    itemId = itemWithDoc.itemID,
-                                    parentItemFileKey = key,
-                                    itemDocumentId = itemWithDoc.itemDocumentID
-                                };
-                                erWebZoteroItemDocs.Add(itemDoc);
-                            }
-                            zoteroItems[count].key = key;
-                            var itemReviewID = items.FirstOrDefault(x => x.itemID == itemIDsWithDocuments.ToList()[count].itemID).itemReviewID;
-                            var zoteroItemToInsert = new ZoteroReviewItem
-                            {
-                                ItemKey = key,
-                                ITEM_REVIEW_ID = itemReviewID,
-                                LAST_MODIFIED = DateTime.Now,
-                                LibraryID = libraryId,
-                                Version = version,
-                                TypeName = "Journal, Article" //TODO magic string 
-                            };
-                            // for some reason have to do this again it loses the context!!!
-                            // TODO:  
-                            if (!SetCSLAUser4Writing()) return Unauthorized();
-                            DataPortal<ZoteroReviewItem> dp2 = new DataPortal<ZoteroReviewItem>();
-                            zoteroItemToInsert = dp2.Execute(zoteroItemToInsert);
-                            count++;
-                        }
-                    }
-                    if (erWebZoteroItemDocs.Count() > 0)
-                    {
-                        await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zrc.REVIEW_ID);
-                    }
-                }
-                if (numberOfFailedItems == 0)
-                {
-                    return Ok("true");
-                }
-                else
-                {
-                    return Ok(failedItemsMsg);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "UpdateZoteroObjectInERWebAsync has an error");
-                var message = "";
-                if (e.Message.Contains("403"))
-                {
-                    message += "No Zotero API Token; either it has been revoked or never created";
-                }
-                else
-                {
-                    message += e.Message;
-                }
-                return StatusCode(500, message);
-            }
-        }
-        
         private async Task UploadERWebDocumentsToZoteroAsync(List<ErWebZoteroItemDocument> erWebZoteroItemDocs, 
              int RevId)
         {
@@ -2591,13 +1226,13 @@ namespace ERxWebClient2.Controllers
 
                             var uploadKeyString =await UploadFileBytesToZoteroAsync(fileBytes, parentItemKey, name);
 
-                            await InsertUploadedDocLocally(parentItemKey, itemDoc.itemDocumentId, name, uploadKeyString, type);
+                            await InsertUploadedDocLocally(itemDoc.itemDocumentId, name, uploadKeyString);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    this._logger.LogError("uploading docs to Zotero failed");
+                    this._logger.LogError("uploading docs to Zotero failed", ex);
                 }
                 counter++;
             }
@@ -2743,8 +1378,8 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        private static Task InsertUploadedDocLocally(string fileKey, long itemDocumentId, string filename, 
-            string uploadKeyString, string extension)
+        private static Task InsertUploadedDocLocally( long itemDocumentId, string filename, 
+            string uploadKeyString)
         {
             var zoteroItemDocumentToInsert = new ZoteroERWebItemDocument
             {
@@ -2763,198 +1398,8 @@ namespace ERxWebClient2.Controllers
 
             return Task.CompletedTask;
         }
-
-        [HttpPut("[action]")]
-        public async Task<IActionResult> GroupsGroupdIdItems([FromBody] List<iItemReviewIDZoteroKey> items)
-        {
-            List<Item> localItems = new List<Item>();
-            List<BookWhole> zoteroItems = new List<BookWhole>();
-
-            try
-            {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-                ZoteroReviewConnection zrc = ApiKey();
-                string groupIDBeingSynced = zrc.LibraryId;
-                
-                var itemIDs = items.Select(x => x.itemID);
-                var itemkey = items.Select(x => x.itemKey);
-                var zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault());
-
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-
-
-                foreach (var itemID in itemIDs)
-                {
-                    DataPortal<Item> dpItemFetch = new DataPortal<Item>();
-                    SingleCriteria<Item, Int64> criteriaItem =
-                        new SingleCriteria<Item, Int64>(itemID);
-
-                    var itemResult = await dpItemFetch.FetchAsync(criteriaItem);
-                    localItems.Add(itemResult);
-                }
-                var _httpClient = new HttpClient();
-                _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
-                _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("If-Unmodified-Since-Version", zoteroItemContent.version.ToString());
-
-                HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
-                _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
-
-                // 2 - map this item to an object that can be a valid payload (difficult)
-                var count = 0;
-                HttpResponseMessage response = new HttpResponseMessage();
-                foreach (var item in localItems)
-                {
-                    var payload = JsonConvert.SerializeObject(zoteroItemContent);
-
-                    var PUTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemkey.FirstOrDefault());
-                    _httpClient.BaseAddress = new Uri(PUTItemUri.ToString());
-
-                    response = await _zoteroService.UpdateZoteroItem<ZoteroReviewItem>(payload, PUTItemUri.ToString());
-                    var actualCode = response.StatusCode;
-                    if (actualCode == System.Net.HttpStatusCode.NoContent)
-                    {
-                        zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault());
-
-                        DataPortal<ZoteroItemReview> dp = new DataPortal<ZoteroItemReview>();
-                        SingleCriteria<ZoteroItemReview, long> criteria =
-                      new SingleCriteria<ZoteroItemReview, long>(item.ItemId);
-
-                        var zoteroReviewItem = dp.Fetch(criteria);
-
-                        DataPortal<ZoteroReviewItem> dp2 = new DataPortal<ZoteroReviewItem>();
-                        SingleCriteria<ZoteroReviewItem, string> criteria2 =
-                      new SingleCriteria<ZoteroReviewItem, string>(zoteroReviewItem.ITEM_REVIEW_ID.ToString());
-
-                        var zoteroReviewItemFetch = dp2.Fetch(criteria);
-
-                        zoteroReviewItemFetch.ItemKey = itemkey.FirstOrDefault();
-                        zoteroReviewItemFetch.Version = zoteroItemContent.version;
-
-                        // TODO this might need to be changed to an update somehow...
-                        zoteroReviewItemFetch = dp2.Execute(zoteroReviewItemFetch);
-
-                    }
-                }
-                return Ok(true);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Update Zotero Object In ERWeb has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-        private Item UpdateItemWithZoteroItem(Collection zoteroItem)
-        {
-            try
-            {
-                var concreteReferenceCreator = ConcreteReferenceCreator.Instance;
-                var reference = concreteReferenceCreator.GetReference(zoteroItem);
-                //CHANGE from SG 26/08/2022 which is needed to compile, but code below clearly can't work :-(
-                var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
-
-                DataPortal<Item> dp = new DataPortal<Item>();
-                var updatedErWebItem = dp.Update(erWebItem.Item);
-                return updatedErWebItem;
-            }
-            catch (Exception)
-            {
-                throw new Exception("Error updating erWebItem with Zotero item");
-            }
-        }
-
-        public string GetSignedUrl(string timestamp, string nonce, string ReviewID, string urlWithParameters, string userToken, string userSecret, string verifier)
-        {
-            var signature = OAuthHelper.createSignature(new Uri(urlWithParameters), clientKey,
-                                                        clientSecret,
-                                                        userToken, userSecret, "GET", timestamp, nonce,
-                                                        verifier,
-                                                        out string normalizedUrl,
-                                                        out string normalizedRequestParameters,
-                                                        new Dictionary<string, string>());
-
-            var signedUrl = string.Format("{0}?{1}&oauth_signature={2}", normalizedUrl, normalizedRequestParameters,
-                                          signature);
-
-            return signedUrl;
-        }
-
-        /// <summary>
-        /// TO BE REPLACED by the real method
-        /// written by SG to try out the extensions to IncomingItemsList
-        /// </summary>
-        /// <returns></returns>
-        //TODO it looks like I just need to replace InsertNewZoteroItemsIntoErWeb with this!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        [HttpPost("[action]")]
-        public async Task<IActionResult> PullZoteroErWebReviewItemList2([FromBody] ZoteroERWebReviewItem[] zoteroERWebReviewItems)
-        {
-            try 
-            {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-                List<ZoteroERWebReviewItem> toPush = zoteroERWebReviewItems.Where(f => f.ItemID < 1).ToList();
-                MobileList<ItemIncomingData> incomingItems = new MobileList<ItemIncomingData>();
-                foreach (ZoteroERWebReviewItem zoteroERWebReviewItem in toPush)
-                {
-                    var collectionItem = await GetZoteroConvertedItemAsync(zoteroERWebReviewItem.ItemKey);
-                    ItemIncomingData itemIncomingData = new ItemIncomingData
-                    {
-                        Abstract = collectionItem.data.abstractNote ?? "",
-                        Year = collectionItem.data.date ?? "0",
-                        Title = collectionItem.data.title,
-                        Short_title = collectionItem.data.shortTitle ?? "",
-                        Type_id = MapFromZoteroTypeToERWebTypeID(collectionItem.data.itemType),
-                        AuthorsLi = new AuthorsHandling.AutorsList(),
-                        pAuthorsLi = new MobileList<AuthorsHandling.AutH>(),
-                        ZoteroKey = zoteroERWebReviewItem.ItemKey,//new member of ItemIncomingData
-                        DateEdited = DateTime.Parse(collectionItem.data.dateModified)//NB we set the date as found in the Zotero record!!
-                    };
-                    //this bit (and the one above) should sit in a better place, possibly an itemIncomingData constructor that receives a "Collection" and "ZoteroERWebReviewItem" as input parameters
-                    int AuthRank = 0;
-                    foreach (var Zau in collectionItem.data.creators)
-                    {
-                        if (Zau.creatorType == "author")
-                        {
-                            AutH a = new AutH();
-                            a.FirstName = Zau.firstName;
-                            a.MiddleName = "";
-                            a.LastName = Zau.lastName;
-                            a.Role = 0;//only looking for "actual authors" not parent authors which can be Book editors and the like.
-                            a.Rank = AuthRank;
-                            AuthRank++;
-                            itemIncomingData.AuthorsLi.Add(a);
-                        }
-                    }
-                    //itemIncomingData.AuthorsLi.AddRange(NormaliseAuth.processField(ReadProperty(AuthorsProperty), 0));
-                    incomingItems.Add(itemIncomingData);
-                }
-                IncomingItemsList forSaving = new IncomingItemsList
-                {
-                    FilterID = 0,
-                    SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
-                    SourceDB = "Zotero",
-                    DateOfImport = DateTime.Now,
-                    DateOfSearch = DateTime.Now,
-                    Included = true,
-                    Notes = "",
-                    SearchDescr = "Items pulled from Zotero",
-                    SearchStr = "N/A",
-                    IncomingItems = incomingItems
-                };
-                forSaving.buildShortTitles();
-                forSaving = forSaving.Save();//at this point, forSaving.IncomingItems has the NewItemId field populated with the correct (just created) values.
-                //thus the same list can be used to upload PDFs as we have a list of items with ZoteroKey, ItemId and list of (Zotero) PDFs therein.
-                return Ok();
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Pull In ERWeb has an error");
-                return StatusCode(500, e.Message);
-            }
-            
-        }
+  
+        #endregion
 
         /// <summary>
         /// Used to ship raw unfiltered data to Cleint, 
@@ -2973,4 +1418,1547 @@ namespace ERxWebClient2.Controllers
     }
 }
 
+//public async Task UpdateSyncStatusOfItemAsync(Dictionary<long, ErWebState> syncStateResults, 
+//    Dictionary<long, DocumentSyncState> docSyncStateResults,
+//    ZoteroERWebReviewItem item)
+//{
 
+//    await GetItemSyncState(syncStateResults, docSyncStateResults, item);
+//}
+
+//private async Task GetItemSyncState(Dictionary<long, ErWebState> syncStateResults,
+//    Dictionary<long, DocumentSyncState> docSyncStateResults,
+//    ZoteroERWebReviewItem localSyncedItem)
+//{
+//    if (localSyncedItem.Zotero_item_review_ID > 0)
+//    {
+//        var zoteroItem = await GetZoteroConvertedItemAsync(localSyncedItem.ItemKey);
+//        var zoteroItemDateLastModified = Convert.ToDateTime(zoteroItem.data.dateModified);
+
+//        var lastModified = localSyncedItem.LAST_MODIFIED.ToUniversalTime();
+//        var result = syncStateResults.TryGetValue(localSyncedItem.ItemID, out ErWebState state);
+//        if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 0)
+//        {
+//            if (result)
+//            {
+//                syncStateResults[localSyncedItem.ItemID] = ErWebState.upToDate;
+//            }
+//            else
+//            {
+//                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.upToDate);
+
+//            }
+//        }
+//        else if (lastModified.CompareTo(zoteroItemDateLastModified.ToUniversalTime()) == 1)
+//        {
+
+//            if (result)
+//            {
+//                syncStateResults[localSyncedItem.ItemID] = ErWebState.ahead;
+//            }
+//            else
+//            {
+//                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.ahead);
+
+//            }
+//        }
+//        else
+//        {
+//            if (result)
+//            {
+//                syncStateResults[localSyncedItem.ItemID] = ErWebState.behind;
+//            }
+//            else
+//            {
+//                syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.behind);
+//            }
+//        }
+
+
+//        if (localSyncedItem.PdfList.Count() > 0)
+//        {
+//            await GetPdfSyncStateAsync(localSyncedItem, zoteroItem, docSyncStateResults);
+//        }
+//    }
+//    else
+//    {
+//        syncStateResults.TryAdd(localSyncedItem.ItemID, ErWebState.doesNotExist);
+//    }
+//}
+
+//private async Task GetPdfSyncStateAsync(ZoteroERWebReviewItem item,
+//    Collection zoteroItem, Dictionary<long, DocumentSyncState> docSyncStateResults)
+//{
+
+//    var zoteroPdf = await GetZoteroAttachmentNamesAsync(zoteroItem);
+//    foreach (var document in item.PdfList)
+//    {
+//        var erWebDoc = document.DOCUMENT_TITLE;
+//        if (erWebDoc.Equals(zoteroPdf))
+//        {
+//            docSyncStateResults.TryAdd(document.Item_Document_Id, DocumentSyncState.upToDate);
+//        }
+//        else
+//        {
+//            docSyncStateResults.TryAdd(document.Item_Document_Id, DocumentSyncState.existsOnlyOnER);
+//        }
+//    }            
+//}
+
+///// <summary>
+///// TO BE REPLACED by the real method
+///// written by SG to try out the extensions to IncomingItemsList
+///// </summary>
+///// <returns></returns>
+////TODO it looks like I just need to replace InsertNewZoteroItemsIntoErWeb with this!!!!!!!!!!!!!!!!!!!!!!!!!!!
+////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//[HttpPost("[action]")]
+//public async Task<IActionResult> PullZoteroErWebReviewItemList2([FromBody] ZoteroERWebReviewItem[] zoteroERWebReviewItems)
+//{
+//    try
+//    {
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+//        List<ZoteroERWebReviewItem> toPush = zoteroERWebReviewItems.Where(f => f.ItemID < 1).ToList();
+//        MobileList<ItemIncomingData> incomingItems = new MobileList<ItemIncomingData>();
+//        foreach (ZoteroERWebReviewItem zoteroERWebReviewItem in toPush)
+//        {
+//            var collectionItem = await GetZoteroConvertedItemAsync(zoteroERWebReviewItem.ItemKey);
+//            ItemIncomingData itemIncomingData = new ItemIncomingData
+//            {
+//                Abstract = collectionItem.data.abstractNote ?? "",
+//                Year = collectionItem.data.date ?? "0",
+//                Title = collectionItem.data.title,
+//                Short_title = collectionItem.data.shortTitle ?? "",
+//                Type_id = MapFromZoteroTypeToERWebTypeID(collectionItem.data.itemType),
+//                AuthorsLi = new AuthorsHandling.AutorsList(),
+//                pAuthorsLi = new MobileList<AuthorsHandling.AutH>(),
+//                ZoteroKey = zoteroERWebReviewItem.ItemKey,//new member of ItemIncomingData
+//                DateEdited = DateTime.Parse(collectionItem.data.dateModified)//NB we set the date as found in the Zotero record!!
+//            };
+//            //this bit (and the one above) should sit in a better place, possibly an itemIncomingData constructor that receives a "Collection" and "ZoteroERWebReviewItem" as input parameters
+//            int AuthRank = 0;
+//            foreach (var Zau in collectionItem.data.creators)
+//            {
+//                if (Zau.creatorType == "author")
+//                {
+//                    AutH a = new AutH();
+//                    a.FirstName = Zau.firstName;
+//                    a.MiddleName = "";
+//                    a.LastName = Zau.lastName;
+//                    a.Role = 0;//only looking for "actual authors" not parent authors which can be Book editors and the like.
+//                    a.Rank = AuthRank;
+//                    AuthRank++;
+//                    itemIncomingData.AuthorsLi.Add(a);
+//                }
+//            }
+//            //itemIncomingData.AuthorsLi.AddRange(NormaliseAuth.processField(ReadProperty(AuthorsProperty), 0));
+//            incomingItems.Add(itemIncomingData);
+//        }
+//        IncomingItemsList forSaving = new IncomingItemsList
+//        {
+//            FilterID = 0,
+//            SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
+//            SourceDB = "Zotero",
+//            DateOfImport = DateTime.Now,
+//            DateOfSearch = DateTime.Now,
+//            Included = true,
+//            Notes = "",
+//            SearchDescr = "Items pulled from Zotero",
+//            SearchStr = "N/A",
+//            IncomingItems = incomingItems
+//        };
+//        forSaving.buildShortTitles();
+//        forSaving = forSaving.Save();//at this point, forSaving.IncomingItems has the NewItemId field populated with the correct (just created) values.
+//                                     //thus the same list can be used to upload PDFs as we have a list of items with ZoteroKey, ItemId and list of (Zotero) PDFs therein.
+//        return Ok();
+
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "Pull In ERWeb has an error");
+//        return StatusCode(500, e.Message);
+//    }
+
+//}
+
+//private async Task<Collection> GetZoteroConvertedItemAsync(string itemKey)
+//{
+
+//    (ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
+//    var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
+//    SetZoteroHttpService(GETItemUri, zrc.ApiKey);
+//    var zoteroItem = await _zoteroService.GetCollectionItem(GETItemUri.ToString());
+//    return zoteroItem;
+//}
+
+
+//private async Task<string> GetZoteroAttachmentNamesAsync(Collection zoteroItem)
+//{
+//    List<string> docNames = new List<string>();
+//    var parentKey = zoteroItem.key;
+//    var index = zoteroItem.links.attachment.href.LastIndexOf('/');
+//    var lengthOfAttachmentStr = zoteroItem.links.attachment.href.Length - index;
+//    var fileKey = zoteroItem.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
+
+//    return await GetZoteroAttachmentFileNameAsync(fileKey);
+//}
+
+//private async Task<string> GetZoteroAttachmentFileNameAsync(string fileKey)
+//{
+//    var zoteroAttachmentLastModified = await GetZoteroAttachmentStateAsync(fileKey);
+
+//    ZoteroReviewConnection zrc = ApiKey();
+//    var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{fileKey}");
+//    SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+
+//    var zoteroCollection = await _zoteroService.GetCollectionItem(GetFileUri.ToString());
+//    if (zoteroCollection != null)
+//    {
+//        return zoteroCollection.data.title;
+
+//    }
+//    return "";
+//}
+
+
+//private async Task<ZoteroERWebReviewItem.ErWebState> GetZoteroAttachmentStateAsync(string itemKey)
+//{
+
+//    ZoteroReviewConnection zrc = ApiKey();
+//    var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{itemKey}/file");
+//    SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+
+//    //act
+//    var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+//    var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+//    if (!string.IsNullOrEmpty(lastModifiedDate))
+//    {
+//        return ZoteroERWebReviewItem.ErWebState.upToDate;
+//    }
+//    else
+//    {
+//        return ZoteroERWebReviewItem.ErWebState.canPush;
+//    }
+//}
+
+//[HttpGet("[action]")]
+//public async Task<IActionResult> FetchGroupToReviewLinks()
+//{
+//    try
+//    {
+//        if (!SetCSLAUser()) return Unauthorized();
+//        //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//        //if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+//        //var getKeyResult = ApiKey();
+//        //DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
+//        //SingleCriteria<ZoteroReviewCollectionList, long> criteria =
+//        //        new SingleCriteria<ZoteroReviewCollectionList, long>(Convert.ToInt64(ri.ReviewId));
+//        //var reviewCollectionList = await dp.FetchAsync(criteria);
+
+//        return Ok("not implemented");
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "Fetch GroupToReview has an error");
+//        return StatusCode(500, e.Message);
+//    }
+//}
+
+/////<summary>
+///// Updates Zotero items with changes to local ERWeb items that have changed
+///// <paramref name="items"/>
+///// <returns>IActionResult</returns>
+///// </summary>
+//[HttpPut("[action]")]
+//public async Task<IActionResult> UpdateERWebItemsInZoteroAsync([FromBody] List<iItemReviewID> items)
+//{
+//    if (!SetCSLAUser4Writing()) return Unauthorized();
+//    (ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
+//    var localItems = new List<Item>();
+//    var zoteroItems = new List<CollectionData>();
+
+//    // 1 - get the items as listed in the parameter argument from the local db which would already changed
+//    foreach (var item in items)
+//    {
+//        DataPortal<Item> dpItemFetch = new DataPortal<Item>();
+//        SingleCriteria<Item, Int64> criteriaItem =
+//            new SingleCriteria<Item, Int64>(item.itemID);
+
+//        var itemResult = await dpItemFetch.FetchAsync(criteriaItem);
+//        localItems.Add(itemResult);
+//    }
+//    var _httpClient = new HttpClient();
+//    _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
+//    _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
+
+//    HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
+//    _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
+
+//    // 3 - Finally push using a post or a put to Zotero to update the items that should be already present
+//    var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
+//    SetZoteroHttpService(PUTItemsUri, zrc.ApiKey);
+
+//    // 2 - Convert these items to their Zotero counter parts using the factory pattern class already created
+//    foreach (var item in localItems)
+//    {
+//        DataPortal<ZoteroItemReviewIDs> dp = new DataPortal<ZoteroItemReviewIDs>();
+//        SingleCriteria<string> criteria =
+//      new SingleCriteria<string>(item.ItemId.ToString());
+
+//        var itemReviewIds = dp.Fetch(criteria);
+
+//        foreach (var itemReviewId in itemReviewIds)
+//        {
+//            var zoteroItemContent = await ItemsItemId(itemReviewId.ITEM_REVIEW_ID.ToString());
+//            var payload = JsonConvert.SerializeObject(zoteroItemContent);
+//            var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString());
+//            var actualContent = await response.Content.ReadAsStringAsync();
+//            if (actualContent.Contains("success"))
+//            {
+//                var test = "Blah";
+//            }
+//            else
+//            {
+//                throw new Exception("PUTTING to Zotero has failed");
+//            }
+//        }
+
+//    }
+
+//    return Ok(true);
+//}
+
+//PROBABLY not needed? Consider deleting this, the API call in the services, and what this method uses...
+//[HttpPost("[action]")]
+//public async Task<IActionResult> Collection([FromBody] string payload)
+//{
+//    try
+//    {
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//        if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+//        ZoteroReviewConnection zrc = ApiKey();
+//        var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
+//        if (!groupIDResult) return StatusCode(500, "Concurrent Zotero session error");
+
+//        UriBuilder GetCollectionsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/collections");
+//        SetZoteroHttpService(GetCollectionsUri, zrc.ApiKey);
+//        payload = "[{\"name\" : \"My Collection Test 2\"}]"; // TODO hardcoded remove when ready
+
+//        var response = await _zoteroService.CollectionPost(payload, GetCollectionsUri.ToString());
+
+//        return Ok();
+
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "Collection post has an error");
+//        var message = "";
+//        if (e.Message.Contains("403"))
+//        {
+//            message += "No Zotero API Token; either it has been revoked or never created";
+//        }
+//        else
+//        {
+//            message += e.Message;
+//        }
+//        return StatusCode(500, message);
+//    }
+//}
+
+//[HttpGet("[action]")]
+//public async Task<IActionResult> GroupMember([FromQuery] string groupId)
+//{
+//    try
+//    {
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//        if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+//        ZoteroReviewConnection zrc = ApiKey();
+//        var GetKeyUri = new UriBuilder($"{baseUrl}/groups/{groupId}/settings/members");
+//        SetZoteroHttpService(GetKeyUri, zrc.ApiKey);
+//        var responseString = await _zoteroService.GetUserPermissions(GetKeyUri.ToString());
+
+//        return Ok(responseString);
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "Fetching Zotero user permissions has an error");
+//        var message = "";
+//        if (e.Message.Contains("403"))
+//        {
+//            message += "No Zotero API Token; either it has been revoked or never created";
+//        }
+//        else
+//        {
+//            message += e.Message;
+//        }
+//        return StatusCode(500, message);
+//    }
+//}
+
+//[HttpGet("[action]")]
+//public async Task<IActionResult> UserPermissions()
+//{
+//    try
+//    {
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//        if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+//        ZoteroReviewConnection zrc = ApiKey();
+//        var GetKeyUri = new UriBuilder($"{baseUrl}/keys/current");
+//        SetZoteroHttpService(GetKeyUri, zrc.ApiKey);
+//        var responseString = await _zoteroService.GetUserPermissions(GetKeyUri.ToString());
+
+//        return Ok(responseString);
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "Fetching Zotero user permissions has an error");
+//        var message = "";
+//        if (e.Message.Contains("403"))
+//        {
+//            message += "No Zotero API Token; either it has been revoked or never created";
+//        }
+//        else
+//        {
+//            message += e.Message;
+//        }
+//        return StatusCode(500, message);
+//    }
+//}
+
+//[HttpGet("[action]")]
+//      public async Task<ApiKey[]> FetchApiKeys()
+//      {
+//          try
+//          {
+//              if (!SetCSLAUser()) return new ApiKey[] { };
+//              ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//              if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+//              var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId.ToString(), out string zoteroApiKey);
+//              var GETApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zoteroApiKey}");
+//              SetZoteroHttpService(GETApiKeysUri, zoteroApiKey);
+//              var key = await _zoteroService.GetApiKey(GETApiKeysUri.ToString());
+//              return new ApiKey[] { key };
+//          }
+//          catch (Exception e)
+//          {
+//              _logger.LogException(e, "FetchApiKeys has an error");
+//              return new ApiKey[] { };
+//          }
+//      }
+
+//[HttpGet("[action]")]
+//public async Task<JsonResult> OLDApiKey([FromQuery] int groupId = -1, [FromQuery] bool deleteApiKey = false)
+//{
+//    try
+//    {
+//        //if (!SetCSLAUser())
+//        //{
+//        //    var error = new JsonErrorModel
+//        //    {
+//        //        ErrorCode = 403,
+//        //        ErrorMessage = "Forbidden"
+//        //    };
+//        //    return Json(error);
+//        //}
+//        //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//        //if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+//        //UserDetails userDetails = new UserDetails
+//        //{
+//        //    reviewId = ri.ReviewId,
+//        //    userId = ri.UserId
+//        //};
+
+//        //SingleCriteria<ZoteroReviewCollectionList, long> criteria =
+//        //        new SingleCriteria<ZoteroReviewCollectionList, long>(userDetails.reviewId);
+
+//        //DataPortal<ZoteroReviewCollectionList> dp = new DataPortal<ZoteroReviewCollectionList>();
+
+//        //var reviewCollection = await dp.FetchAsync(criteria);
+
+//        //ZoteroReviewCollection reviewCollectionItem;
+//        //if (groupId == -1)
+//        //{
+//        //    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == ri.ReviewId);
+//        //}
+//        //else
+//        //{
+//        //    reviewCollectionItem = reviewCollection.FirstOrDefault(x => x.REVIEW_ID == ri.ReviewId && x.LibraryID == groupId.ToString());
+//        //}
+
+//        //if (deleteApiKey && reviewCollection.Count > 0 && reviewCollectionItem != null)
+//        //{
+//        //    reviewCollectionItem.Delete();
+//        //    reviewCollectionItem = reviewCollectionItem.Save();
+//        //    return Json("DeletedApiKey");
+//        //}
+
+//        //var result = await dp.FetchAsync(criteria);
+//        //if (result == null || result.Count() == 0)
+//        //{
+//        //    //               var Result = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewID, out string apiKeyOutFirst);
+//        //    //if (Result)
+//        //    //{
+//        //    //                   return Json(apiKeyOutFirst);
+//        //    //}
+//        //    //else
+//        //    //{
+//        //    return Json("");
+//        //    //}
+//        //}
+//        //if (string.IsNullOrEmpty(result.FirstOrDefault().ApiKey))
+//        //{
+//        //    var error = new JsonErrorModel
+//        //    {
+//        //        ErrorCode = 403,
+//        //        ErrorMessage = "Forbidden"
+//        //    };
+//        //    return Json(error);
+//        //}
+//        //if (ri.ReviewId != result.FirstOrDefault().REVIEW_ID)
+//        //{
+//        //    var error = new JsonErrorModel
+//        //    {
+//        //        ErrorCode = 403,
+//        //        ErrorMessage = "Forbidden"
+//        //    };
+//        //    return Json(error);
+//        //}
+//        //var apiOutResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + ri.ReviewId, out string apiKeyOut);
+//        //if (!string.IsNullOrEmpty(result.FirstOrDefault().ApiKey) && !apiOutResult)
+//        //{
+//        //    _zoteroConcurrentDictionary.Session.TryAdd("apiKey-" + ri.ReviewId, result.FirstOrDefault().ApiKey);
+//        //}
+//        //_zoteroConcurrentDictionary.Session.TryAdd("reviewID", ri.ReviewId.ToString());
+
+//        //// TODO create an object here to bring back both strings that are required
+//        ////result.ApiKey, result.LibraryID
+//        //return Json(result.FirstOrDefault().ApiKey);
+//        return Json("");
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "Get Zotero ApiKey has an error");
+//        var error = new JsonErrorModel
+//        {
+//            ErrorCode = 500,
+//            ErrorMessage = e.Message
+//        };
+
+//        return Json(error);
+//    }
+//}
+
+//[HttpGet("[action]")]
+//public async Task<Collection> ItemsItemId([FromQuery] string itemKey)
+//{
+//    Collection item = new Collection();
+//    try
+//    {
+
+//        if (SetCSLAUser())
+//        {
+//            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//            if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+//            (ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
+//            var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
+//            SetZoteroHttpService(GETItemUri, zrc.ApiKey);
+//            item = await _zoteroService.GetCollectionItem(GETItemUri.ToString());
+//            return item;
+
+//        }
+//        else return new Collection();
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "FetchZoteroObjects list has an error");
+//        return item;
+//    }
+//}
+
+
+//[HttpGet("[action]")]
+//public async Task<IActionResult> ItemKeyVersionLocal([FromQuery] string ItemKey, string ItemType)
+//{
+//    try
+//    {
+//        if (!SetCSLAUser()) return Unauthorized();
+//        if (ItemType == "attachment") return Ok();
+
+//        // TODO For now just ignore getting the version of the attachment
+//        DataPortal<ZoteroReviewItem> dp = new DataPortal<ZoteroReviewItem>();
+//        SingleCriteria<ZoteroReviewItem, string> criteria =
+//            new SingleCriteria<ZoteroReviewItem, string>(ItemKey);
+
+//        var result = await dp.FetchAsync(criteria);
+//        return Ok(result);
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "Get a Version Of the Item In ErWeb has an error");
+//        return StatusCode(500, e.Message);
+//    }
+//}
+
+//// TODO going through this to understand how to refactor it to new pattern
+//// where we are syncing via the client
+//// it includes the two below functions and will have to change drastically as it is comparing dates etc.
+//[HttpPost("[action]")]
+//public async Task<IActionResult> ItemsLocal([FromBody] Collection[] collectionItems)
+//{
+//    try
+//    {
+
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//        if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+//        int countItemsToBeInserted = 0;
+
+//        for (int j = 0; j < collectionItems.Length; j++)
+//        {
+//            var collectionItem = collectionItems[j];
+//            DataPortal<ZoteroReviewItem> dpRI = new DataPortal<ZoteroReviewItem>();
+//            SingleCriteria<ZoteroReviewItem, string> criteria =
+//                new SingleCriteria<ZoteroReviewItem, string>(collectionItem.data.key);
+
+//            var zoteroReviewItem = dpRI.Fetch(criteria);
+
+//            // Means we already have a version of it
+//            if (zoteroReviewItem.Zotero_item_review_ID != 0)
+//            {
+//                var localModifiedDate = zoteroReviewItem.LAST_MODIFIED.ToUniversalTime();
+//                var zoteroModifiedDate = DateTime.Parse(collectionItem.data.dateModified).ToUniversalTime();
+//                // check if it is the same version
+//                if (localModifiedDate == zoteroModifiedDate)
+//                {
+//                    //return Ok();
+//                }
+//                else
+//                {
+//                    //NB THIS METHOD WILL NOW FAIL!
+//                    //await UpdateMiddleAndLeftTableItem(collectionItem);
+//                    continue;
+//                }
+//            }
+//            else
+//            {
+//                countItemsToBeInserted++;
+//            }
+//        }
+
+//        if (countItemsToBeInserted == 0)
+//        {
+//            return Ok(true);
+//        }
+
+//        var forSaving = new IncomingItemsList();
+//        var incomingItems = new MobileList<ItemIncomingData>();
+//        for (int j = 0; j < collectionItems.Length; j++)
+//        {
+//            var collectionItem = collectionItems[j];
+//            ItemIncomingData itemIncomingData = new ItemIncomingData
+//            {
+//                Abstract = collectionItem.data.abstractNote ?? "",
+//                Year = collectionItem.data.date ?? "0",
+//                Title = collectionItem.data.title,
+//                Short_title = collectionItem.data.shortTitle ?? "",
+//                Type_id = MapFromZoteroTypeToERWebTypeID(collectionItem.data.itemType),
+//                AuthorsLi = new AuthorsHandling.AutorsList(),
+//                pAuthorsLi = new MobileList<AuthorsHandling.AutH>(),
+//            };
+//            incomingItems.Add(itemIncomingData);
+//        }
+
+//        forSaving = new IncomingItemsList
+//        {
+//            FilterID = 0,
+//            SourceName = "Zotero_" + DateTime.Now,
+//            SourceDB = "Zotero",
+//            DateOfImport = DateTime.Now,
+//            DateOfSearch = DateTime.Now,
+//            Included = true,
+//            Notes = "TestZoteroSource",
+//            SearchDescr = "TestZoteroSource",
+//            SearchStr = "TestZoteroSource",
+//            IncomingItems = incomingItems
+//        };
+//        forSaving.buildShortTitles();
+//        forSaving = forSaving.Save();
+
+
+//        var itemReviewIdsInserted = new List<long>();
+
+//        var dpZoteroItemIdsPerSource = new DataPortal<ZoteroItemSourceList>();
+//        var criteriaSource = new SingleCriteria<ZoteroItemSourceList, Int32>(forSaving.SourceID);
+//        var itemsInserted = dpZoteroItemIdsPerSource.Fetch(criteriaSource);
+
+//        for (int i = 0; i < collectionItems.Length; i++)
+//        {
+//            var collection = collectionItems[i];
+//            if (collection == null || collection.data == null) return Ok(false);
+//            DataPortal<ZoteroReviewItem> dpRI = new DataPortal<ZoteroReviewItem>();
+//            SingleCriteria<ZoteroReviewItem, string> criteria =
+//                new SingleCriteria<ZoteroReviewItem, string>(collection.data.key);
+
+//            var zoteroReviewItem = dpRI.Fetch(criteria);
+//            if (zoteroReviewItem.Zotero_item_review_ID != 0)
+//            {
+//                var localModifiedDate = zoteroReviewItem.LAST_MODIFIED.ToUniversalTime();
+//                var zoteroModifiedDate = DateTime.Parse(collection.data.dateModified).ToUniversalTime();
+//                // check if it is the same version
+//                if (localModifiedDate == zoteroModifiedDate)
+//                {
+//                    return Ok(true);
+//                }
+//            }
+
+//            ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+//            //var groupIDResult = _zoteroConcurrentDictionary.Session.TryGetValue("groupIDBeingSynced-" + zoteroApiKey, out string groupIDBeingSynced);
+//            //if (!groupIDResult) throw new Exception("Concurrent Zotero session error");
+
+//            var key = collection.key;
+//            var version = collection.version;
+//            // This pulls a straight attachment
+//            if (collection.data.itemType == "attachment" || collection.links.attachment != null)
+//            {
+//                string parentKey = "";
+
+//                if (collection.data.itemType == "attachment")
+//                {
+//                    parentKey = collection.data.parentItem;
+//                }
+//                else
+//                {
+//                    parentKey = collection.key;
+//                    var index = collection.links.attachment.href.LastIndexOf('/');
+//                    var lengthOfAttachmentStr = collection.links.attachment.href.Length - index;
+//                    key = collection.links.attachment.href.Substring(index + 1, lengthOfAttachmentStr - 1);
+//                }
+
+//                DataPortal<ZoteroReviewItem> dpCheckParent = new DataPortal<ZoteroReviewItem>();
+//                SingleCriteria<ZoteroReviewItem, string> criteriaCheckParent =
+//                    new SingleCriteria<ZoteroReviewItem, string>(parentKey);
+
+//                if (string.IsNullOrEmpty(parentKey))
+//                    throw new NotImplementedException("Only attachments with a parent can be imported currently");
+
+//                var parentItem = dpCheckParent.Fetch(criteriaCheckParent);
+
+//                if (parentItem.ITEM_REVIEW_ID == 0)
+//                {
+//                    //need to insert the parent here then continue with the child attachment
+//                    ZoteroReviewItem zoteroItemParent = new ZoteroReviewItem();
+//                    IMapZoteroReference referenceParent = _concreteReferenceCreator.GetReference(collection);
+//                    var erWebItemParent = referenceParent.MapReferenceFromZoteroToErWeb(new Item());
+//                    erWebItemParent.Item.IsIncluded = true;
+//                    parentItem.ITEM_REVIEW_ID = itemsInserted[i].ITEM_REVIEW_ID;
+//                    zoteroItemParent = new ZoteroReviewItem
+//                    {
+//                        ItemKey = parentKey,
+//                        ITEM_REVIEW_ID = parentItem.ITEM_REVIEW_ID,
+//                        LAST_MODIFIED = DateTime.Now,
+//                        LibraryID = collection.library.id.ToString(),
+//                        Version = version,
+//                        TypeName = erWebItemParent.Item.TypeName
+//                    };
+
+//                    DataPortal<ZoteroReviewItem> dpParent = new DataPortal<ZoteroReviewItem>();
+//                    zoteroItemParent = dpParent.Execute(zoteroItemParent);
+
+//                    //return Ok("Parent Item not yet inserted into ERWeb");
+//                }
+
+//                DataPortal<ZoteroItemReview> dpItemReview = new DataPortal<ZoteroItemReview>();
+//                SingleCriteria<ZoteroItemReview, long> criteriaItemReview =
+//                    new SingleCriteria<ZoteroItemReview, long>(parentItem.ITEM_REVIEW_ID);
+//                var parentItemID = dpItemReview.Fetch(criteriaItemReview);
+
+//                string fileName = "";
+//                if (collection.links.attachment != null)
+//                {
+//                    //get filename before downloading the file
+//                    var GetFileNameUri = new UriBuilder(collection.links.attachment.href);
+//                    SetZoteroHttpService(GetFileNameUri, zrc.ApiKey);
+//                    var fileNameResponse = await _zoteroService.GetCollectionItem(GetFileNameUri.ToString());
+//                    fileName = fileNameResponse.data.title;
+//                }
+//                else
+//                {
+//                    fileName = collection.data.title;//fileNameResponse.data.title;
+//                }
+
+//                var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{key}/file");
+//                SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+
+//                //act
+//                var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+//                var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+//                var fileStream = await response.Content.ReadAsStreamAsync();
+
+//                int ind = fileName.LastIndexOf(".");
+//                string ext = fileName.Substring(ind);
+//                Stream stream = fileStream;
+//                byte[] Binary = new byte[stream.Length];
+//                stream.Read(Binary, 0, (int)stream.Length);
+//                if (ext.ToLower() == ".txt")
+//                {
+//                    string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
+//                    ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(parentItemID.ITEM_ID,
+//                        fileName,
+//                        ext,
+//                        SimpleText
+//                        );
+//                    cmd.doItNow();
+//                }
+//                else
+//                {
+//                    ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(parentItemID.ITEM_ID,
+//                        fileName,
+//                        ext,
+//                        Binary
+//                        );
+//                    cmd.doItNow();
+//                }
+//                continue;
+//            }
+
+
+
+//            ZoteroReviewItem zoteroItem = new ZoteroReviewItem();
+//            IMapZoteroReference reference = _concreteReferenceCreator.GetReference(collection);
+
+//            var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
+//            erWebItem.Item.IsIncluded = true;
+
+//            if (key.Length > 0)
+//            {
+//                zoteroItem = new ZoteroReviewItem
+//                {
+//                    ItemKey = key,
+//                    ITEM_REVIEW_ID = itemsInserted[i].ITEM_REVIEW_ID,
+//                    LAST_MODIFIED = DateTime.Now,
+//                    LibraryID = collection.library.id.ToString(),
+//                    Version = version,
+//                    TypeName = erWebItem.Item.TypeName
+//                };
+
+//                DataPortal<ZoteroReviewItem> dp = new DataPortal<ZoteroReviewItem>();
+//                zoteroItem = dp.Execute(zoteroItem);
+
+//                //This pulls a parent item's attachment
+//                if (collection.links.attachment != null)
+//                {
+//                    // need to call the attachment data from Zotero
+//                    var IndexLastSlash = collection.links.attachment.href.LastIndexOf('/');
+//                    var keyLength = collection.links.attachment.href.Length - IndexLastSlash;
+//                    var attachmentKey = collection.links.attachment.href.Substring(IndexLastSlash + 1, keyLength - 1);
+//                    var result = await this.ItemsItemKey(attachmentKey);
+
+//                    var resultCollection = result as OkObjectResult;
+//                    var attachmentCollection = JsonConvert.DeserializeObject<Collection>(resultCollection.Value.ToString());
+
+//                    var parentKey = attachmentCollection.data.parentItem;
+//                    DataPortal<ZoteroReviewItem> dpCheckParent = new DataPortal<ZoteroReviewItem>();
+//                    SingleCriteria<ZoteroReviewItem, string> criteriaCheckParent =
+//                        new SingleCriteria<ZoteroReviewItem, string>(parentKey);
+
+//                    if (string.IsNullOrEmpty(parentKey)) throw new NotImplementedException("Only attachments with a parent can be imported currently");
+
+//                    var parentItem = dpCheckParent.Fetch(criteriaCheckParent);
+
+//                    if (parentItem.ITEM_REVIEW_ID == 0)
+//                    {
+//                        //TODO Later do smarter logic 
+//                        return Ok("Parent Item not yet inserted into ERWeb");
+//                    }
+
+//                    DataPortal<ZoteroItemReview> dpItemReview = new DataPortal<ZoteroItemReview>();
+//                    SingleCriteria<ZoteroItemReview, long> criteriaItemReview =
+//                        new SingleCriteria<ZoteroItemReview, long>(parentItem.ITEM_REVIEW_ID);
+//                    var parentItemID = dpItemReview.Fetch(criteriaItemReview);
+
+//                    var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{attachmentCollection.data.key}/file");
+//                    SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+
+//                    //act
+//                    var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+//                    var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+//                    var fileStream = await response.Content.ReadAsStreamAsync();
+//                    var fileName = attachmentCollection.data.title;
+//                    int ind = fileName.LastIndexOf(".");
+//                    string ext = fileName.Substring(ind);
+//                    Stream stream = fileStream;
+//                    byte[] Binary = new byte[stream.Length];
+//                    stream.Read(Binary, 0, (int)stream.Length);
+//                    if (ext.ToLower() == ".txt")
+//                    {
+//                        string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
+//                        ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(parentItemID.ITEM_ID,
+//                            fileName,
+//                            ext,
+//                            SimpleText
+//                            );
+//                        cmd.doItNow();
+//                    }
+//                    else
+//                    {
+//                        ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(parentItemID.ITEM_ID,
+//                            fileName,
+//                            ext,
+//                            Binary
+//                            );
+//                        cmd.doItNow();
+//                    }
+//                    var zoteroItemPostAttachment = new ZoteroReviewItem
+//                    {
+//                        ItemKey = attachmentCollection.key,
+//                        ITEM_REVIEW_ID = parentItem.ITEM_REVIEW_ID,
+//                        LAST_MODIFIED = DateTime.Now,
+//                        LibraryID = attachmentCollection.library.id.ToString(),
+//                        Version = version,
+//                        TypeName = "attachment" //TODO magic string for now
+//                    };
+
+//                    // TODO not sure what to do with the attachment insert it into the
+//                    // zoteroDoc table or simply into the ZoteroItemReview table for now...?
+//                    DataPortal<ZoteroReviewItem> dpf = new DataPortal<ZoteroReviewItem>();
+//                    zoteroItemPostAttachment = dpf.Execute(zoteroItemPostAttachment);
+//                    return Ok(true);
+//                }
+//            }
+//            else
+//            {
+//                return Ok(true);
+//            }
+
+//        }
+
+//        return Ok(true);
+
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "ItemsLocalPost has an error");
+//        return Ok(false);
+//    }
+//}
+
+//[HttpGet("[action]")]
+//public async Task<IActionResult> ItemIdLocal([FromQuery] string itemReviewID)
+//{
+//    try
+//    {
+//        if (string.IsNullOrEmpty(itemReviewID)) return Ok();
+
+//        if (SetCSLAUser())
+//        {
+//            DataPortal<ZoteroItemIDPerItemReview> dp = new DataPortal<ZoteroItemIDPerItemReview>();
+//            SingleCriteria<long> criteria =
+//                    new SingleCriteria<long>(Convert.ToInt64(itemReviewID));
+
+//            var resultItemID = await dp.FetchAsync(criteria);
+//            return Ok(resultItemID);
+
+//        }
+//        else return Forbid();
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "ItemIdLocalGet error");
+//        return StatusCode(500, e.Message);
+//    }
+
+//}
+
+//[HttpGet("[action]")]
+//public async Task<IActionResult> ItemReviewIds([FromQuery] string itemIds)
+//{
+//    try
+//    {
+//        if (string.IsNullOrEmpty(itemIds)) return Ok();
+
+//        if (SetCSLAUser4Writing())
+//        {
+
+//            //    // TODO...!
+//            //    // Need to check if they are in Zotero local Table or not
+//            //    // if they are do nothing as the meta check will pick them up
+//            //    // If not we will need to push these items, so build
+//            //    // zoterItem objects list and get ready to post to Zotero
+//            //    // the post is tricky...
+
+
+//            // TODO instead collect the top ten for demo purposes
+//            DataPortal<ZoteroItemReviewIDs> dp = new DataPortal<ZoteroItemReviewIDs>();
+//            SingleCriteria<string> criteria =
+//                    new SingleCriteria<string>(itemIds);
+
+//            var result = await dp.FetchAsync(criteria);
+//            var topTenItemReviewIDs = result.Take(10).Select(x => x.ITEM_REVIEW_ID).ToList();
+//            return Ok(topTenItemReviewIDs);
+//            //var testReviewIDS = result.Where( x=> x.ITEM_DOCUMENT_ID != 0).Take(10).ToList();
+//            //return Ok(testReviewIDS);
+
+//        }
+//        else return Forbid();
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "ItemReviewIdsGet has an error");
+//        return StatusCode(500, e.Message);
+//    }
+//}
+
+//[HttpGet("[action]")]
+//public async Task<IActionResult> ItemsERWebAndZotero()
+//{
+//    try
+//    {
+//        if (SetCSLAUser4Writing())
+//        {
+
+//            DataPortal<ZoteroERWebReviewItemList> dp = new DataPortal<ZoteroERWebReviewItemList>();
+//            var result = await dp.FetchAsync();
+//            return Ok(result);
+
+//        }
+//        else return Forbid();
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "ItemsERWebAndZoteroGet has an error");
+//        return StatusCode(500, e.Message);
+//    }
+//}
+
+// COMMENTING AS THIS METHOD WILL NOW FAIL; WILL PROBABLY BE REMOVED AS SOME OF THE LOGIC IS IN THE NEW METHODS
+// AND SOME OF IT ON THE CLIENT
+//// 3 TODO remove direct database code logic leave to find out how to do a rollback with CSLA here
+//[HttpPost("[action]")]
+//public async Task<IActionResult> ItemsItemsIdLocal([FromBody] Collection collection)
+//{
+//    try
+//    {
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+
+//        if (collection == null || collection.data == null) return Ok();
+
+//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+//        var receivedZoteroItem = collection.data;
+//        bool updateLocalVersion = false;
+//        ZoteroReviewItem zoteroItem = new ZoteroReviewItem();
+//        DataPortal<ZoteroReviewItem> dpFetch = new DataPortal<ZoteroReviewItem>();
+
+//        if (!string.IsNullOrEmpty(receivedZoteroItem.key))
+//        {
+
+//            SingleCriteria<ZoteroReviewItem, string> criteriaZoteroItem =
+//           new SingleCriteria<ZoteroReviewItem, string>(receivedZoteroItem.key);
+
+//            zoteroItem = dpFetch.Fetch(criteriaZoteroItem);
+//            if (zoteroItem.ITEM_REVIEW_ID > 0)
+//            {
+//                updateLocalVersion = true;
+//            }
+//        }
+//        else
+//        {
+//            return Ok();
+//        }
+
+//        long itemId = 0;
+//        using (SqlConnection connection = new SqlConnection(AdmConnStr))
+//        {
+//            connection.Open();
+
+//            try
+//            {
+//                using (var ctx = TransactionManager<SqlConnection, SqlTransaction>.GetManager(AdmConnStr, false))
+//                {
+
+//                    DataPortal<ZoteroItemIDByItemReview> dp = new DataPortal<ZoteroItemIDByItemReview>();
+//                    ZoteroItemIDByItemReviewCriteria criteria =
+//                            new ZoteroItemIDByItemReviewCriteria(zoteroItem.ITEM_REVIEW_ID, ri.ReviewId);
+
+//                    var resultItemID = await dp.FetchAsync(criteria);
+
+//                    DataPortal<Item> dpFetchItem = new DataPortal<Item>();
+//                    SingleCriteria<Item, Int64> criteriaItem =
+//                        new SingleCriteria<Item, long>(itemId);
+
+//                    var itemFetch = dpFetchItem.Fetch(criteriaItem);
+
+//                    //NB THIS METHOD WILL NOW FAIL!
+//                    //await UpdateMiddleAndLeftTableItem(collection);
+
+//                    // TODO check update has happened as expected
+//                    itemFetch = dpFetchItem.Execute(itemFetch);
+
+//                    zoteroItem.ItemKey = receivedZoteroItem.key;
+//                    zoteroItem.ITEM_REVIEW_ID = zoteroItem.ITEM_REVIEW_ID;
+//                    zoteroItem.LAST_MODIFIED = DateTime.Now;
+//                    zoteroItem.LibraryID = collection.library.id.ToString();
+//                    zoteroItem.Version = receivedZoteroItem.version ?? 0;
+
+//                    zoteroItem = dpFetch.Update(zoteroItem);
+//                    ctx.Commit();
+//                }
+
+//            }
+//            catch (Exception e)
+//            {
+//                _logger.LogException(e, "Error with ItemsItemsIdLocalPost");
+//                return StatusCode(500, e.Message);
+//            }
+//        }
+//        return Ok(zoteroItem);
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "ItemsItemsIdLocalPost has an error");
+//        return StatusCode(500, e.Message);
+//    }
+//}
+
+//// TODO THIS SHOULD BE INSIDE THE MAPPING CLASS
+//private int MapFromZoteroTypeToERWebTypeID(string zoteroItemType)
+//{
+//    int erWebTypeId = -1;
+
+//    //1   Report
+//    //2   Book, Whole
+//    //3   Book, Chapter
+//    //4   Dissertation
+//    //5   Conference Proceedings
+//    //6   Document From Internet Site
+//    //7   Web Site
+//    //8   DVD, Video, Media
+//    //9   Research project
+//    //10  Article In A Periodical
+//    //11  Interview
+//    //12  Generic
+//    //14  Journal, Article
+//    switch (zoteroItemType)
+//    {
+//        case "journalArticle":
+//            erWebTypeId = 14;
+//            break;
+//        case "attachment":
+//            erWebTypeId = 12;
+//            break;
+//        default:
+//            // code block
+//            break;
+//    }
+//    return erWebTypeId;
+
+//}
+
+//[HttpGet("[action]")]
+//public async Task<IActionResult> ErWebDocumentExists([FromQuery] long itemReviewId)
+//{
+//    try
+//    {
+//        if (!SetCSLAUser()) return Unauthorized();
+
+//        DataPortal<ZoteroItemReview> dpItemReview = new DataPortal<ZoteroItemReview>();
+//        SingleCriteria<ZoteroItemReview, long> criteriaItemReview =
+//            new SingleCriteria<ZoteroItemReview, long>(itemReviewId);
+//        var parentItemID = dpItemReview.Fetch(criteriaItemReview);
+
+//        if (parentItemID.ITEM_ID > -1)
+//        {
+//            DataPortal<ItemDocument> dpDoc = new DataPortal<ItemDocument>();
+//            SingleCriteria<ItemDocument, long> criteriaDoc =
+//                new SingleCriteria<ItemDocument, long>(parentItemID.ITEM_ID);
+//            var doc = dpDoc.Fetch(criteriaDoc);
+
+//            if (doc.ItemDocumentId > 0)
+//            {
+//                return Ok(true);
+//            }
+//            else
+//            {
+//                return Ok(false);
+//            }
+//        }
+//        else
+//        {
+//            // TODO error
+//        }
+
+//        return Ok();
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "ErWebDocumentExists has an error");
+//        return StatusCode(500, e.Message);
+//    }
+//}
+
+//[HttpPost("[action]")]
+//public async Task<IActionResult> GroupsGroupIdItems([FromBody] string[] itemIds)
+//{
+
+//    var items = await ItemReviewIdsLocal(itemIds);
+
+//    List<Item> localItems = new List<Item>();
+//    List<CollectionData> zoteroItems = new List<CollectionData>();
+//    List<ErWebZoteroItemDocument> erWebZoteroItemDocs = new List<ErWebZoteroItemDocument>();
+
+//    var failedItemsMsg = "These items failed when posting to Zotero: ";
+//    var numberOfFailedItems = 0;
+
+//    if (items.Count == 0) return Ok("false");
+
+//    try
+//    {
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+//        (ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
+//        // 0 -dataportal fetch for documents
+//        var itemIDsWithDocuments = items.Where(x => x.itemDocumentID > 0);
+
+//        // 1 - dataportal fetch for items
+//        var itemIDsWithoutDocuments = items.Where(x => x.itemDocumentID == 0);
+//        DataPortal<Item> dp = new DataPortal<Item>();
+
+//        foreach (var item in itemIDsWithoutDocuments)
+//        {
+//            SingleCriteria<Item, Int64> criteria =
+//                new SingleCriteria<Item, Int64>(item.itemID);
+
+//            var itemResult = await dp.FetchAsync(criteria);
+//            localItems.Add(itemResult);
+//        }
+
+//        var POSTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
+//        SetZoteroHttpService(POSTItemUri, zrc.ApiKey);
+
+//        // 2 - map this item to an object that can be a valid payload (difficult)
+//        var count = 0;
+//        HttpResponseMessage response = new HttpResponseMessage();
+//        foreach (var item in localItems)
+//        {
+//            var erWebItem = new ERWebItem
+//            {
+//                Item = item
+//            };
+//            var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
+//            var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
+//            zoteroItems.Add(zoteroItem);
+//        }
+
+//        if (zoteroItems.Count() > 0)
+//        {
+//            var payload = JsonConvert.SerializeObject(zoteroItems);
+
+//            response = await _zoteroService.CreateItem(payload, POSTItemUri.ToString());
+//            var actualContent = await response.Content.ReadAsStringAsync();
+//            if (actualContent.Contains("success"))
+//            {
+//                JObject keyValues = JsonConvert.DeserializeObject<JObject>(actualContent);
+
+//                numberOfFailedItems = keyValues["failed"].Count();
+//                foreach (var item in keyValues["failed"].Children())
+//                {
+//                    failedItemsMsg += item.FirstOrDefault()["message"];
+//                }
+
+//                var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
+//                var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
+
+//                foreach (var item in keyValues["success"].Children())
+//                {
+//                    List<object> values = new List<object>();
+//                    var key = "";
+//                    foreach (var keyJson in item.Children())
+//                    {
+//                        key = keyJson.ToString() ?? "";
+//                    }
+
+//                    zoteroItems[count].key = key;
+//                    var itemReviewID = items.FirstOrDefault(x => x.itemID == localItems[count].ItemId).itemReviewID;
+//                    var zoteroItemToInsert = new ZoteroReviewItem
+//                    {
+//                        ItemKey = key,
+//                        ITEM_REVIEW_ID = itemReviewID,
+//                        LAST_MODIFIED = DateTime.Now,
+//                        LibraryID = libraryId,
+//                        Version = version,
+//                        TypeName = localItems[count].TypeName
+//                    };
+
+//                    DataPortal<ZoteroReviewItem> dp2 = new DataPortal<ZoteroReviewItem>();
+//                    zoteroItemToInsert = dp2.Execute(zoteroItemToInsert);
+
+//                    count++;
+//                }
+
+//            }
+//        }
+
+//        //TODO index is incorrect somehow getting documents attacjed to wrong parents
+//        if (itemIDsWithDocuments.Count() > 0)
+//        {
+//            // TODO advanced:  if the key is not present for the associated item to an itemDocument
+//            // then find this item locally and push to Zotero 
+//            // next get the key and continue as expected
+//            // for some reason have to do this again it loses the context!!!
+//            // TODO:  
+//            if (!SetCSLAUser4Writing()) return Unauthorized();
+//            zoteroItems.Clear();
+//            int countItems = 0;
+//            var itemIDsDistinctWithDocuments = itemIDsWithDocuments.Select(x => x.itemID).Distinct().ToList();
+//            foreach (var itemId in itemIDsDistinctWithDocuments)
+//            {
+//                var itemDoc = itemIDsWithDocuments.FirstOrDefault(y => y.itemID == itemId);
+//                DataPortal<Item> dpItem = new DataPortal<Item>();
+//                SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(itemDoc.itemID);
+//                var item = dpItem.Fetch(criteria);
+//                var erWebItem = new ERWebItem
+//                {
+//                    Item = item
+//                };
+//                var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
+//                var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
+//                zoteroItems.Add(zoteroItem);
+//                countItems++;
+//            }
+
+//            //PUSH items that have documents
+//            var payload = JsonConvert.SerializeObject(zoteroItems);
+//            count = 0;
+//            response = await _zoteroService.CreateItem(payload, POSTItemUri.ToString());
+//            var actualContent = await response.Content.ReadAsStringAsync();
+//            if (actualContent.Contains("success"))
+//            {
+//                //TODO since this parent item is now in Zotero we need to insert
+//                // into the ERWebZotero table as a record  
+//                JObject keyValues = JsonConvert.DeserializeObject<JObject>(actualContent);
+
+//                numberOfFailedItems = keyValues["failed"].Count();
+//                foreach (var item in keyValues["failed"].Children())
+//                {
+//                    failedItemsMsg += item.FirstOrDefault()["message"];
+//                }
+
+//                var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
+//                var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
+
+//                foreach (var item in keyValues["success"].Children())
+//                {
+//                    List<object> values = new List<object>();
+//                    var key = "";
+//                    foreach (var keyJson in item.Children())
+//                    {
+//                        key = keyJson.ToString() ?? "";
+//                    }
+//                    var itemWithDoc = itemIDsWithDocuments.FirstOrDefault(x => x.itemID == itemIDsDistinctWithDocuments[count]);
+//                    // okay what I am doing here is just uploading the first document associated with the item in question
+//                    // TODO advanced add all documents associated with an item...
+//                    // for now have to repeat process... of pushnig items...
+//                    if (itemWithDoc != null)
+//                    {
+//                        var itemDoc = new ErWebZoteroItemDocument
+//                        {
+//                            itemId = itemWithDoc.itemID,
+//                            parentItemFileKey = key,
+//                            itemDocumentId = itemWithDoc.itemDocumentID
+//                        };
+//                        erWebZoteroItemDocs.Add(itemDoc);
+//                    }
+//                    zoteroItems[count].key = key;
+//                    var itemReviewID = items.FirstOrDefault(x => x.itemID == itemIDsWithDocuments.ToList()[count].itemID).itemReviewID;
+//                    var zoteroItemToInsert = new ZoteroReviewItem
+//                    {
+//                        ItemKey = key,
+//                        ITEM_REVIEW_ID = itemReviewID,
+//                        LAST_MODIFIED = DateTime.Now,
+//                        LibraryID = libraryId,
+//                        Version = version,
+//                        TypeName = "Journal, Article" //TODO magic string 
+//                    };
+//                    // for some reason have to do this again it loses the context!!!
+//                    // TODO:  
+//                    if (!SetCSLAUser4Writing()) return Unauthorized();
+//                    DataPortal<ZoteroReviewItem> dp2 = new DataPortal<ZoteroReviewItem>();
+//                    zoteroItemToInsert = dp2.Execute(zoteroItemToInsert);
+//                    count++;
+//                }
+//            }
+//            if (erWebZoteroItemDocs.Count() > 0)
+//            {
+//                await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zrc.REVIEW_ID);
+//            }
+//        }
+//        if (numberOfFailedItems == 0)
+//        {
+//            return Ok("true");
+//        }
+//        else
+//        {
+//            return Ok(failedItemsMsg);
+//        }
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "UpdateZoteroObjectInERWebAsync has an error");
+//        var message = "";
+//        if (e.Message.Contains("403"))
+//        {
+//            message += "No Zotero API Token; either it has been revoked or never created";
+//        }
+//        else
+//        {
+//            message += e.Message;
+//        }
+//        return StatusCode(500, message);
+//    }
+//}
+
+
+//[HttpGet("[action]")]
+//public async Task<List<iItemReviewID>> ItemReviewIdsLocal(string[] itemIds)
+//{
+//    try
+//    {
+//        if (!SetCSLAUser()) return new List<iItemReviewID>();
+//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//        if (ri == null) throw new ArgumentNullException("Not sure why this is null");
+
+
+//        DataPortal<ZoteroReviewItemsNotInZotero> dp = new DataPortal<ZoteroReviewItemsNotInZotero>();
+//        SingleCriteria<Item, Int64> criteria =
+//            new SingleCriteria<Item, long>(ri.ReviewId);
+//        var zoteroReviewItemsNotInZotero = dp.Fetch(criteria);
+
+//        List<iItemReviewID> itemReviewIDs = new List<iItemReviewID>();
+//        foreach (var item in zoteroReviewItemsNotInZotero)
+//        {
+//            var itemReviewID = new iItemReviewID
+//            {
+//                itemID = item.ITEM_ID,
+//                itemReviewID = item.ITEM_REVIEW_ID,
+//                itemDocumentID = item.ITEM_DOCUMENT_ID
+//            };
+//            if (itemIds.Contains(item.ITEM_ID.ToString()))
+//            {
+//                itemReviewIDs.Add(itemReviewID);
+//            }
+//        }
+//        // TODO only ever do the first ten items in dev and staging only in production optimise for lots
+//        return itemReviewIDs;
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "ItemReviewIdsLocalGet has an error");
+//        return new List<iItemReviewID>();
+//    }
+//}
+
+//[HttpPut("[action]")]
+//public async Task<IActionResult> GroupsGroupdIdItems([FromBody] List<iItemReviewIDZoteroKey> items)
+//{
+//    List<Item> localItems = new List<Item>();
+//    List<BookWhole> zoteroItems = new List<BookWhole>();
+
+//    try
+//    {
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+//        ZoteroReviewConnection zrc = ApiKey();
+//        string groupIDBeingSynced = zrc.LibraryId;
+
+//        var itemIDs = items.Select(x => x.itemID);
+//        var itemkey = items.Select(x => x.itemKey);
+//        var zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault());
+
+//        if (!SetCSLAUser4Writing()) return Unauthorized();
+
+
+//        foreach (var itemID in itemIDs)
+//        {
+//            DataPortal<Item> dpItemFetch = new DataPortal<Item>();
+//            SingleCriteria<Item, Int64> criteriaItem =
+//                new SingleCriteria<Item, Int64>(itemID);
+
+//            var itemResult = await dpItemFetch.FetchAsync(criteriaItem);
+//            localItems.Add(itemResult);
+//        }
+//        var _httpClient = new HttpClient();
+//        _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
+//        _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
+//        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("If-Unmodified-Since-Version", zoteroItemContent.version.ToString());
+
+//        HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
+//        _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
+
+//        // 2 - map this item to an object that can be a valid payload (difficult)
+//        var count = 0;
+//        HttpResponseMessage response = new HttpResponseMessage();
+//        foreach (var item in localItems)
+//        {
+//            var payload = JsonConvert.SerializeObject(zoteroItemContent);
+
+//            var PUTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemkey.FirstOrDefault());
+//            _httpClient.BaseAddress = new Uri(PUTItemUri.ToString());
+
+//            response = await _zoteroService.UpdateZoteroItem<ZoteroReviewItem>(payload, PUTItemUri.ToString());
+//            var actualCode = response.StatusCode;
+//            if (actualCode == System.Net.HttpStatusCode.NoContent)
+//            {
+//                zoteroItemContent = await ItemsItemId(itemkey.FirstOrDefault());
+
+//                DataPortal<ZoteroItemReview> dp = new DataPortal<ZoteroItemReview>();
+//                SingleCriteria<ZoteroItemReview, long> criteria =
+//              new SingleCriteria<ZoteroItemReview, long>(item.ItemId);
+
+//                var zoteroReviewItem = dp.Fetch(criteria);
+
+//                DataPortal<ZoteroReviewItem> dp2 = new DataPortal<ZoteroReviewItem>();
+//                SingleCriteria<ZoteroReviewItem, string> criteria2 =
+//              new SingleCriteria<ZoteroReviewItem, string>(zoteroReviewItem.ITEM_REVIEW_ID.ToString());
+
+//                var zoteroReviewItemFetch = dp2.Fetch(criteria);
+
+//                zoteroReviewItemFetch.ItemKey = itemkey.FirstOrDefault();
+//                zoteroReviewItemFetch.Version = zoteroItemContent.version;
+
+//                // TODO this might need to be changed to an update somehow...
+//                zoteroReviewItemFetch = dp2.Execute(zoteroReviewItemFetch);
+
+//            }
+//        }
+//        return Ok(true);
+//    }
+//    catch (Exception e)
+//    {
+//        _logger.LogException(e, "Update Zotero Object In ERWeb has an error");
+//        return StatusCode(500, e.Message);
+//    }
+//}
+
+//private Item UpdateItemWithZoteroItem(Collection zoteroItem)
+//{
+//    try
+//    {
+//        var concreteReferenceCreator = ConcreteReferenceCreator.Instance;
+//        var reference = concreteReferenceCreator.GetReference(zoteroItem);
+//        //CHANGE from SG 26/08/2022 which is needed to compile, but code below clearly can't work :-(
+//        var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
+
+//        DataPortal<Item> dp = new DataPortal<Item>();
+//        var updatedErWebItem = dp.Update(erWebItem.Item);
+//        return updatedErWebItem;
+//    }
+//    catch (Exception)
+//    {
+//        throw new Exception("Error updating erWebItem with Zotero item");
+//    }
+//}

@@ -169,40 +169,40 @@ namespace SyncTests
         //}
 
 
-        [TestCase("2471361, 2471362")]
-        public async Task UpdateListOfLocalItemsBehindZoteroAsyncTest(string listOfLocalItemReviewIdsBehindZotero)
-        {
-            var resultantSyncStateDictionary = await PushBehindLocalItemsToZoteroAsync(listOfLocalItemReviewIdsBehindZotero);
+        //[TestCase("2471361, 2471362")]
+        //public async Task UpdateListOfLocalItemsBehindZoteroAsyncTest(string listOfLocalItemReviewIdsBehindZotero)
+        //{
+        //    var resultantSyncStateDictionary = await PushBehindLocalItemsToZoteroAsync(listOfLocalItemReviewIdsBehindZotero);
 
-            var countOfUpToDate = resultantSyncStateDictionary.Count(x => x.Value == ZoteroERWebReviewItem.ErWebState.upToDate);
+        //    var countOfUpToDate = resultantSyncStateDictionary.Count(x => x.Value == ZoteroERWebReviewItem.ErWebState.upToDate);
 
-            Assert.That(countOfUpToDate, Is.EqualTo(2));
-        }
+        //    Assert.That(countOfUpToDate, Is.EqualTo(2));
+        //}
 
-        [TestCase("2526686")]
-        public async Task UsingControllerInitialTest(string itemId)
-        {
-            var actionResult = await _zoteroController.ItemIdLocal(itemId);
+        //[TestCase("2526686")]
+        //public async Task UsingControllerInitialTest(string itemId)
+        //{
+        //    var actionResult = await _zoteroController.ItemIdLocal(itemId);
 
-            var okResult = actionResult as OkObjectResult;
-            Assert.IsNotNull(okResult);
+        //    var okResult = actionResult as OkObjectResult;
+        //    Assert.IsNotNull(okResult);
 
-            var actualResult = okResult.Value as ZoteroItemIDPerItemReview;
-            Assert.IsNotNull(actualResult);
-        }
+        //    var actualResult = okResult.Value as ZoteroItemIDPerItemReview;
+        //    Assert.IsNotNull(actualResult);
+        //}
 
-        [Test]
-        public async Task FetchSyncStateTest()
-        {
-            var actionResult = await _zoteroController.FetchZoteroERWebReviewItemList("1079");
-            var okResult = actionResult as OkObjectResult;
-            Assert.IsNotNull(okResult);
+        //[Test]
+        //public async Task FetchSyncStateTest()
+        //{
+        //    var actionResult = await _zoteroController.FetchZoteroERWebReviewItemList("1079");
+        //    var okResult = actionResult as OkObjectResult;
+        //    Assert.IsNotNull(okResult);
 
-            var actualResult = okResult.Value as SyncStateDictionaries;
+        //    var actualResult = okResult.Value as SyncStateDictionaries;
 
-            Assert.That(ZoteroERWebReviewItem.ErWebState.canPull, Is.EqualTo(actualResult.itemSyncStateResults.FirstOrDefault().Value));
-            Assert.That(ZoteroERWebReviewItem.ErWebState.upToDate, Is.EqualTo(actualResult.docSyncStateResults.FirstOrDefault().Value));
-        }
+        //    Assert.That(ZoteroERWebReviewItem.ErWebState.canPull, Is.EqualTo(actualResult.itemSyncStateResults.FirstOrDefault().Value));
+        //    Assert.That(ZoteroERWebReviewItem.ErWebState.upToDate, Is.EqualTo(actualResult.docSyncStateResults.FirstOrDefault().Value));
+        //}
 
         //[TestCase("1079", 1, 1)]
         //[TestCase("1082", 1, 0)] 
@@ -254,84 +254,84 @@ namespace SyncTests
         }
 
 
-        // 1 - Helper method for test will not be required when DB is setup for testing
-        private async Task<IDictionary<long, ZoteroERWebReviewItem.ErWebState>> PushBehindLocalItemsToZoteroAsync(string listOfLocalItemReviewIdsBehindZotero)
-        {
-            Dictionary<long, ZoteroERWebReviewItem.ErWebState> syncStateResults = new Dictionary<long, ZoteroERWebReviewItem.ErWebState>();
-            var listOfItemReviewIdsToPush = listOfLocalItemReviewIdsBehindZotero.Split(',');
-            foreach (var itemReviewId in listOfItemReviewIdsToPush)
-            {
-                var dp = new DataPortal<ZoteroERWebReviewItem>();
-                var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(itemReviewId);
-                var localSyncedItem = await dp.FetchAsync(criteria);
+        //// 1 - Helper method for test will not be required when DB is setup for testing
+        //private async Task<IDictionary<long, ZoteroERWebReviewItem.ErWebState>> PushBehindLocalItemsToZoteroAsync(string listOfLocalItemReviewIdsBehindZotero)
+        //{
+        //    Dictionary<long, ZoteroERWebReviewItem.ErWebState> syncStateResults = new Dictionary<long, ZoteroERWebReviewItem.ErWebState>();
+        //    var listOfItemReviewIdsToPush = listOfLocalItemReviewIdsBehindZotero.Split(',');
+        //    foreach (var itemReviewId in listOfItemReviewIdsToPush)
+        //    {
+        //        var dp = new DataPortal<ZoteroERWebReviewItem>();
+        //        var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(itemReviewId);
+        //        var localSyncedItem = await dp.FetchAsync(criteria);
 
-                if (localSyncedItem.ItemID == 0)
-                {
-                    continue;
-                }
+        //        if (localSyncedItem.ItemID == 0)
+        //        {
+        //            continue;
+        //        }
 
-                var dp2 = new DataPortal<Item>();
-                SingleCriteria<Item, Int64> criteriaItem =
-                   new SingleCriteria<Item, Int64>(localSyncedItem.ItemID);
+        //        var dp2 = new DataPortal<Item>();
+        //        SingleCriteria<Item, Int64> criteriaItem =
+        //           new SingleCriteria<Item, Int64>(localSyncedItem.ItemID);
 
-                var itemResult = await dp2.FetchAsync(criteriaItem);
-                if(itemResult.ItemId > 0 && localSyncedItem.ItemKey.Length > 0 && itemReviewId.Length > 0)
-                {
-                    var result = await PushItemToZotero(localSyncedItem.ItemKey, itemResult, itemReviewId);
-                    if (result == true)
-                    {
-                        syncStateResults.TryAdd(Convert.ToInt64(itemReviewId), ZoteroERWebReviewItem.ErWebState.upToDate);
-                    }
-                }                
-            }
-            return syncStateResults;
-        }
+        //        var itemResult = await dp2.FetchAsync(criteriaItem);
+        //        if(itemResult.ItemId > 0 && localSyncedItem.ItemKey.Length > 0 && itemReviewId.Length > 0)
+        //        {
+        //            var result = await PushItemToZotero(localSyncedItem.ItemKey, itemResult, itemReviewId);
+        //            if (result == true)
+        //            {
+        //                syncStateResults.TryAdd(Convert.ToInt64(itemReviewId), ZoteroERWebReviewItem.ErWebState.upToDate);
+        //            }
+        //        }                
+        //    }
+        //    return syncStateResults;
+        //}
 
-        // 2 - Helper method for test will not be required when DB is setup for testing
-        private async Task<bool> PushItemToZotero(string itemKey, Item updatedItem, string itemReviewId)
-        {
-            var zoteroItemContent = await _zoteroController.GetZoteroConvertedItemAsync(itemKey);
-            ZoteroReviewConnection zrc = _zoteroController.ApiKey();
-            string groupIDBeingSynced = zrc.LibraryId;
-            var _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
-            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("If-Unmodified-Since-Version", zoteroItemContent.version.ToString());
+        //// 2 - Helper method for test will not be required when DB is setup for testing
+        //private async Task<bool> PushItemToZotero(string itemKey, Item updatedItem, string itemReviewId)
+        //{
+        //    var zoteroItemContent = await _zoteroController.GetZoteroConvertedItemAsync(itemKey);
+        //    ZoteroReviewConnection zrc = _zoteroController.ApiKey();
+        //    string groupIDBeingSynced = zrc.LibraryId;
+        //    var _httpClient = new HttpClient();
+        //    _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
+        //    _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zrc.ApiKey);
+        //    _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("If-Unmodified-Since-Version", zoteroItemContent.version.ToString());
 
-            HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
-            _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
-            var PUTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
-            _httpClient.BaseAddress = new Uri(PUTItemUri.ToString());
+        //    HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
+        //    _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
+        //    var PUTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey);
+        //    _httpClient.BaseAddress = new Uri(PUTItemUri.ToString());
 
-            HttpResponseMessage response = new HttpResponseMessage();
-            var erWebItem = new ERWebItem
-            {
-                Item = updatedItem
-            };
-            var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
-            var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
+        //    HttpResponseMessage response = new HttpResponseMessage();
+        //    var erWebItem = new ERWebItem
+        //    {
+        //        Item = updatedItem
+        //    };
+        //    var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
+        //    var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
 
-            var payload = JsonConvert.SerializeObject(zoteroItem);          
+        //    var payload = JsonConvert.SerializeObject(zoteroItem);          
 
-            response = await _zoteroService.UpdateZoteroItem<ZoteroReviewItem>(payload, PUTItemUri.ToString());
-            var actualCode = response.StatusCode;
-            if (actualCode == System.Net.HttpStatusCode.NoContent)
-            {
-                zoteroItemContent = await _zoteroController.GetZoteroConvertedItemAsync(itemKey);
+        //    response = await _zoteroService.UpdateZoteroItem<ZoteroReviewItem>(payload, PUTItemUri.ToString());
+        //    var actualCode = response.StatusCode;
+        //    if (actualCode == System.Net.HttpStatusCode.NoContent)
+        //    {
+        //        zoteroItemContent = await _zoteroController.GetZoteroConvertedItemAsync(itemKey);
 
-                var dp1 = new DataPortal<ZoteroReviewItem>();
-                SingleCriteria<ZoteroReviewItem, string> criteria = new SingleCriteria<ZoteroReviewItem, string>(itemKey);
-                var zoteroReviewItemFetch = dp1.Fetch(criteria);
+        //        var dp1 = new DataPortal<ZoteroReviewItem>();
+        //        SingleCriteria<ZoteroReviewItem, string> criteria = new SingleCriteria<ZoteroReviewItem, string>(itemKey);
+        //        var zoteroReviewItemFetch = dp1.Fetch(criteria);
 
-                zoteroReviewItemFetch.ItemKey = itemKey;
-                zoteroReviewItemFetch.Version = zoteroItemContent.version;
-                zoteroReviewItemFetch.SyncState = (int)ZoteroERWebReviewItem.ErWebState.upToDate;
+        //        zoteroReviewItemFetch.ItemKey = itemKey;
+        //        zoteroReviewItemFetch.Version = zoteroItemContent.version;
+        //        zoteroReviewItemFetch.SyncState = (int)ZoteroERWebReviewItem.ErWebState.upToDate;
 
-                zoteroReviewItemFetch = dp1.Execute(zoteroReviewItemFetch);
-                return true;
-            }
-            return false;
-        }
+        //        zoteroReviewItemFetch = dp1.Execute(zoteroReviewItemFetch);
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         // 3 - Helper method for test will not be required when DB is setup for testing
         private async Task<IDictionary<long, ZoteroERWebReviewItem.ErWebState>> UpdateSyncStateOfLocalItemsRelativeToZoteroAsync(ZoteroERWebReviewItemList zoteroERWebReviewItems)
