@@ -48,6 +48,12 @@
       Get Status
     </button>
   </div>-->
+
+  <div *ngIf="PushingMessage != ''" class="col-12 row mx-0 px-1">
+    <div class="alert alert-warning border mx-auto my-1">
+      {{PushingMessage}}
+    </div>
+  </div>
   <div class="col-12 row mx-0 px-1">
     <div class="col-12 col-md-6 pl-0 pr-1 mx-0 row">
       <div class="col-md-12 alert-primary card">

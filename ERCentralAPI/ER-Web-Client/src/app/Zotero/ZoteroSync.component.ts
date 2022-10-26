@@ -42,9 +42,9 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     return this._ReviewerIdentityServ.HasWriteRights;
   }
 
-  //public get HasAdminRights(): boolean {
-  //  return this._ReviewerIdentityServ.HasAdminRights;
-  //}
+  public get PushingMessage(): string {
+    return this._zoteroService.PushingMessage;
+  }
 
   public get ObjectZoteroList(): ZoteroItem[] {
     return this._zoteroService.ZoteroItems;

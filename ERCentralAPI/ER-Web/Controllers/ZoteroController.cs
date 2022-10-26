@@ -1014,44 +1014,108 @@ namespace ERxWebClient2.Controllers
         }
 
         private async Task InsertZoteroChildDocumentInErWeb(ZoteroReviewConnection zrc, ZoteroERWebItemDocument pdf,
-			ZoteroERWebReviewItem? zoteroERWebReviewItem)
-		{                        
-                var fileName = pdf.documenT_TITLE;
-                var key = pdf.DocZoteroKey;
-                var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{key}/file");
-                SetZoteroHttpService(GetFileUri, zrc.ApiKey);
-
-                var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
-                //var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
-                var fileStream = await response.Content.ReadAsStreamAsync();
-
-
-                int ind = fileName.LastIndexOf(".");
-                string ext = fileName.Substring(ind);
-                Stream stream = fileStream;
-                byte[] Binary = new byte[stream.Length];
-                stream.Read(Binary, 0, (int)stream.Length);
-                if (ext.ToLower() == ".txt")
+			ZoteroERWebReviewItem zoteroERWebReviewItem)
+		{
+            string fileName = pdf.documenT_TITLE;
+            var key = pdf.DocZoteroKey;
+            var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{key}/file");
+            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+            
+            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+            //var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+            string ContentType = "";
+            string ext = "";
+            if (response.Content.Headers.ContentType != null && response.Content.Headers.ContentType.MediaType != null)
+            {
+                ContentType = response.Content.Headers.ContentType.MediaType;
+                switch (ContentType)
                 {
-                    string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
-                    ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(zoteroERWebReviewItem.ItemID,
-                        fileName,
-                        ext,
-                        SimpleText,
-                        pdf.DocZoteroKey
-                        );
-                    cmd.doItNow();
+                    case @"application/pdf":
+                        ext = ".pdf";
+                        break;
+                    case @"application/msword":
+                        ext = ".doc";
+                        break;
+                    case @"application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                        ext = ".docx";
+                        break;
+                    case @"application/vnd.ms-powerpoint":
+                        ext = ".ppt";
+                        break;
+                    case @"application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                        ext = ".pptx";
+                        break;
+                    case @"application/vnd.openxmlformats-officedocument.presentationml.slideshow":
+                        ext = ".ppsx";
+                        break;
+                    case @"application/vnd.ms-excel":
+                        ext = ".xls";
+                        break;
+                    case @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                        ext = ".xlsx";
+                        break;
+                    case @"text/html":
+                        ext = ".html";
+                        break;
+                    case @"application/vnd.oasis.opendocument.text":
+                        ext = ".odt";
+                        break;
+                    case @"application/vnd.oasis.opendocument.spreadsheet":
+                        ext = ".ods";
+                        break;
+                    case @"application/vnd.oasis.opendocument.presentation":
+                        ext = ".odp";
+                        break;
+                    case @"application/postscript":
+                        ext = ".ps";
+                        break;
+                    case @"text/plain":
+                        ext = ".txt";
+                        break;
+                    default:
+                        ext = "NotAllowed";
+                        break;
                 }
-                else
+            }
+
+            if (fileName == "Full Text")
+            {//this is the filename we get from Zotero, when a doc is found by Zotero automatically, and we don't like it
+                if (zoteroERWebReviewItem.ShortTitle != "")
                 {
-                    ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(zoteroERWebReviewItem.ItemID,
-                        fileName,
-                        ext,
-                        Binary,
-                        pdf.DocZoteroKey
-                        );
-                    cmd.doItNow();
+                    fileName = zoteroERWebReviewItem.ShortTitle + ext;
                 }
+                else 
+                {
+                    fileName = zoteroERWebReviewItem.ItemID.ToString() + ext;
+                }
+            }
+            var fileStream = await response.Content.ReadAsStreamAsync();
+
+
+            Stream stream = fileStream;
+            byte[] Binary = new byte[stream.Length];
+            stream.Read(Binary, 0, (int)stream.Length);
+            if (ext.ToLower() == ".txt")
+            {
+                string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
+                ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(zoteroERWebReviewItem.ItemID,
+                    fileName,
+                    ext,
+                    SimpleText,
+                    pdf.DocZoteroKey
+                    );
+                cmd.doItNow();
+            }
+            else if (ext != "NotAllowed")
+            {
+                ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(zoteroERWebReviewItem.ItemID,
+                    fileName,
+                    ext,
+                    Binary,
+                    pdf.DocZoteroKey
+                    );
+                cmd.doItNow();
+            }
         }
 
         private Task UpdateErWebItem(Collection collection, long itemId)

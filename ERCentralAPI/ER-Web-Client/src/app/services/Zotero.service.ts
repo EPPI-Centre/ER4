@@ -64,10 +64,36 @@ export class ZoteroService extends BusyAwareService {
     return this._zoteroERWebReviewItemList;
   }
 
-  public async PushZoteroErWebReviewItemList(): Promise<boolean> {
+  private _PushingMessage = "";
+  public get PushingMessage(): string {
+    if (this._BusyMethods.findIndex(f => f == "PushZoteroErWebReviewItemList") == -1) return "";
+    return this._PushingMessage;
+  }
 
+  public async PushZoteroErWebReviewItemList(): Promise<boolean> {
+    let itemsToPush = this.ZoteroERWebReviewItemList.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush);
+    let batches = [];
+
+    while (itemsToPush.length) {
+      let singleBatch = itemsToPush.splice(0, 20);
+      if (singleBatch.length > 0) batches.push(singleBatch);
+    }
+    let res: boolean = false;
+    for (let i = 0; i < batches.length; i++) {
+      this._PushingMessage = "Pushing items, batch " + (i + 1).toString() + " of " + batches.length.toString();
+      res = await this.PushTheseItemsToZotero(batches[i]);
+      if (res == false) {
+        //an error happened, we'll stop
+        this._PushingMessage = "";
+        return false;
+      }
+    }
+    this._PushingMessage = "";
+    return true; //new Promise(() => { return true; }); 
+  }
+
+  private async PushTheseItemsToZotero(itemsToPush: ZoteroERWebReviewItem[]): Promise<boolean> {
     this._BusyMethods.push("PushZoteroErWebReviewItemList");
-    const itemsToPush = this.ZoteroERWebReviewItemList.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush);
     return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PushZoteroErWebReviewItemList', itemsToPush )
       .toPromise().then(result => {
         this.RemoveBusy("PushZoteroErWebReviewItemList");
