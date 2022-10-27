@@ -296,31 +296,7 @@ namespace ERxWebClient2.Controllers
 
 	public class CollectionType : CollectionData
 	{
-        public CollectionType(Item data, string numberOfVolumes, string edition, string place, string publisher, string numPages, string iSBN, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN, string bookTitle, string parentTitle, string createdBy, string editedBy, string institution, string comments, string parentItem): base(data)
-        {
-            this.numberOfVolumes = numberOfVolumes;
-            this.edition = edition;
-            this.place = place;
-            this.publisher = publisher;
-            this.numPages = numPages;
-            this.ISBN = iSBN;
-            this.publicationTitle = publicationTitle;
-            this.issue = issue;
-            this.pages = pages;
-            this.seriesTitle = seriesTitle;
-            this.seriesText = seriesText;
-            this.journalAbbreviation = journalAbbreviation;
-            this.DOI = dOI;
-            this.ISSN = iSSN;
-            this.bookTitle = bookTitle;
-            this.parentTitle = parentTitle;
-            this.createdBy = createdBy;
-            this.editedBy = editedBy;
-            this.institution = institution;
-            this.comments = comments;
-            this.parentItem = parentItem;
-        }
-
+        
         public string numberOfVolumes { get; set; } = null;
 		public string edition { get; set; } = null;
 		public string place { get; set; } = null;
