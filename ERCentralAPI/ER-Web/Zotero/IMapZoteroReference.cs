@@ -2,10 +2,6 @@
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.BusinessClasses.ImportItems;
 using ERxWebClient2.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ERxWebClient2.Zotero
 {
@@ -43,6 +39,24 @@ namespace ERxWebClient2.Zotero
             
             return itemIncomingData;
 
+        }
+
+        public ItemIncomingData CreateItemIncomingDataFromCollection(string zoteroKey, Collection? collectionItem, ERWebItem erWebItem, ItemIncomingData authors)
+        {
+            return new ItemIncomingData
+            {
+                Abstract = collectionItem.data.abstractNote ?? "",
+                Year = collectionItem.data.date ?? "0",
+                Title = collectionItem.data.title,
+                Parent_title = collectionItem.data.publicationTitle,
+                Short_title = collectionItem.data.shortTitle ?? "",
+                Type_id = erWebItem.Item.TypeId,
+                AuthorsLi = authors.AuthorsLi,
+                pAuthorsLi = authors.pAuthorsLi,
+                ZoteroKey = zoteroKey,
+                DateEdited = DateTime.Parse(collectionItem.data.dateModified)
+
+            };
         }
 
     }

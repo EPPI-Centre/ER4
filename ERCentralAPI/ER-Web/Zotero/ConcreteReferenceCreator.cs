@@ -4,13 +4,13 @@ using System;
 
 namespace ERxWebClient2.Zotero
 {
-    public sealed class ConcreteReferenceCreator : ReferenceCreator
+    public sealed class MappingReferenceCreator : ReferenceCreator
     {
-        static ConcreteReferenceCreator _instance = null;
+        static MappingReferenceCreator _instance = null;
 
         static readonly object padLock = new object();
 
-        public static ConcreteReferenceCreator Instance 
+        public static MappingReferenceCreator Instance 
         {                
             get
             {
@@ -18,14 +18,14 @@ namespace ERxWebClient2.Zotero
 				{
                     if (_instance == null)
                     {
-                        _instance = new ConcreteReferenceCreator();
+                        _instance = new MappingReferenceCreator();
                     }
                     return _instance;
                 }               
             }
         }
 
-        private ConcreteReferenceCreator()
+        private MappingReferenceCreator()
 		{
 
 		}
@@ -43,21 +43,22 @@ namespace ERxWebClient2.Zotero
                         return new ERWebBookChapter(item);
                     case "Journal, Article":
                         return new ERWebJournal(item);
-                    case "Conference Proceedings":
-                        return new ERWebConferenceProceeding(item);
-                    case "Web Site":
-                        return new ERWebWebSite(item);
+                    //case "Conference Proceedings":
+                    //    return new ERWebConferenceProceeding(item);
+                    //case "Web Site":
+                    //    return new ERWebWebSite(item);
                     default:
-                        //throw new NotSupportedException();
-                        // for development return something
-                        // TODO production throw the above exception
-                        return new ERWebJournal(item);
+                        //    //throw new NotSupportedException();
+                        //    // for development return something
+                        //    // TODO production throw the above exception
+                      return new ERWebBook(item);
                 }
             }
             else
             {
-                var itemDocument = eRWebItem.ItemDocument;                
-                return new ERWebDocument(itemDocument, null);                  
+                var itemDocument = eRWebItem.ItemDocument;
+                //return new ERWebDocument(itemDocument, null);
+                return new ERWebBook(null);
             }
         }
 

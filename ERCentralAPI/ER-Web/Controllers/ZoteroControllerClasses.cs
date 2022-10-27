@@ -109,8 +109,142 @@ namespace ERxWebClient2.Controllers
 		public bool groupBeingSynced { get; set; }
 	}
 
-	public abstract class CollectionData
+    public abstract class CollectionData
 	{
+		//private int MapFromZoteroTypeToERWebTypeID(string zoteroItemType)
+		//{
+		//	int erWebTypeId = -1;
+
+		//	//1   Report
+		//	//2   Book, Whole
+		//	//3   Book, Chapter
+		//	//4   Dissertation
+		//	//5   Conference Proceedings
+		//	//6   Document From Internet Site
+		//	//7   Web Site
+		//	//8   DVD, Video, Media
+		//	//9   Research project
+		//	//10  Article In A Periodical
+		//	//11  Interview
+		//	//12  Generic
+		//	//14  Journal, Article
+		//	switch (zoteroItemType)
+		//	{
+		//		case "journalArticle":
+		//			erWebTypeId = 14;
+		//			break;
+		//		case "attachment":
+		//			erWebTypeId = 12;
+		//			break;
+		//		default:
+		//			// code block
+		//			break;
+		//	}
+		//	return erWebTypeId;
+		//}
+
+
+		private string MapFromERWebTypeToZoteroType(string erWebType)
+		{
+			string zoteroType = "";
+
+			//1   Report
+			//2   Book, Whole
+			//3   Book, Chapter
+			//4   Dissertation
+			//5   Conference Proceedings
+			//6   Document From Internet Site
+			//7   Web Site
+			//8   DVD, Video, Media
+			//9   Research project
+			//10  Article In A Periodical
+			//11  Interview
+			//12  Generic
+			//14  Journal, Article
+			switch (erWebType)
+			{
+				case "Journal, Article":
+					zoteroType = "journalArticle";
+					break;
+                case "Book, Whole":
+                    zoteroType = "book";
+                    break;
+                default:
+					// code block
+					break;
+			}
+			return zoteroType;
+		}
+		private List<CreatorsItem> ObtainCreators(string authors)
+		{
+			if (authors.Length == 0)
+			{
+				return new List<CreatorsItem>();
+			}
+			var authorsArray = authors.Split(';');
+			var creatorsArray = new List<CreatorsItem>();
+			foreach (var author in authorsArray)
+			{
+				var firstAndLastNames = author.TrimStart().TrimEnd().Split(' ');
+				if (firstAndLastNames.Count() > 1)
+				{
+					var creatorsItem = new CreatorsItem
+					{
+						creatorType = "author",
+						firstName = firstAndLastNames[0].ToString(),
+						lastName = firstAndLastNames[1].ToString()
+					};
+					creatorsArray.Add(creatorsItem);
+				}
+			}
+			return creatorsArray;
+		}
+
+		public CollectionData(Item data)
+        {
+			tagObject tag = new tagObject
+			{
+				tag = "awesome:",
+				type = "1"
+			};
+			relation rel = new relation // TODO hardcoded
+			{
+				owlSameAs = "http://zotero.org/groups/1/items/JKLM6543",
+				dcRelation = "http://zotero.org/groups/1/items/PQRS6789",
+				dcReplaces = "http://zotero.org/users/1/items/BCDE5432"
+			};
+
+            this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
+            this.title = data.Title;
+            this.creators = ObtainCreators(data.Authors).ToArray(); 
+			this.abstractNote = data.Abstract;
+            this.series = "";
+            this.seriesNumber = "";
+            this.volume = data.Volume;
+            this.language = data.Country;
+            this.shortTitle = data.ShortTitle;
+            this.url = data.URL;
+            this.accessDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+			this.archive = "";
+            this.archiveLocation = "";
+            this.libraryCatalog = "";
+            this.callNumber = "";
+            this.rights = "";
+            this.extra = "";
+            this.tags = new List<tagObject>() { tag };
+            this.collections = new object[0];
+            this.relations = rel;
+            this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+			this.dateModified = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+			this.date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+		
+		}
+
+		public CollectionData()
+        {
+
+        }
+
 		public string key { get; set; }
 		public long? version { get; set; } = null;
 		public string itemType { get; set; }
@@ -141,7 +275,14 @@ namespace ERxWebClient2.Controllers
 
 	public class WebSite : CollectionData
 	{
-		public string blogTitle { get; set; }
+        public WebSite(string blogTitle, string websiteType, List<CreatorsItem> creators, Item data) : base(data)
+        {
+            this.blogTitle = blogTitle;
+            this.websiteType = websiteType;
+            this.creators = creators;
+        }
+
+        public string blogTitle { get; set; }
 		public string websiteType { get; set; }
 		public List<CreatorsItem> creators { get; set; }
 	}
@@ -155,7 +296,32 @@ namespace ERxWebClient2.Controllers
 
 	public class CollectionType : CollectionData
 	{
-		public string numberOfVolumes { get; set; } = null;
+        public CollectionType(Item data, string numberOfVolumes, string edition, string place, string publisher, string numPages, string iSBN, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN, string bookTitle, string parentTitle, string createdBy, string editedBy, string institution, string comments, string parentItem): base(data)
+        {
+            this.numberOfVolumes = numberOfVolumes;
+            this.edition = edition;
+            this.place = place;
+            this.publisher = publisher;
+            this.numPages = numPages;
+            this.ISBN = iSBN;
+            this.publicationTitle = publicationTitle;
+            this.issue = issue;
+            this.pages = pages;
+            this.seriesTitle = seriesTitle;
+            this.seriesText = seriesText;
+            this.journalAbbreviation = journalAbbreviation;
+            this.DOI = dOI;
+            this.ISSN = iSSN;
+            this.bookTitle = bookTitle;
+            this.parentTitle = parentTitle;
+            this.createdBy = createdBy;
+            this.editedBy = editedBy;
+            this.institution = institution;
+            this.comments = comments;
+            this.parentItem = parentItem;
+        }
+
+        public string numberOfVolumes { get; set; } = null;
 		public string edition { get; set; } = null;
 		public string place { get; set; } = null;
 		public string publisher { get; set; } = null;
@@ -183,7 +349,19 @@ namespace ERxWebClient2.Controllers
 
 	public class JournalArticle : CollectionData
 	{
-		public string publicationTitle { get; set; }
+        public JournalArticle(Item data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
+        {
+            this.publicationTitle = publicationTitle;
+            this.issue = issue;
+            this.pages = pages;
+            this.seriesTitle = seriesTitle;
+            this.seriesText = seriesText;
+            this.journalAbbreviation = journalAbbreviation;
+			this.DOI = dOI;
+			this.ISSN = iSSN;
+        }
+
+        public string publicationTitle { get; set; }
 		public string issue { get; set; }
 		public string pages { get; set; }
 		public string seriesTitle { get; set; }
@@ -195,6 +373,13 @@ namespace ERxWebClient2.Controllers
 
 	public class ConferencePaper : CollectionData
 	{
+        public ConferencePaper(Item data, string proceedingstitle, string conferencename, string pLace) : base(data)
+        {
+			this.proceedingsTitle = proceedingstitle;
+			this.conferenceName = conferencename;
+			this.place = pLace;
+
+        }
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
 		public string place { get; set; }
@@ -202,9 +387,40 @@ namespace ERxWebClient2.Controllers
 
 	}
 
+
 	public class BookWhole : CollectionData
 	{
-		public List<CreatorsItem> creators { get; set; }
+		public BookWhole(Item data, string numberOfVolumes, string edition, string place, string publisher,
+			string numPages, string iSBN): base(data)
+		{
+            this.numberOfVolumes = numberOfVolumes;
+            this.edition = edition;
+            this.place = place;
+            this.publisher = publisher;
+            this.numPages = numPages;
+            this.ISBN = iSBN;
+        }
+		public string numberOfVolumes { get; set; }
+		public string edition { get; set; }
+		public string place { get; set; }
+		public string publisher { get; set; }
+		public string numPages { get; set; }
+		public string ISBN { get; set; }
+      
+    }
+
+	public class Dissertation : CollectionData
+	{
+		public Dissertation(Item data, string numberOfVolumes, string edition, string place, string publisher,
+			string numPages, string iSBN) : base(data)
+		{
+			this.numberOfVolumes = numberOfVolumes;
+			this.edition = edition;
+			this.place = place;
+			this.publisher = publisher;
+			this.numPages = numPages;
+			this.ISBN = iSBN;
+		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
 		public string place { get; set; }
@@ -212,15 +428,24 @@ namespace ERxWebClient2.Controllers
 		public string numPages { get; set; }
 		public string ISBN { get; set; }
 
-		public List<tagObject> tags { get; set; }
-		public List<string> collections { get; set; }
-		public relation relations { get; set; }
+
 	}
 
 	public class BookChapter : CollectionData
 	{
-		public string bookTitle { get; set; }
-		public List<CreatorsItem> creators { get; set; }
+        public BookChapter(Item data, string bookTitle, string numberOfVolumes, 
+			string edition, string place, string publisher, string numPages, string iSBN ): base(data)
+        {
+            this.bookTitle = bookTitle;
+            this.numberOfVolumes = numberOfVolumes;
+            this.edition = edition;
+            this.place = place;
+            this.publisher = publisher;
+            this.numPages = numPages;
+			this.ISBN = iSBN;
+        }
+
+        public string bookTitle { get; set; }
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
 		public string place { get; set; }
@@ -228,13 +453,22 @@ namespace ERxWebClient2.Controllers
 		public string numPages { get; set; }
 		public string ISBN { get; set; }
 
-		public List<tagObject> tags { get; set; }
-		public List<string> collections { get; set; }
-		public relation relations { get; set; }
 	}
 
 	public class Attachment : CollectionData
 	{
+        public Attachment(Item data, string parentItem, string linkMode, string note, string contentType, string charset, string filename, string md5, string mtime): base(data)
+        {
+            this.parentItem = parentItem;
+            this.linkMode = linkMode;
+            this.note = note;
+            this.contentType = contentType;
+            this.charset = charset;
+            this.filename = filename;
+            this.md5 = md5;
+            this.mtime = mtime;
+        }
+
 		public string parentItem { get; set; }
 		public string linkMode { get; set; }
 		public string note { get; set; }

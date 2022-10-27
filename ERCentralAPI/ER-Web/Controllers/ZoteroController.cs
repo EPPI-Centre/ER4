@@ -31,7 +31,7 @@ namespace ERxWebClient2.Controllers
         private string zotero_request_token_endpoint;
         private string zotero_access_token_endpoint;
 
-        private ConcreteReferenceCreator _concreteReferenceCreator; 
+        private MappingReferenceCreator _mapZoteroCollectionToErWebReference; 
         private ZoteroConcurrentDictionary _zoteroConcurrentDictionary;  
         private IConfiguration _configuration; 
         private OAuthParameters _oAuth;
@@ -74,7 +74,7 @@ namespace ERxWebClient2.Controllers
             callbackUrl = configuration["callbackUrl"];
             zotero_request_token_endpoint = configuration["zotero_request_token_endpoint"];
             zotero_access_token_endpoint = configuration["zotero_access_token_endpoint"];
-            _concreteReferenceCreator = ConcreteReferenceCreator.Instance;
+            _mapZoteroCollectionToErWebReference = MappingReferenceCreator.Instance;
             _oAuth = OAuthParameters.Instance;
         }
         #endregion
@@ -629,7 +629,7 @@ namespace ERxWebClient2.Controllers
                 {
                     Item = localItem
                 };
-                var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
+                var zoteroReference = _mapZoteroCollectionToErWebReference.GetReference(erWebItem);
                 var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
                 // TODO move this into the MapReferenceFromErWebToZotero() method, extract to super class
                 zoteroItem.version = item.Version;
@@ -677,7 +677,7 @@ namespace ERxWebClient2.Controllers
                 {
                     Item = erWebLocalItem
                 };
-                var zoteroReference = _concreteReferenceCreator.GetReference(erWebItem);
+                var zoteroReference = _mapZoteroCollectionToErWebReference.GetReference(erWebItem);
                 var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
                 zoteroItems.Add(zoteroItem);
             }
@@ -694,14 +694,24 @@ namespace ERxWebClient2.Controllers
                 var actualContent = await response.Content.ReadAsStringAsync();              
                 if (actualContent.Contains("success"))
                 {
-                    var numberOfFailedItems = InsertTheseRecentlyPushedItemsLocally(zoteroERWebReviewItems, 
+                    try
+                    {
+                        var numberOfFailedItems = InsertTheseRecentlyPushedItemsLocally(zoteroERWebReviewItems,
                         ref failedItemsMsg, ref count, actualContent);
-                    if(numberOfFailedItems > 0)                    {
-                        this._logger.LogError("There are a number of failed pushed items to Zotero", numberOfFailedItems);
+                        if (numberOfFailedItems > 0)
+                        {
+                            this._logger.LogError("There are a number of failed pushed items to Zotero", numberOfFailedItems);
+                        }
+                        else
+                        {
+                            result = true;
+                        }
                     }
-                    else{
-                        result = true;
+                    catch (Exception)
+                    {
+                        throw new Exception("Issue with pushing items to Zotero");
                     }
+                   
                 }
                 else
                 {
@@ -971,27 +981,14 @@ namespace ERxWebClient2.Controllers
                     resultCollection?.Value?.ToString());
                 var zoteroERWebReviewItem = zoteroERWebReviewItems.FirstOrDefault(x => x.ItemKey == zoteroKey);
 
-                IMapZoteroReference reference = _concreteReferenceCreator.GetReference(collectionItem);
-                
+                IMapZoteroReference reference = _mapZoteroCollectionToErWebReference.GetReference(collectionItem);
+
                 var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
                 erWebItem.Item.IsIncluded = true;
 
                 var authors = erWebItem.AuthorsListForIncomingData(collectionItem.data.creators);
 
-                ItemIncomingData itemIncomingData = new ItemIncomingData
-                {
-                    Abstract = collectionItem.data.abstractNote ?? "",
-                    Year = collectionItem.data.date ?? "0",
-                    Title = collectionItem.data.title,
-                    Parent_title = collectionItem.data.publicationTitle,
-                    Short_title = collectionItem.data.shortTitle ?? "",
-                    Type_id = erWebItem.Item.TypeId,
-                    AuthorsLi = authors.AuthorsLi,
-                    pAuthorsLi = authors.pAuthorsLi,
-                    ZoteroKey = zoteroKey,
-                    DateEdited = DateTime.Parse(collectionItem.data.dateModified)
-                    
-                };
+                ItemIncomingData itemIncomingData = erWebItem.CreateItemIncomingDataFromCollection(zoteroKey, collectionItem, erWebItem, authors);
                 incomingItems.Add(itemIncomingData);
             }
 
@@ -1125,7 +1122,7 @@ namespace ERxWebClient2.Controllers
 					new SingleCriteria<Item, long>(itemId);
 				var itemFetch = dpFetchItem.Fetch(criteriaItem);
 
-				IMapZoteroReference referenceUpdate = _concreteReferenceCreator.GetReference(collection);
+				IMapZoteroReference referenceUpdate = _mapZoteroCollectionToErWebReference.GetReference(collection);
 				var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
 
 				//var dp = new DataPortal<ZoteroERWebReviewItem>();
