@@ -663,7 +663,7 @@ namespace ERxWebClient2.Controllers
             ZoteroReviewConnection zrc, string groupIDBeingSynced)
         {
             var localItems = new List<Item>();
-            var zoteroItems = new List<CollectionData>();
+            var zoteroItems = new List<ZoteroCollectionData>();
 
             var failedItemsMsg = "These items failed when posting to Zotero: ";
 

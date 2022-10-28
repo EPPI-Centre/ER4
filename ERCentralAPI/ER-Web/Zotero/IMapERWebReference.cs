@@ -9,6 +9,6 @@ namespace ERxWebClient2.Zotero
 {
     public interface IMapERWebReference
     {
-        CollectionData MapReferenceFromErWebToZotero();
+        ZoteroCollectionData MapReferenceFromErWebToZotero();
     }
 }

@@ -109,7 +109,7 @@ namespace ERxWebClient2.Controllers
 		public bool groupBeingSynced { get; set; }
 	}
 
-    public abstract class CollectionData
+    public abstract class ZoteroCollectionData
 	{
 		//private int MapFromZoteroTypeToERWebTypeID(string zoteroItemType)
 		//{
@@ -200,7 +200,7 @@ namespace ERxWebClient2.Controllers
 			return creatorsArray;
 		}
 
-		public CollectionData(Item data)
+		public ZoteroCollectionData(Item data)
         {
 			tagObject tag = new tagObject
 			{
@@ -240,7 +240,7 @@ namespace ERxWebClient2.Controllers
 		
 		}
 
-		public CollectionData()
+		public ZoteroCollectionData()
         {
 
         }
@@ -273,7 +273,7 @@ namespace ERxWebClient2.Controllers
 		public string dateModified { get; set; }
 	}
 
-	public class WebSite : CollectionData
+	public class WebSite : ZoteroCollectionData
 	{
         public WebSite(string blogTitle, string websiteType, List<CreatorsItem> creators, Item data) : base(data)
         {
@@ -294,7 +294,7 @@ namespace ERxWebClient2.Controllers
 	}
 
 
-	public class CollectionType : CollectionData
+	public class CollectionType : ZoteroCollectionData
 	{
         
         public string numberOfVolumes { get; set; } = null;
@@ -323,8 +323,9 @@ namespace ERxWebClient2.Controllers
 
 	}
 
-	public class JournalArticle : CollectionData
+	public class JournalArticle : ZoteroCollectionData
 	{
+
         public JournalArticle(Item data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
         {
             this.publicationTitle = publicationTitle;
@@ -347,7 +348,7 @@ namespace ERxWebClient2.Controllers
 		public string ISSN { get; set; }
 	}
 
-	public class ConferencePaper : CollectionData
+	public class ConferencePaper : ZoteroCollectionData
 	{
         public ConferencePaper(Item data, string proceedingstitle, string conferencename, string pLace) : base(data)
         {
@@ -364,7 +365,7 @@ namespace ERxWebClient2.Controllers
 	}
 
 
-	public class BookWhole : CollectionData
+	public class BookWhole : ZoteroCollectionData
 	{
 		public BookWhole(Item data, string numberOfVolumes, string edition, string place, string publisher,
 			string numPages, string iSBN): base(data)
@@ -385,7 +386,7 @@ namespace ERxWebClient2.Controllers
       
     }
 
-	public class Dissertation : CollectionData
+	public class Dissertation : ZoteroCollectionData
 	{
 		public Dissertation(Item data, string numberOfVolumes, string edition, string place, string publisher,
 			string numPages, string iSBN) : base(data)
@@ -407,7 +408,7 @@ namespace ERxWebClient2.Controllers
 
 	}
 
-	public class BookChapter : CollectionData
+	public class BookChapter : ZoteroCollectionData
 	{
         public BookChapter(Item data, string bookTitle, string numberOfVolumes, 
 			string edition, string place, string publisher, string numPages, string iSBN ): base(data)
@@ -431,7 +432,7 @@ namespace ERxWebClient2.Controllers
 
 	}
 
-	public class Attachment : CollectionData
+	public class Attachment : ZoteroCollectionData
 	{
         public Attachment(Item data, string parentItem, string linkMode, string note, string contentType, string charset, string filename, string md5, string mtime): base(data)
         {

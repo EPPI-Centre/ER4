@@ -14,12 +14,12 @@ namespace ERxWebClient2.Zotero
             _item = item;
         }
 
-        CollectionData IMapERWebReference.MapReferenceFromErWebToZotero()
+        ZoteroCollectionData IMapERWebReference.MapReferenceFromErWebToZotero()
         {
             try
             {
 
-                CollectionData conferencePaper = new ConferencePaper(_item, _item.Title, "", "");
+                ZoteroCollectionData conferencePaper = new ConferencePaper(_item, _item.Title, "", "");
 
                 //conferencePaper.itemType = "conferencePaper";
                

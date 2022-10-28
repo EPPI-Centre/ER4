@@ -10,7 +10,7 @@ namespace ERxWebClient2.Zotero
             _item = item;
         }
 
-        CollectionData IMapERWebReference.MapReferenceFromErWebToZotero()
+        ZoteroCollectionData IMapERWebReference.MapReferenceFromErWebToZotero()
         {           
             try
             {

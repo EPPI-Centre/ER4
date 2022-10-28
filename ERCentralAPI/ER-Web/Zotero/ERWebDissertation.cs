@@ -11,7 +11,7 @@ namespace ERxWebClient2.Zotero
         }
 
         // Need to use erweb mapping table to get fields on rhs into the correct lhs zotero fields 
-        CollectionData IMapERWebReference.MapReferenceFromErWebToZotero()
+        ZoteroCollectionData IMapERWebReference.MapReferenceFromErWebToZotero()
         {
             try
             {
