@@ -5,7 +5,7 @@ namespace ERxWebClient2.Zotero
 {
     public class ERWebJournal : ERWebCreators, IMapERWebReference
     {
-        public ERWebJournal(Item item)
+        public ERWebJournal(IItem item)
         {
             _item = item;
         }

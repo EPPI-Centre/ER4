@@ -11,8 +11,9 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using ERxWebClient2.Zotero;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -63,7 +64,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                             //if (MatchO.Success & MatchO.Index > 4 & MatchO.Index < 8)
                             if (MatchO.Success)
                             {
-                                tItem.Type_id = cKey.Key;
+                                tItem.TypeId = cKey.Key;
                                 found = true;
                                 break;
                             }
@@ -73,7 +74,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 }
 
                 if (found != true)
-                    tItem.Type_id = rules.DefaultTypeCode;
+                    tItem.TypeId = rules.DefaultTypeCode;
                 Cindex++;
                 OutO.Add(tItem);
             }//end of first round trip
@@ -87,7 +88,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 currentR = new FilterRules(rules);
                 foreach (TypeRules TyR in rules.typeRules)
                 {
-                    if (OutO[Cindex].Type_id == TyR.Type_ID)//check if current object is of a type that needs rules remapping
+                    if (OutO[Cindex].TypeId == TyR.Type_ID)//check if current object is of a type that needs rules remapping
                     {
                         foreach (PropertyInfo pinfo in propertyInfos)
                         {
@@ -897,11 +898,11 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
     #endregion
     #region DataStructures
     [Serializable]
-    public class ItemIncomingData : ReadOnlyBase<ItemIncomingData>
-    {
+    public class ItemIncomingData : ReadOnlyBase<ItemIncomingData>, IItemIncomingData
+	{
         #region set_and_get
         public static readonly PropertyInfo<int> Type_idProperty = RegisterProperty<int>(new PropertyInfo<int>("Type_id", "Type_id", 14));
-        public int Type_id
+        public int TypeId
         {
             get { return GetProperty(Type_idProperty); }
             set
@@ -1284,6 +1285,11 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
         }
         #endregion
     }
+
+    public interface IItemIncomingData
+    {
+    }
+
     [Serializable]
     public class IncomingItemsList : BusinessBase<IncomingItemsList>
     {
@@ -1296,7 +1302,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             IncomingItemsList returnValue = new IncomingItemsList();
             returnValue.DateOfImport = DateTime.Now;
             returnValue.DateOfSearch = DateTime.Now;
-            returnValue.Included = true;
+            returnValue.IsIncluded = true;
             return returnValue;
         }
 
@@ -1428,7 +1434,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }
         }
         public static readonly PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Included", "Included"));
-        public bool Included
+        public bool IsIncluded
         {
             get
             {
@@ -1579,7 +1585,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     ItemReviewR["ITEM_ID"] = ItemR["ITEM_ID"];
                     ItemReviewR["REVIEW_ID"] = review_ID;
                     ItemReviewR["IS_DELETED"] = false;
-                    ItemReviewR["IS_INCLUDED"] = Included;
+                    ItemReviewR["IS_INCLUDED"] = IsIncluded;
                     TDS.TB_ITEM_REVIEW.Rows.Add(ItemReviewR);
 
                     //ItemSourceR = (BusinessLibrary.BusinessClasses.TestDataSet.TB_ITEM_SOURCERow)TDS.TB_ITEM_SOURCE.NewRow();
@@ -1701,7 +1707,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.Add(new SqlParameter("@Source_ID", SourceID));
                             cmd.Parameters.Add(new SqlParameter("@Review_ID", ri.ReviewId));
-                            cmd.Parameters.Add(new SqlParameter("@Included", Included == true ? 1 : 0));
+                            cmd.Parameters.Add(new SqlParameter("@Included", IsIncluded == true ? 1 : 0));
                             cmd.ExecuteNonQuery();
                         }
                     }
@@ -1889,7 +1895,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             ItemR["SHORT_TITLE"] = item.Short_title;
             ItemR["STANDARD_NUMBER"] = item.Standard_number;
             ItemR["TITLE"] = item.Title;
-            ItemR["TYPE_ID"] = (byte)item.Type_id;
+            ItemR["TYPE_ID"] = (byte)item.TypeId;
             ItemR["URL"] = item.Url;
             ItemR["VOLUME"] = item.Volume;
             ItemR["YEAR"] = item.Year;

@@ -9,7 +9,7 @@ namespace ERxWebClient2.Zotero
 {
     public class ERWebBookChapter : ERWebCreators, IMapERWebReference
     {
-        public ERWebBookChapter(Item item)
+        public ERWebBookChapter(IItem item)
         {
             _item = item;
         }

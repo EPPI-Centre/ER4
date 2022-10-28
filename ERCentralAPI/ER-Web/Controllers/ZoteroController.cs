@@ -629,7 +629,7 @@ namespace ERxWebClient2.Controllers
                 {
                     Item = localItem
                 };
-                var zoteroReference = _mapZoteroCollectionToErWebReference.GetReference(erWebItem);
+                var zoteroReference = _mapZoteroCollectionToErWebReference.GetReference(erWebItem.Item);
                 var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
                 // TODO move this into the MapReferenceFromErWebToZotero() method, extract to super class
                 zoteroItem.version = item.Version;
@@ -677,7 +677,7 @@ namespace ERxWebClient2.Controllers
                 {
                     Item = erWebLocalItem
                 };
-                var zoteroReference = _mapZoteroCollectionToErWebReference.GetReference(erWebItem);
+                var zoteroReference = _mapZoteroCollectionToErWebReference.GetReference(erWebItem.Item);
                 var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
                 zoteroItems.Add(zoteroItem);
             }
@@ -985,11 +985,10 @@ namespace ERxWebClient2.Controllers
 
                 var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
                 erWebItem.Item.IsIncluded = true;
+                
+                var erWebItemIncomingData = _mapZoteroCollectionToErWebReference.GetIncomingDataReference(collectionItem);
 
-                var authors = erWebItem.AuthorsListForIncomingData(collectionItem.data.creators);
-
-                ItemIncomingData itemIncomingData = erWebItem.CreateItemIncomingDataFromCollection(zoteroKey, collectionItem, erWebItem, authors);
-                incomingItems.Add(itemIncomingData);
+				incomingItems.Add(erWebItemIncomingData);
             }
 
             forSaving = new IncomingItemsList
@@ -999,7 +998,7 @@ namespace ERxWebClient2.Controllers
                 SourceDB = "Zotero",
                 DateOfImport = DateTime.Now,
                 DateOfSearch = DateTime.Now,
-                Included = true,
+                IsIncluded = true,
                 Notes = "",
                 SearchDescr = "Items pulled from Zotero",
                 SearchStr = "N/A",
@@ -1124,20 +1123,6 @@ namespace ERxWebClient2.Controllers
 
 				IMapZoteroReference referenceUpdate = _mapZoteroCollectionToErWebReference.GetReference(collection);
 				var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
-
-				//var dp = new DataPortal<ZoteroERWebReviewItem>();
-				//var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(itemReviewId.ToString());
-
-				//var zoteroErWebItem = dp.Fetch(criteria);
-
-				//zoteroErWebItem.LAST_MODIFIED = DateTime.Now;
-				//zoteroErWebItem.LibraryID = collection.library.id.ToString();
-				//zoteroErWebItem.Version = collection.version;
-				//zoteroErWebItem.TypeName = erWebItemUpdate.Item.TypeName;
-				//zoteroErWebItem.ShortTitle = collection.data.shortTitle;
-				//zoteroErWebItem.Title = collection.data.title;
-
-				//zoteroErWebItem = zoteroErWebItem.Save();
 
 				erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
 

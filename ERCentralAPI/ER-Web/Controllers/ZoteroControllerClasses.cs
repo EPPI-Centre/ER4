@@ -6,6 +6,7 @@ using static BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument;
 using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 //using ErWebState = BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument.ErWebState;
 using BusinessLibrary.BusinessClasses;
+using ERxWebClient2.Zotero;
 
 namespace ERxWebClient2.Controllers
 {
@@ -200,7 +201,7 @@ namespace ERxWebClient2.Controllers
 			return creatorsArray;
 		}
 
-		public ZoteroCollectionData(Item data)
+		public ZoteroCollectionData(IItem data)
         {
 			tagObject tag = new tagObject
 			{
@@ -323,10 +324,10 @@ namespace ERxWebClient2.Controllers
 
 	}
 
-	public class JournalArticle : ZoteroCollectionData
+	public class JournalArticle : ZoteroCollectionData, iJournalArticle
 	{
 
-        public JournalArticle(Item data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
+        public JournalArticle(IItem data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
         {
             this.publicationTitle = publicationTitle;
             this.issue = issue;
@@ -348,6 +349,18 @@ namespace ERxWebClient2.Controllers
 		public string ISSN { get; set; }
 	}
 
+	internal interface iJournalArticle
+	{
+		string publicationTitle { get; set; }
+		string issue { get; set; }
+		string pages { get; set; }
+		string seriesTitle { get; set; }
+		string seriesText { get; set; }
+		string journalAbbreviation { get; set; }
+		string DOI { get; set; }
+		string ISSN { get; set; }
+	}
+
 	public class ConferencePaper : ZoteroCollectionData
 	{
         public ConferencePaper(Item data, string proceedingstitle, string conferencename, string pLace) : base(data)
@@ -365,9 +378,9 @@ namespace ERxWebClient2.Controllers
 	}
 
 
-	public class BookWhole : ZoteroCollectionData
+	public class BookWhole : ZoteroCollectionData, iBookWhole
 	{
-		public BookWhole(Item data, string numberOfVolumes, string edition, string place, string publisher,
+		public BookWhole(IItem data, string numberOfVolumes, string edition, string place, string publisher,
 			string numPages, string iSBN): base(data)
 		{
             this.numberOfVolumes = numberOfVolumes;
@@ -385,6 +398,16 @@ namespace ERxWebClient2.Controllers
 		public string ISBN { get; set; }
       
     }
+
+	internal interface iBookWhole
+	{
+		string numberOfVolumes { get; set; }
+		string edition { get; set; }
+		string place { get; set; }
+		string publisher { get; set; }
+		string numPages { get; set; }
+		string ISBN { get; set; }
+	}
 
 	public class Dissertation : ZoteroCollectionData
 	{
@@ -408,9 +431,9 @@ namespace ERxWebClient2.Controllers
 
 	}
 
-	public class BookChapter : ZoteroCollectionData
+	public class BookChapter : ZoteroCollectionData , iBookChapter
 	{
-        public BookChapter(Item data, string bookTitle, string numberOfVolumes, 
+        public BookChapter(IItem data, string bookTitle, string numberOfVolumes, 
 			string edition, string place, string publisher, string numPages, string iSBN ): base(data)
         {
             this.bookTitle = bookTitle;
@@ -430,6 +453,17 @@ namespace ERxWebClient2.Controllers
 		public string numPages { get; set; }
 		public string ISBN { get; set; }
 
+	}
+
+	internal interface iBookChapter
+	{
+		string bookTitle { get; set; }
+		string numberOfVolumes { get; set; }
+		string edition { get; set; }
+		string place { get; set; }
+		string publisher { get; set; }
+		string numPages { get; set; }
+		string ISBN { get; set; }
 	}
 
 	public class Attachment : ZoteroCollectionData

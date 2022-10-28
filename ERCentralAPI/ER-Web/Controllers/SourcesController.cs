@@ -121,7 +121,7 @@ namespace ERxWebClient2.Controllers
                     forSaving.SourceDB = incoming.sourceDataBase;
                     forSaving.DateOfImport = DateTime.Parse(incoming.dateOfImport);
                     forSaving.DateOfSearch = DateTime.Parse(incoming.dateOfSerach);
-                    forSaving.Included = true;
+                    forSaving.IsIncluded = true;
                     forSaving.Notes = incoming.notes;
                     forSaving.SearchDescr = incoming.searchDescription;
                     forSaving.SearchStr = incoming.searchString;
@@ -282,7 +282,7 @@ namespace ERxWebClient2.Controllers
                     res.Summary = PmSearchJSON.summary;
                     res.WebEnv = PmSearchJSON.webEnv;
                     res.ItemsList = new IncomingItemsList();
-                    res.ItemsList.Included = true;
+                    res.ItemsList.IsIncluded = true;
                     res.ItemsList.SourceName = PmSearchJSON.ItemsList.SourceName;
                     res.ItemsList.SearchDescr = PmSearchJSON.ItemsList.SearchDescr;
                     res.ItemsList.SearchStr = PmSearchJSON.queryStr;

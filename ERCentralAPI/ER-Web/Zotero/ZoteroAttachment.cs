@@ -29,7 +29,7 @@ namespace ERxWebClient2.Zotero
                 newERWebDocument.Text = "";
 
                 var erWebItem = new ERWebItem();
-                erWebItem.ItemDocument = newERWebDocument;
+                //erWebItem.ItemDocument = newERWebDocument;
                 return erWebItem;
 
             }
