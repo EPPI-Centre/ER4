@@ -106,6 +106,21 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        public new Item SaveItem()
+        {
+            return this.Save();
+        }
+
+        public new void ApplyEditToItem()
+        {
+            this.ApplyEdit();
+        }
+
+        public new void BeginEditToItem()
+        {
+            this.BeginEdit();
+        }
+
         public static void GetItem(Int64 Id, EventHandler<DataPortalResult<Item>> handler)
         {
             DataPortal<Item> dp = new DataPortal<Item>();
@@ -1691,7 +1706,11 @@ namespace BusinessLibrary.BusinessClasses
 	}
 	public interface IItem : IErWebItem
 	{
-		long ItemId { get; set; }
+        Item SaveItem();
+        void ApplyEditToItem();
+        void BeginEditToItem();
+
+        long ItemId { get; set; }
 		long MasterItemId { get; set; }
 		int TypeId { get; set; }
 		string Authors { get; set; }

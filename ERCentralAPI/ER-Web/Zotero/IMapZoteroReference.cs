@@ -12,11 +12,9 @@ namespace ERxWebClient2.Zotero
 
     public class ERWebItem
     {
-        public IItem Item { get; set; }
+        public IItem? Item { get; set; }
 
-        //public ItemDocument ItemDocument { get; set;  // NOT NEEDED
-
-        public IItemIncomingData ItemIncomingData  { get; set;} // ALSO AN ITEM
+        public IItemIncomingData? ItemIncomingData  { get; set;} 
        
     }
 }

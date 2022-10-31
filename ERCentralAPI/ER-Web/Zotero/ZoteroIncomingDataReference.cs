@@ -52,24 +52,24 @@ namespace ERxWebClient2.Zotero
                 var parseDateModifiedResult = SmartDate.TryParse(collection.dateModified, ref smartDateModified);
                 if (!parseDateModifiedResult) throw new System.Exception("Date parsing exception");
 
-                newERWebItem.Title = collection.title;
+                newERWebItem.Title = collection.title ?? "";
                 newERWebItem.TypeId = 2;
-                var authors = AuthorsListForIncomingData(collection.creators);
-				newERWebItem.AuthorsLi = authors.authorsLi;
-                newERWebItem.pAuthorsLi = authors.pAuthorsLi;
-                newERWebItem.Abstract = collection.abstractNote;
+                var authors = AuthorsListForIncomingData(collection.creators ?? new CreatorsItem[0]);
+                newERWebItem.AuthorsLi = authors.authorsLi ?? new AutorsList();
+                newERWebItem.pAuthorsLi = authors.pAuthorsLi ?? new Csla.Core.MobileList<AutH>();
+                newERWebItem.Abstract = collection.abstractNote ?? "";
                 newERWebItem.DateEdited = smartDateModified;
-                newERWebItem.Edition = collection.edition;
-                newERWebItem.Institution = collection.place;
-                newERWebItem.Pages = collection.numPages;
-                newERWebItem.Publisher = collection.publisher;
-                newERWebItem.Short_title = collection.shortTitle;
-                newERWebItem.Volume = collection.volume;
-                newERWebItem.Pages = collection.pages;
-                newERWebItem.Issue = collection.issue;
-                newERWebItem.City = collection.archiveLocation;
-                newERWebItem.DOI = collection.ISBN;
-
+                newERWebItem.Edition = collection.edition ?? "";
+                newERWebItem.Institution = collection.place ?? "";
+                newERWebItem.Pages = collection.numPages ?? "";
+                newERWebItem.Publisher = collection.publisher ?? "";
+                newERWebItem.Short_title = collection.shortTitle ?? "";
+                newERWebItem.Volume = collection.volume ?? "";
+                newERWebItem.Pages = collection.pages ?? "";
+                newERWebItem.Issue = collection.issue ?? "";
+                newERWebItem.City = collection.archiveLocation ?? "";
+                newERWebItem.DOI = collection.ISBN ?? "";
+                newERWebItem.ZoteroKey = collection.key;
                 return newERWebItem;
 
             }

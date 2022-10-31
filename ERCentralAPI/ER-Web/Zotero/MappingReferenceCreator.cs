@@ -1,9 +1,6 @@
 ﻿using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.BusinessClasses.ImportItems;
-using Csla;
 using ERxWebClient2.Controllers;
-using Microsoft.CodeAnalysis;
-using System;
 
 namespace ERxWebClient2.Zotero
 {
@@ -35,7 +32,7 @@ namespace ERxWebClient2.Zotero
 
         public override IMapERWebReference GetReference(IItem item)
         {
-			if (item != null) throw new Exception("item reference null exception");
+			if (item == null) throw new Exception("item reference null exception");
  
 				switch (item.TypeId)
 				{
@@ -81,8 +78,8 @@ namespace ERxWebClient2.Zotero
             }
         }
 
-		// This is a special case as we want ItemIncomingData to be an Item
-		// but the fields contain different Names.
+		// NB: This is a special case as we want ItemIncomingData to be an Item
+		// but the fields contain different properties and methods hence cannot be wrapped.
 		public override ItemIncomingData GetIncomingDataReference(Collection collectionItem)
 		{
 			var incomingData = new ZoteroIncomingDataReference();

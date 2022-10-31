@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.AspNetCore.Builder;
 using ERxWebClient2.Zotero;
 
 try
@@ -49,6 +48,8 @@ try
     // the SqlHelper class will make sure our connection strings are available to BOs also.
     var MSlogger = new Serilog.Extensions.Logging.SerilogLoggerFactory(_Logger).CreateLogger<Program>();
     var SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
+
+    builder.Services.AddHttpClient("zoteroApi");
 
     // Add services to the container.
     builder.Services.AddSingleton<ZoteroConcurrentDictionary>();

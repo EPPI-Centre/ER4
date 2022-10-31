@@ -324,7 +324,7 @@ namespace ERxWebClient2.Controllers
 
 	}
 
-	public class JournalArticle : ZoteroCollectionData, iJournalArticle
+	public class JournalArticle : ZoteroCollectionData, IJournalArticle
 	{
 
         public JournalArticle(IItem data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
@@ -349,7 +349,7 @@ namespace ERxWebClient2.Controllers
 		public string ISSN { get; set; }
 	}
 
-	internal interface iJournalArticle
+	internal interface IJournalArticle
 	{
 		string publicationTitle { get; set; }
 		string issue { get; set; }
@@ -363,7 +363,7 @@ namespace ERxWebClient2.Controllers
 
 	public class ConferencePaper : ZoteroCollectionData
 	{
-        public ConferencePaper(Item data, string proceedingstitle, string conferencename, string pLace) : base(data)
+        public ConferencePaper(IItem data, string proceedingstitle, string conferencename, string pLace) : base(data)
         {
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
@@ -378,7 +378,7 @@ namespace ERxWebClient2.Controllers
 	}
 
 
-	public class BookWhole : ZoteroCollectionData, iBookWhole
+	public class BookWhole : ZoteroCollectionData, IBookWhole
 	{
 		public BookWhole(IItem data, string numberOfVolumes, string edition, string place, string publisher,
 			string numPages, string iSBN): base(data)
@@ -399,7 +399,7 @@ namespace ERxWebClient2.Controllers
       
     }
 
-	internal interface iBookWhole
+	internal interface IBookWhole
 	{
 		string numberOfVolumes { get; set; }
 		string edition { get; set; }
@@ -411,7 +411,7 @@ namespace ERxWebClient2.Controllers
 
 	public class Dissertation : ZoteroCollectionData
 	{
-		public Dissertation(Item data, string numberOfVolumes, string edition, string place, string publisher,
+		public Dissertation(IItem data, string numberOfVolumes, string edition, string place, string publisher,
 			string numPages, string iSBN) : base(data)
 		{
 			this.numberOfVolumes = numberOfVolumes;

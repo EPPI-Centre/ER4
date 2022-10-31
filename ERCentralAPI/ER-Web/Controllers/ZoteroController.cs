@@ -16,6 +16,7 @@ using System.Data;
 using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla.Core;
 using AuthorsHandling;
+using System.Security.Cryptography;
 
 namespace ERxWebClient2.Controllers
 {
@@ -35,34 +36,18 @@ namespace ERxWebClient2.Controllers
         private ZoteroConcurrentDictionary _zoteroConcurrentDictionary;  
         private IConfiguration _configuration; 
         private OAuthParameters _oAuth;
-        
-        #region constructor_and_setup
-        public void SetZoteroHttpService(UriBuilder uri, string zoteroApiKey, bool ifNoneMatchHeader = false, bool IfUnmodifiedSinceVersion = false, string version = null)
-        {
-            var _httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(uri.ToString())
-            };
-            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
-            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zoteroApiKey);
-            if (ifNoneMatchHeader)
-            {
-                _httpClient.DefaultRequestHeaders.Add("If-None-Match", "*");
-            }
-            if (IfUnmodifiedSinceVersion)
-            {
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("If-Unmodified-Since-Version", version);
-            }
-            var httpClientProvider = new HttpClientProvider(_httpClient);
-            _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
-        }
+        private IHttpClientFactory _httpClientFactory;
 
-        public ZoteroController(IConfiguration appConfiguration, ILogger<Controller> logger, ZoteroConcurrentDictionary zoteroConcurrentDictionary) : base(logger)
+        #region constructor_and_setup
+
+        public ZoteroController(IHttpClientFactory httpClientFactory, IConfiguration appConfiguration, ILogger<Controller> logger, ZoteroConcurrentDictionary zoteroConcurrentDictionary) : base(logger)
         {
+            _httpClientFactory = httpClientFactory;
+
             _configuration = appConfiguration;
             
             _zoteroService = ZoteroService.Instance;
-            
+
             if (_zoteroConcurrentDictionary == null)
             {
                 _zoteroConcurrentDictionary = zoteroConcurrentDictionary;
@@ -77,6 +62,25 @@ namespace ERxWebClient2.Controllers
             _mapZoteroCollectionToErWebReference = MappingReferenceCreator.Instance;
             _oAuth = OAuthParameters.Instance;
         }
+        public IHttpClientProvider SetZoteroHttpClientProvider(string zoteroApiKey,
+                bool ifNoneMatchHeader = false, bool IfUnmodifiedSinceVersion = false, string version = null)
+        {
+    
+            var _httpClient = _httpClientFactory.CreateClient("zoteroApi");
+            _httpClient.BaseAddress = new Uri(baseUrl);    
+            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Version", "3");
+            _httpClient.DefaultRequestHeaders.Add("Zotero-API-Key", zoteroApiKey);
+            if (ifNoneMatchHeader)
+            {
+                _httpClient.DefaultRequestHeaders.Add("If-None-Match", "*");
+            }
+            if (IfUnmodifiedSinceVersion)
+            {
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("If-Unmodified-Since-Version", version);
+            }
+            return new HttpClientProvider(_httpClient,_configuration);
+        }
+
         #endregion
 
         #region oAuth_and_related
@@ -105,13 +109,12 @@ namespace ERxWebClient2.Controllers
                 string dictionaryVal = _oAuth.timeStamp + ";" + _oAuth.nonce + ";" + reviewID +";" + ri.UserId + ";";
                           
                 var requestZoteroUri = new UriBuilder(oauthURL);
-                var _httpClient = new HttpClient();
+                var _httpClient = _httpClientFactory.CreateClient();
                 _httpClient.BaseAddress = new Uri(requestZoteroUri.ToString());
 
-                HttpClientProvider httpClientProvider = new HttpClientProvider(_httpClient);
-                _zoteroService.SetZoteroServiceHttpProvider(httpClientProvider);
-
-                var response = await _zoteroService.GetUserPermissions(requestZoteroUri.ToString());
+                var httpClientProvider = new HttpClientProvider(_httpClient, _configuration);
+               
+                var response = await _zoteroService.GetUserPermissions(requestZoteroUri.ToString(), httpClientProvider);
 
                 var indexOfAnd = response.IndexOf('&');
 
@@ -182,12 +185,11 @@ namespace ERxWebClient2.Controllers
                 string url = zotero_access_token_endpoint;
                 var signedURL = GetSignedUrl(timeStamp, nonce, reviewId.ToString(), url, oauth_token, zotero_token_secret, oauth_verifier);
                 var accessZoteroUri = new UriBuilder(signedURL);
-                var _httpClient = new HttpClient();
+                var _httpClient = _httpClientFactory.CreateClient();
                 _httpClient.BaseAddress = new Uri(accessZoteroUri.ToString());
 
-                var httpClientProviderF = new HttpClientProvider(_httpClient);
-                _zoteroService.SetZoteroServiceHttpProvider(httpClientProviderF);
-                var responseThree = await _zoteroService.DoGetReq(accessZoteroUri.ToString());
+                var httpClientProviderF = new HttpClientProvider(_httpClient, _configuration);
+                var responseThree = await _zoteroService.DoGetReq(accessZoteroUri.ToString(), httpClientProviderF);
                 var access_oauth_TokenIndex = responseThree.IndexOf('=');
                 var indexOfAccessAnd = responseThree.IndexOf('&');
                 var access_oauth_Token = responseThree.Substring(access_oauth_TokenIndex + 1, indexOfAccessAnd - access_oauth_TokenIndex - 1);
@@ -246,8 +248,8 @@ namespace ERxWebClient2.Controllers
         {
             List<int> res = new List<int>();
             var GETGroupsUri = new UriBuilder($"{baseUrl}/keys/current");
-            SetZoteroHttpService(GETGroupsUri, zoteroApiKey);
-            var response = await _zoteroService.DoGetReq(GETGroupsUri.ToString());
+            var httpClientProvider = SetZoteroHttpClientProvider(zoteroApiKey);
+            var response = await _zoteroService.DoGetReq(GETGroupsUri.ToString(), httpClientProvider);
             
             JObject joResponse = JObject.Parse(response);
             JObject ojObject = (JObject)joResponse["access"];
@@ -470,8 +472,8 @@ namespace ERxWebClient2.Controllers
         {
             //var getKeyResult = _zoteroConcurrentDictionary.Session.TryGetValue("apiKey-" + reviewId, out string zoteroApiKey);
             var GETGroupsUri = new UriBuilder($"{baseUrl}/users/{zoteroUserId}/groups");
-            SetZoteroHttpService(GETGroupsUri, zoteroApiKey);
-            List<Group> groups = await _zoteroService.GetCollections<Group>(GETGroupsUri.ToString());
+            var httpClientProvider  = SetZoteroHttpClientProvider(zoteroApiKey);
+            List<Group> groups = await _zoteroService.GetCollections<Group>(GETGroupsUri.ToString(), httpClientProvider);
 
             if (alsoCheckIfWeAlreadyHaveAGroupToSinc)
             {
@@ -513,11 +515,11 @@ namespace ERxWebClient2.Controllers
                 if (zrc == null || string.IsNullOrEmpty(zrc.ApiKey)) return StatusCode(400, "Nothing to delete");
                 if (ri == null || zrc.ErUserId != ri.UserId) return Unauthorized();
                 var DELETEApiKeysUri = new UriBuilder($"{baseUrl}/keys/{zrc.ApiKey}");
-                SetZoteroHttpService(DELETEApiKeysUri, zrc.ApiKey);
+                var httpClientProvider  = SetZoteroHttpClientProvider(zrc.ApiKey);
                 bool result = true;
                 try
                 {
-                    result = await _zoteroService.DeleteApiKey(DELETEApiKeysUri.ToString());
+                    result = await _zoteroService.DeleteApiKey(DELETEApiKeysUri.ToString(), httpClientProvider);
                 }
                 catch (Exception e)
                 {//catching here, as it could happen that user wants to "delete" the key BECAUSE they deleted it from Zotero directly
@@ -618,7 +620,7 @@ namespace ERxWebClient2.Controllers
             foreach (var item in zoteroERWebReviewItems)
             {
                 var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + item.ItemKey);
-                SetZoteroHttpService(PUTItemsUri, zrc.ApiKey, false, true, item.Version.ToString());
+                var httpClientProvider  = SetZoteroHttpClientProvider(zrc.ApiKey, false, true, item.Version.ToString());
 
                 var criteria = new SingleCriteria<Item, Int64>(item.ItemID);
                 var localItem = DataPortal.Fetch<Item>(criteria);
@@ -637,7 +639,7 @@ namespace ERxWebClient2.Controllers
                 if (zoteroItem == null) throw new Exception("This Zotero item does not exist");
 
                 var payload = JsonConvert.SerializeObject(zoteroItem);
-                var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString());
+                var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString(), httpClientProvider);
                 var actualContent = await response.Content.ReadAsStringAsync();
                 if (actualContent.Contains(""))
                 {
@@ -683,14 +685,14 @@ namespace ERxWebClient2.Controllers
             }
 
             var POSTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
-            SetZoteroHttpService(POSTItemUri, zrc.ApiKey);
+            var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
 
             var result = false;
             var count = 0;
             if (zoteroItems.Count() > 0)
             {
                 var payload = JsonConvert.SerializeObject(zoteroItems);
-                var response = await _zoteroService.CreateItem(payload, POSTItemUri.ToString());
+                var response = await _zoteroService.CreateItem(payload, POSTItemUri.ToString(), httpClientProvider);
                 var actualContent = await response.Content.ReadAsStringAsync();              
                 if (actualContent.Contains("success"))
                 {
@@ -835,8 +837,8 @@ namespace ERxWebClient2.Controllers
                     ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 
                     var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
-                    SetZoteroHttpService(GETGroupsUri, zrc.ApiKey);
-                    var items = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString());
+                    var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
+                    var items = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString(), httpClientProvider);
 
                     ZoteroERWebReviewItemList pairedItems = DataPortal.Fetch<ZoteroERWebReviewItemList>(new SingleCriteria<ZoteroERWebReviewItemList, string>((-1).ToString()));
                     ZoteroItemsResult res = new ZoteroItemsResult();
@@ -872,8 +874,8 @@ namespace ERxWebClient2.Controllers
                    
 					(ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
 					var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey + "");
-                    SetZoteroHttpService(GETItemUri, zrc.ApiKey);
-                    JObject item = await _zoteroService.GetItem(GETItemUri.ToString());
+                    var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
+                    JObject item = await _zoteroService.GetItem(GETItemUri.ToString(), httpClientProvider);
                     return Ok(item);
 
                 }
@@ -1015,9 +1017,9 @@ namespace ERxWebClient2.Controllers
             string fileName = pdf.documenT_TITLE;
             var key = pdf.DocZoteroKey;
             var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{key}/file");
-            SetZoteroHttpService(GetFileUri, zrc.ApiKey);
+            var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
             
-            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString());
+            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString(), httpClientProvider);
             //var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
             string ContentType = "";
             string ext = "";
@@ -1124,7 +1126,10 @@ namespace ERxWebClient2.Controllers
 				IMapZoteroReference referenceUpdate = _mapZoteroCollectionToErWebReference.GetReference(collection);
 				var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
 
-				erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
+                if (erWebItemUpdate == null || erWebItemUpdate.Item == null) 
+                throw new Exception("MappingReferenceCreator failed to create the item");
+
+				erWebItemUpdate.Item.SaveItem();
 
                 return Task.CompletedTask;
         }
@@ -1294,7 +1299,7 @@ namespace ERxWebClient2.Controllers
             {
 
                 Stream stream = new MemoryStream(fileBytes);
-                var md5Content = ZoteroAPIHelpers.GetMD5HashFromStream(stream);
+                var md5Content = GetMD5HashFromStream(stream);
                 var dt = DateTime.Now;
 
                 string payload = "[ " +
@@ -1318,9 +1323,9 @@ namespace ERxWebClient2.Controllers
 
 				(ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
 				var POSTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/?v=3");
-                SetZoteroHttpService(POSTItemUri, zrc.ApiKey);
+                var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
 
-                var responseTwo = await _zoteroService.POSTJDocument(payload, POSTItemUri.ToString());
+                var responseTwo = await _zoteroService.POSTJDocument(payload, POSTItemUri.ToString(), httpClientProvider);
 
                 var successful = responseTwo["successful"];
                 var zero = successful["0"];
@@ -1330,7 +1335,7 @@ namespace ERxWebClient2.Controllers
                 var hash = md5Content;
 
                 var PDFAuthUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file");
-                SetZoteroHttpService(PDFAuthUri, zrc.ApiKey, true);
+                var httpClientPdf = SetZoteroHttpClientProvider(zrc.ApiKey, true);
 
                 dt = DateTime.Now;
                 long milliseconds = dt.Millisecond;
@@ -1343,7 +1348,7 @@ namespace ERxWebClient2.Controllers
                     new KeyValuePair<string, string>("mtime", milliseconds.ToString())
                 };
 
-                var responseJObject = await _zoteroService.POSTFormMultiPart(payload2, PDFAuthUri.ToString());
+                var responseJObject = await _zoteroService.POSTFormMultiPart(payload2, PDFAuthUri.ToString(), httpClientPdf);
 
                 if (responseJObject["exists"] != null)
                 {
@@ -1409,11 +1414,12 @@ namespace ERxWebClient2.Controllers
                 }
 
                 var fileURI = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file");
-                SetZoteroHttpService(fileURI, zrc.ApiKey, true);
+                var httpClientF = SetZoteroHttpClientProvider(zrc.ApiKey, true);
 
                 var uploadKeyString = uploadKey.ToString();
                 var payloadUpload = $"upload={uploadKeyString}";
-                var responseRegisterUpload = await _zoteroService.POSTDocument(payloadUpload, $"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file");
+                var responseRegisterUpload = await _zoteroService.POSTDocument(payloadUpload, 
+                    $"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file", httpClientF);
                 if (!string.IsNullOrEmpty(responseRegisterUpload))
                 {
                     throw new Exception("Registering upload in Zotero Error");
@@ -1428,6 +1434,19 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        private static string GetMD5HashFromStream(Stream stream)
+        {
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] retVal = md5.ComputeHash(stream);
+            stream.Close();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < retVal.Length; i++)
+            {
+                sb.Append(retVal[i].ToString("x2"));
+            }
+            return sb.ToString();
+        }
         private static Task InsertUploadedDocLocally( long itemDocumentId, string filename, 
             string uploadKeyString)
         {
