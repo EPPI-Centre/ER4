@@ -74,7 +74,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-sourcemap-loader": "^0.3.8",
     "ng2-charts": "^3.0.11",
-    "npm-check-updates": "^13.0.3",
+    "npm-check-updates": "^16.3.16",
     "oidc-client": "^1.11.5",
     "popper.js": "^1.16.1",
     "run-script-os": "^1.1.6",
@@ -87,8 +87,8 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^13.3.7",
-    "@angular/cli": "~13.3.6",
+    "@angular-devkit/build-angular": "^13.3.9",
+    "@angular/cli": "~13.3.9",
     "@angular/compiler-cli": "~13.3.9",
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "~2.0.8",
