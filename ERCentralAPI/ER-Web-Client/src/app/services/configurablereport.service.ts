@@ -3,7 +3,7 @@ import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { EventEmitterService } from './EventEmitter.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -57,9 +57,9 @@ export class ConfigurableReportService extends BusyAwareService {
 
 
 		this._BusyMethods.push("FetchStandardReport");
-		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchStandardReport',
+    return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchStandardReport',
 			args
-		).toPromise().then(
+		)).then(
 			(result) => {
 				this.RemoveBusy("FetchStandardReport");
 				//console.log("FetchStandardReport got:", result);
@@ -82,9 +82,9 @@ export class ConfigurableReportService extends BusyAwareService {
 	FetchROBReport(args: ReportRiskOfBias): Promise<string>   {
 
 		this._BusyMethods.push("FetchROBReport");
-		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchROBReport',
+    return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchROBReport',
 			args
-		).toPromise().then(
+		)).then(
 			(result) => {
 				this.RemoveBusy("FetchROBReport");
 				return result;
@@ -105,10 +105,10 @@ export class ConfigurableReportService extends BusyAwareService {
 	FetchOutcomesReport(args: ReportOutcomes): Promise<ReportResult>   {
 
         this._BusyMethods.push("FetchOutcomesReport");
-		return this._httpC.post<ReportResult>(this._baseUrl
+    return lastValueFrom(this._httpC.post<ReportResult>(this._baseUrl
             + 'api/ReportList/FetchOutcomesReport', args
 			)
-			.toPromise().then(
+			).then(
 				(result) => {
 					this.RemoveBusy("FetchOutcomesReport");
 						return result;
@@ -135,9 +135,9 @@ export class ConfigurableReportService extends BusyAwareService {
 
 		let body = JSON.stringify({ Value: setId });
 		this._BusyMethods.push("FetchAllCodingReportBySet");
-		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchReportAllCoding',
+    return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchReportAllCoding',
 			body
-		).toPromise().then(
+		)).then(
 			(result) => {
 				this.RemoveBusy("FetchAllCodingReportBySet");
 				//console.log("FetchStandardReport got:", result);
@@ -163,7 +163,7 @@ export class ConfigurableReportService extends BusyAwareService {
 		this._BusyMethods.push("CreateReport");
 
 		//console.log("saving reviewSet via command", rs, rsC);
-		return this._httpC.post<iConfigurableReport>(this._baseUrl + 'api/ReportList/CreateReport', rep).toPromise().then((res: iConfigurableReport) => {
+    return lastValueFrom(this._httpC.post<iConfigurableReport>(this._baseUrl + 'api/ReportList/CreateReport', rep)).then((res: iConfigurableReport) => {
 			this.Reports.push(res);			
 			this.RemoveBusy("CreateReport");
 			return res;

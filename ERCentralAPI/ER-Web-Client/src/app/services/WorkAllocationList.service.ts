@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { EventEmitterService } from './EventEmitter.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 
@@ -85,9 +85,9 @@ export class WorkAllocationListService extends BusyAwareService implements OnDes
 
 		this._BusyMethods.push("AssignWorkAllocation");
 		
-		return this._httpC.post<WorkAllocation>(this._baseUrl +
+    return lastValueFrom(this._httpC.post<WorkAllocation>(this._baseUrl +
 			'api/WorkAllocationContactList/AssignWorkAllocation', wa)
-			.toPromise().then(
+			).then(
 
 				() => {
 
@@ -125,9 +125,9 @@ export class WorkAllocationListService extends BusyAwareService implements OnDes
 
     public RunAllocationFromWizardCommand(cmd: WorkAllocationFromWizardCommand): Promise<WorkAllocWizardResult> {
         this._BusyMethods.push("RunAllocationFromWizardCommand");
-        return this._httpC.post<WorkAllocWizardResult>(this._baseUrl +
+      return lastValueFrom(this._httpC.post<WorkAllocWizardResult>(this._baseUrl +
             'api/WorkAllocationContactList/ExecuteWorkAllocationFromWizardCommand', cmd)
-            .toPromise().then((result) => {
+            ).then((result) => {
                 this.RemoveBusy("RunAllocationFromWizardCommand");
                 if (cmd.isPreview == 1) {
                     //we're only getting how many items...

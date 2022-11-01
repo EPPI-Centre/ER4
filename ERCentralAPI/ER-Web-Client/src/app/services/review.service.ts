@@ -5,6 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ConfigService } from './config.service';
+import { lastValueFrom } from 'rxjs';
 
 
 @Injectable({
@@ -33,8 +34,8 @@ export class ReviewService extends BusyAwareService {
 		this._BusyMethods.push("CreateReview");
 
 		let body = JSON.stringify({ reviewName: RevName, userId: ContactId });
-        return this._httpC.post<number>(this._baseUrl + 'api/Review/CreateReview', body
-        ).toPromise<number>().then(
+    return lastValueFrom(this._httpC.post<number>(this._baseUrl + 'api/Review/CreateReview', body
+        )).then(
             (result) => {
                 this.RemoveBusy("CreateReview");
                 return result;
@@ -62,8 +63,8 @@ export class ReviewService extends BusyAwareService {
         this._BusyMethods.push("GetAccount");
         let ErrMsg = "Something went wrong when getting the account data. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify({ Value: Id });
-        return this._httpC.post<Contact>(this._baseUrl + 'api/AccountManager/GetUserAccountDetails',
-            body).toPromise()
+      return lastValueFrom(this._httpC.post<Contact>(this._baseUrl + 'api/AccountManager/GetUserAccountDetails',
+            body))
             .then(
                 (result) => {
                     this.RemoveBusy("GetAccount");
@@ -137,8 +138,8 @@ export class ReviewService extends BusyAwareService {
         this._BusyMethods.push("UpdateAccount");
         let body = JSON.stringify(fullAccountDetails);
 
-        return this._httpC.post<number>(this._baseUrl + 'api/AccountManager/UpdateAccount',
-            body).toPromise()
+      return lastValueFrom(this._httpC.post<number>(this._baseUrl + 'api/AccountManager/UpdateAccount',
+            body))
             .then(
                 (result) => {
                     this.RemoveBusy("UpdateAccount");
@@ -158,8 +159,8 @@ export class ReviewService extends BusyAwareService {
         let _ReviewName = { Value: reviewName };        
         let body = JSON.stringify(_ReviewName);
 
-        return this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/UpdateReviewName',
-            body).toPromise()
+      return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/UpdateReviewName',
+            body))
             .then(
                 (result) => {
                     this.RemoveBusy("UpdateReviewName");
@@ -180,8 +181,8 @@ export class ReviewService extends BusyAwareService {
       let _reviewerID = { Value: reviewerID };
       let body = JSON.stringify(_reviewerID);
 
-      return this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/RemoveReviewer',
-        body).toPromise()
+      return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/RemoveReviewer',
+        body))
         .then(
           (result) => {
             this.RemoveBusy("RemoveReviewer");
@@ -199,8 +200,8 @@ export class ReviewService extends BusyAwareService {
       this._BusyMethods.push("UpdateReviewerRole");
       let body = JSON.stringify({ role: role, contactID: reviewerID });
 
-      return this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/UpdateReviewerRole',
-        body).toPromise()
+      return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/AccountManager/UpdateReviewerRole',
+        body))
         .then(
           (result) => {
             this.RemoveBusy("UpdateReviewerRole");
@@ -243,8 +244,8 @@ export class ReviewService extends BusyAwareService {
       let _ReviewerEmail = { Value: reviewerEmail };
       let body = JSON.stringify(_ReviewerEmail);
 
-      return this._httpC.post<number>(this._baseUrl + 'api/AccountManager/AddReviewer',
-        body).toPromise()
+      return lastValueFrom(this._httpC.post<number>(this._baseUrl + 'api/AccountManager/AddReviewer',
+        body))
         .then(
           (result) => {
             this.RemoveBusy("AddAccount");

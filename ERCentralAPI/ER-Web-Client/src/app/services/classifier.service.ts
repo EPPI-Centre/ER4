@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
-import {  Subscription } from 'rxjs';
+import {  lastValueFrom, Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { EventEmitterService } from './EventEmitter.service';
 import { ReviewerIdentityService } from './revieweridentity.service';
@@ -107,9 +107,9 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
 		this._BusyMethods.push("DeleteModel");
 
-		return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/DeleteModel',
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/DeleteModel',
 			MVCcmd)
-			.toPromise().then(
+			).then(
 				(result: MVCClassifierCommand) => {
 					this.RemoveBusy("DeleteModel");
 					if (result != null && result.returnMessage == 'Success') {
@@ -226,9 +226,9 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
     //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
-    return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/ApplyClassifier'//'api/Classifier/ApplyClassifierAsync'
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/ApplyClassifier'//'api/Classifier/ApplyClassifierAsync'
       , MVCcmd
-    ).toPromise().then(result => {
+    )).then(result => {
       //console.log(result);
       this.RemoveBusy("Apply");
       return result.returnMessage;
@@ -251,8 +251,8 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		let _ModelName: ModelNameUpdate = { ModelId: modelNumber, ModelName: modelName };
 		let body = JSON.stringify(_ModelName);
 
-		return this._httpC.post<boolean>(this._baseUrl + 'api/Classifier/UpdateModelName',
-			body).toPromise()
+    return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Classifier/UpdateModelName',
+			body))
 			.then(
 				(result) => {
 					this.RemoveBusy("UpdateModelName");
