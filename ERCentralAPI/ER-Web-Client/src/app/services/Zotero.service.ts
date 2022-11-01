@@ -10,6 +10,7 @@ import {
   ZoteroERWebItemDoc
 } from './ZoteroClasses.service';
 import { ConfigService } from './config.service';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -96,8 +97,8 @@ export class ZoteroService extends BusyAwareService {
 
   private async PushTheseItemsToZotero(itemsToPush: ZoteroERWebReviewItem[]): Promise<boolean> {
     this._BusyMethods.push("PushZoteroErWebReviewItemList");
-    return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PushZoteroErWebReviewItemList', itemsToPush )
-      .toPromise().then(result => {
+    return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PushZoteroErWebReviewItemList', itemsToPush )
+      ).then(result => {
         this.RemoveBusy("PushZoteroErWebReviewItemList");
         return true;
       },
@@ -112,8 +113,8 @@ export class ZoteroService extends BusyAwareService {
   public async PullTheseItems(Items: ZoteroERWebReviewItem[]): Promise<boolean> {
 
     this._BusyMethods.push("PullTheseItems");
-    return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PullZoteroErWebReviewItemList', Items)
-      .toPromise().then(result => {
+    return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/PullZoteroErWebReviewItemList', Items)
+      ).then(result => {
         this.RemoveBusy("PullTheseItems");
         return true;
       },
@@ -144,8 +145,8 @@ export class ZoteroService extends BusyAwareService {
     this._BusyMethods.push("GetZoteroApiKey");
     this.userKeyInfo = <ApiKeyInfo>{};
     this.groupMeta = [];
-    return this._httpC.get<ApiKeyInfo|string>(this._baseUrl + 'api/Zotero/CheckApiKey')
-      .toPromise().then(async result => {
+    return lastValueFrom(this._httpC.get<ApiKeyInfo|string>(this._baseUrl + 'api/Zotero/CheckApiKey')
+      ).then(async result => {
         this.RemoveBusy("GetZoteroApiKey");
         if (typeof result == "string") {
           //ApiKeyInfo could not be collected: something is wrong with it!
@@ -176,8 +177,8 @@ export class ZoteroService extends BusyAwareService {
     this._BusyMethods.push("GetApiKey");
     this.userKeyInfo = <ApiKeyInfo>{};
     this.groupMeta = [];
-    return this._httpC.get<ApiKeyInfo>(this._baseUrl + 'api/Zotero/GetApiKey')
-      .toPromise().then(result => {
+    return lastValueFrom(this._httpC.get<ApiKeyInfo>(this._baseUrl + 'api/Zotero/GetApiKey')
+      ).then(result => {
         this.RemoveBusy("GetApiKey");
         this.userKeyInfo = result;
       }, error => {
@@ -192,8 +193,8 @@ export class ZoteroService extends BusyAwareService {
     public async UpdateGroupToReview(groupId: string, deleteLink: boolean): Promise<boolean> {
     
         this._BusyMethods.push("UpdateGroupToReview");
-      return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/UpdateGroupToReview', groupId.toString() )
-            .toPromise().then(result => {
+      return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/UpdateGroupToReview', groupId.toString() )
+            ).then(result => {
                 this.RemoveBusy("UpdateGroupToReview");
                 return true;
             },
@@ -208,8 +209,8 @@ export class ZoteroService extends BusyAwareService {
   public async fetchGroupMetaData(): Promise<boolean> {
     this._BusyMethods.push("fetchGroupMetaData");
       this.groupMeta = []
-        return this._httpC.get<Group[]>(this._baseUrl + 'api/Zotero/GroupMetaData')
-          .toPromise().then(result => {
+    return lastValueFrom(this._httpC.get<Group[]>(this._baseUrl + 'api/Zotero/GroupMetaData')
+          ).then(result => {
             if (result.length === 0) {
               console.log('this is zero even though controller returns data!!');
             }
@@ -234,8 +235,8 @@ export class ZoteroService extends BusyAwareService {
     this._BusyMethods.push("fetchZoteroItems");
     this._BusyMessage = "Getting the Full list of references in the Zotero library. This can take minutes, when there are thousands of references.";
     this._ZoteroItems = [];
-    return this._httpC.get<iZoteroItemsResult>(this._baseUrl + 'api/Zotero/ZoteroItems')
-      .toPromise().then(result => {
+    return lastValueFrom(this._httpC.get<iZoteroItemsResult>(this._baseUrl + 'api/Zotero/ZoteroItems')
+      ).then(result => {
         this.RemoveBusy("fetchZoteroItems");
         this._BusyMessage = "";
         let AttachKeys: string[] = [];//used to figure out what Attachments are in TB_ZOTERO_ITEM_DOCUMENT, but not present on Zotero end, anymore. We'll delete them
@@ -458,8 +459,8 @@ export class ZoteroService extends BusyAwareService {
   public OauthProcessGet(erWebUserID: number, reviewId: number): Promise<any> {
     this._BusyMethods.push("OauthProcessGet");
 
-    return this._httpC.get<any>(this._baseUrl + 'api/Zotero/StartOauthProcess')
-      .toPromise().then(result => {
+    return lastValueFrom(this._httpC.get<any>(this._baseUrl + 'api/Zotero/StartOauthProcess')
+      ).then(result => {
         this.RemoveBusy("OauthProcessGet");
         return result;
       },
@@ -473,8 +474,8 @@ export class ZoteroService extends BusyAwareService {
   public DeleteZoteroApiKey(): Promise<boolean> {
     this._BusyMethods.push("DeleteZoteroApiKey");
 
-    return this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/DeleteZoteroApiKey')
-      .toPromise().then(result => {
+    return lastValueFrom(this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/DeleteZoteroApiKey')
+      ).then(result => {
         this.RemoveBusy("DeleteZoteroApiKey");
         if (result == true) {
           this.groupMeta = [];

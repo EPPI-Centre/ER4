@@ -4,7 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { BusyAwareService } from "../helpers/BusyAwareService";
 import { MAGBlobCommand, MAGLog, MAGReview, MagCurrentInfo, ContReviewPipeLineCommand } from "./MAGClasses.service";
 import { EventEmitterService } from './EventEmitter.service';
-import { Subscription } from "rxjs";
+import { lastValueFrom, Subscription } from "rxjs";
 import { ConfigService } from "./config.service";
 
 @Injectable({
@@ -91,8 +91,8 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("AddReview");
         let body = JSON.stringify({ Value: reviewId });
-        this._httpC.post<MAGReview>(this._baseUrl + 'api/MagReviewList/AddReviewToMagList', body)
-            .toPromise().then( (result) => {
+      lastValueFrom(this._httpC.post<MAGReview>(this._baseUrl + 'api/MagReviewList/AddReviewToMagList', body)
+            ).then( (result) => {
                 this.RemoveBusy("AddReview");
                 if (result != null) {
                     this.MAGReviewList.push(result);
@@ -111,8 +111,8 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("DeleteReview");
         let body = JSON.stringify({ Value: reviewId });
-        this._httpC.post<boolean>(this._baseUrl + 'api/MagReviewList/DeleteReview', body)
-            .toPromise().then(() => {
+      lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/MagReviewList/DeleteReview', body)
+            ).then(() => {
                 this.RemoveBusy("DeleteReview");
                 let index: number = this.MAGReviewList.findIndex(x => x.reviewId == reviewId);
                 if (index > -1) {

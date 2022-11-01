@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, Subscribable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
 import { ItemDocsService } from '../services/itemdocs.service';

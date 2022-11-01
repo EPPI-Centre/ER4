@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { EventEmitterService } from './EventEmitter.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ConfigService } from './config.service';
 
@@ -214,8 +214,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         //console.log('CheckUpload');
         this._IncomingItems4Checking = null;
         let body = JSON.stringify(data);
-        return this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/VerifyFile',
-            body).toPromise().then(
+      return lastValueFrom(this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/VerifyFile',
+            body)).then(
             result => {
                 this.RemoveBusy("CheckUpload");
                 this._IncomingItems4Checking = result;
@@ -380,8 +380,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         let ErrMsg = "Something went wrong when getting the source data. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify({ Value: Id });
 
-        return this._httpC.post<Source>(this._baseUrl + 'api/Sources/GetSource',
-            body).toPromise()
+      return lastValueFrom(this._httpC.post<Source>(this._baseUrl + 'api/Sources/GetSource',
+            body))
             .then(
                 (result) => {
                     //if (!result || result.length < 1) this.modalService.GenericErrorMessage(ErrMsg);

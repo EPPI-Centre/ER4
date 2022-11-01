@@ -30,7 +30,7 @@ export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
       this._router.navigate(['home']);
     }
     else {
-      this.errorInPathSub = this.route.queryParams.subscribe(async params => {
+      this.errorInPathSub = this.route.queryParams.subscribe(async (params:any) => {
         const err: string = params['error'];
         if (err && err.length > 0) {
           //we received an error in the querystring coming back from the oAuth loop,

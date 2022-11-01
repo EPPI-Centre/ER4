@@ -33,13 +33,13 @@ export class editItemDetailsComp implements OnInit, OnDestroy {
         else {
             if (!this.ReviewerIdentityServ.HasWriteRights) this.GoBack();
             if (this.ItemListService.ItemTypes.length == 0) this.ItemListService.FetchItemTypes();
-            this.subReturnTo = this.route.queryParams.subscribe(params => {
+            this.subReturnTo = this.route.queryParams.subscribe((params:any) => {
                 if (params['return']) this.returnTo = params['return'];
                 else this.returnTo = "Main";
                 if (this.subReturnTo) this.subReturnTo.unsubscribe();
                 this.route.queryParams = new Observable<Params>();
             });
-            this.subItemIDinPath = this.route.params.subscribe(params => {
+            this.subItemIDinPath = this.route.params.subscribe((params:any) => {
                 if (params['itemId']) this.itemString = params['itemId'];
                 else this.itemString = "0";
                 this.GetItem();

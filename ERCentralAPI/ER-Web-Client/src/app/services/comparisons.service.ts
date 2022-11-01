@@ -5,7 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { Helpers } from '../helpers/HelperMethods';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { ConfigService } from './config.service';
 
@@ -85,11 +85,11 @@ export class ComparisonsService extends BusyAwareService implements OnDestroy {
 		} else {
             chosenAttFilter = chosenParent as SetAttribute;
 		}
-		return this._httpC.post<any>(
+    return lastValueFrom(this._httpC.post<any>(
 			this._baseUrl + 'api/Comparisons/ComparisonReport',
 			compReport
 			)
-			.toPromise().then(
+			).then(
 				(res) => {
 					
 					//console.log(JSON.stringify(res));
@@ -277,9 +277,9 @@ export class ComparisonsService extends BusyAwareService implements OnDestroy {
 		this._BusyMethods.push("CompleteComparison");
 
 		//let body = JSON.stringify({ Value: ComparisonId });
-		return this._httpC.post<string>(this._baseUrl +
+    return lastValueFrom(this._httpC.post<string>(this._baseUrl +
 			'api/Comparisons/CompleteComparison', completeComparison)
-			.toPromise().then(
+			).then(
 			(result: string) => {
                 this.RemoveBusy("CompleteComparison");
                 this.FetchStats(completeComparison.comparisonId);
