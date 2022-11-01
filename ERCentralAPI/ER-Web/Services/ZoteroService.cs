@@ -9,7 +9,7 @@ namespace ERxWebClient2.Services
 	public sealed class ZoteroService : IZoteroService
 	{
 		public UriBuilder GetCollectionsUri;
-		public UriBuilder GetItemsUri;		
+		public UriBuilder GetItemsUri;
 		private static ZoteroService instance = null;
 		private static readonly object padlock = new object();
 		private const string TargetResultsHeader = "Total-Results";
@@ -45,7 +45,7 @@ namespace ERxWebClient2.Services
 
 		public async Task<List<T>> GetCollections<T>(string requestUri, IHttpClientProvider httpProvider)
 		{
-			var response =  await httpProvider.GetAsync(requestUri);
+			var response = await httpProvider.GetAsync(requestUri);
 			response.EnsureSuccessStatusCode();
 			string json = await response.Content.ReadAsStringAsync();
 			return JsonConvert.DeserializeObject<List<T>>(json);
@@ -53,29 +53,45 @@ namespace ERxWebClient2.Services
 
 		public async Task<List<T>> GetPagedCollections<T>(string requestUri, IHttpClientProvider httpProvider)
 		{
-			var response = await httpProvider.GetAsync(requestUri);
+			//var APIwatch = new System.Diagnostics.Stopwatch();
+			//var ParseWatch = new System.Diagnostics.Stopwatch();
+			long batchSize = 100;
+			long start = batchSize;
+
+			//APIwatch.Start();
+			var response = await httpProvider.GetAsync(requestUri + $"&start=0&limit={batchSize}");
 			response.EnsureSuccessStatusCode();
 			var TotalResultsHeader = response.Headers.FirstOrDefault(x => x.Key == TargetResultsHeader);
 			var totalNumberOfItems = Convert.ToInt64(TotalResultsHeader.Value.FirstOrDefault());
 			string json = await response.Content.ReadAsStringAsync();
+			//APIwatch.Stop();
+			//ParseWatch.Start();
 			var listedItems = JsonConvert.DeserializeObject<List<T>>(json);
+			//ParseWatch.Stop();
 			int count = 0;
-			long start = 25;
-			long limit = 25;
-			if (totalNumberOfItems > 25)
+			if (totalNumberOfItems > batchSize)
 			{
-				while (count < (totalNumberOfItems / 25))
+				while (listedItems.Count < totalNumberOfItems)
 				{
-					var nextPagedRequest = requestUri + $"&start={start}";
+					var nextPagedRequest = requestUri + $"&start={start}&limit={batchSize}";
+					//APIwatch.Start();
 					var pagedResponse = await httpProvider.GetAsync(nextPagedRequest);
 					json = await pagedResponse.Content.ReadAsStringAsync();
+					pagedResponse.EnsureSuccessStatusCode();
+					//APIwatch.Stop();
+					//ParseWatch.Start();
 					var pagedItems = JsonConvert.DeserializeObject<List<T>>(json);
+					//ParseWatch.Stop();
 					listedItems.AddRange(pagedItems);
-					start += 25;
-					limit = totalNumberOfItems - start;
+					start += batchSize;
+					//limit = totalNumberOfItems - start;
 					count++;
 				}
 			}
+			//var APItime = APIwatch.ElapsedMilliseconds / 1000;
+			//var Parsetime = ParseWatch.ElapsedMilliseconds / 1000;
+			//System.Diagnostics.Debug.WriteLine("APItime: " + APItime.ToString());
+			//System.Diagnostics.Debug.WriteLine("Parsetime: " + Parsetime.ToString());
 			return listedItems;
 		}
 
@@ -138,9 +154,9 @@ namespace ERxWebClient2.Services
 
 		public async Task<HttpResponseMessage> GetDocumentHeader(string requestUri, IHttpClientProvider httpProvider)
 		{
-				var response = await httpProvider.GetAsync(requestUri);
-				response.EnsureSuccessStatusCode();
-				return response;
+			var response = await httpProvider.GetAsync(requestUri);
+			response.EnsureSuccessStatusCode();
+			return response;
 		}
 
 		public async Task<string> POSTDocument(string payload, string requestUri, IHttpClientProvider httpProvider)

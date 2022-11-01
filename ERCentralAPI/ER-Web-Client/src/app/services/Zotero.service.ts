@@ -64,10 +64,12 @@ export class ZoteroService extends BusyAwareService {
     return this._zoteroERWebReviewItemList;
   }
 
-  private _PushingMessage = "";
-  public get PushingMessage(): string {
-    if (this._BusyMethods.findIndex(f => f == "PushZoteroErWebReviewItemList") == -1) return "";
-    return this._PushingMessage;
+  private _BusyMessage = "";
+  public get BusyMessage(): string {
+    if (this._BusyMethods.length == 0) {
+      return "";
+    }
+    return this._BusyMessage;
   }
 
   public async PushZoteroErWebReviewItemList(): Promise<boolean> {
@@ -80,15 +82,15 @@ export class ZoteroService extends BusyAwareService {
     }
     let res: boolean = false;
     for (let i = 0; i < batches.length; i++) {
-      this._PushingMessage = "Pushing items, batch " + (i + 1).toString() + " of " + batches.length.toString();
+      this._BusyMessage = "Pushing items, batch " + (i + 1).toString() + " of " + batches.length.toString();
       res = await this.PushTheseItemsToZotero(batches[i]);
       if (res == false) {
         //an error happened, we'll stop
-        this._PushingMessage = "";
+        this._BusyMessage = "";
         return false;
       }
     }
-    this._PushingMessage = "";
+    this._BusyMessage = "";
     return true; //new Promise(() => { return true; }); 
   }
 
@@ -228,12 +230,14 @@ export class ZoteroService extends BusyAwareService {
             });
   }
 
-  public async fetchZoteroObjectVersionsAsync(): Promise<boolean> {
-    this._BusyMethods.push("fetchZoteroObjectVersionsAsync");
+  public async fetchZoteroItems(): Promise<boolean> {
+    this._BusyMethods.push("fetchZoteroItems");
+    this._BusyMessage = "Getting the Full list of references in the Zotero library. This can take minutes, when there are thousands of references.";
     this._ZoteroItems = [];
     return this._httpC.get<iZoteroItemsResult>(this._baseUrl + 'api/Zotero/ZoteroItems')
       .toPromise().then(result => {
-        this.RemoveBusy("fetchZoteroObjectVersionsAsync");
+        this.RemoveBusy("fetchZoteroItems");
+        this._BusyMessage = "";
         let AttachKeys: string[] = [];//used to figure out what Attachments are in TB_ZOTERO_ITEM_DOCUMENT, but not present on Zotero end, anymore. We'll delete them
         let ToDeleteItems: ZoteroERWebReviewItem[] = [];//used to track what references are in TB_ZOTERO_ITEM_REVIEW, but not present on Zotero end, anymore. We'll delete them
         let ToDeleteAttachments: ZoteroERWebItemDoc[] = [];//used to track what PDFs/Attachments are in TB_ZOTERO_ITEM_DOCUMENT, but not present on Zotero end, anymore. We'll delete them
@@ -339,12 +343,12 @@ export class ZoteroService extends BusyAwareService {
       },
         error => {
           this.modalService.GenericError(error);
-          this.RemoveBusy("fetchZoteroObjectVersionsAsync");
+          this.RemoveBusy("fetchZoteroItems");
           return false;
         }
       ).catch(caught => {
         this.modalService.GenericError(caught);
-        this.RemoveBusy("fetchZoteroObjectVersionsAsync");
+        this.RemoveBusy("fetchZoteroItems");
         return false;
       });
   }
