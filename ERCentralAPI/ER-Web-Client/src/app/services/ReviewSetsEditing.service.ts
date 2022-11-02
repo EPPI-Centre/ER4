@@ -345,6 +345,28 @@ export class ReviewSetsEditingService extends BusyAwareService {
         return false;
     }
 
+    IsACode(node: singleNode): boolean {
+      if (node.nodeType == 'ReviewSet') {
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+
+    async MoveCode(node: singleNode) {
+      if (node.nodeType == 'ReviewSet') {
+        // we shouldn't be here
+      }
+      else {
+        let MyAtt = node as SetAttribute;
+        if (MyAtt) {
+
+
+          //await this.MoveUpAttributeFull(MyAtt);
+        }
+      }
+    }
 
 
     async MoveUpNode(node: singleNode) {

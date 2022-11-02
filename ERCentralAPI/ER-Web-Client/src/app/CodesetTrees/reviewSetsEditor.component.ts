@@ -4,6 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, iSetType, ReviewSet, singleNode, kvAllowedAttributeType, SetAttribute } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService, ChangeDataEntryMessage } from '../services/ReviewSetsEditing.service';
 import { CodesetTreeEditComponent } from './codesetTreeEdit.component';
+import { EditCodeComp } from './editcode.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { Subscription } from 'rxjs';
 
@@ -38,6 +39,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         }
     }
     @ViewChild('treeEditorComponent') treeEditorComponent!: CodesetTreeEditComponent;
+    @ViewChild('editCodeComp') editCodeComp!: EditCodeComp;
     @ViewChild('CodeTypeSelect') CodeTypeSelect: any;
     subRedrawTree: Subscription | null = null;
     public get HelpAndFeebackContext(): string {
@@ -47,6 +49,11 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     private _ActivityPanelName: string = "";
     public get ActivityPanelName() {
         return this._ActivityPanelName;
+    }
+
+    private _EditCodeActivity: string = "";
+    public get EditCodeActivity() {
+      return this._EditCodeActivity;
     }
     public NewSetSelectedTypeId: number = 3;
     public get ReviewSets(): ReviewSet[] {

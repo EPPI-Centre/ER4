@@ -25,8 +25,18 @@ export class EditCodeComp implements OnInit, OnDestroy {
     
     @Input() IsSmall: boolean = false;
     @Input() UpdatingCode: SetAttribute | null = null;
+    @Input() EditCodeActivity: string = "";
+
     @Output() emitterCancel = new EventEmitter();
-    ShowPanel: string = "";
+    //ShowPanel: string = "";
+    private _ShowPanel: string = "";
+    public get ShowPanel(): string {
+      if (this._ShowPanel == "MoveCode") {
+        this.EditCodeActivity = "";
+      }
+      return this._ShowPanel
+    }
+
     ErrorMessage4CodeMove: string = "";
     //public get UpdatingCode2(): SetAttribute | null {
     //    console.log("UpdatingCode2");
@@ -170,7 +180,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
             success => {
                 //alert("did it");
                 
-                this.ShowPanel = 'DeleteCode';
+                this._ShowPanel = 'DeleteCode';
                 this._appliedCodes = success.numItems;
                 this._AllocationsAffected = success.numAllocations;
                 //console.log("ShowDeleteCodesetClicked", success, this._appliedCodes);
@@ -182,12 +192,12 @@ export class EditCodeComp implements OnInit, OnDestroy {
             });
     }
     HideDeleteCodeset() {
-        this.ShowPanel = '';
+        this._ShowPanel = '';
         this._appliedCodes = -1;
         this._AllocationsAffected = -1;
     }
     ShowMoveCodeClicked() {
-        this.ShowPanel = 'MoveCode';
+        this._ShowPanel = 'MoveCode';
     }
     DoDeleteCode() {
         if (!this.UpdatingCode) return;

@@ -33,21 +33,31 @@
             </div>
         </div>
         <div *ngIf="ShowPanel == 'MoveCode' && ErrorMessage4CodeMove == ''" class="">
-            <div class="p-1">Please select the <b>Destination Code</b> from the area below.</div>
-            <div class="py-1 px-3 small alert-info border border-info rounded ">
-                You can move this code into another part of its coding tool, with all its child codes (if any), without affecting coding data.<br /> 
-                Not all codes can be destination codes. This is because some moves are impossible (ex. you cannot move a code into one of its children) while others would break coding tool depth restrictions.
-            </div>
-            <div class="border border-primary rounded p-1 m-1">
-                <codesetTree4Move #codesetTree4Move [MaxHeight]="300" [SelectedCodeset]="ReviewSetOfUpdatingCode" [SelectedNode]="UpdatingCode"></codesetTree4Move>
-            </div>
-            <div class="p-1 mb-2">
-                Moving: <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b> into
-                <b class="rounded border border-dark p-1 "
-                   [ngClass]="{'alert-danger' : !codesetTree4Move.CanMoveBranchHere, 'alert-success' : codesetTree4Move.CanMoveBranchHere}">{{codesetTree4Move.DestinationBranchName}}</b>
-            </div>
-            <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
-            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranch(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchHere">Move!</button>
+          <div class="p-1">Please select the <b>Destination Code</b> from the area below.</div>
+          <div class="py-1 px-3 small alert-info border border-info rounded ">
+            You can move this code into another part of its coding tool, with all its child codes (if any), without affecting coding data.<br />
+            Not all codes can be destination codes. This is because some moves are impossible (ex. you cannot move a code into one of its children) while others would break coding tool depth restrictions.
+          </div>
+          <div class="border border-primary rounded p-1 m-1">
+            <codesetTree4Move #codesetTree4Move [MaxHeight]="300" [SelectedCodeset]="ReviewSetOfUpdatingCode" [SelectedNode]="UpdatingCode"></codesetTree4Move>
+          </div>
+
+          <div class="p-1 mb-2">
+            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranch(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchHere">Move below</button>
+            &nbsp;&nbsp; <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b>&nbsp;&nbsp;
+            below
+            &nbsp;&nbsp;<b class="rounded border border-dark p-1"
+                           [ngClass]="{'alert-danger' : !codesetTree4Move.CanMoveBranchHere, 'alert-success' : codesetTree4Move.CanMoveBranchHere}">{{codesetTree4Move.DestinationBranchName}}</b>
+          </div>
+          <div class="p-1 mb-2">
+            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranch(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchHere">Move into</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b>&nbsp;&nbsp;&nbsp;
+            into
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b class="rounded border border-dark p-1"
+                                             [ngClass]="{'alert-danger' : !codesetTree4Move.CanMoveBranchHere, 'alert-success' : codesetTree4Move.CanMoveBranchHere}">{{codesetTree4Move.DestinationBranchName}}</b>
+          </div>
+          <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+
         </div>
         <div *ngIf="ShowPanel == 'MoveCode' && ErrorMessage4CodeMove != ''" class="alert alert-danger">
             <div class="p-1 alert alert-danger">{{ErrorMessage4CodeMove}}</div>
