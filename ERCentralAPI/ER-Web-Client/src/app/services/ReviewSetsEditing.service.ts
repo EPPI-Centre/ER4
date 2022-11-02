@@ -1,5 +1,5 @@
 import { Inject, Injectable, Output, EventEmitter } from '@angular/core';
-import { Observable, of, race } from 'rxjs';
+import { lastValueFrom, Observable, of, race } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
@@ -116,7 +116,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             SetTypeId: rs.setType ? rs.setType.setTypeId : -1
         }
         //console.log("saving reviewSet via command", rs, rsC);
-        return this._httpC.post<iReviewSet>(this._baseUrl + 'api/Codeset/ReviewSetCreate', rsC).toPromise()
+      return lastValueFrom(this._httpC.post<iReviewSet>(this._baseUrl + 'api/Codeset/ReviewSetCreate', rsC))
             .then((res) => { 
                 this.RemoveBusy("SaveNewReviewSet"); 
                 this.PleaseRedrawTheTree.emit();
@@ -144,7 +144,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             numAllocations: -1
         }
 
-        return this._httpC.post<AttributeSetDeleteWarningCommandResult>(this._baseUrl + 'api/Codeset/AttributeOrSetDeleteCheck', body).toPromise()
+      return lastValueFrom(this._httpC.post<AttributeSetDeleteWarningCommandResult>(this._baseUrl + 'api/Codeset/AttributeOrSetDeleteCheck', body))
             .then(
             (result) => {
                     //console.log("ReviewSetCheckCodingStatus", result);
@@ -177,7 +177,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             order: rSet.order
         };
         console.log(command);
-        return this._httpC.post<ReviewSetDeleteCommand>(this._baseUrl + 'api/Codeset/ReviewSetDelete', command).toPromise()
+      return lastValueFrom(this._httpC.post<ReviewSetDeleteCommand>(this._baseUrl + 'api/Codeset/ReviewSetDelete', command))
             .then(
                 (result) => {
                     this.RemoveBusy("ReviewSetDelete");
@@ -214,7 +214,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             attributeOrder: attributeorder
         }
         //console.log("saving reviewSet via command", rs, rsC);
-        return this._httpC.post<ReviewSetUpdateCommand>(this._baseUrl + 'api/Codeset/AttributeSetMove', rsC).toPromise().then(
+      return lastValueFrom(this._httpC.post<ReviewSetUpdateCommand>(this._baseUrl + 'api/Codeset/AttributeSetMove', rsC)).then(
             data => {
                 this.RemoveBusy("MoveSetAttribute");
                 //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
@@ -246,7 +246,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
         ReviewSetOrder: newSetOrder
       }
       //console.log("saving reviewSet via command", rs, rsC);
-      return this._httpC.post<ReviewSetMoveCommand>(this._baseUrl + 'api/Codeset/ReviewSetMove', rsC).toPromise().then(
+      return lastValueFrom(this._httpC.post<ReviewSetMoveCommand>(this._baseUrl + 'api/Codeset/ReviewSetMove', rsC)).then(
         data => {
           this.RemoveBusy("MoveReviewSet");
           this.PleaseRedrawTheTree.emit();
@@ -871,7 +871,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
         this._BusyMethods.push("ReviewSetCheckCodingStatus");
         let ErrMsg = "Something went wrong: could not check the coding status of this set. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify({ Value: SetId });
-        return this._httpC.post<number>(this._baseUrl + 'api/Codeset/ReviewSetCheckCodingStatus', body).toPromise()
+      return lastValueFrom(this._httpC.post<number>(this._baseUrl + 'api/Codeset/ReviewSetCheckCodingStatus', body))
             .then(
                 (result) => {
                     //console.log("ReviewSetCheckCodingStatus", result);
@@ -913,7 +913,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
         Data.setId = Att.set_id;
         Data.attributeOrder = Att.order;
         //console.log("saving reviewSet via command", rs, rsC);
-        return this._httpC.post<iAttributeSet>(this._baseUrl + 'api/Codeset/AttributeCreate', Data).toPromise()
+    return lastValueFrom(this._httpC.post<iAttributeSet>(this._baseUrl + 'api/Codeset/AttributeCreate', Data))
             .then((res) => { 
                 this.RemoveBusy("SaveNewAttribute"); 
                 Att.attribute_id = res.attributeId;
@@ -956,7 +956,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
         Data.extType = Att.extType;
         Data.extURL = Att.extURL;
         //console.log("saving reviewSet via command", rs, rsC);
-        return this._httpC.post<boolean>(this._baseUrl + 'api/Codeset/AttributeUpdate', Data).toPromise()
+      return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Codeset/AttributeUpdate', Data))
             .then((res) => {
                 this.RemoveBusy("UpdateAttribute");
                 this.PleaseRedrawTheTree.emit();
@@ -985,8 +985,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
 		command.searchName = visualiseTitle;
 		command.setId = set_id;
 				
-		return this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/CodeSet/CreateVisualiseCodeSet', command)
-			.toPromise().then(
+    return lastValueFrom(this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/CodeSet/CreateVisualiseCodeSet', command)
+			).then(
 
 				(result) => {
 					this.RemoveBusy("CreateVisualiseCodeSet");
@@ -1044,7 +1044,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             successful: false
         };
         console.log(command);
-        return this._httpC.post<AttributeDeleteCommand>(this._baseUrl + 'api/Codeset/AttributeDelete', command).toPromise()
+      return lastValueFrom(this._httpC.post<AttributeDeleteCommand>(this._baseUrl + 'api/Codeset/AttributeDelete', command))
             .then(
                 (result) => {
                     this.RemoveBusy("SetAttributeDelete");
@@ -1076,7 +1076,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
         command.order = Order;
         command.reviewSetId = ReviewSetId;
         console.log("ReviewSetCopy:", command);
-        return this._httpC.post<ReviewSetCopyCommand>(this._baseUrl + 'api/Codeset/ReviewSetCopy', command).toPromise()
+    return lastValueFrom(this._httpC.post<ReviewSetCopyCommand>(this._baseUrl + 'api/Codeset/ReviewSetCopy', command))
             .then(
                 (result) => {
                     this.RemoveBusy("ReviewSetCopy");

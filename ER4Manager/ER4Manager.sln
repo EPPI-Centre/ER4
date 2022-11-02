@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ER4Manager_1", "ER4Manager_1\", "{13BD3B4A-13D7-4324-BDC2-D3C283341CE4}"
 	ProjectSection(WebsiteProperties) = preProject
@@ -36,6 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files et al", "Files et al"
 		Additional files\ComponentArt.Web.UI.dll = Additional files\ComponentArt.Web.UI.dll
 		Additional files\ComponentArt.Web.UI.dll.refresh = Additional files\ComponentArt.Web.UI.dll.refresh
 		Additional files\ComponentArt.Web.UI.lic = Additional files\ComponentArt.Web.UI.lic
+		Additional files\iFrameTester.html = Additional files\iFrameTester.html
 		Additional files\Telerik.Web.UI.dll = Additional files\Telerik.Web.UI.dll
 		Additional files\Telerik.Web.UI.Skins.dll = Additional files\Telerik.Web.UI.Skins.dll
 		Additional files\Telerik.Web.UI.xml = Additional files\Telerik.Web.UI.xml

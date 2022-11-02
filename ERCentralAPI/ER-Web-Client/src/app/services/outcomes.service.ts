@@ -5,7 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SetAttribute } from './ReviewSets.service';
 import { iTimePoint } from './ArmTimepointLinkList.service';
 import { StatFunctions } from '../helpers/StatisticsMethods';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -183,9 +183,9 @@ export class OutcomesService extends BusyAwareService  {
 		let ErrMsg = "Something went wrong when creating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
 		//console.log('did call this...');
-		return this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/Createoutcome',
+    return lastValueFrom(this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/Createoutcome',
 
-			currentoutcome).toPromise()
+			currentoutcome))
 						.then(
 						(result) => {
 
