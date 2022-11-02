@@ -36,7 +36,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(false);
-    this.fetchZoteroObjectVersions();
+    this._zoteroService.CheckAndFetchZoteroItems();
   }
   public get HasWriteRights(): boolean {
     return this._ReviewerIdentityServ.HasWriteRights;
@@ -96,10 +96,6 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     }
   }
 
-  fetchZoteroObjectVersions() {
-    this._zoteroService.fetchZoteroItems();
-  }
-
   async PullConfirmZoteroItems(): Promise<void> {
     if (this.ItemsToPullCount < 1 || this.HasWriteRights == false) return;
     this._confirmationDialogService.confirm("Pull Items from Zotero?",
@@ -129,7 +125,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     }
   }
   public async RefreshBothTables() {
-    const res2 = await this._zoteroService.fetchZoteroItems();
+    const res2 = await this._zoteroService.CheckAndFetchZoteroItems(true);
     if (res2 == true) {
       let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
       if (CurrentDropdownSelectedCode !== null) {

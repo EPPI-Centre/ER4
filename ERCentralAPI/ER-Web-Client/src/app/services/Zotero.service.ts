@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -10,22 +10,25 @@ import {
   ZoteroERWebItemDoc
 } from './ZoteroClasses.service';
 import { ConfigService } from './config.service';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ZoteroService extends BusyAwareService {
+export class ZoteroService extends BusyAwareService implements OnDestroy {
    
   constructor(
     private _httpC: HttpClient,
     private modalService: ModalService,
+    private EventEmitterService: EventEmitterService,
     configService: ConfigService
   ) {
     super(configService);
+    this.clearSub = this.EventEmitterService.OpeningNewReview.subscribe(() => { this.Clear(); });
   }
-
+  private clearSub: Subscription | null = null;
   //public editApiKeyPermissions: boolean = false;
   public hasPermissions: boolean = false;//overall flag. When True, user can pull/push.
   private _errorMessage: string = "data not fetched";//should be empty when no error is present
@@ -231,9 +234,17 @@ export class ZoteroService extends BusyAwareService {
             });
   }
 
-  public async fetchZoteroItems(): Promise<boolean> {
+  public async CheckAndFetchZoteroItems(force:boolean = false): Promise<boolean> {
+    if ((!this._BusyMethods.includes("fetchZoteroItems")) && this._ZoteroItems.length == 0 || force == true) {
+      return this.fetchZoteroItems();
+    }
+    else return new Promise(() => { return true; });
+  }
+
+  private async fetchZoteroItems(): Promise<boolean> {
     this._BusyMethods.push("fetchZoteroItems");
-    this._BusyMessage = "Getting the Full list of references in the Zotero library. This can take minutes, when there are thousands of references.";
+    this._BusyMessage = "<div class='mx-0 px-0'><div>Getting the Full list of references in the Zotero library. This can take minutes, when there are thousands of references.</div>"
+      + "<div class='row'><div class='bg-white text-dark font-weight-bold small px-2 mx-auto'>While this happens, you can go back to the main ER-Web window and return here in a few minutes.</div></div></div>";
     this._ZoteroItems = [];
     return lastValueFrom(this._httpC.get<iZoteroItemsResult>(this._baseUrl + 'api/Zotero/ZoteroItems')
       ).then(result => {
@@ -492,8 +503,17 @@ export class ZoteroService extends BusyAwareService {
       );
   }
 
-  public Clear() {
+  ngOnDestroy() {
+    console.log("Destroy ZoteroService");
+    if (this.clearSub != null) this.clearSub.unsubscribe();
+  }
+  public PartialClear() {
+    console.log("PartialClear in ZoteroService");
     this._zoteroERWebReviewItemList = [];
+  }
+  public Clear() {
+    console.log("Clear in ZoteroService");
+    this.PartialClear();
     this._ZoteroItems = [];
     this.groupMeta = [];
     this._errorMessage = "data not fetched";

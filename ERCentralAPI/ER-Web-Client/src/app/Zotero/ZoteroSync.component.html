@@ -50,8 +50,8 @@
   </div>-->
 
   <div *ngIf="BusyMessage != ''" class="col-12 row mx-0 px-1">
-    <div class="alert alert-warning border mx-auto my-1">
-      {{BusyMessage}}
+    <div class="rounded bg-white p-1 mx-auto mb-1">
+      <div class="alert alert-warning border-warning border mb-0" [innerHTML]="BusyMessage"></div>
     </div>
   </div>
   <div class="col-12 row mx-0 px-1">
