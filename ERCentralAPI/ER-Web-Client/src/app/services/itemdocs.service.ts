@@ -1,7 +1,7 @@
 import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { lastValueFrom, Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { OK } from 'http-status-codes';
@@ -116,7 +116,7 @@ export class ItemDocsService extends BusyAwareService   {
         let ErrMsg = "Something went wrong when checking if it's safe to delete this document. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify({ Value: DocId });
 
-        return this._httpC.post<number>(this._baseUrl + 'api/ItemDocumentList/DeleteDocWarning', body).toPromise()
+      return lastValueFrom(this._httpC.post<number>(this._baseUrl + 'api/ItemDocumentList/DeleteDocWarning', body))
             .then(
 			(result) => {
 				this.RemoveBusy("DeleteDocWarning");

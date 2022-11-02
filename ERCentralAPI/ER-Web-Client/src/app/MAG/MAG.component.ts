@@ -45,7 +45,7 @@ export class MAGComp implements OnInit, OnDestroy {
   faSpinner = faSpinner;
 
     ngOnInit() {
-        this.subItemIDinPath = this.route.params.subscribe(params => {
+        this.subItemIDinPath = this.route.params.subscribe((params:any) => {
             console.log("subItemIDinPath sub triggrered");
             let idTxt = params['paperId'];
             if (idTxt != undefined) {

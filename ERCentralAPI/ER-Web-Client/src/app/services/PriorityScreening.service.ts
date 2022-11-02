@@ -1,6 +1,6 @@
 import {  Inject, Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { HttpClient, } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service';
@@ -114,8 +114,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     private FetchNextItem() {
         this._BusyMethods.push("FetchNextItem");
         let body = JSON.stringify({ Value: this.ReviewInfoService.ReviewInfo.screeningCodeSetId });
-        this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingNextItem',
-            body).toPromise().then(
+      lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingNextItem',
+            body)).then(
             success => {
                 this.RemoveBusy("FetchNextItem");
                 this.CurrentItem = success.item;
@@ -140,8 +140,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         let body = JSON.stringify({ Value: this.ScreenedItemIds[index] });
         //console.log("FetchScreenedItem", this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
         //console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
-        this._httpC.post<TrainingPreviousItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingPreviousItem',
-            body).toPromise().then(
+      lastValueFrom(this._httpC.post<TrainingPreviousItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingPreviousItem',
+            body)).then(
             success => {
                 this.RemoveBusy("FetchScreenedItem");
                     this.CurrentItem = success.item;
@@ -298,9 +298,9 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
                 included: aSet.attribute_type_id == 10
             });
         }
-        return this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+      return lastValueFrom(this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
             'api/PriorirtyScreening/ReplaceTrainingScreeningCriteriaList', Data)
-            .toPromise().then(
+            ).then(
                 success => {
                     this.RemoveBusy("ReplaceTrainingScreeningCriteriaList");
                     this._TrainingScreeningCriteria = success;

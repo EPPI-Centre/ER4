@@ -5,6 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item } from './ItemList.service';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { ConfigService } from './config.service';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -126,8 +127,8 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		let ErrMsg = "Something went wrong when getting the Links. \r\n If the problem persists, please contact EPPISupport.";
 		let body = JSON.stringify({ Value: Id });
 
-		return this._http.post<iItemLink[]>(this._baseUrl + 'api/ArmTimepointLinkList/GetLinkLists',
-			body).toPromise()
+    return lastValueFrom(this._http.post<iItemLink[]>(this._baseUrl + 'api/ArmTimepointLinkList/GetLinkLists',
+			body))
 			.then(
 				(result) => {
 					//if (!result || result.length < 1) this.modalService.GenericErrorMessage(ErrMsg);
@@ -182,9 +183,9 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		this._BusyMethods.push("Createtimepoint");
 		let ErrMsg = "Something went wrong when creating an timepoint. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/CreateTimePoint',
+    return lastValueFrom(this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/CreateTimePoint',
 
-			currenttimepoint).toPromise()
+			currenttimepoint))
 						.then(
 							(result) => {
 								this.timepoints = result;
@@ -243,9 +244,9 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		cmd.itemTimepointId = timepoint.itemTimepointId;
 		cmd.itemId = timepoint.itemId;
 
-		return this._http.post<ItemTimepointDeleteWarningCommandJSON>(this._baseUrl + 'api/ArmTimepointLinkList/DeleteWarningTimePoint',
+    return lastValueFrom(this._http.post<ItemTimepointDeleteWarningCommandJSON>(this._baseUrl + 'api/ArmTimepointLinkList/DeleteWarningTimePoint',
 
-			cmd).toPromise()
+			cmd))
 			.then(
 				(result) => {
 
@@ -323,9 +324,9 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		this._currentItem = currentItem;
 		let body = JSON.stringify({ Value: currentItem.itemId });
 
-		return this._http.post<iArm[]>(this._baseUrl + 'api/ArmTimepointLinkList/GetArms',
+    return lastValueFrom(this._http.post<iArm[]>(this._baseUrl + 'api/ArmTimepointLinkList/GetArms',
 
-			body).toPromise().then(
+			body)).then(
 
 				result => {
 					this.arms = result;
@@ -348,9 +349,9 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		this._BusyMethods.push("CreateArm");
 		let ErrMsg = "Something went wrong when creating an arm. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<Arm>(this._baseUrl + 'api/ArmTimepointLinkList/CreateArm',
+    return lastValueFrom(this._http.post<Arm>(this._baseUrl + 'api/ArmTimepointLinkList/CreateArm',
 
-			currentArm).toPromise()
+			currentArm))
 			.then(
 				(result) => {
 
@@ -406,9 +407,9 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		cmd.itemArmId = arm.itemArmId;
 		cmd.itemId = arm.itemId;
 
-		return this._http.post<ItemArmDeleteWarningCommandJSON>(this._baseUrl + 'api/ArmTimepointLinkList/DeleteWarningArm',
+    return lastValueFrom(this._http.post<ItemArmDeleteWarningCommandJSON>(this._baseUrl + 'api/ArmTimepointLinkList/DeleteWarningArm',
 
-			cmd).toPromise()
+			cmd))
 			.then(
 				(result) => {
 
@@ -468,9 +469,9 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		this._BusyMethods.push("CreateItemLink");
 		let ErrMsg = "Something went wrong when Creating the Link. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<iItemLink[]>(this._baseUrl + 'api/ArmTimepointLinkList/CreateItemLink',
+    return lastValueFrom(this._http.post<iItemLink[]>(this._baseUrl + 'api/ArmTimepointLinkList/CreateItemLink',
 
-			link).toPromise().then(
+			link)).then(
 				(result) => {
 
 					if (!result || result.length < 1) this.modalService.GenericErrorMessage(ErrMsg);
@@ -498,9 +499,9 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		this._BusyMethods.push("UpdateItemLink");
 		let ErrMsg = "Something went wrong when updating the link. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<iItemLink[]>(this._baseUrl + 'api/ArmTimepointLinkList/UpdateItemLink',
+    return lastValueFrom(this._http.post<iItemLink[]>(this._baseUrl + 'api/ArmTimepointLinkList/UpdateItemLink',
 
-			link).toPromise().then(
+			link)).then(
 				(result) => {
 					if (!result || result.length < 1) this.modalService.GenericErrorMessage(ErrMsg);
 					else this.links = result;

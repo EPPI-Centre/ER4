@@ -19,7 +19,7 @@ export class ArchieCallBackComponent implements OnInit {
         //this.ReviewerIdentityServ.LoginFailed.subscribe(() => this.LoginFailed());
     }
     ngOnInit() {
-        this.route.queryParams.subscribe(params => {
+        this.route.queryParams.subscribe((params:any) => {
             console.log("Params:", params);
             this.State = params['state'];
             this.Code = params['code'];

@@ -7,7 +7,7 @@ import { MagRelatedPapersRun, MagPaperList, MagPaper,  MagItemPaperInsertCommand
 import { ConfirmationDialogService } from './confirmation-dialog.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { EventEmitterService } from './EventEmitter.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ConfigService } from './config.service';
 
@@ -381,8 +381,8 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
     }
     public RunMagAddClassifierScoresCommand(cmd: MagAddClassifierScoresCommand): Promise<boolean> {
         this._BusyMethods.push("RunMagAddClassifierScoresCommand");
-        return this._httpC.post<MagAddClassifierScoresCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/MagAddClassifierScoresCommand', cmd)
-            .toPromise().then(
+      return lastValueFrom(this._httpC.post<MagAddClassifierScoresCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/MagAddClassifierScoresCommand', cmd)
+            ).then(
                 (result: MagAddClassifierScoresCommand) => {
                     this.RemoveBusy("RunMagAddClassifierScoresCommand");
                     return true;
@@ -400,8 +400,8 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
     }
     public AutoUpdateCountResultsCommand(cmd: MagItemPaperInsertCommand): Promise<number> {
         this._BusyMethods.push("CountResultsCommand");
-        return this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/CountResultsCommand', cmd)
-            .toPromise().then(
+      return lastValueFrom(this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/CountResultsCommand', cmd)
+            ).then(
                 (result: MagItemPaperInsertCommand) => {
                     this.RemoveBusy("CountResultsCommand");
                     return result.topN;

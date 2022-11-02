@@ -124,7 +124,7 @@ import { ProgressBarModule } from '@progress/kendo-angular-progressbar';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { IconsModule } from '@progress/kendo-angular-icons';
 import { ConfigService } from './services/config.service';
-import { Observable, ObservableInput, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ZoteroManagerComponent } from './Zotero/ZoteroManager.component';
 import { ZoteroSetupComponent } from './Zotero/ZoteroSetup.component';
@@ -145,7 +145,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
             else config.baseUrl = fallback;
             resolve(true);
           }),
-          catchError((x: { status: number }, caught: Observable<void>): ObservableInput<{}> => {
+          catchError((x: { status: number }, caught: Observable<void>) => {
             if (x.status !== 404) {
               resolve(false);
             }

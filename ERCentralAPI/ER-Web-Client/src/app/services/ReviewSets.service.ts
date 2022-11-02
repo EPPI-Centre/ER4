@@ -1,6 +1,6 @@
 import {  Inject, Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { of, Subscription } from 'rxjs';
+import { lastValueFrom, of, Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
@@ -512,7 +512,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
             return new Promise<boolean>((resolve, reject) => { resolve(false); });
         }
         this._BusyMethods.push("ExecuteItemSetCompleteCommand");
-        return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd).toPromise()
+      return lastValueFrom(this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd))
         .then(
             data => {
                 this.RemoveBusy("ExecuteItemSetCompleteCommand");

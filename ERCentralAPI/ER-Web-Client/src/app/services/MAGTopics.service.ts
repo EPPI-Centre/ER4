@@ -4,6 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { BusyAwareService } from "../helpers/BusyAwareService";
 import { MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, TopicLink } from "./MAGClasses.service";
 import { ConfigService } from "./config.service";
+import { lastValueFrom } from "rxjs";
 
 @Injectable({
 
@@ -26,8 +27,8 @@ export class MAGTopicsService extends BusyAwareService {
     public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[] | boolean> {
         this._BusyMethods.push("FetchMagFieldOfStudyList");
 
-        return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagFieldOfStudyList/GetMagFieldOfStudyList', criteria)
-            .toPromise().then(
+      return lastValueFrom(this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagFieldOfStudyList/GetMagFieldOfStudyList', criteria)
+            ).then(
                 (result: MagFieldOfStudy[]) => {
                     if (criteria.listType == "FieldOfStudyChildrenList") {
                         this.WPChildTopics = [];

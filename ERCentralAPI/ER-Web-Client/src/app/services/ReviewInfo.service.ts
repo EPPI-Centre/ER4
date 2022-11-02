@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Helpers } from '../helpers/HelperMethods';
 import { EventEmitterService } from './EventEmitter.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -68,9 +68,9 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy{
     }
     public Update(rInfo: ReviewInfo): Promise<boolean> {
         this._BusyMethods.push("Update");
-        return this._httpC.post<iReviewInfo>(this._baseUrl +
+      return lastValueFrom(this._httpC.post<iReviewInfo>(this._baseUrl +
             'api/ReviewInfo/UpdateReviewInfo', rInfo)
-            .toPromise().then(
+            ).then(
             (result: iReviewInfo) => {
                 this.RemoveBusy("Update");
                 this.ReviewInfo = new ReviewInfo(result);

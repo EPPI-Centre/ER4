@@ -42,8 +42,8 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     return this._ReviewerIdentityServ.HasWriteRights;
   }
 
-  public get PushingMessage(): string {
-    return this._zoteroService.PushingMessage;
+  public get BusyMessage(): string {
+    return this._zoteroService.BusyMessage;
   }
 
   public get ObjectZoteroList(): ZoteroItem[] {
@@ -97,7 +97,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   }
 
   fetchZoteroObjectVersions() {
-    this._zoteroService.fetchZoteroObjectVersionsAsync();
+    this._zoteroService.fetchZoteroItems();
   }
 
   async PullConfirmZoteroItems(): Promise<void> {
@@ -129,7 +129,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     }
   }
   public async RefreshBothTables() {
-    const res2 = await this._zoteroService.fetchZoteroObjectVersionsAsync();
+    const res2 = await this._zoteroService.fetchZoteroItems();
     if (res2 == true) {
       let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
       if (CurrentDropdownSelectedCode !== null) {

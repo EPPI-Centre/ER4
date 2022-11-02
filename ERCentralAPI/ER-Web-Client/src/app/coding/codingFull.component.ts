@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Subscription, Subject, Subscribable, } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
@@ -163,7 +163,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
         this.ShowLiveComparison = !this.ShowLiveComparison;
       })
-      this.subItemIDinPath = this.route.params.subscribe(params => {
+      this.subItemIDinPath = this.route.params.subscribe((params:any) => {
         this.itemString = params['itemId'];
         this.GetItem();
         //console.log('coding full sajdhfkjasfdh: ' + this.itemID);

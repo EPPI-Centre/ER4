@@ -4,6 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {  MagPaperList, MagPaper,   MagSimulation } from './MAGClasses.service';
 import { ConfigService } from './config.service';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -31,8 +32,8 @@ export class MAGSimulationService extends BusyAwareService {
 
         this._BusyMethods.push("DeleteSimulation");
         let body = JSON.stringify({ Value: item.magSimulationId });
-        return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/DeleteMagSimulation', body)
-            .toPromise().then(
+      return lastValueFrom(this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/DeleteMagSimulation', body)
+            ).then(
                 (result: MagSimulation) => {
 
                     this.RemoveBusy("DeleteSimulation");
@@ -57,8 +58,8 @@ export class MAGSimulationService extends BusyAwareService {
     }
     public AddMagSimulation(newMagSimulation: MagSimulation) {
         this._BusyMethods.push("AddMagSimulation");
-        return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/CreateMagSimulation', newMagSimulation)
-            .toPromise().then(
+      return lastValueFrom(this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/CreateMagSimulation', newMagSimulation)
+            ).then(
                 (result: MagSimulation) => {
 
                     this.RemoveBusy("AddMagSimulation");

@@ -8,7 +8,7 @@ import { ReviewerIdentityService } from './revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { LocalSort } from '../helpers/HelperMethods';
 import { EventEmitterService } from './EventEmitter.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -87,8 +87,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
 
         let body = JSON.stringify({ Value: FetchNew });
 
-        return this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroups',
-            body).toPromise().then(result => {
+      return lastValueFrom(this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroups',
+            body)).then(result => {
                 this.DuplicateGroups.WholeList = result;
                 //console.log(result);
                 this.ShowingFilteredGroups = false;
@@ -187,8 +187,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         this._BusyMethods.push("FetchGroupDetails");
         //await Helpers.Sleep(50);
         let body = JSON.stringify({ Value: groupId });
-        return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/FetchGroupDetails',
-            body).toPromise().then(result => {
+      return lastValueFrom(this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/FetchGroupDetails',
+            body)).then(result => {
                 let res = new ItemDuplicateGroup(result);
                 this.CurrentGroup = res;
                 //console.log(result);
@@ -203,8 +203,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
     }
     public  MarkUnmarkMemberAsDuplicate(toDo: MarkUnmarkItemAsDuplicate): Promise<void> {
         this._BusyMethods.push("MarkUnmarkMemberAsDuplicate");
-        return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkUnmarkMemberAsDuplicate',
-            toDo).toPromise().then(result => {
+      return lastValueFrom(this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkUnmarkMemberAsDuplicate',
+            toDo)).then(result => {
                 //if (this.CurrentGroup) {
                 //    for (let affected of toDo.itemDuplicateIds) {
                 //        let found = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == affected);
@@ -234,8 +234,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
     }
     public MarkMemberAsMaster(toDo: MarkUnmarkItemAsDuplicate): Promise<void>{
         this._BusyMethods.push("MarkMemberAsMaster");
-        return this._http.post<ItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
-            toDo).toPromise().then(result => {
+      return lastValueFrom(this._http.post<ItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
+            toDo)).then(result => {
                 //if (this.CurrentGroup) {
                 //    //whole group is not checked anymore!
                 //    let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
@@ -274,8 +274,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         else {
             this._BusyMethods.push("DeleteCurrentGroup");
             let toDo = JSON.stringify({ Value: GroupId });
-            return this._http.post<number>(this._baseUrl + 'api/Duplicates/DeleteGroup',
-                toDo).toPromise().then(result => {
+          return lastValueFrom(this._http.post<number>(this._baseUrl + 'api/Duplicates/DeleteGroup',
+                toDo)).then(result => {
                     this.RemoveBusy("DeleteCurrentGroup");
                     this.CurrentGroup = null;
                     this.FetchGroups(false);
@@ -292,8 +292,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         
         this._BusyMethods.push("DeleteAllGroups");
         let toDo = JSON.stringify({ Value: DeleteAllDedupData });
-        return this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
-            toDo).toPromise().then((result: any) => {
+      return lastValueFrom(this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
+            toDo)).then((result: any) => {
                 this.RemoveBusy("DeleteAllGroups");
                 this.CurrentGroup = null;
                 this.FetchGroups(false);
@@ -367,8 +367,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             groupId: this.CurrentGroup.groupID,
             itemId: itemId
         }
-        return this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
-            toDo).toPromise().then(result => {
+      return lastValueFrom(this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
+            toDo)).then(result => {
                 if (this.CurrentGroup && this.CurrentGroup.groupID == toDo.groupId) {
                     //remove manual member from client!
                     let ind = this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId);
@@ -386,8 +386,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
 
     public AddManualMembers(crit: GroupListSelectionCriteriaMVC): Promise<void> {
         this._BusyMethods.push("AddManualMembers");
-        return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/AddManualMembers',
-            crit).toPromise().then(result => {
+      return lastValueFrom(this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/AddManualMembers',
+            crit)).then(result => {
                 let res = new ItemDuplicateGroup(result);
                 this.CurrentGroup = res;
                 this.RemoveBusy("AddManualMembers");
@@ -409,8 +409,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         this._BusyMethods.push("FetchDirtyGroup");
         //await Helpers.Sleep(50);
         let body = JSON.stringify({ Value: IdsList });
-        return this._http.post<iItemDuplicateDirtyGroup>(this._baseUrl + 'api/Duplicates/FetchDirtyGroup',
-            body).toPromise().then(result => {
+      return lastValueFrom(this._http.post<iItemDuplicateDirtyGroup>(this._baseUrl + 'api/Duplicates/FetchDirtyGroup',
+            body)).then(result => {
                 let res = new ItemDuplicateDirtyGroup(result);
                 this.RemoveBusy("FetchDirtyGroup");
                 return res;
@@ -422,8 +422,8 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
     }
     public CreateNewGroup(crit: IncomingDirtyGroupMemberMVC[]): Promise<boolean> {
         this._BusyMethods.push("CreateNewGroup");
-        return this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/CreateNewGroup',
-            crit).toPromise().then(result => {
+      return lastValueFrom(this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/CreateNewGroup',
+            crit)).then(result => {
                 if (!this.ShowingFilteredGroups) {
                     //if we're showing all groups we add the new group to the list
                     if (result.length == 1) {

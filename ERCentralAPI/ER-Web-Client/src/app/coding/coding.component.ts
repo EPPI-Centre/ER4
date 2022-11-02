@@ -265,7 +265,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 
     this.RefreshTerms();
     this.innerWidth = window.innerWidth;
-    //this.route.params.subscribe(params => {
+    //this.route.params.subscribe((params:any) => {
 
     //	alert(params);
 
@@ -318,7 +318,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         else this.SetArmCoding(0);
       });
       //}
-      this.subItemIDinPath = this.route.params.subscribe(params => {
+      this.subItemIDinPath = this.route.params.subscribe((params:any) => {
         this.itemString = params['itemId'];
         this.GetItem();
         console.log('coding kjkhjkhk: ' + this.itemID);
