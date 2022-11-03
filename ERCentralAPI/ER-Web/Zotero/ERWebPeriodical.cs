@@ -5,6 +5,12 @@
 //using System.Linq;
 //using System.Threading.Tasks;
 
+
+//parentTitle: { txt: 'Periodical', optional: false }
+//                , parentAuthors: { txt: 'Parent Authors', optional: true }
+//                , standardNumber: { txt: 'ISSN/ISBN', optional: true }
+
+
 //namespace ERxWebClient2.Zotero
 //{
 //    public class ERWebPeriodical : ERWebCreators, IMapERWebReference

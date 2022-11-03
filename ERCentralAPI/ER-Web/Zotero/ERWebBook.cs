@@ -21,7 +21,7 @@ namespace ERxWebClient2.Zotero
             try
             {
                 var newZoteroItem = new BookWhole(_item, "", _item.Edition, _item.City, _item.Publisher, 
-                    _item.Pages,_item.DOI);
+                    _item.Pages,_item.StandardNumber);
       
                 return newZoteroItem;
 
