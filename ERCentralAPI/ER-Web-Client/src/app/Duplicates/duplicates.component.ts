@@ -5,10 +5,11 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate, ItemDuplicateGroup, GroupListSelectionCriteriaMVC, ItemDuplicateDirtyGroup, ItemDuplicateDirtyGroupMember, IncomingDirtyGroupMemberMVC } from '../services/duplicates.service';
-import { Helpers, LocalSort } from '../helpers/HelperMethods';
+import { Helpers } from '../helpers/HelperMethods';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
 
 
 @Component({
@@ -280,30 +281,11 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         else if (dist > 0.75) return "bg-lev2";
         else return "bg-lev3";
     }
-    public SortBy(fieldName: string) {
-        //console.log("SortBy", fieldName);
-        if (this.DuplicatesService.DuplicateGroups.WholeList.length == 0) return;
-        for (let property of Object.getOwnPropertyNames(this.DuplicatesService.DuplicateGroups.WholeList[0])) {
-            //console.log("SortByP", property);
-            if (property == fieldName){
-                if (this.DuplicatesService.LocalSort.SortBy == fieldName) {
-                    //console.log("SortBy", 1);
-                    this.DuplicatesService.LocalSort.Direction = !this.DuplicatesService.LocalSort.Direction;
-                } else {
-                    //console.log("SortBy", 2);
-                    this.DuplicatesService.LocalSort.Direction = true;
-                    this.DuplicatesService.LocalSort.SortBy = fieldName;
-                }
-                this.DuplicatesService.DoSort();
-                break;
-            }
-        }
-        
+  public SortBy(fieldName: string) {
+    CustomSorting.SortBy(fieldName, this.DuplicatesService.DuplicateGroups.WholeList, this.DuplicatesService.LocalSort);
     }
     public SortingSymbol(fieldName: string): string {
-        if (this.DuplicatesService.LocalSort.SortBy !== fieldName) return "";
-        else if(this.DuplicatesService.LocalSort.Direction) return '&uarr;';
-        else return '&darr;';
+      return CustomSorting.SortingSymbol(fieldName, this.DuplicatesService.LocalSort);
     }
     public get CurrentSort(): LocalSort {
         return this.DuplicatesService.LocalSort;

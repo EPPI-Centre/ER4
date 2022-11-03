@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
 import { CodesetStatisticsService, StatsCompletion } from '../services/codesetstatistics.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -36,7 +37,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(false);
-    this._zoteroService.CheckAndFetchZoteroItems();
+    this._zoteroService.CheckAndFetchZoteroItems().then(() => { const t = this.TotPages2; });
   }
   public get HasWriteRights(): boolean {
     return this._ReviewerIdentityServ.HasWriteRights;
@@ -68,15 +69,119 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   public get IsServiceBusy(): boolean {
     return this._zoteroService.IsBusy || this._codesetStatsServ.IsBusy;
   }
+  private _TotPages1: number = -1;
+  private _TotPages2: number = -1;
+  private _PageSize1: number = 100;
+  private _PageSize2: number = 100;
+  public get PageSize1(): number {
+    return this._PageSize1;
+  }
+  public get PageSize2(): number {
+    return this._PageSize2;
+  }
+  public set PageSize1(n: number) {
+    this._PageSize1 = n;
+    this._TotPages1 = -1;
+  }
+  public set PageSize2(n: number) {
+    this._PageSize2 = n;
+    this._TotPages2 = -1;
+  }
+  public get TotPages1(): number {
+    if (this._TotPages1 < 1) {
+      if (this._zoteroService.ZoteroERWebReviewItemList.length == 0) this._TotPages1 = 0;
+      else this._TotPages1 = Math.ceil(this._zoteroService.ZoteroERWebReviewItemList.length / this.PageSize1);
+    }
+    return this._TotPages1;
+  }
+  public get TotPages2(): number {
+    if (this._TotPages2 < 1) {
+      if (this._zoteroService.ZoteroItems.length == 0) this._TotPages2 = 0;
+      else this._TotPages2 = Math.ceil(this._zoteroService.ZoteroItems.length / this.PageSize2);
+    }
+    return this._TotPages2;
+  }
+  public CurrentPage1: number = 1;
+  public CurrentPage2: number = 1;
+  public PagingDD1: number[] = [
+    20, 50, 100, 500, 1000, 2000, 5000
+  ];
+  public PagingDD2: number[] = [
+    20, 50, 100, 500, 1000, 2000, 5000
+  ];
 
-  public CloseCodeDropDown() {
-    if (this.WithOrWithoutCodeSelector !== null) {
-      this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
-      this.isCollapsed = false;
-      this.getErWebObjects();//we directly get sync data for "Items with this code".
+  public get PagedList1(): ZoteroERWebReviewItem[] {
+    if (this._zoteroService.ZoteroERWebReviewItemList.length <= this.PageSize1) return this._zoteroService.ZoteroERWebReviewItemList;
+    if (this.CurrentPage1 > this.TotPages1) this.CurrentPage1 = this.TotPages1;
+    const StartIndex: number = (this.CurrentPage1 - 1) * this.PageSize1;
+    if (this.CurrentPage1 !== this.TotPages1) {
+      return this._zoteroService.ZoteroERWebReviewItemList.slice(StartIndex, StartIndex + this.PageSize1);
+    } else {
+      return this._zoteroService.ZoteroERWebReviewItemList.slice(StartIndex);
     }
   }
 
+  public get PagedList2(): ZoteroItem[] {
+    if (this._zoteroService.ZoteroItems.length <= this.PageSize2) return this._zoteroService.ZoteroItems;
+    if (this.CurrentPage2 > this.TotPages2) this.CurrentPage2 = this.TotPages2;
+    const StartIndex: number = (this.CurrentPage2 - 1) * this.PageSize2;
+    if (this.CurrentPage2 !== this.TotPages2) {
+      return this._zoteroService.ZoteroItems.slice(StartIndex, StartIndex + this.PageSize2);
+    } else {
+      return this._zoteroService.ZoteroItems.slice(StartIndex);
+    }
+  }
+
+  public FirstPage1() {
+    this.CurrentPage1 = 1;
+  }
+  public FirstPage2() {
+    this.CurrentPage2 = 1;
+  }
+  public PageDown1() {
+    if (this.CurrentPage1 > 1) this.CurrentPage1--;
+  }
+  public PageDown2() {
+    if (this.CurrentPage2 > 1) this.CurrentPage2--;
+  }
+  public PageUp1() {
+    if (this.CurrentPage1 < this.TotPages1) this.CurrentPage1++;
+  }
+  public PageUp2() {
+    if (this.CurrentPage2 < this.TotPages2) this.CurrentPage2++;
+  }
+  public LastPage1() {
+    this.CurrentPage1 = this.TotPages1;
+  }
+  public LastPage2() {
+    this.CurrentPage2 = this.TotPages2;
+  }
+  public get CanPageUp1(): boolean {
+    return this.CurrentPage1 < this.TotPages1;
+  }
+  public get CanPageUp2(): boolean {
+    return this.CurrentPage2 < this.TotPages2;
+  }
+  public get CanPageDown1(): boolean {
+    return this.CurrentPage1 > 1;
+  }
+  public get CanPageDown2(): boolean {
+    return this.CurrentPage2 > 1;
+  }
+  private LocalSort1: LocalSort = new LocalSort();
+  private LocalSort2: LocalSort = new LocalSort();
+  public SortBy1(field: string) {
+    CustomSorting.SortBy(field, this._zoteroService.ZoteroERWebReviewItemList, this.LocalSort1);
+  }
+  public SortBy2(field: string) {
+    CustomSorting.SortBy(field, this._zoteroService.ZoteroItems, this.LocalSort2);
+  }
+  public SortingSymbol1(fieldName: string): string {
+    return CustomSorting.SortingSymbol(fieldName, this.LocalSort1);
+  }
+  public SortingSymbol2(fieldName: string): string {
+    return CustomSorting.SortingSymbol(fieldName, this.LocalSort2);
+  }
   public getErWebObjects() {
     if (!this._zoteroService.hasPermissions) {
             this._notificationService.show({
@@ -88,11 +193,21 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
             });
             return;
     } else {
-        this.Clear();
+      this._TotPages1 = -1;
+      this.CurrentPage1 = 1;
+      this.Clear();
       let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
       if (CurrentDropdownSelectedCode !== null) {
-        this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString());
+        this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString(), this.LocalSort1);
       }   
+    }
+  }
+
+  public CloseCodeDropDown() {
+    if (this.WithOrWithoutCodeSelector !== null) {
+      this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
+      this.isCollapsed = false;
+      this.getErWebObjects();//we directly get sync data for "Items with this code".
     }
   }
 
@@ -125,11 +240,13 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     }
   }
   public async RefreshBothTables() {
+    this._TotPages2 = -1;
     const res2 = await this._zoteroService.CheckAndFetchZoteroItems(true);
     if (res2 == true) {
+      CustomSorting.DoSort(this._zoteroService.ZoteroItems, this.LocalSort2);
       let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
       if (CurrentDropdownSelectedCode !== null) {
-        this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString());
+        this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString(), this.LocalSort1);
       }
     }
   }

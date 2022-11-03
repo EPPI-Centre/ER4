@@ -12,6 +12,7 @@ import {
 import { ConfigService } from './config.service';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { EventEmitterService } from './EventEmitter.service';
+import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
 
 @Injectable({
     providedIn: 'root',
@@ -399,7 +400,7 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
     return newDateObj;
   }
 
-  public async fetchZoteroERWebReviewItemListAsync(attributeId: string) {
+  public async fetchZoteroERWebReviewItemListAsync(attributeId: string, sortResultsBy: LocalSort) {
     this._BusyMethods.push("fetchZoteroERWebReviewItemListAsync");
     this._zoteroERWebReviewItemList = [];
     return this._httpC.post<iZoteroERWebReviewItem[]>(this._baseUrl +
@@ -458,6 +459,7 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
           console.log("state2", zri.syncState);
           this._zoteroERWebReviewItemList.push(zri);
         }
+        CustomSorting.DoSort(this._zoteroERWebReviewItemList, sortResultsBy);
         this.RemoveBusy("fetchZoteroERWebReviewItemListAsync");
       },
         error => {

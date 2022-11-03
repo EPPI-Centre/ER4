@@ -68,12 +68,14 @@ namespace ERxWebClient2.Services
 			//ParseWatch.Start();
 			var listedItems = JsonConvert.DeserializeObject<List<T>>(json);
 			//ParseWatch.Stop();
-			int count = 0;
+			int count = 1;
 			if (totalNumberOfItems > batchSize)
 			{
-				while (listedItems.Count < totalNumberOfItems)
+				int totPages = (int)Math.Ceiling((double)(totalNumberOfItems / batchSize));
+                //while (listedItems.Count < totalNumberOfItems)
+                while (count <= totPages)//we already got the first page!
 				{
-					var nextPagedRequest = requestUri + $"&start={start}&limit={batchSize}";
+                    var nextPagedRequest = requestUri + $"&start={start}&limit={batchSize}";
 					//APIwatch.Start();
 					var pagedResponse = await httpProvider.GetAsync(nextPagedRequest);
 					json = await pagedResponse.Content.ReadAsStringAsync();

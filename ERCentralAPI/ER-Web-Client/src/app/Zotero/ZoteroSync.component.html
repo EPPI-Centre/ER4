@@ -50,7 +50,7 @@
   </div>-->
 
   <div *ngIf="BusyMessage != ''" class="col-12 row mx-0 px-1">
-    <div class="rounded bg-white p-1 mx-auto mb-1">
+    <div class="rounded bg-light p-1 mx-auto mb-1">
       <div class="alert alert-warning border-warning border mb-0" [innerHTML]="BusyMessage"></div>
     </div>
   </div>
@@ -68,17 +68,52 @@
         <div *ngIf="ZoteroERWebReviewItemList.length > 0" class="small">
           There are {{ZoteroERWebReviewItemList.length}} "Items With this Code". Of these, <strong>{{ItemsToPushCount}} item(s)</strong> can be pushed (including those that only have a pusheable uploaded document).
         </div>
+
+        <div *ngIf="PagedList1.length > 0" class="mt-1 mx-auto">
+          <div class="row mx-0 p-1 rounded bg-light">
+            <div class="small px-1 mx-1 mt-1 d-inline-block">
+              Paging:
+              <select class="select" [(ngModel)]="PageSize1">
+                <option *ngFor="let n of PagingDD1" [ngValue]="n" [selected]="n == PageSize1">{{n}}</option>
+              </select>
+            </div>
+            <div *ngIf="TotPages1 > 1">
+              <button class="btn py-0 px-1 border-primary border" (click)="FirstPage1()" [disabled]="!CanPageDown1">
+                <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
+              </button>
+              <button class="btn py-0 px-1 border-primary border" (click)="PageDown1()" [disabled]="!CanPageDown1">
+                <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
+              </button>
+              Page: {{CurrentPage1}} of {{TotPages1}}
+              <button class="btn py-0 px-1 border-primary border" (click)="PageUp1()" [disabled]="!CanPageUp2">
+                <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
+              </button>
+              <button class="btn py-0 px-1 border-primary border" (click)="LastPage1()" [disabled]="!CanPageUp2">
+                <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div *ngIf="ZoteroERWebReviewItemList.length > 0" class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
           <table class="table table-sm table-striped p-2 m-2">
             <thead>
               <tr>
-                <th>ItemId</th>
-                <th>Short Title</th>
-                <th>Docs?</th>
-                <th>state</th>
+                <th (click)="SortBy1('itemID')" style="cursor:pointer">
+                  ItemId<span [innerHTML]="SortingSymbol1('itemID')"></span>
+                </th>
+                <th (click)="SortBy1('shortTitle')" style="cursor:pointer">
+                  Short Title<span [innerHTML]="SortingSymbol1('shortTitle')"></span>
+                </th>
+                <th (click)="SortBy1('pdfList')" style="cursor:pointer">
+                  Docs?<span [innerHTML]="SortingSymbol1('pdfList')"></span>
+                </th>
+                <th (click)="SortBy1('syncState')" style="cursor:pointer">
+                  state<span [innerHTML]="SortingSymbol1('syncState')"></span>
+                </th>
               </tr>
             </thead>
-            <tbody *ngFor="let object of ZoteroERWebReviewItemList; index as i">
+            <tbody *ngFor="let object of PagedList1; index as i">
               <tr [ngClass]="{'text-black-50': object.syncState != 2}" class="">
                 <td>
                   {{ object.itemID}}
@@ -133,23 +168,60 @@
             <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
           </button>
         </div>
+
+
         <div *ngIf="ObjectZoteroList.length > 0" class=" small">
           There are {{ObjectZoteroList.length}} references in the Zotero Group Library. Of these, <strong>{{ItemsToPullCount}} item(s)</strong> can be pulled (including those that only have a pulleable uploaded document).
         </div>
         <div *ngIf="ObjectZoteroList.length == 0" class="m-2 rounded alert-dark border  border-info small p-1">
           No items to show, there are no references in the Zotero Library.
         </div>
+
+        <div *ngIf="PagedList2.length > 0" class="mt-1 mx-auto">
+          <div class="row mx-0 p-1 rounded bg-light">
+            <div class="small px-1 mx-1 mt-1 d-inline-block">
+              Paging:
+              <select class="select" [(ngModel)]="PageSize2">
+                <option *ngFor="let n of PagingDD2" [ngValue]="n" [selected]="n == PageSize2">{{n}}</option>
+              </select>
+            </div>
+            <div *ngIf="TotPages2 > 1">
+              <button class="btn py-0 px-1 border-primary border" (click)="FirstPage2()" [disabled]="!CanPageDown2">
+                <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
+              </button>
+              <button class="btn py-0 px-1 border-primary border" (click)="PageDown2()" [disabled]="!CanPageDown2">
+                <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
+              </button>
+              Page: {{CurrentPage2}} of {{TotPages2}}
+              <button class="btn py-0 px-1 border-primary border" (click)="PageUp2()" [disabled]="!CanPageUp2">
+                <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
+              </button>
+              <button class="btn py-0 px-1 border-primary border" (click)="LastPage2()" [disabled]="!CanPageUp2">
+                <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div *ngIf="ObjectZoteroList.length > 0" class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
           <table class="table table-sm table-striped p-2 m-2">
             <thead>
               <tr>
-                <th>State</th>
-                <th>Docs?</th>
-                <th>Object Key</th>
-                <th>Short Title</th>
+                <th (click)="SortBy2('syncState')" style="cursor:pointer">
+                  State<span [innerHTML]="SortingSymbol2('syncState')"></span>
+                </th>
+                <th (click)="SortBy2('attachments')" style="cursor:pointer">
+                  Docs?<span [innerHTML]="SortingSymbol2('attachments')"></span>
+                </th>
+                <th (click)="SortBy2('key')" style="cursor:pointer">
+                  Object Key<span [innerHTML]="SortingSymbol2('key')"></span>
+                </th>
+                <th (click)="SortBy2('shortTitle')" style="cursor:pointer">
+                  Short Title<span [innerHTML]="SortingSymbol2('shortTitle')"></span>
+                </th>
               </tr>
             </thead>
-            <tbody *ngFor="let object of ObjectZoteroList">
+            <tbody *ngFor="let object of PagedList2">
               <tr [ngClass]="{'text-black-50': object.syncState != 3}">
                 <td>
                   <ng-container [ngSwitch]="object.syncState">
