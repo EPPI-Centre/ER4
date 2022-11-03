@@ -5,6 +5,11 @@
 //using System.Linq;
 //using System.Threading.Tasks;
 
+//parentTitle: { txt: 'Parent Title', optional: true }
+//                , parentAuthors: { txt: 'Parent Authors', optional: true }
+//                , standardNumber: { txt: 'Standard Number', optional: true }
+
+
 //namespace ERxWebClient2.Zotero
 //{
 //    public class ERWebWebSite : ERWebCreators, IMapERWebReference

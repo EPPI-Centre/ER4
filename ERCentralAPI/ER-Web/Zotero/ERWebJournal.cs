@@ -15,7 +15,7 @@ namespace ERxWebClient2.Zotero
             try
             {
 
-                var journal = new JournalArticle(_item, _item.Publisher, _item.Issue, _item.Pages, "", "", "", _item.DOI, _item.DOI);
+                var journal = new JournalArticle(_item, _item.ParentTitle, _item.Issue, _item.Pages, "", "", "", _item.DOI, _item.StandardNumber);
                 return journal;
             }
             catch (Exception ex)

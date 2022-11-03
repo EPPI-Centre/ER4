@@ -736,6 +736,8 @@ namespace ERxWebClient2.Controllers
                 failedItemsMsg += item.FirstOrDefault()["message"];
             }
 
+            if (keyValues["successful"].ToString().Length == 0) throw new Exception("Something fishy");
+
             var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
             var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
             var itemCount = 0;

@@ -217,7 +217,7 @@ namespace ERxWebClient2.Controllers
 
             this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
             this.title = data.Title;
-            this.creators = ObtainCreators(data.Authors).ToArray(); 
+            this.creators = ObtainCreators(data.Authors).ToArray();
 			this.abstractNote = data.Abstract;
             this.series = "";
             this.seriesNumber = "";
@@ -236,9 +236,9 @@ namespace ERxWebClient2.Controllers
             this.collections = new object[0];
             this.relations = rel;
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-			this.dateModified = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-			this.date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-		
+			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+			this.date = data.Year;			
+			
 		}
 
 		public ZoteroCollectionData()
@@ -255,7 +255,6 @@ namespace ERxWebClient2.Controllers
 		public string series { get; set; }
 		public string seriesNumber { get; set; }
 		public string volume { get; set; }
-
 		public string date { get; set; }
 		public string language { get; set; }
 		public string shortTitle { get; set; }
@@ -272,6 +271,10 @@ namespace ERxWebClient2.Controllers
 		public Object relations { get; set; }
 		public string dateAdded { get; set; }
 		public string dateModified { get; set; }
+		//public string parentTitle { get; set; }
+		//public string parentAuthors { get; set; }
+		//public string standardNumber { get; set; }
+
 	}
 
 	public class WebSite : ZoteroCollectionData
@@ -326,8 +329,10 @@ namespace ERxWebClient2.Controllers
 
 	public class JournalArticle : ZoteroCollectionData, IJournalArticle
 	{
-
-        public JournalArticle(IItem data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
+		//parentTitle: { txt: 'Journal', optional: false }
+		//              , parentAuthors: { txt: 'Parent Authors', optional: true }
+		//              , standardNumber: { txt: 'ISSN', optional: false }
+		public JournalArticle(IItem data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
         {
             this.publicationTitle = publicationTitle;
             this.issue = issue;
@@ -363,23 +368,28 @@ namespace ERxWebClient2.Controllers
 
 	public class ConferencePaper : ZoteroCollectionData
 	{
-        public ConferencePaper(IItem data, string proceedingstitle, string conferencename, string pLace) : base(data)
+		public ConferencePaper(IItem data, string proceedingstitle, string conferencename, string pLace, string iSSN) : base(data)
         {
+			this.ISSN = iSSN;
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
-			this.place = pLace;
+			this.place = pLace;			
 
-        }
+		}
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
 		public string place { get; set; }
-
+		public string ISSN { get; set; }
 
 	}
 
 
 	public class BookWhole : ZoteroCollectionData, IBookWhole
 	{
+		//parentTitle: { txt: 'Parent Title', optional: true }
+	  //              , parentAuthors: { txt: 'Parent Authors', optional: true }
+	  //              , standardNumber: { txt: 'ISBN', optional: false }
+
 		public BookWhole(IItem data, string numberOfVolumes, string edition, string place, string publisher,
 			string numPages, string iSBN): base(data)
 		{
@@ -388,8 +398,8 @@ namespace ERxWebClient2.Controllers
             this.place = place;
             this.publisher = publisher;
             this.numPages = numPages;
-            this.ISBN = iSBN;
-        }
+            this.ISBN = iSBN;			
+		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
 		public string place { get; set; }
@@ -411,6 +421,9 @@ namespace ERxWebClient2.Controllers
 
 	public class Dissertation : ZoteroCollectionData
 	{
+		//parentTitle: { txt: 'Publ. Title', optional: false }
+		  //              , parentAuthors: { txt: 'Parent Authors', optional: true }
+		  //              , standardNumber: { txt: 'ISSN/ISBN', optional: false }
 		public Dissertation(IItem data, string numberOfVolumes, string edition, string place, string publisher,
 			string numPages, string iSBN) : base(data)
 		{
@@ -433,7 +446,9 @@ namespace ERxWebClient2.Controllers
 
 	public class BookChapter : ZoteroCollectionData , iBookChapter
 	{
-        public BookChapter(IItem data, string bookTitle, string numberOfVolumes, 
+	
+		  //              , parentAuthors: { txt: 'Editors', optional: false }
+		public BookChapter(IItem data, string bookTitle, string numberOfVolumes, 
 			string edition, string place, string publisher, string numPages, string iSBN ): base(data)
         {
             this.bookTitle = bookTitle;
@@ -443,7 +458,7 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
             this.numPages = numPages;
 			this.ISBN = iSBN;
-        }
+		}
 
         public string bookTitle { get; set; }
 		public string numberOfVolumes { get; set; }
