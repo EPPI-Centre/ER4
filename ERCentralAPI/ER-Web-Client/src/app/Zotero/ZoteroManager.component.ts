@@ -123,7 +123,7 @@ export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
       if (this.errorInPathSub) {
         this.errorInPathSub.unsubscribe();
       }
-      this._zoteroService.Clear();
+      this._zoteroService.PartialClear();
     }
     public BackHome() {
         this._router.navigate(['Main']);
