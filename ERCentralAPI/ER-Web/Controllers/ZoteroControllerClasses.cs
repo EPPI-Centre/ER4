@@ -218,8 +218,6 @@ namespace ERxWebClient2.Controllers
             this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
             this.title = data.Title;
             this.creators = ObtainCreators(data.Authors).ToArray();
-			this.parentAuthors = data.ParentAuthors;
-			this.parentTitle = data.ParentTitle;
 			this.abstractNote = data.Abstract;
             this.series = "";
             this.seriesNumber = "";
@@ -273,9 +271,9 @@ namespace ERxWebClient2.Controllers
 		public Object relations { get; set; }
 		public string dateAdded { get; set; }
 		public string dateModified { get; set; }
-		public string parentTitle { get; set; }
-		public string parentAuthors { get; set; }
-		public string standardNumber { get; set; }
+		//public string parentTitle { get; set; }
+		//public string parentAuthors { get; set; }
+		//public string standardNumber { get; set; }
 
 	}
 
@@ -375,10 +373,7 @@ namespace ERxWebClient2.Controllers
 			this.ISSN = iSSN;
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
-			this.place = pLace;
-			this.parentTitle = "Conference";
-			this.parentAuthors = this.parentAuthors;
-			this.standardNumber = this.ISSN;
+			this.place = pLace;			
 
 		}
 		public string proceedingsTitle { get; set; }
@@ -404,7 +399,6 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
             this.numPages = numPages;
             this.ISBN = iSBN;			
-			this.standardNumber = iSBN;
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
@@ -439,9 +433,6 @@ namespace ERxWebClient2.Controllers
 			this.publisher = publisher;
 			this.numPages = numPages;
 			this.ISBN = iSBN;
-			this.parentTitle = this.parentTitle;
-			this.parentAuthors = this.parentAuthors;
-			this.standardNumber = iSBN;
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
@@ -467,9 +458,6 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
             this.numPages = numPages;
 			this.ISBN = iSBN;
-			this.parentTitle = "Book Title";
-			this.parentAuthors = "Editors";
-			this.standardNumber = iSBN;
 		}
 
         public string bookTitle { get; set; }

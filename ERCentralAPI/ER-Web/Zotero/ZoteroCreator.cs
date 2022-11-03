@@ -40,7 +40,7 @@ namespace ER_Web.Zotero
             newERWebItem.Issue = collectionType.issue;
             newERWebItem.City = collectionType.archiveLocation;
             newERWebItem.ParentTitle = collectionType.parentTitle;
-            newERWebItem.ParentAuthors = collectionType.parentAuthors;
+            newERWebItem.ParentAuthors = "";
             newERWebItem.DOI = collectionType.DOI;
 
             var erWebItem = new ERWebItem();
