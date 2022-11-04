@@ -80,10 +80,10 @@ namespace ERxWebClient2.Zotero
 
 		// NB: This is a special case as we want ItemIncomingData to be an Item
 		// but the fields contain different properties and methods hence cannot be wrapped.
-		public override ItemIncomingData GetIncomingDataReference(Collection collectionItem)
+		public override ItemIncomingData GetIncomingDataReference(Collection collectionItem, ERWebItem eRWebItem)
 		{
 			var incomingData = new ZoteroIncomingDataReference();
-            return incomingData.MapReferenceFromZoteroToErWeb(collectionItem.data, new ItemIncomingData());
+            return incomingData.MapReferenceFromZoteroToErWeb(collectionItem.data, new ItemIncomingData(), eRWebItem);
 
 		}
 	} 

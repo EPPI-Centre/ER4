@@ -10,7 +10,7 @@ namespace ERxWebClient2.Zotero
 
         public abstract IMapERWebReference GetReference(IItem item);
          
-        public abstract ItemIncomingData GetIncomingDataReference(Collection item);
+        public abstract ItemIncomingData GetIncomingDataReference(Collection item,ERWebItem eRWebItem);
 
 	}
 }
