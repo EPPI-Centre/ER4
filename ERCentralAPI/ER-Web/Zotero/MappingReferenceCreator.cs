@@ -36,21 +36,39 @@ namespace ERxWebClient2.Zotero
  
 				switch (item.TypeId)
 				{
-					case 2:
+				    case 1:
+					    return new ERWebReport(item);
+				    case 2:
 						return new ERWebBook(item);
 					case 3:
 						return new ERWebBookChapter(item);
+					case 4:
+						return new ERWebDissertation(item);
+					case 5:
+						return new ERWebConferenceProceeding(item);
+					case 6:
+						return new ERWebSite(item);
+					case 7:
+						return new ERWebSite(item);
+					case 8:
+						return new ERWebDvd(item);
+					case 9:
+						return new ERWebProject(item);
+					case 10:
+						return new ERWebPeriodical(item);
+					case 11:
+						return new ERWebInterview(item);
+					case 12:
+						return new ERWebGeneric(item);
 					case 14:
+						return new ERWebBookChapter(item);
+					case 15:
 						return new ERWebJournal(item);
-					//case "Conference Proceedings":
-					//    return new ERWebConferenceProceeding(item);
-					//case "Web Site":
-					//    return new ERWebWebSite(item);
 					default:
 						//    //throw new NotSupportedException();
 						//    // for development return something
 						//    // TODO production throw the above exception
-						return new ERWebBook(item);
+						return new ERWebGeneric(item);
 				}			
 		}
 

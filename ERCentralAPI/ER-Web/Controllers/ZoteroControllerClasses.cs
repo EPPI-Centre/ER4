@@ -112,66 +112,53 @@ namespace ERxWebClient2.Controllers
 
     public abstract class ZoteroCollectionData
 	{
-		//private int MapFromZoteroTypeToERWebTypeID(string zoteroItemType)
-		//{
-		//	int erWebTypeId = -1;
-
-		//	//1   Report
-		//	//2   Book, Whole
-		//	//3   Book, Chapter
-		//	//4   Dissertation
-		//	//5   Conference Proceedings
-		//	//6   Document From Internet Site
-		//	//7   Web Site
-		//	//8   DVD, Video, Media
-		//	//9   Research project
-		//	//10  Article In A Periodical
-		//	//11  Interview
-		//	//12  Generic
-		//	//14  Journal, Article
-		//	switch (zoteroItemType)
-		//	{
-		//		case "journalArticle":
-		//			erWebTypeId = 14;
-		//			break;
-		//		case "attachment":
-		//			erWebTypeId = 12;
-		//			break;
-		//		default:
-		//			// code block
-		//			break;
-		//	}
-		//	return erWebTypeId;
-		//}
-
 
 		private string MapFromERWebTypeToZoteroType(string erWebType)
 		{
 			string zoteroType = "";
 
-			//1   Report
-			//2   Book, Whole
-			//3   Book, Chapter
-			//4   Dissertation
-			//5   Conference Proceedings
-			//6   Document From Internet Site
-			//7   Web Site
-			//8   DVD, Video, Media
-			//9   Research project
-			//10  Article In A Periodical
-			//11  Interview
-			//12  Generic
-			//14  Journal, Article
 			switch (erWebType)
 			{
-				case "Journal, Article":
-					zoteroType = "journalArticle";
-					break;
                 case "Book, Whole":
                     zoteroType = "book";
                     break;
-                default:
-					// code block
+				case "Report":
+					zoteroType = "report";
+					break;
+				case "Book, Chapter":
+					zoteroType = "bookSection";
+					break;
+				case "Dissertation":
+					zoteroType = "thesis";
+					break;
+				case "Conference Proceedings":
+					zoteroType = "conferencePaper";
+					break;
+				case "Document From Internet Site":
+					zoteroType = "webpage";
+					break;
+				case "Web Site":
+					zoteroType = "webpage";
+					break;
+				case "DVD, Video, Media":
+					zoteroType = "film"; //videoRecording //tvBroadcast
+					break;
+				case "Research project":
+					zoteroType = "thesis";
+					break;
+				case "Article In A Periodical":
+					zoteroType = "newspaperArticle";
+					break;
+				case "Interview":
+					zoteroType = "interview";
+					break;
+				case "Generic":
+					zoteroType = "book";
+					break;
+				case "Journal, Article":
+					zoteroType = "journalArticle";
+					break;
+				default:
 					break;
 			}
 			return zoteroType;
@@ -220,8 +207,7 @@ namespace ERxWebClient2.Controllers
             this.creators = ObtainCreators(data.Authors).ToArray();
 			this.abstractNote = data.Abstract;
             this.series = "";
-            this.seriesNumber = "";
-            this.volume = data.Volume;
+            this.seriesNumber = "";            
             this.language = data.Country;
             this.shortTitle = data.ShortTitle;
             this.url = data.URL;
@@ -237,8 +223,7 @@ namespace ERxWebClient2.Controllers
             this.relations = rel;
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
-			this.date = data.Year;			
-			
+			this.date = data.Year;
 		}
 
 		public ZoteroCollectionData()
@@ -271,23 +256,21 @@ namespace ERxWebClient2.Controllers
 		public Object relations { get; set; }
 		public string dateAdded { get; set; }
 		public string dateModified { get; set; }
-		//public string parentTitle { get; set; }
-		//public string parentAuthors { get; set; }
-		//public string standardNumber { get; set; }
 
 	}
 
 	public class WebSite : ZoteroCollectionData
 	{
-        public WebSite(string blogTitle, string websiteType, List<CreatorsItem> creators, Item data) : base(data)
+        public WebSite(IItem data, string websiteTitle, string websiteType, List<CreatorsItem> creators) : base(data)
         {
-            this.blogTitle = blogTitle;
+            this.websiteTitle = websiteTitle;
             this.websiteType = websiteType;
             this.creators = creators;
         }
 
-        public string blogTitle { get; set; }
+        public string websiteTitle { get; set; }
 		public string websiteType { get; set; }
+
 		public List<CreatorsItem> creators { get; set; }
 	}
 	public class SyncStateDictionaries
@@ -316,7 +299,6 @@ namespace ERxWebClient2.Controllers
 		public string journalAbbreviation { get; set; } = null;
 		public string DOI { get; set; } = null;
 		public string ISSN { get; set; } = null;
-		public string bookTitle { get; set; } = null;
 		public string parentTitle { get; set; } = null;
 		public string createdBy { get; set; } = null;
 		public string editedBy { get; set; } = null;
@@ -329,9 +311,6 @@ namespace ERxWebClient2.Controllers
 
 	public class JournalArticle : ZoteroCollectionData, IJournalArticle
 	{
-		//parentTitle: { txt: 'Journal', optional: false }
-		//              , parentAuthors: { txt: 'Parent Authors', optional: true }
-		//              , standardNumber: { txt: 'ISSN', optional: false }
 		public JournalArticle(IItem data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
         {
             this.publicationTitle = publicationTitle;
@@ -383,6 +362,58 @@ namespace ERxWebClient2.Controllers
 
 	}
 
+
+	public class ReportZotero : ZoteroCollectionData
+	{
+		public ReportZotero(IItem data, string proceedingstitle, string conferencename, string pLace, string iSSN) : base(data)
+		{
+			this.ISSN = iSSN;
+			this.proceedingsTitle = proceedingstitle;
+			this.conferenceName = conferencename;
+			this.place = pLace;
+
+		}
+		public string proceedingsTitle { get; set; }
+		public string conferenceName { get; set; }
+		public string place { get; set; }
+		public string ISSN { get; set; }
+
+	}
+
+	public class Periodical : ZoteroCollectionData
+	{
+		public Periodical(IItem data, string proceedingstitle, string conferencename, string pLace, string iSSN) : base(data)
+		{
+			this.ISSN = iSSN;
+			this.proceedingsTitle = proceedingstitle;
+			this.conferenceName = conferencename;
+			this.place = pLace;
+
+		}
+		public string proceedingsTitle { get; set; }
+		public string conferenceName { get; set; }
+		public string place { get; set; }
+		public string ISSN { get; set; }
+
+	}
+
+	public class Generic : ZoteroCollectionData
+	{
+		public Generic(IItem data) : base(data)
+		{			
+
+		}
+
+	}
+
+	public class Dvd : ZoteroCollectionData
+	{
+		public Dvd(IItem data) : base(data)
+		{
+
+		}
+
+	}
 
 	public class BookWhole : ZoteroCollectionData, IBookWhole
 	{

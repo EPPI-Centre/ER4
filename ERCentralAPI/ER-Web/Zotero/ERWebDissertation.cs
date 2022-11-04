@@ -5,7 +5,7 @@ namespace ERxWebClient2.Zotero
 {
     public class ERWebDissertation :ERWebCreators, IMapERWebReference
     {
-        public ERWebDissertation(Item item)
+        public ERWebDissertation(IItem item)
         {
             _item = item;
         }

@@ -5,7 +5,7 @@ namespace ERxWebClient2.Zotero
 {
     public class ERWebConferenceProceeding :ERWebCreators,  IMapERWebReference
     {
-        public ERWebConferenceProceeding(Item item)
+        public ERWebConferenceProceeding(IItem item)
         {
             _item = item;
         }
