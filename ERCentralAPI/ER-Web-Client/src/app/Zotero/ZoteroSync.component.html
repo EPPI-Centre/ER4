@@ -62,6 +62,7 @@
           <button class="btn btn-success my-auto ml-auto mr-1 px-1 py-0" (click)="PushERWebItems()"
                   [disabled]="ItemsToPushCount < 1">
             <span class="my-auto mx-1">Push</span>
+            <span *ngIf="HasSelections1" class="my-auto mx-1">(sel: {{SelectedList1.length}})</span>
             <span class="k-icon k-i-arrow-right k-color-info k-icon-md"></span>
           </button>
         </div>
@@ -92,6 +93,18 @@
                 <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
               </button>
             </div>
+            <button class="btn-sm btn btn-outline-primary py-0" (click)="ShowMore1 = !ShowMore1">{{ShowMore1txt}}</button>
+          </div>
+        </div>
+        <div *ngIf="ShowMore1" class="rounded bg-light my-1 px-0 mx-1">
+          <div class="row mx-1 px-1">
+            <div class="d-inline-block">
+              Filter:
+              <select class="select" [(ngModel)]="ActiveFilter1">
+                <option *ngFor="let n of Filter1DD" [ngValue]="n" [selected]="n == ActiveFilter1">{{n}}</option>
+              </select>
+            </div>
+            <div *ngIf="ActiveFilter1 != 'No filter'" class="ml-1">Filtered list has {{FilteredList1.length}} of {{ZoteroERWebReviewItemList.length}} items</div>
           </div>
         </div>
 
@@ -110,6 +123,14 @@
                 </th>
                 <th (click)="SortBy1('syncState')" style="cursor:pointer">
                   state<span [innerHTML]="SortingSymbol1('syncState')"></span>
+                </th>
+                <th style="width:30px;max-width:30px;">
+                  <ng-container [ngSwitch]="HasSelectionsDetail1">
+                    <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll1()" title="No items selected"/>
+                    <input *ngSwitchCase="1" type="checkbox" (click)="SelectAll1()" checked style="opacity:0.5;" title="Some pushable items are selected"/>
+                    <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll1()" title="All pushable items are selected"/>
+                  </ng-container>
+
                 </th>
               </tr>
             </thead>
@@ -142,7 +163,11 @@
                     <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
                   </ng-container>
                 </td>
-
+                <td>
+                  <div *ngIf="object.syncState == 2 || object.HasPdfToPush">
+                    <input type="checkbox" [(ngModel)]="object.ClientSelected" />
+                  </div>
+                </td>
               </tr>
           </table>
         </div>

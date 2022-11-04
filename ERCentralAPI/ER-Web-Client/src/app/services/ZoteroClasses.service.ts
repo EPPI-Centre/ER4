@@ -261,6 +261,7 @@ export class ZoteroERWebReviewItem {
   version: number;
   syncState: SyncState;
   title: string;
+  ClientSelected: boolean = false;
 }
 
 export class ZoteroERWebItemDoc {
