@@ -8,9 +8,9 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroMagazineArticle : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _magazineItem;
+        private Collection _magazineItem;
 
-        public ZoteroMagazineArticle(CollectionType collection)
+        public ZoteroMagazineArticle(Collection collection)
         {
             _magazineItem = collection;
         }
@@ -23,7 +23,8 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _magazineItem);
                 erWebItem.Item.TypeId = 12;
                 erWebItem.Item.TypeName = "Generic";
-                return erWebItem;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
 
             }
             catch (System.Exception ex)

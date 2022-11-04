@@ -518,9 +518,24 @@ namespace ERxWebClient2.Controllers
 		public long version { get; set; }
 		public Library library { get; set; }
 		public Links links { get; set; }
-		public JObject meta { get; set; }
+		public Meta meta { get; set; }
 		public CollectionType data { get; set; }
 	}
+
+	public class CreatedByUser
+	{
+		public int id { get; set; }
+		public string username { get; set; }
+		public string name { get; set; }
+		public Links links { get; set; }
+	}
+
+	public class Meta
+	{
+		public CreatedByUser createdByUser { get; set; }
+		public int numChildren { get; set; }
+	}
+
 
 	public class Links
 	{

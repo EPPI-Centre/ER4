@@ -8,8 +8,8 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroReport : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _report;
-        public ZoteroReport(CollectionType report)
+        private Collection _report;
+        public ZoteroReport(Collection report)
         {
             _report = report;
         }
@@ -21,7 +21,8 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _report);
                 erWebItem.Item.TypeId = 1;
                 erWebItem.Item.TypeName = "Report";
-                return erWebItem;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
             }
             catch (System.Exception ex)
             {

@@ -38,38 +38,36 @@ namespace ERxWebClient2.Zotero
 
         }
 
-        public ItemIncomingData MapReferenceFromZoteroToErWeb(CollectionType collection, ItemIncomingData newERWebItem)
+        public ItemIncomingData MapReferenceFromZoteroToErWeb(CollectionType collection, ItemIncomingData newERWebItem, ERWebItem eRWebItem)
         {
             try
             {
-                var smartDate = new SmartDate();
-                var parseDateResult = SmartDate.TryParse(collection.date, ref smartDate);
-                if (!parseDateResult) throw new System.Exception("Date parsing exception");
-                var smartDateAdded = new SmartDate();
-                var parseDateAddedResult = SmartDate.TryParse(collection.dateAdded, ref smartDateAdded);
-                if (!parseDateAddedResult) throw new System.Exception("Date parsing exception");
-                var smartDateModified = new SmartDate();
-                var parseDateModifiedResult = SmartDate.TryParse(collection.dateModified, ref smartDateModified);
-                if (!parseDateModifiedResult) throw new System.Exception("Date parsing exception");
-
-                newERWebItem.Title = collection.title ?? "";
-                newERWebItem.TypeId = 2;
+                var item = eRWebItem.Item;
+                if (item == null) throw new Exception("ErWeb Item cannot be null");
+                newERWebItem.Title = item.Title;
+				newERWebItem.TypeId = item.TypeId;                
                 var authors = AuthorsListForIncomingData(collection.creators ?? new CreatorsItem[0]);
                 newERWebItem.AuthorsLi = authors.authorsLi ?? new AutorsList();
                 newERWebItem.pAuthorsLi = authors.pAuthorsLi ?? new Csla.Core.MobileList<AutH>();
-                newERWebItem.Abstract = collection.abstractNote ?? "";
-                newERWebItem.DateEdited = smartDateModified;
-                newERWebItem.Edition = collection.edition ?? "";
-                newERWebItem.Institution = collection.place ?? "";
-                newERWebItem.Pages = collection.numPages ?? "";
-                newERWebItem.Publisher = collection.publisher ?? "";
-                newERWebItem.Short_title = collection.shortTitle ?? "";
-                newERWebItem.Volume = collection.volume ?? "";
-                newERWebItem.Pages = collection.pages ?? "";
-                newERWebItem.Issue = collection.issue ?? "";
-                newERWebItem.City = collection.archiveLocation ?? "";
-                newERWebItem.DOI = collection.ISBN ?? "";
-                newERWebItem.ZoteroKey = collection.key;
+                newERWebItem.Abstract = item.Abstract ?? "";
+                newERWebItem.DateEdited = item.DateEdited;
+                newERWebItem.Edition = item.Edition ?? "";
+                newERWebItem.Institution = item.Institution ?? "";
+                newERWebItem.Pages = item.Pages ?? "";
+                newERWebItem.Publisher = item.Publisher ?? "";
+                newERWebItem.Short_title = item.ShortTitle ?? "";
+                newERWebItem.Volume = item.Volume ?? "";
+                newERWebItem.Pages = item.Pages ?? "";
+                newERWebItem.Issue = item.Issue ?? "";
+                newERWebItem.City = item.City ?? "";
+                newERWebItem.DOI = item.DOI ?? "";
+                newERWebItem.Comments = item.Comments;
+                newERWebItem.Country = item.Country;
+                newERWebItem.Month = item.Month;
+                newERWebItem.Keywords = item.Keywords;
+                newERWebItem.Parent_title = item.ParentTitle;
+                newERWebItem.Url = item.URL;
+                newERWebItem.ZoteroKey = collection.key;                
                 return newERWebItem;
 
             }
@@ -83,7 +81,7 @@ namespace ERxWebClient2.Zotero
 
     public interface IMapZoteroIncomingDataReference
     {
-		ItemIncomingData MapReferenceFromZoteroToErWeb(CollectionType collection, ItemIncomingData newERWebItem);
+		ItemIncomingData MapReferenceFromZoteroToErWeb(CollectionType collection, ItemIncomingData newERWebItem, ERWebItem eRWebItem);
 
 	}
 }

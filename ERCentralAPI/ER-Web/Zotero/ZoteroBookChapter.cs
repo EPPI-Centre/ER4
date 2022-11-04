@@ -8,9 +8,9 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroBookChapter : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _bookItem;
+        private Collection _bookItem;
 
-        public ZoteroBookChapter(CollectionType collection)
+        public ZoteroBookChapter(Collection collection)
         {
             _bookItem = collection;
         }
@@ -23,8 +23,9 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _bookItem);
                 erWebItem.Item.TypeId = 2;
                 erWebItem.Item.TypeName = "Book, Whole";
-                erWebItem.Item.StandardNumber = _bookItem.ISBN;
-                return erWebItem;
+                erWebItem.Item.StandardNumber = _bookItem.data.ISBN;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
 
             }
             catch (System.Exception ex)

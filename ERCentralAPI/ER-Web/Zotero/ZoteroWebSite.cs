@@ -7,9 +7,9 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroWebSite : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _webSite;
+        private Collection _webSite;
 
-        public ZoteroWebSite(CollectionType collection)
+        public ZoteroWebSite(Collection collection)
         {
             _webSite = collection;
         }
@@ -23,7 +23,8 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _webSite);
                 erWebItem.Item.TypeId = 7;
                 erWebItem.Item.TypeName = "Web Site";
-                return erWebItem;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
                 
             }
             catch (System.Exception ex)

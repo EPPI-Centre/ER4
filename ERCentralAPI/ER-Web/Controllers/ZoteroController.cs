@@ -734,9 +734,10 @@ namespace ERxWebClient2.Controllers
             foreach (var item in keyValues["failed"].Children())
             {
                 failedItemsMsg += item.FirstOrDefault()["message"];
+                return 1;
             }
 
-            if (keyValues["successful"].ToString().Length == 0) throw new Exception("Something fishy");
+            if (keyValues["successful"].ToString().Length == 0) throw new Exception("Something fishy with this reference");
 
             var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
             var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
@@ -988,9 +989,8 @@ namespace ERxWebClient2.Controllers
                 IMapZoteroReference reference = _mapZoteroCollectionToErWebReference.GetReference(collectionItem);
 
                 var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
-                erWebItem.Item.IsIncluded = true;
                 
-                var erWebItemIncomingData = _mapZoteroCollectionToErWebReference.GetIncomingDataReference(collectionItem);
+                var erWebItemIncomingData = _mapZoteroCollectionToErWebReference.GetIncomingDataReference(collectionItem, erWebItem);
 
 				incomingItems.Add(erWebItemIncomingData);
             }

@@ -7,8 +7,8 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroJournal : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _journalArticle;
-        public ZoteroJournal(CollectionType journal)
+        private Collection _journalArticle;
+        public ZoteroJournal(Collection journal)
         {
             _journalArticle = journal;
         }
@@ -21,7 +21,9 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _journalArticle);
                 erWebItem.Item.TypeId = 14;
                 erWebItem.Item.TypeName = "Journal, Article";
-                return erWebItem;
+                erWebItem.Item.StandardNumber = _journalArticle.data.ISSN;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
 
             }
             catch (System.Exception ex)

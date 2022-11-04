@@ -8,8 +8,8 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroConferenceProceeding : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _conferenceProceeding;
-        public ZoteroConferenceProceeding(CollectionType conferenceProceeding)
+        private Collection _conferenceProceeding;
+        public ZoteroConferenceProceeding(Collection conferenceProceeding)
         {
             _conferenceProceeding = conferenceProceeding;
         }
@@ -21,8 +21,9 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _conferenceProceeding);
                 erWebItem.Item.TypeId = 5;
                 erWebItem.Item.TypeName = "Conference Proceedings";
-                erWebItem.Item.StandardNumber = _conferenceProceeding.ISBN;
-                return erWebItem;
+                erWebItem.Item.StandardNumber = _conferenceProceeding.data.ISBN;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
                
                 
 

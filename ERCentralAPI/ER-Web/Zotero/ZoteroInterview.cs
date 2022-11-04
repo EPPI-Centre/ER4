@@ -8,8 +8,8 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroInterview : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _interview;
-        public ZoteroInterview(CollectionType interview)
+        private Collection _interview;
+        public ZoteroInterview(Collection interview)
         {
             _interview = interview;
         }
@@ -21,7 +21,8 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _interview);
                 erWebItem.Item.TypeId = 11;
                 erWebItem.Item.TypeName = "Interview";
-                return erWebItem;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
 
             }
             catch (System.Exception ex)

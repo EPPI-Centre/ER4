@@ -59,31 +59,31 @@ namespace ERxWebClient2.Zotero
             switch (item.data.itemType)
             {
                 case "book": 
-                    return new ZoteroBook(item.data);
+                    return new ZoteroBook(item);
                 case "bookChapter":
-                    return new ZoteroBookChapter(item.data);
+                    return new ZoteroBookChapter(item);
                 case "journalArticle": 
-                    return new ZoteroJournal(item.data);
+                    return new ZoteroJournal(item);
                 case "conferencePaper":
-                    return new ZoteroConferenceProceeding(item.data);
+                    return new ZoteroConferenceProceeding(item);
                 case "blogPost":
-                    return new ZoteroWebSite(item.data);
+                    return new ZoteroWebSite(item);
                 case "attachment":
-                    return new ZoteroAttachment(item.data);
+                    return new ZoteroAttachment(item);
                 default:
                     //throw new NotSupportedException();
                     // for development return something
                     // TODO production throw the above exception
-                    return new ZoteroBook(item.data);
+                    return new ZoteroBook(item);
             }
         }
 
 		// NB: This is a special case as we want ItemIncomingData to be an Item
 		// but the fields contain different properties and methods hence cannot be wrapped.
-		public override ItemIncomingData GetIncomingDataReference(Collection collectionItem)
+		public override ItemIncomingData GetIncomingDataReference(Collection collectionItem, ERWebItem eRWebItem)
 		{
 			var incomingData = new ZoteroIncomingDataReference();
-            return incomingData.MapReferenceFromZoteroToErWeb(collectionItem.data, new ItemIncomingData());
+            return incomingData.MapReferenceFromZoteroToErWeb(collectionItem.data, new ItemIncomingData(), eRWebItem);
 
 		}
 	} 
