@@ -111,13 +111,14 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   ];
 
   public get PagedList1(): ZoteroERWebReviewItem[] {
-    if (this._zoteroService.ZoteroERWebReviewItemList.length <= this.PageSize1) return this._zoteroService.ZoteroERWebReviewItemList;
+    const res = this.FilteredList1;
+    if (this._zoteroService.ZoteroERWebReviewItemList.length <= this.PageSize1) return res;
     if (this.CurrentPage1 > this.TotPages1) this.CurrentPage1 = this.TotPages1;
     const StartIndex: number = (this.CurrentPage1 - 1) * this.PageSize1;
     if (this.CurrentPage1 !== this.TotPages1) {
-      return this._zoteroService.ZoteroERWebReviewItemList.slice(StartIndex, StartIndex + this.PageSize1);
+      return res.slice(StartIndex, StartIndex + this.PageSize1);
     } else {
-      return this._zoteroService.ZoteroERWebReviewItemList.slice(StartIndex);
+      return res.slice(StartIndex);
     }
   }
 
@@ -130,6 +131,37 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     } else {
       return this._zoteroService.ZoteroItems.slice(StartIndex);
     }
+  }
+
+  public get FilteredList1(): ZoteroERWebReviewItem[]{
+    let res: ZoteroERWebReviewItem[] = this._zoteroService.ZoteroERWebReviewItemList;
+    switch (this.ActiveFilter1) {
+      case "No filter":
+        break;
+      case "Can Push":
+        res = res.filter(f => f.syncState == SyncState.canPush);
+        break;
+      case "Up To Date":
+        res = res.filter(f => f.syncState == SyncState.upToDate);
+        break;
+      case "With docs":
+        res = res.filter(f => f.HasPdf == true);
+        break;
+      case "Without docs":
+        res = res.filter(f => f.HasPdf == false);
+        break;
+      case "With docs to push":
+        res = res.filter(f => f.HasPdfToPush == true);
+        break;
+    }
+    return res;
+  }
+
+  public get SelectedList1(): ZoteroERWebReviewItem[] {
+    let res: ZoteroERWebReviewItem[] = this._zoteroService.ZoteroERWebReviewItemList.filter(
+      f => f.ClientSelected == true && (f.syncState == SyncState.canPush || f.HasPdfToPush)
+    );
+    return res;
   }
 
   public FirstPage1() {
@@ -182,6 +214,60 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   public SortingSymbol2(fieldName: string): string {
     return CustomSorting.SortingSymbol(fieldName, this.LocalSort2);
   }
+
+  public ShowMore1: boolean = false;
+  public ShowMore2: boolean = false;
+  public get ShowMore1txt(): string {
+    if (this.ShowMore1) return "Less...";
+    else return "More...";
+  }
+  public get ShowMore2txt(): string {
+    if (this.ShowMore2) return "Less...";
+    else return "More...";
+  }
+  public Filter1DD: string[] = [
+    "No filter",
+    "Can Push",
+    "Up To Date",
+    "With docs",
+    "Without docs",
+    "With docs to push"
+  ];
+  public Filter2DD: string[] = [
+    "No filter",
+    "Can pull",
+    "Up To Date",
+    "With docs",
+    "Without docs",
+    "With docs to pull"
+  ];
+
+  public ActiveFilter1: string = "No filter";
+  public ActiveFilter2: string = "No filter";
+
+  public get HasSelections1(): boolean {
+    return this._zoteroService.ZoteroERWebReviewItemList.findIndex(f => f.ClientSelected == true) != -1;
+  }
+  public get HasSelectionsDetail1(): number {
+    const selectedCount = this._zoteroService.ZoteroERWebReviewItemList.filter(f => f.ClientSelected == true).length;
+    if (selectedCount == 0) return 0;
+    const selectableCount = this._zoteroService.ZoteroERWebReviewItemList.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush).length;
+    if (selectedCount != selectableCount) return 1; //partial selection
+    else return 2;
+  }
+  public SelectAll1() {
+    const list = this._zoteroService.ZoteroERWebReviewItemList;
+    for (let itm of list) {
+      itm.ClientSelected = true;
+    }
+  }
+  public UnSelectAll1() {
+    const list = this._zoteroService.ZoteroERWebReviewItemList;
+    for (let itm of list) {
+      itm.ClientSelected = false;
+    }
+  }
+
   public getErWebObjects() {
     if (!this._zoteroService.hasPermissions) {
             this._notificationService.show({
