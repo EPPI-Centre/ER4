@@ -7,8 +7,8 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroLetter : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _letterArticle;
-        public ZoteroLetter(CollectionType letter)
+        private Collection _letterArticle;
+        public ZoteroLetter(Collection letter)
         {
             _letterArticle = letter;
         }
@@ -21,7 +21,8 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _letterArticle);
                 erWebItem.Item.TypeId = 12;
                 erWebItem.Item.TypeName = "Generic";
-                return erWebItem;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
 
             }
             catch (System.Exception ex)

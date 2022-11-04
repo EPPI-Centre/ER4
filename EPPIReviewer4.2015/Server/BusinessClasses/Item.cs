@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
 using System.Globalization;
-using ERxWebClient2.Zotero;
+//using ERxWebClient2.Zotero;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;

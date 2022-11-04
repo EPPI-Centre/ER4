@@ -1,19 +1,13 @@
 ﻿using BusinessLibrary.BusinessClasses;
-using Csla;
 using ERxWebClient2.Controllers;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ERxWebClient2.Zotero
 {
     public class ZoteroAttachment : IMapZoteroReference
     {
-        private CollectionType _attachment;
+        private Collection _attachment;
 
-        public ZoteroAttachment(CollectionType collection)
+        public ZoteroAttachment(Collection collection)
         {
             _attachment = collection;
         }
@@ -24,13 +18,14 @@ namespace ERxWebClient2.Zotero
             {
                 ItemDocument newERWebDocument = new ItemDocument();
 
-                newERWebDocument.Title = _attachment.title;
+                newERWebDocument.Title = _attachment.data.title;
                 newERWebDocument.Extension = "";
                 newERWebDocument.Text = "";
 
                 var erWebItem = new ERWebItem();
-                //erWebItem.ItemDocument = newERWebDocument;
-                return erWebItem;
+				//erWebItem.ItemDocument = newERWebDocument;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
 
             }
             catch (System.Exception ex)

@@ -59,22 +59,22 @@ namespace ERxWebClient2.Zotero
             switch (item.data.itemType)
             {
                 case "book": 
-                    return new ZoteroBook(item.data);
+                    return new ZoteroBook(item);
                 case "bookChapter":
-                    return new ZoteroBookChapter(item.data);
+                    return new ZoteroBookChapter(item);
                 case "journalArticle": 
-                    return new ZoteroJournal(item.data);
+                    return new ZoteroJournal(item);
                 case "conferencePaper":
-                    return new ZoteroConferenceProceeding(item.data);
+                    return new ZoteroConferenceProceeding(item);
                 case "blogPost":
-                    return new ZoteroWebSite(item.data);
+                    return new ZoteroWebSite(item);
                 case "attachment":
-                    return new ZoteroAttachment(item.data);
+                    return new ZoteroAttachment(item);
                 default:
                     //throw new NotSupportedException();
                     // for development return something
                     // TODO production throw the above exception
-                    return new ZoteroBook(item.data);
+                    return new ZoteroBook(item);
             }
         }
 

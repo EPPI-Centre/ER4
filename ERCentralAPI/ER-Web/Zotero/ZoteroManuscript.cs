@@ -7,8 +7,8 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroManuscript : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _manuscriptArticle;
-        public ZoteroManuscript(CollectionType manuscript)
+        private Collection _manuscriptArticle;
+        public ZoteroManuscript(Collection manuscript)
         {
             _manuscriptArticle = manuscript;
         }
@@ -20,7 +20,8 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _manuscriptArticle);
                 erWebItem.Item.TypeId = 12;
                 erWebItem.Item.TypeName = "Generic";
-                return erWebItem;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
             }
             catch (System.Exception ex)
             {

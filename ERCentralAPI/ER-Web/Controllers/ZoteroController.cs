@@ -988,7 +988,6 @@ namespace ERxWebClient2.Controllers
                 IMapZoteroReference reference = _mapZoteroCollectionToErWebReference.GetReference(collectionItem);
 
                 var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
-                erWebItem.Item.IsIncluded = true;
                 
                 var erWebItemIncomingData = _mapZoteroCollectionToErWebReference.GetIncomingDataReference(collectionItem);
 

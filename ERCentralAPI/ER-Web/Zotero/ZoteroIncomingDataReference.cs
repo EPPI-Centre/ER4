@@ -69,7 +69,7 @@ namespace ERxWebClient2.Zotero
                 newERWebItem.Issue = collection.issue ?? "";
                 newERWebItem.City = collection.archiveLocation ?? "";
                 newERWebItem.DOI = collection.ISBN ?? "";
-                newERWebItem.ZoteroKey = collection.key;
+                newERWebItem.ZoteroKey = collection.key;                
                 return newERWebItem;
 
             }

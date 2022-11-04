@@ -2,15 +2,24 @@
 using Csla;
 using ERxWebClient2.Controllers;
 using ERxWebClient2.Zotero;
+using System.Globalization;
 
 namespace ER_Web.Zotero
 {
     public abstract class ZoteroCreator
     {
-        public ERWebItem CreateErWebItemFromCollection(Item newERWebItem, CollectionType collectionType) { 
-            
-            var smartDate = new SmartDate();
-            var parseDateResult = SmartDate.TryParse(collectionType.date, ref smartDate);
+        private const string V = "yyyy-MM-ddTHH:mm:ssZ";
+
+        public ERWebItem CreateErWebItemFromCollection(Item newERWebItem, Collection collection) {
+
+            var collectionType = collection.data;
+			var smartDate = new SmartDate();
+            DateTime dateYear;
+			DateTime.TryParseExact(collectionType.date, "yyyy", CultureInfo.InvariantCulture,
+						  DateTimeStyles.None, out dateYear);
+            var smartDateYear = dateYear.ToString(V);
+
+			var parseDateResult = SmartDate.TryParse(smartDateYear, ref smartDate);
             if (!parseDateResult) throw new System.Exception("Date parsing exception");
             var smartDateAdded = new SmartDate();
             var parseDateAddedResult = SmartDate.TryParse(collectionType.dateAdded, ref smartDateAdded);
@@ -23,9 +32,12 @@ namespace ER_Web.Zotero
             string consolidatedAuthors = "";
             foreach (var creator in collectionType.creators)
             {
-                consolidatedAuthors += creator.firstName + " " + creator.lastName;
+                consolidatedAuthors += creator.lastName + " " + creator.firstName + ";";
             }
+			consolidatedAuthors = consolidatedAuthors.TrimStart();
+			consolidatedAuthors = consolidatedAuthors.TrimEnd();
             newERWebItem.Authors = consolidatedAuthors;
+            newERWebItem.CreatedBy = collection.meta.createdByUser.username;
             newERWebItem.Abstract = collectionType.abstractNote;
             newERWebItem.DateCreated = smartDateAdded;
             newERWebItem.DateEdited = smartDateModified;
@@ -40,10 +52,11 @@ namespace ER_Web.Zotero
             newERWebItem.Issue = collectionType.issue;
             newERWebItem.City = collectionType.archiveLocation;
             newERWebItem.ParentTitle = collectionType.parentTitle;
-            newERWebItem.ParentAuthors = "";
             newERWebItem.DOI = collectionType.DOI;
+            newERWebItem.Year = smartDateYear;
+			newERWebItem.ParentAuthors = "";
 
-            var erWebItem = new ERWebItem();
+			var erWebItem = new ERWebItem();
             erWebItem.Item = newERWebItem;
             return erWebItem;
         }

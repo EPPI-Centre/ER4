@@ -8,8 +8,8 @@ namespace ERxWebClient2.Zotero
 {
     public class ZoteroThesis : ZoteroCreator, IMapZoteroReference
     {
-        private CollectionType _dissertation;
-        public ZoteroThesis(CollectionType dissertation)
+        private Collection _dissertation;
+        public ZoteroThesis(Collection dissertation)
         {
             _dissertation= dissertation;
         }
@@ -21,7 +21,8 @@ namespace ERxWebClient2.Zotero
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _dissertation);
                 erWebItem.Item.TypeId = 4;
                 erWebItem.Item.TypeName = "Dissertation";
-                return erWebItem;
+				erWebItem.Item.IsIncluded = true;
+				return erWebItem;
 
             }
             catch (System.Exception ex)
