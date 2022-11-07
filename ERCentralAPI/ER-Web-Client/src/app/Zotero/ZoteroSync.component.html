@@ -62,7 +62,7 @@
           <button *ngIf="!IsServiceBusy" class="btn btn-success my-auto ml-auto mr-1 px-1 py-0" (click)="PushERWebItems()"
                   [disabled]="ItemsToPushCount < 1">
             <span class="my-auto mx-1">Push</span>
-            <span *ngIf="HasSelections1" class="my-auto mx-1">(sel: {{SelectedList1.length}})</span>
+            <span *ngIf="HasSelections1; else elseAll" class="my-auto mx-1">(sel: {{SelectedList1.length}})</span>
             <span class="k-icon k-i-arrow-right k-color-info k-icon-md"></span>
           </button>
         </div>
@@ -97,7 +97,7 @@
           </div>
         </div>
         <div *ngIf="ShowMore1" class="rounded bg-light my-1 px-0 mx-1">
-          <div class="row mx-1 px-1">
+          <div class="row mx-1 px-1 border-bottom">
             <div class="d-inline-block">
               Filter:
               <select class="select" [(ngModel)]="ActiveFilter1">
@@ -106,7 +106,7 @@
             </div>
             <div *ngIf="ActiveFilter1 != 'No filter'" class="ml-1 px-1">Filtered list has {{FilteredList1.length}} of {{ZoteroERWebReviewItemList.length}} items</div>
           </div>
-          <div class="d-inline-block ml-1 border-top">
+          <div class="row mx-1 px-1 d-inline-block">
             Show Zotero ID: <input type="checkbox" [(ngModel)]="showItemKeys" />
           </div>
         </div>
@@ -190,7 +190,7 @@
                   (click)="PullConfirmZoteroItems()">
             <span class="k-icon k-i-arrow-left k-color-info k-icon-md"></span>
             <span class="my-auto mx-1">Pull</span>
-            <span *ngIf="HasSelections2" class="my-auto mx-1">(sel: {{SelectedList2.length}})</span>
+            <span *ngIf="HasSelections2; else elseAll" class="my-auto mx-1">(sel: {{SelectedList2.length}})</span>
           </button>
           <div class="my-auto mx-2 h5 font-weight-bold">
             Items in Zotero
@@ -316,3 +316,4 @@
     </div>
   </div>
 </div>
+<ng-template #elseAll><span class="my-auto mx-1">(All)</span></ng-template>
