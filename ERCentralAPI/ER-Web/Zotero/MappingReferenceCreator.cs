@@ -62,8 +62,6 @@ namespace ERxWebClient2.Zotero
 						return new ERWebGeneric(item);
 					case 14:
 						return new ERWebJournal(item);
-                case 15:
-						return new ERWebJournal(item);
 					default:
 						//    //throw new NotSupportedException();
 						//    // for development return something
