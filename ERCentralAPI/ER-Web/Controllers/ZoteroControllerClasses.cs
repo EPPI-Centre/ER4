@@ -163,29 +163,40 @@ namespace ERxWebClient2.Controllers
 			}
 			return zoteroType;
 		}
-		private List<CreatorsItem> ObtainCreators(string authors)
+		private List<CreatorsItem> ObtainCreatorsAsAuthors(string authors)
 		{
 			if (authors.Length == 0)
 			{
 				return new List<CreatorsItem>();
 			}
-			var authorsArray = authors.Split(';');
-			var creatorsArray = new List<CreatorsItem>();
+			//var authorsArray = authors.Split(';');
+			var authorsArray = AuthorsHandling.NormaliseAuth.processField(authors, 0);
+
+            var creatorsArray = new List<CreatorsItem>();
 			foreach (var author in authorsArray)
 			{
-				var firstAndLastNames = author.TrimStart().TrimEnd().Split(' ');
-				if (firstAndLastNames.Count() > 1)
+				var creatorsItem = new CreatorsItem
 				{
-					var creatorsItem = new CreatorsItem
-					{
-						creatorType = "author",
-						firstName = firstAndLastNames[0].ToString(),
-						lastName = firstAndLastNames[1].ToString()
-					};
-					creatorsArray.Add(creatorsItem);
-				}
+					creatorType = "author",
+					lastName = author.LastName,
+					firstName = author.FirstName + (author.MiddleName.Trim().Length == 0 ? "" : " " + author.MiddleName.Trim())
+                };
+				creatorsArray.Add(creatorsItem);
+
+
+				//var firstAndLastNames = author.TrimStart().TrimEnd().Split(' ');
+				//if (firstAndLastNames.Count() > 1)
+				//{
+				//	var creatorsItem = new CreatorsItem
+				//	{
+				//		creatorType = "author",
+				//          lastName = firstAndLastNames[0].ToString(),
+				//          firstName = firstAndLastNames[1].ToString()
+				//	};
+				//	creatorsArray.Add(creatorsItem);
+				//}
 			}
-			return creatorsArray;
+            return creatorsArray;
 		}
 
 		public ZoteroCollectionData(IItem data)
@@ -204,7 +215,7 @@ namespace ERxWebClient2.Controllers
 
             this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
             this.title = data.Title;
-            this.creators = ObtainCreators(data.Authors).ToArray();
+            this.creators = ObtainCreatorsAsAuthors(data.Authors).ToArray();
 			this.abstractNote = data.Abstract;
             this.series = "";
             this.seriesNumber = "";            
