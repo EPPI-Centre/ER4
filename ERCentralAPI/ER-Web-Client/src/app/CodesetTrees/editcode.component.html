@@ -43,7 +43,7 @@
           </div>
 
           <div class="p-1 mb-2">
-            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranch(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchHere">Move below</button>
+            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranchBelow(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchBelowHere">Move below</button>
             &nbsp;&nbsp; <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b>&nbsp;&nbsp;
             below
             &nbsp;&nbsp;<b class="rounded border border-dark p-1"

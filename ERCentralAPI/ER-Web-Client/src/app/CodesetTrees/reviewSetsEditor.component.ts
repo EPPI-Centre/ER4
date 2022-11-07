@@ -36,20 +36,67 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         }
         if (this.ReviewInfoService.ReviewInfo.reviewId == 0) {
             this.ReviewInfoService.Fetch();
-        }
+      }
+
+      //this._ActivityPanelName = this.treeEditorComponent.ActivityPanelName;
+
+      //this._ActivityPanelName = 'MoveCode';
+      /*
+      if (this.editCodeComp.EditCodeActivity != null) {
+        this._ActivityPanelName = 'MoveCode';
+      }
+      else {
+        this._ActivityPanelName = 'MoveCode';
+      }*/
+      
+
     }
     @ViewChild('treeEditorComponent') treeEditorComponent!: CodesetTreeEditComponent;
     @ViewChild('editCodeComp') editCodeComp!: EditCodeComp;
     @ViewChild('CodeTypeSelect') CodeTypeSelect: any;
+
     subRedrawTree: Subscription | null = null;
     public get HelpAndFeebackContext(): string {
         if (this._ActivityPanelName == 'ImportCodesets') return 'importcodesets';
         else return "editcodesets"
     }
     private _ActivityPanelName: string = "";
-    public get ActivityPanelName() {
+    private _test: string = "";
+
+    public ShowPanelContext: string = "";
+
+    public get ActivityPanelName() {    
+      if (this.treeEditorComponent === undefined) {
         return this._ActivityPanelName;
+      }
+      else {
+        if (this.treeEditorComponent.ActivityPanelName == "") {
+          return this._ActivityPanelName;
+        }
+        else {
+          if (this.treeEditorComponent.ActivityPanelName == "EditCode") {
+            this.ShowPanelContext = "MoveCode";
+            return this.treeEditorComponent.ActivityPanelName;
+          }
+          else {
+            return this._ActivityPanelName;
+          }
+          /*
+          if (this.editCodeComp === undefined) {
+            return this.treeEditorComponent.ActivityPanelName;
+          }
+          else {
+            if (this.editCodeComp.ShowPanelValue == "") {
+              this.editCodeComp.ShowMoveCodeClicked();
+            }
+            return this.treeEditorComponent.ActivityPanelName;
+          }*/
+        }
+        //return this._ActivityPanelName;
+      }
     }
+
+    
 
     private _EditCodeActivity: string = "";
     public get EditCodeActivity() {
@@ -380,6 +427,8 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this.DestinationDataEntryMode = "";
         this.ChangeDataEntryModeMessage = "";
         this._ActivityPanelName = "";
+        this.treeEditorComponent.ChangeActivityPanelName();
+        this.ShowPanelContext = "";
 		
     }
   CodesetTypeChanged(event: Event) {

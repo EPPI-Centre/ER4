@@ -21,7 +21,7 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
         private ReviewSetsService: ReviewSetsService,
         private ReviewSetsEditingService: ReviewSetsEditingService
   ) { }
-  @ViewChild('EditCodeComp') EditCodeComp!: EditCodeComp;
+  //@ViewChild('EditCodeComp') EditCodeComp!: EditCodeComp;
 
     ngOnInit() {
         if (this.ReviewSetsService.ReviewSets.length == 0) {
@@ -146,10 +146,19 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
       //}
     }
 
+    private _ActivityPanelNameFromCodesetTreeEdit: string = "";
+    public get ActivityPanelName() {
+      return this._ActivityPanelNameFromCodesetTreeEdit;
+    }
+    public ChangeActivityPanelName() {
+      this._ActivityPanelNameFromCodesetTreeEdit = "";
+    }
+
     MoveCode(node: singleNode) {
       this.ReviewSetsService.selectedNode = node;
+      this._ActivityPanelNameFromCodesetTreeEdit = 'EditCode';
 
-
+      //this.ReviewSets.
       // this is on editcode.component. how do I call it?
       //this.treeEditorComponent
       //this.EditCodeComp.ShowPanel = 'MoveCode';
