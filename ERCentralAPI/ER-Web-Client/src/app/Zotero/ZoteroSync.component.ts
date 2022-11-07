@@ -189,12 +189,14 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     this.CurrentPage2 = this.TotPages2;
   }
   public get CanPageUp1(): boolean {
+    console.log("can pg up", this.CurrentPage1, this.TotPages1)
     return this.CurrentPage1 < this.TotPages1;
   }
   public get CanPageUp2(): boolean {
     return this.CurrentPage2 < this.TotPages2;
   }
   public get CanPageDown1(): boolean {
+    console.log("can pg dw", this.CurrentPage1, this.TotPages1)
     return this.CurrentPage1 > 1;
   }
   public get CanPageDown2(): boolean {
@@ -256,7 +258,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     else return 2;
   }
   public SelectAll1() {
-    const list = this._zoteroService.ZoteroERWebReviewItemList;
+    const list = this.FilteredList1.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush);
     for (let itm of list) {
       itm.ClientSelected = true;
     }
@@ -266,6 +268,8 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     for (let itm of list) {
       itm.ClientSelected = false;
     }
+    //let bah = this.FilteredList1;
+    //console.log("F1", bah.filter(f => f.ClientSelected == true).length);
   }
 
   public getErWebObjects() {

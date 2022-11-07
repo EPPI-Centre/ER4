@@ -86,10 +86,10 @@
                 <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
               </button>
               Page: {{CurrentPage1}} of {{TotPages1}}
-              <button class="btn py-0 px-1 border-primary border" (click)="PageUp1()" [disabled]="!CanPageUp2">
+              <button class="btn py-0 px-1 border-primary border" (click)="PageUp1()" [disabled]="!CanPageUp1">
                 <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
               </button>
-              <button class="btn py-0 px-1 border-primary border" (click)="LastPage1()" [disabled]="!CanPageUp2">
+              <button class="btn py-0 px-1 border-primary border" (click)="LastPage1()" [disabled]="!CanPageUp1">
                 <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
               </button>
             </div>
@@ -127,7 +127,7 @@
                 <th style="width:30px;max-width:30px;">
                   <ng-container [ngSwitch]="HasSelectionsDetail1">
                     <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll1()" title="No items selected"/>
-                    <input *ngSwitchCase="1" type="checkbox" (click)="SelectAll1()" checked style="opacity:0.5;" title="Some pushable items are selected"/>
+                    <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll1()" checked style="opacity:0.5;" title="Some pushable items are selected"/>
                     <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll1()" title="All pushable items are selected"/>
                   </ng-container>
 
