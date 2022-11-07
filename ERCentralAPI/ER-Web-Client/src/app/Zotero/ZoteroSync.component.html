@@ -59,7 +59,7 @@
       <div class="col-md-12 alert-primary card">
         <div class="row mt-1">
           <div class="my-auto mx-2 h5 font-weight-bold">Items with this code</div>
-          <button class="btn btn-success my-auto ml-auto mr-1 px-1 py-0" (click)="PushERWebItems()"
+          <button *ngIf="!IsServiceBusy" class="btn btn-success my-auto ml-auto mr-1 px-1 py-0" (click)="PushERWebItems()"
                   [disabled]="ItemsToPushCount < 1">
             <span class="my-auto mx-1">Push</span>
             <span *ngIf="HasSelections1" class="my-auto mx-1">(sel: {{SelectedList1.length}})</span>
@@ -104,7 +104,10 @@
                 <option *ngFor="let n of Filter1DD" [ngValue]="n" [selected]="n == ActiveFilter1">{{n}}</option>
               </select>
             </div>
-            <div *ngIf="ActiveFilter1 != 'No filter'" class="ml-1">Filtered list has {{FilteredList1.length}} of {{ZoteroERWebReviewItemList.length}} items</div>
+            <div *ngIf="ActiveFilter1 != 'No filter'" class="ml-1 px-1">Filtered list has {{FilteredList1.length}} of {{ZoteroERWebReviewItemList.length}} items</div>
+          </div>
+          <div class="d-inline-block ml-1 border-top">
+            Show Zotero ID: <input type="checkbox" [(ngModel)]="showItemKeys" />
           </div>
         </div>
 
@@ -118,19 +121,21 @@
                 <th (click)="SortBy1('shortTitle')" style="cursor:pointer">
                   Short Title<span [innerHTML]="SortingSymbol1('shortTitle')"></span>
                 </th>
+                <th *ngIf="showItemKeys" (click)="SortBy1('itemKey')" style="cursor:pointer">
+                  Zotero ID<span [innerHTML]="SortingSymbol1('itemKey')"></span>
+                </th>
                 <th (click)="SortBy1('pdfList')" style="cursor:pointer">
                   Docs?<span [innerHTML]="SortingSymbol1('pdfList')"></span>
                 </th>
                 <th (click)="SortBy1('syncState')" style="cursor:pointer">
                   state<span [innerHTML]="SortingSymbol1('syncState')"></span>
                 </th>
-                <th style="width:30px;max-width:30px;">
+                <th style="width: 25px; max-width: 25px; border-left: solid 1px white;" class="">
                   <ng-container [ngSwitch]="HasSelectionsDetail1">
                     <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll1()" title="No items selected"/>
-                    <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll1()" checked style="opacity:0.5;" title="Some pushable items are selected"/>
+                    <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll1()" checked class="linear-fade" title="Some pushable items are selected"/>
                     <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll1()" title="All pushable items are selected"/>
                   </ng-container>
-
                 </th>
               </tr>
             </thead>
@@ -142,6 +147,7 @@
                 <td>
                   {{ object.shortTitle}}
                 </td>
+                <td *ngIf="showItemKeys">{{object.itemKey}}</td>
                 <td>
                   <div class="bg-warning" *ngIf="!object.HasPdf">
                     No Docs
@@ -163,7 +169,7 @@
                     <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
                   </ng-container>
                 </td>
-                <td>
+                <td class="border-left">
                   <div *ngIf="object.syncState == 2 || object.HasPdfToPush">
                     <input type="checkbox" [(ngModel)]="object.ClientSelected" />
                   </div>
@@ -184,6 +190,7 @@
                   (click)="PullConfirmZoteroItems()">
             <span class="k-icon k-i-arrow-left k-color-info k-icon-md"></span>
             <span class="my-auto mx-1">Pull</span>
+            <span *ngIf="HasSelections2" class="my-auto mx-1">(sel: {{SelectedList2.length}})</span>
           </button>
           <div class="my-auto mx-2 h5 font-weight-bold">
             Items in Zotero
@@ -195,11 +202,11 @@
         </div>
 
 
-        <div *ngIf="ObjectZoteroList.length > 0" class=" small">
-          There are {{ObjectZoteroList.length}} references in the Zotero Group Library. Of these, <strong>{{ItemsToPullCount}} item(s)</strong> can be pulled (including those that only have a pulleable uploaded document).
+        <div *ngIf="ZoteroItems.length > 0" class=" small">
+          There are {{ZoteroItems.length}} references in the Zotero Group Library. Of these, <strong>{{ItemsToPullCount}} item(s)</strong> can be pulled (including those that only have a pulleable uploaded document).
         </div>
-        <div *ngIf="ObjectZoteroList.length == 0" class="m-2 rounded alert-dark border  border-info small p-1">
-          No items to show, there are no references in the Zotero Library.
+        <div *ngIf="ZoteroItems.length == 0" class="m-2 rounded alert-dark border  border-info small p-1">
+          No items to show, there may be no references in the Zotero Library.
         </div>
 
         <div *ngIf="PagedList2.length > 0" class="mt-1 mx-auto">
@@ -225,13 +232,32 @@
                 <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
               </button>
             </div>
+            <button class="btn-sm btn btn-outline-primary py-0" (click)="ShowMore2 = !ShowMore2">{{ShowMore2txt}}</button>
+          </div>
+        </div>
+        <div *ngIf="ShowMore2" class="rounded bg-light my-1 px-0 mx-1">
+          <div class="row mx-1 px-1">
+            <div class="d-inline-block">
+              Filter:
+              <select class="select" [(ngModel)]="ActiveFilter2">
+                <option *ngFor="let n of Filter2DD" [ngValue]="n" [selected]="n == ActiveFilter2">{{n}}</option>
+              </select>
+            </div>
+            <div *ngIf="ActiveFilter2 != 'No filter'" class="ml-1 px-1">Filtered list has {{FilteredList2.length}} of {{ZoteroItems.length}} items</div>
           </div>
         </div>
 
-        <div *ngIf="ObjectZoteroList.length > 0" class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
+        <div *ngIf="ZoteroItems.length > 0" class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
           <table class="table table-sm table-striped p-2 m-2">
             <thead>
               <tr>
+                <th style="width:25px;max-width:25px; border-right:solid 1px white;" class="">
+                  <ng-container [ngSwitch]="HasSelectionsDetail2">
+                    <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll2()" title="No items selected" />
+                    <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll2()" checked class="linear-fade" title="Some pullable items are selected" />
+                    <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll2()" title="All pullable items are selected" />
+                  </ng-container>
+                </th>
                 <th (click)="SortBy2('syncState')" style="cursor:pointer">
                   State<span [innerHTML]="SortingSymbol2('syncState')"></span>
                 </th>
@@ -239,7 +265,7 @@
                   Docs?<span [innerHTML]="SortingSymbol2('attachments')"></span>
                 </th>
                 <th (click)="SortBy2('key')" style="cursor:pointer">
-                  Object Key<span [innerHTML]="SortingSymbol2('key')"></span>
+                  Zotero ID<span [innerHTML]="SortingSymbol2('key')"></span>
                 </th>
                 <th (click)="SortBy2('shortTitle')" style="cursor:pointer">
                   Short Title<span [innerHTML]="SortingSymbol2('shortTitle')"></span>
@@ -248,6 +274,11 @@
             </thead>
             <tbody *ngFor="let object of PagedList2">
               <tr [ngClass]="{'text-black-50': object.syncState != 3}">
+                <td class="border-right">
+                  <div *ngIf="object.syncState == 3 || object.HasAttachmentsToPull">
+                    <input type="checkbox" [(ngModel)]="object.ClientSelected" />
+                  </div>
+                </td>
                 <td>
                   <ng-container [ngSwitch]="object.syncState">
                     <div *ngSwitchCase="0" class="">N/A</div>
@@ -276,8 +307,8 @@
                   {{object.shortTitle}}
                 </td>
                 <!--<td>
-            {{object.itemType}}
-          </td>-->
+    {{object.itemType}}
+  </td>-->
               </tr>
           </table>
         </div>

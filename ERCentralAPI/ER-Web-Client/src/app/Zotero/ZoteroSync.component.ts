@@ -12,7 +12,19 @@ import { SyncState, ZoteroItem, ZoteroERWebReviewItem} from '../services/ZoteroC
 @Component({
   selector: 'ZoteroSync',
   templateUrl: './ZoteroSync.component.html',
-  providers: []
+  providers: [],
+  styles: [
+    `.linear-fade {
+    mask-image: linear-gradient(
+      to top left,
+      rgba(0, 0, 0, 0) 0em,
+      rgba(0, 0, 0, 1) 1.15em);
+    -webkit-mask-image: linear-gradient(
+      to top left,
+      rgba(0, 0, 0, 0) 0em,
+      rgba(0, 0, 0, 1) 1.15em);
+    }`
+    ]
 })
 
 export class ZoteroSyncComponent implements OnInit, OnDestroy {
@@ -47,7 +59,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     return this._zoteroService.BusyMessage;
   }
 
-  public get ObjectZoteroList(): ZoteroItem[] {
+  public get ZoteroItems(): ZoteroItem[] {
     return this._zoteroService.ZoteroItems;
   }
 
@@ -59,7 +71,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     return this._zoteroService.ZoteroERWebReviewItemList.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush).length;
   }
   public get ItemsToPullCount(): number {
-    return this.ObjectZoteroList.filter(f => f.syncState == SyncState.canPull || f.HasAttachmentsToPull).length;
+    return this.ZoteroItems.filter(f => f.syncState == SyncState.canPull || f.HasAttachmentsToPull).length;
   }
 
   public get NameOfCurrentLibrary() {
@@ -69,6 +81,9 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   public get IsServiceBusy(): boolean {
     return this._zoteroService.IsBusy || this._codesetStatsServ.IsBusy;
   }
+
+
+  public showItemKeys: boolean = false;
   private _TotPages1: number = -1;
   private _TotPages2: number = -1;
   private _PageSize1: number = 100;
@@ -82,22 +97,24 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   public set PageSize1(n: number) {
     this._PageSize1 = n;
     this._TotPages1 = -1;
+    if (this.CurrentPage1 > this.TotPages1) this.CurrentPage1 = this.TotPages1;
   }
   public set PageSize2(n: number) {
     this._PageSize2 = n;
     this._TotPages2 = -1;
+    if (this.CurrentPage2 > this.TotPages2) this.CurrentPage2 = this.TotPages2;
   }
   public get TotPages1(): number {
     if (this._TotPages1 < 1) {
-      if (this._zoteroService.ZoteroERWebReviewItemList.length == 0) this._TotPages1 = 0;
-      else this._TotPages1 = Math.ceil(this._zoteroService.ZoteroERWebReviewItemList.length / this.PageSize1);
+      if (this.FilteredList1.length == 0) this._TotPages1 = 0;
+      else this._TotPages1 = Math.ceil(this.FilteredList1.length / this.PageSize1);
     }
     return this._TotPages1;
   }
   public get TotPages2(): number {
     if (this._TotPages2 < 1) {
-      if (this._zoteroService.ZoteroItems.length == 0) this._TotPages2 = 0;
-      else this._TotPages2 = Math.ceil(this._zoteroService.ZoteroItems.length / this.PageSize2);
+      if (this.FilteredList2.length == 0) this._TotPages2 = 0;
+      else this._TotPages2 = Math.ceil(this.FilteredList2.length / this.PageSize2);
     }
     return this._TotPages2;
   }
@@ -112,7 +129,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
 
   public get PagedList1(): ZoteroERWebReviewItem[] {
     const res = this.FilteredList1;
-    if (this._zoteroService.ZoteroERWebReviewItemList.length <= this.PageSize1) return res;
+    if (res.length <= this.PageSize1) return res;
     if (this.CurrentPage1 > this.TotPages1) this.CurrentPage1 = this.TotPages1;
     const StartIndex: number = (this.CurrentPage1 - 1) * this.PageSize1;
     if (this.CurrentPage1 !== this.TotPages1) {
@@ -123,17 +140,18 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   }
 
   public get PagedList2(): ZoteroItem[] {
-    if (this._zoteroService.ZoteroItems.length <= this.PageSize2) return this._zoteroService.ZoteroItems;
+    const res = this.FilteredList2;
+    if (res.length <= this.PageSize2) return res;
     if (this.CurrentPage2 > this.TotPages2) this.CurrentPage2 = this.TotPages2;
     const StartIndex: number = (this.CurrentPage2 - 1) * this.PageSize2;
     if (this.CurrentPage2 !== this.TotPages2) {
-      return this._zoteroService.ZoteroItems.slice(StartIndex, StartIndex + this.PageSize2);
+      return res.slice(StartIndex, StartIndex + this.PageSize2);
     } else {
-      return this._zoteroService.ZoteroItems.slice(StartIndex);
+      return res.slice(StartIndex);
     }
   }
 
-  public get FilteredList1(): ZoteroERWebReviewItem[]{
+  public get FilteredList1(): ZoteroERWebReviewItem[] {
     let res: ZoteroERWebReviewItem[] = this._zoteroService.ZoteroERWebReviewItemList;
     switch (this.ActiveFilter1) {
       case "No filter":
@@ -156,10 +174,39 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     }
     return res;
   }
+  public get FilteredList2(): ZoteroItem[] {
+    let res: ZoteroItem[] = this._zoteroService.ZoteroItems;
+    switch (this.ActiveFilter2) {
+      case "No filter":
+        break;
+      case "Can Pull":
+        res = res.filter(f => f.syncState == SyncState.canPull);
+        break;
+      case "Up To Date":
+        res = res.filter(f => f.syncState == SyncState.upToDate);
+        break;
+      case "With docs":
+        res = res.filter(f => f.HasAttachments == true);
+        break;
+      case "Without docs":
+        res = res.filter(f => f.HasAttachments == false);
+        break;
+      case "With docs to pull":
+        res = res.filter(f => f.HasAttachmentsToPull == true);
+        break;
+    }
+    return res;
+  }
 
   public get SelectedList1(): ZoteroERWebReviewItem[] {
     let res: ZoteroERWebReviewItem[] = this._zoteroService.ZoteroERWebReviewItemList.filter(
       f => f.ClientSelected == true && (f.syncState == SyncState.canPush || f.HasPdfToPush)
+    );
+    return res;
+  }
+  public get SelectedList2(): ZoteroItem[] {
+    let res: ZoteroItem[] = this._zoteroService.ZoteroItems.filter(
+      f => f.ClientSelected == true && (f.syncState == SyncState.canPull || f.HasAttachmentsToPull)
     );
     return res;
   }
@@ -237,18 +284,37 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   ];
   public Filter2DD: string[] = [
     "No filter",
-    "Can pull",
+    "Can Pull",
     "Up To Date",
     "With docs",
     "Without docs",
     "With docs to pull"
   ];
 
-  public ActiveFilter1: string = "No filter";
-  public ActiveFilter2: string = "No filter";
+  private _ActiveFilter1: string = "No filter";
+  private _ActiveFilter2: string = "No filter";
+
+  public get ActiveFilter1(): string {
+    return this._ActiveFilter1;
+  }
+  public set ActiveFilter1(val: string) {
+    this._ActiveFilter1 = val;
+    this._TotPages1 = -1;
+  }
+
+  public get ActiveFilter2(): string {
+    return this._ActiveFilter2;
+  }
+  public set ActiveFilter2(val: string) {
+    this._ActiveFilter2 = val;
+    this._TotPages2 = -1;
+  }
 
   public get HasSelections1(): boolean {
     return this._zoteroService.ZoteroERWebReviewItemList.findIndex(f => f.ClientSelected == true) != -1;
+  }
+  public get HasSelections2(): boolean {
+    return this._zoteroService.ZoteroItems.findIndex(f => f.ClientSelected == true) != -1;
   }
   public get HasSelectionsDetail1(): number {
     const selectedCount = this._zoteroService.ZoteroERWebReviewItemList.filter(f => f.ClientSelected == true).length;
@@ -257,19 +323,38 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     if (selectedCount != selectableCount) return 1; //partial selection
     else return 2;
   }
+  public get HasSelectionsDetail2(): number {
+    const selectedCount = this._zoteroService.ZoteroItems.filter(f => f.ClientSelected == true).length;
+    if (selectedCount == 0) return 0;
+    const selectableCount = this._zoteroService.ZoteroItems.filter(f => f.syncState == SyncState.canPull || f.HasAttachmentsToPull).length;
+    if (selectedCount != selectableCount) return 1; //partial selection
+    else return 2;
+  }
+
   public SelectAll1() {
     const list = this.FilteredList1.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush);
     for (let itm of list) {
       itm.ClientSelected = true;
     }
   }
+  public SelectAll2() {
+    const list = this.FilteredList2.filter(f => f.syncState == SyncState.canPull || f.HasAttachmentsToPull);
+    for (let itm of list) {
+      itm.ClientSelected = true;
+    }
+  }
+
   public UnSelectAll1() {
     const list = this._zoteroService.ZoteroERWebReviewItemList;
     for (let itm of list) {
       itm.ClientSelected = false;
     }
-    //let bah = this.FilteredList1;
-    //console.log("F1", bah.filter(f => f.ClientSelected == true).length);
+  }
+  public UnSelectAll2() {
+    const list = this._zoteroService.ZoteroItems;
+    for (let itm of list) {
+      itm.ClientSelected = false;
+    }
   }
 
   public getErWebObjects() {
@@ -305,14 +390,20 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     if (this.ItemsToPullCount < 1 || this.HasWriteRights == false) return;
     this._confirmationDialogService.confirm("Pull Items from Zotero?",
       "When Pulling, any new items will be imported as a new source. Existing items will be updated.<br />"
-      + "You are about to pull " + this.ItemsToPullCount + " items.", false, ''
+      + "You are about to pull " + (this.HasSelections2 ? this.SelectedList2.length : this.ItemsToPullCount) + " items.", false, ''
     ).then((confirmed: any) => {
       if (confirmed) this.PullZoteroItems();
     });
   }
 
   async PullZoteroItems() {
-    let toPull = this._zoteroService.ZoteroItems.filter(f => (f.syncState == SyncState.canPull || f.HasAttachmentsToPull));
+    let toPull: ZoteroItem[] = [];
+    if (this.HasSelections2) {
+      toPull = this.SelectedList2;
+    }
+    else {
+      toPull = this._zoteroService.ZoteroItems.filter(f => (f.syncState == SyncState.canPull || f.HasAttachmentsToPull));
+    }
     let pulling: ZoteroERWebReviewItem[] = [];
     for (let tp of toPull) {
       let zERi = tp.ToZoteroERWebReviewItem();
@@ -324,11 +415,16 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
       }
       pulling.push(zERi);
     }
-    const res1 = await this._zoteroService.PullTheseItems(pulling);
-    if (res1 == true) {
-      this.RefreshBothTables();
+    if (pulling.length > 0) {
+      const res1 = await this._zoteroService.PullTheseItems(pulling);
+      if (res1 == true) {
+        this.RefreshBothTables();
+      } else {
+        this.RefreshBothTables();
+      }
     }
   }
+
   public async RefreshBothTables() {
     this._TotPages2 = -1;
     const res2 = await this._zoteroService.CheckAndFetchZoteroItems(true);
@@ -343,6 +439,8 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   async PushERWebItems() {
     const res1 = await this._zoteroService.PushZoteroErWebReviewItemList();
     if (res1 == true) {
+      this.RefreshBothTables();
+    } else {
       this.RefreshBothTables();
     }
   }

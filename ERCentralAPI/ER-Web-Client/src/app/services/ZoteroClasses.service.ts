@@ -90,6 +90,7 @@ export class ZoteroItem {
   attachments: ZoteroAttachment[] = [];
   version: number = 0;
   syncState: SyncState = SyncState.notSet;
+  ClientSelected: boolean = false;
 }
 export class ZoteroAttachment {
   constructor(izjo: iZoteroJobject) {
