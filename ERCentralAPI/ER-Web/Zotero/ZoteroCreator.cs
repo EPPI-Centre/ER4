@@ -46,7 +46,7 @@ namespace ER_Web.Zotero
             newERWebItem.DateCreated = smartDateAdded;
             newERWebItem.DateEdited = SmartDateModified; 
             newERWebItem.Edition = collectionType.edition;
-            newERWebItem.Institution = collectionType.place;
+            newERWebItem.Institution = collectionType.institution;
             newERWebItem.Pages = collectionType.numPages;
             newERWebItem.Publisher = collectionType.publisher;
             newERWebItem.ShortTitle = collectionType.shortTitle;
@@ -54,7 +54,7 @@ namespace ER_Web.Zotero
             newERWebItem.IsLocal = false;
             newERWebItem.Pages = collectionType.pages;
             newERWebItem.Issue = collectionType.issue;
-            newERWebItem.City = collectionType.archiveLocation;
+            newERWebItem.City = collectionType.place;
             newERWebItem.ParentTitle = collectionType.parentTitle;
             newERWebItem.DOI = collectionType.DOI;
             newERWebItem.Year = smartDateYear;
