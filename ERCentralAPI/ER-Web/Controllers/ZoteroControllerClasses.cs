@@ -235,6 +235,9 @@ namespace ERxWebClient2.Controllers
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.date = data.Year;
+			this.volume = data.Volume;
+			this.archiveLocation = data.City;
+					
 		}
 
 		public ZoteroCollectionData()
@@ -428,9 +431,9 @@ namespace ERxWebClient2.Controllers
 
 	public class BookWhole : ZoteroCollectionData, IBookWhole
 	{
-		//parentTitle: { txt: 'Parent Title', optional: true }
-	  //              , parentAuthors: { txt: 'Parent Authors', optional: true }
-	  //              , standardNumber: { txt: 'ISBN', optional: false }
+		// parentTitle: { txt: 'Parent Title', optional: true }
+	    //              , parentAuthors: { txt: 'Parent Authors', optional: true }
+	    //              , standardNumber: { txt: 'ISBN', optional: false }
 
 		public BookWhole(IItem data, string numberOfVolumes, string edition, string place, string publisher,
 			string numPages, string iSBN): base(data)

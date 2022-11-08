@@ -28,3 +28,39 @@ namespace ERxWebClient2.Zotero
         }
     }
 }
+
+
+//"itemType": "journalArticle",
+//    "title": "",
+//    "creators": [
+//        {
+//            "creatorType": "author",
+//            "firstName": "",
+//            "lastName": ""
+//        }
+//    ],
+//    "abstractNote": "",
+//    "publicationTitle": "",
+//    "volume": "",
+//    "issue": "",
+//    "pages": "",
+//    "date": "",
+//    "series": "",
+//    "seriesTitle": "",
+//    "seriesText": "",
+//    "journalAbbreviation": "",
+//    "language": "",
+//    "DOI": "",
+//    "ISSN": "",
+//    "shortTitle": "",
+//    "url": "",
+//    "accessDate": "",
+//    "archive": "",
+//    "archiveLocation": "",
+//    "libraryCatalog": "",
+//    "callNumber": "",
+//    "rights": "",
+//    "extra": "",
+//    "tags": [],
+//    "collections": [],
+//    "relations": { }

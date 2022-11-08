@@ -34,3 +34,37 @@ namespace ERxWebClient2.Zotero
         }
     }
 }
+
+//"itemType": "book",
+//    "title": "",
+//    "creators": [
+//        {
+//            "creatorType": "author",
+//            "firstName": "",
+//            "lastName": ""
+//        }
+//    ],
+//    "abstractNote": "",
+//    "series": "",
+//    "seriesNumber": "",
+//    "volume": "",
+//    "numberOfVolumes": "",
+//    "edition": "",
+//    "place": "",
+//    "publisher": "",
+//    "date": "",
+//    "numPages": "",
+//    "language": "",
+//    "ISBN": "",
+//    "shortTitle": "",
+//    "url": "",
+//    "accessDate": "",
+//    "archive": "",
+//    "archiveLocation": "",
+//    "libraryCatalog": "",
+//    "callNumber": "",
+//    "rights": "",
+//    "extra": "",
+//    "tags": [],
+//    "collections": [],
+//    "relations": { }
