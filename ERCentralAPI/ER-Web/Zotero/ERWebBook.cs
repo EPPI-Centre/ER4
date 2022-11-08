@@ -22,7 +22,7 @@ namespace ERxWebClient2.Zotero
             {
                 var newZoteroItem = new BookWhole(_item, "", _item.Edition, _item.City, _item.Publisher, 
                     _item.Pages,_item.StandardNumber);
-      
+                newZoteroItem.volume = _item.Volume;
                 return newZoteroItem;
 
             }

@@ -235,7 +235,6 @@ namespace ERxWebClient2.Controllers
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.date = data.Year;
-			this.volume = data.Volume;
 			this.archiveLocation = data.City;
 					
 		}
@@ -501,7 +500,6 @@ namespace ERxWebClient2.Controllers
             this.edition = edition;
             this.place = place;
             this.publisher = publisher;
-            this.numPages = numPages;
 			this.ISBN = iSBN;
 		}
 
@@ -510,7 +508,6 @@ namespace ERxWebClient2.Controllers
 		public string edition { get; set; }
 		public string place { get; set; }
 		public string publisher { get; set; }
-		public string numPages { get; set; }
 		public string ISBN { get; set; }
 
 	}
@@ -522,7 +519,6 @@ namespace ERxWebClient2.Controllers
 		string edition { get; set; }
 		string place { get; set; }
 		string publisher { get; set; }
-		string numPages { get; set; }
 		string ISBN { get; set; }
 	}
 

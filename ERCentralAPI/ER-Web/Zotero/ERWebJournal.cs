@@ -16,6 +16,7 @@ namespace ERxWebClient2.Zotero
             {
 
                 var journal = new JournalArticle(_item, _item.ParentTitle, _item.Issue, _item.Pages, "", "", "", _item.DOI, _item.StandardNumber);
+                journal.volume = _item.Volume;
                 return journal;
             }
             catch (Exception ex)

@@ -17,7 +17,7 @@ namespace ERxWebClient2.Zotero
 
                 ZoteroCollectionData conferencePaper = new ConferencePaper(_item, _item.Title,
                     "", "", _item.StandardNumber);
-              
+                conferencePaper.volume = _item.Volume;
 
                 return conferencePaper;
 

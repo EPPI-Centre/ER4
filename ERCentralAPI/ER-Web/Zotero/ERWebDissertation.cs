@@ -17,7 +17,7 @@ namespace ERxWebClient2.Zotero
             {
                 var newZoteroItem = new Dissertation(_item, "", _item.Edition, _item.City, _item.Publisher, _item.Pages
                     , _item.DOI);
-
+                newZoteroItem.volume = _item.Volume;
 
                 return newZoteroItem;
 
