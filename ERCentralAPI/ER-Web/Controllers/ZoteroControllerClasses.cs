@@ -360,18 +360,18 @@ namespace ERxWebClient2.Controllers
 
 	public class ConferencePaper : ZoteroCollectionData
 	{
-		public ConferencePaper(IItem data, string proceedingstitle, string conferencename, string pLace, string iSSN) : base(data)
+		public ConferencePaper(IItem data, string proceedingstitle, string conferencename, string pLace, string iSBN) : base(data)
         {
-			this.ISSN = iSSN;
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
 			this.place = pLace;			
+			this.ISBN = iSBN
 
 		}
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
 		public string place { get; set; }
-		public string ISSN { get; set; }
+		public string ISBN { get; set; }
 
 	}
 
