@@ -81,7 +81,7 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
 
     //we handle 2 cases: user has selected some (pushable) items, OR push all that's pushable...
     let itemsToPush: ZoteroERWebReviewItem[] = this.ZoteroERWebReviewItemList.filter(f => f.ClientSelected == true && (f.syncState == SyncState.canPush || f.HasPdfToPush));
-    if (itemsToPush.length == 0) this.ZoteroERWebReviewItemList.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush);
+    if (itemsToPush.length == 0) itemsToPush = this.ZoteroERWebReviewItemList.filter(f => f.syncState == SyncState.canPush || f.HasPdfToPush);
     let batches = [];
 
     while (itemsToPush.length) {
