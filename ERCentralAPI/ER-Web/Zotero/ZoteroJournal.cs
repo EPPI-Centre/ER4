@@ -23,6 +23,7 @@ namespace ERxWebClient2.Zotero
                 erWebItem.Item.TypeName = "Journal, Article";
                 erWebItem.Item.StandardNumber = _journalArticle.data.ISSN;
 				erWebItem.Item.IsIncluded = true;
+                erWebItem.Item.ParentTitle = _journalArticle.data.publicationTitle;
 				return erWebItem;
 
             }

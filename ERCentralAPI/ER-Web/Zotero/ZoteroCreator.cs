@@ -14,17 +14,12 @@ namespace ER_Web.Zotero
 
             var collectionType = collection.data;
 			var smartDate = new SmartDate();
-            DateTime dateYear;
-			DateTime.TryParseExact(collectionType.date, "yyyy", CultureInfo.InvariantCulture,  DateTimeStyles.None, out dateYear);
-            var smartDateYear = dateYear.ToString(V);
-
+            
 			var SmartDateModified = new SmartDate();
 			DateTime dateModified;
 			var smartDateModifiedBool = DateTime.TryParseExact(collectionType.dateModified, V, CultureInfo.InvariantCulture,DateTimeStyles.None, out dateModified);
             var smartDateMod = dateModified.ToUniversalTime().ToString(V);
 
-			var parseDateResult = SmartDate.TryParse(smartDateYear, ref smartDate);
-            if (!parseDateResult) throw new System.Exception("Date parsing exception");
             var smartDateAdded = new SmartDate();
             var parseDateAddedResult = SmartDate.TryParse(collectionType.dateAdded, ref smartDateAdded);
             if (!parseDateAddedResult) throw new System.Exception("Date parsing exception");
@@ -57,7 +52,8 @@ namespace ER_Web.Zotero
             newERWebItem.City = collectionType.place;
             newERWebItem.ParentTitle = collectionType.parentTitle;
             newERWebItem.DOI = collectionType.DOI;
-            newERWebItem.Year = smartDateYear;
+            newERWebItem.Year = collectionType.date;
+            newERWebItem.URL = collectionType.url;
 			newERWebItem.ParentAuthors = "";
 
             var erWebItem = new ERWebItem
