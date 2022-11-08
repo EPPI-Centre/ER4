@@ -364,8 +364,8 @@ namespace ERxWebClient2.Controllers
         {
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
-			this.place = pLace;			
-			this.ISBN = iSBN
+			this.place = pLace;
+			this.ISBN = iSBN;
 
 		}
 		public string proceedingsTitle { get; set; }
