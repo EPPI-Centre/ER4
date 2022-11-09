@@ -510,7 +510,11 @@ namespace ERxWebClient2.Controllers
 		public string publisher { get; set; }
 		public string ISBN { get; set; }
 
-	}
+		//the below is WRONG, used to deliberately cause an error!
+		//public string numPages = "aaa";
+
+
+    }
 
 	internal interface iBookChapter
 	{
@@ -706,5 +710,66 @@ namespace ERxWebClient2.Controllers
 		public List<object> institutions { get; set; }
 		public bool hasExistingSubscription { get; set; }
 	}
+    public class ZoteroBatchError
+    {
+        public ZoteroBatchError(string OpName)
+        {
+            operationName = OpName;
+        }
+        public ZoteroBatchError(string OpName, int BatchSize)
+        {
+			batchSize = BatchSize;
+            operationName = OpName;
+        }
+        public string operationName = ""; //the name of the API call/method
+        public int batchSize = 0;
+        public int failCount = 0;
+        public List<SingleError> failedIdsAndMessage = new List<SingleError>();
+		public void Add(SingleError error)
+		{
+			failedIdsAndMessage.Add(error);
+			failCount++;
+		}
+    }
+	public class SingleError
+	{
+		public SingleError() { }
+        public SingleError(Exception e)
+        {
+            Exception = e;
+            ErrorMsg = e.Message;
+        }
+        public SingleError(Exception e, string Id)
+        {
+            Exception = e;
+            ErrorMsg = e.Message;
+			UniqueIdentifier = Id;
+        }
+        public SingleError(Exception e, string Id, string message)
+        {
+            Exception = e;
+            ErrorMsg = message;
+            UniqueIdentifier = Id;
+        }
+        public SingleError(string Id, string message)
+        {
+            ErrorMsg = message;
+            UniqueIdentifier = Id;
+        }
+        public SingleError(string message)
+        {
+            ErrorMsg = message;
+        }
+        public string ErrorMsg = "";
+		public string UniqueIdentifier = "";
+		[JsonIgnore]
+		public Exception? Exception = null;
+	}
+
+	public class PutErrorResult
+    {
+		public int code { get; set; }
+		public string message { get; set; }
+    }
 }
 
