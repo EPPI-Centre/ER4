@@ -846,15 +846,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
 
 
     public async MoveSetAttributeBelow(MovingAtt: SetAttribute, Destination: singleNode) {
-      //Destination might be a ReviewSet or a SetAttribute!
-      //first, we'll find Just the data needed to call the API, then we'll do changes locally IF API call succeeds...
-      let fromId: number = MovingAtt.parent_attribute_id;
-      let toId: number = 0; //zero if in the root, otherwise the attribute IDs of the parent. (fromId and toId)
-      let order = 0;
-      let dA: SetAttribute | null = null;
-      let dS: ReviewSet | null = null;
-      let fA: SetAttribute | null = null;
-      let fS: ReviewSet | null = null;
+
       //we will try to do something, so we'll mark this service as busy (twice) - the one in here is because we want to let the reorg of the tree to happen while still busy
       this._BusyMethods.push("MoveSetAttributeInto");
 
@@ -869,9 +861,74 @@ export class ReviewSetsEditingService extends BusyAwareService {
         destIndex = Destination.order;
       }
 
+      let SortingParent: ReviewSet | SetAttribute | null = null;
 
+      if (MovingAtt.parent_attribute_id == 0) { // just below the root so no parent
+        let Set: ReviewSet | null = this.ReviewSetsService.FindSetById(MovingAtt.set_id);
+        if (!Set) return false;
+        SortingParent = Set;
+      }
+      else {
+        let Parent: SetAttribute | null = this.ReviewSetsService.FindAttributeById(MovingAtt.parent_attribute_id);
+        if (!Parent) return false;
+        SortingParent = Parent;
+      }
+
+      // move it in the database
       await this.MoveSetAttribute(attributeSetId, fromParentAttributeId, toParentAttributeId, destIndex);
+    
+      let index = MovingAtt.order;
+      let endIndex = SortingParent.attributes.length - 1;
 
+      // move it on the screen
+      if (MovingAtt.order > Destination.order) {
+        // moving the code up
+        // increment 'order' for everything from Destination.order + 1 to MovingAtt.order - 1
+        for (let i = Destination.order + 1; i < MovingAtt.order; i++) {
+          SortingParent.attributes[i].attribute_order = i + 1;
+          SortingParent.attributes[i].order = i + 1;
+        }
+        // position the code we are moving to Destination.order
+        SortingParent.attributes[index].attribute_order = Destination.order + 1;
+        SortingParent.attributes[index].order = Destination.order + 1;
+
+        // now sort by attribute_order
+        SortingParent.attributes.sort((s1, s2) => {
+          return s1.attribute_order - s2.attribute_order;
+        });
+
+        // to redraw the chevrons
+        await this.CheckChildrenOrder(SortingParent as singleNode);
+      }
+      else {
+        // moving the code down
+        // decrement 'order' for everything from MovingAtt.order + 1 to Destination.order
+        for (let i = MovingAtt.order + 1; i < Destination.order + 1; i++) {
+          SortingParent.attributes[i].attribute_order = i - 1;
+          SortingParent.attributes[i].order = i - 1;
+        }
+        // position the code we are moving to Destination.order
+        if (Destination.order === endIndex) { // moving to the end of the list
+          SortingParent.attributes[index].attribute_order = Destination.order;
+          SortingParent.attributes[index].order = Destination.order;
+        }
+        else {
+          SortingParent.attributes[index].attribute_order = Destination.order + 1;
+          SortingParent.attributes[index].order = Destination.order + 1;
+        }
+
+        // now sort by attribute_order
+        SortingParent.attributes.sort((s1, s2) => {
+          return s1.attribute_order - s2.attribute_order;
+        });
+
+        // to redraw the chevrons
+        await this.CheckChildrenOrder(SortingParent as singleNode);
+      }
+
+
+
+  
 
       this.RemoveBusy("MoveSetAttributeInto");
       return true;

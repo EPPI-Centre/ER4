@@ -76,7 +76,12 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
   }
   public get CanMoveBranchBelowHere(): boolean {
     let node = this.innerSelectedNode;
-    if (!node) return false;
+    if (!node) {
+      return false;
+    }
+    else if (node.parent === -1) {
+      return false;
+    }
     else {
       if (node.parent === this.SelectedNode?.parent) {
         return node.CanMoveBranchInHere;
