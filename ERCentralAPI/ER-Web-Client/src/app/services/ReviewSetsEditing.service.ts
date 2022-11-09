@@ -345,7 +345,12 @@ export class ReviewSetsEditingService extends BusyAwareService {
         return false;
     }
 
-    IsACode(node: singleNode): boolean {
+  IsACode(node: singleNode): boolean {
+      // first chekc if the codeset editable...
+      let MySet = this.ReviewSetsService.FindSetById(node.set_id);
+      if (MySet) {
+        if (MySet.allowEditingCodeset == false) return false;//otherwise do the other checks...
+      }
       if (node.nodeType == 'ReviewSet') {
         return false;
       }
