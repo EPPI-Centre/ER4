@@ -19,12 +19,12 @@ namespace BusinessLibrary.BusinessClasses
 
         public ZoteroERWebItemDocument(long item_Document_Id, string doc_Zotero_Key) {
 
-            ItemDocumentId = item_Document_Id;
+            itemDocumentId = item_Document_Id;
             DocZoteroKey = doc_Zotero_Key;
         }
 
         public static readonly PropertyInfo<long> ItemDocumentIdProperty = RegisterProperty<long>(new PropertyInfo<long>("ItemDocumentId", "ItemDocumentId", 0m));
-        public long ItemDocumentId
+        public long itemDocumentId
         {
             get
             {
@@ -66,7 +66,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public string Extension
+        public string extension
         {
             get
             {

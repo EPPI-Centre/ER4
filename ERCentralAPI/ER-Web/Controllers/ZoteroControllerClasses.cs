@@ -8,6 +8,7 @@ using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 using BusinessLibrary.BusinessClasses;
 using ERxWebClient2.Zotero;
 using System.Linq;
+using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
 
 namespace ERxWebClient2.Controllers
 {
@@ -230,8 +231,9 @@ namespace ERxWebClient2.Controllers
             this.callNumber = "";
             this.rights = "";
 			var arrayOfIdAndComments = new string[2];
-			arrayOfIdAndComments[0] = "ErWeb-ID: " + data.ItemId.ToString();
-			arrayOfIdAndComments[1] = "ErWeb-Comments: " + data.Comments.ToString();
+			arrayOfIdAndComments[0] = "EPPI-Reviewer ID: " + data.ItemId.ToString();
+			if (data.Comments.ToString().Trim().Length > 0)
+				arrayOfIdAndComments[1] = "EPPI-Reviewer Comments: " + data.Comments.ToString().Trim();
 
 			this.extra = string.Join(Environment.NewLine, arrayOfIdAndComments);
             this.tags = new List<tagObject>() { tag };
@@ -769,6 +771,15 @@ namespace ERxWebClient2.Controllers
 		public string UniqueIdentifier = "";
 		[JsonIgnore]
 		public Exception? Exception = null;
+
+		public override string ToString()
+		{
+			string res = (UniqueIdentifier != "" ? "ID: " + UniqueIdentifier + " " : "") 
+				+ (ErrorMsg != "" ? "Error Msg: " + ErrorMsg + " " : "") 
+				+ (Exception != null ? "Exception Message: " + Exception.Message : "");
+			res = res.Trim();
+			return res;
+        }
 	}
 
 	public class PutErrorResult

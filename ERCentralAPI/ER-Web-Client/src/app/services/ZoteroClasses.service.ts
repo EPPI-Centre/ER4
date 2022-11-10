@@ -270,22 +270,22 @@ export class ZoteroERWebItemDoc {
     if (data != null) {
       this.documenT_TITLE = data.documenT_TITLE;
       this.docZoteroKey = data.docZoteroKey;
-      this.item_Document_Id = data.itemDocumentId;
+      this.itemDocumentId = data.itemDocumentId;
       this.syncState = data.syncState;
     } else if (data2 != null) {
       this.documenT_TITLE = data2.filename;
       this.docZoteroKey = data2.key;
-      this.item_Document_Id = -1;
+      this.itemDocumentId = -1;
       this.syncState = data2.syncState;
     } else {
       this.documenT_TITLE = "";
       this.docZoteroKey = "";
-      this.item_Document_Id = -1;
+      this.itemDocumentId = -1;
       this.syncState = SyncState.notSet;
     }
   }
   docZoteroKey: string;
   documenT_TITLE: string;
-  item_Document_Id: number;
+  itemDocumentId: number;
   syncState: SyncState;
 }

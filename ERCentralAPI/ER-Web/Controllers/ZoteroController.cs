@@ -18,6 +18,7 @@ using Csla.Core;
 using AuthorsHandling;
 using System.Security.Cryptography;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
 
 namespace ERxWebClient2.Controllers
 {
@@ -552,6 +553,8 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> PushZoteroErWebReviewItemList([FromBody] ZoteroERWebReviewItem[] zoteroERWebReviewItems)
         {
+            //error handling in this method is unusual, because the method consists in many parts, and we try to complete 
+            //as much as possible operations, *even when* errors happen.
             ZoteroBatchError errors = new ZoteroBatchError("PushZoteroErWebReviewItemList", zoteroERWebReviewItems.Length);
             try
             {
@@ -566,14 +569,15 @@ namespace ERxWebClient2.Controllers
 
                 if(zoteroERWebReviewItemsToBePushed.Count() > 0){
                     var postResult = await PushItemsForThisGroupToZotero(zoteroERWebReviewItemsToBePushed, zrc, groupIDBeingSynced, errors);
-                    //not sure if we need to do anything with postResult: errors that happened PushItemsForThisGroupToZotero have been logged...
+                    //not sure if we need to do anything with postResult: errors that happened PushItemsForThisGroupToZotero have been saved in "errors"...
                     //if (!postResult) throw new Exception("Pushing to Zotero failed miserably");
                 }
 
                 if (zoteroItemsToBeUpdated.Count() > 0){
                     var updateResult = await UpdatingItemsInZotero(zoteroItemsToBeUpdated, zrc, groupIDBeingSynced, errors);
-                    if (!updateResult) throw new Exception("Updating items to Zotero failed miserably");
-                }               
+                    //not sure if we need to do anything with updateResult: errors that happened UpdatingItemsInZotero have been saved in "errors"...
+                    //if (!updateResult) throw new Exception("Updating items to Zotero failed miserably");
+                }
 
                 foreach (var parentItemWithChildrenList in zoteroERWebReviewItems.Where(x => x.PdfList.Count > 0 && x.ItemKey != "")
                     .Select(x => new { x.PdfList, x.ItemID, x.ItemKey } ))
@@ -581,11 +585,8 @@ namespace ERxWebClient2.Controllers
                     var itemId = parentItemWithChildrenList.ItemID;
                     var parentZoteroKey = parentItemWithChildrenList.ItemKey;
                     var erWebZoteroItemDocs = new List<ErWebZoteroItemDocument>();
-                    var dp = new DataPortal<ItemDocumentList>();
-                    var crit = new SingleCriteria<ItemDocumentList, Int64>(itemId);
-                    var itemDocumentList = dp.Fetch(crit);
-                    var pdfCount = 0;
-                    foreach (var pdf in parentItemWithChildrenList.PdfList)
+                    
+                    foreach (ZoteroERWebItemDocument pdf in parentItemWithChildrenList.PdfList)
                     {
                         if (pdf.SyncState == ZoteroERWebReviewItem.ErWebState.canPush)
                         {
@@ -593,23 +594,30 @@ namespace ERxWebClient2.Controllers
                             {
                                 itemId = itemId,
                                 parentItemFileKey = parentZoteroKey,
-                                itemDocumentId = itemDocumentList[pdfCount].ItemDocumentId
+                                itemDocumentId = pdf.itemDocumentId
                             };
                             erWebZoteroItemDocs.Add(itemDoc);
                         }
-                        pdfCount++;
                     }
 
-                    await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zrc.REVIEW_ID);
+                    await UploadERWebDocumentsToZoteroAsync(erWebZoteroItemDocs, zrc.REVIEW_ID, errors);
                 }
-
-                return Ok();
+                if (errors.failCount > 0) LogBatchErrors(errors);
+                else return Ok();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "ZoteroErWebReviewItemList has an error");
-                return StatusCode(500, e.Message);
+                errors.Add(new SingleError(e, "Error in main API method: ZoteroErWebReviewItemList"));
+                LogBatchErrors(errors);
             }
+            
+            string message = "<br>Pushing completed, with " + errors.failCount.ToString() + " error(s), listed below.<br><ul>";
+            foreach (SingleError error in errors.failedIdsAndMessage)
+            {
+                message += "<li>" + error.ToString() + "</li>";
+            }
+            message += "</ul>";
+            return StatusCode(500, message);
         }
 
         private async Task<bool> UpdatingItemsInZotero(IEnumerable<ZoteroERWebReviewItem> zoteroERWebReviewItems,
@@ -619,7 +627,6 @@ namespace ERxWebClient2.Controllers
             var result = false;
             var count = 0;
             var failedItemsMsg = "";
-            if (zoteroERWebReviewItems.Count() == 0) result = false;
             foreach (var item in zoteroERWebReviewItems)
             {
                 var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + item.ItemKey);
@@ -628,40 +635,34 @@ namespace ERxWebClient2.Controllers
                 var criteria = new SingleCriteria<Item, Int64>(item.ItemID);
                 var localItem = DataPortal.Fetch<Item>(criteria);
 
-                if (localItem == null) 
+                if (localItem == null || localItem.ItemId < 1)
                 {
-                    //errors.
-                }
-
-                var erWebItem = new ERWebItem
-                {
-                    Item = localItem
-                };
-                var zoteroReference = _mapZoteroCollectionToErWebReference.GetReference(erWebItem.Item);
-                var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
-                // TODO move this into the MapReferenceFromErWebToZotero() method, extract to super class
-                zoteroItem.version = item.Version;
-
-                if (zoteroItem == null) throw new Exception("This Zotero item does not exist");
-
-                var payload = JsonConvert.SerializeObject(zoteroItem);
-                var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString(), httpClientProvider);
-                var actualContent = await response.Content.ReadAsStringAsync();
-                if (actualContent.Contains(""))
-                {
-                    var numberOfFailedItems = UpdateTheseRecentlyPushedItemsLocally(zoteroERWebReviewItems, ref failedItemsMsg, ref count, actualContent);
-                    if (numberOfFailedItems > 0)
-                    {
-                        this._logger.LogError("There are a number of failed pushed items to Zotero", numberOfFailedItems);
-                    }
-                    else
-                    {
-                        result = true;
-                    }
+                    errors.Add(new SingleError(item.ItemID.ToString(), "Could not find this item."));
                 }
                 else
                 {
-                    this._logger.LogError("Putting to Zotero has failed");
+                    var zoteroReference = _mapZoteroCollectionToErWebReference.GetReference(localItem);
+                    var zoteroItem = zoteroReference.MapReferenceFromErWebToZotero();
+                    // TODO move this into the MapReferenceFromErWebToZotero() method, extract to super class
+                    zoteroItem.version = item.Version;
+                    try
+                    {
+                        var payload = JsonConvert.SerializeObject(zoteroItem);
+                        var response = await _zoteroService.UpdateItem(payload, PUTItemsUri.ToString(), httpClientProvider);
+                        var actualContent = await response.Content.ReadAsStringAsync();
+                        if (actualContent == "")
+                        {
+                            result = true;
+                        }
+                        else
+                        {
+                            this._logger.LogError("Putting to Zotero has failed");
+                        }
+                    } 
+                    catch (Exception e)
+                    {
+                        errors.Add(new SingleError(e, localItem.ItemId.ToString(), "Updating this Item on Zotero failed."));
+                    }
                 }
             }
             return result;
@@ -699,21 +700,7 @@ namespace ERxWebClient2.Controllers
                 try
                 {
                     bool errorFree = InsertTheseRecentlyPushedItemsLocally(zoteroERWebReviewItems, actualContent, errors);
-                    if (errorFree == false || errors.failedIdsAndMessage.Count > 0)
-                    {
-                        foreach(var err in errors.failedIdsAndMessage)
-                        {
-                            if (err.Exception != null)
-                            {
-                                _logger.LogError(err.Exception, "Error pushing items to Zotero, Message: " + err.ErrorMsg + " ID: " + err.UniqueIdentifier);
-                            }
-                            else
-                            {
-                                _logger.LogError("Error pushing items to Zotero, Message: " + err.ErrorMsg + " ID: " + err.UniqueIdentifier);
-                            }
-                        }
-                    }
-                    else
+                    if (errorFree == true && errors.failedIdsAndMessage.Count == 0)
                     {
                         result = true;
                     }
@@ -727,7 +714,7 @@ namespace ERxWebClient2.Controllers
             return result;
         }
 
-        private static bool InsertTheseRecentlyPushedItemsLocally(List<ZoteroERWebReviewItem> zoteroERWebReviewItems, string actualContent, ZoteroBatchError errors)
+        private bool InsertTheseRecentlyPushedItemsLocally(List<ZoteroERWebReviewItem> zoteroERWebReviewItems, string actualContent, ZoteroBatchError errors)
         {
             bool ErrorFree = true;
             JObject? joReplyWhole = JsonConvert.DeserializeObject<JObject>(actualContent);
@@ -843,30 +830,20 @@ namespace ERxWebClient2.Controllers
             //return numberOfFailedItems;
         }
 
-
-        private static int UpdateTheseRecentlyPushedItemsLocally(IEnumerable<ZoteroERWebReviewItem> zoteroERWebReviewItems, ref string failedItemsMsg, ref int count, string actualContent)
+        private void LogBatchErrors(ZoteroBatchError errors)
         {
-
-            foreach (var middleManElement in zoteroERWebReviewItems)
+            foreach (var err in errors.failedIdsAndMessage)
             {
-
-                DataPortal<ZoteroERWebReviewItem> dp = new DataPortal<ZoteroERWebReviewItem>();
-                var criteria = new SingleCriteria<ZoteroERWebReviewItem, string>(middleManElement.iteM_REVIEW_ID.ToString());
-                var zoteroItemToUpdate = dp.Fetch(criteria);
-
-                if (middleManElement != null && middleManElement.ItemID > 0)
+                if (err.Exception != null)
                 {
-                    zoteroItemToUpdate.LAST_MODIFIED = DateTime.Now;
-                    zoteroItemToUpdate.Version +=1;
-
-                    zoteroItemToUpdate = dp.Execute(zoteroItemToUpdate);
+                    _logger.LogError(err.Exception, "Error pushing items to Zotero, Message: " + err.ErrorMsg + " ID: " + err.UniqueIdentifier);
                 }
-
-                count++;
-            }                           
-
-            return 0;
-        }
+                else
+                {
+                    _logger.LogError("Error pushing items to Zotero, Message: " + err.ErrorMsg + " ID: " + err.UniqueIdentifier);
+                }
+            }
+        } 
 
         [HttpPost("[action]")]
         public async Task<IActionResult> FetchZoteroERWebReviewItemList([FromBody] string attributeId)
@@ -1307,7 +1284,7 @@ namespace ERxWebClient2.Controllers
         }
 
         private async Task UploadERWebDocumentsToZoteroAsync(List<ErWebZoteroItemDocument> erWebZoteroItemDocs, 
-             int RevId)
+             int RevId, ZoteroBatchError errors)
         {
             var counter = 0;
             foreach (var itemDoc in erWebZoteroItemDocs)
@@ -1356,28 +1333,29 @@ namespace ERxWebClient2.Controllers
                             var parentItemKey = itemDoc.parentItemFileKey;
                             var fileBytes = stBytes;
 
-                            var uploadKeyString =await UploadFileBytesToZoteroAsync(fileBytes, parentItemKey, name);
+                            var uploadKeyString =await UploadFileBytesToZoteroAsync(fileBytes, itemDoc.itemDocumentId, parentItemKey, name, errors);
 
-                            await InsertUploadedDocLocally(itemDoc.itemDocumentId, name, uploadKeyString);
+                            InsertUploadedDocLocally(itemDoc.itemDocumentId, name, uploadKeyString, errors);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
+                    errors.Add(new SingleError(ex, itemDoc.itemDocumentId.ToString(), "An error happened when uploading this document to Zotero."));
                     this._logger.LogError("uploading docs to Zotero failed", ex);
                 }
                 counter++;
             }
         }
               
-        private async Task<string> UploadFileBytesToZoteroAsync(byte[] fileBytes, string fileKey, string filename)
+        private async Task<string> UploadFileBytesToZoteroAsync(byte[] fileBytes, long itemDocumentId, string fileKey, string filename, ZoteroBatchError errors)
         {
             try
             {
 
                 Stream stream = new MemoryStream(fileBytes);
                 var md5Content = GetMD5HashFromStream(stream);
-                var dt = DateTime.Now;
+                //var dt = DateTime.Now;
 
                 string payload = "[ " +
                                "{" +
@@ -1385,7 +1363,7 @@ namespace ERxWebClient2.Controllers
                                      "\"parentItem\": \"" + fileKey + "\", " +
                                    "\"linkMode\": \"imported_file\", " +
                                    "\"title\": \"" + filename + "\"," +
-                                   "\"accessDate\": \"2012-03-14T17:55:54Z\", " +
+                                   "\"accessDate\": \"\", " +
                                        "\"note\": \"\", " +
                                     " \"tags\": [], " +
                                      "\"collections\": [], " +
@@ -1406,7 +1384,7 @@ namespace ERxWebClient2.Controllers
 
                 var successful = responseTwo["successful"];
                 var zero = successful["0"];
-                var key = zero["key"];
+                string key = zero["key"].ToString();
 
                 long filesize = fileBytes.Length;
                 var hash = md5Content;
@@ -1414,7 +1392,7 @@ namespace ERxWebClient2.Controllers
                 var PDFAuthUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file");
                 var httpClientPdf = SetZoteroHttpClientProvider(zrc.ApiKey, true);
 
-                dt = DateTime.Now;
+                DateTime dt = DateTime.Now;
                 long milliseconds = dt.Millisecond;
 
                 var payload2 = new List<KeyValuePair<string, string>>
@@ -1429,7 +1407,7 @@ namespace ERxWebClient2.Controllers
 
                 if (responseJObject["exists"] != null)
                 {
-                    return key.ToString();
+                    return key;
                 }
 
                 var url = responseJObject["url"].ToString();
@@ -1472,13 +1450,14 @@ namespace ERxWebClient2.Controllers
                     var statusCodeResult = checkStatusCode.StatusCode;
                     if (statusCodeResult != HttpStatusCode.Created)
                     {
-                        throw new Exception("child attachment was not created");
+                        errors.Add(new SingleError(itemDocumentId.ToString(), 
+                            "Failure uplodading this document to Zotero: did not receive the required 'created' response."));
                     }
                 }
                 catch (Exception ex)
                 {
-                    string s = ex.Message;
-                    throw new Exception("child attachment was not created: " + s);
+                    errors.Add(new SingleError(ex, itemDocumentId.ToString(),
+                            "Failure uplodading this document to Zotero: did not receive the required 'created' response."));
                 }
                 finally
                 {
@@ -1499,16 +1478,19 @@ namespace ERxWebClient2.Controllers
                     $"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file", httpClientF);
                 if (!string.IsNullOrEmpty(responseRegisterUpload))
                 {
-                    throw new Exception("Registering upload in Zotero Error");
+                    errors.Add(new SingleError(itemDocumentId.ToString(),
+                            "Failure registering upload in Zotero: did not receive the expected response."));
                 }
 
-                return key.ToString();
+                return key;
 
             }
             catch (Exception ex)
             {
-                throw new Exception("Uploading file to Zotero Error: " + ex.Message);
+                errors.Add(new SingleError(ex, itemDocumentId.ToString(),
+                            "Failure uploading file to Zotero Error."));
             }
+            return "";
         }
 
         private static string GetMD5HashFromStream(Stream stream)
@@ -1524,25 +1506,32 @@ namespace ERxWebClient2.Controllers
             }
             return sb.ToString();
         }
-        private static Task InsertUploadedDocLocally( long itemDocumentId, string filename, 
-            string uploadKeyString)
+        private void InsertUploadedDocLocally( long itemDocumentId, string filename, 
+            string uploadKeyString, ZoteroBatchError errors)
         {
-            var zoteroItemDocumentToInsert = new ZoteroERWebItemDocument
+            try
             {
-                DocZoteroKey = uploadKeyString,
-                ItemDocumentId = itemDocumentId,
-                //ParentItem = fileKey,
-                //Version = 0, // TODO check with Sergio
-                //LAST_MODIFIED = DateTime.Now,
-                //SimpleText = "blah",  // TODO check with Sergio
-                documenT_TITLE = filename
-                //Extension = extension
-            };
+                var zoteroItemDocumentToInsert = new ZoteroERWebItemDocument
+                {
+                    DocZoteroKey = uploadKeyString,
+                    itemDocumentId = itemDocumentId,
+                    //ParentItem = fileKey,
+                    //Version = 0, // TODO check with Sergio
+                    //LAST_MODIFIED = DateTime.Now,
+                    //SimpleText = "blah",  // TODO check with Sergio
+                    documenT_TITLE = filename
+                    //Extension = extension
+                };
 
-            var dp2 = new DataPortal<ZoteroERWebItemDocument>();
-            zoteroItemDocumentToInsert = dp2.Execute(zoteroItemDocumentToInsert);
-
-            return Task.CompletedTask;
+                var dp2 = new DataPortal<ZoteroERWebItemDocument>();
+                zoteroItemDocumentToInsert = dp2.Execute(zoteroItemDocumentToInsert);
+            }
+            catch (Exception e)
+            {
+                errors.Add(new SingleError(e, uploadKeyString + "|" + itemDocumentId, "Failed to record the connection between this 'pushed to Zotero' doc and its ER origin."));
+            }
+              
+            return;
         }
   
         #endregion
