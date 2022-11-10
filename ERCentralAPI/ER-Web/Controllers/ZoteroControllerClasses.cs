@@ -7,6 +7,7 @@ using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 //using ErWebState = BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument.ErWebState;
 using BusinessLibrary.BusinessClasses;
 using ERxWebClient2.Zotero;
+using System.Linq;
 
 namespace ERxWebClient2.Controllers
 {
@@ -228,7 +229,11 @@ namespace ERxWebClient2.Controllers
             this.libraryCatalog = "";
             this.callNumber = "";
             this.rights = "";
-            this.extra = "";
+			var arrayOfIdAndComments = new string[2];
+			arrayOfIdAndComments[0] = "ErWeb-ID: " + data.ItemId.ToString();
+			arrayOfIdAndComments[1] = "ErWeb-Comments: " + data.Comments.ToString();
+
+			this.extra = string.Join(Environment.NewLine, arrayOfIdAndComments);
             this.tags = new List<tagObject>() { tag };
             this.collections = new object[0];
             this.relations = rel;
