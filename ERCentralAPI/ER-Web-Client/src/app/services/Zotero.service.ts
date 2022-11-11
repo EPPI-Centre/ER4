@@ -456,10 +456,10 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
             for (const erDoc of zri.pdfList) {
               erDoc.syncState = SyncState.canPush;
             }
-              console.log("state1", zri.syncState);
+              //console.log("state1", zri.syncState);
               zri.syncState = SyncState.canPush;
             }
-          console.log("state2", zri.syncState);
+          //console.log("state2", zri.syncState);
           this._zoteroERWebReviewItemList.push(zri);
         }
         CustomSorting.DoSort(this._zoteroERWebReviewItemList, sortResultsBy);

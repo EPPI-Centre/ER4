@@ -6,7 +6,7 @@ namespace ERxWebClient2.Services
     public interface IZoteroService    {
         Task<JObject> POSTFormMultiPart(IEnumerable<KeyValuePair<string, string>> payload, string requestUri, IHttpClientProvider httpProvider);
 
-        Task<JObject> POSTJDocument(string payload, string requestUri, IHttpClientProvider httpProvider);
+        Task<string> POSTJDocument(string payload, string requestUri, IHttpClientProvider httpProvider);
 
         Task<string> POSTDocument(string payload, string requestUri, IHttpClientProvider httpProvider);
 

@@ -170,13 +170,14 @@ namespace ERxWebClient2.Services
 			return json;
 		}
 
-		public async Task<JObject> POSTJDocument(string payload, string requestUri, IHttpClientProvider httpProvider)
+		public async Task<string> POSTJDocument(string payload, string requestUri, IHttpClientProvider httpProvider)
 		{
 			HttpContent examplePDF = new StringContent(payload, Encoding.UTF8, "application/x-www-form-urlencoded");
 			var response = await httpProvider.PostAsync(requestUri, examplePDF);
 			response.EnsureSuccessStatusCode();
-			var json = await response.Content.ReadAsStringAsync();
-			return JsonConvert.DeserializeObject<JObject>(json);
+            return await response.Content.ReadAsStringAsync();
+            //var json = await response.Content.ReadAsStringAsync();
+            //return JsonConvert.DeserializeObject<JObject>(json);
 		}
 
 		public async Task<JObject> POSTFormMultiPart(IEnumerable<KeyValuePair<string, string>> payload, string requestUri, IHttpClientProvider httpProvider)

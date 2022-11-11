@@ -717,9 +717,41 @@ namespace ERxWebClient2.Controllers
         private bool InsertTheseRecentlyPushedItemsLocally(List<ZoteroERWebReviewItem> zoteroERWebReviewItems, string actualContent, ZoteroBatchError errors)
         {
             bool ErrorFree = true;
-            JObject? joReplyWhole = JsonConvert.DeserializeObject<JObject>(actualContent);
             Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
             Dictionary<int,PutErrorResult> failIndexesAndErrors = new Dictionary<int, PutErrorResult>();
+            ErrorFree = ParseBatchReply(actualContent, successIndexesAndKeys, failIndexesAndErrors, errors);
+            
+            //at this point, we should have a list of successes, and a list of errors;
+            //we want to create records for successes in TB_ZOTERO_ITEM_REVIEW
+            foreach (KeyValuePair<int, string> kvp in successIndexesAndKeys)
+            {
+                ZoteroERWebReviewItem item = zoteroERWebReviewItems[kvp.Key];
+                item.ItemKey = kvp.Value;
+                var zoteroItemToInsert = new ZoteroERWebReviewItem
+                {
+                    ItemKey = item.ItemKey,
+                    //ItemID = item.ItemID,
+                    iteM_REVIEW_ID = item.iteM_REVIEW_ID,
+                    //LAST_MODIFIED = DateTime.Now,
+                    //LibraryID = libraryId,
+                    //Version = version,
+                    //TypeName = item.TypeName
+                };
+                zoteroItemToInsert = zoteroItemToInsert.Save();
+            }
+            foreach (KeyValuePair<int, PutErrorResult> kvp in failIndexesAndErrors)
+            {
+                SingleError err = new SingleError(zoteroERWebReviewItems[kvp.Key].ItemID.ToString(), "Code: "
+                    + kvp.Value.code.ToString() + "; Message: " + kvp.Value.message + ".");
+                errors.Add(err);
+            }
+            
+            return ErrorFree;
+        }
+        private bool ParseBatchReply(string replyContent, Dictionary<int, string> successIndexesAndKeys, Dictionary<int, PutErrorResult> failIndexesAndErrors, ZoteroBatchError errors)
+        {
+            bool ErrorFree = true;
+            JObject? joReplyWhole = JsonConvert.DeserializeObject<JObject>(replyContent);
             if (joReplyWhole != null)
             {
                 List<JProperty>? jtListSuccessNodes = joReplyWhole["success"]?.Children().OfType<JProperty>().ToList();
@@ -748,30 +780,6 @@ namespace ERxWebClient2.Controllers
                         }
                     }
                 }
-                //at this point, we should have a list of successes, and a list of errors;
-                //we want to create records for successes in TB_ZOTERO_ITEM_REVIEW
-                foreach (KeyValuePair<int, string> kvp in successIndexesAndKeys)
-                {
-                    ZoteroERWebReviewItem item = zoteroERWebReviewItems[kvp.Key];
-                    item.ItemKey = kvp.Value;
-                    var zoteroItemToInsert = new ZoteroERWebReviewItem
-                    {
-                        ItemKey = item.ItemKey,
-                        //ItemID = item.ItemID,
-                        iteM_REVIEW_ID = item.iteM_REVIEW_ID,
-                        //LAST_MODIFIED = DateTime.Now,
-                        //LibraryID = libraryId,
-                        //Version = version,
-                        //TypeName = item.TypeName
-                    };
-                    zoteroItemToInsert = zoteroItemToInsert.Save();
-                }
-                foreach (KeyValuePair<int, PutErrorResult> kvp in failIndexesAndErrors)
-                {
-                    SingleError err = new SingleError(zoteroERWebReviewItems[kvp.Key].ItemID.ToString(), "Code: "
-                        + kvp.Value.code.ToString() + "; Message: " + kvp.Value.message + ".");
-                    errors.Add(err);
-                }
             }
             else
             {//we could not parse the reply!!
@@ -779,55 +787,7 @@ namespace ERxWebClient2.Controllers
                 SingleError err = new SingleError("Unexpected failure when creating items in the Zotero Library: the Zotero API reply could not be parsed.");
                 errors.Add(err);
             }
-
             return ErrorFree;
-            //int numberOfFailedItems;
-            //JObject keyValues = JsonConvert.DeserializeObject<JObject>(actualContent);
-
-            //numberOfFailedItems = keyValues["failed"].Count();
-            //foreach (var item in keyValues["failed"].Children())
-            //{
-            //    failedItemsMsg += item.FirstOrDefault()["message"];
-            //    return 1;
-            //}
-
-            //if (keyValues["successful"].ToString().Length == 0) throw new Exception("Something fishy with this reference");
-
-            //var version = Convert.ToInt64(keyValues["successful"]["0"]["version"].ToString());
-            //var libraryId = keyValues["successful"]["0"]["library"]["id"].ToString();
-            //var itemCount = 0;
-            //var dp = new DataPortal<ZoteroERWebReviewItem>();
-
-            //foreach (var item in keyValues["success"].Children())
-            //{
-            //    List<object> values = new List<object>();
-            //    var key = "";
-            //    foreach (var keyJson in item.Children())
-            //    {
-            //        key = keyJson.ToString() ?? "";
-            //    }
-
-            //    var middleManElement = zoteroERWebReviewItems.ElementAt(itemCount);
-            //    middleManElement.ItemKey = key;                               
-
-            //    //INSERT
-            //    var zoteroItemToInsert = new ZoteroERWebReviewItem
-            //    {
-            //        ItemKey = middleManElement.ItemKey,
-            //        ItemID = middleManElement.ItemID,
-            //        iteM_REVIEW_ID = middleManElement.iteM_REVIEW_ID,
-            //        LAST_MODIFIED = DateTime.Now,
-            //        LibraryID = libraryId,
-            //        Version = version,
-            //        TypeName = middleManElement.TypeName
-            //    };
-
-            //    zoteroItemToInsert = dp.Execute(zoteroItemToInsert);       
-
-            //    count++;
-            //}
-
-            //return numberOfFailedItems;
         }
 
         private void LogBatchErrors(ZoteroBatchError errors)
@@ -1333,9 +1293,11 @@ namespace ERxWebClient2.Controllers
                             var parentItemKey = itemDoc.parentItemFileKey;
                             var fileBytes = stBytes;
 
-                            var uploadKeyString =await UploadFileBytesToZoteroAsync(fileBytes, itemDoc.itemDocumentId, parentItemKey, name, errors);
-
-                            InsertUploadedDocLocally(itemDoc.itemDocumentId, name, uploadKeyString, errors);
+                            var uploadKeyString =await UploadFileBytesToZoteroAsync(fileBytes, itemDoc.itemDocumentId, parentItemKey, name, type, errors);
+                            if (uploadKeyString != "Failure!")
+                            {
+                                InsertUploadedDocLocally(itemDoc.itemDocumentId, name, uploadKeyString, errors);
+                            }
                         }
                     }
                 }
@@ -1348,14 +1310,77 @@ namespace ERxWebClient2.Controllers
             }
         }
               
-        private async Task<string> UploadFileBytesToZoteroAsync(byte[] fileBytes, long itemDocumentId, string fileKey, string filename, ZoteroBatchError errors)
+        private async Task<string> UploadFileBytesToZoteroAsync(byte[] fileBytes, long itemDocumentId, string fileKey, string filename, string type, ZoteroBatchError errors)
         {
             try
             {
-
+                string key = "Failure!";//if we do not get the key val from the uploaded document (something didn't work) we report failure
                 Stream stream = new MemoryStream(fileBytes);
                 var md5Content = GetMD5HashFromStream(stream);
                 //var dt = DateTime.Now;
+
+                string contentType = "";
+                switch (type.ToLower())
+                {
+                    case ".pdf":
+                        contentType = @"application/pdf";
+                        break;
+                    case ".doc":
+                        contentType = @"application/msword";
+                        break;
+                    case ".docx":
+                        contentType = @"application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                        break;
+                    case ".ppt":
+                        contentType = @"application/vnd.ms-powerpoint";
+                        break;
+                    case ".pps":
+                        contentType = @"application/vnd.ms-powerpoint";
+                        break;
+                    case ".pptx":
+                        contentType = @"application/vnd.openxmlformats-officedocument.presentationml.presentation";
+                        break;
+                    case ".ppsx":
+                        contentType = @"application/vnd.openxmlformats-officedocument.presentationml.slideshow";
+                        break;
+                    case ".xls":
+                        contentType = @"application/vnd.ms-excel";
+                        break;
+                    case ".xlsx":
+                        contentType = @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        break;
+                    case ".htm":
+                        contentType = @"text/html";
+                        break;
+                    case ".html":
+                        contentType = @"text/html";
+                        break;
+                    case ".odt":
+                        contentType = @"application/vnd.oasis.opendocument.text";
+                        break;
+                    case ".ods":
+                        contentType = @"application/vnd.oasis.opendocument.spreadsheet";
+                        break;
+                    case ".odp":
+                        contentType = @"application/vnd.oasis.opendocument.presentation";
+                        break;
+                    case ".ps":
+                        contentType = @"application/postscript";
+                        break;
+                    case ".eps":
+                        contentType = @"application/postscript";
+                        break;
+                    case ".csv":
+                        contentType = @"application/vnd.ms-excel";
+                        break;
+                    case "txt":
+                    case ".txt":
+                        contentType = @"text/plain";
+                        break;
+                    default:
+                        errors.Add(new SingleError(itemDocumentId.ToString(), "Unsupported file type, for extension: " + type + "."));
+                        return key;
+                }
 
                 string payload = "[ " +
                                "{" +
@@ -1368,7 +1393,7 @@ namespace ERxWebClient2.Controllers
                                     " \"tags\": [], " +
                                      "\"collections\": [], " +
                                      " \"relations\": { }," +
-                                      " \"contentType\": \"application/pdf\"," +
+                                      " \"contentType\": \"" + contentType +"\"," +
                                        "    \"charset\": \"\"," +
                                          "   \"filename\": \"" + filename + "\"," +
                                          "  \"md5\": null," +
@@ -1380,12 +1405,38 @@ namespace ERxWebClient2.Controllers
 				var POSTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/?v=3");
                 var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
 
+                //phase 1 create a new record on Zotero Group Library, to obtain a key...
+                //This also tells Zot that this new record is a child of the appropriate reference.
                 var responseTwo = await _zoteroService.POSTJDocument(payload, POSTItemUri.ToString(), httpClientProvider);
+                //var successful = responseTwo["successful"];
+                //var zero = successful["0"];
+                //string key = zero["key"].ToString();
+                Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
+                Dictionary<int, PutErrorResult> failIndexesAndErrors = new Dictionary<int, PutErrorResult>();
+                bool success = ParseBatchReply(responseTwo, successIndexesAndKeys, failIndexesAndErrors, errors);
+                if (!success)
+                {//Phase1 of uploading failed :-(
+                    foreach (KeyValuePair<int, PutErrorResult> kvp in failIndexesAndErrors)
+                    {
+                        SingleError err = new SingleError(itemDocumentId.ToString(), "Code: "
+                            + kvp.Value.code.ToString() + "; Message: " + kvp.Value.message + ".");
+                        errors.Add(err);
+                    }
+                    return key;
+                } 
+                else if (successIndexesAndKeys.Count > 0)
+                {//Phase1 worked, we do have a ZoteroKey to use, let's take it
+                    key = successIndexesAndKeys[0]; //Key\index for successful elements in the batch has to be zero, because we provided only one thing to upload
+                }
+                else
+                {//weird, shouldn't happen - we received the success signal, but didn't get the success values
+                    //adding this clause for safety ONLY
+                    return key;
+                }
 
-                var successful = responseTwo["successful"];
-                var zero = successful["0"];
-                string key = zero["key"].ToString();
+                //now we have a key for the Doc to upload, we can proceed
 
+                //Phase2: send file metadata
                 long filesize = fileBytes.Length;
                 var hash = md5Content;
 
@@ -1402,18 +1453,20 @@ namespace ERxWebClient2.Controllers
                     new KeyValuePair<string, string>("filesize", filesize.ToString()),
                     new KeyValuePair<string, string>("mtime", milliseconds.ToString())
                 };
-
+                
                 var responseJObject = await _zoteroService.POSTFormMultiPart(payload2, PDFAuthUri.ToString(), httpClientPdf);
 
                 if (responseJObject["exists"] != null)
                 {
-                    return key;
+                    return key; //same binary already exists in Zotero, we can stop here :-)
                 }
 
+                //Phase3: actually upload the binary content
                 var url = responseJObject["url"].ToString();
                 var prefix = responseJObject["prefix"].ToString();
                 var suffix = responseJObject["suffix"].ToString();
-                var contentType = responseJObject["contentType"].ToString();
+                contentType = responseJObject["contentType"].ToString();
+                //upoloadKey is used in Phase4
                 var uploadKey = responseJObject["uploadKey"];
 
                 var prefixBytes = Encoding.UTF8.GetBytes(prefix);
@@ -1469,6 +1522,7 @@ namespace ERxWebClient2.Controllers
                     wr = null;
                 }
 
+                //Phase4: "Register the upload", which I believe "links" the binary data to the actual zotero record
                 var fileURI = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/{key}/file");
                 var httpClientF = SetZoteroHttpClientProvider(zrc.ApiKey, true);
 
