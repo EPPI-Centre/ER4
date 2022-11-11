@@ -656,7 +656,7 @@ namespace ERxWebClient2.Controllers
                         }
                         else
                         {
-                            this._logger.LogError("Putting to Zotero has failed");
+                            errors.Add(new SingleError(localItem.ItemId.ToString(), "Updating this Item on Zotero failed."));
                         }
                     } 
                     catch (Exception e)
@@ -1544,7 +1544,7 @@ namespace ERxWebClient2.Controllers
                 errors.Add(new SingleError(ex, itemDocumentId.ToString(),
                             "Failure uploading file to Zotero Error."));
             }
-            return "";
+            return "Failure!";
         }
 
         private static string GetMD5HashFromStream(Stream stream)
