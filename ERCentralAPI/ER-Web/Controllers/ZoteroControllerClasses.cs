@@ -203,7 +203,11 @@ namespace ERxWebClient2.Controllers
 
 		public ZoteroCollectionData(IItem data)
         {
-			tagObject tag = new tagObject();
+			tagObject tag = new tagObject
+            {
+                tag = "EPPI-Reviewer ID: " + data.ItemId.ToString(),
+                type = "1"
+            }; 
 			relation rel = new relation();
 			//// TODO hardcoded
 			//{
