@@ -326,6 +326,8 @@ namespace ERxWebClient2.Controllers
 
 		public string parentItem { get; set; } = null;
 
+		public string proceedingsTitle { get; set; } = null;
+
 	}
 
 	public class JournalArticle : ZoteroCollectionData, IJournalArticle

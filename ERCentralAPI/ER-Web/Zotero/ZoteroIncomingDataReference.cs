@@ -68,7 +68,18 @@ namespace ERxWebClient2.Zotero
                 newERWebItem.Parent_title = item.ParentTitle;
                 newERWebItem.Url = item.URL;
                 newERWebItem.ZoteroKey = collection.key;
-                newERWebItem.Standard_number = collection.ISBN;
+
+                if(collection.itemType == "conferencePaper")
+                {
+                    newERWebItem.Standard_number = collection.ISBN;
+                    newERWebItem.Parent_title = collection.proceedingsTitle;
+                }
+                else if (collection is ConferencePaper)
+                {
+                    
+                }
+
+                
                 return newERWebItem;
 
             }
