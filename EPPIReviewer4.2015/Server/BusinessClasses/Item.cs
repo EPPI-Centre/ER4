@@ -106,11 +106,6 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        public new Item SaveItem()
-        {
-            return this.Save();
-        }
-
         public new void ApplyEditToItem()
         {
             this.ApplyEdit();
@@ -1525,6 +1520,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+
         // *********************** BEGIN TOSHORTSEARCHTEXT **********************
 
         private static readonly Lazy<Regex> alphaNumericRegex = new Lazy<Regex>(() => new Regex("[^a-zA-Z0-9]"));
@@ -1701,12 +1697,10 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
     }
-	public interface IErWebItem
+	
+	public interface IItem 
 	{
-	}
-	public interface IItem : IErWebItem
-	{
-        Item SaveItem();
+        Item Save();
         void ApplyEditToItem();
         void BeginEditToItem();
 

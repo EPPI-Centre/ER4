@@ -880,35 +880,29 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        private async Task<IActionResult> ItemsItemKey(string itemKey)
+        private async Task<JObject?> GetZoteroItem(string itemKey, ZoteroReviewConnection zrc, string groupIDBeingSynced, ZoteroBatchError errors)
         {
             try
             {
-                if (SetCSLAUser())
-                {
-                   
-					(ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
-					var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey + "");
-                    var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
-                    JObject item = await _zoteroService.GetItem(GETItemUri.ToString(), httpClientProvider);
-                    return Ok(item);
-
-                }
-                else return Forbid();
+                var GETItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/" + itemKey + "");
+                var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
+                JObject item = await _zoteroService.GetItem(GETItemUri.ToString(), httpClientProvider);
+                return item;
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "ItemsItemKeyGet has an error");
-                var message = "";
-                if (e.Message.Contains("403"))
-                {
-                    message += "No Zotero API Token; either it has been revoked or never created";
-                }
-                else
-                {
-                    message += e.Message;
-                }
-                return StatusCode(500, message);
+                errors.Add(new SingleError(e, itemKey, "GetZoteroItem has an error"));
+                //_logger.LogException(e, "GetZoteroItem has an error");
+                //var message = "";
+                //if (e.Message.Contains("403"))
+                //{
+                //    message += "No Zotero API Token; either it has been revoked or never created";
+                //}
+                //else
+                //{
+                //    message += e.Message;
+                //}
+                return null;
             }
         }
 
@@ -916,40 +910,44 @@ namespace ERxWebClient2.Controllers
         public async Task<IActionResult> PullZoteroErWebReviewItemList([FromBody] 
             ZoteroERWebReviewItem[] zoteroERWebReviewItems)
 		{
+            ZoteroBatchError errors = new ZoteroBatchError("PullZoteroErWebReviewItemList", zoteroERWebReviewItems.Length);
             try
             {
                 if (!SetCSLAUser4Writing()) return Unauthorized();
                 (ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
 
                 var zoteroKeysItemsToBeUpdated = zoteroERWebReviewItems.Where(x => x.SyncState ==
-                ZoteroERWebReviewItem.ErWebState.canPull && x.ItemID > 0)
-                    .Select(x => x.ItemKey).ToList();
+                ZoteroERWebReviewItem.ErWebState.canPull && x.ItemID > 0).ToList();
 
                 var zoteroItemsToBeInserted = zoteroERWebReviewItems.Where(x => x.SyncState ==
                 ZoteroERWebReviewItem.ErWebState.canPull && x.ItemID == 0).ToArray();
                
-                foreach (var zoteroKey in zoteroKeysItemsToBeUpdated)
+                foreach (var ItemToUpdate in zoteroKeysItemsToBeUpdated)
                 {
-                    var result = await this.ItemsItemKey(zoteroKey);
-
-                    var resultCollection = result as OkObjectResult;
-                    if (resultCollection != null && resultCollection.Value != null)
+                    var resultCollection = await GetZoteroItem(ItemToUpdate.ItemKey, zrc, groupIDBeingSynced, errors);
+                    if (resultCollection != null)
                     {
-                        var collectionItem = JsonConvert.DeserializeObject<Collection>(resultCollection.Value.ToString());
-                        var zoteroERWebReviewItem = zoteroERWebReviewItems.FirstOrDefault(x => x.ItemKey == zoteroKey);
+                        var collectionItem = JsonConvert.DeserializeObject<Collection>(resultCollection.ToString());
                         if (collectionItem != null)
                         {
-                            if (zoteroERWebReviewItem != null) await UpdateErWebItem(collectionItem, zoteroERWebReviewItem.ItemID);
-                            else throw new Exception("The zoteroERWebReviewItem to update is null!");
+                            var res = UpdateErWebItem(collectionItem, ItemToUpdate.ItemID, errors);
                         }
-                        else throw new Exception("The collectionItem that has been pulled should not be empty!");
+                        else
+                        {
+                            errors.Add(new SingleError(ItemToUpdate.ItemID.ToString() + "|" + ItemToUpdate.ItemKey
+                                , "Failed to parse/cast the ZoteroItem received via the API call."));
+                        }
                     }
-                    else throw new Exception("The collection that has been pulled should not be empty!");
+                    else
+                    {
+                        errors.Add(new SingleError(ItemToUpdate.ItemID.ToString() + "|" + ItemToUpdate.ItemKey
+                                , "The API call to fetch the Zotero data returned no data."));
+                    }
                 }
                 IncomingItemsList forSaving = new IncomingItemsList();
                 if (zoteroItemsToBeInserted.Any())
                 {
-                    forSaving = await InsertNewZoteroItemsIntoErWeb(zoteroItemsToBeInserted);
+                    forSaving = await InsertNewZoteroItemsIntoErWeb(zoteroItemsToBeInserted, zrc, groupIDBeingSynced, errors);
                 }
                 foreach (ZoteroERWebReviewItem zoteroERWebReviewItem in zoteroERWebReviewItems)
                 {
@@ -983,46 +981,61 @@ namespace ERxWebClient2.Controllers
 			}
         }
 
-        private async Task<IncomingItemsList> InsertNewZoteroItemsIntoErWeb(ZoteroERWebReviewItem[] zoteroERWebReviewItems)
+        private async Task<IncomingItemsList> InsertNewZoteroItemsIntoErWeb(ZoteroERWebReviewItem[] zoteroERWebReviewItems
+            , ZoteroReviewConnection zrc, string groupIDBeingSynced, ZoteroBatchError errors)
         {
             var forSaving = new IncomingItemsList();
             var incomingItems = new MobileList<ItemIncomingData>();
             foreach (ZoteroERWebReviewItem zri in zoteroERWebReviewItems)
             {
                 string zoteroKey = zri.ItemKey;
-                var result = await this.ItemsItemKey(zoteroKey);
-                var resultCollection = result as OkObjectResult;
-                if (resultCollection?.Value == null) throw new Exception("the collection that " +
-                    "has been pulled should not be empty!");
-                var collectionItem = JsonConvert.DeserializeObject<Collection>(
-                    resultCollection?.Value?.ToString());
-                var zoteroERWebReviewItem = zoteroERWebReviewItems.FirstOrDefault(x => x.ItemKey == zoteroKey);
+                var jObj = await this.GetZoteroItem(zoteroKey, zrc, groupIDBeingSynced, errors);
 
-                IMapZoteroReference reference = _mapZoteroCollectionToErWebReference.GetReference(collectionItem);
+                if (jObj != null)
+                {
+                    var collectionItem = JsonConvert.DeserializeObject<Collection>(jObj.ToString());
+                    if (collectionItem != null)
+                    {
+                        IMapZoteroReference reference = _mapZoteroCollectionToErWebReference.GetReference(collectionItem);
+                        var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
+                        var erWebItemIncomingData = _mapZoteroCollectionToErWebReference.GetIncomingDataReference(collectionItem, erWebItem);
+                        incomingItems.Add(erWebItemIncomingData);
+                    }
+                    else
+                    {
+                        errors.Add(new SingleError(zri.ItemKey, "Failed to parse/cast the ZoteroItem received via the API call."));
+                    }
+                }
+                else
+                {
+                    errors.Add(new SingleError(zri.ItemKey, "The API call to fetch the Zotero data returned no data."));
+                }
 
-                var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
-                
-                var erWebItemIncomingData = _mapZoteroCollectionToErWebReference.GetIncomingDataReference(collectionItem, erWebItem);
-
-				incomingItems.Add(erWebItemIncomingData);
             }
-
-            forSaving = new IncomingItemsList
+            if (incomingItems.Count == 0)
             {
-                FilterID = 0,
-                SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
-                SourceDB = "Zotero",
-                DateOfImport = DateTime.Now,
-                DateOfSearch = DateTime.Now,
-                IsIncluded = true,
-                Notes = "",
-                SearchDescr = "Items pulled from Zotero",
-                SearchStr = "N/A",
-                IncomingItems = incomingItems
-            };
-            forSaving.buildShortTitles();
-            forSaving = forSaving.Save();
-            return forSaving;
+                //no need to record any special error, as we should have done it above
+                return new IncomingItemsList();
+            }
+            else
+            {
+                forSaving = new IncomingItemsList
+                {
+                    FilterID = 0,
+                    SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
+                    SourceDB = "Zotero",
+                    DateOfImport = DateTime.Now,
+                    DateOfSearch = DateTime.Now,
+                    IsIncluded = true,
+                    Notes = "",
+                    SearchDescr = "Items pulled from Zotero",
+                    SearchStr = "N/A",
+                    IncomingItems = incomingItems
+                };
+                forSaving.buildShortTitles();
+                forSaving = forSaving.Save();
+                return forSaving;
+            }
         }
 
         private async Task InsertZoteroChildDocumentInErWeb(ZoteroReviewConnection zrc, ZoteroERWebItemDocument pdf,
@@ -1130,22 +1143,28 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        private Task UpdateErWebItem(Collection collection, long itemId)
+        private bool UpdateErWebItem(Collection collection, long itemId, ZoteroBatchError errors)
         {
-                var dpFetchItem = new DataPortal<Item>();
-				SingleCriteria<Item, long> criteriaItem =
-					new SingleCriteria<Item, long>(itemId);
-				var itemFetch = dpFetchItem.Fetch(criteriaItem);
+            Item itemFetch = DataPortal.Fetch<Item>(new SingleCriteria<Item, long>(itemId));
+            if (itemFetch.ItemId != itemId)
+            {
+                errors.Add(new SingleError(itemId.ToString(), "Failed to retreive the ER item to update."));
+                return false;
+            }
+            else
+            {
+                IMapZoteroReference referenceUpdate = _mapZoteroCollectionToErWebReference.GetReference(collection);
+                var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
 
-				IMapZoteroReference referenceUpdate = _mapZoteroCollectionToErWebReference.GetReference(collection);
-				var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
+                if (erWebItemUpdate == null || erWebItemUpdate.Item == null)
+                {
+                    errors.Add(new SingleError(itemId.ToString(), "Failed to convert Zotero data into ER Item data."));
+                    return false;
+                }
 
-                if (erWebItemUpdate == null || erWebItemUpdate.Item == null) 
-                throw new Exception("MappingReferenceCreator failed to create the item");
-
-				erWebItemUpdate.Item.SaveItem();
-
-                return Task.CompletedTask;
+                erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
+                return true;
+            }
         }
 
         [HttpPost("[action]")]
