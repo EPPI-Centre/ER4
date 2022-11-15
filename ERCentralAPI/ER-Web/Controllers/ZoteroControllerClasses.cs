@@ -203,17 +203,14 @@ namespace ERxWebClient2.Controllers
 
 		public ZoteroCollectionData(IItem data)
         {
-			tagObject tag = new tagObject
-			{
-				tag = "awesome:",
-				type = "1"
-			};
-			relation rel = new relation // TODO hardcoded
-			{
-				owlSameAs = "http://zotero.org/groups/1/items/JKLM6543",
-				dcRelation = "http://zotero.org/groups/1/items/PQRS6789",
-				dcReplaces = "http://zotero.org/users/1/items/BCDE5432"
-			};
+			tagObject tag = new tagObject();
+			relation rel = new relation();
+			//// TODO hardcoded
+			//{
+			//	owlSameAs = "http://zotero.org/groups/1/items/JKLM6543",
+			//	dcRelation = "http://zotero.org/groups/1/items/PQRS6789",
+			//	dcReplaces = "http://zotero.org/users/1/items/BCDE5432"
+			//};
 
             this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
             this.title = data.Title;
@@ -236,9 +233,9 @@ namespace ERxWebClient2.Controllers
 				arrayOfIdAndComments[1] = "EPPI-Reviewer Comments: " + data.Comments.ToString().Trim();
 
 			this.extra = string.Join(Environment.NewLine, arrayOfIdAndComments);
-            this.tags = new List<tagObject>() { tag };
+            //this.tags = new List<tagObject>() { tag };
             this.collections = new object[0];
-            this.relations = rel;
+            //this.relations = rel;
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.date = data.Year;
@@ -271,9 +268,9 @@ namespace ERxWebClient2.Controllers
 		public string callNumber { get; set; }
 		public string rights { get; set; }
 		public string extra { get; set; }
-		public Object tags { get; set; }
+		//public Object tags { get; set; } = null;
 		public Object[] collections { get; set; }
-		public Object relations { get; set; }
+		//public Object relations { get; set; } = null;
 		public string dateAdded { get; set; }
 		public string dateModified { get; set; }
 
