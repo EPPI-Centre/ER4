@@ -67,7 +67,8 @@ namespace ERxWebClient2.Zotero
                 newERWebItem.Keywords = item.Keywords;
                 newERWebItem.Parent_title = item.ParentTitle;
                 newERWebItem.Url = item.URL;
-                newERWebItem.ZoteroKey = collection.key;                
+                newERWebItem.ZoteroKey = collection.key;
+                newERWebItem.Standard_number = collection.ISBN;
                 return newERWebItem;
 
             }

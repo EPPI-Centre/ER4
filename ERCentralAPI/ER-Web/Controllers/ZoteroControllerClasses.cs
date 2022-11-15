@@ -244,7 +244,8 @@ namespace ERxWebClient2.Controllers
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.date = data.Year;
 			this.archiveLocation = data.City;
-					
+			this.DOI = data.DOI;
+
 		}
 
 		public ZoteroCollectionData()
@@ -277,6 +278,7 @@ namespace ERxWebClient2.Controllers
 		//public Object relations { get; set; } = null;
 		public string dateAdded { get; set; }
 		public string dateModified { get; set; }
+		public string DOI { get; set; }
 
 	}
 
@@ -368,18 +370,20 @@ namespace ERxWebClient2.Controllers
 
 	public class ConferencePaper : ZoteroCollectionData
 	{
-		public ConferencePaper(IItem data, string proceedingstitle, string conferencename, string pLace, string iSBN) : base(data)
+		public ConferencePaper(IItem data, string proceedingstitle, string conferencename, string pLace, string iSBN, string publisher) : base(data)
         {
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
 			this.place = pLace;
 			this.ISBN = iSBN;
-
+			this.Publisher = publisher;
 		}
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
 		public string place { get; set; }
 		public string ISBN { get; set; }
+
+		public string Publisher { get; set; }
 
 	}
 
