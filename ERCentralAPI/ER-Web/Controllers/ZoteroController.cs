@@ -611,7 +611,7 @@ namespace ERxWebClient2.Controllers
                 LogBatchErrors(errors);
             }
             
-            string message = "<br>Pushing completed, with " + errors.failCount.ToString() + " error(s), listed below.<br><ul>";
+            string message = "<br>Pushing ended, with " + errors.failCount.ToString() + " error(s), listed below.<br><ul>";
             foreach (SingleError error in errors.failedIdsAndMessage)
             {
                 message += "<li>" + error.ToString() + "</li>";
@@ -957,6 +957,10 @@ namespace ERxWebClient2.Controllers
                         {
                             ItemIncomingData? t = forSaving.IncomingItems.FirstOrDefault(x => x.ZoteroKey == zoteroERWebReviewItem.ItemKey);
                             if (t != null) zoteroERWebReviewItem.ItemID = t.NewItemId;
+                            else
+                            {
+                                errors.Add(new SingleError(zoteroERWebReviewItem.ItemKey.ToString(), "Could not find the new ItemId for this Zotero reference."));
+                            }
                         }
                         if (zoteroERWebReviewItem.ItemID > 0)//to be very sure: we do NOT try to add PDFs when we don't have the ItemID
                         {
@@ -964,21 +968,27 @@ namespace ERxWebClient2.Controllers
                             {
                                 if (pdf.SyncState == ZoteroERWebReviewItem.ErWebState.canPull)
                                 {
-                                    await InsertZoteroChildDocumentInErWeb(zrc, pdf, zoteroERWebReviewItem);
+                                    await InsertZoteroChildDocumentInErWeb(zrc, pdf, zoteroERWebReviewItem, errors);
                                 }
                             }
                         }
                     }
                 }
-
-                return Ok(true);
-
+                if (errors.failCount > 0) LogBatchErrors(errors);
+                else return Ok();
             }
             catch (Exception e)
             {
-				_logger.LogException(e, "Pull ZoteroErWebReviewItemList has an error");
-				return Ok(false);
-			}
+                errors.Add(new SingleError(e, "Error in main API method: PullZoteroErWebReviewItemList"));
+                LogBatchErrors(errors);
+            }
+            string message = "<br>Pulling ended, with " + errors.failCount.ToString() + " error(s), listed below.<br><ul>";
+            foreach (SingleError error in errors.failedIdsAndMessage)
+            {
+                message += "<li>" + error.ToString() + "</li>";
+            }
+            message += "</ul>";
+            return StatusCode(500, message);
         }
 
         private async Task<IncomingItemsList> InsertNewZoteroItemsIntoErWeb(ZoteroERWebReviewItem[] zoteroERWebReviewItems
@@ -996,150 +1006,177 @@ namespace ERxWebClient2.Controllers
                     var collectionItem = JsonConvert.DeserializeObject<Collection>(jObj.ToString());
                     if (collectionItem != null)
                     {
-                        IMapZoteroReference reference = _mapZoteroCollectionToErWebReference.GetReference(collectionItem);
-                        var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
-                        var erWebItemIncomingData = _mapZoteroCollectionToErWebReference.GetIncomingDataReference(collectionItem, erWebItem);
-                        incomingItems.Add(erWebItemIncomingData);
+                        try
+                        {
+                            IMapZoteroReference reference = _mapZoteroCollectionToErWebReference.GetReference(collectionItem);
+                            var erWebItem = reference.MapReferenceFromZoteroToErWeb(new Item());
+
+                            var erWebItemIncomingData = _mapZoteroCollectionToErWebReference.GetIncomingDataReference(collectionItem, erWebItem);
+                            incomingItems.Add(erWebItemIncomingData);
+                        } 
+                        catch (Exception e)
+                        {
+                            errors.Add(new SingleError(e, zri.ItemKey, "Failed to create the ER object to save for this reference."));
+                        }
                     }
                     else
                     {
                         errors.Add(new SingleError(zri.ItemKey, "Failed to parse/cast the ZoteroItem received via the API call."));
                     }
                 }
-                else
-                {
-                    errors.Add(new SingleError(zri.ItemKey, "The API call to fetch the Zotero data returned no data."));
-                }
+                //else below is not needed, probably: we return NULL IFF the API call failed, which already produces an exception.
+                //else
+                //{
+                //    errors.Add(new SingleError(zri.ItemKey, "The API call to fetch the Zotero data returned no data."));
+                //}
 
             }
-            if (incomingItems.Count == 0)
+            if (incomingItems.Count > 0)
             {
-                //no need to record any special error, as we should have done it above
-                return new IncomingItemsList();
-            }
-            else
-            {
-                forSaving = new IncomingItemsList
+                try
                 {
-                    FilterID = 0,
-                    SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
-                    SourceDB = "Zotero",
-                    DateOfImport = DateTime.Now,
-                    DateOfSearch = DateTime.Now,
-                    IsIncluded = true,
-                    Notes = "",
-                    SearchDescr = "Items pulled from Zotero",
-                    SearchStr = "N/A",
-                    IncomingItems = incomingItems
-                };
-                forSaving.buildShortTitles();
-                forSaving = forSaving.Save();
-                return forSaving;
+                    forSaving = new IncomingItemsList
+                    {
+                        FilterID = 0,
+                        SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
+                        SourceDB = "Zotero",
+                        DateOfImport = DateTime.Now,
+                        DateOfSearch = DateTime.Now,
+                        IsIncluded = true,
+                        Notes = "",
+                        SearchDescr = "Items pulled from Zotero",
+                        SearchStr = "N/A",
+                        IncomingItems = incomingItems
+                    };
+                    forSaving.buildShortTitles();
+                    forSaving = forSaving.Save();
+                }
+                catch (Exception e)
+                {
+                    errors.Add(new SingleError(e, "Saving new items to ER DB failed."));
+                }
             }
+            return forSaving;
         }
 
         private async Task InsertZoteroChildDocumentInErWeb(ZoteroReviewConnection zrc, ZoteroERWebItemDocument pdf,
-			ZoteroERWebReviewItem zoteroERWebReviewItem)
+			ZoteroERWebReviewItem zoteroERWebReviewItem, ZoteroBatchError errors)
 		{
             string fileName = pdf.documenT_TITLE;
-            var key = pdf.DocZoteroKey;
+            string key = pdf.DocZoteroKey;
             var GetFileUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/{key}/file");
             var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
-            
-            var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString(), httpClientProvider);
-            //var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
-            string ContentType = "";
-            string ext = "";
-            if (response.Content.Headers.ContentType != null && response.Content.Headers.ContentType.MediaType != null)
+            try
             {
-                ContentType = response.Content.Headers.ContentType.MediaType;
-                switch (ContentType)
+                var response = await _zoteroService.GetDocumentHeader(GetFileUri.ToString(), httpClientProvider);
+                //var lastModifiedDate = response.Content.Headers.GetValues("Last-Modified").FirstOrDefault();
+                string ContentType = "";
+                string ext = "";
+                if (response.Content.Headers.ContentType != null && response.Content.Headers.ContentType.MediaType != null)
                 {
-                    case @"application/pdf":
-                        ext = ".pdf";
-                        break;
-                    case @"application/msword":
-                        ext = ".doc";
-                        break;
-                    case @"application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                        ext = ".docx";
-                        break;
-                    case @"application/vnd.ms-powerpoint":
-                        ext = ".ppt";
-                        break;
-                    case @"application/vnd.openxmlformats-officedocument.presentationml.presentation":
-                        ext = ".pptx";
-                        break;
-                    case @"application/vnd.openxmlformats-officedocument.presentationml.slideshow":
-                        ext = ".ppsx";
-                        break;
-                    case @"application/vnd.ms-excel":
-                        ext = ".xls";
-                        break;
-                    case @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                        ext = ".xlsx";
-                        break;
-                    case @"text/html":
-                        ext = ".html";
-                        break;
-                    case @"application/vnd.oasis.opendocument.text":
-                        ext = ".odt";
-                        break;
-                    case @"application/vnd.oasis.opendocument.spreadsheet":
-                        ext = ".ods";
-                        break;
-                    case @"application/vnd.oasis.opendocument.presentation":
-                        ext = ".odp";
-                        break;
-                    case @"application/postscript":
-                        ext = ".ps";
-                        break;
-                    case @"text/plain":
-                        ext = ".txt";
-                        break;
-                    default:
-                        ext = "NotAllowed";
-                        break;
+                    ContentType = response.Content.Headers.ContentType.MediaType;
+                    switch (ContentType)
+                    {
+                        case @"application/pdf":
+                            ext = ".pdf";
+                            break;
+                        case @"application/msword":
+                            ext = ".doc";
+                            break;
+                        case @"application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                            ext = ".docx";
+                            break;
+                        case @"application/vnd.ms-powerpoint":
+                            ext = ".ppt";
+                            break;
+                        case @"application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                            ext = ".pptx";
+                            break;
+                        case @"application/vnd.openxmlformats-officedocument.presentationml.slideshow":
+                            ext = ".ppsx";
+                            break;
+                        case @"application/vnd.ms-excel":
+                            ext = ".xls";
+                            break;
+                        case @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                            ext = ".xlsx";
+                            break;
+                        case @"text/html":
+                            ext = ".html";
+                            break;
+                        case @"application/vnd.oasis.opendocument.text":
+                            ext = ".odt";
+                            break;
+                        case @"application/vnd.oasis.opendocument.spreadsheet":
+                            ext = ".ods";
+                            break;
+                        case @"application/vnd.oasis.opendocument.presentation":
+                            ext = ".odp";
+                            break;
+                        case @"application/postscript":
+                            ext = ".ps";
+                            break;
+                        case @"text/plain":
+                            ext = ".txt";
+                            break;
+                        default:
+                            ext = "NotAllowed";
+                            break;
+                    }
+                }
+                if (ext == "NotAllowed")
+                {
+                    errors.Add(new SingleError(pdf.DocZoteroKey + " in " + zoteroERWebReviewItem.ItemKey, "This document was not saved: its media-type is not supported."));
+                    return;
+                }
+                else if (ext == "")
+                {
+                    errors.Add(new SingleError(pdf.DocZoteroKey + " in " + zoteroERWebReviewItem.ItemKey, "This document was not saved: its media-type is unknown."));
+                    return;
+                }
+
+                if (fileName == "Full Text")
+                {//this is the filename we get from Zotero, when a doc is found by Zotero automatically, and we don't like it
+                    if (zoteroERWebReviewItem.ShortTitle != "")
+                    {
+                        fileName = zoteroERWebReviewItem.ShortTitle + ext;
+                    }
+                    else
+                    {
+                        fileName = zoteroERWebReviewItem.ItemID.ToString() + ext;
+                    }
+                }
+                var fileStream = await response.Content.ReadAsStreamAsync();
+
+
+                Stream stream = fileStream;
+                byte[] Binary = new byte[stream.Length];
+                stream.Read(Binary, 0, (int)stream.Length);
+                if (ext.ToLower() == ".txt")
+                {
+                    string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
+                    ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(zoteroERWebReviewItem.ItemID,
+                        fileName,
+                        ext,
+                        SimpleText,
+                        pdf.DocZoteroKey
+                        );
+                    cmd.doItNow();
+                }
+                else if (ext != "NotAllowed")
+                {
+                    ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(zoteroERWebReviewItem.ItemID,
+                        fileName,
+                        ext,
+                        Binary,
+                        pdf.DocZoteroKey
+                        );
+                    cmd.doItNow();
                 }
             }
-
-            if (fileName == "Full Text")
-            {//this is the filename we get from Zotero, when a doc is found by Zotero automatically, and we don't like it
-                if (zoteroERWebReviewItem.ShortTitle != "")
-                {
-                    fileName = zoteroERWebReviewItem.ShortTitle + ext;
-                }
-                else 
-                {
-                    fileName = zoteroERWebReviewItem.ItemID.ToString() + ext;
-                }
-            }
-            var fileStream = await response.Content.ReadAsStreamAsync();
-
-
-            Stream stream = fileStream;
-            byte[] Binary = new byte[stream.Length];
-            stream.Read(Binary, 0, (int)stream.Length);
-            if (ext.ToLower() == ".txt")
+            catch (Exception e)
             {
-                string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
-                ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(zoteroERWebReviewItem.ItemID,
-                    fileName,
-                    ext,
-                    SimpleText,
-                    pdf.DocZoteroKey
-                    );
-                cmd.doItNow();
-            }
-            else if (ext != "NotAllowed")
-            {
-                ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(zoteroERWebReviewItem.ItemID,
-                    fileName,
-                    ext,
-                    Binary,
-                    pdf.DocZoteroKey
-                    );
-                cmd.doItNow();
+                errors.Add(new SingleError(e, pdf.DocZoteroKey + " in " + zoteroERWebReviewItem.ItemKey, "Error in InsertZoteroChildDocumentInErWeb"));
             }
         }
 

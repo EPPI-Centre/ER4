@@ -23,9 +23,9 @@ namespace ERxWebClient2.Zotero
                 if (Zau.creatorType == "author")
                 {
                     AutH a = new AutH();
-                    a.FirstName = Zau.firstName;
+                    a.FirstName = Zau.firstName ?? "";
                     a.MiddleName = "";
-                    a.LastName = Zau.lastName;
+                    a.LastName = Zau.lastName ?? "";
                     a.Role = 0;//only looking for "actual authors" not parent authors which can be Book editors and the like.
                     a.Rank = AuthRank;
                     AuthRank++;
@@ -40,8 +40,8 @@ namespace ERxWebClient2.Zotero
 
         public ItemIncomingData MapReferenceFromZoteroToErWeb(CollectionType collection, ItemIncomingData newERWebItem, ERWebItem eRWebItem)
         {
-            try
-            {
+            //try
+            //{
                 var item = eRWebItem.Item;
                 if (item == null) throw new Exception("ErWeb Item cannot be null");
                 newERWebItem.Title = item.Title;
@@ -61,54 +61,54 @@ namespace ERxWebClient2.Zotero
                 newERWebItem.Issue = item.Issue ?? "";
                 newERWebItem.City = item.City ?? "";
                 newERWebItem.DOI = item.DOI ?? "";
-                newERWebItem.Comments = item.Comments;
-                newERWebItem.Country = item.Country;
-                newERWebItem.Month = item.Month;
-                newERWebItem.Keywords = item.Keywords;
-                newERWebItem.Parent_title = item.ParentTitle;
-                newERWebItem.Url = item.URL;
+                newERWebItem.Comments = item.Comments ?? "";
+                newERWebItem.Country = item.Country ?? "";
+                newERWebItem.Month = item.Month ?? "";
+                newERWebItem.Keywords = item.Keywords ?? "";
+                newERWebItem.Parent_title = item.ParentTitle ?? "";
+                newERWebItem.Url = item.URL ?? "";
                 newERWebItem.ZoteroKey = collection.key;
 
                 SetFieldsBasedOnZoteroType(collection, newERWebItem);
 
                 return newERWebItem;
 
-            }
-            catch (System.Exception ex)
-            {
-                var detailOfError = ex;
-                throw;
-            }
+            //}
+            //catch (System.Exception ex)
+            //{
+            //    var detailOfError = ex;
+            //    throw ex;
+            //}
         }
 
         private static void SetFieldsBasedOnZoteroType(CollectionType collection, ItemIncomingData newERWebItem)
         {
             if (collection.itemType == "journalArticle")
             {
-                newERWebItem.Standard_number = collection.ISSN;
+                newERWebItem.Standard_number = collection.ISSN ?? "";
             }
             else if (collection.itemType == "book")
             {
-                newERWebItem.Standard_number = collection.ISBN;
+                newERWebItem.Standard_number = collection.ISBN ?? "";
             }
             else if (collection.itemType == "bookChapter")
             {
-                newERWebItem.Standard_number = collection.ISBN;
+                newERWebItem.Standard_number = collection.ISBN ?? "";
             }
             else if (collection.itemType == "Dissertation")
             {
                 var standardNumber = string.IsNullOrWhiteSpace(collection.ISBN) ? collection.ISSN : collection.ISBN;
-                newERWebItem.Standard_number = standardNumber;
+                newERWebItem.Standard_number = standardNumber ?? "";
             }
             else if (collection.itemType == "conferencePaper")
             {
                 var standardNumber = string.IsNullOrWhiteSpace(collection.ISBN) ? collection.ISSN : collection.ISBN;
-                newERWebItem.Standard_number = standardNumber;
+                newERWebItem.Standard_number = standardNumber ?? "";
             }
             else if (collection.itemType == "periodical")
             {
                 var standardNumber = string.IsNullOrWhiteSpace(collection.ISBN) ? collection.ISSN : collection.ISBN;
-                newERWebItem.Standard_number = standardNumber;
+                newERWebItem.Standard_number = standardNumber ?? "";
             }
         }
     }

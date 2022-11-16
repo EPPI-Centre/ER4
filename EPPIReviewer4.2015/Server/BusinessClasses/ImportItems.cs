@@ -1486,7 +1486,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
         {
             get
             {
-                if (this.IncomingItems.Find(f => f.ZoteroKey != "") != null) return true;
+                if (this.IncomingItems !=null && this.IncomingItems.Find(f => f.ZoteroKey != "") != null) return true;
                 else return false;
             }
         }
