@@ -45,7 +45,7 @@ namespace ERxWebClient2.Zotero
                 var item = eRWebItem.Item;
                 if (item == null) throw new Exception("ErWeb Item cannot be null");
                 newERWebItem.Title = item.Title;
-				newERWebItem.TypeId = item.TypeId;                
+                newERWebItem.TypeId = item.TypeId;
                 var authors = AuthorsListForIncomingData(collection.creators ?? new CreatorsItem[0]);
                 newERWebItem.AuthorsLi = authors.authorsLi ?? new AutorsList();
                 newERWebItem.pAuthorsLi = authors.pAuthorsLi ?? new Csla.Core.MobileList<AutH>();
@@ -69,17 +69,8 @@ namespace ERxWebClient2.Zotero
                 newERWebItem.Url = item.URL;
                 newERWebItem.ZoteroKey = collection.key;
 
-                if(collection.itemType == "conferencePaper")
-                {
-                    newERWebItem.Standard_number = collection.ISBN;
-                    newERWebItem.Parent_title = collection.proceedingsTitle;
-                }
-                else if (collection is ConferencePaper)
-                {
-                    
-                }
+                SetFieldsBasedOnZoteroType(collection, newERWebItem);
 
-                
                 return newERWebItem;
 
             }
@@ -87,6 +78,37 @@ namespace ERxWebClient2.Zotero
             {
                 var detailOfError = ex;
                 throw;
+            }
+        }
+
+        private static void SetFieldsBasedOnZoteroType(CollectionType collection, ItemIncomingData newERWebItem)
+        {
+            if (collection.itemType == "journalArticle")
+            {
+                newERWebItem.Standard_number = collection.ISSN;
+            }
+            else if (collection.itemType == "book")
+            {
+                newERWebItem.Standard_number = collection.ISBN;
+            }
+            else if (collection.itemType == "bookChapter")
+            {
+                newERWebItem.Standard_number = collection.ISBN;
+            }
+            else if (collection.itemType == "Dissertation")
+            {
+                var standardNumber = string.IsNullOrWhiteSpace(collection.ISBN) ? collection.ISSN : collection.ISBN;
+                newERWebItem.Standard_number = standardNumber;
+            }
+            else if (collection.itemType == "conferencePaper")
+            {
+                var standardNumber = string.IsNullOrWhiteSpace(collection.ISBN) ? collection.ISSN : collection.ISBN;
+                newERWebItem.Standard_number = standardNumber;
+            }
+            else if (collection.itemType == "periodical")
+            {
+                var standardNumber = string.IsNullOrWhiteSpace(collection.ISBN) ? collection.ISSN : collection.ISBN;
+                newERWebItem.Standard_number = standardNumber;
             }
         }
     }
