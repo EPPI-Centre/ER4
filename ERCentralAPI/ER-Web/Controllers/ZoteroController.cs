@@ -1182,25 +1182,33 @@ namespace ERxWebClient2.Controllers
 
         private bool UpdateErWebItem(Collection collection, long itemId, ZoteroBatchError errors)
         {
-            Item itemFetch = DataPortal.Fetch<Item>(new SingleCriteria<Item, long>(itemId));
-            if (itemFetch.ItemId != itemId)
+            try
             {
-                errors.Add(new SingleError(itemId.ToString(), "Failed to retreive the ER item to update."));
-                return false;
-            }
-            else
-            {
-                IMapZoteroReference referenceUpdate = _mapZoteroCollectionToErWebReference.GetReference(collection);
-                var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
-
-                if (erWebItemUpdate == null || erWebItemUpdate.Item == null)
+                Item itemFetch = DataPortal.Fetch<Item>(new SingleCriteria<Item, long>(itemId));
+                if (itemFetch.ItemId != itemId)
                 {
-                    errors.Add(new SingleError(itemId.ToString(), "Failed to convert Zotero data into ER Item data."));
+                    errors.Add(new SingleError(itemId.ToString(), "Failed to retreive the ER item to update."));
                     return false;
                 }
+                else
+                {
+                    IMapZoteroReference referenceUpdate = _mapZoteroCollectionToErWebReference.GetReference(collection);
+                    var erWebItemUpdate = referenceUpdate.MapReferenceFromZoteroToErWeb(itemFetch);
 
-                erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
-                return true;
+                    if (erWebItemUpdate == null || erWebItemUpdate.Item == null)
+                    {
+                        errors.Add(new SingleError(itemId.ToString(), "Failed to convert Zotero data into ER Item data."));
+                        return false;
+                    }
+
+                    erWebItemUpdate.Item = erWebItemUpdate.Item.Save();
+                    return true;
+                }
+            } 
+            catch (Exception e)
+            {
+                errors.Add(new SingleError(e, itemId.ToString() + "|" + collection.key, "Error in UpdateErWebItem"));
+                return false;
             }
         }
 

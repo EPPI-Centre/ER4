@@ -43,12 +43,12 @@ namespace ER_Web.Zotero
             newERWebItem.DateEdited = SmartDateModified;
             newERWebItem.Edition = collectionType.edition;
             newERWebItem.Institution = collectionType.institution;
-            newERWebItem.Pages = collectionType.numPages;
+            if (collectionType.numPages != null && collectionType.numPages != "") newERWebItem.Pages = collectionType.numPages;
             newERWebItem.Publisher = collectionType.publisher;
             newERWebItem.ShortTitle = collectionType.shortTitle;
             newERWebItem.Volume = collectionType.volume;
             newERWebItem.IsLocal = false;
-            newERWebItem.Pages = collectionType.pages;
+            if (collectionType.pages != null && collectionType.pages != "") newERWebItem.Pages = collectionType.pages;
             newERWebItem.Issue = collectionType.issue;
             newERWebItem.City = collectionType.place;
             newERWebItem.ParentTitle = collectionType.parentTitle;
