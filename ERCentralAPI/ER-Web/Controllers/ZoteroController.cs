@@ -611,12 +611,12 @@ namespace ERxWebClient2.Controllers
                 LogBatchErrors(errors);
             }
             
-            string message = "<br>Pushing ended, with " + errors.failCount.ToString() + " error(s), listed below.<br><ul>";
+            string message = "<br>Pushing ended, with " + errors.failCount.ToString() + " error(s), listed below.<ul>";
             foreach (SingleError error in errors.failedIdsAndMessage)
             {
                 message += "<li>" + error.ToString() + "</li>";
             }
-            message += "</ul>";
+            message += "</ul> Please try again.<br>If the problem persists, please contact EPPISupport.";
             return StatusCode(500, message);
         }
 
@@ -982,12 +982,12 @@ namespace ERxWebClient2.Controllers
                 errors.Add(new SingleError(e, "Error in main API method: PullZoteroErWebReviewItemList"));
                 LogBatchErrors(errors);
             }
-            string message = "<br>Pulling ended, with " + errors.failCount.ToString() + " error(s), listed below.<br><ul>";
+            string message = "<br>Pulling ended, with " + errors.failCount.ToString() + " error(s), listed below.<ul>";
             foreach (SingleError error in errors.failedIdsAndMessage)
             {
                 message += "<li>" + error.ToString() + "</li>";
             }
-            message += "</ul>";
+            message += "</ul> Please try again.<br>If the problem persists, please contact EPPISupport.";
             return StatusCode(500, message);
         }
 
@@ -996,6 +996,7 @@ namespace ERxWebClient2.Controllers
         {
             var forSaving = new IncomingItemsList();
             var incomingItems = new MobileList<ItemIncomingData>();
+            forSaving.IncomingItems = incomingItems;//makes sure forSaving.IncomingItems is never null, even if we didn't get anything from Zotero
             foreach (ZoteroERWebReviewItem zri in zoteroERWebReviewItems)
             {
                 string zoteroKey = zri.ItemKey;

@@ -1,4 +1,4 @@
-﻿import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, from, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -90,7 +90,7 @@ export class ModalService {
                 );
             } else {
                 this.confirm(
-                    'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + '). Error Message is: "' + error.error + '".'
+                  'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + '). Error Message is: <br>' + error.error + ''
                 );
             }
         }
