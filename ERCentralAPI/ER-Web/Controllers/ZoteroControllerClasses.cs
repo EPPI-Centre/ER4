@@ -288,7 +288,6 @@ namespace ERxWebClient2.Controllers
         {
             this.websiteTitle = websiteTitle;
             this.websiteType = websiteType;
-            this.creators = creators;
         }
 
         public string websiteTitle { get; set; }
