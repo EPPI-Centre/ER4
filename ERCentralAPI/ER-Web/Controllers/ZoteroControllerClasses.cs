@@ -284,7 +284,7 @@ namespace ERxWebClient2.Controllers
 
 	public class WebSite : ZoteroCollectionData
 	{
-        public WebSite(IItem data, string websiteTitle, string websiteType, List<CreatorsItem> creators) : base(data)
+        public WebSite(IItem data, string websiteTitle, string websiteType) : base(data)
         {
             this.websiteTitle = websiteTitle;
             this.websiteType = websiteType;
@@ -293,7 +293,6 @@ namespace ERxWebClient2.Controllers
         public string websiteTitle { get; set; }
 		public string websiteType { get; set; }
 
-		public List<CreatorsItem> creators { get; set; }
 	}
 	public class SyncStateDictionaries
 	{

@@ -16,7 +16,7 @@ namespace ERxWebClient2.Zotero
 		{
 			try
 			{
-				var newZoteroItem = new WebSite( _item, _item.ParentTitle, "", new List<CreatorsItem>());
+				var newZoteroItem = new WebSite( _item, _item.ParentTitle, "");
 				return newZoteroItem;
 
 			}
