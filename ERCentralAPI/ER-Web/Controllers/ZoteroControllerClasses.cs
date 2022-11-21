@@ -227,7 +227,7 @@ namespace ERxWebClient2.Controllers
             this.url = data.URL;
             this.accessDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.archive = "";
-            this.archiveLocation = "";
+            //this.archiveLocation = "";
             this.libraryCatalog = "";
             this.callNumber = "";
             this.rights = "";
@@ -242,8 +242,7 @@ namespace ERxWebClient2.Controllers
             //this.relations = rel;
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
-			this.date = data.Year;
-			this.archiveLocation = data.City;
+			this.date = data.Year;		
 			this.DOI = data.DOI;
 
 		}
@@ -268,7 +267,7 @@ namespace ERxWebClient2.Controllers
 		public string url { get; set; }
 		public string accessDate { get; set; }
 		public string archive { get; set; }
-		public string archiveLocation { get; set; }
+		//public string archiveLocation { get; set; } = null;
 		public string libraryCatalog { get; set; }
 		public string callNumber { get; set; }
 		public string rights { get; set; }
