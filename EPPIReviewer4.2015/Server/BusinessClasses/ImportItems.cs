@@ -11,7 +11,6 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
-using ERxWebClient2.Zotero;
 
 #if !SILVERLIGHT
 using System.Data;
@@ -1482,14 +1481,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }
         }
 
-        public bool HasZoteroKeys
-        {
-            get
-            {
-                if (this.IncomingItems !=null && this.IncomingItems.Find(f => f.ZoteroKey != "") != null) return true;
-                else return false;
-            }
-        }
+        
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -2093,6 +2085,14 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 return true;
             }
             return false;
+        }
+        public bool HasZoteroKeys
+        {
+            get
+            {
+                if (this.IncomingItems != null && this.IncomingItems.Find(f => f.ZoteroKey != "") != null) return true;
+                else return false;
+            }
         }
 
 #endif

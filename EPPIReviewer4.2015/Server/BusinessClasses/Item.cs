@@ -98,6 +98,10 @@ namespace BusinessLibrary.BusinessClasses
                     
             return ItemJSON;
         }
+
+        public Item Save() {
+            return this;
+        }
 #endif
         internal static Item NewItem()
         {
