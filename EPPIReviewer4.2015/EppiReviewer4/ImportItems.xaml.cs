@@ -146,7 +146,7 @@ namespace EppiReviewer4
             IIL.SourceDB = TBSourceDB.Text;
             IIL.SearchStr = TBsString.Text;
             IIL.SearchDescr = TBDescr.Text;
-            IIL.Included = (bool)(cbIncludeTxt.IsChecked);
+            IIL.IsIncluded = (bool)(cbIncludeTxt.IsChecked);
             IIL.Notes = TBNotes.Text;
             //first case, items are less than 1500, we assume it's safe to send the list directly
             if (IIL.IncomingItems.Count <= 1500 && cbSafeImport.IsChecked != true)
@@ -171,7 +171,7 @@ namespace EppiReviewer4
                 PartialIIL.SourceDB = TBSourceDB.Text;
                 PartialIIL.SearchStr = TBsString.Text;
                 PartialIIL.SearchDescr = TBDescr.Text;
-                PartialIIL.Included = (bool)(cbIncludeTxt.IsChecked);
+                PartialIIL.IsIncluded = (bool)(cbIncludeTxt.IsChecked);
                 PartialIIL.Notes = TBNotes.Text;
                 PartialIIL.Saved += new EventHandler<Csla.Core.SavedEventArgs>(PartialIIL_Saved);
                 SetResultMessage("Uploading batch " + currentBatch.ToString() + " of " + batchesN.ToString() + ".");
@@ -499,7 +499,7 @@ namespace EppiReviewer4
             pms.ItemsList.Notes = PubmNotes.Text;
             pms.ItemsList.SearchDescr = PubmDescr.Text;
             pms.ItemsList.IncomingItems.Clear();
-            pms.ItemsList.Included = (bool)(cbInclude.IsChecked);
+            pms.ItemsList.IsIncluded = (bool)(cbInclude.IsChecked);
             pms.Saved += new EventHandler<Csla.Core.SavedEventArgs>(pms_Saved);
             pms.BeginSave();
         }
