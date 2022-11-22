@@ -253,3 +253,12 @@ SET @DOCUMENT_TEXT = replace(@DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10))
 
 SET NOCOUNT OFF
 GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'st_ZoteroRebuildItemLinks') 
+DROP PROCEDURE [dbo].[st_ZoteroRebuildItemLinks]
+GO
+IF TYPE_ID(N'ITEMS_ZOT_INPUT_TB') IS not NULL 
+	BEGIN 
+		DROP TYPE dbo.ITEMS_ZOT_INPUT_TB
+	END
+GO

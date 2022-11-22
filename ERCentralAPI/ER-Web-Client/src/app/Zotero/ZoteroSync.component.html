@@ -37,10 +37,12 @@
           Library: <strong>{{NameOfCurrentLibrary}}</strong>
         </div>
       </div>
-
+      <div *ngIf="BusyMessage == ''" class="row mx-0 mb-1">
+        <button class="btn-sm btn btn-outline-danger py-0" (click)="RebuildItemConnections()">Rebuild</button>
+      </div>
     </div>
 
-  </div>
+    </div>
   <!--<div class="col-auto border border-info p-1 rounded bg-light ml-1">
     <div>Step 2: click "Get Status"</div>
     <button class="btn btn-primary m-2 p-1"

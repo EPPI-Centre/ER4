@@ -891,9 +891,42 @@ Begin
 End
 
 GO
+IF TYPE_ID(N'ITEMS_ZOT_INPUT_TB') IS not NULL 
+	BEGIN 
+		DROP PROCEDURE [dbo].[st_ZoteroRebuildItemLinks]
+		DROP TYPE dbo.ITEMS_ZOT_INPUT_TB
+	END
+CREATE TYPE dbo.ITEMS_ZOT_INPUT_TB AS TABLE (ERId bigint primary key, ZOTEROKEY varchar(10)) 
+GO
 
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroRebuildItemLinks] 
+	-- Add the parameters for the stored procedure here
+	(
+		@revID int
+		,@itemsAndKeys ITEMS_ZOT_INPUT_TB READONLY
+		,@docsAndKeys ITEMS_ZOT_INPUT_TB READONLY
+	)
+AS
+BEGIN
+ declare @missingItems table (ERId bigint primary key, ZOTEROKEY varchar(10)) 
+ declare @missingDocs table (ERId bigint primary key, ZOTEROKEY varchar(10)) 
 
+ insert into TB_ZOTERO_ITEM_REVIEW (ITEM_REVIEW_ID, ItemKey)
+  select ir.ITEM_REVIEW_ID, iak.ZOTEROKEY
+  from @itemsAndKeys iak inner join 
+  TB_ITEM_REVIEW ir on iak.ERId = ir.ITEM_ID and ir.REVIEW_ID = @revID
+  left join TB_ZOTERO_ITEM_REVIEW zir on zir.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID 
+  where zir.ITEM_REVIEW_ID is null
 
+ insert into TB_ZOTERO_ITEM_DOCUMENT (ItemDocumentId, DocZoteroKey)
+  select d.ITEM_DOCUMENT_ID, dak.ZOTEROKEY
+  from @docsAndKeys dak 
+  inner join TB_ITEM_DOCUMENT d on dak.ERId = d.ITEM_DOCUMENT_ID
+  inner join TB_ITEM_REVIEW ir on d.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @revID
+  left join TB_ZOTERO_ITEM_DOCUMENT zid on zid.ItemDocumentId = d.ITEM_DOCUMENT_ID 
+  where zid.ItemDocumentId is null
+
+END
 
 GO
 
