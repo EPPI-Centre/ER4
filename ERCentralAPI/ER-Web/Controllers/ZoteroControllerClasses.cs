@@ -237,7 +237,7 @@ namespace ERxWebClient2.Controllers
 				arrayOfIdAndComments[1] = "EPPI-Reviewer Comments: " + data.Comments.ToString().Trim();
 
 			this.extra = string.Join(Environment.NewLine, arrayOfIdAndComments);
-            //this.tags = new List<tagObject>() { tag };
+            this.tags = new tagObject[1] { tag };
             this.collections = new object[0];
             //this.relations = rel;
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
@@ -279,7 +279,9 @@ namespace ERxWebClient2.Controllers
 		public string dateModified { get; set; }
 		public string DOI { get; set; }
 
-	}
+		public tagObject[] tags { get; set; }
+
+    }
 
 	public class WebSite : ZoteroCollectionData
 	{

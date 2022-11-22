@@ -444,6 +444,16 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
       this.RefreshBothTables();
     }
   }
+
+  async RebuildItemConnections() {
+    const res1 = await this._zoteroService.RebuildItemConnections();
+    if (res1 == true) {
+      this.RefreshBothTables();
+    } else {
+      this.RefreshBothTables();
+    }
+  }
+
   ngOnDestroy() {    
   }
 

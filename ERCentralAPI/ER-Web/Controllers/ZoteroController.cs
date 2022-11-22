@@ -19,6 +19,8 @@ using AuthorsHandling;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
+using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace ERxWebClient2.Controllers
 {
@@ -847,7 +849,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser())
                 {
                     ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 
@@ -1127,12 +1129,12 @@ namespace ERxWebClient2.Controllers
                 }
                 if (ext == "NotAllowed")
                 {
-                    errors.Add(new SingleError(pdf.DocZoteroKey + " in " + zoteroERWebReviewItem.ItemKey, "This document was not saved: its media-type is not supported."));
+                    errors.Add(new SingleError(pdf.DocZoteroKey + " in " + zoteroERWebReviewItem.ItemKey, "This document was not saved: this file type is not supported."));
                     return;
                 }
                 else if (ext == "")
                 {
-                    errors.Add(new SingleError(pdf.DocZoteroKey + " in " + zoteroERWebReviewItem.ItemKey, "This document was not saved: its media-type is unknown."));
+                    errors.Add(new SingleError(pdf.DocZoteroKey + " in " + zoteroERWebReviewItem.ItemKey, "This document was not saved: this file type is unknown."));
                     return;
                 }
 
@@ -1446,7 +1448,11 @@ namespace ERxWebClient2.Controllers
                         errors.Add(new SingleError(itemDocumentId.ToString(), "Unsupported file type, for extension: " + type + "."));
                         return key;
                 }
-
+                tagObject tag = new tagObject
+                {
+                    tag = "EPPI-Reviewer ID: " + itemDocumentId.ToString(),
+                    type = "1"
+                };
                 string payload = "[ " +
                                "{" +
                                     " \"itemType\": \"attachment\", " +
@@ -1455,7 +1461,7 @@ namespace ERxWebClient2.Controllers
                                    "\"title\": \"" + filename + "\"," +
                                    "\"accessDate\": \"\", " +
                                        "\"note\": \"\", " +
-                                    " \"tags\": [], " +
+                                    " \"tags\": [" + JsonConvert.SerializeObject(tag) +"], " +
                                      "\"collections\": [], " +
                                      " \"relations\": { }," +
                                       " \"contentType\": \"" + contentType +"\"," +
@@ -1652,7 +1658,131 @@ namespace ERxWebClient2.Controllers
               
             return;
         }
-  
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> RebuildItemConnections()
+        {
+            try
+            {
+                if (!SetCSLAUser4Writing())
+                {
+                    return Forbid();
+                }
+                else
+                {
+                    ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+
+                    var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
+                    var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
+                    List<JObject> Zitems = await _zoteroService.GetPagedCollections<JObject>(GETGroupsUri.ToString(), httpClientProvider);
+                    DataTable TagsAndIds = new DataTable();
+                    DataTable TagsAndIdsOfItemsWithDocs = new DataTable();
+                    TagsAndIds.Columns.Add(new DataColumn("ERId", Int64.MaxValue.GetType()));
+                    TagsAndIds.Columns.Add(new DataColumn("ZOTEROKEY", Type.GetType("System.String")));
+                    TagsAndIdsOfItemsWithDocs.Columns.Add(new DataColumn("ERId", Int64.MaxValue.GetType()));
+                    TagsAndIdsOfItemsWithDocs.Columns.Add(new DataColumn("ZOTEROKEY", Type.GetType("System.String")));
+                    DataRow tRow;
+                    //foreach (Item itm in this.Items)
+                    //{
+                    //    DataRow dr = InputTable.NewRow();
+                    //    dr["ItemId"] = itm.ItemId;
+                    //    InputTable.Rows.Add(dr);
+                    //}
+
+                    string searchFor = "EPPI-Reviewer ID: ";
+                    string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
+                    foreach (JObject Jzitem in Zitems)
+                    {
+                        var collectionItem = JsonConvert.DeserializeObject<Collection>(Jzitem.ToString());
+                        if (collectionItem != null && collectionItem.data != null)
+                        {
+                            tagObject? IdTag = null;
+                            if (collectionItem.data.tags.Any())
+                            {
+                                IdTag = collectionItem.data.tags.FirstOrDefault((f) => { return f.tag != null && f.tag.StartsWith(searchFor); });
+                            }
+                            long ERId; string ERIdSt = "";
+                            if (IdTag != null)
+                            {//we have an ItemId in the IdTag
+                             //18 chars
+                                ERIdSt = IdTag.tag.Replace(searchFor, "");
+                            }
+                            else if (collectionItem.data.extra != null && collectionItem.data.extra.Contains("EPPI-Reviewer ID: "))
+                            {//still OK, we have it in the extra field...
+                                string[] lines = collectionItem.data.extra.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                                foreach (string line in lines)
+                                {
+                                    if (line.StartsWith(searchFor))
+                                    {
+                                        ERIdSt = line.Replace(searchFor, "");
+                                    }
+                                }
+                            }
+
+                            if (ERIdSt != "" && long.TryParse(ERIdSt, out ERId))
+                            {//SUCCESS, we have an ERId to use :-)
+                                if (collectionItem.data.itemType == "attachment")
+                                {
+                                    tRow = TagsAndIdsOfItemsWithDocs.NewRow();
+                                    tRow["ERId"] = ERId;
+                                    tRow["ZOTEROKEY"] = collectionItem.key;
+                                    TagsAndIdsOfItemsWithDocs.Rows.Add(tRow);
+                                    Debug.WriteLine("Doc: " + collectionItem.key + "|" + ERId.ToString());
+                                }
+                                else
+                                {
+                                    tRow = TagsAndIds.NewRow();
+                                    tRow["ERId"] = ERId;
+                                    tRow["ZOTEROKEY"] = collectionItem.key;
+                                    TagsAndIds.Rows.Add(tRow);
+                                    //if (collectionItem.links != null
+                                    //    && collectionItem.links.attachment != null
+                                    //    && collectionItem.links.attachment.href != null
+                                    //    && collectionItem.links.attachment.href != ""
+                                    //    )
+                                    //{
+                                    //    //this ref has docs, so we'll need to do _more_ work...
+                                    //    TagsAndIdsOfItemsWithDocs.Add;
+                                    //    Debug.WriteLine(collectionItem.key + " has docs");
+                                    //}
+                                    Debug.WriteLine("Item: " + collectionItem.key + "|" + ERId.ToString());
+                                }
+                            }
+
+                        }
+                    }
+                    //now we have the list of all known ER-Ids and ZoteroKey pairs, we'll pass it to SQL st_ZoteroRebuildItemLinks to re-insert whatever records are missing
+                    SQLHelper sQLHelper = new SQLHelper(_configuration, _logger);
+
+                    SqlParameter[] parameters = new SqlParameter[3];
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    parameters[0] = new SqlParameter("@revID", ri.ReviewId);
+
+                    parameters[1] = new SqlParameter("@itemsAndKeys", TagsAndIds);
+                    parameters[1].SqlDbType = SqlDbType.Structured;
+                    parameters[1].TypeName = "dbo.ITEMS_ZOT_INPUT_TB";
+
+                    parameters[2] = new SqlParameter("@docsAndKeys", TagsAndIdsOfItemsWithDocs);
+                    parameters[2].SqlDbType = SqlDbType.Structured;
+                    parameters[2].TypeName = "dbo.ITEMS_ZOT_INPUT_TB";
+
+                    int res = sQLHelper.ExecuteNonQuerySP(sQLHelper.ER4DB, "st_ZoteroRebuildItemLinks", parameters);
+                    if (res < 0)
+                    {
+                        //something went wrong, we'll report failure, SQL error has been logged already
+                        return StatusCode(500, "Rebuilding links failed when saving data to the Database");
+                    }
+                    
+                    return Ok(true);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in RebuildItemConnections");
+                return StatusCode(500, e.Message);
+            }
+        }
+
         #endregion
 
         /// <summary>

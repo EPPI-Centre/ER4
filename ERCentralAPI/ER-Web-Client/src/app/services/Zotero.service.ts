@@ -403,6 +403,21 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
     return newDateObj;
   }
 
+  public async RebuildItemConnections(): Promise<boolean> {
+    this._BusyMethods.push("RebuildItemConnections");
+    return lastValueFrom(this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/RebuildItemConnections')
+    ).then(
+      result => {
+        this.RemoveBusy("RebuildItemConnections");
+        return result;
+      }, error => {
+        this.RemoveBusy("RebuildItemConnections");
+        this.modalService.GenericError(error);
+        return false;
+      }
+    );
+  }
+
   public async fetchZoteroERWebReviewItemListAsync(attributeId: string, sortResultsBy: LocalSort) {
     this._BusyMethods.push("fetchZoteroERWebReviewItemListAsync");
     this._zoteroERWebReviewItemList = [];
