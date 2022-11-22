@@ -242,9 +242,7 @@ namespace ERxWebClient2.Controllers
             //this.relations = rel;
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
-			this.date = data.Year;		
-			this.DOI = data.DOI;
-
+			this.date = data.Year;
 		}
 
 		public ZoteroCollectionData()
