@@ -29,9 +29,12 @@ namespace ER_Web.Zotero
             if (!parseDateModifiedResult) throw new System.Exception("Date parsing exception");
 
             string consolidatedAuthors = "";
-            foreach (var creator in collectionType.creators)
+            if (collectionType.creators != null)
             {
-                consolidatedAuthors += creator.lastName + " " + creator.firstName + ";";
+                foreach (var creator in collectionType.creators)
+                {
+                    consolidatedAuthors += creator.lastName + " " + creator.firstName + ";";
+                }
             }
             consolidatedAuthors = consolidatedAuthors.TrimStart();
             consolidatedAuthors = consolidatedAuthors.TrimEnd();
@@ -64,20 +67,19 @@ namespace ER_Web.Zotero
             };
             return erWebItem;
         }
-
+        public static string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
+        public static string searchFor = "EPPI-Reviewer ID: ";
         private static void SetItemIdAndComments(Item newERWebItem, CollectionType collectionType)
-        {
-            var arrayOfIdAndComments = collectionType.extra.Split('\n', StringSplitOptions.None);
-            if (arrayOfIdAndComments.Length == 2)
+        {//despite the name, we DO NOT need to set the itemId...
+            if (collectionType.extra == null) collectionType.extra = "";
+            if (newERWebItem.Comments == null) newERWebItem.Comments = "";
+            var arrayOfIdAndComments = collectionType.extra.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            foreach(string line in arrayOfIdAndComments)
             {
-                var itemIdStr = arrayOfIdAndComments[0];
-                var index = itemIdStr.LastIndexOf(':');
-                var commentsStr = arrayOfIdAndComments[1];
-                var indexTwo = commentsStr.IndexOf(':');
-                var itemId = arrayOfIdAndComments[0].Substring(index + 1, itemIdStr.Length - index - 1);
-                var comments = arrayOfIdAndComments[0].Substring(indexTwo + 1, commentsStr.Length - indexTwo - 1);
-                newERWebItem.ItemId = Convert.ToInt64(itemId);
-                newERWebItem.Comments = comments;
+                if (!line.StartsWith(searchFor))
+                {
+                    newERWebItem.Comments += line + Environment.NewLine;
+                }
             }
         }
     }

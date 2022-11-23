@@ -330,8 +330,28 @@ namespace ERxWebClient2.Controllers
 		public string proceedingsTitle { get; set; } = null;
 
 	}
+	public class MiniCollectionType
+	{
+		public	MiniCollectionType(CollectionType fullSize) 
+		{
+			key = fullSize.key;
+			if (fullSize.tags != null) tags = fullSize.tags;
+			else tags = Array.Empty<tagObject>();
+			extra = fullSize.extra;
+			version = fullSize.version ?? -1;
+			dateModified = fullSize.dateModified;
+        }
+        public string dateModified { get; set; }
+        public string key { get; set; }
+        public long version { get; set; }
+        public tagObject[] tags { get; set; }
 
-	public class JournalArticle : ZoteroCollectionData, IJournalArticle
+        public string extra { get; set; }
+
+    }
+
+
+    public class JournalArticle : ZoteroCollectionData, IJournalArticle
 	{
 		public JournalArticle(IItem data, string publicationTitle, string issue, string pages, string seriesTitle, string seriesText, string journalAbbreviation, string dOI, string iSSN): base(data)
         {
@@ -655,7 +675,7 @@ namespace ERxWebClient2.Controllers
 	{
 		public string tag { get; set; }
 
-		public string type { get; set; }
+		public string type { get; set; } = "0";
 	}
 
 	public class relation

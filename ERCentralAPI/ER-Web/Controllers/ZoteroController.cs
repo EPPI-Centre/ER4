@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using ER_Web.Zotero;
+using Azure;
 
 namespace ERxWebClient2.Controllers
 {
@@ -853,13 +855,33 @@ namespace ERxWebClient2.Controllers
                 {
                     ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 
-                    var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
+                    var APIwatch = new System.Diagnostics.Stopwatch();
+
+                    //https://forums.zotero.org/discussion/76292/search-multiple-item-types-with-api
+                    //we ask for things in 2 steps,
+                    //1st: everything EXCLUDING attachments and notes, URL encoded url means: "itemType=-attachment || note" as in "NOT(attachment OR note)"
+                    //we DO NOT want to know ANYTHING about notes!!
+
+                    APIwatch.Start();
+
+                    var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title&itemType=-note%20%7C%7C%20attachment");
                     var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
                     var items = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString(), httpClientProvider);
+
+                    //2nd: ask for just the attachments and nothing else
+                    GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?itemType=attachment");
+                    var attachments = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString(), httpClientProvider);
+                    
+                    APIwatch.Stop();
+                    var APItime = APIwatch.ElapsedMilliseconds / 1000;
+                    System.Diagnostics.Debug.WriteLine(". . .");
+                    System.Diagnostics.Debug.WriteLine("APItime: " + APItime.ToString());
+                    System.Diagnostics.Debug.WriteLine(". . .");
 
                     ZoteroERWebReviewItemList pairedItems = DataPortal.Fetch<ZoteroERWebReviewItemList>(new SingleCriteria<ZoteroERWebReviewItemList, string>((-1).ToString()));
                     ZoteroItemsResult res = new ZoteroItemsResult();
                     res.zoteroItems = items;
+                    res.zoteroItems.AddRange(attachments);
                     res.pairedItems = pairedItems;
                     return Ok(res);
 
@@ -999,6 +1021,9 @@ namespace ERxWebClient2.Controllers
             var forSaving = new IncomingItemsList();
             var incomingItems = new MobileList<ItemIncomingData>();
             forSaving.IncomingItems = incomingItems;//makes sure forSaving.IncomingItems is never null, even if we didn't get anything from Zotero
+
+            List<Collection> ZoteroRefs = new List<Collection>();//used to send back the ItemIds to the Zot side
+
             foreach (ZoteroERWebReviewItem zri in zoteroERWebReviewItems)
             {
                 string zoteroKey = zri.ItemKey;
@@ -1009,6 +1034,7 @@ namespace ERxWebClient2.Controllers
                     var collectionItem = JsonConvert.DeserializeObject<Collection>(jObj.ToString());
                     if (collectionItem != null)
                     {
+                        ZoteroRefs.Add(collectionItem);
                         try
                         {
                             IMapZoteroReference reference = _mapZoteroCollectionToErWebReference.GetReference(collectionItem);
@@ -1059,6 +1085,45 @@ namespace ERxWebClient2.Controllers
                     errors.Add(new SingleError(e, "Saving new items to ER DB failed."));
                 }
             }
+            //FINAL step, send back the newly created item IDs, so that refs in Zotero will "know" what Item they correspond to
+            var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
+            var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
+            List<MiniCollectionType> batch = new List<MiniCollectionType>();
+            int batchSize = 50;
+            foreach (ItemIncomingData iid in forSaving.IncomingItems)
+            {
+                Collection? zRef = ZoteroRefs.FirstOrDefault(f => f.key == iid.ZoteroKey);
+                if (zRef == null) continue;
+                MiniCollectionType updating = new MiniCollectionType(zRef.data);
+                List<tagObject> tags = updating.tags.ToList();
+                
+                //for tidyness, should we remove any already present ID tag?? (same for extra field??) IDK!
+                tags.Add(new tagObject() { type = "1", tag = "EPPI-Reviewer ID: " + iid.NewItemId.ToString() });
+                updating.tags = tags.ToArray();
+                updating.extra = "EPPI-Reviewer ID: " + iid.NewItemId.ToString() + Environment.NewLine + updating.extra;
+
+                //DateEdited is set in the ItemIncomingData instance, to "now", at creation time
+                //sending a new timestamp back to Zot forces Zot to respect the explicit timestamp (would update it to "now" again, if we sent the exact value that is already in Zotero).
+                updating.dateModified = ((DateTime)iid.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+                
+                if (batch.Count < batchSize)
+                {
+                    batch.Add(updating);
+                }
+                else
+                {//current batch is full, send it to Zot, empty the batch and add our present element
+                    var res = await _zoteroService.UpdatePartialItem(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
+                    var actualContent = await res.Content.ReadAsStringAsync();
+                    batch.Clear();
+                    batch.Add(updating);
+                }
+            }
+            if (batch.Count > 0)
+            {
+                var res = await _zoteroService.UpdatePartialItem(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
+                var actualContent = await res.Content.ReadAsStringAsync();
+            }
+
             return forSaving;
         }
 
@@ -1689,8 +1754,8 @@ namespace ERxWebClient2.Controllers
                     //    InputTable.Rows.Add(dr);
                     //}
 
-                    string searchFor = "EPPI-Reviewer ID: ";
-                    string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
+                    string searchFor = ZoteroCreator.searchFor;// "EPPI-Reviewer ID: ";
+                    string[] separators = ZoteroCreator.separators;// { "\r\n", "\n", "\r", Environment.NewLine };
                     foreach (JObject Jzitem in Zitems)
                     {
                         var collectionItem = JsonConvert.DeserializeObject<Collection>(Jzitem.ToString());

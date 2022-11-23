@@ -42,36 +42,40 @@ namespace ERxWebClient2.Zotero
         {
             //try
             //{
-                var item = eRWebItem.Item;
-                if (item == null) throw new Exception("ErWeb Item cannot be null");
-                newERWebItem.Title = item.Title;
-                newERWebItem.TypeId = item.TypeId;
-                var authors = AuthorsListForIncomingData(collection.creators ?? new CreatorsItem[0]);
-                newERWebItem.AuthorsLi = authors.authorsLi ?? new AutorsList();
-                newERWebItem.pAuthorsLi = authors.pAuthorsLi ?? new Csla.Core.MobileList<AutH>();
-                newERWebItem.Abstract = item.Abstract ?? "";
-                newERWebItem.DateEdited = item.DateEdited;
-                newERWebItem.Edition = item.Edition ?? "";
-                newERWebItem.Institution = item.Institution ?? "";
-                newERWebItem.Pages = item.Pages ?? "";
-                newERWebItem.Publisher = item.Publisher ?? "";
-                newERWebItem.Short_title = item.ShortTitle ?? "";
-                newERWebItem.Volume = item.Volume ?? "";
-                newERWebItem.Pages = item.Pages ?? "";
-                newERWebItem.Issue = item.Issue ?? "";
-                newERWebItem.City = item.City ?? "";
-                newERWebItem.DOI = item.DOI ?? "";
-                newERWebItem.Comments = item.Comments ?? "";
-                newERWebItem.Country = item.Country ?? "";
-                newERWebItem.Month = item.Month ?? "";
-                newERWebItem.Keywords = item.Keywords ?? "";
-                newERWebItem.Parent_title = item.ParentTitle ?? "";
-                newERWebItem.Url = item.URL ?? "";
-                newERWebItem.ZoteroKey = collection.key;
+            var item = eRWebItem.Item;
+            if (item == null) throw new Exception("ErWeb Item cannot be null");
+            newERWebItem.Title = item.Title;
+            newERWebItem.TypeId = item.TypeId;
+            var authors = AuthorsListForIncomingData(collection.creators ?? new CreatorsItem[0]);
+            newERWebItem.AuthorsLi = authors.authorsLi ?? new AutorsList();
+            newERWebItem.pAuthorsLi = authors.pAuthorsLi ?? new Csla.Core.MobileList<AutH>();
+            newERWebItem.Abstract = item.Abstract ?? "";
+            //we NEED to update DateEdited, otherwise, if we keep the same timestamp we received from Zotero,
+            //upon updating the Zot record, the value we'll include for dateModified will be identical to the value currently in Zotero
+            //despite what the docs say, it appears that when we do this, Zotero will update the dateModified to the current time, which breaks our "change detection"
+            //Setting the timestamp here (and then in the Update call) ensures the new timestamp is different, which forces Zotero to respect it.
+            newERWebItem.DateEdited = DateTime.Now;
+            newERWebItem.Edition = item.Edition ?? "";
+            newERWebItem.Institution = item.Institution ?? "";
+            newERWebItem.Pages = item.Pages ?? "";
+            newERWebItem.Publisher = item.Publisher ?? "";
+            newERWebItem.Short_title = item.ShortTitle ?? "";
+            newERWebItem.Volume = item.Volume ?? "";
+            newERWebItem.Pages = item.Pages ?? "";
+            newERWebItem.Issue = item.Issue ?? "";
+            newERWebItem.City = item.City ?? "";
+            newERWebItem.DOI = item.DOI ?? "";
+            newERWebItem.Comments = item.Comments ?? "";
+            newERWebItem.Country = item.Country ?? "";
+            newERWebItem.Month = item.Month ?? "";
+            newERWebItem.Keywords = item.Keywords ?? "";
+            newERWebItem.Parent_title = item.ParentTitle ?? "";
+            newERWebItem.Url = item.URL ?? "";
+            newERWebItem.ZoteroKey = collection.key;
 
-                SetFieldsBasedOnZoteroType(collection, newERWebItem);
+            SetFieldsBasedOnZoteroType(collection, newERWebItem);
 
-                return newERWebItem;
+            return newERWebItem;
 
             //}
             //catch (System.Exception ex)

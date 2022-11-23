@@ -115,9 +115,16 @@ namespace ERxWebClient2.Services
 			response.EnsureSuccessStatusCode();
 			return response;
 		}
+        public async Task<HttpResponseMessage> UpdatePartialItem(string payload, string requestUri, IHttpClientProvider httpProvider)
+        {
+            HttpContent exampleItem = new StringContent(payload, Encoding.UTF8, "application/json");
 
+            var response = await httpProvider.PostAsync(requestUri, exampleItem);
+            response.EnsureSuccessStatusCode();
+            return response;
+        }
 
-		public async Task<string> GetUserPermissions(string requestUri, IHttpClientProvider httpProvider)
+        public async Task<string> GetUserPermissions(string requestUri, IHttpClientProvider httpProvider)
 		{
 			var response = await httpProvider.GetAsync(requestUri);
 			response.EnsureSuccessStatusCode();
