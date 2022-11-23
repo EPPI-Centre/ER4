@@ -473,7 +473,11 @@ namespace ERxWebClient2.Controllers
             this.place = place;
             this.publisher = publisher;
             this.numPages = numPages;
-            this.ISBN = iSBN;			
+            this.ISBN = iSBN;
+            if (!string.IsNullOrWhiteSpace(data.DOI))
+            {
+				this.extra = "DOI: " + data.DOI;
+			}
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
