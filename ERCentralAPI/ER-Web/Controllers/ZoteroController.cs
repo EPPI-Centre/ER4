@@ -788,7 +788,7 @@ namespace ERxWebClient2.Controllers
             else
             {//we could not parse the reply!!
                 ErrorFree = false;
-                SingleError err = new SingleError("Unexpected failure when creating items in the Zotero Library: the Zotero API reply could not be parsed.");
+                SingleError err = new SingleError("Unexpected failure when creating/updating items in the Zotero Library: the Zotero API reply could not be parsed.");
                 errors.Add(err);
             }
             return ErrorFree;
@@ -855,14 +855,14 @@ namespace ERxWebClient2.Controllers
                 {
                     ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
 
-                    var APIwatch = new System.Diagnostics.Stopwatch();
+                    //var APIwatch = new System.Diagnostics.Stopwatch();
 
                     //https://forums.zotero.org/discussion/76292/search-multiple-item-types-with-api
                     //we ask for things in 2 steps,
                     //1st: everything EXCLUDING attachments and notes, URL encoded url means: "itemType=-attachment || note" as in "NOT(attachment OR note)"
                     //we DO NOT want to know ANYTHING about notes!!
 
-                    APIwatch.Start();
+                    //APIwatch.Start();
 
                     var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title&itemType=-note%20%7C%7C%20attachment");
                     var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
@@ -872,11 +872,11 @@ namespace ERxWebClient2.Controllers
                     GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?itemType=attachment");
                     var attachments = await _zoteroService.GetPagedCollections<object>(GETGroupsUri.ToString(), httpClientProvider);
                     
-                    APIwatch.Stop();
-                    var APItime = APIwatch.ElapsedMilliseconds / 1000;
-                    System.Diagnostics.Debug.WriteLine(". . .");
-                    System.Diagnostics.Debug.WriteLine("APItime: " + APItime.ToString());
-                    System.Diagnostics.Debug.WriteLine(". . .");
+                    //APIwatch.Stop();
+                    //var APItime = APIwatch.ElapsedMilliseconds / 1000;
+                    //System.Diagnostics.Debug.WriteLine(". . .");
+                    //System.Diagnostics.Debug.WriteLine("APItime: " + APItime.ToString());
+                    //System.Diagnostics.Debug.WriteLine(". . .");
 
                     ZoteroERWebReviewItemList pairedItems = DataPortal.Fetch<ZoteroERWebReviewItemList>(new SingleCriteria<ZoteroERWebReviewItemList, string>((-1).ToString()));
                     ZoteroItemsResult res = new ZoteroItemsResult();
@@ -1092,38 +1092,70 @@ namespace ERxWebClient2.Controllers
             int batchSize = 50;
             foreach (ItemIncomingData iid in forSaving.IncomingItems)
             {
-                Collection? zRef = ZoteroRefs.FirstOrDefault(f => f.key == iid.ZoteroKey);
-                if (zRef == null) continue;
-                MiniCollectionType updating = new MiniCollectionType(zRef.data);
-                List<tagObject> tags = updating.tags.ToList();
-                
-                //for tidyness, should we remove any already present ID tag?? (same for extra field??) IDK!
-                tags.Add(new tagObject() { type = "1", tag = "EPPI-Reviewer ID: " + iid.NewItemId.ToString() });
-                updating.tags = tags.ToArray();
-                updating.extra = "EPPI-Reviewer ID: " + iid.NewItemId.ToString() + Environment.NewLine + updating.extra;
-
-                //DateEdited is set in the ItemIncomingData instance, to "now", at creation time
-                //sending a new timestamp back to Zot forces Zot to respect the explicit timestamp (would update it to "now" again, if we sent the exact value that is already in Zotero).
-                updating.dateModified = ((DateTime)iid.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
-                
-                if (batch.Count < batchSize)
+                try
                 {
-                    batch.Add(updating);
-                }
-                else
-                {//current batch is full, send it to Zot, empty the batch and add our present element
-                    var res = await _zoteroService.UpdatePartialItem(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
-                    var actualContent = await res.Content.ReadAsStringAsync();
-                    batch.Clear();
-                    batch.Add(updating);
+                    Collection? zRef = ZoteroRefs.FirstOrDefault(f => f.key == iid.ZoteroKey);
+                    if (zRef == null) continue;
+                    MiniCollectionType updating = new MiniCollectionType(zRef.data);
+                    List<tagObject> tags = updating.tags.ToList();
+
+                    //for tidyness, should we remove any already present ID tag?? (same for extra field??) IDK!
+                    tags.Add(new tagObject() { type = "1", tag = "EPPI-Reviewer ID: " + iid.NewItemId.ToString() });
+                    updating.tags = tags.ToArray();
+                    updating.extra = "EPPI-Reviewer ID: " + iid.NewItemId.ToString() + Environment.NewLine + updating.extra;
+
+                    //DateEdited is set in the ItemIncomingData instance, to "now", at creation time
+                    //sending a new timestamp back to Zot forces Zot to respect the explicit timestamp (would update it to "now" again, if we sent the exact value that is already in Zotero).
+                    updating.dateModified = ((DateTime)iid.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
+
+                    if (batch.Count < batchSize)
+                    {
+                        batch.Add(updating);
+                    }
+                    else
+                    {//current batch is full, send it to Zot, empty the batch and add our present element
+                        var res = await _zoteroService.UpdatePartialItem(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
+                        var actualContent = await res.Content.ReadAsStringAsync();
+
+                        Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
+                        Dictionary<int, PutErrorResult> failIndexesAndErrors = new Dictionary<int, PutErrorResult>();
+                        bool success = ParseBatchReply(actualContent, successIndexesAndKeys, failIndexesAndErrors, errors);
+                        foreach (KeyValuePair<int, PutErrorResult> kvp in failIndexesAndErrors)
+                        {
+                            SingleError err = new SingleError(batch[kvp.Key].key, "Failed to send back the Item ID for this reference, with err. code: "
+                                + kvp.Value.code.ToString() + "; Message: " + kvp.Value.message + ".");
+                            errors.Add(err);
+                        }
+                        batch.Clear();
+                        batch.Add(updating);
+                    }
+                } 
+                catch(Exception e)
+                {
+                    errors.Add(new SingleError(e, "Error sending a batch of new ER-Ids back to Zotero. This means that up to " + batch.Count + " item(s) on the Zotero end will not \"know\" their EPPI-Reviewer ID."));
                 }
             }
             if (batch.Count > 0)
             {
-                var res = await _zoteroService.UpdatePartialItem(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
-                var actualContent = await res.Content.ReadAsStringAsync();
+                try
+                {
+                    var res = await _zoteroService.UpdatePartialItem(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
+                    var actualContent = await res.Content.ReadAsStringAsync();
+                    Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
+                    Dictionary<int, PutErrorResult> failIndexesAndErrors = new Dictionary<int, PutErrorResult>();
+                    bool success = ParseBatchReply(actualContent, successIndexesAndKeys, failIndexesAndErrors, errors);
+                    foreach (KeyValuePair<int, PutErrorResult> kvp in failIndexesAndErrors)
+                    {
+                        SingleError err = new SingleError(batch[kvp.Key].key, "Failed to send back the Item ID for this reference, with err. code: "
+                            + kvp.Value.code.ToString() + "; Message: " + kvp.Value.message + ".");
+                        errors.Add(err);
+                    }
+                }
+                catch (Exception e)
+                {
+                    errors.Add(new SingleError(e, "Error sending a batch of new ER-Ids back to Zotero. This means that up to " + batch.Count + " item(s) on the Zotero end will not \"know\" their EPPI-Reviewer ID."));
+                }
             }
-
             return forSaving;
         }
 
