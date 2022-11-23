@@ -143,7 +143,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         {
           text: 'Manage Sources',
           click: () => {
-            this.GoToSources();
+            this.GoToManageSources();
           }
         }
       ];
@@ -182,7 +182,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		this.router.navigate(['ImportCodesets']);
     }
     GoToSources() {
-        this.router.navigate(['sources']);
+      this.router.navigate(['sources']);
+    }
+    GoToManageSources() {
+      this.router.navigate(['sources'], { queryParams: { tabby: 'ManageSources' } });
     }
     GoToDuplicates() {
         this.router.navigate(['Duplicates']);

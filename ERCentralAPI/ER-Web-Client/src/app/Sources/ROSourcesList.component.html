@@ -1,22 +1,28 @@
 <div class="m-1" style="max-height: 350px; overflow-y:scroll;">
-    <div>
-        SOURCES in Review:
-        <div *ngIf="GettingSourceReport" class="col-12 mt-2 pt-2 bg-white ">
-            <div class="col">
-                {{ReportProgress}}
-                <button class="btn btn-outline-dark btn-sm px-1 py-0 mb-1 mx-1" style="position:absolute; z-index:4;"
-                        (click)="CancelSourcesReport()">
-                    Cancel
-                </button>
-            </div>
-        </div>
-        <button *ngIf="ReviewSources.length > 0 && GettingSourceReport == false"
-                class="btn btn-outline-secondary btn-sm px-1 py-0 mb-1 mr-1 float-right"
-                (click)="CreateSourceReport()">
-            Report&nbsp;<span class="k-icon k-i-table k-icon-sm"></span>
+  <div>
+    SOURCES
+    <div *ngIf="GettingSourceReport" class="col-12 mt-2 pt-2 bg-white ">
+      <div class="col">
+        {{ReportProgress}}
+        <button class="btn btn-outline-dark btn-sm px-1 py-0 mb-1 mx-1" style="position:absolute; z-index:4;"
+                (click)="CancelSourcesReport()">
+          Cancel
         </button>
-
+      </div>
     </div>
+    <button *ngIf="ReviewSources.length > 0 && GettingSourceReport == false"
+            class="btn btn-outline-secondary btn-sm px-1 py-0 mb-1 mr-1 float-right"
+            (click)="CreateSourceReport()">
+      Report&nbsp;<span class="k-icon k-i-table k-icon-sm"></span>
+    </button>
+    <button *ngIf="ReviewSources.length > 0 && GettingSourceReport == false"
+            class="btn btn-outline-secondary btn-sm px-1 py-0 mb-1 mr-1 float-right"
+            (click)="GoToManageSources()">
+      Manage sources
+    </button>
+
+
+  </div>
     <div *ngIf="ReviewSources.length == 0">
         No Sources in review.
     </div>

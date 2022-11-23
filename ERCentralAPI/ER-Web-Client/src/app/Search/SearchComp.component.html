@@ -528,8 +528,8 @@
                     {{dataItem.title}}
                 </ng-template>
             </kendo-grid-column>
-            <!--<kendo-grid-column field="contactName" title="Created By" width="140" class="px-1 py-0 m-1">
-            </kendo-grid-column>-->
+            <kendo-grid-column field="contactName" title="Created By" [width]="140" class="px-1 py-0 m-1">
+            </kendo-grid-column>
             <kendo-grid-column field="searchDate" title="Date" [width]="140" class="px-1 py-0 m-1">
                 <ng-template kendoGridCellTemplate let-dataItem>
                     {{FormatDate(dataItem.searchDate)}}

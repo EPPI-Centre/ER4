@@ -32,6 +32,7 @@ export class ROSourcesListComponent implements OnInit {
         private ConfirmationDialogService: ConfirmationDialogService,
         private ReviewerIdentityService: ReviewerIdentityService,
         @Inject('BASE_URL') private _baseUrl: string,
+        private router: Router,
     ) {    }
     ngOnInit() {
     }
@@ -110,6 +111,10 @@ export class ROSourcesListComponent implements OnInit {
     }
     CancelSourcesReport() {
         this.SourcesService.StopSourcesReport();
+    }
+
+    GoToManageSources() {
+      this.router.navigate(['sources'], { queryParams: { tabby: 'ManageSources' } });
     }
 }
 
