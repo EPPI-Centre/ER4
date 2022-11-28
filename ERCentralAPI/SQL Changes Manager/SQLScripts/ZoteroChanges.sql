@@ -827,7 +827,8 @@ ALTER procedure [dbo].[st_ItemDocumentInsert]
 	@DOCUMENT_TITLE NVARCHAR(255),
 	@DOCUMENT_EXTENSION NVARCHAR(5),
 	@DOCUMENT_TEXT NVARCHAR(MAX),
-	@ZoteroKey NVARCHAR(50) = ''
+	@ZoteroKey NVARCHAR(50) = '',
+	@ItemDocumentId bigint = -1 output 
 )
 
 As
@@ -839,8 +840,8 @@ SET @DOCUMENT_TEXT = replace(@DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10))
 
 IF @ZoteroKey != ''
 BEGIN
-	declare @IdocID bigint = SCOPE_IDENTITY()
-	INSERT into TB_ZOTERO_ITEM_DOCUMENT(DocZoteroKey, ItemDocumentId) VALUES (@ZoteroKey, @IdocID)
+	set @ItemDocumentId = SCOPE_IDENTITY()
+	INSERT into TB_ZOTERO_ITEM_DOCUMENT(DocZoteroKey, ItemDocumentId) VALUES (@ZoteroKey, @ItemDocumentId)
 END
 
 SET NOCOUNT OFF
@@ -856,7 +857,8 @@ ALTER procedure [dbo].[st_ItemDocumentBinInsert]
 	@DOCUMENT_EXTENSION NVARCHAR(5),
 	@BIN IMAGE,
 	@DOCUMENT_TEXT NVARCHAR(MAX),
-	@ZoteroKey NVARCHAR(50) = ''
+	@ZoteroKey NVARCHAR(50) = '',
+	@ItemDocumentId bigint = -1 output
 )
 
 As
@@ -868,8 +870,8 @@ SET @DOCUMENT_TEXT = replace(@DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10))
 
 IF @ZoteroKey != ''
 BEGIN
-	declare @IdocID bigint = SCOPE_IDENTITY()
-	INSERT into TB_ZOTERO_ITEM_DOCUMENT(DocZoteroKey, ItemDocumentId) VALUES (@ZoteroKey, @IdocID)
+	set @ItemDocumentId = SCOPE_IDENTITY()
+	INSERT into TB_ZOTERO_ITEM_DOCUMENT(DocZoteroKey, ItemDocumentId) VALUES (@ZoteroKey, @ItemDocumentId)
 END
 
 SET NOCOUNT OFF

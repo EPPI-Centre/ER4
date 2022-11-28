@@ -115,7 +115,7 @@ namespace ERxWebClient2.Services
 			response.EnsureSuccessStatusCode();
 			return response;
 		}
-        public async Task<HttpResponseMessage> UpdatePartialItem(string payload, string requestUri, IHttpClientProvider httpProvider)
+        public async Task<HttpResponseMessage> UpdatePartialItems(string payload, string requestUri, IHttpClientProvider httpProvider)
         {
             HttpContent exampleItem = new StringContent(payload, Encoding.UTF8, "application/json");
 

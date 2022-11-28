@@ -205,7 +205,7 @@ namespace ERxWebClient2.Controllers
         {
 			tagObject tag = new tagObject
             {
-                tag = "EPPI-Reviewer ID: " + data.ItemId.ToString(),
+                tag = data.ItemId.ToString(),
                 type = "1"
             }; 
 			relation rel = new relation();
@@ -345,11 +345,58 @@ namespace ERxWebClient2.Controllers
         public string key { get; set; }
         public long version { get; set; }
         public tagObject[] tags { get; set; }
-
         public string extra { get; set; }
-
     }
 
+    //used to update Attachments on the Zotero end
+    public class MiniAttachmentCollectionData
+    {
+		protected MiniAttachmentCollectionData() { }
+        public MiniAttachmentCollectionData(long ItemDocumentId, string Key)
+		{
+			tags = new tagObject[1] { new tagObject()
+			{
+				type = "1", tag = "EPPI-Reviewer ID: " + ItemDocumentId.ToString()
+            }};
+			key = Key;
+        }
+		public string key { get; set; } = "";
+        public long version { get; set; } = 0;
+        public tagObject[] tags { get; set; } = Array.Empty<tagObject>();
+    }
+
+	//outer object we receive when we're asking for specific attachments...
+	//this is ugly, as it's a copy of "Collection" class, with one member changed
+    public class AttachmentCollection
+    {
+        public string key { get; set; }
+        public long version { get; set; }
+        public Library library { get; set; }
+        public Links links { get; set; }
+        public Meta meta { get; set; }
+        public AttachmentCollectionData data { get; set; }
+    }
+    public class AttachmentCollectionData : MiniAttachmentCollectionData
+	{
+		//public AttachmentCollection(long ItemDocumentId, string Key) : base(ItemDocumentId, Key)
+		//{ }
+		public AttachmentCollectionData() : base() {}
+        public string accessDate { get; set; } = "";
+        public string charset { get; set; } = "";
+        public string contentType { get; set; } = "";
+        public string dateAdded { get; set; } = "";
+        public string dateModified { get; set; } = "";
+        public string filename { get; set; } = "";
+
+        public readonly string itemType = "attachment"; 
+        public readonly string linkMode = "imported_file";
+		public string? md5 { get; set; } = null;
+        public string? mtime { get; set; } = null;
+		public string note { get; set; } = "";
+        public string parentItem { get; set; } = "";
+        public object? relations { get; set; } = null;
+		public string title { get; set; } = "";
+    }
 
     public class JournalArticle : ZoteroCollectionData, IJournalArticle
 	{

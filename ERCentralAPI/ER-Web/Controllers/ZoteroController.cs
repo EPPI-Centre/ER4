@@ -973,6 +973,7 @@ namespace ERxWebClient2.Controllers
                 {
                     forSaving = await InsertNewZoteroItemsIntoErWeb(zoteroItemsToBeInserted, zrc, groupIDBeingSynced, errors);
                 }
+                List<MiniAttachmentCollectionData> AttachmentsToUpdate = new List<MiniAttachmentCollectionData>();
                 foreach (ZoteroERWebReviewItem zoteroERWebReviewItem in zoteroERWebReviewItems)
                 {
                     if (zoteroERWebReviewItem.PdfList != null && zoteroERWebReviewItem.PdfList.Count > 0)
@@ -992,11 +993,15 @@ namespace ERxWebClient2.Controllers
                             {
                                 if (pdf.SyncState == ZoteroERWebReviewItem.ErWebState.canPull)
                                 {
-                                    await InsertZoteroChildDocumentInErWeb(zrc, pdf, zoteroERWebReviewItem, errors);
+                                    await InsertZoteroChildDocumentInErWeb(zrc, pdf, zoteroERWebReviewItem, errors, AttachmentsToUpdate);
                                 }
                             }
                         }
                     }
+                }
+                if (AttachmentsToUpdate.Count > 0)
+                {//we need to update the Attachments in Zotero, so to record their ItemDocumentId as a Tag.
+                    await AddERIdToZoteroAttachments(zrc, AttachmentsToUpdate, errors);
                 }
                 if (errors.failCount > 0) LogBatchErrors(errors);
                 else return Ok();
@@ -1114,7 +1119,7 @@ namespace ERxWebClient2.Controllers
                     }
                     else
                     {//current batch is full, send it to Zot, empty the batch and add our present element
-                        var res = await _zoteroService.UpdatePartialItem(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
+                        var res = await _zoteroService.UpdatePartialItems(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
                         var actualContent = await res.Content.ReadAsStringAsync();
 
                         Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
@@ -1139,7 +1144,7 @@ namespace ERxWebClient2.Controllers
             {
                 try
                 {
-                    var res = await _zoteroService.UpdatePartialItem(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
+                    var res = await _zoteroService.UpdatePartialItems(JsonConvert.SerializeObject(batch.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
                     var actualContent = await res.Content.ReadAsStringAsync();
                     Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
                     Dictionary<int, PutErrorResult> failIndexesAndErrors = new Dictionary<int, PutErrorResult>();
@@ -1160,7 +1165,7 @@ namespace ERxWebClient2.Controllers
         }
 
         private async Task InsertZoteroChildDocumentInErWeb(ZoteroReviewConnection zrc, ZoteroERWebItemDocument pdf,
-			ZoteroERWebReviewItem zoteroERWebReviewItem, ZoteroBatchError errors)
+			ZoteroERWebReviewItem zoteroERWebReviewItem, ZoteroBatchError errors, List<MiniAttachmentCollectionData> AttachmentsToUpdate)
 		{
             string fileName = pdf.documenT_TITLE;
             string key = pdf.DocZoteroKey;
@@ -1261,7 +1266,8 @@ namespace ERxWebClient2.Controllers
                         SimpleText,
                         pdf.DocZoteroKey
                         );
-                    cmd.doItNow();
+                    cmd = cmd.doItNow();
+                    pdf.itemDocumentId = cmd.ItemDocumentId;
                 }
                 else if (ext != "NotAllowed")
                 {
@@ -1271,13 +1277,70 @@ namespace ERxWebClient2.Controllers
                         Binary,
                         pdf.DocZoteroKey
                         );
-                    cmd.doItNow();
+                    cmd = cmd.doItNow();
+                    pdf.itemDocumentId = cmd.ItemDocumentId;
                 }
+                AttachmentsToUpdate.Add(new MiniAttachmentCollectionData(pdf.itemDocumentId, pdf.DocZoteroKey));
             }
             catch (Exception e)
             {
                 errors.Add(new SingleError(e, pdf.DocZoteroKey + " in " + zoteroERWebReviewItem.ItemKey, "Error in InsertZoteroChildDocumentInErWeb"));
             }
+        }
+        private async Task AddERIdToZoteroAttachments(ZoteroReviewConnection zrc, List<MiniAttachmentCollectionData> AttachmentsToUpdate, ZoteroBatchError errors)
+        {
+            string QuerySt = "";
+            var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
+            var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items/");
+            List<AttachmentCollection> list = new List<AttachmentCollection>();
+            List<MiniAttachmentCollectionData> TempList = new List<MiniAttachmentCollectionData>();
+            for(int i = 0; i < AttachmentsToUpdate.Count; i++)
+            {
+                MiniAttachmentCollectionData mac = AttachmentsToUpdate[i];
+                TempList.Add(mac);
+                if (TempList.Count == 1) QuerySt = mac.key;//first element in the list, no comma!
+                else if (TempList.Count == 50 || i == AttachmentsToUpdate.Count -1)
+                {//OK, this is the last element in the list, considering we can ask for, and then update, up to 50 entities in one go
+                    //we'll do the work: (1) get details for current batch, (2) ask to update them, (3) parse results...
+                    QuerySt += "," + mac.key;
+                    var GETItemUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?itemKey=" + QuerySt);
+                    //get our 50 attachments from Zotero, gives us their version N...
+                    var ListFromZot = await _zoteroService.GetCollections<AttachmentCollection>(GETItemUri.ToString(), httpClientProvider);
+                    foreach (MiniAttachmentCollectionData tac in TempList)
+                    {
+                        AttachmentCollection? tInput = ListFromZot.FirstOrDefault(f => tac.key == f.key);
+                        if (tInput != null)
+                        {
+                            tac.version = tInput.version;
+                        }
+                    }
+                    var updating = TempList.FindAll(f => f.version != 0);//making sure we only try to update Attachs that are well formed...
+                    if (updating.Count > 0)
+                    {
+                        //update our attachments and then figure out how well it worked.
+                        var res = await _zoteroService.UpdatePartialItems(JsonConvert.SerializeObject(updating.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
+                        var actualContent = await res.Content.ReadAsStringAsync();
+
+                        Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
+                        Dictionary<int, PutErrorResult> failIndexesAndErrors = new Dictionary<int, PutErrorResult>();
+                        bool success = ParseBatchReply(actualContent, successIndexesAndKeys, failIndexesAndErrors, errors);
+                        foreach (KeyValuePair<int, PutErrorResult> kvp in failIndexesAndErrors)
+                        {
+                            SingleError err = new SingleError(updating[kvp.Key].key, "Failed to send back the ItemDoc ID for this Attachment, with err. code: "
+                                + kvp.Value.code.ToString() + "; Message: " + kvp.Value.message + ".");
+                            errors.Add(err);
+                        }
+                    }
+                    TempList.Clear();
+                    QuerySt = "";
+
+                }
+                else
+                {//an element in the list, neither first nor last...
+                    QuerySt += "," + mac.key;
+                }
+            }
+            
         }
 
         private bool UpdateErWebItem(Collection collection, long itemId, ZoteroBatchError errors)
