@@ -71,29 +71,35 @@ public partial class GetPostBack : System.Web.UI.Page
         {
             string[] dec = Request.UserHostAddress.Split('.');
             if (dec.Length != 4) return false;
-            //82.195.160.0/22 82.195.160.1 - 82.195.163.254 82.195.160.0/22
-            if (dec[0] == "82" && dec[1] == "195" && (dec[2] == "160" || dec[2] == "161" || dec[2] == "162" || dec[2] == "163")) return true;
-            //185.69.64.0/22
-            if (dec[0] == "185" && dec[1] == "69" && (dec[2] == "64" || dec[2] == "65" || dec[2] == "66" || dec[2] == "67")) return true;
+
+            int dec0, dec1, dec2, dec3;
+            if (!int.TryParse(dec[0], out dec0)) return false;
+            if (!int.TryParse(dec[1], out dec1)) return false;
+            if (!int.TryParse(dec[2], out dec2)) return false;
+            if (!int.TryParse(dec[3], out dec3)) return false;
+            //52.4.161.124/32 [added 29/11/2022]
+            if (dec0 == 52 && dec1 == 4 && dec2 == 161 && dec3 == 124) return true;
+            //3.229.143.16/32 [added 29/11/2022]
+            if (dec0 == 3 && dec1 == 229 && dec2 == 143 && dec3 == 16) return true;
+
+            //82.195.160.0/22 82.195.160.1 - 82.195.163.254 
+            if (dec0 == 82 && dec1 == 195 && (dec2 >= 160 && dec2 <= 163)) return true;
+            //185.69.64.0/22 185.69.64.1 - 185.69.67.254
+            if (dec0 == 185 && dec1 == 69 && (dec2 >= 64 && dec2 <= 67)) return true;
             //82.195.191.198/32 
-            if (dec[0] == "82" && dec[1] == "195" && dec[2] == "191" && dec[3] == "198") return true;
+            if (dec0 == 82 && dec1 == 195 && dec2 == 191 && dec3 == 198) return true;
             //194.73.8.7/32
-            if (dec[0] == "194" && dec[1] == "73" && dec[2] == "8" && dec[3] == "7") return true;
+            if (dec0 == 194 && dec1 == 73 && dec2 == 8 && dec3 == 7) return true;
             //217.35.170.205/32
-            if (dec[0] == "217" && dec[1] == "35" && dec[2] == "170" && dec[3] == "205") return true;
-            //194.72.145.0/25 - 194.72.145.0:194.72.145.127
-            int last;
-            if (int.TryParse(dec[3], out last))
-            {
-                if (dec[0] == "194" && dec[1] == "72" && dec[2] == "145" && last >= 0 && last <= 127) return true;
-            }
-            //194.74.160.0/21 - 194.74.160.0:194.74.167.255
-            if (dec[0] == "194" && dec[1] == "74" 
-                && (dec[2] == "160" || dec[2] == "161" || dec[2] == "162" || dec[2] == "163" || dec[2] == "164" || dec[2] == "165" || dec[2] == "166" || dec[2] == "167")) return true;
-            //213.206.140.0/22 - 213.206.140.0:213.206.143.255
-            if (dec[0] == "213" && dec[1] == "206" && (dec[2] == "140" || dec[2] == "141" || dec[2] == "142" || dec[2] == "143")) return true;
+            if (dec0 == 217 && dec1 == 35 && dec2 == 170 && dec3 == 205) return true;
+            //194.72.145.0/25 - 194.72.145.0-194.72.145.127
+            if (dec0 == 194 && dec1 == 72 && dec2 == 145 && dec3 >= 0 && dec3 <= 127) return true;
+            //194.74.160.0/21 - 194.74.160.0-194.74.167.255
+            if (dec0 == 194 && dec1 == 74 && (dec2 >= 160 && dec2 <= 167)) return true;
+            //213.206.140.0/22 - 213.206.140.0-213.206.143.255
+            if (dec0 == 213 && dec1 == 206 && (dec2 >= 140 && dec2 <= 143)) return true;
             //213.206.158.246/32
-            if (dec[0] == "213" && dec[1] == "206" && dec[2] == "158" && dec[3] == "246") return true;
+            if (dec0 == 213 && dec1 == 206 && dec2 == 158 && dec3 == 246) return true;
         }
         else if (IP.Contains(":"))
         {
