@@ -365,8 +365,27 @@ namespace ERxWebClient2.Controllers
         public tagObject[] tags { get; set; } = Array.Empty<tagObject>();
     }
 
-	//outer object we receive when we're asking for specific attachments...
-	//this is ugly, as it's a copy of "Collection" class, with one member changed
+	//used only to push a new attchment to Zotero
+    public class MiniAttachmentCollectionDataForPushing
+    {
+        public MiniAttachmentCollectionDataForPushing() { }
+        public tagObject[] tags { get; set; } = Array.Empty<tagObject>();
+        public string accessDate { get; set; } = "";
+        public string charset { get; set; } = "";
+        public string contentType { get; set; } = "";
+        public string filename { get; set; } = "";
+        public readonly string itemType = "attachment";
+        public readonly string linkMode = "imported_file";
+        public string? md5 { get; set; } = null;
+        public string? mtime { get; set; } = null;
+        public string note { get; set; } = "";
+        public string parentItem { get; set; } = "";
+        public object? relations { get; set; } = new object();
+        public string title { get; set; } = "";
+    }
+
+    //outer object we receive when we're asking for specific attachments...
+    //this is ugly, as it's a copy of "Collection" class, with one member changed
     public class AttachmentCollection
     {
         public string key { get; set; }
@@ -394,7 +413,7 @@ namespace ERxWebClient2.Controllers
         public string? mtime { get; set; } = null;
 		public string note { get; set; } = "";
         public string parentItem { get; set; } = "";
-        public object? relations { get; set; } = null;
+        public object? relations { get; set; } = new object();
 		public string title { get; set; } = "";
     }
 

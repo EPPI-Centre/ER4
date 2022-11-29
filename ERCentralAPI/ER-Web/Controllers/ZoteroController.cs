@@ -1613,24 +1613,34 @@ namespace ERxWebClient2.Controllers
                     tag = "EPPI-Reviewer ID: " + itemDocumentId.ToString(),
                     type = "1"
                 };
-                string payload = "[ " +
-                               "{" +
-                                    " \"itemType\": \"attachment\", " +
-                                     "\"parentItem\": \"" + fileKey + "\", " +
-                                   "\"linkMode\": \"imported_file\", " +
-                                   "\"title\": \"" + filename + "\"," +
-                                   "\"accessDate\": \"\", " +
-                                       "\"note\": \"\", " +
-                                    " \"tags\": [" + JsonConvert.SerializeObject(tag) +"], " +
-                                     "\"collections\": [], " +
-                                     " \"relations\": { }," +
-                                      " \"contentType\": \"" + contentType +"\"," +
-                                       "    \"charset\": \"\"," +
-                                         "   \"filename\": \"" + filename + "\"," +
-                                         "  \"md5\": null," +
-                                          " \"mtime\": null" +
-                                         "}" +
-                                       "]";
+                MiniAttachmentCollectionDataForPushing ZotRecord = new MiniAttachmentCollectionDataForPushing()
+                {
+                    parentItem = fileKey,
+                    title = filename,
+                    filename = filename,
+                    tags = new tagObject[1] { tag },
+                    contentType = contentType
+                };
+                MiniAttachmentCollectionDataForPushing[] tArray = new MiniAttachmentCollectionDataForPushing[1] { ZotRecord };
+                string payload = JsonConvert.SerializeObject(tArray);
+                //string payload = "[ " +
+                //               "{" +
+                //                    " \"itemType\": \"attachment\", " +
+                //                     "\"parentItem\": \"" + fileKey + "\", " +
+                //                   "\"linkMode\": \"imported_file\", " +
+                //                   "\"title\": \"" + filename + "\"," +
+                //                   "\"accessDate\": \"\", " +
+                //                       "\"note\": \"\", " +
+                //                    " \"tags\": [" + JsonConvert.SerializeObject(tag) +"], " +
+                //                     "\"collections\": [], " +
+                //                     " \"relations\": { }," +
+                //                      " \"contentType\": \"" + contentType +"\"," +
+                //                       "    \"charset\": \"\"," +
+                //                         "   \"filename\": \"" + filename + "\"," +
+                //                         "  \"md5\": null," +
+                //                          " \"mtime\": null" +
+                //                         "}" +
+                //                       "]";
 
 				(ZoteroReviewConnection zrc, string groupIDBeingSynced) = CheckPermissionsWithZoteroKey();
 				var POSTItemUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/?v=3");
