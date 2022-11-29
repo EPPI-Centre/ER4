@@ -637,6 +637,8 @@ namespace ERxWebClient2.Controllers
 		public string creatorType { get; set; }
 		public string firstName { get; set; }
 		public string lastName { get; set; }
+
+		public string name { get; set; }
 	}
 
 	public class Collection

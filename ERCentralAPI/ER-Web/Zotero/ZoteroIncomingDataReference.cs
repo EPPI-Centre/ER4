@@ -4,6 +4,7 @@ using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla;
 using ERxWebClient2.Controllers;
 using Newtonsoft.Json;
+using System.Diagnostics.Metrics;
 
 namespace ERxWebClient2.Zotero
 {
@@ -18,19 +19,48 @@ namespace ERxWebClient2.Zotero
             var authorsLi = new AutorsList();
             var pAuthorsLi = new Csla.Core.MobileList<AutH>();
             int AuthRank = 0;
+            int pAuthRank = 0;
             foreach (var Zau in creators)
             {
-                if (Zau.creatorType == "author")
+                int role = 0;
+                if (Zau.creatorType == "editor" || Zau.creatorType == "seriesEditor" || Zau.creatorType == "translator" 
+                    || Zau.creatorType == "bookAuthor" || Zau.creatorType == "counsel" || Zau.creatorType == "reviewedAuthor"
+                     || Zau.creatorType == "scriptwriter" || Zau.creatorType == "producer" || Zau.creatorType == "attorneyAgent") 
+                {
+                    role = 1;
+                    AutH a = new AutH();
+                    if (Zau.name != null && Zau.name != "")
+                    {
+                        a = NormaliseAuth.singleAuth(Zau.name, AuthRank, role);
+                    }
+                    else
+                    {
+                        a.FirstName = Zau.firstName ?? "";
+                        a.MiddleName = "";
+                        a.LastName = Zau.lastName ?? "";
+                        a.Role = role;//only looking for "actual authors" not parent authors which can be Book editors and the like.
+                        a.Rank = AuthRank;
+                    }
+                    pAuthRank++;
+                    pAuthorsLi.Add(a);
+                }
+                else if (Zau.creatorType != "recipient")
                 {
                     AutH a = new AutH();
-                    a.FirstName = Zau.firstName ?? "";
-                    a.MiddleName = "";
-                    a.LastName = Zau.lastName ?? "";
-                    a.Role = 0;//only looking for "actual authors" not parent authors which can be Book editors and the like.
-                    a.Rank = AuthRank;
+                    if (Zau.name != null && Zau.name != "")
+                    {
+                        a = NormaliseAuth.singleAuth(Zau.name, AuthRank, role);
+                    }
+                    else
+                    {
+                        a.FirstName = Zau.firstName ?? "";
+                        a.MiddleName = "";
+                        a.LastName = Zau.lastName ?? "";
+                        a.Role = role;//only looking for "actual authors" not parent authors which can be Book editors and the like.
+                        a.Rank = AuthRank;
+                    }
                     AuthRank++;
                     authorsLi.Add(a);
-                    //itemIncomingData.pAuthorsLi.Add(a);
                 }
             }
 

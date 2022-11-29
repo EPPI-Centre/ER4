@@ -33,11 +33,44 @@ namespace ER_Web.Zotero
             {
                 foreach (var creator in collectionType.creators)
                 {
-                    consolidatedAuthors += creator.lastName + " " + creator.firstName + ";";
+                    if (creator.creatorType == "editor" || creator.creatorType == "seriesEditor" || creator.creatorType == "translator"
+                    || creator.creatorType == "bookAuthor" || creator.creatorType == "counsel" || creator.creatorType == "reviewedAuthor"
+                     || creator.creatorType == "scriptwriter" || creator.creatorType == "producer" || creator.creatorType == "attorneyAgent")
+                    {
+                        if (creator.lastName != null && creator.lastName != "")
+                        {
+                            newERWebItem.ParentAuthors += creator.lastName + (creator.firstName == null ? "" : " " + creator.firstName) + ";";
+                        }
+                        else if (creator.name != null && creator.name != "")
+                        {
+                            newERWebItem.ParentAuthors += creator.name + ";";
+                        }
+                        else
+                        {
+                            newERWebItem.ParentAuthors += "[Unknown];";
+                        }
+                    }
+                    else
+                    {
+                        if (creator.lastName != null && creator.lastName != "")
+                        {
+                            consolidatedAuthors += creator.lastName + (creator.firstName == null ? "" : " " + creator.firstName) + ";";
+                        }
+                        else if (creator.name != null && creator.name != "")
+                        {
+                            consolidatedAuthors += creator.name + ";";
+                        }
+                        else
+                        {
+                            consolidatedAuthors += "[Unknown];";
+                        }
+                    }
                 }
             }
-            consolidatedAuthors = consolidatedAuthors.TrimStart();
-            consolidatedAuthors = consolidatedAuthors.TrimEnd();
+            consolidatedAuthors = consolidatedAuthors.Trim();
+            consolidatedAuthors = consolidatedAuthors.TrimEnd(';');
+            newERWebItem.ParentAuthors = newERWebItem.ParentAuthors.Trim();
+            newERWebItem.ParentAuthors = newERWebItem.ParentAuthors.TrimEnd(';');
             newERWebItem.Title = collectionType.title;
             newERWebItem.Authors = consolidatedAuthors;
             newERWebItem.CreatedBy = collection.meta.createdByUser.username;
@@ -58,7 +91,6 @@ namespace ER_Web.Zotero
             newERWebItem.DOI = collectionType.DOI;
             newERWebItem.Year = collectionType.date;
             newERWebItem.URL = collectionType.url;
-            newERWebItem.ParentAuthors = "";
             SetItemIdAndComments(newERWebItem, collectionType);
 
             var erWebItem = new ERWebItem

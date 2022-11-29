@@ -114,7 +114,7 @@ namespace AuthorsHandling
             else
             {
                 char[] separator = findSep(ref CurrLn);
-                string[] moreAuth = CurrLn.Split(separator);
+                string[] moreAuth = CurrLn.Split(separator, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string sAuth in moreAuth)
                 {
                     AutList.Add(singleAuth(sAuth, Rank, OrigiN));
