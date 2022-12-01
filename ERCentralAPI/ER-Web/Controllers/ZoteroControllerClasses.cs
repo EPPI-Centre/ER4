@@ -205,10 +205,10 @@ namespace ERxWebClient2.Controllers
         {
 			tagObject tag = new tagObject
             {
-                tag = data.ItemId.ToString(),
+                tag = "EPPI-Reviewer ID: " + data.ItemId.ToString(),
                 type = "1"
             }; 
-			relation rel = new relation();
+			//relation rel = new relation();
 			//// TODO hardcoded
 			//{
 			//	owlSameAs = "http://zotero.org/groups/1/items/JKLM6543",
@@ -272,7 +272,7 @@ namespace ERxWebClient2.Controllers
 		public string extra { get; set; }
 		//public Object tags { get; set; } = null;
 		public Object[] collections { get; set; }
-		//public Object relations { get; set; } = null;
+		public Object relations { get; set; } = new object();
 		public string dateAdded { get; set; }
 		public string dateModified { get; set; }
 		public string DOI { get; set; }
