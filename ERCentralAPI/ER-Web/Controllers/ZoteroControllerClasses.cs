@@ -651,12 +651,13 @@ namespace ERxWebClient2.Controllers
 		public string mtime { get; set; }
 	}
 
-	public class CreatorsItem
+
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+    public class CreatorsItem
 	{
 		public string creatorType { get; set; }
 		public string firstName { get; set; }
 		public string lastName { get; set; }
-
 		public string name { get; set; }
 	}
 

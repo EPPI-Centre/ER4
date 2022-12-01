@@ -1304,8 +1304,16 @@ namespace ERxWebClient2.Controllers
                     //we'll do the work: (1) get details for current batch, (2) ask to update them, (3) parse results...
                     QuerySt += "," + mac.key;
                     var GETItemUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?itemKey=" + QuerySt);
-                    //get our 50 attachments from Zotero, gives us their version N...
-                    var ListFromZot = await _zoteroService.GetCollections<AttachmentCollection>(GETItemUri.ToString(), httpClientProvider);
+                    List<AttachmentCollection> ListFromZot = new List<AttachmentCollection>();
+                    try
+                    {
+                        //get our 50 attachments from Zotero, gives us their version N...
+                        ListFromZot = await _zoteroService.GetCollections<AttachmentCollection>(GETItemUri.ToString(), httpClientProvider);
+                    }
+                    catch(Exception e)
+                    {
+                        errors.Add(new SingleError(e, "Error in Fetching details of pulled Attachments, affecting up to : " + TempList.Count + " record(s)."));
+                    }
                     foreach (MiniAttachmentCollectionData tac in TempList)
                     {
                         AttachmentCollection? tInput = ListFromZot.FirstOrDefault(f => tac.key == f.key);
@@ -1318,17 +1326,24 @@ namespace ERxWebClient2.Controllers
                     if (updating.Count > 0)
                     {
                         //update our attachments and then figure out how well it worked.
-                        var res = await _zoteroService.UpdatePartialItems(JsonConvert.SerializeObject(updating.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
-                        var actualContent = await res.Content.ReadAsStringAsync();
-
-                        Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
-                        Dictionary<int, PutErrorResult> failIndexesAndErrors = new Dictionary<int, PutErrorResult>();
-                        bool success = ParseBatchReply(actualContent, successIndexesAndKeys, failIndexesAndErrors, errors);
-                        foreach (KeyValuePair<int, PutErrorResult> kvp in failIndexesAndErrors)
+                        try
                         {
-                            SingleError err = new SingleError(updating[kvp.Key].key, "Failed to send back the ItemDoc ID for this Attachment, with err. code: "
-                                + kvp.Value.code.ToString() + "; Message: " + kvp.Value.message + ".");
-                            errors.Add(err);
+                            var res = await _zoteroService.UpdatePartialItems(JsonConvert.SerializeObject(updating.ToArray()), PUTItemsUri.ToString(), httpClientProvider);
+                            var actualContent = await res.Content.ReadAsStringAsync();
+
+                            Dictionary<int, string> successIndexesAndKeys = new Dictionary<int, string>();
+                            Dictionary<int, PutErrorResult> failIndexesAndErrors = new Dictionary<int, PutErrorResult>();
+                            bool success = ParseBatchReply(actualContent, successIndexesAndKeys, failIndexesAndErrors, errors);
+                            foreach (KeyValuePair<int, PutErrorResult> kvp in failIndexesAndErrors)
+                            {
+                                SingleError err = new SingleError(updating[kvp.Key].key, "Failed to send back the ItemDoc ID for this Attachment, with err. code: "
+                                    + kvp.Value.code.ToString() + "; Message: " + kvp.Value.message + ".");
+                                errors.Add(err);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            errors.Add(new SingleError(e, "Error in updating pulled Attachments (to add their ER IDs), affecting up to : " + updating.Count + " record(s)."));
                         }
                     }
                     TempList.Clear();

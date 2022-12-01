@@ -99,7 +99,7 @@
           </div>
         </div>
         <div *ngIf="ShowMore1" class="rounded bg-light my-1 px-0 mx-1">
-          <div class="row mx-1 px-1 border-bottom">
+          <div class="row mx-1 px-1 ">
             <div class="d-inline-block">
               Filter:
               <select class="select" [(ngModel)]="ActiveFilter1">
@@ -108,8 +108,10 @@
             </div>
             <div *ngIf="ActiveFilter1 != 'No filter'" class="ml-1 px-1">Filtered list has {{FilteredList1.length}} of {{ZoteroERWebReviewItemList.length}} items</div>
           </div>
-          <div class="row mx-1 px-1 d-inline-block">
-            Show Zotero ID: <input type="checkbox" [(ngModel)]="showItemKeys" />
+          <div class="row mx-1 px-1 ">Show: 
+            <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Short Title <input type="checkbox" [(ngModel)]="showItemShortTitles" /></div>
+            <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Zotero ID <input type="checkbox" [(ngModel)]="showItemKeys" /></div>
+            <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Title <input type="checkbox" [(ngModel)]="showItemTitles" /></div>
           </div>
         </div>
 
@@ -120,11 +122,14 @@
                 <th (click)="SortBy1('itemID')" style="cursor:pointer">
                   ItemId<span [innerHTML]="SortingSymbol1('itemID')"></span>
                 </th>
-                <th (click)="SortBy1('shortTitle')" style="cursor:pointer">
+                <th  *ngIf="showItemShortTitles" (click)="SortBy1('shortTitle')" style="cursor:pointer">
                   Short Title<span [innerHTML]="SortingSymbol1('shortTitle')"></span>
                 </th>
                 <th *ngIf="showItemKeys" (click)="SortBy1('itemKey')" style="cursor:pointer">
                   Zotero ID<span [innerHTML]="SortingSymbol1('itemKey')"></span>
+                </th>
+                <th *ngIf="showItemTitles" (click)="SortBy1('title')" style="cursor:pointer">
+                  Title<span [innerHTML]="SortingSymbol1('title')"></span>
                 </th>
                 <th (click)="SortBy1('pdfList')" style="cursor:pointer">
                   Docs?<span [innerHTML]="SortingSymbol1('pdfList')"></span>
@@ -134,22 +139,23 @@
                 </th>
                 <th style="width: 25px; max-width: 25px; border-left: solid 1px white;" class="">
                   <ng-container [ngSwitch]="HasSelectionsDetail1">
-                    <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll1()" title="No items selected"/>
-                    <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll1()" checked class="linear-fade" title="Some pushable items are selected"/>
-                    <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll1()" title="All pushable items are selected"/>
+                    <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll1()" title="No items selected" />
+                    <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll1()" checked class="linear-fade" title="Some pushable items are selected" />
+                    <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll1()" title="All pushable items are selected" />
                   </ng-container>
                 </th>
               </tr>
             </thead>
-            <tbody *ngFor="let object of PagedList1; index as i">
-              <tr [ngClass]="{'text-black-50': object.syncState != 2}" class="">
+            <tbody>
+              <tr *ngFor="let object of PagedList1; index as i" [ngClass]="{'text-black-50': object.syncState != 2}" class="">
                 <td>
                   {{ object.itemID}}
                 </td>
-                <td>
+                <td *ngIf="showItemShortTitles">
                   {{ object.shortTitle}}
                 </td>
                 <td *ngIf="showItemKeys">{{object.itemKey}}</td>
+                <td *ngIf="showItemTitles">{{object.title}}</td>
                 <td>
                   <div class="bg-warning" *ngIf="!object.HasPdf">
                     No Docs
@@ -247,6 +253,15 @@
             </div>
             <div *ngIf="ActiveFilter2 != 'No filter'" class="ml-1 px-1">Filtered list has {{FilteredList2.length}} of {{ZoteroItems.length}} items</div>
           </div>
+          <div class="row mx-1 px-1 ">
+            Show:
+            <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">
+              Short Title <input type="checkbox" [(ngModel)]="showZoteroShortTitles" />
+            </div>
+            <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">
+              Title <input type="checkbox" [(ngModel)]="showZoteroTitles" />
+            </div>
+          </div>
         </div>
 
         <div *ngIf="ZoteroItems.length > 0" class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
@@ -269,7 +284,10 @@
                 <th (click)="SortBy2('key')" style="cursor:pointer">
                   Zotero ID<span [innerHTML]="SortingSymbol2('key')"></span>
                 </th>
-                <th (click)="SortBy2('shortTitle')" style="cursor:pointer">
+                <th *ngIf="showZoteroTitles" (click)="SortBy2('title')" style="cursor:pointer">
+                  Title<span [innerHTML]="SortingSymbol2('title')"></span>
+                </th>
+                <th *ngIf="showZoteroShortTitles" (click)="SortBy2('shortTitle')" style="cursor:pointer">
                   Short Title<span [innerHTML]="SortingSymbol2('shortTitle')"></span>
                 </th>
               </tr>
@@ -305,7 +323,10 @@
                 <td>
                   {{object.key}}
                 </td>
-                <td>
+                <td *ngIf="showZoteroTitles">
+                  {{object.title}}
+                </td>
+                <td *ngIf="showZoteroShortTitles">
                   {{object.shortTitle}}
                 </td>
                 <!--<td>
