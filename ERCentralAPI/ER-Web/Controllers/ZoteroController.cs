@@ -1072,7 +1072,8 @@ namespace ERxWebClient2.Controllers
                     forSaving = new IncomingItemsList
                     {
                         FilterID = 0,
-                        SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy"),
+                        SourceName = "Zotero " + DateTime.Now.ToString("dd-MMM-yyyy HH:mm") + " (" + incomingItems.Count 
+                        + (incomingItems.Count == 1 ? " item)": " items)"),
                         SourceDB = "Zotero",
                         DateOfImport = DateTime.Now,
                         DateOfSearch = DateTime.Now,

@@ -3,6 +3,7 @@ using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla;
 using ERxWebClient2.Controllers;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Diagnostics.Metrics;
 
@@ -102,6 +103,11 @@ namespace ERxWebClient2.Zotero
             newERWebItem.Parent_title = item.ParentTitle ?? "";
             newERWebItem.Url = item.URL ?? "";
             newERWebItem.ZoteroKey = collection.key;
+            string[] tmpParsedDate = ImportRefs.getDate(collection.date);
+            if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
+            else newERWebItem.Year = tmpParsedDate[0];
+            if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
+            else newERWebItem.Month = tmpParsedDate[1];
 
             SetFieldsBasedOnZoteroType(collection, newERWebItem);
 

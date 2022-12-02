@@ -1,7 +1,9 @@
 ﻿using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.BusinessClasses.ImportItems;
 using Csla;
 using ERxWebClient2.Controllers;
 using ERxWebClient2.Zotero;
+using Microsoft.IdentityModel.Tokens;
 using System.Globalization;
 
 namespace ER_Web.Zotero
@@ -89,7 +91,11 @@ namespace ER_Web.Zotero
             newERWebItem.City = collectionType.place;
             newERWebItem.ParentTitle = collectionType.parentTitle;
             newERWebItem.DOI = collectionType.DOI;
-            newERWebItem.Year = collectionType.date;
+            string[] tmpParsedDate = ImportRefs.getDate(collectionType.date);
+            if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
+            else newERWebItem.Year = tmpParsedDate[0];
+            if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
+            else newERWebItem.Month = tmpParsedDate[1];
             newERWebItem.URL = collectionType.url;
             SetItemIdAndComments(newERWebItem, collectionType);
 
