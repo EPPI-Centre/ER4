@@ -1306,10 +1306,13 @@ namespace ERxWebClient2.Controllers
                 MiniAttachmentCollectionData mac = AttachmentsToUpdate[i];
                 TempList.Add(mac);
                 if (TempList.Count == 1) QuerySt = mac.key;//first element in the list, no comma!
-                else if (TempList.Count == 50 || i == AttachmentsToUpdate.Count -1)
-                {//OK, this is the last element in the list, considering we can ask for, and then update, up to 50 entities in one go
-                    //we'll do the work: (1) get details for current batch, (2) ask to update them, (3) parse results...
+                else
+                {//an element in the list, not the first
                     QuerySt += "," + mac.key;
+                }
+                if (TempList.Count == 50 || i == AttachmentsToUpdate.Count -1)
+                {//OK, this is the last element in the current batch, considering we can ask for, and then update, up to 50 entities in one go
+                    //we'll do the work: (1) get details for current batch, (2) ask to update them, (3) parse results...
                     var GETItemUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?itemKey=" + QuerySt);
                     List<AttachmentCollection> ListFromZot = new List<AttachmentCollection>();
                     try
@@ -1327,6 +1330,9 @@ namespace ERxWebClient2.Controllers
                         if (tInput != null)
                         {
                             tac.version = tInput.version;
+                            List<tagObject> currentTags = tInput.data.tags.ToList().FindAll(f => !f.tag.StartsWith(ZoteroCreator.searchFor));
+                            currentTags.Add(tac.tags[0]);
+                            tac.tags = currentTags.ToArray();
                         }
                     }
                     var updating = TempList.FindAll(f => f.version != 0);//making sure we only try to update Attachs that are well formed...
@@ -1356,10 +1362,6 @@ namespace ERxWebClient2.Controllers
                     TempList.Clear();
                     QuerySt = "";
 
-                }
-                else
-                {//an element in the list, neither first nor last...
-                    QuerySt += "," + mac.key;
                 }
             }
             
