@@ -1864,17 +1864,29 @@ namespace ERxWebClient2.Controllers
                 }
                 else
                 {
-                    ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+                    ZoteroBatchError errors = new ZoteroBatchError("RebuildItemConnections", 0);
+                    List<JObject> Zitems = new List<JObject>();
 
-                    var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
-                    var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
-                    List<JObject> Zitems = await _zoteroService.GetPagedCollections<JObject>(GETGroupsUri.ToString(), httpClientProvider);
+                    try
+                    {
+                        ZoteroReviewConnection zrc = DataPortal.Fetch<ZoteroReviewConnection>();
+
+                        var GETGroupsUri = new UriBuilder($"{baseUrl}/groups/{zrc.LibraryId}/items?sort=title");
+                        var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
+                        Zitems = await _zoteroService.GetPagedCollections<JObject>(GETGroupsUri.ToString(), httpClientProvider);
+                    }
+                    catch (Exception e)
+                    {
+                        //errors.Add(new SingleError(e, "Failed to fetch the data needed to 'rebuild' items links."));
+                        _logger.LogException(e, "Error in RebuildItemConnections while fetching data.");
+                        return StatusCode(500, e.Message);
+                    }
                     DataTable TagsAndIds = new DataTable();
                     DataTable TagsAndIdsOfItemsWithDocs = new DataTable();
                     TagsAndIds.Columns.Add(new DataColumn("ERId", Int64.MaxValue.GetType()));
-                    TagsAndIds.Columns.Add(new DataColumn("ZOTEROKEY", Type.GetType("System.String")));
+                    TagsAndIds.Columns.Add(new DataColumn("ZOTEROKEY", string.Empty.GetType()));
                     TagsAndIdsOfItemsWithDocs.Columns.Add(new DataColumn("ERId", Int64.MaxValue.GetType()));
-                    TagsAndIdsOfItemsWithDocs.Columns.Add(new DataColumn("ZOTEROKEY", Type.GetType("System.String")));
+                    TagsAndIdsOfItemsWithDocs.Columns.Add(new DataColumn("ZOTEROKEY", string.Empty.GetType()));
                     DataRow tRow;
                     //foreach (Item itm in this.Items)
                     //{
@@ -1885,89 +1897,117 @@ namespace ERxWebClient2.Controllers
 
                     string searchFor = ZoteroCreator.searchFor;// "EPPI-Reviewer ID: ";
                     string[] separators = ZoteroCreator.separators;// { "\r\n", "\n", "\r", Environment.NewLine };
+                    Collection? collectionItem = null;
                     foreach (JObject Jzitem in Zitems)
                     {
-                        var collectionItem = JsonConvert.DeserializeObject<Collection>(Jzitem.ToString());
-                        if (collectionItem != null && collectionItem.data != null)
+                        try
                         {
-                            tagObject? IdTag = null;
-                            if (collectionItem.data.tags.Any())
+                            collectionItem = JsonConvert.DeserializeObject<Collection>(Jzitem.ToString());
+                            if (collectionItem != null && collectionItem.data != null)
                             {
-                                IdTag = collectionItem.data.tags.FirstOrDefault((f) => { return f.tag != null && f.tag.StartsWith(searchFor); });
-                            }
-                            long ERId; string ERIdSt = "";
-                            if (IdTag != null)
-                            {//we have an ItemId in the IdTag
-                             //18 chars
-                                ERIdSt = IdTag.tag.Replace(searchFor, "");
-                            }
-                            else if (collectionItem.data.extra != null && collectionItem.data.extra.Contains("EPPI-Reviewer ID: "))
-                            {//still OK, we have it in the extra field...
-                                string[] lines = collectionItem.data.extra.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-                                foreach (string line in lines)
+                                tagObject? IdTag = null;
+                                if (collectionItem.data.tags.Any())
                                 {
-                                    if (line.StartsWith(searchFor))
+                                    IdTag = collectionItem.data.tags.FirstOrDefault((f) => { return f.tag != null && f.tag.StartsWith(searchFor); });
+                                }
+                                long ERId; string ERIdSt = "";
+                                if (IdTag != null)
+                                {//we have an ItemId in the IdTag
+                                    ERIdSt = IdTag.tag.Replace(searchFor, "");
+                                }
+                                else if (collectionItem.data.extra != null && collectionItem.data.extra.Contains("EPPI-Reviewer ID: "))
+                                {//still OK, we have it in the extra field...
+                                    string[] lines = collectionItem.data.extra.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                                    foreach (string line in lines)
                                     {
-                                        ERIdSt = line.Replace(searchFor, "");
+                                        if (line.StartsWith(searchFor))
+                                        {
+                                            ERIdSt = line.Replace(searchFor, "");
+                                        }
                                     }
                                 }
-                            }
 
-                            if (ERIdSt != "" && long.TryParse(ERIdSt, out ERId))
-                            {//SUCCESS, we have an ERId to use :-)
-                                if (collectionItem.data.itemType == "attachment")
-                                {
-                                    tRow = TagsAndIdsOfItemsWithDocs.NewRow();
-                                    tRow["ERId"] = ERId;
-                                    tRow["ZOTEROKEY"] = collectionItem.key;
-                                    TagsAndIdsOfItemsWithDocs.Rows.Add(tRow);
-                                    Debug.WriteLine("Doc: " + collectionItem.key + "|" + ERId.ToString());
+                                if (ERIdSt != "" && long.TryParse(ERIdSt, out ERId))
+                                {//SUCCESS, we have an ERId to use :-)
+                                    if (collectionItem.data.itemType == "attachment")
+                                    {
+                                        tRow = TagsAndIdsOfItemsWithDocs.NewRow();
+                                        tRow["ERId"] = ERId;
+                                        tRow["ZOTEROKEY"] = collectionItem.key;
+                                        TagsAndIdsOfItemsWithDocs.Rows.Add(tRow);
+                                        Debug.WriteLine("Doc: " + collectionItem.key + "|" + ERId.ToString());
+                                    }
+                                    else
+                                    {
+                                        tRow = TagsAndIds.NewRow();
+                                        tRow["ERId"] = ERId;
+                                        tRow["ZOTEROKEY"] = collectionItem.key;
+                                        TagsAndIds.Rows.Add(tRow);
+                                        //if (collectionItem.links != null
+                                        //    && collectionItem.links.attachment != null
+                                        //    && collectionItem.links.attachment.href != null
+                                        //    && collectionItem.links.attachment.href != ""
+                                        //    )
+                                        //{
+                                        //    //this ref has docs, so we'll need to do _more_ work...
+                                        //    TagsAndIdsOfItemsWithDocs.Add;
+                                        //    Debug.WriteLine(collectionItem.key + " has docs");
+                                        //}
+                                        Debug.WriteLine("Item: " + collectionItem.key + "|" + ERId.ToString());
+                                    }
                                 }
-                                else
-                                {
-                                    tRow = TagsAndIds.NewRow();
-                                    tRow["ERId"] = ERId;
-                                    tRow["ZOTEROKEY"] = collectionItem.key;
-                                    TagsAndIds.Rows.Add(tRow);
-                                    //if (collectionItem.links != null
-                                    //    && collectionItem.links.attachment != null
-                                    //    && collectionItem.links.attachment.href != null
-                                    //    && collectionItem.links.attachment.href != ""
-                                    //    )
-                                    //{
-                                    //    //this ref has docs, so we'll need to do _more_ work...
-                                    //    TagsAndIdsOfItemsWithDocs.Add;
-                                    //    Debug.WriteLine(collectionItem.key + " has docs");
-                                    //}
-                                    Debug.WriteLine("Item: " + collectionItem.key + "|" + ERId.ToString());
-                                }
-                            }
 
+                            }
+                        }
+                        catch(Exception e)
+                        {//might not fail for the next entity? we collect all errors
+                            if (collectionItem != null && collectionItem.key != null)
+                                errors.Add(new SingleError(e, collectionItem.key, "Failed to parse the data needed to 'rebuild', for this record."));
+                            else
+                                errors.Add(new SingleError(e, "Failed to parse the data needed to 'rebuild' items links."));
                         }
                     }
                     //now we have the list of all known ER-Ids and ZoteroKey pairs, we'll pass it to SQL st_ZoteroRebuildItemLinks to re-insert whatever records are missing
-                    SQLHelper sQLHelper = new SQLHelper(_configuration, _logger);
-
-                    SqlParameter[] parameters = new SqlParameter[3];
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    parameters[0] = new SqlParameter("@revID", ri.ReviewId);
-
-                    parameters[1] = new SqlParameter("@itemsAndKeys", TagsAndIds);
-                    parameters[1].SqlDbType = SqlDbType.Structured;
-                    parameters[1].TypeName = "dbo.ITEMS_ZOT_INPUT_TB";
-
-                    parameters[2] = new SqlParameter("@docsAndKeys", TagsAndIdsOfItemsWithDocs);
-                    parameters[2].SqlDbType = SqlDbType.Structured;
-                    parameters[2].TypeName = "dbo.ITEMS_ZOT_INPUT_TB";
-
-                    int res = sQLHelper.ExecuteNonQuerySP(sQLHelper.ER4DB, "st_ZoteroRebuildItemLinks", parameters);
-                    if (res < 0)
+                    try
                     {
-                        //something went wrong, we'll report failure, SQL error has been logged already
-                        return StatusCode(500, "Rebuilding links failed when saving data to the Database");
+                        SQLHelper sQLHelper = new SQLHelper(_configuration, _logger);
+
+                        SqlParameter[] parameters = new SqlParameter[3];
+                        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                        parameters[0] = new SqlParameter("@revID", ri.ReviewId);
+
+                        parameters[1] = new SqlParameter("@itemsAndKeys", TagsAndIds);
+                        parameters[1].SqlDbType = SqlDbType.Structured;
+                        parameters[1].TypeName = "dbo.ITEMS_ZOT_INPUT_TB";
+
+                        parameters[2] = new SqlParameter("@docsAndKeys", TagsAndIdsOfItemsWithDocs);
+                        parameters[2].SqlDbType = SqlDbType.Structured;
+                        parameters[2].TypeName = "dbo.ITEMS_ZOT_INPUT_TB";
+
+                        int res = sQLHelper.ExecuteNonQuerySP(sQLHelper.ER4DB, "st_ZoteroRebuildItemLinks", parameters);
+                        if (res < 0)
+                        {
+                            //something went wrong, we'll report failure, SQL error has been logged already
+                            return StatusCode(500, "Rebuilding links failed when saving data to the Database");
+                        }
                     }
-                    
+                    catch(Exception e)
+                    {
+                        errors.Add(new SingleError(e, "Failed to 'rebuild' items links at the final 'update' stage."));
+                    }
+                    if (errors.failCount == 0)
                     return Ok(true);
+                    else
+                    {
+                        LogBatchErrors(errors);
+                        string message = "<br>Rebuilding (links) ended, with " + errors.failCount.ToString() + " error(s), listed below.<ul>";
+                        foreach (SingleError error in errors.failedIdsAndMessage)
+                        {
+                            message += "<li>" + error.ToString() + "</li>";
+                        }
+                        message += "</ul> Please try again.<br>If the problem persists, please contact EPPISupport.";
+                        return StatusCode(500, message);
+                    }
                 }
             }
             catch (Exception e)
