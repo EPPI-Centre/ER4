@@ -105,8 +105,8 @@ namespace ER_Web.Zotero
             };
             return erWebItem;
         }
-        public static string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
-        public static string searchFor = "EPPI-Reviewer ID: ";
+        public static readonly string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
+        public static readonly string searchFor = "EPPI-Reviewer ID: ";
         private static void SetItemIdAndComments(Item newERWebItem, CollectionType collectionType)
         {//despite the name, we DO NOT need to set the itemId...
             if (collectionType.extra == null) collectionType.extra = "";

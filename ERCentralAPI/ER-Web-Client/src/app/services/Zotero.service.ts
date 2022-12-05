@@ -198,7 +198,8 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
   }
 
     public async UpdateGroupToReview(groupId: string, deleteLink: boolean): Promise<boolean> {
-    
+      this._zoteroERWebReviewItemList = [];
+      this._ZoteroItems = [];
         this._BusyMethods.push("UpdateGroupToReview");
       return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/UpdateGroupToReview', groupId.toString() )
             ).then(result => {
@@ -405,6 +406,7 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
 
   public async RebuildItemConnections(): Promise<boolean> {
     this._BusyMethods.push("RebuildItemConnections");
+    this._BusyMessage = "Rebuilding Item Connections - this can take <strong>several minutes</strong>."
     return lastValueFrom(this._httpC.get<boolean>(this._baseUrl + 'api/Zotero/RebuildItemConnections')
     ).then(
       result => {

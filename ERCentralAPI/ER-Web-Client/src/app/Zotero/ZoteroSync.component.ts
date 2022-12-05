@@ -88,6 +88,9 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   public showItemShortTitles: boolean = true;
   public showZoteroTitles: boolean = false;
   public showZoteroShortTitles: boolean = true;
+
+  public showRebuildExplanation: boolean = false;
+
   private _TotPages1: number = -1;
   private _TotPages2: number = -1;
   private _PageSize1: number = 100;

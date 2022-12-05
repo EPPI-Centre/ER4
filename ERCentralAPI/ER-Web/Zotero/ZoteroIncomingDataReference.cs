@@ -102,6 +102,7 @@ namespace ERxWebClient2.Zotero
             newERWebItem.Keywords = item.Keywords ?? "";
             newERWebItem.Parent_title = item.ParentTitle ?? "";
             newERWebItem.Url = item.URL ?? "";
+            newERWebItem.OldItemId = collection.key;
             newERWebItem.ZoteroKey = collection.key;
             string[] tmpParsedDate = ImportRefs.getDate(collection.date);
             if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";

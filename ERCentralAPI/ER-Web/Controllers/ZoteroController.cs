@@ -1095,7 +1095,9 @@ namespace ERxWebClient2.Controllers
             var PUTItemsUri = new UriBuilder($"{baseUrl}/groups/{groupIDBeingSynced}/items/");
             var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
             List<MiniCollectionType> batch = new List<MiniCollectionType>();
-            int batchSize = 50;
+            int batchSize = 50; 
+            string searchFor = ZoteroCreator.searchFor;// "EPPI-Reviewer ID: ";
+            string[] separators = ZoteroCreator.separators;// { "\r\n", "\n", "\r", Environment.NewLine };
             foreach (ItemIncomingData iid in forSaving.IncomingItems)
             {
                 try
@@ -1103,12 +1105,16 @@ namespace ERxWebClient2.Controllers
                     Collection? zRef = ZoteroRefs.FirstOrDefault(f => f.key == iid.ZoteroKey);
                     if (zRef == null) continue;
                     MiniCollectionType updating = new MiniCollectionType(zRef.data);
-                    List<tagObject> tags = updating.tags.ToList();
 
-                    //for tidyness, should we remove any already present ID tag?? (same for extra field??) IDK!
-                    tags.Add(new tagObject() { type = "1", tag = "EPPI-Reviewer ID: " + iid.NewItemId.ToString() });
+                    //for tidyness, we remove any already present ID tag, replace with current one.
+                    List<tagObject> tags = updating.tags.ToList().FindAll(f=> !f.tag.StartsWith(searchFor));
+                    tags.Add(new tagObject() { type = "1", tag = searchFor + iid.NewItemId.ToString() });
                     updating.tags = tags.ToArray();
-                    updating.extra = "EPPI-Reviewer ID: " + iid.NewItemId.ToString() + Environment.NewLine + updating.extra;
+
+                    //ditto, make sure we only have one "EPPI-Reviewer ID: ..." line in the extra field.
+                    List<string> extras = updating.extra.Split(separators, StringSplitOptions.RemoveEmptyEntries).ToList().FindAll(f => !f.StartsWith(searchFor));
+                    updating.extra = searchFor + iid.NewItemId.ToString() + Environment.NewLine 
+                                         + string.Join(Environment.NewLine, extras);
 
                     //DateEdited is set in the ItemIncomingData instance, to "now", at creation time
                     //sending a new timestamp back to Zot forces Zot to respect the explicit timestamp (would update it to "now" again, if we sent the exact value that is already in Zotero).

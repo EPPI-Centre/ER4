@@ -38,7 +38,23 @@
         </div>
       </div>
       <div *ngIf="BusyMessage == ''" class="row mx-0 mb-1">
-        <button class="btn-sm btn btn-outline-danger py-0" (click)="RebuildItemConnections()">Rebuild</button>
+        <button *ngIf="!showRebuildExplanation; else rebuildPanel" class="btn-sm btn btn-outline-danger py-0" (click)="showRebuildExplanation = true;">Rebuild</button>
+        <ng-template #rebuildPanel>
+          <div class="p-2 rounded bg-light col-12">
+            <p>
+              In some circumstances, the data used by EPPI-Reviewer to keep track of references on both ends can go missing. For example:
+            </p>
+            <ul>
+              <li>The Access Key used to communicate with Zotero has been (accidentaly?) revoked and then re-created.</li>
+              <li>In Zotero, a number of items has been moved to the trash, and then reinstated.</li>
+            </ul>
+            <p>
+              In such and similar cases, EPPI-Reviewer can try to rebuild this data, which uses the "<code>EPPI-Reviewer Id: NNNNN</code>" tags.
+              You can click on the "<strong>OK, Rebuild!</strong>" button to start this procedure, which may last several minutes, depending on how many references are present in the Zotero library.
+            </p>
+            <button class="btn btn-danger py-1" (click)="RebuildItemConnections(); showRebuildExplanation = false;">OK, Rebuild!</button>
+          </div>
+        </ng-template>
       </div>
     </div>
 
