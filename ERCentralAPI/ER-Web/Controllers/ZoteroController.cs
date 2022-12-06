@@ -1923,6 +1923,7 @@ namespace ERxWebClient2.Controllers
                                         if (line.StartsWith(searchFor))
                                         {
                                             ERIdSt = line.Replace(searchFor, "");
+                                            break;
                                         }
                                     }
                                 }
