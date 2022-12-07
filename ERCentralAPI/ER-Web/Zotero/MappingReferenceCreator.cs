@@ -84,8 +84,8 @@ namespace ERxWebClient2.Zotero
                     return new ZoteroConferenceProceeding(item);
                 case "blogPost":
                     return new ZoteroWebSite(item);
-                case "attachment":
-                    return new ZoteroAttachment(item);
+                //case "attachment":
+                //    return new ZoteroAttachment(item);
                 default:
                     //throw new NotSupportedException();
                     // for development return something
