@@ -142,7 +142,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
 	}
 	//loadReviews() {
 
-	//	this._readonlyreviewsService.Fetch().toPromise().then(
+	//	lastValueFrom(this._readonlyreviewsService.Fetch()).then(
 
 	//			(result) => {
 

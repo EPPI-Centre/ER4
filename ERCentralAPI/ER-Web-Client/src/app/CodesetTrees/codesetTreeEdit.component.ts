@@ -1,10 +1,11 @@
-import { Component, Inject, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { TreeItem } from '@progress/kendo-angular-treeview';
-import { faCaretDown, faCaretUp, faAngleDoubleDown, faAngleDoubleUp, faEject } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faCaretUp, faAngleDoubleDown, faAngleDoubleUp, faEject, faPlaneDeparture } from '@fortawesome/free-solid-svg-icons';
+import { EditCodeComp } from '../CodesetTrees/editcode.component';
 
 @Component({
     selector: 'codesetTreeEdit',
@@ -19,7 +20,9 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
     public ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewSetsService: ReviewSetsService,
         private ReviewSetsEditingService: ReviewSetsEditingService
-    ) { }
+  ) { }
+  //@ViewChild('EditCodeComp') EditCodeComp!: EditCodeComp;
+
     ngOnInit() {
         if (this.ReviewSetsService.ReviewSets.length == 0) {
             this.ReviewSetsService.GetReviewSets(false);
@@ -34,6 +37,7 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
   faAngleDoubleDown = faAngleDoubleDown;
   faAngleDoubleUp = faAngleDoubleUp;
   faEject = faEject;
+  faPlaneDeparture = faPlaneDeparture;
     public CanWrite(): boolean {
         if (this.CanChangeSelectedCode) {
             return this.CanWriteAndServicesIdle;
@@ -141,20 +145,49 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
       //    if (MyAtt) this.MoveDownAttribute(MyAtt);
       //}
     }
-    
 
-  NodeSelected(event: TreeItem) {
-    let node: singleNode = event.dataItem;
-    this.ReviewSetsService.selectedNode = node;
-    //this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-  }
+    private _ActivityPanelNameFromCodesetTreeEdit: string = "";
+    public get ActivityPanelName() {
+      return this._ActivityPanelNameFromCodesetTreeEdit;
+    }
+    public ChangeActivityPanelName() {
+      this._ActivityPanelNameFromCodesetTreeEdit = "";
+    }
+
+    MoveCode(node: singleNode) {
+      this.ReviewSetsService.selectedNode = node;
+      this._ActivityPanelNameFromCodesetTreeEdit = 'EditCode';
+
+      //this.ReviewSets.
+      // this is on editcode.component. how do I call it?
+      //this.treeEditorComponent
+      //this.EditCodeComp.ShowPanel = 'MoveCode';
+      //this.EditCodeComp.ErrorMessage4CodeMove = '';
+
+
+
+
+
+
+      //await this.ReviewSetsEditingService.MoveCode(node);
+      //and notify the tree:
+      //this.RefreshLocalTree();
+    }    
+
+    NodeSelected(event: TreeItem) {
+      let node: singleNode = event.dataItem;
+      this.ReviewSetsService.selectedNode = node;
+      //this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+    }
     CanMoveDown(node: singleNode): boolean {
         return this.ReviewSetsEditingService.CanMoveDown(node);
     }
     CanMoveUp(node: singleNode): boolean {
         return this.ReviewSetsEditingService.CanMoveUp(node);
     }
-
+    IsACode(node: singleNode): boolean {
+      return this.ReviewSetsEditingService.IsACode(node);
+    }
     ngOnDestroy() {
     }
 }

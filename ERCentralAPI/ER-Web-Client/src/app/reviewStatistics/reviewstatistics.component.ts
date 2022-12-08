@@ -139,7 +139,15 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         click: () => {
             this.NewReference();
         }
-    }];
+      },
+        {
+          text: 'Manage Sources',
+          click: () => {
+            this.GoToManageSources();
+          }
+        }
+      ];
+
     public CodingToolsDDData: Array<any> = [{
         text: 'Import Coding Tools',
         click: () => {
@@ -174,7 +182,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		this.router.navigate(['ImportCodesets']);
     }
     GoToSources() {
-        this.router.navigate(['sources']);
+      this.router.navigate(['sources']);
+    }
+    GoToManageSources() {
+      this.router.navigate(['sources'], { queryParams: { tabby: 'ManageSources' } });
     }
     GoToDuplicates() {
         this.router.navigate(['Duplicates']);
@@ -218,7 +229,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 	NewReference() {
 		this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
-	}
+    }
 	CompleteCoding(contactName: string, setName: string, setId: number, contactId: number,  completeOrNot: string) {
         if (!this.HasWriteRights) return;
 		if (setId != null && contactId != null && completeOrNot != null) {

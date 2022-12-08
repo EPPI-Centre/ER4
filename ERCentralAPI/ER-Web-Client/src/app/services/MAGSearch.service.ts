@@ -4,6 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { MagSearch, MagSearchBuilder } from './MAGClasses.service';
 import { ConfigService } from './config.service';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -48,8 +49,8 @@ export class magSearchService extends BusyAwareService {
 	Delete(magSearches: MagSearch[]) {
 
         this._BusyMethods.push("Delete");
-        return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/DeleteMagSearch',
-            magSearches).toPromise()
+    return lastValueFrom(this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/DeleteMagSearch',
+            magSearches))
 			.then(result => {
                 this.RemoveBusy("Delete");
                 for (var i = 0; i < magSearches.length; i++) {
@@ -73,8 +74,8 @@ export class magSearchService extends BusyAwareService {
         let body = JSON.stringify({
             searchText: searchText, magSearchText: magSearchText
         });
-        return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/ReRunMagSearch',
-            body).toPromise()
+      return lastValueFrom(this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/ReRunMagSearch',
+            body))
             .then(
 
                 (result: MagSearch[]) => {
@@ -92,8 +93,8 @@ export class magSearchService extends BusyAwareService {
 
     CreateMagSearch(newSearch: MagSearchBuilder) {
         this._BusyMethods.push("CreateMagSearch");
-		return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/CreateMagSearch',
-               newSearch).toPromise()
+      return lastValueFrom(this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/CreateMagSearch',
+               newSearch))
 
             .then(
 
@@ -115,8 +116,8 @@ export class magSearchService extends BusyAwareService {
 
         this._BusyMethods.push("RunMagSearch");
         
-        return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/RunMagSearch',
-            mSearch).toPromise()
+      return lastValueFrom(this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/RunMagSearch',
+            mSearch))
 
             .then(
                 (result: MagSearch[]) => {
@@ -141,7 +142,7 @@ export class magSearchService extends BusyAwareService {
         // let body = JSON.stringify({
             // magSearchListCombine: magSearchListCombine, logicalOperator: logicalOperator });
         // return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/CombineMagSearches',
-            // body).toPromise()
+            // body))
 
             // .then(result => {
                 // this.RemoveBusy("CombineSearches");
@@ -166,8 +167,8 @@ export class magSearchService extends BusyAwareService {
             , FilterOutDOI: FilterOutDOI
             , FilterOutTitle: FilterOutTitle
         });
-        return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/ImportMagSearchPapers',
-            body).toPromise()
+      return lastValueFrom(this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/ImportMagSearchPapers',
+            body))
 
             .then(result => {
                 this.RemoveBusy("ImportMagSearches");

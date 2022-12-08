@@ -3,7 +3,7 @@ import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { EventEmitterService } from './EventEmitter.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -121,8 +121,8 @@ export class searchService extends BusyAwareService implements OnDestroy {
 		let _SearchName: SearchNameUpdate = { SearchId: searchId, SearchName: searchName};
 		let body = JSON.stringify(_SearchName);
 
-		return this._httpC.post<Search>(this._baseUrl + 'api/SearchList/UpdateSearchName',
-			body).toPromise()
+    return lastValueFrom(this._httpC.post<Search>(this._baseUrl + 'api/SearchList/UpdateSearchName',
+			body))
 			.then(
 				(result) => {
 					this.RemoveBusy("UpdateSearchName");

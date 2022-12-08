@@ -1,5 +1,5 @@
 import { Inject, Injectable, Output, EventEmitter, NgZone, Attribute, OnDestroy } from '@angular/core';
-import { Observable, of, Subscription } from 'rxjs';
+import { lastValueFrom, Observable, of, Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from './modal.service';
@@ -145,8 +145,8 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     public async StandaloneFetchItemAttPDFCoding(criteria: ItemAttPDFCodingCrit): Promise<ItemAttributePDF[] | boolean> {
         this._BusyMethods.push("StandaloneFetchItemAttPDFCoding");
         this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
-        return this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
-            criteria).toPromise().then(result => {
+      return lastValueFrom(this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
+            criteria)).then(result => {
                 //console.log("FetchItemAttPDFCoding", result);
                 //this._CurrentItemAttPDFCoding.Criteria = criteria;
                 //this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
@@ -1112,10 +1112,10 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     }
     public FetchAllFullTextData(itemid: number): Promise<boolean> {
         this._BusyMethods.push("FetchAllFullTextData");
-        return this._httpC.post<ItemAttributeFullTextDetails[]>(
+      return lastValueFrom(this._httpC.post<ItemAttributeFullTextDetails[]>(
             this._baseUrl + 'api/Comparisons/ItemAttributesFullTextData',
             itemid
-        ).toPromise().then(
+        )).then(
             (res: ItemAttributeFullTextDetails[]) => {
                 //let fullText: object[] = [];
                 if (res != null) {
@@ -1251,8 +1251,8 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
             items: [],
             itemSets: []
         };
-        return this._httpC.post<iQuickCodingReportData>(this._baseUrl + 'api/ItemSetList/FetchQuickCodingReportPage',
-            criteria).toPromise().then(
+      return lastValueFrom(this._httpC.post<iQuickCodingReportData>(this._baseUrl + 'api/ItemSetList/FetchQuickCodingReportPage',
+            criteria)).then(
             result => {
                 this.RemoveBusy("FetchCodingReportDataPage");
                 this.ngZone.run(() => this.IsBusy);

@@ -2,7 +2,7 @@ import {  Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/c
 import { Router, RouteReuseStrategy } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
-import { Subject, timer, Subscription } from 'rxjs';
+import { Subject, timer, Subscription, lastValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ReviewerTermsService } from './ReviewerTerms.service';
 import { ModalService } from './modal.service';
@@ -174,8 +174,8 @@ export class ReviewerIdentityService implements OnDestroy {
 
         let LgtC = new LogonTicketCheck(u, g);
 
-        return this._httpC.post<any>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
-            LgtC).toPromise();
+      return lastValueFrom(this._httpC.post<any>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
+            LgtC));
     }
 
     public LoginReq(u: string, p: string) {
@@ -217,8 +217,8 @@ export class ReviewerIdentityService implements OnDestroy {
             reqpar.reviewerIdentity = this.reviewerIdentity;
         }
             //this.reviewerIdentity.roles.indexOf('ReadOnlyUser') == -1
-        return this._httpC.post<ArchieLoginCreds>(this._baseUrl + 'api/Login/LoginFromArchie',
-            reqpar).toPromise().then((res) => {
+      return lastValueFrom(this._httpC.post<ArchieLoginCreds>(this._baseUrl + 'api/Login/LoginFromArchie',
+            reqpar)).then((res) => {
                 console.log("LoginViaArchieReq: ", res);
                 if (res.error !== "") {
                     //to be confirmed
@@ -281,8 +281,8 @@ export class ReviewerIdentityService implements OnDestroy {
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let reqpar = new ArchieLoginCreds(code, state);
         reqpar.loginCreds = new LoginCreds(un, pw);
-        return this._httpC.post<ArchieLoginCreds>(this._baseUrl + 'api/Login/LinkToExistingAccount',
-            reqpar).toPromise().then((res) => {
+      return lastValueFrom(this._httpC.post<ArchieLoginCreds>(this._baseUrl + 'api/Login/LinkToExistingAccount',
+            reqpar)).then((res) => {
                 if (res) {
                     if (res.error != "") {
                         console.log("LinkToArchieAccount: ", 1);
@@ -326,8 +326,8 @@ export class ReviewerIdentityService implements OnDestroy {
 
     public CreateERAccountFromArchie(reqpar: iCreateER4ContactViaArchieCommandJSON): Promise<iCreateER4ContactViaArchieCommandJSON> {
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
-        return this._httpC.post<iCreateER4ContactViaArchieCommandJSON>(this._baseUrl + 'api/Login/CreateER4ContactViaArchie',
-            reqpar).toPromise().then((res) => {
+      return lastValueFrom(this._httpC.post<iCreateER4ContactViaArchieCommandJSON>(this._baseUrl + 'api/Login/CreateER4ContactViaArchie',
+            reqpar)).then((res) => {
                 if (res) {
                     console.log("CreateERAccountFromArchie: ", 1, res);
                     return res;

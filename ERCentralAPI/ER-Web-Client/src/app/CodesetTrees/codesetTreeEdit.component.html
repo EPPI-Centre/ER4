@@ -17,6 +17,8 @@
       <img *ngIf="!data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
       <img *ngIf="!data.allowEditingCodeset" title="You can't edit this Coding Tool" src="assets/CodeSetLocked.png" class="mr-1" />
     </span>
+    <fa-icon *ngIf="IsACode(data) && CanWriteAndServicesIdle" [icon]="faPlaneDeparture" class="fa-xs my-0 p-0 ml-1 mr-0 btn-link border-0"
+             (click)="MoveCode(data)" style="cursor: pointer"></fa-icon>
     <span [ngClass]="{'ScreeningSet' : data.subTypeName == 'Screening',
                             'AdminSet' : data.subTypeName == 'Administration',
                             'ExcludeCode' : data.subTypeName == 'Exclude'
@@ -24,7 +26,7 @@
       {{data.name}}
     </span>
     <fa-icon *ngIf="CanMoveDown(data) && CanWriteAndServicesIdle" [icon]="faAngleDoubleDown" class="fa-xs my-0 p-0 ml-1 mr-0 btn-link border-0"
-               (click)="MoveDownNodeFull(data)" style="cursor: pointer"></fa-icon>
+             (click)="MoveDownNodeFull(data)" style="cursor: pointer"></fa-icon>
     <fa-icon *ngIf="CanMoveDown(data) && CanWriteAndServicesIdle" [icon]="faCaretDown" class="my-0 p-0 ml-1 mr-0 btn-link border-0"
              (click)="MoveDownNode(data)" style="cursor: pointer;"></fa-icon>
 
@@ -34,4 +36,12 @@
              (click)="MoveUpNodeFull(data)" style="cursor: pointer;"></fa-icon>
   </ng-template>
 </kendo-treeview>
+<div>
+  <hr />
+  <fa-icon [icon]="faCaretUp" class="my-0 p-0 ml-1 mr-0 btn-link border-0"></fa-icon>&nbsp;&nbsp;Move up&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <fa-icon [icon]="faCaretDown" class="my-0 p-0 ml-1 mr-0 btn-link border-0"></fa-icon>&nbsp;&nbsp;Move down<br />
+  <fa-icon [icon]="faAngleDoubleUp" class="fa-xs my-0 p-0 ml-1 mr-0 btn-link border-0"></fa-icon>&nbsp;&nbsp;Move to top&nbsp;&nbsp;&nbsp;
+  <fa-icon [icon]="faAngleDoubleDown" class="fa-xs my-0 p-0 ml-1 mr-0 btn-link border-0"></fa-icon>&nbsp;&nbsp;Move to bottom<br />
+  <fa-icon [icon]="faPlaneDeparture" class="fa-xs my-0 p-0 ml-1 mr-0 btn-link border-0"></fa-icon>&nbsp;&nbsp;Move into / Place below
+</div>
 

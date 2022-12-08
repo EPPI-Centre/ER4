@@ -74,6 +74,25 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
       if (!node) return false;
       else return node.CanMoveBranchInHere;
   }
+  public get CanMoveBranchBelowHere(): boolean {
+    let node = this.innerSelectedNode;
+    if (!node) {
+      return false;
+    }
+    else if (node.parent === -1) {
+      return false;
+    }
+    else {
+      if (node.parent === this.SelectedNode?.parent) {
+        return node.CanMoveBranchInHere;
+      }
+      else {
+        return false;
+      }
+    }
+
+      //return node.CanMoveBranchInHere;
+  }
   public get DestinationBranch(): singleNode | null {
     let node = this.innerSelectedNode;
       if (!node) return null;

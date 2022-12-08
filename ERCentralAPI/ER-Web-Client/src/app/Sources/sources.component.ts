@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { SourcesService, ReadOnlySource, Source } from '../services/sources.service';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -27,7 +28,9 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 })
 
 export class SourcesComponent implements OnInit, OnDestroy {
-    constructor(private router: Router,
+  constructor(
+        private route: ActivatedRoute,
+        private router: Router,
         @Inject('BASE_URL') private _baseUrl: string,
         private SourcesService: SourcesService,
         private notificationService: NotificationService,
@@ -51,13 +54,19 @@ export class SourcesComponent implements OnInit, OnDestroy {
         this.SrcUpdatedSbus = this.SourcesService.SourceUpdated.subscribe(() => {
             this.SourceUpdated();
         })
+
+      this.tabFromQueryString = this.route.queryParams.subscribe(params => {
+          if (params['tabby']) {
+            this.goToTab = params['tabby'];
+          }
+        });
     }
-    ngAfterViewInit() {
-       
-        //if (this.SourcesService.ReviewSources && this.SourcesService.ReviewSources.length == 0) {
-        //     this.SourcesService.FetchSources();
-        //}
-        //this.SourcesService.FetchImportFilters();
+  ngAfterViewInit() {
+      if (this.goToTab == 'ManageSources') {
+        this.SelectTab(0);
+        // select the first source
+        this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID);
+      }
     }
     onSubmit(): boolean {
         console.log("Sources onSubmit");
@@ -73,6 +82,8 @@ export class SourcesComponent implements OnInit, OnDestroy {
     //we are going to use a clone of the selected source, cached here
     //this is to avoid dangerous recursion problems.
     private _CurrentSource: Source | null = null;
+    private tabFromQueryString: Subscription | null = null;
+    private goToTab: string = "";
 
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityService.HasWriteRights;
@@ -339,6 +350,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         if (this.SourceDeletedSubs) this.SourceDeletedSubs.unsubscribe();
         if (this.SrcUpdatedSbus) this.SrcUpdatedSbus.unsubscribe();
+      if (this.tabFromQueryString) this.tabFromQueryString.unsubscribe();
     }
 
 

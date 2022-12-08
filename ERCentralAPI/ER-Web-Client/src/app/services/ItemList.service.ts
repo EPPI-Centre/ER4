@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { iArm } from './ArmTimepointLinkList.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
@@ -213,8 +213,8 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 			inc = false;
 		}
 		this._BusyMethods.push("AssignDocumentsToIncOrExc");
-		return this._httpC.post<Item>(this._baseUrl + 'api/ItemList/AssignDocumentsToIncOrExc', body)
-			.toPromise().then(
+    return lastValueFrom(this._httpC.post<Item>(this._baseUrl + 'api/ItemList/AssignDocumentsToIncOrExc', body)
+			).then(
 				(result) => {
 						
 					result.isIncluded = inc;
@@ -532,8 +532,8 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("FetchAdditionalItemDetailsAsync");
     let body = JSON.stringify({ Value: Id });
 
-    return this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData',
-      body).toPromise()
+    return lastValueFrom(this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData',
+      body))
       .then(
         (result) => {
           this.RemoveBusy("FetchAdditionalItemDetailsAsync");
@@ -1023,8 +1023,8 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         this._BusyMethods.push("FetchSingleItem");
         let body = JSON.stringify({ Value: ItemId });
 
-        return this._httpC.post<Item>(this._baseUrl + 'api/ItemList/GetSingleItem',
-            body).toPromise().then(
+      return lastValueFrom(this._httpC.post<Item>(this._baseUrl + 'api/ItemList/GetSingleItem',
+            body)).then(
                 result => {
                     this.RemoveBusy("FetchSingleItem");
                     //console.log("FetchSingleItem, fetched this:", result);
