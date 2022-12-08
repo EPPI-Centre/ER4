@@ -24,6 +24,7 @@ namespace ERxWebClient2.Zotero
                 erWebItem.Item.TypeId = 10;
                 erWebItem.Item.TypeName = "Article In A Periodical";
 				erWebItem.Item.IsIncluded = true;
+                erWebItem.Item.StandardNumber = _magazineItem.data.ISSN;
 				return erWebItem;
 
             }

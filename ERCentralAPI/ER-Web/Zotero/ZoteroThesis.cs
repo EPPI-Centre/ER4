@@ -22,7 +22,7 @@ namespace ERxWebClient2.Zotero
                 erWebItem.Item.TypeId = 4;
                 erWebItem.Item.TypeName = "Dissertation";
 				erWebItem.Item.IsIncluded = true;
-				return erWebItem;
+                return erWebItem;
 
             }
             catch (System.Exception ex)
