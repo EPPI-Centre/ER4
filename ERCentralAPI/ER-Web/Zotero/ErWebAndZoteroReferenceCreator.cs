@@ -4,13 +4,13 @@ using ERxWebClient2.Controllers;
 
 namespace ERxWebClient2.Zotero
 {
-    public sealed class MappingReferenceCreator : ReferenceCreator
+    public sealed class ErWebAndZoteroReferenceCreator : BaseReferenceCreator
     {
-        static MappingReferenceCreator _instance = null;
+        static ErWebAndZoteroReferenceCreator _instance = null;
 
         static readonly object padLock = new object();
 		
-        public static MappingReferenceCreator Instance 
+        public static ErWebAndZoteroReferenceCreator Instance 
         {                
             get
             {
@@ -18,14 +18,14 @@ namespace ERxWebClient2.Zotero
 				{
                     if (_instance == null)
                     {
-                        _instance = new MappingReferenceCreator();
+                        _instance = new ErWebAndZoteroReferenceCreator();
                     }
                     return _instance;
                 }               
             }
         }
 
-        private MappingReferenceCreator()
+        private ErWebAndZoteroReferenceCreator()
 		{
 
 		}
@@ -84,13 +84,22 @@ namespace ERxWebClient2.Zotero
                     return new ZoteroConferenceProceeding(item);
                 case "blogPost":
                     return new ZoteroWebSite(item);
-                case "attachment":
-                    return new ZoteroAttachment(item);
-                default:
-                    //throw new NotSupportedException();
-                    // for development return something
-                    // TODO production throw the above exception
-                    return new ZoteroBook(item);
+                case "interview":
+                    return new ZoteroInterview(item);
+				case "letter":
+					return new ZoteroLetter(item);
+				case "attachment":
+					return new ZoteroMagazineArticle(item);
+				case "manuscript":
+					return new ZoteroManuscript(item);
+				case "article":
+					return new ZoteroNewspaperArticle(item);
+				case "report":
+					return new ZoteroReport(item);
+				case "dissertation":
+					return new ZoteroThesis(item);
+				default:
+                    return new ZoteroGeneric(item);
             }
         }
 

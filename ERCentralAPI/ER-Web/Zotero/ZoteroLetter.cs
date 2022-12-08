@@ -5,7 +5,7 @@ using ERxWebClient2.Controllers;
 
 namespace ERxWebClient2.Zotero
 {
-    public class ZoteroLetter : ZoteroCreator, IMapZoteroReference
+    public class ZoteroLetter : ZoteroReferenceCreator, IMapZoteroReference
     {
         private Collection _letterArticle;
         public ZoteroLetter(Collection letter)

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace ERxWebClient2.Zotero
 {
-    public class ZoteroConferenceProceeding : ZoteroCreator, IMapZoteroReference
+    public class ZoteroConferenceProceeding : ZoteroReferenceCreator, IMapZoteroReference
     {
         private Collection _conferenceProceeding;
         public ZoteroConferenceProceeding(Collection conferenceProceeding)

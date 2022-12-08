@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace ERxWebClient2.Zotero
 {
-    public class ZoteroBookChapter : ZoteroCreator, IMapZoteroReference
+    public class ZoteroBookChapter : ZoteroReferenceCreator, IMapZoteroReference
     {
         private Collection _bookItem;
 
