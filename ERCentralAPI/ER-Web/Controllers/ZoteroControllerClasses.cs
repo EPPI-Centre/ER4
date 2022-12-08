@@ -329,6 +329,8 @@ namespace ERxWebClient2.Controllers
 
 		public string proceedingsTitle { get; set; } = null;
 
+		public string university { get; set; } = null;
+
 	}
 	public class MiniCollectionType
 	{
