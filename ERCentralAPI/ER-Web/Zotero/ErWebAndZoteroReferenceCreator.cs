@@ -82,21 +82,21 @@ namespace ERxWebClient2.Zotero
                     return new ZoteroJournal(item);
                 case "conferencePaper":
                     return new ZoteroConferenceProceeding(item);
-                case "blogPost":
+                case "webpage":
                     return new ZoteroWebSite(item);
                 case "interview":
                     return new ZoteroInterview(item);
 				case "letter":
 					return new ZoteroLetter(item);
-				case "attachment":
+				case "magazineArticle":
 					return new ZoteroMagazineArticle(item);
 				case "manuscript":
 					return new ZoteroManuscript(item);
-				case "article":
+				case "newspaperArticle":
 					return new ZoteroNewspaperArticle(item);
 				case "report":
 					return new ZoteroReport(item);
-				case "dissertation":
+				case "thesis":
 					return new ZoteroThesis(item);
 				default:
                     return new ZoteroGeneric(item);
