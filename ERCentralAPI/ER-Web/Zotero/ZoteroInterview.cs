@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace ERxWebClient2.Zotero
 {
-    public class ZoteroInterview : ZoteroCreator, IMapZoteroReference
+    public class ZoteroInterview : ZoteroReferenceCreator, IMapZoteroReference
     {
         private Collection _interview;
         public ZoteroInterview(Collection interview)

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace ERxWebClient2.Zotero
 {
-    public class ZoteroNewspaperArticle : ZoteroCreator, IMapZoteroReference
+    public class ZoteroNewspaperArticle : ZoteroReferenceCreator, IMapZoteroReference
     {
         private Collection _newspaper;
 
@@ -21,8 +21,8 @@ namespace ERxWebClient2.Zotero
             {
 
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _newspaper);
-                erWebItem.Item.TypeId = 12;
-                erWebItem.Item.TypeName = "Generic";
+                erWebItem.Item.TypeId = 10;
+                erWebItem.Item.TypeName = "Article In A Periodical";
 				erWebItem.Item.IsIncluded = true;
 				return erWebItem;
 

@@ -136,7 +136,7 @@ namespace ERxWebClient2.Zotero
             {
                 newERWebItem.Standard_number = collection.ISBN ?? "";
             }
-            else if (collection.itemType == "Dissertation")
+            else if (collection.itemType == "dissertation")
             {
                 var standardNumber = string.IsNullOrWhiteSpace(collection.ISBN) ? collection.ISSN : collection.ISBN;
                 newERWebItem.Standard_number = standardNumber ?? "";

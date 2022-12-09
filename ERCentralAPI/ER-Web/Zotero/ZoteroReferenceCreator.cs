@@ -8,7 +8,7 @@ using System.Globalization;
 
 namespace ER_Web.Zotero
 {
-    public abstract class ZoteroCreator
+    public abstract class ZoteroReferenceCreator
     {
         private const string V = "yyyy-MM-ddTHH:mm:ssZ";
 

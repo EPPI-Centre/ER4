@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace ERxWebClient2.Zotero
 {
-    public class ZoteroThesis : ZoteroCreator, IMapZoteroReference
+    public class ZoteroThesis : ZoteroReferenceCreator, IMapZoteroReference
     {
         private Collection _dissertation;
         public ZoteroThesis(Collection dissertation)
@@ -22,7 +22,8 @@ namespace ERxWebClient2.Zotero
                 erWebItem.Item.TypeId = 4;
                 erWebItem.Item.TypeName = "Dissertation";
 				erWebItem.Item.IsIncluded = true;
-				return erWebItem;
+                erWebItem.Item.Institution = _dissertation.data.university;
+                return erWebItem;
 
             }
             catch (System.Exception ex)
