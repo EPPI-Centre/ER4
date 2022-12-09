@@ -7,12 +7,11 @@ using System.Text;
 namespace ERxWebClient2.Services
 {
 	public sealed class ZoteroService : IZoteroService
-	{
-		public UriBuilder GetCollectionsUri;
-		public UriBuilder GetItemsUri;
-		private static ZoteroService instance = null;
-		private static readonly object padlock = new object();
-		private const string TargetResultsHeader = "Total-Results";
+    {
+        private static ZoteroService instance = null;
+		
+        private static readonly object padlock = new object();
+        private const string TargetResultsHeader = "Total-Results";
 
 		private ZoteroService()
 		{
@@ -33,6 +32,7 @@ namespace ERxWebClient2.Services
 				}
 			}
 		}
+		
 
 		public async Task<string> DoGetReq(string requestUri, IHttpClientProvider httpProvider)
 		{

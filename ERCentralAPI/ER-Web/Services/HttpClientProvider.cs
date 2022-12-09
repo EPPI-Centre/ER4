@@ -5,6 +5,54 @@ namespace ERxWebClient2.Services
     {
         private readonly HttpClient _httpClient;
         private IConfiguration _configuration;
+        private static int _GlobalBackoffDelay = 0;//in Seconds. Code should access the Property, not this backing field.
+        private static readonly object padlock4BackoffProperty = new object();
+
+        private static int GlobalBackoffDelay
+        {
+            get
+            {
+                lock (padlock4BackoffProperty)
+                {
+                    return _GlobalBackoffDelay;
+                }
+            }
+            set
+            {
+                lock (padlock4BackoffProperty)
+                {
+                    _GlobalBackoffDelay = value;
+                }
+            }
+        }
+        private async Task BackoffEnforcer()
+        {
+            if (GlobalBackoffDelay > 0)
+            {
+                await Task.Delay(1000 * GlobalBackoffDelay);
+                GlobalBackoffDelay = 0;
+            }
+        }
+        private void CheckForBackoffSignals(HttpResponseMessage? res)
+        {
+            if (res != null)
+            {
+                string backoffSt = "";
+                int backoffInt;
+                if (res.Headers.Contains("Backoff"))
+                {
+                    backoffSt = res.Headers.GetValues("Backoff").First();
+                }
+                else if (res.Headers.RetryAfter != null)
+                {
+                    backoffSt = res.Headers.RetryAfter.ToString();
+                }
+                if (backoffSt != "" && int.TryParse(backoffSt, out backoffInt))
+                {
+                    GlobalBackoffDelay = backoffInt;
+                }
+            }
+        }
 
         public HttpClientProvider(HttpClient httpClient, IConfiguration configuration)
         {
@@ -12,25 +60,35 @@ namespace ERxWebClient2.Services
             _configuration = configuration;           
         }
 
-        public Task<HttpResponseMessage> GetAsync(string requestUri)
+        public async Task<HttpResponseMessage> GetAsync(string requestUri)
         {
-            return SendRequestWithRetry(requestUri, HttpMethod.Get);
+            var res = await SendRequestWithRetry(requestUri, HttpMethod.Get);
+            return res;
             //return _httpClient.GetAsync(requestUri);
         }
 
-        public Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
+        public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
         {
-            return _httpClient.PostAsync(requestUri, content);
+            await BackoffEnforcer();
+            var res = await _httpClient.PostAsync(requestUri, content);
+            CheckForBackoffSignals(res);
+            return res;
         }
 
-        public Task<HttpResponseMessage> PutAsync(string requestUri, HttpContent content)
+        public async Task<HttpResponseMessage> PutAsync(string requestUri, HttpContent content)
         {
-            return _httpClient.PutAsync(requestUri, content);
+            await BackoffEnforcer();
+            var res = await _httpClient.PutAsync(requestUri, content);
+            CheckForBackoffSignals(res);
+            return res;
         }
 
-        public Task<HttpResponseMessage> DeleteAsync(string requestUri)
+        public async Task<HttpResponseMessage> DeleteAsync(string requestUri)
         {
-            return _httpClient.DeleteAsync(requestUri);
+            await BackoffEnforcer();
+            var res = await _httpClient.DeleteAsync(requestUri);
+            CheckForBackoffSignals(res);
+            return res;
         }
 
         public void Dispose()
@@ -40,6 +98,7 @@ namespace ERxWebClient2.Services
 
         private async Task<HttpResponseMessage> SendRequestWithRetry(string requestUri, HttpMethod httpMethod, HttpContent content = null)
         {
+            await BackoffEnforcer();
             HttpResponseMessage response;
             var sendCount = 0;
             var configuration = _configuration.GetSection("ZoteroSettings");
@@ -50,14 +109,21 @@ namespace ERxWebClient2.Services
                 if (sendCount > 0) {
                     var timeToDelayRetry = (int)Math.Pow(minIntervalFactor, 
                         sendCount);
-                    await Task.Delay(1000*timeToDelayRetry); 
+                    await Task.Delay(GlobalBackoffDelay > timeToDelayRetry? 1000*GlobalBackoffDelay : 1000*timeToDelayRetry);
                 }
                 var request = new HttpRequestMessage(httpMethod, new Uri(requestUri));
                 if (content != null) request.Content = content;
                 response = await _httpClient.SendAsync(request);
+                Random aaa = new Random();
+                var bbb = aaa.Next(1, 10);
+                if (bbb > 5) response.StatusCode = System.Net.HttpStatusCode.NotFound;
+                CheckForBackoffSignals(response);
                 sendCount++;
             }
-            while (sendCount < maxRetries && response.StatusCode == System.Net.HttpStatusCode.NotFound);
+            while (sendCount < maxRetries && (response.StatusCode == System.Net.HttpStatusCode.NotFound
+                                                || response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable
+                                                || response.StatusCode == System.Net.HttpStatusCode.InternalServerError
+                                                ));
 
             return response;
         }
