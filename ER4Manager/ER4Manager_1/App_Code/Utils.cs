@@ -358,8 +358,8 @@ public class Utils
         //from https://docs.microsoft.com/en-us/answers/questions/400152/authentication-failed-because-the-remote-party-has.html
         ServicePointManager.SecurityProtocol = (SecurityProtocolType)48 | (SecurityProtocolType)192 | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
         SmtpClient smtp = new SmtpClient(SMTP);//sergio.graziosi+1@gmail.com
-        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("***REMOVED***", "***REMOVED***");
         smtp.UseDefaultCredentials = false;
+        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("***REMOVED***", "***REMOVED***");
         smtp.Credentials = SMTPUserInfo;
         smtp.EnableSsl = true; smtp.Port = 587;
         return smtp;

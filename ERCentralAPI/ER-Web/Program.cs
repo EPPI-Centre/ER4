@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.AspNetCore.Builder;
+using ERxWebClient2.Zotero;
 
 try
 {
@@ -47,10 +47,14 @@ try
     //we need a Microsoft.Extensions.Logger.Ilogger object for our SQLHelper, so we can then log SQL errors if/where we bypass BOs and talk to the DB directly.
     // the SqlHelper class will make sure our connection strings are available to BOs also.
     var MSlogger = new Serilog.Extensions.Logging.SerilogLoggerFactory(_Logger).CreateLogger<Program>();
-    SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
+    var SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
+
+    builder.Services.AddHttpClient("zoteroApi");
 
     // Add services to the container.
-
+    builder.Services.AddSingleton<ZoteroConcurrentDictionary>();
+    //builder.Services.AddSingleton(SqlHelper);
+    DataConnection.DataConnectionConfigure(SqlHelper);
     builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
     {//this is needed to allow serialising CSLA child objects:
      //they all have a "Parent" field which creates a reference loop.
@@ -134,7 +138,7 @@ finally
 }
 partial class Program
 {
-    public static SQLHelper? SqlHelper {  get; private set; }
+    //public static SQLHelper? SqlHelper {  get; private set; }
     private static string CreateLogFileName()
     {
         DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");

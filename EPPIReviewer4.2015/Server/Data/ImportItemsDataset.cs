@@ -14,6 +14,7 @@ namespace BusinessLibrary.BusinessClasses.Data
         public DataTable TB_ITEM_AUTHOR;
         public DataTable TB_ITEM_REVIEW;
         public DataTable TB_ITEM_MAG_MATCH;
+        public DataTable TB_ZOTERO_ITEM_REVIEW;
         public ImportItemsDataset()
         {
             makeTB_Item();
@@ -22,6 +23,7 @@ namespace BusinessLibrary.BusinessClasses.Data
             makeTB_Item_Source();
             makeTB_Item_Review();
             makeTB_Item_Mag_Match();
+            makeTB_Zotero_Item_Review();
         }
         private void makeTB_Item()
         {
@@ -250,6 +252,22 @@ namespace BusinessLibrary.BusinessClasses.Data
             tCol = new DataColumn("ManualFalseMatch", typeof(Boolean));
             tCol.AllowDBNull = false;
             TB_ITEM_MAG_MATCH.Columns.Add(tCol);
+        }
+        private void makeTB_Zotero_Item_Review()
+        {
+            TB_ZOTERO_ITEM_REVIEW = new DataTable("TB_ZOTERO_ITEM_REVIEW");
+            DataColumn tCol = new DataColumn("Zotero_item_review_ID", typeof(long));
+            tCol.DefaultValue = 0;
+            TB_ZOTERO_ITEM_REVIEW.Columns.Add(tCol);
+
+            tCol = new DataColumn("ItemKey", typeof(string));
+            tCol.MaxLength = 50;
+            tCol.AllowDBNull = false;
+            TB_ZOTERO_ITEM_REVIEW.Columns.Add(tCol);
+
+            tCol = new DataColumn("ITEM_REVIEW_ID", typeof(long));
+            tCol.AllowDBNull = false;
+            TB_ZOTERO_ITEM_REVIEW.Columns.Add(tCol);
         }
     }
 }

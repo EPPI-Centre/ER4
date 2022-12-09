@@ -6,10 +6,10 @@ import { Item } from './ItemList.service';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { LocalSort } from '../helpers/HelperMethods';
 import { EventEmitterService } from './EventEmitter.service';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
+import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
 
 @Injectable({
     providedIn: 'root',
@@ -475,35 +475,36 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                     return false;
             });
     }
-    public DoSort() {
-        //console.log("doSort", this.LocalSort);
-        if (this.DuplicateGroups.WholeList.length == 0 || this.LocalSort.SortBy == "") return;
-        for (let property of Object.getOwnPropertyNames(this.DuplicateGroups.WholeList[0])) {
-            //console.log("doSort2", property);
-            if (property == this.LocalSort.SortBy) {
-                this.DuplicateGroups.WholeList.sort((a: any, b: any) => {
-                    if (this.LocalSort.Direction) {
-                        if (a[property] > b[property]) {
-                            return 1;
-                        } else if (a[property] < b[property]) {
-                            return -1;
-                        } else {
-                            return 0;
-                        }
-                    } else {
-                        if (a[property] > b[property]) {
-                            return -1;
-                        } else if (a[property] < b[property]) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    }
-                });
-                break;
-            }
+  public DoSort() {
+    CustomSorting.DoSort(this.DuplicateGroups.WholeList, this.LocalSort);
+    //    //console.log("doSort", this.LocalSort);
+    //    if (this.DuplicateGroups.WholeList.length == 0 || this.LocalSort.SortBy == "") return;
+    //    for (let property of Object.getOwnPropertyNames(this.DuplicateGroups.WholeList[0])) {
+    //        //console.log("doSort2", property);
+    //        if (property == this.LocalSort.SortBy) {
+    //            this.DuplicateGroups.WholeList.sort((a: any, b: any) => {
+    //                if (this.LocalSort.Direction) {
+    //                    if (a[property] > b[property]) {
+    //                        return 1;
+    //                    } else if (a[property] < b[property]) {
+    //                        return -1;
+    //                    } else {
+    //                        return 0;
+    //                    }
+    //                } else {
+    //                    if (a[property] > b[property]) {
+    //                        return -1;
+    //                    } else if (a[property] < b[property]) {
+    //                        return 1;
+    //                    } else {
+    //                        return 0;
+    //                    }
+    //                }
+    //            });
+    //            break;
+    //        }
             
-        }
+    //    }
     }
 
     private BackToMain() {

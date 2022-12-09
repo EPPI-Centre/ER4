@@ -298,7 +298,3 @@ export interface SubstituteString {
     searchFor: string;
     changeTo: string;
 }
-export class LocalSort {
-    SortBy: string = "";
-    Direction: boolean = true;//Ascending if true
-}

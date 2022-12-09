@@ -1,0 +1,24 @@
+TY  - JOUR
+T1  - aaa
+JF  - 
+KW  - eppi-reviewer4
+AB  - 
+VL  - 
+IS  - 
+CY  - 
+U1  - 2680363
+N1  - 
+ER  - 
+
+TY  - JOUR
+T1  - Responses of the rat olfactory epithelium to retronasal air flow.
+JF  - 
+KW  - eppi-reviewer4
+AB  - Responses of the rat olfactory epithelium were assessed with the electroolfactogram while odorants were presented to the external nares with an artificial sniff or to the internal nares by positive pressure. A series of seven odorants that varied from very polar, hydrophilic odorants to very nonpolar, hydrophobic odorants were used. Although the polar odorants activated the dorsal olfactory epithelium when presented by the external nares (orthonasal presentation), they were not effective when forced through the nasal cavity from the internal nares (retronasal presentation). However, the nonpolar odorants were effective in both stimulus modes. These results were independent of stimulus concentration or of humidity of the carrier air. Similar results were obtained with multiunit recordings from olfactory bulb. These results help to explain why human investigations often report differences in the sensation or ability to discriminate odorants presented orthonasally versus retronasally. The results also strongly support the importance of odorant sorption in normal olfactory processes.
+VL  - 
+IS  - 
+CY  - 
+U1  - 2680364
+N1  - 
+ER  - 
+

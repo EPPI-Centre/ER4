@@ -12,7 +12,7 @@ using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -63,7 +63,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                             //if (MatchO.Success & MatchO.Index > 4 & MatchO.Index < 8)
                             if (MatchO.Success)
                             {
-                                tItem.Type_id = cKey.Key;
+                                tItem.TypeId = cKey.Key;
                                 found = true;
                                 break;
                             }
@@ -73,7 +73,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 }
 
                 if (found != true)
-                    tItem.Type_id = rules.DefaultTypeCode;
+                    tItem.TypeId = rules.DefaultTypeCode;
                 Cindex++;
                 OutO.Add(tItem);
             }//end of first round trip
@@ -87,7 +87,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 currentR = new FilterRules(rules);
                 foreach (TypeRules TyR in rules.typeRules)
                 {
-                    if (OutO[Cindex].Type_id == TyR.Type_ID)//check if current object is of a type that needs rules remapping
+                    if (OutO[Cindex].TypeId == TyR.Type_ID)//check if current object is of a type that needs rules remapping
                     {
                         foreach (PropertyInfo pinfo in propertyInfos)
                         {
@@ -897,11 +897,11 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
     #endregion
     #region DataStructures
     [Serializable]
-    public class ItemIncomingData : ReadOnlyBase<ItemIncomingData>
-    {
+    public class ItemIncomingData : ReadOnlyBase<ItemIncomingData>, IItemIncomingData
+	{
         #region set_and_get
         public static readonly PropertyInfo<int> Type_idProperty = RegisterProperty<int>(new PropertyInfo<int>("Type_id", "Type_id", 14));
-        public int Type_id
+        public int TypeId
         {
             get { return GetProperty(Type_idProperty); }
             set
@@ -1157,7 +1157,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }
         }
 
-        //keeping MAG-only fields on server-side, while comms with MAG happen here...
+        //keeping MAG-only fields on server-side, while comms with MAG happen here... Also Used for Zotero fields (no ER4 client to go back to).
 #if !SILVERLIGHT
         public static readonly PropertyInfo<Double> MAGMatchScoreProperty = RegisterProperty<Double>(new PropertyInfo<Double>("MAGMatchScore", "MAGMatchScore", 1.0));
         public Double MAGMatchScore
@@ -1187,8 +1187,44 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 LoadProperty(MAGManualFalseMatchProperty, value);
             }
         }
+
+        public static readonly PropertyInfo<string> ZoteroKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("ZoteroKey", "ZoteroKey", string.Empty));
+        public string ZoteroKey
+        {
+            get { return GetProperty(ZoteroKeyProperty); }
+            set
+            {
+                LoadProperty(ZoteroKeyProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// used ONLY for Zotero refs, so to allow sync logic to operate on DateEdited
+        /// </summary>
+        public static readonly PropertyInfo<DateTime> DateEditedProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateEdited", "DateEdited", DateTime.MinValue));
+        public DateTime DateEdited
+        {
+            get { return GetProperty(DateEditedProperty); }
+            set
+            {
+                LoadProperty(DateEditedProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// Used Only for Zotero imports, so to allow inserting PDFs in the same "go"
+        /// </summary>
+        public static readonly PropertyInfo<long> NewItemIdProperty = RegisterProperty<long>(new PropertyInfo<long>("NewItemId", "NewItemId", (long)0));
+        public long NewItemId
+        {
+            get { return GetProperty(NewItemIdProperty); }
+            set
+            {
+                LoadProperty(NewItemIdProperty, value);
+            }
+        }
 #endif
-#endregion
+        #endregion
 
         #region constructors
         internal static ItemIncomingData NewItem()
@@ -1248,6 +1284,11 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
         }
         #endregion
     }
+
+    public interface IItemIncomingData
+    {
+    }
+
     [Serializable]
     public class IncomingItemsList : BusinessBase<IncomingItemsList>
     {
@@ -1260,7 +1301,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             IncomingItemsList returnValue = new IncomingItemsList();
             returnValue.DateOfImport = DateTime.Now;
             returnValue.DateOfSearch = DateTime.Now;
-            returnValue.Included = true;
+            returnValue.IsIncluded = true;
             return returnValue;
         }
 
@@ -1392,7 +1433,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }
         }
         public static readonly PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Included", "Included"));
-        public bool Included
+        public bool IsIncluded
         {
             get
             {
@@ -1439,6 +1480,8 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(HasMAGScoresProperty, value);
             }
         }
+
+        
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -1483,7 +1526,11 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             DataRow ItemSourceR;
             DataRow SourceR;
             DataRow ItemReviewR;
+            DataRow ZoteroItemReviewR;
             
+            //Added 17/10/2022 - so to avoid getting the same value N times...
+            bool IsZoteroImport = this.HasZoteroKeys;
+
             if (IsFirst && IsLast) //old method save all in one go
             {
                 SeedTables(TDS, AuthorsN, Items_S, Author_S, Item_Source_S, Item_Review_S, ref Source_S);
@@ -1501,13 +1548,15 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 //SourceR = (BusinessLibrary.BusinessClasses.TestDataSet.TB_SOURCERow)TDS.TB_SOURCE.NewRow();
                 SourceR = TDS.TB_SOURCE.NewRow();
                 FillSourceTB(TDS, SourceR, review_ID);
+
                 
+
                 //put data in the item tables, tb_item, tb_item_review, tb_item_source and TB_ITEM_AUTHOR
                 foreach (ItemIncomingData item in IncomingItems)
                 {
                     //ItemR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow)TDS.tb_ITEM.NewRow();
                     ItemR = TDS.TB_ITEM.NewRow();
-                    FillItemTB(TDS, ItemR, item, review_ID, ri);
+                    FillItemTB(TDS, ItemR, item, review_ID, ri, IsZoteroImport);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
@@ -1528,7 +1577,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     ItemReviewR["ITEM_ID"] = ItemR["ITEM_ID"];
                     ItemReviewR["REVIEW_ID"] = review_ID;
                     ItemReviewR["IS_DELETED"] = false;
-                    ItemReviewR["IS_INCLUDED"] = Included;
+                    ItemReviewR["IS_INCLUDED"] = IsIncluded;
                     TDS.TB_ITEM_REVIEW.Rows.Add(ItemReviewR);
 
                     //ItemSourceR = (BusinessLibrary.BusinessClasses.TestDataSet.TB_ITEM_SOURCERow)TDS.TB_ITEM_SOURCE.NewRow();
@@ -1539,6 +1588,15 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     ItemSourceR["SOURCE_ID"] = SourceR["SOURCE_ID"];
                     TDS.TB_ITEM_SOURCE.Rows.Add(ItemSourceR);
                     int cippa = TDS.TB_ITEM_SOURCE.Rows.Count;
+
+                    if (IsZoteroImport)
+                    {
+                        ZoteroItemReviewR = TDS.TB_ZOTERO_ITEM_REVIEW.NewRow();
+                        ZoteroItemReviewR["ItemKey"] = item.ZoteroKey;
+                        ZoteroItemReviewR["ITEM_REVIEW_ID"] = ItemReviewR["ITEM_REVIEW_ID"];
+                        item.NewItemId = (long)ItemR["ITEM_ID"];
+                        TDS.TB_ZOTERO_ITEM_REVIEW.Rows.Add(ZoteroItemReviewR);
+                    }
                 }
                 BulkUpload(TDS, Source_S);
             }
@@ -1641,7 +1699,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.Add(new SqlParameter("@Source_ID", SourceID));
                             cmd.Parameters.Add(new SqlParameter("@Review_ID", ri.ReviewId));
-                            cmd.Parameters.Add(new SqlParameter("@Included", Included == true ? 1 : 0));
+                            cmd.Parameters.Add(new SqlParameter("@Included", IsIncluded == true ? 1 : 0));
                             cmd.ExecuteNonQuery();
                         }
                     }
@@ -1778,7 +1836,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
             TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
         }
-        private void FillItemTB(Data.ImportItemsDataset TDS, DataRow ItemR, ItemIncomingData item, int r_id, ReviewerIdentity ri)
+        private void FillItemTB(Data.ImportItemsDataset TDS, DataRow ItemR, ItemIncomingData item, int r_id, ReviewerIdentity ri, bool IsZoteroImport = false)
         {
             //ItemR.ABSTRACT = item.Abstract;
             //ItemR.AVAILABILITY = item.Availability;
@@ -1815,7 +1873,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             ItemR["COUNTRY"] = item.Country;
             ItemR["CREATED_BY"] = ri.Name;
             ItemR["DATE_CREATED"] = System.DateTime.Now;
-            ItemR["DATE_EDITED"] = System.DateTime.Now;
+            ItemR["DATE_EDITED"] = IsZoteroImport ? item.DateEdited : System.DateTime.Now;
             ItemR["EDITED_BY"] = ri.Name;
             ItemR["EDITION"] = item.Edition;
             ItemR["INSTITUTION"] = item.Institution;
@@ -1829,7 +1887,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             ItemR["SHORT_TITLE"] = item.Short_title;
             ItemR["STANDARD_NUMBER"] = item.Standard_number;
             ItemR["TITLE"] = item.Title;
-            ItemR["TYPE_ID"] = (byte)item.Type_id;
+            ItemR["TYPE_ID"] = (byte)item.TypeId;
             ItemR["URL"] = item.Url;
             ItemR["VOLUME"] = item.Volume;
             ItemR["YEAR"] = item.Year;
@@ -1852,6 +1910,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     TDS.TB_ITEM_MAG_MATCH.Rows.Add(ItemMag);
                 }
             }
+
         }
         private void BulkUpload(Data.ImportItemsDataset TDS, int Source_S)
         {
@@ -1977,12 +2036,24 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 sbc.NotifyAfter = TDS.TB_ITEM_SOURCE.Rows.Count;
                 sbc.SqlRowsCopied += new SqlRowsCopiedEventHandler(sbc_SqlRowsCopied);
                 sbc.WriteToServer(TDS.TB_ITEM_SOURCE);
+
+                //write Zotero data, if present
+                if (HasZoteroKeys)
+                {
+                    sbc.DestinationTableName = "TB_ZOTERO_ITEM_REVIEW";
+                    sbc.ColumnMappings.Clear();
+                    //sbc.ColumnMappings.Add("ITEM_SOURCE_ID", "ITEM_SOURCE_ID");
+                    sbc.ColumnMappings.Add("ItemKey", "ItemKey");
+                    sbc.ColumnMappings.Add("ITEM_REVIEW_ID", "ITEM_REVIEW_ID");
+                    sbc.NotifyAfter = TDS.TB_ZOTERO_ITEM_REVIEW.Rows.Count;
+                    sbc.WriteToServer(TDS.TB_ZOTERO_ITEM_REVIEW);
+                }
                 sbc.Close();
                 if (savedAll == true)// this is only true if we've saved to TB_ITEM_SOURCE
                 {
                     TimeSpan time = DateTime.Now - startTime;
                     this.SourceName = "Server Saved it in (ms): " + time.TotalMilliseconds;
-                    this.IncomingItems.Clear();
+                    if (!this.HasZoteroKeys) this.IncomingItems.Clear();
                     if (SourceID == 0 & IsNew == true)
                     {//CASES 1 & 2, we want to keep the ID of the new source.
                         this.SourceID = Source_S + 1;
@@ -2014,6 +2085,14 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 return true;
             }
             return false;
+        }
+        public bool HasZoteroKeys
+        {
+            get
+            {
+                if (this.IncomingItems != null && this.IncomingItems.Find(f => f.ZoteroKey != "") != null) return true;
+                else return false;
+            }
         }
 
 #endif

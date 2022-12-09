@@ -10,7 +10,6 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Security.Principal;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Csla;
 using Microsoft.Extensions.Logging;

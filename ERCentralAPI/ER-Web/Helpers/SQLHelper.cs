@@ -1,5 +1,6 @@
 #if CSLA_NETCORE
 using Csla.Data;
+using EPPIDataServices.Helpers;
 #if !WEBDB
 using ERxWebClient2;
 #else
@@ -288,11 +289,17 @@ namespace BusinessLibrary.Data
 {//this is used to return connection strings to the BOs
     public static class DataConnection
     {
+        private static SQLHelper m_sqlHelper;
+        public static void DataConnectionConfigure(SQLHelper sqlHelper)
+        {
+            m_sqlHelper = sqlHelper;
+        }
+
         public static string ConnectionString
         {
             get
             {
-                return Program.SqlHelper.ER4DB;
+                return m_sqlHelper.ER4DB;
             }
         }
 
@@ -300,7 +307,7 @@ namespace BusinessLibrary.Data
         {
             get
             {
-                return Program.SqlHelper.ER4AdminDB;
+                return m_sqlHelper.ER4AdminDB;
             }
         }
 
@@ -308,7 +315,7 @@ namespace BusinessLibrary.Data
         {
             get
             {
-                return Program.SqlHelper.AcademicDB;
+                return m_sqlHelper.AcademicDB;
             }
         }
 
