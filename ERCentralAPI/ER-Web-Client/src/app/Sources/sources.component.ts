@@ -61,11 +61,11 @@ export class SourcesComponent implements OnInit, OnDestroy {
           }
         });
     }
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
       if (this.goToTab == 'ManageSources') {
-        this.SelectTab(0);
+        if (this.SourcesService.ReviewSources.length > 0) await this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID);
+        setTimeout(()=> { this.SelectTab(0); }, 50);
         // select the first source
-        this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID);
       }
     }
     onSubmit(): boolean {
@@ -130,9 +130,11 @@ export class SourcesComponent implements OnInit, OnDestroy {
             //setTimeout(() => { this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID); });//this might go wrong!!
         }
         else if (this._CurrentSource == null
-            || (this.SourcesService.CurrentSourceDetail && this._CurrentSource.source_ID != this.SourcesService.CurrentSourceDetail.source_ID)) {
-            this._CurrentSource = JSON.parse(JSON.stringify(this.SourcesService.CurrentSourceDetail));//silly cloning: we want a new reference here!
-            if (this._CurrentSource) this._CurrentSourceDateofSearch = new Date(this._CurrentSource.dateOfSerach);
+          || (this.SourcesService.CurrentSourceDetail && this._CurrentSource.source_ID != this.SourcesService.CurrentSourceDetail.source_ID)) {
+          this._CurrentSourceDateofSearch = null;
+          let CS = JSON.parse(JSON.stringify(this.SourcesService.CurrentSourceDetail));//silly cloning: we want a new reference here!
+          if (CS) this._CurrentSourceDateofSearch = new Date(CS.dateOfSerach);
+          this._CurrentSource = CS;
         }
         return this._CurrentSource;
     }
@@ -160,8 +162,11 @@ export class SourcesComponent implements OnInit, OnDestroy {
     }
 
     public get CurrentSourceIsEdited(): boolean {
-        if (!this._CurrentSource || !this.SourcesService.CurrentSourceDetail || !this.CurrentSourceDateofSearch || !this.CanWrite()) return false;
-        else if (this._CurrentSource.source_Name != this.SourcesService.CurrentSourceDetail.source_Name ||
+      if (!this._CurrentSource || !this.SourcesService.CurrentSourceDetail || !this.CurrentSourceDateofSearch || !this.CanWrite()
+        || this._CurrentSource.source_ID != this.SourcesService.CurrentSourceDetail.source_ID //only happens while we're changing source and busy animation is "on"
+      ) return false;
+        else if (
+        this._CurrentSource.source_Name != this.SourcesService.CurrentSourceDetail.source_Name ||
             this.CurrentSourceDateofSearch.toISOString() != new Date(this._CurrentSource.dateOfSerach).toISOString() ||
             this._CurrentSource.sourceDataBase != this.SourcesService.CurrentSourceDetail.sourceDataBase ||
             this._CurrentSource.searchDescription != this.SourcesService.CurrentSourceDetail.searchDescription ||
@@ -193,8 +198,8 @@ export class SourcesComponent implements OnInit, OnDestroy {
         if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;
         else return false;
     }
-    SelectSource(ROS: ReadOnlySource) {
-        this.SourcesService.FetchSource(ROS.source_ID);
+    async SelectSource(ROS: ReadOnlySource) {
+       await this.SourcesService.FetchSource(ROS.source_ID);
       setTimeout(() => { this.SelectTab(0); }, 50);//wait a tiny bit to ensure SourcesService is busy (which prevents loading the first source automatically).
     }
     IsSourceNameValid(): number {

@@ -590,7 +590,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         click: () => {
             this.NewReference();
         }
-    }];
+    },
+      {
+        text: 'Manage Sources',
+        click: () => {
+          this.GoToManageSources();
+        }
+      }
+    ];
   
     
     
@@ -789,9 +796,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	BuildModel() {
 		this.router.navigate(['BuildModel']);
     }
-    NewReference() {
-        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
-    }
+  NewReference() {
+    this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
+  }
+  GoToManageSources() {
+    this.router.navigate(['sources'], { queryParams: { tabby: 'ManageSources' } });
+  }
     ListItemsWithWithoutThisCode(Included: boolean, withThisCode: boolean) {
         if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
         let CurrentAtt = this.selectedNode as SetAttribute;
