@@ -231,12 +231,15 @@ namespace ERxWebClient2.Controllers
             this.libraryCatalog = "";
             this.callNumber = "";
             this.rights = "";
-			var arrayOfIdAndComments = new string[2];
-			arrayOfIdAndComments[0] = "EPPI-Reviewer ID: " + data.ItemId.ToString();
+			var eppiIdCountryCommentsKeywords = new string[4];
+			eppiIdCountryCommentsKeywords[0] = "EPPI-Reviewer ID: " + data.ItemId.ToString();
 			if (data.Comments.ToString().Trim().Length > 0)
-				arrayOfIdAndComments[1] = "EPPI-Reviewer Comments: " + data.Comments.ToString().Trim();
-
-			this.extra = string.Join(Environment.NewLine, arrayOfIdAndComments);
+				eppiIdCountryCommentsKeywords[1] = "EPPI-Reviewer Comments: " + data.Comments.ToString().Trim();
+			if (data.Country.ToString().Trim().Length > 0)
+				eppiIdCountryCommentsKeywords[2] = "EPPI-Reviewer Country: " + data.Country.ToString().Trim();
+			if (data.Keywords.ToString().Trim().Length > 0)
+				eppiIdCountryCommentsKeywords[3] = "EPPI-Reviewer Keywords: " + data.Keywords.ToString().Trim();
+			this.extra = string.Join(Environment.NewLine, eppiIdCountryCommentsKeywords);
             this.tags = new tagObject[1] { tag };
             this.collections = new object[0];
             //this.relations = rel;

@@ -97,7 +97,7 @@ namespace ER_Web.Zotero
             if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
             else newERWebItem.Month = tmpParsedDate[1];
             newERWebItem.URL = collectionType.url;
-            SetItemIdAndComments(newERWebItem, collectionType);
+            SetEppiFieldsFoundInZoteroExtraField(newERWebItem, collectionType);
 
             var erWebItem = new ERWebItem
             {
@@ -106,17 +106,29 @@ namespace ER_Web.Zotero
             return erWebItem;
         }
         public static readonly string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
-        public static readonly string searchFor = "EPPI-Reviewer ID: ";
-        private static void SetItemIdAndComments(Item newERWebItem, CollectionType collectionType)
-        {//despite the name, we DO NOT need to set the itemId...
+        public static readonly string searchFor = "EPPI-Reviewer ID:";
+        public static readonly string searchForComments = "EPPI-Reviewer Comments";
+        public static readonly string searchForCountry = "EPPI-Reviewer Country";
+        public static readonly string searchForKeywords = "EPPI-Reviewer Keywords";
+
+        private static void SetEppiFieldsFoundInZoteroExtraField(Item newERWebItem, CollectionType collectionType)
+        {
             if (collectionType.extra == null) collectionType.extra = "";
             if (newERWebItem.Comments == null) newERWebItem.Comments = "";
-            var arrayOfIdAndComments = collectionType.extra.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-            foreach(string line in arrayOfIdAndComments)
+            var fourEppiFieldsInExtra = collectionType.extra.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            foreach(string line in fourEppiFieldsInExtra)
             {
-                if (!line.StartsWith(searchFor))
+                if (line.StartsWith(searchForComments))
                 {
                     newERWebItem.Comments += line + Environment.NewLine;
+                }
+                else if (line.StartsWith(searchForCountry))
+                {
+                    newERWebItem.Country += line + Environment.NewLine;
+                }
+                else if (line.StartsWith(searchForKeywords))
+                {
+                    newERWebItem.Keywords += line + Environment.NewLine;
                 }
             }
         }
