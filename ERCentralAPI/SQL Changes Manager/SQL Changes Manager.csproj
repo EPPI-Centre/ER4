@@ -650,6 +650,12 @@
       <None Update="SQLScripts\512.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="SQLScripts\514.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLScripts\516.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     <None Update="SQLScripts\MagCurrentInfoInsert.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
