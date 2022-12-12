@@ -106,6 +106,7 @@ namespace ER_Web.Zotero
             return erWebItem;
         }
         public static readonly string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
+        public static readonly string searchFor = "EPPI-Reviewer ID:";
         public static readonly string searchForComments = "EPPI-Reviewer Comments";
         public static readonly string searchForCountry = "EPPI-Reviewer Country";
         public static readonly string searchForKeywords = "EPPI-Reviewer Keywords";
