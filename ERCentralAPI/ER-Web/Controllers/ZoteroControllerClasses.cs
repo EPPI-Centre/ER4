@@ -231,7 +231,7 @@ namespace ERxWebClient2.Controllers
             this.libraryCatalog = "";
             this.callNumber = "";
             this.rights = "";
-			var eppiIdCountryCommentsKeywords = new string[4];
+			var eppiIdCountryCommentsKeywords = new string[5];
 			eppiIdCountryCommentsKeywords[0] = "EPPI-Reviewer ID: " + data.ItemId.ToString();
 			if (data.Comments.ToString().Trim().Length > 0)
 				eppiIdCountryCommentsKeywords[1] = "EPPI-Reviewer Comments: " + data.Comments.ToString().Trim();
@@ -239,6 +239,10 @@ namespace ERxWebClient2.Controllers
 				eppiIdCountryCommentsKeywords[2] = "EPPI-Reviewer Country: " + data.Country.ToString().Trim();
 			if (data.Keywords.ToString().Trim().Length > 0)
 				eppiIdCountryCommentsKeywords[3] = "EPPI-Reviewer Keywords: " + data.Keywords.ToString().Trim();
+			if (!string.IsNullOrWhiteSpace(data.DOI))
+			{
+				eppiIdCountryCommentsKeywords[4] = "EPPI-Reviewer DOI: " + data.DOI.ToString().Trim();
+			}
 			this.extra = string.Join(Environment.NewLine, eppiIdCountryCommentsKeywords);
             this.tags = new tagObject[1] { tag };
             this.collections = new object[0];
@@ -544,11 +548,7 @@ namespace ERxWebClient2.Controllers
             this.place = place;
             this.publisher = publisher;
             this.numPages = numPages;
-            this.ISBN = iSBN;
-            if (!string.IsNullOrWhiteSpace(data.DOI))
-            {
-				this.extra = "DOI: " + data.DOI;
-			}
+            this.ISBN = iSBN;            
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
