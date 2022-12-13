@@ -98,7 +98,8 @@ namespace ER_Web.Zotero
             else newERWebItem.Month = tmpParsedDate[1];
             newERWebItem.URL = collectionType.url;
             SetEppiFieldsFoundInZoteroExtraField(newERWebItem, collectionType);
-
+            newERWebItem.Comments += collectionType.extra;
+            newERWebItem.Comments += "Language: " + collectionType.language;
             var erWebItem = new ERWebItem
             {
                 Item = newERWebItem
