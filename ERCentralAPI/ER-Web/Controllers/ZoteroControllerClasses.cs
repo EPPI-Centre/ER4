@@ -201,7 +201,25 @@ namespace ERxWebClient2.Controllers
             return creatorsArray;
 		}
 
-		public ZoteroCollectionData(IItem data)
+		protected void BuildParentAuthors(string parentAuthors, string creatorType)
+        {
+            var authorsArray = AuthorsHandling.NormaliseAuth.processField(parentAuthors, 0);
+            List<CreatorsItem> tempList = new List<CreatorsItem>();
+            foreach (var author in authorsArray)
+            {
+                var NewCreator = new CreatorsItem
+                {
+                    creatorType = creatorType,
+                    firstName = author.FirstName,
+                    lastName = author.LastName
+                };
+                tempList.Add(NewCreator);
+            }
+            //concatenate existing this.creators with tempList 
+            this.creators = this.creators.Concat(tempList).ToArray();//adds templist to this.creators array
+        }
+
+        public ZoteroCollectionData(IItem data)
         {
 			tagObject tag = new tagObject
             {
@@ -217,8 +235,9 @@ namespace ERxWebClient2.Controllers
 			//};
 
             this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
+            
             this.title = data.Title;
-            this.creators = ObtainCreatorsAsAuthors(data.Authors).ToArray();
+			this.creators = ObtainCreatorsAsAuthors(data.Authors).ToArray();
 			this.abstractNote = data.Abstract;
             this.series = "";
             this.seriesNumber = "";            
@@ -251,8 +270,9 @@ namespace ERxWebClient2.Controllers
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.date = data.Year;
 		}
+        
 
-		public ZoteroCollectionData()
+        public ZoteroCollectionData()
         {
 
         }
@@ -337,6 +357,8 @@ namespace ERxWebClient2.Controllers
 		public string proceedingsTitle { get; set; } = null;
 
 		public string university { get; set; } = null;
+
+		public string bookTitle { get; set; } = null;
 
 	}
 	public class MiniCollectionType
@@ -438,7 +460,8 @@ namespace ERxWebClient2.Controllers
             this.journalAbbreviation = journalAbbreviation;
 			this.DOI = dOI;
 			this.ISSN = iSSN;
-        }
+			BuildParentAuthors(data.ParentAuthors, "editor");
+		}
 
         public string publicationTitle { get; set; }
 		public string issue { get; set; }
@@ -471,6 +494,7 @@ namespace ERxWebClient2.Controllers
 			this.place = pLace;
 			this.ISBN = iSBN;
 			this.Publisher = publisher;
+			BuildParentAuthors(data.ParentAuthors, "editor");
 		}
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
@@ -490,6 +514,7 @@ namespace ERxWebClient2.Controllers
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
 			this.place = pLace;
+			BuildParentAuthors(data.ParentAuthors, "seriesEditor");
 
 		}
 		public string proceedingsTitle { get; set; }
@@ -548,7 +573,9 @@ namespace ERxWebClient2.Controllers
             this.place = place;
             this.publisher = publisher;
             this.numPages = numPages;
-            this.ISBN = iSBN;            
+            this.ISBN = iSBN;
+
+			BuildParentAuthors(data.ParentAuthors, "Editor");
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
@@ -583,6 +610,7 @@ namespace ERxWebClient2.Controllers
 			this.publisher = publisher;
 			this.numPages = numPages;
 			this.ISBN = iSBN;
+			BuildParentAuthors(data.ParentAuthors, "contributor");
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
@@ -607,6 +635,8 @@ namespace ERxWebClient2.Controllers
             this.place = place;
             this.publisher = publisher;
 			this.ISBN = iSBN;
+			this.pages = numPages;
+			BuildParentAuthors(data.ParentAuthors, "editor");
 		}
 
         public string bookTitle { get; set; }
@@ -616,11 +646,10 @@ namespace ERxWebClient2.Controllers
 		public string publisher { get; set; }
 		public string ISBN { get; set; }
 
-		//the below is WRONG, used to deliberately cause an error!
-		//public string numPages = "aaa";
+		public string pages { get; set; }
 
 
-    }
+	}
 
 	internal interface iBookChapter
 	{
@@ -631,31 +660,6 @@ namespace ERxWebClient2.Controllers
 		string publisher { get; set; }
 		string ISBN { get; set; }
 	}
-
-	public class Attachment : ZoteroCollectionData
-	{
-        public Attachment(Item data, string parentItem, string linkMode, string note, string contentType, string charset, string filename, string md5, string mtime): base(data)
-        {
-            this.parentItem = parentItem;
-            this.linkMode = linkMode;
-            this.note = note;
-            this.contentType = contentType;
-            this.charset = charset;
-            this.filename = filename;
-            this.md5 = md5;
-            this.mtime = mtime;
-        }
-
-		public string parentItem { get; set; }
-		public string linkMode { get; set; }
-		public string note { get; set; }
-		public string contentType { get; set; }
-		public string charset { get; set; }
-		public string filename { get; set; }
-		public string md5 { get; set; }
-		public string mtime { get; set; }
-	}
-
 
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public class CreatorsItem
