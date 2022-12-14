@@ -228,6 +228,17 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this.ReviewSetsService.selectedNode == null) return false;
     else return this._reviewSetsEditingService.CanMoveUp(this.ReviewSetsService.selectedNode);
   }
+
+  public async MoveUpNodeFull() {
+    if (this.ReviewSetsService.selectedNode == null) return false;
+    else {
+      await this._reviewSetsEditingService.MoveUpNodeFull(this.ReviewSetsService.selectedNode);
+      //and notify the tree:
+      this.codesetTreeCoding.UpdateTree();
+      return true;
+    }
+  }
+
   public async MoveUpNode() {
     if (this.ReviewSetsService.selectedNode == null) return false;
     else {
@@ -236,7 +247,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       this.codesetTreeCoding.UpdateTree();
       return true;
     }
-
   }
   public async MoveDownNode() {
     if (this.ReviewSetsService.selectedNode == null) return false;
@@ -246,8 +256,18 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       this.codesetTreeCoding.UpdateTree();
       return true;
     }
-
   }
+
+  public async MoveDownNodeFull() {
+    if (this.ReviewSetsService.selectedNode == null) return false;
+    else {
+      await this._reviewSetsEditingService.MoveDownNodeFull(this.ReviewSetsService.selectedNode);
+      //and notify the tree:
+      this.codesetTreeCoding.UpdateTree();
+      return true;
+    }
+  }
+
   CanEditCode(): boolean {
     if (!this.CanWrite) return false;
     else if (!this.ReviewSetsService.selectedNode) return false;
