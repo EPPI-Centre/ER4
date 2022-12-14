@@ -204,9 +204,9 @@ namespace ERxWebClient2.Controllers
 		public void BuildParentAuthors(CreatorsItem[] creators, string parentAuthors, string itemType)
 		{
 			var authorsArray = AuthorsHandling.NormaliseAuth.processField(parentAuthors, 0);
+			var creatorList  = creators.ToList();
 			foreach (var author in authorsArray)
 			{
-				var lastIndex = creators.Length;
 				if (itemType == "book")
 				{
 					var item = new CreatorsItem
@@ -215,8 +215,17 @@ namespace ERxWebClient2.Controllers
 						firstName = author.FirstName,
 						lastName = author.LastName
 					};
-					creators[lastIndex] = item;
+					creatorList.Add(item);
 				}
+			}
+			Array.Resize<CreatorsItem>(ref creators, creatorList.Count);
+			int count = 0;
+            foreach (var creator in creators)
+            {
+				creator.creatorType = creatorList[count].creatorType;
+				creator.firstName = creatorList[count].firstName;
+				creator.lastName = creatorList[count].lastName;
+				count++;
 			}
 		}
 
