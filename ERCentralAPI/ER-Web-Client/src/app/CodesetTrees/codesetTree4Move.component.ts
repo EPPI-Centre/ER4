@@ -74,8 +74,7 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
       if (!node) return false;
       else return node.CanMoveBranchInHere;
   }
-  public get CanMoveBranchBelowHere(): boolean {
-    let node = this.innerSelectedNode;
+  public CanMoveBranchBelowthisNode(node: singleNode4move | null): boolean {
     if (!node) {
       return false;
     }
@@ -83,15 +82,19 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
       return false;
     }
     else {
-      if (node.parent === this.SelectedNode?.parent) {
-        return node.CanMoveBranchInHere;
+      if (node.id === this.SelectedNode?.id) {
+        return false;
+      }
+      else if (node.parent === this.SelectedNode?.parent) {
+        return true;
       }
       else {
         return false;
       }
     }
-
-      //return node.CanMoveBranchInHere;
+  }
+  public get CanMoveBranchBelowHere(): boolean {
+    return this.CanMoveBranchBelowthisNode(this.innerSelectedNode);
   }
   public get DestinationBranch(): singleNode | null {
     let node = this.innerSelectedNode;
@@ -104,15 +107,21 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
         }
       }
   }
-  public get DestinationBranchName(): string {
-
+  public DestinationBranchName(isMoveInto: boolean): string {
     let node = this.innerSelectedNode;
-      if (!node) return "No Valid Selection";
-      else if (!node || !node.CanMoveBranchInHere) return "No Valid Selection";
-        else {
+    if (!node) return "No Valid Selection";
+    else if (isMoveInto) { 
+       if (!node.CanMoveBranchInHere) return "No Valid Selection";
+      else {
         return node.name;
-        }
       }
+    } else {
+      if (!this.CanMoveBranchBelowHere) return "No Valid Selection";
+      else {
+        return node.name;
+      }
+    }
+  }
 
   ngOnDestroy() {
   }
