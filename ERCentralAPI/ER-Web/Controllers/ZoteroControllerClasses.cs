@@ -219,7 +219,8 @@ namespace ERxWebClient2.Controllers
             this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
             
             this.title = data.Title;
-            this.creators = ObtainCreatorsAsAuthors(data.Authors).ToArray();
+			if (this.creators == null) this.creators = ObtainCreatorsAsAuthors(data.Authors).ToArray();
+			else this.creators = ObtainCreatorsAsAuthors(data.Authors).Concat(this.creators).ToArray();
 			// based on zotero type fill in parentAuthors
 			SetParentAuthors(this.creators, data.ParentAuthors, itemType);
 			this.abstractNote = data.Abstract;
