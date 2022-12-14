@@ -20,8 +20,8 @@ namespace ERxWebClient2.Zotero
             try
             {                
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _bookItem);
-                erWebItem.Item.TypeId = 2;
-                erWebItem.Item.TypeName = "Book, Whole";
+                erWebItem.Item.TypeId = 3;
+                erWebItem.Item.TypeName = "Book, Chapter";
                 erWebItem.Item.StandardNumber = _bookItem.data.ISBN;
 				erWebItem.Item.IsIncluded = true;
                 erWebItem.Item.ParentTitle = _bookItem.data.bookTitle;

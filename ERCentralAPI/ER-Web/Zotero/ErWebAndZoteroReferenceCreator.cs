@@ -76,7 +76,7 @@ namespace ERxWebClient2.Zotero
             {
                 case "book": 
                     return new ZoteroBook(item);
-                case "bookChapter":
+                case "bookSection":
                     return new ZoteroBookChapter(item);
                 case "journalArticle": 
                     return new ZoteroJournal(item);

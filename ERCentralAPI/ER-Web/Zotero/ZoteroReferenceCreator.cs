@@ -31,13 +31,15 @@ namespace ER_Web.Zotero
             if (!parseDateModifiedResult) throw new System.Exception("Date parsing exception");
 
             string consolidatedAuthors = "";
+            newERWebItem.ParentAuthors = "";
             if (collectionType.creators != null)
             {
                 foreach (var creator in collectionType.creators)
                 {
                     if (creator.creatorType == "editor" || creator.creatorType == "seriesEditor" || creator.creatorType == "translator"
                     || creator.creatorType == "bookAuthor" || creator.creatorType == "counsel" || creator.creatorType == "reviewedAuthor"
-                     || creator.creatorType == "scriptwriter" || creator.creatorType == "producer" || creator.creatorType == "attorneyAgent")
+                     || creator.creatorType == "scriptwriter" || creator.creatorType == "producer" || creator.creatorType == "attorneyAgent"
+                     || (creator.creatorType == "contributor" && collectionType.itemType == "thesis"))//special case: "contributors" for a thesis are the only other option apart from "author"...     
                     {
                         if (creator.lastName != null && creator.lastName != "")
                         {

@@ -114,9 +114,10 @@ namespace ERxWebClient2.Services
                 var request = new HttpRequestMessage(httpMethod, new Uri(requestUri));
                 if (content != null) request.Content = content;
                 response = await _httpClient.SendAsync(request);
-                Random aaa = new Random();
-                var bbb = aaa.Next(1, 10);
-                if (bbb > 5) response.StatusCode = System.Net.HttpStatusCode.NotFound;
+                //uncomment code below for testing purposes only!
+                //Random aaa = new Random();
+                //var bbb = aaa.Next(1, 10);
+                //if (bbb > 5) response.StatusCode = System.Net.HttpStatusCode.NotFound;
                 CheckForBackoffSignals(response);
                 sendCount++;
             }
