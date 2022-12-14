@@ -46,6 +46,9 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
   @Input() SelectedNode: singleNode | null = null;
   @Input() MaxHeight: number = 600;
 
+  public SelectedCodeDescription: string = "";
+  private innerSelectedNode: singleNode4move | null = null;
+
   private _SelectedCodeset4move: singleNode4move[]  = [];
   get nodes(): singleNode4move[] {
     if (this.SelectedCodeset && this._SelectedCodeset4move.length == 0 && this.SelectedNode) {
@@ -55,10 +58,11 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
     }
     return this._SelectedCodeset4move;
   }
-
-  public SelectedCodeDescription: string = "";
-  private innerSelectedNode: singleNode4move | null = null;
-
+  //used as input (not 2-way binding) by the kendo-treeview
+  public get selectedKeys(): string[] {
+    if (this.innerSelectedNode) return [this.innerSelectedNode.id];
+    else return [];
+  }
   NodeSelected(event: TreeItem) {
     let data = event.dataItem as singleNode4move;
     if (data) {

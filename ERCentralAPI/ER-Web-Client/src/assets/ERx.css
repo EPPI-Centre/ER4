@@ -167,13 +167,13 @@ ul.k-tabstrip-items li.k-item.k-state-active {
   background-color: rgb(190, 235, 255);
 }
 
-#CodesetTreeCodingComponentId .k-treeview-leaf.k-selected {
+.BlueTreeViewSelectable .k-treeview-leaf.k-selected {
   background-color: rgb(190, 235, 255);
   color: black;
   border: solid 1px white;
 }
 
-#CodesetTreeCodingComponentId .k-treeview-leaf {
+.BlueTreeViewSelectable .k-treeview-leaf {
   border: solid 1px #00000000;
 }
 .k-icon-24 {

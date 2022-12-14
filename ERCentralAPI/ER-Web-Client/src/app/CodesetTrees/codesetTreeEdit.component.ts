@@ -58,7 +58,13 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
     }
     SelectReviewSet(rs: ReviewSet) {
         this._CurrentReviewSet = rs;
-    }
+  }
+
+  //used as input (not 2-way binding) by the kendo-treeview
+  public get selectedKeys(): string[] {
+    if (this.selectedNode) return [this.selectedNode.id];
+    else return [];
+  }
     //IsServiceBusy(): boolean {
     //    if (this.ReviewSetsService.IsBusy || this.ReviewSetsEditingService.IsBusy) return true;
     //    else return false;
