@@ -18,13 +18,13 @@ namespace ERxWebClient2.Zotero
         ERWebItem IMapZoteroReference.MapReferenceFromZoteroToErWeb(Item newERWebItem)
         {
             try
-            {
-
+            {                
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _bookItem);
                 erWebItem.Item.TypeId = 2;
                 erWebItem.Item.TypeName = "Book, Whole";
                 erWebItem.Item.StandardNumber = _bookItem.data.ISBN;
 				erWebItem.Item.IsIncluded = true;
+                erWebItem.Item.ParentTitle = _bookItem.data.bookTitle;
 				return erWebItem;
 
             }
