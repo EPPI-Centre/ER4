@@ -36,7 +36,7 @@
           <div class="p-1">Please select the <b>Destination Code</b> from the area below.</div>
           <div class="py-1 px-2 alert-info border border-info rounded ">
             You can move this code into <i class="k-icon k-i-import text-primary"></i> another part of its coding tool, with all its child codes (if any), without affecting coding data.<br />
-            You can also place the code below <i class="k-icon k-i-download text-primary"></i> another code in the same level of hierarchy.<br />
+            You can also place the code below <i class="k-icon k-i-arrow-drill text-primary" style="font-size: 25px;"></i> another code in the same level of hierarchy.<br />
             Not all codes can be destination codes. This is because some moves are impossible (ex. you cannot move a code into one of its children) while others would break coding tool depth restrictions.
           </div>
           <div class="border border-primary rounded p-1 m-1">
@@ -44,14 +44,14 @@
           </div>
 
           <div class="p-1 mb-2">
-            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranch(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchHere">Move <i class="k-icon k-i-import"></i></button>
+            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranch(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchHere">Move&nbsp; <i class="k-icon k-i-import"></i>&nbsp;</button>
             &nbsp;&nbsp; <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b>&nbsp;&nbsp;&nbsp;
             into
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b class="rounded border border-dark p-1"
                                              [ngClass]="{'alert-danger' : !codesetTree4Move.CanMoveBranchHere, 'alert-success' : codesetTree4Move.CanMoveBranchHere}">{{codesetTree4Move.DestinationBranchName(true)}}</b>
           </div>
           <div class="p-1 mb-2">
-            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranchBelow(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchBelowHere">Place <i class="k-icon k-i-download"></i></button>
+            <button class="btn btn-outline-primary ml-1" (click)="DoMoveBranchBelow(codesetTree4Move.DestinationBranch)" [disabled]="!codesetTree4Move.CanMoveBranchBelowHere">Place <i class="k-icon k-i-arrow-drill" style="font-size: 24px;"></i></button>
             &nbsp;&nbsp; <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b>&nbsp;&nbsp;
             below
             &nbsp;&nbsp;<b class="rounded border border-dark p-1"
