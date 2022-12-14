@@ -24,6 +24,7 @@ namespace ERxWebClient2.Zotero
                 erWebItem.Item.TypeName = "Book, Whole";
                 erWebItem.Item.StandardNumber = _bookItem.data.ISBN;
 				erWebItem.Item.IsIncluded = true;
+                erWebItem.Item.Institution = _bookItem.data.university;
 				return erWebItem;
                                 
             }

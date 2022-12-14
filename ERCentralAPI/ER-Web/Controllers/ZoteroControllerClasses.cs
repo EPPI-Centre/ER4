@@ -607,6 +607,7 @@ namespace ERxWebClient2.Controllers
             this.place = place;
             this.publisher = publisher;
 			this.ISBN = iSBN;
+			this.pages = pages;
 		}
 
         public string bookTitle { get; set; }
@@ -616,11 +617,10 @@ namespace ERxWebClient2.Controllers
 		public string publisher { get; set; }
 		public string ISBN { get; set; }
 
-		//the below is WRONG, used to deliberately cause an error!
-		//public string numPages = "aaa";
+		public string pages { get; set; }
 
 
-    }
+	}
 
 	internal interface iBookChapter
 	{
