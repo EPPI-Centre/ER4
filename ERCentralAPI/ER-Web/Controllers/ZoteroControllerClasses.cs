@@ -201,6 +201,25 @@ namespace ERxWebClient2.Controllers
             return creatorsArray;
 		}
 
+		public void SetParentAuthors(CreatorsItem[] creators, string parentAuthors, string itemType)
+		{
+			var authorsArray = AuthorsHandling.NormaliseAuth.processField(parentAuthors, 0);
+			foreach (var author in authorsArray)
+			{
+				var lastIndex = creators.Length;
+				if (itemType == "book")
+				{
+					var item = new CreatorsItem
+					{
+						creatorType = "editors",
+						firstName = author.FirstName,
+						lastName = author.LastName
+					};
+					creators[lastIndex] = item;
+				}
+			}
+		}
+
 		public ZoteroCollectionData(IItem data)
         {
 			tagObject tag = new tagObject
@@ -221,8 +240,6 @@ namespace ERxWebClient2.Controllers
             this.title = data.Title;
 			if (this.creators == null) this.creators = ObtainCreatorsAsAuthors(data.Authors).ToArray();
 			else this.creators = ObtainCreatorsAsAuthors(data.Authors).Concat(this.creators).ToArray();
-			// based on zotero type fill in parentAuthors
-			SetParentAuthors(this.creators, data.ParentAuthors, itemType);
 			this.abstractNote = data.Abstract;
             this.series = "";
             this.seriesNumber = "";            
@@ -255,25 +272,7 @@ namespace ERxWebClient2.Controllers
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.date = data.Year;
 		}
-
-        private void SetParentAuthors(CreatorsItem[] creators, string parentAuthors, string itemType)
-        {
-			var authorsArray = AuthorsHandling.NormaliseAuth.processField(parentAuthors, 0);
-			foreach (var author in authorsArray)
-			{
-				var lastIndex = creators.Length;
-				if (itemType == "book")
-				{
-                    var item = new CreatorsItem
-                    {
-                        creatorType = "editors",
-                        firstName = author.FirstName,
-                        lastName = author.LastName
-                    };
-                    creators[lastIndex] = item;
-				}
-			}
-        }
+        
 
         public ZoteroCollectionData()
         {
@@ -573,7 +572,9 @@ namespace ERxWebClient2.Controllers
             this.place = place;
             this.publisher = publisher;
             this.numPages = numPages;
-            this.ISBN = iSBN;            
+            this.ISBN = iSBN;
+
+			SetParentAuthors(this.creators, data.ParentAuthors, itemType);
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
