@@ -201,7 +201,7 @@ namespace ERxWebClient2.Controllers
             return creatorsArray;
 		}
 
-		public void SetParentAuthors(CreatorsItem[] creators, string parentAuthors, string itemType)
+		public void BuildParentAuthors(CreatorsItem[] creators, string parentAuthors, string itemType)
 		{
 			var authorsArray = AuthorsHandling.NormaliseAuth.processField(parentAuthors, 0);
 			foreach (var author in authorsArray)
@@ -462,7 +462,8 @@ namespace ERxWebClient2.Controllers
             this.journalAbbreviation = journalAbbreviation;
 			this.DOI = dOI;
 			this.ISSN = iSSN;
-        }
+			BuildParentAuthors(this.creators, data.ParentAuthors, itemType);
+		}
 
         public string publicationTitle { get; set; }
 		public string issue { get; set; }
@@ -495,6 +496,7 @@ namespace ERxWebClient2.Controllers
 			this.place = pLace;
 			this.ISBN = iSBN;
 			this.Publisher = publisher;
+			BuildParentAuthors(this.creators, data.ParentAuthors, itemType);
 		}
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
@@ -514,6 +516,7 @@ namespace ERxWebClient2.Controllers
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
 			this.place = pLace;
+			BuildParentAuthors(this.creators, data.ParentAuthors, itemType);
 
 		}
 		public string proceedingsTitle { get; set; }
@@ -574,7 +577,7 @@ namespace ERxWebClient2.Controllers
             this.numPages = numPages;
             this.ISBN = iSBN;
 
-			SetParentAuthors(this.creators, data.ParentAuthors, itemType);
+			BuildParentAuthors(this.creators, data.ParentAuthors, itemType);
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
@@ -609,6 +612,7 @@ namespace ERxWebClient2.Controllers
 			this.publisher = publisher;
 			this.numPages = numPages;
 			this.ISBN = iSBN;
+			BuildParentAuthors(this.creators, data.ParentAuthors, itemType);
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
@@ -634,6 +638,7 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
 			this.ISBN = iSBN;
 			this.pages = pages;
+			BuildParentAuthors(this.creators, data.ParentAuthors, itemType);
 		}
 
         public string bookTitle { get; set; }
