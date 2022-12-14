@@ -217,8 +217,11 @@ namespace ERxWebClient2.Controllers
 			//};
 
             this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
+            
             this.title = data.Title;
             this.creators = ObtainCreatorsAsAuthors(data.Authors).ToArray();
+			// based on zotero type fill in parentAuthors
+			SetParentAuthors(this.creators, data.ParentAuthors, itemType);
 			this.abstractNote = data.Abstract;
             this.series = "";
             this.seriesNumber = "";            
@@ -252,7 +255,26 @@ namespace ERxWebClient2.Controllers
 			this.date = data.Year;
 		}
 
-		public ZoteroCollectionData()
+        private void SetParentAuthors(CreatorsItem[] creators, string parentAuthors, string itemType)
+        {
+			var authorsArray = AuthorsHandling.NormaliseAuth.processField(parentAuthors, 0);
+			foreach (var author in authorsArray)
+			{
+				var lastIndex = creators.Length;
+				if (itemType == "book")
+				{
+                    var item = new CreatorsItem
+                    {
+                        creatorType = "editors",
+                        firstName = author.FirstName,
+                        lastName = author.LastName
+                    };
+                    creators[lastIndex] = item;
+				}
+			}
+        }
+
+        public ZoteroCollectionData()
         {
 
         }
@@ -337,6 +359,8 @@ namespace ERxWebClient2.Controllers
 		public string proceedingsTitle { get; set; } = null;
 
 		public string university { get; set; } = null;
+
+		public string bookTitle { get; set; } = null;
 
 	}
 	public class MiniCollectionType
@@ -607,6 +631,7 @@ namespace ERxWebClient2.Controllers
             this.place = place;
             this.publisher = publisher;
 			this.ISBN = iSBN;
+			this.pages = pages;
 		}
 
         public string bookTitle { get; set; }
@@ -616,11 +641,10 @@ namespace ERxWebClient2.Controllers
 		public string publisher { get; set; }
 		public string ISBN { get; set; }
 
-		//the below is WRONG, used to deliberately cause an error!
-		//public string numPages = "aaa";
+		public string pages { get; set; }
 
 
-    }
+	}
 
 	internal interface iBookChapter
 	{

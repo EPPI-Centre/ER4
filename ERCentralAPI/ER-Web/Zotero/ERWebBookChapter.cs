@@ -23,8 +23,8 @@ namespace ERxWebClient2.Zotero
 
                 var newZoteroItem = new BookChapter(_item, _item.ParentTitle, "", _item.Edition, _item.City,
                     _item.Publisher, _item.Pages, _item.StandardNumber);
-                //newZoteroItem.itemType = "bookSection";      
                 newZoteroItem.volume = _item.Volume;
+                newZoteroItem.place = _item.Country;
                 return newZoteroItem;
 
             }
