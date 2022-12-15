@@ -36,6 +36,8 @@ namespace ERxWebClient2.Zotero
  
 				switch (item.TypeId)
 				{
+					case 14:
+						return new ERWebJournal(item);
 				    case 1:
 					    return new ERWebReport(item);
 				    case 2:
@@ -60,12 +62,7 @@ namespace ERxWebClient2.Zotero
 						return new ERWebInterview(item);
 					case 12:
 						return new ERWebGeneric(item);
-					case 14:
-						return new ERWebJournal(item);
 					default:
-						//    //throw new NotSupportedException();
-						//    // for development return something
-						//    // TODO production throw the above exception
 						return new ERWebGeneric(item);
 				}			
 		}
@@ -74,12 +71,13 @@ namespace ERxWebClient2.Zotero
         {
             switch (item.data.itemType)
             {
+                case "journalArticle":
+                case "preprint":
+                    return new ZoteroJournal(item);
                 case "book": 
                     return new ZoteroBook(item);
                 case "bookSection":
                     return new ZoteroBookChapter(item);
-                case "journalArticle": 
-                    return new ZoteroJournal(item);
                 case "conferencePaper":
                     return new ZoteroConferenceProceeding(item);
                 case "webpage":

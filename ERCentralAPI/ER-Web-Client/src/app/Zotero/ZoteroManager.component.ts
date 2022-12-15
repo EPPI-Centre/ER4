@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Subscription } from 'rxjs';
@@ -12,7 +12,7 @@ import { ZoteroService } from '../services/Zotero.service';
     providers: []
 })
 
-export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
+export class ZoteroManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
     constructor(
@@ -23,7 +23,14 @@ export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
         private _ReviewerIdentityServ: ReviewerIdentityService
     ) {
         
-    }
+  }
+  ngOnInit() {
+    //the below happens anyway within this._zoteroService.CheckZoteroPermissions()
+    //but setting it here ensures we avoid the "valueChangedAfterChecking" error in ZoteroHeaderBarComp when all is well and we're returning to this page
+    //in this case, we start hasPermissions == true, and AfterViewInit we set it back to false by calling CheckZoteroPermissions()
+    //setting hasPermissions = false prevents the value from changing AFTER ViewInit
+    this._zoteroService.hasPermissions = false;
+  }
   ngAfterViewInit() { //ngOnInit() {
     if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
       this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
@@ -39,12 +46,14 @@ export class ZoteroManagerComponent implements AfterViewInit, OnDestroy {
           this.ChangeContext("ZoteroSetup");
         }
         else {
-
+          //console.log("ngAfterViewInit1");
           await this._zoteroService.CheckZoteroPermissions().then(
             () => {
+              //console.log("ngAfterViewInit2");
               if (this._zoteroService.hasPermissions) {
                 // ALREADY HAS A SHARED GROUP WITH  PERMISSIONS ASSOCIATED WITH THIS API KEY
                 this.ChangeContext("ZoteroSync");
+                //console.log("ngAfterViewInit3");
 
               } else {
                 this.ChangeContext("ZoteroSetup");

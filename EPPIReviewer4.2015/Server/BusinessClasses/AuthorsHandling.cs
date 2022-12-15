@@ -337,10 +337,29 @@ namespace AuthorsHandling
             }
         }
         public static readonly PropertyInfo<string> FullNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FullName", "FullName", 0));
+
+        /// <summary>
+        /// Returns "Last, (Second?) First"
+        /// </summary>
         public string FullName
         {
             get { return LastName + ", " + (MiddleName != "" ? MiddleName + " " : "") + FirstName; }
-            
+
+        }/// <summary>
+         /// Returns "Last(?) First(?) Middle(?)" (without commas, trimmed)
+         /// Used for Zotero pushing
+         /// </summary>
+        public string FullNameClean
+        {
+            get 
+            { 
+                return (
+                    (LastName != "" ? LastName + " " : "")
+                    + (FirstName != "" ? FirstName + " " : "")
+                    + (MiddleName != "" ? MiddleName + " " : "")
+                    ).Trim(); 
+            }
+
         }
         public static readonly PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
         public int Rank

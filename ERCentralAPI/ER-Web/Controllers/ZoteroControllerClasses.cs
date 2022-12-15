@@ -6,9 +6,8 @@ using static BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument;
 using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 //using ErWebState = BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument.ErWebState;
 using BusinessLibrary.BusinessClasses;
-using ERxWebClient2.Zotero;
-using System.Linq;
-using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
+
+using ER_Web.Zotero;
 
 namespace ERxWebClient2.Controllers
 {
@@ -177,55 +176,58 @@ namespace ERxWebClient2.Controllers
             var creatorsArray = new List<CreatorsItem>();
 			foreach (var author in authorsArray)
 			{
-				var creatorsItem = new CreatorsItem
-				{
-					creatorType = "author",
-					lastName = author.LastName,
-					firstName = author.FirstName + (author.MiddleName.Trim().Length == 0 ? "" : " " + author.MiddleName.Trim())
-                };
-				creatorsArray.Add(creatorsItem);
-
-
-				//var firstAndLastNames = author.TrimStart().TrimEnd().Split(' ');
-				//if (firstAndLastNames.Count() > 1)
-				//{
-				//	var creatorsItem = new CreatorsItem
-				//	{
-				//		creatorType = "author",
-				//          lastName = firstAndLastNames[0].ToString(),
-				//          firstName = firstAndLastNames[1].ToString()
-				//	};
-				//	creatorsArray.Add(creatorsItem);
-				//}
-			}
+                string tmp = author.FullNameClean;
+                if (!string.IsNullOrWhiteSpace(tmp))
+                {
+                    var NewCreator = new CreatorsItem
+                    {
+                        creatorType = "author",
+                        name = tmp
+                    };
+                    creatorsArray.Add(NewCreator);
+                }
+            }
             return creatorsArray;
 		}
-
-		protected void BuildParentAuthors(string parentAuthors, string creatorType)
+        /// <summary>
+        /// Called by specific reference-type classes, as/when required
+        /// </summary>
+        /// <param name="parentAuthors">String of authors to process</param>
+        /// <param name="creatorType">The value to use for Zotero's creatorType</param>
+        protected void BuildParentAuthors(string parentAuthors, string creatorType)
         {
-            var authorsArray = AuthorsHandling.NormaliseAuth.processField(parentAuthors, 0);
             List<CreatorsItem> tempList = new List<CreatorsItem>();
+            var authorsArray = AuthorsHandling.NormaliseAuth.processField(parentAuthors, 0);
             foreach (var author in authorsArray)
             {
-                var NewCreator = new CreatorsItem
-                {
-                    creatorType = creatorType,
-                    firstName = author.FirstName,
-                    lastName = author.LastName
-                };
-                tempList.Add(NewCreator);
+				string tmp = author.FullNameClean;
+                if (!string.IsNullOrWhiteSpace(tmp))
+				{
+					var NewCreator = new CreatorsItem
+					{
+						creatorType = creatorType,
+						name = tmp
+                    };
+					tempList.Add(NewCreator);
+				}
             }
             //concatenate existing this.creators with tempList 
             this.creators = this.creators.Concat(tempList).ToArray();//adds templist to this.creators array
         }
-
+        
+		protected void AddDOIToExtraField(string DOI)
+		{
+			if (this.extra == null || this.extra.Trim() == "") this.extra = "DOI: " + DOI;
+			else this.extra += Environment.NewLine + "DOI: " + DOI;
+        }
+		
+		/// <summary>
+        /// Used for Push, common method for all reference types
+        /// </summary>
+        /// <param name="data"></param>
         public ZoteroCollectionData(IItem data)
         {
-			tagObject tag = new tagObject
-            {
-                tag = "EPPI-Reviewer ID: " + data.ItemId.ToString(),
-                type = "1"
-            }; 
+			
 			//relation rel = new relation();
 			//// TODO hardcoded
 			//{
@@ -250,27 +252,49 @@ namespace ERxWebClient2.Controllers
             this.libraryCatalog = "";
             this.callNumber = "";
             this.rights = "";
-			var eppiIdCountryCommentsKeywords = new string[5];
+			var eppiIdCountryCommentsKeywords = new string[3];
 			eppiIdCountryCommentsKeywords[0] = "EPPI-Reviewer ID: " + data.ItemId.ToString();
 			if (data.Comments.ToString().Trim().Length > 0)
 				eppiIdCountryCommentsKeywords[1] = "EPPI-Reviewer Comments: " + data.Comments.ToString().Trim();
 			if (data.Country.ToString().Trim().Length > 0)
 				eppiIdCountryCommentsKeywords[2] = "EPPI-Reviewer Country: " + data.Country.ToString().Trim();
-			if (data.Keywords.ToString().Trim().Length > 0)
-				eppiIdCountryCommentsKeywords[3] = "EPPI-Reviewer Keywords: " + data.Keywords.ToString().Trim();
-			if (!string.IsNullOrWhiteSpace(data.DOI))
-			{
-				eppiIdCountryCommentsKeywords[4] = "EPPI-Reviewer DOI: " + data.DOI.ToString().Trim();
-			}
+			//if (data.Keywords.ToString().Trim().Length > 0)
+			//	eppiIdCountryCommentsKeywords[3] = "EPPI-Reviewer Keywords: " + data.Keywords.ToString().Trim();
+			//if (!string.IsNullOrWhiteSpace(data.DOI))
+			//{
+			//	eppiIdCountryCommentsKeywords[4] = "EPPI-Reviewer DOI: " + data.DOI.ToString().Trim();
+			//}
 			this.extra = string.Join(Environment.NewLine, eppiIdCountryCommentsKeywords);
-            this.tags = new tagObject[1] { tag };
+			BuildTags(data);
             this.collections = new object[0];
             //this.relations = rel;
             this.dateAdded = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
 			this.dateModified = ((DateTime) data.DateEdited).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
-			this.date = data.Year;
+			this.date = data.Year.Trim();
+			if (this.date != "" && data.Month.Trim() != "") this.date += ", " + data.Month.Trim();
 		}
-        
+        private void BuildTags(IItem data)
+		{
+            tagObject tag = new tagObject
+            {
+                tag = "EPPI-Reviewer ID: " + data.ItemId.ToString(),
+                type = "1"
+            };
+			string[] keywordLines = new string[0];
+			if(!string.IsNullOrWhiteSpace(data.Keywords)) keywordLines = data.Keywords.Trim().Split(ZoteroReferenceCreator.separators, StringSplitOptions.RemoveEmptyEntries );
+			List<tagObject> list = new List<tagObject>();
+            list.Add(tag);
+            foreach (var keyword in keywordLines)
+			{
+                tag = new tagObject
+                {
+                    tag = keyword,
+                    type = "0"
+                };
+                list.Add(tag);
+            }
+            this.tags = list.ToArray();
+        }
 
         public ZoteroCollectionData()
         {
@@ -302,7 +326,6 @@ namespace ERxWebClient2.Controllers
 		public Object relations { get; set; } = new object();
 		public string dateAdded { get; set; }
 		public string dateModified { get; set; }
-		public string DOI { get; set; }
 
 		public tagObject[] tags { get; set; }
 
@@ -314,6 +337,7 @@ namespace ERxWebClient2.Controllers
         {
             this.websiteTitle = websiteTitle;
             this.websiteType = websiteType;
+            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
         }
 
         public string websiteTitle { get; set; }
@@ -494,14 +518,16 @@ namespace ERxWebClient2.Controllers
 			this.place = pLace;
 			this.ISBN = iSBN;
 			this.Publisher = publisher;
+			if (data.DOI != null && data.DOI.Trim() != "") this.DOI = data.DOI.Trim();
 			BuildParentAuthors(data.ParentAuthors, "editor");
 		}
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
 		public string place { get; set; }
 		public string ISBN { get; set; }
+		public string DOI { get; set; } = "";
 
-		public string Publisher { get; set; }
+        public string Publisher { get; set; }
 
 	}
 
@@ -515,8 +541,9 @@ namespace ERxWebClient2.Controllers
 			this.conferenceName = conferencename;
 			this.place = pLace;
 			BuildParentAuthors(data.ParentAuthors, "seriesEditor");
+            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
 
-		}
+        }
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
 		public string place { get; set; }
@@ -532,8 +559,9 @@ namespace ERxWebClient2.Controllers
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
 			this.place = pLace;
+            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
 
-		}
+        }
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
 		public string place { get; set; }
@@ -544,9 +572,10 @@ namespace ERxWebClient2.Controllers
 	public class Generic : ZoteroCollectionData
 	{
 		public Generic(IItem data) : base(data)
-		{			
+		{
 
-		}
+            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+        }
 
 	}
 
@@ -555,7 +584,8 @@ namespace ERxWebClient2.Controllers
 		public Dvd(IItem data) : base(data)
 		{
 
-		}
+            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+        }
 
 	}
 
@@ -574,8 +604,8 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
             this.numPages = numPages;
             this.ISBN = iSBN;
-
-			BuildParentAuthors(data.ParentAuthors, "Editor");
+            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            BuildParentAuthors(data.ParentAuthors, "Editor");
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
@@ -610,7 +640,8 @@ namespace ERxWebClient2.Controllers
 			this.publisher = publisher;
 			this.numPages = numPages;
 			this.ISBN = iSBN;
-			BuildParentAuthors(data.ParentAuthors, "contributor");
+            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            BuildParentAuthors(data.ParentAuthors, "contributor");
 		}
 		public string numberOfVolumes { get; set; }
 		public string edition { get; set; }
@@ -619,8 +650,7 @@ namespace ERxWebClient2.Controllers
 		public string numPages { get; set; }
 		public string ISBN { get; set; }
 
-
-	}
+    }
 
 	public class BookChapter : ZoteroCollectionData , iBookChapter
 	{
@@ -636,7 +666,8 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
 			this.ISBN = iSBN;
 			this.pages = numPages;
-			BuildParentAuthors(data.ParentAuthors, "editor");
+            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            BuildParentAuthors(data.ParentAuthors, "editor");
 		}
 
         public string bookTitle { get; set; }

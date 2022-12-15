@@ -243,14 +243,14 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     this.CurrentPage2 = this.TotPages2;
   }
   public get CanPageUp1(): boolean {
-    console.log("can pg up", this.CurrentPage1, this.TotPages1)
+    //console.log("can pg up", this.CurrentPage1, this.TotPages1)
     return this.CurrentPage1 < this.TotPages1;
   }
   public get CanPageUp2(): boolean {
     return this.CurrentPage2 < this.TotPages2;
   }
   public get CanPageDown1(): boolean {
-    console.log("can pg dw", this.CurrentPage1, this.TotPages1)
+    //console.log("can pg dw", this.CurrentPage1, this.TotPages1)
     return this.CurrentPage1 > 1;
   }
   public get CanPageDown2(): boolean {

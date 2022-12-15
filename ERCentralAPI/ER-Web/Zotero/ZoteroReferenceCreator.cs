@@ -11,7 +11,13 @@ namespace ER_Web.Zotero
     public abstract class ZoteroReferenceCreator
     {
         private const string V = "yyyy-MM-ddTHH:mm:ssZ";
-
+        /// <summary>
+        /// Used for Pull, common method for all reference types
+        /// </summary>
+        /// <param name="newERWebItem"></param>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
         public ERWebItem CreateErWebItemFromCollection(Item newERWebItem, Collection collection)
         {
 
