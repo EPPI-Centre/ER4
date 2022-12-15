@@ -32,15 +32,15 @@ namespace ERxWebClient2.Zotero
                     AutH a = new AutH();
                     if (Zau.name != null && Zau.name != "")
                     {
-                        a = NormaliseAuth.singleAuth(Zau.name, AuthRank, role);
+                        a = NormaliseAuth.singleAuth(Zau.name, pAuthRank, role);
                     }
                     else
                     {
                         a.FirstName = Zau.firstName ?? "";
                         a.MiddleName = "";
                         a.LastName = Zau.lastName ?? "";
-                        a.Role = role;//only looking for "actual authors" not parent authors which can be Book editors and the like.
-                        a.Rank = AuthRank;
+                        a.Role = role;
+                        a.Rank = pAuthRank;
                     }
                     pAuthRank++;
                     pAuthorsLi.Add(a);
@@ -57,7 +57,7 @@ namespace ERxWebClient2.Zotero
                         a.FirstName = Zau.firstName ?? "";
                         a.MiddleName = "";
                         a.LastName = Zau.lastName ?? "";
-                        a.Role = role;//only looking for "actual authors" not parent authors which can be Book editors and the like.
+                        a.Role = role;
                         a.Rank = AuthRank;
                     }
                     AuthRank++;
