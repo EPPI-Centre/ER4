@@ -21,6 +21,7 @@ namespace ERxWebClient2.Zotero
                 erWebItem.Item.TypeId = 12;
                 erWebItem.Item.TypeName = "Generic";
 				erWebItem.Item.IsIncluded = true;
+                if (!string.IsNullOrWhiteSpace(_genericItem.data.publisher)) erWebItem.Item.ParentTitle = _genericItem.data.publisher.Trim();
 				return erWebItem;
                                 
             }

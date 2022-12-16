@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using static BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument;
-using static BusinessLibrary.BusinessClasses.ZoteroERWebReviewItem;
 //using ErWebState = BusinessLibrary.BusinessClasses.ZoteroERWebItemDocument.ErWebState;
 using BusinessLibrary.BusinessClasses;
 
@@ -120,6 +118,9 @@ namespace ERxWebClient2.Controllers
 
 			switch (erWebType)
 			{
+				case "Journal, Article":
+					zoteroType = "journalArticle";
+					break;
                 case "Book, Whole":
                     zoteroType = "book";
                     break;
@@ -128,6 +129,9 @@ namespace ERxWebClient2.Controllers
 					break;
 				case "Book, Chapter":
 					zoteroType = "bookSection";
+					break;
+				case "Generic":
+					zoteroType = "document";
 					break;
 				case "Dissertation":
 					zoteroType = "thesis";
@@ -145,7 +149,7 @@ namespace ERxWebClient2.Controllers
 					zoteroType = "film"; //videoRecording //tvBroadcast
 					break;
 				case "Research project":
-					zoteroType = "thesis";
+					zoteroType = "report";
 					break;
 				case "Article In A Periodical":
 					zoteroType = "newspaperArticle";
@@ -153,14 +157,9 @@ namespace ERxWebClient2.Controllers
 				case "Interview":
 					zoteroType = "interview";
 					break;
-				case "Generic":
-					zoteroType = "book";
-					break;
-				case "Journal, Article":
-					zoteroType = "journalArticle";
-					break;
 				default:
-					break;
+                    zoteroType = "document";
+                    break;
 			}
 			return zoteroType;
 		}
@@ -215,10 +214,10 @@ namespace ERxWebClient2.Controllers
             this.creators = this.creators.Concat(tempList).ToArray();//adds templist to this.creators array
         }
         
-		protected void AddDOIToExtraField(string DOI)
+		protected void AddLineToExtraField(string prefix, string value)
 		{
-			if (this.extra == null || this.extra.Trim() == "") this.extra = "DOI: " + DOI;
-			else this.extra += Environment.NewLine + "DOI: " + DOI;
+			if (this.extra == null || this.extra.Trim() == "") this.extra = prefix + value.Trim();
+			else this.extra += Environment.NewLine + prefix + value.Trim();
         }
 		
 		/// <summary>
@@ -243,7 +242,7 @@ namespace ERxWebClient2.Controllers
 			this.abstractNote = data.Abstract;
             this.series = "";
             this.seriesNumber = "";            
-            this.language = data.Country;
+            //this.language = data.Country;
             this.shortTitle = data.ShortTitle;
             this.url = data.URL;
             this.accessDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
@@ -337,7 +336,7 @@ namespace ERxWebClient2.Controllers
         {
             this.websiteTitle = websiteTitle;
             this.websiteType = websiteType;
-            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
         }
 
         public string websiteTitle { get; set; }
@@ -541,7 +540,7 @@ namespace ERxWebClient2.Controllers
 			this.conferenceName = conferencename;
 			this.place = pLace;
 			BuildParentAuthors(data.ParentAuthors, "seriesEditor");
-            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
 
         }
 		public string proceedingsTitle { get; set; }
@@ -559,7 +558,7 @@ namespace ERxWebClient2.Controllers
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
 			this.place = pLace;
-            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
 
         }
 		public string proceedingsTitle { get; set; }
@@ -573,18 +572,23 @@ namespace ERxWebClient2.Controllers
 	{
 		public Generic(IItem data) : base(data)
 		{
-
-            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+			if (data.Publisher != null && data.Publisher.Trim() != "")
+			{
+                AddLineToExtraField("EPPI-Reviewer Publisher: ", data.Publisher);
+            }
+			if (data.ParentTitle != null && data.ParentTitle.Trim() != "") publisher = data.ParentTitle.Trim();
+			else publisher = "";
         }
-
-	}
+        public string publisher { get; set; }
+    }
 
 	public class Dvd : ZoteroCollectionData
 	{
 		public Dvd(IItem data) : base(data)
 		{
 
-            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
         }
 
 	}
@@ -604,7 +608,7 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
             this.numPages = numPages;
             this.ISBN = iSBN;
-            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
             BuildParentAuthors(data.ParentAuthors, "Editor");
 		}
 		public string numberOfVolumes { get; set; }
@@ -640,7 +644,7 @@ namespace ERxWebClient2.Controllers
 			this.publisher = publisher;
 			this.numPages = numPages;
 			this.ISBN = iSBN;
-            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
             BuildParentAuthors(data.ParentAuthors, "contributor");
 		}
 		public string numberOfVolumes { get; set; }
@@ -666,7 +670,7 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
 			this.ISBN = iSBN;
 			this.pages = numPages;
-            if (data.DOI != null && data.DOI.Trim() != "") AddDOIToExtraField(data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
             BuildParentAuthors(data.ParentAuthors, "editor");
 		}
 
