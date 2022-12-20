@@ -97,7 +97,7 @@ namespace ER_Web.Zotero
             if (collectionType.pages != null && collectionType.pages != "") newERWebItem.Pages = collectionType.pages;
             newERWebItem.Issue = collectionType.issue;
             newERWebItem.Country = collectionType.place;
-            newERWebItem.ParentTitle = collectionType.parentTitle;
+            //newERWebItem.ParentTitle = collectionType.parentTitle;
             newERWebItem.DOI = collectionType.DOI;
             string[] tmpParsedDate = ImportRefs.getDate(collectionType.date);
             if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";

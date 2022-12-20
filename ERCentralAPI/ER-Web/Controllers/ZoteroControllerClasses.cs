@@ -369,7 +369,7 @@ namespace ERxWebClient2.Controllers
 		public string journalAbbreviation { get; set; } = null;
 		public string DOI { get; set; } = null;
 		public string ISSN { get; set; } = null;
-		public string parentTitle { get; set; } = null;
+		//public string parentTitle { get; set; } = null;
 		public string createdBy { get; set; } = null;
 		public string editedBy { get; set; } = null;
 		public string institution { get; set; } = null;
@@ -641,14 +641,18 @@ namespace ERxWebClient2.Controllers
 		//parentTitle: { txt: 'Publ. Title', optional: false }
 		  //              , parentAuthors: { txt: 'Parent Authors', optional: true }
 		  //              , standardNumber: { txt: 'ISSN/ISBN', optional: false }
-		public Dissertation(IItem data, string numberOfVolumes, string edition, string place, string publisher,
+		public Dissertation(IItem data, string numberOfVolumes, string edition, string place, 
 			string numPages, string iSBN) : base(data)
 		{
 			this.numberOfVolumes = numberOfVolumes;
 			//this.edition = edition;
 			this.place = place;
-			this.publisher = publisher;
-			this.numPages = numPages;
+			if (!string.IsNullOrWhiteSpace(data.Institution))
+			{
+				this.university = data.Institution;
+			}
+			else if (!string.IsNullOrWhiteSpace(data.ParentTitle)) this.university = data.ParentTitle;
+            this.numPages = numPages;
 			this.ISBN = iSBN;
             if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
             BuildParentAuthors(data.ParentAuthors, "contributor");
@@ -656,7 +660,7 @@ namespace ERxWebClient2.Controllers
 		public string numberOfVolumes { get; set; }
 		//public string edition { get; set; }
 		public string place { get; set; }
-		public string publisher { get; set; }
+		public string university { get; set; }
 		public string numPages { get; set; }
 		public string ISBN { get; set; }
 
