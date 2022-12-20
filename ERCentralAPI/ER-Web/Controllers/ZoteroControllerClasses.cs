@@ -254,9 +254,9 @@ namespace ERxWebClient2.Controllers
 			var eppiIdCountryCommentsKeywords = new string[3];
 			eppiIdCountryCommentsKeywords[0] = "EPPI-Reviewer ID: " + data.ItemId.ToString();
 			if (data.Comments.ToString().Trim().Length > 0)
-				eppiIdCountryCommentsKeywords[1] = "EPPI-Reviewer Comments: " + data.Comments.ToString().Trim();
+				eppiIdCountryCommentsKeywords[1] = ZoteroReferenceCreator.searchForComments + data.Comments.ToString().Trim();
 			if (data.Country.ToString().Trim().Length > 0)
-				eppiIdCountryCommentsKeywords[2] = "EPPI-Reviewer Country: " + data.Country.ToString().Trim();
+				eppiIdCountryCommentsKeywords[2] = ZoteroReferenceCreator.searchForCountry + data.Country.ToString().Trim();
 			//if (data.Keywords.ToString().Trim().Length > 0)
 			//	eppiIdCountryCommentsKeywords[3] = "EPPI-Reviewer Keywords: " + data.Keywords.ToString().Trim();
 			//if (!string.IsNullOrWhiteSpace(data.DOI))
@@ -336,7 +336,7 @@ namespace ERxWebClient2.Controllers
         {
             this.websiteTitle = websiteTitle;
             this.websiteType = websiteType;
-            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
         }
 
         public string websiteTitle { get; set; }
@@ -517,6 +517,7 @@ namespace ERxWebClient2.Controllers
 			this.place = pLace;
 			this.ISBN = iSBN;
 			this.Publisher = publisher;
+			this.pages = data.Pages;
 			if (data.DOI != null && data.DOI.Trim() != "") this.DOI = data.DOI.Trim();
 			BuildParentAuthors(data.ParentAuthors, "editor");
 		}
@@ -525,6 +526,7 @@ namespace ERxWebClient2.Controllers
 		public string place { get; set; }
 		public string ISBN { get; set; }
 		public string DOI { get; set; } = "";
+		public string pages { get; set; } = "";
 
         public string Publisher { get; set; }
 
@@ -539,16 +541,20 @@ namespace ERxWebClient2.Controllers
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
 			this.place = pLace;
+			this.pages = data.Pages;
+			this.institution = data.Institution;
 			BuildParentAuthors(data.ParentAuthors, "seriesEditor");
-            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
 
         }
 		public string proceedingsTitle { get; set; }
 		public string conferenceName { get; set; }
 		public string place { get; set; }
 		public string ISSN { get; set; }
+        public string pages { get; set; }
+        public string institution { get; set; }
 
-	}
+    }
 
 	public class Periodical : ZoteroCollectionData
 	{
@@ -558,7 +564,7 @@ namespace ERxWebClient2.Controllers
 			this.proceedingsTitle = proceedingstitle;
 			this.conferenceName = conferencename;
 			this.place = pLace;
-            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
 
         }
 		public string proceedingsTitle { get; set; }
@@ -572,7 +578,7 @@ namespace ERxWebClient2.Controllers
 	{
 		public Generic(IItem data) : base(data)
 		{
-            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
 			if (data.Publisher != null && data.Publisher.Trim() != "")
 			{
                 AddLineToExtraField("EPPI-Reviewer Publisher: ", data.Publisher);
@@ -588,7 +594,7 @@ namespace ERxWebClient2.Controllers
 		public Dvd(IItem data) : base(data)
 		{
 
-            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
         }
 
 	}
@@ -608,7 +614,7 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
             this.numPages = numPages;
             this.ISBN = iSBN;
-            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
             BuildParentAuthors(data.ParentAuthors, "Editor");
 		}
 		public string numberOfVolumes { get; set; }
@@ -639,16 +645,16 @@ namespace ERxWebClient2.Controllers
 			string numPages, string iSBN) : base(data)
 		{
 			this.numberOfVolumes = numberOfVolumes;
-			this.edition = edition;
+			//this.edition = edition;
 			this.place = place;
 			this.publisher = publisher;
 			this.numPages = numPages;
 			this.ISBN = iSBN;
-            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
             BuildParentAuthors(data.ParentAuthors, "contributor");
 		}
 		public string numberOfVolumes { get; set; }
-		public string edition { get; set; }
+		//public string edition { get; set; }
 		public string place { get; set; }
 		public string publisher { get; set; }
 		public string numPages { get; set; }
@@ -670,7 +676,7 @@ namespace ERxWebClient2.Controllers
             this.publisher = publisher;
 			this.ISBN = iSBN;
 			this.pages = numPages;
-            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField("DOI: ", data.DOI);
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
             BuildParentAuthors(data.ParentAuthors, "editor");
 		}
 

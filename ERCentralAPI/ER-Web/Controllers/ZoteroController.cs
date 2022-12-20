@@ -1096,7 +1096,7 @@ namespace ERxWebClient2.Controllers
             var httpClientProvider = SetZoteroHttpClientProvider(zrc.ApiKey);
             List<MiniCollectionType> batch = new List<MiniCollectionType>();
             int batchSize = 50; 
-            string searchFor = ZoteroReferenceCreator.searchFor;// "EPPI-Reviewer ID: ";
+            string searchFor = ZoteroReferenceCreator.searchForERid;// "EPPI-Reviewer ID: ";
             string[] separators = ZoteroReferenceCreator.separators;// { "\r\n", "\n", "\r", Environment.NewLine };
             foreach (ItemIncomingData iid in forSaving.IncomingItems)
             {
@@ -1330,7 +1330,7 @@ namespace ERxWebClient2.Controllers
                         if (tInput != null)
                         {
                             tac.version = tInput.version;
-                            List<tagObject> currentTags = tInput.data.tags.ToList().FindAll(f => !f.tag.StartsWith(ZoteroReferenceCreator.searchFor));
+                            List<tagObject> currentTags = tInput.data.tags.ToList().FindAll(f => !f.tag.StartsWith(ZoteroReferenceCreator.searchForERid));
                             currentTags.Add(tac.tags[0]);
                             tac.tags = currentTags.ToArray();
                         }
@@ -1895,7 +1895,7 @@ namespace ERxWebClient2.Controllers
                     //    InputTable.Rows.Add(dr);
                     //}
 
-                    string searchFor = ZoteroReferenceCreator.searchFor;// "EPPI-Reviewer ID: ";
+                    string searchFor = ZoteroReferenceCreator.searchForERid;// "EPPI-Reviewer ID: ";
                     string[] separators = ZoteroReferenceCreator.separators;// { "\r\n", "\n", "\r", Environment.NewLine };
                     Collection? collectionItem = null;
                     foreach (JObject Jzitem in Zitems)

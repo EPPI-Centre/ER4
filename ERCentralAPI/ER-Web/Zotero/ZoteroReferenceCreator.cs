@@ -106,8 +106,8 @@ namespace ER_Web.Zotero
             else newERWebItem.Month = tmpParsedDate[1];
             newERWebItem.URL = collectionType.url;
             SetEppiFieldsFoundInZoteroExtraField(newERWebItem, collectionType);
-            newERWebItem.Comments += collectionType.extra;
-            newERWebItem.Comments += "Language: " + collectionType.language;
+            //newERWebItem.Comments += collectionType.extra;
+            //newERWebItem.Comments += "Language: " + collectionType.language;
             var erWebItem = new ERWebItem
             {
                 Item = newERWebItem
@@ -115,31 +115,45 @@ namespace ER_Web.Zotero
             return erWebItem;
         }
         public static readonly string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
-        public static readonly string searchFor = "EPPI-Reviewer ID:";
-        public static readonly string searchForComments = "EPPI-Reviewer Comments";
-        public static readonly string searchForCountry = "EPPI-Reviewer Country";
-        public static readonly string searchForKeywords = "EPPI-Reviewer Keywords";
+        public static readonly string searchForERid = "EPPI-Reviewer ID: ";
+        public static readonly string searchForComments = "EPPI-Reviewer Comments: ";
+        public static readonly string searchForCountry = "EPPI-Reviewer Country: ";
+        public static readonly string searchForDOI = "DOI: ";
 
         private static void SetEppiFieldsFoundInZoteroExtraField(Item newERWebItem, CollectionType collectionType)
         {
             if (collectionType.extra == null) collectionType.extra = "";
-            if (newERWebItem.Comments == null) newERWebItem.Comments = "";
+            //if (newERWebItem.Comments == null)
+            newERWebItem.Comments = "";
             var fourEppiFieldsInExtra = collectionType.extra.Split(separators, StringSplitOptions.RemoveEmptyEntries);
             foreach(string line in fourEppiFieldsInExtra)
             {
-                if (line.StartsWith(searchForComments))
+                if (line.StartsWith(searchForComments)  && !newERWebItem.Comments.Contains(line))
                 {
-                    newERWebItem.Comments += line + Environment.NewLine;
+                    newERWebItem.Comments += line.Replace(searchForComments, "") + Environment.NewLine;
                 }
                 else if (line.StartsWith(searchForCountry))
                 {
-                    newERWebItem.Country += line + Environment.NewLine;
+                    newERWebItem.Country = line.Replace(searchForCountry, "");
                 }
-                else if (line.StartsWith(searchForKeywords))
+                else if (string.IsNullOrWhiteSpace(newERWebItem.DOI) && line.StartsWith(searchForDOI))
                 {
-                    newERWebItem.Keywords += line + Environment.NewLine;
+                    newERWebItem.DOI = line.Replace(searchForDOI, "");
+                }
+                else if (!line.StartsWith(searchForERid))
+                {
+                    newERWebItem.Comments += line + Environment.NewLine;
                 }
             }
+            newERWebItem.Keywords = "";
+            foreach (tagObject tag in collectionType.tags)
+            {
+                if (tag.type == "0")
+                {
+                    newERWebItem.Keywords += tag.tag + Environment.NewLine;
+                }
+            }
+            newERWebItem.Keywords = newERWebItem.Keywords.Trim();
         }
     }
 }

@@ -1957,6 +1957,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 sbc.ColumnMappings.Add("CREATED_BY", "CREATED_BY");
                 sbc.ColumnMappings.Add("DATE_EDITED", "DATE_EDITED");
                 sbc.ColumnMappings.Add("EDITED_BY", "EDITED_BY");
+                sbc.ColumnMappings.Add("EDITION", "EDITION");
                 sbc.ColumnMappings.Add("YEAR", "YEAR");
                 sbc.ColumnMappings.Add("MONTH", "MONTH");
                 sbc.ColumnMappings.Add("STANDARD_NUMBER", "STANDARD_NUMBER");
