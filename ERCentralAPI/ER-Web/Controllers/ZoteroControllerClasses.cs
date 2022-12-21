@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using BusinessLibrary.BusinessClasses;
 
 using ER_Web.Zotero;
+using System.Text.RegularExpressions;
 
 namespace ERxWebClient2.Controllers
 {
@@ -279,21 +280,96 @@ namespace ERxWebClient2.Controllers
                 tag = "EPPI-Reviewer ID: " + data.ItemId.ToString(),
                 type = "1"
             };
-			string[] keywordLines = new string[0];
-			if(!string.IsNullOrWhiteSpace(data.Keywords)) keywordLines = data.Keywords.Trim().Split(ZoteroReferenceCreator.separators, StringSplitOptions.RemoveEmptyEntries );
+            string[] keywordLines = new string[0];
+			if (!string.IsNullOrWhiteSpace(data.Keywords))
+			{
+				string[] keywordSeparator = FindKeywordSeparator(data.Keywords);
+				keywordLines = data.Keywords.Trim().Split(keywordSeparator, StringSplitOptions.RemoveEmptyEntries);
+			}
 			List<tagObject> list = new List<tagObject>();
             list.Add(tag);
-            foreach (var keyword in keywordLines)
-			{
-                tag = new tagObject
-                {
-                    tag = keyword,
-                    type = "0"
-                };
+            foreach (string keyword in keywordLines)
+			{//splitted with our best guess on how to separate them...
+				if (keyword.Length > 254)
+				{//won't add a keyword longer than 254 chars (max is actually 256!), would fail on the Zot side!
+                    tag = new tagObject
+                    {
+                        tag = keyword.Substring(0, 254).Trim(),
+                        type = "0"
+                    };
+				}
+				else
+				{
+					tag = new tagObject
+					{
+						tag = keyword.Trim(),
+						type = "0"
+					};
+				}
                 list.Add(tag);
             }
             this.tags = list.ToArray();
         }
+        private string[] FindKeywordSeparator(string Keywords)
+		{
+			List<string> res = new List<string>();
+			Dictionary<string, int> scores = new Dictionary<string, int>();
+			int len = Keywords.Length;
+			if (len <= 6) return res.ToArray();
+            string[] separators4Keywords = { "\r\n", "\r", "\n", ";", "\t", ",", "\\.", ":" }; //Does not include space!!
+            //we don't want keywords to be more that 30 chars long, on average
+            int aimFor = (int)Math.Ceiling((double)len / 30.0);
+            //we don't want keywords to be less than 7 chars long, on average (mean word-length in Eng, including aritcles, prepositions, etc. is around 5)
+            int tooMany = (int)Math.Ceiling((double)len / 7.0);
+
+			//first simple attempt, use all separators, see if it gives us a nice result
+			string[] throwAway = Keywords.Split(separators4Keywords, StringSplitOptions.RemoveEmptyEntries);
+			if (throwAway.Length >= aimFor && throwAway.Length <= tooMany) return separators4Keywords;
+			
+			//too bad, the quick and easy didn't work...
+            int totalMatches = 0;
+            foreach (string s in separators4Keywords)
+			{
+				
+				int count = Regex.Matches(Keywords, s).Count;
+				if (count > 0)
+				{//good, this might be an ideal separator
+					if (count >= aimFor && count <= tooMany )
+					{//we found the ideal separator
+                        if (s == "\\.") res.Add(".");
+                        else res.Add(s);
+                        return res.ToArray();
+                    }
+					else if (count <= tooMany)//we won't add a separator that matches too often!!
+					{
+                        if (s == "\\.") scores.Add(".", count);
+                        else scores.Add(s, count);
+                    }
+				}
+            }
+			//if we reached this point, no SINGLE separator appeared to be good enough :-(
+			//so we'll return a number of separators, based on the ones we've collected so far.
+			//we want to return the minimum number of separators, so we sort them in desc order
+            Dictionary<string, int> sortedDict = (from entry in scores orderby entry.Value descending select entry).ToDictionary(k=> k.Key, v=> v.Value);
+			
+			foreach (KeyValuePair<string, int> kvp in sortedDict)
+			{
+				totalMatches += kvp.Value;
+				res.Add(kvp.Key);
+				if (totalMatches > aimFor)
+				{//alright, we have what we came for...
+					return res.ToArray();
+				}
+			}
+			//if we reached this point, no combination of separators appeared to be good enough :-(
+			//so, does a simple "space" work well?
+			string[] space = { " " };
+            throwAway = Keywords.Split(space, StringSplitOptions.RemoveEmptyEntries);
+            if (throwAway.Length >= aimFor && throwAway.Length <= tooMany) return space;
+			//meh, not even "just space" worked, we'll add "space" to our results, return and hope for the best...
+			res.Add(" ");
+            return res.ToArray();
+		}
 
         public ZoteroCollectionData()
         {
@@ -353,8 +429,6 @@ namespace ERxWebClient2.Controllers
 
 	public class CollectionType : ZoteroCollectionData
 	{
-        
-        public string numberOfVolumes { get; set; } = null;
 		public string edition { get; set; } = null;
 		public string place { get; set; } = null;
 		public string publisher { get; set; } = null;
@@ -641,10 +715,10 @@ namespace ERxWebClient2.Controllers
 		//parentTitle: { txt: 'Publ. Title', optional: false }
 		  //              , parentAuthors: { txt: 'Parent Authors', optional: true }
 		  //              , standardNumber: { txt: 'ISSN/ISBN', optional: false }
-		public Dissertation(IItem data, string numberOfVolumes, string edition, string place, 
-			string numPages, string iSBN) : base(data)
+		public Dissertation(IItem data, string edition, string place, 
+			string numPages) : base(data)
 		{
-			this.numberOfVolumes = numberOfVolumes;
+			//this.numberOfVolumes = numberOfVolumes;
 			//this.edition = edition;
 			this.place = place;
 			if (!string.IsNullOrWhiteSpace(data.Institution))
@@ -652,8 +726,8 @@ namespace ERxWebClient2.Controllers
 				this.university = data.Institution;
 			}
 			else if (!string.IsNullOrWhiteSpace(data.ParentTitle)) this.university = data.ParentTitle;
+			else this.university = string.Empty;
             this.numPages = numPages;
-			this.ISBN = iSBN;
             if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
             BuildParentAuthors(data.ParentAuthors, "contributor");
 		}
@@ -662,7 +736,6 @@ namespace ERxWebClient2.Controllers
 		public string place { get; set; }
 		public string university { get; set; }
 		public string numPages { get; set; }
-		public string ISBN { get; set; }
 
     }
 
