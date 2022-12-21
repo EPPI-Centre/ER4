@@ -324,7 +324,11 @@ namespace ERxWebClient2.Controllers
 
 			//first simple attempt, use all separators, see if it gives us a nice result
 			string[] throwAway = Keywords.Split(separators4Keywords, StringSplitOptions.RemoveEmptyEntries);
-			if (throwAway.Length >= aimFor && throwAway.Length <= tooMany) return separators4Keywords;
+			if (throwAway.Length >= aimFor && throwAway.Length <= tooMany)
+			{
+				separators4Keywords[6] = ".";
+                return separators4Keywords;
+			}
 			
 			//too bad, the quick and easy didn't work...
             int totalMatches = 0;
