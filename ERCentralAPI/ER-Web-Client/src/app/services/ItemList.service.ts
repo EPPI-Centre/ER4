@@ -898,7 +898,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
             tmp = au.trim();
             if (tmp != "") res += "A2  - " + tmp + newLine;
         }
-        res += "KW  - eppi-reviewer4" + newLine
+        res += "KW  - eppi-reviewer" + newLine
             + ((it.keywords != null && it.keywords.length > 2) ? it.keywords.trim() + newLine : "");
         let Month: number | null, Yr: number | null;
         let tmpDate: string = "";
