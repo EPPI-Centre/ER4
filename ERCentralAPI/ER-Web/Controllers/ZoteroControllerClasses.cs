@@ -11,55 +11,12 @@ using System.Text.RegularExpressions;
 namespace ERxWebClient2.Controllers
 {
 
-	public class ZoteroApiKey
-	{
-		public string key { get; set; }
-		public long userID { get; set; }
-		public string username { get; set; }
-		public string displayName { get; set; }
-
-		public Access access { get; set; }
-	}
-
-	public class Access
-	{
-		public User user { get; set; }
-
-		public Groups groups { get; set; }
-	}
-
-	public class User
-	{
-		public bool library { get; set; }
-		public bool files { get; set; }
-	}
-
-	public class Groups
-	{
-		public All all { get; set; }
-	}
-
-	public class All
-	{
-		public bool library { get; set; }
-		public bool write { get; set; }
-
-	}
-
 	public class ErWebZoteroItemDocument
 	{
 		public long itemId { get; set; }
 		public string parentItemFileKey { get; set; }
 		public long itemDocumentId { get; set; }
 	}
-
-	public class JsonErrorModel
-	{
-		public int ErrorCode { get; set; }
-
-		public string ErrorMessage { get; set; }
-	}
-
 
 	public class GroupSelf
 	{
@@ -421,12 +378,6 @@ namespace ERxWebClient2.Controllers
 
         public string websiteTitle { get; set; }
 		public string websiteType { get; set; }
-
-	}
-	public class SyncStateDictionaries
-	{
-		public Dictionary<long, ZoteroERWebReviewItem.ErWebState> itemSyncStateResults { get; set; }
-		public Dictionary<long, ZoteroERWebReviewItem.ErWebState> docSyncStateResults { get; set; }
 
 	}
 
@@ -858,22 +809,7 @@ namespace ERxWebClient2.Controllers
 		public string type { get; set; }
 	}
 
-	public class iItemReviewID
-	{
-		public long itemID { get; set; }
-		public long itemReviewID { get; set; }
-		public long itemDocumentID { get; set; }
-	}
 
-	public class iItemReviewIDZoteroKey
-	{
-		public long itemID { get; set; }
-		public long itemReviewID { get; set; }
-
-		public string itemKey { get; set; }
-
-		public string version { get; set; }
-	}
 
 	public class tagObject
 	{
@@ -882,69 +818,6 @@ namespace ERxWebClient2.Controllers
 		public string type { get; set; } = "0";
 	}
 
-	public class relation
-	{
-		[JsonProperty(PropertyName = "owl:sameAs")]
-		public string owlSameAs { get; set; }
-
-		[JsonProperty(PropertyName = "dc:relation")]
-		public string dcRelation { get; set; }
-
-		[JsonProperty(PropertyName = "dc:replaces")]
-		public string dcReplaces { get; set; }
-
-	}
-
-	public class UserDetails
-	{
-		public int userId { get; set; }
-
-		public long reviewId { get; set; }
-	}
-
-	//TODO probably have to remove these
-	// why does Zotero not let us access this
-	// via the API
-	public class PlanQuotas
-	{
-		public int[] Quotas { get; set; }
-	}
-
-	public class Subscription
-	{
-		public UserSubscription userSubscription { get; set; }
-		public StorageGroups storageGroups { get; set; }
-		public bool lastPurchaseQuota { get; set; }
-		public PlanQuotas planQuotas { get; set; }
-	}
-
-	public class StorageGroups
-	{
-		public Object[] Groups { get; set; }
-	}
-
-	public class Usage
-	{
-		public string total { get; set; }
-		public string library { get; set; }
-		public Group groups { get; set; }
-	}
-
-	public class UserSubscription
-	{
-		public string userID { get; set; }
-		public int storageLevel { get; set; }
-		public string quota { get; set; }
-		public int expirationDate { get; set; }
-		public bool recur { get; set; }
-		public string paymentType { get; set; }
-		public string orderID { get; set; }
-		public Usage usage { get; set; }
-		public bool discounted { get; set; }
-		public bool discountEligible { get; set; }
-		public List<object> institutions { get; set; }
-		public bool hasExistingSubscription { get; set; }
-	}
     public class ZoteroBatchError
     {
         public ZoteroBatchError(string OpName)

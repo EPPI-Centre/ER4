@@ -138,80 +138,6 @@ GO
 
 
 
-
-
---USE [Reviewer]
---GO
---/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroUpdate]    Script Date: 09/10/2022 14:26:06 ******/
---SET ANSI_NULLS ON
---GO
---SET QUOTED_IDENTIFIER ON
---GO
-
-
---CREATE OR ALTER       Procedure [dbo].[st_ItemReviewZoteroUpdate](
---@Zotero_item_review_ID bigint NULL,
---@ItemKey nvarchar(50) NULL,
---@LibraryID nvarchar(50) NULL, 
---@ITEM_ID bigint NULL, 
---@ITEM_REVIEW_ID bigint NULL, 
---@Version nvarchar(50) NULL, 
---@LAST_MODIFIED date NULL,
---@TypeName nvarchar(50) NULL)
---as
---BEGIN
---        UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
---        SET    [ItemKey] = @ItemKey,
---		[LibraryID] =@LibraryID, 
---		[ITEM_ID] = @ITEM_ID,
---		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
---		[Version] =@Version, 
---		[LAST_MODIFIED] =@LAST_MODIFIED,
---		[TypeName] = @TypeName
---        WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
---END
-
---GO
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[sp_Read_Zotero_ItemReview]    Script Date: 11/10/2021 09:22:59 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE OR ALTER Procedure [dbo].[st_ItemReviewZotero](
-@ItemKey nvarchar(50) NULL)
-as
-Begin
-	SELECT * FROM [dbo].[TB_ZOTERO_ITEM_REVIEW]
-	WHERE [ItemKey] = @ItemKey;
-End
-
-GO
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ItemReviewZoteroDelete]    Script Date: 11/10/2021 09:15:28 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE OR ALTER Procedure [dbo].[st_ItemReviewZoteroDelete](
-@Zotero_item_review_ID bigint NULL)
-as
-BEGIN
-        DELETE FROM [dbo].[TB_ZOTERO_ITEM_REVIEW]
-        WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
-END
-
-GO
-
-
 USE [Reviewer]
 GO
 /****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewCreate]    Script Date: 08/10/2022 15:31:35 ******/
@@ -238,181 +164,7 @@ End
 
 GO
 
---USE [Reviewer]
---GO
---/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewUpdate]    Script Date: 08/10/2022 14:44:22 ******/
---SET ANSI_NULLS ON
---GO
---SET QUOTED_IDENTIFIER ON
---GO
 
-
---CREATE OR ALTER       Procedure [dbo].[st_ZoteroItemReviewUpdate](
---@Zotero_item_review_ID bigint NULL,
---@ItemKey nvarchar(50) NULL,
---@LibraryID nvarchar(50) NULL, 
---@ITEM_REVIEW_ID bigint NULL, 
---@Version nvarchar(50) NULL, 
---@LAST_MODIFIED date NULL,
---@TypeName nvarchar(50) NULL)
---as
---BEGIN
---        UPDATE [dbo].[TB_ZOTERO_ITEM_REVIEW]
---        SET    [ItemKey] = @ItemKey,
---		[LibraryID] =@LibraryID, 
---		[ITEM_REVIEW_ID] =@ITEM_REVIEW_ID,
---		[Version] =@Version, 
---		[LAST_MODIFIED] =@LAST_MODIFIED,
---		[TypeName] = @TypeName
---        WHERE [Zotero_item_review_ID]= @Zotero_item_review_ID
---END
-
---GO
-
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_FetchItemReview]    Script Date: 11/10/2021 09:34:39 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE OR ALTER procedure [dbo].[st_ItemReview]
-(
-@ITEM_ID BIGINT 
-)
-AS
-SET NOCOUNT ON
-
-SELECT * FROM [Reviewer].[dbo].[TB_ITEM_REVIEW]
-WHERE ITEM_ID = @ITEM_ID
-
-SET NOCOUNT OFF
-
-
-GO
-
-
-/****** Script for SelectTopNRows command from SSMS  ******/
-
-
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewIDs]    Script Date: 18/09/2022 15:56:50 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE OR ALTER  Procedure [dbo].[st_ZoteroItemReviewIDs](
-@ItemIds nvarchar(50) NULL)
-as
-Begin	
-  SELECT TIR.ITEM_REVIEW_ID, TIR.ITEM_ID, TID.ITEM_DOCUMENT_ID
-  FROM [Reviewer].[dbo].[TB_ITEM_REVIEW] TIR
-  INNER JOIN TB_ITEM_DOCUMENT TID
-  on TID.ITEM_ID = TIR.ITEM_ID
-  Where TIR.ITEM_ID IN (SELECT value FROM [dbo].[fn_Split_int](@ItemIds, ','))
-End
-
-
-GO
-
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ItemsNotInZotero]    Script Date: 23/12/2021 11:47:05 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE OR ALTER Procedure [dbo].[st_ItemsNotInZotero](
-@ReviewID bigint NULL)
-as
-Begin	
-  SELECT IR.[ITEM_REVIEW_ID],IR.[ITEM_ID], ID.ITEM_DOCUMENT_ID
-  FROM [Reviewer].[dbo].[TB_ITEM_REVIEW] IR
-  LEFT JOIN [Reviewer].[dbo].[TB_ITEM_DOCUMENT] ID
-  ON IR.ITEM_ID = ID.ITEM_ID
-  WHERE REVIEW_ID = @ReviewID
-  AND ITEM_REVIEW_ID NOT IN (SELECT [ITEM_REVIEW_ID]
-  FROM [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW])
-End
-
-
-GO
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ERWebItemsNotInZoteroCreate]   Script Date: 11/10/2021 09:13:36 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE OR ALTER   Procedure [dbo].[st_ERWebItemsNotInZoteroCreate](
-@ItemIDs nvarchar(50) NULL)
-as
-Begin	
-  SELECT *
-  FROM [Reviewer].[dbo].[TB_ITEM]
-  WHERE ITEM_ID IN (SELECT value FROM [dbo].[fn_Split_int](@ItemIDs, ','))
-End
-
-
-GO
-
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[sp_Read_Zotero_Fetch_Item_Review_IDs]    Script Date: 11/10/2021 09:21:33 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE OR ALTER Procedure [dbo].[st_ItemReviewIDsZotero](
-@ItemIds nvarchar(50) NULL)
-as
-Begin	
-	SELECT l.[ITEM_REVIEW_ID]
-	FROM [Reviewer].[dbo].[TB_ITEM_REVIEW] l
-	left outer join [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW] r
-	on l.ITEM_REVIEW_ID = r.ITEM_REVIEW_ID
-	Where l.ITEM_ID IN (SELECT value FROM [dbo].[fn_Split_int](@ItemIds, ','))
-	AND r.ITEM_REVIEW_ID is NULL
-End
-
-GO
-
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ItemIDPerItemReviewID]    Script Date: 17/10/2021 20:55:09 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE OR ALTER   Procedure [dbo].[st_ItemIDPerItemReviewID](
-@ItemReviewID bigint NULL)
-as
-Begin
-	SELECT l.ITEM_ID FROM [dbo].[TB_ITEM] l
-	inner join [dbo].[TB_ITEM_REVIEW] r
-	on l.ITEM_ID = r.ITEM_ID
-	WHERE r.ITEM_REVIEW_ID = @ItemReviewID;
-End
-
-
-GO
 
 USE [Reviewer]
 GO
@@ -463,60 +215,6 @@ GO
 
 USE [Reviewer]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TB_ERWEB_TO_ZOTERO_ITEM_TYPES]') AND type in (N'U'))
-DROP TABLE [dbo].[TB_ERWEB_TO_ZOTERO_ITEM_TYPES]
-GO
-/****** Object:  Table [dbo].[TB_ERWEB_TO_ZOTERO_ITEM_TYPES]    Script Date: 30/11/2021 20:26:28 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE TABLE [dbo].[TB_ERWEB_TO_ZOTERO_ITEM_TYPES](
-	[erWebTypeId] [int] NULL,
-	[zoteroTypeId] [int] NULL,
-	[erWebTypeName] [nvarchar](50) NULL,
-	[zoteroTypeName] [nvarchar](50) NULL
-) ON [PRIMARY]
-GO
-
-USE [Reviewer]
-GO
-
-INSERT INTO [dbo].[TB_ERWEB_TO_ZOTERO_ITEM_TYPES]
-           ([erWebTypeId]
-           ,[zoteroTypeId]
-           ,[erWebTypeName]
-           ,[zoteroTypeName])
-     VALUES
-        (2,	1,	'Book', 'Whole	book'),
-		(14,	2,	'Journal, Article',	'journalArticle')
-GO
-
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ItemReview]    Script Date: 30/11/2021 20:26:28 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE OR ALTER procedure [dbo].[st_ItemReviewItem]
-(
-@ITEM_REVIEW_ID BIGINT 
-)
-AS
-SET NOCOUNT ON
-
-SELECT ITEM_ID FROM [Reviewer].[dbo].[TB_ITEM_REVIEW]
-WHERE ITEM_REVIEW_ID = @ITEM_REVIEW_ID
-
-SET NOCOUNT OFF
-
-GO
-
-USE [Reviewer]
-GO
 
 
 CREATE  OR ALTER  Procedure [dbo].[st_ZoteroConnectionUpdate](
@@ -559,28 +257,6 @@ END
 
 GO
 
---USE [Reviewer]
---GO
---/****** Object:  StoredProcedure [dbo].[st_ItemsInERWebANDZotero]    Script Date: 19/09/2022 13:58:12 ******/
---SET ANSI_NULLS ON
---GO
---SET QUOTED_IDENTIFIER ON
---GO
-
-
---CREATE OR ALTER    Procedure [dbo].[st_ItemsInERWebANDZotero]
---as
---Begin	
---  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, ZIR.LibraryID, ZIR.Version,ZIR.ITEM_REVIEW_ID, ZIR.LAST_MODIFIED, IR.ITEM_ID, I.SHORT_TITLE,I.TITLE, ZIR.TypeName, ZIR.SyncState
---  FROM [Reviewer].[dbo].[TB_ZOTERO_ITEM_REVIEW] ZIR
---  INNER JOIN [Reviewer].[dbo].[TB_ITEM_REVIEW] IR
---  ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
---  INNER JOIN [Reviewer].[dbo].[TB_ITEM] I
---  ON IR.ITEM_ID = I.ITEM_ID
---  ORDER BY I.SHORT_TITLE
---End
-
---GO
 
 USE [Reviewer]
 GO
@@ -609,32 +285,6 @@ End
 
 GO
 
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ItemIDFromSource]    Script Date: 04/07/2022 16:47:52 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE OR ALTER  procedure [dbo].[st_ItemIDsFromSource]
-(
-	@SOURCE_ID INT
-)
-
-As
-
-SET NOCOUNT ON
-
-	SELECT I.ITEM_ID
-	FROM [dbo].[TB_ITEM_SOURCE] ISO
-	INNER JOIN [TB_ITEM] I ON 
-	I.ITEM_ID = ISO.ITEM_ID
-	WHERE SOURCE_ID = @SOURCE_ID
-	ORDER BY DATE_CREATED DESC
-
-SET NOCOUNT OFF
-
-GO
 
 USE [Reviewer]
 GO
@@ -657,34 +307,6 @@ WHERE ITEM_ID = @ITEM_ID;
 GO
 
 
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_ZoteroReviewItemIdsPerSource]    Script Date: 04/07/2022 16:47:52 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE OR ALTER  procedure [dbo].[st_ZoteroReviewItemIdsPerSource]
-(
-	@SOURCE_ID INT
-)
-
-As
-
-SET NOCOUNT ON
-
-	SELECT IR.ITEM_REVIEW_ID
-	FROM [dbo].[TB_ITEM_SOURCE] ISO
-	INNER JOIN [TB_ITEM] I ON 
-	I.ITEM_ID = ISO.ITEM_ID
-	INNER JOIN [TB_ITEM_REVIEW] IR ON
-	IR.ITEM_ID = I.ITEM_ID
-	WHERE ISO.SOURCE_ID = @SOURCE_ID
-	ORDER BY DATE_CREATED DESC
-
-SET NOCOUNT OFF
-
-GO
 
 USE [Reviewer]
 GO
