@@ -297,9 +297,6 @@
                     <div class="m-1 p-1 ">Group Name</div>
                   </td>
                   <td>
-                    <div class="m-1 p-1 ">Version</div>
-                  </td>
-                  <td>
                     <div class="m-1 p-1 ">Status</div>
                   </td>
                 </tr>
@@ -310,7 +307,6 @@
                     {{item.id}}
                   </td>
                   <td class="">{{item.data.name}}</td>
-                  <td class="">{{item.version}}</td>
                   <td>
                     <ng-container [ngSwitch]="item.groupBeingSynced">
                       <div *ngSwitchCase="true" class="mx-auto row">
