@@ -1,6 +1,7 @@
 ﻿using BusinessLibrary.BusinessClasses;
 using ER_Web.Zotero;
 using ERxWebClient2.Controllers;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ERxWebClient2.Zotero
 {
@@ -22,7 +23,13 @@ namespace ERxWebClient2.Zotero
                 erWebItem.Item.TypeName = "Generic";
 				erWebItem.Item.IsIncluded = true;
                 if (!string.IsNullOrWhiteSpace(_genericItem.data.publisher)) erWebItem.Item.ParentTitle = _genericItem.data.publisher.Trim();
-				return erWebItem;
+                if (_genericItem.data.itemType == "case" 
+                    && erWebItem.Item.Title.IsNullOrEmpty() 
+                    && !_genericItem.data.caseName.IsNullOrEmpty()) erWebItem.Item.Title = _genericItem.data.caseName;
+                else if(_genericItem.data.itemType == "statute"
+                    && erWebItem.Item.Title.IsNullOrEmpty()
+                    && !_genericItem.data.nameOfAct.IsNullOrEmpty()) erWebItem.Item.Title = _genericItem.data.nameOfAct; //nameOfAct
+                return erWebItem;
                                 
             }
             catch (System.Exception ex)

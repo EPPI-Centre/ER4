@@ -94,9 +94,16 @@ namespace ERxWebClient2.Zotero
 					return new ZoteroNewspaperArticle(item);
 				case "report":
 					return new ZoteroReport(item);
-				case "thesis":
-					return new ZoteroThesis(item);
-				default:
+                case "thesis":
+                    return new ZoteroThesis(item);
+                case "audioRecording":
+                case "film":
+                case "podcast":
+                case "radioBroadcast":
+                case "tvBroadcast":
+                case "videoRecording":
+                    return new ZoteroFilmOrMedia(item);
+                default:
                     return new ZoteroGeneric(item);
             }
         }

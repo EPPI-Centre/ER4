@@ -89,6 +89,7 @@ namespace ER_Web.Zotero
             newERWebItem.DateEdited = SmartDateModified;
             newERWebItem.Edition = collectionType.edition;
             newERWebItem.Institution = collectionType.institution;
+            newERWebItem.City = collectionType.place;
             if (collectionType.numPages != null && collectionType.numPages != "") newERWebItem.Pages = collectionType.numPages;
             newERWebItem.Publisher = collectionType.publisher;
             newERWebItem.ShortTitle = collectionType.shortTitle;
@@ -99,11 +100,14 @@ namespace ER_Web.Zotero
             newERWebItem.Country = collectionType.place;
             //newERWebItem.ParentTitle = collectionType.parentTitle;
             newERWebItem.DOI = collectionType.DOI;
-            string[] tmpParsedDate = ImportRefs.getDate(collectionType.date);
-            if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
-            else newERWebItem.Year = tmpParsedDate[0];
-            if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
-            else newERWebItem.Month = tmpParsedDate[1];
+            if (!collectionType.date.IsNullOrEmpty())
+            {
+                string[] tmpParsedDate = ImportRefs.getDate(collectionType.date);
+                if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
+                else newERWebItem.Year = tmpParsedDate[0];
+                if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
+                else newERWebItem.Month = tmpParsedDate[1];
+            }
             newERWebItem.URL = collectionType.url;
             SetEppiFieldsFoundInZoteroExtraField(newERWebItem, collectionType);
             //newERWebItem.Comments += collectionType.extra;

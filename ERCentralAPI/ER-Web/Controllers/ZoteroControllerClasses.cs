@@ -184,22 +184,11 @@ namespace ERxWebClient2.Controllers
         /// <param name="data"></param>
         public ZoteroCollectionData(IItem data)
         {
-			
-			//relation rel = new relation();
-			//// TODO hardcoded
-			//{
-			//	owlSameAs = "http://zotero.org/groups/1/items/JKLM6543",
-			//	dcRelation = "http://zotero.org/groups/1/items/PQRS6789",
-			//	dcReplaces = "http://zotero.org/users/1/items/BCDE5432"
-			//};
-
             this.itemType = MapFromERWebTypeToZoteroType(data.TypeName);
             
             this.title = data.Title;
 			this.creators = ObtainCreatorsAsAuthors(data.Authors).ToArray();
 			this.abstractNote = data.Abstract;
-            this.series = "";
-            this.seriesNumber = "";            
             //this.language = data.Country;
             this.shortTitle = data.ShortTitle;
             this.url = data.URL;
@@ -343,10 +332,8 @@ namespace ERxWebClient2.Controllers
 		public string title { get; set; }
 		public CreatorsItem[] creators { get; set; }
 		public string abstractNote { get; set; }
-		public string series { get; set; }
-		public string seriesNumber { get; set; }
 		public string volume { get; set; }
-		public string date { get; set; }
+		public string date { get; set; } = "";
 		public string language { get; set; }
 		public string shortTitle { get; set; }
 		public string url { get; set; }
@@ -398,8 +385,10 @@ namespace ERxWebClient2.Controllers
 		public string journalAbbreviation { get; set; } = null;
 		public string DOI { get; set; } = null;
 		public string ISSN { get; set; } = null;
-		//public string parentTitle { get; set; } = null;
-		public string createdBy { get; set; } = null;
+        public string reportType { get; set; } = null;
+        public string caseName { get; set; } = null;
+        public string nameOfAct { get; set; } = null;
+        public string createdBy { get; set; } = null;
 		public string editedBy { get; set; } = null;
 		public string institution { get; set; } = null;
 		public string comments { get; set; } = null;
@@ -564,22 +553,23 @@ namespace ERxWebClient2.Controllers
 
 	public class ReportZotero : ZoteroCollectionData
 	{
-		public ReportZotero(IItem data, string proceedingstitle, string conferencename, string pLace, string iSSN) : base(data)
+		public ReportZotero(IItem data) : base(data)
 		{
-			this.ISSN = iSSN;
-			this.proceedingsTitle = proceedingstitle;
-			this.conferenceName = conferencename;
-			this.place = pLace;
+			this.seriesTitle = data.ParentTitle;
+			this.reportNumber = data.StandardNumber;
+			this.place = data.City;
 			this.pages = data.Pages;
 			this.institution = data.Institution;
-			BuildParentAuthors(data.ParentAuthors, "seriesEditor");
+			if (data.TypeName == "Research project") this.reportType = "Research project";
+			else this.reportType = "";
+            BuildParentAuthors(data.ParentAuthors, "seriesEditor");
             if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
 
         }
-		public string proceedingsTitle { get; set; }
-		public string conferenceName { get; set; }
-		public string place { get; set; }
-		public string ISSN { get; set; }
+		public string seriesTitle { get; set; }
+		public string reportNumber { get; set; }
+        public string place { get; set; }
+        public string reportType { get; set; }
         public string pages { get; set; }
         public string institution { get; set; }
 
@@ -587,18 +577,19 @@ namespace ERxWebClient2.Controllers
 
 	public class Periodical : ZoteroCollectionData
 	{
-		public Periodical(IItem data, string proceedingstitle, string conferencename, string pLace, string iSSN) : base(data)
+		public Periodical(IItem data) : base(data)
 		{
-			this.ISSN = iSSN;
-			this.proceedingsTitle = proceedingstitle;
-			this.conferenceName = conferencename;
-			this.place = pLace;
+			this.ISSN = data.StandardNumber;
+			this.publicationTitle = data.ParentTitle;
+			this.edition = data.Edition;
+			this.place = data.City;
+			this.pages = data.Pages;
             if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
-
         }
-		public string proceedingsTitle { get; set; }
-		public string conferenceName { get; set; }
-		public string place { get; set; }
+		public string publicationTitle { get; set; }
+        public string edition { get; set; }
+        public string pages { get; set; }
+        public string place { get; set; }
 		public string ISSN { get; set; }
 
 	}
@@ -617,8 +608,14 @@ namespace ERxWebClient2.Controllers
         }
         public string publisher { get; set; }
     }
-
-	public class Dvd : ZoteroCollectionData
+    public class Interview : ZoteroCollectionData
+    {
+        public Interview(IItem data) : base(data)
+        {
+            if (data.DOI != null && data.DOI.Trim() != "") AddLineToExtraField(ZoteroReferenceCreator.searchForDOI, data.DOI);
+        }
+    }
+    public class Dvd : ZoteroCollectionData
 	{
 		public Dvd(IItem data) : base(data)
 		{
@@ -627,8 +624,9 @@ namespace ERxWebClient2.Controllers
         }
 
 	}
+    
 
-	public class BookWhole : ZoteroCollectionData, IBookWhole
+    public class BookWhole : ZoteroCollectionData, IBookWhole
 	{
 		// parentTitle: { txt: 'Parent Title', optional: true }
 	    //              , parentAuthors: { txt: 'Parent Authors', optional: true }
