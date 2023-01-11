@@ -28,7 +28,26 @@ namespace ERxWebClient2.Zotero
                     && !_genericItem.data.caseName.IsNullOrEmpty()) erWebItem.Item.Title = _genericItem.data.caseName;
                 else if(_genericItem.data.itemType == "statute"
                     && erWebItem.Item.Title.IsNullOrEmpty()
-                    && !_genericItem.data.nameOfAct.IsNullOrEmpty()) erWebItem.Item.Title = _genericItem.data.nameOfAct; //nameOfAct
+                    && !_genericItem.data.nameOfAct.IsNullOrEmpty()) erWebItem.Item.Title = _genericItem.data.nameOfAct; 
+
+                if (_genericItem.data.itemType == "case"
+                    && !_genericItem.data.dateDecided.IsNullOrEmpty()
+                    && erWebItem.Item.Year.IsNullOrEmpty())
+                {
+                    SetYearAndMonth(erWebItem.Item, _genericItem.data.dateDecided);
+                }
+                else if (_genericItem.data.itemType == "patent"
+                    && !_genericItem.data.issueDate.IsNullOrEmpty()
+                    && erWebItem.Item.Year.IsNullOrEmpty())
+                {
+                    SetYearAndMonth(erWebItem.Item, _genericItem.data.issueDate);
+                }
+                else if (_genericItem.data.itemType == "statute"
+                    && !_genericItem.data.dateEnacted.IsNullOrEmpty()
+                    && erWebItem.Item.Year.IsNullOrEmpty())
+                {
+                    SetYearAndMonth(erWebItem.Item, _genericItem.data.dateEnacted);
+                }
                 return erWebItem;
                                 
             }
@@ -38,5 +57,6 @@ namespace ERxWebClient2.Zotero
                 throw;
             }
         }
+        
     }
 }

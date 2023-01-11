@@ -388,6 +388,9 @@ namespace ERxWebClient2.Controllers
         public string reportType { get; set; } = null;
         public string caseName { get; set; } = null;
         public string nameOfAct { get; set; } = null;
+        public string dateDecided { get; set; } = null;
+        public string issueDate { get; set; } = null;
+        public string dateEnacted { get; set; } = null; 
         public string createdBy { get; set; } = null;
 		public string editedBy { get; set; } = null;
 		public string institution { get; set; } = null;

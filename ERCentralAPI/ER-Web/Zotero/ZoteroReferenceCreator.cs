@@ -102,11 +102,7 @@ namespace ER_Web.Zotero
             newERWebItem.DOI = collectionType.DOI;
             if (!collectionType.date.IsNullOrEmpty())
             {
-                string[] tmpParsedDate = ImportRefs.getDate(collectionType.date);
-                if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
-                else newERWebItem.Year = tmpParsedDate[0];
-                if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
-                else newERWebItem.Month = tmpParsedDate[1];
+                SetYearAndMonth(newERWebItem, collectionType.date);
             }
             newERWebItem.URL = collectionType.url;
             SetEppiFieldsFoundInZoteroExtraField(newERWebItem, collectionType);
@@ -118,6 +114,16 @@ namespace ER_Web.Zotero
             };
             return erWebItem;
         }
+
+        protected void SetYearAndMonth(IItem newERWebItem, string Date)
+        {
+            string[] tmpParsedDate = ImportRefs.getDate(Date);
+            if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
+            else newERWebItem.Year = tmpParsedDate[0];
+            if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
+            else newERWebItem.Month = tmpParsedDate[1];
+        }
+
         public static readonly string[] separators = { "\r\n", "\n", "\r", Environment.NewLine };
         public static readonly string searchForERid = "EPPI-Reviewer ID: ";
         public static readonly string searchForComments = "EPPI-Reviewer Comments: ";
