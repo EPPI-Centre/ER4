@@ -35,6 +35,9 @@ declare @Content nvarchar(max) = '
 
             <p><strong>Review Members</strong> and <strong>Group Members</strong> do not need to include the same people, however,
             the Key Owner needs to have access to both the Review and the Group Library.</p>
+
+			<p>[A <strong>longer introduction</strong> to the Zotero functionalities can be found <a 
+			href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3885" target="_blank">here</a>.]</p>
           </div>
         </div>
 
@@ -77,15 +80,15 @@ declare @Content nvarchar(max) = '
           Group Library, or even revoke/delete/edit permissions on the Access Key.</p>
 
           <div class="bg-light text-dark p-1 rounded border border-danger m-2">
-            <strong class="text-warning">&#9888;</strong><strong> Please Note:</strong> the Zotero API used to exchange data is known to be <em>ever changing</em>. This
-            (unfortunately) means that changes in the Zotero API might produce new, unforeseen problems <em>at any time</em>; if
+            <strong class="text-warning">&#9888;</strong><strong> Please Note:</strong> the Zotero API used to exchange data is known to be <em>ever changing</em>. 
+			This (unfortunately) means that changes in the Zotero API might produce new, unforeseen problems <em>at any time</em>; if
             this happens, we would react and fix the problem at our end as quickly as possible. However, we cannot offer guarantees
             about how long it will take. As a consequence, by using these functionalities, <strong>you implicitly accept
             the</strong> (very small) <strong>risk of facing unforeseen interruptions in your workflow, which may last for days or
             more</strong>.<strong class="text-warning">&#9888;</strong>
           </div>
 
-          <p>For a full discussion of troubleshooting procedures, please see <a href="https://eppi.ioe.ac.uk/cms/er4" target=
+          <p>For a full discussion of troubleshooting procedures, please see <a href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3886" target=
           "_blank">this page</a> in the EPPI-Reviewer gateway.</p>
         </div>
         <br>
@@ -264,10 +267,12 @@ declare @Content nvarchar(max) = '
           inevitably &quot;lossy&quot; or is done in a less than ideal way. At the root, this class of errors happens because there
           never is a one-to-one perfect correspondence of data-fields between the two systems. For example, books and books
           sections do not have a DOI field in Zotero. In addition, the &quot;types&quot; of references (Journal article, book,
-          conference proceeding, etc.) supported by the two systems also do not neatly match, complicating things further.
+          conference proceeding, etc.) supported by the two systems also do not neatly match, complicating things further.<br>
+		  [More details on how EPPI-Reviewer &quot;translates&quot; reference types are <a href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3888" 
+		  target="_blank">here</a>.]
           <br>
-          Thus, when designing these functionalities, we had to make hundreds of &quot;judgement calls&quot; and then run hundreds
-          of different tests to check that our &quot;translation system&quot; works well enough.
+          Thus, when designing these functionalities, we had to make hundreds of &quot;judgement calls&quot; and then many
+          different tests to check that our &quot;translation system&quot; works well enough.
           <br>
           As a result, it is possible and <em>predictable</em> that some of our judgement calls will not be ideal for all use-cases
           and that, given the size of the task, we might also have made some actual mistakes, in some place.
@@ -280,7 +285,7 @@ declare @Content nvarchar(max) = '
           impossible, that &quot;translation problems&quot; will generate explicit error messages. Thus, you will need to actually
           inspect references on either system, and consciously <em>notice</em> the problem.</p>
 
-          <p>For a full discussion of troubleshooting procedures, please see <a href="https://eppi.ioe.ac.uk/cms/er4" target=
+          <p>For a full discussion of troubleshooting procedures, please see <a href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3886" target=
           "_blank">this page</a> in the EPPI-Reviewer gateway.</p>
         </div>
         <br>
