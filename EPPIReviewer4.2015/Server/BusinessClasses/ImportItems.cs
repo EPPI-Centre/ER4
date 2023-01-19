@@ -553,7 +553,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                             OutO[Cindex].Comments = OutO[Cindex].Comments + " | " + tmp;
                         else OutO[Cindex].Comments = tmp;
                         found = true;
-                        OutO[Cindex].Comments = cleanup(OutO[Cindex].Comments);
+                        OutO[Cindex].Comments = cleanupComments(OutO[Cindex].Comments);
                         //continue;
                     }
                     rExp = currentR.DOI[0];
@@ -641,10 +641,25 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }            
             return OutO;
         }
+        private static Regex cleanupRx = new Regex(@"(\s\s+)|(\r\n)|(\n)");//two or more whitespaces, or "CR" followed by "newline", or "newline".
+        private static Regex cleanupCommentsRx = new Regex(@"([ ]|[\t])([ ]|[\t])+"); //"space or tab", followed by "space or tab" at least once.
+        /// <summary>
+        /// Removes multiple whitespaces, including newlines (all flavours)
+        /// </summary>
+        /// <param name="inStr"></param>
+        /// <returns></returns>
         private static string cleanup(string inStr)
         {
-            Regex rx = new Regex(@"(\s\s+)|(\r\n)|(\n)");
-            return rx.Replace(inStr, " ");
+            return cleanupRx.Replace(inStr, " ");
+        }
+        /// <summary>
+        /// Removes multiple whitespaces (space, tab), but ignores newlines and CR
+        /// </summary>
+        /// <param name="inStr"></param>
+        /// <returns></returns>
+        private static string cleanupComments(string inStr)
+        {
+            return cleanupCommentsRx.Replace(inStr, " ");
         }
         public static string[] getDate(string inDate)
         {

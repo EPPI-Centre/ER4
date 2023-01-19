@@ -555,7 +555,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             text: 'Linked report',
             click: async () => {
                 let linkReport: any = await this.ShowHideExportReferences('LINKS');
-                const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(linkReport, this._baseUrl, "Links Table"));
+                const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(linkReport, this._baseUrl, "Links Table", true));
                 saveAs(dataURI, "Links table.html");
 
                 // for displaying in a new tab rather than a file
@@ -566,7 +566,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
           text: 'Duplicate report 1',
           click: async () => {
             let DuplicateReport1: any = await this.ShowHideExportReferences('DUPLICATE01');
-            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport1, this._baseUrl, "Duplicate Table"));
+            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport1, this._baseUrl, "Duplicate Table", true));
             saveAs(dataURI, "Duplicate table.html");
 
             // for displaying in a new tab rather than a file
@@ -577,7 +577,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
           text: 'Duplicate report 2',
           click: async () => {
             let DuplicateReport2: any = await this.ShowHideExportReferences('DUPLICATE02');
-            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport2, this._baseUrl, "Duplicate Table"));
+            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport2, this._baseUrl, "Duplicate Table", true));
             saveAs(dataURI, "Duplicate table.html");
 
             // for displaying in a new tab rather than a file

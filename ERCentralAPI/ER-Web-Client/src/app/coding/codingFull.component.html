@@ -12,22 +12,20 @@
                  , 'col-md-6 col-lg-5' : ShowOutComes}">
               <div *ngIf="leftPanel ==''" class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
 
-                <button kendoButton [icon]="'plus'" class="small m-1" title="Add child code..."
+                <button kendoButton [icon]="'plus'" class="small my-1 ml-1 mr-1" title="Add child code..."
                         [disabled]="!HasWriteRights  || !CanCreateNewCode()" (click)="SetCreateNewCode()">
                 </button>
-                &nbsp;
-                <button kendoButton [icon]="'arrow-double-60-up'" class="small m-1" title="Move To Top..."
+                <button kendoButton [icon]="'arrow-double-60-up'" class="small my-1 ml-1" title="Move To Top..."
                         [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNodeFull()">
                 </button>
-                <button kendoButton [icon]="'arrow-60-up'" class="small m-1" title="Move up Code/Tool..."
+                <button kendoButton [icon]="'arrow-60-up'" class="small my-1 ml-1" title="Move up Code/Tool..."
                         [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNode()">
                 </button>
-                <button kendoButton [icon]="'arrow-60-down'" class="small m-1" title="Move Down Code/Tool..."
+                <button kendoButton [icon]="'arrow-60-down'" class="small my-1 ml-1" title="Move Down Code/Tool..."
                         [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()"></button>
-                <button kendoButton [icon]="'arrow-double-60-down'" class="small m-1" title="Move To Bottom..."
+                <button kendoButton [icon]="'arrow-double-60-down'" class="small my-1 ml-1 mr-1" title="Move To Bottom..."
                         [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNodeFull()"></button>
-                &nbsp;
-                <button kendoButton [icon]="'edit'" class="small m-1" title="Edit Code..."
+                <button kendoButton [icon]="'edit'" class="small my-1 ml-1" title="Edit Code..."
                         [disabled]="!HasWriteRights  || !CanEditCode()" (click)="EditCode()"></button>
               </div>
                 <div class="col-12 bg-light" *ngIf="EditCodesPanel =='CreateNewCode'">

@@ -17,7 +17,7 @@ namespace ERxWebClient2.Zotero
 		{
 			try
 			{
-				var newZoteroItem = new Report(_item, "", "", "","");
+				var newZoteroItem = new Report(_item);
 
 				return newZoteroItem;
 

@@ -16,7 +16,7 @@ namespace ERxWebClient2.Zotero
 		{
 			try
 			{
-				var newZoteroItem = new Generic(_item);
+				var newZoteroItem = new Dvd(_item);
 
 				return newZoteroItem;
 

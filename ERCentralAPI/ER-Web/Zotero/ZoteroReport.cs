@@ -19,8 +19,16 @@ namespace ERxWebClient2.Zotero
             try
             {
                 var erWebItem = CreateErWebItemFromCollection(newERWebItem, _report);
-                erWebItem.Item.TypeId = 1;
-                erWebItem.Item.TypeName = "Report";
+                if (_report.data.reportType == "Research project")
+                {
+                    erWebItem.Item.TypeId = 9;
+                    erWebItem.Item.TypeName = "Research project";
+                }
+                else
+                {
+                    erWebItem.Item.TypeId = 1;
+                    erWebItem.Item.TypeName = "Report";
+                }
 				erWebItem.Item.IsIncluded = true;
 				return erWebItem;
             }

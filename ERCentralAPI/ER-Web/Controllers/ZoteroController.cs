@@ -239,6 +239,11 @@ namespace ERxWebClient2.Controllers
                     _logger.LogException(e, "Zotero Oauth Verify Process has the classic Unauthorized error");
                     return Redirect(callbackUrl + "?error=unauthorised");
                 }
+                else if (e.Message.StartsWith("DataPortal.Update failed (Cannot insert duplicate key row in object 'dbo.TB_ZOTERO_REVIEW_CONNECTION' with unique index"))
+                {
+                    _logger.LogException(e, "Zotero Oauth Verify Process error: attempted to link to a library that is already in use.");
+                    return Redirect(callbackUrl + "?error=library_clash");
+                }
                 _logger.LogException(e, "Zotero Oauth Verify Process has an error");
                 return StatusCode(500, e.Message);
             }

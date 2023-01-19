@@ -98,17 +98,18 @@ namespace ERxWebClient2.Zotero
             newERWebItem.DOI = item.DOI ?? "";
             newERWebItem.Comments = item.Comments ?? "";
             newERWebItem.Country = item.Country ?? "";
+            newERWebItem.Year = item.Year ?? "";
             newERWebItem.Month = item.Month ?? "";
             newERWebItem.Keywords = item.Keywords ?? "";
             newERWebItem.Parent_title = item.ParentTitle ?? "";
             newERWebItem.Url = item.URL ?? "";
             newERWebItem.OldItemId = collection.key;
             newERWebItem.ZoteroKey = collection.key;
-            string[] tmpParsedDate = ImportRefs.getDate(collection.date);
-            if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
-            else newERWebItem.Year = tmpParsedDate[0];
-            if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
-            else newERWebItem.Month = tmpParsedDate[1];
+            //string[] tmpParsedDate = ImportRefs.getDate(collection.date);
+            //if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
+            //else newERWebItem.Year = tmpParsedDate[0];
+            //if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
+            //else newERWebItem.Month = tmpParsedDate[1];
 
             SetFieldsBasedOnZoteroType(collection, newERWebItem);
 

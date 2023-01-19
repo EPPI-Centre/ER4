@@ -82,9 +82,11 @@ export class ZoteroSetupComponent implements OnInit {
       } else if (this._zoteroService.ErrorMessage == "unauthorised") {
         this._UIphase = "TryAgain";
       } else if (this._zoteroService.ErrorMessage == "nogroups") {
-        this._UIphase = "NoGroups";//similar to try again!
+        this._UIphase = "NoGroups";//similar to try again! 
       } else if (this._zoteroService.ErrorMessage == "nodictvals") {
         this._UIphase = "TryAgain";
+      } else if (this._zoteroService.ErrorMessage == "library_clash") {
+        this._UIphase = "library_clash";
       } else if (this._zoteroService.ErrorMessage == "No write access to Group Library") {
         this._UIphase = "ViewSettings";//"ResetAndRestartOauthProcess";
         this._zoteroService.fetchGroupMetaData().then(
@@ -188,8 +190,8 @@ export class ZoteroSetupComponent implements OnInit {
     
 
   public async changeGroupBeingSynced(group: Group) {
-    await this._zoteroService.UpdateGroupToReview(group.id.toString(), false);
-    if (this._zoteroService.hasPermissions == true) {
+    const res = await this._zoteroService.UpdateGroupToReview(group.id.toString(), false);
+    if (this._zoteroService.hasPermissions == true && res == true) {
       //console.log(1);
       for (var i = 0; i < this.groupMeta.length; i++) {
         if (this.groupMeta[i].id === group.id) {

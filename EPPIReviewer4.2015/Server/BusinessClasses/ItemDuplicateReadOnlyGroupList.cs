@@ -710,7 +710,7 @@ namespace BusinessLibrary.BusinessClasses
                 HAS_CODES = 0;
                 IS_MASTER = 0;
                 TYPE_ID = MagMakesHelpers.GetErEquivalentPubTypeFromOa(pm.type);
-                if (!Comparator.ErratumRegex.IsMatch(TITLE))
+                if (TITLE != null && !Comparator.ErratumRegex.IsMatch(TITLE))
                     TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
                 TITLE = MagMakesHelpers.CleanText(TITLE);
             }

@@ -8,7 +8,7 @@
     <div *ngSwitchCase="'ViewSettings'">
       <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
     </div>
-    <div *ngSwitchCase="'PickGroup'">      
+    <div *ngSwitchCase="'PickGroup'">
       <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
     </div>
     <div *ngSwitchCase="'TryAgain'">
@@ -26,6 +26,21 @@
       <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
       <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
     </div>
+    <div *ngSwitchCase="'library_clash'">
+      <div class="row mt-1">
+        <div class="alert alert-warning border border-danger mx-auto">
+          <h4 class="text-center"><span class="k-icon k-i-warning mb-1"></span> Sorry, the authourised Group Library is <u>in use</u>. <span class="k-icon k-i-warning mb-1"></span></h4>
+          <p>
+            The Key you obtained provides access to one Group Library, but the library itself is <strong>already linked to a different review</strong>.<br />
+            This arrangement (linking the same Library to multiple reviews) is <strong>not allowed</strong> as it could easily lead to confusing situations where data from different reviews is mixed up.<br />
+            Please <strong>try again</strong> after making sure the Group Library you plan to use is the correct one. (You may of course <a href="https://www.zotero.org/groups/new" target="_blank">create a new library</a> and link it to <em>the current review</em>.)
+          </p>
+          <p class="mb-1">If the problem persists, please contact EPPISupport.</p>
+        </div>
+      </div>
+      <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
+      <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
+    </div>
     <div *ngSwitchCase="'NoGroups'">
       <div class="row mt-1">
         <div class="alert alert-warning border border-danger mx-auto">
@@ -34,18 +49,18 @@
             EPPI-Reviewer could obtain an API Key from Zotero, but the Key does <strong>not grant read and write access to <em>any</em> group library</strong>!<br />
             This could be due to:
           </p>
-            <ul>
-              <li>
-                You may have not created a group, so could not use an API key to provide access.<br />
-                (You can click <a href="https://www.zotero.org/groups/" target="_blank">here</a> to see the groups you own.)<br />
-                If needed, please click <a href="https://www.zotero.org/groups/new" target="_blank">here</a> to create a new group. (See instructions for point 1 below!)
-              </li>
-              <li>
-                You may have created a group, but didn't create the key with the right permissions.<br />
-                If so, please open the instructions for point 3 in a "new tab", so to have them available when in the Zotero page.
-              </li>
-            </ul>
-            <p>Please revise the instructions below and <strong>try again</strong>.</p>
+          <ul>
+            <li>
+              You may have not created a group, so could not use an API key to provide access.<br />
+              (You can click <a href="https://www.zotero.org/groups/" target="_blank">here</a> to see the groups you own.)<br />
+              If needed, please click <a href="https://www.zotero.org/groups/new" target="_blank">here</a> to create a new group. (See instructions for point 1 below!)
+            </li>
+            <li>
+              You may have created a group, but didn't create the key with the right permissions.<br />
+              If so, please open the instructions for point 3 in a "new tab", so to have them available when in the Zotero page.
+            </li>
+          </ul>
+          <p>Please revise the instructions below and <strong>try again</strong>.</p>
         </div>
       </div>
       <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
@@ -263,14 +278,14 @@
               </div>
             </ng-container>
             <div *ngIf="ErrorMessage == ''">
-              
+
             </div>
 
             <div *ngIf="ErrorMessage == 'No Group Library'">
-              
+
             </div>
             <div *ngIf="ErrorMessage != 'No Group Library' && ErrorMessage !=''">
-              
+
             </div>
             <table class="table table-sm table-bordered table-striped mx-1">
               <thead>
@@ -280,9 +295,6 @@
                   </td>
                   <td>
                     <div class="m-1 p-1 ">Group Name</div>
-                  </td>
-                  <td>
-                    <div class="m-1 p-1 ">Version</div>
                   </td>
                   <td>
                     <div class="m-1 p-1 ">Status</div>
@@ -295,7 +307,6 @@
                     {{item.id}}
                   </td>
                   <td class="">{{item.data.name}}</td>
-                  <td class="">{{item.version}}</td>
                   <td>
                     <ng-container [ngSwitch]="item.groupBeingSynced">
                       <div *ngSwitchCase="true" class="mx-auto row">
@@ -303,7 +314,9 @@
                       </div>
                       <div *ngSwitchCase="false" class="mx-auto row">
                         <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(item)"
-                                [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">Select</button>
+                                [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">
+                          Select
+                        </button>
                       </div>
                       <div *ngSwitchDefault>
                         <h4>uh?</h4>
@@ -318,7 +331,7 @@
       </div>
     </div>
   </ng-template>
-  
+
 
   <ng-template #SetupOverview>
     <div>
@@ -327,7 +340,7 @@
         Setting up a link to Zotero <strong>requires attention</strong>, but is normally done only once (per review).<br />
         In Zotero, <strong>Group Libraries</strong> allow you to share data with collaborators making them ideal for both shared and private EPPI-Reviewer reviews.
         This is done by associating <strong>One EPPI-Reviewer review</strong> with <strong>One Zotero Group Library</strong>.<br />
-        Behind the scenes, this one-to-one relation is made possible by obtaining (and storing) a unique "API Key" from Zotero, which defines EPPI-Reviewer permissions to access a single Group Library.<br />       
+        Behind the scenes, this one-to-one relation is made possible by obtaining (and storing) a unique "API Key" from Zotero, which defines EPPI-Reviewer permissions to access a single Group Library.<br />
       </p>
       <h5>Setup process summary:</h5>
       <p>Please complete each step and read the "Show me" help to see the <strong>recommended settings</strong>.</p>
@@ -394,7 +407,8 @@
           <ul>
             <li class="alert-danger px-1"><strong><span class="k-icon k-i-cancel k-color-danger mb-1"></span> Public, Open Membership</strong>. We recommend <strong>avoiding this option</strong> as anyone could edit/delete your data</li>
             <li class="alert-info px-1">
-              <strong><span class="k-icon k-i-close-outline k-color-info mb-1"></span> Public, Closed Membership</strong>. This option is safer <strong>but not recommended</strong> as your data may be publicly visible</li>
+              <strong><span class="k-icon k-i-close-outline k-color-info mb-1"></span> Public, Closed Membership</strong>. This option is safer <strong>but not recommended</strong> as your data may be publicly visible
+            </li>
             <li class="alert-success px-1"><strong><span class="k-icon k-i-check-outline k-color-success mb-1"></span> Private Membership</strong>. Is the <strong>recommended</strong> option</li>
           </ul>
           Click "<strong>Create Group</strong>".
