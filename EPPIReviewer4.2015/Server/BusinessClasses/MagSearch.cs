@@ -696,7 +696,7 @@ namespace BusinessLibrary.BusinessClasses
                     resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", DoSearch);
                 }
 
-                if (resp.meta != null)
+                if (resp != null && resp.meta != null)
                 {
                     HitsNo = resp.meta.count;
                 }
