@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { ReviewSetsService, ReviewSet } from './ReviewSets.service';
-import { Subject, Subscription } from 'rxjs';
+import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { EventEmitterService } from './EventEmitter.service';
 import { ConfigService } from './config.service';
@@ -271,8 +271,8 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
 		MVCcmd.setId = setId;
 		MVCcmd.reviewerId = reviewerId == null? 0 : reviewerId;
 		MVCcmd.isPreview = isPreview;
-		return this._http.post<BulkCompleteUncompleteCommand>(this._baseUrl + 'api/ReviewStatistics/PreviewCompleteUncompleteCommand',
-			MVCcmd).toPromise().then(
+    return lastValueFrom(this._http.post<BulkCompleteUncompleteCommand>(this._baseUrl + 'api/ReviewStatistics/PreviewCompleteUncompleteCommand',
+			MVCcmd)).then(
                 (result) => {
                     if (isPreview == 'false') {
                         this.GetReviewSetsCodingCounts(true);//refresh coding counts - we just changed completion states is bulk, so we'd better!

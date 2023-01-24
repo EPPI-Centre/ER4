@@ -1065,7 +1065,8 @@
                                         <ComboBoxItem Content="Topic"></ComboBoxItem>
                                         <ComboBoxItem Content="OpenAlex ID"></ComboBoxItem>
                                         <!--<ComboBoxItem Content="Journal"></ComboBoxItem> -->
-                                        <!--<ComboBoxItem Content="Custom"></ComboBoxItem> -->
+                                        <ComboBoxItem Content="Custom filter"></ComboBoxItem>
+                                        <ComboBoxItem Content="Custom search"></ComboBoxItem>
                                         <!--<ComboBoxItem Content="Author name(s)"></ComboBoxItem>-->
                                     </ComboBox>
                                     <TextBox x:Name="TextBoxMagSearch" Grid.Row="1" Grid.Column="1" Margin="5,5,5,5" TextChanged="TextBoxMagSearch_TextChanged"></TextBox>

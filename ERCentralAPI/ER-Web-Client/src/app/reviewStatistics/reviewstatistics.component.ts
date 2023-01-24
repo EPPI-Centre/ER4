@@ -110,7 +110,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 			//&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
 		) return true;
 		return false;
-	}
+  }
+  public get ReviewIsZoteroEnabled(): boolean {
+    //if (this._reviewInfoService.ReviewInfo.magEnabled
+    //	//&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
+    //) return true;
+    return true;
+  }
 	public get HasSkippedFullStats(): boolean {
 		if (this.reviewSetsService.ReviewSets.length == 0) return false;
 		else return this.codesetStatsServ.SkippedFullStats;
@@ -139,7 +145,15 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         click: () => {
             this.NewReference();
         }
-    }];
+      },
+        {
+          text: 'Manage Sources',
+          click: () => {
+            this.GoToManageSources();
+          }
+        }
+      ];
+
     public CodingToolsDDData: Array<any> = [{
         text: 'Import Coding Tools',
         click: () => {
@@ -174,14 +188,20 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		this.router.navigate(['ImportCodesets']);
     }
     GoToSources() {
-        this.router.navigate(['sources']);
+      this.router.navigate(['sources']);
+    }
+    GoToManageSources() {
+      this.router.navigate(['sources'], { queryParams: { tabby: 'ManageSources' } });
     }
     GoToDuplicates() {
         this.router.navigate(['Duplicates']);
 	}
 	public OpenMAG() {
 		this.router.navigate(['MAG']);
-	}
+    }
+    public OpenZotero() {
+      this.router.navigate(['Zotero']);
+    }
 	IncludedItemsList() {
         this.ItemListService.GetIncludedItems();
 		this.tabSelectEvent.emit();
@@ -218,7 +238,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 	NewReference() {
 		this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
-	}
+    }
 	CompleteCoding(contactName: string, setName: string, setId: number, contactId: number,  completeOrNot: string) {
         if (!this.HasWriteRights) return;
 		if (setId != null && contactId != null && completeOrNot != null) {

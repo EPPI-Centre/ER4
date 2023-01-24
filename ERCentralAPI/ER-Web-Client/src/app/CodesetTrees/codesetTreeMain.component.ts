@@ -83,6 +83,11 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy {
   NodeSelected(node: singleNode) {
     this.ReviewSetsService.selectedNode = node;
   }
+  //used as input (not 2-way binding) by the kendo-treeview
+  public get selectedKeys(): string[] {
+    if (this.ReviewSetsService.selectedNode) return [this.ReviewSetsService.selectedNode.id];
+    else return [];
+  }
   onSelectionChange(event: TreeItem) {
     //console.log(event);
     let node: singleNode = event.dataItem;

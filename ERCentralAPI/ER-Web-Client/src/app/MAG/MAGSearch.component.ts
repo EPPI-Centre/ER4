@@ -344,92 +344,100 @@ export class MAGSearchComponent implements OnInit {
         //        }
         //    );
     }
-      public RunOpenAlexSearch() {
-            let newSearch: MagSearchBuilder = new MagSearchBuilder();
-            switch (this.WordsInSelection) {
-                  case "0":
-                        newSearch.magSearchText = this.magSearchInput; 
-                        newSearch.searchText = '\u00AC'+ "Title: " + this.magSearchInput;
-                        break;
-                  case "1":
-                        newSearch.magSearchText = this.magSearchInput; 
-                        newSearch.searchText = '\u00AC'+ "Title and abstract: " + this.magSearchInput; 
-                        break;
-                  case "2":
-                        newSearch.magSearchText = this.SearchTextTopic; 
-                        newSearch.searchText = '\u00AC'+ "Topic: " + this.SearchTextTopicDisplayName; 
-                        break;
-                  case "3":
-                        newSearch.magSearchText = this.GetSearchTextMagIds(this.magSearchInput);
-                        if (newSearch.magSearchText.length < 1) {
-                              //maybe show an error notification??
-                              return;
-                        }
-                        newSearch.searchText = '\u00AC'+ "OpenAlex ID(s): " + newSearch.magSearchText;
-                        break;
-                  default:
-                        return;
-            }
-            if (this.DateLimitSelection > 0 && this.WordsInSelection != '1') {
-                  switch (this.DateLimitSelection) {
-                        case 1:
-                              newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
-                              newSearch.dateFilter = "Created after";
-                              break;
-                        case 2:
-                              newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
-                              newSearch.dateFilter = "Published on";
-                              break;
-                        case 3:
-                              newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
-                              newSearch.dateFilter = "Published before";
-                              break;
-                        case 4:
-                              newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
-                              newSearch.dateFilter = "Published after";
-                              break;
-                        case 5:
-                              newSearch.date1 = formatDate(this.valueKendoDatepicker1, "yyyy-MM-dd", 'en-GB');
-                              newSearch.date2 = formatDate(this.valueKendoDatepicker2, "yyyy-MM-dd", 'en-GB');
-                              newSearch.dateFilter = "Published between";
-                              break;
-                        case 6:
-                              newSearch.date1 = this.valueYearPicker3.toString();
-                              newSearch.dateFilter = "Publication year";
-                              break;
-                  }
-            }
-            else {
-                  newSearch.dateFilter = "";
-            }
-            
-            if (newSearch.magSearchText.length > 2000) {
-                  this.modalService.GenericErrorMessage("Sorry, the search string is too long.<br />Please consider dividing it in two and then combining the results.");
-                  return;
-            }
-            this._magSearchService.CreateMagSearch(newSearch).then(
-
-                  () => {
-                        //this.FetchMagSearches();
-                        this.DateLimitSelection = 0;
-
-                        if (this.WordsInSelection == "2") {
-                              //cleanup the topics...
-                              this.SearchTextTopicsResults = [];
-                              this.SearchTextTopic = "";
-                              this.SearchedTopic = "";
-                              this.SearchTextTopicDisplayName = "";
-                        }
-                        this.NotificationService.show({
-                              content: "New search was created",
-                              animation: { type: 'slide', duration: 400 },
-                              hideAfter: 2500,
-                              position: { horizontal: 'center', vertical: 'top' },
-                              type: { style: "info", icon: true }
-                        });
-                  }
-            );
+  public RunOpenAlexSearch() {
+    let newSearch: MagSearchBuilder = new MagSearchBuilder();
+    switch (this.WordsInSelection) {
+      case "0":
+        newSearch.magSearchText = this.magSearchInput;
+        newSearch.searchText = '\u00AC' + "Title: " + this.magSearchInput;
+        break;
+      case "1":
+        newSearch.magSearchText = this.magSearchInput;
+        newSearch.searchText = '\u00AC' + "Title and abstract: " + this.magSearchInput;
+        break;
+      case "2":
+        newSearch.magSearchText = this.SearchTextTopic;
+        newSearch.searchText = '\u00AC' + "Topic: " + this.SearchTextTopicDisplayName;
+        break;
+      case "3":
+        newSearch.magSearchText = this.GetSearchTextMagIds(this.magSearchInput);
+        if (newSearch.magSearchText.length < 1) {
+          //maybe show an error notification??
+          return;
+        }
+        newSearch.searchText = '\u00AC' + "OpenAlex ID(s): " + newSearch.magSearchText;
+        break;
+      case "4":
+        newSearch.magSearchText = this.magSearchInput;
+        newSearch.searchText = '\u00AC' + "Custom filter: " + this.magSearchInput;
+        break;
+      case "5":
+        newSearch.magSearchText = this.magSearchInput;
+        newSearch.searchText = '\u00AC' + "Custom search: " + this.magSearchInput;
+        break;
+      default:
+        return;
+    }
+    if (this.DateLimitSelection > 0 && this.WordsInSelection != '1') {
+      switch (this.DateLimitSelection) {
+        case 1:
+          newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
+          newSearch.dateFilter = "Created after";
+          break;
+        case 2:
+          newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
+          newSearch.dateFilter = "Published on";
+          break;
+        case 3:
+          newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
+          newSearch.dateFilter = "Published before";
+          break;
+        case 4:
+          newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');
+          newSearch.dateFilter = "Published after";
+          break;
+        case 5:
+          newSearch.date1 = formatDate(this.valueKendoDatepicker1, "yyyy-MM-dd", 'en-GB');
+          newSearch.date2 = formatDate(this.valueKendoDatepicker2, "yyyy-MM-dd", 'en-GB');
+          newSearch.dateFilter = "Published between";
+          break;
+        case 6:
+          newSearch.date1 = this.valueYearPicker3.toString();
+          newSearch.dateFilter = "Publication year";
+          break;
       }
+    }
+    else {
+      newSearch.dateFilter = "";
+    }
+
+    if (newSearch.magSearchText.length > 2000) {
+      this.modalService.GenericErrorMessage("Sorry, the search string is too long.<br />Please consider dividing it in two and then combining the results.");
+      return;
+    }
+    this._magSearchService.CreateMagSearch(newSearch).then(
+
+      () => {
+        //this.FetchMagSearches();
+        this.DateLimitSelection = 0;
+
+        if (this.WordsInSelection == "2") {
+          //cleanup the topics...
+          this.SearchTextTopicsResults = [];
+          this.SearchTextTopic = "";
+          this.SearchedTopic = "";
+          this.SearchTextTopicDisplayName = "";
+        }
+        this.NotificationService.show({
+          content: "New search was created",
+          animation: { type: 'slide', duration: 400 },
+          hideAfter: 2500,
+          position: { horizontal: 'center', vertical: 'top' },
+          type: { style: "info", icon: true }
+        });
+      }
+    );
+  }
       public GetSearchTextMagIds(searchText: string): string {
             let res:string = "";
             const numbers = this.magSearchInput.split(',');

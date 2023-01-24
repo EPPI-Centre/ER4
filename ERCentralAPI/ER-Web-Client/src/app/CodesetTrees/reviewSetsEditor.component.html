@@ -218,7 +218,7 @@
                     </div>
                 </form>-->
             </div>
-            <EditCodeComp *ngIf="ActivityPanelName == 'EditCode'" [UpdatingCode]="UpdatingCode" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
+            <EditCodeComp *ngIf="ActivityPanelName == 'EditCode'" [UpdatingCode]="UpdatingCode" [Context]="ShowPanelContext" [EditCodeActivity]="EditCodeActivity" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
         </div>
 
 </kendo-splitter-pane>

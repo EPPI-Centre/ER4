@@ -12,7 +12,7 @@ import { DatePipe } from '@angular/common';
 import { EventEmitterService } from './EventEmitter.service';
 import { MAGTopicsService } from './MAGTopics.service';
 import { SetAttribute } from './ReviewSets.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 
@@ -89,8 +89,8 @@ export class MAGBrowserService extends BusyAwareService implements OnDestroy {
     private FetchWithCrit(crit: MVCMagPaperListSelectionCriteria): Promise<MagList | boolean> {
         this._BusyMethods.push("FetchWithCrit");
 
-        return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
-            .toPromise().then(
+      return lastValueFrom(this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+            ).then(
                 (list: MagList) => {
                     this.RemoveBusy("FetchWithCrit");
                     return list;
@@ -252,8 +252,8 @@ export class MAGBrowserService extends BusyAwareService implements OnDestroy {
         this.ClearTopics();
         this._BusyMethods.push("FetchMagPaperId");
         let body = JSON.stringify({ Value: Id });
-        return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/GetMagPaper', body)
-            .toPromise().then(result => {
+      return lastValueFrom(this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/GetMagPaper', body)
+            ).then(result => {
 
                 this.RemoveBusy("FetchMagPaperId");
                 this.currentMagPaper = result;
@@ -528,9 +528,9 @@ export class MAGBrowserService extends BusyAwareService implements OnDestroy {
         let selectedPapersStr: string = selectedPapers.map(f=> f.paperId).join(',');
         this._BusyMethods.push("ImportMagRelatedSelectedPapers");
         let body = JSON.stringify({ Value: selectedPapersStr });
-        return this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedSelectedPapers',
+      return lastValueFrom(this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedSelectedPapers',
             body)
-            .toPromise().then(
+            ).then(
                 (result: MagItemPaperInsertCommand) => {
                     this.RemoveBusy("ImportMagRelatedSelectedPapers");
                     //this.selectedPapers = []; if you do this here, then we don't know how many papers *should* be selected
@@ -651,7 +651,7 @@ class junk extends BusyAwareService {
     //        return this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
     //                    (res1: boolean) => {
-                        
+
     //                            if (this._eventEmitterService.firstVisitMAGBrowserPage) {
     //                                this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
     //                                    (res2: boolean) => {
@@ -697,15 +697,15 @@ class junk extends BusyAwareService {
     //    await this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", fieldOfStudyId)
 
     //    await this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", fieldOfStudyId);
-        
+
     //    return await this.GetPaperListForTopic(fieldOfStudyId);
 
     //}
 
     //public GetPaperListForTopicsAfterRefresh(fieldOfStudy: MagFieldOfStudy, dateFrom: Date, dateTo: Date): boolean | undefined {
 
-    //    let dateFormattedFrom: string | null = this.datePipe.transform(dateFrom, 'yyyy-MM-dd'); 
-    //    let dateFormattedTo: string | null = this.datePipe.transform(dateTo, 'yyyy-MM-dd'); 
+    //    let dateFormattedFrom: string | null = this.datePipe.transform(dateFrom, 'yyyy-MM-dd');
+    //    let dateFormattedTo: string | null = this.datePipe.transform(dateTo, 'yyyy-MM-dd');
 
     //    if (fieldOfStudy.fieldOfStudyId != null) {
 
@@ -736,9 +736,9 @@ class junk extends BusyAwareService {
     //    let selectedPapersStr: string = selectedPapers.join(',');
     //    this._BusyMethods.push("ImportMagRelatedSelectedPapers");
     //    let body = JSON.stringify({ Value: selectedPapersStr });
-    //    return this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedSelectedPapers',
+    //    return lastValueFrom(this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedSelectedPapers',
     //        body)
-    //        .toPromise().then(
+    //        ).then(
     //            (result: MagItemPaperInsertCommand) => {
     //                this.RemoveBusy("ImportMagRelatedSelectedPapers");
     //                return result;
@@ -757,7 +757,7 @@ class junk extends BusyAwareService {
     //    selectionCriteria.listType = FieldOfStudy;
     //    selectionCriteria.fieldOfStudyId = FieldOfStudyId;
     //    selectionCriteria.SearchTextTopics = '';
-        
+
     //    return this._magTopicsService.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
 
     //        (result: MagFieldOfStudy[] | boolean) => {
@@ -772,7 +772,7 @@ class junk extends BusyAwareService {
     //        }
 
     //        , ((error) => {
- 
+
     //                    this.modalService.GenericError(error);
     //                    return false;})
     //            );
@@ -780,7 +780,7 @@ class junk extends BusyAwareService {
 
 
     //public FetchMAGRelatedPaperRunsListId(Id: number) {
-        
+
     //    this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
     //    let body = JSON.stringify({ Value: Id });
     //    return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
@@ -820,7 +820,7 @@ class junk extends BusyAwareService {
     //        "", "", 0, "", "", 0, "", "", item.magRelatedRunId));
 
     //    return this.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId);
- 
+
     //}
 
 
@@ -839,12 +839,12 @@ class junk extends BusyAwareService {
     //    this.OrigListCriteria.pageNumber = 0;
 
 
-    //    return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
+    //    return lastValueFrom(this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
     //        this.ListCriteria)
-    //        .toPromise().then(
+    //        ).then(
     //            (result) => {
 
-                   
+
     //                this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
     //                //this.MAGList = result;
     //                this.MAGOriginalList = result;//new MagList();
@@ -862,19 +862,19 @@ class junk extends BusyAwareService {
     //                }
     //                this.ListCriteria.paperIds = '';
     //                for (var i = 0; i < result.papers.length; i++) {
-                       
+
     //                    this.ListCriteria.paperIds += result.papers[i].paperId.toString() + ',';
     //                }
     //                this.ListCriteria.paperIds = this.ListCriteria.paperIds.substr(0, this.ListCriteria.paperIds.length - 1);
     //                this.ListCriteria.pageNumber += 1;
-                   
+
     //                let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
     //                FieldsListcriteria.fieldOfStudyId = 0;
     //                FieldsListcriteria.listType = "PaperFieldOfStudyList";
     //                FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
     //                this.SavePapers(result, this.ListCriteria, "NormalList");
     //                this.SaveOrigPapers(result, this.OrigListCriteria, "PaperFieldOfStudyList");
-    //                FieldsListcriteria.SearchTextTopics = ''; 
+    //                FieldsListcriteria.SearchTextTopics = '';
     //                return this._magTopicsService.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType).then(
 
     //                    (res: MagFieldOfStudy[] | boolean) => {
@@ -961,15 +961,15 @@ class junk extends BusyAwareService {
     //    this.ListCriteria.paperIds = crit.paperIds;
     //    this.ListDescription = listDescription;
 
-    //    return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
-    //        .toPromise().then(
+    //    return lastValueFrom(this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+    //        ).then(
 
     //        (list: MagList) => {
 
     //                this.RemoveBusy("FetchWithCrit");
     //                this.SavePapers(list, this.ListCriteria, "NormalList");
     //                return true;
-                                    
+
     //            }, error => {
     //                this.modalService.GenericError(error);
     //                this.RemoveBusy("FetchWithCrit");
@@ -996,8 +996,8 @@ class junk extends BusyAwareService {
     //    }
 
     //    this.OrigListCriteria.paperIds = crit.paperIds;
-    //    return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
-    //        .toPromise().then(
+    //    return lastValueFrom(this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+    //        ).then(
 
     //            (list: MagList) => {
 

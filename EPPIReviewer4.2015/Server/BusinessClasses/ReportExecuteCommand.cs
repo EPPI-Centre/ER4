@@ -581,7 +581,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     dt.Rows.Add(dr);
                 }
-                _return_report = "<p align='center'><h1>" + _report_title + "</h1></p><table border='1'><tr>";
+                _return_report = "<p align='center'><h1>" + _report_title + "</h1></p><table border='1' style='border-collapse: collapse;'><tr>";
                 
                 foreach (DataColumn dc1 in dt.Columns)
                 {

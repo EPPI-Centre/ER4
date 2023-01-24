@@ -30,6 +30,8 @@ namespace BusinessLibrary.BusinessClasses
         private string _documentExtension;
         private string _documentText;
         private Int64 _itemId;
+        private string _ZoteroKey;
+        private Int64 _itemDocumentId = -1;
 
         public string DocumentTitle
         {
@@ -50,13 +52,29 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return _itemId; }
         }
-
+        public string ZoteroKey
+        {
+            get { return _ZoteroKey; }
+        }
+        public Int64 ItemDocumentId
+        {
+            get { return _itemDocumentId; }
+        }
         public ItemDocumentSaveCommand(Int64 itemId, string documentTitle, string documentExtension, string documentText)
         {
             _itemId = itemId;
             _documentTitle = documentTitle;
             _documentExtension = documentExtension;
             _documentText = ImportItems.ImportRefs.StripIllegalChars(documentText);
+            _ZoteroKey = "";
+        }
+        public ItemDocumentSaveCommand(Int64 itemId, string documentTitle, string documentExtension, string documentText, string zoteroKey)
+        {
+            _itemId = itemId;
+            _documentTitle = documentTitle;
+            _documentExtension = documentExtension;
+            _documentText = ImportItems.ImportRefs.StripIllegalChars(documentText);
+            _ZoteroKey = zoteroKey;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -66,6 +84,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_documentExtension", _documentExtension);
             info.AddValue("_documentText", _documentText);
             info.AddValue("_itemId", _itemId);
+            info.AddValue("_ZoteroKey", _ZoteroKey);
+            info.AddValue("_itemDocumentId", _itemDocumentId);
 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -74,6 +94,8 @@ namespace BusinessLibrary.BusinessClasses
             _documentExtension = info.GetValue<string>("_documentExtension");
             _documentText = info.GetValue<string>("_documentText");
             _itemId = info.GetValue<Int64>("_itemId");
+            _ZoteroKey = info.GetValue<string>("_ZoteroKey");
+            _itemDocumentId = info.GetValue<Int64>("_itemDocumentId");
         }
 
 #if !SILVERLIGHT
@@ -85,13 +107,19 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ItemDocumentInsert", connection))
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", _documentTitle));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_EXTENSION", _documentExtension));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_TEXT", _documentText));
+                    command.Parameters.Add(new SqlParameter("@ZoteroKey", _ZoteroKey));
+                    command.Parameters.Add(new SqlParameter("@ItemDocumentId", System.Data.SqlDbType.BigInt));
+                    command.Parameters["@ItemDocumentId"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
+                    if (_ZoteroKey != "")
+                    {
+                        _itemDocumentId = (long)command.Parameters["@ItemDocumentId"].Value;
+                    }
                 }
                 connection.Close();
             }

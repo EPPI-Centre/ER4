@@ -43,9 +43,9 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					Report newR = rep.ToCSLAReport();
+					BusinessLibrary.BusinessClasses.Report newR = rep.ToCSLAReport();
 					newR = newR.Save();
-					newR = DataPortal.Fetch<Report>(new SingleCriteria<int>(newR.ReportId));//re-fetching to ensure we return the truth...
+					newR = DataPortal.Fetch<BusinessLibrary.BusinessClasses.Report>(new SingleCriteria<int>(newR.ReportId));//re-fetching to ensure we return the truth...
 					return Ok(newR);//if no error, all should be OK.
 				}
 				else return Forbid();
@@ -63,7 +63,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					Report actual = DataPortal.Fetch<Report>(new SingleCriteria<int>(rep.reportId));
+					BusinessLibrary.BusinessClasses.Report actual = DataPortal.Fetch<BusinessLibrary.BusinessClasses.Report>(new SingleCriteria<int>(rep.reportId));
 					if (actual.Name != rep.name) actual.Name = rep.name;
 					//bit of work to do here!
 					//we need to figure what cols have been created or deleted,
@@ -103,7 +103,7 @@ namespace ERxWebClient2.Controllers
 						}
 					}
 					actual = actual.Save(true);
-					actual = DataPortal.Fetch<Report>(new SingleCriteria<int>(rep.reportId));//re-fetching to ensure we return the truth...
+					actual = DataPortal.Fetch<BusinessLibrary.BusinessClasses.Report>(new SingleCriteria<int>(rep.reportId));//re-fetching to ensure we return the truth...
 					return Ok(actual);//if no error, all should be OK.
 				}
 				else return Forbid();
@@ -121,7 +121,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					Report rep = DataPortal.Fetch<Report>(new SingleCriteria<int>(criteria.Value));
+					BusinessLibrary.BusinessClasses.Report rep = DataPortal.Fetch<BusinessLibrary.BusinessClasses.Report>(new SingleCriteria<int>(criteria.Value));
 					rep.Delete();
 					rep = rep.Save();
 					return Ok();//if no error, all should be OK.
@@ -306,7 +306,7 @@ namespace ERxWebClient2.Controllers
 		public string reportType { get; set; }
 		public bool isAnswer { get; set; }
 		public ReportColumnJSON[] columns { get; set; }
-		public bool IsIdenticalTo(Report rep)
+		public bool IsIdenticalTo(BusinessLibrary.BusinessClasses.Report rep)
         {
 			if (this.name != rep.Name) return false;
 			else if (this.reportType != rep.ReportType) return false;
@@ -327,9 +327,9 @@ namespace ERxWebClient2.Controllers
 			}
 			return false;
         }
-		public Report ToCSLAReport()
+		public BusinessLibrary.BusinessClasses.Report ToCSLAReport()
         {
-			Report res = new Report();
+			BusinessLibrary.BusinessClasses.Report res = new BusinessLibrary.BusinessClasses.Report();
 			res.ContactName = this.contactName;
 			res.Name = this.name;
 			res.ReportType = this.reportType == "Answer" ? "Answer" : "Question";

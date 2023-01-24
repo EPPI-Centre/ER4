@@ -45,7 +45,7 @@ export class MAGComp implements OnInit, OnDestroy {
   faSpinner = faSpinner;
 
     ngOnInit() {
-        this.subItemIDinPath = this.route.params.subscribe(params => {
+        this.subItemIDinPath = this.route.params.subscribe((params:any) => {
             console.log("subItemIDinPath sub triggrered");
             let idTxt = params['paperId'];
             if (idTxt != undefined) {
@@ -79,7 +79,8 @@ export class MAGComp implements OnInit, OnDestroy {
             
         });
     
-    }
+  }
+
     private LoadMAGwideData() {
         //multiple API calls. We don't wait for one to end before doing the next, but we do wait 40-150ms before starting the next call.
         this.MAGAdvancedService.FetchMagReviewMagInfo();

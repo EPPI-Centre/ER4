@@ -46,6 +46,9 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
   @Input() SelectedNode: singleNode | null = null;
   @Input() MaxHeight: number = 600;
 
+  public SelectedCodeDescription: string = "";
+  private innerSelectedNode: singleNode4move | null = null;
+
   private _SelectedCodeset4move: singleNode4move[]  = [];
   get nodes(): singleNode4move[] {
     if (this.SelectedCodeset && this._SelectedCodeset4move.length == 0 && this.SelectedNode) {
@@ -55,10 +58,11 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
     }
     return this._SelectedCodeset4move;
   }
-
-  public SelectedCodeDescription: string = "";
-  private innerSelectedNode: singleNode4move | null = null;
-
+  //used as input (not 2-way binding) by the kendo-treeview
+  public get selectedKeys(): string[] {
+    if (this.innerSelectedNode) return [this.innerSelectedNode.id];
+    else return [];
+  }
   NodeSelected(event: TreeItem) {
     let data = event.dataItem as singleNode4move;
     if (data) {
@@ -74,6 +78,28 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
       if (!node) return false;
       else return node.CanMoveBranchInHere;
   }
+  public CanMoveBranchBelowthisNode(node: singleNode4move | null): boolean {
+    if (!node) {
+      return false;
+    }
+    else if (node.parent === -1) {
+      return false;
+    }
+    else {
+      if (node.id === this.SelectedNode?.id) {
+        return false;
+      }
+      else if (node.parent === this.SelectedNode?.parent) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+  }
+  public get CanMoveBranchBelowHere(): boolean {
+    return this.CanMoveBranchBelowthisNode(this.innerSelectedNode);
+  }
   public get DestinationBranch(): singleNode | null {
     let node = this.innerSelectedNode;
       if (!node) return null;
@@ -85,15 +111,21 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
         }
       }
   }
-  public get DestinationBranchName(): string {
-
+  public DestinationBranchName(isMoveInto: boolean): string {
     let node = this.innerSelectedNode;
-      if (!node) return "No Valid Selection";
-      else if (!node || !node.CanMoveBranchInHere) return "No Valid Selection";
-        else {
+    if (!node) return "No Valid Selection";
+    else if (isMoveInto) { 
+       if (!node.CanMoveBranchInHere) return "No Valid Selection";
+      else {
         return node.name;
-        }
       }
+    } else {
+      if (!this.CanMoveBranchBelowHere) return "No Valid Selection";
+      else {
+        return node.name;
+      }
+    }
+  }
 
   ngOnDestroy() {
   }

@@ -35,12 +35,12 @@
 <div class="pane-content">
     <div class="containsAtoolbar">
         <kendo-toolbar>
-            <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [disabled]="!HasWriteRights" aria-controls="collapseExample"></kendo-toolbar-button>
+            <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [disabled]="!HasWriteRights" aria-controls="collapseExample" [selected]="NewSearchSection"></kendo-toolbar-button>
             <kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
             <kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
             <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [disabled]="!HasWriteRights" [data]="data"></kendo-toolbar-splitbutton>
             <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-            <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+            <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
         </kendo-toolbar>
     </div>
     <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
@@ -215,24 +215,7 @@
             </div>
         </div>
     </div>
-    <div id="LogicSection" [ngbCollapse]="!LogicSection">
-        <table class="table col-md-12 ">
-            <tr>
-                <td>
-                    <button class="btn text-dark btn-outline-warning col-md-6" (click)="getLogicSearches('AND')">&nbsp; AND</button>
-                </td>
-                <td>
-                    <button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('OR')">&nbsp; OR</button>
-                </td>
-                <td>
-                    <button class="btn text-dark btn-outline-danger col-md-6" (click)="getLogicSearches('NOT')">&nbsp; NOT</button>
-                </td>
-                <td>
-                    <button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('NOT (excluded)')">&nbsp; NOT (excluded)</button>
-                </td>
-            </tr>
-        </table>
-    </div>
+    
     <div id="ModelSection" *ngIf="ModelSection">
 
         <div class="col-12 row mt-2 border border-primary rounded m-1 p-1">
@@ -545,8 +528,8 @@
                     {{dataItem.title}}
                 </ng-template>
             </kendo-grid-column>
-            <!--<kendo-grid-column field="contactName" title="Created By" width="140" class="px-1 py-0 m-1">
-            </kendo-grid-column>-->
+            <kendo-grid-column field="contactName" title="Created By" [width]="140" class="px-1 py-0 m-1">
+            </kendo-grid-column>
             <kendo-grid-column field="searchDate" title="Date" [width]="140" class="px-1 py-0 m-1">
                 <ng-template kendoGridCellTemplate let-dataItem>
                     {{FormatDate(dataItem.searchDate)}}

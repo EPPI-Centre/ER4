@@ -11,6 +11,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGTopicsService } from '../services/MAGTopics.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -243,7 +244,13 @@ export class MAGBrowser implements OnInit, OnDestroy {
     hostname = hostname.split('?')[0];
 
     return hostname;
-}
+  }
+  public DOILink(DOI: string): string {
+    if (!DOI) return "";
+    else {
+      return Helpers.DOILink(DOI);
+    }
+  }
 
     public IsCurrentPaperSelected(paperId: number): boolean {
 

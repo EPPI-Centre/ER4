@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script type="text/javascript">
+        function SetiFrameAddress() {
+            let input = document.getElementById("ifFrameAddressInput");
+            console.log("address is:", input.value);
+            let dest = document.getElementById("iFrameEl");
+            dest.setAttribute("src", input.value);
+        }
+    </script>
+</head>
+<body>
+    <div style="border:1px solid blue; margin:1em;">
+        Set iFrame address here:
+        <input type="text" id="ifFrameAddressInput" />
+        <button onclick="SetiFrameAddress()">Set Address</button>
+        <br />
+        Examples:
+        <ul>
+            <li>http://localhost:50813/</li>
+            <li>http://localhost/AccMan/ </li>
+            <li>https://eppi.ioe.ac.uk/er4manager/ </li>
+        </ul>
+    </div>
+    <div style="border:1px solid black; margin:1em;">
+        iFrame:
+        <iframe src="https://www.w3schools.com" title="TEST" id="iFrameEl" style="width:100%; height:100%; min-height:70vh;"></iframe>
+    </div>
+
+</body>
+</html>

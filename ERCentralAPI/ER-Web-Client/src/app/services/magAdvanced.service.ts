@@ -9,7 +9,7 @@ import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,
 import { Router } from '@angular/router';
 import { EventEmitterService } from './EventEmitter.service';
 import { MAGTopicsService } from './MAGTopics.service';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 
@@ -59,8 +59,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("UpdateMagPaper");
         let body = JSON.stringify({ manualTrueMatchProperty: matchCorrect, magPaperId:  paperId, itemId: itemId});
-        return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/UpdateMagPaper', body)
-            .toPromise().then((result: MagPaper) => {
+      return lastValueFrom(this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/UpdateMagPaper', body)
+            ).then((result: MagPaper) => {
                 this.RemoveBusy("UpdateMagPaper");
                 let ind = this.ReviewMatchedPapersList.findIndex(f => f.paperId == result.paperId);
                 if (ind >= -1) {
@@ -77,8 +77,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
     }
     public FetchMagPaperMagList(crit: MVCMagPaperListSelectionCriteria): Promise<MagList> {
         this._BusyMethods.push("FetchMagPaperMagList");
-        return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
-            .toPromise().then(
+      return lastValueFrom(this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+            ).then(
 
                 (result: MagList) => {
                     this.RemoveBusy("FetchMagPaperMagList");
@@ -105,7 +105,7 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
     //public FetchMagPaperListMagPaper(crit: MVCMagPaperListSelectionCriteria): Promise<MagList> {
     //    this._BusyMethods.push("FetchMagPaperListMagPaper");
     //    return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
-    //        .toPromise().then(
+    //        ).then(
 
     //            (result: MagList) => {
 
@@ -207,8 +207,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
     public CheckContReviewPipelineState(): Promise<boolean> {
 
         this._BusyMethods.push("CheckContReviewPipelineState");
-        return this._httpC.get<MagCheckContReviewRunningCommand>(this._baseUrl + 'api/MagCurrentInfo/MagCheckContReviewRunningCommand')
-            .toPromise().then(
+      return lastValueFrom(this._httpC.get<MagCheckContReviewRunningCommand>(this._baseUrl + 'api/MagCurrentInfo/MagCheckContReviewRunningCommand')
+            ).then(
                 (result: MagCheckContReviewRunningCommand) => {
                     this.RemoveBusy("CheckContReviewPipelineState");
                     if (result != null) {
@@ -252,8 +252,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("RunMatchingAlgorithm");
         let body = JSON.stringify({ Value: attributeId});
-        return this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm', body)
-            .toPromise().then(
+      return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm', body)
+            ).then(
 
                 result => {
                     this.RemoveBusy("RunMatchingAlgorithm");
@@ -269,8 +269,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("MagMatchItemsToPapers");
         let body = JSON.stringify({ Value: itemId });
-        return this._httpC.post<MagList>(this._baseUrl + 'api/MagMatchAll/MagMatchItemsToPapers', body)
-            .toPromise().then(() => {
+      return lastValueFrom(this._httpC.post<MagList>(this._baseUrl + 'api/MagMatchAll/MagMatchItemsToPapers', body)
+            ).then(() => {
                 this.RemoveBusy("MagMatchItemsToPapers");
                 let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
                 crit.listType = 'ItemMatchedPapersList';
@@ -294,8 +294,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("ClearAllMAGMatches");
         let body = JSON.stringify({ Value: attributeId });
-        return this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/ClearAllMAGMatches', body)
-            .toPromise().then((res) => {
+      return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/ClearAllMAGMatches', body)
+            ).then((res) => {
                 this.RemoveBusy("ClearAllMAGMatches");
                 return res;
             },
@@ -309,8 +309,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("ClearAllNonManualMAGMatches");
         let body = JSON.stringify({ Value: attributeId });
-        return this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/ClearAllNonManualMAGMatches', body)
-            .toPromise().then((res) => {
+      return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/ClearAllNonManualMAGMatches', body)
+            ).then((res) => {
                 this.RemoveBusy("ClearAllNonManualMAGMatches");
                 return res;
             },
@@ -324,8 +324,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("ClearMagMatchItemsToPapers");
         let body = JSON.stringify({ Value: itemId });
-        return this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/ClearMagMatchItemsToPapers', body)
-            .toPromise().then((res) => {
+      return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/ClearMagMatchItemsToPapers', body)
+            ).then((res) => {
                 this.RemoveBusy("ClearMagMatchItemsToPapers");
                 return res;
             },

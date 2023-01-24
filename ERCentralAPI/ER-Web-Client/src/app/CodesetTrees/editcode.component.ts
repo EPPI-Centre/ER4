@@ -25,15 +25,35 @@ export class EditCodeComp implements OnInit, OnDestroy {
     
     @Input() IsSmall: boolean = false;
     @Input() UpdatingCode: SetAttribute | null = null;
+    @Input() EditCodeActivity: string = "";
+
+    @Input() Context: string | undefined;
+
     @Output() emitterCancel = new EventEmitter();
-    ShowPanel: string = "";
+    //ShowPanel: string = "";
+    private _ShowPanel: string = "";
+    public get ShowPanel(): string {
+      if (this._ShowPanel == "MoveCode") {
+        this.EditCodeActivity = "";
+      }
+      return this._ShowPanel
+    }
+    public SetShowPanel() {
+      this._ShowPanel = "MoveCode";
+    }
+
     ErrorMessage4CodeMove: string = "";
     //public get UpdatingCode2(): SetAttribute | null {
     //    console.log("UpdatingCode2");
     //    return this.UpdatingCode;
     //}
 
-    ngOnInit() {
+  ngOnInit() {
+
+      if (this.Context === "MoveCode") {
+        this._ShowPanel = "MoveCode";
+      }
+
     }
 
     onSubmit(): boolean {
@@ -74,6 +94,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     }
     CancelActivity(refreshtree: boolean | null = null) {
         this.ErrorMessage4CodeMove = "";
+        this._ShowPanel = "";
         if (refreshtree && refreshtree == true) this.emitterCancel.emit(true);
         else this.emitterCancel.emit(false);
     }
@@ -161,6 +182,21 @@ export class EditCodeComp implements OnInit, OnDestroy {
         }
     }
 
+    async DoMoveBranchBelow(DestinationBranch: singleNode | null) {
+      //console.log("DoMoveBranch", DestinationBranch, this.UpdateCode);
+      if (DestinationBranch == null || this.UpdatingCode == null) return;
+      else {
+        let res = await this.ReviewSetsEditingService.MoveSetAttributeBelow(this.UpdatingCode, DestinationBranch);
+        if (res == false) {
+          console.log("Moving code failed (moving code, destination):", this.UpdatingCode, DestinationBranch);
+          this.ErrorMessage4CodeMove = "Sorry, moving this code failed. If the problem persists, please contact EPPISupport."
+        }
+        else {
+          this.CancelActivity();
+        }
+      }
+    }
+
     ShowDeleteCodesetClicked() {
         //console.log('0');
         if (!this.UpdatingCode) return;
@@ -170,7 +206,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
             success => {
                 //alert("did it");
                 
-                this.ShowPanel = 'DeleteCode';
+                this._ShowPanel = 'DeleteCode';
                 this._appliedCodes = success.numItems;
                 this._AllocationsAffected = success.numAllocations;
                 //console.log("ShowDeleteCodesetClicked", success, this._appliedCodes);
@@ -182,12 +218,16 @@ export class EditCodeComp implements OnInit, OnDestroy {
             });
     }
     HideDeleteCodeset() {
-        this.ShowPanel = '';
+        this._ShowPanel = '';
         this._appliedCodes = -1;
         this._AllocationsAffected = -1;
     }
     ShowMoveCodeClicked() {
-        this.ShowPanel = 'MoveCode';
+        this._ShowPanel = 'MoveCode';
+    }
+    private _ShowPanelValue: string = "";
+    public get ShowPanelValue() {
+      return this._ShowPanel;
     }
     DoDeleteCode() {
         if (!this.UpdatingCode) return;

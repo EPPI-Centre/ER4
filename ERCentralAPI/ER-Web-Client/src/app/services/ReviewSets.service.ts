@@ -1,6 +1,6 @@
 import {  Inject, Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { of, Subscription } from 'rxjs';
+import { lastValueFrom, of, Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
@@ -512,7 +512,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
             return new Promise<boolean>((resolve, reject) => { resolve(false); });
         }
         this._BusyMethods.push("ExecuteItemSetCompleteCommand");
-        return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd).toPromise()
+      return lastValueFrom(this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd))
         .then(
             data => {
                 this.RemoveBusy("ExecuteItemSetCompleteCommand");
@@ -599,7 +599,17 @@ export class ReviewSet implements singleNode {
     }
     public get parent(): number {
         return -1;//it's used only in attribues, ReviewSets have no parent!
+  }
+  public ParentsListByAttId(Id: number): singleNode[] {
+    let res: singleNode[] = [];
+    for (let i = 0; i < this.attributes.length; i++) {
+      let a = this.attributes[i];
+      let b = a.ParentsListByAttId(Id, res);
+      if (b == true) break;
     }
+    return res;
+  }
+
     public description: string = "";
 	setType: iSetType = {
 		setTypeId: 0,
@@ -650,7 +660,18 @@ export class SetAttribute implements singleNode {
     }
     public get parent(): number {
         return this.parent_attribute_id;
+  }
+  public ParentsListByAttId(Id: number, listSoFar: singleNode[]): boolean {
+    if (this.attribute_id == Id) return true;
+    for (let a of this.attributes) {
+      let b = a.ParentsListByAttId(Id, listSoFar);
+      if (b == true) {
+        listSoFar.push(this);
+        return b;
+      }
     }
+    return false;
+  }
     parent_attribute_id: number = -1;;
     attribute_type_id: number = -1;;
     originalAttributeID: number = -1;

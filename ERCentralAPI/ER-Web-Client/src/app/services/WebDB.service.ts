@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { ReviewSet, SetAttribute, iReviewSet, ReviewSetsService, singleNode } from './ReviewSets.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Subscription } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -508,7 +508,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         const url = map.webDBMapId > 0 ? "api/WebDB/UpdateWebDBMap" : "api/WebDB/CreateWebDBMap";
         this._BusyMethods.push("SaveMap");
         this._CurrentMaps = [];
-        return this._httpC.post<iWebDBMap[]>(this._baseUrl + url, map).toPromise().then(
+      return lastValueFrom(this._httpC.post<iWebDBMap[]>(this._baseUrl + url, map)).then(
             res => {
                 if (res) {
                     //console.log("received " + res.length + " maps");

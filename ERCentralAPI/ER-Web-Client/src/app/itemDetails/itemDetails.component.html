@@ -66,7 +66,7 @@
 			<div *ngIf="ShowHighlights" class="row col-12" (textSelect)="renderRectangles($event)"><h4 [innerHTML]="HTitle"></h4></div>
 			<div *ngIf="!ShowHighlights" class="row col-12"  (textSelect)="renderRectangles($event)"><h4>{{item.title}}</h4></div>
 			<div *ngIf="ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
-			<div *ngIf="!ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
+			<div *ngIf="!ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div [innerHTML]="brAbstract"></div></div>
 			
 			<div class="row w-100 p-0 m-0 border-bottom   ">
 				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
@@ -242,15 +242,11 @@
 			<div class="row w-100 p-0 m-0 border-bottom  ">
 				<div class="w-50 row p-0 m-0">
 					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
-					<div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
-						{{item.comments}}
-					</div>
+					<textarea type="text" readonly class="col p-1 m-1 bg-white border-0" style="min-height: 3em; height: 5em; max-height: 16em; overflow-y: auto; " >{{item.comments}}</textarea>
 				</div>
 				<div class="w-50 row p-0 m-0">
-					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
-					<div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
-						{{item.keywords}}
-					</div>
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width: 90px;">Keywords</div>
+					<textarea readonly class="col p-1 m-1 bg-white border-0" style="min-height: 3em; height: 5em; max-height: 16em; overflow-y: auto; ">{{item.keywords}}</textarea>
 				</div>
 			</div>
 			<div class="row w-100 p-0 m-0 small">

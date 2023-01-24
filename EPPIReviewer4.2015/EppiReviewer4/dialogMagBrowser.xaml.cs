@@ -3499,8 +3499,12 @@ namespace EppiReviewer4
                     newSearch.SearchText = "¬OpenAlex ID(s): " + TextBoxMagSearch.Text;
                     break;
                 case 4:
-                    //newSearch.MagSearchText = TextBoxMagSearch.Text; // newSearch.GetSearchTextJournals(TextBoxMagSearch.Text);
-                    //newSearch.SearchText = "Journal"; // + TextBoxMagSearch.Text;
+                    newSearch.MagSearchText = TextBoxMagSearch.Text; // newSearch.GetSearchTextJournals(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "¬Custom filter: " + TextBoxMagSearch.Text; // + TextBoxMagSearch.Text;
+                    break;
+                case 5:
+                    newSearch.MagSearchText = TextBoxMagSearch.Text; // newSearch.GetSearchTextJournals(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "¬Custom search: " + TextBoxMagSearch.Text; // + TextBoxMagSearch.Text;
                     break;
                 default:
                     RadWindow.Alert("No search specified");

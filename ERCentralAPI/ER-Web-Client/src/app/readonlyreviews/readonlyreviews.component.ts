@@ -96,7 +96,6 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
     }
 
 	onFullSubmit(Ror: ReadOnlyReview) {
-		this._eventEmitter.CloseReportsSectionEmitter.emit();
         console.log('onFullSubmit: ', Ror);
         if (this.HasCodingOnlyRole(Ror)) return;
         let RevId: number = Ror.reviewId;
@@ -143,7 +142,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
 	}
 	//loadReviews() {
 
-	//	this._readonlyreviewsService.Fetch().toPromise().then(
+	//	lastValueFrom(this._readonlyreviewsService.Fetch()).then(
 
 	//			(result) => {
 

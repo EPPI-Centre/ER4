@@ -72,15 +72,15 @@
         </div>
       </ng-template>
     </tree-root>-->
-    <kendo-treeview #tree id="CodesetTreeCodingComponentId"
+    <kendo-treeview #tree
                     [nodes]="nodes"
-                    class="text-wrap text-break"
+                    class="text-wrap text-break BlueTreeViewSelectable"
                     textField="name"
                     (selectionChange)="NodeSelected($event)"
-                    kendoTreeViewSelectable
                     kendoTreeViewExpandable
                     kendoTreeViewHierarchyBinding
                     childrenField="attributes"
+                    kendoTreeViewSelectable
                     [selectedKeys]="selectedKeys"
                     selectBy="id">
       <ng-template kendoTreeViewNodeTemplate let-data>

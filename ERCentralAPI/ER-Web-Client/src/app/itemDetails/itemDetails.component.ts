@@ -48,10 +48,10 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 			() => { this.SetHighlights();}
 
 		);
-		this.hostRectangle = null;
         this.selectedText = "";
-	    }
-    public HAbstract: string = "";
+  }
+  public HAbstract: string = "";
+  public brAbstract: string = "";
     public HTitle: string = "";
 	public showOptionalFields = false;
 	public NoTextSelected: boolean = true;
@@ -63,7 +63,7 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 			this.IrrelevantTermClass = 'IrrelevantTerm';
 			this.SetHighlights();
 			this.RefreshHighlights();
-			console.log('Keep Text Only');
+			//console.log('Keep Text Only');
 		}
 	}, {
 		text: 'ER4 style',
@@ -73,7 +73,7 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 				this.IrrelevantTermClass = 'IrrelevantTermER4';
 				this.SetHighlights();
 				this.RefreshHighlights();
-				console.log('Paste as HTML');
+				//console.log('Paste as HTML');
 			}
 	}, {
 		text: 'B & W',
@@ -83,7 +83,7 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 				this.IrrelevantTermClass = 'IrrelevantTermBW';
 				this.SetHighlights();
 				this.RefreshHighlights();
-				console.log('Paste Markdown');
+				//console.log('Paste Markdown');
 			}
 	}, {
 		text: 'Current: fainter',
@@ -92,7 +92,7 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 				this.IrrelevantTermClass = 'IrrelevantTermFainter';
 				this.SetHighlights();
 				this.RefreshHighlights();
-				console.log('Set Default Paste');
+				//console.log('Set Default Paste');
 			}
     }];
   public faBook = faBook;
@@ -115,43 +115,23 @@ export class itemDetailsComp implements OnInit, OnDestroy {
         else {
             return this.ItemListService.CurrentItemAdditionalData;
         }
-	}
-	public hostRectangle!: SelectionRectangle | null;
+  }
+
 
 	private selectedText!: string;
 	private subscr: Subscription = new Subscription();
 
     public get DOILink(): string {
-        if (this.item == undefined || this.item.doi.trim() == "") return "";
+        if (this.item == undefined) return "";
         else {
-            const chk = this.item.doi.toLowerCase();
-            const ind = chk.indexOf('doi.org/');
-            if (chk.startsWith("http://")
-                || chk.startsWith("https://")
-            ) {
-                if (ind > 6 && ind < 12) return this.item.doi;
-                else return "";
-            }
-            else if (ind == -1 && chk.indexOf('/') > 0) {
-                return "https://doi.org/" + this.item.doi;
-            }
-            else return "";
+          return Helpers.DOILink(this.item.doi);
         }
     }
     //adapted from:https://stackoverflow.com/a/43467144 
     public get URLLink(): string {
-        if (this.item == undefined || this.item.url.trim() == "") return "";
+        if (this.item == undefined) return "";
         else {
-            const st: string = this.item.url;
-            let url;
-            try {
-                url = new URL(st);
-            } catch (_) {
-                return "";
-            }
-            if (url.protocol === "http:" || url.protocol === "https:") {
-                return url.href;
-            } else return "";
+            return Helpers.URLLink(this.item.url);
         }
     }
 
@@ -165,14 +145,10 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 		console.groupEnd();
 
 		if (event.hostRectangle) {
-
-			this.hostRectangle = event.hostRectangle;
 			this.selectedText = event.text;
 			this.NoTextSelected = false;
 
 		} else {
-
-			this.hostRectangle = null;
 			this.selectedText = "";
 			this.NoTextSelected = true;
 		}
@@ -183,10 +159,8 @@ export class itemDetailsComp implements OnInit, OnDestroy {
         this.HTitle = "";
     }
 	ShowHighlightsClicked() {
-
         if (this.item && this.ShowHighlights && this.HAbstract == '' && !(this.item.abstract == '')) {
 			this.SetHighlights();
-
 		}
 		this.ShowHighlights = !this.ShowHighlights;
 		if (!this.ShowHighlights) {
@@ -320,46 +294,49 @@ export class itemDetailsComp implements OnInit, OnDestroy {
         this.SetHighlights();
     }
 
-	public SetHighlights() {
-		if (this.item) {
-			this.HTitle = this.item.title;
-			this.HAbstract = this.item.abstract;
-			if (this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
-				//console.log('set highlights called: ' + this.HAbstract);
-				for (let term of this.ReviewerTermsService.TermsList) {
-					//console.log('something to do with the terms list here: ' + this.ReviewerTermsService.TermsList);
-					try {
-						if (term.reviewerTerm && term.reviewerTerm.length > 0) {
-							let lFirst = term.reviewerTerm.substr(0, 1);
-							lFirst = lFirst.toLowerCase();
-							let uFirst = lFirst.toUpperCase();
-							let lTerm = lFirst + term.reviewerTerm.substr(1);
-							let uTerm = uFirst + term.reviewerTerm.substr(1);
+  public SetHighlights() {
+    if (this.item) {
+      const reg0 = new RegExp('\r\n|\r|\n', "g");
+      this.HTitle = this.item.title;
+      this.HAbstract = this.item.abstract.replace(reg0, "<br />");
+      this.brAbstract = this.item.abstract.replace(reg0, "<br />");
+      //console.log('set highlights called (0): ' + this.brAbstract);
+      if (this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
+        //console.log('set highlights called: ' + this.HAbstract);
+        for (let term of this.ReviewerTermsService.TermsList) {
+          //console.log('something to do with the terms list here: ' + this.ReviewerTermsService.TermsList);
+          try {
+            if (term.reviewerTerm && term.reviewerTerm.length > 0) {
+              let lFirst = term.reviewerTerm.substr(0, 1);
+              lFirst = lFirst.toLowerCase();
+              let uFirst = lFirst.toUpperCase();
+              let lTerm = lFirst + term.reviewerTerm.substr(1);
+              let uTerm = uFirst + term.reviewerTerm.substr(1);
 
-							let reg = new RegExp(this.cleanSpecialRegexChars(lTerm), "g");
-							let reg2 = new RegExp(this.cleanSpecialRegexChars(uTerm), "g");
-							if (term.included) {
-								this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + lTerm + "</span>");
-                                this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + uTerm + "</span>");
-                                this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + lTerm + "</span>");
-                                this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + uTerm + "</span>");
-							}
-							else {
-                                this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + lTerm + "</span>");
-                                this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + uTerm + "</span>");
-                                this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + lTerm + "</span>");
-                                this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + uTerm + "</span>");
-							}
-						}
-					}
-					catch (error) {
-						console.log(error);
-						this.ModalService.GenericErrorMessage("Sorry, the terms-highlighting system has encountered a problem. Please inform EPPI-Support.");
-					}
-				}
-			}
-		}
-	}
+              const reg = new RegExp(this.cleanSpecialRegexChars(lTerm), "g");
+              const reg2 = new RegExp(this.cleanSpecialRegexChars(uTerm), "g");
+              if (term.included) {
+                this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + lTerm + "</span>");
+                this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + uTerm + "</span>");
+                this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + lTerm + "</span>");
+                this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + uTerm + "</span>");
+              }
+              else {
+                this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + lTerm + "</span>");
+                this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + uTerm + "</span>");
+                this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + lTerm + "</span>");
+                this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + uTerm + "</span>");
+              }
+            }
+          }
+          catch (error) {
+            console.log(error);
+            this.ModalService.GenericErrorMessage("Sorry, the terms-highlighting system has encountered a problem. Please inform EPPI-Support.");
+          }
+        }
+      }
+    }
+  }
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
@@ -389,7 +366,6 @@ export class itemDetailsComp implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.hostRectangle = null;
         this.selectedText = "";
         if (this.subscr) {
             this.subscr.unsubscribe();

@@ -125,8 +125,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public CodesAreCollapsed: boolean = true;
     public DropDownAllocateAtt: SetAttribute = new SetAttribute();
     public isCollapsedCodeAllocate: boolean = false;
-    private _ShowQuickReport: boolean = false;
-    public ShowClusterCommand: boolean = false;
     public HelpAndFeebackContext: string = "main\\reviewhome";
     private ListSubType: string = '';
 
@@ -137,12 +135,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public reportsShowWhat: string = "AllFreq";
 
     ngOnInit() {
-
-        this._eventEmitter.CloseReportsSectionEmitter.subscribe(
-            () => {
-                this.CloseReportsSection();
-            }
-        )
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
             this.SelectTab(1);
@@ -171,6 +163,61 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         ) this.Reload();
 
     }
+
+
+  //START refs tab "panels" control
+  
+  private _RefsTabActivePanel: string = "";
+  public get RefsTabActivePanel(): string {
+    if (this._RefsTabActivePanel == "QuickQuestionReport"
+        && !this.ItemListService.HasSelectedItems) {
+      this.ItemCodingService.Clear();
+      this.reviewSetsService.clearItemData();
+      this._RefsTabActivePanel = "";
+    }
+    return this._RefsTabActivePanel;
+  }
+  
+  
+
+  ShowHideQuickReport() {
+    if (this._RefsTabActivePanel == "QuickReport") this._RefsTabActivePanel = "";
+    else this._RefsTabActivePanel = "QuickReport";
+  }
+  ShowHideQuickQuestionReport() {
+    if (this._RefsTabActivePanel == "QuickQuestionReport") this._RefsTabActivePanel = "";
+    else this._RefsTabActivePanel = "QuickQuestionReport";
+  }
+  ClosePanel() {
+    this._RefsTabActivePanel = "";
+  }
+  ShowHideClusterCommand() {
+    if (this._RefsTabActivePanel == "Cluster") this._RefsTabActivePanel = "";
+    else this._RefsTabActivePanel = "Cluster";
+  }
+  AllocateRelevantItems() {
+    if (this._RefsTabActivePanel == "IncludeExclude") this._RefsTabActivePanel = "";
+    else this._RefsTabActivePanel = "IncludeExclude";
+  }
+  RunConfigurableReports() {
+    if (this._RefsTabActivePanel == "RunReports") this._RefsTabActivePanel = "";
+    else {
+      this.GetReports();
+      this._RefsTabActivePanel = "RunReports";
+    }
+  }
+  public ReportSplitButtonStyle(btnName: string): string {
+    switch (btnName) {
+      case "ShowHideQuickReport":
+        if (this._RefsTabActivePanel == "QuickReport" || this._RefsTabActivePanel == "QuickQuestionReport") return "k-selected-splitbutton";
+        break;
+      default:
+        return "";
+    }
+    return "";
+  }
+  //END Refs tab "panel" control
+
   SelectTab(i: number) {
     if (!this.tabstrip) return;
     else {
@@ -508,7 +555,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             text: 'Linked report',
             click: async () => {
                 let linkReport: any = await this.ShowHideExportReferences('LINKS');
-                const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(linkReport, this._baseUrl, "Links Table"));
+                const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(linkReport, this._baseUrl, "Links Table", true));
                 saveAs(dataURI, "Links table.html");
 
                 // for displaying in a new tab rather than a file
@@ -519,7 +566,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
           text: 'Duplicate report 1',
           click: async () => {
             let DuplicateReport1: any = await this.ShowHideExportReferences('DUPLICATE01');
-            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport1, this._baseUrl, "Duplicate Table"));
+            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport1, this._baseUrl, "Duplicate Table", true));
             saveAs(dataURI, "Duplicate table.html");
 
             // for displaying in a new tab rather than a file
@@ -530,7 +577,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
           text: 'Duplicate report 2',
           click: async () => {
             let DuplicateReport2: any = await this.ShowHideExportReferences('DUPLICATE02');
-            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport2, this._baseUrl, "Duplicate Table"));
+            const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport2, this._baseUrl, "Duplicate Table", true));
             saveAs(dataURI, "Duplicate table.html");
 
             // for displaying in a new tab rather than a file
@@ -543,21 +590,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         click: () => {
             this.NewReference();
         }
-    }];
-
-    public get ShowQuickReport(): boolean {
-        
-        return this._ShowQuickReport;
-    }
-    private _ShowQuickQuestionReport: boolean = false;
-    public get ShowQuickQuestionReport(): boolean {
-        if (this._ShowQuickQuestionReport && !this.ItemListService.HasSelectedItems) {
-            this._ShowQuickQuestionReport = false;
-            this.ItemCodingService.Clear();
-            this.reviewSetsService.clearItemData();
+    },
+      {
+        text: 'Manage Sources',
+        click: () => {
+          this.GoToManageSources();
         }
-        return this._ShowQuickQuestionReport;
-    }
+      }
+    ];
+  
+    
+    
     public get HasSelectedItems(): boolean {
         return this.ItemListService.HasSelectedItems;
     }
@@ -645,7 +688,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             () => {
 
                 this.ItemListService.Refresh();
-                this.AllIncOrExcShow = false;
+                this._RefsTabActivePanel = "";
                 this.DropdownSelectedCodeAllocate = null;
                 this.AssignDocs = 'true';
                 this.AllocateChoice = 'Selected documents';
@@ -666,7 +709,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public DeleteRelevantItems() {
 		if (this.ItemListService.SelectedItems != null &&
 			this.ItemListService.SelectedItems.length > 0) {
-		this.AllIncOrExcShow = false;
+		//this.AllIncOrExcShow = false;
 		this.ConfirmationDialogService.confirm("Delete the selected items?",
 			"Are you sure you want to delete these " + this.ItemListService.SelectedItems.length  + " item/s?", false, '')
 			.then((confirm: any) => {
@@ -676,29 +719,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				});
 		}
 	}
-	public AllocateRelevantItems() {
-
-		if (!this.AllIncOrExcShow) {
-
-			this.AllIncOrExcShow = true;
-			this.RunReportsShow = false;
-			this.ShowClusterCommand = false;
-
-		} else {
-
-			this.AllIncOrExcShow = false;
-		}
-	}
+	
 	public AllocateChoice: string = '';
-    public AllIncOrExcShow: boolean = false;
-    public RunReportsShow: boolean = false;
     public RunReportsShow2: boolean = false;
 	public AssignDocs: string = 'true';
-
-	public CloseReportsSection() {
-        this.RunReportsShow2 = false;
-		this.RunReportsShow = false;
-	}
 
     public SetupWebDBs() {
         this.router.navigate(['WebDBs']);
@@ -708,19 +732,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (force || this.configurablereportServ.Reports.length == 0)
             this.configurablereportServ.FetchReports();
 	}
-	public RunConfigurableReports() {
-
-		if (!this.RunReportsShow) {
-			this.RunReportsShow = true;
-			this.AllIncOrExcShow = false;
-			this.ShowClusterCommand = false;
-			this.GetReports();
-
-		} else {
-
-			this.RunReportsShow = false;
-		}
-    }
+	
     public RunConfigurableReports2() {
         this.RunReportsShow2 = !this.RunReportsShow2;
     }
@@ -741,9 +753,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
     }
 
-	public CloseSection() {
-		this.AllIncOrExcShow = false;
-	}
 	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
 
 		let crit = new Criteria();
@@ -783,43 +792,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     OpenCodesPanel() {
         this.CodesAreCollapsed = false;
     }
-    ShowHideQuickReport() {
-        this._ShowQuickQuestionReport = false;
-        this._ShowQuickReport = !this._ShowQuickReport;
-        //console.log("ShowHideQuick Rep:", this._ShowQuickReport, this.ItemListService.HasSelectedItems);
-    }
-    ShowHideQuickQuestionReport() {
-        this._ShowQuickReport = false;//_ShowQuickQuestionReport
-        if (!this.ItemListService.HasSelectedItems) this._ShowQuickQuestionReport = false;
-        else this._ShowQuickQuestionReport = !this._ShowQuickQuestionReport;
-        //console.log("ShowHideQuickQ Rep:", this._ShowQuickQuestionReport, this.ItemListService.HasSelectedItems);
-    }
-    CloseQuickReport() {
-        this._ShowQuickReport = false;
-        this._ShowQuickQuestionReport = false;
-    }
-	ShowHideClusterCommand() {
-
-		if (!this.ShowClusterCommand) {
-			this.ShowClusterCommand = true;
-			this.AllIncOrExcShow = false;
-			this.RunReportsShow = false;
-
-		} else {
-
-			this.ShowClusterCommand = false;
-		}
-    }
-    CloseClusterCommand() {
-        this.ShowClusterCommand = false;
-    }
 
 	BuildModel() {
 		this.router.navigate(['BuildModel']);
     }
-    NewReference() {
-        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
-    }
+  NewReference() {
+    this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
+  }
+  GoToManageSources() {
+    this.router.navigate(['sources'], { queryParams: { tabby: 'ManageSources' } });
+  }
     ListItemsWithWithoutThisCode(Included: boolean, withThisCode: boolean) {
         if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
         let CurrentAtt = this.selectedNode as SetAttribute;
@@ -1240,14 +1222,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.isReviewPanelCollapsed = false;
         this.isWorkAllocationsPanelCollapsed = false;
         this.isSourcesPanelVisible = false;
-        this.AllIncOrExcShow = false;
-        this.RunReportsShow = false;
-        this._ShowQuickReport = false;
-        this._ShowQuickQuestionReport = false;
-        this.ShowClusterCommand = false;
-        this._ShowQuickQuestionReport = false;
-        this._ShowQuickQuestionReport = false;
-        this._ShowQuickQuestionReport = false;
+        this._RefsTabActivePanel = "";
         this.reportsShowWhat = "AllFreq";
         this.RunReportsShow2 = false;
         //this.dtTrigger.unsubscribe();

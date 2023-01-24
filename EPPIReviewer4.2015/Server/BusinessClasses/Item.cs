@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
 using System.Globalization;
+//using ERxWebClient2.Zotero;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
@@ -28,7 +29,7 @@ namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
     [JsonObject(MemberSerialization.OptIn)]
-    public class Item : BusinessBase<Item>
+    public class Item : BusinessBase<Item>, IItem
     {
 
     public Item() { }
@@ -97,12 +98,26 @@ namespace BusinessLibrary.BusinessClasses
                     
             return ItemJSON;
         }
+
+        public Item Save() {
+            return this;
+        }
 #endif
         internal static Item NewItem()
         {
             Item returnValue = new Item();
             //returnValue.ValidationRules.CheckRules();
             return returnValue;
+        }
+
+        public new void ApplyEditToItem()
+        {
+            this.ApplyEdit();
+        }
+
+        public new void BeginEditToItem()
+        {
+            this.BeginEdit();
         }
 
         public static void GetItem(Int64 Id, EventHandler<DataPortalResult<Item>> handler)
@@ -1509,6 +1524,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+
         // *********************** BEGIN TOSHORTSEARCHTEXT **********************
 
         private static readonly Lazy<Regex> alphaNumericRegex = new Lazy<Regex>(() => new Regex("[^a-zA-Z0-9]"));
@@ -1685,4 +1701,45 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
     }
+	
+	public interface IItem 
+	{
+        Item Save();
+        void ApplyEditToItem();
+        void BeginEditToItem();
+
+        long ItemId { get; set; }
+		long MasterItemId { get; set; }
+		int TypeId { get; set; }
+		string Authors { get; set; }
+		string ParentAuthors { get; set; }
+		string Title { get; set; }
+		string ParentTitle { get; set; }
+		string ShortTitle { get; set; }
+		SmartDate DateCreated { get; set; }
+		string CreatedBy { get; set; }
+		SmartDate DateEdited { get; set; }
+		string EditedBy { get; set; }
+		string Year { get; set; }
+		string Month { get; set; }
+		string StandardNumber { get; set; }
+		string City { get; set; }
+		string Country { get; set; }
+		string Publisher { get; set; }
+		string Institution { get; set; }
+		string Volume { get; set; }
+		string Pages { get; set; }
+		string Edition { get; set; }
+		string Issue { get; set; }
+		bool IsLocal { get; set; }
+		string Availability { get; set; }
+		string URL { get; set; }
+		string Comments { get; set; }
+		string TypeName { get; set; }
+		string Abstract { get; set; }
+		bool IsItemDeleted { get; set; }
+		bool IsIncluded { get; set; }
+		string DOI { get; set; }
+		string Keywords { get; set; }
+	}
 }

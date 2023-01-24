@@ -624,6 +624,7 @@ namespace BusinessLibrary.BusinessClasses
             }
 
             bool TitleAndAbstract = false;
+            bool DoSearch = false;
 
             if (MagSearchText != "")
             {
@@ -650,6 +651,15 @@ namespace BusinessLibrary.BusinessClasses
                 if (SearchText.StartsWith("¬OpenAlex ID(s):"))
                 {
                     MagSearchText = "openalex_id:" + MagSearchText.Replace("W", "https://openalex.org/W");
+                }
+                if (SearchText.StartsWith("¬Custom filter:"))
+                {
+                    // Custom filter - just execute the searchtext
+                }
+                if (SearchText.StartsWith("¬Custom search:"))
+                {
+                    // Custom search - just execute the searchtext
+                    DoSearch = true;
                 }
                 SearchText = SearchText.Replace("¬", "");
 
@@ -683,10 +693,10 @@ namespace BusinessLibrary.BusinessClasses
                                 break;
                         }
                     }
-                    resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", false);
+                    resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", DoSearch);
                 }
 
-                if (resp.meta != null)
+                if (resp != null && resp.meta != null)
                 {
                     HitsNo = resp.meta.count;
                 }

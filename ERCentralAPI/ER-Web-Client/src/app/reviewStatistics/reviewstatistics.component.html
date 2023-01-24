@@ -16,6 +16,10 @@
             (click)="OpenMAG()">
       Update review
     </button>
+    <button kendoButton class="mx-1" *ngIf="ReviewIsZoteroEnabled"
+            (click)="OpenZotero()">
+      Zotero
+    </button>
   </div>
   <!--<div class="containsAtoolbar">
 

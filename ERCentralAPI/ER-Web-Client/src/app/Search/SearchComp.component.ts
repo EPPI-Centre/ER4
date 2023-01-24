@@ -86,7 +86,6 @@ export class SearchComp implements OnInit, OnDestroy {
     public SourceId = 0;
     public selected?: ReadOnlySource;
     public NewSearchSection: boolean = false;
-    public LogicSection: boolean = false;
     public ModelSection: boolean = false;
     public ShowVisualiseSection: boolean = false;
     public modelResultsSection: boolean = false;
@@ -418,7 +417,6 @@ export class SearchComp implements OnInit, OnDestroy {
         //alert('SelectedNode is: ' + this._reviewSetsService.selectedNode);
         this.modelNum = num;
         this.NewSearchSection = false;
-        this.LogicSection = false;
         this.modelResultsSection = false;
         //alert('Model Number is: ' + this.modelNum);
 
@@ -1371,7 +1369,6 @@ export class SearchComp implements OnInit, OnDestroy {
         this.searchTextModel = '';
         this.NewSearchSection = false;
         this.modelResultsSection = false;
-        this.LogicSection = false;
         this.SearchForPersonModel = false;
         this.selected = undefined;
         this.ModelSection = false;

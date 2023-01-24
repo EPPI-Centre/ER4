@@ -9,6 +9,7 @@ import { ArmTimepointLinkListService } from './ArmTimepointLinkList.service';
 import { ModalService } from './modal.service';
 import { Outcome } from './outcomes.service';
 import { ConfigService } from './config.service';
+import { lastValueFrom } from 'rxjs';
 @Injectable({
 
 	providedIn: 'root',
@@ -37,9 +38,9 @@ export class ReconciliationService extends BusyAwareService {
 		this._BusyMethods.push("FetchItemSetList");
 		let body = JSON.stringify({ Value: ItemIDCrit });
 
-		return this._httpC.post<iItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch', body
+    return lastValueFrom(this._httpC.post<iItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch', body
 			)
-			.toPromise().then(
+			).then(
 				(ires: iItemSet[]) => {
 					let res: ItemSet[] = [];
 					for (let iSet of ires) {
@@ -113,8 +114,8 @@ export class ReconciliationService extends BusyAwareService {
 		}
 		//alert('testing...' + cmd.itemSetId);
 
-		return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd)
-			.toPromise().then(
+    return lastValueFrom(this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd)
+			).then(
 			(res) => {
 				//console.log('sadfgdfg' + res);
 				let rSet = this._ReviewSetsService.ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
@@ -139,8 +140,8 @@ export class ReconciliationService extends BusyAwareService {
 	}
 	public TransferSingleCoding(cmd: iComparisonItemAttributeSaveCommand) : Promise<boolean>{
 		this._BusyMethods.push("TransferSingleCoding");
-		return this._httpC.post<iComparisonItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ComparisonItemAttributeSave', cmd)
-			.toPromise().then(
+    return lastValueFrom(this._httpC.post<iComparisonItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ComparisonItemAttributeSave', cmd)
+			).then(
 				(res) => {
 					//console.log('sadfgdfg' + res);
 					this.RemoveBusy("TransferSingleCoding");
