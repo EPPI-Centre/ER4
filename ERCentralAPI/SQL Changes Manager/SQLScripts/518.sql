@@ -599,7 +599,7 @@ documents to your review as well make use of the Zotero "Cite While You Write" f
             the Key Owner needs to have access to both the Review and the Group Library.</p>
 
 			<p>(A <strong>longer introduction</strong> to the Zotero functionalities can be found <a 
-			href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3885" target="_blank">here</a>.</p>
+			href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3885" target="_blank">here</a>.)</p>
           </div>
 		</div>
 		<br>
@@ -618,7 +618,7 @@ documents to your review as well make use of the Zotero "Cite While You Write" f
         <div class="row">
           <p><strong>Maintenance:</strong>
           <br>
-          Once an Access Key is obtained, and the pairing between your Review and Group Library is established, the Zotero Manager page 
+          Once an Access Key is obtained, and the pairing between your Review and Group Library is established, the Zotero Setup page 
 		  in EPPI-Reviewer shows <strong>basic information about the pairing/key</strong>.
           <br>
           Since the Access Key is owned and controlled by one (and only one) specific user, if the current user is not the Key
