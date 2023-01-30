@@ -72,6 +72,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonAttribute.cs" Link="Models\ComparisonAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonAttributeList.cs" Link="Models\ComparisonAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonCompleteCommand.cs" Link="Models\ComparisonCompleteCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonCreateAllCommand.cs" Link="Models\ComparisonCreateAllCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonItemAttributeSaveCommand.cs" Link="Models\ComparisonItemAttributeSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonList.cs" Link="Models\ComparisonList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonScreeningCompleteCommand.cs" Link="Models\ComparisonScreeningCompleteCommand.cs" />
