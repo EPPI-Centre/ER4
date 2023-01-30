@@ -80,34 +80,38 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         else if (this._currentItem.itemId !== this._CurrentItemAdditionalData.itemID) return null;
         else return this._CurrentItemAdditionalData;
     }
-    public FetchWithCrit(crit: Criteria, listDescription: string) {
-        this._BusyMethods.push("FetchWithCrit");
-        this._Criteria = crit;
-        if (this._ItemList && this._ItemList.pagesize > 0
-            && this._ItemList.pagesize <= 4000
-            && this._ItemList.pagesize != crit.pageSize
-        ) {
-            crit.pageSize = this._ItemList.pagesize;
+  public FetchWithCrit(crit: Criteria, listDescription: string, save: boolean = true) {
+    this._BusyMethods.push("FetchWithCrit");
+    if (save) {
+      this._Criteria = crit;
+      if (this._ItemList && this._ItemList.pagesize > 0 && this._ItemList.pagesize <= 4000 && this._ItemList.pagesize != crit.pageSize
+      ) {
+        crit.pageSize = this._ItemList.pagesize;
+      }
+      // console.log("FetchWithCrit", this._Criteria.listType);
+      this.ListDescription = listDescription;
+    }
+    return lastValueFrom(this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit))
+      .then(
+        list => {
+          this._Criteria.totalItems = this.ItemList.totalItemCount;
+          if (save) {
+            this.SaveItems(list, this._Criteria);
+            if (this._itemListOptions.showInfo == false && this._Criteria.showInfoColumn == true) this._itemListOptions.showInfo = true;
+            if (this._itemListOptions.showScore == false && this._Criteria.showScoreColumn == true) this._itemListOptions.showScore = true;
+            this.RemoveBusy("FetchWithCrit");
+            this.ListChanged.emit();
+          }
+          //console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
+        }, error => {
+          this.ModalService.GenericError(error);
+          this.RemoveBusy("FetchWithCrit");
         }
-       // console.log("FetchWithCrit", this._Criteria.listType);
-        this.ListDescription = listDescription;
-        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-            .subscribe(
-                list => {
-					this._Criteria.totalItems = this.ItemList.totalItemCount;
-					console.log();
-                    this.SaveItems(list, this._Criteria);
-                    if (this._itemListOptions.showInfo == false && this._Criteria.showInfoColumn == true) this._itemListOptions.showInfo = true;
-                    if (this._itemListOptions.showScore == false && this._Criteria.showScoreColumn == true) this._itemListOptions.showScore = true;
-                    this.ListChanged.emit();
-					//console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
-                }, error => {
-                    this.ModalService.GenericError(error);
-                    this.RemoveBusy("FetchWithCrit");
-                }
-                , () => { this.RemoveBusy("FetchWithCrit"); }
-            );
-	}
+    ).catch(caught => {
+      this.ModalService.GenericErrorMessage(caught.toString());
+      this.RemoveBusy("FetchWithCrit");
+    });
+  }
 
 	public FetchWithCritReconcile(crit: Criteria, listDescription: string) {
 		this._BusyMethods.push("FetchWithCritReconcile");
