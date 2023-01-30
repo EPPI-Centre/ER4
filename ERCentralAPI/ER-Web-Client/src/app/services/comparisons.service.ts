@@ -416,9 +416,9 @@ export interface iComparisonStatistics {
   disagreements1vs2: number;
   disagreements2vs3: number;
   disagreements1vs3: number;
-  ncoded1: number;
-  ncoded2: number;
-  ncoded3: number;
+  nCoded1: number;
+  nCoded2: number;
+  nCoded3: number;
   canComplete1vs2: boolean;
   canComplete1vs3: boolean;
   canComplete2vs3: boolean;
