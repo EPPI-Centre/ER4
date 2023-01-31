@@ -558,3 +558,297 @@ END
 
 GO
 
+USE [ReviewerAdmin]
+GO
+
+select * from TB_ONLINE_HELP
+where CONTEXT = 'ZoteroSetup'
+if @@ROWCOUNT = 0
+begin
+	insert into TB_ONLINE_HELP (CONTEXT, HELP_HTML)
+	VALUES ('ZoteroSetup', 'tmp_place_holder')
+end
+GO
+
+
+declare @Content nvarchar(max) = '
+<p><strong>Zotero</strong> is a free open-source reference manger, which is widely used because of it richness of functionalities 
+and its availability to all potential users. By connecting Zotero with EPPI-Reviewer you can use Zotero to locate and upload full text 
+documents to your review as well make use of the Zotero "Cite While You Write" functionality.</p>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12 col-sm-6"><b>Overview</b>
+            <br>
+            <img class="img img-fluid" src="assets/Images/zotero_schema.gif" >
+		  </div>
+
+          <div class="col-12 col-sm-6">
+            <p>In order to use the EPPI-Reviewer/Zotero integration, you will need to have a Zotero account and then create one Zotero Group Library.
+			Within EPPI-Reviewer, each <strong>Review</strong> can be paired with one and only one Zotero <strong>Group
+            Library</strong>.
+            <br>
+            This pairing is done (from within EPPI-Reviewer) by asking Zotero to provide an Access <strong>Key</strong> to
+            a Group Library. Whoever obtains the Key will be considered the <strong>Key Owner</strong>.</p>
+            <p>
+			Having a <strong> Key</strong>, it becomes possible to <strong>Push</strong> references into the Group Library and
+            to <strong>Pull</strong> references into EPPI-Reviewer.
+            EPPI-Reviewer will keep track of the status of pulled/pushed references based on which version is &quot;newer&quot;.</p>
+          
+            <p><strong>Review Members</strong> and <strong>Group Members</strong> do not need to include the same people, however,
+            the Key Owner needs to have access to both the Review and the Group Library.</p>
+
+			<p>(A <strong>longer introduction</strong> to the Zotero functionalities can be found <a 
+			href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3885" target="_blank">here</a>.)</p>
+          </div>
+		</div>
+		<br>
+		<hr>
+        <div class="row">
+          <p><strong>Setup:</strong>
+          <br>
+          To get started, you&#39;ll need to <strong>pair your review with a Zotero Group Library</strong>. The setup page contains
+          in-line detailed instructions on how to do this.
+          <br>
+          Since some of the steps are to be carried on the <strong>Zotero pages</strong>, you can use the &quot; <strong>Show me
+          (new tab)</strong>&quot; buttons to open the instructions in a separate page to keep them available while setting up
+          things on the Zotero end.</p>
+        </div>
+		<hr>
+        <div class="row">
+          <p><strong>Maintenance:</strong>
+          <br>
+          Once an Access Key is obtained, and the pairing between your Review and Group Library is established, the Zotero Setup page 
+		  in EPPI-Reviewer shows <strong>basic information about the pairing/key</strong>.
+          <br>
+          Since the Access Key is owned and controlled by one (and only one) specific user, if the current user is not the Key
+          Owner, this page will mention who the owner is. Only the Key Owner can manage or delete the key.
+          <br>
+          If the current user is the Key Owner, they will be offered the chance to delete the Key and generate a new one as needed.
+          Deleting the key removes the pairing(/link) between Review and Group Library. This could be useful to re-purpose the
+          Group Library to support a different review, and/or to change the Key Owner (as a way to side-step storage quota limitations).
+          <br>
+          The page will also contain a link to the Zotero &quot;storage quota&quot; <a href=
+          "https://www.zotero.org/settings/storage" target="_blank">page</a>. This is useful to check if you are running out of
+          &quot;space&quot; on the Zotero (cloud storage) side.</p>
+        </div>
+		<hr>
+        <div class="row">
+          <p><strong>Troubleshooting:</strong>
+          <br>
+          EPPI-Reviewer has limited access to the Zotero end, and there are numerous things that users could do on the Zotero side,
+          which could break or compromise the Review/Library pairing. For example, a user could <strong>Delete</strong> the paired
+          Group Library, or even revoke/delete/edit permissions on the Access Key.</p>
+
+          <div class="bg-light text-dark p-1 rounded border border-danger m-2">
+            <strong class="text-warning">&#9888;</strong><strong> Please Note:</strong> the Zotero API is officially subject to change. 
+			Unexpected changes could break, without warning, the way Zotero and EPPI-Reviewer exchange data. Although we will try to fix any issues as 
+			quickly as possible, depending on the complexity of the fix, there may be times when the Zotero / EPPI-Reviewer functions are unavailable.
+          </div>
+
+          <p>For a full discussion of troubleshooting procedures, please see <a href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3886" target=
+          "_blank">this page</a> in the EPPI-Reviewer gateway.</p>
+        </div>
+        <br>
+      </div>
+   
+
+'
+UPDATE TB_ONLINE_HELP
+SET [HELP_HTML] = @Content
+	WHERE [CONTEXT] = 'ZoteroSetup'
+
+GO
+
+
+
+USE [ReviewerAdmin]
+GO
+
+select * from TB_ONLINE_HELP
+where CONTEXT = 'ZoteroSync'
+if @@ROWCOUNT = 0
+begin
+	insert into TB_ONLINE_HELP (CONTEXT, HELP_HTML)
+	VALUES ('ZoteroSync', 'tmp_place_holder')
+end
+GO
+
+
+declare @Content nvarchar(max) = '
+      <div class="container-fluid">
+        <div class="row">
+          <div class="bg-light text-dark p-1 rounded border border-danger m-2">
+            <strong class="text-warning">&#9888;</strong> <strong>Please Note:</strong> the Zotero API is officially subject to change. 
+			Unexpected changes could break, without warning, the way Zotero and EPPI-Reviewer exchange data. Although we will try to fix 
+			any issues as quickly as possible, depending on the complexity of the fix, there may be times when the Zotero / EPPI-Reviewer 
+			functions are unavailable.
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12 col-sm-6"><strong>Overview (Sync)</strong>
+          <br>
+          <img class="img w-100" src="assets/Images/zotero_schema.gif">
+		  </div>
+
+          <div class="col-12 col-sm-6">
+            <p>The current <strong>Review</strong> is paired with one Zotero <strong>Group Library</strong> via an Access
+            <strong>Key</strong> owned by a Review Member.
+            <br>
+            You can <strong>Push</strong> references into the Group Library and <strong>Pull</strong> references into EPPI-Reviewer</p>
+
+            <div class="bg-light text-dark p-1 rounded border border-danger m-2">
+              <strong class="text-warning">&#9888;</strong> Items pushed into the Zotero Group Library will contribute to the <a href=
+              "https://www.zotero.org/settings/storage" target="_blank">Storage Quota</a> of the Access <strong>Key</strong> owner,
+              and <strong>only</strong> to their quota.
+            </div>
+
+            <p>You can list &quot;<strong>Items with this code</strong>&quot; to identify Items to push, while the list on the
+            right shows <strong>All References</strong> from the Zotero Group Library.</p>
+
+            <p>EPPI-Reviewer will keep track of the status of pulled/pushed references based on which version is &quot;newer&quot;. Updated
+			references are selectable for pushing and pulling.</p>
+            
+            <p><strong>Note:</strong> EPPI-Reviewer does <strong>not continuously monitor the status of Items/References</strong>.
+            In some cases, you may want to press the &quot;Refresh&quot; button, to ensure the &quot;can push/pull&quot; and
+            &quot;up to date&quot; icons reflect the latest changes.</p>
+          </div>
+        </div>
+
+		<hr>
+
+		<div class="row">
+		<div class="col-12">
+          <strong>Typical usage:</strong>
+          <br>
+          Although the functions available in this page have been designed primarily to support two specific use-cases, it is possible you may find 
+		  other ways to use the Zotero/EPPI-Reviewer integration in your work.
+		  <br><br>
+          The <strong>supported</strong> use cases are:
+
+          <ol>
+            <li>Use Zotero to &quot;<strong>find the full-text documents</strong>&quot; after screening on Title and Abstract.</li>
+
+            <li>Use Zotero to <strong>&quot;Cite While You Write&quot; (CWYW)</strong> to produce the final review report (and/or
+            other reports).</li>
+          </ol>
+
+		  
+          You can find a short description of both supported workflows below, followed by some troubleshooting hints.
+		  
+        </div>
+		</div>
+
+		<hr>
+
+        <div class="row">
+		<div class="col-12">
+          <p><strong>Using Zotero to &quot;find the full-text documents&quot;:</strong></p>
+
+          <ol>
+            <li>Start by making sure your Group Library contains no references. This is useful to ensure you won&#39;t risk
+            importing unneeded references later on.</li>
+
+            <li>Using the "Select a code" dropdown on the screen, pick the code(s) that identifies the references needing
+			full text retrieval (ex. "included" references after screening on title and abstract).</li>
+
+            <li>Push all of these items into the Group Library.</li>
+
+            <li>In Zotero, use the built-in &quot;Find available PDF&quot; function for all references in the library.</li>
+
+            <li>(Optional) Use other strategies to locate the full-text documents, and attach them to your references in
+            Zotero.</li>
+
+            <li>(Optional) You may also <em>edit</em> your references in Zotero at this point. If you do so, your changes will be
+            visible in EPPI-Reviewer after the next step.</li>
+
+            <li>On the Zotero Manager page (in EPPI-Reviewer), "Pull" all of references back into EPPI-Reviewer. This will update the 
+			references you pushed in step 3, adding all of the PDFs you attached in steps 4 and 5, along with any edits that you made 
+			in step 6.</li>
+          </ol>
+        </div>
+		</div>
+
+		<hr>
+
+        <div class="row">
+		<div class="col-12">
+          <p><strong>Using Zotero to &quot;Cite While You Write&quot; (CWYW):</strong></p>
+          <ol>
+            <li>Start by making sure your Group Library contains only the references you know are relevant to your report. This can 
+			be done by making sure your group library is empty and then following steps 2 and 3.</li>
+
+            <li>In the EPPI-Reviewer "Zotero" page, list "Items with this code", picking the code(s) that contain the items you want to work with.</li>
+
+            <li>Push all of the relevant items into the Group Library.</li>
+
+            <li>(Optional) If the report will be written collaboratively, ensure your collaborators have access to the Group Library.</li>
+
+            <li>(Optional) You can otherwise use the group library as a "stepping stone" and move/copy the references into whichever Zotero library 
+			(shared or personal) would suit your needs.</li>
+
+            <li>You can now use the Zotero CWYW functions while having access to all Included/Relevant studies in your review.</li>
+
+          </ol>
+        </div>
+		</div>
+
+		<hr>
+
+        <div class="row">
+		<div class="col-12">
+          <strong>Troubleshooting:</strong>
+          <p>
+          Having two separate applications, EPPI-Reviewer and Zotero, exchanging data, some issues may arise. Any issues will most likely
+		  fall under two distinct categories: <strong>errors preventing push or pull operations</strong> and
+          <strong>data translation errors (or deteriorating) during the pushing/pulling cycle.</strong></p>
+
+          <strong>Explicit errors when pushing or pulling:</strong>
+          <p>
+          We made considerable efforts to ensure that data exchanges can successfully pull or push many references in one operation.
+		  Ideally, a problem occurring with one specific reference in a list <em>should not</em> stop the whole operation. If a pull 
+		  or push operation encounters an error, EPPI-Reviewer will try to show an error identifying (Item/document ID
+          or Zotero Key) the records involved. The remaining items should complete the data exchange (push/pull) sucessfully.</p>
+          <p>
+          If this happens, please take a note of the unique identifiers mentioned in the error, try again with those items, and if all else fails,
+          please contact EPPI-Support.</p>
+
+          <strong>Data translation errors:</strong>
+		  <p>
+  		  Zotero supports a wide range of reference types while EPPI-Reviewer has a more restricted range. Thus, when 
+		  a reference is pulled into EPPI-Reviewer, the Zotero reference type might not exist in EPPI-Reviewer and will need to be 
+		  matched to the most appropriate available type. In translating data from one reference type to another, any mismatch in 
+		  fields could result in some data not being transferred. More importantly, if a reference makes a round-trip between applications 
+		  (push-pull or pull-push) the data-loss could be "back propagated" to the "original" reference. We have made every effort 
+		  to ensure this danger will rarely happen in practice, but it is possible when more obscure reference types are used.</p>
+		  
+		  <p>
+		  Even when the same reference types exist in both applications, there may be difference in the individual fields. For example,
+		  books and books sections do not have a DOI field in Zotero while a DOI field will exist in EPPI-Reviewer.</p>
+		  
+		  <p>
+		  If you should notice that data goes missing (or otherwise degrades) upon pushing or pulling, please contact EPPI-Support.</p>
+		  
+		  <p>
+		  More details on how EPPI-Reviewer &quot;translates&quot; reference types are available <a href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3888" 
+		  target="_blank">here</a>.</p>
+          
+          <p>
+		  For a full discussion of troubleshooting procedures, please see <a href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3886" target="_blank">this page</a>
+		  in the EPPI-Reviewer gateway.</p>
+        </div>
+		</div>
+
+      </div>  
+
+'
+UPDATE TB_ONLINE_HELP
+SET [HELP_HTML] = @Content
+	WHERE [CONTEXT] = 'ZoteroSync'
+
+GO
+
+
+USE [Reviewer]
+GO

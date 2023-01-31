@@ -246,7 +246,29 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-	}
+        [HttpPost("[action]")]
+        public IActionResult CreateAllComparisonsForThisSet([FromBody] int setId)
+        {
+            try
+            {
+
+                if (SetCSLAUser4Writing())
+                {
+					ComparisonCreateAllCommand result = new ComparisonCreateAllCommand(setId);
+					result = DataPortal.Execute<ComparisonCreateAllCommand>(result);
+                    return Ok(result.ComparisonsCreated);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CreateAllComparisonsForThisSet error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+    }
 
 	public class ComparisonCompleteJSON
 	{
