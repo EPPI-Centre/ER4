@@ -482,7 +482,8 @@ namespace BusinessLibrary.BusinessClasses
             bool done = false;
             while (done == false)
             {
-                string query = "works?" + filterOrSearch + "=" + expression + "&page=1&per_page=100&cursor=" + cursor;
+                string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
+                string query = "works?" + filterOrSearch + "=" + expression + apiKey + "&page=1&per_page=100&cursor=" + cursor;
                 string responseText = doOaRequest(query);
                 OaPaperFilterResult respJson = JsonConvert.DeserializeObject<OaPaperFilterResult>(responseText, jsonsettings);
                 if (respJson != null && respJson.results != null)
@@ -542,7 +543,8 @@ namespace BusinessLibrary.BusinessClasses
             string filterOrSearch = "filter";
             if (doSearch == true)
                 filterOrSearch = "search";
-            string query = "works?" + filterOrSearch + "=" + expression + "&page=" + PageNo + "&per_page=" + PageSize;
+            string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
+            string query = "works?" + filterOrSearch + "=" + expression + apiKey + "&page=" + PageNo + "&per_page=" + PageSize;
             string responseText = doOaRequest(query);
             OaPaperFilterResult respJson = JsonConvert.DeserializeObject<OaPaperFilterResult>(responseText, jsonsettings);
             return respJson;
@@ -555,7 +557,8 @@ namespace BusinessLibrary.BusinessClasses
                 NullValueHandling = NullValueHandling.Ignore,
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
-            string responseText = doOaRequest("works/https://openalex.org/W" + PaperId);
+            string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
+            string responseText = doOaRequest("works/https://openalex.org/W" + PaperId + apiKey);
             return JsonConvert.DeserializeObject<OaPaper>(responseText, jsonsettings);
         }
 
@@ -570,7 +573,8 @@ namespace BusinessLibrary.BusinessClasses
             string filterOrSearch = "filter";
             if (doSearch == true)
                 filterOrSearch = "search";
-            string query = "concepts?" + filterOrSearch + "=" + expression + "&page=" + PageNo + "&per_page=" + PageSize;
+            string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
+            string query = "concepts?" + filterOrSearch + "=" + expression + apiKey + "&page=" + PageNo + "&per_page=" + PageSize;
             string responseText = doOaRequest(query);
             OaConceptFilterResult respJson = JsonConvert.DeserializeObject<OaConceptFilterResult>(responseText, jsonsettings);
             return respJson;
@@ -583,7 +587,8 @@ namespace BusinessLibrary.BusinessClasses
                 NullValueHandling = NullValueHandling.Ignore,
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
-            string responseText = doOaRequest("concepts/https://openalex.org/C" + ConceptId);
+            string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
+            string responseText = doOaRequest("concepts/https://openalex.org/C" + ConceptId + apiKey);
             return JsonConvert.DeserializeObject<OaFullConcept>(responseText, jsonsettings);
         }
 
@@ -669,7 +674,8 @@ namespace BusinessLibrary.BusinessClasses
                 //WebRequest request = WebRequest.Create(FullRequestStr);
                 try
                 {
-                    string responseText = doOaRequest(@"works?filter=display_name.search:" + searchTextEncoded);
+                    string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
+                    string responseText = doOaRequest(@"works?filter=display_name.search:" + searchTextEncoded + apiKey);
 
                     var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.OaPaperFilterResult>(responseText, jsonsettings);
                     if (respJson != null && respJson.results != null && respJson.results.Length > 0)
@@ -717,8 +723,8 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     DOI = "https://doi.org/" + DOI;
                 }
-
-                string responseText = doOaRequest(@"works/" + DOI);
+                string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
+                string responseText = doOaRequest(@"works/" + DOI + apiKey);
 
                 var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.OaPaper>(responseText, jsonsettings);
                 if (respJson != null)
