@@ -486,7 +486,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
 	}];
 	public ExportReferencesDDData: Array<any> = [
-		{
+        {
+            text: 'Export to RIS (all pages)',
+            click: async () => {
+            this.ItemListService.AllPagesToRIStext();
+            }
+        },
+        {
 			text: 'Harvard',
 			click: async () => {
 				Helpers.OpenInNewWindow(await this.ShowHideExportReferences('Harvard'), this._baseUrl);

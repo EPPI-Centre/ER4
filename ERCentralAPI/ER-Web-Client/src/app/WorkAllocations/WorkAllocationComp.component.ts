@@ -904,16 +904,16 @@ export class WorkAllocationComp implements OnInit {
     if (currSet) {
       if (currSet.codingIsFinal) {
         //are we sure we need comparisons??
-        msg = "This will create <strong>all viable</strong> comparisons for the <br />"
+        msg = "This will create <strong>all viable</strong> comparisons for the coding tool<br />"
           + "<div class='w-100 p-0 mx-0 my-2 text-center'> <span class='border border-success rounded px-1 font-weight-bold'>"
-          + currSet.set_name + "</span> tool.</div>"
-          + "NOTE: this set is <strong>not in comparison mode</strong> so it may not have any incomplete coding to reconcile.<br />"
+          + currSet.set_name + "</span></div>"
+          + "NOTE: this tool is <strong>not in comparison mode</strong> so it may not have any incomplete coding to reconcile.<br />"
           + "<div class='alert-info rounded p-1 small'>\"<strong>All viable comparisons</strong>\" are all the comparisons needed to reconcile all the incomplete coding present for this coding tool.</div>";
       } else {
         //this is reasonable...
-        msg = "This will create <strong>all viable</strong> comparisons for the <br />"
+        msg = "This will create <strong>all viable</strong> comparisons for the coding tool<br />"
           + "<div class='w-100 p-0 mx-0 my-2 text-center'> <span class='border border-success rounded px-1 font-weight-bold'>"
-          + currSet.set_name + "</span> tool.</div>"
+          + currSet.set_name + "</span></div>"
           +"<div class='alert-info rounded p-1 small'>\"<strong>All viable comparisons</strong>\" are all the comparisons needed to reconcile all the incomplete coding present for this coding tool.</div>";
       }
       this.confirmationDialogService.confirm('Create all viable comparisons', msg, false, '', "Create!")

@@ -10,6 +10,8 @@ import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { iTimePoint } from './ArmTimepointLinkList.service';
 import { ConfigService } from './config.service';
+import { LastValueFromConfig } from 'rxjs/internal/lastValueFrom';
+import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 
 
 
@@ -80,38 +82,42 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         else if (this._currentItem.itemId !== this._CurrentItemAdditionalData.itemID) return null;
         else return this._CurrentItemAdditionalData;
     }
-  public FetchWithCrit(crit: Criteria, listDescription: string, save: boolean = true) {
-    this._BusyMethods.push("FetchWithCrit");
-    if (save) {
-      this._Criteria = crit;
-      if (this._ItemList && this._ItemList.pagesize > 0 && this._ItemList.pagesize <= 4000 && this._ItemList.pagesize != crit.pageSize
-      ) {
-        crit.pageSize = this._ItemList.pagesize;
-      }
-      // console.log("FetchWithCrit", this._Criteria.listType);
-      this.ListDescription = listDescription;
-    }
-    return lastValueFrom(this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit))
-      .then(
-        list => {
-          this._Criteria.totalItems = this.ItemList.totalItemCount;
-          if (save) {
-            this.SaveItems(list, this._Criteria);
-            if (this._itemListOptions.showInfo == false && this._Criteria.showInfoColumn == true) this._itemListOptions.showInfo = true;
-            if (this._itemListOptions.showScore == false && this._Criteria.showScoreColumn == true) this._itemListOptions.showScore = true;
-            this.RemoveBusy("FetchWithCrit");
-            this.ListChanged.emit();
-          }
-          //console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
-        }, error => {
-          this.ModalService.GenericError(error);
-          this.RemoveBusy("FetchWithCrit");
+
+    public FetchWithCrit(crit: Criteria, listDescription: string, save: boolean = true)/*: Promise<ItemList | boolean>*/ {
+      this._BusyMethods.push("FetchWithCrit");
+      if (save) {
+        this._Criteria = crit;
+        if (this._ItemList && this._ItemList.pagesize > 0 && this._ItemList.pagesize <= 4000 && this._ItemList.pagesize != crit.pageSize
+        ) {
+          crit.pageSize = this._ItemList.pagesize;
         }
-    ).catch(caught => {
-      this.ModalService.GenericErrorMessage(caught.toString());
-      this.RemoveBusy("FetchWithCrit");
-    });
-  }
+        // console.log("FetchWithCrit", this._Criteria.listType);
+        this.ListDescription = listDescription;
+      }
+      return lastValueFrom(this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit))
+        .then(
+          list => {
+            this._Criteria.totalItems = this.ItemList.totalItemCount;
+            if (save) {
+              this.SaveItems(list, this._Criteria);
+              if (this._itemListOptions.showInfo == false && this._Criteria.showInfoColumn == true) this._itemListOptions.showInfo = true;
+              if (this._itemListOptions.showScore == false && this._Criteria.showScoreColumn == true) this._itemListOptions.showScore = true;             
+              this.ListChanged.emit();
+            }
+            this.RemoveBusy("FetchWithCrit");
+            return list;
+            //console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
+          }, error => {
+            this.ModalService.GenericError(error);
+            this.RemoveBusy("FetchWithCrit");
+            return false; 
+          }
+      ).catch(caught => {
+        this.ModalService.GenericErrorMessage(caught.toString());
+        this.RemoveBusy("FetchWithCrit");
+        return false; 
+      });
+    }
 
 	public FetchWithCritReconcile(crit: Criteria, listDescription: string) {
 		this._BusyMethods.push("FetchWithCritReconcile");
@@ -844,6 +850,58 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         }
         //console.log("SelectedItemsToRIStext", res);
         return res;
+    }
+
+    public async AllPagesToRIStext() {
+      let res = "";
+      let pageSize = 0;
+      let dataURI = "";
+      let TheList: ItemList | boolean;
+
+      let numberOfPages = Math.floor(this.ItemList.totalItemCount / 4000);
+      const numberInLastPage = this.ItemList.totalItemCount % 4000;
+
+      if (this.ItemList.totalItemCount < 4000) {
+        pageSize = this.ItemList.totalItemCount;
+        numberOfPages = 1;
+      }
+      else {
+        pageSize = 4000;
+      }
+
+      for (let j = 0; j < numberOfPages; j++) {
+        res = "";
+        this._Criteria.pageNumber = j;
+        this._Criteria.pageSize = pageSize;
+        TheList = await this.FetchWithCrit(this._Criteria, this.ListDescription, false);
+
+        if ((TheList !== false) && (TheList !== true)) {
+          for (let i = 0; i < this._Criteria.pageSize; i++) {
+            res += ItemListService.ExportItemToRIS(TheList.items[i]);
+          }
+        }
+        dataURI = "data:text/plain;base64," + encodeBase64(res);
+        saveAs(dataURI, "ExportedRis_file_" + (j + 1) + ".txt");
+      }
+
+      if ((numberInLastPage !== 0) && (numberOfPages !== 0) && (this.ItemList.totalItemCount !== 4000)) {
+        // we need to do a last partial page
+        res = "";
+        this._Criteria.pageNumber = numberOfPages;
+        this._Criteria.pageSize = 4000; // will it fail if there are less than 4000?
+        TheList = await this.FetchWithCrit(this._Criteria, this.ListDescription, false);
+
+        if ((TheList !== false) && (TheList !== true)) {
+          for (let i = 0; i < numberInLastPage; i++) {
+            res += ItemListService.ExportItemToRIS(TheList.items[i]);
+          }
+        }
+        dataURI = "data:text/plain;base64," + encodeBase64(res);
+        saveAs(dataURI, "ExportedRis_file_" + (numberOfPages + 1) + ".txt");
+
+      }
+
+      return res;
     }
 
     public static ExportItemToRIS(it: Item): string {
