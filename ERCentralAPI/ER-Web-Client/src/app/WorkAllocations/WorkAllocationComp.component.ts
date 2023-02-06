@@ -930,7 +930,7 @@ export class WorkAllocationComp implements OnInit {
       //operation worked, did it do anything?
       if (res == 0) {
         this._notificationService.show({
-          content: "The command succeded and found no viable comparisons to create.",
+          content: "The command succeeded and found no viable comparisons to create.",
           animation: { type: 'slide', duration: 400 },
           position: { horizontal: 'center', vertical: 'top' },
           type: { style: "info", icon: true },
@@ -938,7 +938,7 @@ export class WorkAllocationComp implements OnInit {
         });
       } else if (res == 1) {
         this._notificationService.show({
-          content: "The command succeded and created one new Comparison.",
+          content: "The command succeeded and created one new Comparison.",
           animation: { type: 'slide', duration: 400 },
           position: { horizontal: 'center', vertical: 'top' },
           type: { style: "info", icon: true },
@@ -946,7 +946,7 @@ export class WorkAllocationComp implements OnInit {
         });
       } else {
         this._notificationService.show({
-          content: "The command succeded and created " + res + " new Comparisons.",
+          content: "The command succeeded and created " + res + " new Comparisons.",
           animation: { type: 'slide', duration: 400 },
           position: { horizontal: 'center', vertical: 'top' },
           type: { style: "info", icon: true },
