@@ -55,6 +55,7 @@ namespace EppiReviewer4
     public class TrainingEventArgs : EventArgs
     {
         public int currentCount { get; set; }
+        public long TriggeringItemId { get; set; }
     }
 
     public partial class dialogCoding : UserControl, INotifyPropertyChanged
@@ -2091,9 +2092,18 @@ namespace EppiReviewer4
                         {
                             Item previousItem = this.DataContext as Item;
                             Item currentItem = e2.Object.Item;
-                           
-                            if (ScreenedItemIds.IndexOf(e2.Object.Item.ItemId) == -1)
+                            //SG edit Feb 2023: if, asking for "give me a NEW item to screen" we receive an item we've seen already
+                            //that might be because we left "item details" before coding and coming back a higher-ranking item had become "unlocked"
+                            //so, we would first get that higher-ranking item, then we'd get the item we seen already, but didn't screen
+                            //when this happens, it's best to put the "already seen" item at the end of ScreenedItemIds
+                            int ItemIndex = ScreenedItemIds.IndexOf(e2.Object.Item.ItemId);
+                            if (ItemIndex == -1)
                             {
+                                ScreenedItemIds.Add(e2.Object.Item.ItemId);//as we always did
+                            }
+                            else 
+                            {//NEW (Feb 2023)
+                                ScreenedItemIds.Remove(e2.Object.Item.ItemId);
                                 ScreenedItemIds.Add(e2.Object.Item.ItemId);
                             }
 
@@ -2119,7 +2129,7 @@ namespace EppiReviewer4
                                 GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
-                                CheckRunTraining(e2.Object.Rank);
+                                CheckRunTraining(e2.Object);
                             }
                         }
                         else
@@ -2136,10 +2146,11 @@ namespace EppiReviewer4
         }
 
         public event EventHandler RunTrainingCommandRequest;
-        private void CheckRunTraining(int currentCount)
+        private void CheckRunTraining(TrainingNextItem currentItem)
         {
             TrainingEventArgs tea = new TrainingEventArgs();
-            tea.currentCount = currentCount;
+            tea.currentCount = currentItem.Rank;
+            tea.TriggeringItemId = currentItem.ItemId;
             if (RunTrainingCommandRequest != null)
             {
                 RunTrainingCommandRequest.Invoke(this, tea);

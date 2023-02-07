@@ -483,7 +483,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
             this.modalService.GenericErrorMessage("Sorry, the current list of training codes (the codes from which the machine will learn) isn't valid, please ensure the list contains the correct codes and try again.");
         }
         else {
-            this.PriorityScreeningService.RunNewTrainingCommand(false);
+            this.PriorityScreeningService.RunNewTrainingCommand(null, false);
         }
     }
     SaveOptions() {

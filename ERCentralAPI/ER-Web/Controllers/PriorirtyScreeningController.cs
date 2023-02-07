@@ -77,8 +77,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        [HttpGet("[action]")]
-        public IActionResult TrainingRunCommand()
+        [HttpPost("[action]")]
+        public IActionResult TrainingRunCommand([FromBody] SingleInt64Criteria crit)
         {
             try
             {
@@ -87,6 +87,7 @@ namespace ERxWebClient2.Controllers
                     TrainingRunCommand command = new TrainingRunCommand();
                     ReviewInfo revInfo = DataPortal.Fetch<ReviewInfo>();
                     command.RevInfo = revInfo;
+                    command.TriggeringItemId = crit.Value;
                     DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
                     //Task<TrainingRunCommand> doIt = new Task<TrainingRunCommand>(() => dp.Execute(command), );
                     //doIt.Start();
