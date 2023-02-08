@@ -188,7 +188,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     }
     if (totalScreened <= 1000) {
       if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 500 ||
-        currentCount == 750)) {
+        currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
         this.RunNewTrainingCommand(screeningItem);
       }
     }
