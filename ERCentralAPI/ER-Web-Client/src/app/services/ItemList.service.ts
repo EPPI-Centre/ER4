@@ -853,55 +853,33 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
     }
 
     public async AllPagesToRIStext() {
+     
       let res = "";
-      let pageSize = 0;
       let dataURI = "";
       let TheList: ItemList | boolean;
 
-      let numberOfPages = Math.floor(this.ItemList.totalItemCount / 4000);
-      const numberInLastPage = this.ItemList.totalItemCount % 4000;
+      let numberOfPages = Math.ceil(this.ItemList.totalItemCount / 4000);
 
-      if (this.ItemList.totalItemCount < 4000) {
-        pageSize = this.ItemList.totalItemCount;
-        numberOfPages = 1;
-      }
-      else {
-        pageSize = 4000;
-      }
+      let MyCrit = this._Criteria.Clone();
+      MyCrit.pageSize = 4000;
 
       for (let j = 0; j < numberOfPages; j++) {
         res = "";
-        this._Criteria.pageNumber = j;
-        this._Criteria.pageSize = pageSize;
-        TheList = await this.FetchWithCrit(this._Criteria, this.ListDescription, false);
+        MyCrit.pageNumber = j;
+        
+        TheList = await this.FetchWithCrit(MyCrit, this.ListDescription, false);
 
         if ((TheList !== false) && (TheList !== true)) {
-          for (let i = 0; i < this._Criteria.pageSize; i++) {
+          for (let i = 0; i < TheList.items.length; i++) {
             res += ItemListService.ExportItemToRIS(TheList.items[i]);
           }
         }
         dataURI = "data:text/plain;base64," + encodeBase64(res);
-        saveAs(dataURI, "ExportedRis_file_" + (j + 1) + ".txt");
-      }
-
-      if ((numberInLastPage !== 0) && (numberOfPages !== 0) && (this.ItemList.totalItemCount !== 4000)) {
-        // we need to do a last partial page
-        res = "";
-        this._Criteria.pageNumber = numberOfPages;
-        this._Criteria.pageSize = 4000; // will it fail if there are less than 4000?
-        TheList = await this.FetchWithCrit(this._Criteria, this.ListDescription, false);
-
-        if ((TheList !== false) && (TheList !== true)) {
-          for (let i = 0; i < numberInLastPage; i++) {
-            res += ItemListService.ExportItemToRIS(TheList.items[i]);
-          }
-        }
-        dataURI = "data:text/plain;base64," + encodeBase64(res);
-        saveAs(dataURI, "ExportedRis_file_" + (numberOfPages + 1) + ".txt");
-
+        saveAs(dataURI, "ExportedRis_file_" + (j + 1) + "_of_" + numberOfPages + ".txt");
       }
 
       return res;
+
     }
 
     public static ExportItemToRIS(it: Item): string {
