@@ -55,7 +55,7 @@ namespace BusinessLibrary.BusinessClasses
         private string _terms;
         private string _answers;
         private string _filterType;
-        private int _searchId;
+        private long _TriggeringItemId;
         private bool _included;
 
         private int _currentTrainingId;
@@ -87,13 +87,16 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(SimulationResultsProperty); }
             set { LoadProperty(SimulationResultsProperty, value); }
         }
-
-        public int SearchId
+        /// <summary>
+        /// Used only by st_ScreeningCreateNonMLList to figure whether the random list really needs to be re-shuffled or not
+        /// </summary>
+        public long TriggeringItemId
         {
             get
             {
-                return _searchId;
+                return _TriggeringItemId;
             }
+            set { _TriggeringItemId = value; }
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -103,7 +106,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_terms", _terms);
             info.AddValue("_answers", _answers);
             info.AddValue("_filterType", _filterType);
-            info.AddValue("_searchId", _searchId);
+            info.AddValue("_TriggeringItemId", _TriggeringItemId);
             info.AddValue("_included", _included);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -112,7 +115,7 @@ namespace BusinessLibrary.BusinessClasses
             _terms = info.GetValue<string>("_terms");
             _answers = info.GetValue<string>("_answers");
             _filterType = info.GetValue<string>("_filterType");
-            _searchId = info.GetValue<int>("_searchId");
+            _TriggeringItemId = info.GetValue<long>("_TriggeringItemId");
             _included = info.GetValue<bool>("_included");
         }
 
@@ -405,8 +408,9 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", UserId));
                     command.Parameters.Add(new SqlParameter("@WHAT_ATTRIBUTE_ID", RevInfo.ScreeningWhatAttributeId));
-                    command.Parameters.Add(new SqlParameter("SCREENING_MODE", RevInfo.ScreeningMode));
-                    command.Parameters.Add(new SqlParameter("CODE_SET_ID", RevInfo.ScreeningCodeSetId));
+                    command.Parameters.Add(new SqlParameter("@SCREENING_MODE", RevInfo.ScreeningMode));
+                    command.Parameters.Add(new SqlParameter("@CODE_SET_ID", RevInfo.ScreeningCodeSetId));
+                    command.Parameters.Add(new SqlParameter("@TRIGGERING_ITEM_ID", TriggeringItemId));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

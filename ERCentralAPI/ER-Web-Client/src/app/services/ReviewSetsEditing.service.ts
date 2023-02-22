@@ -1472,9 +1472,9 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 if (Set.set_id == screeningCodeSetId) {
                     res.DestinationDataEntryMode = "";
                     res.ChangeDataEntryModeMessage = "This set is your current Screening Set (used for Priority Screening).";
-                    res.ChangeDataEntryModeMessage += "\r\nChanging the data entry mode would require to review/update the Priority Screening settings.";
-                    res.ChangeDataEntryModeMessage += "\r\nUnfortuately this feature is not currently implemented in the current App.";
-                    res.ChangeDataEntryModeMessage += "\r\nTo apply this change please use the full (Silverlight) version or EPPI-Reviewer 4.";
+                    res.ChangeDataEntryModeMessage += "\r\nChanging the data entry mode must be done in the Priority Screening settings.";
+                    res.ChangeDataEntryModeMessage += "\r\nThese settings can be found in the 'Collaborate' tab.";
+                    //res.ChangeDataEntryModeMessage += "\r\nTo apply this change please use the full (Silverlight) version or EPPI-Reviewer 4.";
                     res.DestinationDataEntryMode = "";
                     res.CanChangeDataEntryMode = false;
                 }

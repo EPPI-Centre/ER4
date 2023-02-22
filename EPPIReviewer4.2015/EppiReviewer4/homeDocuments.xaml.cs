@@ -988,28 +988,33 @@ namespace EppiReviewer4
             int maxIteration = Convert.ToInt32(training.Max(train => train.Iteration));
             Training t = training.Single(train => train.Iteration == maxIteration);
             int totalScreened = Convert.ToInt32(t.TotalN); // does this work even if the list is empty?
-            int currentCount = (e as TrainingEventArgs).currentCount;
+
+            //Some SG changes (Feb 2023), to pass the ItemId all the way back to TrainingRunCommand on the server side.
+            //It's used when re-creating a NonML list, to figure if we really want to re-shuffle it.
+            TrainingEventArgs Tea = e as TrainingEventArgs;
+            if (Tea == null) return;//just for safety!
+            int currentCount = Tea.currentCount;
 
             if (totalScreened <= 1000)
             {
                 if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 500 ||
-                    currentCount == 750))
+                    currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000))
                 {
-                    cmdTrainingRunTraining_Click(sender, new RoutedEventArgs());
+                    cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
                 }
             }
             else if (totalScreened > 1000 && totalScreened < 5000)
             {
                 if ((currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000))
                 {
-                    cmdTrainingRunTraining_Click(sender, new RoutedEventArgs());
+                    cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
                 }
             }
             else if (totalScreened >= 5000)
             {
                 if ((currentCount == 1000 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000 || currentCount == 3500))
                 {
-                    cmdTrainingRunTraining_Click(sender, new RoutedEventArgs());
+                    cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
                 }
             }
         }
@@ -5195,6 +5200,11 @@ on the right of the main screen");
             TrainingList training = ((CslaDataProvider)App.Current.Resources["TrainingListData"]).Data as TrainingList;
             DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
             TrainingRunCommand command = new TrainingRunCommand();
+            if (sender is TrainingEventArgs)
+            {
+                TrainingEventArgs tea = sender as TrainingEventArgs;
+                command.TriggeringItemId = tea.TriggeringItemId;
+            }
             dp.ExecuteCompleted += (o, e2) =>
             {
                 //BusyLoading.IsRunning = false;
