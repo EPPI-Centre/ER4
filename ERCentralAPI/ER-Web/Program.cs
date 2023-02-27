@@ -47,14 +47,12 @@ try
     //we need a Microsoft.Extensions.Logger.Ilogger object for our SQLHelper, so we can then log SQL errors if/where we bypass BOs and talk to the DB directly.
     // the SqlHelper class will make sure our connection strings are available to BOs also.
     var MSlogger = new Serilog.Extensions.Logging.SerilogLoggerFactory(_Logger).CreateLogger<Program>();
-    var SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
 
     builder.Services.AddHttpClient("zoteroApi");
 
     // Add services to the container.
     builder.Services.AddSingleton<ZoteroConcurrentDictionary>();
     //builder.Services.AddSingleton(SqlHelper);
-    DataConnection.DataConnectionConfigure(SqlHelper);
     builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
     {//this is needed to allow serialising CSLA child objects:
      //they all have a "Parent" field which creates a reference loop.
@@ -81,10 +79,12 @@ try
     //    opt.
     //});
     var app = builder.Build();
+    var SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
+    DataConnection.DataConnectionConfigure(SqlHelper);
 
     //the following command could be used to log "streamlined request data", whatever that means... Disabled for now, could be useful if we could use it to log request data along with exceptions.
     //app.UseSerilogRequestLogging();
-    
+
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
     {
@@ -136,7 +136,7 @@ finally
         if (Idisp != null) Idisp.Dispose();
     }
 }
-partial class Program
+public partial class Program
 {
     //public static SQLHelper? SqlHelper {  get; private set; }
     private static string CreateLogFileName()
