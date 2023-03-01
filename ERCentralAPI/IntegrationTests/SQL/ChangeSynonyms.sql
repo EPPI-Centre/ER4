@@ -249,3 +249,4 @@ IF EXISTS(SELECT * FROM sys.synonyms where name = 'sst_LogonTicket_Insert')
 
 CREATE SYNONYM sst_LogonTicket_Insert FOR tempTestReviewerAdmin.dbo.st_LogonTicket_Insert;
 
+GO

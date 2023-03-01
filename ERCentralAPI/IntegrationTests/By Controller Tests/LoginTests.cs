@@ -56,12 +56,6 @@ namespace IntegrationTests
             SetCookieHeaderVal(token);
         }
 
-        [Fact]
-        public async Task spoof()
-        {
-            await InnerLoginToReview("bob", "123", 12);
-            Contact[]? ParsedResponse = await _client.GetAndDeserialize<Contact[]>("api/ReviewInfo/ReviewMembers");
-            ParsedResponse.Should().NotBeNull();
-        }
+        
     }
 }

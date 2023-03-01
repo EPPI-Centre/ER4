@@ -55,3 +55,5 @@ EXEC	@return_value = st_ReviewAddMember @REVIEW_ID = 13, @CONTACT_ID= 10
 
 EXEC	@return_value = st_ReviewRoleCodingOnlyUpdate @REVIEW_ID = 13 , @CONTACT_ID = 7, @IS_CHECKED = 1
 EXEC	@return_value = st_ReviewRoleReadOnlyUpdate @REVIEW_ID = 13 , @CONTACT_ID = 8, @IS_CHECKED = 1
+
+GO
