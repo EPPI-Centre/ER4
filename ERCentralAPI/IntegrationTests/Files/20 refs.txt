@@ -1,0 +1,1058 @@
+TY  - JOUR
+T1  - Behavioral activation and therapeutic exposure for bereavement in older adults.
+JF  - American Journal of Hospice & Palliative Medicine
+A1  - Acierno Ron
+A1  - Rheingold Alyssa
+A1  - Amstadter Ananda
+A1  - Kurent Jerome
+A1  - Amella Elaine
+A1  - Resnick Heidi
+A1  - Muzzy Wendy
+A1  - Lejuez Carl
+KW  - eppi-reviewer4
+Adulthood (18 yrs & older)
+Human
+Aging
+Intervention
+Major Depression
+SF-36 Health Survey—Pain Subscale
+SF-36 Health Survey—General health Subscale
+SF-36 Health Survey—Role limitations due to physical causes Subscale
+3312:Behavior Therapy & Behavior Modification
+Structured Clinical Interview for DSM-IV
+Bereavement
+Male
+Treatment Outcome/Clinical Trial
+aging
+behavioral intervention
+posttraumatic stress disorder
+SF-36 Health Survey—Role limitations due to emotional causes Subscale
+Interview
+Quantitative Study
+Middle Age (40-64 yrs)
+complicated bereavement
+Beck Depression Inventory
+major depression
+SF-36 Health Survey—Energy-Fatigue Subscale
+Empirical Study
+Aged (65 yrs & older)
+article
+Behavior Therapy
+Complicated Grief Assessment Interview
+SF-36 Health Survey—Social functioning Subscale
+Posttraumatic Stress Disorder
+SF-36 Health Survey—Emotional well-being Subscale
+Female
+behavioral therapy
+SF-36 Health Survey—Physical functioning Subscale
+PY  - 2012
+DA  - 2012///
+Y1  - 2012///
+AB  - The development and clinical trial of a 5-session behavioral intervention for complicated bereavement (CB) is presented. We conceptualized CB in terms of Major Depression (MDD) and Post-traumatic Stress Disorder (PTSD) and consequently applied treatment components of Behavioral Activation and Therapeutic Exposure (BA-TE). In order to assure standardization of treatment, control costs, and engage patients, a multi-media, multi-context format was adopted to address avoidance and withdrawal behaviors conceptualized as central pathogenic responses in CB. Participants (N = 26) were assessed before and after BA-TE treatment via structured clinical interview and standardized questionnaires in terms of PTSD, MDD, CB, and health concerns. The number of days since the death of the loved one was widely variable and served as a covariate for all outcome analyses. ANCOVAS revealed statistically significant improvement, irrespective of how many days since death had elapsed prior to initiation of intervention, on structured interviews and self-report measures for most outcome variables. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1177/1049909111411471
+VL  - 29
+IS  - 1
+SP  - 13
+EP  - 25
+CY  - US US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/928983104?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Behavioral+activation+and+therapeutic+exposure+for+bereavement+in+older+adults.&title=American+Journal+of+Hospice+%26+Palliative+Medicine&issn=10499091&date=2012-02-01&volume=29&issue=1&spage=13&au=Acierno%2C+Ron%3BRheingold%2C+Alyssa%3BAmstadter%2C+Ananda
+PB  - Sage Publications Prime National Publishing
+SN  - 1049-9091, 1049-9091
+U1  - 2051964
+N1  - Copyright - © The Author(s) 2012 | Number of references - 46 | SubjectsTermNotLitGenreText - Aging 225; Behavior Therapy 860 858 8486 6682; Bereavement 887; Intervention 4256; Major Depression 4692 195 4912 2320; 6325 528 4912 2320
+ER  - 
+
+TY  - JOUR
+T1  - Supportive text messaging for depression and comorbid alcohol use disorder: Single-blind randomised trial.
+JF  - Journal of Affective Disorders
+A1  - Agyapong Vincent I. O
+A1  - Ahern Sinead
+A1  - McLoughlin Declan M
+A1  - Farren Conor K
+KW  - eppi-reviewer4
+comorbidity
+Adulthood (18 yrs & older)
+Human
+Structured Clinical Interview for DSM-IV Axis I Disorders
+Major Depression
+Comorbidity
+Cellular Phones
+Time Line Follow Back
+Mini Mental State Examination
+Global Assessment of Function Scale
+Male
+mobile phones
+alcohol use disorder
+3210:Psychological Disorders
+text messaging technology
+Interview
+Quantitative Study
+Alcohol Abstinence Self Efficacy Scale
+Obsessive Compulsive Drinking Scale
+Messages
+major depression
+Empirical Study
+Beck Depression Inventory–II
+article
+Alcoholism
+Female
+Technology
+PY  - 2012
+DA  - 2012///
+Y1  - 2012///
+AB  - Background: Mobile phone text message technology has the potential to improve outcomes for patients with depression and co-morbid Alcohol Use Disorder (AUD). Aims: To perform a randomised rater-blinded trial to explore the effects of supportive text messages on mood and abstinence outcomes for patients with depression and co-morbid AUD. Methods: Participants (n=54) with a DSM IV diagnosis of unipolar depression and AUD who completed an in-patient dual diagnosis treatment programme were randomised to receive twice daily supportive text messages (n=26) or a fortnightly thank you text message (n=28) for three months. Primary outcome measures were Beck's Depression Inventory (BDI-II) scores and Cumulative Abstinence Duration (CAD) in days at three months. Trial registration: NCT0137868. Results: There was a statistically significant difference in three month BDI-II scores between the intervention and control groups; 8.5 (SD=8.0) vs. 16.7 (SD=10.3) respectively after adjusting for the baseline scores, F (1, 49)=9.54, p=0.003, ηp 2=0.17. The mean difference in change BDI-II scores was −7.9 (95% CI −13.06 to −2.76, Cohen's d=0.85). There was a trend for a greater CAD in the text message group than the control group: 88.3 (SD=6.2) vs. 79.3 (SD=24.1), t=1.78, df=48, p=0.08. Limitations: Limitations of the study include the small sample size, the potential for loss of rater blinding and the lack of long term follow-up to determine the longer term effects of the intervention. Conclusion: Supportive text messages have the potential to improve outcomes for patients with comorbid depression and alcohol dependency syndrome. (PsycINFO Database Record (c) 2013 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1016/j.jad.2012.02.040
+VL  - 141
+IS  - 2-3
+SP  - 168
+EP  - 176
+CY  - Netherlands
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/1315880687?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Supportive+text+messaging+for+depression+and+comorbid+alcohol+use+disorder%3A+Single-blind+randomised+trial.&title=Journal+of+Affective+Disorders&issn=01650327&date=2012-12-10&volume=141&issue=2-3&spage=168&au=Agyapong%2C+Vincent+I.+O.%3BAhern%2C+Sinead%3
+PB  - Elsevier Science
+SN  - 0165-0327, 0165-0327
+U1  - 2051855
+N1  - Number of references - 56 | SubjectsTermNotLitGenreText - Alcoholism 281 117 857 2320 265 2422 2455 270 2409 853; Major Depression 4692 195 4912 2320; Messages 4953; Technology 8183; Cellular Phones 1268 8202 1650 8113 8191 1652 5088; 1674
+ER  - 
+
+TY  - JOUR
+T1  - Depressive symptoms and quality of life in elderly patients with exacerbation of chronic obstructive pulmonary disease or cardiac heart failure: Preliminary data of a randomized controlled trial.
+JF  - Archives of Gerontology and Geriatrics
+A1  - Aimonino N
+A1  - Tibaldi V
+A1  - Barale S
+A1  - Bardelli B
+A1  - Pilon S
+A1  - Marchetto C
+A1  - Zanocchi M
+A1  - Molaschi M
+KW  - eppi-reviewer4
+cognitive status
+cardiac heart failure
+Nottingham Health Profile
+Adulthood (18 yrs & older)
+Human
+Quality of Life
+functional status
+Activities of Daily Living Scale
+Acute Physiology And Chronic Health Evaluation II
+Major Depression
+Followup Study
+3290:Physical & Somatoform & Psychogenic Disorders
+Italy
+Death and Dying
+Chronic Obstructive Pulmonary Disease
+Mini Mental State Examination
+depressive symptoms
+affective status
+Psychiatric Symptoms
+Geriatric Patients
+Lung Disorders
+Emotional States
+Inpatient
+Geriatric Depression Scale
+chronic obstructive pulmonary disease
+Instrumental Activities of Daily Living Scale
+Quantitative Study
+elderly patients
+Mini Nutritional Assessment Scale
+Empirical Study
+Cognitive Ability
+Aged (65 yrs & older)
+article
+Heart Disorders
+Cumulative Illness Rating Scale
+mortality
+quality of life
+PY  - 2007
+DA  - 2007///
+Y1  - 2007///
+AB  - Aim of the study was to evaluate mortality and functional, cognitive, affective status in elderly patients (≥75 years) with exacerbation of chronic obstructive pulmonary disease (COPD) or acute congestive heart failure (CHF) admitted to the emergency department (ED) of S. Giovanni Battista Hospital of Torino and randomly assigned to the geriatric home hospitalization service (GHHS) or to a general medical ward (GMW). All patients were evaluated on admission, on discharge and at 6 months, using a standardized study protocol. We excluded patients with unstable medical conditions. The total sample included 73 patients: 35 with COPD exacerbation (19 GHHS, 16 GMW) and 38 with CHF (19 GHHS, 19 GMW). Mean age was 81.7 ± 8.0 years. At baseline, no significant differences in demographic, social and clinical conditions were found between the two groups of patients. 56.7% of COPD patients had a severe exacerbation, according to Anthonisen criteria; 65% of CHF patients were NYHA-III and 35% NYHA-IV (according to the criteria of the New York Heart Association) (FE < 35% in 40% of patients). On admission all patients were partially dependent in ADLs and IADLs, with a moderate impairment of depression score and a fairly good quality of life. On discharge depression score and quality of life were significantly better only in GHHS patients. Mortality was similar in the two setting of care. Patients managed at home had a significantly longer length of treatment. At 6-month follow-up we did not observe a difference in mortality, but we observed a higher readmission rate in patients previously treated in hospital. In conclusion, our study indicates that home-treated patients with COPD or CHF have better depressive scores and quality of life and a lower rate of hospital readmission after six months. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1016/j.archger.2007.01.002
+VL  - 44
+IS  - Suppl 1
+SP  - 7
+EP  - 12
+CY  - Netherlands
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/621656494?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Depressive+symptoms+and+quality+of+life+in+elderly+patients+with+exacerbation+of+chronic+obstructive+pulmonary+disease+or+cardiac+heart+failure%3A+Preliminary+data+of+a+randomized+controlled+trial.&title=Archives+of+Gerontology+and+Geriatrics&issn=01674943
+PB  - Elsevier Science
+SN  - 0167-4943, 0167-4943
+U1  - 2052475
+N1  - Number of references - 18 | SubjectsTermNotLitGenreText - Geriatric Patients 3378 5938; Heart Disorders 3631 1189 6154 2320; Lung Disorders 4665 6995 6154 2320; Major Depression 4692 195 4912 2320; Quality of Life 6739; 1560 4; 2095; 2680 2687; 6589 8095; 1423 4665 6995 6154 2320
+ER  - 
+
+TY  - JOUR
+T1  - The Coping With Depression course: Short-term outcomes and mediating effects of a randomized controlled trial in the treatment of subclinical depression.
+JF  - Behavior Therapy
+A1  - Allart-van Dam
+A1  - Esther
+A1  - Hosman Clemens M. H
+A1  - Hoogduin Cees A. L
+A1  - Schaap Cas P. D. R
+KW  - eppi-reviewer4
+Coping Behavior
+Symptoms
+Adulthood (18 yrs & older)
+Human
+cognitive behavioral intervention
+Major Depression
+Cognitive Behavior Therapy
+subclinical depressive symptoms
+Netherlands
+Thirties (30-39 yrs)
+Male
+Treatment Outcome/Clinical Trial
+Coping With Depression course
+at risk populations
+Quantitative Study
+Middle Age (40-64 yrs)
+General Health Questionnaire
+Beck Depression Inventory
+major depression
+Empirical Study
+Aged (65 yrs & older)
+article
+At Risk Populations
+Young Adulthood (18-29 yrs)
+short term effectiveness
+Psychoeducation
+Hamilton Rating Scale for Depression
+psychoeducation
+3311:Cognitive Therapy
+Female
+PY  - 2003
+DA  - 2003///
+Y1  - 2003///
+AB  - This article reports on a randomized controlled trial investigating the short-term effectiveness of the Coping With Depression course in a sample of adults seriously at risk of developing major depression. In addition, possible mediating properties of several proximal outcome variables were assessed. Participants (N=110) were adults with subclinical depressive symptoms. They were randomly assigned to either a group course condition, the Coping With Depression course, or an assessment-and-advice-only control group condition. Short-term results measured 1 month after completion of the course reveal that the course is effective in reducing depressive symptoms. The group course condition showed beneficial effects on depressive symptoms, pleasant activities, self-esteem, social skills, social support, and depressive thoughts. Changes in depressive cognition and self-esteem proved to be significant mediators of depressive symptoms. Possible implications for depression prevention are discussed. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1016/S0005-7894(03)80007-2
+VL  - 34
+IS  - 3
+SP  - 381
+EP  - 396
+CY  - US Netherlands
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/620203782?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=The+Coping+With+Depression+course%3A+Short-term+outcomes+and+mediating+effects+of+a+randomized+controlled+trial+in+the+treatment+of+subclinical+depression.&title=Behavior+Therapy&issn=00057894&date=2003-07-01&volume=34&issue=3&spage=381&au=Allart-van+Dam%2
+PB  - Association for Advancement of Behavior Therapy Elsevier Science
+SN  - 0005-7894, 0005-7894
+U1  - 2052660
+N1  - Number of references - 48 | SubjectsTermNotLitGenreText - At Risk Populations 662; Cognitive Behavior Therapy 1563 6682 8486; Coping Behavior 1866 853; Major Depression 4692 195 4912 2320; Psychoeducation 6612; 8095 | [49] van Sonderen EIn Het meten van sociale steun met de Sociale Steun Lijst - Interacties (SSL-I) en Sociale Steun Lijst - Discrepancies (SSL-D), een handleiding Noorderlijk Centrum voor Gezondheidsvraagstukken, Groningen,1993
+ER  - 
+
+TY  - JOUR
+T1  - Acupuncture for depression: A randomized controlled trial.
+JF  - Journal of Clinical Psychiatry
+A1  - Allen John J. B
+A1  - Schnyer Rosa N
+A1  - Chambers Andrea S
+A1  - Hitt Sabrina K
+A1  - Moreno Francisco A
+A1  - Manber Rachel
+KW  - eppi-reviewer4
+Acupuncture
+Human
+Adulthood (18 yrs & older)
+Quantitative Study
+Traditional Chinese Medicine style acupuncture
+Middle Age (40-64 yrs)
+Major Depression
+Beck Depression Inventory
+Empirical Study
+Aged (65 yrs & older)
+article
+Young Adulthood (18-29 yrs)
+3350:Specialized Interventions
+Structured Clinical Interview for DSM-IV
+Hamilton Rating Scale for Depression
+major depressive disorder
+Male
+Female
+Thirties (30-39 yrs)
+Treatment Outcome/Clinical Trial
+PY  - 2006
+DA  - 2006///
+Y1  - 2006///
+AB  - Objective: To assess the efficacy of acupuncture as an intervention for major depressive disorder (MDD). Method: Acupuncture was examined in 151 patients with MDD (DSM-IV) who were randomly assigned to 1 of 3 groups in a double-blind randomized controlled trial. The specific intervention involved traditional Chinese Medicine (TCM)-style acupuncture with manual stimulation for depression; the control conditions consisted of (1) a nonspecific intervention using a comparable number of legitimate acupuncture points not specifically targeted to depressive symptoms and (2) a waitlist condition, which involved waiting without intervention for 8 weeks. After 8 weeks, all patients received the depression-specific acupuncture. Each 8-week intervention regimen consisted of 12 acupuncture sessions delivered in an acupuncturist's office in the community. The primary outcome measure was the 17-item Hamilton Rating Scale for Depression. The study was conducted from February 1998 to April 2002. Results: Twenty patients terminated treatment before the completion of the 8-week intervention (13%) but not differentially by study group. Random regression models of the intent-to-treat sample revealed that although patients receiving acupuncture improved more than those awaiting intervention, no evidence of differential efficacy of the depression-specific over nonspecific intervention was found. Response rates in acupuncture-treated patients were relatively low after 8 weeks (22% and 39% for specific and nonspecific intervention groups, respectively), with the response rate after the entire 16-week trial reaching 50%. Conclusion: Although TCM manual acupuncture is a well-tolerated intervention, results fail to support its efficacy as a monotherapy for MDD. It can't be ruled out that factors unique to the implementation of acupuncture in this research study may have limited the efficacy of interventions compared to those provided in naturalistic settings. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.4088/JCP.v67n1101
+VL  - 67
+IS  - 11
+SP  - 1665
+EP  - 1673
+CY  - US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/621744868?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Acupuncture+for+depression%3A+A+randomized+controlled+trial.&title=Journal+of+Clinical+Psychiatry&issn=01606689&date=2006-11-01&volume=67&issue=11&spage=1665&au=Allen%2C+John+J.+B.%3BSchnyer%2C+Rosa+N.%3BChambers%2C+Andrea+S.%3BHitt%2C+Sabrina+K.%3BMoreno%
+PB  - Physicians Postgraduate Press
+SN  - 0160-6689, 0160-6689
+U1  - 2052489
+N1  - Number of references - 37 | SubjectsTermNotLitGenreText - Acupuncture 100 309 8486 6174; Major Depression 4692 195 4912 2320 | 19 Department of Health and Human Services. COSTART: Coding Symbols for Thesaurus of Adverse Reaction Terms, 5th Edn. Washington, DC: U.S. Government Printing Office, 1995
+ER  - 
+
+TY  - JOUR
+T1  - Preventing depression after stroke: Results from a randomized placebo-controlled trial.
+JF  - Journal of Clinical Psychiatry
+A1  - Almeida Osvaldo P
+A1  - Waterreus Anna
+A1  - Hankey Graeme J
+KW  - eppi-reviewer4
+Modified Rankin Scale
+Human
+Adulthood (18 yrs & older)
+Quantitative Study
+Major Depression
+3340:Clinical Psychopharmacology
+poststroke depression
+Prevention
+Empirical Study
+Aged (65 yrs & older)
+article
+Mini Mental State Examination
+prevention
+Sertraline
+Australia
+sertraline
+Cerebrovascular Accidents
+acute stroke
+Hospital Anxiety and Depression Scale
+Male
+Female
+PY  - 2006
+DA  - 2006///
+Y1  - 2006///
+AB  - Objective: We designed this study to determine whether the daily treatment of nondepressed acute stroke patients with sertraline reduced the incidence of depression at follow-up. Method: 111 patients with recent stroke (< 2 weeks; International Classification of Diseases, Tenth Revision criteria) were randomly assigned to treatment with placebo (N = 56) and sertraline (N = 55.50 mg once daily) in this double-blind, placebo-controlled 24-week clinical trial. Subjects were recruited from the 2 largest teaching hospitals of Western Australia between June 2002 and June 2004. The primary endpoint of interest was development of clinically significant depressive symptoms as assessed by a Hospital Anxiety and Depression Scale-depression subscale score of 8 or above, or as diagnosed by the treating physician during 24 weeks. Results: There was no significant difference in the incidence of depressive symptoms during 24 weeks of treatment (16.7% [8/48] sertraline vs. 21.6% [11/51] placebo, rate ratio = 0.8, 95% CI = 0.3 to 2.1, p = .590). The trial medication was discontinued by 51.8% (29/56) of patients assigned placebo and 47.3% (26/55) assigned sertraline (p = .634), most often because of perceived side effects or because the treating physician introduced an antidepressant medication. Conclusions: Twenty-four-week treatment with 50 mg of sertraline once daily initiated within 2 weeks of onset of acute stroke is not a significantly more effective strategy to prevent 6-month depression than usual care plus placebo among nondepressed stroke patients. New pharmacologic and nonpharmacologic strategies need to be developed to reduce the health and financial burden associated with depression after stroke. (PsycINFO Database Record (c) 2013 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.4088/JCP.v67n0713
+VL  - 67
+IS  - 7
+SP  - 1104
+EP  - 1109
+CY  - US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/621744441?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Preventing+depression+after+stroke%3A+Results+from+a+randomized+placebo-controlled+trial.&title=Journal+of+Clinical+Psychiatry&issn=01606689&date=2006-07-01&volume=67&issue=7&spage=1104&au=Almeida%2C+Osvaldo+P.%3BWaterreus%2C+Anna%3BHankey%2C+Graeme+J.&isb
+PB  - Physicians Postgraduate Press
+SN  - 0160-6689, 0160-6689
+U1  - 2052512
+N1  - Number of references - 25 | SubjectsTermNotLitGenreText - Cerebrovascular Accidents 1297 1053 1273 5363 6154 2320 1298 1189; Major Depression 4692 195 4912 2320; Prevention 6401; Sertraline 7437 502 2460
+ER  - 
+
+TY  - JOUR
+T1  - Enrolling research subjects from clinical practice: Ethical and procedural issues in the Sequenced Treatment Alternatives to Relieve Depression (STAR*D) trail.
+JF  - Psychiatry Research
+A1  - Alpert Jonathan E
+A1  - Biggs Melanie M
+A1  - Davis Lori
+A1  - Shores-Wilson Kathy
+A1  - Harlan William R
+A1  - Schneider Gregory W
+A1  - Ford Amy L
+A1  - Farabaugh Amy
+A1  - Stegman Diane
+A1  - Ritz A Louise
+A1  - Husain Mustafa M
+A1  - Macleod Laurie
+A1  - Wisniewski Stephen R
+A1  - Rush A John
+KW  - eppi-reviewer4
+Outpatients
+Costs and Cost Analysis
+Human
+3211:Affective Disorders
+Bioethics
+Quantitative Study
+Major Depression
+depression
+Treatment
+Empirical Study
+article
+cost effective treatment strategies
+sequenced treatment alternatives
+major depressive disorder
+ethical issues
+procedural issues
+PY  - 2006
+DA  - 2006///
+Y1  - 2006///
+AB  - The Sequenced Treatment Alternatives to Relieve Depression (STAR*D) trial is a multi-site effectiveness study funded by the National Institute of Mental Health (NIMH) with the aim of identifying successful, acceptable and cost-effective treatment strategies for outpatients with unremitted depression. With enrollment of 4041 adults with major depressive disorder (MDD), it is the largest controlled psychiatric treatment study ever undertaken. In the course of developing procedures to ensure that ambitious enrollment goals were met, a number of ethical and practical issues became apparent that underscore the conflicts between effectiveness research and human subject protections. These are delineated as they relate to study design; eligibility criteria; incentives to subjects; investigators and clinical sites; the complementary roles of clinical research coordinators (CRCs) and study clinicians; and recruitment and consent procedures. The STAR*D trial exemplifies the interplay and tension between those strategies that integrate research and clinical aims and roles in the service of enhancing external validity, site participation, and recruitment and retention versus those strategies that differentiate research and clinical treatment in the service of research integrity and human subject protections. We hope that a discussion of these key challenges and dilemmas and how they have been addressed will help inform future discussions concerning design and conduct of ethical effectiveness trials designed to optimize care in real world clinical settings. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1016/j.psychres.2005.04.007
+VL  - 141
+IS  - 2
+SP  - 193
+EP  - 200
+CY  - Netherlands
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/621662575?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Enrolling+research+subjects+from+clinical+practice%3A+Ethical+and+procedural+issues+in+the+Sequenced+Treatment+Alternatives+to+Relieve+Depression+%28STAR*D%29+trail.&title=Psychiatry+Research&issn=01651781&date=2006-02-01&volume=141&issue=2&spage=193&au=Al
+PB  - Elsevier Science
+SN  - 0165-1781, 0165-1781
+U1  - 2052540
+N1  - Number of references - 27 | SubjectsTermNotLitGenreText - Bioethics 922 2848; Costs and Cost Analysis 1910 371; Major Depression 4692 195 4912 2320; Treatment 8486; 5762 5938
+ER  - 
+
+TY  - JOUR
+T1  - Decreasing procedural pain over time of left prefrontal rTMS for depression: Initial results from the open-label phase of a multisite trial (OPT-TMS).
+JF  - Brain Stimulation
+A1  - Anderson Berry S
+A1  - Kavanagh Katie
+A1  - Borckardt Jeffrey J
+A1  - Nahas Ziad H
+A1  - Kose Samet
+A1  - Lisanby Sarah H
+A1  - McDonald William M
+A1  - Avery David
+A1  - Sackeim Harold A
+A1  - George Mark S
+KW  - eppi-reviewer4
+Human
+Adulthood (18 yrs & older)
+Quantitative Study
+Pain
+depression
+Major Depression
+procedural pain
+Visual Analog Scale
+Empirical Study
+article
+3350:Specialized Interventions
+antidepressant treatment
+Transcranial Magnetic Stimulation
+left prefrontal repetitive transcranial magnetic stimulation
+Treatment Outcome/Clinical Trial
+PY  - 2009
+DA  - 2009///
+Y1  - 2009///
+AB  - Background: There is much interest in whether daily left prefrontal repetitive transcranial magnetic stimulation (rTMS) over several weeks may become a clinically useful antidepressant treatment. Although rTMS appears largely safe, many patients report that this procedure is somewhat painful, which may restrict its ultimate appeal and use. We analyzed interim results from the open-label phase of a multisite randomized trial of rTMS as a treatment for depression to investigate whether the procedural pain of left prefrontal rTMS changes over time. Methods: Patients with unipolar depression who had failed to respond during at least 3 weeks of the sham controlled double-masked rTMS were then offered 3 more weeks (15 sessions) of open-label rTMS. Retrospective pain ratings and state emotional factors from 20 subjects were assessed with the use of visual analog scales (VAS) recorded on computers before and after each treatment (289 sessions). Results: Over the 15 treatment sessions, subjective reports of the painfulness of rTMS decreased 48% from baseline. This reduction, although greatest in the first few days, continued steadily (average 2.11 points per session) over the 3 weeks of treatment. The analysis found a significant effect for rTMS-session (P < .0001) on rTMS-procedural pain over and above changes in subjective emotional states. Conclusions: The procedural pain of left, prefrontal rTMS decreases over time, apparently independently of other emotional changes. Because rTMS scalp pain may decline over time, physicians and patients may decide to continue treatment despite initial discomfort. These observational data can be better tested once the data from the blinded phase of the trial becomes available. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1016/j.brs.2008.09.001
+VL  - 2
+IS  - 2
+SP  - 88
+EP  - 92
+CY  - Netherlands
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/621953829?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Decreasing+procedural+pain+over+time+of+left+prefrontal+rTMS+for+depression%3A+Initial+results+from+the+open-label+phase+of+a+multisite+trial+%28OPT-TMS%29.&title=Brain+Stimulation&issn=1935861X&date=2009-04-01&volume=2&issue=2&spage=88&au=Anderson%2C+Berr
+PB  - Elsevier Science
+SN  - 1935-861X, 1935-861X
+U1  - 2052305
+N1  - Number of references - 10 | SubjectsTermNotLitGenreText - Major Depression 4692 195 4912 2320; Pain 5791 8095; Transcranial Magnetic Stimulation 8448 1065 7921 7911 8060 4864 7259 6174 8486
+ER  - 
+
+TY  - JOUR
+T1  - Internet-based self-help for depression: Randomised controlled trial.
+JF  - The British Journal of Psychiatry
+A1  - Andersson Gerhard
+A1  - Bergström Jan
+A1  - Holländare Fredrik
+A1  - Carlbring Per
+A1  - Kaldo Viktor
+A1  - Ekselius Lisa
+KW  - eppi-reviewer4
+self-help approaches
+Montgomery-Asberg Depression Rating Scale
+Beck Anxiety Inventory
+Adulthood (18 yrs & older)
+Human
+Followup Study
+Major Depression
+Composite International Diagnostic Interview
+depressive symptoms
+Online Therapy
+Quality of Life Inventory
+Male
+Internet-administered self-help program
+Treatment Outcome/Clinical Trial
+Internet-delivered cognitive-behavioral therapy
+Quantitative Study
+depression
+Beck Depression Inventory
+Empirical Study
+web-based discussion group
+Group Discussion
+article
+Cognitive Therapy
+3311:Cognitive Therapy
+Female
+Sweden
+PY  - 2005
+DA  - 2005///
+Y1  - 2005///
+AB  - Background: Major depression can be treated by means of cognitive-behavioural therapy, but as skilled therapists are in short supply there is a need for self-help approaches. Many individuals with depression use the Internet for discussion of symptoms and to share their experience. Aims: To investigate the effects of an Internet-administered self-help programme including participation in a monitored, web-based discussion group, compared with participation in web-based discussion group only. Method: A randomised controlled trial was conducted to compare the effects of Internet-based cognitive-behavioural therapy with minimal therapist contact (plus participation in a discussion group) with the effects of participation in a discussion group only. Results: Internet-based therapy with minimal therapist contact, combined with activity in a discussion group, resulted in greater reductions of depressive symptoms compared with activity in a discussion group only (waiting-list control group). At 6 months' follow-up, improvement was maintained to a large extent. Conclusions: Internet-delivered cognitive-behavioural therapy should be pursued further as a complement or treatment alternative for mild-to-moderate depression. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1192/bjp.187.5.456
+VL  - 187
+IS  - 5
+SP  - 456
+EP  - 461
+CY  - United Kingdom
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/620971583?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Internet-based+self-help+for+depression%3A+Randomised+controlled+trial.&title=The+British+Journal+of+Psychiatry&issn=00071250&date=2005-11-01&volume=187&issue=5&spage=456&au=Andersson%2C+Gerhard%3BBergstr%C3%B6m%2C+Jan%3BHoll%C3%A4ndare%2C+Fredrik%3BCarlbr
+PB  - Royal College of Psychiatrists
+SN  - 0007-1250, 0007-1250
+U1  - 2052562
+N1  - Number of references - 23 | SubjectsTermNotLitGenreText - Cognitive Therapy 1592 1591 8486; Group Discussion 3493 3494 4226 4232 7662 7631 853 1642; Major Depression 4692 195 4912 2320; Online Therapy 5661 8486
+ER  - 
+
+TY  - JOUR
+T1  - Gallbladder emptying in patients with major depression: A case series.
+JF  - Pharmacopsychiatry
+A1  - Andjelkovic M
+A1  - Jovanovic D B
+A1  - Zdravkovic N
+A1  - Jankovic S M
+KW  - eppi-reviewer4
+Outpatient
+Human
+Adulthood (18 yrs & older)
+3211:Affective Disorders
+depression patients
+Quantitative Study
+Patients
+Major Depression
+3340:Clinical Psychopharmacology
+gallbladder
+major depression
+Empirical Study
+article
+antidepressants
+Antidepressant Drugs
+Male
+Female
+Serbia and Montenegro
+PY  - 2011
+DA  - 2011///
+Y1  - 2011///
+AB  - Introduction: Although several adverse effects of antidepressants on the gastrointestinal tract have been described (bleeding, constipation, dolichocolon), their influence on gallbladder motility was not investigated. The aim of our study was to investigate the effects of selected antidepressants on gallbladder emptying in patients with major depression. Methods: The study was set up as an open clinical trial, with the same intervention (ingestion of test meal provoking gallbladder emptying) undertaken in 112 patients with major depression. There were 30 patients not taking antidepressants (the control group), 25 patients taking amitriptyline, 30 patients taking maprotiline, and 27 patients taking fluoxetine. The volume of gallbladder in the study patients was measured by ultrasonography before the test meal, and 15, 30, 45 and 60 min after the meal. Results: 1 h after ingestion of the study meal, the amitriptyline group showed incomplete gallbladder emptying (F = 10.829, df = 3, p = 0.000; mean residual volume 11.0 ± 6.1 mL), while in the control, maprotiline and fluoxetine groups emptying of gallbladder was complete (mean residual volumes 5.0 ± 3.3 mL, 5.6 ± 3.7 mL and 5.7 ± 2.3 mL, respectively). Discussion: In patients with cholecystitis, it would be wise to use antidepressants which do not impair gallbladder emptying, like maprotiline or fluoxetine, and to avoid amitriptyline. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1055/s-0031-1279729
+VL  - 44
+IS  - 5
+SP  - 165
+EP  - 168
+CY  - Germany
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/896407368?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Gallbladder+emptying+in+patients+with+major+depression%3A+A+case+series.&title=Pharmacopsychiatry&issn=01763679&date=2011-07-01&volume=44&issue=5&spage=165&au=Andjelkovic%2C+M.%3BJovanovic%2C+D.+B.%3BZdravkovic%2C+N.%3BJankovic%2C+S.+M.&isbn=&jtitle=Pharma
+PB  - Georg Thieme Verlag KG
+SN  - 0176-3679, 0176-3679
+U1  - 2052057
+N1  - Number of references - 27 | SubjectsTermNotLitGenreText - Antidepressant Drugs 502 2460; Major Depression 4692 195 4912 2320; 5938
+ER  - 
+
+TY  - JOUR
+T1  - Acupuncture for the treatment of major depressive disorder: A randomized controlled trial.
+JF  - Journal of Clinical Psychiatry
+A1  - Andreescu Carmen
+A1  - Gllck Ronald M
+A1  - Emeremni Chetachi A
+A1  - Houck Patricia R
+A1  - Mulsant Benoit H
+KW  - eppi-reviewer4
+Acupuncture
+US
+Human
+Adulthood (18 yrs & older)
+Global Assessment of Functioning Scale
+Quantitative Study
+Structured Clinical Interview for DSM-IV Axis I Disorders
+Major Depression
+3363:Medical Treatment of Physical Illness
+Hamilton Rating Scale for Depression—Anxiety Subscale
+acupuncture
+Empirical Study
+article
+Mini Mental State Examination
+UKU Side Effect Rating Scale
+Hamilton Rating Scale for Depression—Sleep Subscale
+major depressive disorder
+Male
+Female
+Treatment Outcome/Clinical Trial
+SF-36 Health Survey
+PY  - 2011
+DA  - 2011///
+Y1  - 2011///
+AB  - Background: Over 50% of patients with major depressive disorder (MDD) either do not tolerate or do not respond to antidepressant medications. Several preliminary studies have shown the benefits of acupuncture in the treatment of depression. We sought to determine whether a 2-point electroacupuncture protocol (verum acupuncture) would be beneficial for MDD, in comparison to needling at nonchannel scalp points with sham electrostimulation (control acupuncture). Method: Fifty-three subjects aged 18-80 years, recruited via advertisement or referral, were included in the primary analysis of our randomized controlled trial, which was conducted from March 2004 through May 2007 at UPMC Shadyside, Center for Complementary Medicine, in Pittsburgh, Pennsylvania. Inclusion criteria were mild or moderate MDD (according to the Structured Clinical Interview for DSM-IV Axis I Disorders) and a score of 14 or higher on the Hamilton Depression Rating Scale (HDRS). Exclusion criteria included severe MDD, seizure disorder or risk for seizure disorder, psychosis, bipolar disorder, chronic MDD, treatment-resistent MDD, and history of substance abuse in the prior 6 months. Patients were randomized to receive twelve 30-minute sessions of verum versus control acupuncture over 6 to 8 weeks. The HDRS was the primary outcome measure. The UKU Side Effect Rating Scale was used to assess for adverse effects. Results: Twenty-eight subjects were randomized to verum electroacupuncture and 25 to control acupuncture. The 2 groups did not differ with regard to gender, age, or baseline severity of depression. Both groups improved, with mean (SD) absolute HDRS score decreases of -6.6 (5.9) in the verum group and -7.6 (6.6) in the control group, corresponding to 37.5% and 41.3% relative decreases from baseline. There were no serious adverse events associated with either intervention, and endorsement of adverse effects was similar in the 2 groups. Conclusions: We were unable to demonstrate a specific effect of electroacupuncture. Electroacupuncture and control acupuncture were equally well tolerated, and both resulted in similar absolute and relative improvement in depressive symptoms as measured by the HDRS. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.4088/JCP.10m06105
+VL  - 72
+IS  - 8
+SP  - 1129
+EP  - 1135
+CY  - US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/926274160?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Acupuncture+for+the+treatment+of+major+depressive+disorder%3A+A+randomized+controlled+trial.&title=Journal+of+Clinical+Psychiatry&issn=01606689&date=2011-08-01&volume=72&issue=8&spage=1129&au=Andreescu%2C+Carmen%3BGllck%2C+Ronald+M.%3BEmeremni%2C+Chetachi+
+PB  - Physicians Postgraduate Press
+SN  - 0160-6689, 0160-6689
+U1  - 2052047
+N1  - Copyright - © Physicians Postgraduate Press, Inc. 2011 | Number of references - 44 | SubjectsTermNotLitGenreText - Acupuncture 100 309 8486 6174; Major Depression 4692 195 4912 2320 | [36] , SAS Institute, Inc. SAS/STAT software, version 8 Cary, NC: SAS Institute, Inc,1999
+ER  - 
+
+TY  - JOUR
+T1  - Patient motivation for participating in clinical trials for depression: Validation of the Motivation for Clinical Trials Inventory-Depression.
+JF  - International Clinical Psychopharmacology
+A1  - Andresen Emily L
+A1  - Wilson Kimberly A
+A1  - Castillo Adelaida
+A1  - Koopman Cheryl
+KW  - eppi-reviewer4
+2224:Clinical Psychological Testing
+Adulthood (18 yrs & older)
+Human
+psychometrics
+clinical trials
+Psychometrics
+Major Depression
+3340:Clinical Psychopharmacology
+Test Reliability
+patient motivation
+test validity
+Male
+Treatment Outcome/Clinical Trial
+US
+test reliability
+Motivation
+Treatment Effectiveness Evaluation
+Test Validity
+Quantitative Study
+Clinical Trials
+depression
+patient participation
+Empirical Study
+Motivation for Clinical Trials Inventory-Depression
+article
+Female
+PY  - 2010
+DA  - 2010///
+Y1  - 2010///
+AB  - The motivation for clinical trials inventory-depression (MCTI-D) was developed and evaluated for assessing motivations to participate in clinical trials on depression. Sixty-four participants completed the MCTI-D: 40 individuals expressing interest in participating in a randomized clinical trial (RCT); and 24 clinic patients receiving traditional care for depression. Content validity was supported by feedback derived from a panel of experts in depression research and respondents completing the measure. The motivation most frequently endorsed for participating in an RCT was the desire to help others and/or to further science. The potential stigma associated with seeing a psychiatrist was reported to have the least influence. Patients expressed a greater likelihood to participate in RCTs that involved psychotherapy than in experimental medication or placebo-controlled trials. Data from the MCTI-D may provide useful information for depression researchers to consider as possible influences on patients' decisions about whether or not they will participate. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1097/YIC.0b013e328332055c
+VL  - 25
+IS  - 1
+SP  - 7
+EP  - 16
+CY  - US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/742977195?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Patient+motivation+for+participating+in+clinical+trials+for+depression%3A+Validation+of+the+Motivation+for+Clinical+Trials+Inventory-Depression.&title=International+Clinical+Psychopharmacology&issn=02681315&date=2010-01-01&volume=25&issue=1&spage=7&au=Andr
+PB  - Lippincott Williams & Wilkins
+SN  - 0268-1315, 0268-1315
+U1  - 2052229
+N1  - Copyright - © Wolters Kluwer Health | Lippincott Williams & Wilkins 2010 | Number of references - 51 | SubjectsTermNotLitGenreText - Clinical Trials 1512 2922; Major Depression 4692 195 4912 2320; Motivation 5151; Test Validity 8253 8240 8258 4833; Treatment Effectiveness Evaluation 8492 2873; 6643 4833; 8248 8240 8258 4833
+ER  - 
+
+TY  - JOUR
+T1  - Predictors of pain outcomes in patients with chronic musculoskeletal pain co-morbid with depression: Results from a randomized controlled trial.
+JF  - Pain Medicine
+A1  - Ang Dennis C
+A1  - Bair Matthew J
+A1  - Damush Teresa M
+A1  - Wu Jingwei
+A1  - Tu Wanzhu
+A1  - Kroenke Kurt
+KW  - eppi-reviewer4
+pain intensity
+comorbidity
+chronic musculoskeletal pain
+Adulthood (18 yrs & older)
+Human
+primary care patients
+Primary Health Care
+clinical trials
+Major Depression
+Comorbidity
+Patient Health Questionnaire-9
+Hopkins Symptom Checklist
+Musculoskeletal Disorders
+Chronic Pain
+Pain Stages of Change Questionnaire
+Male
+Treatment Outcome/Clinical Trial
+Graded Chronic Pain Scale
+Brief Pain Inventory
+Survey of Pain Attitudes
+3200:Psychological & Physical Disorders
+Quantitative Study
+Clinical Trials
+depression
+Tampa Scale for Kinesiophobia
+Empirical Study
+article
+Arthritis Self–Efficacy Scale
+Female
+PY  - 2010
+DA  - 2010///
+Y1  - 2010///
+AB  - Objective: The combination of chronic musculoskeletal pain and depression is associated with worse clinical outcomes than either condition alone. In this study, we report the predictors of pain intensity and activity interference in primary care patients with co-morbid pain and depression. Methods: This is a secondary data analysis of the 250 persons who participated in a randomized clinical trial designed to test the effectiveness of 12 weeks of optimized antidepressant therapy for both depression and pain. Using multivariate linear regression analysis, we assessed the predictive value of baseline self-efficacy, fear of movement, pain beliefs, and demographic and clinical factors on 3-month Graded Chronic Pain Scale pain intensity and activity interference outcomes. Results: In the full model, significant sociodemographic predictors of less activity interference included being non-white (β -5.8, P = 0.04) and being employed (β -13.3, P < 0.0001). The latter was also predictive of less pain intensity (β -5.6, P = 0.01). As expected, the optimized antidepressant treatment arm was associated with improved outcomes (pain intensity: β -3.7, P = 0.0005 and activity interference: β -6.4, P = 0.01). Whereas stronger perceived pain control (b 3.6, P = 0.01) was associated with greater activity interference, higher degree of fear of movement (or fear avoidance) predicted greater pain intensity (β 0.46, P = 0.04) and activity interference (β 0.57, P = 0.05). Neither the location (low back vs hip/knee) nor duration of pain were predictive of pain intensity or interference outcomes. Conclusion: The findings are consistent with a biopsychosocial model, implicating the need to consider the impact of sociodemographic variables and pain-related beliefs and cognition on pain-related outcomes for patients with co-morbid musculoskeletal pain and depression. (PsycINFO Database Record (c) 2013 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1111/j.1526-4637.2009.00759.x
+VL  - 11
+IS  - 4
+SP  - 482
+EP  - 491
+CY  - United Kingdom United Kingdom
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/742979017?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Predictors+of+pain+outcomes+in+patients+with+chronic+musculoskeletal+pain+co-morbid+with+depression%3A+Results+from+a+randomized+controlled+trial.&title=Pain+Medicine&issn=15262375&date=2010-04-01&volume=11&issue=4&spage=482&au=Ang%2C+Dennis+C.%3BBair%2C+M
+PB  - Wiley-Blackwell Publishing Ltd. Blackwell Publishing
+SN  - 1526-2375, 1526-2375
+U1  - 2052204
+N1  - Number of references - 88 | SubjectsTermNotLitGenreText - Chronic Pain 1424 5791 8095 1421; Clinical Trials 1512 2922; Major Depression 4692 195 4912 2320; Musculoskeletal Disorders 5231 6154 2320; Primary Health Care 6409 3601 8486; 1674
+ER  - 
+
+TY  - JOUR
+T1  - Association of nociceptive responsivity with clinical pain and the moderating effect of depression.
+JF  - The Journal of Pain
+A1  - Ang Dennis C
+A1  - Chakr Rafael
+A1  - France Christopher R
+A1  - Mazzuca Steven A
+A1  - Stump Timothy E
+A1  - Hilligoss Janna
+A1  - Lengerich Amelia
+KW  - eppi-reviewer4
+US
+nociceptive responsivity
+Fibromyalgia Impact Questionnaire-Physical Impairment
+Human
+Adulthood (18 yrs & older)
+Pain Perception
+clinical pain
+3200:Psychological & Physical Disorders
+Pain
+Quantitative Study
+Nociceptive Flexion Reflex Test
+Major Depression
+major depression
+Empirical Study
+article
+Patient Health Questionnaire 8-Depression Scale
+Female
+Treatment Outcome/Clinical Trial
+PY  - 2011
+DA  - 2011///
+Y1  - 2011///
+AB  - The role of central sensitization (CS) in clinical pain reported by FMS patients is unclear. In this report, we sought to establish evidence of a prospective association between clinical pain and an objective measure of spinal nociception (nociceptive flexion reflex [NFR] threshold) and explore whether depression moderates this relationship. We collected measures that included the NFR threshold (in the range of 0–60 milliamperes (mA); a lower threshold represents greater nociceptive responsivity) and clinical variables (ie, Fibromyalgia Impact Questionnaire (FIQ)-total, FIQ-pain, depression and current pain intensity) at 3 time points (baseline, weeks 6 and 12). Using linear mixed effects models, clinical variables were treated as time-varying covariates. Across time, current pain intensity [estimate –1.79 mA (.8), P = .03] and the presence of depression [estimate –6.30 mA (3.2), P = .059] were significantly associated with NFR threshold. The interaction of current pain intensity and depression was also significantly associated with NFR threshold. Specifically, the relationship between current pain intensity and NFR threshold was present in the nondepressed group but not in the depressed group (estimate –3.9 versus .07, P = .01). Both FIQ-total and FIQ-pain were not associated with NFR threshold. In conclusion, higher level of clinical pain intensity correlated with greater nociceptive responsivity, and that depression moderated this association. Perspective: Given that clinical pain correlated with nociceptive responsiveness, our findings support the mechanistic role of CS in fibromyalgia. If replicated in larger studies, NFR threshold may serve as a biomarker of clinical pain in nondepressed fibromyalgia patients. Also, our results may have future implication for treatment of FMS with and without comorbid depression. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1016/j.jpain.2010.09.004
+VL  - 12
+IS  - 3
+SP  - 384
+EP  - 389
+CY  - Netherlands
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/862787392?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Association+of+nociceptive+responsivity+with+clinical+pain+and+the+moderating+effect+of+depression.&title=The+Journal+of+Pain&issn=15265900&date=2011-03-01&volume=12&issue=3&spage=384&au=Ang%2C+Dennis+C.%3BChakr%2C+Rafael%3BFrance%2C+Christopher+R.%3BMazzu
+PB  - Elsevier Science
+SN  - 1526-5900, 1526-5900
+U1  - 2052109
+N1  - Copyright - © American Pain Society 2011 | Number of references - 29 | SubjectsTermNotLitGenreText - Major Depression 4692 195 4912 2320; Pain 5791 8095; Pain Perception 5796 7744 5985
+ER  - 
+
+TY  - JOUR
+T1  - Depressive symptoms increase risk of HIV disease progression and mortality among women in Tanzania.
+JF  - JAIDS Journal of Acquired Immune Deficiency Syndromes
+A1  - Antelman Gretchen
+A1  - Kaaya Sylvia
+A1  - Wei Ruilan
+A1  - Mbwambo Jessie
+A1  - Msamanga Gernard l
+A1  - Fawzi Wafaie W
+A1  - Smith Fawzi
+A1  - Mary C
+KW  - eppi-reviewer4
+Tanzania
+Adulthood (18 yrs & older)
+Human
+3291:Immunological Disorders
+Followup Study
+Major Depression
+Death and Dying
+Duke University-University of North Carolina Functional Social Support Questionnaire [Appended]
+depressive symptoms
+Structured Clinical Interview for DSM-IV
+Thirties (30-39 yrs)
+HIV disease
+Hopkins Symptom Checklist-Revised-Depression Subscale [Appended]
+Prognosis
+Quantitative Study
+disease progression
+women
+Pregnancy
+Empirical Study
+article
+Young Adulthood (18-29 yrs)
+Risk Factors
+pregnancy
+mortality
+HIV
+Female
+risk factors
+PY  - 2007
+DA  - 2007///
+Y1  - 2007///
+AB  - The effect of depression on HIV disease progression was examined among 996 HIV-positive Tanzanian women participating in a trial on micronutrients and pregnancy outcomes, vertical transmission, and disease progression. Depression and social support were measured 2 months after HIV screening and every 6 to 12 months thereafter. Depression measures from pregnancy and more than 12 months postpartum were included in this analysis. Participants' clinical condition and access to supportive individual or group counseling was assessed throughout the 6 to 8 years of followup. Cox proportional hazard models were used to estimate the time-varying effect of depression on progression to HIV clinical stage HI/TV (World Health Organization) and all-cause mortality. Participation in group or individual counseling and baseline social support were also examined. More than half (57%) of the study sample had symptoms comparable with depression at least once during the follow-up period. Controlling for sociodemographic variables, psychosocial support, and clinical condition at enrollment, depression was associated with an increased risk of disease progression (HIV clinical stage HI/TV [hazard ratio (HR) = 1.61, 95% confidence interval (CI): 1.28 to 2.03] and mortality [HR = 2.65, 95% CI: 1.89 to 3.71]). Depression is common among HIV-infected Tanzanian women and increases the risk of disease progression. Screening for depression and providing psychosocial interventions should be considered part of comprehensive HIV care. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1097/QAI.0b013e31802f1318
+VL  - 44
+IS  - 4
+SP  - 470
+EP  - 477
+CY  - US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/621685643?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Depressive+symptoms+increase+risk+of+HIV+disease+progression+and+mortality+among+women+in+Tanzania.&title=JAIDS+Journal+of+Acquired+Immune+Deficiency+Syndromes&issn=15254135&date=2007-04-01&volume=44&issue=4&spage=470&au=Antelman%2C+Gretchen%3BKaaya%2C+Syl
+PB  - Lippincott Williams & Wilkins
+SN  - 1525-4135, 1525-4135
+U1  - 2052458
+N1  - Number of references - 39 | SubjectsTermNotLitGenreText - Death and Dying 2095; HIV 3719 7501 4047 6154 2320 8701 3968; Major Depression 4692 195 4912 2320; Pregnancy 6364; Risk Factors 7077; 6491
+ER  - 
+
+TY  - JOUR
+T1  - Effects of omega-3 fatty acid supplementation on mood and emotional information processing in recovered depressed individuals.
+JF  - Journal of Psychopharmacology
+A1  - Antypa Niki
+A1  - Smelt August H. M
+A1  - Strengholt Annette
+A1  - Van der Does
+A1  - A J Willem
+KW  - eppi-reviewer4
+moods
+Adulthood (18 yrs & older)
+Human
+omega-3 fatty acid
+Decision Making
+Leiden Index of Depression Sensitivity-Revised
+Major Depression
+Affective Go No Go Task
+Facial Expression Recognition Task
+15 Words Test
+Netherlands
+Emotional States
+Thirties (30-39 yrs)
+Male
+Decision-making (Gambling) Task
+3211:Affective Disorders
+Fatty Acids
+Quantitative Study
+Middle Age (40-64 yrs)
+decision making
+major depression
+Empirical Study
+Aged (65 yrs & older)
+Beck Depression Inventory–II
+article
+Young Adulthood (18-29 yrs)
+Risk Factors
+emotional cognition
+Profile of Mood States-Shortened
+Female
+risk factors
+PY  - 2012
+DA  - 2012///
+Y1  - 2012///
+AB  - Beneficial effects of omega-3 fatty acids have been reported for several psychiatric disorders, particularly for depression. Association studies show a relationship between omega-3 intake and depression risk. Meta-analyses of clinical trials have shown a moderate effect of supplementation on depressive symptoms, but not on normal mood states. Few studies have investigated effects on cognition. The purpose of this study was to examine effects of omega-3 supplements on cognition and mood of recovered depressed individuals. Seventy-one participants were randomized to receive either omega-3 or placebo for four weeks in a randomized double-blind design. Results showed small effects of omega-3 supplementation on aspects of emotional decision-making and on self-reported states of depression and tension. Some of the effects were confounded by learning effects. No significant effects were observed on memory, attention, cognitive reactivity and depressive symptoms. While inconclusive, the present findings may indicate that omega-3 supplementation has selective effects on emotional cognition and mood in recovered depressed participants. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1177/0269881111424928
+VL  - 26
+IS  - 5
+SP  - 738
+EP  - 743
+CY  - US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/1024213023?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Effects+of+omega-3+fatty+acid+supplementation+on+mood+and+emotional+information+processing+in+recovered+depressed+individuals.&title=Journal+of+Psychopharmacology&issn=02698811&date=2012-05-01&volume=26&issue=5&spage=738&au=Antypa%2C+Niki%3BSmelt%2C+Augus
+PB  - Sage Publications
+SN  - 0269-8811, 0269-8811
+U1  - 2051940
+N1  - Copyright - © The Author(s) 2012 | Number of references - 26 | SubjectsTermNotLitGenreText - Decision Making 2112 1582; Emotional States 2680 2687; Fatty Acids 3077 73 4595; Major Depression 4692 195 4912 2320; Risk Factors 7077
+ER  - 
+
+TY  - JOUR
+T1  - A stepped care relapse prevention program for depression in older people: A randomized controlled trial.
+JF  - International Journal of Geriatric Psychiatry
+A1  - Apil Sachlan R. A
+A1  - Hoencamp Erik
+A1  - Haffmans P M. Judith
+A1  - Spinhoven Philip
+KW  - eppi-reviewer4
+geriatrics
+Human
+Adulthood (18 yrs & older)
+Aging
+older people
+Center for Epidemiologic Studies Depression Scale
+Structured Clinical Interview for DSM-IV Axis I Disorders
+Major Depression
+Mini International Neuropsychiatric Interview
+Followup Study
+Relapse Prevention
+Cognitive Behavior Therapy
+program feasibility
+Trimbos Questionnaire for Costs Associated with Psychiatric Illness
+Geriatrics
+Longitudinal Study
+cognitive behavioral therapy
+Netherlands
+Male
+Treatment Outcome/Clinical Trial
+Prospective Study
+Very Old (85 yrs & older)
+relapse prevention
+program effectiveness
+Treatment Effectiveness Evaluation
+Interview
+Quantitative Study
+Middle Age (40-64 yrs)
+depression
+GGZ Thermometer
+Empirical Study
+Aged (65 yrs & older)
+article
+bibliotherapy
+Bibliotherapy
+3300:Health & Mental Health Treatment & Prevention
+indicated treatment
+stepped care program
+Female
+PY  - 2012
+DA  - 2012///
+Y1  - 2012///
+AB  - Background: This study aimed to determine the feasibility and the effectiveness of a Stepped Care Program (SCP) for preventing relapse of depression in older people. Stepped care consisted of (1) watchful waiting; (2) bibliotherapy; (3) individual cognitive behavioral therapy; and (4) indicated treatment. Methods: In a randomized controlled trial, persons 55 years and older (n = 136) who had suffered at least one episode of major depression in the past received a SCP or Care As Usual (CAU). The primary outcome measure was incidence of a new depressive episode. Results: Of 1725 previously depressed persons, 175 were willing to partake in the study, 136 of whom were eligible. Treatment satisfaction for stepped care was high. At 12‐month follow‐up, no difference in incidence of depression between SCP and CAU was found. Medical patient records showed that missing data were often related to relapse. Conclusions: In this study, SCP was not more effective in preventing relapse than CAU. Watchful waiting may harmfully delay actual preventive treatment. Prevention as an integral part of regular treatment might lead to higher participation rates. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1002/gps.2756
+VL  - 27
+IS  - 6
+SP  - 583
+EP  - 591
+CY  - US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/1022255035?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=A+stepped+care+relapse+prevention+program+for+depression+in+older+people%3A+A+randomized+controlled+trial.&title=International+Journal+of+Geriatric+Psychiatry&issn=08856230&date=2012-06-01&volume=27&issue=6&spage=583&au=Apil%2C+Sachlan+R.+A.%3BHoencamp%2C
+PB  - John Wiley & Sons
+SN  - 0885-6230, 0885-6230
+U1  - 2051923
+N1  - Copyright - © John Wiley & Sons, Ltd. 2011 | Number of references - 27 | SubjectsTermNotLitGenreText - Aging 225; Cognitive Behavior Therapy 1563 6682 8486; Major Depression 4692 195 4912 2320; Relapse Prevention 6911 6401; Treatment Effectiveness Evaluation 8492 2873; 903 8486; 3382 4864 7259
+ER  - 
+
+TY  - JOUR
+T1  - Contributors to neuropsychological impairment in HIV-infected and HIV-uninfected opiate-dependent patients.
+JF  - Journal of Clinical and Experimental Neuropsychology
+A1  - Applebaum Allison J
+A1  - Otto Michael W
+A1  - Richardson Mark A
+A1  - Safren Steven A
+KW  - eppi-reviewer4
+Outpatient
+Montgomery-Asberg Depression Rating Scale
+Adulthood (18 yrs & older)
+Human
+opiate dependent patients
+Mini International Neuropsychiatric Interview
+Major Depression
+Hopkins Verbal Learning Test Revised
+Symbol Digit Modalities Test
+Mental Disorders
+Rey Complex Figure Test and Recognition Trial
+Structured Clinical Interview for DSM-IV
+Male
+Addictions Severity Index Lite
+US
+Opiates
+methadone maintenance
+3200:Psychological & Physical Disorders
+Quantitative Study
+neuropsychological impairment
+Wechsler Test of Adult Reading
+depression
+Drug Dependency
+Controlled Oral Word Association Test
+Empirical Study
+article
+Nervous System Disorders
+HIV
+Female
+Methadone Maintenance
+PY  - 2010
+DA  - 2010///
+Y1  - 2010///
+AB  - Neuropsychological (NP) impairment is multiply determined among HIV-infected and HIV-uninfected individuals who are also dually diagnosed with depression and who use illicit substances. The purpose of the present study was to assess the impact of HIV status, depression, and problematic substance use on NP performance. A total of 160 opiate-dependent outpatients undergoing methadone maintenance (80 HIV-infected, 80 HIV-uninfected) completed diagnostic and NP evaluations. Raw scores from individual NP tests were converted to Z scores relative to standard norms and were averaged to form a composite score. HIV-infected participants had significantly lower overall NP performance—as well as lower performance on tests of attention, motor speed, and verbal memory—than HIV-uninfected participants. In multiple regression analyses considering the role of depression and substance use, only HIV status emerged as a significant predictor of NP impairment. These findings confirm NP impairment in HIV-infected substance abusing patients independent of comorbid depression and severity of substance use. (PsycINFO Database Record (c) 2012 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1080/13803390903313572
+VL  - 32
+IS  - 6
+SP  - 579
+EP  - 589
+CY  - United Kingdom
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/742993551?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Contributors+to+neuropsychological+impairment+in+HIV-infected+and+HIV-uninfected+opiate-dependent+patients.&title=Journal+of+Clinical+and+Experimental+Neuropsychology&issn=13803395&date=2010-07-01&volume=32&issue=6&spage=579&au=Applebaum%2C+Allison+J.%3BOt
+PB  - Taylor & Francis
+SN  - 1380-3395, 1380-3395
+U1  - 2052177
+N1  - Copyright - © Psychology Press 2009 | Number of references - 123 | SubjectsTermNotLitGenreText - Drug Dependency 2431 7533 7534 2422 857 2320 2455; HIV 3719 7501 4047 6154 2320 8701 3968; Major Depression 4692 195 4912 2320; Nervous System Disorders 5363 6154 2320; Opiates 5680 5281 2460; 4912 2320; 4971
+ER  - 
+
+TY  - JOUR
+T1  - Effectiveness of a multi-component programme for managing depression in primary care: A cluster randomized trial. The INDI project.
+JF  - Journal of Affective Disorders
+A1  - Aragonès Enric
+A1  - Piñol Josep Lluís
+A1  - Caballero Antonia
+A1  - López-Cortacans Germán
+A1  - Casaus Pilar
+A1  - Hernández Josep Maria
+A1  - Badia Waleska
+A1  - Folch Sílvia
+KW  - eppi-reviewer4
+multi component programs
+Treatment Outcomes
+primary care
+Spain
+Disease Management
+Human
+Adulthood (18 yrs & older)
+SF-12 Health Questionnaire
+3211:Affective Disorders
+Interview
+Mental Health Programs
+Primary Health Care
+Quantitative Study
+clinical outcomes
+depression management
+Major Depression
+Patient Health Questionnaire-9
+major depression
+Empirical Study
+article
+Male
+Female
+Duke Severity of Illness Checklist
+Treatment Outcome/Clinical Trial
+PY  - 2012
+DA  - 2012///
+Y1  - 2012///
+AB  - Background: There are significant shortcomings in the management and clinical outcomes of depressed patients. The objective is to assess the effectiveness of a multi-component programme to improve the management of depression in primary care. Methods: This is a cluster-randomized controlled trial, conducted between June 2007 and June 2010. Twenty primary care centres were allocated to intervention group or usual care group. The intervention consisted of a multi-component programme with clinical, educational and organizational procedures including primary care nurses working as case-managers. Outcomes were monitored by a blinded interviewer at 0, 3, 6 and 12 months. Trial registration: ISRCTN16384353, at http://isrctn.org. Results: In total, 338 adult patients with major depression (DSM-IV) were assessed at baseline. At 12 months, 302 patients were assessed, 172 in the intervention group and 130 in the control group. The severity of depression (mean Patient Health Questionnaire-9 score) was 1.76 points lower in the intervention group [7.15 vs. 8.78, 95% CI = −3.53 to 0.02, p = 0.053]. The treatment response rate was 15.4% higher in the intervention group than in the controls [66.9% vs. 51.5%, odds ratio 1.9, 95% CI = 1.2 to 3.1, p=0.011)], and the remission rate was 13.4% higher [48.8% vs. 35.4%, odds ratio 1.8, 95% CI = 1.1 to 2.9, p = 0.026)]. Limitations: Unblinded physicians diagnosed depression in their patients and decided whether to include them in the study, so we cannot discount a hidden selection bias. Conclusions: The programme for managing depression leads to better clinical outcomes in patients with major depression in primary care settings. (PsycINFO Database Record (c) 2013 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1016/j.jad.2012.05.020
+VL  - 142
+IS  - 1-3
+SP  - 297
+EP  - 305
+CY  - Netherlands
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/1315877791?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Effectiveness+of+a+multi-component+programme+for+managing+depression+in+primary+care%3A+A+cluster+randomized+trial.+The+INDI+project.&title=Journal+of+Affective+Disorders&issn=01650327&date=2012-12-15&volume=142&issue=1-3&spage=297&au=Aragon%C3%A8s%2C+Enr
+PB  - Elsevier Science
+SN  - 0165-0327, 0165-0327
+U1  - 2051854
+N1  - Number of references - 41 | SubjectsTermNotLitGenreText - Disease Management 2312 8486; Major Depression 4692 195 4912 2320; Mental Health Programs 4926; Primary Health Care 6409 3601 8486; 8497
+ER  - 
+
+TY  - JOUR
+T1  - Behavioral activation of religious behaviors (BARB): Randomized trial with depressed college students.
+JF  - Psychology of Religion and Spirituality
+A1  - Armento Maria E. A
+A1  - McNulty James K
+A1  - Hopko Derek R
+KW  - eppi-reviewer4
+Environmental Reward Observation Scale
+Religious Background and Behavior Scale
+Adulthood (18 yrs & older)
+Human
+Beck Anxiety Inventory
+randomized trial
+Major Depression
+religion
+3312:Behavior Therapy & Behavior Modification
+Male
+Quality of Life Inventory
+US
+State–Trait Anxiety Inventory–Trait
+Spiritual Well-Being Scale
+Anxiety Disorders Interview Schedule
+Religion
+Quantitative Study
+depression
+Ways of Religious Coping Scale
+behavioral activation
+Empirical Study
+Beck Depression Inventory–II
+article
+Psychotherapy
+therapy
+Female
+PY  - 2012
+DA  - 2012///
+Y1  - 2012///
+AB  - Although spiritual or religious behaviors are sometimes targeted within behavior activation therapy (Hopko & Lejuez, 2007; Lejuez, Hopko, & Hopko, 2001) the efficacy of a protocol that ideographically assesses and develops a religiously based behavioral repertoire has not been investigated. This randomized study investigated the efficacy of a single-session behavioral activation of religious behaviors (BARB) protocol relative to supportive therapy (ST) among mild to moderately depressed undergraduate students (n = 50). Clinical outcomes assessed depression, anxiety, environmental reward, and quality of life. Results indicated that BARB successfully increased religious behaviors, attitudes, and coping skills at posttreatment. Hierarchical linear modeling indicated that the BARB group also had significantly greater decreases in depression and anxiety, and increased quality of life at posttreatment. At 1-month follow-up, these treatment gains were maintained and 84% or BARB participants reported continued religious activation. Finally, mediation analysis indicated that religious behaviors and attitudes were significant mediators of the relation between treatment condition and attenuation of depression. This study provides encouraging preliminary support for the efficacy of a parsimonious religious-based behavioral activation intervention for depression in college students. (PsycINFO Database Record (c) 2013 APA, all rights reserved)(journal abstract)
+DO  - http://dx.doi.org/10.1037/a0026405
+VL  - 4
+IS  - 3
+SP  - 206
+EP  - 222
+CY  - US
+UR  - http://search.proquest.com.ezp.lib.unimelb.edu.au/docview/909294009?accountid=12372 http://sfx.unimelb.hosted.exlibrisgroup.com/sfxlcl41?url_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&genre=article&sid=ProQ:ProQ%3Apsycinfo&atitle=Behavioral+activation+of+religious+behaviors+%28BARB%29%3A+Randomized+trial+with+depressed+college+students.&title=Psychology+of+Religion+and+Spirituality&issn=19411022&date=2012-08-01&volume=4&issue=3&spage=206&au=Armento%2C+Maria+E.+A.%3BMcNulty%2C+James
+PB  - Educational Publishing Foundation
+SN  - 1941-1022, 1941-1022
+U1  - 2051904
+N1  - Copyright - © American Psychological Association 2011 | Number of references - 122 | SubjectsTermNotLitGenreText - Major Depression 4692 195 4912 2320; Psychotherapy 6682 8486; Religion 6923 | 18. Brown TA, Di Nardo PA, Barlow DH: Anxiety Disorders Interview Schedule for DSM-IV. Albany, NY, Graywind Publications, 1994
+ER  - 
+

@@ -30,6 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Files\20 refs.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SQL\AddReviews.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -66,6 +69,10 @@
     <None Update="SQL\SwapDatabasesBack.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="By Controller Tests\Files\" />
   </ItemGroup>
 
 </Project>
