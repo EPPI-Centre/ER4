@@ -9,6 +9,10 @@ GO
 --END of CREATE PROCEDURE Example
 
 
+--TO USE SYNONYMS, when accessing Tables in another DB:
+IF NOT EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_SITE_LIC')
+ CREATE SYNONYM sTB_SITE_LIC FOR Reviewer.dbo.TB_SITE_LIC;
+
 
 --when a script will CREATE a new column, you can check if the column exists and do the creation only if needed:
 --we don't drop and re-create the column as this might require to move data to a temp-table which doesn't work well as a template.

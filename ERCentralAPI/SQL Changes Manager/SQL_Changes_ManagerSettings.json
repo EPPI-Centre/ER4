@@ -1,0 +1,19 @@
+{
+	"AppSettings": {
+		"AdmConnStr": "Data Source=localhost;Initial Catalog=ReviewerAdmin;Integrated Security=True;TrustServerCertificate=True",
+		"ER4ConnStr": "Data Source=localhost;Initial Catalog=Reviewer;Integrated Security=True;TrustServerCertificate=True"
+	},
+	"Logging": {
+		"IncludeScopes": false,
+		"Debug": {
+			"LogLevel": {
+				"Default": "Warning"
+			}
+		},
+		"Console": {
+			"LogLevel": {
+				"Default": "Warning"
+			}
+		}
+	}
+}

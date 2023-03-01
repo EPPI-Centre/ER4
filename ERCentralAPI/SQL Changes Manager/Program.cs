@@ -5,18 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 
 namespace SQL_Changes_Manager
 {
-    class Program
+    public class Program
     {
         private static string AdmConnStr = "";
         private static string ER4ConnStr = "";
         private static string ScriptsFolder = "";
         private static string LogFileFullPath = "";
         private static bool SaveLog = true;//we might use this via parameters, eventually.
+        private static int[] LinkedServerScripts = new int[4] { 462, 464, 466, 468 };
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             if (GetAppSettings()) DoWork();
             //Console.ReadLine(); // added by James so that I can see which scripts were run
@@ -52,14 +54,23 @@ namespace SQL_Changes_Manager
             List<int> scriptVns = GetFiles(CurrentVersionNumber);
             if (scriptVns != null) LogMessageLine("Found " + scriptVns.Count.ToString() + " files to process.");
             else LogMessageLine("No new files to process found, current V. N. is: " + CurrentVersionNumber.ToString() + ".");
-            bool iserror = false;
+            bool iserror = false; bool ErrorIsTerminal = false;
             foreach (int vNumber in scriptVns)
             {
                 if (!ProcessFile(vNumber))
                 {
-                    iserror = true;
-                    LogMessageLine("Error encountered, terminating.");
-                    break;
+                    if (LinkedServerScripts.Contains(vNumber))
+                    {//if errors occur because we can't talk to the LinkedServer, we don't abort!
+                        iserror = true;
+                        LogMessageLine("Error encountered, terminating.");
+                    }
+                    else
+                    {
+                        ErrorIsTerminal = true;
+                        iserror = true;
+                        LogMessageLine("Error encountered, terminating.");
+                        break;
+                    }
                 }
             }
             if (!iserror)
@@ -67,6 +78,14 @@ namespace SQL_Changes_Manager
                 if (scriptVns != null && scriptVns.Count > 0)
                 {
                     LogMessageLine("UPDATING succeeded. " + scriptVns.Count.ToString() + " files processed.");
+                    LogMessageLine("New Database Version Number is: " + scriptVns[scriptVns.Count - 1].ToString() + ".");
+                }
+            }
+            else if (!ErrorIsTerminal)
+            {
+                if (scriptVns != null && scriptVns.Count > 0)
+                {
+                    LogMessageLine("UPDATING succeeded with errors in one of the LinkedServer files. " + scriptVns.Count.ToString() + " files processed.");
                     LogMessageLine("New Database Version Number is: " + scriptVns[scriptVns.Count - 1].ToString() + ".");
                 }
             }
@@ -109,7 +128,7 @@ namespace SQL_Changes_Manager
                 + "COMMIT" + Environment.NewLine + "GO";
             try
             {
-                using (SqlConnection connection = new SqlConnection(AdmConnStr))
+                using (Microsoft.Data.SqlClient.SqlConnection connection = new Microsoft.Data.SqlClient.SqlConnection(AdmConnStr))
                 {
                     ServerConnection svrConnection = new ServerConnection(connection);
                     Server server = new Server(svrConnection);
@@ -152,7 +171,7 @@ namespace SQL_Changes_Manager
             }
                 var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                .AddJsonFile("SQL_Changes_ManagerSettings.json", optional: false, reloadOnChange: true);
             IConfigurationRoot configuration = builder.Build();
             try
             {
