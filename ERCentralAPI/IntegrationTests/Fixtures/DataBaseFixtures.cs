@@ -23,9 +23,9 @@ namespace IntegrationTests.Fixtures
             if (!success) HandleFailure("main database create failure");
 
             //create data structures
-            success = ProcessFile("ReviewerGenerateScript.sql", systemConn, false);
+            success = ProcessFile("ReviewerGenerateScript2.sql", systemConn, false);
             if (!success) HandleFailure("main database generate1 failure");
-            success = ProcessFile("ReviewerAdminGenerateScript.sql", systemConn);
+            success = ProcessFile("ReviewerAdminGenerateScript2.sql", systemConn);
             if (!success) HandleFailure("Admin database generate failure");
 
             //put in the minimal data...
@@ -49,7 +49,11 @@ namespace IntegrationTests.Fixtures
 
             //ensure SPs referring to objects inside "the other" DB point to our temp DBs, not the (potentially present) official names (Reviewer and ReviewerAdmin).
             success = ProcessFile("ChangeSynonyms.sql", systemConn);
-            if (!success) HandleFailure("change synonyms failure"); 
+            if (!success) HandleFailure("change synonyms failure");
+
+            //add users
+            success = ProcessFile("generate DATA2.sql", systemConn);
+            if (!success) HandleFailure("generate DATA2 failure");
 
             //Add one private review per user and 2 shared reviews (with members)
             success = ProcessFile("AddReviews.sql", systemConn);
