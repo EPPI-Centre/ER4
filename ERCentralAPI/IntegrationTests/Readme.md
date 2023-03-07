@@ -81,7 +81,7 @@ In `\fixtures\DataBaseFixtures.cs` two classes are declared:
 
 **Details for `TransientDatabase`**:
 
-It all happens in the constructor (and Dispose() method). xUnit will create one instance of this class whenever a test contained in a class decorated with `[Collection("Database collection")]` needs to be executed. We can add a `TransientDatabase` parameter to the test constructor methods, but we don't need to, so we don't. What matters is by using the "Collection" decorators, we obtain 3 effects.
+It all happens in the constructor (and Dispose() method). xUnit will create one instance of this class whenever a test contained in a class decorated with `[Collection("Database collection")]` needs to be executed. We can add a `TransientDatabase` parameter to the test constructor methods, but we don't need to, so we don't. What matters is that by using the "Collection" decorators, we obtain 3 effects.
 
 First, xUnit will create **one and only one** instance of `TransientDatabase`, ensuring the code in its constructor is executed once.
 
@@ -95,7 +95,7 @@ What happens in the `TransientDatabase` Constructor? This class has a method wit
 1. Rename `Reviewer` and `ReviewerAdmin` if present, to `ReviewerSetAside` and `ReviewerAdminSetAside` to get them out of the way. Rename `tempTestReviewer` and `tempTestReviewerAdmin` to `Reviewer` and `ReviewerAdmin`.
 1. Run the SQL-Changes-Manager project. This brings the DBs structure (and SPs) to the "up-to-date" state. At this stage, we need these to be called `Reviewer` and `ReviewerAdmin` **because the SQL changes script refer to these names**! 
 1. Swap the DBs names back. 
-1. Change "database Synonyms". Stored procs in both DBs can and do refer to objects _in the other_ database, and we need our tests to run in a situation where these cross references point to `tempTestReviewer` and `tempTestReviewerAdmin`, not `Reviewer` and `ReviewerAdmin`. For this our SPs now point to objects in the other DB via `SQL synonyms` like this:
+1. Change "database Synonyms". Stored procs in both DBs can and do refer to objects _in the other_ database, and we need our tests to run in a situation where these cross references point to `tempTestReviewer` and `tempTestReviewerAdmin`, not `Reviewer` and `ReviewerAdmin`. For this to work, our SPs now point to objects in the other DB via `SQL synonyms` like this:
     1. if `reviewer.dbo.st_something` refers to `ReviewerAdmin.dbo.TB_SOMETHING` we create a `sTB_SOMETHING` synonym in `Reviewer` and then use the synonym within the stored procedure.
     1. When running tests, we then _change_ all synonyms to refer to `tempTestReviewer` or `tempTestReviewerAdmin`. In this way, we "swap" the reference destination, without having to change the Stored Procedures themselves.
 1. Add some more data: (for the moment) this is limited to reviews, one per user, plus 2 shared reviews, to which we also add review members.
@@ -109,14 +109,14 @@ The cleanup method will attempt to restore the initial DBs situation, so to rena
 
 ## Authentication
 
-In EPPI-Reviewer, there is a non-standard system that control what review any given authenticated user is accessing. Thus, the API supports logging on in a two-phases patter. First, the user authenticates with username and password. At which point, the user can receive their list(s) of reviews and/or create a new review (and nothing else). Second, the user can "open" a review, at which point they receive a "token" representing their (CSLA)"ReviewerIdentity" security principal. This class has a "ReviewId" property, which is "normal" on the client side. However, when read from the server side, the ReviewId value is obtained by querying ReviewerAdmin with the (GUID)"LogonTicket" value. This system ensures that the Client systems cannot "pretend" to be accessing arbitrary reviews, that any given user can have one and only one review open at a given time, and that at any give time, a user can be fully logged on from one client and one client only.
+In EPPI-Reviewer, there is a non-standard system that control what review any given authenticated user is accessing. Thus, the API supports logging on in a two-phases patter. First, the user authenticates with username and password. At which point, the user can receive their list(s) of reviews and/or create a new review (and nothing else). Second, the user can "open" a review, at which point they receive a "token" representing their (CSLA)"ReviewerIdentity" security principal. This class has a "ReviewId" property, which is "normal" on the client side. However, when read from the server side, the ReviewId value is obtained by querying ReviewerAdmin with the (GUI)"LogonTicket" value (which is in common with ER4 and is separate from the "token" mentioned above). This system ensures that the Client systems cannot "pretend" to be accessing arbitrary reviews, that any given user can have one and only one review open at a given time, and that at any give time, a user can be fully logged on from one client and one client only.
 
-This system guarantees user/review isolation (and more) but presents a problem for tests since:
+This system does ensure we always have user/review isolation (and more) but presents a problem for tests since:
 
-1. We clearly do WANT to test for user/review isolation and access control, thus, we DO NOT want to mock the authentication layer.
+1. We clearly do WANT to test for user/review isolation and access control, thus, we DO NOT want to mock the authentication layer. (We also _can't_ mock it, because the version of CSLA currently in use does not understand dependency injection.)
 1. We need to get the API to do the authentication work, *before* being able to send any request for/to review data!
 
-For this reason, the base class `IntegrationTest` includes the `protected async Task InnerLoginToReview(string uname, string pw, int revId)` method, which allows to authenticate a user and to open a given review, from all Test classes (as long as they do inherit from `IntegrationTest` as they should). Thus, you can call that method from within any "[Fact]" method providing granular control of who is logged on what review at any give step of a test.
+For this reason, the base class `IntegrationTest` includes the `protected async Task InnerLoginToReview(string uname, string pw, int revId)` method, which allows to authenticate a user and to open a given review, from all Test classes (as long as they do inherit from `IntegrationTest`, as they should). Thus, you can call that method from within any "[Fact]" method providing granular control of who is logged on what review at any give step of a test.
 
 Sometimes, you may have a class of tests where the logged on user doesn't need to change, or needs to be changed very rarely. In such cases, you can create a class by inheriting from `FixedLoginTest`.
 You'd then implement the following in your NewClass:
