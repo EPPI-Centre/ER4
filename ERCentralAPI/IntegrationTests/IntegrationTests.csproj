@@ -36,6 +36,15 @@
     <None Update="Files\60 refs.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Files\All Duplicates %282231%29.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\All Masters %281858%29.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\All NOT duplicates %287210%29.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Files\F1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

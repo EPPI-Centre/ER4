@@ -3,6 +3,7 @@ using ERxWebClient2.Controllers;
 using FluentAssertions;
 using IntegrationTests.Fixtures;
 using IntegrationTests.Utils;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,6 +73,18 @@ namespace IntegrationTests.Story_Tests
 
             //res = await SendThisRefsFile("F1.txt", "RIS", "UploadSource");
             //res.Should().NotBeNull();
+            //res = await SendThisRefsFile("All Masters (1858).txt", "RIS", "UploadSource");
+            //res.Should().NotBeNull();
+            //res = await SendThisRefsFile("All Duplicates (2231).txt", "RIS", "UploadSource");
+            //res.Should().NotBeNull();
+            //res = await SendThisRefsFile("All NOT duplicates (7210).txt", "RIS", "UploadSource");
+            //res.Should().NotBeNull();
+            //res = await SendThisRefsFile("All Masters (1858).txt", "RIS", "UploadSource");
+            //res.Should().NotBeNull();
+            //res = await SendThisRefsFile("All Duplicates (2231).txt", "RIS", "UploadSource");
+            //res.Should().NotBeNull();
+            //res = await SendThisRefsFile("All NOT duplicates (7210).txt", "RIS", "UploadSource");
+            //res.Should().NotBeNull();
 
             JsonNode? jRes = await FetchGroups(true, 5); //we expect 21 groups
             jRes.Should().NotBeNull();
@@ -106,18 +119,19 @@ namespace IntegrationTests.Fixtures
                 try 
                 {
                     SingleBoolCriteria data = new SingleBoolCriteria() { Value = GetNew };
-                    JsonNode? res = await client.PostAndDeserialize("api/Duplicates/FetchGroups", data);
+                    JsonNode? res = await client.PostAndDeserializeWithoutDevolvedErrorHandling("api/Duplicates/FetchGroups", data);
                     res.Should().NotBeNull();
                     return res;
                 }
                 catch (Exception e)
                 {
-                    if (e.Message == "Execution still Running")
+                    if (e.Message.Contains("DataPortal.Fetch failed (Execution still Running)"))
                     {
                         GetNew = false;
                         Thread.Sleep(30*1000);
                         continue;
                     }
+                    else throw;
                 }
             }
             return null;
