@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef, HostListener } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, ItemSetCompleteCommand } from '../services/ReviewSets.service';
@@ -49,7 +49,78 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   public showManualModal: boolean = false;
   @Input() InitiateFetchPDFCoding = false;
   @Input() Context: string = "CodingFull";
+  @Input() HotKeysOn: boolean = false;
   subRedrawTree: Subscription | null = null;
+
+  // this is the hotkeys code
+  @HostListener('window:keydown.Control.Alt.1', ['$event'])
+  @HostListener('window:keydown.Control.Alt.2', ['$event'])
+  @HostListener('window:keydown.Control.Alt.3', ['$event'])
+  @HostListener('window:keydown.Control.Alt.4', ['$event'])
+  @HostListener('window:keydown.Control.Alt.5', ['$event'])
+  @HostListener('window:keydown.Control.Alt.6', ['$event'])
+  @HostListener('window:keydown.Control.Alt.7', ['$event'])
+  @HostListener('window:keydown.Control.Alt.8', ['$event'])
+  @HostListener('window:keydown.Control.Alt.9', ['$event'])
+  @HostListener('window:keydown.Control.Alt.0', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    if (this.HotKeysOn === false) return;
+    if (this.SelectedNodeData != null) {
+      if (parseInt(event.key) <= this.SelectedNodeData?.attributes.length + 1) {
+        switch (event.key) {
+          case "1":
+            if (this.SelectedNodeData?.attributes[0].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[0]);
+            }
+            break;
+          case "2":
+            if (this.SelectedNodeData?.attributes[1].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[1]);
+            }
+            break;
+          case "3":
+            if (this.SelectedNodeData?.attributes[2].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[2]);
+            }
+            break;
+          case "4":
+            if (this.SelectedNodeData?.attributes[3].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[3]);
+            }
+            break;
+          case "5":
+            if (this.SelectedNodeData?.attributes[4].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[4]);
+            }
+            break;
+          case "6":
+            if (this.SelectedNodeData?.attributes[5].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[5]);
+            }
+            break;
+          case "7":
+            if (this.SelectedNodeData?.attributes[6].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[6]);
+            }
+            break;
+          case "8":
+            if (this.SelectedNodeData?.attributes[7].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[7]);
+            }
+            break;
+          case "9":
+            if (this.SelectedNodeData?.attributes[8].showCheckBox == true) {
+              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[8]);
+            }
+            break;
+          default:
+            ;
+            break;
+        }
+      }
+    }
+  }
+
 
   ngOnInit() {
     if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
@@ -66,6 +137,16 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
       //modalComp.close();
       //this.GetReviewSets();
     }
+  }
+
+
+  public HotKeysText(node: singleNode): string {
+    if (this.SelectedNodeData == null || this.SelectedNodeData.attributes.length == 0) return "";
+    else {
+      const ind = this.SelectedNodeData.attributes.findIndex(f => node.id == f.id);
+      if (ind != -1 && ind <= 9) return (ind + 1).toString() + " ";//so we support number keys from 1 to 0: 1,2,3...,0
+    }
+    return "";
   }
 
   public ShowCompleteUncompletePanelForSetId: number = 0;
@@ -183,18 +264,46 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   }
   CheckBoxClicked(event: any, data: singleNode,) {
     //First: user selected a checkbox, so we change the "selected/active" code, no matter what, this is to keep things tidy for PDF coding, mostly...
-    this.NodeSelectedInternal(data);
+    //this.NodeSelectedInternal(data);
+
     let checkPassed: boolean = true;
     //console.log("ev:", event.bubbles, event.cancelBubble);
-    if (event.target) checkPassed = event.target.checked;//if we ticked the checkbox, it's OK to carry on, otherwise we need to check
-    if (!checkPassed) {
-      this.DeletingData = data;
-      this.DeletingEvent = event;
-      //all this seems necessary because I could not suppress the error discussed here:
-      //https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
-      this.showManualModal = true;
+
+    //original...
+    //if (event.target) {
+    //  checkPassed = event.target.checked;//if we ticked the checkbox, it's OK to carry on, otherwise we need to check
+    //}
+
+    // new bit
+    if (event.target) {
+      if (event.key == null) { // NOTE: must be == and not === to catch undefined
+        // no key so user is clicking the checkbox
+        checkPassed = event.target.checked;
+        this.NodeSelectedInternal(data); // moved the node select to here for pdf coding. 
+      }
+      else {
+        // there is a key so hotkeys are being used.
+        // with hotkeys event.target.checked is undefined so we must set checkPassed manually based on data.isSelected
+        if (data.isSelected === false) {
+          event.target.checked = true;
+          checkPassed = !data.isSelected; //if it wasn't checked it means we want it checked.
+          data.isSelected = !data.isSelected;
+        } else {
+          event.target.checked = false;
+          checkPassed = event.target.checked;
+        }
+      }
+ 
+
+      if (!checkPassed) {
+        this.DeletingData = data;
+        this.DeletingEvent = event;
+        //all this seems necessary because I could not suppress the error discussed here:
+        //https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
+        this.showManualModal = true;
+      }
+      else this.CheckBoxClickedAfterCheck(event, data);
     }
-    else this.CheckBoxClickedAfterCheck(event, data);
   }
   private DeletingEvent: any;
   private DeletingData: singleNode | null = null;

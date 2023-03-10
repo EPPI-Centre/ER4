@@ -6,10 +6,10 @@
 	<div class="h-100 mh-100 pr-0">
 		<div *ngIf="IsServiceBusy()" class="k-loading-image" style="height:100vh;position: fixed; top: 0%;"></div>
 		<div class=""
-			 [ngClass]="{'bg-light':IsSmallScreen(),
+				 [ngClass]="{'bg-light':IsSmallScreen(),
                     'row d-flex flex-wrap-reverse ml-1 mr-1':!IsSmallScreen() }">
 			<button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen" class="btn btn-success p-1 CodesBtnL" (click)="ShowHideCodes()"
-              style="min-width: 28px;">
+							style="min-width: 28px;">
 				<div class="CodesBtnContent">
 					<span class="k-icon k-i-arrow-right"></span>
 					Codes
@@ -17,27 +17,37 @@
 				</div>
 			</button>
 
+			
+
+
 			<div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
                              ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
                             , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
 
 				<button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success p-1 CodesBtnR" (click)="ShowHideCodes()"
-                  style="min-width: 28px;">
+								style="min-width: 28px;">
 					<div class="CodesBtnContent">
 						<span class="k-icon k-i-arrow-left"></span>
 						Codes
 						<span class="k-icon k-i-arrow-left"></span>
 					</div>
 				</button>
+
+				<div class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
+					<button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
+									title="Hot keys. Toggle to turn on/off. Press Ctrl-Alt and the code number."
+									(click)="HotKeysOn=!HotKeysOn"></button>
+					<span *ngIf="HotKeysOn"> Hot keys: Press Ctrl-Alt and code number</span>
+				</div>
 				<ArmsComp #cmp class="card-text"></ArmsComp>
 				<div [hidden]="ShowOutComes">
 					<codesetTreeCoding #codesetTreeCoding class="bg-light" Context="CodingOnly"
-									   [InitiateFetchPDFCoding]="ShouldFetchPDFCoding">
+														 [InitiateFetchPDFCoding]="ShouldFetchPDFCoding" [HotKeysOn]="HotKeysOn">
 					</codesetTreeCoding>
 				</div>
 				<div *ngIf="ShowOutComes"
-					 class="my-1 ml-0 pl-1 pr-0 container">
+						 class="my-1 ml-0 pl-1 pr-0 container">
 					<OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
 				</div>
 				<!--<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>-->
@@ -45,7 +55,7 @@
 			<div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end">
 				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
 					<itemDetailsPaginator [item]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
-										  class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
+																class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
 					<div class="pr-0 pl-0 col-12 col-sm pr-0">
 						<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
 							Close/back
@@ -76,7 +86,7 @@
 					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
 						<ng-template kendoTabContent>
 							<itemDetailsComp #ItemDetailsCmp Context="CodingOnly"
-											 [item]="item" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
+															 [item]="item" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
 					<kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">

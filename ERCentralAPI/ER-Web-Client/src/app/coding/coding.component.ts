@@ -180,6 +180,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     else return false;
   }
 
+  public HotKeysOn: boolean = false;
 
   public RefreshTerms() {
 

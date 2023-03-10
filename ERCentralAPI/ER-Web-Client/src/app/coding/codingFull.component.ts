@@ -282,6 +282,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this.EditCodesPanel == "EditCode") this.EditCodesPanel = "";
     else this.EditCodesPanel = "EditCode";
   }
+
+  public HotKeysOn: boolean = false;
+
+
   CancelActivity(refreshTree?: boolean) {
     if (refreshTree) {
       if (this.ReviewSetsService.selectedNode) {
