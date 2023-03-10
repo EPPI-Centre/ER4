@@ -1,0 +1,183 @@
+<Playlist Version="2.0">
+  <Rule Name="Includes" Match="Any">
+    <Rule Match="All">
+      <Property Name="Solution" />
+      <Rule Match="Any">
+        <Rule Match="All">
+          <Property Name="Project" Value="IntegrationTests" />
+          <Rule Match="Any">
+            <Rule Match="All">
+              <Property Name="Namespace" Value="IntegrationTests" />
+              <Rule Match="Any">
+                <Rule Match="All">
+                  <Property Name="Class" Value="LoginTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.LoginTests.Login" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.LoginTests.Login" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.LoginTests.LoginToReview" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.LoginTests.LoginToReview" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.LoginTests.VersionInfo" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.LoginTests.VersionInfo" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="ReviewInfoTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.ReviewInfoTests.ReviewInfo" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.ReviewInfoTests.ReviewInfo" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.ReviewInfoTests.ReviewInfoWhileChangingReviews" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.ReviewInfoTests.ReviewInfoWhileChangingReviews" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.ReviewInfoTests.ReviewMembers" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.ReviewInfoTests.ReviewMembers" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="SourcesTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.SourcesTests.NewPubMedSearchPreview" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.SourcesTests.NewPubMedSearchPreview" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.SourcesTests.UploadSourceThenDeleteIt" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.SourcesTests.UploadSourceThenDeleteIt" />
+                        <Property Name="DisplayName" Value="IntegrationTests.SourcesTests.UploadSourceThenDeleteIt(filename: &quot;20 refs.txt&quot;, importFilterName: &quot;RIS&quot;)" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.SourcesTests.VerifyFile" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.SourcesTests.VerifyFile" />
+                        <Property Name="DisplayName" Value="IntegrationTests.SourcesTests.VerifyFile(filename: &quot;20 refs.txt&quot;, expectedRefsCount: 20, expectedLastTitle: &quot;Behavioral activation of religious behaviors (BARB&quot;..., importFilterName: &quot;RIS&quot;)" />
+                        <Property Name="DisplayName" Value="IntegrationTests.SourcesTests.VerifyFile(filename: &quot;60 refs.txt&quot;, expectedRefsCount: 60, expectedLastTitle: &quot;Two short forms of the Agnew Relationship Measure:&quot;..., importFilterName: &quot;RIS&quot;)" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.SourcesTests.getNewPubMedSearchPreview" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.SourcesTests.getNewPubMedSearchPreview(SearchSt: &quot;Pippo&quot;)" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+              </Rule>
+            </Rule>
+            <Rule Match="All">
+              <Property Name="Namespace" Value="IntegrationTests.By_Controller_Tests" />
+              <Rule Match="Any">
+                <Rule Match="All">
+                  <Property Name="Class" Value="LoginTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.LoginTests.Login" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.LoginTests.Login" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.LoginTests.LoginToReview" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.LoginTests.LoginToReview" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.LoginTests.VersionInfo" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.LoginTests.VersionInfo" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="ReviewInfoTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.ReviewInfoTests.ReviewInfo" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.ReviewInfoTests.ReviewInfo" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.ReviewInfoTests.ReviewInfoWhileChangingReviews" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.ReviewInfoTests.ReviewInfoWhileChangingReviews" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.ReviewInfoTests.ReviewMembers" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.ReviewInfoTests.ReviewMembers" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="ReviewTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.ReviewTests.CreateAndOpenReview" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.ReviewTests.CreateAndOpenReview" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="SourcesTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.SourcesTests.UploadSourceThenDeleteIt" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.SourcesTests.UploadSourceThenDeleteIt(filename: &quot;20 refs.txt&quot;, importFilterName: &quot;RIS&quot;)" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.SourcesTests.VerifyFile" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.SourcesTests.VerifyFile(filename: &quot;20 refs.txt&quot;, expectedRefsCount: 20, expectedLastTitle: &quot;Behavioral activation of religious behaviors (BARB&quot;..., importFilterName: &quot;RIS&quot;)" />
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.SourcesTests.VerifyFile(filename: &quot;60 refs.txt&quot;, expectedRefsCount: 60, expectedLastTitle: &quot;Two short forms of the Agnew Relationship Measure:&quot;..., importFilterName: &quot;RIS&quot;)" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="IntegrationTests.By_Controller_Tests.SourcesTests.getNewPubMedSearchPreview" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="IntegrationTests.By_Controller_Tests.SourcesTests.getNewPubMedSearchPreview(SearchSt: &quot;Pippo&quot;)" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+              </Rule>
+            </Rule>
+          </Rule>
+        </Rule>
+      </Rule>
+    </Rule>
+  </Rule>
+</Playlist>

@@ -44,6 +44,22 @@ namespace IntegrationTests.Utils
             return JsonNode.Parse(result);
             //return client.GetFromJsonAsync<T>(requestUri);
         }
+        public static async Task<JsonNode?> PostAndDeserializeWithoutDevolvedErrorHandling(this HttpClient client, string requestUri, object Values)
+        {
+            StringContent strContent = MakeHttpContent(Values);
+            var response = await client.PostAsync(requestUri, strContent);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return JsonNode.Parse(result);
+            } 
+            else
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                throw new Exception(result);
+            }
+            //return client.GetFromJsonAsync<T>(requestUri);
+        }
 
         public static StringContent MakeHttpContent(this object inputObj)
         {
