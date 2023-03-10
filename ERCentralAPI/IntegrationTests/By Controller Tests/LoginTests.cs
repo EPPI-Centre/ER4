@@ -12,8 +12,7 @@ using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text.Json.Nodes;
 
-namespace IntegrationTests
-{
+namespace IntegrationTests.By_Controller_Tests { 
     [Collection("Database collection")]
     public class LoginTests : IntegrationTest
     {
@@ -22,10 +21,10 @@ namespace IntegrationTests
         [Fact]
         public async Task VersionInfo()
         {
-            //var forecast = await _client.GetAndDeserialize<IActionResult>("/Login/VersionInfo");
-            //var response = await _client.GetAsync("api/Login/VersionInfo");
+            //var forecast = await client.GetAndDeserialize<IActionResult>("/Login/VersionInfo");
+            //var response = await client.GetAsync("api/Login/VersionInfo");
             //response.StatusCode.Should().Be(HttpStatusCode.OK);
-            JsonNode? ParsedResponse = await _client.GetAndDeserialize("api/Login/VersionInfo");
+            JsonNode? ParsedResponse = await client.GetAndDeserialize("api/Login/VersionInfo");
             ParsedResponse.Should().NotBeNull();
             _ = ParsedResponse["versionN"].Should().NotBeNull();
             _ = ParsedResponse["versionN"].ToString().Should().NotBeNullOrEmpty();
@@ -34,7 +33,7 @@ namespace IntegrationTests
         public async Task Login()
         {
             LoginCreds loginCreds = new LoginCreds() { Password = "123", Username = "alice" };
-            var ParsedResponse = await _client.PostAndDeserialize("api/Login/Login", loginCreds);
+            var ParsedResponse = await client.PostAndDeserialize("api/Login/Login", loginCreds);
             _ = ((bool)ParsedResponse["isAuthenticated"]).Should().Be(true);
             _ = ParsedResponse["token"].ToString().Should().NotBeNullOrEmpty();
         }
@@ -43,13 +42,13 @@ namespace IntegrationTests
         public async Task LoginToReview()
         {
             LoginCreds loginCreds = new LoginCreds() { Password = "123", Username = "alice" };
-            var ParsedResponse = await _client.PostAndDeserialize("api/Login/Login", loginCreds);
+            var ParsedResponse = await client.PostAndDeserialize("api/Login/Login", loginCreds);
             _ = ((bool)ParsedResponse["isAuthenticated"]).Should().Be(true);
             _ = ParsedResponse["token"].ToString().Should().NotBeNullOrEmpty();
             string token = ParsedResponse["token"].ToString();
             SetCookieHeaderVal(token);
             SingleIntCriteria rc = new SingleIntCriteria() { Value = 5};
-            ParsedResponse = await _client.PostAndDeserialize("api/Login/LoginToReview", rc);
+            ParsedResponse = await client.PostAndDeserialize("api/Login/LoginToReview", rc);
             _ = ((bool)ParsedResponse["isAuthenticated"]).Should().Be(true);
             _ = ParsedResponse["token"].ToString().Should().NotBeNullOrEmpty();
 
