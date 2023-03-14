@@ -27,6 +27,10 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
 				-webkit-user-select: none;
 				cursor:not-allowed; /*makes it even more obvious*/
 				}
+            .disabled-Hotkey {
+              color:#888888;
+              font-style: italic;
+            }
         `],
   templateUrl: './codesetTreeCoding.component.html'
 })
@@ -53,70 +57,27 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   subRedrawTree: Subscription | null = null;
 
   // this is the hotkeys code
-  @HostListener('window:keydown.Control.Alt.1', ['$event'])
-  @HostListener('window:keydown.Control.Alt.2', ['$event'])
-  @HostListener('window:keydown.Control.Alt.3', ['$event'])
-  @HostListener('window:keydown.Control.Alt.4', ['$event'])
-  @HostListener('window:keydown.Control.Alt.5', ['$event'])
-  @HostListener('window:keydown.Control.Alt.6', ['$event'])
-  @HostListener('window:keydown.Control.Alt.7', ['$event'])
-  @HostListener('window:keydown.Control.Alt.8', ['$event'])
-  @HostListener('window:keydown.Control.Alt.9', ['$event'])
-  @HostListener('window:keydown.Control.Alt.0', ['$event'])
+  @HostListener('window:keydown.Alt.1', ['$event'])
+  @HostListener('window:keydown.Alt.2', ['$event'])
+  @HostListener('window:keydown.Alt.3', ['$event'])
+  @HostListener('window:keydown.Alt.4', ['$event'])
+  @HostListener('window:keydown.Alt.5', ['$event'])
+  @HostListener('window:keydown.Alt.6', ['$event'])
+  @HostListener('window:keydown.Alt.7', ['$event'])
+  @HostListener('window:keydown.Alt.8', ['$event'])
+  @HostListener('window:keydown.Alt.9', ['$event'])
+  @HostListener('window:keydown.Alt.0', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
-    if (this.HotKeysOn === false) return;
-    if (this.SelectedNodeData != null) {
-      if (parseInt(event.key) <= this.SelectedNodeData?.attributes.length + 1) {
-        switch (event.key) {
-          case "1":
-            if (this.SelectedNodeData?.attributes[0].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[0]);
-            }
-            break;
-          case "2":
-            if (this.SelectedNodeData?.attributes[1].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[1]);
-            }
-            break;
-          case "3":
-            if (this.SelectedNodeData?.attributes[2].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[2]);
-            }
-            break;
-          case "4":
-            if (this.SelectedNodeData?.attributes[3].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[3]);
-            }
-            break;
-          case "5":
-            if (this.SelectedNodeData?.attributes[4].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[4]);
-            }
-            break;
-          case "6":
-            if (this.SelectedNodeData?.attributes[5].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[5]);
-            }
-            break;
-          case "7":
-            if (this.SelectedNodeData?.attributes[6].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[6]);
-            }
-            break;
-          case "8":
-            if (this.SelectedNodeData?.attributes[7].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[7]);
-            }
-            break;
-          case "9":
-            if (this.SelectedNodeData?.attributes[8].showCheckBox == true) {
-              this.CheckBoxClicked(event, this.SelectedNodeData?.attributes[8]);
-            }
-            break;
-          default:
-            ;
-            break;
-        }
+    if (this.HotKeysOn === false || this.SelectedNodeData == null ) return;
+    else {
+      let index = parseInt(event.key);
+      if (index == NaN || index > this.SelectedNodeData.attributes.length) return;
+      else if (index == 0) index = 9; //10th code as per zero-based indexing
+      else index--;//move it to zero-based indexing
+      if (this.SelectedNodeData.attributes[index].showCheckBox == true //code is selectable
+           && this.CanWriteCoding(this.SelectedNodeData.attributes[index] as singleNode) //coding is not locked (and user isn't in RO mode)
+          ) {
+        this.CheckBoxClicked(event, this.SelectedNodeData.attributes[index]);
       }
     }
   }
@@ -144,7 +105,8 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     if (this.SelectedNodeData == null || this.SelectedNodeData.attributes.length == 0) return "";
     else {
       const ind = this.SelectedNodeData.attributes.findIndex(f => node.id == f.id);
-      if (ind != -1 && ind <= 9) return (ind + 1).toString() + " ";//so we support number keys from 1 to 0: 1,2,3...,0
+      if (ind != -1 && ind <= 8) return (ind + 1).toString();//so we support number keys from 1 to 0: 1,2,3..9
+      else if (ind == 9) return "0";//and "0" as the tenth code
     }
     return "";
   }

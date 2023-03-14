@@ -106,7 +106,7 @@
                               'AdminSet' : data.subTypeName == 'Administration',
                               'ExcludeCode' : data.subTypeName == 'Exclude' }">
                               <span *ngIf="HotKeysOn"
-                              [ngClass]="{'font-weight-lighter' : data.showCheckBox == false, 'font-weight-bold text-primary' : data.showCheckBox == true}">{{HotKeysText(data)}}</span>
+                              [ngClass]="{'disabled-Hotkey' : data.showCheckBox == false, 'font-weight-bold text-primary' : data.showCheckBox == true}">{{HotKeysText(data)}}</span>
                               {{data.name}}</span>
 
           <button *ngIf="data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(data)">Info</button>
