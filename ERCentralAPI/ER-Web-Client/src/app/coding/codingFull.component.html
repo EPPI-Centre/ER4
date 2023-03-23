@@ -29,7 +29,7 @@
                       [disabled]="!HasWriteRights  || !CanEditCode()" (click)="EditCode()"></button>
 
               <button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
-                      title="Hot keys. Toggle to turn on/off. Press Ctrl-Alt and the code number."
+                      title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
                       [disabled]="!HasWriteRights" (click)="HotKeysOn=!HotKeysOn"></button>
             </div>
             

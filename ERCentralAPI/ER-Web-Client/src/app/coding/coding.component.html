@@ -34,11 +34,15 @@
 					</div>
 				</button>
 
-				<div class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
-					<button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
-									title="Hot keys. Toggle to turn on/off. Press Ctrl-Alt and the code number."
+				<div class="mb-1 h-100 rounded mx-0">
+					<!--<button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
+									title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
 									(click)="HotKeysOn=!HotKeysOn"></button>
-					<span *ngIf="HotKeysOn"> Hot keys: Press Ctrl-Alt and code number</span>
+					<span *ngIf="HotKeysOn"> Hot keys: Press Alt + code number to code</span>-->
+					<div class="mx-1 d-inline-flex row rounded bg-light border border-info px-1 mt-1" title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code.">
+						<div>Hot Keys?</div>
+						<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="HotKeysOn">
+					</div>
 				</div>
 				<ArmsComp #cmp class="card-text"></ArmsComp>
 				<div [hidden]="ShowOutComes">
