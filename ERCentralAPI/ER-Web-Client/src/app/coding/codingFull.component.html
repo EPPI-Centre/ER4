@@ -76,29 +76,26 @@
                     <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
                                           class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
                     <div class="pr-0 pl-0 col-12 col-sm pr-0">
-                        <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
-                            Close/back
+                      <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
+                        Close/back
+                      </button>
+
+                      <div class="row float-right my-1 pb-1 mx-1">
+                        <button title="Refresh Terms" style="min-height:26px;"
+                                class="btn btn-sm btn-outline-success mx-0 my-0 py-0 px-2"
+                                (click)="RefreshTerms()">
+                          <fa-icon *ngIf="!IsServiceBusyTerms()" [icon]="faArrowsRotate" class="my-0"></fa-icon>
+                          <fa-icon *ngIf="IsServiceBusyTerms()" [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
                         </button>
-                        <div class="row bg-info float-right mb-1 ml-1 mr-1">
-                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-                              <div>Auto Advance?</div>
-                                <input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
-                            </div>
-                        </div>
-                        <div class="row float-right mb-1 pb-1 ml-0 mr-0">
-                          <button  title="Refresh Terms"
-                                  class="btn btn-sm btn-outline-success mx-1 my-0 py-0 px-2"
-                                  (click)="RefreshTerms()">
-                            <fa-icon *ngIf="!IsServiceBusyTerms()" [icon]="faArrowsRotate" class="my-0"></fa-icon>
-                            <fa-icon *ngIf="IsServiceBusyTerms()" [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
-                          </button>
-                        </div>
-                        <div class="row bg-info float-right mb-1 ml-0 mr-0">
-                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-                              <div>Show terms?</div>
-                                <input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
-                            </div>
-                        </div>
+                      </div>
+                      <div class="ml-1 mr-0 float-right d-inline-flex row rounded bg-light border border-info px-1 mt-1">
+                        <div>Show terms</div>
+                        <input type="checkbox" class="mx-1 my-1" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+                      </div>
+                      <div class="ml-1 mr-0 float-right d-inline-flex row rounded bg-light border border-info px-1 mt-1">
+                        <div>Auto Advance</div>
+                        <input type="checkbox" class="mx-1 my-1" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+                      </div>
                     </div>
                 </div>
                 <div *ngIf="ShowLiveComparison" class="my-1 ml-0 pl-1 pr-0 container">
