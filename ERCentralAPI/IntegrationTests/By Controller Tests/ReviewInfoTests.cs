@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace IntegrationTests.By_Controller_Tests
@@ -75,6 +76,30 @@ namespace IntegrationTests.By_Controller_Tests
             Res.Length.Should().Be(7);
             Res[0].ToString().Should().Be("Bob Fake");
         }
+
+        [Fact]
+        public async Task ReviewInfoConfirmAndUpdateSettings()
+        {
+            //The line below ensures we log on with the default values for this class.
+            //every [Fact] should start with this line, so to ensure authentication is done (once, for the whole class).
+            (await AuthenticationDone()).Should().Be(true);
+            ReviewInfo? Res = await GetReviewInfo();
+            Res.ReviewId.Should().Be(12);
+            Res.ReviewName.Should().Be("Shared rev1 (id:12)");
+            Res.MagEnabled.Should().Be(0); // 0 -> off
+            Res.ShowScreening.Should().BeFalse(); // false -> off
+
+            // update reviewInfo with changed MagEnabled
+            Res.MagEnabled = 1;
+            ReviewInfo? Res2 = await UpdateRevInfoSettings(Res, "UpdateReviewInfo");
+
+            // get the updated value from the DB
+            Res = await GetReviewInfo();
+            Res.MagEnabled.Should().Be(1); // 1 -> on
+            Res.ShowScreening.Should().BeFalse(); // false -> off
+        }
+
+
     }
 }
 namespace IntegrationTests.Fixtures
@@ -96,6 +121,13 @@ namespace IntegrationTests.Fixtures
             Contact[]? res = await client.GetAndDeserialize<Contact[]>("api/ReviewInfo/ReviewMembers");
             res.Should().NotBeNull();
             return res;
+        }
+
+        public async Task<ReviewInfo?> UpdateRevInfoSettings(ReviewInfo updatedReviewInfo, string endPoint)
+        {
+            ReviewInfo? res = await client.PostAndDeserialize<ReviewInfo>("api/ReviewInfo/" + endPoint, updatedReviewInfo);
+            res.Should().NotBeNull();
+            return res;            
         }
     }
 }
