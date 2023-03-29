@@ -55,8 +55,8 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     return this._showManualModal;
   }
   public set showManualModal(val: boolean) {
-    if (val == true) this.RemoveCodeModalOpened.emit();
-    else this.RemoveCodeModalClosed.emit();
+    if (val == true && this._showManualModal == false) this.RemoveCodeModalOpened.emit();//we are showing the modal (was hidden)
+    else if (val == false && this._showManualModal == true) this.RemoveCodeModalClosed.emit(); //we are hiding the modal (was visible)
     this._showManualModal = val;
   }
   @Input() InitiateFetchPDFCoding = false;
