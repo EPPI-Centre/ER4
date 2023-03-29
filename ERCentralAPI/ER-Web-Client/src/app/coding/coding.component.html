@@ -33,7 +33,7 @@
 					</div>
 				</button>
 
-				<div class="mb-1 h-100 rounded mx-0">
+				<div class="mb-1 rounded mx-0">
 					<!--<button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
 									title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
 									(click)="HotKeysOn=!HotKeysOn"></button>
@@ -46,6 +46,8 @@
 				<ArmsComp #cmp class="card-text"></ArmsComp>
 				<div [hidden]="ShowOutComes">
 					<codesetTreeCoding #codesetTreeCoding class="bg-light" Context="CodingOnly"
+														 (RemoveCodeModalOpened)="RemoveCodeModalOpenedIncoming()"
+														 (RemoveCodeModalClosed)="RemoveCodeModalClosedIncoming()"
 														 [InitiateFetchPDFCoding]="ShouldFetchPDFCoding" [HotKeysOn]="HotKeysOn">
 					</codesetTreeCoding>
 				</div>

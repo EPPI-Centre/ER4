@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef, HostListener, Output, EventEmitter } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, ItemSetCompleteCommand } from '../services/ReviewSets.service';
@@ -49,12 +49,22 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     private ReviewSetsEditingService: ReviewSetsEditingService
   ) { }
   //@ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
-  @ViewChild('ManualModal') private ManualModal: any;
-  public showManualModal: boolean = false;
+  //@ViewChild('ManualModal') private ManualModal: any;
+  private _showManualModal: boolean = false;
+  public get showManualModal(): boolean {
+    return this._showManualModal;
+  }
+  public set showManualModal(val: boolean) {
+    if (val == true) this.RemoveCodeModalOpened.emit();
+    else this.RemoveCodeModalClosed.emit();
+    this._showManualModal = val;
+  }
   @Input() InitiateFetchPDFCoding = false;
   @Input() Context: string = "CodingFull";
   @Input() HotKeysOn: boolean = false;
   subRedrawTree: Subscription | null = null;
+  @Output() RemoveCodeModalOpened = new EventEmitter<void>();
+  @Output() RemoveCodeModalClosed = new EventEmitter<void>();
 
   // this is the hotkeys code
   @HostListener('window:keydown.Alt.1', ['$event'])

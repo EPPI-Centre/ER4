@@ -60,7 +60,9 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
                 }
                 .codesInSmallScreen.show {
                   width:99.5%;
-                  transform:scaleX(1);
+                  height:90%;
+                  max-height:814px;
+                  transform:0;
                 }
                 .CodesBtnL {
                     position: fixed;
@@ -69,7 +71,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
                 }
                 .CodesBtnR {
                     position: fixed;
-                    top: 45%;
+                    top: 45vh;
                     z-index:999;
                     right: 0.05em;
                 }
@@ -188,6 +190,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     this.ReviewerTermsService.Fetch();
   }
   public ShowCodesInSmallScreen: boolean = false;
+  private _ShowCodesInSmallScreenOverriden: boolean = false;
   public ShowHideCodes() {
     this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
   }
@@ -226,6 +229,27 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       this.HelpAndFeebackContext = "(codingui)itemdetails";
     }
   }
+
+  RemoveCodeModalOpenedIncoming() {
+    //console.log("opened");
+    if (this.ShowCodesInSmallScreen == false && this.IsSmallScreen() == true) {
+      //codes flap is closed, but screen is small, so the dialog to confirm "RemoveCode" would be hidden:
+      //we'll open the codes screen automatically
+      this._ShowCodesInSmallScreenOverriden = true;
+      this.ShowCodesInSmallScreen = true;
+    }
+  }
+  RemoveCodeModalClosedIncoming() {
+    //console.log("closed");
+    if (this._ShowCodesInSmallScreenOverriden == true) {
+      //we automatically opened the codes flap, and now the dialog to confirm "RemoveCode" has been closed:
+      //we'll automatically re-close the codes-flap...
+      this._ShowCodesInSmallScreenOverriden = false;
+      this.ShowCodesInSmallScreen = false;
+    }
+  }
+
+
   public get HasDocForView(): boolean {
     //console.log("hasDocForView", this.ItemDocsService.CurrentDoc);
     if (this.ItemDocsService.CurrentDoc) return true;
