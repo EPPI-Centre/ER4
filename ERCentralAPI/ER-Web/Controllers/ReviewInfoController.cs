@@ -83,6 +83,7 @@ namespace ERxWebClient2.Controllers
                     result.ScreeningNPeople = revinfo.screeningNPeople;
                     result.ScreeningAutoExclude = revinfo.screeningAutoExclude;
                     result.ScreeningIndexed = revinfo.screeningIndexed;
+                    result.MagEnabled = revinfo.magEnabled;
 
                     //screeningModelRunning;
                     //screeningIndexed;
