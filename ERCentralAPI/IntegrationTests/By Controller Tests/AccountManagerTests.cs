@@ -8,6 +8,7 @@ using IntegrationTests.Utils;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -100,7 +101,51 @@ namespace IntegrationTests.By_Controller_Tests
             contactDetails3.contactName.Should().Be("Bob Fake");
 
         }
+        [Fact]
+        public async Task AccountManagerForbiddenUpdateAccount()
+        {
+            (await AuthenticationDone()).Should().Be(true);
 
+            // get the contact object for a DIFFERENT user, not the one logged on!
+            var contact_Id = 4;
+            Contact? contactDetails = await GetUserAccountDetails(contact_Id);
+
+            // update the name - this MUST fail (on save), as we don't allow changing someone else's account
+            contactDetails.contactName = "Can't do this";
+
+            //OK, how do we check for "expected failures"? We need to bypass the code we normally use, because
+            //our normal API calls all include a call to: "response.EnsureSuccessStatusCode();"
+            //which throws an exception when an API call failed
+
+            //First way to check, suitable in this case, relies on EnsureSuccessStatusCode() rising the EXPECTED exception
+            //This might not always be good enough: if we need to check exactly what we get in the response, we must use the second way (below).
+
+            //Dummy object, we put some value here to ensure out request triggers the catch clause
+            JsonNode? Res =  JsonNode.Parse("{\"nothing\": null}");
+            try
+            {
+                Res = await client.PostAndDeserialize("api/AccountManager/UpdateAccount", contactDetails);
+            } 
+            catch (Exception e)
+            {
+                e.Message.Should().Be("Response status code does not indicate success: 403 (Forbidden).");
+                Res = null;
+                Debug.WriteLine(e.Message);
+            }
+            Res.Should().BeNull();
+
+
+            //Second way to check: we use even less generic methods, so to gain access to the response object, even if the response was NOT a success.
+
+            StringContent strContent = contactDetails.MakeHttpContent();
+            var response = await client.PostAsync("api/AccountManager/UpdateAccount", strContent);
+            response.Should().NotBeNull();
+            //having the full response, we can check the full details:
+            response.IsSuccessStatusCode.Should().BeFalse();
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+            response.ReasonPhrase.Should().Be("Forbidden");
+
+        }
     }
 }
 namespace IntegrationTests.Fixtures
