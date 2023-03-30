@@ -151,12 +151,18 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   faSpinner = faSpinner;
 
   public innerWidth: any = 900;
+  private readonly innerWidthThreshold: number = 768;
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
+    if (this.codesetTreeCoding && this.codesetTreeCoding.showManualModal == true
+      && this.innerWidth >= this.innerWidthThreshold
+      && window.innerWidth < this.innerWidthThreshold) {
+      this.ShowCodesInSmallScreen = true;
+    }
     this.innerWidth = window.innerWidth;
   }
   IsSmallScreen(): boolean {
-    if (this.innerWidth && this.innerWidth < 768) {
+    if (this.innerWidth && this.innerWidth < this.innerWidthThreshold) {
       return true;
     }
     else return false;
@@ -256,12 +262,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     else return false;
   }
   async CheckAndMoveToPDFTab() {
-    console.log("CheckAndMoveToPDFTab", this.ItemDocsService.CurrentDoc, this.tabstrip);
+    //console.log("CheckAndMoveToPDFTab", this.ItemDocsService.CurrentDoc, this.tabstrip);
     if (this.HasDocForView) {
-      console.log("CheckAndMoveToPDFTab2");
+      //console.log("CheckAndMoveToPDFTab2");
       if (this.pdftroncontainer) this.pdftroncontainer.loadDoc();
       if (this.tabstrip) {
-        console.log("CheckAndMoveToPDFTab3");
+        //console.log("CheckAndMoveToPDFTab3");
         await Helpers.Sleep(50);//we need to give the UI thread the time to catch up and "un-disable" the tab.
         this.SelectTab(1);
       }
