@@ -206,6 +206,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   }
   ngAfterViewInit() {
     // child is set
+    //if (this.ArmsCompRef) this.ArmsCompRef.CurrentItem = this.item;
   }
   SelectTab(i: number) {
     if (!this.tabstrip) return;

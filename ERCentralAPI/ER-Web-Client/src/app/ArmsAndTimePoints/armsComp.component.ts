@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {  Item } from '../services/ItemList.service';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 
@@ -12,8 +12,8 @@ export class armsComp implements OnInit{
     
     
     //@Output() armChangedEE = new EventEmitter();
-    public CurrentItem: Item = new Item();
-
+  //public CurrentItem: Item = new Item();
+  @Input() CurrentItem!: Item | undefined;
     constructor(
         private armsService: ArmTimepointLinkListService
         ) {
@@ -24,6 +24,7 @@ export class armsComp implements OnInit{
     if (!isNaN(armId)) this.armsService.SetSelectedArm(armId);
     //this.armChangedEE.emit();
   }
+  
     ngOnInit() {
     }
     

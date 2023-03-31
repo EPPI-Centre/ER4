@@ -43,7 +43,7 @@
 						<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="HotKeysOn">
 					</div>
 				</div>
-				<ArmsComp #cmp class="card-text"></ArmsComp>
+				<ArmsComp #cmp class="card-text" [CurrentItem]="item"></ArmsComp>
 				<div [hidden]="ShowOutComes">
 					<codesetTreeCoding #codesetTreeCoding class="bg-light" Context="CodingOnly"
 														 (RemoveCodeModalOpened)="RemoveCodeModalOpenedIncoming()"

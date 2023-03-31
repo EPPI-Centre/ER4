@@ -52,7 +52,7 @@
               <EditCodeComp [IsSmall]="true" [UpdatingCode]="CurrentNodeAsSetAttribute" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
             </div>
 
-            <ArmsComp #ArmsCmp [hidden]="leftPanel !==''" class="card-text"></ArmsComp>
+            <ArmsComp #ArmsCmp [hidden]="leftPanel !==''" [CurrentItem]="item" class="card-text"></ArmsComp>
             <div [hidden]="leftPanel !==''">
               <codesetTreeCoding #codesetTreeCoding class="bg-light"
                                  [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"

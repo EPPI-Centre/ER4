@@ -473,12 +473,12 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     this.CheckChangeActiveTabOnItemChange();
   }
   private GetItemCoding() {
-    console.log('Getting item coding for itemID: ' + this.itemID);
+    //console.log('Getting item coding for itemID: ' + this.itemID);
     this.ItemDocsService.FetchDocList(this.itemID);
     if (this.item) {
 
       this._outcomeService.outcomesChangedEE.emit();
-      if (this.ArmsCompRef) this.ArmsCompRef.CurrentItem = this.item;
+      //if (this.ArmsCompRef) this.ArmsCompRef.CurrentItem = this.item;
       this.ArmTimepointLinkListService.FetchAll(this.item);
 
     }

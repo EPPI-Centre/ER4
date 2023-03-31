@@ -1,4 +1,4 @@
-<div *ngIf="CurrentItem.arms && CurrentItem.arms.length > 0" class="col-12 px-1 mb-2 bg-info">
+<div *ngIf="CurrentItem && CurrentItem.arms && CurrentItem.arms.length > 0" class="col-12 px-1 mb-2 bg-info">
     Codes Apply to: 
         <!--<select (change)="filterArms($event.target.value)" >-->
     <select class="col-md-12"  (change)="ArmChanged($event)">
