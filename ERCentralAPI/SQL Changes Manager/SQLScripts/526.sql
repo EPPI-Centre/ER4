@@ -78,6 +78,8 @@ IF NOT EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_ITEM_LINK')
  CREATE SYNONYM sTB_ITEM_LINK FOR Reviewer.dbo.TB_ITEM_LINK;
 IF NOT EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_WEBDB')
  CREATE SYNONYM sTB_WEBDB FOR Reviewer.dbo.TB_WEBDB;
+IF NOT EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_REVIEW_ROLE')
+ CREATE SYNONYM sTB_REVIEW_ROLE FOR Reviewer.dbo.TB_REVIEW_ROLE;
 IF NOT EXISTS(SELECT * FROM sys.synonyms where name = 'sfn_IsAttributeInTree')
  CREATE SYNONYM sfn_IsAttributeInTree FOR Reviewer.dbo.fn_IsAttributeInTree;
  

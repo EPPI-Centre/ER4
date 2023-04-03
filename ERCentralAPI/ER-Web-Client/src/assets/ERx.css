@@ -228,3 +228,7 @@ ul.k-tabstrip-items li.k-item.k-state-active {
 	cursor:default;
 }
 
+.FlatDropdown {
+  max-height: 60vh;
+  overflow: auto;
+}
