@@ -936,7 +936,31 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
       tmp = au.trim();
       if (tmp != "") res += "A2  - " + tmp + newLine;
     }
-    res += "KW  - eppi-reviewer" + newLine
+    //new on April 2023: one Keyword per "KW" tag, not all in one big field!
+    res += "KW  - eppi-reviewer" + newLine;
+    if (it.keywords) {
+      if (it.keywords.length > 6) {
+        let FullRegexString: string = "";
+        for (let exp of ItemListService.FindKeywordSeparator(it.keywords)) {
+          FullRegexString += exp.source + "|";
+        }
+        FullRegexString = FullRegexString.substring(0, FullRegexString.length - 1);
+        let regX: RegExp = new RegExp(FullRegexString, "g");
+        const kWords = it.keywords.split(regX);
+        let kWords2: string[] = [];
+        for (let kw of kWords) {
+          //we only add keywords that have content and don't add the same kw twice
+          kw = kw.trim();
+          if (kw.length > 0 && kWords2.indexOf(kw) == -1) kWords2.push(kw);
+          }
+        for (let kw of kWords2) {
+          res += "KW  - " + kw + newLine;
+        }
+      }
+      else {
+        res += "KW  - " + it.keywords + newLine;
+      }
+    }
       + ((it.keywords != null && it.keywords.length > 2) ? it.keywords.trim() + newLine : "");
     let Month: number | null, Yr: number | null;
     let tmpDate: string = "";
@@ -1020,6 +1044,76 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
     res = res.replace("   ", " ");
     return res;
   }
+
+  private static FindKeywordSeparator(Keywords: string): RegExp[]{
+    let res: RegExp[] = [];
+    let scores: KeyValue[] = [];
+    const len = Keywords.length;
+    if (len <= 6) return res;
+    const separators4Keywords: RegExp[] = [new RegExp("\r\n", "g"), new RegExp("\r", "g"), new RegExp("\n", "g"), new RegExp(";", "g")
+      , new RegExp("\t", "g"), new RegExp(",", "g"), new RegExp("\\.", "g"), new RegExp(":", "g")]; //Does not include space!!
+    //we don't want keywords to be more that 30 chars long, on average
+    const aimFor = Math.ceil(len / 30.0);
+    //we don't want keywords to be less than 7 chars long, on average (mean word-length in Eng, including articles, prepositions, etc. is around 5)
+    const tooMany = Math.ceil(len / 7.0);
+
+    //first simple attempt, use all separators, see if it gives us a nice result
+    //at this stage, if any given separator is good, we return only that, else we'll evaluate how it goes for ALL separators
+    let matchesCount: number = 0;
+
+    for (let re of separators4Keywords) {
+      const OneSepCnt = (Keywords.match(re) || []).length;
+      if (OneSepCnt >= aimFor && OneSepCnt <= tooMany) {
+        //perfect! We found one ideal separator;
+        res = [];
+        res.push(re);
+        return res;
+      }
+      else if (OneSepCnt > 0 && OneSepCnt <= tooMany) {
+        //matched something, but not too much, so might be one of many separators
+        matchesCount = matchesCount + OneSepCnt;
+        res.push(re);
+        const kvp = new KeyValue(re.source, OneSepCnt.toString());
+        scores.push(kvp);//used later, perhaps, for sorting our separators that match
+      }
+    }
+    if (matchesCount >= aimFor && matchesCount <= tooMany) return res;
+    
+    //if we reached this point, no SINGLE separator appeared to be good enough :-(
+    //so we'll return a number of separators, based on the ones we've collected so far.
+    //we want to return the minimum number of separators, so we sort them in desc order
+    scores.sort((a, b) => {
+      const aval = parseInt(a.value);
+      if (isNaN(aval)) return 0;
+      const bval = parseInt(b.value);
+      if (isNaN(bval)) return 0;
+      return aval - bval;
+    });
+    matchesCount = 0;
+    res = [];
+    for (let kvp of scores)
+    {
+      const aval = parseInt(kvp.value);
+      if (!isNaN(aval)) {
+        matchesCount = matchesCount + aval;
+        res.push(new RegExp(kvp.key));
+      }
+      if (matchesCount > aimFor) {//alright, we have what we came for...
+        return res;
+      }
+    }
+    //if we reached this point, no combination of separators appeared to be good enough :-(
+    //so, does a simple "spaces" work well?
+    const spaces: RegExp[] = [new RegExp("\s", "g")];
+    const OneSepCnt = (Keywords.match(spaces[0]) || []).length;
+    if (OneSepCnt >= aimFor && OneSepCnt <= tooMany) return spaces;
+    //meh, not even "just space" worked, we'll add "space" to our results, return and hope for the best...
+    res = [];
+    res = res.concat(separators4Keywords);
+    res = res.concat(spaces);
+    return res;
+  }
+
 
   DeleteSelectedItems(ItemIds: Item[]) {
 
