@@ -13,8 +13,8 @@ IF EXISTS (SELECT name FROM sys.databases WHERE name = N'tempTestReviewer')
 BEGIN
 ALTER DATABASE [tempTestReviewer] MODIFY FILE 
 ( NAME = N'tempTestReviewer', SIZE = 100MB , MAXSIZE = UNLIMITED, FILEGROWTH = 10MB )
-ALTER DATABASE [tempTestReviewer] MODIFY FILE
-( NAME = N'tempTestReviewer_log', SIZE = 10MB , MAXSIZE = UNLIMITED , FILEGROWTH = 10%)
+--ALTER DATABASE [tempTestReviewer] MODIFY FILE
+--( NAME = N'tempTestReviewer_log', SIZE = 73MB , MAXSIZE = UNLIMITED , FILEGROWTH = 10%)
 END
 
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'tempTestReviewerAdmin')
