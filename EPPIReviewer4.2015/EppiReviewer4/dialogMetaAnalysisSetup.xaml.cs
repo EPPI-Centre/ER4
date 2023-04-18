@@ -29,7 +29,7 @@ namespace EppiReviewer4
 {
     public partial class dialogMetaAnalysisSetup : RadWindow
     {
-        public event EventHandler ReloadMetaAnalyses;
+        //public event EventHandler ReloadMetaAnalyses;
         private bool SettingUp;
         dialogReportViewer reports = new dialogReportViewer();
         private RadWindow windowReportsDocuments = new RadWindow();
@@ -175,26 +175,50 @@ namespace EppiReviewer4
 
         private void SaveMetaAnalysis(bool CloseWindow, bool SetSelectSelectable)
         {
-            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            MetaAnalysis _currentSelectedMetaAnalysis = (MetaAnalysis)this.DataContext;
+            ////we also replace the new (saved) obj into the global list of MAs (new: April 2023)
+            CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+            MetaAnalysisList mald = maldProvider.Data as MetaAnalysisList;
+            MetaAnalysis toSwap = mald.FirstOrDefault(f => f.MetaAnalysisId == _currentSelectedMetaAnalysis.MetaAnalysisId);
+            int index = mald.IndexOf(toSwap);
             if (_currentSelectedMetaAnalysis.Title != "")
             {
                 UpdateCurrentMetaAnalysis();
                 _currentSelectedMetaAnalysis.Saved += (o, e2) =>
                 {
                     radBusyEditMAIndicator.IsBusy = false;
+                    MetaAnalysis returnedMA = (MetaAnalysis)e2.NewObject;
                     if (e2.Error != null)
                         MessageBox.Show(e2.Error.Message);
+                    ////we also replace the new (saved) obj into the global list of MAs (new: April 2023)
+                    //CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+                    //MetaAnalysisList mald = maldProvider.Data as MetaAnalysisList;
+                    //MetaAnalysis toSwap = mald.FirstOrDefault(f => f.MetaAnalysisId == returnedMA.MetaAnalysisId);
+                    //int toSwapInstance = 0;
+                    //if (toSwap != null)
+                    //{
+                    //    toSwapInstance = toSwap.Instance;
+                    //    mald.Remove(toSwap);
+                    //    toSwap = returnedMA;
+                    //    mald.Add(returnedMA);
+                    //}
+                    //else mald.Add(returnedMA);
                     if (CloseWindow == true)
                     {
-                        if (this.ReloadMetaAnalyses != null)
-                            this.ReloadMetaAnalyses.Invoke(this, EventArgs.Empty);
+                        if (maldProvider != null)
+                            maldProvider.Refresh();
                         dialogMetaAnalysisSetupWindow.Close();
                     }
                     else
                     {
-                        this.DataContext = e2.NewObject as MetaAnalysis;
+                        mald[index] = returnedMA;
+                        this.DataContext = returnedMA;
+                        maldProvider.Rebind();
+                        //if (maldProvider != null)
+                        //    maldProvider.Refresh();
                         SetUpOutcomesGrid(SetSelectSelectable);
                     }
+
                 };
                 radBusyEditMAIndicator.Visibility = System.Windows.Visibility.Visible;
                 radBusyEditMAIndicator.IsBusy = true;
@@ -287,36 +311,207 @@ namespace EppiReviewer4
 
         private void SetGridViewMetaStudiesFilters()
         {
+            //see: https://docs.telerik.com/devtools/silverlight/controls/radgridview/filtering/programmatic
             MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
             GridViewMetaStudies.SortDescriptors.Clear();
             GridViewMetaStudies.FilterDescriptors.Clear();
-            if (_currentSelectedMetaAnalysis != null && _currentSelectedMetaAnalysis.GridSettings != "")
+            if (_currentSelectedMetaAnalysis != null 
+                && _currentSelectedMetaAnalysis.FilterSettingsList != null
+                && _currentSelectedMetaAnalysis.FilterSettingsList.Count > 0)
             {
-                byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(_currentSelectedMetaAnalysis.GridSettings);
-                using (System.IO.Stream stream = new System.IO.MemoryStream(byteArray))
+                GridViewMetaStudies.FilterDescriptors.SuspendNotifications();
+                foreach (MetaAnalysisFilterSetting setting in _currentSelectedMetaAnalysis.FilterSettingsList)
                 {
-                    stream.Position = 0L;
-                    PersistenceManager manager = new PersistenceManager();
-                    manager.Load(GridViewMetaStudies, stream);
-                }
-                Telerik.Windows.Data.SortDescriptorCollection sdc = GridViewMetaStudies.SortDescriptors;
-                _currentSelectedMetaAnalysis.SortedBy = "";
-                _currentSelectedMetaAnalysis.SortDirection = "";
-                foreach (Telerik.Windows.Controls.GridView.ColumnSortDescriptor sd in sdc) // there's actually only 1!
-                {
-                    _currentSelectedMetaAnalysis.SortedBy = (sd.Column as GridViewDataColumn).DataMemberBinding.Path.Path;
-                    if (sd.SortDirection == ListSortDirection.Ascending)
+                    GridViewColumn col = GridViewMetaStudies.Columns[setting.ColumnName];
+                    if (col != null)
                     {
-                        _currentSelectedMetaAnalysis.SortDirection = "Ascending";
-                    }
-                    else
-                    {
-                        _currentSelectedMetaAnalysis.SortDirection = "Descending";
-                    }
-                }
+                        IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
+                        if (setting.SelectedValues != null && setting.SelectedValues != "")
+                        {
+                            string[] vals = setting.SelectedValues.Split(new string[] { "{¬}" }, StringSplitOptions.RemoveEmptyEntries);
+                            if (vals != null)
+                            {
+                                foreach(string selval in vals)
+                                {
+                                    colFilter.DistinctFilter.AddDistinctValue(selval);
+                                }
+                            }
+                        }
+                        if (setting.Filter1 != null)
+                        {
+                            if (setting.Filter1 == "") colFilter.FieldFilter.Filter1.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue; 
+                            else colFilter.FieldFilter.Filter1.Value = setting.Filter1;
+                            switch (setting.Filter1Operator)
+                            {
+                                case "IsLessThan":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsLessThan;
+                                    break;
+                                case "IsLessThanOrEqualTo":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsLessThanOrEqualTo;
+                                    break;
+                                case "IsEqualTo":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEqualTo;
+                                    break;
+                                case "IsNotEqualTo":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotEqualTo;
+                                    break;
+                                case "IsGreaterThanOrEqualTo":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsGreaterThanOrEqualTo;
+                                    break;
+                                case "IsGreaterThan":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsGreaterThan;
+                                    break;
+                                case "StartsWith":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.StartsWith;
+                                    break;
+                                case "EndsWith":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.EndsWith;
+                                    break;
+                                case "Contains":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.Contains;
+                                    break;
+                                case "DoesNotContain":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.DoesNotContain;
+                                    break;
+                                case "IsContainedIn":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsContainedIn;
+                                    break;
+                                case "IsNotContainedIn":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotContainedIn;
+                                    break;
+                                case "IsNull":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNull;
+                                    break;
+                                case "IsNotNull":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotNull;
+                                    break;
+                                case "IsEmpty":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEmpty;
+                                    break;
+                                case "IsNotEmpty":
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotEmpty;
+                                    break;
+                                default:
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotNull;
+                                    break;
+                            }
 
-                //
+
+                            if (setting.FiltersLogicalOperator == "And")
+                            {
+                                colFilter.FieldFilter.LogicalOperator = Telerik.Windows.Data.FilterCompositionLogicalOperator.And;
+                            }
+                            else
+                            {
+                                colFilter.FieldFilter.LogicalOperator = Telerik.Windows.Data.FilterCompositionLogicalOperator.Or;
+                            }
+                        }
+                        else
+                        {
+                            colFilter.FieldFilter.Filter1.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
+                        }
+
+                        if (setting.Filter2 != null )
+                        {
+                            if (setting.Filter2 == "") colFilter.FieldFilter.Filter2.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
+                            else colFilter.FieldFilter.Filter2.Value = setting.Filter2;
+                            switch (setting.Filter2Operator)
+                            {
+                                case "IsLessThan":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsLessThan;
+                                    break;
+                                case "IsLessThanOrEqualTo":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsLessThanOrEqualTo;
+                                    break;
+                                case "IsEqualTo":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEqualTo;
+                                    break;
+                                case "IsNotEqualTo":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotEqualTo;
+                                    break;
+                                case "IsGreaterThanOrEqualTo":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsGreaterThanOrEqualTo;
+                                    break;
+                                case "IsGreaterThan":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsGreaterThan;
+                                    break;
+                                case "StartsWith":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.StartsWith;
+                                    break;
+                                case "EndsWith":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.EndsWith;
+                                    break;
+                                case "Contains":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.Contains;
+                                    break;
+                                case "DoesNotContain":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.DoesNotContain;
+                                    break;
+                                case "IsContainedIn":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsContainedIn;
+                                    break;
+                                case "IsNotContainedIn":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotContainedIn;
+                                    break;
+                                case "IsNull":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNull;
+                                    break;
+                                case "IsNotNull":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotNull;
+                                    break;
+                                case "IsEmpty":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEmpty;
+                                    break;
+                                case "IsNotEmpty":
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotEmpty;
+                                    break;
+                                default:
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotNull;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            colFilter.FieldFilter.Filter2.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
+                        }
+                    }
+                }
+                //GridViewMetaStudies.Rebind();
+                GridViewMetaStudies.FilterDescriptors.ResumeNotifications();
+                GridViewMetaStudies.FilterDescriptors.Reset();
+                //GridViewMetaStudies.Rebind();
             }
+
+            //MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            //GridViewMetaStudies.SortDescriptors.Clear();
+            //GridViewMetaStudies.FilterDescriptors.Clear();
+            //if (_currentSelectedMetaAnalysis != null && _currentSelectedMetaAnalysis.GridSettings != "")
+            //{
+            //    byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(_currentSelectedMetaAnalysis.GridSettings);
+            //    using (System.IO.Stream stream = new System.IO.MemoryStream(byteArray))
+            //    {
+            //        stream.Position = 0L;
+            //        PersistenceManager manager = new PersistenceManager();
+            //        manager.Load(GridViewMetaStudies, stream);
+            //    }
+            //    Telerik.Windows.Data.SortDescriptorCollection sdc = GridViewMetaStudies.SortDescriptors;
+            //    _currentSelectedMetaAnalysis.SortedBy = "";
+            //    _currentSelectedMetaAnalysis.SortDirection = "";
+            //    foreach (Telerik.Windows.Controls.GridView.ColumnSortDescriptor sd in sdc) // there's actually only 1!
+            //    {
+            //        _currentSelectedMetaAnalysis.SortedBy = (sd.Column as GridViewDataColumn).DataMemberBinding.Path.Path;
+            //        if (sd.SortDirection == ListSortDirection.Ascending)
+            //        {
+            //            _currentSelectedMetaAnalysis.SortDirection = "Ascending";
+            //        }
+            //        else
+            //        {
+            //            _currentSelectedMetaAnalysis.SortDirection = "Descending";
+            //        }
+            //    }
+
+            //    //
+            //}
         }
 
         private void ComboBoxMetaOutcomeType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -500,6 +695,170 @@ namespace EppiReviewer4
 
         private void GridViewMetaStudies_Filtered(object sender, GridViewFilteredEventArgs e)
         {
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            
+            if (_currentSelectedMetaAnalysis != null)
+            {
+                if (_currentSelectedMetaAnalysis.FilterSettingsList == null)
+                    _currentSelectedMetaAnalysis.FilterSettingsList = new MetaAnalysisFilterSettingList();
+
+                string colName = e.ColumnFilterDescriptor.Column.UniqueName;
+
+                MetaAnalysisFilterSetting setting = _currentSelectedMetaAnalysis.FilterSettingsList.FirstOrDefault(f => f.ColumnName == colName);
+                if (setting == null)
+                {//we're adding a new filter to a column that didn't have one, so we create the new object and add it to the current MA
+                    setting = new MetaAnalysisFilterSetting(_currentSelectedMetaAnalysis.MetaAnalysisId);
+                    setting.ColumnName = colName;
+                    _currentSelectedMetaAnalysis.FilterSettingsList.Add(setting);
+                }
+                if (setting != null)
+                {
+                    setting.Clear();
+                    string aggregateVals = "";
+                    foreach (object distinctValueObj in e.ColumnFilterDescriptor.DistinctFilter.DistinctValues)
+                    {
+                        string valStr = distinctValueObj.ToString();
+                        aggregateVals += valStr + "{¬}";
+                    }
+                    if (aggregateVals != "") aggregateVals = aggregateVals.Substring(0, aggregateVals.Length - 3);
+                    setting.SelectedValues = aggregateVals;
+
+                    if (e.ColumnFilterDescriptor.FieldFilter.Filter1 != null)
+                    {
+                        OperatorValueFilterDescriptorBase fVal = e.ColumnFilterDescriptor.FieldFilter.Filter1;
+                        if (fVal.Value == null) setting.Filter1 = "";
+                        else setting.Filter1 = fVal.Value.ToString();
+                        setting.Filter1CaseSensitive = fVal.IsCaseSensitive;
+                        switch (fVal.Operator)
+                        {
+                            case FilterOperator.IsLessThan:
+                                setting.Filter1Operator = "IsLessThan";
+                                break;
+                            case FilterOperator.IsLessThanOrEqualTo:
+                                setting.Filter1Operator = "IsLessThanOrEqualTo";
+                                break;
+                            case FilterOperator.IsEqualTo:
+                                setting.Filter1Operator = "IsEqualTo";
+                                break;
+                            case FilterOperator.IsNotEqualTo:
+                                setting.Filter1Operator = "IsNotEqualTo";
+                                break;
+                            case FilterOperator.IsGreaterThanOrEqualTo:
+                                setting.Filter1Operator = "IsGreaterThanOrEqualTo";
+                                break;
+                            case FilterOperator.IsGreaterThan:
+                                setting.Filter1Operator = "IsGreaterThan";
+                                break;
+                            case FilterOperator.StartsWith:
+                                setting.Filter1Operator = "StartsWith";
+                                break;
+                            case FilterOperator.EndsWith:
+                                setting.Filter1Operator = "EndsWith";
+                                break;
+                            case FilterOperator.Contains:
+                                setting.Filter1Operator = "Contains";
+                                break;
+                            case FilterOperator.DoesNotContain:
+                                setting.Filter1Operator = "DoesNotContain";
+                                break;
+                            case FilterOperator.IsContainedIn:
+                                setting.Filter1Operator = "IsContainedIn";
+                                break;
+                            case FilterOperator.IsNotContainedIn:
+                                setting.Filter1Operator = "IsNotContainedIn";
+                                break;
+                            case FilterOperator.IsNull:
+                                setting.Filter1Operator = "IsNull";
+                                break;
+                            case FilterOperator.IsNotNull:
+                                setting.Filter1Operator = "IsNotNull";
+                                break;
+                            case FilterOperator.IsEmpty:
+                                setting.Filter1Operator = "IsEmpty";
+                                break;
+                            case FilterOperator.IsNotEmpty:
+                                setting.Filter1Operator = "IsNotEmpty";
+                                break;
+                            default:
+                                setting.Filter1Operator = "IsNotNull";
+                                break;
+                        }
+                    }
+                }
+                if (e.ColumnFilterDescriptor.FieldFilter.LogicalOperator == FilterCompositionLogicalOperator.And)
+                {
+                    setting.FiltersLogicalOperator = "And";
+                }
+                else
+                {
+                    setting.FiltersLogicalOperator = "Or";
+                }
+                if (e.ColumnFilterDescriptor.FieldFilter.Filter2 != null)
+                {
+                    OperatorValueFilterDescriptorBase fVal = e.ColumnFilterDescriptor.FieldFilter.Filter2;
+                    if (fVal.Value == null) setting.Filter2 = "";
+                    else setting.Filter2 = fVal.Value.ToString();
+                    setting.Filter2CaseSensitive = fVal.IsCaseSensitive;
+                    switch (fVal.Operator)
+                    {
+                        case FilterOperator.IsLessThan:
+                            setting.Filter2Operator = "IsLessThan";
+                            break;
+                        case FilterOperator.IsLessThanOrEqualTo:
+                            setting.Filter2Operator = "IsLessThanOrEqualTo";
+                            break;
+                        case FilterOperator.IsEqualTo:
+                            setting.Filter2Operator = "IsEqualTo";
+                            break;
+                        case FilterOperator.IsNotEqualTo:
+                            setting.Filter2Operator = "IsNotEqualTo";
+                            break;
+                        case FilterOperator.IsGreaterThanOrEqualTo:
+                            setting.Filter2Operator = "IsGreaterThanOrEqualTo";
+                            break;
+                        case FilterOperator.IsGreaterThan:
+                            setting.Filter2Operator = "IsGreaterThan";
+                            break;
+                        case FilterOperator.StartsWith:
+                            setting.Filter2Operator = "StartsWith";
+                            break;
+                        case FilterOperator.EndsWith:
+                            setting.Filter2Operator = "EndsWith";
+                            break;
+                        case FilterOperator.Contains:
+                            setting.Filter2Operator = "Contains";
+                            break;
+                        case FilterOperator.DoesNotContain:
+                            setting.Filter2Operator = "DoesNotContain";
+                            break;
+                        case FilterOperator.IsContainedIn:
+                            setting.Filter2Operator = "IsContainedIn";
+                            break;
+                        case FilterOperator.IsNotContainedIn:
+                            setting.Filter2Operator = "IsNotContainedIn";
+                            break;
+                        case FilterOperator.IsNull:
+                            setting.Filter2Operator = "IsNull";
+                            break;
+                        case FilterOperator.IsNotNull:
+                            setting.Filter2Operator = "IsNotNull";
+                            break;
+                        case FilterOperator.IsEmpty:
+                            setting.Filter2Operator = "IsEmpty";
+                            break;
+                        case FilterOperator.IsNotEmpty:
+                            setting.Filter2Operator = "IsNotEmpty";
+                            break;
+                        default:
+                            setting.Filter2Operator = "IsNotNull";
+                            break;
+                    }
+                }
+                if (setting.IsClear)
+                {//there is no meaningful setting: delete.
+                    setting.Delete();
+                }
+            }
             SelectSelectable();
         }
 

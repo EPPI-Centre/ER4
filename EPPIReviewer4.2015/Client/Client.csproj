@@ -562,6 +562,12 @@
     <Compile Include="..\Server\BusinessClasses\MetaAnalysis.cs">
       <Link>BusinessClasses\MetaAnalysis.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysisFilterSetting.cs">
+      <Link>BusinessClasses\MetaAnalysisFilterSetting.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysisFilterSettingList.cs">
+      <Link>BusinessClasses\MetaAnalysisFilterSettingList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MetaAnalysisList.cs">
       <Link>BusinessClasses\MetaAnalysisList.cs</Link>
     </Compile>

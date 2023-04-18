@@ -2589,23 +2589,18 @@ namespace EppiReviewer4
 
         private void RefreshMetaAnalysisListData()
         {
-            CslaDataProvider MetaAnalysisListData = ((CslaDataProvider)this.Resources["MetaAnalysisListData"]);
+            CslaDataProvider MetaAnalysisListData = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
             MetaAnalysisListData.FactoryMethod = "GetMetaAnalysisList";
             MetaAnalysisListData.Refresh();
         }
 
-        private void CslaDataProviderMetaAnalysisListData_DataChanged(object sender, EventArgs e)
-        {
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["MetaAnalysisListData"]);
-            if (provider.Error != null)
-                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
-        }
+        
 
         private void cmdMetaNewMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
             dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
             dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
-            dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
+            //dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
             dialogMetaAnalysisSetupControl.ShowWindow(new MetaAnalysis());
         }
 
@@ -2636,7 +2631,7 @@ namespace EppiReviewer4
         {
             dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
             dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
-            dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
+            //dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
             MetaAnalysis _currentSelectedMetaAnalysis = ((Button)(sender)).DataContext as MetaAnalysis;
             dialogMetaAnalysisSetupControl.ShowWindow(((Button)(sender)).DataContext as MetaAnalysis);
         }
@@ -3134,7 +3129,7 @@ namespace EppiReviewer4
 
             if (DocumentListPane.SelectedPane.Name == "PaneMetaAnalysis")
             {
-                CslaDataProvider provider = this.Resources["MetaAnalysisListData"] as CslaDataProvider;
+                CslaDataProvider provider = App.Current.Resources["MetaAnalysisListData"] as CslaDataProvider;
                 if (provider != null)
                     provider.Refresh();
             }

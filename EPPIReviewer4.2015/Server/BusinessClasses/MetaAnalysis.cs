@@ -32,15 +32,19 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #if SILVERLIGHT
+        public MetaAnalysis() {
+            FilterSettingsList = new MetaAnalysisFilterSettingList();
+            Random rnd = new Random();
+            _instance = rnd.Next(1, 101);
+        }
+        private int _instance;
+        public int Instance { get { return _instance; } }
+#else 
         public MetaAnalysis()
         {
-            
+            FilterSettingsList = new MetaAnalysisFilterSettingList();
         }
-
-#else
-        public MetaAnalysis() { }
 #endif
-
         /*
          * Sets which type of analysis we're dealing with
          * 0 = meta-analysis
@@ -1481,6 +1485,20 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
+        private static PropertyInfo<MetaAnalysisFilterSettingList> FilterSettingsListProperty = RegisterProperty<MetaAnalysisFilterSettingList>(new PropertyInfo<MetaAnalysisFilterSettingList>("FilterSettingsList", "FilterSettingsList"));
+        public MetaAnalysisFilterSettingList FilterSettingsList
+        {
+            get
+            {
+                return GetProperty(FilterSettingsListProperty);
+            }
+            set
+            {
+                SetProperty(FilterSettingsListProperty, value);
+            }
+        }
+
+
         /* ************* Calculated properties *****************/
 
         private static PropertyInfo<Byte[]> feForestPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("feForestPlot", "feForestPlot"));
@@ -1893,11 +1911,13 @@ namespace BusinessLibrary.BusinessClasses
                         LoadProperty(AttributeQuestionTextProperty, "");
                 }
                 connection.Close();
+                SaveFilterSettings();
                 Outcomes = OutcomeList.GetOutcomeList(SetId, AttributeIdIntervention, AttributeIdControl,
                         AttributeIdOutcome, AttributeId, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
                 MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
             }
         }
+        
 
         protected void insert_object()
         {
@@ -1996,12 +2016,28 @@ namespace BusinessLibrary.BusinessClasses
                         LoadProperty(AttributeQuestionTextProperty, command.Parameters["@ATTRIBUTE_QUESTION_TEXT"].Value);
                     else
                         LoadProperty(AttributeQuestionTextProperty, "");
-
+                    SaveFilterSettings();
                     Outcomes = OutcomeList.GetOutcomeList(SetId, AttributeIdIntervention, AttributeIdControl,
                         AttributeIdOutcome, AttributeId, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
                     MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
                 }
                 connection.Close();
+            }
+        }
+        private void SaveFilterSettings()
+        {
+            bool settingsSaved = false;
+            foreach (MetaAnalysisFilterSetting el in FilterSettingsList)
+            {
+                if (el.IsDirty == true)
+                {
+                    settingsSaved = false;
+                    MetaAnalysisFilterSetting throwAway = el.Save();
+                }
+            }
+            if (settingsSaved)
+            {
+                this.FilterSettingsList = MetaAnalysisFilterSettingList.GetMetaAnalysisFilterSettingList(MetaAnalysisId);
             }
         }
 
@@ -2131,6 +2167,7 @@ namespace BusinessLibrary.BusinessClasses
             //    returnValue.AttributeIdOutcome, returnValue.AttributeId, returnValue.MetaAnalysisId, returnValue.AttributeIdQuestion, returnValue.AttributeIdAnswer);
 
             returnValue.MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
+            returnValue.FilterSettingsList = MetaAnalysisFilterSettingList.GetMetaAnalysisFilterSettingList(returnValue.MetaAnalysisId);
 
             return returnValue;
         }

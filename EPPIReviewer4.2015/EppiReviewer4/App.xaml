@@ -134,7 +134,13 @@
                            FactoryMethod="GetMagCurrentInfo"
                            DataChanged="CslaDataProvider_DataChanged_7"
                            />
-            
+            <cslaXAML:CslaDataProvider x:Key="MetaAnalysisListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MetaAnalysisList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMetaAnalysisList"
+                           DataChanged="CslaDataProviderMetaAnalysisListData_DataChanged"
+                           />
         </ResourceDictionary>
 
 

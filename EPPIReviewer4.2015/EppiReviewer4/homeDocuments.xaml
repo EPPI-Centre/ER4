@@ -73,13 +73,7 @@
                            />
         
         
-        <cslaXAML:CslaDataProvider x:Key="MetaAnalysisListData"
-                           ManageObjectLifetime="True"
-                           IsInitialLoadEnabled="False"
-                           ObjectType="BusinessLibrary.BusinessClasses.MetaAnalysisList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
-                           FactoryMethod="GetMetaAnalysisList"
-                           DataChanged="CslaDataProviderMetaAnalysisListData_DataChanged"
-                           />
+        
         <!--<cslaXAML:CslaDataProvider x:Key="ReviewContactNVLData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="True"
