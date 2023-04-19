@@ -176,11 +176,6 @@ namespace EppiReviewer4
         private void SaveMetaAnalysis(bool CloseWindow, bool SetSelectSelectable)
         {
             MetaAnalysis _currentSelectedMetaAnalysis = (MetaAnalysis)this.DataContext;
-            ////we also replace the new (saved) obj into the global list of MAs (new: April 2023)
-            CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
-            MetaAnalysisList mald = maldProvider.Data as MetaAnalysisList;
-            MetaAnalysis toSwap = mald.FirstOrDefault(f => f.MetaAnalysisId == _currentSelectedMetaAnalysis.MetaAnalysisId);
-            int index = mald.IndexOf(toSwap);
             if (_currentSelectedMetaAnalysis.Title != "")
             {
                 UpdateCurrentMetaAnalysis();
@@ -190,19 +185,11 @@ namespace EppiReviewer4
                     MetaAnalysis returnedMA = (MetaAnalysis)e2.NewObject;
                     if (e2.Error != null)
                         MessageBox.Show(e2.Error.Message);
-                    ////we also replace the new (saved) obj into the global list of MAs (new: April 2023)
-                    //CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
-                    //MetaAnalysisList mald = maldProvider.Data as MetaAnalysisList;
-                    //MetaAnalysis toSwap = mald.FirstOrDefault(f => f.MetaAnalysisId == returnedMA.MetaAnalysisId);
-                    //int toSwapInstance = 0;
-                    //if (toSwap != null)
-                    //{
-                    //    toSwapInstance = toSwap.Instance;
-                    //    mald.Remove(toSwap);
-                    //    toSwap = returnedMA;
-                    //    mald.Add(returnedMA);
-                    //}
-                    //else mald.Add(returnedMA);
+                    //we also replace the new (saved) obj into the global list of MAs (new: April 2023)
+                    CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+                    MetaAnalysisList mald = maldProvider.Data as MetaAnalysisList;
+                    MetaAnalysis toSwap = mald.FirstOrDefault(f => f.MetaAnalysisId == _currentSelectedMetaAnalysis.MetaAnalysisId);
+                    int index = mald.IndexOf(toSwap);
                     if (CloseWindow == true)
                     {
                         if (maldProvider != null)
@@ -210,8 +197,9 @@ namespace EppiReviewer4
                         dialogMetaAnalysisSetupWindow.Close();
                     }
                     else
-                    {
-                        mald[index] = returnedMA;
+                    {//changed on April 2023
+                        if (index == -1) mald.Add(returnedMA);
+                        else mald[index] = returnedMA;
                         this.DataContext = returnedMA;
                         maldProvider.Rebind();
                         //if (maldProvider != null)
@@ -326,6 +314,7 @@ namespace EppiReviewer4
                     if (col != null)
                     {
                         IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
+                        colFilter.Clear();//necessary despite having already called GridViewMetaStudies.FilterDescriptors.Clear(); - go figure!
                         if (setting.SelectedValues != null && setting.SelectedValues != "")
                         {
                             string[] vals = setting.SelectedValues.Split(new string[] { "{¬}" }, StringSplitOptions.RemoveEmptyEntries);
@@ -333,7 +322,18 @@ namespace EppiReviewer4
                             {
                                 foreach(string selval in vals)
                                 {
-                                    colFilter.DistinctFilter.AddDistinctValue(selval);
+                                    if (col.UniqueName.StartsWith("aa"))
+                                    {//for our purposes, these columns have numeric values (actually 0 or 1), bound fields are of type long/Int64
+                                        Int64 intVal;
+                                        if (Int64.TryParse(selval, out intVal)) colFilter.DistinctFilter.AddDistinctValue(intVal);
+                                    }
+                                    else if (col.UniqueName.StartsWith("occ"))
+                                    {//these cols refer to int values
+                                        int intVal;
+                                        if (int.TryParse(selval, out intVal)) colFilter.DistinctFilter.AddDistinctValue(intVal);
+                                    }
+                                    else colFilter.DistinctFilter.AddDistinctValue(selval);
+
                                 }
                             }
                         }
@@ -474,11 +474,14 @@ namespace EppiReviewer4
                         {
                             colFilter.FieldFilter.Filter2.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
                         }
+                        bool tb = colFilter.IsActive;
+                        colFilter.Refresh();
+                        tb = colFilter.IsActive;
                     }
                 }
                 //GridViewMetaStudies.Rebind();
                 GridViewMetaStudies.FilterDescriptors.ResumeNotifications();
-                GridViewMetaStudies.FilterDescriptors.Reset();
+                //GridViewMetaStudies.FilterDescriptors.Reset();
                 //GridViewMetaStudies.Rebind();
             }
 
@@ -514,6 +517,10 @@ namespace EppiReviewer4
             //}
         }
 
+        private void ReapplyFilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetGridViewMetaStudiesFilters();
+        }
         private void ComboBoxMetaOutcomeType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             SelectSelectable();

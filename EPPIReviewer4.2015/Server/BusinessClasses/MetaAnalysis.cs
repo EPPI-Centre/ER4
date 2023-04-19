@@ -2031,7 +2031,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (el.IsDirty == true)
                 {
-                    settingsSaved = false;
+                    settingsSaved = true;
                     MetaAnalysisFilterSetting throwAway = el.Save();
                 }
             }

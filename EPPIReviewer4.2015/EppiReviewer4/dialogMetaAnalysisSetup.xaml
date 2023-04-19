@@ -636,6 +636,7 @@
                 <TextBlock Text="{Binding IsNew}"></TextBlock>
                 <TextBlock Text=" | IsDirty: "></TextBlock>
                 <TextBlock Text="{Binding IsDirty}"></TextBlock>
+                <Button Content="Re-apply Filter" Click="ReapplyFilterButton_Click" />
             </StackPanel>
 </Grid>
        
