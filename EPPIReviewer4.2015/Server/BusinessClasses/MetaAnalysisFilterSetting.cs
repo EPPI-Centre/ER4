@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> MetaAnalysisIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MetaAnalysisId", "MetaAnalysisId", 0));
+        public static readonly PropertyInfo<int> MetaAnalysisIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MetaAnalysisId", "MetaAnalysisId", 0));
         public int MetaAnalysisId
         {
             get

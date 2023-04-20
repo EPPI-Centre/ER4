@@ -32,11 +32,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ER-Web-API", "ER-Web\ER-Web
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ER-Web-Client", "ER-Web-Client\ER-Web-Client.esproj", "{FF8E9864-49B7-4A4A-BA1D-FF618CA99D16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{F68FCCD2-9866-464E-B1C1-8D1D8953D753}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{F68FCCD2-9866-464E-B1C1-8D1D8953D753}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E} = {B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E}
 		{EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8} = {EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutcomesGridSettingsConverter", "OutcomesGridSettingsConverter\OutcomesGridSettingsConverter.csproj", "{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +116,18 @@ Global
 		{F68FCCD2-9866-464E-B1C1-8D1D8953D753}.Release|x64.Build.0 = Release|Any CPU
 		{F68FCCD2-9866-464E-B1C1-8D1D8953D753}.Release|x86.ActiveCfg = Release|Any CPU
 		{F68FCCD2-9866-464E-B1C1-8D1D8953D753}.Release|x86.Build.0 = Release|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|x64.Build.0 = Debug|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|x86.Build.0 = Debug|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|x64.ActiveCfg = Release|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|x64.Build.0 = Release|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|x86.ActiveCfg = Release|Any CPU
+		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
