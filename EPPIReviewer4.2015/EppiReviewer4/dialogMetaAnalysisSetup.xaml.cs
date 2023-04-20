@@ -307,6 +307,33 @@ namespace EppiReviewer4
                 && _currentSelectedMetaAnalysis.FilterSettingsList != null
                 && _currentSelectedMetaAnalysis.FilterSettingsList.Count > 0)
             {
+                //first the easy bit: sorting
+                if (_currentSelectedMetaAnalysis.SortedBy != "")
+                {
+                    ColumnSortDescriptor csd = new ColumnSortDescriptor();
+                    string colname = "";
+                    if (_currentSelectedMetaAnalysis.SortedBy.StartsWith("aa")
+                        || _currentSelectedMetaAnalysis.SortedBy.StartsWith("aq")
+                        || _currentSelectedMetaAnalysis.SortedBy.StartsWith("occ")
+                        )
+                        colname = _currentSelectedMetaAnalysis.SortedBy;
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "ES") colname = "ESColumn";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "SEES") colname = "SEESColumn";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "ShortTitle") colname = "titleColumn";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "Title") colname = "DescColumn";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "TimepointDisplayValue") colname = "TimepointColumn";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "OutcomeTypeName") colname = "OutcomeTypeName";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "OutcomeText") colname = "OutcomeColumn";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "InterventionText") colname = "InterventionColumn";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "ControlText") colname = "ComparisonColumn";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "grp1ArmName") colname = "Arm1Column";
+                    else if (_currentSelectedMetaAnalysis.SortedBy == "grp2ArmName") colname = "Arm2Column";
+                    csd.Column = GridViewMetaStudies.Columns[colname];
+                    csd.SortDirection = _currentSelectedMetaAnalysis.SortDirection == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
+                    GridViewMetaStudies.SortDescriptors.Add(csd);
+                }
+
+                //then the tricky filters
                 GridViewMetaStudies.FilterDescriptors.SuspendNotifications();
                 foreach (MetaAnalysisFilterSetting setting in _currentSelectedMetaAnalysis.FilterSettingsList)
                 {

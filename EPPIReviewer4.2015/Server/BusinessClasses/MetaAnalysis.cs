@@ -1892,6 +1892,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@CertaintyLevel", ReadProperty(CertaintyLevelProperty)));
                     command.Parameters.Add(new SqlParameter("@CertaintyLevelComment", ReadProperty(CertaintyLevelCommentProperty)));
 
+                    command.Parameters.Add(new SqlParameter("@SORTED_FIELD", ReadProperty(SortedByProperty)));
+                    command.Parameters.Add(new SqlParameter("@SORT_DIRECTION", System.Data.SqlDbType.Bit));
+                    if (SortDirection == "") command.Parameters["@SORT_DIRECTION"].Value = null;
+                    else if (SortDirection == "Ascending") command.Parameters["@SORT_DIRECTION"].Value = true;
+                    else command.Parameters["@SORT_DIRECTION"].Value = false;
+
                     SqlParameter par = new SqlParameter("@ATTRIBUTE_ANSWER_TEXT", System.Data.SqlDbType.NVarChar);
                     par.Size = 4000;
                     command.Parameters.Add(par);
@@ -1994,6 +2000,14 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@UpgradeNone", ReadProperty(UpgradeNoneProperty)));
                     command.Parameters.Add(new SqlParameter("@CertaintyLevel", ReadProperty(CertaintyLevelProperty)));
                     command.Parameters.Add(new SqlParameter("@CertaintyLevelComment", ReadProperty(CertaintyLevelCommentProperty)));
+
+
+                    command.Parameters.Add(new SqlParameter("@SORTED_FIELD", ReadProperty(SortedByProperty)));
+                    command.Parameters.Add(new SqlParameter("@SORT_DIRECTION", System.Data.SqlDbType.Bit));
+                    if (SortDirection == "") command.Parameters["@SORT_DIRECTION"].Value = null;
+                    else if (SortDirection == "Ascending") command.Parameters["@SORT_DIRECTION"].Value = true;
+                    else command.Parameters["@SORT_DIRECTION"].Value = false;
+
                     SqlParameter par = new SqlParameter("@NEW_META_ANALYSIS_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par);
@@ -2006,7 +2020,11 @@ namespace BusinessLibrary.BusinessClasses
                     par3.Size = 4000;
                     command.Parameters.Add(par3);
                     command.Parameters["@ATTRIBUTE_QUESTION_TEXT"].Direction = System.Data.ParameterDirection.Output;
+
+
+
                     command.ExecuteNonQuery();
+
                     LoadProperty(MetaAnalysisIdProperty, command.Parameters["@NEW_META_ANALYSIS_ID"].Value);
                     if (AttributeIdAnswer != "")
                         LoadProperty(AttributeAnswerTextProperty, command.Parameters["@ATTRIBUTE_ANSWER_TEXT"].Value);
@@ -2160,6 +2178,13 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(UpgradeNoneProperty, reader.GetBoolean("UpgradeNone"));
             returnValue.LoadProperty<int>(CertaintyLevelProperty, reader.GetInt32("CertaintyLevel"));
             returnValue.LoadProperty<string>(CertaintyLevelCommentProperty, reader.GetString("CertaintyLevelComment"));
+            
+            returnValue.LoadProperty<string>(SortedByProperty, reader.GetString("SORTED_FIELD"));
+            bool? sortdir = reader.GetValue("SORT_DIRECTION") as bool?;
+            if (sortdir == null) returnValue.LoadProperty<string>(SortDirectionProperty, "");
+            else if (sortdir == true) returnValue.LoadProperty<string>(SortDirectionProperty, "Ascending");
+            else  returnValue.LoadProperty<string>(SortDirectionProperty, "Descending");
+
             returnValue.MarkOld();
 
             //loading on the fly now, as they take too long if there's a lot of outcomes / meta-analyses
