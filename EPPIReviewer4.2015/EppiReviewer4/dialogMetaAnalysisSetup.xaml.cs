@@ -419,7 +419,7 @@ namespace EppiReviewer4
                                     colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotEmpty;
                                     break;
                                 default:
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotNull;
+                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEqualTo;
                                     break;
                             }
 
@@ -493,7 +493,7 @@ namespace EppiReviewer4
                                     colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotEmpty;
                                     break;
                                 default:
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotNull;
+                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEqualTo;
                                     break;
                             }
                         }
