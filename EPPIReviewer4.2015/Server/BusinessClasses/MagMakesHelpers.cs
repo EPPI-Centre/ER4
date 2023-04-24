@@ -635,7 +635,7 @@ namespace BusinessLibrary.BusinessClasses
             // Hard to tell whether it's better or worse removing stopwords
             searchText = (removeStopwords(" " + searchText + " ")).Trim();
             string[] words = searchText.Split(' ');
-            Array.Sort(words);
+            //Array.Sort(words);
             searchText = string.Join(" ", words.Take(10));
             if (searchText != "")
             {
@@ -723,7 +723,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     DOI = "https://doi.org/" + DOI;
                 }
-                string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
+                string apiKey = "?api_key=" + AzureSettings.OpenAlexApiKey;
                 string responseText = doOaRequest(@"works/" + DOI + apiKey);
 
                 var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.OaPaper>(responseText, jsonsettings);
