@@ -368,6 +368,7 @@ namespace EppiReviewer4
                         {
                             if (setting.Filter1 == "") colFilter.FieldFilter.Filter1.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue; 
                             else colFilter.FieldFilter.Filter1.Value = setting.Filter1;
+                            colFilter.FieldFilter.Filter1.IsCaseSensitive = setting.Filter1CaseSensitive;
                             switch (setting.Filter1Operator)
                             {
                                 case "IsLessThan":
@@ -442,6 +443,7 @@ namespace EppiReviewer4
                         {
                             if (setting.Filter2 == "") colFilter.FieldFilter.Filter2.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
                             else colFilter.FieldFilter.Filter2.Value = setting.Filter2;
+                            colFilter.FieldFilter.Filter2.IsCaseSensitive = setting.Filter2CaseSensitive;
                             switch (setting.Filter2Operator)
                             {
                                 case "IsLessThan":

@@ -435,7 +435,7 @@ public partial class Program
                 if (ValueElement != null && ValueElement.Value == "true") IsCaseSensitiveRes = true;
             }
         }
-        if (FilterValueStr != "" && Operator != "")
+        if (FilterValueStr != "" || Operator != "")
         {
             if (isFilter1)
             {
