@@ -1837,7 +1837,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ANSWER", ReadProperty(AttributeIdAnswerProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_QUESTION", ReadProperty(AttributeIdQuestionProperty)));
                     command.Parameters.Add(new SqlParameter("@META_ANALYSIS_TYPE_ID", ReadProperty(MetaAnalysisTypeIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
+                    //command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
                     command.Parameters.Add(new SqlParameter("@OUTCOME_IDS", OutcomeIds()));
                     command.Parameters.Add(new SqlParameter("@Randomised", ReadProperty(RandomisedProperty)));
                     command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
@@ -1947,7 +1947,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@OUTCOME_IDS", OutcomeIds()));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ANSWER", ReadProperty(AttributeIdAnswerProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_QUESTION", ReadProperty(AttributeIdQuestionProperty)));
-                    command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
+                    //command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
                     command.Parameters.Add(new SqlParameter("@Randomised", ReadProperty(RandomisedProperty)));
                     command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
                     command.Parameters.Add(new SqlParameter("@RoBComment", ReadProperty(RoBCommentProperty)));
@@ -2116,7 +2116,7 @@ namespace BusinessLibrary.BusinessClasses
             //returnValue.LoadProperty<string>(OutcomeTextProperty, reader.GetString("OUTCOME_TEXT"));
             returnValue.LoadProperty<string>(AttributeIdAnswerProperty, reader.GetString("ATTRIBUTE_ID_ANSWER"));
             returnValue.LoadProperty<string>(AttributeIdQuestionProperty, reader.GetString("ATTRIBUTE_ID_QUESTION"));
-            returnValue.LoadProperty<string>(GridSettingsProperty, reader.GetString("GRID_SETTINGS"));
+            //returnValue.LoadProperty<string>(GridSettingsProperty, reader.GetString("GRID_SETTINGS"));
             if (returnValue.AttributeIdAnswer != "")
                 returnValue.LoadProperty<string>(AttributeAnswerTextProperty, reader.GetString("ATTRIBUTE_ANSWER_TEXT"));
             else

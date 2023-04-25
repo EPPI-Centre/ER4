@@ -163,9 +163,9 @@ namespace EppiReviewer4
             _currentSelectedMetaAnalysis.Verbose = cbOutputType.SelectedIndex;
             _currentSelectedMetaAnalysis.NMAStatisticalModel = ComboBoxNetMetaOutcomeType.SelectedIndex;
 
-            PersistenceManager manager = new PersistenceManager();
-            System.IO.StreamReader sr = new System.IO.StreamReader(manager.Save(GridViewMetaStudies));
-            _currentSelectedMetaAnalysis.GridSettings = sr.ReadToEnd();
+            //PersistenceManager manager = new PersistenceManager();
+            //System.IO.StreamReader sr = new System.IO.StreamReader(manager.Save(GridViewMetaStudies));
+            //_currentSelectedMetaAnalysis.GridSettings = sr.ReadToEnd();
         }
 
         private void cmdMetaSaveMetaAnalysis_Click(object sender, RoutedEventArgs e)
