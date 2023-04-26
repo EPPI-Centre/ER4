@@ -452,7 +452,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="30"></RowDefinition>
+                <!--<RowDefinition Height="30"></RowDefinition>-->
             </Grid.RowDefinitions>
 
                 <telerikNavigation:RadToolBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" x:Name="GridToolBar" Margin="1,1,1,0">
@@ -627,7 +627,7 @@
                 </telerikGridView:RadGridView.Columns>
             </telerikGridView:RadGridView>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <!--<StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                 <TextBlock Text="Id:"></TextBlock>
                 <TextBlock Text="{Binding MetaAnalysisId}"></TextBlock>
                 <TextBlock Text=" | Instance: "></TextBlock>
@@ -637,7 +637,7 @@
                 <TextBlock Text=" | IsDirty: "></TextBlock>
                 <TextBlock Text="{Binding IsDirty}"></TextBlock>
                 <Button Content="Re-apply Filter" Click="ReapplyFilterButton_Click" />
-            </StackPanel>
+            </StackPanel>-->
 </Grid>
        
 

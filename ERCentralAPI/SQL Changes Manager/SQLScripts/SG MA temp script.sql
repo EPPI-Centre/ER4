@@ -216,7 +216,7 @@ BEGIN
 	
 
 		ALTER TABLE dbo.TB_META_ANALYSIS ADD
-			SORTED_FIELD varchar(20) NULL,
+			SORTED_FIELD varchar(21) NULL,
 			SORT_DIRECTION bit NULL
 
 		ALTER TABLE dbo.TB_META_ANALYSIS SET (LOCK_ESCALATION = TABLE)
@@ -338,8 +338,8 @@ ALTER procedure [dbo].[st_MetaAnalysisInsert]
 	@CertaintyLevel [int]  = NULL,
 	@CertaintyLevelComment [ntext] =  NULL
 
-	, @SORTED_FIELD varchar(20)
-	, @SORT_DIRECTION bit
+	, @SORTED_FIELD varchar(21)
+	, @SORT_DIRECTION bit = null
 
 	, @ATTRIBUTE_ANSWER_TEXT NVARCHAR(MAX) OUTPUT
 	, @ATTRIBUTE_QUESTION_TEXT NVARCHAR(MAX) OUTPUT
@@ -659,7 +659,7 @@ ALTER procedure [dbo].[st_MetaAnalysisUpdate]
 	@CertaintyLevel [int]  = NULL,
 	@CertaintyLevelComment [ntext] =  NULL,
 
-	@SORTED_FIELD varchar(20) =  NULL,
+	@SORTED_FIELD varchar(21) =  NULL,
 	@SORT_DIRECTION bit =  NULL,
 
 	@ATTRIBUTE_ANSWER_TEXT NVARCHAR(MAX) OUTPUT,

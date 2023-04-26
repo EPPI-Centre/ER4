@@ -31,20 +31,20 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch(new SingleCriteria<MetaAnalysis, int>(Id));
         }
 
-#if SILVERLIGHT
-        public MetaAnalysis() {
-            FilterSettingsList = new MetaAnalysisFilterSettingList();
-            Random rnd = new Random();
-            _instance = rnd.Next(1, 101);
-        }
-        private int _instance;
-        public int Instance { get { return _instance; } }
-#else 
+//#if SILVERLIGHT
+//        public MetaAnalysis() {
+//            FilterSettingsList = new MetaAnalysisFilterSettingList();
+//            Random rnd = new Random();
+//            _instance = rnd.Next(1, 101);
+//        }
+//        private int _instance;
+//        public int Instance { get { return _instance; } }
+//#else 
         public MetaAnalysis()
         {
             FilterSettingsList = new MetaAnalysisFilterSettingList();
         }
-#endif
+//#endif
         /*
          * Sets which type of analysis we're dealing with
          * 0 = meta-analysis
@@ -1364,6 +1364,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(MetaAnalysisTypeTitleProperty);
             }
+            set
+            {
+                SetProperty(MetaAnalysisTypeTitleProperty, value);
+            }
         }
 
         private static PropertyInfo<string> InterventionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("InterventionText", "InterventionText", string.Empty));
@@ -2000,10 +2004,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@UpgradeNone", ReadProperty(UpgradeNoneProperty)));
                     command.Parameters.Add(new SqlParameter("@CertaintyLevel", ReadProperty(CertaintyLevelProperty)));
                     command.Parameters.Add(new SqlParameter("@CertaintyLevelComment", ReadProperty(CertaintyLevelCommentProperty)));
-
-
+                    
                     command.Parameters.Add(new SqlParameter("@SORTED_FIELD", ReadProperty(SortedByProperty)));
                     command.Parameters.Add(new SqlParameter("@SORT_DIRECTION", System.Data.SqlDbType.Bit));
+                    command.Parameters["@SORT_DIRECTION"].IsNullable = true;
                     if (SortDirection == "") command.Parameters["@SORT_DIRECTION"].Value = null;
                     else if (SortDirection == "Ascending") command.Parameters["@SORT_DIRECTION"].Value = true;
                     else command.Parameters["@SORT_DIRECTION"].Value = false;

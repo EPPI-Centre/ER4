@@ -303,9 +303,7 @@ namespace EppiReviewer4
             MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
             GridViewMetaStudies.SortDescriptors.Clear();
             GridViewMetaStudies.FilterDescriptors.Clear();
-            if (_currentSelectedMetaAnalysis != null 
-                && _currentSelectedMetaAnalysis.FilterSettingsList != null
-                && _currentSelectedMetaAnalysis.FilterSettingsList.Count > 0)
+            if (_currentSelectedMetaAnalysis != null)
             {
                 //first the easy bit: sorting
                 if (_currentSelectedMetaAnalysis.SortedBy != "")
@@ -331,187 +329,197 @@ namespace EppiReviewer4
                     csd.Column = GridViewMetaStudies.Columns[colname];
                     csd.SortDirection = _currentSelectedMetaAnalysis.SortDirection == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
                     GridViewMetaStudies.SortDescriptors.Add(csd);
+                    //GridViewMetaStudies.InvalidateArrange();
+                    //GridViewMetaStudies.Rebind();
+                    //GridViewMetaStudies.UpdateLayout();
                 }
 
                 //then the tricky filters
-                GridViewMetaStudies.FilterDescriptors.SuspendNotifications();
-                foreach (MetaAnalysisFilterSetting setting in _currentSelectedMetaAnalysis.FilterSettingsList)
+                if (_currentSelectedMetaAnalysis.FilterSettingsList != null
+                && _currentSelectedMetaAnalysis.FilterSettingsList.Count > 0)
                 {
-                    GridViewColumn col = GridViewMetaStudies.Columns[setting.ColumnName];
-                    if (col != null)
+                    GridViewMetaStudies.FilterDescriptors.SuspendNotifications();
+                    foreach (MetaAnalysisFilterSetting setting in _currentSelectedMetaAnalysis.FilterSettingsList)
                     {
-                        IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
-                        colFilter.Clear();//necessary despite having already called GridViewMetaStudies.FilterDescriptors.Clear(); - go figure!
-                        if (setting.SelectedValues != null && setting.SelectedValues != "")
+                        GridViewColumn col = GridViewMetaStudies.Columns[setting.ColumnName];
+                        if (col != null)
                         {
-                            string[] vals = setting.SelectedValues.Split(new string[] { "{¬}" }, StringSplitOptions.RemoveEmptyEntries);
-                            if (vals != null)
+                            IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
+                            colFilter.Clear();//necessary despite having already called GridViewMetaStudies.FilterDescriptors.Clear(); - go figure!
+                            if (setting.SelectedValues != null && setting.SelectedValues != "")
                             {
-                                foreach(string selval in vals)
+                                string[] vals = setting.SelectedValues.Split(new string[] { "{¬}" }, StringSplitOptions.RemoveEmptyEntries);
+                                if (vals != null)
                                 {
-                                    if (col.UniqueName.StartsWith("aa"))
-                                    {//for our purposes, these columns have numeric values (actually 0 or 1), bound fields are of type long/Int64
-                                        Int64 intVal;
-                                        if (Int64.TryParse(selval, out intVal)) colFilter.DistinctFilter.AddDistinctValue(intVal);
-                                    }
-                                    else if (col.UniqueName.StartsWith("occ"))
-                                    {//these cols refer to int values
-                                        int intVal;
-                                        if (int.TryParse(selval, out intVal)) colFilter.DistinctFilter.AddDistinctValue(intVal);
-                                    }
-                                    else colFilter.DistinctFilter.AddDistinctValue(selval);
+                                    foreach (string selval in vals)
+                                    {
+                                        if (col.UniqueName.StartsWith("aa"))
+                                        {//for our purposes, these columns have numeric values (actually 0 or 1), bound fields are of type long/Int64
+                                            Int64 intVal;
+                                            if (Int64.TryParse(selval, out intVal)) colFilter.DistinctFilter.AddDistinctValue(intVal);
+                                        }
+                                        else if (col.UniqueName.StartsWith("occ"))
+                                        {//these cols refer to int values
+                                            int intVal;
+                                            if (int.TryParse(selval, out intVal)) colFilter.DistinctFilter.AddDistinctValue(intVal);
+                                        }
+                                        else colFilter.DistinctFilter.AddDistinctValue(selval);
 
+                                    }
                                 }
                             }
-                        }
-                        if (setting.Filter1 != null)
-                        {
-                            if (setting.Filter1 == "") colFilter.FieldFilter.Filter1.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue; 
-                            else colFilter.FieldFilter.Filter1.Value = setting.Filter1;
-                            colFilter.FieldFilter.Filter1.IsCaseSensitive = setting.Filter1CaseSensitive;
-                            switch (setting.Filter1Operator)
+                            if (setting.Filter1 != null)
                             {
-                                case "IsLessThan":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsLessThan;
-                                    break;
-                                case "IsLessThanOrEqualTo":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsLessThanOrEqualTo;
-                                    break;
-                                case "IsEqualTo":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEqualTo;
-                                    break;
-                                case "IsNotEqualTo":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotEqualTo;
-                                    break;
-                                case "IsGreaterThanOrEqualTo":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsGreaterThanOrEqualTo;
-                                    break;
-                                case "IsGreaterThan":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsGreaterThan;
-                                    break;
-                                case "StartsWith":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.StartsWith;
-                                    break;
-                                case "EndsWith":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.EndsWith;
-                                    break;
-                                case "Contains":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.Contains;
-                                    break;
-                                case "DoesNotContain":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.DoesNotContain;
-                                    break;
-                                case "IsContainedIn":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsContainedIn;
-                                    break;
-                                case "IsNotContainedIn":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotContainedIn;
-                                    break;
-                                case "IsNull":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNull;
-                                    break;
-                                case "IsNotNull":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotNull;
-                                    break;
-                                case "IsEmpty":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEmpty;
-                                    break;
-                                case "IsNotEmpty":
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotEmpty;
-                                    break;
-                                default:
-                                    colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEqualTo;
-                                    break;
-                            }
+                                if (setting.Filter1 == "") colFilter.FieldFilter.Filter1.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
+                                else colFilter.FieldFilter.Filter1.Value = setting.Filter1;
+                                colFilter.FieldFilter.Filter1.IsCaseSensitive = setting.Filter1CaseSensitive;
+                                switch (setting.Filter1Operator)
+                                {
+                                    case "IsLessThan":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsLessThan;
+                                        break;
+                                    case "IsLessThanOrEqualTo":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsLessThanOrEqualTo;
+                                        break;
+                                    case "IsEqualTo":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEqualTo;
+                                        break;
+                                    case "IsNotEqualTo":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotEqualTo;
+                                        break;
+                                    case "IsGreaterThanOrEqualTo":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsGreaterThanOrEqualTo;
+                                        break;
+                                    case "IsGreaterThan":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsGreaterThan;
+                                        break;
+                                    case "StartsWith":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.StartsWith;
+                                        break;
+                                    case "EndsWith":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.EndsWith;
+                                        break;
+                                    case "Contains":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.Contains;
+                                        break;
+                                    case "DoesNotContain":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.DoesNotContain;
+                                        break;
+                                    case "IsContainedIn":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsContainedIn;
+                                        break;
+                                    case "IsNotContainedIn":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotContainedIn;
+                                        break;
+                                    case "IsNull":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNull;
+                                        break;
+                                    case "IsNotNull":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotNull;
+                                        break;
+                                    case "IsEmpty":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEmpty;
+                                        break;
+                                    case "IsNotEmpty":
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsNotEmpty;
+                                        break;
+                                    default:
+                                        colFilter.FieldFilter.Filter1.Operator = FilterOperator.IsEqualTo;
+                                        break;
+                                }
 
 
-                            if (setting.FiltersLogicalOperator == "And")
-                            {
-                                colFilter.FieldFilter.LogicalOperator = Telerik.Windows.Data.FilterCompositionLogicalOperator.And;
+                                if (setting.FiltersLogicalOperator == "And")
+                                {
+                                    colFilter.FieldFilter.LogicalOperator = Telerik.Windows.Data.FilterCompositionLogicalOperator.And;
+                                }
+                                else
+                                {
+                                    colFilter.FieldFilter.LogicalOperator = Telerik.Windows.Data.FilterCompositionLogicalOperator.Or;
+                                }
                             }
                             else
                             {
-                                colFilter.FieldFilter.LogicalOperator = Telerik.Windows.Data.FilterCompositionLogicalOperator.Or;
+                                colFilter.FieldFilter.Filter1.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
                             }
-                        }
-                        else
-                        {
-                            colFilter.FieldFilter.Filter1.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
-                        }
 
-                        if (setting.Filter2 != null )
-                        {
-                            if (setting.Filter2 == "") colFilter.FieldFilter.Filter2.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
-                            else colFilter.FieldFilter.Filter2.Value = setting.Filter2;
-                            colFilter.FieldFilter.Filter2.IsCaseSensitive = setting.Filter2CaseSensitive;
-                            switch (setting.Filter2Operator)
+                            if (setting.Filter2 != null)
                             {
-                                case "IsLessThan":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsLessThan;
-                                    break;
-                                case "IsLessThanOrEqualTo":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsLessThanOrEqualTo;
-                                    break;
-                                case "IsEqualTo":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEqualTo;
-                                    break;
-                                case "IsNotEqualTo":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotEqualTo;
-                                    break;
-                                case "IsGreaterThanOrEqualTo":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsGreaterThanOrEqualTo;
-                                    break;
-                                case "IsGreaterThan":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsGreaterThan;
-                                    break;
-                                case "StartsWith":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.StartsWith;
-                                    break;
-                                case "EndsWith":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.EndsWith;
-                                    break;
-                                case "Contains":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.Contains;
-                                    break;
-                                case "DoesNotContain":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.DoesNotContain;
-                                    break;
-                                case "IsContainedIn":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsContainedIn;
-                                    break;
-                                case "IsNotContainedIn":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotContainedIn;
-                                    break;
-                                case "IsNull":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNull;
-                                    break;
-                                case "IsNotNull":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotNull;
-                                    break;
-                                case "IsEmpty":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEmpty;
-                                    break;
-                                case "IsNotEmpty":
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotEmpty;
-                                    break;
-                                default:
-                                    colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEqualTo;
-                                    break;
+                                if (setting.Filter2 == "") colFilter.FieldFilter.Filter2.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
+                                else colFilter.FieldFilter.Filter2.Value = setting.Filter2;
+                                colFilter.FieldFilter.Filter2.IsCaseSensitive = setting.Filter2CaseSensitive;
+                                switch (setting.Filter2Operator)
+                                {
+                                    case "IsLessThan":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsLessThan;
+                                        break;
+                                    case "IsLessThanOrEqualTo":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsLessThanOrEqualTo;
+                                        break;
+                                    case "IsEqualTo":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEqualTo;
+                                        break;
+                                    case "IsNotEqualTo":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotEqualTo;
+                                        break;
+                                    case "IsGreaterThanOrEqualTo":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsGreaterThanOrEqualTo;
+                                        break;
+                                    case "IsGreaterThan":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsGreaterThan;
+                                        break;
+                                    case "StartsWith":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.StartsWith;
+                                        break;
+                                    case "EndsWith":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.EndsWith;
+                                        break;
+                                    case "Contains":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.Contains;
+                                        break;
+                                    case "DoesNotContain":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.DoesNotContain;
+                                        break;
+                                    case "IsContainedIn":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsContainedIn;
+                                        break;
+                                    case "IsNotContainedIn":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotContainedIn;
+                                        break;
+                                    case "IsNull":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNull;
+                                        break;
+                                    case "IsNotNull":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotNull;
+                                        break;
+                                    case "IsEmpty":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEmpty;
+                                        break;
+                                    case "IsNotEmpty":
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsNotEmpty;
+                                        break;
+                                    default:
+                                        colFilter.FieldFilter.Filter2.Operator = FilterOperator.IsEqualTo;
+                                        break;
+                                }
                             }
+                            else
+                            {
+                                colFilter.FieldFilter.Filter2.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
+                            }
+                            //bool tb = colFilter.IsActive;
+                            //colFilter.Refresh();
+                            //tb = colFilter.IsActive;
                         }
-                        else
-                        {
-                            colFilter.FieldFilter.Filter2.Value = Telerik.Windows.Data.OperatorValueFilterDescriptorBase.UnsetValue;
-                        }
-                        bool tb = colFilter.IsActive;
-                        colFilter.Refresh();
-                        tb = colFilter.IsActive;
                     }
+                    GridViewMetaStudies.FilterDescriptors.ResumeNotifications();
                 }
-                //GridViewMetaStudies.Rebind();
-                GridViewMetaStudies.FilterDescriptors.ResumeNotifications();
-                //GridViewMetaStudies.FilterDescriptors.Reset();
-                //GridViewMetaStudies.Rebind();
+                //else
+                //{
+                //    GridViewMetaStudies.FilterDescriptors.SuspendNotifications();
+                //    GridViewMetaStudies.FilterDescriptors.ResumeNotifications();
+                //}
+                
             }
 
             //MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
@@ -546,12 +554,19 @@ namespace EppiReviewer4
             //}
         }
 
-        private void ReapplyFilterButton_Click(object sender, RoutedEventArgs e)
-        {
-            SetGridViewMetaStudiesFilters();
-        }
+        //private void ReapplyFilterButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SetGridViewMetaStudiesFilters();
+        //}
+
         private void ComboBoxMetaOutcomeType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            ComboBoxItem selected = ComboBoxMetaOutcomeType.SelectedItem as ComboBoxItem;
+            if (selected != null && selected.Content != null)
+            {
+                _currentSelectedMetaAnalysis.MetaAnalysisTypeTitle = selected.Content.ToString();
+            }
             SelectSelectable();
         }
 
