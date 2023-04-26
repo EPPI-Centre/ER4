@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Csla.Security.MembershipIdentity;
 
 namespace IntegrationTests.Story_Tests
 {
@@ -26,9 +27,9 @@ namespace IntegrationTests.Story_Tests
     [Collection("Database collection")]
     public class BuildDemoReviewStory : FixedLoginTest
     {
-        protected override string username { get; set; }
-        protected override string password { get; set; }
-        protected override int ReviewId { get; set; }
+        protected override string username;
+        protected override string password;
+        protected override int ReviewId;
         public BuildDemoReviewStory(ApiWebApplicationFactory fixture) : base(fixture)
         {
             username = "bob";
@@ -112,6 +113,7 @@ namespace IntegrationTests.Story_Tests
 
             // get items with this code...
 
+            JsonNode? ItemList = await FetchItemsWithThisCode(attributeIdExc1.ToString());
 
 
             //var itemAttributeId = ghi["itemAttributeId"].ToString();
@@ -163,6 +165,91 @@ namespace IntegrationTests.Fixtures
             res.Should().NotBeNull();
             return res;
         }
+
+        public async Task<JsonNode?> FetchItemsWithThisCode(string attributeSetIdList)
+        {
+
+            /*
+            bool showDeleted;
+            int sourceId;
+            int searchId;
+            Int64 xAxisSetId;
+            Int64 xAxisAttributeId;
+            Int64 yAxisSetId;
+            Int64 yAxisAttributeId;
+            Int64 filterSetId;
+            Int64 filterAttributeId;
+            string attributeSetIdList;
+            string listType;
+            int pageNumber;
+            int pageSize;
+            int totalItems;
+            int startPage;
+            int endPage;
+            int startIndex;
+            int endIndex;
+            int workAllocationId;
+            int comparisonId;
+
+            int magSimulationId;
+            string description;
+            int contactId;
+            int setId;
+            bool showInfoColumn;
+            bool showScoreColumn;
+
+            string withOutAttributesIdsList;
+            string withAttributesIds;
+            string withSetIdsList;
+            string withOutSetIdsList;
+            */
+
+            SelCritMVC crit = new SelCritMVC();
+            crit.onlyIncluded = true;
+            crit.showDeleted = false;
+            crit.sourceId = 0;
+            crit.searchId = 0;
+            crit.xAxisSetId = 0;
+            crit.xAxisAttributeId = 0;
+            crit.yAxisSetId = 0;
+            crit.yAxisAttributeId = 0;
+            crit.filterSetId = 0;
+            crit.filterAttributeId = 0;
+            crit.attributeSetIdList = attributeSetIdList; // this is what to search for. It can be a list of items.
+            crit.listType = "StandardItemList";  
+            crit.pageNumber = 0;
+            crit.pageSize = 100;
+            crit.totalItems = 0;
+            crit.startPage = 0;
+            crit.endPage = 0;
+            crit.startIndex = 0;
+            crit.endIndex = 0;
+            crit.workAllocationId = 0;
+            crit.comparisonId = 0;
+
+            crit.magSimulationId = 0;
+            crit.description = "";
+            crit.contactId = 0;
+            crit.setId = 0;
+            crit.showInfoColumn = true;
+            crit.showScoreColumn = false;
+
+            crit.withOutAttributesIdsList = "";
+            crit.withAttributesIds = "";
+            crit.withSetIdsList = "";
+            crit.withOutSetIdsList = "";
+
+
+
+            JsonNode? res = await client.PostAndDeserialize("api/ItemList/Fetch", crit);
+            res.Should().NotBeNull();
+            return res;
+
+
+        }
+
     }
+
+
 }
     
