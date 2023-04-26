@@ -41,7 +41,19 @@ foreach (string Arg in args)
         if (int.TryParse(Arg.Substring(6), out revid)) JustThisReview = revid;
     }
 }
-
+LogMessage("");
+LogMessage("Outcomes MA table settings conversion utility.");
+LogMessage("USAGE:");
+LogMessage("Without \"options\", this utility will run without saving results to the DB, allowing to check if it can parse all values in the DB without errors.");
+LogMessage("Adding the \"SaveResults\" (not case sensitive) option will make the utility save the results to the DB.");
+LogMessage("the \"revid:xxx\" option makes the utility run against the indicated review only.");
+LogMessage("");
+LogMessage("");
+LogMessage("Running with settings:");
+LogMessage("SaveResults = " + SaveResults.ToString());
+LogMessage(JustThisReview == 0 ? "Processing all reviews." : "Processing only review: " + JustThisReview.ToString());
+LogMessage("");
+LogMessage("");
 DoWork();
 
 
@@ -73,6 +85,8 @@ public partial class Program
     private static bool SaveResults = false;
     public static void DoWork()
     {
+        LogMessage("Reading data from DB...");
+        LogMessage("");
         string SQLget = @"select META_ANALYSIS_TITLE, META_ANALYSIS_ID, REVIEW_ID, len(grid_settings) as length,
                             cast(cast(cast(GRID_SETTINGS as varchar(max)) as xml).query('data(/RawData/SerializationString)') as XML).value('.[1]','nvarchar(max)' ) as decoded,
                             cast(cast(GRID_SETTINGS as varchar(max)) as xml).query('data(/RawData/SerializationString)') as val,
@@ -87,15 +101,15 @@ public partial class Program
             while (reader.Read())
             {
                 XDocument xdoc = XDocument.Parse((string)reader["decoded"]);
-                
+
                 inList.Add(new IncomingXLM()
                 {
                     MaId = (int)reader["META_ANALYSIS_ID"],
                     XMLtoParse = xdoc
-                }) ; 
+                });
 
                 line++;
-                Logger.Debug("Line: " + line.ToString() + " MA Id: " + inList[inList.Count - 1].MaId.ToString());
+                LogMessage("Record: " + line.ToString() + " MA Id: " + inList[inList.Count - 1].MaId.ToString());
             }
         }
         List<ParsedValues> ToSave = new List<ParsedValues>();
@@ -104,14 +118,17 @@ public partial class Program
             ParsedValues parsed = ProcessSettings(setting);
             if (parsed.HasData()) ToSave.Add(parsed);
         }
-        Logger.Debug("Found " + ToSave.Count + " MAs with settings to convert/save.");
+        LogMessage("Found " + ToSave.Count + " MAs with settings to convert/save.");
         if (SaveResults)
         {
-            Logger.Debug("Saving results...");
+            LogMessage("Saving results...");
             using (SqlConnection connection = new SqlConnection(SqlHelper.ER4DB))
             {
+                int counter = 0;
                 foreach (ParsedValues parsed in ToSave)
                 {
+                    counter++;
+                    LogMessage("Saving settings " + counter.ToString() + " of " + ToSave.Count.ToString() + ". MA Id: " + parsed.MaId.ToString());
                     //1. Sort values, per MA, if any
                     if (parsed.SortByColName != "")
                     {
@@ -121,21 +138,21 @@ public partial class Program
                         int SqlRes = SqlHelper.ExecuteNonQueryNonSP(connection, SQLcmd);
                         if (SqlRes < 0)
                         {
-                            Logger.Error(Environment.NewLine);
-                            Logger.Error("Error saving sort vals for MA: " + parsed.MaId.ToString());
-                            Logger.Error(Environment.NewLine);
+                            LogMessage("", true);
+                            LogMessage("Error saving sort vals for MA: " + parsed.MaId.ToString(), true);
+                            LogMessage("", true);
                         }
                     }
-                    foreach(SingleFilterDescriptor SFD in parsed.Filters)
+                    foreach (SingleFilterDescriptor SFD in parsed.Filters)
                     {
                         string SQLcmd = "DELETE from TB_META_ANALYSIS_FILTER_SETTING WHERE META_ANALYSIS_ID = " + parsed.MaId.ToString()
                             + " AND COLUMN_NAME = '" + SFD.ColumnUniqueName + "'";
                         int SqlRes = SqlHelper.ExecuteNonQueryNonSP(connection, SQLcmd);
                         if (SqlRes < 0)
                         {
-                            Logger.Error(Environment.NewLine);
-                            Logger.Error("Error deleting existing filter settings for MA: " + parsed.MaId.ToString() + " colname: " + SFD.ColumnUniqueName);
-                            Logger.Error(Environment.NewLine);
+                            LogMessage("", true);
+                            LogMessage("Error deleting existing filter settings for MA: " + parsed.MaId.ToString() + " colname: " + SFD.ColumnUniqueName, true);
+                            LogMessage("", true);
                             continue;
                         }
                         SQLcmd = "INSERT INTO TB_META_ANALYSIS_FILTER_SETTING (META_ANALYSIS_ID ,COLUMN_NAME ,SELECTED_VALUES ,FILTER_1_VALUE ,FILTER_1_OPERATOR ,FILTER_1_CASE_SENSITIVE"
@@ -153,21 +170,21 @@ public partial class Program
                         SqlRes = SqlHelper.ExecuteNonQueryNonSP(connection, SQLcmd);
                         if (SqlRes < 0)
                         {
-                            Logger.Error(Environment.NewLine);
-                            Logger.Error("Error Inserting filter settings for MA: " + parsed.MaId.ToString() + " colname: " + SFD.ColumnUniqueName);
-                            Logger.Error(Environment.NewLine);
+                            LogMessage("", true);
+                            LogMessage("Error Inserting filter settings for MA: " + parsed.MaId.ToString() + " colname: " + SFD.ColumnUniqueName, true);
+                            LogMessage("", true);
                         }
                     }
                 }
             }
         }
-        
+
     }
     public static ParsedValues ProcessSettings(IncomingXLM setting)
     {
         ParsedValues res = new ParsedValues(setting.MaId);
-        XElement? EntryNode = setting.XMLtoParse.Descendants("R").Descendants().Where(f=> f.Name == "RV" 
-        && f.Attribute("IsRoot") != null 
+        XElement? EntryNode = setting.XMLtoParse.Descendants("R").Descendants().Where(f => f.Name == "RV"
+        && f.Attribute("IsRoot") != null
         && f.Attribute("IsRoot").Value == "true").FirstOrDefault();
         if (EntryNode == null) return res;
 
@@ -176,7 +193,7 @@ public partial class Program
         && f.Attribute("PN").Value == "FilterDescriptors").FirstOrDefault();
         if (FilterDescriptors != null)
         {
-            XElement? FilterDescriptorsListRV = setting.XMLtoParse.Descendants("R").Descendants("RV").Where(f =>f.Attribute("Key") != null
+            XElement? FilterDescriptorsListRV = setting.XMLtoParse.Descendants("R").Descendants("RV").Where(f => f.Attribute("Key") != null
             && f.Attribute("Key").Value == FilterDescriptors.Attribute("RK").Value).FirstOrDefault();
             if (FilterDescriptorsListRV != null)
             {
@@ -192,7 +209,7 @@ public partial class Program
                         ProcessSingleFilter(res, setting.XMLtoParse, FilterDescriptorRV);
                     }
                 }
-                Logger.Debug("Found one FilterDescriptor!");
+                LogMessage("Found one FilterDescriptor, MA id: " + setting.MaId.ToString());
             }
         }
 
@@ -232,7 +249,7 @@ public partial class Program
                                 if (SortValueElement != null && SortValueElement.Value != "")
                                 {
                                     res.SortByColName = SortValueElement.Value;
-                                    
+
                                     if (SortValueElement.Value.StartsWith("aa")
                                         || SortValueElement.Value.StartsWith("aq")
                                         || SortValueElement.Value.StartsWith("occ")
@@ -268,7 +285,7 @@ public partial class Program
                                             }
                                             if (res.SortByColName != "")
                                             {
-                                                Logger.Debug("Found one sort descriptor!");
+                                                LogMessage("Found one sort descriptor for MA id: " + setting.MaId.ToString());
                                             }
                                         }
                                     }
@@ -449,6 +466,20 @@ public partial class Program
                 res.Filter2Val = FilterValueStr;
                 res.Filter2Operator = Operator;
             }
+        }
+    }
+
+    private static void LogMessage(string message, bool isError = false)
+    {
+        if (!isError)
+        {
+            Console.WriteLine(message);
+            Logger.Debug(message);
+        }
+        else
+        {
+            Console.WriteLine("ERROR: " + message);
+            Logger.Error(message);
         }
     }
 }
