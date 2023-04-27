@@ -144,8 +144,28 @@ export class MAGComp implements OnInit, OnDestroy {
     }
     public ChangeContext(val: string) {
         //console.log("Main MAG: context is changing (from, to)", this.Context, val);
-        if (this.NavBar2) this.NavBar2.Context = val;
+      if (this.NavBar2) this.NavBar2.Context = val;
+      else {
+        //we probably just opened MAG components and things are initialising, better wait and try again;
+        this.RetryChangeContext(val);
+      }
+  }
+  public async RetryChangeContext(val: string) {
+    const retryMax: number = 20;
+    let count = 1;
+    while (count <= retryMax) {
+      await Helpers.Sleep(50);
+      console.log("Retry change context, attempt:", count);
+      if (this.NavBar2) {
+        count = count + retryMax;
+        this.NavBar2.Context = val;
+        return;
+      } else {
+        count++;
+      }
     }
+    console.log("Tried to change context to: " + val + ", but NavBar wasn't available.")
+  }
     public get MustMatchItems(): boolean {
         if (this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded > 0) return false;
         else if (this.MAGAdvancedService.AdvancedReviewInfo.reviewId > 0) {
