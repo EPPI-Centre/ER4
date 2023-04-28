@@ -429,6 +429,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       this.armservice.FetchAll(this.item);
       //this.armservice.Fetchtimepoints(this.item);
     }
+    this._outcomeService.outcomesChangedEE.emit();
     this.ItemCodingService.Fetch(this.itemID);
 
   }
