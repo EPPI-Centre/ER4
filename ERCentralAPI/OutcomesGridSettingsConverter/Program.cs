@@ -91,7 +91,7 @@ public partial class Program
                             cast(cast(cast(GRID_SETTINGS as varchar(max)) as xml).query('data(/RawData/SerializationString)') as XML).value('.[1]','nvarchar(max)' ) as decoded,
                             cast(cast(GRID_SETTINGS as varchar(max)) as xml).query('data(/RawData/SerializationString)') as val,
                             GRID_SETTINGS
-                            from TB_META_ANALYSIS where GRID_SETTINGS is not null";
+                            from TB_META_ANALYSIS where GRID_SETTINGS is not null AND GRID_SETTINGS != ''";
         if (JustThisReview > 0) SQLget += " AND REVIEW_ID = " + JustThisReview.ToString();
         List<IncomingXLM> inList = new List<IncomingXLM>();
         using (SqlConnection connection = new SqlConnection(SqlHelper.ER4DB))
@@ -100,6 +100,7 @@ public partial class Program
             int line = 0;
             while (reader.Read())
             {
+                string check = (string)reader["decoded"];
                 XDocument xdoc = XDocument.Parse((string)reader["decoded"]);
 
                 inList.Add(new IncomingXLM()
