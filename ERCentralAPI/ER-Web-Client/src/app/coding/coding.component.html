@@ -20,7 +20,8 @@
 
 
 			<div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
-                             ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
+                             ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen() && !ShowOutComes
+                             ,'col-12 col-sm-12 col-md-6 col-lg-5 pl-2 pr-2 align-self-end':!IsSmallScreen() && ShowOutComes
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
                             , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
 
@@ -57,7 +58,10 @@
 				</div>
 				<!--<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>-->
 			</div>
-			<div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end">
+			<div class=" m-0 pr-0 pl-0 align-self-end"
+					 [ngClass]="{'col-12 col-md-7 col-lg-9':IsSmallScreen()
+                             ,'col-sm-12 col-md-7 col-lg-9':!IsSmallScreen() && !ShowOutComes
+                             ,'col-sm-12 col-md-6 col-lg-7':!IsSmallScreen() && ShowOutComes}">
 				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
 					<div class="col-12 col-sm px-0 mb-1">
 						<itemDetailsPaginator [item]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"

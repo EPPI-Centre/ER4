@@ -155,7 +155,7 @@ export class MAGComp implements OnInit, OnDestroy {
     let count = 1;
     while (count <= retryMax) {
       await Helpers.Sleep(50);
-      console.log("Retry change context, attempt:", count);
+      //console.log("Retry change context, attempt:", count);
       if (this.NavBar2) {
         count = count + retryMax;
         this.NavBar2.Context = val;
@@ -164,7 +164,7 @@ export class MAGComp implements OnInit, OnDestroy {
         count++;
       }
     }
-    console.log("Tried to change context to: " + val + ", but NavBar wasn't available.")
+    console.log("ERROR!! Tried to change context to: " + val + ", but NavBar wasn't available after " + count.toString() + " attempts.")
   }
     public get MustMatchItems(): boolean {
         if (this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded > 0) return false;
