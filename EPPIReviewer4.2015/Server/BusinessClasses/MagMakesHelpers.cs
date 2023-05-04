@@ -23,7 +23,7 @@ namespace BusinessLibrary.BusinessClasses
 {
     public class MagMakesHelpers
     {
-       
+
         // ******************************************** OpenAlex objects ***************************************************************
 
         // Single WORK returned by e.g. https://api.openalex.org/W1767272795
@@ -36,20 +36,23 @@ namespace BusinessLibrary.BusinessClasses
             public int publication_year { get; set; }
             public string publication_date { get; set; }
             public Ids ids { get; set; }
-            public Host_Venue host_venue { get; set; }
+            public Location primary_location { get; set; }
             public string type { get; set; }
             public Open_Access open_access { get; set; }
             public Authorship[] authorships { get; set; }
+            public string[] corresponding_author_ids { get; set; }
+            public string[] corresponding_institution_ids { get; set; }
             public int cited_by_count { get; set; }
             public Biblio biblio { get; set; }
             public bool is_retracted { get; set; }
             public bool is_paratext { get; set; }
             public Concept[] concepts { get; set; }
             public Mesh[] mesh { get; set; }
-            public Alternate_Host_Venues[] alternate_host_venues { get; set; }
+            public Location[] locations { get; set; }
+            public Location best_oa_location { get; set; }
             public string[] referenced_works { get; set; }
             public string[] related_works { get; set; }
-            //public Abstract_Inverted_Index abstract_inverted_index { get; set; }
+            public string ngrams_url { get; set; }
             public Dictionary<string, int[]> abstract_inverted_index { get; set; }
             public string cited_by_api_url { get; set; }
             public Counts_By_Year[] counts_by_year { get; set; }
@@ -66,10 +69,33 @@ namespace BusinessLibrary.BusinessClasses
             public double matchingScore { get; set; }
 
             public string IdInteger
-            { 
+            {
                 get { return this.id.Replace("https://openalex.org/W", ""); }
             }
         }
+
+        //NEW classes May 2023 
+        public class Location
+        {
+            public bool is_oa { get; set; }
+            public string landing_page_url { get; set; }
+            public string pdf_url { get; set; }
+            public Source source { get; set; }
+            public string license { get; set; }
+            public string version { get; set; }
+        }
+        public class Source
+        {
+            public string id { get; set; }
+            public string display_name { get; set; }
+            public string issn_l { get; set; }
+            public string[] issn { get; set; }
+            public string host_organization { get; set; }
+            public string host_organization_name { get; set; }
+            public string[] host_organization_lineage { get; set; }
+            public string type { get; set; }
+        }
+
 
         //SG addition 27/07/2022 simple comparer to order OaPaper(s) by matchingScores 
         public class SortOaPapersByMatchingScore : IComparer<OaPaper>
@@ -478,7 +504,7 @@ namespace BusinessLibrary.BusinessClasses
             if (doSearch == true)
                 filterOrSearch = "search";
             string cursor = "*";
-            
+
             bool done = false;
             while (done == false)
             {
@@ -502,7 +528,7 @@ namespace BusinessLibrary.BusinessClasses
             return results;
         }
 
-        public static List<OaPaper> downloadTheseOpenAlexPapers(string [] Ids)
+        public static List<OaPaper> downloadTheseOpenAlexPapers(string[] Ids)
         {
             List<OaPaper> results = new List<OaPaper>();
             if (Ids.Length > 0)
@@ -593,7 +619,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        
+
 
         public static string doOaRequest(string expression)
         {
@@ -648,7 +674,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
                 string searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
-                
+
                 /*
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
                 if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
@@ -706,8 +732,8 @@ namespace BusinessLibrary.BusinessClasses
             return PaperList;
         }
 
-        
-       
+
+
         public static List<OaPaper> GetCandidateMatchesOnDOI(string DOI)
         {
             List<OaPaper> PaperList = new List<OaPaper>();
