@@ -801,15 +801,32 @@ namespace BusinessLibrary.BusinessClasses
                 returnValue.LoadProperty<string>(AuthorsProperty, a);
             }
             returnValue.LoadProperty<string>(AbstractProperty, MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index));
-            
+
             //fishing for the URL value
-            //we take the OpenAccess PDF url if present, otherwise the OpenAccess "landing_page_url".
-            //If neither is present, then we take the PDF url or landing page from primary_location 
+            //we take the OpenAccess "primary_location.landing_page_url" val
+            if (pm.primary_location != null)
+            {
+                if (pm.primary_location.landing_page_url != null && pm.primary_location.landing_page_url != "") 
+                    returnValue.LoadProperty<string>(URLsProperty, pm.primary_location.landing_page_url);
+                else if (pm.best_oa_location != null && pm.best_oa_location.landing_page_url != null && pm.best_oa_location.landing_page_url != "") returnValue.LoadProperty<string>(URLsProperty, pm.best_oa_location.landing_page_url);
+                else returnValue.LoadProperty<string>(URLsProperty, "");
+            }
+            //now look for PDF links...
+            string PDFLinks = "";
             if (pm.best_oa_location != null)
             {
-                if (pm.best_oa_location.pdf_url != null) returnValue.LoadProperty<string>(URLsProperty, pm.best_oa_location.pdf_url);
-                else if (pm.best_oa_location.landing_page_url != null) returnValue.LoadProperty<string>(URLsProperty, pm.best_oa_location.landing_page_url);
+                if (pm.best_oa_location.pdf_url != null) PDFLinks = pm.best_oa_location.pdf_url;
             }
+            if (pm.primary_location != null && pm.primary_location.pdf_url != null && pm.primary_location.pdf_url != "")
+            {
+                if (!PDFLinks.Contains(pm.primary_location.pdf_url))
+                {
+                    if (PDFLinks == "") PDFLinks = pm.primary_location.pdf_url;
+                    else PDFLinks += ";" + pm.primary_location.pdf_url;
+                }
+            }
+            returnValue.LoadProperty<string>(PdfLinksProperty, PDFLinks);
+
             if (returnValue.URLs == null || returnValue.URLs == "")
             {
                 returnValue.LoadProperty<string>(URLsProperty, "");//just making sure we never get a Null value in here
