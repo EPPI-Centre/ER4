@@ -2604,6 +2604,14 @@ namespace EppiReviewer4
             dialogMetaAnalysisSetupControl.ShowWindow(new MetaAnalysis());
         }
 
+        private void cmdEditMetaAnalysis_Click(object sender, RoutedEventArgs e)
+        {
+            dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
+            dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
+            //dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
+            MetaAnalysis _currentSelectedMetaAnalysis = ((Button)(sender)).DataContext as MetaAnalysis;
+            dialogMetaAnalysisSetupControl.ShowWindow(((Button)(sender)).DataContext as MetaAnalysis);
+        }
         private void cmdDeleteMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
             MetaAnalysis _currentSelectedMetaAnalysis = ((Button)(sender)).DataContext as MetaAnalysis;
@@ -2627,14 +2635,6 @@ namespace EppiReviewer4
             }
         }
 
-        private void cmdEditMetaAnalysis_Click(object sender, RoutedEventArgs e)
-        {
-            dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
-            dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
-            //dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
-            MetaAnalysis _currentSelectedMetaAnalysis = ((Button)(sender)).DataContext as MetaAnalysis;
-            dialogMetaAnalysisSetupControl.ShowWindow(((Button)(sender)).DataContext as MetaAnalysis);
-        }
 
         private void cmdRunMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
@@ -4901,6 +4901,38 @@ on the right of the main screen");
                 GridViewMetaAnalyses.SelectedItems.RemoveAt(0);
             }
         }
+        private void cmdSaveMetaAnalysis_Click(object sender, RoutedEventArgs e)
+        {
+            MetaAnalysis ma = (sender as Button).DataContext as MetaAnalysis;
+            ma.Saved += (o, e2) => 
+            {
+                if (e2.Error != null)
+                    MessageBox.Show(e2.Error.Message);
+                else
+                {
+                    MetaAnalysis returnedMA = (MetaAnalysis)e2.NewObject;
+                    if (returnedMA != null)
+                    {
+                        CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+                        if (maldProvider != null)
+                        {
+                            MetaAnalysisList mald = maldProvider.Data as MetaAnalysisList;
+                            MetaAnalysis toSwap = mald.FirstOrDefault(f => f.MetaAnalysisId == ma.MetaAnalysisId);
+                            int index = mald.IndexOf(toSwap);
+                            if (index == -1) mald.Add(returnedMA);
+                            else mald[index] = returnedMA;
+                            maldProvider.Rebind();
+                        }
+                    }
+                }
+            };
+            ma.BeginSave();
+            CslaDataProvider MetaAnalysisListData = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+            //MetaAnalysisListData.FactoryMethod = "GetMetaAnalysisList";
+            MetaAnalysisListData.Save();
+        }
+
+        
 
         private void cmdMetaSubGroup_Click(object sender, RoutedEventArgs e)
         {

@@ -34,6 +34,7 @@ namespace EppiReviewer4
         dialogReportViewer reports = new dialogReportViewer();
         private RadWindow windowReportsDocuments = new RadWindow();
         private RadWAddColumnToMA windowAddColumn = new RadWAddColumnToMA();
+        
 
         public dialogMetaAnalysisSetup()
         {
@@ -54,8 +55,7 @@ namespace EppiReviewer4
             windowReportsDocuments.Content = grd;
             //end of windowReportsDocuments
 
-            
-
+            HiddenFieldToCheck.Text = "Closing2";
             windowAddColumn.cmdOk_Clicked += new EventHandler<RoutedEventArgs>(windowAddColumn_cmdOk_Clicked);
         }
 
@@ -81,7 +81,9 @@ namespace EppiReviewer4
             if (ma.IsNew)
             {
                 ma.Title = "New meta-analysis";
-                SaveMetaAnalysis(false, true);
+                //2023 change: we don't save a new MA upon creation, we wait for users to save it, given we have a new "onclose" check
+                //SaveMetaAnalysis(false, true);
+                GetOutcomesList(true);
             }
             else
             {
@@ -115,10 +117,45 @@ namespace EppiReviewer4
                 else
                 {
                     ma = this.DataContext as MetaAnalysis;
-                    ma.Outcomes = e2.Object as OutcomeList;
+                    //bool IsDirtyCheck = ma.IsDirty;
+                    //if (IsDirtyCheck == true)
+                    //{
+                    //    RadWindow.Alert("AHA0");
+                    //    IsDirtyCheck = ma.IsDirty;
+                    //}
+                    //ma.Outcomes = e2.Object as OutcomeList;
+
+                    ma.SetOutcomesList(e2.Object as OutcomeList);
+                    //if (IsDirtyCheck != ma.IsDirty)
+                    //{
+                    //    RadWindow.Alert("AHA1");
+                    //    if (e2.Object.FirstOrDefault(f=> f.IsDirty == true) != null)
+                    //    {
+                    //        RadWindow.Alert("AHA1.2!");
+                    //    }
+                    //    IsDirtyCheck = ma.IsDirty;
+                    //}
+
                     cbModel.SelectedIndex = ma.StatisticalModel;
+                    //if (IsDirtyCheck != ma.IsDirty)
+                    //{
+                    //    RadWindow.Alert("AHA2");
+                    //    IsDirtyCheck = ma.IsDirty;
+                    //}
+
                     cbOutputType.SelectedIndex = ma.Verbose;
+                    //if (IsDirtyCheck != ma.IsDirty)
+                    //{
+                    //    RadWindow.Alert("AHA3");
+                    //    IsDirtyCheck = ma.IsDirty;
+                    //}
+
                     SetUpOutcomesGrid(SetSelectSelectable);
+                    //if (IsDirtyCheck != ma.IsDirty)
+                    //{
+                    //    RadWindow.Alert("AHA4");
+                    //    IsDirtyCheck = ma.IsDirty;
+                    //}
                     EnableDisableKNHA();
                 }
             };
@@ -132,8 +169,24 @@ namespace EppiReviewer4
             if (this.DataContext != null)
             {
                 MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+                //bool IsDirtyCheck = _currentSelectedMetaAnalysis.IsDirty;
+                
                 _currentSelectedMetaAnalysis.Outcomes.SetMetaAnalysisType(ComboBoxMetaOutcomeType.SelectedIndex);
+
+                //if (IsDirtyCheck != _currentSelectedMetaAnalysis.IsDirty)
+                //{
+                //    IsDirtyCheck = _currentSelectedMetaAnalysis.IsDirty;
+                //    RadWindow.Alert("BABA1");
+                //}
+
                 _currentSelectedMetaAnalysis.SetupModeratorList();
+
+                //if (IsDirtyCheck != _currentSelectedMetaAnalysis.IsDirty)
+                //{
+                //    IsDirtyCheck = _currentSelectedMetaAnalysis.IsDirty;
+                //    RadWindow.Alert("BABA2");
+                //}
+
                 GridViewMetaStudies.ItemsSource = _currentSelectedMetaAnalysis.Outcomes;
                 GridViewModerators.ItemsSource = _currentSelectedMetaAnalysis.MetaAnalysisModerators;
                 foreach (MetaAnalysisModerator mam in _currentSelectedMetaAnalysis.MetaAnalysisModerators)
@@ -179,6 +232,8 @@ namespace EppiReviewer4
             if (_currentSelectedMetaAnalysis.Title != "")
             {
                 UpdateCurrentMetaAnalysis();
+                if (_currentSelectedMetaAnalysis.IsDirty == false) _currentSelectedMetaAnalysis.DoMarkDirty();
+
                 _currentSelectedMetaAnalysis.Saved += (o, e2) =>
                 {
                     radBusyEditMAIndicator.IsBusy = false;
@@ -565,6 +620,7 @@ namespace EppiReviewer4
             ComboBoxItem selected = ComboBoxMetaOutcomeType.SelectedItem as ComboBoxItem;
             if (selected != null && selected.Content != null)
             {
+                _currentSelectedMetaAnalysis.MetaAnalysisTypeId = ComboBoxMetaOutcomeType.SelectedIndex;
                 _currentSelectedMetaAnalysis.MetaAnalysisTypeTitle = selected.Content.ToString();
             }
             SelectSelectable();
@@ -835,79 +891,81 @@ namespace EppiReviewer4
                                 break;
                         }
                     }
-                }
-                if (e.ColumnFilterDescriptor.FieldFilter.LogicalOperator == FilterCompositionLogicalOperator.And)
-                {
-                    setting.FiltersLogicalOperator = "And";
-                }
-                else
-                {
-                    setting.FiltersLogicalOperator = "Or";
-                }
-                if (e.ColumnFilterDescriptor.FieldFilter.Filter2 != null)
-                {
-                    OperatorValueFilterDescriptorBase fVal = e.ColumnFilterDescriptor.FieldFilter.Filter2;
-                    if (fVal.Value == null) setting.Filter2 = "";
-                    else setting.Filter2 = fVal.Value.ToString();
-                    setting.Filter2CaseSensitive = fVal.IsCaseSensitive;
-                    switch (fVal.Operator)
+
+                    if (e.ColumnFilterDescriptor.FieldFilter.LogicalOperator == FilterCompositionLogicalOperator.And)
                     {
-                        case FilterOperator.IsLessThan:
-                            setting.Filter2Operator = "IsLessThan";
-                            break;
-                        case FilterOperator.IsLessThanOrEqualTo:
-                            setting.Filter2Operator = "IsLessThanOrEqualTo";
-                            break;
-                        case FilterOperator.IsEqualTo:
-                            setting.Filter2Operator = "IsEqualTo";
-                            break;
-                        case FilterOperator.IsNotEqualTo:
-                            setting.Filter2Operator = "IsNotEqualTo";
-                            break;
-                        case FilterOperator.IsGreaterThanOrEqualTo:
-                            setting.Filter2Operator = "IsGreaterThanOrEqualTo";
-                            break;
-                        case FilterOperator.IsGreaterThan:
-                            setting.Filter2Operator = "IsGreaterThan";
-                            break;
-                        case FilterOperator.StartsWith:
-                            setting.Filter2Operator = "StartsWith";
-                            break;
-                        case FilterOperator.EndsWith:
-                            setting.Filter2Operator = "EndsWith";
-                            break;
-                        case FilterOperator.Contains:
-                            setting.Filter2Operator = "Contains";
-                            break;
-                        case FilterOperator.DoesNotContain:
-                            setting.Filter2Operator = "DoesNotContain";
-                            break;
-                        case FilterOperator.IsContainedIn:
-                            setting.Filter2Operator = "IsContainedIn";
-                            break;
-                        case FilterOperator.IsNotContainedIn:
-                            setting.Filter2Operator = "IsNotContainedIn";
-                            break;
-                        case FilterOperator.IsNull:
-                            setting.Filter2Operator = "IsNull";
-                            break;
-                        case FilterOperator.IsNotNull:
-                            setting.Filter2Operator = "IsNotNull";
-                            break;
-                        case FilterOperator.IsEmpty:
-                            setting.Filter2Operator = "IsEmpty";
-                            break;
-                        case FilterOperator.IsNotEmpty:
-                            setting.Filter2Operator = "IsNotEmpty";
-                            break;
-                        default:
-                            setting.Filter2Operator = "IsNotNull";
-                            break;
+                        setting.FiltersLogicalOperator = "And";
                     }
-                }
-                if (setting.IsClear)
-                {//there is no meaningful setting: delete.
-                    setting.Delete();
+                    else
+                    {
+                        setting.FiltersLogicalOperator = "Or";
+                    }
+                    if (e.ColumnFilterDescriptor.FieldFilter.Filter2 != null)
+                    {
+                        OperatorValueFilterDescriptorBase fVal = e.ColumnFilterDescriptor.FieldFilter.Filter2;
+                        if (fVal.Value == null) setting.Filter2 = "";
+                        else setting.Filter2 = fVal.Value.ToString();
+                        setting.Filter2CaseSensitive = fVal.IsCaseSensitive;
+                        switch (fVal.Operator)
+                        {
+                            case FilterOperator.IsLessThan:
+                                setting.Filter2Operator = "IsLessThan";
+                                break;
+                            case FilterOperator.IsLessThanOrEqualTo:
+                                setting.Filter2Operator = "IsLessThanOrEqualTo";
+                                break;
+                            case FilterOperator.IsEqualTo:
+                                setting.Filter2Operator = "IsEqualTo";
+                                break;
+                            case FilterOperator.IsNotEqualTo:
+                                setting.Filter2Operator = "IsNotEqualTo";
+                                break;
+                            case FilterOperator.IsGreaterThanOrEqualTo:
+                                setting.Filter2Operator = "IsGreaterThanOrEqualTo";
+                                break;
+                            case FilterOperator.IsGreaterThan:
+                                setting.Filter2Operator = "IsGreaterThan";
+                                break;
+                            case FilterOperator.StartsWith:
+                                setting.Filter2Operator = "StartsWith";
+                                break;
+                            case FilterOperator.EndsWith:
+                                setting.Filter2Operator = "EndsWith";
+                                break;
+                            case FilterOperator.Contains:
+                                setting.Filter2Operator = "Contains";
+                                break;
+                            case FilterOperator.DoesNotContain:
+                                setting.Filter2Operator = "DoesNotContain";
+                                break;
+                            case FilterOperator.IsContainedIn:
+                                setting.Filter2Operator = "IsContainedIn";
+                                break;
+                            case FilterOperator.IsNotContainedIn:
+                                setting.Filter2Operator = "IsNotContainedIn";
+                                break;
+                            case FilterOperator.IsNull:
+                                setting.Filter2Operator = "IsNull";
+                                break;
+                            case FilterOperator.IsNotNull:
+                                setting.Filter2Operator = "IsNotNull";
+                                break;
+                            case FilterOperator.IsEmpty:
+                                setting.Filter2Operator = "IsEmpty";
+                                break;
+                            case FilterOperator.IsNotEmpty:
+                                setting.Filter2Operator = "IsNotEmpty";
+                                break;
+                            default:
+                                setting.Filter2Operator = "IsNotNull";
+                                break;
+                        }
+                    }
+                    if (setting.IsClear)
+                    {//there is no meaningful setting: delete.
+                        setting.Delete();
+                    }
+                    _currentSelectedMetaAnalysis.DoMarkDirty();
                 }
             }
             SelectSelectable();
@@ -915,9 +973,20 @@ namespace EppiReviewer4
 
         private void cbModel_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            if (_currentSelectedMetaAnalysis != null && cbModel.SelectedIndex >= 0) _currentSelectedMetaAnalysis.StatisticalModel = cbModel.SelectedIndex;
             EnableDisableKNHA();
         }
-
+        private void cbOutputType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            if (_currentSelectedMetaAnalysis != null && cbOutputType.SelectedIndex >= 0) _currentSelectedMetaAnalysis.Verbose = cbOutputType.SelectedIndex;
+        }
+        private void ComboBoxNetMetaOutcomeType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            if (_currentSelectedMetaAnalysis != null && ComboBoxNetMetaOutcomeType.SelectedIndex >= 0) _currentSelectedMetaAnalysis.NMAStatisticalModel = ComboBoxNetMetaOutcomeType.SelectedIndex;
+        }
         private void EnableDisableKNHA()
         {
             if (cbModel != null && cbModel.SelectedIndex == 0)
@@ -1121,6 +1190,136 @@ namespace EppiReviewer4
             {
                 reports.SetContent(_currentSelectedMetaAnalysis.GRADEReport());
                 windowReportsDocuments.ShowDialog();
+            }
+        }
+
+        //complex workaround to ensure we detect MA object changes upon closing.
+        //if user changes a value in a text-box (or a checkbox) and clicks close without any other UI interaction
+        //the change hasn't propagated to the MA datacontext object, so the object will be seen as "Clean" (nothing to save)
+        //except the object will update itself _after_ the window is closed, and become dirty at that point... Go figure!
+        //methods below give time to the UI to "catch up" so that when we run RadWindow_ActuallyClose the MA object "IsDirty" field should be up-to-date
+        System.Windows.Threading.DispatcherTimer eventTimer;
+        int TimerCycles = 0; bool CheckedOnClose = false;
+        bool WindowStateTransitionDone = false;
+        private void eventTimer_Tick(object sender, EventArgs e)
+        {
+            TimerCycles++;
+            
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            if ((ComboBoxExportOutcomes.IsEnabled == false
+                && _currentSelectedMetaAnalysis.HiddenFieldToCheckTxt == "Closing"
+                )
+
+                || _currentSelectedMetaAnalysis.IsDirty
+                || TimerCycles > 30)
+            {
+                this.WindowState = WindowState.Maximized;
+                _currentSelectedMetaAnalysis.HiddenFieldToCheckTxt = "NotClosing";
+                ComboBoxExportOutcomes.IsEnabled = true;
+                CheckedOnClose = true;
+                eventTimer.Stop();
+                this.RadWindow_ActuallyClose();
+            }
+        }
+        private void RadWindow_PreviewClosed(object sender, WindowPreviewClosedEventArgs e)
+        {
+            if (CheckedOnClose)
+            {
+                CheckedOnClose = false;//makes sure the next time we close this same window instance (could happen!) we'll check again
+                return;
+            }
+
+            HiddenFieldToCheck.Text = "Closing";
+            bool check = MetaMetaAnalysisTitle.Focus();
+            this.WindowStateChanged += DialogMetaAnalysisSetup_WindowStateChanged;
+            this.WindowState = WindowState.Minimized;
+            //if (ComboBoxExportOutcomes.SelectedIndex == 0)
+            //{
+            //    TargetIndexCheck = 1;
+            //    ReturnIndexCheck = ComboBoxExportOutcomes.SelectedIndex;
+            //    ComboBoxExportOutcomes.SelectedIndex = 1;
+            //}
+            //else
+            //{
+            //    TargetIndexCheck = 0;
+            //    ReturnIndexCheck = ComboBoxExportOutcomes.SelectedIndex;
+            //    ComboBoxExportOutcomes.SelectedIndex = 0;
+            //}
+            e.Cancel = true;
+        }
+
+        private void DialogMetaAnalysisSetup_WindowStateChanged(object sender, EventArgs e)
+        {
+            TimerCycles = 0;
+            this.WindowStateChanged -= DialogMetaAnalysisSetup_WindowStateChanged;
+            eventTimer = new System.Windows.Threading.DispatcherTimer();
+            eventTimer.Interval = new TimeSpan(0, 0, 0, 0, 10); // tick every 500 milliseconds
+            eventTimer.Tick += new EventHandler(eventTimer_Tick);
+            eventTimer.Start();
+            WindowStateTransitionDone = true;
+            ComboBoxExportOutcomes.IsEnabled = false;
+            //MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+        }
+
+        private void RadWindow_ActuallyClose()
+        {
+            
+            
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            if (_currentSelectedMetaAnalysis != null)
+            {
+                if (_currentSelectedMetaAnalysis.IsDirty)
+                {
+                    if (_currentSelectedMetaAnalysis.IsNew)
+                    {
+                        RadWindow.Confirm("You have unsaved Changes! (Current MA is New)" + TimerCycles.ToString() 
+                            + Environment.NewLine + "Closing the MA window will discard all changes. Continue?"
+                            , OnConfrimClosing_MAisNew);
+                    }
+                    else
+                    {
+                        RadWindow.Confirm("You have unsaved Changes!" + TimerCycles.ToString()
+                            + Environment.NewLine + "Closing the MA window will discard all changes. Continue?"
+                            , OnConfrimClosing_MAisDirty);
+                    }
+                }
+            }
+            else
+            {
+                //RadWindow.Confirm("oihoi!", OnClosed);
+            }
+
+            CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+            if (maldProvider != null) maldProvider.Rebind();
+            this.Close();
+        }
+        private void OnConfrimClosing_MAisNew(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {// user wants to discard changes to a new MA
+                //MA was NOT saved and added to the list of MAs, so we don't need to do anything, it will be lost to the GC
+            }
+            else if (result == false)
+            {
+                //we simply cancel the closing by re-opening
+                dialogMetaAnalysisSetupWindow.ShowDialog();
+            }
+        }
+        private void OnConfrimClosing_MAisDirty(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                //the changed object is in the main list, and we don't know how to undo the changes.
+                //so we need to refresh the list of MAs
+                CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+                maldProvider.Refresh();
+            }
+            else if (result == false)
+            {
+                //we simply cancel the closing by re-opening
+                dialogMetaAnalysisSetupWindow.ShowDialog();
             }
         }
     }

@@ -42,7 +42,26 @@ namespace BusinessLibrary.BusinessClasses
 //#else 
         public MetaAnalysis()
         {
+            //Outcomes = new OutcomeList();
             FilterSettingsList = new MetaAnalysisFilterSettingList();
+        }
+
+        public void SetOutcomesList(OutcomeList outcomes)
+        {
+            bool wasDirty = this.IsDirty;
+            this.Outcomes = outcomes;
+            if (wasDirty == false && this.IsDirty == true)
+            {
+                this.MarkClean();
+            }
+        }
+        /// <summary>
+        /// Called when we modify a child in a list (FilterSettingsList) and want the MA to realise it has changes to save
+        /// For some reason with the code as is, it doesn't on its onw :-(
+        /// </summary>
+        public void DoMarkDirty()
+        {
+            this.MarkDirty();
         }
 //#endif
         /*
@@ -337,13 +356,16 @@ namespace BusinessLibrary.BusinessClasses
 
         public void SetupModeratorList()
         {
-            MetaAnalysisModerators.Clear();
+            bool wasDirty = this.IsDirty;
+            if (MetaAnalysisModerators == null) MetaAnalysisModerators = new MetaAnalysisModeratorList();
+            else MetaAnalysisModerators.Clear();
             MetaAnalysisModerator mam = new MetaAnalysisModerator();
             mam.Name = "Intervention";
             mam.IsSelected = false;
             mam.AttributeID = 0;
             mam.FieldName = "InterventionText";
             GetReferenceValues(mam, "InterventionText");
+            //mam.DoMarkAsOld();
             MetaAnalysisModerators.Add(mam);
             mam = new MetaAnalysisModerator();
             mam.Name = "Comparison";
@@ -351,6 +373,7 @@ namespace BusinessLibrary.BusinessClasses
             mam.AttributeID = 0;
             mam.FieldName = "ControlText";
             GetReferenceValues(mam, "ControlText");
+            //mam.DoMarkAsOld();
             MetaAnalysisModerators.Add(mam);
             mam = new MetaAnalysisModerator();
             mam.Name = "Outcome";
@@ -358,6 +381,7 @@ namespace BusinessLibrary.BusinessClasses
             mam.AttributeID = 0;
             mam.FieldName = "OutcomeText";
             GetReferenceValues(mam, "OutcomeText");
+            //mam.DoMarkAsOld();
             MetaAnalysisModerators.Add(mam);
             int z = 1;
             if (Outcomes != null)
@@ -372,6 +396,7 @@ namespace BusinessLibrary.BusinessClasses
                     mam.FieldName = "occ" + z.ToString();
                     mam.addReferenceValue("0", 0);
                     mam.addReferenceValue("1", 1);
+                    //mam.DoMarkAsOld();
                     MetaAnalysisModerators.Add(mam);
                     z++;
                 }
@@ -389,6 +414,7 @@ namespace BusinessLibrary.BusinessClasses
                     mam.addReferenceValue("0", 0);
                     mam.addReferenceValue("1", 1);
                     //GetReferenceValues(mam, "aa" + (i + 1).ToString());
+                    //mam.DoMarkAsOld();
                     MetaAnalysisModerators.Add(mam);
                 }
             }
@@ -403,9 +429,11 @@ namespace BusinessLibrary.BusinessClasses
                     mam.AttributeID = -1;
                     mam.FieldName = "aq" + (i + 1).ToString();
                     GetReferenceValues(mam, "aq" + (i + 1).ToString());
+                    //mam.DoMarkAsOld();
                     MetaAnalysisModerators.Add(mam);
                 }
             }
+            if (wasDirty == false && this.IsDirty == true) MarkClean();
         }
 
         private void GetReferenceValues(MetaAnalysisModerator mam, string propertyName)
@@ -527,7 +555,9 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(NMAReferenceProperty, value);
+                LoadProperty(NMAReferenceProperty, value);//"SetProperty" marks obj as dirty, "LoadProperty" doesn't...
+                //this property isn't saved in the DB, so we DON'T want it "tracked". Others would be like this, but this one
+                //gets set upon loading in the ER4 UI, hence the need.
             }
         }
 
@@ -1801,7 +1831,8 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #if SILVERLIGHT
-    
+    public string HiddenFieldToCheckTxt {
+            get; set;}= "NotClosing";
 #else
         protected override void DataPortal_Insert()
         {
@@ -2189,14 +2220,16 @@ namespace BusinessLibrary.BusinessClasses
             else if (sortdir == true) returnValue.LoadProperty<string>(SortDirectionProperty, "Ascending");
             else  returnValue.LoadProperty<string>(SortDirectionProperty, "Descending");
 
-            returnValue.MarkOld();
-
             //loading on the fly now, as they take too long if there's a lot of outcomes / meta-analyses
             //returnValue.Outcomes = OutcomeList.GetOutcomeList(returnValue.SetId, returnValue.AttributeIdIntervention, returnValue.AttributeIdControl,
             //    returnValue.AttributeIdOutcome, returnValue.AttributeId, returnValue.MetaAnalysisId, returnValue.AttributeIdQuestion, returnValue.AttributeIdAnswer);
 
+            returnValue.Outcomes = new OutcomeList();//to prevent "null" errors, just in case!
+
             returnValue.MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
             returnValue.FilterSettingsList = MetaAnalysisFilterSettingList.GetMetaAnalysisFilterSettingList(returnValue.MetaAnalysisId);
+
+            returnValue.MarkOld();
 
             return returnValue;
         }

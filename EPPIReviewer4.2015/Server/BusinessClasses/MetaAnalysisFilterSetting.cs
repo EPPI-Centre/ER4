@@ -296,7 +296,6 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(Filter2Property, reader.GetString("FILTER_2_VALUE"));
             returnValue.LoadProperty<string>(Filter2OperatorProperty, reader.GetString("FILTER_2_OPERATOR"));
             returnValue.LoadProperty<bool>(Filter2CaseSensitiveProperty, reader.GetBoolean("FILTER_2_CASE_SENSITIVE"));
-
             returnValue.MarkOld();
             return returnValue;
         }

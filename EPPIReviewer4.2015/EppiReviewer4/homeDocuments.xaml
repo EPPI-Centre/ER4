@@ -198,34 +198,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style TargetType="grid:GridViewCell" x:Name="cellStyleEditMetaAnalysis">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Button x:Name="cmdEditMetaAnalysis" Content="Edit/Run" Click="cmdEditMetaAnalysis_Click" ></Button>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="grid:GridViewCell" x:Name="cellStyleDeleteMetaAnalysis">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Button x:Name="cmdDeleteMetaAnalysis" Content="Delete" Click="cmdDeleteMetaAnalysis_Click"
-                                 IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></Button>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="grid:GridViewCell" x:Name="cellStyleRunMetaAnalysis">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Button x:Name="cmdRunMetaAnalysis" Content="Run (old method)" Click="cmdRunMetaAnalysis_Click"></Button>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        
         <Style TargetType="grid:GridViewCell" x:Name="cellStyleDeleteWorkAllocation">
             <Setter Property="Template">
                 <Setter.Value>
@@ -948,19 +921,64 @@
                                                 <TextBlock Text="Meta-analysis training" Margin="10,0,0,0"></TextBlock>
                                             </StackPanel>
                                         </Button>
+                                    <!--<TextBlock Text="{Binding Source={StaticResource MetaAnalysisListData}, Path=Data.HasMAsToSave}"></TextBlock>-->
 
                                     </telerikNavigation:RadToolBar>
-
                                     <telerikGridView:RadGridView x:Name="GridViewMetaAnalyses" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" ShowGroupPanel="False"
                                                 RowIndicatorVisibility="Collapsed" AutoGenerateColumns="False" SelectionMode="Multiple" SelectionChanged="GridViewMetaAnalyses_SelectionChanged"
                                                 ItemsSource="{Binding Source={StaticResource MetaAnalysisListData}, Path=Data, Mode=TwoWay}" >
+                                        <telerikGridView:RadGridView.Resources>
+                                            <Style TargetType="grid:GridViewCell" x:Name="cellStyleEditMetaAnalysis">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Button x:Name="cmdEditMetaAnalysis" Content="Edit/Run" Click="cmdEditMetaAnalysis_Click" ></Button>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                            <Style TargetType="grid:GridViewCell" x:Name="cellStyleDeleteMetaAnalysis">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Button x:Name="cmdDeleteMetaAnalysis" Content="Delete" Click="cmdDeleteMetaAnalysis_Click"
+                                                                    IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></Button>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                            <Style TargetType="grid:GridViewCell" x:Name="cellStyleRunMetaAnalysis">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Button x:Name="cmdRunMetaAnalysis" Content="Run (old method)" Click="cmdRunMetaAnalysis_Click"></Button>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                            <Style TargetType="grid:GridViewCell" x:Name="cellStyleSaveMetaAnalysis">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate>
+                                                            <Button x:Name="cmdEditMetaAnalysis" Click="cmdSaveMetaAnalysis_Click" Margin="1,0,2,1" Width="22"
+                                                                    ToolTipService.ToolTip="This MA has unsaved changes"
+                                                                    Visibility="{Binding IsSavable, Converter={StaticResource EditTrueFalseVisibility}, Mode=OneWay}">
+                                                                <Image Source="Icons/Save.png"/>
+                                                            </Button>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                            
+                                        </telerikGridView:RadGridView.Resources>
                                         <telerikGridView:RadGridView.Columns>
-                                            <telerikGridView:GridViewSelectColumn UniqueName="columnSelectMetaAnalysis" Width="Auto" Header=""></telerikGridView:GridViewSelectColumn>
+                                            <telerikGridView:GridViewSelectColumn UniqueName="columnSelectMetaAnalysis" Width="Auto" ></telerikGridView:GridViewSelectColumn>
                                             <telerikGridView:GridViewDataColumn Header="Meta-analysis" DataMemberBinding="{Binding Title}" Width="*" MinWidth="60"></telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn Header="Effect measure" DataMemberBinding="{Binding MetaAnalysisTypeTitle}" Width="*" MaxWidth="170"></telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleEditMetaAnalysis}" Width="90" Header="" DataMemberBinding="{Binding MetaAnalysisId}" ></telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDeleteMetaAnalysis}" Width="70" Header="" DataMemberBinding="{Binding MetaAnalysisId}" ></telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleRunMetaAnalysis}" Width="140" Header="" DataMemberBinding="{Binding MetaAnalysisId}" ></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn Header="Effect measure" IsReadOnly="true"  DataMemberBinding="{Binding MetaAnalysisTypeTitle, Mode=OneWay}" Width="*" MaxWidth="170"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsVisible="{Binding Source={StaticResource MetaAnalysisListData}, Path=Data.HasMAsToSave, Mode=OneWay}"  CellStyle="{StaticResource cellStyleSaveMetaAnalysis}" Width="Auto" MaxWidth="26"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleEditMetaAnalysis}" Width="90"  DataMemberBinding="{Binding MetaAnalysisId}" ></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDeleteMetaAnalysis}" Width="70"  DataMemberBinding="{Binding MetaAnalysisId}" ></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleRunMetaAnalysis}" Width="140" DataMemberBinding="{Binding MetaAnalysisId}" ></telerikGridView:GridViewDataColumn>
                                         </telerikGridView:RadGridView.Columns>
                                     </telerikGridView:RadGridView>
 

@@ -1,54 +1,27 @@
 ﻿<telerik:RadWindow x:Class="EppiReviewer4.dialogMetaAnalysisSetup"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="600" d:DesignWidth="850"
-             xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
-             xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
-    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
-             xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation" 
-             xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
-             xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
-             Header="Edit/Run Meta-Analysis" 
-             x:Name="dialogMetaAnalysisSetupWindow" 
-             ResizeMode="CanResize"  
-             WindowStartupLocation="CenterScreen"   
-             WindowState="Maximized"
-             RestrictedAreaMargin="20"
-             >
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="850"
+                   xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+                   xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+                   xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+                   xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+                   xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+                   xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+                   Header="Edit/Run Meta-Analysis"
+                   x:Name="dialogMetaAnalysisSetupWindow"
+                   ResizeMode="CanResize"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Maximized"
+                   RestrictedAreaMargin="20"
+                   
+                   PreviewClosed="RadWindow_PreviewClosed">
 
     <telerik:RadWindow.Resources>
-        <Style x:Key="boolColumnStyle" TargetType="grid:GridViewCell">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="grid:GridViewCell">
-                        <Border HorizontalAlignment="Stretch">
-                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, Mode=TwoWay}" IsEnabled="{Binding Path=CanSelect}" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         
-        <Style x:Key="occStyle" TargetType="telerik:GridViewCell">
-            <Setter Property="Background" Value="LightGray"/>
-        </Style>
-
-        <Style x:Key="statsStyle" TargetType="telerik:GridViewCell">
-            <Setter Property="Background" Value="LightBlue"/>
-            <Setter Property="Foreground" Value="Black"></Setter>
-        </Style>
-
-        <Style x:Key="aaStyle" TargetType="telerik:GridViewCell">
-            <Setter Property="Background" Value="LemonChiffon"/>
-        </Style>
-
-        <Style x:Key="aqStyle" TargetType="telerik:GridViewCell">
-            <Setter Property="Background" Value="Khaki"/>
-        </Style>
     </telerik:RadWindow.Resources>
     
     <Grid>
@@ -110,7 +83,7 @@
                 </ComboBox>
 
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Output style" Margin="2" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.ColumnSpan="1"></TextBlock>
-                <ComboBox x:Name="cbOutputType" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="0,3" Width="200" SelectedIndex="0" Grid.ColumnSpan="1">
+                    <ComboBox x:Name="cbOutputType" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="0,3" Width="200" SelectedIndex="0" Grid.ColumnSpan="1" SelectionChanged="cbOutputType_SelectionChanged">
                     <ComboBoxItem Content="Standard" Tag="0"/>
                     <ComboBoxItem Content="Verbose" Tag="1"/>
                     <ComboBoxItem Content="Very verbose" Tag="2"/>
@@ -200,7 +173,7 @@
                     <CheckBox x:Name="cbExponentiated" Grid.Row="3" Grid.Column="1" Content="Print as OR (default = log OR)" HorizontalAlignment="Left" IsChecked="{Binding Exponentiated, Mode=TwoWay}"></CheckBox>
 
                     <TextBlock Grid.Row="4" Text="Model" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
-                    <ComboBox x:Name="ComboBoxNetMetaOutcomeType" Grid.Row="4" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" Grid.ColumnSpan="2">
+                    <ComboBox x:Name="ComboBoxNetMetaOutcomeType" Grid.Row="4" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" Grid.ColumnSpan="2" SelectionChanged="ComboBoxNetMetaOutcomeType_SelectionChanged">
                         <ComboBox.Items>
                             <ComboBoxItem Content="Fixed Effect"></ComboBoxItem>
                             <ComboBoxItem Content="Random effects"></ComboBoxItem>
@@ -438,6 +411,8 @@
                         </ComboBox>
                         <TextBlock Grid.Column="2" Grid.Row="19" Text="SHORT SUMMARY OF ASSESSMENTS" Margin="5,15,5,0"></TextBlock>
                         <TextBox Grid.Column="2" Grid.Row="20" Grid.ColumnSpan="2" Text="{Binding CertaintyLevelComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
+
+                        <TextBox x:Name="HiddenFieldToCheck" Visibility="Collapsed" Grid.Column="1" Grid.Row="21" Grid.ColumnSpan="2" Text="{Binding HiddenFieldToCheckTxt, Mode=TwoWay}"  Margin="0"></TextBox>
                     </Grid>
                 </ScrollViewer>
             </telerik:RadTabItem>
@@ -467,7 +442,10 @@
                     <Image Source="Icons/Save.png"/>
                     <TextBlock Text="Save changes" Margin="5,0,0,0"></TextBlock>
                 </StackPanel>
-            </Button>
+                </Button>
+                <!--<TextBlock Text="{Binding IsDirty, Mode=TwoWay}" Margin="4"></TextBlock>
+                <TextBlock Text="{Binding Title, Mode=TwoWay}" Margin="4"></TextBlock>-->
+
                 <Button x:Name="cmdPreviewGRADE" Margin="4,4,4,4" Click="cmdPreviewGRADE_Click" Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
                         <Image Source="Icons/PrintCodeSet.png"/>
@@ -505,9 +483,39 @@
                 <telerikGridView:RadGridView x:Name="GridViewMetaStudies" ShowGroupPanel="False" Margin="5,5,5,5" Sorted="GridViewMetaStudies_Sorted"
                 FrozenColumnCount="4" ScrollViewer.HorizontalScrollBarVisibility="Visible" Filtered="GridViewMetaStudies_Filtered" RowIndicatorVisibility="Collapsed"
                                              AutoGenerateColumns="False">
-            <telerikGridView:RadGridView.Columns>
+                    <telerikGridView:RadGridView.Resources>
+                        <Style x:Key="boolColumnStyle" TargetType="grid:GridViewCell">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="grid:GridViewCell">
+                                        <Border HorizontalAlignment="Stretch">
+                                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, Mode=TwoWay}" IsEnabled="{Binding Path=CanSelect}" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+
+                        <Style x:Key="occStyle" TargetType="telerik:GridViewCell">
+                            <Setter Property="Background" Value="LightGray"/>
+                        </Style>
+
+                        <Style x:Key="statsStyle" TargetType="telerik:GridViewCell">
+                            <Setter Property="Background" Value="LightBlue"/>
+                            <Setter Property="Foreground" Value="Black"></Setter>
+                        </Style>
+
+                        <Style x:Key="aaStyle" TargetType="telerik:GridViewCell">
+                            <Setter Property="Background" Value="LemonChiffon"/>
+                        </Style>
+
+                        <Style x:Key="aqStyle" TargetType="telerik:GridViewCell">
+                            <Setter Property="Background" Value="Khaki"/>
+                        </Style>
+                    </telerikGridView:RadGridView.Resources>
+                    <telerikGridView:RadGridView.Columns>
                     <telerikGridView:GridViewDataColumn UniqueName="InvisSelected" Header="Selected" IsVisible="False" DataMemberBinding="{Binding IsSelected}" Width="1" IsReadOnly="True" ></telerikGridView:GridViewDataColumn>
-                    <telerikGridView:GridViewDataColumn UniqueName="cbColumn" CellStyle="{StaticResource boolColumnStyle}" Width="25" Header="" ></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewColumn UniqueName="cbColumn" CellStyle="{StaticResource boolColumnStyle}" Width="25" ></telerikGridView:GridViewColumn>
                 <telerikGridView:GridViewDataColumn UniqueName="ESColumn" Header="ES" DataMemberBinding="{Binding ES}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True" CellStyle="{StaticResource statsStyle}"></telerikGridView:GridViewDataColumn>
                 <telerikGridView:GridViewDataColumn UniqueName="SEESColumn" Header="SE" DataMemberBinding="{Binding SEES}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True" CellStyle="{StaticResource statsStyle}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn UniqueName="titleColumn" Header="Study" DataMemberBinding="{Binding ShortTitle}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
@@ -522,76 +530,76 @@
                         <telerikGridView:GridViewDataColumn UniqueName="Arm1Column" Header="Arm 1" DataMemberBinding="{Binding grp1ArmName}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn UniqueName="Arm2Column" Header="Arm 2" DataMemberBinding="{Binding grp2ArmName}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
 
-                        <telerikGridView:GridViewDataColumn UniqueName="aa1" Header="" DataMemberBinding="{Binding aa1}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa2" Header="" DataMemberBinding="{Binding aa2}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa3" Header="" DataMemberBinding="{Binding aa3}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa4" Header="" DataMemberBinding="{Binding aa4}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa5" Header="" DataMemberBinding="{Binding aa5}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa6" Header="" DataMemberBinding="{Binding aa6}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa7" Header="" DataMemberBinding="{Binding aa7}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa8" Header="" DataMemberBinding="{Binding aa8}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa9" Header="" DataMemberBinding="{Binding aa9}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa10" Header="" DataMemberBinding="{Binding aa10}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa11" Header="" DataMemberBinding="{Binding aa11}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa12" Header="" DataMemberBinding="{Binding aa12}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa13" Header="" DataMemberBinding="{Binding aa13}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa14" Header="" DataMemberBinding="{Binding aa14}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa15" Header="" DataMemberBinding="{Binding aa15}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa16" Header="" DataMemberBinding="{Binding aa16}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa17" Header="" DataMemberBinding="{Binding aa17}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa18" Header="" DataMemberBinding="{Binding aa18}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa19" Header="" DataMemberBinding="{Binding aa19}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aa20" Header="" DataMemberBinding="{Binding aa20}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq1" Header="" DataMemberBinding="{Binding aq1}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq2" Header="" DataMemberBinding="{Binding aq2}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq3" Header="" DataMemberBinding="{Binding aq3}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq4" Header="" DataMemberBinding="{Binding aq4}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq5" Header="" DataMemberBinding="{Binding aq5}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq6" Header="" DataMemberBinding="{Binding aq6}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq7" Header="" DataMemberBinding="{Binding aq7}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq8" Header="" DataMemberBinding="{Binding aq8}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq9" Header="" DataMemberBinding="{Binding aq9}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq10" Header="" DataMemberBinding="{Binding aq10}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq11" Header="" DataMemberBinding="{Binding aq11}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq12" Header="" DataMemberBinding="{Binding aq12}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq13" Header="" DataMemberBinding="{Binding aq13}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq14" Header="" DataMemberBinding="{Binding aq14}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq15" Header="" DataMemberBinding="{Binding aq15}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq16" Header="" DataMemberBinding="{Binding aq16}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq17" Header="" DataMemberBinding="{Binding aq17}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq18" Header="" DataMemberBinding="{Binding aq18}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq19" Header="" DataMemberBinding="{Binding aq19}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="aq20" Header="" DataMemberBinding="{Binding aq20}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ1" Header="" DataMemberBinding="{Binding occ1}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}" ></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ2" Header="" DataMemberBinding="{Binding occ2}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ3" Header="" DataMemberBinding="{Binding occ3}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ4" Header="" DataMemberBinding="{Binding occ4}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ5" Header="" DataMemberBinding="{Binding occ5}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ6" Header="" DataMemberBinding="{Binding occ6}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ7" Header="" DataMemberBinding="{Binding occ7}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ8" Header="" DataMemberBinding="{Binding occ8}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ9" Header="" DataMemberBinding="{Binding occ9}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ10" Header="" DataMemberBinding="{Binding occ10}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ11" Header="" DataMemberBinding="{Binding occ11}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ12" Header="" DataMemberBinding="{Binding occ12}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ13" Header="" DataMemberBinding="{Binding occ13}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ14" Header="" DataMemberBinding="{Binding occ14}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ15" Header="" DataMemberBinding="{Binding occ15}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ16" Header="" DataMemberBinding="{Binding occ16}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ17" Header="" DataMemberBinding="{Binding occ17}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ18" Header="" DataMemberBinding="{Binding occ18}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ19" Header="" DataMemberBinding="{Binding occ19}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ20" Header="" DataMemberBinding="{Binding occ20}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ21" Header="" DataMemberBinding="{Binding occ21}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ22" Header="" DataMemberBinding="{Binding occ22}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ23" Header="" DataMemberBinding="{Binding occ23}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ24" Header="" DataMemberBinding="{Binding occ24}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ25" Header="" DataMemberBinding="{Binding occ25}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ26" Header="" DataMemberBinding="{Binding occ26}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ27" Header="" DataMemberBinding="{Binding occ27}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ28" Header="" DataMemberBinding="{Binding occ28}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ29" Header="" DataMemberBinding="{Binding occ29}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="occ30" Header="" DataMemberBinding="{Binding occ30}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn UniqueName="aa1" DataMemberBinding="{Binding aa1}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa2" DataMemberBinding="{Binding aa2}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa3" DataMemberBinding="{Binding aa3}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa4" DataMemberBinding="{Binding aa4}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa5" DataMemberBinding="{Binding aa5}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa6" DataMemberBinding="{Binding aa6}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa7" DataMemberBinding="{Binding aa7}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa8" DataMemberBinding="{Binding aa8}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa9" DataMemberBinding="{Binding aa9}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa10" DataMemberBinding="{Binding aa10}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa11" DataMemberBinding="{Binding aa11}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa12" DataMemberBinding="{Binding aa12}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa13" DataMemberBinding="{Binding aa13}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa14" DataMemberBinding="{Binding aa14}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa15" DataMemberBinding="{Binding aa15}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa16" DataMemberBinding="{Binding aa16}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa17" DataMemberBinding="{Binding aa17}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa18" DataMemberBinding="{Binding aa18}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa19" DataMemberBinding="{Binding aa19}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aa20" DataMemberBinding="{Binding aa20}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq1" DataMemberBinding="{Binding aq1}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq2" DataMemberBinding="{Binding aq2}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq3" DataMemberBinding="{Binding aq3}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq4" DataMemberBinding="{Binding aq4}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq5" DataMemberBinding="{Binding aq5}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq6" DataMemberBinding="{Binding aq6}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq7" DataMemberBinding="{Binding aq7}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq8" DataMemberBinding="{Binding aq8}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq9" DataMemberBinding="{Binding aq9}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq10" DataMemberBinding="{Binding aq10}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq11" DataMemberBinding="{Binding aq11}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq12" DataMemberBinding="{Binding aq12}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq13" DataMemberBinding="{Binding aq13}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq14" DataMemberBinding="{Binding aq14}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq15" DataMemberBinding="{Binding aq15}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq16" DataMemberBinding="{Binding aq16}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq17" DataMemberBinding="{Binding aq17}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq18" DataMemberBinding="{Binding aq18}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq19" DataMemberBinding="{Binding aq19}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="aq20" DataMemberBinding="{Binding aq20}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aqStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ1" DataMemberBinding="{Binding occ1}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}" ></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ2" DataMemberBinding="{Binding occ2}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ3" DataMemberBinding="{Binding occ3}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ4" DataMemberBinding="{Binding occ4}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ5" DataMemberBinding="{Binding occ5}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ6" DataMemberBinding="{Binding occ6}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ7" DataMemberBinding="{Binding occ7}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ8" DataMemberBinding="{Binding occ8}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ9" DataMemberBinding="{Binding occ9}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ10" DataMemberBinding="{Binding occ10}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ11" DataMemberBinding="{Binding occ11}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ12" DataMemberBinding="{Binding occ12}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ13" DataMemberBinding="{Binding occ13}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ14" DataMemberBinding="{Binding occ14}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ15" DataMemberBinding="{Binding occ15}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ16" DataMemberBinding="{Binding occ16}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ17" DataMemberBinding="{Binding occ17}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ18" DataMemberBinding="{Binding occ18}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ19" DataMemberBinding="{Binding occ19}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ20" DataMemberBinding="{Binding occ20}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ21" DataMemberBinding="{Binding occ21}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ22" DataMemberBinding="{Binding occ22}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ23" DataMemberBinding="{Binding occ23}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ24" DataMemberBinding="{Binding occ24}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ25" DataMemberBinding="{Binding occ25}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ26" DataMemberBinding="{Binding occ26}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ27" DataMemberBinding="{Binding occ27}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ28" DataMemberBinding="{Binding occ28}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ29" DataMemberBinding="{Binding occ29}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn UniqueName="occ30" DataMemberBinding="{Binding occ30}" Width="80" IsReadOnly="True" CellStyle="{StaticResource occStyle}"></telerikGridView:GridViewDataColumn>
                 </telerikGridView:RadGridView.Columns>
         </telerikGridView:RadGridView>
 
