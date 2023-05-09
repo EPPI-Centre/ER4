@@ -54,8 +54,7 @@ namespace EppiReviewer4
             grd.Children.Add(reports);
             windowReportsDocuments.Content = grd;
             //end of windowReportsDocuments
-
-            HiddenFieldToCheck.Text = "Closing2";
+            
             windowAddColumn.cmdOk_Clicked += new EventHandler<RoutedEventArgs>(windowAddColumn_cmdOk_Clicked);
         }
 
@@ -739,6 +738,28 @@ namespace EppiReviewer4
                 index = Convert.ToInt32(columnToDelete.Replace("aa", ""));
                 ma.AttributeIdAnswer = removeAttributeIndex(ma.AttributeIdAnswer.Split(','), index -1);
             }
+
+            //new 2023: check that the column isn't filtered, get rid of the filter if it is!
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            //step 1: clear filter in the UI
+            GridViewColumn col = GridViewMetaStudies.Columns[columnToDelete];
+            if (col != null)
+            {
+                IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
+                if (colFilter != null && colFilter.IsActive)
+                {
+                    GridViewMetaStudies.FilterDescriptors.SuspendNotifications();
+                    colFilter.Clear();
+                    GridViewMetaStudies.FilterDescriptors.ResumeNotifications();
+                }
+            }
+
+            if (_currentSelectedMetaAnalysis.FilterSettingsList != null
+                && _currentSelectedMetaAnalysis.FilterSettingsList.Count > 0)
+            {
+                MetaAnalysisFilterSetting toRemove = _currentSelectedMetaAnalysis.FilterSettingsList.FirstOrDefault(f => f.ColumnName == columnToDelete);
+                if (toRemove != null) toRemove.Delete();
+            }
             SaveMetaAnalysis(false, false);
         }
 
@@ -1193,78 +1214,8 @@ namespace EppiReviewer4
             }
         }
 
-        //complex workaround to ensure we detect MA object changes upon closing.
-        //if user changes a value in a text-box (or a checkbox) and clicks close without any other UI interaction
-        //the change hasn't propagated to the MA datacontext object, so the object will be seen as "Clean" (nothing to save)
-        //except the object will update itself _after_ the window is closed, and become dirty at that point... Go figure!
-        //methods below give time to the UI to "catch up" so that when we run RadWindow_ActuallyClose the MA object "IsDirty" field should be up-to-date
-        System.Windows.Threading.DispatcherTimer eventTimer;
-        int TimerCycles = 0; bool CheckedOnClose = false;
-        bool WindowStateTransitionDone = false;
-        private void eventTimer_Tick(object sender, EventArgs e)
-        {
-            TimerCycles++;
-            
-            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
-            if ((ComboBoxExportOutcomes.IsEnabled == false
-                && _currentSelectedMetaAnalysis.HiddenFieldToCheckTxt == "Closing"
-                )
-
-                || _currentSelectedMetaAnalysis.IsDirty
-                || TimerCycles > 30)
-            {
-                this.WindowState = WindowState.Maximized;
-                _currentSelectedMetaAnalysis.HiddenFieldToCheckTxt = "NotClosing";
-                ComboBoxExportOutcomes.IsEnabled = true;
-                CheckedOnClose = true;
-                eventTimer.Stop();
-                this.RadWindow_ActuallyClose();
-            }
-        }
-        private void RadWindow_PreviewClosed(object sender, WindowPreviewClosedEventArgs e)
-        {
-            if (CheckedOnClose)
-            {
-                CheckedOnClose = false;//makes sure the next time we close this same window instance (could happen!) we'll check again
-                return;
-            }
-
-            HiddenFieldToCheck.Text = "Closing";
-            bool check = MetaMetaAnalysisTitle.Focus();
-            this.WindowStateChanged += DialogMetaAnalysisSetup_WindowStateChanged;
-            this.WindowState = WindowState.Minimized;
-            //if (ComboBoxExportOutcomes.SelectedIndex == 0)
-            //{
-            //    TargetIndexCheck = 1;
-            //    ReturnIndexCheck = ComboBoxExportOutcomes.SelectedIndex;
-            //    ComboBoxExportOutcomes.SelectedIndex = 1;
-            //}
-            //else
-            //{
-            //    TargetIndexCheck = 0;
-            //    ReturnIndexCheck = ComboBoxExportOutcomes.SelectedIndex;
-            //    ComboBoxExportOutcomes.SelectedIndex = 0;
-            //}
-            e.Cancel = true;
-        }
-
-        private void DialogMetaAnalysisSetup_WindowStateChanged(object sender, EventArgs e)
-        {
-            TimerCycles = 0;
-            this.WindowStateChanged -= DialogMetaAnalysisSetup_WindowStateChanged;
-            eventTimer = new System.Windows.Threading.DispatcherTimer();
-            eventTimer.Interval = new TimeSpan(0, 0, 0, 0, 10); // tick every 500 milliseconds
-            eventTimer.Tick += new EventHandler(eventTimer_Tick);
-            eventTimer.Start();
-            WindowStateTransitionDone = true;
-            ComboBoxExportOutcomes.IsEnabled = false;
-            //MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
-        }
-
         private void RadWindow_ActuallyClose()
         {
-            
-            
             MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
             if (_currentSelectedMetaAnalysis != null)
             {
@@ -1272,33 +1223,35 @@ namespace EppiReviewer4
                 {
                     if (_currentSelectedMetaAnalysis.IsNew)
                     {
-                        RadWindow.Confirm("You have unsaved Changes! (Current MA is New)" + TimerCycles.ToString() 
-                            + Environment.NewLine + "Closing the MA window will discard all changes. Continue?"
+                        RadWindow.Confirm("You have unsaved Changes! (Current MA is New)"
+                            + Environment.NewLine + "Closing the window will discard all changes. Continue?"
                             , OnConfrimClosing_MAisNew);
                     }
                     else
                     {
-                        RadWindow.Confirm("You have unsaved Changes!" + TimerCycles.ToString()
-                            + Environment.NewLine + "Closing the MA window will discard all changes. Continue?"
+                        RadWindow.Confirm("You have unsaved Changes!"
+                            + Environment.NewLine + "Do you want to discard all changes?"
                             , OnConfrimClosing_MAisDirty);
                     }
                 }
             }
             else
             {
-                //RadWindow.Confirm("oihoi!", OnClosed);
+                //nothing we can do: no MA to look into, can't make any decision. We'll just close the window
             }
 
             CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
             if (maldProvider != null) maldProvider.Rebind();
+            //we close the MA window here, otherwise the confirm dialog might appear beneath it
             this.Close();
         }
         private void OnConfrimClosing_MAisNew(object sender, WindowClosedEventArgs e)
         {
+            //MA is new and not present in the underlying list. We either NOT close the window or close it and lose the new MA
             var result = e.DialogResult;
             if (result == true)
             {// user wants to discard changes to a new MA
-                //MA was NOT saved and added to the list of MAs, so we don't need to do anything, it will be lost to the GC
+                //MA was NOT saved and NOT added to the list of MAs, so we don't need to do anything, it will be lost to the GC
             }
             else if (result == false)
             {
@@ -1308,6 +1261,7 @@ namespace EppiReviewer4
         }
         private void OnConfrimClosing_MAisDirty(object sender, WindowClosedEventArgs e)
         {
+            //MA is NOT new. We either refresh the underlying list, losing the changes, or we close without refreshing, which allows to save the changes later
             var result = e.DialogResult;
             if (result == true)
             {
@@ -1318,10 +1272,23 @@ namespace EppiReviewer4
             }
             else if (result == false)
             {
-                //we simply cancel the closing by re-opening
-                dialogMetaAnalysisSetupWindow.ShowDialog();
+                //we close without re-fetching the list of MAs
+                //dialogMetaAnalysisSetupWindow.ShowDialog();
             }
         }
+
+        private void ButtonClose_Click(object sender, RoutedEventArgs e)
+        {
+            //MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            //bool check = _currentSelectedMetaAnalysis.IsSavable;
+            RadWindow_ActuallyClose();
+        }
+        private void OutcomeCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            MetaAnalysis MA = this.DataContext as MetaAnalysis;
+            if (MA != null) MA.DoMarkDirty();
+        }
+
     }
 
 

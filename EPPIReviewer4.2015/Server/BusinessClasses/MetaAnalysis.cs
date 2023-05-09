@@ -99,7 +99,9 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(TitleProperty, value);
             }
         }
-
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         private static PropertyInfo<bool> KNHAProperty = RegisterProperty<bool>(new PropertyInfo<bool>("KNHA", "KNHA", false));
         public bool KNHA
         {
@@ -109,11 +111,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(KNHAProperty, value);
+                LoadProperty(KNHAProperty, value);
             }
         }
 
         private static PropertyInfo<bool> FitStatsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("FitStats", "FitStats", true));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool FitStats
         {
             get
@@ -122,11 +127,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(FitStatsProperty, value);
+                LoadProperty(FitStatsProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ConfintProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Confint", "Confint", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool Confint
         {
             get
@@ -135,11 +143,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ConfintProperty, value);
+                LoadProperty(ConfintProperty, value);
             }
         }
 
         private static PropertyInfo<bool> EggerProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Egger", "Egger", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool Egger
         {
             get
@@ -148,11 +159,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(EggerProperty, value);
+                LoadProperty(EggerProperty, value);
             }
         }
 
         private static PropertyInfo<bool> RankCorrProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RankCorr", "RankCorr", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool RankCorr
         {
             get
@@ -161,11 +175,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(RankCorrProperty, value);
+                LoadProperty(RankCorrProperty, value);
             }
         }
 
         private static PropertyInfo<bool> TrimFillProperty = RegisterProperty<bool>(new PropertyInfo<bool>("TrimFill", "TrimFill", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool TrimFill
         {
             get
@@ -174,7 +191,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(TrimFillProperty, value);
+                LoadProperty(TrimFillProperty, value);
             }
         }
 
@@ -186,6 +203,10 @@ namespace BusinessLibrary.BusinessClasses
             <ComboBoxItem Content="&quot;EB&quot;: Empirical Bayes estimator" Tag="EB"/>
         */
         private static PropertyInfo<int> StatisticalModelProperty = RegisterProperty<int>(new PropertyInfo<int>("StatisticalModel", "StatisticalModel"));
+
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int StatisticalModel
         {
             get
@@ -194,7 +215,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(StatisticalModelProperty, value);
+                LoadProperty(StatisticalModelProperty, value);
             }
         }
 
@@ -212,6 +233,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<int> VerboseProperty = RegisterProperty<int>(new PropertyInfo<int>("Verbose", "Verbose", 0));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int Verbose
         {
             get
@@ -220,11 +244,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(VerboseProperty, value);
+                LoadProperty(VerboseProperty, value);
             }
         }
 
         private static PropertyInfo<int> SignificanceLevelProperty = RegisterProperty<int>(new PropertyInfo<int>("SignificanceLevel", "SignificanceLevel", 95));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int SignificanceLevel
         {
             get
@@ -233,10 +260,13 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(SignificanceLevelProperty, value);
+                LoadProperty(SignificanceLevelProperty, value);
             }
         }
 
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         private static PropertyInfo<int> DecPlacesProperty = RegisterProperty<int>(new PropertyInfo<int>("DecPlaces", "DecPlaces", 4));
         public int DecPlaces
         {
@@ -246,11 +276,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(DecPlacesProperty, value);
+                LoadProperty(DecPlacesProperty, value);
             }
         }
 
         private static PropertyInfo<string> XAxisTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("XAxisTitle", "XAxisTitle", string.Empty));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public string XAxisTitle
         {
             get
@@ -259,11 +292,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(XAxisTitleProperty, value);
+                LoadProperty(XAxisTitleProperty, value);
             }
         }
 
         private static PropertyInfo<string> SummaryEstimateTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("SummaryEstimateTitle", "SummaryEstimateTitle", string.Empty));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public string SummaryEstimateTitle
         {
             get
@@ -272,11 +308,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(SummaryEstimateTitleProperty, value);
+                LoadProperty(SummaryEstimateTitleProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ShowAnnotationsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAnnotations", "ShowAnnotations", true));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool ShowAnnotations
         {
             get
@@ -285,11 +324,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ShowAnnotationsProperty, value);
+                LoadProperty(ShowAnnotationsProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ShowAnnotationWeightsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAnnotationWeights", "ShowAnnotationWeights", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool ShowAnnotationWeights
         {
             get
@@ -298,11 +340,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ShowAnnotationWeightsProperty, value);
+                LoadProperty(ShowAnnotationWeightsProperty, value);
             }
         }
 
         private static PropertyInfo<bool> FittedValsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("FittedVals", "FittedVals", true));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool FittedVals
         {
             get
@@ -311,11 +356,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(FittedValsProperty, value);
+                LoadProperty(FittedValsProperty, value);
             }
         }
 
         private static PropertyInfo<bool> CredIntProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CredInt", "CredInt", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool CredInt
         {
             get
@@ -324,11 +372,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(CredIntProperty, value);
+                LoadProperty(CredIntProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ShowFunnelProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowFunnel", "ShowFunnel", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool ShowFunnel
         {
             get
@@ -337,11 +388,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ShowFunnelProperty, value);
+                LoadProperty(ShowFunnelProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ShowBoxplotProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowBoxplot", "ShowBoxplot", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool ShowBoxplot
         {
             get
@@ -350,7 +404,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ShowBoxplotProperty, value);
+                LoadProperty(ShowBoxplotProperty, value);
             }
         }
 
@@ -521,6 +575,9 @@ namespace BusinessLibrary.BusinessClasses
         /* ************* NETWORK META-ANALYSIS PROPERTIES ********************/
 
         private static PropertyInfo<int> NMAStatisticalModelProperty = RegisterProperty<int>(new PropertyInfo<int>("NMAStatisticalModel", "NMAStatisticalModel"));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int NMAStatisticalModel
         {
             get
@@ -529,11 +586,12 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(NMAStatisticalModelProperty, value);
+                LoadProperty(NMAStatisticalModelProperty, value);
             }
         }
 
         private static PropertyInfo<bool> LargeValuesGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("LargeValuesGood", "LargeValuesGood", false));
+
         public bool LargeValuesGood
         {
             get
@@ -547,6 +605,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> NMAReferenceProperty = RegisterProperty<string>(new PropertyInfo<string>("NMAReference", "NMAReference", string.Empty));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public string NMAReference
         {
             get
@@ -562,6 +623,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<bool> ExponentiatedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Exponentiated", "Exponentiated", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool Exponentiated
         {
             get
@@ -570,7 +634,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ExponentiatedProperty, value);
+                LoadProperty(ExponentiatedProperty, value);
             }
         }
 
@@ -1830,10 +1894,8 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-#if SILVERLIGHT
-    public string HiddenFieldToCheckTxt {
-            get; set;}= "NotClosing";
-#else
+#if !SILVERLIGHT
+    
         protected override void DataPortal_Insert()
         {
             insert_object();

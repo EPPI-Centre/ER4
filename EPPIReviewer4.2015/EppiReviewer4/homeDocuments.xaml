@@ -915,13 +915,19 @@
                                             </StackPanel>
                                         </Button>
 
-                                        <Button x:Name="cmdMetaAnalysisTraining" Margin="10,0,0,0" Click="cmdMetaAnalysisTraining_Click">
+                                        <Button Visibility="Collapsed"  x:Name="cmdMetaAnalysisTraining" Margin="4" Click="cmdMetaAnalysisTraining_Click">
                                             <StackPanel Orientation="Horizontal">
                                                 <Image Width="16" Height="16" Source="Icons/MetaTraining.png"/>
                                                 <TextBlock Text="Meta-analysis training" Margin="10,0,0,0"></TextBlock>
                                             </StackPanel>
                                         </Button>
-                                    <!--<TextBlock Text="{Binding Source={StaticResource MetaAnalysisListData}, Path=Data.HasMAsToSave}"></TextBlock>-->
+                                        <Button x:Name="cmdMetaAnalsysRefreshList" Margin="4" ToolTipService.ToolTip="Refresh list" Click="cmdMetaAnalysisListRefresh_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Width="16" Height="16" Source="Icons/view-refresh-7.png"/>
+                                                <TextBlock Text="Refresh" Margin="5,0,5,0"></TextBlock>
+                                            </StackPanel>
+                                        </Button>
+                                        <!--<TextBlock Text="{Binding Source={StaticResource MetaAnalysisListData}, Path=Data.HasMAsToSave}"></TextBlock>-->
 
                                     </telerikNavigation:RadToolBar>
                                     <telerikGridView:RadGridView x:Name="GridViewMetaAnalyses" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" ShowGroupPanel="False"

@@ -13,12 +13,13 @@
                    xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
                    Header="Edit/Run Meta-Analysis"
                    x:Name="dialogMetaAnalysisSetupWindow"
-                   ResizeMode="CanResize"
                    WindowStartupLocation="CenterScreen"
                    WindowState="Maximized"
                    RestrictedAreaMargin="20"
-                   
-                   PreviewClosed="RadWindow_PreviewClosed">
+                   CanClose="False"
+                   CanMove="False"
+                   ResizeMode="NoResize"
+                   ><!--PreviewClosed="RadWindow_PreviewClosed"-->
 
     <telerik:RadWindow.Resources>
         
@@ -56,10 +57,10 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="Meta-analysis options" Grid.Column="1" HorizontalAlignment="Left" FontWeight="Bold" Margin="9,2,0,3"></TextBlock>
-                <TextBlock Text="Meta-analysis title" Grid.Row="1" Grid.Column="0" Margin="2" HorizontalAlignment="Right" Grid.ColumnSpan="1" VerticalAlignment="Center" ></TextBlock>
+                <TextBlock Text="Meta-analysis title*" Grid.Row="1" Grid.Column="0" Margin="2" HorizontalAlignment="Right" Grid.ColumnSpan="1" VerticalAlignment="Center" ></TextBlock>
                 <TextBox x:Name="MetaMetaAnalysisTitle" Text="{Binding Title, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="0,3,0,3" Width="200" HorizontalAlignment="Left" Grid.ColumnSpan="2"></TextBox>
 
-                <TextBlock Grid.Row="2" Text="Outcome type" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                <TextBlock Grid.Row="2" Text="Outcome type*" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
                 <ComboBox x:Name="ComboBoxMetaOutcomeType" Grid.Row="2" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" SelectionChanged="ComboBoxMetaOutcomeType_SelectionChanged" Grid.ColumnSpan="2">
                     <ComboBox.Items>
                         <ComboBoxItem Content="Continuous: d (Hedges g)"></ComboBoxItem>
@@ -83,7 +84,7 @@
                 </ComboBox>
 
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Output style" Margin="2" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.ColumnSpan="1"></TextBlock>
-                    <ComboBox x:Name="cbOutputType" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="0,3" Width="200" SelectedIndex="0" Grid.ColumnSpan="1" SelectionChanged="cbOutputType_SelectionChanged">
+                <ComboBox x:Name="cbOutputType" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Margin="0,3" Width="200" SelectedIndex="0" Grid.ColumnSpan="1" SelectionChanged="cbOutputType_SelectionChanged">
                     <ComboBoxItem Content="Standard" Tag="0"/>
                     <ComboBoxItem Content="Verbose" Tag="1"/>
                     <ComboBoxItem Content="Very verbose" Tag="2"/>
@@ -94,6 +95,18 @@
                 </CheckBox>
                 <CheckBox x:Name="cbFitstats" Grid.Row="6" Grid.Column="1" IsChecked="{Binding FitStats, Mode=TwoWay}" Content="Display fit statistics (fitstats)" HorizontalAlignment="Left" Margin="10,4,0,0" VerticalAlignment="Top" Grid.RowSpan="2" />
                 <CheckBox x:Name="cbConfint" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" IsChecked="{Binding Confint, Mode=TwoWay}" Content="Display confidence intervals (confint)" HorizontalAlignment="Left" Margin="10,4,0,0" VerticalAlignment="Top"/>
+
+                    <Border CornerRadius="2" BorderBrush="DarkBlue" BorderThickness="1" Background="#9900ffff" Grid.Row="8" Grid.Column="0" Grid.RowSpan="2"  Grid.ColumnSpan="4" Margin="2,2,-8,2">
+                        <RichTextBlock TextWrapping="Wrap" Margin="2,0">
+                            <Paragraph FontSize="9.5">
+                                <Bold>*:</Bold> Fields marked with an asterix (*) can be saved in the Database. Other fields (above) are used "on the fly" to run this MA but will
+                                <Bold>not be saved</Bold> for later use.
+                            </Paragraph>
+                            <Paragraph FontSize="9.5">
+                                Filters, Sorting, and &quot;Outcomes Selections&quot; can be saved. Adding/removing Columns saves (all changes) automatically!
+                            </Paragraph>
+                        </RichTextBlock>
+                    </Border>
 
                 <TextBlock Text="Significance level" Grid.Column="2" Grid.Row="1" Margin="3" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
                 <TextBox x:Name="tbSigLevel" Grid.Column="3" Grid.Row="1" Text="{Binding SignificanceLevel, Mode=TwoWay}" Width="50" HorizontalAlignment="Left" Margin="3"></TextBox>
@@ -153,10 +166,10 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Text="Network meta-analysis options" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" FontWeight="Bold" Margin="9,2,0,3"></TextBlock>
-                    <TextBlock Text="NMA title" Grid.Row="1" Grid.Column="0" Margin="2" HorizontalAlignment="Right" Grid.ColumnSpan="1" VerticalAlignment="Center" ></TextBlock>
+                    <TextBlock Text="NMA title*" Grid.Row="1" Grid.Column="0" Margin="2" HorizontalAlignment="Right" Grid.ColumnSpan="1" VerticalAlignment="Center" ></TextBlock>
                     <TextBox Text="{Binding Title, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" Margin="0,3,0,3" Width="200" HorizontalAlignment="Left" Grid.ColumnSpan="2"></TextBox>
 
-                    <TextBlock Grid.Row="2" Text="Outcome type" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                    <TextBlock Grid.Row="2" Text="Outcome type*" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
                     <ComboBox x:Name="ComboBoxNMAOutcomeType" Grid.Row="2" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" SelectionChanged="ComboBoxNMAOutcomeType_SelectionChanged" Grid.ColumnSpan="2">
                         <ComboBox.Items>
                             <ComboBoxItem Content="Continuous: d (Hedges g)"></ComboBoxItem>
@@ -182,7 +195,17 @@
                     <TextBlock Grid.Row="5" Text="Reference" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
                     <ComboBox x:Name="cbNMAReferences" Grid.Row="5" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" SelectedValuePath="Name" DisplayMemberPath="Name" SelectionChanged="cbNMAReferences_SelectionChanged" SelectedIndex="0"></ComboBox>
                     <CheckBox x:Name="cbSmallValues" Grid.Row="6" Grid.Column="1" Content="Large values are good?" HorizontalAlignment="Left" IsChecked="{Binding LargeValuesGood, Mode=TwoWay}"></CheckBox>
-                    
+                    <Border CornerRadius="2" BorderBrush="DarkBlue" BorderThickness="1" Background="#9900ffff" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3" Grid.RowSpan="4"  Margin="8" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <RichTextBlock TextWrapping="Wrap" Margin="4" HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <Paragraph >
+                                <Bold>*:</Bold> Fields marked with an asterix (*) can be saved in the Database. The other fields (on the left) are used "on the fly" to run this MA but will
+                                <Bold>not be saved</Bold> for later use.
+                            </Paragraph>
+                            <Paragraph>
+                                Filters, Sorting, and &quot;Outcomes Selections&quot; can be saved. Adding/removing Columns saves (all changes) automatically!
+                            </Paragraph>
+                        </RichTextBlock>
+                    </Border>
                 </Grid>
 
             </telerik:RadTabItem>
@@ -237,6 +260,14 @@
                             <ComboBoxItem Content="Randomised controlled"/>
                             <ComboBoxItem Content="Observational (non-randomised)"/>
                         </ComboBox>
+
+                        <Border CornerRadius="2" BorderBrush="DarkBlue" BorderThickness="1" Background="#9900ffff" Grid.Row="1" Grid.RowSpan="2" Margin="12,1"  Grid.Column="2" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" >
+                            <RichTextBlock TextWrapping="Wrap" Margin="2,4">
+                                <Paragraph >
+                                    <Bold>All fields</Bold> in this form are saved in the Database.
+                                </Paragraph>
+                            </RichTextBlock>
+                        </Border>
 
                         <TextBlock Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" FontSize="14" FontWeight="Bold" Margin="0,15,5,5" Text="2. Downgrade factors"></TextBlock>
                         <TextBlock Grid.Column="1" Grid.Row="4" Text="RISK OF BIAS" Margin="5,15,5,0"></TextBlock>
@@ -411,14 +442,19 @@
                         </ComboBox>
                         <TextBlock Grid.Column="2" Grid.Row="19" Text="SHORT SUMMARY OF ASSESSMENTS" Margin="5,15,5,0"></TextBlock>
                         <TextBox Grid.Column="2" Grid.Row="20" Grid.ColumnSpan="2" Text="{Binding CertaintyLevelComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
-
-                        <TextBox x:Name="HiddenFieldToCheck" Visibility="Collapsed" Grid.Column="1" Grid.Row="21" Grid.ColumnSpan="2" Text="{Binding HiddenFieldToCheckTxt, Mode=TwoWay}"  Margin="0"></TextBox>
                     </Grid>
                 </ScrollViewer>
             </telerik:RadTabItem>
 
         </telerik:RadTabControl>
-
+        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" >
+            <Button x:Name="ButtonClose" Click="ButtonClose_Click" >
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Close" Margin="5,0,5,0"></TextBlock>
+                    <Image Width="18" Height="12" Source="Icons/SearchDeleteAll.png"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
     <Grid Grid.Row="1" x:Name="OutcomesAndModeratorsGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -476,6 +512,7 @@
                     <TextBlock Text="Add column" Margin="5,0,0,0"></TextBlock>
                 </StackPanel>
             </Button>
+               
         </telerikNavigation:RadToolBar>
 
             <telerik:RadBusyIndicator x:Name="radBusyEditMAIndicator" Grid.Row="1" Grid.Column="0">
@@ -489,7 +526,7 @@
                                 <Setter.Value>
                                     <ControlTemplate TargetType="grid:GridViewCell">
                                         <Border HorizontalAlignment="Stretch">
-                                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, Mode=TwoWay}" IsEnabled="{Binding Path=CanSelect}" />
+                                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, Mode=TwoWay}" IsEnabled="{Binding Path=CanSelect}" Click="OutcomeCheckBox_Click"/>
                                         </Border>
                                     </ControlTemplate>
                                 </Setter.Value>
