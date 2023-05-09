@@ -997,7 +997,7 @@ namespace EppiReviewer4
 
             if (totalScreened <= 1000)
             {
-                if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 500 ||
+                if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 300 || currentCount == 500 ||
                     currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000))
                 {
                     cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
@@ -1005,14 +1005,14 @@ namespace EppiReviewer4
             }
             else if (totalScreened > 1000 && totalScreened < 5000)
             {
-                if ((currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000))
+                if ((currentCount == 250 || currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000))
                 {
                     cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
                 }
             }
             else if (totalScreened >= 5000)
             {
-                if ((currentCount == 1000 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000 || currentCount == 3500))
+                if ((currentCount == 500 || currentCount == 1000 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000 || currentCount == 3500))
                 {
                     cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
                 }
