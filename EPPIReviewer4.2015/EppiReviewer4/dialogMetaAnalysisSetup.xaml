@@ -17,8 +17,12 @@
                    WindowState="Maximized"
                    RestrictedAreaMargin="20"
                    CanClose="False"
-                   CanMove="False"
+                   CanMove="True"
                    ResizeMode="NoResize"
+                   HideMaximizeButton="True"
+                   HideMinimizeButton="True"
+                   IsRestricted="True"
+                   WindowStateChanged="dialogMetaAnalysisSetupWindow_WindowStateChanged"
                    ><!--PreviewClosed="RadWindow_PreviewClosed"-->
 
     <telerik:RadWindow.Resources>

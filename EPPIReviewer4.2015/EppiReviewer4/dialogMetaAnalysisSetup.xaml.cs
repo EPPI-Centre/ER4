@@ -1289,6 +1289,11 @@ namespace EppiReviewer4
             if (MA != null) MA.DoMarkDirty();
         }
 
+        private void dialogMetaAnalysisSetupWindow_WindowStateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState != WindowState.Maximized) this.WindowState = WindowState.Maximized;
+
+        }
     }
 
 

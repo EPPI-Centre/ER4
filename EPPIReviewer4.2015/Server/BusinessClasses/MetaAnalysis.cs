@@ -72,6 +72,9 @@ namespace BusinessLibrary.BusinessClasses
          */
 
         private static PropertyInfo<int> AnalysisTypeProperty = RegisterProperty<int>(new PropertyInfo<int>("AnalysisType", "AnalysisType", 0));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int AnalysisType
         {
             get
@@ -80,7 +83,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(AnalysisTypeProperty, value);
+                LoadProperty(AnalysisTypeProperty, value);
             }
         }
 
