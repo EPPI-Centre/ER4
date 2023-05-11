@@ -2646,7 +2646,7 @@ namespace EppiReviewer4
                 }
                 else
                 {
-                    ma.Outcomes = e2.Object as OutcomeList;
+                    ma.SetOutcomesList(e2.Object as OutcomeList);
                     windowMetaAnalysisOptions.ShowDialog();
                 }
             };
@@ -4986,7 +4986,7 @@ on the right of the main screen");
                         }
                         else
                         {
-                            ma1.Outcomes = e2.Object as OutcomeList;
+                            ma1.SetOutcomesList(e2.Object as OutcomeList);
                             DataPortal<OutcomeList> dp2 = new DataPortal<OutcomeList>();
                             dp2.FetchCompleted += (o2, e22) =>
                             {
@@ -4997,7 +4997,7 @@ on the right of the main screen");
                                 }
                                 else
                                 {
-                                    ma2.Outcomes = e22.Object as OutcomeList;
+                                    ma2.SetOutcomesList(e22.Object as OutcomeList);
                                     windowMetaAnalysisOptions.ShowDialog();
                                 }
                             };

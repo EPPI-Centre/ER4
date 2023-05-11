@@ -1601,7 +1601,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         /* ************* Calculated properties *****************/
-
+        //none of them saves to the DB => all use "LoadProperty(...)" to set their value (we don't want the object to be dirty when we change these vals).
         private static PropertyInfo<Byte[]> feForestPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("feForestPlot", "feForestPlot"));
         public Byte[] feForestPlot
         {
@@ -1611,7 +1611,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(feForestPlotProperty, value);
+                LoadProperty(feForestPlotProperty, value);
             }
         }
 
@@ -1624,7 +1624,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(reForestPlotProperty, value);
+                LoadProperty(reForestPlotProperty, value);
             }
         }
 
@@ -1637,7 +1637,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(feFunnelPlotProperty, value);
+                LoadProperty(feFunnelPlotProperty, value);
             }
         }
 
@@ -1650,7 +1650,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(feSumWeightProperty, value);
+                LoadProperty(feSumWeightProperty, value);
             }
         }
 
@@ -1663,7 +1663,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(reSumWeightProperty, value);
+                LoadProperty(reSumWeightProperty, value);
             }
         }
 
@@ -1671,112 +1671,112 @@ namespace BusinessLibrary.BusinessClasses
         public double feEffect
         {
             get { return ReadProperty(_feEffect); }
-            set { SetProperty(_feEffect, value); }
+            set { LoadProperty(_feEffect, value); }
         }
 
         private static PropertyInfo<double> _feSE = RegisterProperty<double>(new PropertyInfo<double>("feSE", "feSE"));
         public double feSE
         {
             get { return ReadProperty(_feSE); }
-            set { SetProperty(_feSE, value); }
+            set { LoadProperty(_feSE, value); }
         }
 
         private static PropertyInfo<double> _feCiUpper = RegisterProperty<double>(new PropertyInfo<double>("_feCiUpper", "_feCiUpper"));
         public double feCiUpper
         {
             get { return ReadProperty(_feCiUpper); }
-            set { SetProperty(_feCiUpper, value); }
+            set { LoadProperty(_feCiUpper, value); }
         }
 
         private static PropertyInfo<double> _feCiLower = RegisterProperty<double>(new PropertyInfo<double>("_feCiLower", "_feCiLower"));
         public double feCiLower
         {
             get { return ReadProperty(_feCiLower); }
-            set { SetProperty(_feCiLower, value); }
+            set { LoadProperty(_feCiLower, value); }
         }
 
         private static PropertyInfo<double> _reEffect = RegisterProperty<double>(new PropertyInfo<double>("reEffect", "reEffect"));
         public double reEffect
         {
             get { return ReadProperty(_reEffect); }
-            set { SetProperty(_reEffect, value); }
+            set { LoadProperty(_reEffect, value); }
         }
 
         private static PropertyInfo<double> _reSE = RegisterProperty<double>(new PropertyInfo<double>("reSE", "reSE"));
         public double reSE
         {
             get { return ReadProperty(_reSE); }
-            set { SetProperty(_reSE, value); }
+            set { LoadProperty(_reSE, value); }
         }
 
         private static PropertyInfo<double> _reCiUpper = RegisterProperty<double>(new PropertyInfo<double>("_reCiUpper", "_reCiUpper"));
         public double reCiUpper
         {
             get { return ReadProperty(_reCiUpper); }
-            set { SetProperty(_reCiUpper, value); }
+            set { LoadProperty(_reCiUpper, value); }
         }
 
         private static PropertyInfo<double> _reCiLower = RegisterProperty<double>(new PropertyInfo<double>("_reCiLower", "_reCiLower"));
         public double reCiLower
         {
             get { return ReadProperty(_reCiLower); }
-            set { SetProperty(_reCiLower, value); }
+            set { LoadProperty(_reCiLower, value); }
         }
 
         private static PropertyInfo<double> _tauSquared = RegisterProperty<double>(new PropertyInfo<double>("_tauSquared", "_tauSquared"));
         public double tauSquared
         {
             get { return ReadProperty(_tauSquared); }
-            set { SetProperty(_tauSquared, value); }
+            set { LoadProperty(_tauSquared, value); }
         }
 
         private static PropertyInfo<double> _Q = RegisterProperty<double>(new PropertyInfo<double>("_Q", "_Q"));
         public double Q
         {
             get { return ReadProperty(_Q); }
-            set { SetProperty(_Q, value); }
+            set { LoadProperty(_Q, value); }
         }
 
         private static PropertyInfo<double> _reQ = RegisterProperty<double>(new PropertyInfo<double>("_reQ", "_reQ"));
         public double reQ
         {
             get { return ReadProperty(_reQ); }
-            set { SetProperty(_reQ, value); }
+            set { LoadProperty(_reQ, value); }
         }
 
         private static PropertyInfo<double> _numStudies = RegisterProperty<double>(new PropertyInfo<double>("_numStudies", "_numStudies"));
         public double numStudies
         {
             get { return ReadProperty(_numStudies); }
-            set { SetProperty(_numStudies, value); }
+            set { LoadProperty(_numStudies, value); }
         }
 
         private static PropertyInfo<double> _FileDrawerZ = RegisterProperty<double>(new PropertyInfo<double>("_FileDrawerZ", "_FileDrawerZ"));
         public double FileDrawerZ
         {
             get { return ReadProperty(_FileDrawerZ); }
-            set { SetProperty(_FileDrawerZ, value); }
+            set { LoadProperty(_FileDrawerZ, value); }
         }
 
         private static PropertyInfo<double> _sumWeightsSquared = RegisterProperty<double>(new PropertyInfo<double>("_sumWeightsSquared", "_sumWeightsSquared"));
         public double sumWeightsSquared
         {
             get { return ReadProperty(_sumWeightsSquared); }
-            set { SetProperty(_sumWeightsSquared, value); }
+            set { LoadProperty(_sumWeightsSquared, value); }
         }
 
         private static PropertyInfo<double> _reSumWeightsTimesOutcome = RegisterProperty<double>(new PropertyInfo<double>("_reSumWeightsTimesOutcome", "_reSumWeightsTimesOutcome"));
         public double reSumWeightsTimesOutcome
         {
             get { return ReadProperty(_reSumWeightsTimesOutcome); }
-            set { SetProperty(_reSumWeightsTimesOutcome, value); }
+            set { LoadProperty(_reSumWeightsTimesOutcome, value); }
         }
 
         private static PropertyInfo<double> _WY_squared = RegisterProperty<double>(new PropertyInfo<double>("_WY_squared", "_WY_squared"));
         public double WY_squared
         {
             get { return ReadProperty(_WY_squared); }
-            set { SetProperty(_WY_squared, value); }
+            set { LoadProperty(_WY_squared, value); }
         }
 
         public double C()
