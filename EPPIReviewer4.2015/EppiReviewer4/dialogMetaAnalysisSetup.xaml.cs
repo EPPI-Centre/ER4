@@ -728,23 +728,53 @@ namespace EppiReviewer4
                 return;
             int index = 0;
             MetaAnalysis ma = this.DataContext as MetaAnalysis;
+            string ColPrefix = "";
             if (columnToDelete.StartsWith("aq"))
             {
+                ColPrefix = "aq";
                 index = Convert.ToInt32(columnToDelete.Replace("aq", ""));
                 ma.AttributeIdQuestion = removeAttributeIndex(ma.AttributeIdQuestion.Split(','), index -1);
             }
             else
             {
+                ColPrefix = "aa";
                 index = Convert.ToInt32(columnToDelete.Replace("aa", ""));
                 ma.AttributeIdAnswer = removeAttributeIndex(ma.AttributeIdAnswer.Split(','), index -1);
             }
 
             //new 2023: check that the column isn't filtered, get rid of the filter if it is!
-            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
-            //step 1: clear filter in the UI
+            //step 1: clear and update filter/sorting in the UI
             GridViewColumn col = GridViewMetaStudies.Columns[columnToDelete];
             if (col != null)
             {
+                GridViewMetaStudies.SortDescriptors.SuspendNotifications();
+
+                //2: if we're sorting by This column, stop doing it!
+                if (ma.SortedBy == columnToDelete) ma.SortedBy = "";
+                else
+                {
+                    //problem: if we had more optional colums after the one we're deleting and if we were sorting by one of them,
+                    //then we need to update the sorting as we are changing the uniquename of the column we want to sort-by...
+                    Telerik.Windows.Data.SortDescriptorCollection sortDescriptors = GridViewMetaStudies.SortDescriptors;
+                    if (sortDescriptors != null)
+                    {
+                        foreach (ColumnSortDescriptor sort in sortDescriptors)//only one (or none), but we have an IEnumerable object...
+                        {
+                            if (sort.Column.UniqueName.StartsWith(ColPrefix))
+                            {
+                                int index2 = Convert.ToInt32(sort.Column.UniqueName.Replace(ColPrefix, ""));
+                                if (index2 > index)
+                                {//OK, we were sorting by a column that is being moved, we need to change the unique name of the "sortBy" field in current MA
+                                 //saving it then makes it re-bind to the UI, so changes will update in the UI at that point
+                                    ma.SortedBy = ColPrefix + (index2 - 1).ToString();
+                                }
+                            }
+                        }
+                    }
+                }
+                col.SortingState = SortingState.None;
+                GridViewMetaStudies.SortDescriptors.ResumeNotifications();
+
                 IColumnFilterDescriptor colFilter = col.ColumnFilterDescriptor;
                 if (colFilter != null && colFilter.IsActive)
                 {
@@ -753,12 +783,15 @@ namespace EppiReviewer4
                     GridViewMetaStudies.FilterDescriptors.ResumeNotifications();
                 }
             }
+            if (ma.FilterSettingsList != null)
+                {
 
-            if (_currentSelectedMetaAnalysis.FilterSettingsList != null
-                && _currentSelectedMetaAnalysis.FilterSettingsList.Count > 0)
-            {
-                MetaAnalysisFilterSetting toRemove = _currentSelectedMetaAnalysis.FilterSettingsList.FirstOrDefault(f => f.ColumnName == columnToDelete);
-                if (toRemove != null) toRemove.Delete();
+                //3: if there is a filter on this col within the MA object, remove it.                
+                if (ma.FilterSettingsList.Count > 0)
+                {
+                    MetaAnalysisFilterSetting toRemove = ma.FilterSettingsList.FirstOrDefault(f => f.ColumnName == columnToDelete);
+                    if (toRemove != null) toRemove.Delete();
+                }
             }
             SaveMetaAnalysis(false, false);
         }
