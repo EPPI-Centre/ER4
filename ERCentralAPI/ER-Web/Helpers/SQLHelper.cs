@@ -2,7 +2,6 @@
 using Csla.Data;
 using EPPIDataServices.Helpers;
 #if !WEBDB
-using ERxWebClient2;
 #else
 using WebDatabasesMVC;
 #endif

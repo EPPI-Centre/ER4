@@ -31,16 +31,39 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch(new SingleCriteria<MetaAnalysis, int>(Id));
         }
 
-#if SILVERLIGHT
+//#if SILVERLIGHT
+//        public MetaAnalysis() {
+//            FilterSettingsList = new MetaAnalysisFilterSettingList();
+//            Random rnd = new Random();
+//            _instance = rnd.Next(1, 101);
+//        }
+//        private int _instance;
+//        public int Instance { get { return _instance; } }
+//#else 
         public MetaAnalysis()
         {
-            
+            //Outcomes = new OutcomeList();
+            FilterSettingsList = new MetaAnalysisFilterSettingList();
         }
 
-#else
-        public MetaAnalysis() { }
-#endif
-
+        public void SetOutcomesList(OutcomeList outcomes)
+        {
+            bool wasDirty = this.IsDirty;
+            this.Outcomes = outcomes;
+            if (wasDirty == false && this.IsDirty == true)
+            {
+                this.MarkClean();
+            }
+        }
+        /// <summary>
+        /// Called when we modify a child in a list (FilterSettingsList) and want the MA to realise it has changes to save
+        /// For some reason with the code as is, it doesn't on its onw :-(
+        /// </summary>
+        public void DoMarkDirty()
+        {
+            this.MarkDirty();
+        }
+//#endif
         /*
          * Sets which type of analysis we're dealing with
          * 0 = meta-analysis
@@ -49,6 +72,9 @@ namespace BusinessLibrary.BusinessClasses
          */
 
         private static PropertyInfo<int> AnalysisTypeProperty = RegisterProperty<int>(new PropertyInfo<int>("AnalysisType", "AnalysisType", 0));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int AnalysisType
         {
             get
@@ -57,7 +83,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(AnalysisTypeProperty, value);
+                LoadProperty(AnalysisTypeProperty, value);
             }
         }
 
@@ -76,7 +102,9 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(TitleProperty, value);
             }
         }
-
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         private static PropertyInfo<bool> KNHAProperty = RegisterProperty<bool>(new PropertyInfo<bool>("KNHA", "KNHA", false));
         public bool KNHA
         {
@@ -86,11 +114,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(KNHAProperty, value);
+                LoadProperty(KNHAProperty, value);
             }
         }
 
         private static PropertyInfo<bool> FitStatsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("FitStats", "FitStats", true));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool FitStats
         {
             get
@@ -99,11 +130,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(FitStatsProperty, value);
+                LoadProperty(FitStatsProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ConfintProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Confint", "Confint", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool Confint
         {
             get
@@ -112,11 +146,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ConfintProperty, value);
+                LoadProperty(ConfintProperty, value);
             }
         }
 
         private static PropertyInfo<bool> EggerProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Egger", "Egger", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool Egger
         {
             get
@@ -125,11 +162,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(EggerProperty, value);
+                LoadProperty(EggerProperty, value);
             }
         }
 
         private static PropertyInfo<bool> RankCorrProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RankCorr", "RankCorr", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool RankCorr
         {
             get
@@ -138,11 +178,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(RankCorrProperty, value);
+                LoadProperty(RankCorrProperty, value);
             }
         }
 
         private static PropertyInfo<bool> TrimFillProperty = RegisterProperty<bool>(new PropertyInfo<bool>("TrimFill", "TrimFill", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool TrimFill
         {
             get
@@ -151,7 +194,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(TrimFillProperty, value);
+                LoadProperty(TrimFillProperty, value);
             }
         }
 
@@ -163,6 +206,10 @@ namespace BusinessLibrary.BusinessClasses
             <ComboBoxItem Content="&quot;EB&quot;: Empirical Bayes estimator" Tag="EB"/>
         */
         private static PropertyInfo<int> StatisticalModelProperty = RegisterProperty<int>(new PropertyInfo<int>("StatisticalModel", "StatisticalModel"));
+
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int StatisticalModel
         {
             get
@@ -171,7 +218,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(StatisticalModelProperty, value);
+                LoadProperty(StatisticalModelProperty, value);
             }
         }
 
@@ -189,6 +236,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<int> VerboseProperty = RegisterProperty<int>(new PropertyInfo<int>("Verbose", "Verbose", 0));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int Verbose
         {
             get
@@ -197,11 +247,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(VerboseProperty, value);
+                LoadProperty(VerboseProperty, value);
             }
         }
 
         private static PropertyInfo<int> SignificanceLevelProperty = RegisterProperty<int>(new PropertyInfo<int>("SignificanceLevel", "SignificanceLevel", 95));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int SignificanceLevel
         {
             get
@@ -210,10 +263,13 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(SignificanceLevelProperty, value);
+                LoadProperty(SignificanceLevelProperty, value);
             }
         }
 
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         private static PropertyInfo<int> DecPlacesProperty = RegisterProperty<int>(new PropertyInfo<int>("DecPlaces", "DecPlaces", 4));
         public int DecPlaces
         {
@@ -223,11 +279,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(DecPlacesProperty, value);
+                LoadProperty(DecPlacesProperty, value);
             }
         }
 
         private static PropertyInfo<string> XAxisTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("XAxisTitle", "XAxisTitle", string.Empty));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public string XAxisTitle
         {
             get
@@ -236,11 +295,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(XAxisTitleProperty, value);
+                LoadProperty(XAxisTitleProperty, value);
             }
         }
 
         private static PropertyInfo<string> SummaryEstimateTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("SummaryEstimateTitle", "SummaryEstimateTitle", string.Empty));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public string SummaryEstimateTitle
         {
             get
@@ -249,11 +311,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(SummaryEstimateTitleProperty, value);
+                LoadProperty(SummaryEstimateTitleProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ShowAnnotationsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAnnotations", "ShowAnnotations", true));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool ShowAnnotations
         {
             get
@@ -262,11 +327,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ShowAnnotationsProperty, value);
+                LoadProperty(ShowAnnotationsProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ShowAnnotationWeightsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAnnotationWeights", "ShowAnnotationWeights", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool ShowAnnotationWeights
         {
             get
@@ -275,11 +343,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ShowAnnotationWeightsProperty, value);
+                LoadProperty(ShowAnnotationWeightsProperty, value);
             }
         }
 
         private static PropertyInfo<bool> FittedValsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("FittedVals", "FittedVals", true));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool FittedVals
         {
             get
@@ -288,11 +359,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(FittedValsProperty, value);
+                LoadProperty(FittedValsProperty, value);
             }
         }
 
         private static PropertyInfo<bool> CredIntProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CredInt", "CredInt", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool CredInt
         {
             get
@@ -301,11 +375,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(CredIntProperty, value);
+                LoadProperty(CredIntProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ShowFunnelProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowFunnel", "ShowFunnel", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool ShowFunnel
         {
             get
@@ -314,11 +391,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ShowFunnelProperty, value);
+                LoadProperty(ShowFunnelProperty, value);
             }
         }
 
         private static PropertyInfo<bool> ShowBoxplotProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowBoxplot", "ShowBoxplot", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool ShowBoxplot
         {
             get
@@ -327,19 +407,22 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ShowBoxplotProperty, value);
+                LoadProperty(ShowBoxplotProperty, value);
             }
         }
 
         public void SetupModeratorList()
         {
-            MetaAnalysisModerators.Clear();
+            bool wasDirty = this.IsDirty;
+            if (MetaAnalysisModerators == null) MetaAnalysisModerators = new MetaAnalysisModeratorList();
+            else MetaAnalysisModerators.Clear();
             MetaAnalysisModerator mam = new MetaAnalysisModerator();
             mam.Name = "Intervention";
             mam.IsSelected = false;
             mam.AttributeID = 0;
             mam.FieldName = "InterventionText";
             GetReferenceValues(mam, "InterventionText");
+            //mam.DoMarkAsOld();
             MetaAnalysisModerators.Add(mam);
             mam = new MetaAnalysisModerator();
             mam.Name = "Comparison";
@@ -347,6 +430,7 @@ namespace BusinessLibrary.BusinessClasses
             mam.AttributeID = 0;
             mam.FieldName = "ControlText";
             GetReferenceValues(mam, "ControlText");
+            //mam.DoMarkAsOld();
             MetaAnalysisModerators.Add(mam);
             mam = new MetaAnalysisModerator();
             mam.Name = "Outcome";
@@ -354,6 +438,7 @@ namespace BusinessLibrary.BusinessClasses
             mam.AttributeID = 0;
             mam.FieldName = "OutcomeText";
             GetReferenceValues(mam, "OutcomeText");
+            //mam.DoMarkAsOld();
             MetaAnalysisModerators.Add(mam);
             int z = 1;
             if (Outcomes != null)
@@ -368,6 +453,7 @@ namespace BusinessLibrary.BusinessClasses
                     mam.FieldName = "occ" + z.ToString();
                     mam.addReferenceValue("0", 0);
                     mam.addReferenceValue("1", 1);
+                    //mam.DoMarkAsOld();
                     MetaAnalysisModerators.Add(mam);
                     z++;
                 }
@@ -385,6 +471,7 @@ namespace BusinessLibrary.BusinessClasses
                     mam.addReferenceValue("0", 0);
                     mam.addReferenceValue("1", 1);
                     //GetReferenceValues(mam, "aa" + (i + 1).ToString());
+                    //mam.DoMarkAsOld();
                     MetaAnalysisModerators.Add(mam);
                 }
             }
@@ -399,9 +486,11 @@ namespace BusinessLibrary.BusinessClasses
                     mam.AttributeID = -1;
                     mam.FieldName = "aq" + (i + 1).ToString();
                     GetReferenceValues(mam, "aq" + (i + 1).ToString());
+                    //mam.DoMarkAsOld();
                     MetaAnalysisModerators.Add(mam);
                 }
             }
+            if (wasDirty == false && this.IsDirty == true) MarkClean();
         }
 
         private void GetReferenceValues(MetaAnalysisModerator mam, string propertyName)
@@ -489,6 +578,9 @@ namespace BusinessLibrary.BusinessClasses
         /* ************* NETWORK META-ANALYSIS PROPERTIES ********************/
 
         private static PropertyInfo<int> NMAStatisticalModelProperty = RegisterProperty<int>(new PropertyInfo<int>("NMAStatisticalModel", "NMAStatisticalModel"));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public int NMAStatisticalModel
         {
             get
@@ -497,11 +589,12 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(NMAStatisticalModelProperty, value);
+                LoadProperty(NMAStatisticalModelProperty, value);
             }
         }
 
         private static PropertyInfo<bool> LargeValuesGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("LargeValuesGood", "LargeValuesGood", false));
+
         public bool LargeValuesGood
         {
             get
@@ -515,6 +608,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> NMAReferenceProperty = RegisterProperty<string>(new PropertyInfo<string>("NMAReference", "NMAReference", string.Empty));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public string NMAReference
         {
             get
@@ -523,11 +619,16 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(NMAReferenceProperty, value);
+                LoadProperty(NMAReferenceProperty, value);//"SetProperty" marks obj as dirty, "LoadProperty" doesn't...
+                //this property isn't saved in the DB, so we DON'T want it "tracked". Others would be like this, but this one
+                //gets set upon loading in the ER4 UI, hence the need.
             }
         }
 
         private static PropertyInfo<bool> ExponentiatedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Exponentiated", "Exponentiated", false));
+        /// <summary>
+        /// Not Saved in the db
+        /// </summary>
         public bool Exponentiated
         {
             get
@@ -536,7 +637,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(ExponentiatedProperty, value);
+                LoadProperty(ExponentiatedProperty, value);
             }
         }
 
@@ -1360,6 +1461,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(MetaAnalysisTypeTitleProperty);
             }
+            set
+            {
+                SetProperty(MetaAnalysisTypeTitleProperty, value);
+            }
         }
 
         private static PropertyInfo<string> InterventionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("InterventionText", "InterventionText", string.Empty));
@@ -1481,8 +1586,22 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        /* ************* Calculated properties *****************/
+        private static PropertyInfo<MetaAnalysisFilterSettingList> FilterSettingsListProperty = RegisterProperty<MetaAnalysisFilterSettingList>(new PropertyInfo<MetaAnalysisFilterSettingList>("FilterSettingsList", "FilterSettingsList"));
+        public MetaAnalysisFilterSettingList FilterSettingsList
+        {
+            get
+            {
+                return GetProperty(FilterSettingsListProperty);
+            }
+            set
+            {
+                SetProperty(FilterSettingsListProperty, value);
+            }
+        }
 
+
+        /* ************* Calculated properties *****************/
+        //none of them saves to the DB => all use "LoadProperty(...)" to set their value (we don't want the object to be dirty when we change these vals).
         private static PropertyInfo<Byte[]> feForestPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("feForestPlot", "feForestPlot"));
         public Byte[] feForestPlot
         {
@@ -1492,7 +1611,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(feForestPlotProperty, value);
+                LoadProperty(feForestPlotProperty, value);
             }
         }
 
@@ -1505,7 +1624,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(reForestPlotProperty, value);
+                LoadProperty(reForestPlotProperty, value);
             }
         }
 
@@ -1518,7 +1637,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(feFunnelPlotProperty, value);
+                LoadProperty(feFunnelPlotProperty, value);
             }
         }
 
@@ -1531,7 +1650,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(feSumWeightProperty, value);
+                LoadProperty(feSumWeightProperty, value);
             }
         }
 
@@ -1544,7 +1663,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             set
             {
-                SetProperty(reSumWeightProperty, value);
+                LoadProperty(reSumWeightProperty, value);
             }
         }
 
@@ -1552,112 +1671,112 @@ namespace BusinessLibrary.BusinessClasses
         public double feEffect
         {
             get { return ReadProperty(_feEffect); }
-            set { SetProperty(_feEffect, value); }
+            set { LoadProperty(_feEffect, value); }
         }
 
         private static PropertyInfo<double> _feSE = RegisterProperty<double>(new PropertyInfo<double>("feSE", "feSE"));
         public double feSE
         {
             get { return ReadProperty(_feSE); }
-            set { SetProperty(_feSE, value); }
+            set { LoadProperty(_feSE, value); }
         }
 
         private static PropertyInfo<double> _feCiUpper = RegisterProperty<double>(new PropertyInfo<double>("_feCiUpper", "_feCiUpper"));
         public double feCiUpper
         {
             get { return ReadProperty(_feCiUpper); }
-            set { SetProperty(_feCiUpper, value); }
+            set { LoadProperty(_feCiUpper, value); }
         }
 
         private static PropertyInfo<double> _feCiLower = RegisterProperty<double>(new PropertyInfo<double>("_feCiLower", "_feCiLower"));
         public double feCiLower
         {
             get { return ReadProperty(_feCiLower); }
-            set { SetProperty(_feCiLower, value); }
+            set { LoadProperty(_feCiLower, value); }
         }
 
         private static PropertyInfo<double> _reEffect = RegisterProperty<double>(new PropertyInfo<double>("reEffect", "reEffect"));
         public double reEffect
         {
             get { return ReadProperty(_reEffect); }
-            set { SetProperty(_reEffect, value); }
+            set { LoadProperty(_reEffect, value); }
         }
 
         private static PropertyInfo<double> _reSE = RegisterProperty<double>(new PropertyInfo<double>("reSE", "reSE"));
         public double reSE
         {
             get { return ReadProperty(_reSE); }
-            set { SetProperty(_reSE, value); }
+            set { LoadProperty(_reSE, value); }
         }
 
         private static PropertyInfo<double> _reCiUpper = RegisterProperty<double>(new PropertyInfo<double>("_reCiUpper", "_reCiUpper"));
         public double reCiUpper
         {
             get { return ReadProperty(_reCiUpper); }
-            set { SetProperty(_reCiUpper, value); }
+            set { LoadProperty(_reCiUpper, value); }
         }
 
         private static PropertyInfo<double> _reCiLower = RegisterProperty<double>(new PropertyInfo<double>("_reCiLower", "_reCiLower"));
         public double reCiLower
         {
             get { return ReadProperty(_reCiLower); }
-            set { SetProperty(_reCiLower, value); }
+            set { LoadProperty(_reCiLower, value); }
         }
 
         private static PropertyInfo<double> _tauSquared = RegisterProperty<double>(new PropertyInfo<double>("_tauSquared", "_tauSquared"));
         public double tauSquared
         {
             get { return ReadProperty(_tauSquared); }
-            set { SetProperty(_tauSquared, value); }
+            set { LoadProperty(_tauSquared, value); }
         }
 
         private static PropertyInfo<double> _Q = RegisterProperty<double>(new PropertyInfo<double>("_Q", "_Q"));
         public double Q
         {
             get { return ReadProperty(_Q); }
-            set { SetProperty(_Q, value); }
+            set { LoadProperty(_Q, value); }
         }
 
         private static PropertyInfo<double> _reQ = RegisterProperty<double>(new PropertyInfo<double>("_reQ", "_reQ"));
         public double reQ
         {
             get { return ReadProperty(_reQ); }
-            set { SetProperty(_reQ, value); }
+            set { LoadProperty(_reQ, value); }
         }
 
         private static PropertyInfo<double> _numStudies = RegisterProperty<double>(new PropertyInfo<double>("_numStudies", "_numStudies"));
         public double numStudies
         {
             get { return ReadProperty(_numStudies); }
-            set { SetProperty(_numStudies, value); }
+            set { LoadProperty(_numStudies, value); }
         }
 
         private static PropertyInfo<double> _FileDrawerZ = RegisterProperty<double>(new PropertyInfo<double>("_FileDrawerZ", "_FileDrawerZ"));
         public double FileDrawerZ
         {
             get { return ReadProperty(_FileDrawerZ); }
-            set { SetProperty(_FileDrawerZ, value); }
+            set { LoadProperty(_FileDrawerZ, value); }
         }
 
         private static PropertyInfo<double> _sumWeightsSquared = RegisterProperty<double>(new PropertyInfo<double>("_sumWeightsSquared", "_sumWeightsSquared"));
         public double sumWeightsSquared
         {
             get { return ReadProperty(_sumWeightsSquared); }
-            set { SetProperty(_sumWeightsSquared, value); }
+            set { LoadProperty(_sumWeightsSquared, value); }
         }
 
         private static PropertyInfo<double> _reSumWeightsTimesOutcome = RegisterProperty<double>(new PropertyInfo<double>("_reSumWeightsTimesOutcome", "_reSumWeightsTimesOutcome"));
         public double reSumWeightsTimesOutcome
         {
             get { return ReadProperty(_reSumWeightsTimesOutcome); }
-            set { SetProperty(_reSumWeightsTimesOutcome, value); }
+            set { LoadProperty(_reSumWeightsTimesOutcome, value); }
         }
 
         private static PropertyInfo<double> _WY_squared = RegisterProperty<double>(new PropertyInfo<double>("_WY_squared", "_WY_squared"));
         public double WY_squared
         {
             get { return ReadProperty(_WY_squared); }
-            set { SetProperty(_WY_squared, value); }
+            set { LoadProperty(_WY_squared, value); }
         }
 
         public double C()
@@ -1778,9 +1897,8 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-#if SILVERLIGHT
+#if !SILVERLIGHT
     
-#else
         protected override void DataPortal_Insert()
         {
             insert_object();
@@ -1819,7 +1937,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ANSWER", ReadProperty(AttributeIdAnswerProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_QUESTION", ReadProperty(AttributeIdQuestionProperty)));
                     command.Parameters.Add(new SqlParameter("@META_ANALYSIS_TYPE_ID", ReadProperty(MetaAnalysisTypeIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
+                    //command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
                     command.Parameters.Add(new SqlParameter("@OUTCOME_IDS", OutcomeIds()));
                     command.Parameters.Add(new SqlParameter("@Randomised", ReadProperty(RandomisedProperty)));
                     command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
@@ -1874,6 +1992,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@CertaintyLevel", ReadProperty(CertaintyLevelProperty)));
                     command.Parameters.Add(new SqlParameter("@CertaintyLevelComment", ReadProperty(CertaintyLevelCommentProperty)));
 
+                    command.Parameters.Add(new SqlParameter("@SORTED_FIELD", ReadProperty(SortedByProperty)));
+                    command.Parameters.Add(new SqlParameter("@SORT_DIRECTION", System.Data.SqlDbType.Bit));
+                    if (SortDirection == "") command.Parameters["@SORT_DIRECTION"].Value = null;
+                    else if (SortDirection == "Ascending") command.Parameters["@SORT_DIRECTION"].Value = true;
+                    else command.Parameters["@SORT_DIRECTION"].Value = false;
+
                     SqlParameter par = new SqlParameter("@ATTRIBUTE_ANSWER_TEXT", System.Data.SqlDbType.NVarChar);
                     par.Size = 4000;
                     command.Parameters.Add(par);
@@ -1893,11 +2017,13 @@ namespace BusinessLibrary.BusinessClasses
                         LoadProperty(AttributeQuestionTextProperty, "");
                 }
                 connection.Close();
+                SaveFilterSettings();
                 Outcomes = OutcomeList.GetOutcomeList(SetId, AttributeIdIntervention, AttributeIdControl,
                         AttributeIdOutcome, AttributeId, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
                 MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
             }
         }
+        
 
         protected void insert_object()
         {
@@ -1921,7 +2047,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@OUTCOME_IDS", OutcomeIds()));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ANSWER", ReadProperty(AttributeIdAnswerProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_QUESTION", ReadProperty(AttributeIdQuestionProperty)));
-                    command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
+                    //command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
                     command.Parameters.Add(new SqlParameter("@Randomised", ReadProperty(RandomisedProperty)));
                     command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
                     command.Parameters.Add(new SqlParameter("@RoBComment", ReadProperty(RoBCommentProperty)));
@@ -1974,6 +2100,14 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@UpgradeNone", ReadProperty(UpgradeNoneProperty)));
                     command.Parameters.Add(new SqlParameter("@CertaintyLevel", ReadProperty(CertaintyLevelProperty)));
                     command.Parameters.Add(new SqlParameter("@CertaintyLevelComment", ReadProperty(CertaintyLevelCommentProperty)));
+                    
+                    command.Parameters.Add(new SqlParameter("@SORTED_FIELD", ReadProperty(SortedByProperty)));
+                    command.Parameters.Add(new SqlParameter("@SORT_DIRECTION", System.Data.SqlDbType.Bit));
+                    command.Parameters["@SORT_DIRECTION"].IsNullable = true;
+                    if (SortDirection == "") command.Parameters["@SORT_DIRECTION"].Value = null;
+                    else if (SortDirection == "Ascending") command.Parameters["@SORT_DIRECTION"].Value = true;
+                    else command.Parameters["@SORT_DIRECTION"].Value = false;
+
                     SqlParameter par = new SqlParameter("@NEW_META_ANALYSIS_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par);
@@ -1986,7 +2120,11 @@ namespace BusinessLibrary.BusinessClasses
                     par3.Size = 4000;
                     command.Parameters.Add(par3);
                     command.Parameters["@ATTRIBUTE_QUESTION_TEXT"].Direction = System.Data.ParameterDirection.Output;
+
+
+
                     command.ExecuteNonQuery();
+
                     LoadProperty(MetaAnalysisIdProperty, command.Parameters["@NEW_META_ANALYSIS_ID"].Value);
                     if (AttributeIdAnswer != "")
                         LoadProperty(AttributeAnswerTextProperty, command.Parameters["@ATTRIBUTE_ANSWER_TEXT"].Value);
@@ -1996,12 +2134,28 @@ namespace BusinessLibrary.BusinessClasses
                         LoadProperty(AttributeQuestionTextProperty, command.Parameters["@ATTRIBUTE_QUESTION_TEXT"].Value);
                     else
                         LoadProperty(AttributeQuestionTextProperty, "");
-
+                    SaveFilterSettings();
                     Outcomes = OutcomeList.GetOutcomeList(SetId, AttributeIdIntervention, AttributeIdControl,
                         AttributeIdOutcome, AttributeId, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
                     MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
                 }
                 connection.Close();
+            }
+        }
+        private void SaveFilterSettings()
+        {
+            bool settingsSaved = false;
+            foreach (MetaAnalysisFilterSetting el in FilterSettingsList)
+            {
+                if (el.IsDirty == true)
+                {
+                    settingsSaved = true;
+                    MetaAnalysisFilterSetting throwAway = el.Save();
+                }
+            }
+            if (settingsSaved)
+            {
+                this.FilterSettingsList = MetaAnalysisFilterSettingList.GetMetaAnalysisFilterSettingList(MetaAnalysisId);
             }
         }
 
@@ -2062,7 +2216,7 @@ namespace BusinessLibrary.BusinessClasses
             //returnValue.LoadProperty<string>(OutcomeTextProperty, reader.GetString("OUTCOME_TEXT"));
             returnValue.LoadProperty<string>(AttributeIdAnswerProperty, reader.GetString("ATTRIBUTE_ID_ANSWER"));
             returnValue.LoadProperty<string>(AttributeIdQuestionProperty, reader.GetString("ATTRIBUTE_ID_QUESTION"));
-            returnValue.LoadProperty<string>(GridSettingsProperty, reader.GetString("GRID_SETTINGS"));
+            //returnValue.LoadProperty<string>(GridSettingsProperty, reader.GetString("GRID_SETTINGS"));
             if (returnValue.AttributeIdAnswer != "")
                 returnValue.LoadProperty<string>(AttributeAnswerTextProperty, reader.GetString("ATTRIBUTE_ANSWER_TEXT"));
             else
@@ -2124,13 +2278,23 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(UpgradeNoneProperty, reader.GetBoolean("UpgradeNone"));
             returnValue.LoadProperty<int>(CertaintyLevelProperty, reader.GetInt32("CertaintyLevel"));
             returnValue.LoadProperty<string>(CertaintyLevelCommentProperty, reader.GetString("CertaintyLevelComment"));
-            returnValue.MarkOld();
+            
+            returnValue.LoadProperty<string>(SortedByProperty, reader.GetString("SORTED_FIELD"));
+            bool? sortdir = reader.GetValue("SORT_DIRECTION") as bool?;
+            if (sortdir == null) returnValue.LoadProperty<string>(SortDirectionProperty, "");
+            else if (sortdir == true) returnValue.LoadProperty<string>(SortDirectionProperty, "Ascending");
+            else  returnValue.LoadProperty<string>(SortDirectionProperty, "Descending");
 
             //loading on the fly now, as they take too long if there's a lot of outcomes / meta-analyses
             //returnValue.Outcomes = OutcomeList.GetOutcomeList(returnValue.SetId, returnValue.AttributeIdIntervention, returnValue.AttributeIdControl,
             //    returnValue.AttributeIdOutcome, returnValue.AttributeId, returnValue.MetaAnalysisId, returnValue.AttributeIdQuestion, returnValue.AttributeIdAnswer);
 
+            returnValue.Outcomes = new OutcomeList();//to prevent "null" errors, just in case!
+
             returnValue.MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
+            returnValue.FilterSettingsList = MetaAnalysisFilterSettingList.GetMetaAnalysisFilterSettingList(returnValue.MetaAnalysisId);
+
+            returnValue.MarkOld();
 
             return returnValue;
         }

@@ -18,54 +18,32 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class MetaAnalysisList : DynamicBindingListBase<MetaAnalysis>
+    public class MetaAnalysisFilterSettingList : DynamicBindingListBase<MetaAnalysisFilterSetting>
     {
 
-        public static void GetMetaAnalysisList(EventHandler<DataPortalResult<MetaAnalysisList>> handler)
-        {
-            DataPortal<MetaAnalysisList> dp = new DataPortal<MetaAnalysisList>();
-            dp.FetchCompleted += handler;
-            dp.BeginFetch();
-        }
+        public MetaAnalysisFilterSettingList() { }
+        
+        
 
+#if !SILVERLIGHT
 
-#if SILVERLIGHT
-        public MetaAnalysisList() { }
-        public bool HasMAsToSave 
-        {
-            get 
-            {
-                if (this.FirstOrDefault(f => f.IsSavable == true) == null) return false;
-                else return true;
-            }
-        }
-#else
-        private MetaAnalysisList() { }
-#endif
-
-
-#if SILVERLIGHT
-       
-#else
-
-
-        protected void DataPortal_Fetch()
+        protected void DataPortal_Fetch(SingleCriteria<MetaAnalysisFilterSettingList, int> criteria)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MetaAnalysisList", connection))
+                using (SqlCommand command = new SqlCommand("st_MetaAnalysisFilterSettings", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@META_ANALYSIS_ID", criteria.Value));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
                         {
-                            Add(MetaAnalysis.GetMetaAnalysis(reader));
+                            Add(MetaAnalysisFilterSetting.GetMetaAnalysisFilterSetting(reader));
                         }
                     }
                 }
@@ -73,9 +51,12 @@ namespace BusinessLibrary.BusinessClasses
             }
             RaiseListChangedEvents = true;
         }
+        public static MetaAnalysisFilterSettingList GetMetaAnalysisFilterSettingList(int MetaAnalysisId)
+        {
+            MetaAnalysisFilterSettingList res = new MetaAnalysisFilterSettingList();
+            res.DataPortal_Fetch(new SingleCriteria<MetaAnalysisFilterSettingList, int>(MetaAnalysisId));
+            return res;
+        }
 #endif
-
-
-
     }
 }
