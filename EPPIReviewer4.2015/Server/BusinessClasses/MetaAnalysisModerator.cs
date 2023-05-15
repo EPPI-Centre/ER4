@@ -40,7 +40,14 @@ namespace BusinessLibrary.BusinessClasses
         {
             return Name;
         }
-
+        //public void DoMarkAsOld()
+        //{
+        //    this.MarkOld();
+        //    foreach (MetaAnalysisModeratorReference reff in References)
+        //    {
+        //        reff.DoMarkAsOld();
+        //    }
+        //}
         
         private static PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
         public string Name

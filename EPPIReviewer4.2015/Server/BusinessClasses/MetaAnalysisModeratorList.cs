@@ -34,18 +34,10 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MetaAnalysisModeratorList : DynamicBindingListBase<MetaAnalysisModerator>
     {
-
         
 
-        
-
-
-#if SILVERLIGHT
         public MetaAnalysisModeratorList() { }
-        
-#else
-        private MetaAnalysisModeratorList() { }
-#endif
+      
 
 
 #if !SILVERLIGHT

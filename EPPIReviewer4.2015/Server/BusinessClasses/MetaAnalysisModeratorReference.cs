@@ -35,8 +35,11 @@ namespace BusinessLibrary.BusinessClasses
 #else
         public MetaAnalysisModeratorReference() { }
 #endif
+        //public void DoMarkAsOld()
+        //{
+        //    this.MarkOld();
+        //}
 
-       
 
         private static PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
         public string Name

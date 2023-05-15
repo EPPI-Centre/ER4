@@ -715,16 +715,16 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(DOIProperty, pm.doi);
             returnValue.LoadProperty<string>(DocTypeProperty, pm.type);
             returnValue.LoadProperty<string>(PaperTitleProperty, (pm.display_name == null || pm.display_name == "" ? "" : pm.display_name));
-            returnValue.LoadProperty<string>(OriginalTitleProperty, pm.display_name);
+            returnValue.LoadProperty<string>(OriginalTitleProperty, returnValue.PaperTitle);
             //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
             returnValue.LoadProperty<Int32>(YearProperty, pm.publication_year);
             returnValue.LoadProperty<string>(DateProperty, pm.publication_date);
-            returnValue.LoadProperty<string>(PublisherProperty, pm.host_venue.publisher);
             //if (pm.J != null && pm.J[0] != null)
-            if (pm.host_venue != null)
+            if (pm.primary_location != null && pm.primary_location.source != null)
             {
                 //returnValue.LoadProperty<Int64>(JournalIdProperty, pm.host_venue.id);
-                returnValue.LoadProperty<string>(JournalProperty, pm.host_venue.display_name);
+                returnValue.LoadProperty<string>(PublisherProperty, pm.primary_location.source.host_organization_name);
+                returnValue.LoadProperty<string>(JournalProperty, pm.primary_location.source.display_name);
             }
             
             returnValue.LoadProperty<string>(VolumeProperty, pm.biblio.volume);
@@ -801,10 +801,40 @@ namespace BusinessLibrary.BusinessClasses
                 returnValue.LoadProperty<string>(AuthorsProperty, a);
             }
             returnValue.LoadProperty<string>(AbstractProperty, MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index));
-            if (pm.host_venue != null)
+
+            //fishing for the URL value
+            //we take the OpenAccess "primary_location.landing_page_url" val
+            if (pm.primary_location != null)
             {
-                returnValue.LoadProperty<string>(URLsProperty, pm.host_venue.url);
-                //returnValue.LoadProperty<string>(PdfLinksProperty, p);
+                if (pm.primary_location.landing_page_url != null && pm.primary_location.landing_page_url != "") 
+                    returnValue.LoadProperty<string>(URLsProperty, pm.primary_location.landing_page_url);
+                else if (pm.best_oa_location != null && pm.best_oa_location.landing_page_url != null && pm.best_oa_location.landing_page_url != "") returnValue.LoadProperty<string>(URLsProperty, pm.best_oa_location.landing_page_url);
+                else returnValue.LoadProperty<string>(URLsProperty, "");
+            }
+            //now look for PDF links...
+            string PDFLinks = "";
+            if (pm.best_oa_location != null)
+            {
+                if (pm.best_oa_location.pdf_url != null) PDFLinks = pm.best_oa_location.pdf_url;
+            }
+            if (pm.primary_location != null && pm.primary_location.pdf_url != null && pm.primary_location.pdf_url != "")
+            {
+                if (!PDFLinks.Contains(pm.primary_location.pdf_url))
+                {
+                    if (PDFLinks == "") PDFLinks = pm.primary_location.pdf_url;
+                    else PDFLinks += ";" + pm.primary_location.pdf_url;
+                }
+            }
+            returnValue.LoadProperty<string>(PdfLinksProperty, PDFLinks);
+
+            if (returnValue.URLs == null || returnValue.URLs == "")
+            {
+                returnValue.LoadProperty<string>(URLsProperty, "");//just making sure we never get a Null value in here
+                if (pm.primary_location != null)
+                {
+                    if (pm.primary_location.pdf_url != null) returnValue.LoadProperty<string>(URLsProperty, pm.primary_location.pdf_url);
+                    else if (pm.primary_location.landing_page_url != null) returnValue.LoadProperty<string>(URLsProperty, pm.primary_location.landing_page_url);
+                }
             }
             if (reader != null)
             {

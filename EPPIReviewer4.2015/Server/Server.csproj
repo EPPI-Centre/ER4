@@ -428,6 +428,8 @@
     <Compile Include="BusinessClasses\MagSimulationList.cs" />
     <Compile Include="BusinessClasses\MagSimulationResult.cs" />
     <Compile Include="BusinessClasses\MagSimulationResultList.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysisFilterSetting.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysisFilterSettingList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModerator.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorReference.cs" />

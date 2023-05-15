@@ -699,12 +699,12 @@ namespace BusinessLibrary.BusinessClasses
                 ITEM_ID = Convert.ToInt64(pm.id.Replace("https://openalex.org/W", ""));
                 AUTHORS = MagMakesHelpers.getAuthors(pm.authorships);
                 TITLE = pm.title;
-                PARENT_TITLE = pm.host_venue != null && pm.host_venue.display_name != null  ? pm.host_venue.display_name : "";
+                PARENT_TITLE = pm.primary_location != null && pm.primary_location.source != null && pm.primary_location.source.display_name != null ? pm.primary_location.source.display_name : "";
                 PARENT_TITLE = MagMakesHelpers.CleanText(PARENT_TITLE.Replace("&", "and"));
                 YEAR = DateTime.Parse(pm.publication_date).Year.ToString();
                 VOLUME = pm.biblio != null ? pm.biblio.volume : "";
                 PAGES = pm.biblio != null ? pm.biblio.first_page + "-" + pm.biblio.last_page : "";
-                ISSUE = pm.biblio.issue;
+                ISSUE = pm.biblio != null ? pm.biblio.issue : "";
                 DOI = pm.doi != null ? pm.doi.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
                 ABSTRACT = "";
                 HAS_CODES = 0;
