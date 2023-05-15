@@ -60,7 +60,9 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
                 }
                 .codesInSmallScreen.show {
                   width:99.5%;
-                  transform:scaleX(1);
+                  height:90%;
+                  max-height:814px;
+                  transform:0;
                 }
                 .CodesBtnL {
                     position: fixed;
@@ -69,7 +71,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
                 }
                 .CodesBtnR {
                     position: fixed;
-                    top: 45%;
+                    top: 45vh;
                     z-index:999;
                     right: 0.05em;
                 }
@@ -149,12 +151,18 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   faSpinner = faSpinner;
 
   public innerWidth: any = 900;
+  private readonly innerWidthThreshold: number = 768;
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
+    if (this.codesetTreeCoding && this.codesetTreeCoding.showManualModal == true
+      && this.innerWidth >= this.innerWidthThreshold
+      && window.innerWidth < this.innerWidthThreshold) {
+      this.ShowCodesInSmallScreen = true;
+    }
     this.innerWidth = window.innerWidth;
   }
   IsSmallScreen(): boolean {
-    if (this.innerWidth && this.innerWidth < 768) {
+    if (this.innerWidth && this.innerWidth < this.innerWidthThreshold) {
       return true;
     }
     else return false;
@@ -180,6 +188,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     else return false;
   }
 
+  public HotKeysOn: boolean = false;
 
   public RefreshTerms() {
 
@@ -187,6 +196,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     this.ReviewerTermsService.Fetch();
   }
   public ShowCodesInSmallScreen: boolean = false;
+  private _ShowCodesInSmallScreenOverriden: boolean = false;
   public ShowHideCodes() {
     this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
   }
@@ -196,6 +206,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   }
   ngAfterViewInit() {
     // child is set
+    //if (this.ArmsCompRef) this.ArmsCompRef.CurrentItem = this.item;
   }
   SelectTab(i: number) {
     if (!this.tabstrip) return;
@@ -225,18 +236,39 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       this.HelpAndFeebackContext = "(codingui)itemdetails";
     }
   }
+
+  RemoveCodeModalOpenedIncoming() {
+    //console.log("opened");
+    if (this.ShowCodesInSmallScreen == false && this.IsSmallScreen() == true) {
+      //codes flap is closed, but screen is small, so the dialog to confirm "RemoveCode" would be hidden:
+      //we'll open the codes screen automatically
+      this._ShowCodesInSmallScreenOverriden = true;
+      this.ShowCodesInSmallScreen = true;
+    }
+  }
+  RemoveCodeModalClosedIncoming() {
+    //console.log("closed");
+    if (this._ShowCodesInSmallScreenOverriden == true) {
+      //we automatically opened the codes flap, and now the dialog to confirm "RemoveCode" has been closed:
+      //we'll automatically re-close the codes-flap...
+      this._ShowCodesInSmallScreenOverriden = false;
+      this.ShowCodesInSmallScreen = false;
+    }
+  }
+
+
   public get HasDocForView(): boolean {
     //console.log("hasDocForView", this.ItemDocsService.CurrentDoc);
     if (this.ItemDocsService.CurrentDoc) return true;
     else return false;
   }
   async CheckAndMoveToPDFTab() {
-    console.log("CheckAndMoveToPDFTab", this.ItemDocsService.CurrentDoc, this.tabstrip);
+    //console.log("CheckAndMoveToPDFTab", this.ItemDocsService.CurrentDoc, this.tabstrip);
     if (this.HasDocForView) {
-      console.log("CheckAndMoveToPDFTab2");
+      //console.log("CheckAndMoveToPDFTab2");
       if (this.pdftroncontainer) this.pdftroncontainer.loadDoc();
       if (this.tabstrip) {
-        console.log("CheckAndMoveToPDFTab3");
+        //console.log("CheckAndMoveToPDFTab3");
         await Helpers.Sleep(50);//we need to give the UI thread the time to catch up and "un-disable" the tab.
         this.SelectTab(1);
       }
@@ -394,8 +426,10 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       if (this.ArmsCompRef) {
         this.ArmsCompRef.CurrentItem = this.item;
       }
-      this.armservice.FetchArms(this.item);
+      this.armservice.FetchAll(this.item);
+      //this.armservice.Fetchtimepoints(this.item);
     }
+    this._outcomeService.outcomesChangedEE.emit();
     this.ItemCodingService.Fetch(this.itemID);
 
   }

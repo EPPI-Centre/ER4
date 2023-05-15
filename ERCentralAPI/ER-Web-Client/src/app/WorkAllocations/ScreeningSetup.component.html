@@ -400,7 +400,7 @@
                             id="dropdownBasicCodingTool" ngbDropdownToggle>
                         {{GetCodingToolName()}}
                     </button>
-                    <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                    <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
                         <button (click)="setCodeSetDropDown(item)"
                                 *ngFor="let item of ScreeningTools;" class="dropdown-item">
                             {{item.name}}

@@ -363,24 +363,24 @@ namespace ERxWebClient2.Controllers
     }
     public class JSONSource
     {
-        public string source_Name = "";
-        public string dateOfSerach = DateTime.Now.ToLongDateString();
-        public string dateOfImport = DateTime.Now.ToLongDateString();
-        public string sourceDataBase = "";
-        public string searchDescription = "";
-        public string searchString = "";
-        public string notes = "";
-        public string importFilter = "";
-        public int total_Items = 0;
-        public int deleted_Items = 0;
-        public int source_ID = -1;
-        public bool isFlagDeleted = false;
-        public int codes = 0;
-        public int inductiveCodes = 0;
-        public int attachedFiles = 0;
-        public int duplicates = 0;
-        public int isMasterOf = 0;
-        public int outcomes = 0;
+        public string source_Name { get; set; } = "";
+        public string dateOfSerach { get; set; } = DateTime.Now.ToLongDateString();
+        public string dateOfImport { get; set; } = DateTime.Now.ToLongDateString();
+        public string sourceDataBase { get; set; } = "";
+        public string searchDescription { get; set; } = "";
+        public string searchString { get; set; } = "";
+        public string notes { get; set; } = "";
+        public string importFilter { get; set; } = "";
+        public int total_Items { get; set; } = 0;
+        public int deleted_Items { get; set; } = 0;
+        public int source_ID { get; set; } = -1;
+        public bool isFlagDeleted { get; set; } = false;
+        public int codes { get; set; } = 0;
+        public int inductiveCodes { get; set; }  = 0;
+        public int attachedFiles { get; set; } = 0;
+        public int duplicates { get; set; } = 0;
+        public int isMasterOf { get; set; } = 0;
+        public int outcomes { get; set; } = 0;
     }
     public class UploadOrCheckSource : JSONSource
     {
@@ -391,7 +391,7 @@ namespace ERxWebClient2.Controllers
         //public int Duplicates = 0;
         //public int Source_ID = 0;
         //public bool IsDeleted = false;
-        public string fileContent = "";
+        public string fileContent { get; set; } = "";
         
     }
     public class IncomingItemsListJSON

@@ -1,0 +1,25856 @@
+﻿USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_AllAttributesInSet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_AllAttributesInSet]
+(
+	@SET_ID INT
+)
+
+As
+
+SELECT TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID, TB_ATTRIBUTE_SET.SET_ID, TB_ATTRIBUTE_SET.ATTRIBUTE_ID, TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID,
+	TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID, TB_ATTRIBUTE_SET.ATTRIBUTE_SET_DESC, TB_ATTRIBUTE_SET.ATTRIBUTE_ORDER,
+	ATTRIBUTE_TYPE, ATTRIBUTE_NAME, ATTRIBUTE_SET_DESC, CONTACT_ID, TB_ATTRIBUTE.ATTRIBUTE_DESC, Ext_URL, Ext_Type,
+	ORIGINAL_ATTRIBUTE_ID
+
+FROM TB_ATTRIBUTE_SET
+INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ATTRIBUTE_SET.SET_ID 
+INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID and TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID is not null
+INNER JOIN TB_ATTRIBUTE_TYPE ON TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID
+
+WHERE TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+	AND dbo.fn_IsAttributeInTree(TB_ATTRIBUTE.attribute_id) = 1
+
+ORDER BY PARENT_ATTRIBUTE_ID, ATTRIBUTE_ORDER
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieFindER4UserFromArchieID]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieFindER4UserFromArchieID]
+	-- Add the parameters for the stored procedure here
+	@ARCHIE_ID varchar(32)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	--first, check that we have one and only one result
+	declare @ck int = (Select COUNT(CONTACT_ID) from TB_CONTACT where ARCHIE_ID = @ARCHIE_ID and ARCHIE_ID is not null)
+	if @ck = 1
+	BEGIN
+		select * from TB_CONTACT where  ARCHIE_ID = @ARCHIE_ID and ARCHIE_ID is not null
+	END
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieIdentityFromCodeAndStatus]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieIdentityFromCodeAndStatus]
+	-- Add the parameters for the stored procedure here
+	@ARCHIE_CODE varchar(4000)
+	,@ARCHIE_STATE varchar(12)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    declare @ck int = (Select COUNT(CONTACT_ID) from TB_CONTACT where @ARCHIE_CODE = LAST_ARCHIE_CODE and @ARCHIE_STATE = LAST_ARCHIE_STATE 
+		and (LAST_ARCHIE_CODE is not null and LAST_ARCHIE_STATE is not null))
+	if @ck = 1
+	BEGIN
+	SELECT * from TB_CONTACT where @ARCHIE_CODE = LAST_ARCHIE_CODE and @ARCHIE_STATE = LAST_ARCHIE_STATE 
+		and (LAST_ARCHIE_CODE is not null and LAST_ARCHIE_STATE is not null)
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieIdentityFromReviewer]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieIdentityFromReviewer]
+	-- Add the parameters for the stored procedure here
+	@CID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT ARCHIE_ID, ARCHIE_ACCESS_TOKEN, ARCHIE_TOKEN_VALID_UNTIL, ARCHIE_REFRESH_TOKEN from TB_CONTACT where CONTACT_ID = @CID
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieIdentityFromUnassignedCodeAndStatus]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieIdentityFromUnassignedCodeAndStatus]
+	-- Add the parameters for the stored procedure here
+	@CID int
+	,@ARCHIE_CODE varchar(4000)
+	,@ARCHIE_STATE varchar(12)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    declare @ck int = (
+						Select COUNT(u.ARCHIE_ID) from TB_UNASSIGNED_ARCHIE_KEYS u
+						inner join TB_CONTACT c	
+							on c.CONTACT_ID = @CID and c.ARCHIE_ID is null
+						where @ARCHIE_CODE = u.LAST_ARCHIE_CODE and @ARCHIE_STATE = u.LAST_ARCHIE_STATE 
+						and (u.LAST_ARCHIE_CODE is not null and u.LAST_ARCHIE_STATE is not null)
+						)
+	if @ck = 1
+	BEGIN --all is well
+		--1. Save Archie keys in tb_contact
+		update TB_CONTACT set 
+			ARCHIE_ID = au.ARCHIE_ID
+			,ARCHIE_ACCESS_TOKEN = au.ARCHIE_ACCESS_TOKEN
+			,ARCHIE_TOKEN_VALID_UNTIL = au.ARCHIE_TOKEN_VALID_UNTIL
+			,ARCHIE_REFRESH_TOKEN = au.ARCHIE_REFRESH_TOKEN
+			,LAST_ARCHIE_CODE = au.LAST_ARCHIE_CODE
+			,LAST_ARCHIE_STATE = au.LAST_ARCHIE_STATE
+		From (
+				Select * from TB_UNASSIGNED_ARCHIE_KEYS u where @ARCHIE_CODE = u.LAST_ARCHIE_CODE 
+				and @ARCHIE_STATE = u.LAST_ARCHIE_STATE 
+				and (u.LAST_ARCHIE_CODE is not null and u.LAST_ARCHIE_STATE is not null)
+				) au
+		WHERE CONTACT_ID = @CID
+		--2. delete record from TB_UNASSIGNED_ARCHIE_KEYS
+		delete from TB_UNASSIGNED_ARCHIE_KEYS where @ARCHIE_CODE = LAST_ARCHIE_CODE 
+				and @ARCHIE_STATE = LAST_ARCHIE_STATE 
+				and (LAST_ARCHIE_CODE is not null and LAST_ARCHIE_STATE is not null)
+		--3. get All user details
+		SELECT * from TB_CONTACT where @ARCHIE_CODE = LAST_ARCHIE_CODE and @ARCHIE_STATE = LAST_ARCHIE_STATE 
+			and (LAST_ARCHIE_CODE is not null and LAST_ARCHIE_STATE is not null)
+	END
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieReviewFindFromArchieID]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieReviewFindFromArchieID]
+	-- Add the parameters for the stored procedure here
+	@A_ID char(18)
+	,@CID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	declare @ck int = (select COUNT(Review_id) from TB_REVIEW where ARCHIE_ID = @A_ID and ARCHIE_ID is not null)
+	IF @ck = 1
+	BEGIN
+		select r.* 
+		 ,CASE 
+			when rc.CONTACT_ID is not null then 1
+			else 0
+		END as CONTACT_IS_IN_REVIEW
+		,dbo.fn_REBUILD_ROLES(rc.REVIEW_CONTACT_ID) as ROLES
+		, case when LR is null
+			then r.DATE_CREATED
+			else LR
+			end
+			as 'LAST_ACCESS'
+		from TB_REVIEW r
+		left outer join TB_REVIEW_CONTACT rc on r.REVIEW_ID = rc.REVIEW_ID and CONTACT_ID = @CID
+		left join (
+			select MAX(LAST_RENEWED) LR, REVIEW_ID
+			from ReviewerAdmin.dbo.TB_LOGON_TICKET  
+			where @CID = CONTACT_ID
+			group by REVIEW_ID
+			) as t
+			on t.REVIEW_ID = r.REVIEW_ID
+		where ARCHIE_ID = @A_ID and ARCHIE_ID is not null
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieReviewLinkToER4Review]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieReviewLinkToER4Review] 
+	-- Add the parameters for the stored procedure here
+	@RID int,
+	@CID int,
+	@ARID char(18),
+	@ARCD char(8),
+	@IS_CHECKEDOUT_HERE bit,
+	@RES int out
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	declare @ck int = (select COUNT(r.REVIEW_ID) from TB_REVIEW r 
+						inner join TB_REVIEW_CONTACT rc on r.REVIEW_ID = rc.REVIEW_ID and rc.CONTACT_ID = @CID
+						 where @RID = r.REVIEW_ID and (r.IS_CHECKEDOUT_HERE is null OR r.IS_CHECKEDOUT_HERE = 0)
+						 )
+	if @ck != 1
+	BEGIN
+		set @RES = -1
+		return
+	END
+	UPDATE TB_REVIEW set ARCHIE_ID = @ARID, ARCHIE_CD = @ARCD, IS_CHECKEDOUT_HERE = @IS_CHECKEDOUT_HERE
+	WHERE REVIEW_ID = @RID
+	if @@ROWCOUNT = 1
+		Set @RES = 1
+	else
+		Set @RES = -2
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieReviewMarkAsCheckedInOut]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieReviewMarkAsCheckedInOut] 
+	-- Add the parameters for the stored procedure here
+	@RID int,
+	@CID int,
+	@ARID char(18),
+	@ARCD char(8),
+	@IS_CHECKEDOUT_HERE bit,
+	@RES int out
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	declare @ck int = (select COUNT(r.REVIEW_ID) from TB_REVIEW r 
+						inner join TB_REVIEW_CONTACT rc on r.REVIEW_ID = rc.REVIEW_ID and rc.CONTACT_ID = @CID
+						 where @RID = r.REVIEW_ID and (@ARID = r.ARCHIE_ID or r.ARCHIE_ID is null)
+						 )
+	if @ck != 1
+	BEGIN
+		set @RES = -1
+		return
+	END
+	UPDATE TB_REVIEW set ARCHIE_ID = @ARID, ARCHIE_CD = @ARCD, IS_CHECKEDOUT_HERE = @IS_CHECKEDOUT_HERE
+	WHERE REVIEW_ID = @RID
+	if @@ROWCOUNT = 1
+	BEGIN
+		Set @RES = 1
+		if @IS_CHECKEDOUT_HERE = 0
+		--IF we are marking the review as CHECKED-IN in Archie, we need to kick out currenlty logged on users
+		--we do this by adding a second "Active" ticket to all currently logged on users
+		-- this gets picked up by the client when ticket & status get checked
+		--on client side, the code will receive the message 'Multiple' which never happens otherwise
+		--if the user is Cochrane, they will get an explanation
+		--otherwise they get a generic error.
+		BEGIN
+			DECLARE @T TABLE 
+			( 
+				CI int,
+				TK uniqueidentifier
+			) 
+			insert into @T
+				SELECT CONTACT_ID, newid()
+				from ReviewerAdmin.dbo.TB_LOGON_TICKET
+				WHERE REVIEW_ID = @RID and [STATE] = 1 and LAST_RENEWED > DATEADD(HH, -3, GETDATE())
+			
+			INSERT into ReviewerAdmin.dbo.TB_LOGON_TICKET(TICKET_GUID, CONTACT_ID, REVIEW_ID)
+			SELECT TK, CI, @RID From @T 
+		END
+	END
+	else
+		Set @RES = -2
+	
+END
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieSaveTokens]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieSaveTokens]
+	-- Add the parameters for the stored procedure here
+	@ARCHIE_ID varchar(32)
+	,@TOKEN varchar(4000)
+	,@VALID_UNTIL datetime2(1)
+	,@REFRESH_T varchar(4000)
+	,@ARCHIE_CODE varchar(4000) = null
+	,@ARCHIE_STATE varchar(12) = null
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	Update TB_CONTACT set 
+		ARCHIE_ACCESS_TOKEN = @TOKEN
+		,ARCHIE_TOKEN_VALID_UNTIL = @VALID_UNTIL
+		,ARCHIE_REFRESH_TOKEN = @REFRESH_T
+		,LAST_ARCHIE_CODE = @ARCHIE_CODE
+		,LAST_ARCHIE_STATE = @ARCHIE_STATE
+		where ARCHIE_ID = @ARCHIE_ID
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ArchieSaveUnassignedTokens]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ArchieSaveUnassignedTokens]
+	-- Add the parameters for the stored procedure here
+	@ARCHIE_ID varchar(32)
+	,@TOKEN varchar(4000)
+	,@VALID_UNTIL datetime2(1)
+	,@REFRESH_T varchar(4000)
+	,@ARCHIE_CODE varchar(4000)
+	,@ARCHIE_STATE varchar(12)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	--first, make sure there are no duplicates
+	delete from TB_UNASSIGNED_ARCHIE_KEYS where ARCHIE_ID = @ARCHIE_ID
+	INSERT INTO [Reviewer].[dbo].[TB_UNASSIGNED_ARCHIE_KEYS]
+           ([ARCHIE_ID]
+           ,[ARCHIE_ACCESS_TOKEN]
+           ,[ARCHIE_TOKEN_VALID_UNTIL]
+           ,[ARCHIE_REFRESH_TOKEN]
+           ,[LAST_ARCHIE_CODE]
+           ,[LAST_ARCHIE_STATE])
+     VALUES
+           (@ARCHIE_ID
+           ,@TOKEN
+           ,@VALID_UNTIL
+           ,@REFRESH_T
+           ,@ARCHIE_CODE
+           ,@ARCHIE_STATE)
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeSet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeSet]
+(
+   @SET_ID INT,
+   @PARENT_ATTRIBUTE_ID BIGINT = 0
+)
+
+As
+
+SELECT TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID, TB_ATTRIBUTE_SET.SET_ID, TB_ATTRIBUTE_SET.ATTRIBUTE_ID, TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID,
+	TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID, TB_ATTRIBUTE_SET.ATTRIBUTE_SET_DESC, TB_ATTRIBUTE_SET.ATTRIBUTE_ORDER,
+	ATTRIBUTE_TYPE, ATTRIBUTE_NAME, ATTRIBUTE_SET_DESC, CONTACT_ID, TB_ATTRIBUTE.ATTRIBUTE_DESC, Ext_URL, Ext_Type,
+	ORIGINAL_ATTRIBUTE_ID
+
+FROM TB_ATTRIBUTE_SET
+INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ATTRIBUTE_SET.SET_ID
+INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+INNER JOIN TB_ATTRIBUTE_TYPE ON TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID
+
+WHERE TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+
+    AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @PARENT_ATTRIBUTE_ID
+
+ORDER BY PARENT_ATTRIBUTE_ID, ATTRIBUTE_ORDER
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeSetDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeSetDelete]
+(
+	@ATTRIBUTE_SET_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@PARENT_ATTRIBUTE_ID BIGINT,
+	@ATTRIBUTE_ORDER INT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+DECLARE @SET_ID INT
+
+SELECT @SET_ID = tas.SET_ID FROM TB_ATTRIBUTE_SET tas
+	inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID --join on review, avoid cross review poisoning!
+	WHERE ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+
+IF(@SET_ID is null) return --avoid cross review poisoning
+
+DELETE FROM TB_ITEM_ATTRIBUTE_TEXT
+FROM TB_ITEM_ATTRIBUTE_TEXT
+INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		AND TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+		AND TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+
+DELETE FROM TB_ITEM_ATTRIBUTE_PDF
+FROM TB_ITEM_ATTRIBUTE_PDF
+INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE_PDF.ITEM_ATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		AND TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+		AND TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+
+DELETE FROM TB_ITEM_ATTRIBUTE
+from TB_ITEM_ATTRIBUTE
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		AND TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+		AND TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		
+DELETE FROM TB_ITEM_SET
+WHERE NOT ITEM_SET_ID IN 
+(
+	SELECT DISTINCT ITEM_SET_ID  
+    FROM TB_ITEM_ATTRIBUTE ia
+    inner join tb_item_review ir on ia.ITEM_ID = ir.ITEM_ID 
+    and ir.REVIEW_ID = @REVIEW_ID
+    union
+    select tio.item_set_id
+    from TB_ITEM_OUTCOME tio
+    inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID
+    inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+) and SET_ID = @SET_ID
+
+	SELECT TB_ATTRIBUTE_SET.ATTRIBUTE_ID FROM TB_ATTRIBUTE_SET
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.SET_ID = TB_ATTRIBUTE_SET.SET_ID
+		INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID
+			AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+		WHERE TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+
+		DELETE FROM TB_ATTRIBUTE_SET WHERE ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+
+		UPDATE TB_ATTRIBUTE_SET
+				SET ATTRIBUTE_ORDER = ATTRIBUTE_ORDER -1
+				WHERE PARENT_ATTRIBUTE_ID = @PARENT_ATTRIBUTE_ID
+				AND ATTRIBUTE_ORDER > @ATTRIBUTE_ORDER
+				AND SET_ID = @SET_ID
+
+		SELECT ATTRIBUTE_ID FROM TB_ATTRIBUTE_SET WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+
+		IF (@@ROWCOUNT = 0)
+		BEGIN
+			DELETE FROM TB_ATTRIBUTE WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+		END
+
+	END
+	
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeSetDeleteWarning]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeSetDeleteWarning]
+(
+	@ATTRIBUTE_SET_ID BIGINT,
+	@SET_ID INT,
+	@NUM_ITEMS BIGINT OUTPUT,
+	@NUM_ALLOCATIONS int = 0 OUTPUT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT @NUM_ITEMS = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_SET.SET_ID
+			AND TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+			AND TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+	SELECT @NUM_ALLOCATIONS = count(*) from TB_WORK_ALLOCATION w
+	inner join TB_ATTRIBUTE_SET tas on w.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and tas.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID and w.REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeSetInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeSetInsert]
+(
+	@SET_ID INT,
+	@PARENT_ATTRIBUTE_ID BIGINT = 0,
+	@ATTRIBUTE_TYPE_ID INT = 1,
+	@ATTRIBUTE_SET_DESC NVARCHAR(MAX) = null,
+	@ATTRIBUTE_ORDER INT = 1,
+	@ATTRIBUTE_NAME NVARCHAR(255),
+	@ATTRIBUTE_DESC NVARCHAR(2000) = null,
+	@CONTACT_ID INT,
+	@ORIGINAL_ATTRIBUTE_ID BIGINT = null,
+	@Ext_URL nvarchar(2048) = '',
+	@Ext_Type nvarchar(100) = '',
+
+	@NEW_ATTRIBUTE_SET_ID BIGINT OUTPUT,
+	@NEW_ATTRIBUTE_ID BIGINT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	INSERT INTO TB_ATTRIBUTE(CONTACT_ID, ATTRIBUTE_NAME, ATTRIBUTE_DESC, ORIGINAL_ATTRIBUTE_ID, Ext_URL, Ext_Type)
+		VALUES(@CONTACT_ID, @ATTRIBUTE_NAME, @ATTRIBUTE_DESC, @ORIGINAL_ATTRIBUTE_ID, @Ext_URL, @Ext_Type)
+
+	SET @NEW_ATTRIBUTE_ID = @@IDENTITY
+
+	INSERT INTO TB_ATTRIBUTE_SET(ATTRIBUTE_ID, SET_ID, PARENT_ATTRIBUTE_ID, ATTRIBUTE_TYPE_ID, ATTRIBUTE_SET_DESC, ATTRIBUTE_ORDER)
+		VALUES(@NEW_ATTRIBUTE_ID, @SET_ID, @PARENT_ATTRIBUTE_ID, @ATTRIBUTE_TYPE_ID, @ATTRIBUTE_SET_DESC, @ATTRIBUTE_ORDER)
+
+	SET @NEW_ATTRIBUTE_SET_ID = @@IDENTITY
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeSetLimitedUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeSetLimitedUpdate]
+(
+	@ATTRIBUTE_ID BIGINT,
+	@ATTRIBUTE_SET_ID BIGINT,
+	@ATTRIBUTE_TYPE_ID INT,
+	@ATTRIBUTE_NAME NVARCHAR(255),
+	@ATTRIBUTE_DESCRIPTION NVARCHAR(MAX),
+	@ATTRIBUTE_ORDER INT,
+	@REVIEW_ID INT
+	,@Ext_URL nvarchar(2048) = ''
+	,@Ext_Type nvarchar(100) = ''
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @check int = 0
+
+set @check = (select count (tas.ATTRIBUTE_ID) from TB_ATTRIBUTE_SET tas
+				inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID 
+					and tas.ATTRIBUTE_ID = @ATTRIBUTE_ID
+					and rs.REVIEW_ID = @REVIEW_ID
+			)
+
+if(@check != 1) return
+
+
+	UPDATE TB_ATTRIBUTE
+		SET ATTRIBUTE_NAME = @ATTRIBUTE_NAME, Ext_Type = @Ext_Type, Ext_URL = @Ext_URL
+		WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+		
+	UPDATE TB_ATTRIBUTE_SET
+		SET ATTRIBUTE_SET_DESC = @ATTRIBUTE_DESCRIPTION,
+		 ATTRIBUTE_TYPE_ID = @ATTRIBUTE_TYPE_ID,
+		 ATTRIBUTE_ORDER = @ATTRIBUTE_ORDER
+		WHERE ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeSetMove]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeSetMove]
+(
+	@ATTRIBUTE_SET_ID BIGINT,
+	@ATTRIBUTE_ORDER INT,
+	@FROM BIGINT,
+	@TO BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE @OLD_CODE_ORDER bigint
+	DECLARE @SET_ID BIGINT
+
+	SELECT @OLD_CODE_ORDER = ATTRIBUTE_ORDER, @SET_ID = SET_ID
+		FROM TB_ATTRIBUTE_SET
+		WHERE ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+
+	-- REMOVE FROM CURRENT SET
+	UPDATE TB_ATTRIBUTE_SET
+		SET ATTRIBUTE_ORDER = ATTRIBUTE_ORDER -1
+		WHERE PARENT_ATTRIBUTE_ID = @FROM
+		AND ATTRIBUTE_ORDER > @OLD_CODE_ORDER
+		AND SET_ID = @SET_ID -- Need SetId as parent_attribute_id can be null or 0
+
+	-- MAKE SPACE IN THE NEW ONE
+	UPDATE TB_ATTRIBUTE_SET
+		SET ATTRIBUTE_ORDER = ATTRIBUTE_ORDER + 1
+		WHERE PARENT_ATTRIBUTE_ID = @TO
+		AND ATTRIBUTE_ORDER >= @ATTRIBUTE_ORDER
+		AND SET_ID = @SET_ID
+
+	-- INSERT THE ATTRIBUTE IN ITS NEW PLACE
+	UPDATE TB_ATTRIBUTE_SET
+		SET ATTRIBUTE_ORDER = @ATTRIBUTE_ORDER,
+			PARENT_ATTRIBUTE_ID = @TO
+		WHERE ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+		AND SET_ID = @SET_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeSetUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeSetUpdate]
+(
+	@ATTRIBUTE_SET_ID BIGINT,
+	@SET_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@PARENT_ATTRIBUTE_ID BIGINT,
+	@ATTRIBUTE_TYPE_ID INT,
+	@ATTRIBUTE_SET_DESC NVARCHAR(MAX),
+	@ATTRIBUTE_ORDER INT,
+	@ATTRIBUTE_NAME NVARCHAR(255),
+	@ATTRIBUTE_DESC NVARCHAR(2000),
+	@CONTACT_ID INT -- not used yet - maybe for authorisation,
+	,@REVIEW_ID INT
+	,@Ext_URL nvarchar(2048) = ''
+	,@Ext_Type nvarchar(100) = ''
+	,@ORIGINAL_ATTRIBUTE_ID bigint = null
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @check int = 0
+
+set @check = (select count (tas.ATTRIBUTE_ID) from TB_ATTRIBUTE_SET tas
+				inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID 
+					and tas.ATTRIBUTE_ID = @ATTRIBUTE_ID
+					and rs.REVIEW_ID = @REVIEW_ID
+					and tas.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+			)
+
+if(@check != 1) return
+
+
+	UPDATE TB_ATTRIBUTE
+		SET ATTRIBUTE_NAME = @ATTRIBUTE_NAME, ATTRIBUTE_DESC = @ATTRIBUTE_DESC,
+			Ext_Type = @Ext_Type, Ext_URL = @Ext_URL, ORIGINAL_ATTRIBUTE_ID = @ORIGINAL_ATTRIBUTE_ID
+		WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+
+	UPDATE TB_ATTRIBUTE_SET
+		SET SET_ID = @SET_ID, PARENT_ATTRIBUTE_ID = @PARENT_ATTRIBUTE_ID, ATTRIBUTE_TYPE_ID = @ATTRIBUTE_TYPE_ID,
+			ATTRIBUTE_SET_DESC = @ATTRIBUTE_SET_DESC, ATTRIBUTE_ORDER = @ATTRIBUTE_ORDER
+		WHERE ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeTextAllItems]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeTextAllItems] (
+        @ATTRIBUTE_SET_ID BIGINT
+)
+AS
+SET NOCOUNT ON
+
+
+SELECT TB_ITEM.TITLE, SHORT_TITLE, TB_ITEM.ITEM_ID, ADDITIONAL_TEXT, TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID, DOCUMENT_TITLE
+				, TEXT_FROM, TEXT_TO, 0 as [PAGE]
+                ,        SUBSTRING(
+                        replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+                        ) CODED_TEXT
+                ,'None' as [ORIGIN]
+                FROM tb_ITEM_ATTRIBUTE
+                LEFT JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+                LEFT JOIN TB_ITEM_ATTRIBUTE_PDF ON TB_ITEM_ATTRIBUTE_PDF.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+                LEFT JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+                INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = tb_ITEM_ATTRIBUTE.ITEM_ID
+                INNER JOIN TB_ITEM_REVIEW ir on TB_ITEM.ITEM_ID = ir.ITEM_ID and ir.IS_INCLUDED = 1 and ir.IS_DELETED = 0
+                INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+                INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+                        AND TB_ATTRIBUTE_SET.ATTRIBUTE_ID = tb_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+
+                WHERE TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID AND IS_COMPLETED = 'TRUE'
+					AND TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID is null
+					AND TB_ITEM_ATTRIBUTE_PDF.ITEM_ATTRIBUTE_ID is null
+					and ADDITIONAL_TEXT is not null
+					AND LTRIM ( RTRIM(ADDITIONAL_TEXT )) != ''
+
+UNION
+SELECT TB_ITEM.TITLE, SHORT_TITLE, TB_ITEM.ITEM_ID, ADDITIONAL_TEXT, TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID, DOCUMENT_TITLE
+				, TEXT_FROM, TEXT_TO, 0 as [PAGE]
+                ,        SUBSTRING(
+                        replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+                        ) CODED_TEXT
+                ,'Text' as [ORIGIN]
+                FROM tb_ITEM_ATTRIBUTE
+                INNER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+                INNER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+                INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = tb_ITEM_ATTRIBUTE.ITEM_ID
+                INNER JOIN TB_ITEM_REVIEW ir on TB_ITEM.ITEM_ID = ir.ITEM_ID and ir.IS_INCLUDED = 1 and ir.IS_DELETED = 0
+                INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+                INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+                        AND TB_ATTRIBUTE_SET.ATTRIBUTE_ID = tb_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+
+                WHERE TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID AND IS_COMPLETED = 'TRUE'
+UNION
+SELECT TB_ITEM.TITLE, SHORT_TITLE, TB_ITEM.ITEM_ID, ADDITIONAL_TEXT, TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID, DOCUMENT_TITLE
+				, 0 as [TEXT_FROM], 0 as [TEXT_TO], PAGE
+                ,'Page ' + CONVERT(varchar(10),PAGE) + ':' + CHAR(10) + '[¬s]"' + replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"'
+					AS [CODED_TEXT]
+                ,'Pdf' as [ORIGIN]
+                FROM tb_ITEM_ATTRIBUTE
+                INNER JOIN TB_ITEM_ATTRIBUTE_PDF ON TB_ITEM_ATTRIBUTE_PDF.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+                INNER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_PDF.ITEM_DOCUMENT_ID
+                INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = tb_ITEM_ATTRIBUTE.ITEM_ID
+                INNER JOIN TB_ITEM_REVIEW ir on TB_ITEM.ITEM_ID = ir.ITEM_ID and ir.IS_INCLUDED = 1 and ir.IS_DELETED = 0
+                INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+                INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+                        AND TB_ATTRIBUTE_SET.ATTRIBUTE_ID = tb_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+
+                WHERE TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID AND IS_COMPLETED = 'TRUE'
+        ORDER BY SHORT_TITLE, TB_ITEM.ITEM_ID, ITEM_DOCUMENT_ID, ORIGIN, TEXT_FROM, PAGE
+        
+SET NOCOUNT OFF
+        RETURN
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_AttributeTypes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_AttributeTypes]
+
+As
+
+SELECT * FROM TB_ATTRIBUTE_TYPE
+ORDER BY ATTRIBUTE_TYPE_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_CheckEmail]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 
+-- Description:	
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_CheckEmail] 
+      @USERID nvarchar(50), 
+      @EMAIL nvarchar(100)
+AS
+
+BEGIN
+      SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+      SELECT EMAIL, [PASSWORD], CONTACT_NAME from TB_CONTACT WHERE USERNAME = @USERID 
+            AND EMAIL = @EMAIL 
+            AND EMAIL != ''
+            AND (TB_CONTACT.EMAIL IS NOT NULL)
+            --AND PASSWD != 'FROZEN_ACCOUNT' 
+            --AND tb_CONTACT.IS_GROUP = 'N'
+            --To add the expiration constraint uncomment the following:
+            --AND DATEDIFF(day, tb_CONTACT.DATE_LAST_RENEWED, getdate()) <= tb_CONTACT.ACCESS_LENGTH_DAYS
+END
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_CheckReviewHasUpdates]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Checks to see whether a review has any auto-identified studies for authors to check
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_CheckReviewHasUpdates] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_id int = 0,
+	@NUpdates INT OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    select @NUpdates = sum(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN
+		where REVIEW_ID = @REVIEW_id
+		and USER_STATUS = 'Unchecked'
+
+	if @NUpdates is null
+	begin
+		set @NUpdates = 0
+	end
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierCleanUpBatch]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierCleanUpBatch]
+(
+	@BatchGuid varchar(50)
+
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE	@return_value int
+	EXEC	@return_value = ER4ML.ER4ML.[dbo].[CleanUpBatch] @BatchGuid = @BatchGuid
+		
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierContactModels]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierContactModels]
+(
+	@CONTACT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+declare @chk int = (select count(contact_id) from TB_CONTACT where CONTACT_ID = @CONTACT_ID and IS_SITE_ADMIN = 1)
+if (@chk = 1) --user is a site admin, current review might not have it as a member, so we need to do more work
+ BEGIN
+  declare @RID int = (select Review_id from ReviewerAdmin.dbo.TB_LOGON_TICKET 
+						where [STATE] = 1 and CONTACT_ID = @CONTACT_ID
+							and LAST_RENEWED > DATEADD(hour, -1, getdate()))
+  if @RID is null return
+  --select @rid
+  declare @rids table (REVIEW_ID int)
+  insert into @rids select @rid
+  insert into @rids select REVIEW_ID from TB_REVIEW_CONTACT rc where CONTACT_ID = @CONTACT_ID and rc.REVIEW_ID != @RID
+  select MODEL_ID, MODEL_TITLE, CM.REVIEW_ID, R.REVIEW_NAME, 
+	A1.ATTRIBUTE_NAME ATTRIBUTE_ON, A2.ATTRIBUTE_NAME ATTRIBUTE_NOT_ON,
+	 ATTRIBUTE_ID_NOT_ON, ATTRIBUTE_ID_ON,
+		CONTACT_NAME, CM.CONTACT_ID, ACCURACY, AUC, [PRECISION], RECALL
+		from tb_CLASSIFIER_MODEL CM
+	INNER JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = CM.ATTRIBUTE_ID_ON
+	INNER JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = CM.ATTRIBUTE_ID_NOT_ON
+	INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = CM.CONTACT_ID
+	INNER JOIN @rids rid on rid.REVIEW_ID = cm.REVIEW_ID
+	inner join TB_REVIEW r on rid.REVIEW_ID = r.REVIEW_ID 
+	--where RC.CONTACT_ID = @CONTACT_ID
+	order by CM.REVIEW_ID, cm.MODEL_ID
+ END
+
+ ELSE
+ BEGIN
+	select MODEL_ID, MODEL_TITLE, CM.REVIEW_ID, R.REVIEW_NAME, 
+	A1.ATTRIBUTE_NAME ATTRIBUTE_ON, A2.ATTRIBUTE_NAME ATTRIBUTE_NOT_ON,
+	 ATTRIBUTE_ID_NOT_ON, ATTRIBUTE_ID_ON,
+		CONTACT_NAME, CM.CONTACT_ID, ACCURACY, AUC, [PRECISION], RECALL
+		from tb_CLASSIFIER_MODEL CM
+	INNER JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = CM.ATTRIBUTE_ID_ON
+	INNER JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = CM.ATTRIBUTE_ID_NOT_ON
+	INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = CM.CONTACT_ID
+	INNER JOIN TB_REVIEW_CONTACT RC ON RC.REVIEW_ID = CM.REVIEW_ID
+	INNER JOIN TB_REVIEW R ON R.REVIEW_ID = RC.REVIEW_ID
+	
+	where RC.CONTACT_ID = @CONTACT_ID
+	order by CM.REVIEW_ID, MODEL_ID
+END
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierCreateSearchList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierCreateSearchList]
+(
+	@REVIEW_ID INT
+,	@CONTACT_ID INT
+,	@SEARCH_TITLE NVARCHAR(4000)
+,	@SEARCH_DESC varchar(4000) = null
+,	@HITS_NO INT
+,	@NEW_SEARCH_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	-- STEP 1: GET THE SEARCH NUMBER FOR THIS REVIEW
+	DECLARE @SEARCH_NO INT
+	SELECT @SEARCH_NO = ISNULL(MAX(SEARCH_NO), 0) + 1 FROM tb_SEARCH WHERE REVIEW_ID = @REVIEW_ID
+
+	-- STEP 2: CREATE THE SEARCH RECORD
+	INSERT INTO tb_SEARCH
+	(	REVIEW_ID
+	,	CONTACT_ID
+	,	SEARCH_TITLE
+	,	SEARCH_NO
+	,	HITS_NO
+	,	IS_CLASSIFIER_RESULT
+	,	SEARCH_DATE
+	)	
+	VALUES
+	(
+		@REVIEW_ID
+	,	@CONTACT_ID
+	,	@SEARCH_TITLE
+	,	@SEARCH_NO
+	,	@HITS_NO
+	,	'TRUE'
+	,	GetDate()
+	)
+	-- Get the identity and return it
+	SET @NEW_SEARCH_ID = @@identity
+	
+	-- STEP 3: PUT THE ITEMS INTO THE SEARCH LIST
+	
+	INSERT INTO TB_SEARCH_ITEM(ITEM_ID,SEARCH_ID, ITEM_RANK)
+		SELECT CIT.ITEM_ID, @NEW_SEARCH_ID, CAST(SCORE * 100 AS INT)
+				FROM TB_CLASSIFIER_ITEM_TEMP CIT
+			ORDER BY CIT.SCORE DESC
+	
+	/*
+	-- STEP 3: PUT THE ITEM_RANK VALUES IN (I.E. SCORES FROM 1 TO N)
+	DECLARE @START_INDEX INT = 0
+	SELECT @START_INDEX = MIN(SEARCH_ITEM_ID) FROM TB_SEARCH_ITEM WHERE SEARCH_ID = @NEW_SEARCH_ID
+	UPDATE TB_SEARCH_ITEM
+		SET ITEM_RANK = SEARCH_ITEM_ID - @START_INDEX + 1
+		WHERE SEARCH_ID = @NEW_SEARCH_ID
+	*/
+
+	-- STEP 4: DELETE ITEMS FROM TEMP TABLE
+	DELETE FROM TB_CLASSIFIER_ITEM_TEMP WHERE REVIEW_ID = @REVIEW_ID	
+		
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierDeleteModel]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierDeleteModel]
+(
+	@REVIEW_ID INT
+,	@MODEL_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM tb_CLASSIFIER_MODEL WHERE REVIEW_ID = @REVIEW_ID AND MODEL_ID = @MODEL_ID
+
+	
+
+SET NOCOUNT OFF
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierGet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierGet]
+(
+	@MODEL_ID INT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT MODEL_ID, MODEL_TITLE, CONTACT_ID, REVIEW_ID, ATTRIBUTE_ID_ON, ATTRIBUTE_ID_NOT_ON, ACCURACY, AUC,
+		[PRECISION], RECALL FROM tb_CLASSIFIER_MODEL
+		WHERE MODEL_ID = @MODEL_ID
+		AND REVIEW_ID = @REVIEW_ID
+
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierGetClassificationData]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierGetClassificationData]
+(
+	@REVIEW_ID INT
+,	@ATTRIBUTE_ID_CLASSIFY_TO BIGINT = NULL
+,	@SOURCE_ID INT = NULL
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM TB_CLASSIFIER_ITEM_TEMP WHERE REVIEW_ID = @REVIEW_ID	
+
+	IF @ATTRIBUTE_ID_CLASSIFY_TO > -1
+	BEGIN
+		SELECT DISTINCT '99' LABEL, TB_ITEM_ATTRIBUTE.ITEM_ID, TITLE, ABSTRACT, KEYWORDS FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM I ON I.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID_CLASSIFY_TO AND IS_DELETED = 'FALSE'
+	END
+	ELSE
+	IF @SOURCE_ID > -1
+	BEGIN
+		SELECT DISTINCT '99' LABEL, TB_ITEM.ITEM_ID, TITLE, ABSTRACT, KEYWORDS FROM TB_ITEM
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM.ITEM_ID
+		INNER JOIN TB_ITEM_SOURCE ITS ON ITS.ITEM_ID = TB_ITEM.ITEM_ID AND ITS.SOURCE_ID = @SOURCE_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED = 'FALSE'
+	END
+	ELSE
+	IF @SOURCE_ID = -1
+	BEGIN
+		SELECT DISTINCT '99' LABEL, TB_ITEM.ITEM_ID, TITLE, ABSTRACT, KEYWORDS FROM TB_ITEM
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM.ITEM_ID and IR.REVIEW_ID = @REVIEW_ID AND IR.IS_DELETED = 'FALSE'
+		LEFT OUTER JOIN TB_ITEM_SOURCE ITS ON ITS.ITEM_ID = TB_ITEM.ITEM_ID 
+		LEFT OUTER JOIN TB_SOURCE TS on ITS.SOURCE_ID = TS.SOURCE_ID and IR.REVIEW_ID = TS.REVIEW_ID
+		WHERE TS.SOURCE_ID  is null
+	END
+	ELSE
+	BEGIN
+		SELECT DISTINCT '99' LABEL, TB_ITEM.ITEM_ID, TITLE, ABSTRACT, KEYWORDS FROM TB_ITEM
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM.ITEM_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED = 'FALSE'
+	END
+		
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierGetClassificationDataToSQL]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierGetClassificationDataToSQL]
+(
+	@REVIEW_ID INT
+,	@ATTRIBUTE_ID_CLASSIFY_TO BIGINT = NULL
+,	@ITEM_ID_LIST nvarchar(max) = NULL
+,	@SOURCE_ID INT = NULL
+,	@BatchGuid varchar(50) = NULL
+,	@ContactId int = NULL
+,	@MachineName nvarchar(20) = NULL
+,	@ROWCOUNT int OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+-- Inserts into the tmp table are quick and then release tb_item etc for other work
+-- Inserts into the Azure DB are slow, so better to do them from a table variable
+DECLARE @TMP_ITEM TABLE
+(
+	BatchGuid nvarchar(50)
+,	Item_id bigint
+,	Title nvarchar(4000) null
+,	abstract nvarchar(max) null
+,	journal nvarchar(4000) null
+,	ReviewId int
+,	ContactId int
+,	MachineName nvarchar(20)
+)
+
+	IF @ATTRIBUTE_ID_CLASSIFY_TO > -1
+	BEGIN
+		insert into @TMP_ITEM(BatchGuid, item_id, title, abstract, journal, ReviewId, ContactId, MachineName)
+		SELECT DISTINCT @BatchGuid, TB_ITEM_ATTRIBUTE.ITEM_ID, TITLE, ABSTRACT, PARENT_TITLE, @REVIEW_ID, @ContactId, @MachineName  FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM I ON I.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID_CLASSIFY_TO AND IS_DELETED = 'FALSE'
+	END
+	ELSE
+	IF @ITEM_ID_LIST <> ''
+	BEGIN
+		insert into @TMP_ITEM(BatchGuid, item_id, title, abstract, journal, ReviewId, ContactId, MachineName)
+		SELECT DISTINCT @BatchGuid, TB_ITEM.ITEM_ID, TITLE, ABSTRACT, PARENT_TITLE, @REVIEW_ID, @ContactId, @MachineName FROM TB_ITEM
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM.ITEM_ID
+		INNER JOIN DBO.fn_Split_int(@ITEM_ID_LIST, ',') ids ON ids.value = TB_ITEM.ITEM_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED = 'FALSE'
+	END
+	ELSE
+	IF @SOURCE_ID > -1
+	BEGIN
+		insert into @TMP_ITEM(BatchGuid, item_id, title, abstract,journal, ReviewId, ContactId, MachineName)
+		SELECT DISTINCT @BatchGuid, TB_ITEM.ITEM_ID, TITLE, ABSTRACT, PARENT_TITLE, @REVIEW_ID, @ContactId, @MachineName FROM TB_ITEM
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM.ITEM_ID
+		INNER JOIN TB_ITEM_SOURCE ITS ON ITS.ITEM_ID = TB_ITEM.ITEM_ID AND ITS.SOURCE_ID = @SOURCE_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED = 'FALSE'
+	END
+	ELSE
+	IF @SOURCE_ID = -1
+	BEGIN
+		insert into @TMP_ITEM(BatchGuid, item_id, title, abstract,journal, ReviewId, ContactId, MachineName)
+		SELECT DISTINCT @BatchGuid, TB_ITEM.ITEM_ID, TITLE, ABSTRACT, PARENT_TITLE, @REVIEW_ID, @ContactId, @MachineName FROM TB_ITEM
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM.ITEM_ID and IR.REVIEW_ID = @REVIEW_ID AND IR.IS_DELETED = 'FALSE'
+		LEFT OUTER JOIN TB_ITEM_SOURCE ITS ON ITS.ITEM_ID = TB_ITEM.ITEM_ID 
+		LEFT OUTER JOIN TB_SOURCE TS on ITS.SOURCE_ID = TS.SOURCE_ID and IR.REVIEW_ID = TS.REVIEW_ID
+		WHERE TS.SOURCE_ID  is null
+	END
+	ELSE
+	BEGIN
+		insert into @TMP_ITEM(BatchGuid, item_id, title, abstract, journal, ReviewId, ContactId, MachineName)
+		SELECT DISTINCT @BatchGuid, TB_ITEM.ITEM_ID, TITLE, ABSTRACT, PARENT_TITLE, @REVIEW_ID, @ContactId, @MachineName FROM TB_ITEM
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM.ITEM_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED = 'FALSE'
+	END
+
+	set @ROWCOUNT = @@ROWCOUNT
+
+	insert into ER4ML.ER4ML.dbo.Itemdata(BatchGuid, item_id, title, abstract, journal, ReviewId, ContactId, MachineName)
+	select BatchGuid, item_id, title, abstract, journal, ReviewId, ContactId, MachineName
+		from @TMP_ITEM
+		
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierGetClassificationScores]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierGetClassificationScores]
+(
+	@BatchGuid varchar(50)
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT ITEM_ID, PredictedLabel, Score
+		FROM ER4ML.ER4ML.dbo.ItemScore where BatchGuid = @BatchGuid
+	ORDER BY Score DESC
+
+		
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierGetGetPredictedLabels]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierGetGetPredictedLabels]
+(
+
+	@BatchGuid varchar(50) = NULL
+
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE	@return_value int
+
+	EXEC	@return_value = ER4ML.ER4ML.[dbo].[GetPredictedLabels] @BatchGuid = @BatchGuid
+
+--SELECT	'Return Value' = @return_value
+		
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierGetTrainingData]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierGetTrainingData]
+(
+	@REVIEW_ID INT
+,	@ATTRIBUTE_ID_ON BIGINT = NULL
+,	@ATTRIBUTE_ID_NOT_ON BIGINT = NULL
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT DISTINCT '1' LABEL, TB_ITEM_ATTRIBUTE.ITEM_ID, TITLE, ABSTRACT, KEYWORDS FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN TB_ITEM I ON I.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	WHERE REVIEW_ID = @REVIEW_ID AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID_ON AND IS_DELETED = 'FALSE'
+	
+	UNION ALL
+	
+	SELECT DISTINCT '0' LABEL, TB_ITEM_ATTRIBUTE.ITEM_ID, TITLE, ABSTRACT, KEYWORDS FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN TB_ITEM I ON I.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	WHERE REVIEW_ID = @REVIEW_ID AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID_NOT_ON AND IS_DELETED = 'FALSE'
+
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierInsertSearchAndScores]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierInsertSearchAndScores]
+(
+	@REVIEW_ID INT
+,	@CONTACT_ID INT
+,	@SearchTitle NVARCHAR(1000)
+,	@BatchGuid varchar(50)
+
+)
+
+As
+
+SET NOCOUNT ON
+
+--declare @BatchGuid varchar(50) = '8ae824e7-ccfb-4993-b615-3fd46e5a7652'
+
+DECLARE @CurrentLabel nvarchar(500)
+
+DECLARE label_cursor CURSOR FOR 
+	SELECT distinct PredictedLabel from ER4ML.ER4ML.[dbo].ItemScore where BatchGuid = @BatchGuid
+
+OPEN label_cursor  
+FETCH NEXT FROM label_cursor INTO @CurrentLabel  
+
+WHILE @@FETCH_STATUS = 0  
+BEGIN  
+      -- STEP 1: GET THE CURRENT SEARCH COUNT FOR THIS REVIEW
+	DECLARE @SEARCH_NO INT
+	DECLARE @NEW_SEARCH_ID INT
+	SELECT @SEARCH_NO = ISNULL(MAX(SEARCH_NO), 0) + 1 FROM tb_SEARCH WHERE REVIEW_ID = @REVIEW_ID
+
+	-- STEP 2: CREATE THE SEARCH RECORD
+	INSERT INTO tb_SEARCH
+	(	REVIEW_ID
+	,	CONTACT_ID
+	,	SEARCH_TITLE
+	,	SEARCH_NO
+	,	HITS_NO
+	,	IS_CLASSIFIER_RESULT
+	,	SEARCH_DATE
+	)	
+	VALUES
+	(
+		@REVIEW_ID
+	,	@CONTACT_ID
+	,	@SearchTitle + @CurrentLabel
+	,	@SEARCH_NO
+	,	0
+	,	'TRUE'
+	,	GetDate()
+	)
+	-- Get the identity and store it
+	SET @NEW_SEARCH_ID = @@identity
+
+
+	-- STEP 3: PUT THE ITEMS INTO THE SEARCH LIST
+	INSERT INTO TB_SEARCH_ITEM(ITEM_ID,SEARCH_ID, ITEM_RANK) 
+		SELECT ITEM_ID, @NEW_SEARCH_ID, CAST(Score * 100 AS INT)
+				FROM ER4ML.ER4ML.dbo.ItemScore where BatchGuid = @BatchGuid and PredictedLabel = @CurrentLabel
+			ORDER BY Score DESC
+
+
+	-- STEP 4: Update the hits count
+	UPDATE TB_SEARCH
+		SET HITS_NO = @@ROWCOUNT
+		WHERE SEARCH_ID = @NEW_SEARCH_ID
+
+
+      FETCH NEXT FROM label_cursor INTO @CurrentLabel 
+END 
+
+CLOSE label_cursor  
+DEALLOCATE label_cursor 
+
+
+	-- STEP 5: clean up Azure SQL DB (deletes information about this batch)
+	DECLARE	@return_value int
+	EXEC	@return_value = ER4ML.ER4ML.[dbo].[CleanUpBatch] @BatchGuid = @BatchGuid
+		
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierModels]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierModels]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	select MODEL_ID, MODEL_TITLE, REVIEW_ID, A1.ATTRIBUTE_NAME ATTRIBUTE_ON, A2.ATTRIBUTE_NAME ATTRIBUTE_NOT_ON,
+		CONTACT_NAME, tb_CLASSIFIER_MODEL.CONTACT_ID, ACCURACY, AUC, [PRECISION], RECALL,
+		ATTRIBUTE_ID_ON, ATTRIBUTE_ID_NOT_ON
+		from tb_CLASSIFIER_MODEL
+	INNER JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = tb_CLASSIFIER_MODEL.ATTRIBUTE_ID_ON
+	INNER JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = tb_CLASSIFIER_MODEL.ATTRIBUTE_ID_NOT_ON
+	INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = tb_CLASSIFIER_MODEL.CONTACT_ID
+	
+	where REVIEW_ID = @REVIEW_ID
+	order by MODEL_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierSaveModel]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierSaveModel]
+(
+	@REVIEW_ID INT
+,	@ATTRIBUTE_ID_ON BIGINT = NULL
+,	@ATTRIBUTE_ID_NOT_ON BIGINT = NULL
+,	@CONTACT_ID INT
+,	@MODEL_TITLE NVARCHAR(1000) = NULL
+,	@NEW_MODEL_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE @START_TIME DATETIME
+	DECLARE @END_TIME DATETIME
+
+	SELECT @START_TIME = MAX(TIME_STARTED) FROM tb_CLASSIFIER_MODEL
+		WHERE REVIEW_ID = @REVIEW_ID
+
+	SELECT @END_TIME = MAX(TIME_ENDED) FROM tb_CLASSIFIER_MODEL
+		WHERE REVIEW_ID = @REVIEW_ID
+		
+	IF (@START_TIME IS NULL) OR (@START_TIME != @END_TIME) OR
+	(
+		(@START_TIME = @END_TIME) AND CURRENT_TIMESTAMP > DATEADD(HOUR, 2, @START_TIME) -- i.e. one review can only run one classification task at a time
+	)
+	BEGIN
+		INSERT INTO tb_CLASSIFIER_MODEL(MODEL_TITLE, CONTACT_ID, REVIEW_ID, ATTRIBUTE_ID_ON, ATTRIBUTE_ID_NOT_ON, TIME_STARTED, TIME_ENDED)
+	VALUES(@MODEL_TITLE, @CONTACT_ID, @REVIEW_ID, @ATTRIBUTE_ID_ON, @ATTRIBUTE_ID_NOT_ON, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+		
+	SET @NEW_MODEL_ID = @@IDENTITY
+	END
+	ELSE
+	BEGIN
+		SET @NEW_MODEL_ID = 0
+	END
+
+	
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierUpdateModel]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierUpdateModel]
+(
+	@MODEL_ID INT
+,	@TITLE nvarchar(1000) = NULL
+,	@ACCURACY DECIMAL(18,18) = NULL
+,	@AUC DECIMAL(18,18) = NULL
+,	@PRECISION DECIMAL(18,18) = NULL
+,	@RECALL DECIMAL(18,18) = NULL
+,	@CHECK_MODEL_ID_EXISTS INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT @CHECK_MODEL_ID_EXISTS = COUNT(*) FROM tb_CLASSIFIER_MODEL WHERE MODEL_ID = @MODEL_ID
+
+IF (@CHECK_MODEL_ID_EXISTS = 1)
+BEGIN
+
+	update tb_CLASSIFIER_MODEL
+		SET TIME_ENDED = CURRENT_TIMESTAMP,
+		MODEL_TITLE = @TITLE,
+		ACCURACY = @ACCURACY,
+		AUC = @AUC,
+		[PRECISION] = @PRECISION,
+		RECALL = @RECALL
+		
+	WHERE MODEL_ID = @MODEL_ID
+END
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierUpdateModelTitle]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClassifierUpdateModelTitle]
+(
+	@MODEL_ID INT
+,	@TITLE nvarchar(1000) = NULL
+)
+
+As
+
+SET NOCOUNT ON
+
+
+BEGIN
+
+	update tb_CLASSIFIER_MODEL
+		set MODEL_TITLE = @TITLE
+		
+	WHERE MODEL_ID = @MODEL_ID
+END
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClusterGetXmlAll]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ClusterGetXmlAll]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+select 1 as Tag, 
+	null as PARENT, 
+	tb_item.item_id as [document!1!id],
+	null as [title!2],
+	null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id where tb_item_review.review_id = @REVIEW_ID
+and TB_ITEM_REVIEW.IS_INCLUDED = 'true' and TB_ITEM_REVIEW.IS_DELETED != 'true'
+
+UNION ALL
+
+SELECT 2 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       CAST(Title as varchar(4000)) as [title!2],
+		null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id where tb_item_review.review_id = @REVIEW_ID
+and TB_ITEM_REVIEW.IS_INCLUDED = 'true' and TB_ITEM_REVIEW.IS_DELETED != 'true'
+
+union all
+
+SELECT 3 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       null as [title!2],
+		CAST(abstract as varchar(max)) as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id where tb_item_review.review_id = @REVIEW_ID
+and TB_ITEM_REVIEW.IS_INCLUDED = 'true' and TB_ITEM_REVIEW.IS_DELETED != 'true'
+
+order by [Document!1!id], [title!2], [snippet!3]
+FOR XML explicit, root ('searchresult')
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClusterGetXmlAllDocs]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ClusterGetXmlAllDocs]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+select 1 as Tag, 
+	null as PARENT, 
+	tb_item.item_id as [document!1!id],
+	null as [title!2],
+	null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+and TB_ITEM_REVIEW.IS_INCLUDED = 'true' and TB_ITEM_REVIEW.IS_DELETED != 'true'
+
+UNION ALL
+
+SELECT 2 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       CAST(Title as varchar(4000)) as [title!2],
+		null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+and TB_ITEM_REVIEW.IS_INCLUDED = 'true' and TB_ITEM_REVIEW.IS_DELETED != 'true'
+
+union all
+
+SELECT 3 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       null as [title!2],
+		CAST(DOCUMENT_TEXT as varchar(max)) as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+and TB_ITEM_REVIEW.IS_INCLUDED = 'true' and TB_ITEM_REVIEW.IS_DELETED != 'true'
+
+order by [Document!1!id], [title!2], [snippet!3]
+FOR XML explicit, root ('searchresult')
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClusterGetXmlFiltered]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ClusterGetXmlFiltered]
+(
+	@REVIEW_ID INT,
+	@ITEM_ID_LIST NVARCHAR(max)
+)
+
+As
+
+select 1 as Tag, 
+	null as PARENT, 
+	tb_item.item_id as [document!1!id],
+	null as [title!2],
+	null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join DBO.fn_split_int(@ITEM_ID_LIST, ',') ItemList on ItemList.value = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+
+UNION ALL
+
+SELECT 2 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       cast(Title as varchar(4000)) as [title!2],
+		null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join DBO.fn_split_int(@ITEM_ID_LIST, ',') ItemList on ItemList.value = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+
+union all
+
+SELECT 3 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       null as [title!2],
+		CAST(abstract as varchar(max)) as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join DBO.fn_split_int(@ITEM_ID_LIST, ',') ItemList on ItemList.value = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+
+
+order by [Document!1!id], [title!2], [snippet!3]
+FOR XML explicit, root ('searchresult')
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClusterGetXmlFilteredCode]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ClusterGetXmlFilteredCode]
+(
+	@REVIEW_ID INT,
+	@ATTRIBUTE_SET_ID_LIST NVARCHAR(max)
+)
+
+As
+
+select 1 as Tag, 
+	null as PARENT, 
+	tb_item.item_id as [document!1!id],
+	null as [title!2],
+	null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID
+where tb_item_review.review_id = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+
+UNION ALL
+
+SELECT 2 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       CAST(Title as varchar(4000)) as [title!2],
+		null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID
+where tb_item_review.review_id = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+
+union all
+
+SELECT 3 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       null as [title!2],
+		CAST(abstract as varchar(max)) as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID
+where tb_item_review.review_id = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+
+
+order by [Document!1!id], [title!2], [snippet!3]
+FOR XML explicit, root ('searchresult')
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClusterGetXmlFilteredCodeDocs]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ClusterGetXmlFilteredCodeDocs]
+(
+	@REVIEW_ID INT,
+	@ATTRIBUTE_SET_ID_LIST NVARCHAR(max)
+)
+
+As
+
+select 1 as Tag, 
+	null as PARENT, 
+	tb_item.item_id as [document!1!id],
+	null as [title!2],
+	null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID
+		inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+
+UNION ALL
+
+SELECT 2 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       CAST(Title as varchar(4000)) as [title!2],
+		null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID
+		inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+
+union all
+
+SELECT 3 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       null as [title!2],
+		CAST(DOCUMENT_TEXT as varchar(max)) as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID
+		inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+
+
+order by [Document!1!id], [title!2], [snippet!3]
+FOR XML explicit, root ('searchresult')
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClusterGetXmlFilteredDocs]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ClusterGetXmlFilteredDocs]
+(
+	@REVIEW_ID INT,
+	@ITEM_ID_LIST NVARCHAR(max)
+)
+
+As
+
+select 1 as Tag, 
+	null as PARENT, 
+	tb_item.item_id as [document!1!id],
+	null as [title!2],
+	null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join DBO.fn_split_int(@ITEM_ID_LIST, ',') ItemList on ItemList.value = TB_ITEM.ITEM_ID
+inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+
+UNION ALL
+
+SELECT 2 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       CAST(Title as varchar(4000)) as [title!2],
+		null as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join DBO.fn_split_int(@ITEM_ID_LIST, ',') ItemList on ItemList.value = TB_ITEM.ITEM_ID
+inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+
+union all
+
+SELECT 3 as Tag, 1 as Parent,
+       tb_item.item_id as [Document!1!id],
+       null as [title!2],
+		CAST(DOCUMENT_TEXT as varchar(max)) as [snippet!3]
+from tb_item
+inner join tb_item_review on tb_item_review.item_id = tb_item.item_id
+inner join DBO.fn_split_int(@ITEM_ID_LIST, ',') ItemList on ItemList.value = TB_ITEM.ITEM_ID
+inner join TB_ITEM_DOCUMENT on TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM.ITEM_ID
+where tb_item_review.review_id = @REVIEW_ID
+
+
+order by [Document!1!id], [title!2], [snippet!3]
+FOR XML explicit, root ('searchresult')
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonAttributesList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonAttributesList]
+(
+	@COMPARISON_ID INT,
+	@PARENT_ATTRIBUTE_ID BIGINT = 0,
+	@SET_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT COMPARISON_ITEM_ATTRIBUTE_ID, COMPARISON_ID, tb_COMPARISON_ITEM_ATTRIBUTE.ITEM_ID, tb_COMPARISON_ITEM_ATTRIBUTE.ATTRIBUTE_ID,
+		ADDITIONAL_TEXT, tb_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID, tb_COMPARISON_ITEM_ATTRIBUTE.SET_ID,
+		ATTRIBUTE_NAME, TITLE, CAST('FALSE' AS BIT) IS_COMPLETED
+		, CASE when ARM_NAME is null then '' ELSE ARM_NAME end AS ARM_NAME
+	FROM tb_COMPARISON_ITEM_ATTRIBUTE
+		INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = tb_COMPARISON_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = tb_COMPARISON_ITEM_ATTRIBUTE.ITEM_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = tb_COMPARISON_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+			AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @PARENT_ATTRIBUTE_ID
+			AND TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+		LEFT OUTER JOIN TB_ITEM_ARM on tb_COMPARISON_ITEM_ATTRIBUTE.ITEM_ARM_ID = TB_ITEM_ARM.ITEM_ARM_ID
+	WHERE COMPARISON_ID = @COMPARISON_ID
+	
+	UNION
+	
+	SELECT 0, @COMPARISON_ID, TB_ITEM_ATTRIBUTE.ITEM_ID, TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID, TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT, 
+		TB_ITEM_SET.CONTACT_ID, TB_ITEM_SET.SET_ID, ATTRIBUTE_NAME, TITLE, CAST('TRUE' AS BIT) IS_COMPLETED
+		, CASE when ARM_NAME is null then '' ELSE ARM_NAME end AS ARM_NAME
+	FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.SET_ID = @SET_ID
+		INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE ON tb_COMPARISON_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND tb_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID = @COMPARISON_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = tb_COMPARISON_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+			AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @PARENT_ATTRIBUTE_ID
+			AND TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+		LEFT OUTER JOIN TB_ITEM_ARM on TB_ITEM_ATTRIBUTE.ITEM_ARM_ID = TB_ITEM_ARM.ITEM_ARM_ID
+	WHERE TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	
+	ORDER BY ITEM_ID, CONTACT_ID
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonComplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonComplete]
+(
+	@COMPARISON_ID INT,
+	@CONTACT_ID INT,
+	@WHICH_REVIEWERS NVARCHAR(20),
+	@IS_LOCKED bit = NULL,
+	@REVIEW_ID INT
+	--@RECORDS_AFFECTED INT OUTPUT
+)
+
+As
+
+--SET NOCOUNT ON
+
+declare @check int = 0
+set @check = (select count(COMPARISON_ID) from 
+tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID and REVIEW_ID = @REVIEW_ID)
+
+if (@check != 1) return
+
+
+
+DECLARE @T1 TABLE --item_attribute for R1, R1 and R2 are relative to the sproc, could be any couple from 
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID) 
+	)
+DECLARE @T2 TABLE --item_attribute for R2
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID) 
+	)
+DECLARE @T1a2 table (ITEM_ID bigint primary key)--snapshot agreements 1 v 2
+--declare @c1 int
+--declare @c2 int
+
+
+--If @WHICH_REVIEWERS = 'Complete1vs2'
+--	BEGIN
+--		select @c1 = CONTACT_ID1, @c2 = CONTACT_ID2 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID
+--	END
+--ELSE If @WHICH_REVIEWERS = 'Complete1vs3'
+--	BEGIN
+--		select @c1 = CONTACT_ID1, @c2 = CONTACT_ID3 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID
+--	END
+--ELSE  --Complete2vs3
+--	BEGIN
+--		select @c1 = CONTACT_ID2, @c2 = CONTACT_ID3 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID
+--	END
+
+insert into @T1
+select distinct ITEM_ID, ATTRIBUTE_ID from tb_COMPARISON c
+	inner join tb_COMPARISON_ITEM_ATTRIBUTE cia on c.COMPARISON_ID = cia.COMPARISON_ID 
+												and  cia.CONTACT_ID = 
+													CASE  @WHICH_REVIEWERS
+														WHEN 'Complete2vs3' THEN c.CONTACT_ID2
+														ELSE c.CONTACT_ID1
+													END 
+												and c.COMPARISON_ID = @COMPARISON_ID
+
+insert into @T2
+select distinct ITEM_ID, ATTRIBUTE_ID from tb_COMPARISON c
+inner join tb_COMPARISON_ITEM_ATTRIBUTE cia on c.COMPARISON_ID = cia.COMPARISON_ID 
+												and cia.CONTACT_ID = 
+													CASE  @WHICH_REVIEWERS
+														WHEN 'Complete1vs2' THEN c.CONTACT_ID2
+														ELSE c.CONTACT_ID3
+													END 
+												and c.COMPARISON_ID = @COMPARISON_ID
+
+
+
+insert into @T1a2 --add all agreements; see st_ComparisonStats to understand how this works
+Select distinct t1.ITEM_ID from @T1 t1 
+	inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID
+	except
+select distinct(t1.item_id) from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID
+	left outer join @T2 t2b on t1.ATTRIBUTE_ID = t2b.ATTRIBUTE_ID and t1.ITEM_ID = t2b.ITEM_ID
+	left outer join @T1 t1b on  t1b.ATTRIBUTE_ID = t2.ATTRIBUTE_ID and t1b.ITEM_ID = t2.ITEM_ID
+	where t1b.ATTRIBUTE_ID is null or t2b.ATTRIBUTE_ID is null
+
+--select * from @T1
+--select * from @T2
+--select * from @T1a2
+
+Delete from @T1a2 where ITEM_ID in --remove all items that are already completed
+(
+	select tis.ITEM_ID from TB_ITEM_SET tis inner join 
+		tb_COMPARISON c on tis.SET_ID = c.SET_ID and COMPARISON_ID = @COMPARISON_ID
+		Inner join @T1a2 t1 on tis.ITEM_ID = t1.ITEM_ID and tis.IS_COMPLETED = 1
+)
+
+--select * from @T1a2
+
+IF @IS_LOCKED is null
+BEGIN
+	Update TB_ITEM_SET set IS_COMPLETED = 1
+		where CONTACT_ID = @CONTACT_ID
+			and ITEM_SET_ID in
+				(	
+					select ITEM_SET_ID from TB_ITEM_SET tis 
+					inner join tb_COMPARISON c on tis.SET_ID = c.SET_ID and c.COMPARISON_ID = @COMPARISON_ID
+					inner join @T1a2 t on tis.ITEM_ID = t.ITEM_ID
+				)
+END
+ELSE
+BEGIN
+	Update TB_ITEM_SET set IS_COMPLETED = 1 , IS_LOCKED = @IS_LOCKED
+		where CONTACT_ID = @CONTACT_ID
+			and ITEM_SET_ID in
+				(	
+					select ITEM_SET_ID from TB_ITEM_SET tis 
+					inner join tb_COMPARISON c on tis.SET_ID = c.SET_ID and c.COMPARISON_ID = @COMPARISON_ID
+					inner join @T1a2 t on tis.ITEM_ID = t.ITEM_ID
+				)
+END
+
+
+
+
+
+
+
+
+--INSERT INTO @TT(ITEM_ID, ATTRIBUTE_ID)
+--	SELECT ITEM_ID, ATTRIBUTE_ID
+--	FROM TB_COMPARISON_ITEM_ATTRIBUTE
+--	INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+--		AND TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID =
+--			CASE  @WHICH_REVIEWERS
+--				WHEN 'Complete2vs3' THEN tb_COMPARISON.CONTACT_ID2
+--				ELSE tb_COMPARISON.CONTACT_ID1
+--			END
+--		AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+--	INTERSECT --  ********** AGREEMENT - THEREFORE INTERSECT
+--	SELECT ITEM_ID, ATTRIBUTE_ID
+--	FROM TB_COMPARISON_ITEM_ATTRIBUTE
+--	INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+--		AND TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID =
+--		CASE @WHICH_REVIEWERS
+--			WHEN 'Complete1vs2' THEN TB_COMPARISON.CONTACT_ID2
+--			ELSE tb_COMPARISON.CONTACT_ID3
+--		END
+--		AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+--	ORDER BY ITEM_ID, ATTRIBUTE_ID
+
+--UPDATE TB_ITEM_SET
+--SET IS_COMPLETED = 'TRUE' WHERE TB_ITEM_SET.CONTACT_ID = @CONTACT_ID AND TB_ITEM_SET.ITEM_SET_ID IN
+--(
+--	SELECT ITEM_SET_ID FROM TB_ITEM_SET TB_IS
+--	INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE ON
+--		tb_COMPARISON_ITEM_ATTRIBUTE.SET_ID = TB_IS.SET_ID AND
+--		tb_COMPARISON_ITEM_ATTRIBUTE.ITEM_ID = TB_IS.ITEM_ID AND
+--		tb_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID = TB_IS.CONTACT_ID AND
+--		tb_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID = @COMPARISON_ID
+--	WHERE TB_IS.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+--)
+
+
+SELECT @@ROWCOUNT
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonDelete]
+(
+	@COMPARISON_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM tb_COMPARISON_ITEM_ATTRIBUTE WHERE COMPARISON_ID = @COMPARISON_ID
+	
+	DELETE FROM tb_COMPARISON WHERE COMPARISON_ID = @COMPARISON_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonInsert]
+(
+	@REVIEW_ID INT,
+	@IN_GROUP_ATTRIBUTE_ID BIGINT,
+	@SET_ID INT,
+	@COMPARISON_DATE DATE,
+	@CONTACT_ID1 INT = NULL,
+	@CONTACT_ID2 INT = NULL,
+	@CONTACT_ID3 INT = NULL,
+	@NEW_COMPARISON_ID INT OUTPUT,
+	@Is_Screening bit OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	set @Is_Screening = (Select CASE when SET_TYPE_ID = 5 then 1 else 0 end from TB_SET where SET_ID = @SET_ID)
+	INSERT INTO tb_COMPARISON (REVIEW_ID, IN_GROUP_ATTRIBUTE_ID, SET_ID,
+		COMPARISON_DATE, CONTACT_ID1, CONTACT_ID2, CONTACT_ID3, IS_SCREENING)
+	VALUES (@REVIEW_ID, @IN_GROUP_ATTRIBUTE_ID, @SET_ID,
+		@COMPARISON_DATE, @CONTACT_ID1, @CONTACT_ID2, @CONTACT_ID3, @Is_Screening)
+	
+	SET @NEW_COMPARISON_ID = @@IDENTITY
+	
+	IF (@IN_GROUP_ATTRIBUTE_ID IS NULL OR @IN_GROUP_ATTRIBUTE_ID = -1)
+	BEGIN
+	
+		INSERT INTO tb_COMPARISON_ITEM_ATTRIBUTE (COMPARISON_ID, ITEM_ID, ATTRIBUTE_ID, ADDITIONAL_TEXT, CONTACT_ID, SET_ID, IS_INCLUDED, ITEM_ARM_ID)
+		SELECT DISTINCT @NEW_COMPARISON_ID, ia.ITEM_ID, ia.ATTRIBUTE_ID, 
+			ia.ADDITIONAL_TEXT, tis.CONTACT_ID, tis.SET_ID
+			, CASE 
+				WHEN @Is_Screening != 1 then NULL
+				WHEN tas.ATTRIBUTE_TYPE_ID = 10 then 1
+				ELSE 0
+			 END
+			, ITEM_ARM_ID
+			FROM TB_ITEM_ATTRIBUTE ia
+			INNER JOIN TB_ITEM_SET tis ON tis.ITEM_SET_ID = ia.ITEM_SET_ID
+				AND tis.SET_ID = @SET_ID
+				AND tis.IS_COMPLETED = 'FALSE'
+				AND ((@CONTACT_ID1 IS NULL OR (tis.CONTACT_ID = @CONTACT_ID1))
+				OR (@CONTACT_ID2 IS NULL OR (tis.CONTACT_ID = @CONTACT_ID2))
+				OR (@CONTACT_ID3 IS NULL OR (tis.CONTACT_ID = @CONTACT_ID3)))
+			INNER JOIN TB_ITEM_REVIEW ir ON ir.ITEM_ID = ia.ITEM_ID
+				AND ir.REVIEW_ID = @REVIEW_ID
+				AND ir.IS_DELETED = 'FALSE'
+			INNER JOIN TB_ATTRIBUTE_SET tas ON ia.ATTRIBUTE_ID =tas.ATTRIBUTE_ID and tas.SET_ID = @SET_ID
+	END
+	ELSE
+	BEGIN
+		INSERT INTO tb_COMPARISON_ITEM_ATTRIBUTE (COMPARISON_ID, ITEM_ID, ATTRIBUTE_ID, ADDITIONAL_TEXT, CONTACT_ID, SET_ID, IS_INCLUDED, ITEM_ARM_ID)
+		SELECT DISTINCT @NEW_COMPARISON_ID, ia.ITEM_ID, ia.ATTRIBUTE_ID, 
+			ia.ADDITIONAL_TEXT, tis.CONTACT_ID, tis.SET_ID
+			, CASE 
+				WHEN @Is_Screening != 1 then NULL
+				WHEN tas.ATTRIBUTE_TYPE_ID = 10 then 1
+				ELSE 0
+			 END
+			, ia.ITEM_ARM_ID
+			FROM TB_ITEM_ATTRIBUTE ia
+			INNER JOIN TB_ITEM_SET tis ON tis.ITEM_SET_ID = ia.ITEM_SET_ID
+				AND tis.SET_ID = @SET_ID
+				AND tis.IS_COMPLETED = 'FALSE'
+				AND ((@CONTACT_ID1 IS NULL OR (tis.CONTACT_ID = @CONTACT_ID1))
+				OR (@CONTACT_ID2 IS NULL OR (tis.CONTACT_ID = @CONTACT_ID2))
+				OR (@CONTACT_ID3 IS NULL OR (tis.CONTACT_ID = @CONTACT_ID3)))
+			INNER JOIN TB_ITEM_ATTRIBUTE IA_FILTER ON IA_FILTER.ITEM_ID = ia.ITEM_ID
+				AND IA_FILTER.ATTRIBUTE_ID = @IN_GROUP_ATTRIBUTE_ID
+				INNER JOIN TB_ITEM_SET IA_FILTER_ITEM_SET ON IA_FILTER_ITEM_SET.ITEM_SET_ID = IA_FILTER.ITEM_SET_ID
+				AND IA_FILTER_ITEM_SET.IS_COMPLETED = 'TRUE'
+			INNER JOIN TB_ITEM_REVIEW ir ON ir.ITEM_ID = ia.ITEM_ID
+				AND ir.REVIEW_ID = @REVIEW_ID
+				AND ir.IS_DELETED = 'FALSE'
+			Inner Join TB_ATTRIBUTE_SET tas ON ia.ATTRIBUTE_ID =tas.ATTRIBUTE_ID and tas.SET_ID = @SET_ID
+	
+	END
+			
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonItemAttributeSaveCheckAndRun]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonItemAttributeSaveCheckAndRun] (
+	@CurrentContactId int
+	, @DestinationContactId int
+	, @SourceContactId int
+	, @attributeSetId bigint
+	, @comparisonId int
+	, @IncludePDFcoding bit
+	, @SET_ID int
+	, @ITEM_ID bigint
+	, @REVIEW_ID int
+	, @ITEM_ARM_ID int null
+
+	, @Result varchar(20) Output
+	, @NEW_ITEM_ATTRIBUTE_ID BIGINT OUTPUT
+	, @NEW_ITEM_SET_ID BIGINT OUTPUT
+)
+
+As
+SET NOCOUNT ON
+
+--first check, is @DestinationContactId in the comparison? If not, abort
+declare @check int = (select count(*) from tb_COMPARISON where COMPARISON_ID = @comparisonId and (
+								@DestinationContactId = CONTACT_ID1 OR
+								@DestinationContactId = CONTACT_ID2 OR
+								@DestinationContactId = CONTACT_ID3 
+								)
+					)
+if @check is null OR @check != 1 
+begin
+	set @Result = 'Forbidden'
+	return
+end
+--second check, is the current contact authorised? Needs to be a site admin, or have admin rights, or be the same as the destination.
+IF (@CurrentContactId != @DestinationContactId) -- doesn't need admin rights, as it's accepting someone's coding for herself.
+begin
+set @check = 0
+ set @check = (select count(*) from TB_REVIEW_CONTACT rc
+				inner join TB_CONTACT_REVIEW_ROLE crr on rc.REVIEW_ID = @REVIEW_ID and rc.REVIEW_CONTACT_ID = crr.REVIEW_CONTACT_ID
+				and crr.ROLE_NAME = 'AdminUser'
+					)
+	IF @check < 1
+	BEGIN --not and admin in this review, perhaps a siteAdmin?
+		set @check = (select count(*) from TB_CONTACT c where IS_SITE_ADMIN = 1 and c.CONTACT_ID = @CurrentContactId)
+		if @check != 1 
+		begin
+			set @Result = 'Forbidden'
+			return
+		end
+	END
+end
+--if we didn't return then it's all good
+
+declare @srcItemAttId bigint
+declare @infoText nvarchar(max)
+declare @attributeId bigint
+select @srcItemAttId = item_attribute_id, @infoText = tia.ADDITIONAL_TEXT, @attributeId = tia.ATTRIBUTE_ID from TB_ITEM_ATTRIBUTE tia
+	inner join TB_ATTRIBUTE_SET tas on tia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		and tas.ATTRIBUTE_SET_ID = @attributeSetId and tas.SET_ID = @SET_ID
+		and (tia.ITEM_ARM_ID = @ITEM_ARM_ID OR (@ITEM_ARM_ID is null AND tia.ITEM_ARM_ID is null))
+	inner join TB_ITEM_SET tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.CONTACT_ID = @SourceContactId and tis.ITEM_ID = @ITEM_ID
+	
+if @srcItemAttId is null OR @srcItemAttId < 1 OR @attributeId is null OR @attributeId < 1
+begin
+	set @Result = 'failed'
+	return
+end
+declare @destItemAttId bigint = (select item_attribute_id from TB_ITEM_ATTRIBUTE tia
+	inner join TB_ATTRIBUTE_SET tas on tia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and tas.ATTRIBUTE_SET_ID = @attributeSetId
+		and tas.ATTRIBUTE_SET_ID = @attributeSetId and tas.SET_ID = @SET_ID and tia.ITEM_ID = @ITEM_ID
+		and (tia.ITEM_ARM_ID = @ITEM_ARM_ID OR (@ITEM_ARM_ID is null AND tia.ITEM_ARM_ID is null))
+	inner join TB_ITEM_SET tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.CONTACT_ID = @DestinationContactId
+	)
+set @Result = 'failed' --we'll change if we reach the end!
+if (@destItemAttId is null OR @destItemAttId = 0)
+BEGIN
+--the destination user does not have assigned this code at all, so it's an "Insert" operation
+	exec st_ItemAttributeInsert
+		@CONTACT_ID = @DestinationContactId
+		,@ADDITIONAL_TEXT = @infoText
+		,@ATTRIBUTE_ID = @attributeId
+		,@SET_ID = @SET_ID
+		,@ITEM_ID = @ITEM_ID
+		,@REVIEW_ID = @REVIEW_ID
+		,@ITEM_ARM_ID = @ITEM_ARM_ID
+		,@NEW_ITEM_ATTRIBUTE_ID = @NEW_ITEM_ATTRIBUTE_ID output
+		,@NEW_ITEM_SET_ID = @NEW_ITEM_SET_ID output
+
+	set @destItemAttId = @NEW_ITEM_ATTRIBUTE_ID --for simplicity, @destItemAttId is now always set to "where we are going to..."
+END
+else
+BEGIN
+	--the destination user does not have assigned this code at all, so it's an "Update" operation
+	exec st_ItemAttributeUpdate  
+		@ITEM_ATTRIBUTE_ID = @destItemAttId
+		,@ADDITIONAL_TEXT = @infoText
+
+	select @NEW_ITEM_ATTRIBUTE_ID = @destItemAttId, @NEW_ITEM_SET_ID = item_set_id 
+			from TB_ITEM_ATTRIBUTE ia where ia.ITEM_ATTRIBUTE_ID = @destItemAttId
+END
+
+if @IncludePDFcoding = 1
+begin
+	--we also want to copy across the PDF coding...
+	--we first check if there is any to copy!
+	select @check = count(*) from TB_ITEM_ATTRIBUTE_PDF p where p.ITEM_ATTRIBUTE_ID = @srcItemAttId
+	if @check > 0
+	begin
+		--we do have PDF coding to move across...
+		--we do a merge, keep the destination pages in place, unless the source has coding from that pages as well, in which case we overwrite
+
+		declare @conflictPages table (pageId bigint)
+		insert into @conflictPages select p1.item_attribute_pdf_id from TB_ITEM_ATTRIBUTE_PDF p1
+		inner join TB_ITEM_ATTRIBUTE_PDF p2 on p1.ITEM_DOCUMENT_ID = p2.ITEM_DOCUMENT_ID
+												and p1.PAGE = p2.PAGE
+												and p1.ITEM_ATTRIBUTE_ID = @destItemAttId --thus, p1 is the destination bunch
+												and p2.ITEM_ATTRIBUTE_ID = @srcItemAttId
+		--delete conflict pages in destination
+		delete from TB_ITEM_ATTRIBUTE_PDF where ITEM_ATTRIBUTE_PDF_ID in (select pageId from @conflictPages)
+
+		--copy the pages coding across
+		INSERT INTO [dbo].[TB_ITEM_ATTRIBUTE_PDF]
+				   ([ITEM_DOCUMENT_ID]
+				   ,[ITEM_ATTRIBUTE_ID]
+				   ,[PAGE]
+				   ,[SHAPE_TEXT]
+				   ,[SELECTION_INTERVALS]
+				   ,[SELECTION_TEXTS]
+				   ,[PDFTRON_XML])
+			  select [ITEM_DOCUMENT_ID]
+				   ,@destItemAttId
+				   ,[PAGE]
+				   ,[SHAPE_TEXT]
+				   ,[SELECTION_INTERVALS]
+				   ,[SELECTION_TEXTS]
+			   ,[PDFTRON_XML] from TB_ITEM_ATTRIBUTE_PDF where ITEM_ATTRIBUTE_ID = @srcItemAttId
+
+	end
+end
+set @Result = 'success' --we got here, so we think it worked...
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonList]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT COMPARISON_ID, REVIEW_ID, IN_GROUP_ATTRIBUTE_ID, tb_COMPARISON.SET_ID, COMPARISON_DATE,
+		CONTACT_ID1, CONTACT_ID2, CONTACT_ID3,
+		CONTACT1.CONTACT_NAME CONTACT_NAME1, CONTACT2.CONTACT_NAME CONTACT_NAME2, CONTACT3.CONTACT_NAME CONTACT_NAME3,
+		ATTRIBUTE_NAME, SET_NAME
+	FROM tb_COMPARISON
+		INNER JOIN TB_CONTACT CONTACT1 ON CONTACT1.CONTACT_ID = CONTACT_ID1
+		INNER JOIN TB_CONTACT CONTACT2 ON CONTACT2.CONTACT_ID = CONTACT_ID2
+		LEFT OUTER JOIN TB_CONTACT CONTACT3 ON CONTACT3.CONTACT_ID = CONTACT_ID3
+		LEFT OUTER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = tb_COMPARISON.IN_GROUP_ATTRIBUTE_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = tb_COMPARISON.SET_ID
+	WHERE REVIEW_ID = @REVIEW_ID
+	ORDER BY COMPARISON_DATE
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonsAllPotentialPairs]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonsAllPotentialPairs]
+(
+	@revId INT,
+	@SetId INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	declare @users table (cid int primary key, CONTACT_NAME nvarchar(255)) 
+
+	declare @items table (itemId bigint primary key, done bit)
+	insert into @items select distinct tis.ITEM_ID, 0 from
+	TB_ITEM_SET tis
+	inner join TB_CONTACT c on tis.SET_ID = @SetId and tis.CONTACT_ID = c.CONTACT_ID and tis.IS_COMPLETED = 0
+	where tis.ITEM_ID not in (select ITEM_ID from TB_ITEM_SET tis2 where tis2.SET_ID = @SetId and tis2.IS_COMPLETED = 1)
+
+
+	insert into @users select c.CONTACT_ID, CONTACT_NAME from
+	@items i inner join TB_ITEM_SET tis on i.itemId = tis.ITEM_ID
+	inner join TB_CONTACT c on tis.SET_ID = @SetId and tis.CONTACT_ID = c.CONTACT_ID and tis.IS_COMPLETED = 0
+	group by c.contact_id, c.CONTACT_NAME
+
+	--select * from @users 
+
+	declare @pairs table (cid1 int, cid2 int, items_count int)
+	insert into @pairs 
+		select distinct u1.cid , u2.cid, 0 from 
+		@users u1 inner join @users u2 on u1.cid > u2.cid 
+	
+	--select p.cid1, u.CONTACT_NAME, p.cid2, u2.CONTACT_NAME from @pairs p inner join @users u on p.cid1 = u.cid inner join @users u2 on p.cid2 = u2.cid
+	--order by p.cid1
+
+
+	select p.cid1, p.cid2, count(tis1.item_id) as OverlapCount from @pairs p
+	inner join TB_ITEM_SET tis1 on tis1.CONTACT_ID = p.cid1 and tis1.SET_ID = @SetId and tis1.IS_COMPLETED = 0
+	inner join TB_ITEM_SET tis2 on tis2.CONTACT_ID = p.cid2 and tis1.ITEM_ID = tis2.ITEM_ID and tis2.SET_ID = @SetId and tis2.IS_COMPLETED = 0
+	inner join @items i on tis1.ITEM_ID	 = i.itemId
+	group by p.cid1, p.cid2
+	order by OverlapCount desc
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonScreeningComplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonScreeningComplete]
+(
+	@COMPARISON_ID INT,
+	@CONTACT_ID INT,
+	@WHICH_REVIEWERS NVARCHAR(20),
+	@IS_LOCKED bit = NULL
+	--@RECORDS_AFFECTED INT OUTPUT
+)
+
+As
+
+--SET NOCOUNT ON
+
+DECLARE @T1 TABLE --item_attribute for R1, R1 and R2 are relative to the sproc, could be any couple from 
+	(
+	  ITEM_ID BIGINT,
+	  [STATE] char(1),
+		  PRIMARY KEY (ITEM_ID, [STATE]) 
+	)
+DECLARE @T2 TABLE --item_attribute for R2
+	(
+	  ITEM_ID BIGINT,
+	  [STATE] char(1),
+		  PRIMARY KEY (ITEM_ID, [STATE]) 
+	)
+DECLARE @T1a2 table (ITEM_ID bigint primary key)--snapshot agreements 1 v 2
+--declare @c1 int
+--declare @c2 int
+
+
+--If @WHICH_REVIEWERS = 'Complete1vs2'
+--	BEGIN
+--		select @c1 = CONTACT_ID1, @c2 = CONTACT_ID2 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID
+--	END
+--ELSE If @WHICH_REVIEWERS = 'Complete1vs3'
+--	BEGIN
+--		select @c1 = CONTACT_ID1, @c2 = CONTACT_ID3 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID
+--	END
+--ELSE  --Complete2vs3
+--	BEGIN
+--		select @c1 = CONTACT_ID2, @c2 = CONTACT_ID3 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID
+--	END
+
+insert into @T1
+SELECT sub.ITEM_ID 
+		 ,CASE 
+			when [is incl] > 0 and [is ex] > 0 then 'B'
+			when [is incl] > 0 then 'I'
+			WHEN [is ex] > 0 then 'E'
+			ELSE Null
+		END
+		from
+		(select inc.ITEM_ID,  Sum(CASE inc.IS_INCLUDED when 1 then 1 else 0 end) [is incl]
+			, Sum(CASE inc.IS_INCLUDED when 0 then 1 else 0 end) [is ex]
+			from 
+			tb_COMPARISON c
+			left join tb_COMPARISON_ITEM_ATTRIBUTE inc on c.COMPARISON_ID = inc.COMPARISON_ID 
+												and  inc.CONTACT_ID = 
+													CASE  @WHICH_REVIEWERS
+														WHEN 'Complete2vs3Sc' THEN c.CONTACT_ID2
+														ELSE c.CONTACT_ID1
+													END 
+												and c.COMPARISON_ID = @COMPARISON_ID
+			group by inc.ITEM_ID
+		) sub
+		where ITEM_ID is not null
+
+insert into @T2
+SELECT sub.ITEM_ID 
+		 ,CASE 
+			when [is incl] > 0 and [is ex] > 0 then 'B'
+			when [is incl] > 0 then 'I'
+			WHEN [is ex] > 0 then 'E'
+			ELSE Null
+		END
+		from
+		(select inc.ITEM_ID,  Sum(CASE inc.IS_INCLUDED when 1 then 1 else 0 end) [is incl]
+			, Sum(CASE inc.IS_INCLUDED when 0 then 1 else 0 end) [is ex]
+			from 
+			tb_COMPARISON c
+			left join tb_COMPARISON_ITEM_ATTRIBUTE inc on c.COMPARISON_ID = inc.COMPARISON_ID 
+												and  inc.CONTACT_ID = 
+													CASE  @WHICH_REVIEWERS
+														WHEN 'Complete1vs2Sc' THEN c.CONTACT_ID2
+														ELSE c.CONTACT_ID3
+													END 
+												and c.COMPARISON_ID = @COMPARISON_ID
+			group by inc.ITEM_ID
+		) sub
+		where ITEM_ID is not null
+
+
+
+insert into @T1a2
+Select distinct t1.ITEM_ID from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.STATE = t2.STATE
+	
+
+--select * from @T1
+--select * from @T2
+--select * from @T1a2
+
+Delete from @T1a2 where ITEM_ID in --remove all items that are already completed
+(
+	select tis.ITEM_ID from TB_ITEM_SET tis inner join 
+		tb_COMPARISON c on tis.SET_ID = c.SET_ID and COMPARISON_ID = @COMPARISON_ID
+		Inner join @T1a2 t1 on tis.ITEM_ID = t1.ITEM_ID and tis.IS_COMPLETED = 1
+)
+
+--select * from @T1a2
+
+IF @IS_LOCKED is null
+BEGIN
+	Update TB_ITEM_SET set IS_COMPLETED = 1 
+		where CONTACT_ID = @CONTACT_ID
+			and ITEM_SET_ID in
+				(	
+					select ITEM_SET_ID from TB_ITEM_SET tis 
+					inner join tb_COMPARISON c on tis.SET_ID = c.SET_ID and c.COMPARISON_ID = @COMPARISON_ID
+					inner join @T1a2 t on tis.ITEM_ID = t.ITEM_ID
+				)
+	SELECT @@ROWCOUNT
+END
+ELSE
+BEGIN
+	Update TB_ITEM_SET set IS_COMPLETED = 1, IS_LOCKED = @IS_LOCKED 
+		where CONTACT_ID = @CONTACT_ID
+			and ITEM_SET_ID in
+				(	
+					select ITEM_SET_ID from TB_ITEM_SET tis 
+					inner join tb_COMPARISON c on tis.SET_ID = c.SET_ID and c.COMPARISON_ID = @COMPARISON_ID
+					inner join @T1a2 t on tis.ITEM_ID = t.ITEM_ID
+				)
+	SELECT @@ROWCOUNT
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonScreeningStats]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonScreeningStats]
+(
+	@COMPARISON_ID INT
+	,@Dis1v2 int OUTPUT
+	,@Dis2v3 int OUTPUT
+	,@Dis1v3 int OUTPUT
+	,@CodesChanged bit OUTPUT
+)
+--with recompile
+As
+
+SET NOCOUNT ON
+	DECLARE @T1 TABLE
+		(
+		  ITEM_ID BIGINT,
+		  [STATE] char(1),
+		  PRIMARY KEY (ITEM_ID, [STATE]) 
+		)
+	DECLARE @T2 TABLE
+		(
+		  ITEM_ID BIGINT,
+		  [STATE] char(1),
+		  PRIMARY KEY (ITEM_ID, [STATE]) 
+		)
+
+	DECLARE @T3 TABLE
+		(
+		  ITEM_ID BIGINT,
+		  [STATE] char(1),
+		  PRIMARY KEY (ITEM_ID, [STATE]) 
+		)
+	insert into @T1
+	SELECT sub.ITEM_ID 
+		 ,CASE 
+			when [is incl] > 0 and [is ex] > 0 then 'B'
+			when [is incl] > 0 then 'I'
+			WHEN [is ex] > 0 then 'E'
+			ELSE Null
+		END
+		from
+		(select inc.ITEM_ID,  Sum(CASE inc.IS_INCLUDED when 1 then 1 else 0 end) [is incl]
+			, Sum(CASE inc.IS_INCLUDED when 0 then 1 else 0 end) [is ex]
+			from 
+			tb_COMPARISON c
+			left join tb_COMPARISON_ITEM_ATTRIBUTE inc on c.COMPARISON_ID = inc.COMPARISON_ID and inc.CONTACT_ID = c.CONTACT_ID1 --and inc.IS_INCLUDED = 1
+		where c.COMPARISON_ID = @COMPARISON_ID
+		group by inc.ITEM_ID) sub
+		where ITEM_ID is not null
+	order by ITEM_ID
+
+	insert into @T2
+	SELECT sub.ITEM_ID 
+		 ,CASE 
+			when [is incl] > 0 and [is ex] > 0 then 'B'
+			when [is incl] > 0 then 'I'
+			WHEN [is ex] > 0 then 'E'
+			ELSE Null
+		END
+		from
+		(select inc.ITEM_ID,  Sum(CASE inc.IS_INCLUDED when 1 then 1 else 0 end) [is incl]
+			, Sum(CASE inc.IS_INCLUDED when 0 then 1 else 0 end) [is ex]
+			from 
+			tb_COMPARISON c
+			left join tb_COMPARISON_ITEM_ATTRIBUTE inc on c.COMPARISON_ID = inc.COMPARISON_ID and inc.CONTACT_ID = c.CONTACT_ID2
+		where c.COMPARISON_ID = @COMPARISON_ID
+		group by inc.ITEM_ID) sub
+		where ITEM_ID is not null
+	order by ITEM_ID
+
+	insert into @T3
+	SELECT sub.ITEM_ID 
+		 ,CASE 
+			when [is incl] > 0 and [is ex] > 0 then 'B'
+			when [is incl] > 0 then 'I'
+			WHEN [is ex] > 0 then 'E'
+			ELSE Null
+		END
+		from
+		(select inc.ITEM_ID,  Sum(CASE inc.IS_INCLUDED when 1 then 1 else 0 end) [is incl]
+			, Sum(CASE inc.IS_INCLUDED when 0 then 1 else 0 end) [is ex]
+			from 
+			tb_COMPARISON c
+			left join tb_COMPARISON_ITEM_ATTRIBUTE inc on c.COMPARISON_ID = inc.COMPARISON_ID and inc.CONTACT_ID = c.CONTACT_ID3 
+		where c.COMPARISON_ID = @COMPARISON_ID
+		group by inc.ITEM_ID) sub
+		where ITEM_ID is not null
+	order by ITEM_ID
+
+	--select * from @T1
+	--select * from @T2
+	--select * from @T3
+
+
+	set @Dis1v2 = (select COUNT(t1.ITEM_ID) from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.STATE != t2.STATE)
+	set @Dis2v3 = (select COUNT(t2.ITEM_ID) from @T2 t2 inner join @T3 t3 on t2.ITEM_ID = t3.ITEM_ID and t2.STATE != t3.STATE)
+	set @Dis1v3 = (select COUNT(t1.ITEM_ID) from @T1 t1 inner join @T3 t3 on t1.ITEM_ID = t3.ITEM_ID and t1.STATE != t3.STATE)
+	
+	set @CodesChanged = (SELECT Case  when COUNT(distinct(ca.ATTRIBUTE_ID))> 0 then 1 else 0 end
+								from tb_COMPARISON_ITEM_ATTRIBUTE ca
+						inner join TB_ATTRIBUTE_SET tas on ca.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ca.COMPARISON_ID = @COMPARISON_ID and tas.SET_ID = ca.SET_ID
+							and (
+									(ca.IS_INCLUDED = 1 and tas.ATTRIBUTE_TYPE_ID != 10)
+									OR
+									(ca.IS_INCLUDED = 0 and tas.ATTRIBUTE_TYPE_ID != 11)
+								)
+						)
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonStats]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonStats]
+(
+	@COMPARISON_ID INT,
+	@Is_Screening bit OUTPUT
+)
+--with recompile
+As
+
+SET NOCOUNT ON
+
+set @Is_Screening = (Select IS_SCREENING from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID)
+
+declare @n1 int , @n2 int , @n3 int --Total N items coded reviewer 1,2 & 3 (snapshot)
+declare @c1 int = (select CONTACT_ID1 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID)
+declare @c2 int = (select CONTACT_ID2 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID)
+declare @c3 int = (select CONTACT_ID3 from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID)
+declare @set int = (select SET_ID from tb_COMPARISON where COMPARISON_ID = @COMPARISON_ID)
+DECLARE @T1 TABLE
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  ITEM_ARM_ID BIGINT
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID, ITEM_ARM_ID) 
+	)
+DECLARE @T1c TABLE --current attributes Reviewer1
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  ITEM_ARM_ID BIGINT
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID, ITEM_ARM_ID) 
+	)
+DECLARE @T2 TABLE
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  ITEM_ARM_ID BIGINT
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID, ITEM_ARM_ID)
+	)
+DECLARE @T2c TABLE --current attributes Reviewer2
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  ITEM_ARM_ID BIGINT
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID, ITEM_ARM_ID)
+	)
+
+DECLARE @T3 TABLE
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  ITEM_ARM_ID BIGINT
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID, ITEM_ARM_ID)
+	)
+DECLARE @T3c TABLE --current attributes Reviewer3
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  ITEM_ARM_ID BIGINT
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID, ITEM_ARM_ID)
+	)
+DECLARE @T1a2 table (ITEM_ID bigint primary key)--snapshot agreements 1 v 2
+DECLARE @T1ca2 table (ITEM_ID bigint primary key)--current agreements 1 v 2
+DECLARE @T1a3 table (ITEM_ID bigint primary key)--snapshot agreements 1 v 3
+DECLARE @T1ca3 table (ITEM_ID bigint primary key)--current agreements 1 v 3
+DECLARE @T2a3 table (ITEM_ID bigint primary key)--snapshot agreements 2 v 3
+DECLARE @T2ca3 table (ITEM_ID bigint primary key)--current agreements 2 v 3
+insert into @T1
+select ITEM_ID, ATTRIBUTE_ID,
+	 case 
+		WHEN ITEM_ARM_ID is null THEN -1
+		ELSE ITEM_ARM_ID
+	 END
+	 from tb_COMPARISON c
+inner join tb_COMPARISON_ITEM_ATTRIBUTE cia on c.COMPARISON_ID = cia.COMPARISON_ID and c.CONTACT_ID1 = cia.CONTACT_ID and c.COMPARISON_ID = @COMPARISON_ID
+set @n1 = ( select count(distinct(item_id)) from @T1 )
+
+insert into @T1c 
+select t1.ITEM_ID, tia.ATTRIBUTE_ID,
+	 case 
+		WHEN tia.ITEM_ARM_ID is null THEN -1
+		ELSE tia.ITEM_ARM_ID
+	 END
+	 from (select distinct ITEM_ID from @T1) t1 --only items in the comparison
+	inner join TB_ITEM_SET tis on t1.ITEM_ID = tis.ITEM_ID and tis.SET_ID = @set and tis.CONTACT_ID = @c1
+	inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID
+
+insert into @T2
+select ITEM_ID, ATTRIBUTE_ID,
+	 case 
+		WHEN ITEM_ARM_ID is null THEN -1
+		ELSE ITEM_ARM_ID
+	 END
+	 from tb_COMPARISON c
+inner join tb_COMPARISON_ITEM_ATTRIBUTE cia on c.COMPARISON_ID = cia.COMPARISON_ID and c.CONTACT_ID2 = cia.CONTACT_ID and c.COMPARISON_ID = @COMPARISON_ID
+set @n2 = ( select count(distinct(item_id)) from @T2 )
+
+insert into @T2c 
+select t2.ITEM_ID, tia.ATTRIBUTE_ID,
+	 case 
+		WHEN tia.ITEM_ARM_ID is null THEN -1
+		ELSE tia.ITEM_ARM_ID
+	 END
+	 from (select distinct ITEM_ID from @T2) t2 
+	inner join TB_ITEM_SET tis on t2.ITEM_ID = tis.ITEM_ID and tis.SET_ID = @set and tis.CONTACT_ID = @c2
+	inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID
+
+insert into @T3
+select ITEM_ID, ATTRIBUTE_ID,
+	 case 
+		WHEN ITEM_ARM_ID is null THEN -1
+		ELSE ITEM_ARM_ID
+	 END
+	  from tb_COMPARISON c
+inner join tb_COMPARISON_ITEM_ATTRIBUTE cia on c.COMPARISON_ID = cia.COMPARISON_ID and c.CONTACT_ID3 = cia.CONTACT_ID and c.COMPARISON_ID = @COMPARISON_ID
+set @n3 = ( select count(distinct(item_id)) from @T3 )
+
+insert into @T3c 
+select t3.ITEM_ID, tia.ATTRIBUTE_ID,
+	 case 
+		WHEN tia.ITEM_ARM_ID is null THEN -1
+		ELSE tia.ITEM_ARM_ID
+	 END
+	  from (select distinct ITEM_ID from @T3) t3 
+	inner join TB_ITEM_SET tis on t3.ITEM_ID = tis.ITEM_ID and tis.SET_ID = @set and tis.CONTACT_ID = @c3
+	inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID
+
+
+-- Total N items coded reviewer 1
+select @n1 as 'Total N items coded reviewer 1'
+-- Total N items coded reviewer 2
+select @n2 as 'Total N items coded reviewer 2'
+-- Total N items coded reviewer 3
+select @n3 as 'Total N items coded reviewer 3'
+
+-- Total N items coded reviewer 1 & 2
+select count(distinct(t1.item_id)) as 'Total N items coded reviewer 1 & 2' from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID
+
+-- Total disagreements 1vs2
+--the inner join (IJ) selects only records in t2 where the second reviewer has applied a different code, but this does not guarantee coding as a whole is different, we still need to check if:
+--a)	R1 has also coded with the same attribute found in t2 through IJ. If that’s the case, then we should not count this as a disagreement.
+--b)	R2 has also coded with the attribute from t1
+--The second outer join (OJ2), with the “where t2b.ATTRIBUTE_ID is null” clause checks for a). The first outer join (OJ1), with the “where t1b.ATTRIBUTE_ID is null” clause, checks  for b).
+--So overall, the first join spots all possible 1:1 coding differences, the two outer joins get rid of meaningless lines (where the differences are cancelled by other records). 
+select count(distinct(t1.item_id)) as 'Total disagreements 1vs2'
+	from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID and t1.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	left outer join @T2 t2b on t1.ATTRIBUTE_ID = t2b.ATTRIBUTE_ID and t1.ITEM_ID = t2b.ITEM_ID and t1.ITEM_ARM_ID = t2b.ITEM_ARM_ID
+	left outer join @T1 t1b on  t1b.ATTRIBUTE_ID = t2.ATTRIBUTE_ID and t1b.ITEM_ID = t2.ITEM_ID and t1b.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	where t1b.ATTRIBUTE_ID is null or t2b.ATTRIBUTE_ID is null
+
+-- Total N items coded reviewer 2 & 3
+select count(distinct(t2.item_id)) as 'Total N items coded reviewer 2 & 3' from @T2 t2 inner join @T3 t3 on t2.ITEM_ID = t3.ITEM_ID
+
+-- Total disagreements 2vs3
+select count(distinct(t2.item_id)) as 'Total disagreements 2vs3'
+	from @T2 t2 inner join @T3 t3 on t2.ITEM_ID = t3.ITEM_ID and t2.ATTRIBUTE_ID != t3.ATTRIBUTE_ID and t2.ITEM_ARM_ID = t3.ITEM_ARM_ID
+	left outer join @T3 t3b on t2.ATTRIBUTE_ID = t3b.ATTRIBUTE_ID and t2.ITEM_ID = t3b.ITEM_ID and t2.ITEM_ARM_ID = t3b.ITEM_ARM_ID
+	left outer join @T2 t2b on  t2b.ATTRIBUTE_ID = t3.ATTRIBUTE_ID and t2b.ITEM_ID = t3.ITEM_ID and t2b.ITEM_ARM_ID = t3.ITEM_ARM_ID
+	where t2b.ATTRIBUTE_ID is null or t3b.ATTRIBUTE_ID is null
+
+-- Total N items coded reviewer 1 & 3
+select count(distinct(t1.item_id)) as 'Total N items coded reviewer 1 & 3' from @T1 t1 inner join @T3 t3 on t1.ITEM_ID = t3.ITEM_ID
+
+-- Total disagreements 1vs3
+select count(distinct(t1.item_id)) as 'Total disagreements 1vs3'
+	from @T1 t1 inner join @T3 t3 on t1.ITEM_ID = t3.ITEM_ID and t1.ATTRIBUTE_ID != t3.ATTRIBUTE_ID and t1.ITEM_ARM_ID = t3.ITEM_ARM_ID
+	left outer join @T3 t3b on t1.ATTRIBUTE_ID = t3b.ATTRIBUTE_ID and t1.ITEM_ID = t3b.ITEM_ID and t1.ITEM_ARM_ID = t3b.ITEM_ARM_ID
+	left outer join @T1 t1b on  t1b.ATTRIBUTE_ID = t3.ATTRIBUTE_ID and t1b.ITEM_ID = t3.ITEM_ID and t1b.ITEM_ARM_ID = t3.ITEM_ARM_ID
+	where t1b.ATTRIBUTE_ID is null or t3b.ATTRIBUTE_ID is null
+
+--REAL AGREEMENTS: Combine items from R1 and R2 and get only those that are not currenlty disagreements
+insert into @T1ca2
+Select t1.item_id from @T1c t1 --this list all items that are present in the comparison R1 vs R2 and have some codes applied by both
+	inner join @T2c t2 on t1.ITEM_ID = t2.ITEM_ID
+	except
+	select distinct(t1.item_id) from @T1c t1 --this lists all actual disagreements, going through tb_item_set->tb_item_attribute to get the real situation,
+											-- then the double outer joins as before
+	inner join @T2c t2 on t1.ITEM_ID = t2.ITEM_ID
+				and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID and t1.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	left outer join @T1c tia1a on tia1a.ITEM_ID = t1.ITEM_ID and t2.ATTRIBUTE_ID = tia1a.ATTRIBUTE_ID and tia1a.ITEM_ARM_ID = t1.ITEM_ARM_ID
+	left outer join @T2c tia2a on tia2a.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID = tia2a.ATTRIBUTE_ID and tia2a.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	where tia1a.ATTRIBUTE_ID is null or tia2a.ATTRIBUTE_ID is null
+
+
+--insert into @T1ca2
+--Select t1.item_id from @T1 t1 --this list all items that are present in the comparison R1 vs R2 and have some codes applied by both
+--	inner join TB_ITEM_SET tis on t1.ITEM_ID = tis.ITEM_ID and tis.CONTACT_ID = @c1 and tis.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID --need to join all the way to TB_ITEM_ATTRIBUTE to be 100% that some codes are present
+--	inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID
+--	inner join TB_ITEM_SET tis2 on t2.ITEM_ID = tis2.ITEM_ID and tis2.CONTACT_ID = @c2 and tis2.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia2 on tis2.ITEM_SET_ID = tia2.ITEM_SET_ID	
+--	except
+	--select * from @T1 t1 --this lists all actual disagreements, going through tb_item_set->tb_item_attribute to get the real situation,
+	--										-- then the double outer joins as before
+	--inner join TB_ITEM_SET tis1 on t1.ITEM_ID = tis1.ITEM_ID and tis1.CONTACT_ID = @c1 and tis1.SET_ID = @set
+	--inner join TB_ITEM_ATTRIBUTE tia1 on tis1.ITEM_SET_ID = tia1.ITEM_SET_ID 
+	--inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID 
+	--inner join TB_ITEM_SET tis2 on t2.ITEM_ID = tis2.ITEM_ID and tis2.CONTACT_ID = @c2 and tis2.SET_ID = @set
+	--inner join TB_ITEM_ATTRIBUTE tia2 on tis2.ITEM_SET_ID = tia2.ITEM_SET_ID 
+	--			and tia1.ATTRIBUTE_ID != tia2.ATTRIBUTE_ID
+	--left outer join TB_ITEM_ATTRIBUTE tia1a on tis1.ITEM_SET_ID = tia1a.ITEM_SET_ID and tia1a.ITEM_ID = tis1.ITEM_ID and tia2.ATTRIBUTE_ID = tia1a.ATTRIBUTE_ID
+	--left outer join TB_ITEM_ATTRIBUTE tia2a on tis2.ITEM_SET_ID = tia2a.ITEM_SET_ID and tia2a.ITEM_ID = tis2.ITEM_ID and tia1.ATTRIBUTE_ID = tia2a.ATTRIBUTE_ID
+	--where tia1a.ATTRIBUTE_ID is null or tia2a.ATTRIBUTE_ID is null
+
+--COMPARISON AGREEMENTS: 1 V 2, uses the same techniques as before to find the list of all agreed-items according to the comparison snapshot
+insert into @T1a2
+Select distinct t1.ITEM_ID from @T1 t1 
+	inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID
+	except
+select distinct(t1.item_id) from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID and t1.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	left outer join @T2 t2b on t1.ATTRIBUTE_ID = t2b.ATTRIBUTE_ID and t1.ITEM_ID = t2b.ITEM_ID and t2b.ITEM_ARM_ID = t1.ITEM_ARM_ID 
+	left outer join @T1 t1b on  t1b.ATTRIBUTE_ID = t2.ATTRIBUTE_ID and t1b.ITEM_ID = t2.ITEM_ID and t1b.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	where t1b.ATTRIBUTE_ID is null or t2b.ATTRIBUTE_ID is null
+
+--REAL AGREEMENTS: Combine items from R1 and R3 and get only those that are not currenlty disagreements
+insert into @T1ca3
+Select t1.item_id from @T1c t1 --this list all items that are present in the comparison R1 vs R2 and have some codes applied by both
+	inner join @T3c t3 on t1.ITEM_ID = t3.ITEM_ID
+	except
+	select distinct(t1.item_id) from @T1c t1 --this lists all actual disagreements, going through tb_item_set->tb_item_attribute to get the real situation,
+											-- then the double outer joins as before
+	inner join @T3c t3 on t1.ITEM_ID = t3.ITEM_ID
+				and t1.ATTRIBUTE_ID != t3.ATTRIBUTE_ID and t1.ITEM_ARM_ID = t3.ITEM_ARM_ID
+	left outer join @T1c tia1a on tia1a.ITEM_ID = t1.ITEM_ID and t3.ATTRIBUTE_ID = tia1a.ATTRIBUTE_ID and tia1a.ITEM_ARM_ID = t1.ITEM_ARM_ID
+	left outer join @T3c tia3a on tia3a.ITEM_ID = t3.ITEM_ID and t1.ATTRIBUTE_ID = tia3a.ATTRIBUTE_ID and tia3a.ITEM_ARM_ID = t3.ITEM_ARM_ID
+	where tia1a.ATTRIBUTE_ID is null or tia3a.ATTRIBUTE_ID is null
+
+
+----REAL AGREEMENTS: Combine items from R1 and R3 and get only those that are not currenlty disagreements
+--insert into @T1ca3
+--Select t1.item_id from @T1 t1 --this list all items that are present in the comparison R1 vs R2 and have some codes applied by both
+--	inner join TB_ITEM_SET tis on t1.ITEM_ID = tis.ITEM_ID and tis.CONTACT_ID = @c1 and tis.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID --need to join all the way to TB_ITEM_ATTRIBUTE to be 100% that some codes are present
+--	inner join @T3 t2 on t1.ITEM_ID = t2.ITEM_ID
+--	inner join TB_ITEM_SET tis2 on t2.ITEM_ID = tis2.ITEM_ID and tis2.CONTACT_ID = @c3 and tis2.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia2 on tis2.ITEM_SET_ID = tia2.ITEM_SET_ID	
+--	except
+--	select distinct(t1.item_id) from @T1 t1 --this lists all actual disagreements, going through tb_item_set->tb_item_attribute to get the real situation,
+--											-- then the double outer joins as before
+--	inner join TB_ITEM_SET tis1 on t1.ITEM_ID = tis1.ITEM_ID and tis1.CONTACT_ID = @c1 and tis1.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia1 on tis1.ITEM_SET_ID = tia1.ITEM_SET_ID 
+--	inner join @T3 t2 on t1.ITEM_ID = t2.ITEM_ID 
+--	inner join TB_ITEM_SET tis2 on t2.ITEM_ID = tis2.ITEM_ID and tis2.CONTACT_ID = @c3 and tis2.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia2 on tis2.ITEM_SET_ID = tia2.ITEM_SET_ID 
+--				and tia1.ATTRIBUTE_ID != tia2.ATTRIBUTE_ID
+--	left outer join TB_ITEM_ATTRIBUTE tia1a on tis1.ITEM_SET_ID = tia1a.ITEM_SET_ID and tia2.ATTRIBUTE_ID = tia1a.ATTRIBUTE_ID
+--	left outer join TB_ITEM_ATTRIBUTE tia2a on tis2.ITEM_SET_ID = tia2a.ITEM_SET_ID and tia1.ATTRIBUTE_ID = tia2a.ATTRIBUTE_ID
+--	where tia1a.ATTRIBUTE_ID is null or tia2a.ATTRIBUTE_ID is null
+
+--COMPARISON AGREEMENTS: 1 V 3, uses the same techniques as before to find the list of all agreed-items according to the comparison snapshot
+insert into @T1a3
+Select distinct t1.ITEM_ID from @T1 t1 
+	inner join @T3 t2 on t1.ITEM_ID = t2.ITEM_ID
+	except
+select distinct(t1.item_id) from @T1 t1 inner join @T3 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID and t1.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	left outer join @T3 t2b on t1.ATTRIBUTE_ID = t2b.ATTRIBUTE_ID and t1.ITEM_ID = t2b.ITEM_ID and t2b.ITEM_ARM_ID = t1.ITEM_ARM_ID
+	left outer join @T1 t1b on  t1b.ATTRIBUTE_ID = t2.ATTRIBUTE_ID and t1b.ITEM_ID = t2.ITEM_ID and t1b.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	where t1b.ATTRIBUTE_ID is null or t2b.ATTRIBUTE_ID is null
+
+--REAL AGREEMENTS: Combine items from R2 and R3 and get only those that are not currenlty disagreements
+insert into @T2ca3
+Select t2.item_id from @T2c t2 --this list all items that are present in the comparison R1 vs R2 and have some codes applied by both
+	inner join @T3c t3 on t2.ITEM_ID = t3.ITEM_ID
+	except
+	select distinct(t2.item_id) from @T2c t2 --this lists all actual disagreements, going through tb_item_set->tb_item_attribute to get the real situation,
+											-- then the double outer joins as before
+	inner join @T3c t3 on t2.ITEM_ID = t3.ITEM_ID
+				and t2.ATTRIBUTE_ID != t3.ATTRIBUTE_ID and t2.ITEM_ARM_ID = t3.ITEM_ARM_ID
+	left outer join @T2c tia2a on tia2a.ITEM_ID = t2.ITEM_ID and t3.ATTRIBUTE_ID = tia2a.ATTRIBUTE_ID and tia2a.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	left outer join @T3c tia3a on tia3a.ITEM_ID = t3.ITEM_ID and t2.ATTRIBUTE_ID = tia3a.ATTRIBUTE_ID and tia3a.ITEM_ARM_ID = t3.ITEM_ARM_ID
+	where tia2a.ATTRIBUTE_ID is null or tia3a.ATTRIBUTE_ID is null
+	
+----REAL AGREEMENTS: Combine items from R2 and R3 and get only those that are not currenlty disagreements
+--insert into @T2ca3
+--Select t1.item_id from @T2 t1 --this list all items that are present in the comparison R1 vs R2 and have some codes applied by both
+--	inner join TB_ITEM_SET tis on t1.ITEM_ID = tis.ITEM_ID and tis.CONTACT_ID = @c2 and tis.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID --need to join all the way to TB_ITEM_ATTRIBUTE to be 100% that some codes are present
+--	inner join @T3 t2 on t1.ITEM_ID = t2.ITEM_ID
+--	inner join TB_ITEM_SET tis2 on t2.ITEM_ID = tis2.ITEM_ID and tis2.CONTACT_ID = @c3 and tis2.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia2 on tis2.ITEM_SET_ID = tia2.ITEM_SET_ID	
+--	except
+--	select distinct(t1.item_id) from @T2 t1 --this lists all actual disagreements, going through tb_item_set->tb_item_attribute to get the real situation,
+--											-- then the double outer joins as before
+--	inner join TB_ITEM_SET tis1 on t1.ITEM_ID = tis1.ITEM_ID and tis1.CONTACT_ID = @c2 and tis1.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia1 on tis1.ITEM_SET_ID = tia1.ITEM_SET_ID 
+--	inner join @T3 t2 on t1.ITEM_ID = t2.ITEM_ID 
+--	inner join TB_ITEM_SET tis2 on t2.ITEM_ID = tis2.ITEM_ID and tis2.CONTACT_ID = @c3 and tis2.SET_ID = @set
+--	inner join TB_ITEM_ATTRIBUTE tia2 on tis2.ITEM_SET_ID = tia2.ITEM_SET_ID 
+--				and tia1.ATTRIBUTE_ID != tia2.ATTRIBUTE_ID
+--	left outer join TB_ITEM_ATTRIBUTE tia1a on tis1.ITEM_SET_ID = tia1a.ITEM_SET_ID and tia2.ATTRIBUTE_ID = tia1a.ATTRIBUTE_ID
+--	left outer join TB_ITEM_ATTRIBUTE tia2a on tis2.ITEM_SET_ID = tia2a.ITEM_SET_ID and tia1.ATTRIBUTE_ID = tia2a.ATTRIBUTE_ID
+--	where tia1a.ATTRIBUTE_ID is null or tia2a.ATTRIBUTE_ID is null
+
+--COMPARISON AGREEMENTS: 2 V 3, uses the same techniques as before to find the list of all agreed-items according to the comparison snapshot
+insert into @T2a3
+Select distinct t1.ITEM_ID from @T2 t1 
+	inner join @T3 t2 on t1.ITEM_ID = t2.ITEM_ID
+	except
+select distinct(t1.item_id) from @T2 t1 inner join @T3 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID and t1.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	left outer join @T3 t2b on t1.ATTRIBUTE_ID = t2b.ATTRIBUTE_ID and t1.ITEM_ID = t2b.ITEM_ID and t2b.ITEM_ARM_ID = t1.ITEM_ARM_ID
+	left outer join @T2 t1b on  t1b.ATTRIBUTE_ID = t2.ATTRIBUTE_ID and t1b.ITEM_ID = t2.ITEM_ID and t1b.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	where t1b.ATTRIBUTE_ID is null or t2b.ATTRIBUTE_ID is null
+
+
+-- Are all Comparison Agreements currently completed OR are current agreements different from the snapshot agreements?
+-- 1 V 2
+Select Case when (COUNT(distinct ITEM_ID) = SUM(Completed)
+				  OR 
+					( select 
+							Case when (SUM(sm.ss) > 0) then 1 --
+							else 0
+							end
+						 from
+						(
+						Select COUNT(t1.ITEM_ID) ss from @T1a2 t1 
+							left join @T1ca2 t2 on t1.ITEM_ID = t2.ITEM_ID
+							where t2.ITEM_ID is null
+						UNION
+						Select COUNT(t1.ITEM_ID) ss from @T1ca2 t1 
+							left join @T1a2 t2 on t1.ITEM_ID = t2.ITEM_ID
+							where t2.ITEM_ID is null
+						) AS sm
+					) = 1
+				  ) then 1 else 0 end 
+				  as '1v2 lock-completion OR changed'
+	from 
+	(Select distinct t1.ITEM_ID, Case
+								when (tis1.IS_COMPLETED = 1 ) then 1
+								else 0
+							end as Completed
+	from @T1a2 t1 
+	inner join TB_ITEM_SET tis1 on t1.ITEM_ID = tis1.ITEM_ID and tis1.SET_ID = @set --joining on item and set, not on CONTACT_ID as item could be completed by anyone
+	) a
+
+-- Are all Comparison Agreements currently completed OR are current agreements different from the snapshot agreements?
+-- 1 V 3
+Select Case when (COUNT(distinct ITEM_ID) = SUM(Completed)
+				  OR 
+					( select 
+							Case when (SUM(sm.ss) > 0) then 1 --
+							else 0
+							end
+						 from
+						(
+						Select COUNT(t1.ITEM_ID) ss from @T1a3 t1 
+							left join @T1ca3 t2 on t1.ITEM_ID = t2.ITEM_ID
+							where t2.ITEM_ID is null
+						UNION
+						Select COUNT(t1.ITEM_ID) ss from @T1ca3 t1 
+							left join @T1a3 t2 on t1.ITEM_ID = t2.ITEM_ID
+							where t2.ITEM_ID is null
+						) AS sm
+					) = 1
+				  ) then 1 else 0 end 
+				  as '1v3 lock-completion OR changed'
+	from 
+	(Select distinct t1.ITEM_ID, Case
+								when (tis1.IS_COMPLETED = 1 ) then 1
+								else 0
+							end as Completed
+	from @T1a3 t1 
+	inner join TB_ITEM_SET tis1 on t1.ITEM_ID = tis1.ITEM_ID and tis1.SET_ID = @set --joining on item and set, not on CONTACT_ID as item could be completed by anyone
+	) a
+
+-- Are all Comparison Agreements currently completed OR are current agreements different from the snapshot agreements?
+-- 2 V 3
+Select Case when (COUNT(distinct ITEM_ID) = SUM(Completed)
+				  OR 
+					( select 
+							Case when (SUM(sm.ss) > 0) then 1 --
+							else 0
+							end
+						 from
+						(
+						Select COUNT(t1.ITEM_ID) ss from @T2a3 t1 
+							left join @T2ca3 t2 on t1.ITEM_ID = t2.ITEM_ID
+							where t2.ITEM_ID is null
+						UNION
+						Select COUNT(t1.ITEM_ID) ss from @T2ca3 t1 
+							left join @T2a3 t2 on t1.ITEM_ID = t2.ITEM_ID
+							where t2.ITEM_ID is null
+						) AS sm
+					) = 1
+				  ) then 1 else 0 end 
+				  as '2v3 lock-completion OR changed'
+	from 
+	(Select distinct t1.ITEM_ID, Case
+								when (tis1.IS_COMPLETED = 1 ) then 1
+								else 0
+							end as Completed
+	from @T2a3 t1 
+	inner join TB_ITEM_SET tis1 on t1.ITEM_ID = tis1.ITEM_ID and tis1.SET_ID = @set --joining on item and set, not on CONTACT_ID as item could be completed by anyone
+	) a
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ComparisonStats.old]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ComparisonStats.old]
+(
+	@COMPARISON_ID INT
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+-- Total N items coded reviewer 1
+SELECT COUNT (DISTINCT ITEM_ID)
+FROM tb_COMPARISON_ITEM_ATTRIBUTE cia
+INNER JOIN tb_COMPARISON c ON c.CONTACT_ID1 = cia.CONTACT_ID and cia.COMPARISON_ID = c.COMPARISON_ID
+WHERE cia.COMPARISON_ID = @COMPARISON_ID
+
+-- Total N items coded reviewer 2
+SELECT COUNT (DISTINCT ITEM_ID)
+FROM tb_COMPARISON_ITEM_ATTRIBUTE cia
+INNER JOIN tb_COMPARISON c ON c.CONTACT_ID2 = cia.CONTACT_ID and cia.COMPARISON_ID = c.COMPARISON_ID
+WHERE cia.COMPARISON_ID = @COMPARISON_ID
+
+-- Total N items coded reviewer 3
+SELECT COUNT (DISTINCT ITEM_ID)
+FROM tb_COMPARISON_ITEM_ATTRIBUTE cia
+INNER JOIN tb_COMPARISON c ON c.CONTACT_ID3 = cia.CONTACT_ID and cia.COMPARISON_ID = c.COMPARISON_ID
+WHERE cia.COMPARISON_ID = @COMPARISON_ID
+
+-- Total that both 1 and 2 have coded
+SELECT COUNT (DISTINCT CIA1.ITEM_ID)
+FROM TB_COMPARISON_ITEM_ATTRIBUTE CIA1
+INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE CIA2 ON CIA1.ITEM_ID = CIA2.ITEM_ID
+INNER JOIN tb_COMPARISON COMP1 ON COMP1.CONTACT_ID1 = CIA1.CONTACT_ID AND COMP1.COMPARISON_ID = @COMPARISON_ID
+INNER JOIN tb_COMPARISON COMP2 ON COMP2.CONTACT_ID2 = CIA2.CONTACT_ID AND COMP2.COMPARISON_ID = @COMPARISON_ID
+WHERE CIA1.COMPARISON_ID = @COMPARISON_ID AND
+	CIA2.COMPARISON_ID = @COMPARISON_ID
+
+DECLARE @TT TABLE
+	(
+	  ITEM_ID BIGINT ,
+	  ATTRIBUTE_ID BIGINT
+	)
+	
+INSERT INTO @TT(ITEM_ID, ATTRIBUTE_ID)
+SELECT ITEM_ID, ATTRIBUTE_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE
+INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+	AND TB_COMPARISON.CONTACT_ID1 = TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID
+	AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+WHERE tb_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID = @COMPARISON_ID
+EXCEPT
+SELECT ITEM_ID, ATTRIBUTE_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE
+INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+	AND TB_COMPARISON.CONTACT_ID2 = TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID
+	AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+WHERE tb_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID = @COMPARISON_ID
+ORDER BY ITEM_ID, ATTRIBUTE_ID
+
+-- Make sure that both have coded each item
+DELETE FROM @TT WHERE NOT ITEM_ID IN
+(
+SELECT DISTINCT CIA1.ITEM_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE CIA1
+INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE CIA2 ON CIA1.ITEM_ID = CIA2.ITEM_ID
+INNER JOIN tb_COMPARISON COMP1 ON COMP1.CONTACT_ID1 = CIA1.CONTACT_ID AND COMP1.COMPARISON_ID = @COMPARISON_ID
+INNER JOIN tb_COMPARISON COMP2 ON COMP2.CONTACT_ID2 = CIA2.CONTACT_ID AND COMP2.COMPARISON_ID = @COMPARISON_ID
+WHERE CIA1.COMPARISON_ID = @COMPARISON_ID AND
+	CIA2.COMPARISON_ID = @COMPARISON_ID
+)
+
+-- Total disagreements 1vs2
+SELECT COUNT(DISTINCT ITEM_ID) FROM @TT
+
+DELETE FROM @TT
+
+-- Total that both 2 and 3 have coded
+SELECT COUNT (DISTINCT CIA1.ITEM_ID)
+FROM TB_COMPARISON_ITEM_ATTRIBUTE CIA1
+INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE CIA2 ON CIA1.ITEM_ID = CIA2.ITEM_ID
+INNER JOIN tb_COMPARISON COMP1 ON COMP1.CONTACT_ID2 = CIA1.CONTACT_ID AND COMP1.COMPARISON_ID = @COMPARISON_ID
+INNER JOIN tb_COMPARISON COMP2 ON COMP2.CONTACT_ID3 = CIA2.CONTACT_ID AND COMP2.COMPARISON_ID = @COMPARISON_ID
+WHERE CIA1.COMPARISON_ID = @COMPARISON_ID AND
+	CIA2.COMPARISON_ID = @COMPARISON_ID
+
+INSERT INTO @TT(ITEM_ID, ATTRIBUTE_ID)
+SELECT ITEM_ID, ATTRIBUTE_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE
+INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+	AND TB_COMPARISON.CONTACT_ID2 = TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID
+	AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+EXCEPT
+SELECT ITEM_ID, ATTRIBUTE_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE
+INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+	AND TB_COMPARISON.CONTACT_ID3 = TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID
+	AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+ORDER BY ITEM_ID, ATTRIBUTE_ID
+
+-- Make sure that both have coded each item
+DELETE FROM @TT WHERE NOT ITEM_ID IN
+(
+SELECT DISTINCT CIA1.ITEM_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE CIA1
+INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE CIA2 ON CIA1.ITEM_ID = CIA2.ITEM_ID
+INNER JOIN tb_COMPARISON COMP1 ON COMP1.CONTACT_ID2 = CIA1.CONTACT_ID AND COMP1.COMPARISON_ID = @COMPARISON_ID
+INNER JOIN tb_COMPARISON COMP2 ON COMP2.CONTACT_ID3 = CIA2.CONTACT_ID AND COMP2.COMPARISON_ID = @COMPARISON_ID
+WHERE CIA1.COMPARISON_ID = @COMPARISON_ID AND
+	CIA2.COMPARISON_ID = @COMPARISON_ID
+)
+
+-- Total disagreements 2vs3
+SELECT COUNT(DISTINCT ITEM_ID) FROM @TT
+
+DELETE FROM @TT
+
+-- Total being compared 1vs3
+SELECT COUNT (DISTINCT CIA1.ITEM_ID)
+FROM TB_COMPARISON_ITEM_ATTRIBUTE CIA1
+INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE CIA2 ON CIA1.ITEM_ID = CIA2.ITEM_ID
+INNER JOIN tb_COMPARISON COMP1 ON COMP1.CONTACT_ID1 = CIA1.CONTACT_ID AND COMP1.COMPARISON_ID = @COMPARISON_ID
+INNER JOIN tb_COMPARISON COMP2 ON COMP2.CONTACT_ID3 = CIA2.CONTACT_ID AND COMP2.COMPARISON_ID = @COMPARISON_ID
+WHERE CIA1.COMPARISON_ID = @COMPARISON_ID AND
+	CIA2.COMPARISON_ID = @COMPARISON_ID
+
+INSERT INTO @TT(ITEM_ID, ATTRIBUTE_ID)
+SELECT ITEM_ID, ATTRIBUTE_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE
+INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+	AND TB_COMPARISON.CONTACT_ID1 = TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID
+	AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+EXCEPT
+SELECT ITEM_ID, ATTRIBUTE_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE
+INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+	AND TB_COMPARISON.CONTACT_ID3 = TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID
+	AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+ORDER BY ITEM_ID, ATTRIBUTE_ID
+
+-- Make sure that both have coded each item
+DELETE FROM @TT WHERE NOT ITEM_ID IN
+(
+SELECT DISTINCT CIA1.ITEM_ID
+FROM TB_COMPARISON_ITEM_ATTRIBUTE CIA1
+INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE CIA2 ON CIA1.ITEM_ID = CIA2.ITEM_ID
+INNER JOIN tb_COMPARISON COMP1 ON COMP1.CONTACT_ID1 = CIA1.CONTACT_ID AND COMP1.COMPARISON_ID = @COMPARISON_ID
+INNER JOIN tb_COMPARISON COMP2 ON COMP2.CONTACT_ID3 = CIA2.CONTACT_ID AND COMP2.COMPARISON_ID = @COMPARISON_ID
+WHERE CIA1.COMPARISON_ID = @COMPARISON_ID AND
+	CIA2.COMPARISON_ID = @COMPARISON_ID
+)
+
+-- Total disagreements 1vs3
+SELECT COUNT(DISTINCT ITEM_ID) FROM @TT
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_Contact_Review_Role_Insert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Sergio>
+-- Create date: <03/03/10>
+-- Description:	<Add role to a user on a given review, user must already belong to a review, returns 1 on success>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_Contact_Review_Role_Insert] 
+	-- Add the parameters for the stored procedure here
+	@Review_ID int = 0, 
+	@Contact_ID int = 0,
+	@Role nvarchar(50) = '',
+	@Result bit OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	SET @Result = 0
+	DECLARE @R_C_ID int
+    -- First, check if user has access to review
+    set @R_C_ID = (SELECT REVIEW_CONTACT_ID
+	FROM TB_REVIEW_CONTACT
+	WHERE REVIEW_ID = @Review_ID AND CONTACT_ID = @Contact_ID)
+	IF @@ROWCOUNT > 0 --user does have access
+	BEGIN
+		--second check if user already has selected role
+		SELECT REVIEW_ID, ROLE_NAME as [ROLE]
+		FROM TB_REVIEW_CONTACT
+			INNER JOIN TB_CONTACT_REVIEW_ROLE 
+			on TB_CONTACT_REVIEW_ROLE.REVIEW_CONTACT_ID = TB_REVIEW_CONTACT.REVIEW_CONTACT_ID
+		WHERE REVIEW_ID = @Review_ID AND CONTACT_ID = @Contact_ID and TB_CONTACT_REVIEW_ROLE.ROLE_NAME = @Role
+		IF @@ROWCOUNT < 1 -- user does not have selected role in the review
+		BEGIN --try to add role
+			INSERT INTO TB_CONTACT_REVIEW_ROLE(REVIEW_CONTACT_ID,ROLE_NAME)
+			VALUES (@R_C_ID, @Role)
+			IF @@ROWCOUNT = 1 --insert was successful mark it in the return value
+			BEGIN
+				SET @Result = 1
+			END
+		END
+	END
+		
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ContactAdminLoginReview]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ContactAdminLoginReview]
+(
+	@userId int,
+	@reviewId int,
+	@Client nvarchar(10) = 'ER4',
+	@GUI uniqueidentifier OUTPUT
+)
+
+As
+declare @chk int
+set @chk = (select count (CONTACT_ID) from TB_CONTACT where IS_SITE_ADMIN = 1 and CONTACT_ID = @userId)
+if @chk != 1
+begin
+	RETURN --do nothing if user is not actually a site admin
+end
+
+SELECT  TB_REVIEW.REVIEW_ID, 'AdminUser' as [ROLE], 
+		( CASE WHEN sl2.[EXPIRY_DATE] is not null
+				and sl2.[EXPIRY_DATE] > TB_REVIEW.[EXPIRY_DATE]
+					then sl2.[EXPIRY_DATE]
+				else TB_REVIEW.[EXPIRY_DATE]
+				end
+		) as REVIEW_EXP, 
+		(SELECT  CASE when sl.[EXPIRY_DATE] is not null 
+				and sl.[EXPIRY_DATE] > c.[EXPIRY_DATE]
+					then sl.[EXPIRY_DATE]
+				else c.[EXPIRY_DATE]
+				end
+				from TB_CONTACT c 
+				Left outer join TB_SITE_LIC_CONTACT lc on lc.CONTACT_ID = c.CONTACT_ID
+				Left outer join TB_SITE_LIC sl on lc.SITE_LIC_ID = sl.SITE_LIC_ID
+				where c.CONTACT_ID = @userId
+		) as CONTACT_EXP,
+		FUNDER_ID
+FROM TB_REVIEW 
+	left outer join TB_SITE_LIC_REVIEW lr on TB_REVIEW.REVIEW_ID = lr.REVIEW_ID
+	left outer join TB_SITE_LIC sl2 on lr.SITE_LIC_ID = sl2.SITE_LIC_ID
+	
+WHERE TB_REVIEW.REVIEW_ID = @reviewId 
+
+IF @@ROWCOUNT >= 1 
+	BEGIN
+	DECLARE	@return_value int,
+			@GUID uniqueidentifier
+			
+	EXEC	@return_value = [ReviewerAdmin].[dbo].[st_LogonTicket_Insert]
+			@Contact_ID = @userId,
+			@Review_ID = @reviewId,
+			@Client = @Client,
+			@GUID = @GUI OUTPUT
+	SELECT	@GUI as N'@GUID'
+	END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ContactLogin]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ContactLogin]
+(
+	@userName  varchar(50)	
+	,@Password varchar(50)
+	
+)
+--note the GRACE_EXP field, how many days we add to EXPIRY_DATE defines how long is the grace period for the whole of ER4.
+--during the grace period users can log on ER4 but will have read only access.
+As
+
+
+--first check if the username/pw are correct
+declare @chek int = (select count(Contact_id)  from TB_CONTACT c where c.USERNAME = @userName and HASHBYTES('SHA1', @Password + FLAVOUR) = PWASHED AND c.EXPIRY_DATE is not null)
+if @chek = 1
+BEGIN
+	--second make sure old now stale ArchieStatus and ArchieCode are discharged, no matter what (this is a first logon via ER4 credentials)
+	UPDATE TB_CONTACT SET  LAST_ARCHIE_CODE = null, LAST_ARCHIE_STATE = null
+		where USERNAME = @userName and HASHBYTES('SHA1', @Password + FLAVOUR) = PWASHED AND EXPIRY_DATE is not null
+	--third get some user info
+	Select c.CONTACT_ID, c.contact_name, --c.Password, 
+		DATEADD(m, 2, 
+				( CASE when sl.[EXPIRY_DATE] is not null 
+					and sl.[EXPIRY_DATE] > c.[EXPIRY_DATE]
+						then sl.[EXPIRY_DATE]
+					else c.[EXPIRY_DATE]
+					end
+				)) as GRACE_EXP,
+		[TYPE], IS_SITE_ADMIN
+		, CASE when c.ARCHIE_ID is null then 0
+			ELSE 1
+			END
+		AS IS_COCHRANE_USER
+		  /* TB_CONTACT.[Role] */
+	From TB_CONTACT c
+	Left outer join TB_SITE_LIC_CONTACT lc on lc.CONTACT_ID = c.CONTACT_ID
+	Left outer join TB_SITE_LIC sl on lc.SITE_LIC_ID = sl.SITE_LIC_ID
+	Where c.UserName = @userName and c.EXPIRY_DATE is not null
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ContactLoginReview]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ContactLoginReview]
+(
+	@userId int,
+	@reviewId int,
+	@IsArchieUser bit,
+	@Client nvarchar(10) = 'ER4',
+	@GUI uniqueidentifier OUTPUT
+)
+
+As
+if @IsArchieUser = 1
+begin
+--we need to make sure user has records in TB_REVIEW_CONTACT and TB_CONTACT_REVIEW_ROLE
+	declare @ck int = (select count(crr.ROLE_NAME) from TB_REVIEW_CONTACT rc 
+		inner join TB_CONTACT_REVIEW_ROLE crr on rc.REVIEW_ID = @reviewId and rc.CONTACT_ID = @userId and crr.REVIEW_CONTACT_ID = rc.REVIEW_CONTACT_ID
+		)
+	if @ck < 1
+	BEGIN
+		DECLARE @NEW_CONTACT_REVIEW_ID INT
+		INSERT INTO TB_REVIEW_CONTACT(CONTACT_ID, REVIEW_ID)
+		VALUES (@userId, @reviewId)
+		SET @NEW_CONTACT_REVIEW_ID = @@IDENTITY
+		INSERT INTO TB_CONTACT_REVIEW_ROLE(REVIEW_CONTACT_ID, ROLE_NAME)
+		VALUES(@NEW_CONTACT_REVIEW_ID, 'RegularUser')
+	END
+end
+SELECT TB_REVIEW.REVIEW_ID, TB_REVIEW.ARCHIE_ID, ROLE_NAME as [ROLE], 
+		( CASE WHEN sl2.[EXPIRY_DATE] is not null
+				and sl2.[EXPIRY_DATE] > TB_REVIEW.[EXPIRY_DATE]
+					then sl2.[EXPIRY_DATE]
+				else TB_REVIEW.[EXPIRY_DATE]
+				end
+		) as REVIEW_EXP, 
+		( CASE when sl.[EXPIRY_DATE] is not null 
+				and sl.[EXPIRY_DATE] > c.[EXPIRY_DATE]
+					then sl.[EXPIRY_DATE]
+				else c.[EXPIRY_DATE]
+				end
+		) as CONTACT_EXP,
+		FUNDER_ID, tb_review.ARCHIE_ID, IS_CHECKEDOUT_HERE, IS_SITE_ADMIN
+		
+FROM TB_REVIEW_CONTACT
+	INNER JOIN TB_REVIEW on TB_REVIEW_CONTACT.REVIEW_ID = TB_REVIEW.REVIEW_ID
+	INNER JOIN TB_CONTACT c on TB_REVIEW_CONTACT.CONTACT_ID = c.CONTACT_ID
+	INNER JOIN TB_CONTACT_REVIEW_ROLE on TB_CONTACT_REVIEW_ROLE.REVIEW_CONTACT_ID = TB_REVIEW_CONTACT.REVIEW_CONTACT_ID
+	Left outer join TB_SITE_LIC_CONTACT lc on lc.CONTACT_ID = c.CONTACT_ID
+	Left outer join TB_SITE_LIC sl on lc.SITE_LIC_ID = sl.SITE_LIC_ID
+	left outer join TB_SITE_LIC_REVIEW lr on TB_REVIEW.REVIEW_ID = lr.REVIEW_ID
+	left outer join TB_SITE_LIC sl2 on lr.SITE_LIC_ID = sl2.SITE_LIC_ID
+	
+WHERE TB_REVIEW.REVIEW_ID = @reviewId AND c.CONTACT_ID = @userId
+
+IF @@ROWCOUNT >= 1 
+	BEGIN
+	DECLARE	@return_value int,
+			@GUID uniqueidentifier
+			
+	EXEC	@return_value = [ReviewerAdmin].[dbo].[st_LogonTicket_Insert]
+			@Contact_ID = @userId,
+			@Review_ID = @reviewId,
+			@Client = @Client,
+			@GUID = @GUI OUTPUT
+	SELECT	@GUI as N'@GUID'
+	END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ContactPasswordFromID]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ContactPasswordFromID]
+(
+	@ID int,
+	@GUI uniqueidentifier
+)
+
+As
+Select c.Password  
+From TB_CONTACT c
+	inner join ReviewerAdmin.dbo.TB_LOGON_TICKET t on c.CONTACT_ID = t.CONTACT_ID and t.STATE = 1
+Where c.CONTACT_ID = @ID and t.TICKET_GUID = @GUI
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_DiagramDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_DiagramDelete]
+(
+	@DIAGRAM_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM TB_DIAGRAM
+		WHERE DIAGRAM_ID = @DIAGRAM_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_DiagramInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_DiagramInsert]
+(
+	@REVIEW_ID INT,
+	@DIAGRAM_NAME NVARCHAR(255),
+	@DIAGRAM_DETAIL NVARCHAR(MAX),
+	@NEW_DIAGRAM_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	INSERT INTO TB_DIAGRAM(REVIEW_ID, DIAGRAM_NAME, DIAGRAM_DETAIL)
+	VALUES(@REVIEW_ID, @DIAGRAM_NAME, @DIAGRAM_DETAIL)
+
+	SET @NEW_DIAGRAM_ID = @@IDENTITY
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_DiagramList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_DiagramList]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT * FROM TB_DIAGRAM
+		WHERE REVIEW_ID = @REVIEW_ID
+		ORDER BY DIAGRAM_NAME
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_DiagramUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_DiagramUpdate]
+(
+	@DIAGRAM_NAME NVARCHAR(255),
+	@DIAGRAM_DETAIL NVARCHAR(MAX),
+	@DIAGRAM_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	UPDATE TB_DIAGRAM
+		SET DIAGRAM_NAME = @DIAGRAM_NAME,
+			DIAGRAM_DETAIL = @DIAGRAM_DETAIL
+		WHERE DIAGRAM_ID = @DIAGRAM_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ErFrequencyCrosstabAndMap]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ErFrequencyCrosstabAndMap]
+	-- Add the parameters for the stored procedure here
+	@attributeIdXAxis bigint 
+	, @setIdXAxis int
+	, @included bit null = null
+	, @attributeIdYAxis bigint = 0
+	, @setIdYAxis int = 0 
+	, @segmentsParent bigint = 0
+	, @setIdSegments int = 0
+	, @onlyThisAttribute bigint = 0
+	, @RevId int 
+AS
+BEGIN
+
+--declare 
+	--@attributeIdXAxis bigint = 64472  --62475 0
+	--, @setIdXAxis int = 644
+	--, @attributeIdYAxis bigint = 0
+	--, @setIdYAxis int = 0 --644 664
+	--, @SegmentsParent bigint = 119121
+	--, @setIdSegments int = 0--1880
+	--, @OnlyThisAttribute bigint = 0
+	--, @RevId int = 99
+	--, @WebDbId int = 18
+
+
+declare @items table (ItemId bigint primary key, X_atts varchar(max) null, Y_atts  varchar(max) null, segments varchar(max) null)
+declare @attsX table (ATTRIBUTE_ID bigint primary key, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+declare @attsY table (ATTRIBUTE_ID bigint primary key, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+declare @segments table (ATTRIBUTE_ID bigint primary key, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+--last minute table: the parent IDs and names are in @codeNames
+declare @codeNames table (SETIDX_ID bigint primary key, SETIDX_NAME nvarchar(255), SETIDY_ID bigint, SETIDY_NAME nvarchar(255),
+							ATTIBUTEIDX_ID bigint, ATTIBUTEIDX_NAME nvarchar(255), ATTIBUTEIDY_ID bigint, ATTIBUTEIDY_NAME nvarchar(255))
+
+--sanity check, ensure @RevId and @WebDbId match...
+
+
+
+
+	if @OnlyThisAttribute > 0
+	BEGIN
+		insert into @items select distinct ir.item_id, null, null, null from TB_ITEM_REVIEW ir
+			inner join TB_ITEM_ATTRIBUTE tia on ir.ITEM_ID = tia.ITEM_ID and tia.ATTRIBUTE_ID = @OnlyThisAttribute 
+				and ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+				and (@included is null OR ir.IS_INCLUDED = @included)  
+			inner join TB_ITEM_SET tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and IS_COMPLETED = 1
+	END
+	ELSE
+	Begin
+		insert into @items select distinct ir.item_id, null, null, null from TB_ITEM_REVIEW ir
+			where ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+			 and (@included is null OR ir.IS_INCLUDED = @included) 
+	END
+
+
+insert into @attsX select distinct a.Attribute_id, 
+	 a.ATTRIBUTE_NAME
+	 , ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+	 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+
+	 where tas.SET_ID = @setIdXAxis and PARENT_ATTRIBUTE_ID = @attributeIdXAxis
+select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsX order by ord
+
+IF @setIdYAxis > 0
+BEGIN
+	insert into @attsY select distinct a.Attribute_id, 
+		 a.ATTRIBUTE_NAME
+		 , ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+		 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		where SET_ID = @setIdYAxis and PARENT_ATTRIBUTE_ID = @attributeIdYAxis
+	select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsY order by ord
+END
+
+-------------------------------------------------------
+insert into @codeNames (SETIDX_ID, SETIDY_ID, ATTIBUTEIDX_ID, ATTIBUTEIDY_ID)
+values (@setIdXAxis, @setIdYAxis, @attributeIdXAxis, @attributeIdYAxis)
+
+update @codeNames set SETIDX_NAME = s.SET_NAME
+										
+	from TB_SET s
+	inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @RevId and s.SET_ID = rs.SET_ID
+	where s.SET_ID = SETIDX_ID
+
+if @setIdYAxis != 0
+begin
+	update @codeNames set SETIDY_NAME = s.SET_NAME
+	from TB_SET s
+	inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @RevId and s.SET_ID = rs.SET_ID
+	where s.SET_ID = SETIDY_ID
+END
+if @attributeIdXAxis != 0
+begin
+	update @codeNames set ATTIBUTEIDX_NAME = a.ATTRIBUTE_NAME
+	from TB_ATTRIBUTE a
+	where a.ATTRIBUTE_ID = ATTIBUTEIDX_ID
+end
+if @attributeIdYAxis != 0
+begin
+	update @codeNames set ATTIBUTEIDY_NAME = a.ATTRIBUTE_NAME
+	from TB_ATTRIBUTE a
+	where a.ATTRIBUTE_ID = ATTIBUTEIDY_ID
+end
+------------------------------------------------------------
+
+If @SegmentsParent > 0
+BEGIN
+	insert into @segments select distinct a.Attribute_id,
+		 a.ATTRIBUTE_NAME
+		 , ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+		 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		where SET_ID = @setIdSegments and PARENT_ATTRIBUTE_ID = @SegmentsParent
+	select ATTRIBUTE_ID, ATTRIBUTE_NAME from @segments order by ord
+END
+
+update @items  set X_atts = Atts
+from 
+(
+	select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+	inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdXAxis
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+	inner join @attsX a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+	group by ItemId 
+	--order by ItemId
+) as big
+WHERE ItemId = Big.iid
+
+if @setIdYAxis > 0
+	update @items set Y_atts = Atts
+	from 
+	(
+		select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+		inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdYAxis
+		inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+		inner join @attsY a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+		group by ItemId 
+		--order by ItemId
+	) as big
+	WHERE ItemId = Big.iid
+
+if @setIdSegments > 0
+update @items set segments = Atts
+from 
+(
+	select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+	inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdSegments
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+	inner join @segments a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+	group by ItemId 
+	--order by ItemId
+) as big
+WHERE ItemId = Big.iid
+
+select * from @items
+
+select * from @codeNames
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ErItemListFromIDs]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ErItemListFromIDs]
+	@RevId int
+    , @Items varchar(max)
+as 
+BEGIN
+	Select II.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, II.CREATED_BY, DATE_EDITED, II.EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , II.MASTER_ITEM_ID, DOI, KEYWORDS
+                  
+            FROM dbo.fn_Split_int(@Items, ',')  SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.value = II.ITEM_ID
+				  inner join TB_ITEM_REVIEW ir on II.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @RevId
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+			order by SHORT_TITLE, II.ITEM_ID
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ErItemListWithWithoutCodes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ErItemListWithWithoutCodes]
+	@WithAttributesIds varchar(max)
+    , @WithSetIdsList varchar(max)
+	, @included bit = null
+    , @WithOutAttributesIdsList varchar(max) = ''
+    , @WithOutSetIdsList varchar(max) = ''
+	, @RevId int 
+      
+AS
+
+BEGIN
+
+declare @start datetime = getdate()
+declare @commas int = (LEN(@WithAttributesIds) - LEN(REPLACE(@WithAttributesIds,',','')))
+	declare @commas2 int = (LEN(@WithOutAttributesIdsList) - LEN(REPLACE(@WithOutAttributesIdsList,',','')))
+	
+	if @commas != (LEN(@WithSetIdsList) - LEN(REPLACE(@WithSetIdsList,',','')))
+		OR
+		@commas2 != (LEN(@WithOutSetIdsList) - LEN(REPLACE(@WithOutSetIdsList,',',''))) RETURN
+
+
+declare @items table (ItemId bigint primary key, With_atts varchar(max) null, reject varchar(max) null)
+declare @attsX table (ATTRIBUTE_ID bigint primary key, SET_ID int, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+declare @attsY table (ATTRIBUTE_ID bigint primary key, SET_ID int, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+declare @segments table (ATTRIBUTE_ID bigint primary key, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+
+insert into @attsX select distinct a.Attribute_id, ss.value, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from 
+	dbo.fn_Split_int(@WithAttributesIds,',') s
+	inner join dbo.fn_Split_int(@WithSetIdsList,',') ss on s.idx = ss.idx and s.value > 0
+	inner join TB_ATTRIBUTE_SET tas on s.value = tas.ATTRIBUTE_ID and ss.value = tas.SET_ID
+	inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+	
+--select DATEDIFF(second,@start, getdate()) as [1]
+--set @start = GETDATE()
+
+declare @a1 bigint
+if @WithAttributesIds = ''
+ insert into @items select distinct ir.item_id, null, null from TB_ITEM_REVIEW ir
+		where ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+			and (@included is null OR ir.IS_INCLUDED = @included) 
+else 
+begin 
+    --we limit the @items content to only the items that have the first ATT_ID in @WithAttributesIds
+	--using fn_Split_int to get the 1st one and be sure this works even when @WithAttributesIds contains two identical values (diagonal in self-crosstabs!)
+	--we want to get the first one, as in rare cases, inverting the axes can ensure creating theses lists won't take forever
+	set @a1 = (select top 1 ATTRIBUTE_ID from dbo.fn_Split_int(@WithAttributesIds,',') sp inner join @attsX a on a.ATTRIBUTE_ID = sp.value order by sp.idx)
+
+	--select @a1
+
+	insert into @items select distinct ir.item_id, @a1, null from TB_ITEM_REVIEW ir
+	inner join TB_ITEM_ATTRIBUTE ia on ir.ITEM_ID = ia.ITEM_ID and ia.ATTRIBUTE_ID = @a1
+	inner join tb_item_set tis on ia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+	inner join @attsX x on x.ATTRIBUTE_ID = ia.ATTRIBUTE_ID
+		where ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+			and (@included is null OR ir.IS_INCLUDED = @included) 
+end
+
+--select DATEDIFF(second,@start, getdate()) as [2]
+--set @start = GETDATE()
+
+select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsX order by ord
+
+ 
+--select DATEDIFF(second,@start, getdate()) as [3]
+--set @start = GETDATE()
+
+insert into @attsY select distinct a.Attribute_id, ss.value, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from 
+	dbo.fn_Split_int(@WithOutAttributesIdsList,',') s
+	inner join dbo.fn_Split_int(@WithOutSetIdsList,',') ss on s.idx = ss.idx and s.value > 0
+	inner join TB_ATTRIBUTE_SET tas on s.value = tas.ATTRIBUTE_ID and ss.value = tas.SET_ID
+	inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+ 
+--select DATEDIFF(second,@start, getdate()) as [4]
+--set @start = GETDATE()
+
+select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsY order by ord
+ 
+--select DATEDIFF(second,@start, getdate()) as [5]
+--set @start = GETDATE()
+
+
+update @items  set With_atts = Atts
+from 
+(
+	select cast(@a1 as nvarchar(max)) + ',' + STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+	inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 
+	inner join @attsX a on  tis.SET_ID = a.SET_ID and a.ATTRIBUTE_ID != @a1
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID and tis.ITEM_ID = ia.ITEM_ID
+	group by ItemId 
+	--order by ItemId
+) as big
+WHERE ItemId = Big.iid
+ 
+--select DATEDIFF(second,@start, getdate()) as [6]
+--set @start = GETDATE() 
+
+if @WithOutAttributesIdsList != ''
+	update @items set reject = 1
+	from 
+	(
+		select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+		inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+		inner join @attsY a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID and tis.SET_ID = a.SET_ID
+		group by ItemId 
+		--order by ItemId
+	) as big
+	WHERE ItemId = Big.iid
+
+	 
+--select DATEDIFF(second,@start, getdate()) as [7]
+--set @start = GETDATE()
+
+select ii.*, i.SHORT_TITLE from @items ii
+	inner join tb_item i on ii.ItemId = i.ITEM_ID
+
+	--order by len(with_atts)
+
+ 
+--select DATEDIFF(second,@start, getdate()) as [8]
+--set @start = GETDATE()
+
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_Extract_Terms]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		S
+-- Create date: 
+-- Description:	
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_Extract_Terms] 
+	-- Add the parameters for the stored procedure here
+	@IDs nvarchar(max) = ''
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	DECLARE @ui uniqueidentifier 
+	declare @cmd varchar(1000)
+	declare @tres TABLE
+	(
+		xxx nvarchar(4000)
+	)
+	DECLARE @TT TABLE
+	(
+	  TERM nvarchar(128),
+	  SCORE float
+	)
+	SET @ui = NEWID()
+	INSERT into TB_TERM_EXTR_T_MAP (ITEM_ID, EXTR_UI)
+		SELECT ITEM_ID, @ui from dbo.TB_ITEM 
+		WHERE ITEM_ID in 
+			(SELECT VALUE FROM dbo.fn_Split_int(@IDs, ',')) AND ABSTRACT != ''
+	select @cmd = 'dtexec /DT "File System\TermLookupS"'
+	select @cmd = @cmd + ' /Rep N  /SET \Package.Variables[User::UI].Properties[Value];"' + CAST(@ui as varchar(max))+ '"' 
+	--this is a dirty trick to prevent the verbose output of SSIS execution to be passed on as results
+	INSERT INTO @tres EXEC xp_cmdshell @cmd
+	INSERT INTO @TT
+		SELECT TERM, SCORE from dbo.TB_ITEM_TERM_DICTIONARY t
+		WHERE t.UI = @ui
+	--got the results from the SSIS package, clear them from the table used as a temporary store
+	DELETE from dbo.TB_ITEM_TERM_DICTIONARY WHERE @ui = UI
+	--delete also the source table
+	DELETE from dbo.TB_TERM_EXTR_T_MAP WHERE @ui = EXTR_UI
+	--pass on the results to the calling reader
+	SELECT * FROM @TT
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_Generate_st_TempTermExtractionItemList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_Generate_st_TempTermExtractionItemList]
+(
+	@ITEMS NVARCHAR(max)
+)
+
+As
+
+
+SET NOCOUNT ON
+
+DELETE FROM TB_ITEM_TERM_DICTIONARY
+DELETE FROM TB_ITEM_TERM
+
+exec ('
+ALTER procedure [dbo].st_TempTermExtractionItemList
+As
+
+SET NOCOUNT ON
+
+SELECT I.ITEM_ID, I.ABSTRACT FROM TB_ITEM I
+INNER JOIN dbo.fn_Split_int(''' + @ITEMS + ''', '','') ITEMS
+ON I.ITEM_ID = ITEMS.value
+WHERE I.ABSTRACT != ''''
+
+SET NOCOUNT OFF
+')
+
+EXEC msdb.dbo.sp_start_job N'RunCreateDictionary'
+WAITFOR DELAY '0:0:10' -- HORRIBLE, but works for now. (Otherwise, the table is queried before anything is entered)
+GO
+/****** Object:  StoredProcedure [dbo].[st_Generate_st_TempTermExtractionSelectedItems]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_Generate_st_TempTermExtractionSelectedItems]
+(
+	@ITEMS NVARCHAR(max)
+)
+
+As
+
+SET NOCOUNT ON
+
+exec ('
+ALTER procedure [dbo].st_TempTermExtractionSelectedItems
+As
+
+SET NOCOUNT ON
+
+SELECT I.ITEM_ID, I.ABSTRACT FROM TB_ITEM I
+INNER JOIN dbo.fn_Split_int(''' + @ITEMS + ''', '','') ITEMS
+ON I.ITEM_ID = ITEMS.value
+WHERE I.ABSTRACT != ''''
+
+
+SET NOCOUNT OFF
+
+')
+GO
+/****** Object:  StoredProcedure [dbo].[st_Item]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_Item]
+(
+	@REVIEW_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+
+if @REVIEW_ID > -1
+begin
+	SELECT I.ITEM_ID, I.[TYPE_ID], [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS,
+		IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID, DOI, KEYWORDS
+	FROM TB_ITEM I
+
+	-- Limit to a given review
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+
+	WHERE I.ITEM_ID = @ITEM_ID
+end
+else
+begin
+	SELECT I.ITEM_ID, I.[TYPE_ID], [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS,
+		NULL IS_DELETED, NULL IS_INCLUDED, NULL MASTER_ITEM_ID, DOI, KEYWORDS
+	FROM TB_ITEM I
+
+	-- Not limiting to a given review
+	--INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+
+	WHERE I.ITEM_ID = @ITEM_ID
+end
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmCreate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemArmCreate]
+(
+	@ORDERING INT
+,	@ARM_NAME NVARCHAR(500)
+,	@ITEM_ID BIGINT
+,	@NEW_ITEM_ARM_ID BIGINT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+
+
+	INSERT INTO TB_ITEM_ARM(ITEM_ID, ARM_NAME, ORDERING)
+	VALUES(@ITEM_ID, @ARM_NAME, @ORDERING)
+		
+	SET @NEW_ITEM_ARM_ID = @@IDENTITY
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemArmDelete]
+(
+	@ITEM_ARM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	DELETE FROM TB_ITEM_ATTRIBUTE where ITEM_ARM_ID = @ITEM_ARM_ID
+	DELETE FROM TB_ITEM_ARM
+		WHERE ITEM_ARM_ID = @ITEM_ARM_ID
+
+	UPDATE TB_ITEM_OUTCOME
+		SET ITEM_ARM_ID_GRP1 = NULL
+		WHERE ITEM_ARM_ID_GRP1 = @ITEM_ARM_ID
+
+	UPDATE TB_ITEM_OUTCOME
+		SET ITEM_ARM_ID_GRP2 = NULL
+		WHERE ITEM_ARM_ID_GRP2 = @ITEM_ARM_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDeleteWarning]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemArmDeleteWarning]
+	@ITEM_ID BIGINT,
+	@ARM_ID BIGINT,
+	@NUM_CODINGS INT OUTPUT,
+	@NUM_OUTCOMES INT OUTPUT,
+	@REVIEW_ID INT
+As
+
+SET NOCOUNT ON
+
+	SELECT @NUM_CODINGS = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND TB_ITEM_REVIEW.ITEM_ID = @ITEM_ID
+		WHERE TB_ITEM_ATTRIBUTE.ITEM_ARM_ID = @ARM_ID
+
+	SELECT @NUM_OUTCOMES = COUNT(DISTINCT ITO.OUTCOME_ID) FROM TB_ITEM_OUTCOME ITO
+		WHERE ITO.ITEM_ARM_ID_GRP1 = @ARM_ID OR ITO.ITEM_ARM_ID_GRP2 = @ARM_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemArmList]
+(
+	@REVIEW_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT TB_ITEM_ARM.ITEM_ID, ITEM_ARM_ID, ORDERING, ARM_NAME FROM TB_ITEM_ARM
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ARM.ITEM_ID
+		WHERE REVIEW_ID = @REVIEW_ID
+		AND TB_ITEM_ARM.ITEM_ID = @ITEM_ID
+		ORDER BY ORDERING
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemArmUpdate]
+(
+	@ITEM_ARM_ID BIGINT
+,	@ORDERING INT
+,	@ARM_NAME NVARCHAR(500)
+,	 @REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @check int = 0
+
+declare @itemID bigint = (select ITEM_ID from 
+TB_ITEM_ARM where ITEM_ARM_ID = @ITEM_ARM_ID) 
+
+set @check = (select count(*) from 
+TB_ITEM_REVIEW where ITEM_ID = @itemID AND REVIEW_ID = @REVIEW_ID)
+
+if(@check != 1) return
+
+UPDATE TB_ITEM_ARM
+	SET ORDERING = @ORDERING,
+		ARM_NAME = @ARM_NAME
+	WHERE ITEM_ARM_ID = @ITEM_ARM_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeAutoReconcile]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeAutoReconcile]
+(
+	@ITEM_ID BIGINT,
+	@SET_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@RECONCILLIATION_TYPE nvarchar(10),
+	@N_PEOPLE int,
+	@AUTO_EXCLUDE bit,
+	@CONTACT_ID int
+)
+
+As
+SET NOCOUNT ON
+
+DECLARE @COUNT_RECS INT = 0
+DECLARE @ITEM_SET_ID INT = 0
+
+IF (@RECONCILLIATION_TYPE = 'no compl')
+BEGIN
+	--SG edit (UPDATE statement) Jan 2023(!!) bugfix: unlock the item that HAS been coded by this @CONTACT_ID
+	UPDATE TB_TRAINING_ITEM
+			SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL
+			WHERE CONTACT_ID_CODING = @CONTACT_ID AND ITEM_ID = @ITEM_ID
+	SET @N_PEOPLE = 99 --(i.e. we don't do anything else - none of the rest is executed)
+END
+ELSE
+BEGIN
+
+	-- **************** STAGE 1: GATHER DATA ON WHETHER RULES FOR AUTO-RECONCILLIATION ARE MET ********************
+
+	IF (@RECONCILLIATION_TYPE = 'Single')
+	BEGIN
+		SET @COUNT_RECS = 99 -- i.e. we go through to automatic exclude check
+
+		SELECT TOP(1) @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET
+			WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID
+	END
+	
+	IF (@RECONCILLIATION_TYPE = 'auto code') -- agreement at the code level
+	BEGIN
+		SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE
+			WHERE ITEM_ID = @ITEM_ID AND ATTRIBUTE_ID = @ATTRIBUTE_ID
+		IF (@COUNT_RECS >= @N_PEOPLE)
+		BEGIN
+			SELECT TOP(1) @ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID FROM TB_ITEM_SET
+				INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID
+				WHERE TB_ITEM_SET.ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND CONTACT_ID = @CONTACT_ID
+		END
+		ELSE
+		BEGIN
+			SET @ITEM_SET_ID = 0
+		END
+	END
+
+	-- one person has to tick 'include' for it to be included.-- N people agreeing on exclude if nobody has ticked 'include' before this threshold is met
+	IF (@RECONCILLIATION_TYPE = 'auto safet') 
+	BEGIN
+		SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+			INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+			WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 10 -- is anything included?
+
+		SELECT TOP(1) @ITEM_SET_ID = ISE.ITEM_SET_ID FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+			INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+			WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 10 AND CONTACT_ID = @CONTACT_ID
+		IF (@COUNT_RECS > 0)
+		BEGIN
+			SET @COUNT_RECS = @N_PEOPLE
+		END
+		ELSE
+		BEGIN
+			-- IF NO INCLUDE IS TICKED, HAVE N PEOPLE TICKED EXCLUDE? IF SO, WE DEFAULT TO THIS
+			SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+				INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+				WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 11 -- EXCLUDED
+			SELECT TOP(1) @ITEM_SET_ID = ISE.ITEM_SET_ID FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+				INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+				WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 11  AND CONTACT_ID = @CONTACT_ID
+		END
+		IF (@COUNT_RECS < @N_PEOPLE)
+		BEGIN
+			SET @ITEM_SET_ID = 0
+		END
+	END
+	
+	 -- agreement at the include / exclude level
+	IF (@RECONCILLIATION_TYPE = 'auto excl')
+	BEGIN
+		SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+			INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+			WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 10 -- INCLUDED
+		SELECT TOP(1) @ITEM_SET_ID = ISE.ITEM_SET_ID FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+			INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+			WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 10  AND CONTACT_ID = @CONTACT_ID
+
+		IF (@COUNT_RECS < @N_PEOPLE)
+		BEGIN
+			SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+				INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+				WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 11 -- EXCLUDED
+			SELECT TOP(1) @ITEM_SET_ID = ISE.ITEM_SET_ID FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+				INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+				WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 11  AND CONTACT_ID = @CONTACT_ID
+		END
+	END
+
+	
+
+	-- *************************** STAGE 2: AUTO-RECONCILE AND AUTO-COMPLETE ***************************
+
+	IF (@COUNT_RECS >= @N_PEOPLE) AND (@RECONCILLIATION_TYPE != 'Single') -- AUTO-RECONCILE (COMPLETE) WHERE RULES MET
+	BEGIN
+		DECLARE @CHECK_NONE_COMPLETED INT = 
+			(SELECT COUNT(ITEM_SET_ID) FROM TB_ITEM_SET WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND IS_COMPLETED = 'TRUE')
+
+		IF (@CHECK_NONE_COMPLETED = 0)
+		BEGIN
+			UPDATE TB_ITEM_SET
+				SET IS_COMPLETED = 'TRUE'
+				WHERE ITEM_SET_ID = @ITEM_SET_ID
+			UPDATE TB_TRAINING_ITEM
+				SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL
+				WHERE CONTACT_ID_CODING = @CONTACT_ID AND ITEM_ID = @ITEM_ID
+		END
+	END
+	ELSE -- RULES FOR AUTO-COMPLETING ARE NOT MET, SO WE REMOVE THE SCREENING LOCK SO SOMEONE ELSE CAN SCREEN THIS ITEM
+	BEGIN
+		UPDATE TB_TRAINING_ITEM
+			SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL
+			WHERE CONTACT_ID_CODING = @CONTACT_ID AND ITEM_ID = @ITEM_ID
+	END
+	IF (@AUTO_EXCLUDE = 'TRUE' AND @ITEM_SET_ID > 0 and @COUNT_RECS >= @N_PEOPLE) -- AUTO EXCLUDE WHERE RULES MET
+	BEGIN
+		-- SECOND, AUTO INCLUDE / EXCLUDE
+		DECLARE @IS_INCLUDED BIT = 'TRUE'
+		SELECT TOP(1) @IS_INCLUDED = CASE WHEN ATTRIBUTE_TYPE_ID = 11 THEN 'FALSE' ELSE 'TRUE' END
+			FROM TB_ATTRIBUTE_SET
+				INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+				WHERE ITEM_SET_ID = @ITEM_SET_ID
+		UPDATE TB_ITEM_REVIEW
+			SET IS_INCLUDED = @IS_INCLUDED
+			WHERE ITEM_ID = @ITEM_ID
+	END
+END
+
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeAutoReconcileDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeAutoReconcileDelete]
+(
+	@ITEM_ID BIGINT,
+	@SET_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@RECONCILLIATION_TYPE nvarchar(10),
+	@N_PEOPLE int,
+	@AUTO_EXCLUDE bit,
+	@CONTACT_ID int
+)
+
+As
+SET NOCOUNT ON
+
+DECLARE @COUNT_RECS INT = 0
+DECLARE @ITEM_SET_ID INT = 0
+
+IF (@RECONCILLIATION_TYPE = 'no compl')
+BEGIN
+	UPDATE TB_TRAINING_ITEM -- TRY TO RE-LOCK THE ITEM - IF SOMEONE ELSE HAS LOCKED IT, THERE'S NOT MUCH WE CAN DO ABOUT IT THOUGH!
+			SET CONTACT_ID_CODING = @CONTACT_ID,
+			WHEN_LOCKED = CURRENT_TIMESTAMP
+			WHERE ITEM_ID = @ITEM_ID AND CONTACT_ID_CODING = 0
+	SET @N_PEOPLE = 99 --(i.e. we don't do anything else - none of the rest is executed)
+END
+ELSE
+BEGIN
+
+	-- **************** STAGE 1: GATHER DATA ON WHETHER RULES FOR AUTO-RECONCILLIATION ARE MET ********************
+
+	IF (@RECONCILLIATION_TYPE = 'Single')
+	BEGIN
+		SET @COUNT_RECS = 99 -- i.e. we go through to automatic exclude check
+
+		SELECT TOP(1) @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET
+			WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID
+	END
+	
+	IF (@RECONCILLIATION_TYPE = 'auto code') -- agreement at the code level
+	BEGIN
+		SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE
+			WHERE ITEM_ID = @ITEM_ID AND ATTRIBUTE_ID = @ATTRIBUTE_ID
+
+		IF (@COUNT_RECS < @N_PEOPLE)
+		BEGIN
+			SELECT TOP(1) @ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID FROM TB_ITEM_SET
+				INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID
+				WHERE TB_ITEM_SET.ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND IS_COMPLETED = 'TRUE' AND CONTACT_ID = @CONTACT_ID
+
+			IF (@ITEM_SET_ID = 0)
+			BEGIN -- WE TRY TO GET A COMPLETED ITEM_SET RECORD, BUT THERE MAY NOT BE ONE!
+				SELECT TOP(1) @ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID FROM TB_ITEM_SET
+					INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID
+					WHERE TB_ITEM_SET.ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND CONTACT_ID = @CONTACT_ID
+			END
+		END
+		ELSE
+		BEGIN
+			SET @ITEM_SET_ID = 0
+		END
+	END
+
+	-- one person has to tick 'include' for it to be included.-- N people agreeing on exclude if nobody has ticked 'include' before this threshold is met
+	IF (@RECONCILLIATION_TYPE = 'auto safet') 
+	BEGIN
+		SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+			INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+			WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 10 -- is anything included?
+
+		SELECT TOP(1) @ITEM_SET_ID = ISE.ITEM_SET_ID FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+			INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+			WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 10 AND IS_COMPLETED = 'TRUE' AND CONTACT_ID = @CONTACT_ID
+		IF (@COUNT_RECS > 0) -- I.E. THE RULES FOR AUTO INCLUSION ARE STILL MET
+		BEGIN
+			--SET @COUNT_RECS = @N_PEOPLE
+			SET @ITEM_SET_ID = 0
+		END
+		ELSE
+		BEGIN
+			-- IF NO INCLUDE IS TICKED, HAVE N PEOPLE TICKED EXCLUDE? IF SO, WE DEFAULT TO THIS
+			SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+				INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+				WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 11 -- EXCLUDED
+			SELECT TOP(1) @ITEM_SET_ID = ISE.ITEM_SET_ID FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+				INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+				WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 11 AND IS_COMPLETED = 'TRUE'  AND CONTACT_ID = @CONTACT_ID
+		END
+		IF (@COUNT_RECS >= @N_PEOPLE) -- I.E. RULE MET, SO WE DON'T UNCOMPLETE
+		BEGIN
+			SET @ITEM_SET_ID = 0
+		END
+	END
+	
+	 -- agreement at the include / exclude level
+	IF (@RECONCILLIATION_TYPE = 'auto excl')
+	BEGIN
+		SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+			INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+			WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 10 -- INCLUDED
+		SELECT TOP(1) @ITEM_SET_ID = ISE.ITEM_SET_ID FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+			INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+			WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 10 AND IS_COMPLETED = 'TRUE'  AND CONTACT_ID = @CONTACT_ID
+
+		IF (@COUNT_RECS < @N_PEOPLE)
+		BEGIN
+			SELECT @COUNT_RECS = COUNT(*) FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+				INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+				WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 11 -- EXCLUDED
+			SELECT TOP(1) @ITEM_SET_ID = ISE.ITEM_SET_ID FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ITEM_SET ISE ON ISE.ITEM_SET_ID = IA.ITEM_SET_ID
+				INNER JOIN TB_ATTRIBUTE_SET AST ON AST.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+				WHERE IA.ITEM_ID = @ITEM_ID AND ISE.SET_ID = @SET_ID AND AST.ATTRIBUTE_TYPE_ID = 11 AND IS_COMPLETED = 'TRUE'  AND CONTACT_ID = @CONTACT_ID
+		END
+	END
+
+	
+
+	-- *************************** STAGE 2: AUTO-RECONCILE AND AUTO-COMPLETE ***************************
+
+	IF (@COUNT_RECS < @N_PEOPLE) AND (@RECONCILLIATION_TYPE != 'Single') -- REMOVE AUTO-RECONCILLIATION WHERE RULES ARE NO LONGER MET
+	BEGIN
+		IF (@ITEM_SET_ID > 0)
+		BEGIN
+			UPDATE TB_ITEM_SET
+				SET IS_COMPLETED = 'FALSE'
+				WHERE ITEM_SET_ID = @ITEM_SET_ID
+		END
+	END
+	IF (@AUTO_EXCLUDE = 'TRUE' AND ((@COUNT_RECS < @N_PEOPLE) OR @RECONCILLIATION_TYPE = 'Single')) -- WHERE RULES ARE NO LONGER MET - AUTO *INCLUDE*
+	BEGIN
+		-- SECOND, AUTO INCLUDE / EXCLUDE
+		UPDATE TB_ITEM_REVIEW
+			SET IS_INCLUDED = 'TRUE'
+			WHERE ITEM_ID = @ITEM_ID
+	END
+		UPDATE TB_TRAINING_ITEM -- TRY TO RE-LOCK THE ITEM - IF SOMEONE ELSE HAS LOCKED IT, THERE'S NOT MUCH WE CAN DO ABOUT IT THOUGH!
+			SET CONTACT_ID_CODING = @CONTACT_ID,
+			WHEN_LOCKED = CURRENT_TIMESTAMP
+			WHERE ITEM_ID = @ITEM_ID AND CONTACT_ID_CODING = 0
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeBulkAssignCodesFromMLsearchResults]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeBulkAssignCodesFromMLsearchResults]
+	-- Add the parameters for the stored procedure here
+	@SearchID int,
+	@revID int,
+	@ParentAttributeID bigint,
+	@SetID int,
+	@SearchName nvarchar(4000),
+	@ContactID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Phases: 1. create codes using st_AttributeSetInsert
+    -- 2. fetch IDs (comma separated) for each bucket
+    -- 3. assign items to new codes via st_ItemAttributeBulkInsert
+	-- repeat 2 and 3 for each bucket.
+	
+	--stuff we'll need:
+	declare @NEW_ATTRIBUTE_SET_ID bigint ,@NEW_ATTRIBUTE_ID_1 bigint
+			,@NEW_ATTRIBUTE_ID_2 bigint
+			,@NEW_ATTRIBUTE_ID_3 bigint
+			,@NEW_ATTRIBUTE_ID_4 bigint
+			,@NEW_ATTRIBUTE_ID_5 bigint
+			,@NEW_ATTRIBUTE_ID_6 bigint
+			,@NEW_ATTRIBUTE_ID_7 bigint
+			,@NEW_ATTRIBUTE_ID_8 bigint
+			,@NEW_ATTRIBUTE_ID_9 bigint
+			,@NEW_ATTRIBUTE_ID_10 bigint
+	declare @IDs varchar(MAX)		
+	
+	--1. create codes using st_AttributeSetInsert
+	
+	--first of all find the order...
+	declare @order int = (select MAX(ATTRIBUTE_ORDER) from TB_ATTRIBUTE_SET where SET_ID = @SetID and PARENT_ATTRIBUTE_ID = @ParentAttributeID)
+	IF @order = null set @order = 0
+	set @SearchName = 'FROM: ' + @SearchName --used as code description
+	
+	--create codes & take IDs
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'0-9% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_1 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'10-19% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_2 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'20-29% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_3 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'30-39% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_4 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'40-49% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_5 OUTPUT
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'50-59% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_6 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'60-69% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_7 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'70-79% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_8 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'80-89% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_9 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'90-99% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_10 OUTPUT
+	
+	
+	--2. fetch IDs (comma separated) for each bucket
+	Declare @Items table (ItemID bigint primary key)
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 0 AND [ITEM_RANK] < 10 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		--3. Bulk insert
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_1,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 10 AND [ITEM_RANK] < 20 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_2,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 20 AND [ITEM_RANK] < 30 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_3,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 30 AND [ITEM_RANK] < 40 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_4,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 40 AND [ITEM_RANK] < 50 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_5,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 50 AND [ITEM_RANK] < 60 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_6,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 60 AND [ITEM_RANK] < 70 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_7,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 70 AND [ITEM_RANK] < 80 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_8,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 80 AND [ITEM_RANK] < 90 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_9,
+			@IDs,
+			'',
+		@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 90 AND [ITEM_RANK] <= 100 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_10,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--DONE
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeBulkDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeBulkDelete]
+(
+	@ATTRIBUTE_ID BIGINT,
+	@ITEM_ID_LIST varchar(max),
+	@SEARCH_ID_LIST varchar(max),
+	@SET_ID INT,
+	@CONTACT_ID INT,
+	@REVIEW_ID INT
+)
+With Recompile
+As
+SET NOCOUNT ON
+
+DECLARE @IS_COMPLETED BIT
+
+SELECT @IS_COMPLETED = CODING_IS_FINAL FROM TB_REVIEW_SET WHERE SET_ID = @SET_ID
+
+DECLARE @ITEM_IDS TABLE
+	(
+		value bigint primary key
+	)
+	
+	SELECT @IS_COMPLETED = CODING_IS_FINAL FROM TB_REVIEW_SET
+		WHERE SET_ID = @SET_ID AND REVIEW_ID = @REVIEW_ID
+
+	IF (@SEARCH_ID_LIST = '')
+	BEGIN
+		INSERT INTO @ITEM_IDS (VALUE) SELECT DISTINCT value FROM DBO.fn_split_int(@ITEM_ID_LIST, ',')
+	END
+	ELSE
+	BEGIN
+		INSERT INTO @ITEM_IDS (VALUE)
+			SELECT DISTINCT ITEM_ID FROM TB_SEARCH_ITEM INNER JOIN DBO.fn_split_int(@SEARCH_ID_LIST, ',') ON
+				TB_SEARCH_ITEM.SEARCH_ID = value
+	END
+
+	DELETE FROM TB_ITEM_ATTRIBUTE
+		from TB_ITEM_ATTRIBUTE
+		inner join @ITEM_IDS as theList on theList.value = tb_item_attribute.item_id 
+		inner join TB_ITEM_REVIEW on TB_ITEM_REVIEW.ITEM_ID = theList.value and TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			and TB_ITEM_SET.IS_COMPLETED = 'FALSE'
+		where TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID
+		AND NOT TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID IN -- so we don't delete uncompleted versions as well as completed 
+													   -- (if there's a completed version, that is)
+		(
+			SELECT ITEM_ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE IA2
+			inner join @ITEM_IDS as theList on theList.value = tb_item_attribute.item_id 
+			inner join TB_ITEM_REVIEW on TB_ITEM_REVIEW.ITEM_ID = theList.value and TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+				and TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			where TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID
+		)
+		
+		DELETE FROM TB_ITEM_ATTRIBUTE
+		from TB_ITEM_ATTRIBUTE
+		inner join @ITEM_IDS as theList on theList.value = tb_item_attribute.item_id 
+		inner join TB_ITEM_REVIEW on TB_ITEM_REVIEW.ITEM_ID = theList.value and TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			and TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		where TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID
+		
+/*
+IF (@IS_COMPLETED = 'TRUE')
+	BEGIN 
+		DELETE FROM TB_ITEM_ATTRIBUTE
+		from TB_ITEM_ATTRIBUTE
+		inner join @ITEM_IDS as theList on theList.value = tb_item_attribute.item_id 
+		inner join TB_ITEM_REVIEW on TB_ITEM_REVIEW.ITEM_ID = theList.value and TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		where TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID
+	END
+	ELSE
+	BEGIN
+		DELETE FROM TB_ITEM_ATTRIBUTE
+		from TB_ITEM_ATTRIBUTE
+		inner join @ITEM_IDS as theList on theList.value = tb_item_attribute.item_id 
+		inner join TB_ITEM_REVIEW on TB_ITEM_REVIEW.ITEM_ID = theList.value and TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			and TB_ITEM_SET.IS_COMPLETED = 'FALSE'
+		where TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID
+		
+		DELETE FROM TB_ITEM_ATTRIBUTE
+		from TB_ITEM_ATTRIBUTE
+		inner join @ITEM_IDS as theList on theList.value = tb_item_attribute.item_id 
+		inner join TB_ITEM_REVIEW on TB_ITEM_REVIEW.ITEM_ID = theList.value and TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			and TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		where TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID
+	END
+*/
+
+DELETE FROM TB_ITEM_SET
+WHERE NOT ITEM_SET_ID IN 
+(
+	SELECT DISTINCT ITEM_SET_ID  
+	FROM TB_ITEM_ATTRIBUTE ia
+	inner join tb_item_review ir on ia.ITEM_ID = ir.ITEM_ID 
+	and ir.REVIEW_ID = @REVIEW_ID
+	union
+	select tio.item_set_id
+	from TB_ITEM_OUTCOME tio
+	inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID
+	inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+) and SET_ID = @SET_ID
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeBulkInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeBulkInsert]
+(
+	@SET_ID INT,
+	@IS_COMPLETED BIT,
+	@CONTACT_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@ITEM_ID_LIST varchar(max),
+	@SEARCH_ID_LIST varchar(max) = '',
+	@REVIEW_ID INT
+)
+With Recompile
+As
+
+SET NOCOUNT ON
+
+-- NB THIS SP IS ALSO CALLED FROM st_TrainingItemAttributeBulkInsert 
+
+	DECLARE @ITEM_IDS TABLE
+	(
+		--idx smallint Primary Key,
+		value bigint primary key
+	)
+	
+	SELECT @IS_COMPLETED = CODING_IS_FINAL FROM TB_REVIEW_SET
+		WHERE SET_ID = @SET_ID AND REVIEW_ID = @REVIEW_ID
+
+	IF (@SEARCH_ID_LIST = '')
+	BEGIN
+		INSERT INTO @ITEM_IDS (VALUE) SELECT DISTINCT value FROM DBO.fn_split_int(@ITEM_ID_LIST, ',')
+	END
+	ELSE
+	BEGIN
+		INSERT INTO @ITEM_IDS (VALUE)
+			SELECT DISTINCT ITEM_ID FROM TB_SEARCH_ITEM INNER JOIN DBO.fn_split_int(@SEARCH_ID_LIST, ',') ON
+				TB_SEARCH_ITEM.SEARCH_ID = value
+	END
+	
+	-- FIRST, INSERT NECESSARY ITEM_SET RECORDS
+	
+	INSERT INTO TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID)
+		SELECT DISTINCT [VALUE], @SET_ID, @IS_COMPLETED, @CONTACT_ID FROM @ITEM_IDS ids
+			EXCEPT
+		SELECT [VALUE], @SET_ID, 'FALSE', @CONTACT_ID FROM @ITEM_IDS ids
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.SET_ID = @SET_ID -- DON'T WANT TO CREATE DUPLICATE RECORDS
+				AND TB_ITEM_SET.ITEM_ID = [VALUE]
+				AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			EXCEPT
+		SELECT [VALUE], @SET_ID, 'TRUE', @CONTACT_ID FROM @ITEM_IDS ids
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.SET_ID = @SET_ID -- DON'T WANT TO CREATE DUPLICATE RECORDS
+				AND TB_ITEM_SET.ITEM_ID = [VALUE]
+				AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			EXCEPT
+		SELECT [VALUE], @SET_ID, 'TRUE', @CONTACT_ID FROM @ITEM_IDS ids
+			INNER JOIN TB_ITEM_SET IS2 ON IS2.SET_ID = @SET_ID -- in case it's already complete under another login
+				AND IS2.ITEM_ID = [VALUE]
+				AND IS2.IS_COMPLETED = 'TRUE'
+		
+		-- INSERT ALL ITEM_ATTRIBUTE RECORDS WHERE COMPLETE (CONTACT_ID IRRELEVANT)
+		INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+		SELECT DISTINCT [VALUE], TB_ITEM_SET.ITEM_SET_ID, @ATTRIBUTE_ID FROM @ITEM_IDS ids
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.VALUE
+			WHERE TB_ITEM_SET.SET_ID = @SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		EXCEPT
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_SET_ID, ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+			AND SET_ID = @SET_ID
+			AND IS_COMPLETED = 'TRUE'
+			
+		-- INSERT INCOMPLETED ONES WHERE NECESSARY (I.E. WHERE NO COMPLETED EXIST AND ONLY FOR THIS CONTACT_ID)
+		INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+		SELECT DISTINCT [VALUE], TB_ITEM_SET.ITEM_SET_ID, @ATTRIBUTE_ID FROM @ITEM_IDS ids
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.VALUE
+			WHERE TB_ITEM_SET.SET_ID = @SET_ID
+			AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'FALSE'
+		EXCEPT
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_SET_ID, ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+			AND (TB_ITEM_SET.IS_COMPLETED = 'TRUE' or (TB_ITEM_SET.CONTACT_ID = @CONTACT_ID and TB_ITEM_SET.IS_COMPLETED = 'FALSE'))
+			AND SET_ID = @SET_ID
+	
+	
+/*	
+	IF (@IS_COMPLETED = 'TRUE')
+	BEGIN
+		INSERT INTO TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID)
+		SELECT DISTINCT [VALUE], @SET_ID, 'TRUE', @CONTACT_ID FROM @ITEM_IDS ids
+			EXCEPT
+		SELECT [VALUE], @SET_ID, 'TRUE', @CONTACT_ID FROM @ITEM_IDS ids
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.SET_ID = @SET_ID
+				AND TB_ITEM_SET.ITEM_ID = [VALUE]
+				
+		INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+		SELECT DISTINCT [VALUE], TB_ITEM_SET.ITEM_SET_ID, @ATTRIBUTE_ID FROM @ITEM_IDS ids
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.VALUE
+			WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		EXCEPT
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_SET_ID, ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			AND SET_ID = @SET_ID
+	END
+	ELSE
+	BEGIN
+		INSERT INTO TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID)
+		SELECT DISTINCT [VALUE], @SET_ID, 'FALSE', @CONTACT_ID FROM @ITEM_IDS ids
+			EXCEPT
+		SELECT [VALUE], @SET_ID, 'FALSE', @CONTACT_ID FROM @ITEM_IDS ids
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.SET_ID = @SET_ID
+				AND TB_ITEM_SET.ITEM_ID = [VALUE]
+				AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			EXCEPT
+		SELECT [VALUE], @SET_ID, 'FALSE', @CONTACT_ID FROM @ITEM_IDS ids
+			INNER JOIN TB_ITEM_SET IS2 ON IS2.SET_ID = @SET_ID -- in case it's already complete under another login
+				AND IS2.ITEM_ID = [VALUE]
+				AND IS2.IS_COMPLETED = 'TRUE'
+		
+		INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+		SELECT DISTINCT [VALUE], TB_ITEM_SET.ITEM_SET_ID, @ATTRIBUTE_ID FROM @ITEM_IDS ids
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.VALUE
+			WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'FALSE'
+		EXCEPT
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_SET_ID, ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+			AND CONTACT_ID = @CONTACT_ID
+			AND SET_ID = @SET_ID
+			--AND IS_COMPLETED = 'FALSE'
+			
+		-- deal with completed ones which are not necessarily under this login (THOUGH MAY BE)
+		INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+		SELECT DISTINCT [VALUE], TB_ITEM_SET.ITEM_SET_ID, @ATTRIBUTE_ID FROM @ITEM_IDS ids
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.VALUE
+			WHERE TB_ITEM_SET.SET_ID = @SET_ID --AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		EXCEPT
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_SET_ID, ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			AND SET_ID = @SET_ID
+
+	END
+*/
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeChildFrequencies]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeChildFrequencies]
+(
+      @ATTRIBUTE_ID BIGINT = null,
+      @SET_ID BIGINT,
+      @IS_INCLUDED BIT = null,
+      @FILTER_ATTRIBUTE_ID BIGINT,
+      @REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+IF (@FILTER_ATTRIBUTE_ID = -1)
+BEGIN
+
+	SELECT ATTRIBUTE_NAME, TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID, TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID,
+		  COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) AS ITEM_COUNT, ATTRIBUTE_ORDER FROM TB_ITEM_ATTRIBUTE
+	      
+		  INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SET_ID
+		  RIGHT OUTER JOIN TB_ATTRIBUTE_SET ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+				AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+		  INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+		  INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+				AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+				AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+				AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		  GROUP BY TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID, TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER
+		  union
+		  Select 'None of the codes above', -@ATTRIBUTE_ID, -@SET_ID,  COUNT(DISTINCT ITEM_ID) AS ITEM_COUNT, 10000
+			from TB_ITEM_REVIEW 
+			where ITEM_ID not in 
+					(
+						select TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+						  INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+								AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SET_ID
+						  RIGHT OUTER JOIN TB_ATTRIBUTE_SET ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+								AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+						  INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+						  INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+								AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+								AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+					)
+				AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+								AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		  ORDER BY ATTRIBUTE_ORDER
+end
+ELSE
+BEGIN
+	SELECT ATTRIBUTE_NAME, TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID, TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID,
+		  COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) AS ITEM_COUNT, ATTRIBUTE_ORDER FROM TB_ITEM_ATTRIBUTE
+	      
+		  INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SET_ID
+		  RIGHT OUTER JOIN TB_ATTRIBUTE_SET ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+				AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+		  INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+		  INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+				AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+				AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+				AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		  INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND IA2.ATTRIBUTE_ID = @FILTER_ATTRIBUTE_ID
+		  INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 'TRUE'
+		  GROUP BY TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID, TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER
+		  UNION
+		  Select 'None of the codes above', -@ATTRIBUTE_ID, -@SET_ID,  COUNT(DISTINCT TB_ITEM_REVIEW.ITEM_ID) AS ITEM_COUNT, 10000
+			from TB_ITEM_REVIEW 
+			INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID AND IA2.ATTRIBUTE_ID = @FILTER_ATTRIBUTE_ID
+						  INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 'TRUE'
+			where TB_ITEM_REVIEW.ITEM_ID not in 
+					(
+						select TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+						  INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+								AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SET_ID
+						  RIGHT OUTER JOIN TB_ATTRIBUTE_SET ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+								AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+						  INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+						  INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+								AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+								AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+						  INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND IA2.ATTRIBUTE_ID = @FILTER_ATTRIBUTE_ID
+						  INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 'TRUE'
+					)
+				AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+								AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		  ORDER BY ATTRIBUTE_ORDER
+END
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeCounts]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeCounts]
+(
+	@ATTRIBUTE_LIST NVARCHAR(MAX),
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT DISTINCT ATTRIBUTE_ID, COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) AS NUM FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_LIST, ',') attribute_list
+		ON attribute_list.value = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+	GROUP BY ATTRIBUTE_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeCrosstabs]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeCrosstabs]
+(
+	@PARENT_ATTRIBUTE_ID1 BIGINT,
+	@PARENT_SET_ID1 INT,
+	@PARENT_SET_ID2 INT,
+	@PARENT_ATTRIBUTE_ID2 BIGINT,
+	@FILTER_ATTRIBUTE_ID BIGINT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+DECLARE @TT TABLE
+	(
+	  ATTRIBUTE_ID BIGINT,
+	  ATTRIBUTE_NAME NVARCHAR(255),
+	  ATTRIBUTE_ORDER INT
+	)
+	
+INSERT INTO @TT(ATTRIBUTE_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER)
+SELECT TB_ATTRIBUTE.ATTRIBUTE_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER FROM TB_ATTRIBUTE
+INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ATTRIBUTE.ATTRIBUTE_ID
+	AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @PARENT_ATTRIBUTE_ID1
+	AND TB_ATTRIBUTE_SET.SET_ID = @PARENT_SET_ID1
+ORDER BY ATTRIBUTE_ORDER
+
+DECLARE @cols NVARCHAR(2000)
+SELECT  @cols = COALESCE(@cols + ',[' + CAST(ATTRIBUTE_ID AS NVARCHAR(10)) + ']',
+                         '[' + CAST(ATTRIBUTE_ID AS NVARCHAR(10)) + ']')
+FROM    @TT
+ORDER BY ATTRIBUTE_ORDER
+
+DECLARE @query NVARCHAR(4000)
+
+IF (@FILTER_ATTRIBUTE_ID IS NULL OR @FILTER_ATTRIBUTE_ID = 0)
+BEGIN
+SET @query = N'SELECT ATTRIBUTE_NAME, ATTRIBUTE_ID2, ATTRIBUTE_ORDER2, '+
+@cols +' 
+FROM
+(
+select IA1.ATTRIBUTE_ID ATTRIBUTE_ID1, TBA2.ATTRIBUTE_NAME ATTRIBUTE_NAME, TBA2.ATTRIBUTE_ID ATTRIBUTE_ID2,
+	IA1.ITEM_ID ITEM_ID1, AS2.ATTRIBUTE_ORDER ATTRIBUTE_ORDER2
+from TB_ITEM_ATTRIBUTE IA1
+INNER JOIN TB_ATTRIBUTE_SET AS1 ON AS1.ATTRIBUTE_ID = IA1.ATTRIBUTE_ID
+	AND AS1.PARENT_ATTRIBUTE_ID = ' + CAST(@PARENT_ATTRIBUTE_ID1 AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ITEM_SET IS1 ON IS1.ITEM_SET_ID = IA1.ITEM_SET_ID AND IS1.IS_COMPLETED = 1
+	AND IS1.SET_ID = ' + CAST(@PARENT_SET_ID1 AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = IA1.ITEM_ID
+INNER JOIN TB_ATTRIBUTE_SET AS2 ON AS2.ATTRIBUTE_ID = IA2.ATTRIBUTE_ID
+	AND AS2.PARENT_ATTRIBUTE_ID = ' + CAST(@PARENT_ATTRIBUTE_ID2 AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 1
+	AND IS2.SET_ID = ' + CAST(@PARENT_SET_ID2 AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ATTRIBUTE TBA2 ON TBA2.ATTRIBUTE_ID = IA2.ATTRIBUTE_ID
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = IA1.ITEM_ID
+	AND TB_ITEM_REVIEW.IS_DELETED = 0
+	AND TB_ITEM_REVIEW.REVIEW_ID = ' + CAST(@REVIEW_ID AS NVARCHAR(10)) + ' 
+	group by  IA1.ATTRIBUTE_ID,TBA2.ATTRIBUTE_NAME, TBA2.ATTRIBUTE_ID, IA1.ITEM_ID, AS2.ATTRIBUTE_ORDER
+) p
+PIVOT
+(
+COUNT (P.ITEM_ID1)
+FOR ATTRIBUTE_ID1 IN
+( '+
+@cols +' )
+) AS pvt
+ORDER BY ATTRIBUTE_ORDER2;'
+END
+ELSE
+BEGIN
+SET @query = N'SELECT ATTRIBUTE_NAME, ATTRIBUTE_ID2, ATTRIBUTE_ORDER2, '+
+@cols +'
+FROM
+(
+select IA1.ATTRIBUTE_ID ATTRIBUTE_ID1, TBA2.ATTRIBUTE_NAME ATTRIBUTE_NAME, TBA2.ATTRIBUTE_ID ATTRIBUTE_ID2,
+	IA1.ITEM_ID ITEM_ID1, AS2.ATTRIBUTE_ORDER ATTRIBUTE_ORDER2
+from TB_ITEM_ATTRIBUTE IA1
+INNER JOIN TB_ATTRIBUTE_SET AS1 ON AS1.ATTRIBUTE_ID = IA1.ATTRIBUTE_ID
+	AND AS1.PARENT_ATTRIBUTE_ID = ' + CAST(@PARENT_ATTRIBUTE_ID1 AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ITEM_SET IS1 ON IS1.ITEM_SET_ID = IA1.ITEM_SET_ID AND IS1.IS_COMPLETED = 1
+	AND IS1.SET_ID = ' + CAST(@PARENT_SET_ID1 AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = IA1.ITEM_ID
+INNER JOIN TB_ATTRIBUTE_SET AS2 ON AS2.ATTRIBUTE_ID = IA2.ATTRIBUTE_ID
+	AND AS2.PARENT_ATTRIBUTE_ID = ' + CAST(@PARENT_ATTRIBUTE_ID2 AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 1
+	AND IS2.SET_ID = ' + CAST(@PARENT_SET_ID2 AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ATTRIBUTE TBA2 ON TBA2.ATTRIBUTE_ID = IA2.ATTRIBUTE_ID
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = IA1.ITEM_ID
+	AND TB_ITEM_REVIEW.IS_DELETED = 0
+	AND TB_ITEM_REVIEW.REVIEW_ID = ' + CAST(@REVIEW_ID AS NVARCHAR(10)) + ' 
+-- Code to filter
+INNER JOIN TB_ITEM_ATTRIBUTE IA3 ON IA3.ITEM_ID = IA1.ITEM_ID
+	AND IA3.ATTRIBUTE_ID = ' + CAST(@FILTER_ATTRIBUTE_ID AS NVARCHAR(10)) + ' 
+INNER JOIN TB_ITEM_SET IS3 ON IS3.ITEM_SET_ID = IA3.ITEM_SET_ID
+	AND IS3.IS_COMPLETED = 1
+	group by  IA1.ATTRIBUTE_ID,TBA2.ATTRIBUTE_NAME, TBA2.ATTRIBUTE_ID, IA1.ITEM_ID, AS2.ATTRIBUTE_ORDER
+) p
+PIVOT
+(
+COUNT (P.ITEM_ID1)
+FOR ATTRIBUTE_ID1 IN
+( '+
+@cols +' )
+) AS pvt
+ORDER BY ATTRIBUTE_ORDER2;'
+END
+
+EXECUTE(@query)
+select @query
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeDelete]
+(
+	@ITEM_ATTRIBUTE_ID BIGINT,
+	@ITEM_SET_ID BIGINT
+)
+
+As
+SET NOCOUNT ON
+declare @check0 int
+select @check0 = count(tis.ITEM_SET_ID) from TB_ITEM_ATTRIBUTE tia 
+		inner join TB_ITEM_SET tis on tia.ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+				and tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.ITEM_SET_ID = @ITEM_SET_ID
+
+if (@check0 < 1) return --avoid deleting if request was manipulated (@ITEM_SET_ID doesn't match @ITEM_ATTRIBUTE_ID)...
+
+DELETE FROM TB_ITEM_ATTRIBUTE_PDF WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+DELETE FROM TB_ITEM_ATTRIBUTE WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+
+DECLARE @CHECK BIGINT
+
+set @CHECK = (SELECT COUNT(lines) from 
+	(
+		select ITEM_SET_ID as lines FROM TB_ITEM_ATTRIBUTE WHERE ITEM_SET_ID = @ITEM_SET_ID
+		union 
+		Select ITEM_SET_ID as lines from TB_ITEM_OUTCOME where ITEM_SET_ID = @ITEM_SET_ID
+		) a
+	)
+
+IF (@CHECK = 0)
+BEGIN
+	DELETE FROM TB_ITEM_SET WHERE ITEM_SET_ID = @ITEM_SET_ID
+END
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeInsert] (
+	@ITEM_ID BIGINT,
+	@SET_ID INT,
+	@CONTACT_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@ADDITIONAL_TEXT nvarchar(max),
+	@REVIEW_ID INT,
+	@ITEM_ARM_ID BIGINT, -- JT added item_arm_id 10/06/2018
+
+	@NEW_ITEM_ATTRIBUTE_ID BIGINT OUTPUT,
+	@NEW_ITEM_SET_ID BIGINT OUTPUT
+)
+
+As
+SET NOCOUNT ON
+
+-- First get a valid item_set_id.
+-- If is_coding_final for this review then contact_id is irrelevant.
+-- If coding is complete the contact_id is irrelevant.
+-- Otherwise, we need a item_set_id for this specific contact.
+
+DECLARE @IS_CODING_FINAL BIT
+DECLARE @ITEM_SET_ID BIGINT = NULL
+DECLARE @CHECK BIGINT
+
+SELECT @IS_CODING_FINAL = CODING_IS_FINAL FROM TB_REVIEW_SET WHERE SET_ID = @SET_ID AND REVIEW_ID = @REVIEW_ID
+
+SELECT @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND IS_COMPLETED = 'True'
+IF (@ITEM_SET_ID IS NULL)
+BEGIN
+	SELECT @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND CONTACT_ID = @CONTACT_ID
+END
+	
+IF (@ITEM_SET_ID IS NULL) -- have to create one 
+BEGIN
+	INSERT INTO TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID)
+	VALUES (@ITEM_ID, @SET_ID, @IS_CODING_FINAL, @CONTACT_ID)
+	SET @ITEM_SET_ID = @@IDENTITY
+END
+
+-- We (finally) have an item_set_id we can use for our insert
+
+-- JT modified 10/06/2018 to account for item arm ids too
+-- SG modified 28/08/2018 we are passing NULL into @ITEM_ARM_ID when not adding to an arm, so need to do different thing
+IF @ITEM_ARM_ID is null
+begin 
+	SELECT TOP(1) @CHECK = ITEM_ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID AND ITEM_SET_ID = @ITEM_SET_ID AND ITEM_ARM_ID is null
+end
+else
+begin
+	SELECT TOP(1) @CHECK = ITEM_ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID AND ITEM_SET_ID = @ITEM_SET_ID AND ITEM_ARM_ID = @ITEM_ARM_ID
+end
+
+-- JT added item_arm_id
+IF (@CHECK IS NULL) -- Not sure what to do if it's not null... - SHOULD REALLY THROW AN ERROR 
+BEGIN
+	INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID, ADDITIONAL_TEXT, ITEM_ARM_ID)
+	VALUES (@ITEM_ID, @ITEM_SET_ID, @ATTRIBUTE_ID, @ADDITIONAL_TEXT, @ITEM_ARM_ID)
+	SET @NEW_ITEM_ATTRIBUTE_ID = @@IDENTITY 
+END
+
+SET @NEW_ITEM_SET_ID = @ITEM_SET_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeInsertSimple]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeInsertSimple]
+(
+	@ITEM_ID BIGINT,
+	@SET_ID INT,
+	@CONTACT_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@ADDITIONAL_TEXT nvarchar(max),
+	@REVIEW_ID INT
+)
+
+As
+SET NOCOUNT ON
+
+-- SIMPLE VERSION: NO RETURN VALUES
+
+-- First get a valid item_set_id.
+-- If is_coding_final for this review then contact_id is irrelevant.
+-- If coding is complete the contact_id is irrelevant.
+-- Otherwise, we need a item_set_id for this specific contact.
+
+DECLARE @IS_CODING_FINAL BIT
+DECLARE @ITEM_SET_ID BIGINT
+DECLARE @CHECK BIGINT
+
+SELECT @IS_CODING_FINAL = CODING_IS_FINAL FROM TB_REVIEW_SET WHERE SET_ID = @SET_ID AND REVIEW_ID = @REVIEW_ID
+
+IF (@IS_CODING_FINAL = 'True')
+BEGIN
+	SELECT @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID
+END
+ELSE
+BEGIN
+	SELECT @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND IS_COMPLETED = 'True'
+	IF (@ITEM_SET_ID IS NULL)
+	BEGIN
+		SELECT @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND CONTACT_ID = @CONTACT_ID
+	END
+END
+
+if (@ITEM_SET_ID IS NULL) -- have to create one
+BEGIN
+	INSERT INTO TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID)
+	VALUES (@ITEM_ID, @SET_ID, @IS_CODING_FINAL, @CONTACT_ID)
+	SET @ITEM_SET_ID = @@IDENTITY
+END
+
+-- We (finally) have an item_set_id we can use for our insert
+
+SELECT TOP(1) @CHECK = ITEM_ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID AND ITEM_SET_ID = @ITEM_SET_ID
+
+IF (@CHECK IS NULL) -- Not sure what to do if it's not null... - SHOULD REALLY THROW AN ERROR
+BEGIN
+	INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID, ADDITIONAL_TEXT)
+	VALUES (@ITEM_ID, @ITEM_SET_ID, @ATTRIBUTE_ID, @ADDITIONAL_TEXT)
+END
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributePDF]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributePDF]
+	-- Add the parameters for the stored procedure here
+	@ITEM_ATTRIBUTE_ID bigint
+	,@ITEM_DOCUMENT_ID bigint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT * from TB_ITEM_ATTRIBUTE_PDF where ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID and @ITEM_DOCUMENT_ID = ITEM_DOCUMENT_ID
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributePDFDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributePDFDelete]
+	-- Add the parameters for the stored procedure here
+	@ITEM_ATTRIBUTE_PDF_ID bigint,
+	@REVIEW_ID int
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	declare @check int = 0
+	set @check = (
+		select count(ir.ITEM_ID) from TB_ITEM_ATTRIBUTE_PDF ap 
+		inner join TB_ITEM_ATTRIBUTE ia on ap.ITEM_ATTRIBUTE_ID = ia.ITEM_ATTRIBUTE_ID and ap.ITEM_ATTRIBUTE_PDF_ID = @ITEM_ATTRIBUTE_PDF_ID
+		inner join TB_ITEM_REVIEW ir on ia.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+		)
+	if(@check != 1) return
+
+
+    DELETE from TB_ITEM_ATTRIBUTE_PDF
+    WHERE ITEM_ATTRIBUTE_PDF_ID = @ITEM_ATTRIBUTE_PDF_ID
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributePDFInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributePDFInsert]
+	-- Add the parameters for the stored procedure here
+	@ITEM_ATTRIBUTE_ID bigint
+	,@ITEM_DOCUMENT_ID bigint
+	,@PAGE int
+	,@SHAPE_TEXT varchar(max)
+	,@INTERVALS varchar(max)
+	,@TEXTS nvarchar(max)
+	,@ITEM_ATTRIBUTE_PDF_ID bigint output
+	,@PDFTRON_XML varchar(max) = ''
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+DECLARE @COUNT_DUPS int = 0
+set @ITEM_ATTRIBUTE_PDF_ID = 0
+
+IF @INTERVALS = '0;0' -- this is from RobotReviewer: we don't want to add duplicates
+BEGIN
+	select @COUNT_DUPS = count(*) from TB_ITEM_ATTRIBUTE_PDF
+		where ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID and ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID and
+			SELECTION_TEXTS = @TEXTS
+END
+
+if @COUNT_DUPS = 0
+BEGIN
+    -- Insert statements for procedure here
+    INSERT INTO TB_ITEM_ATTRIBUTE_PDF
+           ([ITEM_DOCUMENT_ID]
+           ,[ITEM_ATTRIBUTE_ID]
+           ,[PAGE]
+           ,[SHAPE_TEXT]
+           ,[SELECTION_INTERVALS]
+           ,[SELECTION_TEXTS]
+		   ,PDFTRON_XML)
+     VALUES
+           (@ITEM_DOCUMENT_ID
+           ,@ITEM_ATTRIBUTE_ID
+           ,@PAGE
+           ,@SHAPE_TEXT
+           ,@INTERVALS
+           ,@TEXTS
+		   ,@PDFTRON_XML)
+	set @ITEM_ATTRIBUTE_PDF_ID = @@IDENTITY
+end
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributePDFReset]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributePDFReset]
+	-- Add the parameters for the stored procedure here
+	@ITEM_ATTRIBUTE_ID bigint
+	,@ITEM_DOCUMENT_ID bigint
+	,@PAGE int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	DELETE from TB_ITEM_ATTRIBUTE_PDF 
+		where ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID AND
+		ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+		AND (
+				@PAGE = 0 --all document
+				OR @PAGE = PAGE --just this page
+			)
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributePDFSinglePage]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributePDFSinglePage]
+	-- Add the parameters for the stored procedure here
+	@ITEM_ATTRIBUTE_PDF_ID bigint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT * from TB_ITEM_ATTRIBUTE_PDF where ITEM_ATTRIBUTE_PDF_ID = @ITEM_ATTRIBUTE_PDF_ID 
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributePDFUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributePDFUpdate]
+	-- Add the parameters for the stored procedure here
+	@ITEM_ATTRIBUTE_PDF_ID bigint
+	,@SHAPE_TEXT varchar(max)
+	,@INTERVALS varchar(max)
+	,@TEXTS nvarchar(max)
+	,@REVIEW_ID INT
+	,@PDFTRON_XML nvarchar(max) = ''
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+-- Insert statements for procedure here
+
+	declare @check int = 0
+
+	declare @itemID bigint = (select IA.ITEM_ID from 
+	TB_ITEM_ATTRIBUTE IA INNER JOIN 
+	TB_ITEM_ATTRIBUTE_PDF IAP ON IA.ITEM_ATTRIBUTE_ID = IAP.ITEM_ATTRIBUTE_ID
+	where ITEM_ATTRIBUTE_PDF_ID = @ITEM_ATTRIBUTE_PDF_ID) 
+
+	set @check = (select count(*) from 
+	TB_ITEM_REVIEW where ITEM_ID = @itemID AND REVIEW_ID = @REVIEW_ID)
+
+	if(@check != 1) return
+
+	
+	UPDATE TB_ITEM_ATTRIBUTE_PDF
+	SET SHAPE_TEXT = @SHAPE_TEXT
+		,SELECTION_INTERVALS = @INTERVALS
+		,SELECTION_TEXTS = @TEXTS
+		,PDFTRON_XML = @PDFTRON_XML
+	WHERE ITEM_ATTRIBUTE_PDF_ID = @ITEM_ATTRIBUTE_PDF_ID
+
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributes]
+(
+	@ITEM_SET_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT DISTINCT ITEM_ATTRIBUTE_ID, TB_ITEM_ATTRIBUTE.ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_SET_ID,
+	TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID, ADDITIONAL_TEXT, TB_ITEM_ATTRIBUTE.ITEM_ARM_ID, CONTACT_ID, ATTRIBUTE_SET_ID
+	,CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_TITLE
+FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.ITEM_SET_ID = @ITEM_SET_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = TB_ITEM_ATTRIBUTE.ITEM_ARM_ID
+WHERE TB_ITEM_ATTRIBUTE.ITEM_SET_ID = @ITEM_SET_ID
+
+
+/*
+SELECT distinct(TB_REVIEW_SET.set_id), @ITEM_ID ITEM_ID, IA.ITEM_ATTRIBUTE_ID, IA.ITEM_SET_ID, IA.ATTRIBUTE_ID, 
+	IA.ADDITIONAL_TEXT, IA.CONTACT_ID, IA.ATTRIBUTE_SET_ID, IA.IS_COMPLETED, IA.IS_LOCKED
+FROM TB_REVIEW_SET
+CROSS APPLY dbo.fn_ItemAttributes(CODING_IS_FINAL, TB_REVIEW_SET.SET_ID, @CONTACT_ID, @ITEM_ID) IA
+WHERE TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID
+*/
+
+/*
+
+SELECT IA.ITEM_ATTRIBUTE_ID, IA.ITEM_ID, IA.ITEM_SET_ID, IA.ATTRIBUTE_ID, IA.ADDITIONAL_TEXT, TB_ITEM_SET.CONTACT_ID, ATTRIBUTE_SET_ID
+FROM TB_ITEM_ATTRIBUTE IA
+INNER JOIN TB
+
+*/
+
+
+/*
+IF (@CONTACT_ID = 0)
+BEGIN
+	SELECT IA.ITEM_ATTRIBUTE_ID, IA.ITEM_ID, IA.ITEM_SET_ID, IA.ATTRIBUTE_ID, IA.ADDITIONAL_TEXT, TB_ITEM_SET.CONTACT_ID, ATTRIBUTE_SET_ID
+	FROM TB_ITEM_ATTRIBUTE IA
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = IA.ITEM_SET_ID
+	INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_ATTRIBUTE_SET.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+	WHERE IA.ITEM_ID = @ITEM_ID
+END
+ELSE
+BEGIN
+	SELECT IA.ITEM_ATTRIBUTE_ID, IA.ITEM_ID, IA.ITEM_SET_ID, IA.ATTRIBUTE_ID, IA.ADDITIONAL_TEXT, TB_ITEM_SET.CONTACT_ID, ATTRIBUTE_SET_ID
+	FROM TB_ITEM_ATTRIBUTE IA
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = IA.ITEM_SET_ID AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+	INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_ATTRIBUTE_SET.ATTRIBUTE_ID = IA.ATTRIBUTE_ID
+	WHERE IA.ITEM_ID = @ITEM_ID
+END
+*/
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributesAllFullTextDetailsList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributesAllFullTextDetailsList] 
+(
+	@REVIEW_ID INT,
+	--@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, 'Page ' + CONVERT
+							(varchar(10),PAGE) 
+							+ ':' + CHAR(10) + '[¬s]"' 
+							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, IA.ITEM_ARM_ID
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS [ARM_NAME]
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID --and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = ia.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, IA.ITEM_ARM_ID
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS [ARM_NAME]
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID --and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = ia.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributesContactFullTextDetailsList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributesContactFullTextDetailsList] 
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	Declare @ItemSetIDs Table(SET_ID int primary key,ITEM_SET_ID bigint)--pre build list of concerned IDs
+	--insert all completed items
+	insert into @ItemSetIDs select s.SET_ID, Item_set_id from TB_ITEM_SET	tis
+		inner join TB_SET s on tis.SET_ID = s.SET_ID and tis.ITEM_ID = @ITEM_ID and tis.IS_COMPLETED = 1
+		inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @REVIEW_ID  and s.SET_ID = rs.SET_ID
+	--insert the uncompleded items that belong to the user and are not in the temp table already
+	insert into @ItemSetIDs select s.SET_ID, tis.ITEM_SET_ID from TB_ITEM_SET tis
+		inner join TB_SET s on tis.SET_ID = s.SET_ID and tis.ITEM_ID = @ITEM_ID and tis.CONTACT_ID = @CONTACT_ID and tis.IS_COMPLETED = 0
+		inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @REVIEW_ID  and s.SET_ID = rs.SET_ID
+		where tis.SET_ID not in (select SET_ID from @ItemSetIDs)
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, 'Page ' + CONVERT
+							(varchar(10),PAGE) 
+							+ ':' + CHAR(10) + '[¬s]"' 
+							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			,IA.ITEM_ARM_ID
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS [ARM_NAME]
+		from @ItemSetIDs tis
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID --and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		left join TB_ITEM_ARM iarm on ia.ITEM_ARM_ID = iarm.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			,IA.ITEM_ARM_ID
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS [ARM_NAME]
+		from @ItemSetIDs tis
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID --and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		left join TB_ITEM_ARM iarm on ia.ITEM_ARM_ID = iarm.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeSimpleBulkInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeSimpleBulkInsert]
+(
+	@SET_ID INT,
+	@CONTACT_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@ITEM_ID_LIST varchar(max)
+)
+
+As
+
+SET NOCOUNT ON
+	
+	INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+	SELECT [VALUE], TB_ITEM_SET.ITEM_SET_ID, @ATTRIBUTE_ID FROM DBO.fn_split_int(@ITEM_ID_LIST, ',')
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = [VALUE]
+			AND TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeText]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeText]
+(
+	@ITEM_ATTRIBUTE_ID BIGINT
+)
+AS
+SET NOCOUNT ON
+
+	SELECT ITEM_ATTRIBUTE_TEXT_ID,
+		ITEM_DOCUMENT_ID,
+		ITEM_ATTRIBUTE_ID,
+		TEXT_FROM,
+		TEXT_TO
+	FROM TB_ITEM_ATTRIBUTE_TEXT
+	WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+	ORDER BY TEXT_FROM
+		
+
+
+SET NOCOUNT OFF
+	RETURN
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeTextDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeTextDelete]
+(
+	@ITEM_ATTRIBUTE_ID BIGINT,
+	@ITEM_DOCUMENT_ID BIGINT,
+	@START_AT INT,
+	@END_AT INT
+)
+AS
+--SET NOCOUNT ON
+
+	DECLARE @STORED_START int
+	DECLARE @STORED_END int
+
+	-- FIRST DELETE ALL CODES THAT LIE ENTIRELY INSIDE THE SELECTED SECTION
+	DELETE FROM TB_ITEM_ATTRIBUTE_TEXT
+		WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+		AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+		AND (TEXT_FROM >=  @START_AT AND TEXT_TO <= @END_AT)
+	
+	SET @STORED_START = NULL
+
+	SELECT  @STORED_START = TEXT_FROM, @STORED_END = TEXT_TO FROM TB_ITEM_ATTRIBUTE_TEXT
+		WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+		AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+		AND (TEXT_FROM <  @START_AT AND TEXT_TO > @END_AT)
+
+	IF (@STORED_START != NULL) -- WE'RE DELETING A SECTION WITHIN A CURRENT CODE
+	BEGIN
+		UPDATE TB_ITEM_ATTRIBUTE_TEXT
+			SET TEXT_TO = @START_AT
+			WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+			AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+			AND (TEXT_FROM = @STORED_START AND TEXT_TO = @STORED_END)
+
+		INSERT INTO TB_ITEM_ATTRIBUTE_TEXT(ITEM_DOCUMENT_ID, ITEM_ATTRIBUTE_ID, TEXT_FROM, TEXT_TO)
+		VALUES (@ITEM_DOCUMENT_ID, @ITEM_ATTRIBUTE_ID, @END_AT, @STORED_END)
+
+	END
+	ELSE
+	BEGIN
+
+		-- OVERLAPPING AT START
+		UPDATE TB_ITEM_ATTRIBUTE_TEXT
+			SET TEXT_TO = @START_AT
+			WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+			AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+			AND (TEXT_FROM  <=  @START_AT AND TEXT_TO <= @END_AT AND TEXT_TO > @START_AT)
+
+		-- OVERLAPPING AT END
+		UPDATE TB_ITEM_ATTRIBUTE_TEXT
+			SET TEXT_FROM = @END_AT
+			WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+			AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+			AND (TEXT_FROM  >=  @START_AT AND TEXT_FROM <= @END_AT AND TEXT_TO > @END_AT)
+
+	END
+
+--SET NOCOUNT OFF
+	RETURN
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeTextInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeTextInsert]
+(
+	@ITEM_ATTRIBUTE_ID BIGINT,
+	@ITEM_DOCUMENT_ID BIGINT,
+	@START_AT INT,
+	@END_AT INT
+)
+AS
+SET NOCOUNT ON
+
+	DECLARE @MIN_START bigint
+	DECLARE @MAX_END bigint
+	DECLARE @ITEM_ATTRIBUTE_TEXT_ID BIGINT
+	DECLARE @CHECK_COUNT INT
+
+	-- FIRST CHECK THAT WE HAVEN'T ALREADY GOT A CODE COVERING THIS
+	SELECT @CHECK_COUNT = COUNT(*) FROM TB_ITEM_ATTRIBUTE_TEXT
+		WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+		AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+		AND (TEXT_FROM <= @START_AT AND TEXT_TO >= @END_AT)
+
+	IF (@CHECK_COUNT > 0)
+		RETURN -- NO NEED TO GO ANY FURTHER: THERE IS A CODE THAT COVERS THIS ALREADY
+
+   -- OVERLAPPING AT THE BEGINNING
+	SELECT @MIN_START = TEXT_FROM, @MAX_END = TEXT_TO, @ITEM_ATTRIBUTE_TEXT_ID = ITEM_ATTRIBUTE_TEXT_ID
+		FROM TB_ITEM_ATTRIBUTE_TEXT
+		WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+		AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+		AND (TEXT_FROM <= @START_AT AND TEXT_TO >= @START_AT)
+	IF (@MIN_START != NULL AND @MAX_END != NULL)
+	BEGIN
+		UPDATE TB_ITEM_ATTRIBUTE_TEXT
+			SET TEXT_FROM = CASE WHEN @MIN_START < @START_AT THEN @MIN_START ELSE @START_AT END,
+				TEXT_TO = CASE WHEN @MAX_END > @END_AT THEN @MAX_END ELSE @END_AT END
+			WHERE ITEM_ATTRIBUTE_TEXT_ID = @ITEM_ATTRIBUTE_TEXT_ID
+	END
+	ELSE
+	BEGIN
+		-- OVERLAPPING AT THE END
+		SELECT @MIN_START = TEXT_FROM, @MAX_END = TEXT_TO, @ITEM_ATTRIBUTE_TEXT_ID = ITEM_ATTRIBUTE_TEXT_ID
+			FROM TB_ITEM_ATTRIBUTE_TEXT
+			WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+			AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+			AND (TEXT_FROM <= @END_AT AND TEXT_TO >= @END_AT)
+		IF (@MIN_START != NULL AND @MAX_END != NULL)
+		BEGIN
+			UPDATE TB_ITEM_ATTRIBUTE_TEXT
+				SET TEXT_FROM = CASE WHEN @MIN_START < @START_AT THEN @MIN_START ELSE @START_AT END,
+					TEXT_TO = CASE WHEN @MAX_END > @END_AT THEN @MAX_END ELSE @END_AT END
+				WHERE ITEM_ATTRIBUTE_TEXT_ID = @ITEM_ATTRIBUTE_TEXT_ID
+		END
+		ELSE
+		BEGIN
+			-- OVERLAPPING AT BOTH ENDS
+			SELECT @MIN_START = TEXT_FROM, @MAX_END = TEXT_TO, @ITEM_ATTRIBUTE_TEXT_ID = ITEM_ATTRIBUTE_TEXT_ID
+				FROM TB_ITEM_ATTRIBUTE_TEXT
+				WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+				AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+				AND (TEXT_FROM <= @START_AT AND TEXT_TO >= @END_AT)
+			IF (@MIN_START != NULL AND @MAX_END != NULL)
+			BEGIN
+				UPDATE TB_ITEM_ATTRIBUTE_TEXT
+					SET TEXT_FROM = CASE WHEN @MIN_START < @START_AT THEN @MIN_START ELSE @START_AT END,
+						TEXT_TO = CASE WHEN @MAX_END > @END_AT THEN @MAX_END ELSE @END_AT END
+					WHERE ITEM_ATTRIBUTE_TEXT_ID = @ITEM_ATTRIBUTE_TEXT_ID
+			END
+			ELSE
+			BEGIN
+				-- NOT OVERLAPPING ANYWHERE = NEW INSERT
+				INSERT INTO TB_ITEM_ATTRIBUTE_TEXT (ITEM_DOCUMENT_ID, ITEM_ATTRIBUTE_ID, TEXT_FROM, TEXT_TO)
+				VALUES (@ITEM_DOCUMENT_ID, @ITEM_ATTRIBUTE_ID, @START_AT, @END_AT)
+			END
+		END
+	END
+	
+
+
+/*
+	SELECT @MIN_START = MIN(TEXT_FROM), @MAX_END = MAX(TEXT_TO) FROM TB_ITEM_ATTRIBUTE_TEXT
+		WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+		AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+		AND
+		(
+			(TEXT_FROM <= @START_AT AND TEXT_TO >= @START_AT) OR
+			(TEXT_FROM <= @END_AT AND TEXT_TO > @END_AT) OR
+			(TEXT_TO > @START_AT AND TEXT_TO < @END_AT)
+		)
+
+	IF ((@MIN_START != NULL) AND (@MIN_START < @START_AT))
+	BEGIN
+		SET @START_AT = @MIN_START
+	END
+	IF ((@MAX_END != NULL) AND (@MAX_END > @END_AT))
+	BEGIN
+		SET @END_AT = @MAX_END
+	END
+
+	DELETE FROM TB_ITEM_ATTRIBUTE_TEXT
+	WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+		AND ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+		AND (TEXT_FROM >= @START_AT AND TEXT_TO <= @END_AT)
+
+	INSERT INTO TB_ITEM_ATTRIBUTE_TEXT (ITEM_DOCUMENT_ID, ITEM_ATTRIBUTE_ID, TEXT_FROM, TEXT_TO)
+	VALUES (@ITEM_DOCUMENT_ID, @ITEM_ATTRIBUTE_ID, @START_AT, @END_AT)
+
+*/
+
+
+SET NOCOUNT OFF
+	RETURN
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeUpdate]
+(
+	@ADDITIONAL_TEXT nvarchar(max),
+	@ITEM_ATTRIBUTE_ID BIGINT
+)
+
+As
+SET NOCOUNT ON
+
+UPDATE TB_ITEM_ATTRIBUTE
+	SET ADDITIONAL_TEXT = @ADDITIONAL_TEXT
+	WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeUpdateWithoutKey]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAttributeUpdateWithoutKey] (
+	@CONTACT_ID INT,
+	@ADDITIONAL_TEXT nvarchar(max),
+	@ATTRIBUTE_ID BIGINT,
+	@SET_ID INT,
+	@ITEM_ID BIGINT,
+	@REVIEW_ID INT,
+	@ITEM_ATTRIBUTE_ID BIGINT OUTPUT
+)
+
+As
+SET NOCOUNT ON
+
+
+DECLARE @IS_CODING_FINAL BIT
+DECLARE @ITEM_SET_ID BIGINT = NULL
+
+SELECT @IS_CODING_FINAL = CODING_IS_FINAL FROM TB_REVIEW_SET WHERE SET_ID = @SET_ID AND REVIEW_ID = @REVIEW_ID
+
+SELECT @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND IS_COMPLETED = 'True'
+IF (@ITEM_SET_ID IS NULL)
+BEGIN
+	SELECT @ITEM_SET_ID = ITEM_SET_ID FROM TB_ITEM_SET WHERE ITEM_ID = @ITEM_ID AND SET_ID = @SET_ID AND CONTACT_ID = @CONTACT_ID
+END
+
+SELECT @ITEM_ATTRIBUTE_ID = ITEM_ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE WHERE ITEM_SET_ID = @ITEM_SET_ID AND ATTRIBUTE_ID = @ATTRIBUTE_ID
+	
+IF (NOT @ITEM_ATTRIBUTE_ID IS NULL)
+BEGIN
+	UPDATE TB_ITEM_ATTRIBUTE
+		SET ADDITIONAL_TEXT = @ADDITIONAL_TEXT
+		WHERE ITEM_ATTRIBUTE_ID = @ITEM_ATTRIBUTE_ID
+END
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAuthorDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAuthorDelete]
+(
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+DELETE from TB_ITEM_AUTHOR where ITEM_ID = @ITEM_ID 
+
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAuthorUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemAuthorUpdate]
+(
+	@ITEM_ID BIGINT
+,	@RANK smallint
+,	@ROLE TINYINT = 0
+,	@LAST NVARCHAR(50)
+,	@FIRST NVARCHAR(50) = NULL
+,	@SECOND NVARCHAR(50) = NULL
+
+)
+
+As
+
+SET NOCOUNT ON
+
+insert into TB_ITEM_AUTHOR 
+(	
+	ITEM_ID
+,	LAST 
+,	FIRST 
+,	SECOND 
+,	ROLE
+,	RANK 
+) VALUES (
+	@ITEM_ID
+,	@LAST
+,	@FIRST
+,	@SECOND
+,	@ROLE
+,	@RANK
+)
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemComparisonList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemComparisonList] (
+	@REVIEW_ID INT,
+	@COMPARISON_ID INT,
+	@LIST_WHAT NVARCHAR(25),
+	
+	@PageNum INT = 1,
+	@PerPage INT = 3,
+	@CurrentPage INT OUTPUT,
+	@TotalPages INT OUTPUT,
+	@TotalRows INT OUTPUT 
+)
+
+As
+SET NOCOUNT ON
+DECLARE @T1 TABLE --item_attribute for R1, R1 and R2 are relative to the sproc, could be any couple from 
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  ITEM_ARM_ID BIGINT,
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID, ITEM_ARM_ID) 
+	)
+DECLARE @T2 TABLE --item_attribute for R2
+	(
+	  ITEM_ID BIGINT,
+	  ATTRIBUTE_ID BIGINT,
+	  ITEM_ARM_ID BIGINT,
+	  PRIMARY KEY (ITEM_ID, ATTRIBUTE_ID, ITEM_ARM_ID) 
+	)
+DECLARE @TT table (ITEM_ID bigint primary key)
+
+insert into @T1 --item attributes from R1
+select ITEM_ID, ATTRIBUTE_ID,
+	 case 
+		WHEN ITEM_ARM_ID is null THEN -1
+		ELSE ITEM_ARM_ID
+	 END
+	 from tb_COMPARISON c
+	inner join tb_COMPARISON_ITEM_ATTRIBUTE cia on c.COMPARISON_ID = cia.COMPARISON_ID 
+												and  cia.CONTACT_ID = 
+													CASE  @LIST_WHAT
+														WHEN 'ComparisonAgree2vs3' THEN c.CONTACT_ID2
+														WHEN 'ComparisonDisagree2vs3' THEN c.CONTACT_ID2
+														ELSE c.CONTACT_ID1
+													END 
+												and c.COMPARISON_ID = @COMPARISON_ID
+
+insert into @T2 --item attributes from R2
+select ITEM_ID, ATTRIBUTE_ID,
+	 case 
+		WHEN ITEM_ARM_ID is null THEN -1
+		ELSE ITEM_ARM_ID
+	 END
+	 from tb_COMPARISON c
+inner join tb_COMPARISON_ITEM_ATTRIBUTE cia on c.COMPARISON_ID = cia.COMPARISON_ID 
+												and cia.CONTACT_ID = 
+													CASE  @LIST_WHAT
+														WHEN 'ComparisonAgree1vs2' THEN c.CONTACT_ID2
+														WHEN 'ComparisonDisagree1vs2' THEN c.CONTACT_ID2
+														ELSE c.CONTACT_ID3
+													END 
+												and c.COMPARISON_ID = @COMPARISON_ID
+
+
+IF (@LIST_WHAT LIKE 'ComparisonAgree%')
+BEGIN
+	insert into @TT --add all agreements; see st_ComparisonStats to understand how this works
+	Select distinct t1.ITEM_ID from @T1 t1 
+		inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID
+		except
+	select distinct(t1.item_id) from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID  and t1.ITEM_ARM_ID = t2.ITEM_ARM_ID
+		left outer join @T2 t2b on t1.ATTRIBUTE_ID = t2b.ATTRIBUTE_ID and t1.ITEM_ID = t2b.ITEM_ID and t1.ITEM_ARM_ID = t2b.ITEM_ARM_ID
+		left outer join @T1 t1b on  t1b.ATTRIBUTE_ID = t2.ATTRIBUTE_ID and t1b.ITEM_ID = t2.ITEM_ID and t1b.ITEM_ARM_ID = t2.ITEM_ARM_ID
+		where t1b.ATTRIBUTE_ID is null or t2b.ATTRIBUTE_ID is null
+END
+ELSE
+BEGIN
+	insert into @TT --add all disagreements; see st_ComparisonStats to understand how this works
+	select distinct(t1.item_id)
+	from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID and t1.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	left outer join @T2 t2b on t1.ATTRIBUTE_ID = t2b.ATTRIBUTE_ID and t1.ITEM_ID = t2b.ITEM_ID and t1.ITEM_ARM_ID = t2b.ITEM_ARM_ID
+	left outer join @T1 t1b on  t1b.ATTRIBUTE_ID = t2.ATTRIBUTE_ID and t1b.ITEM_ID = t2.ITEM_ID and t1b.ITEM_ARM_ID = t2.ITEM_ARM_ID
+	where t1b.ATTRIBUTE_ID is null or t2b.ATTRIBUTE_ID is null
+	
+END
+
+declare @RowsToRetrieve int
+
+	SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+	FROM TB_ITEM I
+	INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+		TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+	WHERE I.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+
+	set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+
+SELECT DISTINCT(I.ITEM_ID), I.[TYPE_ID], I.OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+	TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+	[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+	AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS
+	,TB_ITEM_REVIEW.MASTER_ITEM_ID, DOI, KEYWORDS 
+	, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+WHERE I.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	
+)
+	Select ITEM_ID, [TYPE_ID], OLD_ITEM_ID, AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, PARENTAUTHORS
+		,SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		--, ROW_NUMBER() OVER(order by SHORT_TITLE, TITLE) RowNum
+	FROM SearchResults 
+	WHERE RowNum > @RowsToRetrieve - @PerPage
+	AND RowNum <= @RowsToRetrieve 
+	Order by RowNum
+
+SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+
+SET NOCOUNT OFF
+
+--DECLARE @TT TABLE
+--	(
+--	  ITEM_ID BIGINT,
+--	  ATTRIBUTE_ID BIGINT
+--	)
+
+--IF (@LIST_WHAT LIKE 'ComparisonAgree%')
+--BEGIN
+--	INSERT INTO @TT(ITEM_ID, ATTRIBUTE_ID)
+--	SELECT ITEM_ID, ATTRIBUTE_ID
+--	FROM TB_COMPARISON_ITEM_ATTRIBUTE
+--	INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+--		AND TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID =
+--			CASE  @LIST_WHAT
+--				WHEN 'ComparisonAgree2vs3' THEN tb_COMPARISON.CONTACT_ID2
+--				ELSE tb_COMPARISON.CONTACT_ID1
+--			END
+--		AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+--	INTERSECT --  ********** AGREEMENT - THEREFORE INTERSECT
+--	SELECT ITEM_ID, ATTRIBUTE_ID
+--	FROM TB_COMPARISON_ITEM_ATTRIBUTE
+--	INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+--		AND TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID =
+--		CASE @LIST_WHAT
+--			WHEN 'ComparisonAgree1vs2' THEN TB_COMPARISON.CONTACT_ID2
+--			ELSE tb_COMPARISON.CONTACT_ID3
+--		END
+--		AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+--	ORDER BY ITEM_ID, ATTRIBUTE_ID
+--END
+--ELSE
+--BEGIN
+--INSERT INTO @TT(ITEM_ID, ATTRIBUTE_ID)
+--	SELECT ITEM_ID, ATTRIBUTE_ID
+--	FROM TB_COMPARISON_ITEM_ATTRIBUTE
+--	INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+--		AND TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID =
+--			CASE  @LIST_WHAT
+--				WHEN 'ComparisonDisagree2vs3' THEN tb_COMPARISON.CONTACT_ID2
+--				ELSE tb_COMPARISON.CONTACT_ID1
+--			END
+--		AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+--	EXCEPT -- ******************* DISAGREEMENT THEREFORE EXCEPT
+--	SELECT ITEM_ID, ATTRIBUTE_ID
+--	FROM TB_COMPARISON_ITEM_ATTRIBUTE
+--	INNER JOIN TB_COMPARISON ON TB_COMPARISON.COMPARISON_ID = TB_COMPARISON_ITEM_ATTRIBUTE.COMPARISON_ID
+--		AND TB_COMPARISON_ITEM_ATTRIBUTE.CONTACT_ID =
+--		CASE @LIST_WHAT
+--			WHEN 'ComparisonDisagree1vs2' THEN TB_COMPARISON.CONTACT_ID2
+--			ELSE tb_COMPARISON.CONTACT_ID3
+--		END
+--		AND TB_COMPARISON.COMPARISON_ID = @COMPARISON_ID
+--	ORDER BY ITEM_ID, ATTRIBUTE_ID
+	
+--	-- Make sure that both have coded each item (only needed for disagreements - as agreements work by definition)
+--	DELETE FROM @TT WHERE NOT ITEM_ID IN
+--	(
+--	SELECT DISTINCT CIA1.ITEM_ID
+--	FROM TB_COMPARISON_ITEM_ATTRIBUTE CIA1
+--		INNER JOIN tb_COMPARISON_ITEM_ATTRIBUTE CIA2 ON CIA1.ITEM_ID = CIA2.ITEM_ID
+--		INNER JOIN tb_COMPARISON COMP1 ON COMP1.COMPARISON_ID = @COMPARISON_ID AND CIA1.CONTACT_ID =
+--			CASE @LIST_WHAT
+--				WHEN 'ComparisonDisagree2vs3' THEN COMP1.CONTACT_ID2
+--				ELSE COMP1.CONTACT_ID1
+--			END
+--		INNER JOIN tb_COMPARISON COMP2 ON COMP2.COMPARISON_ID = @COMPARISON_ID AND CIA2.CONTACT_ID =
+--			CASE @LIST_WHAT
+--				WHEN 'ComparisonDisagree1vs2' THEN COMP2.CONTACT_ID2
+--				ELSE COMP2.CONTACT_ID3
+--			END
+--	WHERE CIA1.COMPARISON_ID = @COMPARISON_ID AND CIA2.COMPARISON_ID = @COMPARISON_ID
+--	)
+	
+--END
+
+--declare @RowsToRetrieve int
+
+--	SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+--	FROM TB_ITEM I
+--	INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+--	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+--		TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+--	WHERE I.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+
+--	set @TotalPages = @TotalRows/@PerPage
+
+--	if @PageNum < 1
+--	set @PageNum = 1
+
+--	if @TotalRows % @PerPage != 0
+--	set @TotalPages = @TotalPages + 1
+
+--	set @RowsToRetrieve = @PerPage * @PageNum
+--	set @CurrentPage = @PageNum;
+
+--	WITH SearchResults AS
+--	(
+
+--SELECT DISTINCT(I.ITEM_ID), I.[TYPE_ID], I.OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+--	TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+--	[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+--	AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS
+--	,TB_ITEM_REVIEW.MASTER_ITEM_ID 
+--	, ROW_NUMBER() OVER(order by SHORT_TITLE, TITLE) RowNum
+--FROM TB_ITEM I
+--INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+--INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+--	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+--WHERE I.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	
+--)
+--	Select ITEM_ID, [TYPE_ID], OLD_ITEM_ID, AUTHORS,
+--		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+--		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+--		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, PARENTAUTHORS
+--		,SearchResults.MASTER_ITEM_ID
+--		, ROW_NUMBER() OVER(order by SHORT_TITLE, TITLE) RowNum
+--	FROM SearchResults 
+--	WHERE RowNum > @RowsToRetrieve - @PerPage
+--	AND RowNum <= @RowsToRetrieve 
+
+--SELECT	@CurrentPage as N'@CurrentPage',
+--		@TotalPages as N'@TotalPages',
+--		@TotalRows as N'@TotalRows'
+
+--SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemComparisonScreeningList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemComparisonScreeningList] (
+	@REVIEW_ID INT,
+	@COMPARISON_ID INT,
+	@LIST_WHAT NVARCHAR(25),
+	
+	@PageNum INT = 1,
+	@PerPage INT = 3,
+	@CurrentPage INT OUTPUT,
+	@TotalPages INT OUTPUT,
+	@TotalRows INT OUTPUT 
+)
+
+As
+SET NOCOUNT ON
+DECLARE @T1 TABLE --item_attribute for R1, R1 and R2 are relative to the sproc, could be any couple from 
+	(
+	  ITEM_ID BIGINT,
+	  [STATE] char(1),
+		  PRIMARY KEY (ITEM_ID, [STATE]) 
+	)
+DECLARE @T2 TABLE --item_attribute for R2
+	(
+	  ITEM_ID BIGINT,
+	  [STATE] char(1),
+		  PRIMARY KEY (ITEM_ID, [STATE]) 
+	)
+DECLARE @TT table (ITEM_ID bigint primary key)
+
+insert into @T1 --item attributes from R1
+SELECT sub.ITEM_ID 
+		 ,CASE 
+			when [is incl] > 0 and [is ex] > 0 then 'B'
+			when [is incl] > 0 then 'I'
+			WHEN [is ex] > 0 then 'E'
+			ELSE Null
+		END
+		from
+		(select inc.ITEM_ID,  Sum(CASE inc.IS_INCLUDED when 1 then 1 else 0 end) [is incl]
+			, Sum(CASE inc.IS_INCLUDED when 0 then 1 else 0 end) [is ex]
+			from 
+			tb_COMPARISON c
+			left join tb_COMPARISON_ITEM_ATTRIBUTE inc on c.COMPARISON_ID = inc.COMPARISON_ID 
+												and  inc.CONTACT_ID = 
+													CASE  @LIST_WHAT
+														WHEN 'ComparisonAgree2vs3Sc' THEN c.CONTACT_ID2
+														WHEN 'ComparisonDisagree2vs3Sc' THEN c.CONTACT_ID2
+														ELSE c.CONTACT_ID1
+													END 
+												and c.COMPARISON_ID = @COMPARISON_ID
+			group by inc.ITEM_ID
+		) sub
+		where ITEM_ID is not null
+
+insert into @T2 --item attributes from R2
+SELECT sub.ITEM_ID 
+		 ,CASE 
+			when [is incl] > 0 and [is ex] > 0 then 'B'
+			when [is incl] > 0 then 'I'
+			WHEN [is ex] > 0 then 'E'
+			ELSE Null
+		END
+		from
+		(select inc.ITEM_ID,  Sum(CASE inc.IS_INCLUDED when 1 then 1 else 0 end) [is incl]
+			, Sum(CASE inc.IS_INCLUDED when 0 then 1 else 0 end) [is ex]
+			from 
+			tb_COMPARISON c
+			left join tb_COMPARISON_ITEM_ATTRIBUTE inc on c.COMPARISON_ID = inc.COMPARISON_ID 
+												and  inc.CONTACT_ID = 
+													CASE  @LIST_WHAT
+														WHEN 'ComparisonAgree1vs2Sc' THEN c.CONTACT_ID2
+														WHEN 'ComparisonDisagree1vs2Sc' THEN c.CONTACT_ID2
+														ELSE c.CONTACT_ID3
+													END 
+												and c.COMPARISON_ID = @COMPARISON_ID
+			group by inc.ITEM_ID
+		) sub
+		where ITEM_ID is not null
+
+
+
+IF (@LIST_WHAT LIKE 'ComparisonAgree%')
+BEGIN
+	insert into @TT --add all agreements; see st_ComparisonStats to understand how this works
+	select distinct(t1.item_id) from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.STATE = t2.STATE
+		
+END
+ELSE
+BEGIN
+	insert into @TT --add all disagreements; see st_ComparisonStats to understand how this works
+	select distinct(t1.item_id) from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.STATE != t2.STATE
+	
+END
+
+declare @RowsToRetrieve int
+
+	SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+	FROM TB_ITEM I
+	INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+		TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+	WHERE I.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+
+	set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+
+SELECT DISTINCT(I.ITEM_ID), I.[TYPE_ID], I.OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+	TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+	[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+	AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS
+	,TB_ITEM_REVIEW.MASTER_ITEM_ID, DOI, KEYWORDS 
+	, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+WHERE I.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	
+)
+	Select ITEM_ID, [TYPE_ID], OLD_ITEM_ID, AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, PARENTAUTHORS
+		,SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		--, ROW_NUMBER() OVER(order by SHORT_TITLE, TITLE) RowNum
+	FROM SearchResults 
+	WHERE RowNum > @RowsToRetrieve - @PerPage
+	AND RowNum <= @RowsToRetrieve 
+	Order by RowNum
+
+SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemCreate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemCreate]
+(
+	@ITEM_ID BIGINT OUTPUT
+,	@TITLE NVARCHAR(4000) = NULL
+,	@TYPE_ID TINYINT
+,	@PARENT_TITLE NVARCHAR(4000)
+,	@SHORT_TITLE NVARCHAR(70)
+,	@DATE_CREATED DATETIME = NULL
+,	@CREATED_BY NVARCHAR(50) = NULL
+,	@DATE_EDITED DATETIME = NULL
+,	@EDITED_BY NVARCHAR(50) = NULL
+,	@YEAR NCHAR(4) = NULL
+,	@MONTH NVARCHAR(10) = NULL
+,	@STANDARD_NUMBER NVARCHAR(255) = NULL
+,	@CITY NVARCHAR(100) = NULL
+,	@COUNTRY NVARCHAR(100) = NULL
+,	@PUBLISHER NVARCHAR(1000) = NULL
+,	@INSTITUTION NVARCHAR(1000) = NULL
+,	@VOLUME NVARCHAR(56) = NULL
+,	@PAGES NVARCHAR(50) = NULL
+,	@EDITION NVARCHAR(200) = NULL
+,	@ISSUE NVARCHAR(100) = NULL
+,	@IS_LOCAL BIT = NULL
+,	@AVAILABILITY NVARCHAR(255) = NULL
+,	@URL NVARCHAR(500) = NULL
+,	@COMMENTS NVARCHAR(MAX) = NULL
+,	@ABSTRACT NVARCHAR(MAX) = NULL
+,	@REVIEW_ID INT
+,	@IS_INCLUDED BIT
+,	@DOI NVARCHAR(500) = NULL
+,	@KEYWORDS NVARCHAR(MAX) = NULL
+,	@OLD_ITEM_ID NVARCHAR(50) = NULL
+)
+
+As
+
+SET NOCOUNT ON
+
+INSERT INTO TB_ITEM (TITLE, [TYPE_ID], PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+	[YEAR],[MONTH],STANDARD_NUMBER,CITY,COUNTRY,PUBLISHER,INSTITUTION,VOLUME,PAGES,EDITION,ISSUE,IS_LOCAL,AVAILABILITY,URL,
+	COMMENTS,ABSTRACT,DOI,KEYWORDS,OLD_ITEM_ID)
+VALUES (@TITLE,@TYPE_ID,@PARENT_TITLE,@SHORT_TITLE,@DATE_CREATED,@CREATED_BY,@DATE_EDITED,@EDITED_BY,@YEAR,
+	@MONTH,@STANDARD_NUMBER,@CITY,@COUNTRY,@PUBLISHER,@INSTITUTION,@VOLUME,@PAGES,@EDITION,@ISSUE,@IS_LOCAL,@AVAILABILITY,@URL,
+	@COMMENTS,@ABSTRACT,@DOI,@KEYWORDS,@OLD_ITEM_ID)
+
+SET  @ITEM_ID = @@IDENTITY
+
+INSERT INTO TB_ITEM_REVIEW (IS_DELETED, IS_INCLUDED, ITEM_ID, MASTER_ITEM_ID, REVIEW_ID)
+VALUES ('FALSE', @IS_INCLUDED, @ITEM_ID, NULL, @REVIEW_ID)
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemCrosstabsList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemCrosstabsList] (
+	@REVIEW_ID INT,
+	@XSET_ID INT,
+	@YSET_ID INT,
+	@FILTER_SET_ID INT,
+	@XATTRIBUTE_ID BIGINT,
+	@YATTRIBUTE_ID BIGINT,
+	@FILTER_ATTRIBUTE_ID BIGINT,
+	
+	@PageNum INT = 1,
+	@PerPage INT = 3,
+	@CurrentPage INT OUTPUT,
+	@TotalPages INT OUTPUT,
+	@TotalRows INT OUTPUT 
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+
+IF (@FILTER_ATTRIBUTE_ID = 0)
+BEGIN
+
+SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+
+INNER JOIN TB_ITEM_ATTRIBUTE IAX ON IAX.ITEM_ID = I.ITEM_ID
+	AND IAX.ATTRIBUTE_ID = @XATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ISX ON ISX.ITEM_SET_ID = IAX.ITEM_SET_ID
+	AND ISX.IS_COMPLETED = 'TRUE'
+	AND ISX.SET_ID = @XSET_ID
+	
+INNER JOIN TB_ITEM_ATTRIBUTE IAY ON IAY.ITEM_ID = I.ITEM_ID
+	AND IAY.ATTRIBUTE_ID = @YATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ISY ON ISY.ITEM_SET_ID = IAY.ITEM_SET_ID
+	AND ISY.IS_COMPLETED = 'TRUE'
+	AND ISY.SET_ID = @YSET_ID
+	
+set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+	SELECT DISTINCT(I.ITEM_ID), I.[TYPE_ID], I.OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS
+		, TB_ITEM_REVIEW.MASTER_ITEM_ID, DOI, KEYWORDS
+		, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+
+	FROM TB_ITEM I
+	INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+		TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+
+	INNER JOIN TB_ITEM_ATTRIBUTE IAX ON IAX.ITEM_ID = I.ITEM_ID
+		AND IAX.ATTRIBUTE_ID = @XATTRIBUTE_ID
+	INNER JOIN TB_ITEM_SET ISX ON ISX.ITEM_SET_ID = IAX.ITEM_SET_ID
+		AND ISX.IS_COMPLETED = 'TRUE'
+		AND ISX.SET_ID = @XSET_ID
+		
+	INNER JOIN TB_ITEM_ATTRIBUTE IAY ON IAY.ITEM_ID = I.ITEM_ID
+		AND IAY.ATTRIBUTE_ID = @YATTRIBUTE_ID
+	INNER JOIN TB_ITEM_SET ISY ON ISY.ITEM_SET_ID = IAY.ITEM_SET_ID
+		AND ISY.IS_COMPLETED = 'TRUE'
+		AND ISY.SET_ID = @YSET_ID
+	)
+	Select ITEM_ID, [TYPE_ID], OLD_ITEM_ID, AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, PARENTAUTHORS
+		,SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		--, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+	FROM SearchResults 
+	WHERE RowNum > @RowsToRetrieve - @PerPage
+	AND RowNum <= @RowsToRetrieve 
+	order by RowNum
+END
+ELSE
+BEGIN
+SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+
+INNER JOIN TB_ITEM_ATTRIBUTE IAX ON IAX.ITEM_ID = I.ITEM_ID
+	AND IAX.ATTRIBUTE_ID = @XATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ISX ON ISX.ITEM_SET_ID = IAX.ITEM_SET_ID
+	AND ISX.IS_COMPLETED = 'TRUE'
+	AND ISX.SET_ID = @XSET_ID
+	
+INNER JOIN TB_ITEM_ATTRIBUTE IAY ON IAY.ITEM_ID = I.ITEM_ID
+	AND IAY.ATTRIBUTE_ID = @YATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ISY ON ISY.ITEM_SET_ID = IAY.ITEM_SET_ID
+	AND ISY.IS_COMPLETED = 'TRUE'
+	AND ISY.SET_ID = @YSET_ID
+	
+INNER JOIN TB_ITEM_ATTRIBUTE IAfilter ON IAfilter.ITEM_ID = I.ITEM_ID
+	AND IAfilter.ATTRIBUTE_ID = @FILTER_ATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ISfilter ON ISfilter.ITEM_SET_ID = IAfilter.ITEM_SET_ID
+	AND ISfilter.IS_COMPLETED = 'TRUE'
+	AND ISfilter.SET_ID = @FILTER_SET_ID
+	
+set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+
+
+SELECT DISTINCT(I.ITEM_ID), I.[TYPE_ID], I.OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+	TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+	[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+	AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS
+	,TB_ITEM_REVIEW.MASTER_ITEM_ID, DOI, KEYWORDS
+	, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID]
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+
+INNER JOIN TB_ITEM_ATTRIBUTE IAX ON IAX.ITEM_ID = I.ITEM_ID
+	AND IAX.ATTRIBUTE_ID = @XATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ISX ON ISX.ITEM_SET_ID = IAX.ITEM_SET_ID
+	AND ISX.IS_COMPLETED = 'TRUE'
+	AND ISX.SET_ID = @XSET_ID
+	
+INNER JOIN TB_ITEM_ATTRIBUTE IAY ON IAY.ITEM_ID = I.ITEM_ID
+	AND IAY.ATTRIBUTE_ID = @YATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ISY ON ISY.ITEM_SET_ID = IAY.ITEM_SET_ID
+	AND ISY.IS_COMPLETED = 'TRUE'
+	AND ISY.SET_ID = @YSET_ID
+	
+INNER JOIN TB_ITEM_ATTRIBUTE IAfilter ON IAfilter.ITEM_ID = I.ITEM_ID
+	AND IAfilter.ATTRIBUTE_ID = @FILTER_ATTRIBUTE_ID
+INNER JOIN TB_ITEM_SET ISfilter ON ISfilter.ITEM_SET_ID = IAfilter.ITEM_SET_ID
+	AND ISfilter.IS_COMPLETED = 'TRUE'
+	AND ISfilter.SET_ID = @FILTER_SET_ID
+)
+	Select ITEM_ID, [TYPE_ID], OLD_ITEM_ID, AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, PARENTAUTHORS
+		,SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		--, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+	FROM SearchResults 
+	WHERE RowNum > @RowsToRetrieve - @PerPage
+	AND RowNum <= @RowsToRetrieve
+	ORDER BY RowNum 
+END
+
+SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDocument]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDocument]
+(
+	@ITEM_ID int,
+	@REVIEW_ID int 
+)
+
+As
+SELECT ITEM_DOCUMENT_ID, DOCUMENT_TITLE FROM TB_ITEM_DOCUMENT
+WHERE ITEM_ID = @ITEM_ID;
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDocumentBin]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDocumentBin]
+(
+	@DOC_ID int,
+	@REV_ID int
+)
+
+As
+SELECT 
+	CASE when LOWER(DOCUMENT_EXTENSION) = '.txt' THEN Null
+		else DOCUMENT_BINARY
+		END As "DOCUMENT_BINARY"
+		,
+	CASE when LOWER(DOCUMENT_EXTENSION) = '.txt' THEN DOCUMENT_TEXT
+		else NULL
+		END As "DOCUMENT_TEXT"
+		,
+	 DOCUMENT_EXTENSION, DOCUMENT_TITLE from tb_ITEM_DOCUMENT as I
+	INNER JOIN TB_ITEM_REVIEW as R on I.ITEM_ID = R.ITEM_ID
+WHERE ITEM_DOCUMENT_ID = @DOC_ID AND REVIEW_ID = @REV_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDocumentBinInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDocumentBinInsert]
+(
+	@ITEM_ID BIGINT,
+	@DOCUMENT_TITLE NVARCHAR(255),
+	@DOCUMENT_EXTENSION NVARCHAR(5),
+	@BIN IMAGE,
+	@DOCUMENT_TEXT NVARCHAR(MAX),
+	@ZoteroKey NVARCHAR(50) = '',
+	@ItemDocumentId bigint = -1 output
+)
+
+As
+
+SET NOCOUNT ON
+SET @DOCUMENT_TEXT = replace(@DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10))
+	INSERT INTO TB_ITEM_DOCUMENT(ITEM_ID, DOCUMENT_TITLE, DOCUMENT_EXTENSION, DOCUMENT_BINARY, DOCUMENT_TEXT)
+	VALUES(@ITEM_ID, @DOCUMENT_TITLE, @DOCUMENT_EXTENSION, @BIN, [dbo].fn_CLEAN_SIMPLE_TEXT(@DOCUMENT_TEXT))
+
+IF @ZoteroKey != ''
+BEGIN
+	set @ItemDocumentId = SCOPE_IDENTITY()
+	INSERT into TB_ZOTERO_ITEM_DOCUMENT(DocZoteroKey, ItemDocumentId) VALUES (@ZoteroKey, @ItemDocumentId)
+END
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDocumentDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 
+-- Description:	Delete An ItemDocument and associated Item_Attribute_Text
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDocumentDelete] 
+	-- Add the parameters for the stored procedure here
+	@DocID bigint = 0,
+	@RevID int
+AS
+BEGIN
+	declare @check int = 0
+	--make sure source belongs to review...
+	set @check = (select count(ITEM_DOCUMENT_ID) from TB_ITEM_DOCUMENT id
+		inner join TB_ITEM_REVIEW ir on id.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @RevID and ITEM_DOCUMENT_ID = @DocID)
+	if (@check != 1) return
+	BEGIN TRY
+		BEGIN TRANSACTION
+		delete from TB_ITEM_ATTRIBUTE_TEXT where ITEM_DOCUMENT_ID = @DocID
+		delete from tb_ITEM_DOCUMENT where ITEM_DOCUMENT_ID = @DocID
+		COMMIT TRANSACTION
+	END TRY
+	BEGIN CATCH
+		IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+	END CATCH
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDocumentDeleteWarning]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDocumentDeleteWarning]
+(
+	@ITEM_DOCUMENT_ID bigint
+	, @NUM_CODING int output
+)
+
+As
+
+SET NOCOUNT ON
+select @NUM_CODING = count(item_attribute_id) from TB_ITEM_ATTRIBUTE_PDF where ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+select @NUM_CODING = @NUM_CODING + count(item_attribute_id) from TB_ITEM_ATTRIBUTE_TEXT where ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDocumentInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDocumentInsert]
+(
+	@ITEM_ID BIGINT,
+	@DOCUMENT_TITLE NVARCHAR(255),
+	@DOCUMENT_EXTENSION NVARCHAR(5),
+	@DOCUMENT_TEXT NVARCHAR(MAX),
+	@ZoteroKey NVARCHAR(50) = '',
+	@ItemDocumentId bigint = -1 output 
+)
+
+As
+
+SET NOCOUNT ON
+SET @DOCUMENT_TEXT = replace(@DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10))
+	INSERT INTO TB_ITEM_DOCUMENT(ITEM_ID, DOCUMENT_TITLE, DOCUMENT_EXTENSION, DOCUMENT_TEXT)
+	VALUES(@ITEM_ID, @DOCUMENT_TITLE, @DOCUMENT_EXTENSION, @DOCUMENT_TEXT)
+
+IF @ZoteroKey != ''
+BEGIN
+	set @ItemDocumentId = SCOPE_IDENTITY()
+	INSERT into TB_ZOTERO_ITEM_DOCUMENT(DocZoteroKey, ItemDocumentId) VALUES (@ZoteroKey, @ItemDocumentId)
+END
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDocumentList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDocumentList]
+(
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT ITEM_DOCUMENT_ID, SHORT_TITLE, ID0.ITEM_ID, DOCUMENT_TITLE, DOCUMENT_EXTENSION, DOCUMENT_TEXT, 1 IDX,
+'DOC_BINARY' = CASE WHEN DOCUMENT_BINARY IS NULL THEN 'False' ELSE 'True' END, DOCUMENT_FREE_NOTES
+FROM TB_ITEM_DOCUMENT ID0
+INNER JOIN TB_ITEM I1 ON I1.ITEM_ID = ID0.ITEM_ID
+WHERE ID0.ITEM_ID = @ITEM_ID
+
+UNION
+
+SELECT ITEM_DOCUMENT_ID, SHORT_TITLE, ID1.ITEM_ID, DOCUMENT_TITLE, DOCUMENT_EXTENSION, DOCUMENT_TEXT, 2 IDX,
+'DOC_BINARY' = CASE WHEN DOCUMENT_BINARY IS NULL THEN 'False' ELSE 'True' END, DOCUMENT_FREE_NOTES
+FROM TB_ITEM_LINK IL1
+INNER JOIN TB_ITEM_DOCUMENT ID1 ON ID1.ITEM_ID = IL1.ITEM_ID_SECONDARY and IL1.ITEM_ID_PRIMARY != IL1.ITEM_ID_SECONDARY
+INNER JOIN TB_ITEM I2 ON I2.ITEM_ID = ID1.ITEM_ID
+WHERE ITEM_ID_PRIMARY = @ITEM_ID
+
+UNION
+
+SELECT ITEM_DOCUMENT_ID, SHORT_TITLE, ID2.ITEM_ID, DOCUMENT_TITLE, DOCUMENT_EXTENSION, DOCUMENT_TEXT, 2 IDX,
+'DOC_BINARY' = CASE WHEN DOCUMENT_BINARY IS NULL THEN 'False' ELSE 'True' END, DOCUMENT_FREE_NOTES
+FROM TB_ITEM_LINK IL2
+INNER JOIN TB_ITEM_DOCUMENT ID2 ON ID2.ITEM_ID = IL2.ITEM_ID_PRIMARY and IL2.ITEM_ID_PRIMARY != IL2.ITEM_ID_SECONDARY
+INNER JOIN TB_ITEM I3 ON I3.ITEM_ID = ID2.ITEM_ID
+WHERE ITEM_ID_SECONDARY = @ITEM_ID
+
+ORDER BY IDX ASC
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDocumentUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDocumentUpdate]
+(
+	@ITEM_DOCUMENT_ID BIGINT,
+	@DOCUMENT_TITLE NVARCHAR(255),
+	@DOCUMENT_FREE_NOTES NVARCHAR(MAX) = '',
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @check int = 0
+
+declare @itemID bigint = (select ITEM_ID from 
+TB_ITEM_DOCUMENT where ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID) 
+
+set @check = (select count(*) from 
+TB_ITEM_REVIEW where ITEM_ID = @itemID AND REVIEW_ID = @REVIEW_ID)
+
+if(@check != 1) return
+
+	UPDATE TB_ITEM_DOCUMENT
+	SET DOCUMENT_TITLE = @DOCUMENT_TITLE,
+	DOCUMENT_FREE_NOTES = @DOCUMENT_FREE_NOTES
+	WHERE ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateDeleteGroup]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	deletes data from group tables and optionally from tb_item_review
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateDeleteGroup]
+	-- Add the parameters for the stored procedure here
+	@ReviewID int,
+	@GroupID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- find the master item_ID
+	declare @master_ID bigint = (select ITEM_ID from TB_ITEM_DUPLICATE_GROUP g
+		inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on g.REVIEW_ID = @ReviewID and g.ITEM_DUPLICATE_GROUP_ID = @GroupID
+			and g.ITEM_DUPLICATE_GROUP_ID = gm.ITEM_DUPLICATE_GROUP_ID and g.MASTER_MEMBER_ID = gm.GROUP_MEMBER_ID
+		inner join TB_ITEM_REVIEW ir on gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID)
+	-- restore to "not checked" all items involved that appear in some other group, leave alone master items
+	Update gm set IS_CHECKED = 0, IS_DUPLICATE = 0
+		from TB_ITEM_REVIEW IR
+			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on IR.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+			inner join TB_ITEM_DUPLICATE_GROUP g on gm.ITEM_DUPLICATE_GROUP_ID = g.ITEM_DUPLICATE_GROUP_ID and g.MASTER_MEMBER_ID != gm.GROUP_MEMBER_ID
+		where ir.REVIEW_ID = @ReviewID and MASTER_ITEM_ID = @master_ID and g.ITEM_DUPLICATE_GROUP_ID != @GroupID
+	-- restore to included all items that were duplicates of current master
+	Update TB_ITEM_REVIEW set IS_INCLUDED = 1, IS_DELETED = 0, MASTER_ITEM_ID = null 
+		from TB_ITEM_REVIEW IR
+		where REVIEW_ID = @ReviewID and MASTER_ITEM_ID = @master_ID
+	--delete group
+	Delete from TB_ITEM_DUPLICATE_GROUP where REVIEW_ID = @ReviewID and ITEM_DUPLICATE_GROUP_ID = @GroupID
+	--this deletes all as there is cascade relationship with TB_ITEM_DUPLICATE_GROUP_MEMBERS
+END
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateDirtyGroupMembers]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateDirtyGroupMembers]
+	-- Add the parameters for the stored procedure here
+	@RevID int,
+	@IDs varchar(max)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    SELECT  
+			0 as GROUP_MEMBER_ID
+			, 0 as ITEM_DUPLICATE_GROUP_ID
+			,ITEM_REVIEW_ID
+			, 0 as SCORE
+			, 0 as IS_CHECKED
+			, 0 as IS_DUPLICATE
+			, 0 as IS_MASTER
+			, I.ITEM_ID
+			, TITLE
+			, SHORT_TITLE
+			, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS
+			, PARENT_TITLE
+			, "YEAR"
+			, "MONTH"
+			, PAGES
+			, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENT_AUTHORS
+			, TYPE_NAME
+			, (SELECT COUNT (ITEM_ATTRIBUTE_ID) FROM TB_ITEM_ATTRIBUTE IA
+				INNER JOIN TB_ATTRIBUTE_SET ATS on IA.ATTRIBUTE_ID = ATS.ATTRIBUTE_ID
+				INNER JOIN TB_REVIEW_SET RS on ATS.SET_ID = RS.SET_ID AND RS.REVIEW_ID = IR.REVIEW_ID
+				 WHERE IA.ITEM_ID = I.ITEM_ID) CODED_COUNT
+			, (SELECT COUNT (ITEM_DOCUMENT_ID) FROM TB_ITEM_DOCUMENT d WHERE d.ITEM_ID = I.ITEM_ID) DOC_COUNT
+			, ( SELECT SOURCE_NAME from TB_SOURCE s inner join TB_ITEM_SOURCE tis 
+					on s.SOURCE_ID = tis.SOURCE_ID and tis.ITEM_ID = I.ITEM_ID
+			  ) as "SOURCE"
+			, (SELECT 
+				CASE 
+				when COUNT(GROUP_MEMBER_ID) >0 then 1
+				else 0
+				end
+				from TB_ITEM_DUPLICATE_GROUP_MEMBERS where ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+			) AS IS_EXPORTED
+			, (SELECT COUNT(GROUP_MEMBER_ID)
+				from TB_ITEM_DUPLICATE_GROUP_MEMBERS where ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+			) AS RELATED_COUNT
+			, (SELECT 
+				CASE 
+				when COUNT(GROUP_MEMBER_ID) >0 then 0
+				else 1
+				end
+				from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM
+				INNER JOIN TB_ITEM_DUPLICATE_GROUP G on GM.GROUP_MEMBER_ID = G.MASTER_MEMBER_ID
+				where ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+			) AS IS_AVAILABLE
+	from TB_ITEM_REVIEW IR 
+	INNER JOIN TB_ITEM I on IR.ITEM_ID = I.ITEM_ID
+	INNER JOIN TB_ITEM_TYPE IT on I.TYPE_ID = IT.TYPE_ID
+	WHERE REVIEW_ID = @RevID and I.ITEM_ID in 
+		(
+			select value from dbo.fn_Split_int(@IDs, ',')
+		)
+	order by I.ITEM_ID
+END
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateFindNew]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Sergio
+-- Create date: 18/08/2010
+-- Description:	BIG query to search for duplicates, will not delete or overwrite old items, it will add new duplicate canditades. 
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateFindNew]
+	-- Add the parameters for the stored procedure here
+	@revID int = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	-- First check: if there are no items to evaluate, just go back
+	declare @check int = (SELECT COUNT(ITEM_ID) from TB_ITEM_REVIEW where REVIEW_ID = @revID and IS_DELETED = 0)
+	if @check = 0 
+	BEGIN
+		Return -1
+	END
+	SET  @check =(SELECT COUNT(DISTINCT(EXTR_UI)) from TB_ITEM_DUPLICATES_TEMP where REVIEW_ID = @revID)
+	IF @check = 1 
+	BEGIN
+		return 1 --a SISS package is still running for Review, we should not run it again
+	END
+	ELSE IF @check > 1 --this should not happen: SISS package saved some data, but the result was not collected. 
+	-- Since new items might have been inserted in the mean time, we will delete old results and start over again.
+	BEGIN
+		DELETE FROM TB_ITEM_DUPLICATES_TEMP where REVIEW_ID = @revID 
+	END
+
+	declare @UI uniqueidentifier
+	set @UI = '00000000-0000-0000-0000-000000000000'
+	--insert a marker line to notify that the SISS package has been triggered
+	insert into TB_ITEM_DUPLICATES_TEMP (REVIEW_ID, EXTR_UI) Values (@revID, @UI)
+
+	set @UI = NEWID()
+
+	--run the package that populates the temp results table
+	declare @cmd varchar(1000)
+	select @cmd = 'dtexec /DT "File System\DuplicateCheckAzure"'
+	select @cmd = @cmd + ' /Rep N  /SET \Package.Variables[User::RevID].Properties[Value];"' + CAST(@revID as varchar(max))+ '"' 
+	select @cmd = @cmd + ' /SET \Package.Variables[User::UID].Properties[Value];"' + CAST(@UI as varchar(max))+ '"' 
+	EXEC xp_cmdshell @cmd
+	
+	--delete sigleton rows from SSIS results
+	DELETE from TB_ITEM_DUPLICATES_TEMP 
+	where EXTR_UI = @UI AND _key_out not in
+		(
+			Select t1._key_in from TB_ITEM_DUPLICATES_TEMP t1 
+			inner join TB_ITEM_DUPLICATES_TEMP t2 on t1._key_in = t2._key_out and t1._key_in <> t2._key_in
+			and t1.EXTR_UI = t2.EXTR_UI and t1.EXTR_UI = @UI
+				GROUP by t1._key_in
+		)
+	
+	--the difficult part: match the results in TB_ITEM_DUPLICATES_TEMP with existing groups
+	-- the system works indifferently for missing groups and missing groups members, and to make it relatively fast, 
+	-- we store the "destination" group ID in the temporary table, this is done in two parts,
+	--the following query matches the current SSIS results with existing groups and sets the DESTINATION field accordingly
+	--the remaining Null "destination" fields will signal that the group is new and has to be created
+	--after creating the new groups, the destination field will be populated for the remaining records and finally the new group
+	--members will be added to existing groups.
+
+	declare @i1i2 table (i1 int, i2 int) 
+					insert into @i1i2
+					select s.ITEM_ID, ss.ITEM_ID  from TB_ITEM_DUPLICATES_TEMP s 
+										inner join TB_ITEM_DUPLICATES_TEMP ss 
+										on s._key_out = ss._key_out and s._key_in = ss._key_out 
+										and s.ITEM_ID <> ss.ITEM_ID AND s.EXTR_UI = @UI and ss.EXTR_UI = @UI
+										and s.REVIEW_ID = @revID and ss.REVIEW_ID = @revID
+
+
+
+	UPDATE dt set DESTINATION = a.ITEM_DUPLICATE_GROUP_ID
+	 FROM TB_ITEM_DUPLICATES_TEMP dt INNER JOIN   
+		(
+			SELECT m.ITEM_DUPLICATE_GROUP_ID, COUNT(m.GROUP_MEMBER_ID) cc, ins._key_out Results_Group 
+				From TB_ITEM_DUPLICATE_GROUP_MEMBERS m 
+					inner join TB_ITEM_REVIEW IR on m.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID and IR.REVIEW_ID = @revID
+					inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS m1 
+						on m.item_duplicate_group_ID = m1.item_duplicate_group_ID
+						AND m.ITEM_REVIEW_ID <> m1.ITEM_REVIEW_ID
+					Inner join TB_ITEM_REVIEW IR1 on m1.ITEM_REVIEW_ID = IR1.ITEM_REVIEW_ID and IR1.REVIEW_ID = @revID
+					inner Join TB_ITEM_DUPLICATE_GROUP g on  m.item_duplicate_group_ID = g.item_duplicate_group_ID
+					Inner join TB_ITEM_DUPLICATES_TEMP ins on ins.ITEM_ID = IR.ITEM_ID
+					Inner join @i1i2 i1i2 on i1i2.i1 = IR.ITEM_ID AND i1i2.i2 = IR1.ITEM_ID
+					where g.Review_ID = @revID and ins.REVIEW_ID = @revID and ins.EXTR_UI = @UI
+					--AND (CAST(IR.ITEM_ID as nvarchar(20)) + '#' + CAST(IR1.ITEM_ID as nvarchar(20))) in 
+					--		(
+					--			select * from @has
+					--			--select (CAST(s.ITEM_ID as nvarchar(1000)) + '#' + CAST(ss.ITEM_ID as nvarchar(1000))) from TB_ITEM_DUPLICATES_TEMP s 
+					--			--	inner join TB_ITEM_DUPLICATES_TEMP ss 
+					--			--	on s._key_out = ss._key_out and s._key_in = ss._key_out 
+					--			--	and s.ITEM_ID <> ss.ITEM_ID AND s.EXTR_UI = @UI and ss.EXTR_UI = @UI
+					--			--	and s.REVIEW_ID = @revID and ss.REVIEW_ID = @revID
+					--		)
+				group by m.ITEM_DUPLICATE_GROUP_ID, ins._key_out
+		) a 
+		on dt._key_out = a.Results_Group
+		WHERE a.cc > 0  and dt.EXTR_UI = @UI
+
+	--for groups that are not already present: add group & master
+	insert into TB_ITEM_DUPLICATE_GROUP (REVIEW_ID, ORIGINAL_ITEM_ID)
+		SELECT REVIEW_ID, Item_ID from TB_ITEM_DUPLICATES_TEMP where 
+			EXTR_UI = @UI
+			AND DESTINATION is null
+			AND _key_in = _key_out --this is how you identify groups...
+	--add the master record in the members table
+	INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+	(
+		ITEM_DUPLICATE_GROUP_ID
+		,ITEM_REVIEW_ID
+		,SCORE
+		,IS_CHECKED
+		,IS_DUPLICATE
+	)
+	SELECT ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, 1, 1, 0
+	FROM TB_ITEM_DUPLICATE_GROUP DG inner join TB_ITEM_DUPLICATES_TEMP dt 
+		on DG.ORIGINAL_ITEM_ID = dt.ITEM_ID
+		AND EXTR_UI = @UI
+		AND DESTINATION is null
+		AND _key_in = _key_out
+		INNER JOIN TB_ITEM_REVIEW IR  on IR.ITEM_ID = DG.ORIGINAL_ITEM_ID and IR.REVIEW_ID = @revID
+
+	--update TB_ITEM_DUPLICATE_GROUP to set the MASTER_MEMBER_ID correctly (now that we have a line in TB_ITEM_DUPLICATE_GROUP_MEMBERS)
+	UPDATE TB_ITEM_DUPLICATE_GROUP set MASTER_MEMBER_ID = a.GMI
+	FROM (
+		SELECT GROUP_MEMBER_ID GMI, IR.ITEM_ID from TB_ITEM_DUPLICATE_GROUP idg
+			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on gm.ITEM_DUPLICATE_GROUP_ID = idg.ITEM_DUPLICATE_GROUP_ID and MASTER_MEMBER_ID is null
+			inner join TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID AND IR.REVIEW_ID = @revID
+			inner JOIN TB_ITEM_DUPLICATES_TEMP dt on dt.ITEM_ID = IR.ITEM_ID
+			AND EXTR_UI = @UI AND dt._key_in = dt._key_out and dt.DESTINATION is null
+	) a  
+	WHERE ORIGINAL_ITEM_ID = a.ITEM_ID and MASTER_MEMBER_ID is null
+
+	
+	-- add the newly created group IDs to temporary table
+	UPDATE TB_ITEM_DUPLICATES_TEMP set DESTINATION = a.DGI
+	FROM (
+		SELECT ITEM_DUPLICATE_GROUP_ID DGI, dt.ITEM_ID MAST, dt1.ITEM_ID CURR_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+			inner JOIN TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+			inner JOIN TB_ITEM_DUPLICATES_TEMP dt on dt.ITEM_ID = IR.ITEM_ID
+			AND EXTR_UI = @UI AND dt._key_in = dt._key_out 
+			inner JOIN TB_ITEM_DUPLICATES_TEMP dt1 on dt._key_in = dt1._key_out and dt.DESTINATION is null
+			and dt1.EXTR_UI = @UI --!!!!!!!!!!!!!!
+	) a
+	where a.CURR_ID = TB_ITEM_DUPLICATES_TEMP.ITEM_ID
+
+	-- add non master members that are not currently present
+	--INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+	--(
+	--	ITEM_DUPLICATE_GROUP_ID
+	--	,ITEM_REVIEW_ID
+	--	,SCORE
+	--	,IS_CHECKED
+	--	,IS_DUPLICATE
+	--)
+	--SELECT DESTINATION, ITEM_REVIEW_ID, _SCORE, 0, 0
+	--from TB_ITEM_DUPLICATES_TEMP DT
+	--inner join TB_ITEM_REVIEW IR on DT.ITEM_ID = IR.ITEM_ID and IR.REVIEW_ID = @revID
+	--WHERE DT.ITEM_ID not in 
+	--(
+	--	SELECT dt1.ITEM_ID from TB_ITEM_DUPLICATES_TEMP dt1
+	--	inner join TB_ITEM_REVIEW ir1 on dt1.ITEM_ID = ir1.ITEM_ID and ir1.REVIEW_ID = @revID
+	--	inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm 
+	--	on dt1.DESTINATION = gm.ITEM_DUPLICATE_GROUP_ID and ir1.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+	--)
+	declare  @t table (goodIDs bigint)
+		insert into @t select distinct item_id from TB_ITEM_DUPLICATES_TEMP where EXTR_UI = @UI --and _key_in != _key_out 
+		select COUNT (goodids) from @t
+		delete from @t where goodIDs in (
+			SELECT dt1.ITEM_ID from TB_ITEM_DUPLICATES_TEMP dt1
+			inner join TB_ITEM_REVIEW ir1 on dt1.ITEM_ID = ir1.ITEM_ID and ir1.REVIEW_ID = @revID
+			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm 
+			on dt1.DESTINATION = gm.ITEM_DUPLICATE_GROUP_ID and ir1.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+			)
+		select COUNT (goodids) from @t
+		
+		-- add non master members that are not currently present
+		INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+		(
+			ITEM_DUPLICATE_GROUP_ID
+			,ITEM_REVIEW_ID
+			,SCORE
+			,IS_CHECKED
+			,IS_DUPLICATE
+		)
+		SELECT DESTINATION, ITEM_REVIEW_ID, _SCORE, 0, 0
+		from TB_ITEM_DUPLICATES_TEMP DT
+		inner join @t t on DT.ITEM_ID = t.goodIDs
+		inner join TB_ITEM_REVIEW IR on DT.ITEM_ID = IR.ITEM_ID and IR.REVIEW_ID = @revID
+	--remove temporary results.
+	delete FROM TB_ITEM_DUPLICATES_TEMP WHERE REVIEW_ID = @revID
+	END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGetTitles]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGetTitles]
+(
+      @REVIEW_ID INT
+)
+As
+
+SET NOCOUNT ON
+	SELECT TITLE, i.ITEM_ID FROM TB_ITEM I
+		INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = I.ITEM_ID
+		WHERE IR.REVIEW_ID = @REVIEW_ID AND IR.IS_DELETED = 'FALSE'
+		AND (SearchText is NULL or SearchText = '')
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupAddAddionalItem]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio - JT modified to be used automatically
+-- Create date: <Create Date,,>
+-- Description:	Add Item to an existing group, @MasterID is the destination master Item_ID
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupAddAddionalItem]
+	-- Add the parameters for the stored procedure here
+	@MasterID int,
+	@RevID int,
+	@NewDuplicateItemID bigint,
+	@Score float
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @GroupID int
+	--get the group ID
+	select @GroupID = G.ITEM_DUPLICATE_GROUP_ID from TB_ITEM_DUPLICATE_GROUP G
+		inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on G.MASTER_MEMBER_ID = GM.GROUP_MEMBER_ID and G.REVIEW_ID = @RevID
+		inner join TB_ITEM_REVIEW IR on IR.ITEM_REVIEW_ID = GM.ITEM_REVIEW_ID and IR.ITEM_ID = @MasterID
+	if --if the item we are adding already belongs to the group, do nothing!
+		(	
+			(
+				select COUNT(ITEM_ID) from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM inner join TB_ITEM_REVIEW IR 
+				on GM.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID and IR.ITEM_ID = @NewDuplicateItemID and ITEM_DUPLICATE_GROUP_ID = @GroupID
+			)
+			> 0
+		 ) Return;
+	BEGIN TRY
+	BEGIN TRANSACTION
+	
+	INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+	(
+		ITEM_DUPLICATE_GROUP_ID
+		,ITEM_REVIEW_ID
+		,SCORE
+		,IS_CHECKED
+		,IS_DUPLICATE
+	)
+	SELECT @GroupID, ITEM_REVIEW_ID, @Score, 0, 0
+	from TB_ITEM_REVIEW where REVIEW_ID = @RevID and ITEM_ID = @NewDuplicateItemID 
+	
+	COMMIT TRANSACTION
+	END TRY
+
+	BEGIN CATCH
+	IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+	END CATCH
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupAddNew]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Sergio>
+-- Create date: 11/03/2011
+-- Description:	adds a manually created group
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupAddNew]
+	-- Add the parameters for the stored procedure here
+	@RevID int,
+	@MasterID bigint,
+	@IDs varchar(max)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @group_id int;
+    -- Insert statements for procedure here
+	insert into TB_ITEM_DUPLICATE_GROUP (REVIEW_ID, ORIGINAL_ITEM_ID)
+		Values (@RevID, @MasterID)
+	set @group_id = @@IDENTITY
+	--add the master and normal records in the members table
+	INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+	(
+		ITEM_DUPLICATE_GROUP_ID
+		,ITEM_REVIEW_ID
+		,SCORE
+		,IS_CHECKED
+		,IS_DUPLICATE
+	)
+	SELECT ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, 1, 1, 0
+	FROM TB_ITEM_DUPLICATE_GROUP DG
+		INNER JOIN TB_ITEM_REVIEW IR  on IR.ITEM_ID = DG.ORIGINAL_ITEM_ID and IR.REVIEW_ID = @revID 
+		and DG.ORIGINAL_ITEM_ID = @MasterID and ITEM_DUPLICATE_GROUP_ID = @group_id
+	UNION
+	SELECT @group_id, ITEM_REVIEW_ID, 0, 1, 1
+	from TB_ITEM_REVIEW where REVIEW_ID = @RevID and ITEM_ID in 
+		(
+			select value from dbo.fn_Split_int(@IDs, ',')
+		)
+	--update TB_ITEM_DUPLICATE_GROUP to set the MASTER_MEMBER_ID correctly (now that we have a line in TB_ITEM_DUPLICATE_GROUP_MEMBERS)
+	UPDATE TB_ITEM_DUPLICATE_GROUP set MASTER_MEMBER_ID = a.GMI
+	FROM (
+		SELECT GROUP_MEMBER_ID GMI, IR.ITEM_ID from TB_ITEM_DUPLICATE_GROUP idg
+			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on gm.ITEM_DUPLICATE_GROUP_ID = idg.ITEM_DUPLICATE_GROUP_ID 
+				and MASTER_MEMBER_ID is null and idg.ITEM_DUPLICATE_GROUP_ID = @group_id
+			inner join TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID AND IR.REVIEW_ID = @revID and ITEM_ID = @MasterID
+	) a  
+	WHERE ORIGINAL_ITEM_ID = a.ITEM_ID and MASTER_MEMBER_ID is null
+	--mark relevant items as duplicates
+	UPDATE TB_ITEM_REVIEW set MASTER_ITEM_ID = @MasterID, IS_DELETED = 1, IS_INCLUDED =1
+	where REVIEW_ID = @RevID and ITEM_ID in 
+		(
+			select value from dbo.fn_Split_int(@IDs, ',')
+		)
+	--mark relevant items as checked and not duplicates in other groups
+	update TB_ITEM_DUPLICATE_GROUP_MEMBERS set IS_DUPLICATE =  0, IS_CHECKED = 1 
+	from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM
+		where ITEM_REVIEW_ID in 
+		(
+			select ITEM_REVIEW_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS where ITEM_DUPLICATE_GROUP_ID = @group_id
+		) and GM.ITEM_DUPLICATE_GROUP_ID != @group_id
+	 
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupCheckOngoing]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Sergio
+-- Create date: 09/08/2010
+-- Description:	check for pending SISS, attempt to save results
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupCheckOngoing] 
+	-- Add the parameters for the stored procedure here
+	@revID int
+	WITH RECOMPILE
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	Declare @guis_N int
+    -- Insert statements for procedure here
+	set @guis_N = (
+					SELECT COUNT(DISTINCT(EXTR_UI)) from TB_ITEM_DUPLICATES_TEMP where REVIEW_ID = @revID
+					AND EXTR_UI <> '10000000-0000-0000-0000-000000000000'
+					)
+	IF @guis_N = 1
+	BEGIN --send back a return code to signify that the SISS package is still running
+		return -2
+	END
+	ELSE
+	IF @guis_N > 1 --SISS package has saved data but results were never collected
+	BEGIN
+		declare @UI uniqueidentifier
+		UPDATE TB_ITEM_DUPLICATES_TEMP
+			SET EXTR_UI = '10000000-0000-0000-0000-000000000000'
+			WHERE EXTR_UI = '00000000-0000-0000-0000-000000000000' AND REVIEW_ID = @revID
+		
+		set @UI = (SELECT top 1 EXTR_UI from TB_ITEM_DUPLICATES_TEMP where EXTR_UI <> '10000000-0000-0000-0000-000000000000' AND REVIEW_ID = @revID)
+		SET @guis_N = (SELECT COUNT(ITEM_DUPLICATES_ID) from TB_ITEM_DUPLICATES_TEMP where EXTR_UI = @UI and DESTINATION is null)
+		if @guis_N > 0 --do the costly bits only if they weren't done already
+		BEGIN
+		--delete sigleton rows from SSIS results
+			DELETE from TB_ITEM_DUPLICATES_TEMP 
+			where EXTR_UI = @UI AND _key_out not in
+				(
+					Select t1._key_in from TB_ITEM_DUPLICATES_TEMP t1 
+					inner join TB_ITEM_DUPLICATES_TEMP t2 on t1._key_in = t2._key_out and t1._key_in <> t2._key_in
+					and t1.EXTR_UI = t2.EXTR_UI and t1.EXTR_UI = @UI
+						GROUP by t1._key_in
+				)
+			
+			--the difficult part: match the results in TB_ITEM_DUPLICATES_TEMP with existing groups
+			-- the system works indifferently for missing groups and missing groups members, and to make it relatively fast, 
+			-- we store the "destination" group ID in the temporary table, this is done in two parts,
+			--the following query matches the current SSIS results with existing groups and sets the DESTINATION field accordingly
+			--the remaining Null "destination" fields will signal that the group is new and has to be created
+			--after creating the new groups, the destination field will be populated for the remaining records and finally the new group
+			--members will be added to existing groups.
+
+			declare @i1i2 table (i1 int, i2 int) 
+					insert into @i1i2
+					select s.ITEM_ID, ss.ITEM_ID  from TB_ITEM_DUPLICATES_TEMP s 
+										inner join TB_ITEM_DUPLICATES_TEMP ss 
+										on s._key_out = ss._key_out and s._key_in = ss._key_out 
+										and s.ITEM_ID <> ss.ITEM_ID AND s.EXTR_UI = @UI and ss.EXTR_UI = @UI
+										and s.REVIEW_ID = @revID and ss.REVIEW_ID = @revID
+
+			UPDATE dt set DESTINATION = a.ITEM_DUPLICATE_GROUP_ID
+			 FROM TB_ITEM_DUPLICATES_TEMP dt INNER JOIN   
+				(
+					SELECT m.ITEM_DUPLICATE_GROUP_ID, COUNT(m.GROUP_MEMBER_ID) cc, ins._key_out Results_Group 
+					From TB_ITEM_DUPLICATE_GROUP_MEMBERS m 
+						inner join TB_ITEM_REVIEW IR on m.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID and IR.REVIEW_ID = @revID
+						inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS m1 
+							on m.item_duplicate_group_ID = m1.item_duplicate_group_ID
+							AND m.ITEM_REVIEW_ID <> m1.ITEM_REVIEW_ID
+						Inner join TB_ITEM_REVIEW IR1 on m1.ITEM_REVIEW_ID = IR1.ITEM_REVIEW_ID and IR1.REVIEW_ID = @revID
+						inner Join TB_ITEM_DUPLICATE_GROUP g on  m.item_duplicate_group_ID = g.item_duplicate_group_ID
+						Inner join TB_ITEM_DUPLICATES_TEMP ins on ins.ITEM_ID = IR.ITEM_ID
+						Inner join @i1i2 i1i2 on i1i2.i1 = IR.ITEM_ID AND i1i2.i2 = IR1.ITEM_ID
+						where g.Review_ID = @revID and ins.REVIEW_ID = @revID and ins.EXTR_UI = @UI
+						--AND (CAST(IR.ITEM_ID as nvarchar(20)) + '#' + CAST(IR1.ITEM_ID as nvarchar(20))) in 
+						--		(
+						--			select * from @has
+						--			--select (CAST(s.ITEM_ID as nvarchar(1000)) + '#' + CAST(ss.ITEM_ID as nvarchar(1000))) from TB_ITEM_DUPLICATES_TEMP s 
+						--			--	inner join TB_ITEM_DUPLICATES_TEMP ss 
+						--			--	on s._key_out = ss._key_out and s._key_in = ss._key_out 
+						--			--	and s.ITEM_ID <> ss.ITEM_ID AND s.EXTR_UI = @UI and ss.EXTR_UI = @UI
+						--			--	and s.REVIEW_ID = @revID and ss.REVIEW_ID = @revID
+						--		)
+					group by m.ITEM_DUPLICATE_GROUP_ID, ins._key_out
+				) a 
+				on dt._key_out = a.Results_Group 
+				WHERE a.cc > 0 and dt.EXTR_UI = @UI
+
+			--for groups that are not already present: add group & master
+			insert into TB_ITEM_DUPLICATE_GROUP (REVIEW_ID, ORIGINAL_ITEM_ID)
+				SELECT REVIEW_ID, Item_ID from TB_ITEM_DUPLICATES_TEMP where 
+					EXTR_UI = @UI
+					AND DESTINATION is null
+					AND _key_in = _key_out --this is how you identify groups...
+			--add the master record in the members table
+			INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+			(
+				ITEM_DUPLICATE_GROUP_ID
+				,ITEM_REVIEW_ID
+				,SCORE
+				,IS_CHECKED
+				,IS_DUPLICATE
+			)
+			SELECT ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, 1, 1, 0
+			FROM TB_ITEM_DUPLICATE_GROUP DG inner join TB_ITEM_DUPLICATES_TEMP dt 
+				on DG.ORIGINAL_ITEM_ID = dt.ITEM_ID
+				AND EXTR_UI = @UI
+				AND DESTINATION is null
+				AND _key_in = _key_out
+				INNER JOIN TB_ITEM_REVIEW IR  on IR.ITEM_ID = DG.ORIGINAL_ITEM_ID and IR.REVIEW_ID = @revID
+
+			--update TB_ITEM_DUPLICATE_GROUP to set the MASTER_MEMBER_ID correctly (now that we have a line in TB_ITEM_DUPLICATE_GROUP_MEMBERS)
+			UPDATE TB_ITEM_DUPLICATE_GROUP set MASTER_MEMBER_ID = a.GMI
+			FROM (
+					SELECT GROUP_MEMBER_ID GMI, IR.ITEM_ID from TB_ITEM_DUPLICATE_GROUP idg
+						inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on gm.ITEM_DUPLICATE_GROUP_ID = idg.ITEM_DUPLICATE_GROUP_ID and MASTER_MEMBER_ID is null
+						inner join TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID AND IR.REVIEW_ID = @revID
+						inner JOIN TB_ITEM_DUPLICATES_TEMP dt on dt.ITEM_ID = IR.ITEM_ID
+						AND EXTR_UI = @UI AND dt._key_in = dt._key_out and dt.DESTINATION is null
+			) a  
+			WHERE ORIGINAL_ITEM_ID = a.ITEM_ID and MASTER_MEMBER_ID is null
+
+			
+			-- add the newly created group IDs to temporary table
+			UPDATE TB_ITEM_DUPLICATES_TEMP set DESTINATION = a.DGI
+			FROM (
+				SELECT ITEM_DUPLICATE_GROUP_ID DGI, dt.ITEM_ID MAST, dt1.ITEM_ID CURR_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+					inner JOIN TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+					inner JOIN TB_ITEM_DUPLICATES_TEMP dt on dt.ITEM_ID = IR.ITEM_ID
+					AND EXTR_UI = @UI AND dt._key_in = dt._key_out 
+					inner JOIN TB_ITEM_DUPLICATES_TEMP dt1 on dt._key_in = dt1._key_out and dt.DESTINATION is null
+					and dt1.EXTR_UI = @UI
+			) a
+			where a.CURR_ID = TB_ITEM_DUPLICATES_TEMP.ITEM_ID
+		END
+		-- add non master members that are not currently present
+		declare  @t table (goodIDs bigint)
+		insert into @t select distinct item_id from TB_ITEM_DUPLICATES_TEMP where EXTR_UI = @UI --and _key_in != _key_out 
+		--select COUNT (goodids) from @t
+		delete from @t where goodIDs in (
+			SELECT dt1.ITEM_ID from TB_ITEM_DUPLICATES_TEMP dt1
+			inner join TB_ITEM_REVIEW ir1 on dt1.ITEM_ID = ir1.ITEM_ID and ir1.REVIEW_ID = @revID
+			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm 
+			on dt1.DESTINATION = gm.ITEM_DUPLICATE_GROUP_ID and ir1.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+			)
+		--select COUNT (goodids) from @t
+		
+		-- add non master members that are not currently present
+		INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+		(
+			ITEM_DUPLICATE_GROUP_ID
+			,ITEM_REVIEW_ID
+			,SCORE
+			,IS_CHECKED
+			,IS_DUPLICATE
+		)
+		SELECT DESTINATION, ITEM_REVIEW_ID, _SCORE, 0, 0
+		from TB_ITEM_DUPLICATES_TEMP DT
+		inner join @t t on DT.ITEM_ID = t.goodIDs
+		inner join TB_ITEM_REVIEW IR on DT.ITEM_ID = IR.ITEM_ID and IR.REVIEW_ID = @revID
+		
+		--INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+		--(
+		--	ITEM_DUPLICATE_GROUP_ID
+		--	,ITEM_REVIEW_ID
+		--	,SCORE
+		--	,IS_CHECKED
+		--	,IS_DUPLICATE
+		--)
+		--SELECT DESTINATION, ITEM_REVIEW_ID, _SCORE, 0, 0
+		--from TB_ITEM_DUPLICATES_TEMP DT
+		--inner join TB_ITEM_REVIEW IR on DT.ITEM_ID = IR.ITEM_ID and IR.REVIEW_ID = @revID
+		--WHERE DT.ITEM_ID not in 
+		--(
+		--	SELECT dt1.ITEM_ID from TB_ITEM_DUPLICATES_TEMP dt1
+		--	inner join TB_ITEM_REVIEW ir1 on dt1.ITEM_ID = ir1.ITEM_ID and ir1.REVIEW_ID = @revID
+		--	inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm 
+		--	on dt1.DESTINATION = gm.ITEM_DUPLICATE_GROUP_ID and ir1.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+		--)
+		
+		--remove temporary results.
+		delete FROM TB_ITEM_DUPLICATES_TEMP WHERE REVIEW_ID = @revID
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupCheckOngoingLog]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupCheckOngoingLog] 
+	-- Add the parameters for the stored procedure here
+	(
+		@revID int,
+		@CONTACT_ID int,
+		@GettingNewDuplicates bit
+	)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT, XACT_ABORT ON;
+	--see https://weblogs.sqlteam.com/dang/2007/10/28/conditional-insertupdate-race-condition/
+	--for details on how this is dealing with concurrency problems. Aim is to avoid having two instances of this SP insert
+	--SP is called whenever the list of duplicates is retrieved AND when we are asking to find new duplicates...
+	
+	--paired with the "lasting lock", the transaction prevents two instances to be triggered concurrently
+	--without the lasting lock, the TRAN itself won't work, see link above for the details.
+	BEGIN TRAN A
+
+	--get the last job ID, and acquire an exclusive table lock
+	declare @jobid int = (select top 1 REVIEW_JOB_ID from tb_REVIEW_JOB WITH (TABLOCKX, HOLDLOCK) where REVIEW_ID = @revID AND JOB_TYPE = 'FindNewDuplicates' order by REVIEW_JOB_ID desc )
+	--TABLOCKX: exclusive table lock; HOLDLOCK: keep this log on until the whole transaction is done.
+	
+	--how did the last job go?
+	declare @state nvarchar(50) = ''
+	IF @jobid is not null set @state = (select current_state from tb_REVIEW_JOB where REVIEW_JOB_ID = @jobid)
+	if @state = '' OR @state = 'Ended'
+		BEGIN
+			--EITHER never done for this review, or last run worked. 
+			IF @GettingNewDuplicates = 1
+			BEGIN
+			--we insert the "dedup running" line here, to make this properly ACID
+			--to be "Atomic" we also have the transaction statement AND the lock hints on the first lookup for the @jobid
+				insert into tb_REVIEW_JOB (REVIEW_ID, CONTACT_ID, START_TIME, END_TIME, JOB_TYPE, CURRENT_STATE) 
+				VALUES (@revID, @CONTACT_ID, getdate(),getdate(), 'FindNewDuplicates', 'running')
+			END	
+			COMMIT TRAN A --Have to commit, before we can return!
+			return 1
+		END
+	--From now on, we can assume @jobid is NOT NULL
+	IF @state = 'Failed' 
+	BEGIN
+		--C# side will be told to start "get new duplicates"...
+		--so we insert the "dedup running" line here, to make this properly ACID
+		--to be "Atomic" we also have the transaction statement AND the lock hints on the first lookup for the @jobid
+		insert into tb_REVIEW_JOB (REVIEW_ID, CONTACT_ID, START_TIME, END_TIME, JOB_TYPE, CURRENT_STATE) 
+			VALUES (@revID, @CONTACT_ID, getdate(),getdate(), 'FindNewDuplicates', 'running')
+		COMMIT TRAN A --Have to commit, before we can return!
+		return -3 --this makes the "get new duplicates" part start again.
+	END
+	IF @state = 'running'
+	BEGIN
+		--dedup is running for this review, has it been running for too long?
+		declare @ended datetime;
+		set @ended = (select END_TIME from tb_REVIEW_JOB where REVIEW_JOB_ID = @jobid)
+		declare @diff int = DateDiff(MINUTE, @ended, getdate())
+		if @diff > 45 --this job has been inactive for 45 minutes, as dedup updates END_TIME regularly, we can assume it was interrupted...
+		BEGIN
+			--has been marked as running, but hasn't done anything for 45m or more, we'll mark it as failed, check number of failures and return -3 to ask for a rerun or -4 to abort
+			update tb_REVIEW_JOB set CURRENT_STATE = 'Failed', SUCCESS = 0, JOB_MESSAGE = 'Automated Failure: inactive for too long' where REVIEW_JOB_ID = @jobid
+			--for safety, we'll check that  the last 10 executions were not failures, for this review.
+			declare @check int =
+							(
+								select SUM(A.FAILURES) from
+								(select top 10 CASE when CURRENT_STATE = 'failed' then 1 else 0 end as FAILURES from tb_REVIEW_JOB where REVIEW_ID = @revID AND JOB_TYPE = 'FindNewDuplicates') as A
+							)
+			if @check >= 10 
+			BEGIN
+				COMMIT TRAN A --Have to commit, before we can return!
+				return -4 --this is BAD, we tried 10 times in a row, never succeeded
+			END
+			else 
+			BEGIN
+				--C# side will be told to start "get new duplicates"...
+				--so we insert the "dedup running" line here, to make this properly ACID
+				--to be "Atomic" we also have the transaction statement AND the lock hints on the first lookup for the @jobid
+				insert into tb_REVIEW_JOB (REVIEW_ID, CONTACT_ID, START_TIME, END_TIME, JOB_TYPE, CURRENT_STATE) 
+					VALUES (@revID, @CONTACT_ID, getdate(),getdate(), 'FindNewDuplicates', 'running')
+				COMMIT TRAN A --Have to commit, before we can return!
+				return -3 --this makes the "get new duplicates" part start again.
+			END
+		END
+		COMMIT TRAN A --Have to commit, before we can return!
+		return -2; --normal "this is still running" value.
+	END
+	--We should never reach this, but just in case, we should return something...
+	COMMIT TRAN A --Have to commit, before we can return!
+	return -4; --signalling that something is WRONG!
+	SET NOCOUNT OFF
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupCreateFromERNativeResults]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+--CLEANUP of unneded things
+--IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemDuplicateGroupCreateNew]') AND type in (N'P', N'PC'))
+--DROP PROCEDURE [dbo].[st_ItemDuplicateGroupCreateNew]
+--GO
+--IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemDuplicateGroupAddAddionalItem]') AND type in (N'P', N'PC'))
+--DROP PROCEDURE [dbo].[st_ItemDuplicateGroupAddAddionalItem]
+--GO
+
+--WE could remove TB_ITEM_DUPLICATES as well...
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupCreateFromERNativeResults] 
+	-- Add the parameters for the stored procedure here
+	(
+		@revID int,
+		@input CREATE_GROUPS_INPUT_TB READONLY
+	)
+AS
+BEGIN
+	SET NOCOUNT ON
+
+	declare @work table (MASTER_ID bigint, member_id bigint, IsNew bit, score float, destination int, primary key (MASTER_ID, member_id))
+	insert into @work (master_id, member_id, IsNew, score) select * from @input
+
+	--1. create groups
+	Insert into TB_ITEM_DUPLICATE_GROUP (REVIEW_ID, ORIGINAL_ITEM_ID) 
+		select distinct @revID, master_id from @work where IsNew = 1
+			and master_id not in (SELECT ORIGINAL_ITEM_ID from TB_ITEM_DUPLICATE_GROUP g where g.REVIEW_ID = @revID) --sanity clause, avoid producing 2 groups with the same master
+	--2. find and record what goes where
+	update @work set destination = a.ITEM_DUPLICATE_GROUP_ID 
+		from (select ITEM_DUPLICATE_GROUP_ID, w.MASTER_ID as mid from TB_ITEM_DUPLICATE_GROUP g 
+				inner join @work w on g.REVIEW_ID = @revID and w.MASTER_ID = g.ORIGINAL_ITEM_ID) a
+		where MASTER_ID = a.mid
+
+	--2.2 find and record what goes where - this time, get Destination for the records where the master item is now a different one...
+	update @work set destination = a.ITEM_DUPLICATE_GROUP_ID 
+		from (
+				select g.ITEM_DUPLICATE_GROUP_ID, w.MASTER_ID as mid from 
+				TB_ITEM_DUPLICATE_GROUP g 
+				inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on g.ITEM_DUPLICATE_GROUP_ID = gm.ITEM_DUPLICATE_GROUP_ID 
+					and g.MASTER_MEMBER_ID = gm.GROUP_MEMBER_ID and g.REVIEW_ID = @revID
+				inner join TB_ITEM_REVIEW ir on gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID and ir.REVIEW_ID = @revID
+	  			inner join @work w on g.REVIEW_ID = @revID and w.MASTER_ID = ir.ITEM_ID
+				) a
+		where MASTER_ID = a.mid and destination is null
+	--select * from @work
+	--3. create master records
+	insert into TB_ITEM_DUPLICATE_GROUP_MEMBERS	(ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, SCORE, IS_CHECKED, IS_DUPLICATE) 
+				select distinct destination, ITEM_REVIEW_ID, 1, 1, 0 from @work w
+						inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = @revID and w.MASTER_ID = ir.ITEM_ID and w.IsNew = 1
+						inner join TB_ITEM_DUPLICATE_GROUP g on ir.ITEM_ID = g.ORIGINAL_ITEM_ID
+	--set the MASTER_MEMBER_ID
+	update TB_ITEM_DUPLICATE_GROUP set MASTER_MEMBER_ID = a.GROUP_MEMBER_ID from 
+		( select distinct GROUP_MEMBER_ID, ITEM_DUPLICATE_GROUP_ID from @work w 
+			inner join TB_ITEM_REVIEW ir on w.MASTER_ID = ir.ITEM_ID and ir.REVIEW_ID = @revID and w.IsNew = 1
+			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS m on w.destination = m.ITEM_DUPLICATE_GROUP_ID
+		) a
+		where TB_ITEM_DUPLICATE_GROUP.ITEM_DUPLICATE_GROUP_ID = a.ITEM_DUPLICATE_GROUP_ID and TB_ITEM_DUPLICATE_GROUP.MASTER_MEMBER_ID is null
+	--4. create members. From here, we don't care about @work.IsNew = 1
+	insert into TB_ITEM_DUPLICATE_GROUP_MEMBERS	(ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, SCORE, IS_CHECKED, IS_DUPLICATE) 
+				select destination, ITEM_REVIEW_ID, score, 0, 0 from @work w
+						inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = @revID and w.member_id = ir.ITEM_ID 
+	--Signal progress in tb_REVIEW_JOB
+	update tb_REVIEW_JOB set 
+		END_TIME = GETDATE()
+	where REVIEW_ID = @revID AND JOB_TYPE = 'FindNewDuplicates' and CURRENT_STATE = 'running'
+	SET nocount off
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupCreateNew]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Sergio wrote manual routine - JT modified for auto-creation of group>
+-- Create date: 11/03/2011
+-- Description:	adds a new duplicate group composed of master and one member
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupCreateNew]
+	-- Add the parameters for the stored procedure here
+	@RevID int,
+	@MasterID bigint,
+	@MemberId bigint,
+	@Score float
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @group_id int;
+    -- Insert statements for procedure here
+	insert into TB_ITEM_DUPLICATE_GROUP (REVIEW_ID, ORIGINAL_ITEM_ID)
+		Values (@RevID, @MasterID)
+	set @group_id = @@IDENTITY
+	--add the master and normal records in the members table
+	INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+	(
+		ITEM_DUPLICATE_GROUP_ID
+		,ITEM_REVIEW_ID
+		,SCORE
+		,IS_CHECKED
+		,IS_DUPLICATE
+	)
+	SELECT ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, @Score, 1, 0
+	FROM TB_ITEM_DUPLICATE_GROUP DG
+		INNER JOIN TB_ITEM_REVIEW IR  on IR.ITEM_ID = DG.ORIGINAL_ITEM_ID and IR.REVIEW_ID = @revID 
+		and DG.ORIGINAL_ITEM_ID = @MasterID and ITEM_DUPLICATE_GROUP_ID = @group_id
+	UNION
+	SELECT @group_id, ITEM_REVIEW_ID, @Score, 0, 0
+	from TB_ITEM_REVIEW where REVIEW_ID = @RevID and ITEM_ID = @MemberId 
+
+	--update TB_ITEM_DUPLICATE_GROUP to set the MASTER_MEMBER_ID correctly (now that we have a line in TB_ITEM_DUPLICATE_GROUP_MEMBERS)
+	UPDATE TB_ITEM_DUPLICATE_GROUP set MASTER_MEMBER_ID = a.GMI
+	FROM (
+		SELECT GROUP_MEMBER_ID GMI, IR.ITEM_ID from TB_ITEM_DUPLICATE_GROUP idg
+			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on gm.ITEM_DUPLICATE_GROUP_ID = idg.ITEM_DUPLICATE_GROUP_ID 
+				and MASTER_MEMBER_ID is null and idg.ITEM_DUPLICATE_GROUP_ID = @group_id
+			inner join TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID AND IR.REVIEW_ID = @revID and ITEM_ID = @MasterID
+	) a  
+	WHERE ORIGINAL_ITEM_ID = a.ITEM_ID and MASTER_MEMBER_ID is null
+
+
+	/*
+	-- NOT SURE WHETHER WE NEED THIS BIT??
+	--mark relevant items as checked and not duplicates in other groups
+	update TB_ITEM_DUPLICATE_GROUP_MEMBERS set IS_DUPLICATE =  0, IS_CHECKED = 0
+	from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM
+		where ITEM_REVIEW_ID in 
+		(
+			select ITEM_REVIEW_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS where ITEM_DUPLICATE_GROUP_ID = @group_id
+		) and GM.ITEM_DUPLICATE_GROUP_ID != @group_id
+	 */
+END
+
+
+
+
+
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 13/08/10
+-- Description:	get the list of groups for a review with their current master ID
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupList]
+	-- Add the parameters for the stored procedure here
+	@RevID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    --delete groups that don't make sense anymore: i.e. groups with 1 item only (this may happen if deleting forever duplicate candidates)
+    DELETE TB_ITEM_DUPLICATE_GROUP WHERE ITEM_DUPLICATE_GROUP_ID IN 
+	(
+		SELECT G.ITEM_DUPLICATE_GROUP_ID from TB_ITEM_DUPLICATE_GROUP G
+		Inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on GM.ITEM_DUPLICATE_GROUP_ID = G.ITEM_DUPLICATE_GROUP_ID and G.REVIEW_ID = @RevID
+		group by G.ITEM_DUPLICATE_GROUP_ID
+		having COUNT(gm.ITEM_DUPLICATE_GROUP_ID) = 1
+	)
+
+	SELECT g.ITEM_DUPLICATE_GROUP_ID GROUP_ID, IR.ITEM_ID MASTER_ITEM_ID, SHORT_TITLE, g.REVIEW_ID
+		,CASE WHEN (COUNT(distinct(gm2.IS_CHECKED)) = 1) then 1 --master item is always marked "is checked" so if only one value is used for the group it has to be IS_CHECKED=true
+			ELSE 0
+		END
+		as IS_COMPLETE		
+		from TB_ITEM_DUPLICATE_GROUP g
+		INNER JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on g.MASTER_MEMBER_ID = gm.GROUP_MEMBER_ID
+		INNER JOIN TB_ITEM_REVIEW IR on IR.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+		INNER JOIN TB_ITEM I on IR.ITEM_ID = I.ITEM_ID
+		INNER JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS gm2 on g.ITEM_DUPLICATE_GROUP_ID = gm2.ITEM_DUPLICATE_GROUP_ID
+	WHERE g.REVIEW_ID = @RevID
+	GROUP BY g.ITEM_DUPLICATE_GROUP_ID, IR.ITEM_ID, SHORT_TITLE, g.REVIEW_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupListSearch]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	gets the list of groups that match the search criteria
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupListSearch]
+	-- Add the parameters for the stored procedure here
+	@ItemIDs nvarchar(max) = '0',
+	@revID int = 0,
+	@GroupID int = 0
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    -- 0 delete groups that don't make sense anymore: i.e. groups with 1 item only (this may happen if deleting forever duplicate candidates)
+    DELETE TB_ITEM_DUPLICATE_GROUP WHERE ITEM_DUPLICATE_GROUP_ID IN 
+	(
+		SELECT G.ITEM_DUPLICATE_GROUP_ID from TB_ITEM_DUPLICATE_GROUP G
+		Inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on GM.ITEM_DUPLICATE_GROUP_ID = G.ITEM_DUPLICATE_GROUP_ID and G.REVIEW_ID = @RevID
+		group by G.ITEM_DUPLICATE_GROUP_ID
+		having COUNT(gm.ITEM_DUPLICATE_GROUP_ID) = 1
+	)
+	--1 get itemIDs
+	declare @t TABLE (IDs bigint)
+	declare @g TABLE (GIDs int)
+    if @ItemIDs != '0' and @GroupID = 0 insert into @t (IDs) 
+		SELECT value from dbo.fn_Split_int(@ItemIDs, ',') s 
+		inner join TB_ITEM_REVIEW ir on s.value = ir.ITEM_ID and ir.REVIEW_ID = @revID
+    else if @ItemIDs = '0' and @GroupID != 0 
+    begin
+		insert into @t (IDs)
+			Select ITEM_ID from TB_ITEM_REVIEW ir inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+				on ir.REVIEW_ID = @revID and gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID and gm.ITEM_DUPLICATE_GROUP_ID = @GroupID
+			
+    end
+    --select * from @t
+    --1.1 add the ItemIDs of items that are manual duplicates of the current list
+    insert into @t (IDs)
+		Select ir2.ITEM_ID from TB_ITEM_REVIEW ir 
+		inner join @t t on t.IDs = ir.ITEM_ID and ir.REVIEW_ID = @revID
+		inner join TB_ITEM_REVIEW ir2 on ir.MASTER_ITEM_ID = ir2.ITEM_ID and ir2.REVIEW_ID = @revID
+		
+		where ir2.ITEM_ID not in (Select IDs from @t)
+    --ir2.ITEM_ID from TB_ITEM_REVIEW ir inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+				--on ir.REVIEW_ID = @revID and gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID and gm.ITEM_DUPLICATE_GROUP_ID = @GroupID
+				--inner join TB_ITEM_REVIEW ir2 on ir.ITEM_ID = ir2.MASTER_ITEM_ID
+    --select * from @t
+    --2 get groups they belong to
+    insert into @g (GIDs)
+			--groups they belong to
+			select g.ITEM_DUPLICATE_GROUP_ID from TB_ITEM_DUPLICATE_GROUP g 
+				inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm 
+					on g.ITEM_DUPLICATE_GROUP_ID = gm.ITEM_DUPLICATE_GROUP_ID and g.REVIEW_ID = @revID
+				inner join TB_ITEM_REVIEW ir on gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID and ir.REVIEW_ID = @revID
+				inner Join @t on ir.ITEM_ID = IDs
+			UNION
+			--Groups they belong to as manually added items
+			Select g.ITEM_DUPLICATE_GROUP_ID from TB_ITEM_DUPLICATE_GROUP g
+				inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm 
+					on g.ITEM_DUPLICATE_GROUP_ID = gm.ITEM_DUPLICATE_GROUP_ID and g.REVIEW_ID = @revID
+				inner join TB_ITEM_REVIEW ir on gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID and ir.REVIEW_ID = @revID
+				inner Join @t on ir.MASTER_ITEM_ID = IDs
+	--select * from @g
+	--3 get the corresponding list of groups
+	SELECT g.ITEM_DUPLICATE_GROUP_ID GROUP_ID, IR.ITEM_ID MASTER_ITEM_ID, SHORT_TITLE, g.REVIEW_ID
+		,CASE WHEN (COUNT(distinct(gm2.IS_CHECKED)) = 1) then 1 --master item is always marked "is checked" so if only one value is used for the group it has to be IS_CHECKED=true
+			ELSE 0
+		END
+		as IS_COMPLETE		
+		from TB_ITEM_DUPLICATE_GROUP g
+		INNER JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on g.MASTER_MEMBER_ID = gm.GROUP_MEMBER_ID
+		INNER JOIN TB_ITEM_REVIEW IR on IR.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+		INNER JOIN TB_ITEM I on IR.ITEM_ID = I.ITEM_ID
+		INNER JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS gm2 on g.ITEM_DUPLICATE_GROUP_ID = gm2.ITEM_DUPLICATE_GROUP_ID
+		INNER JOIN @g on GIDs = g.ITEM_DUPLICATE_GROUP_ID
+	WHERE g.REVIEW_ID = @RevID
+	GROUP BY g.ITEM_DUPLICATE_GROUP_ID, IR.ITEM_ID, SHORT_TITLE, g.REVIEW_ID
+END
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupManualAddItem]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: <Create Date,,>
+-- Description:	Manually add Item to group, @MasterID is the destination master Item_ID
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupManualAddItem]
+	-- Add the parameters for the stored procedure here
+	@MasterID int,
+	@RevID int,
+	@NewDuplicateItemID bigint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @GroupID int
+	--get the group ID
+	select @GroupID = G.ITEM_DUPLICATE_GROUP_ID from TB_ITEM_DUPLICATE_GROUP G
+		inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on G.MASTER_MEMBER_ID = GM.GROUP_MEMBER_ID and G.REVIEW_ID = @RevID
+		inner join TB_ITEM_REVIEW IR on IR.ITEM_REVIEW_ID = GM.ITEM_REVIEW_ID and IR.ITEM_ID = @MasterID
+	if --if the item we are adding doesn't belong to the review, do nothing!
+		(	
+			(
+				select COUNT(ITEM_ID) from TB_ITEM_REVIEW IR 
+				where ir.REVIEW_ID = @RevID and ITEM_ID = @NewDuplicateItemID
+			)
+			!= 1
+		 ) Return;
+	if --if the item we are adding already belongs to the group, do nothing!
+		(	
+			(
+				select COUNT(ITEM_ID) from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM inner join TB_ITEM_REVIEW IR 
+				on GM.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID and IR.ITEM_ID = @NewDuplicateItemID and ITEM_DUPLICATE_GROUP_ID = @GroupID
+			)
+			> 0
+		 ) Return;
+	BEGIN TRY
+	BEGIN TRANSACTION
+	
+	--mark ischecked and not duplicate all appeareances of manual item into group_members
+	Update TB_ITEM_DUPLICATE_GROUP_MEMBERS
+	 set IS_CHECKED = 1, IS_DUPLICATE = 0
+	 from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+	 inner Join TB_ITEM_REVIEW ir on ir.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+	where ITEM_ID = @NewDuplicateItemID and REVIEW_ID = @RevID and ITEM_DUPLICATE_GROUP_ID != @GroupID
+	
+	
+	Update TB_ITEM_REVIEW set MASTER_ITEM_ID = @MasterID, IS_INCLUDED = 1, IS_DELETED = 1
+	where ITEM_ID = @NewDuplicateItemID and REVIEW_ID = @RevID AND ITEM_ID != @MasterID
+	COMMIT TRANSACTION
+	END TRY
+
+	BEGIN CATCH
+	IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+	END CATCH
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupManualMembers]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: <Create Date,,>
+-- Description:	get items that have been manually added to group
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupManualMembers]
+	-- Add the parameters for the stored procedure here
+	@GroupID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select I.ITEM_ID
+		, TITLE
+		, SHORT_TITLE
+		, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS
+		, PARENT_TITLE
+		, "YEAR"
+		, "MONTH"
+		, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENT_AUTHORS
+		, TYPE_NAME 
+		from TB_ITEM_DUPLICATE_GROUP g
+		inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on g.MASTER_MEMBER_ID = gm.GROUP_MEMBER_ID
+		inner join TB_ITEM_REVIEW ir on gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID
+		inner join TB_ITEM_REVIEW ir1 on ir.ITEM_ID = ir1.MASTER_ITEM_ID and ir.REVIEW_ID = ir1.REVIEW_ID
+		inner join TB_ITEM i on ir1.ITEM_ID = i.ITEM_ID
+		inner join TB_ITEM_TYPE it on i.TYPE_ID = it.TYPE_ID
+	where g.ITEM_DUPLICATE_GROUP_ID = @GroupID and ir1.ITEM_REVIEW_ID not in 
+		(
+			select ITEM_REVIEW_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm2
+				where gm2.ITEM_DUPLICATE_GROUP_ID = @GroupID
+		)
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupManualMerge]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: <Create Date,,>
+-- Description:	Merge groups, @MasterID is the destination master GROUP_MEMBER_ID
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupManualMerge]
+	-- Add the parameters for the stored procedure here
+	@MasterID int, 
+	@SourceGroupID int,
+	@RevID int
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	BEGIN TRY
+	BEGIN TRANSACTION
+    
+	Update TB_ITEM_DUPLICATE_GROUP_MEMBERS set IS_CHECKED = 1, IS_DUPLICATE = 0
+	from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+	inner join TB_ITEM_REVIEW ir on gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID
+	where ITEM_DUPLICATE_GROUP_ID = @SourceGroupID and ir.REVIEW_ID = @RevID
+	
+	Update TB_ITEM_REVIEW set MASTER_ITEM_ID = @MasterID, IS_INCLUDED = 1, IS_DELETED = 1
+	where ITEM_REVIEW_ID in 
+		(
+			select gm.ITEM_REVIEW_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+				inner join TB_ITEM_REVIEW ir on gm.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID
+				where ITEM_DUPLICATE_GROUP_ID = @SourceGroupID and ir.REVIEW_ID = @RevID		
+		)
+		and ITEM_REVIEW_ID not in --do not mark the master of the receiving group, otherwise it will become a master of itself
+		(
+			select gm2.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir2 
+			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm2 on gm2.ITEM_REVIEW_ID = ir2.ITEM_REVIEW_ID and ir2.ITEM_ID = @MasterID
+			inner join TB_ITEM_DUPLICATE_GROUP g2 on gm2.ITEM_DUPLICATE_GROUP_ID = g2.ITEM_DUPLICATE_GROUP_ID
+						and gm2.GROUP_MEMBER_ID = g2.MASTER_MEMBER_ID
+		)
+		-- to be really sure: limit to rev_id and forbid acting on the chosen master itself
+		and REVIEW_ID = @RevID and ITEM_ID != @MasterID
+	COMMIT TRANSACTION
+	END TRY
+
+	BEGIN CATCH
+	IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+	END CATCH
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupManualRemoveItem]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: <Create Date,,>
+-- Description:	Remove ManualItem from group
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupManualRemoveItem]
+	-- Add the parameters for the stored procedure here
+	
+	@DuplicateItemID bigint,
+	@RevID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	BEGIN TRY
+	BEGIN TRANSACTION
+    
+	Update TB_ITEM_DUPLICATE_GROUP_MEMBERS set
+		 IS_CHECKED = 
+		 (
+		 CASE
+			WHEN gm.GROUP_MEMBER_ID = g.MASTER_MEMBER_ID then 1
+			else 0
+		 end
+		 )	
+		 ,IS_DUPLICATE = 0
+	from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+		inner join TB_ITEM_DUPLICATE_GROUP g on gm.ITEM_DUPLICATE_GROUP_ID = g.ITEM_DUPLICATE_GROUP_ID
+					and ir.REVIEW_ID = g.REVIEW_ID
+	where ITEM_ID = @DuplicateItemID and ir.REVIEW_ID = @RevID
+	
+	Update TB_ITEM_REVIEW set MASTER_ITEM_ID = null, IS_INCLUDED = 1, IS_DELETED = 0
+	where ITEM_ID = @DuplicateItemID
+	COMMIT TRANSACTION
+	END TRY
+
+	BEGIN CATCH
+	IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+	END CATCH
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupMembers]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupMembers]
+	-- Add the parameters for the stored procedure here
+	@GroupID int,
+	@ReviewID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT GM.*
+		,CASE (G.MASTER_MEMBER_ID)
+			when (GM.GROUP_MEMBER_ID) Then 1
+			ELSE 0
+		END AS IS_MASTER
+		, I.ITEM_ID
+		, TITLE
+		, SHORT_TITLE
+		, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS
+		, PARENT_TITLE
+		, "YEAR"
+		, "MONTH"
+		, PAGES
+		, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENT_AUTHORS
+		, TYPE_NAME
+		, (SELECT COUNT (ITEM_ATTRIBUTE_ID) FROM TB_ITEM_ATTRIBUTE IA
+			INNER JOIN TB_ATTRIBUTE_SET ATS on IA.ATTRIBUTE_ID = ATS.ATTRIBUTE_ID
+			INNER JOIN TB_REVIEW_SET RS on ATS.SET_ID = RS.SET_ID AND RS.REVIEW_ID = G.REVIEW_ID
+			 WHERE IA.ITEM_ID = I.ITEM_ID) CODED_COUNT
+		, (SELECT COUNT (ITEM_DOCUMENT_ID) FROM TB_ITEM_DOCUMENT d WHERE d.ITEM_ID = I.ITEM_ID) DOC_COUNT
+		, (
+				SELECT SOURCE_NAME from TB_SOURCE s inner join TB_ITEM_SOURCE tis 
+				on s.SOURCE_ID = tis.SOURCE_ID and tis.ITEM_ID = I.ITEM_ID
+				and s.REVIEW_ID = @ReviewID
+		  ) as "SOURCE"
+		, case when 
+					(IR.MASTER_ITEM_ID is not null and
+						(
+							IR.MASTER_ITEM_ID not in 
+							(--current master is not coming from current group
+								Select rr.ITEM_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS mm
+								inner join TB_ITEM_DUPLICATE_GROUP gg on mm.GROUP_MEMBER_ID = gg.MASTER_MEMBER_ID
+								inner join TB_ITEM_REVIEW rr on rr.ITEM_REVIEW_ID = mm.ITEM_REVIEW_ID
+								where gg.ITEM_DUPLICATE_GROUP_ID = @GroupID
+							)
+							
+						)
+					)
+					or IR.ITEM_REVIEW_ID in 
+						(--current item is master of some other group 
+						 select GM1.item_review_id from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM1 
+							inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm2 on GM1.GROUP_MEMBER_ID != gm2.GROUP_MEMBER_ID and GM1.ITEM_DUPLICATE_GROUP_ID = @GroupID
+								and GM1.ITEM_REVIEW_ID = gm2.ITEM_REVIEW_ID and gm2.ITEM_DUPLICATE_GROUP_ID != GM1.ITEM_DUPLICATE_GROUP_ID
+							inner join TB_ITEM_DUPLICATE_GROUP G2 on gm2.ITEM_DUPLICATE_GROUP_ID = G2.ITEM_DUPLICATE_GROUP_ID
+								and G2.MASTER_MEMBER_ID = gm2.GROUP_MEMBER_ID
+							--inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM3 on G2.ITEM_DUPLICATE_GROUP_ID = GM3.ITEM_DUPLICATE_GROUP_ID 
+							--	and G2.MASTER_MEMBER_ID != GM.GROUP_MEMBER_ID
+							--	and GM3.IS_DUPLICATE = 1
+							
+								
+						 
+						 
+						 
+						 --TB_ITEM_REVIEW rrr
+							--inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS mmm on mmm.ITEM_REVIEW_ID = rrr.ITEM_REVIEW_ID
+							--inner join TB_ITEM_DUPLICATE_GROUP ggg on mmm.GROUP_MEMBER_ID = ggg.MASTER_MEMBER_ID 
+							--inner join TB_ITEM_REVIEW rr2 on rr2.MASTER_ITEM_ID = rrr.ITEM_ID and rr2.REVIEW_ID = rrr.REVIEW_ID
+							--	and ggg.ITEM_DUPLICATE_GROUP_ID != @GroupID and rrr.REVIEW_ID = ggg.REVIEW_ID
+						)
+			then 1--is exported: should be 1 when the member has been manually imported as a duplicate in some other group
+			--it is 1 also if the current master is from another group, on the interface this makes the group member read-only
+			else 0
+		  END
+		AS IS_EXPORTED
+		,I.DOI
+	from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM
+	INNER JOIN TB_ITEM_DUPLICATE_GROUP G on G.ITEM_DUPLICATE_GROUP_ID = GM.ITEM_DUPLICATE_GROUP_ID
+	INNER JOIN TB_ITEM_REVIEW IR on GM.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID and IR.REVIEW_ID = @ReviewID
+	INNER JOIN TB_ITEM I on IR.ITEM_ID = I.ITEM_ID
+	INNER JOIN TB_ITEM_TYPE IT on I.TYPE_ID = IT.TYPE_ID
+	WHERE G.ITEM_DUPLICATE_GROUP_ID = @GroupID
+	
+	SELECT ORIGINAL_ITEM_ID ORIGINAL_MASTER_ID from TB_ITEM_DUPLICATE_GROUP where ITEM_DUPLICATE_GROUP_ID = @GroupID
+	
+	
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupMemberUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 20/08/2010
+-- Description:	Update a group member, this will also change the group master if needed.
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupMemberUpdate]
+	-- Add the parameters for the stored procedure here
+	@memberID int
+	, @groupID int
+	--, @item_review_id bigint
+	--, @item_id bigint
+	, @is_checked bit
+	, @is_duplicate bit
+	, @is_master bit
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @IR_ID bigint
+	-- get the current Item_review_id
+	select @IR_ID = Item_review_id from TB_ITEM_DUPLICATE_GROUP_MEMBERS where GROUP_MEMBER_ID = @memberID
+	-- update the group member record
+	UPDATE TB_ITEM_DUPLICATE_GROUP_MEMBERS set
+		IS_CHECKED = @is_checked
+		,IS_DUPLICATE = @is_duplicate
+		WHERE GROUP_MEMBER_ID = @memberID
+	-- see if you need to set this as master
+	IF @is_master = 1
+	BEGIN
+		-- see who is current master
+		-- if item is master of some other group, abort
+		declare @current_master int = (select MASTER_MEMBER_ID from TB_ITEM_DUPLICATE_GROUP where ITEM_DUPLICATE_GROUP_ID = @groupID)
+		if (
+			select COUNT(G.MASTER_MEMBER_ID) from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM inner join 
+				TB_ITEM_DUPLICATE_GROUP_MEMBERS GM2 on GM.GROUP_MEMBER_ID = @memberID and GM2.ITEM_REVIEW_ID = GM.ITEM_REVIEW_ID and GM2.GROUP_MEMBER_ID != GM.GROUP_MEMBER_ID
+				inner join TB_ITEM_DUPLICATE_GROUP G on GM2.ITEM_DUPLICATE_GROUP_ID = G.ITEM_DUPLICATE_GROUP_ID and GM2.GROUP_MEMBER_ID = G.MASTER_MEMBER_ID
+					and G.MASTER_MEMBER_ID != @memberID
+			) > 0 return;
+		IF (@current_master <> @memberID)
+		BEGIN --change master
+			UPDATE TB_ITEM_DUPLICATE_GROUP set MASTER_MEMBER_ID = @memberID where ITEM_DUPLICATE_GROUP_ID = @groupID
+			select @IR_ID = Item_review_id from TB_ITEM_DUPLICATE_GROUP_MEMBERS where GROUP_MEMBER_ID = @memberID
+			-- also set as checked and not duplicate in all other groups where this item appears as not a master
+			update gm set IS_DUPLICATE =  0, IS_CHECKED = 0
+				from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm inner join TB_ITEM_DUPLICATE_GROUP g
+					on g.ITEM_DUPLICATE_GROUP_ID = gm.ITEM_DUPLICATE_GROUP_ID and g.ITEM_DUPLICATE_GROUP_ID != @groupID
+					and g.MASTER_MEMBER_ID != gm.GROUP_MEMBER_ID
+					and ITEM_REVIEW_ID = @IR_ID --and ITEM_DUPLICATE_GROUP_ID != @groupID
+		--change the master of items that are imported into this group
+		-- need to do this on tb_item_review in this sproc because after running the above 
+		--the info on the previous master is lost and can't be easily reconstructed.
+			declare @ID bigint = (select item_id from TB_ITEM_REVIEW IR 
+									inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on IR.ITEM_REVIEW_ID = GM.ITEM_REVIEW_ID
+										and GM.GROUP_MEMBER_ID = @memberID)
+			update IR set MASTER_ITEM_ID = @ID
+				from TB_ITEM_REVIEW IR inner join TB_ITEM_REVIEW IR2 on IR.MASTER_ITEM_ID = IR2.ITEM_ID
+				Inner Join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on IR2.ITEM_REVIEW_ID = GM.ITEM_REVIEW_ID and GM.GROUP_MEMBER_ID = @current_master
+				left outer join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM2 on IR.ITEM_REVIEW_ID = GM2.ITEM_REVIEW_ID and GM2.ITEM_DUPLICATE_GROUP_ID != @groupID
+				--where GM2.GROUP_MEMBER_ID is null
+		END 
+		
+	
+	End
+	ELSE
+		Begin
+		-- set to "is checked" also all other appearences of the same item, 
+		-- also set to "not a duplicate" in case this is being marked as a duplicate in the active group.
+		--if @is_duplicate = 1
+		--begin
+			
+			update TB_ITEM_DUPLICATE_GROUP_MEMBERS set IS_DUPLICATE =  0, IS_CHECKED = @is_checked 
+				where ITEM_REVIEW_ID = @IR_ID and ITEM_DUPLICATE_GROUP_ID != @groupID
+		END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupMemberUpdateWithScore]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 20/08/2010
+-- Description:	Update a group member, this will also change the group master if needed.
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupMemberUpdateWithScore]
+	-- Add the parameters for the stored procedure here
+	@memberID int
+	, @groupID int
+	--, @item_review_id bigint
+	--, @item_id bigint
+	, @is_checked bit
+	, @is_duplicate bit
+	, @is_master bit
+	,@score float
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @IR_ID bigint
+	-- get the current Item_review_id
+	select @IR_ID = Item_review_id from TB_ITEM_DUPLICATE_GROUP_MEMBERS where GROUP_MEMBER_ID = @memberID
+	-- update the group member record
+	UPDATE TB_ITEM_DUPLICATE_GROUP_MEMBERS set
+		IS_CHECKED = @is_checked
+		,IS_DUPLICATE = @is_duplicate
+		,SCORE = @score
+		WHERE GROUP_MEMBER_ID = @memberID and ITEM_DUPLICATE_GROUP_ID = @groupID
+	-- see if you need to set this as master
+	IF @is_master = 1
+	BEGIN
+		-- see who is current master
+		-- if item is master of some other group, abort
+		declare @RevId int  = (select review_id from TB_ITEM_DUPLICATE_GROUP where ITEM_DUPLICATE_GROUP_ID = @groupID)
+		declare @current_master int = (select MASTER_MEMBER_ID from TB_ITEM_DUPLICATE_GROUP where ITEM_DUPLICATE_GROUP_ID = @groupID)
+		if (
+			select COUNT(G.MASTER_MEMBER_ID) from TB_ITEM_DUPLICATE_GROUP_MEMBERS GM inner join 
+				TB_ITEM_DUPLICATE_GROUP_MEMBERS GM2 on GM.GROUP_MEMBER_ID = @memberID and GM2.ITEM_REVIEW_ID = GM.ITEM_REVIEW_ID and GM2.GROUP_MEMBER_ID != GM.GROUP_MEMBER_ID
+				inner join TB_ITEM_DUPLICATE_GROUP G on GM2.ITEM_DUPLICATE_GROUP_ID = G.ITEM_DUPLICATE_GROUP_ID and GM2.GROUP_MEMBER_ID = G.MASTER_MEMBER_ID
+					and G.MASTER_MEMBER_ID != @memberID and G.REVIEW_ID = @RevId
+			) > 0 return;
+		IF (@current_master <> @memberID)
+		BEGIN --change master
+			UPDATE TB_ITEM_DUPLICATE_GROUP set MASTER_MEMBER_ID = @memberID where ITEM_DUPLICATE_GROUP_ID = @groupID
+			select @IR_ID = Item_review_id from TB_ITEM_DUPLICATE_GROUP_MEMBERS where GROUP_MEMBER_ID = @memberID
+			-- also set as checked and not duplicate in all other groups where this item appears as not a master
+			update gm set IS_DUPLICATE =  0, IS_CHECKED = 0
+				from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm inner join TB_ITEM_DUPLICATE_GROUP g
+					on g.REVIEW_ID = @RevId
+					and g.ITEM_DUPLICATE_GROUP_ID = gm.ITEM_DUPLICATE_GROUP_ID and g.ITEM_DUPLICATE_GROUP_ID != @groupID
+					and g.MASTER_MEMBER_ID != gm.GROUP_MEMBER_ID
+					and ITEM_REVIEW_ID = @IR_ID --and ITEM_DUPLICATE_GROUP_ID != @groupID
+		--change the master of "manually added items" for this group
+		--need to do this UPDATE to tb_item_review in this sproc because after running the above 
+		--the info on the previous master is lost and can't be easily reconstructed.
+			declare @ID bigint = (select item_id from TB_ITEM_REVIEW IR 
+									inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on IR.ITEM_REVIEW_ID = GM.ITEM_REVIEW_ID
+										and GM.GROUP_MEMBER_ID = @memberID)
+			update IR set MASTER_ITEM_ID = @ID
+				from TB_ITEM_REVIEW IR 
+				inner join TB_ITEM_REVIEW IR2 on IR.MASTER_ITEM_ID = IR2.ITEM_ID and IR.REVIEW_ID = @RevId and IR.REVIEW_ID = IR2.REVIEW_ID
+				Inner Join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on IR2.ITEM_REVIEW_ID = GM.ITEM_REVIEW_ID and GM.GROUP_MEMBER_ID = @current_master
+				where IR.ITEM_REVIEW_ID not in (select gm2.ITEM_REVIEW_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm2 where gm2.ITEM_DUPLICATE_GROUP_ID = @groupID)
+				--left outer join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM2 on IR.ITEM_REVIEW_ID = GM2.ITEM_REVIEW_ID and GM2.ITEM_DUPLICATE_GROUP_ID != @groupID
+				--where GM2.GROUP_MEMBER_ID is null
+		END 
+		
+	
+	End
+	ELSE
+		Begin
+		-- set to "is checked" also all other appearences of the same item, 
+		-- also set to "not a duplicate" in case this is being marked as a duplicate in the active group.
+		--if @is_duplicate = 1
+		--begin
+			
+			update TB_ITEM_DUPLICATE_GROUP_MEMBERS set IS_DUPLICATE =  0, IS_CHECKED = @is_checked 
+				where ITEM_REVIEW_ID = @IR_ID and ITEM_DUPLICATE_GROUP_ID != @groupID
+		END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupsMarkAsDoneChecking]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupsMarkAsDoneChecking] 
+	-- Add the parameters for the stored procedure here
+	(
+		@revID int,
+		@state nvarchar(50),
+		@message nvarchar(4000) = ''
+	)
+AS
+BEGIN
+	SET NOCOUNT ON
+	update tb_REVIEW_JOB set 
+		CURRENT_STATE = @state
+		, END_TIME = GETDATE()
+		, JOB_MESSAGE = @message 
+		, SUCCESS = CASE when @state = 'Ended' THEN 1 else 0 END
+	where REVIEW_ID = @revID AND JOB_TYPE = 'FindNewDuplicates' and CURRENT_STATE = 'running'
+	SET NOCOUNT OFF
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateSaveShortSearchText]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateSaveShortSearchText]
+(
+      @ITEM_ID BIGINT,
+	  @SearchText nvarchar(500)
+)
+As
+
+SET NOCOUNT ON
+	update TB_ITEM
+		SET SearchText = @SearchText WHERE ITEM_ID = @ITEM_ID
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesCheckOngoing]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 09/08/2010
+-- Description:	check for pending SISS, attempt to save results
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesCheckOngoing]
+	-- Add the parameters for the stored procedure here
+	@revID int
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	Declare @guis_N int
+    -- Insert statements for procedure here
+	set @guis_N = (SELECT COUNT(DISTINCT(EXTR_UI)) from TB_ITEM_DUPLICATES_TEMP where REVIEW_ID = @revID)
+	IF @guis_N = 1
+	BEGIN --send back a return code to signify that the SISS package is still running
+		return -2
+	END
+	ELSE
+	IF @guis_N = 2 --SISS package has saved data but results were never collected
+	BEGIN
+	
+		--INSERT only the new data in the final table
+		--The select statement below is an attempt to avoid subqueries: it is necessary to avoid inserting duplicates of duplicates
+		--the left outer join with the target table (t1) has the ON clause that is true only if the destination line already exists,
+		--being an outer join, if this condition is false the fields from the joined table will be NULL
+		--All I need to do is force these values to be NULL, and I can do it safely on t1.ITEM_ID_IN only 
+		--because NULL values are not allowed on that field (no need to check from both, then)
+		--RESULT: if the destination record already exists I will have some value in t1.ITEM_ID_IN and the line will not be selected
+		--if the destination record does not exist t1.ITEM_ID_IN will be NULL and I will select (and insert) the new line
+		--NOTE: I'm not sure this will be faster than having a subquery, but I think it is...
+		--We should check when we'll have big duplicates tables...
+		INSERT INTO [TB_ITEM_DUPLICATES]
+				   ([ITEM_ID_IN]
+				   ,[_SCORE]
+				   ,[ITEM_ID_OUT]
+				   ,[REVIEW_ID]
+				   )
+		SELECT ID1.ITEM_ID ITEM_ID_IN, ID2._SCORE, ID2.ITEM_ID ITEM_ID_OUT, @revID 
+			FROM TB_ITEM_DUPLICATES_TEMP ID1
+			INNER JOIN TB_ITEM_DUPLICATES_TEMP ID2 ON ID2._key_out = ID1._key_in --self join to match item_IDs
+			LEFT OUTER JOIN TB_ITEM_DUPLICATES t1 ON ID1.ITEM_ID = t1.ITEM_ID_IN AND ID2.ITEM_ID = t1.ITEM_ID_OUT
+			WHERE ID1.REVIEW_ID = @revID
+			AND ID1.ITEM_ID <> ID2.ITEM_ID --reject lines that mark an item as its own duplicate
+			AND ID1.EXTR_UI != '00000000-0000-0000-0000-000000000000' --make sure you fish data only from the real results
+			AND T1.ITEM_ID_IN IS NULL --see long comment above
+		--now that temporary data is saved, clean up:
+		DELETE FROM TB_ITEM_DUPLICATES_TEMP WHERE REVIEW_ID = @revID
+	END
+	
+	-- if @guis_N >2 then something is very wrong, but we leave the other SPs to deal with this situation
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesGetCandidatesOnSearchText]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesGetCandidatesOnSearchText]
+(
+      @REVIEW_ID INT,
+	  @CONTACT_ID int
+)
+As
+
+SET NOCOUNT ON
+declare @Items table (item_id bigint primary key)
+--FIRST of all, update tb_REVIEW_JOB "end_time" to signal things are progressing, useful when "following" how things are going
+update tb_REVIEW_JOB set 
+		END_TIME = GETDATE()
+	where REVIEW_ID = @REVIEW_ID AND JOB_TYPE = 'FindNewDuplicates' and CURRENT_STATE = 'running'
+
+
+--limit this to ONLY the items we need.
+insert into @Items select distinct ir.Item_id from TB_ITEM_REVIEW ir 
+		LEFT OUTER JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS IDG ON IDG.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+		LEFT OUTER JOIN TB_ITEM_DUPLICATE_GROUP DG ON DG.ITEM_DUPLICATE_GROUP_ID = IDG.ITEM_DUPLICATE_GROUP_ID
+		where ir.REVIEW_ID = @REVIEW_ID
+			AND
+			(
+				ir.IS_DELETED = 0 -- ANY not deleted item
+				OR (
+					 DG.ITEM_DUPLICATE_GROUP_ID IS NOT NULL 
+				) --IF item is deleted, ANY Member of a group
+			)
+			  
+
+
+declare @matches table (item_id bigint, matched bigint, primary key(item_id, matched))
+
+--get JUST the matches, ignore all other data
+insert into @matches 
+select distinct t.item_id, t2.item_id from @items t
+inner join tb_item i on i.ITEM_ID = t.item_id
+INNER JOIN TB_ITEM I2 ON I2.SearchText = I.SearchText 
+inner join @Items t2 on  I2.ITEM_ID = t2.item_id and t.item_id < t2.item_id
+
+declare @res table (ITEM_ID bigint, ITEM_ID2 bigint , HAS_CODES bit, IS_MASTER bit, HAS_CODES2 bit, IS_MASTER2 bit, searchtext nvarchar(500), searchtext2 nvarchar(500))
+--Get the data that needs to be computed and/or used for sorting.
+insert into @res 
+select distinct I.ITEM_ID, I2.ITEM_ID ITEM_ID2, 
+				  case when ise.item_id is null then 0 else 1 end as HAS_CODES,
+				  case when (NOT DG.MASTER_MEMBER_ID IS NULL AND (idg.GROUP_MEMBER_ID = DG.MASTER_MEMBER_ID))
+					then 1 else 0 end as IS_MASTER,
+				  case when ise2.item_id is null then 0 else 1 end as HAS_CODES2,
+					case when (NOT DG2.MASTER_MEMBER_ID IS NULL AND (idg2.GROUP_MEMBER_ID = DG2.MASTER_MEMBER_ID))
+					then 1 else 0 end as IS_MASTER2,
+				i.SearchText, i2.SearchText
+				  
+	from @matches m
+	    inner join TB_ITEM I on i.ITEM_ID = m.item_id
+		INNER JOIN TB_ITEM I2 ON I2.ITEM_ID = m.matched
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = i.ITEM_ID  and ir.REVIEW_ID = @REVIEW_ID
+		INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = I2.ITEM_ID  and ir2.REVIEW_ID = @REVIEW_ID
+
+		LEFT OUTER JOIN TB_ITEM_SET ISE ON ISE.ITEM_ID = I.ITEM_ID
+		LEFT OUTER JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS IDG ON IDG.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+		LEFT OUTER JOIN TB_ITEM_DUPLICATE_GROUP DG ON DG.ITEM_DUPLICATE_GROUP_ID = IDG.ITEM_DUPLICATE_GROUP_ID
+
+		LEFT OUTER JOIN TB_ITEM_SET ISE2 ON ISE2.ITEM_ID = I2.ITEM_ID
+		LEFT OUTER JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS IDG2 ON IDG2.ITEM_REVIEW_ID = IR2.ITEM_REVIEW_ID
+		LEFT OUTER JOIN TB_ITEM_DUPLICATE_GROUP DG2 ON DG2.ITEM_DUPLICATE_GROUP_ID = IDG2.ITEM_DUPLICATE_GROUP_ID
+
+		where 
+		--ir.IS_DELETED = 'False' and ir.REVIEW_ID = @REVIEW_ID 
+		--	and ir2.IS_DELETED = 'False' and ir2.REVIEW_ID = @REVIEW_ID
+		--	and i.ITEM_ID != I2.ITEM_ID and i.ITEM_ID < i2.ITEM_ID
+			
+		--	and 
+			(idg.GROUP_MEMBER_ID is null or (NOT DG.MASTER_MEMBER_ID IS NULL
+				AND (idg.GROUP_MEMBER_ID = DG.MASTER_MEMBER_ID)))
+			and (idg2.GROUP_MEMBER_ID is null or (NOT DG2.MASTER_MEMBER_ID IS NULL
+				AND (idg2.GROUP_MEMBER_ID = DG2.MASTER_MEMBER_ID)))
+
+
+--finally, get the results, data from @res, plus additional field in TB_ITEM (twice), we can now "sort by" quickly, as all data is at hand.
+select I.ITEM_ID, I2.ITEM_ID ITEM_ID2, I.TITLE, I2.TITLE TITLE2,
+				[dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+                   I.PARENT_TITLE, I.[YEAR], I.VOLUME, I.PAGES, I.ISSUE, I.ABSTRACT,
+				  I.DOI, I.TYPE_ID,
+				  CAST(HAS_CODES as int) as HAS_CODES, CAST(IS_MASTER as int) as IS_MASTER,
+		[dbo].fn_REBUILD_AUTHORS(I2.ITEM_ID, 0) as AUTHORS2,
+                   I2.PARENT_TITLE PARENT_TITLE2, I2.[YEAR] YEAR2, I2.VOLUME VOLUME2, I2.PAGES PAGES2,
+				   I2.ISSUE ISSUE2, I2.ABSTRACT ABSTRACT2,
+				  I2.DOI DOI2, I2.TYPE_ID TYPE_ID2,
+				  CAST(HAS_CODES2 as int) as HAS_CODES2, CAST(IS_MASTER2 as int) as IS_MASTER2,
+		r.searchtext, r.searchtext2
+
+	 from @res r
+		inner join tb_item i on r.ITEM_ID = i.ITEM_ID
+		inner join tb_item i2 on r.ITEM_ID2 = i2.ITEM_ID
+order by r.SearchText, IS_MASTER, IS_MASTER2, I.ITEM_ID, i2.ITEM_ID
+		
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesGetGroupChangeOriginalMasterId]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesGetGroupChangeOriginalMasterId] 
+	-- Add the parameters for the stored procedure here
+	(
+		@REVIEW_ID int,
+		@GROUP_ID int,
+		@NEWMASTER_ID bigint
+	)
+AS
+BEGIN
+	Update TB_ITEM_DUPLICATE_GROUP set ORIGINAL_ITEM_ID = @NEWMASTER_ID where REVIEW_ID = @REVIEW_ID and ITEM_DUPLICATE_GROUP_ID = @GROUP_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesGetGroupMembersForScoring]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesGetGroupMembersForScoring] 
+	-- Add the parameters for the stored procedure here
+	(
+		@REVIEW_ID int,
+		@ITEM_IDS nvarchar(max)
+	)
+AS
+BEGIN
+	declare @t Table (item_id bigint, HAS_CODES int)
+	insert into @t select i.value, 0 from dbo.fn_Split_int(@ITEM_IDS, ',') i 
+		inner join TB_ITEM_REVIEW ir on i.value = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+	
+	update A set HAS_CODES = 1 from 
+		(select t.item_id, HAS_CODES from @t t inner join TB_ITEM_SET s on t.item_id = s.ITEM_ID) A
+
+	select i.ITEM_ID, dbo.fn_REBUILD_AUTHORS(i.ITEM_ID, 0) as AUTHORS, TITLE, PARENT_TITLE, [YEAR]
+		, VOLUME, PAGES, ISSUE, DOI, ABSTRACT, HAS_CODES, 0 as IS_MASTER, i.TYPE_ID
+	from @t t inner join TB_ITEM i on t.item_id = I.ITEM_ID 
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesGetItemsList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesGetItemsList]
+(
+	@REVIEW_ID_ST VARCHAR(MAX)
+)
+
+As
+
+SELECT I.ITEM_ID,
+		CAST (TITLE AS NVARCHAR (1999)) AS TITLE,
+		CAST (PARENT_TITLE AS NVARCHAR(1999)) AS PARENT_TITLE,
+		CAST ([dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) AS NVARCHAR(1999)) as AUTHORS, 
+		CAST ([dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) AS NVARCHAR(1999)) as PARENTAUTHORS,
+		REVIEW_ID
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID
+	AND TB_ITEM_REVIEW.REVIEW_ID = CAST(@REVIEW_ID_ST AS INT)
+	AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesGetItemsListNew]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+--data source
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesGetItemsListNew]
+(
+	@REVIEW_ID_ST VARCHAR(MAX)
+)
+
+As
+SELECT 
+		ITEM_ID,
+		TITLE,
+		PARENT_TITLE,
+		AUTHORS, 
+		PARENTAUTHORS,
+		REVIEW_ID
+FROM 
+(
+SELECT I.ITEM_ID,
+		CAST (TITLE AS NVARCHAR (1999)) AS TITLE,
+		CAST (PARENT_TITLE AS NVARCHAR(1999)) AS PARENT_TITLE,
+		CAST ([dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) AS NVARCHAR(1999)) as AUTHORS, 
+		CAST ([dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) AS NVARCHAR(1999)) as PARENTAUTHORS,
+		IR.REVIEW_ID, 
+		0 sorter
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = I.ITEM_ID
+	AND IR.REVIEW_ID = CAST(@REVIEW_ID_ST AS INT)
+	AND IR.IS_DELETED = 'TRUE'
+INNER JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS ID ON ID.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+UNION
+SELECT I.ITEM_ID,
+		CAST (TITLE AS NVARCHAR (1999)) AS TITLE,
+		CAST (PARENT_TITLE AS NVARCHAR(1999)) AS PARENT_TITLE,
+		CAST ([dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) AS NVARCHAR(1999)) as AUTHORS, 
+		CAST ([dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) AS NVARCHAR(1999)) as PARENTAUTHORS,
+		REVIEW_ID,
+		1 sorter
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID
+	AND TB_ITEM_REVIEW.REVIEW_ID = CAST(@REVIEW_ID_ST AS INT)
+	AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+) a
+order by sorter
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesInsert]
+(
+	@REVIEW_ID INT
+)
+
+As
+-- First check: if there are no items to evaluate, just go back
+declare @check int = (SELECT COUNT(ITEM_ID) from TB_ITEM_REVIEW where REVIEW_ID = @REVIEW_ID and IS_DELETED = 0)
+if @check = 0 
+BEGIN
+	Return -1
+END
+SET  @check =(SELECT COUNT(DISTINCT(EXTR_UI)) from TB_ITEM_DUPLICATES_TEMP where REVIEW_ID = @REVIEW_ID)
+IF @check = 1 
+BEGIN
+	return 1 --a SISS package is still running for Review, we should not run it again
+END
+ELSE IF @check > 1 --this should not happen: SISS package saved some data, but the result was not collected. 
+-- Since new items might have been inserted in the mean time, we will delete old (temp) results and start over again.
+BEGIN
+	DELETE FROM TB_ITEM_DUPLICATES_TEMP where REVIEW_ID = @REVIEW_ID 
+END
+
+declare @UI uniqueidentifier
+set @UI = '00000000-0000-0000-0000-000000000000'
+--insert a marker line to notify that the SISS package has been triggered
+insert into TB_ITEM_DUPLICATES_TEMP (REVIEW_ID, EXTR_UI) Values (@REVIEW_ID, @UI)
+
+set @UI = NEWID()
+
+--run the package that populates the temp results table
+declare @cmd varchar(1000)
+select @cmd = 'dtexec /DT "File System\DuplicateCheck"'
+select @cmd = @cmd + ' /Rep N  /SET \Package.Variables[User::RevID].Properties[Value];"' + CAST(@REVIEW_ID as varchar(max))+ '"' 
+select @cmd = @cmd + ' /SET \Package.Variables[User::UID].Properties[Value];"' + CAST(@UI as varchar(max))+ '"' 
+EXEC xp_cmdshell @cmd
+
+--INSERT only the new data in the final table
+--The select statement below is an attempt to avoid subqueries: it is necessary to avoid inserting duplicates of duplicates
+--the left outer join with the target table (t1) has the ON clause that is true only if the destination line already exists,
+--being an outer join, if this condition is false the fields from the joined table will be NULL
+--All I need to do is force these values to be NULL, and I can do it safely on t1.ITEM_ID_IN only 
+--because NULL values are not allowed on that field (no need to check from both, then)
+--RESULT: if the destination record already exists I will have some value in t1.ITEM_ID_IN and the line will not be selected
+--if the destination record does not exist t1.ITEM_ID_IN will be NULL and I will select (and insert) the new line
+--NOTE: I'm not sure this will be faster than having a subquery, but I think it is...
+--We should check when we'll have big duplicates tables...
+INSERT INTO [TB_ITEM_DUPLICATES]
+           ([ITEM_ID_IN]
+           ,[_SCORE]
+           ,[ITEM_ID_OUT]
+           ,[REVIEW_ID]
+           )
+SELECT ID1.ITEM_ID ITEM_ID_IN, ID2._SCORE, ID2.ITEM_ID ITEM_ID_OUT, @REVIEW_ID 
+	FROM TB_ITEM_DUPLICATES_TEMP ID1
+	INNER JOIN TB_ITEM_DUPLICATES_TEMP ID2 ON ID2._key_out = ID1._key_in --self join to match item_IDs
+	LEFT OUTER JOIN TB_ITEM_DUPLICATES t1 ON ID1.ITEM_ID = t1.ITEM_ID_IN AND ID2.ITEM_ID = t1.ITEM_ID_OUT
+	WHERE ID1.REVIEW_ID = @REVIEW_ID --to be safe...
+	AND ID1.ITEM_ID <> ID2.ITEM_ID --reject lines that mark an item as its own duplicate
+	AND ID1.EXTR_UI = @UI --make sure you fish data only from the current check
+	AND T1.ITEM_ID_IN IS NULL --see long comment above
+
+--clear temp table
+-- if the query has timed out in the mean time, either one or two different EXTR_UI will be present in the table, this will instruct other SP
+-- to react differently according to the situation
+DELETE from TB_ITEM_DUPLICATES_TEMP WHERE REVIEW_ID = @REVIEW_ID 
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesList]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+DECLARE @True bit, @False bit;
+SELECT @True = 1, @False = 0;
+
+SELECT DISTINCT I.ITEM_ID ITEM_ID1,
+	I.[TYPE_ID] TYPE_ID1,
+	 I.OLD_ITEM_ID OLD_ITEM_ID1, 
+	 [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS1,
+	I.TITLE TITLE1, 
+	I.PARENT_TITLE PARENT_TITLE1, 
+	I.SHORT_TITLE SHORT_TITLE1, 
+	I.DATE_CREATED DATE_CREATED1, 
+	I.CREATED_BY CREATED_BY1, 
+	I.DATE_EDITED DATE_EDITED1, 
+	I.EDITED_BY EDITED_BY1,
+	I.[YEAR] YEAR1, 
+	I.[MONTH] MONTH1, 
+	I.STANDARD_NUMBER STANDARD_NUMBER1, 
+	I.CITY CITY1,
+	I.COUNTRY COUNTRY1, 
+	I.PUBLISHER PUBLISHER1, 
+	I.INSTITUTION INSTITUTION1, 
+	I.VOLUME VOLUME1, 
+	I.PAGES PAGES1,
+	I.EDITION EDITION1, 
+	I.ISSUE ISSUE1, 
+	I.URL URL1, 
+	I.ABSTRACT ABSTRACT1, 
+	I.COMMENTS COMMENTS1, 
+	IT1.[TYPE_NAME] TYPE_NAME1,
+	[dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENT_AUTHORS1, 
+	ID1.[IS_CHECKED] IS_CHECKED1, 
+	case 
+		when IR1.MASTER_ITEM_ID = ID1.ITEM_ID_OUT
+		THEN @True
+		ELSE @False
+	end
+	IS_DUPLICATE1, 
+	i.OLD_ITEM_ID OLD_ITEM_ID1,
+	(SELECT COUNT (SET_ID) FROM TB_ITEM_SET WHERE TB_ITEM_SET.ITEM_ID = I.ITEM_ID) CODED_COUNT1,
+	(SELECT COUNT (ITEM_DOCUMENT_ID) FROM TB_ITEM_DOCUMENT d WHERE d.ITEM_ID = I.ITEM_ID) DOC_COUNT1,
+	(SELECT SOURCE_NAME from TB_SOURCE s inner join TB_ITEM_SOURCE tis on s.SOURCE_ID = tis.SOURCE_ID and tis.ITEM_ID = I.ITEM_ID)
+	 SOURCE1,
+	
+	I2.ITEM_ID ITEM_ID2, 
+	I2.[TYPE_ID] TYPE_ID2, 
+	I2.OLD_ITEM_ID OLD_ITEM_ID2, 
+	[dbo].fn_REBUILD_AUTHORS(I2.ITEM_ID, 0) as AUTHORS2,
+	I2.TITLE TITLE2, 
+	I2.PARENT_TITLE PARENT_TITLE2, 
+	I2.SHORT_TITLE SHORT_TITLE2, 
+	I2.DATE_CREATED DATE_CREATED2, 
+	I2.CREATED_BY CREATED_BY2, 
+	I2.DATE_EDITED DATE_EDITED2, 
+	I2.EDITED_BY EDITED_BY2,
+	I2.[YEAR] YEAR2, 
+	I2.[MONTH] MONTH2, 
+	I2.STANDARD_NUMBER STANDARD_NUMBER2, 
+	I2.CITY CITY2, 
+	I2.COUNTRY COUNTRY2, 
+	I2.PUBLISHER PUBLISHER2, 
+	I2.INSTITUTION INSTITUTION2, 
+	I2.VOLUME VOLUME2, 
+	I2.PAGES PAGES2,
+	I2.EDITION EDITION2, 
+	I2.ISSUE ISSUE2, 
+	I2.URL URL2, 
+	I2.ABSTRACT ABSTRACT2, 
+	I2.COMMENTS COMMENTS2, 
+	IT2.[TYPE_NAME] TYPE_NAME2,
+	[dbo].fn_REBUILD_AUTHORS(I2.ITEM_ID, 1) as PARENT_AUTHORS2, 
+	i2.OLD_ITEM_ID OLD_ITEM_ID2,
+	
+	
+	--ID2.[IS_CHECKED] IS_CHECKED2, 
+	case 
+		when IR2.MASTER_ITEM_ID = ID1.ITEM_ID_IN
+		THEN @True
+		ELSE @False
+	end IS_DUPLICATE2, 
+	(SELECT COUNT (SET_ID) FROM TB_ITEM_SET WHERE TB_ITEM_SET.ITEM_ID = I2.ITEM_ID) CODED_COUNT2,
+	(SELECT COUNT (ITEM_DOCUMENT_ID) FROM TB_ITEM_DOCUMENT d WHERE d.ITEM_ID = I2.ITEM_ID) DOC_COUNT2,
+	(SELECT SOURCE_NAME from TB_SOURCE s inner join TB_ITEM_SOURCE tis on s.SOURCE_ID = tis.SOURCE_ID and tis.ITEM_ID = I2.ITEM_ID)
+	 SOURCE2,
+	id1.ITEM_DUPLICATES_ID ITEM_DUPLICATES_ID1, 
+	ID1._SCORE SCORE1--,
+	--ID2.ITEM_DUPLICATES_ID ITEM_DUPLICATES_ID2, 
+	--ID2._SCORE SCORE2
+
+FROM TB_ITEM_DUPLICATES ID1
+
+--INNER JOIN TB_ITEM_DUPLICATES ID2 ON ID2._key_out = ID1._key_in
+INNER JOIN TB_ITEM_REVIEW IR1 on ID1.ITEM_ID_IN = IR1.ITEM_ID AND IR1.REVIEW_ID = ID1.REVIEW_ID
+INNER JOIN TB_ITEM_REVIEW IR2 on ID1.ITEM_ID_OUT = IR2.ITEM_ID AND IR2.REVIEW_ID = ID1.REVIEW_ID
+
+INNER JOIN TB_ITEM I ON I.ITEM_ID = ID1.ITEM_ID_IN
+INNER JOIN TB_ITEM I2 ON I2.ITEM_ID = ID1.ITEM_ID_OUT
+
+INNER JOIN TB_ITEM_TYPE IT1 ON IT1.[TYPE_ID] = I.[TYPE_ID]
+INNER JOIN TB_ITEM_TYPE IT2 ON IT2.[TYPE_ID] = I2.[TYPE_ID]
+
+WHERE ID1.REVIEW_ID = @REVIEW_ID --AND ID2.REVIEW_ID = @REVIEW_ID AND ID1.ITEM_ID <> ID2.ITEM_ID
+
+ORDER BY ITEM_ID1, I.TITLE, ITEM_ID2
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesReadOnlyList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	gets the list of items that are currently marked as duplicates of the ID
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesReadOnlyList]
+	-- Add the parameters for the stored procedure here
+	@ItemID bigint = 0,
+	@revID int = 0
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT SHORT_TITLE, I.ITEM_ID, SOURCE_NAME--, G.ITEM_DUPLICATE_GROUP_ID GROUP_ID 
+	from TB_ITEM_REVIEW IR
+	inner join TB_ITEM I on I.ITEM_ID = IR.ITEM_ID 
+	inner join TB_ITEM_REVIEW IR2 on IR2.ITEM_ID = @ItemID and @revID = IR2.REVIEW_ID
+	left outer JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS GM on GM.ITEM_REVIEW_ID = IR2.ITEM_REVIEW_ID and GM.IS_CHECKED = 1 and GM.IS_DUPLICATE = 0
+	left outer JOIN TB_ITEM_DUPLICATE_GROUP G on GM.ITEM_DUPLICATE_GROUP_ID = G.ITEM_DUPLICATE_GROUP_ID
+	left outer JOIN TB_ITEM_SOURCE ITS on ITS.ITEM_ID = I.ITEM_ID
+	left outer join TB_SOURCE S on ITS.SOURCE_ID = S.SOURCE_ID
+	where IR.REVIEW_ID = @revID and IR.MASTER_ITEM_ID = @ItemID
+	group by SHORT_TITLE, I.ITEM_ID, SOURCE_NAME--, G.ITEM_DUPLICATE_GROUP_ID
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicatesUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicatesUpdate]
+(
+	@REVIEW_ID INT,
+	@ITEM_ID1 BIGINT,
+	@ITEM_ID2 BIGINT,
+	@IS_CHECKED BIT,
+	@IS_DUPLICATE1 BIT,
+	@IS_DUPLICATE2 BIT,
+	@ITEM_DUPLICATES_ID1 BIGINT,
+	@ITEM_DUPLICATES_ID2 BIGINT
+)
+
+As
+
+	UPDATE TB_ITEM_DUPLICATES
+	SET IS_CHECKED = @IS_CHECKED, IS_DUPLICATE = @IS_DUPLICATE1
+	WHERE ITEM_DUPLICATES_ID = @ITEM_DUPLICATES_ID1
+	
+	--UPDATE TB_ITEM_DUPLICATES
+	--SET IS_CHECKED = @IS_CHECKED, IS_DUPLICATE = @IS_DUPLICATE2
+	--WHERE ITEM_DUPLICATES_ID = @ITEM_DUPLICATES_ID2
+	
+	IF (@IS_DUPLICATE1 = 'TRUE')
+	BEGIN
+		UPDATE TB_ITEM_REVIEW
+		SET MASTER_ITEM_ID = @ITEM_ID2, IS_DELETED = 'TRUE' -- IE DELETED WHEN IS A DUPLICATE
+		WHERE ITEM_ID = @ITEM_ID1 AND REVIEW_ID = @REVIEW_ID
+	END
+	ELSE
+	BEGIN
+		UPDATE TB_ITEM_REVIEW
+		SET MASTER_ITEM_ID = NULL, IS_DELETED = 'FALSE' -- IE DELETED WHEN IS A DUPLICATE
+		WHERE ITEM_ID = @ITEM_ID1 AND REVIEW_ID = @REVIEW_ID
+	END
+	
+	IF (@IS_DUPLICATE2 = 'TRUE')
+	BEGIN
+		UPDATE TB_ITEM_REVIEW
+		SET MASTER_ITEM_ID = @ITEM_ID1, IS_DELETED = 'TRUE' -- IE DELETED WHEN IS A DUPLICATE
+		WHERE ITEM_ID = @ITEM_ID2 AND REVIEW_ID = @REVIEW_ID
+	END
+	ELSE
+	BEGIN
+		UPDATE TB_ITEM_REVIEW
+		SET MASTER_ITEM_ID = NULL, IS_DELETED = 'FALSE' -- IE DELETED WHEN IS A DUPLICATE
+		WHERE ITEM_ID = @ITEM_ID2 AND REVIEW_ID = @REVIEW_ID
+	END
+
+--USE [Reviewer]
+--GO
+--/****** Object:  UserDefinedFunction [dbo].[fn_REBUILD_AUTHORS]    Script Date: 05/26/2010 10:23:10 ******/
+--SET ANSI_NULLS ON
+--GO
+--SET QUOTED_IDENTIFIER ON
+--GO
+---- De-normalising Authors function ByS --
+
+--ALTER FUNCTION  [dbo].[fn_REBUILD_AUTHORS]
+
+--(
+
+--@id bigint,
+--@role tinyint = 0
+
+--)
+
+--RETURNS nvarchar(max)
+
+   
+
+--    BEGIN
+
+--        declare @res nvarchar(max)
+
+--        declare @res2 nvarchar(max)
+
+--        DECLARE cr CURSOR FOR SELECT [LAST] + ' ' + [FIRST] + ' ' + [SECOND]
+
+--        FROM [tb_ITEM_AUTHOR]  where item_id = @id AND ROLE = @role
+
+--        ORDER BY [RANK]
+
+--        open cr
+
+--        set @res = ''
+
+--        FETCH NEXT FROM cr INTO @res2
+
+--         WHILE @@FETCH_STATUS = 0
+
+--        BEGIN
+
+--                Set @res = @res  + @res2
+
+--                FETCH NEXT FROM cr INTO @res2
+
+--                set @res = @res + '; '
+
+--                END
+
+--        return @res
+
+--    END;
+
+---- END OF: De-normalising function ByS --
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateUpdateTbItemReview]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Sergio
+-- Create date: 20/08/2010
+-- Description:	Update a group member, this will also change the group master if needed.
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateUpdateTbItemReview]
+	-- Add the parameters for the stored procedure here
+	@groupID int
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+	
+	declare @t table (IR_ID bigint primary key, s_id int null, Is_Source_deleted bit null, incl bit null, deleted bit null, new_master bigint null)
+	insert into @t
+		select ir.ITEM_REVIEW_ID 
+		, (select s.source_id from TB_SOURCE s inner join TB_ITEM_SOURCE tis on s.SOURCE_ID = tis.SOURCE_ID and tis.ITEM_ID = ir.ITEM_ID and s.REVIEW_ID= ir.REVIEW_ID)
+		,null,null,null,null
+		from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+		inner join TB_ITEM_DUPLICATE_GROUP DG on gm.ITEM_DUPLICATE_GROUP_ID = DG.ITEM_DUPLICATE_GROUP_ID and DG.ITEM_DUPLICATE_GROUP_ID = @groupID
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+		Left outer join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM2 on IR.ITEM_REVIEW_ID = GM2.ITEM_REVIEW_ID 
+				and GM2.ITEM_DUPLICATE_GROUP_ID != DG.ITEM_DUPLICATE_GROUP_ID
+				and GM2.IS_CHECKED = 1 and GM2.IS_DUPLICATE = 1
+			WHERE GM2.GROUP_MEMBER_ID is null
+			--the LEFT OUTER join with "WHERE GM2.GROUP_MEMBER_ID is null" ensures we only ever touch items that are only in ONE group.
+	--select * from @t
+
+	update @t set Is_Source_deleted = s.IS_DELETED from TB_SOURCE s where s.SOURCE_ID = s_id
+
+	--select * from @t
+
+	declare @chk int = (select count(IR_ID) from @t where s_id is null)
+	IF @chk > 0
+	BEGIN
+		--we have at least one item in this group that isn't in any source so we need to check if the "sourceless" source is all deleted...
+		declare @revID int = (select review_id from TB_ITEM_DUPLICATE_GROUP where ITEM_DUPLICATE_GROUP_ID = @groupID)
+		declare @is_del bit = (
+							Select Case 
+							when COUNT(ir.ITEM_ID) = Sum(
+														case when ir.IS_DELETED = 1 then 1 else 0 end
+														) 
+							then 1 else 0 end as IS_DELETED
+							from tb_item_review ir 
+							where ir.REVIEW_ID = @revID 
+								and ir.ITEM_ID not in 
+									(
+										Select ITEM_ID from TB_SOURCE s
+										inner join TB_ITEM_SOURCE tis on s.SOURCE_ID = tis.SOURCE_ID and s.REVIEW_ID = @revID
+									)
+							)
+		update @t set Is_Source_deleted = @is_del where s_id is null
+		--select * from @t
+	END 
+	declare @true bit = 1, @false bit = 0
+
+	update @t set incl = 
+						CASE WHEN --source is deleted OR is marked as a duplicate, put it to @true always
+							t.Is_Source_deleted = @true OR (gm.IS_CHECKED = @true and gm.IS_DUPLICATE = @true) then @true --
+						 WHEN -- this is the master, goes to INCLUDED state IF it was previously marked as a duplicate 
+							GM1.ITEM_REVIEW_ID = t.IR_ID AND ir.IS_INCLUDED = @true and ir.IS_DELETED = @true and ir.MASTER_ITEM_ID is not null then @true
+						 WHEN --shouldn't happen, really. Not checked, not a duplicate, but marked as a duplicate in TB_ITEM_REVIEW...
+							gm.IS_CHECKED = @false and gm.IS_DUPLICATE = @false AND ir.IS_INCLUDED = @true and ir.IS_DELETED = @true and ir.MASTER_ITEM_ID is not null then @true
+						 WHEN --checked and is NOT a duplicate BUT was marked as a duplicate (user changed her mind)
+							gm.IS_CHECKED = @true and gm.IS_DUPLICATE = @false AND ir.IS_INCLUDED = @true and ir.IS_DELETED = @true and ir.MASTER_ITEM_ID is not null then @true
+						 ELSE -- no change!
+							ir.IS_INCLUDED
+						end
+				, deleted =
+						CASE WHEN --source is deleted OR is marked as a duplicate, put it to @true always
+							t.Is_Source_deleted = @true OR (gm.IS_CHECKED = @true and gm.IS_DUPLICATE = @true) then @true --
+						 WHEN -- this is the master, goes to INCLUDED state IF it was previously marked as a duplicate 
+							GM1.ITEM_REVIEW_ID = t.IR_ID AND ir.IS_INCLUDED = @true and ir.IS_DELETED = @true and ir.MASTER_ITEM_ID is not null then @false
+						 WHEN --shouldn't happen, really. Not checked, not a duplicate, but was marked as a duplicate in TB_ITEM_REVIEW...
+							gm.IS_CHECKED = @false and gm.IS_DUPLICATE = @false AND ir.IS_INCLUDED = @true and ir.IS_DELETED = @true and ir.MASTER_ITEM_ID is not null then @false
+						 WHEN --checked and is NOT a duplicate BUT was marked as a duplicate (user changed her mind)
+							gm.IS_CHECKED = @true and gm.IS_DUPLICATE = @false AND ir.IS_INCLUDED = @true and ir.IS_DELETED = @true and ir.MASTER_ITEM_ID is not null then @false
+						 ELSE -- no change!
+							ir.IS_DELETED
+						end
+				, new_master = 
+						CASE WHEN GM.IS_CHECKED = 1 and GM.IS_DUPLICATE = 1 then
+							IR1.ITEM_ID
+						ELSE Null
+						END
+		from @t t inner join 
+			TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on t.IR_ID = gm.ITEM_REVIEW_ID and gm.ITEM_DUPLICATE_GROUP_ID = @groupID
+			inner join TB_ITEM_DUPLICATE_GROUP DG on gm.ITEM_DUPLICATE_GROUP_ID = DG.ITEM_DUPLICATE_GROUP_ID
+			inner join TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+			Inner Join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM1 on GM1.GROUP_MEMBER_ID = DG.MASTER_MEMBER_ID 
+				and GM1.ITEM_DUPLICATE_GROUP_ID = @groupID --finding the current MASTER item
+			INNER Join TB_ITEM_REVIEW IR1 on GM1.ITEM_REVIEW_ID = IR1.ITEM_REVIEW_ID --need the ITEM_ID of the master item
+	
+	--select t.*, ir.IS_INCLUDED, ir.IS_DELETED, MASTER_ITEM_ID from @t t
+	--	inner join TB_ITEM_REVIEW ir on t.IR_ID = ir.ITEM_REVIEW_ID
+
+	update TB_ITEM_REVIEW set IS_DELETED = t.deleted
+						, IS_INCLUDED = t.incl
+						,MASTER_ITEM_ID = t.new_master
+		from TB_ITEM_REVIEW ir
+		inner join @t t on t.IR_ID = ir.ITEM_REVIEW_ID
+
+	--select ir.ITEM_ID, t.*, case when ir.ITEM_REVIEW_ID = ir1.ITEM_REVIEW_ID then 1 else 0 end as [is master]
+	--	, ir.IS_INCLUDED, ir.IS_DELETED, ir.MASTER_ITEM_ID from @t t
+	--	inner join TB_ITEM_REVIEW ir on t.IR_ID = ir.ITEM_REVIEW_ID
+	--	inner join TB_ITEM_DUPLICATE_GROUP dg on dg.ITEM_DUPLICATE_GROUP_ID = @groupID
+	--	Inner Join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM1 on dg.MASTER_MEMBER_ID = gm1.GROUP_MEMBER_ID
+	--				and GM1.ITEM_DUPLICATE_GROUP_ID = @groupID --finding the current MASTER item
+	--	INNER Join TB_ITEM_REVIEW IR1 on GM1.ITEM_REVIEW_ID = IR1.ITEM_REVIEW_ID
+	
+	
+	--OLD version starts here:
+	--update IR 
+	--	set IR.MASTER_ITEM_ID = CASE
+			
+	--		WHEN GM.IS_CHECKED = 1 and GM.IS_DUPLICATE = 1 then
+	--			IR1.ITEM_ID
+	--		ELSE Null
+	--		END
+	--	, 
+	--	IR.IS_DELETED = CASE
+	--		WHEN GM1.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID --item is master of current group, leave as the source it belongs.
+	--		--need left joins for manually created items (don't have a source!)
+	--			then (select CASE when (s.is_deleted = 'True' )  Then 'True' else 'False' end from 
+	--						TB_ITEM_REVIEW iir
+	--						LEFT join TB_ITEM_SOURCE tis on iir.ITEM_ID = tis.ITEM_ID
+	--						LEFT join TB_SOURCE s on tis.SOURCE_ID = s.SOURCE_ID
+	--						where IR.ITEM_REVIEW_ID = iir.ITEM_REVIEW_ID
+	--						--TB_SOURCE s inner join TB_ITEM_SOURCE tis 
+	--						--on s.SOURCE_ID = tis.SOURCE_ID and tis.ITEM_ID = IR.ITEM_ID
+	--						) --
+	--		WHEN GM.IS_CHECKED = 1 and GM.IS_DUPLICATE = 1 then
+	--			'True'
+	--		ELSE 'False'
+	--		END
+	--	, IR.IS_INCLUDED = CASE
+	--		WHEN GM.IS_DUPLICATE = 1 and GM.IS_CHECKED = 1 then --set is_included to true, to make the item 'shadow'
+	--			'true'
+	--		ELSE IR.IS_INCLUDED --leave untouched
+	--		END
+	--from TB_ITEM_REVIEW IR inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM 
+	--	on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID and GM.ITEM_DUPLICATE_GROUP_ID = @groupID
+	--	Inner Join TB_ITEM_DUPLICATE_GROUP DG on DG.ITEM_DUPLICATE_GROUP_ID = gm.ITEM_DUPLICATE_GROUP_ID
+	--	Inner Join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM1 on GM1.GROUP_MEMBER_ID = DG.MASTER_MEMBER_ID
+	--	INNER Join TB_ITEM_REVIEW IR1 on GM1.ITEM_REVIEW_ID = IR1.ITEM_REVIEW_ID
+	--	Left outer join TB_ITEM_DUPLICATE_GROUP_MEMBERS GM2 on IR.ITEM_REVIEW_ID = GM2.ITEM_REVIEW_ID 
+	--		and GM2.ITEM_DUPLICATE_GROUP_ID != DG.ITEM_DUPLICATE_GROUP_ID
+	--		and GM2.IS_CHECKED = 1 and GM2.IS_DUPLICATE = 1
+	--	where GM2.GROUP_MEMBER_ID is null
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateWipeData]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	deletes data from group tables and optionally from tb_item_review
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemDuplicateWipeData]
+	-- Add the parameters for the stored procedure here
+	@ReviewID int,
+	@wipeAll bit = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	IF @wipeAll = 1
+	Update TB_ITEM_REVIEW set IS_DELETED = 0, MASTER_ITEM_ID = null
+		where REVIEW_ID = @ReviewID and MASTER_ITEM_ID is not null
+
+	Delete from TB_ITEM_DUPLICATE_GROUP where REVIEW_ID = @ReviewID
+	--this deletes all as there is cascade relationship with TB_ITEM_DUPLICATE_GROUP_MEMBERS
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemImportPrepare]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:              Sergio
+-- Create date: 23-06-09
+-- Description: Prepare Tables for Bulk Item import
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemImportPrepare]
+        @Items_Number int,
+        @Authors_Number int,
+        @Item_Seed bigint OUTPUT,
+        @Author_Seed bigint OUTPUT,
+        @Source_Seed int OUTPUT,
+        @Item_Source_Seed bigint OUTPUT,
+        @Item_Review_Seed bigint OUTPUT
+AS
+BEGIN
+SET NOCOUNT ON;
+-- This procedure Reservs some Identinty values that will be inserted
+-- from C# via a Dataset bulkcopy
+-- Note the Table Lock Hints used to prevent insertions to happen while dealing with a particular table
+Declare @temp bigint
+BEGIN TRAN A
+        set @Item_Seed = (SELECT top 1 IDENT_CURRENT('TB_ITEM') FROM TB_ITEM WITH (HOLDLOCK, TABLOCKX))
+        set @temp = @Item_Seed + @Items_Number
+        DBCC CHECKIDENT('TB_ITEM', RESEED, @temp)
+COMMIT TRAN A
+
+BEGIN TRAN B
+        set @Author_Seed = (SELECT top 1 IDENT_CURRENT('tb_ITEM_AUTHOR') FROM tb_ITEM_AUTHOR WITH (HOLDLOCK, TABLOCKX))
+        set @temp = @Author_Seed + @Authors_Number
+        DBCC CHECKIDENT('tb_ITEM_AUTHOR', RESEED, @temp)
+COMMIT TRAN B
+
+BEGIN TRAN C
+        set @Source_Seed = (SELECT top 1 IDENT_CURRENT('TB_SOURCE') FROM TB_SOURCE WITH (HOLDLOCK, TABLOCKX))
+        set @temp = @Source_Seed + 1
+        DBCC CHECKIDENT('TB_SOURCE', RESEED, @temp)
+COMMIT TRAN C
+
+BEGIN TRAN D
+        set @Item_Source_Seed = (SELECT top 1 IDENT_CURRENT('TB_ITEM_SOURCE') FROM TB_ITEM_SOURCE WITH (HOLDLOCK, TABLOCKX))
+        set @temp = @Item_Source_Seed + @Items_Number
+        DBCC CHECKIDENT('TB_ITEM_SOURCE', RESEED, @temp)
+COMMIT TRAN D
+
+BEGIN TRAN E
+        set @Item_Review_Seed = (SELECT top 1 IDENT_CURRENT('TB_ITEM_REVIEW') FROM TB_ITEM_REVIEW WITH (HOLDLOCK, TABLOCKX))
+        set @temp = @Item_Review_Seed + @Items_Number
+        DBCC CHECKIDENT('TB_ITEM_REVIEW', RESEED, @temp)
+COMMIT TRAN E
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemImportPrepareBatch]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:              Sergio
+-- Create date: 23-06-09
+-- Description: Prepare Tables for Bulk Item import
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemImportPrepareBatch]
+        @Items_Number int,
+        @Authors_Number int,
+        @Source_Id int = 0,
+        @Item_Seed bigint OUTPUT,
+        @Author_Seed bigint OUTPUT,
+        @Source_Seed int OUTPUT,
+        @Item_Source_Seed bigint OUTPUT
+
+AS
+BEGIN
+SET NOCOUNT ON;
+-- This procedure Reservs some Identinty values that will be inserted
+-- from C# via a Dataset bulkcopy
+-- Note the Table Lock Hints used to prevent insertions to happen while dealing with a particular table
+Declare @temp bigint
+BEGIN TRAN A
+        set @Item_Seed = (SELECT top 1 IDENT_CURRENT('TB_ITEM') FROM TB_ITEM WITH (HOLDLOCK, TABLOCKX))
+        set @temp = @Item_Seed + @Items_Number
+        DBCC CHECKIDENT('TB_ITEM', RESEED, @temp)
+COMMIT TRAN A
+
+BEGIN TRAN B
+        set @Author_Seed = (SELECT top 1 IDENT_CURRENT('tb_ITEM_AUTHOR') FROM tb_ITEM_AUTHOR WITH (HOLDLOCK, TABLOCKX))
+        set @temp = @Author_Seed + @Authors_Number
+        DBCC CHECKIDENT('tb_ITEM_AUTHOR', RESEED, @temp)
+COMMIT TRAN B
+
+BEGIN TRAN C
+	if (@Source_Id > 0)--no need to seed the source
+	begin
+			set @Source_Seed = -1 --make sure there is some value, just in case SQL gets upset
+	end
+	else 
+	BEGIN
+			set @Source_Seed = (SELECT top 1 IDENT_CURRENT('TB_SOURCE') FROM TB_SOURCE WITH (HOLDLOCK, TABLOCKX))
+			set @temp = @Source_Seed + 1
+			DBCC CHECKIDENT('TB_SOURCE', RESEED, @temp)
+	END
+COMMIT TRAN C
+
+
+BEGIN TRAN D
+        set @Item_Source_Seed = (SELECT top 1 IDENT_CURRENT('TB_ITEM_SOURCE') FROM TB_ITEM_SOURCE WITH (HOLDLOCK, TABLOCKX))
+        set @temp = @Item_Source_Seed + @Items_Number
+        DBCC CHECKIDENT('TB_ITEM_SOURCE', RESEED, @temp)
+COMMIT TRAN D
+
+
+END
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemIncludeExclude]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemIncludeExclude]
+(
+	@INCLUDE BIT,
+	@ITEM_ID_LIST varchar(max),
+	@REVIEW_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@SET_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+IF(@ITEM_ID_LIST = '')
+BEGIN
+	UPDATE TB_ITEM_REVIEW
+	set IS_INCLUDED = @INCLUDE, IS_DELETED = 'FALSE'
+	WHERE REVIEW_ID = @REVIEW_ID 
+		 AND ITEM_ID IN
+		(SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SET_ID
+			AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID
+		)
+		AND not( IS_DELETED = 1 and IS_INCLUDED = 1)--this leaves shadow items alone
+END
+ELSE
+BEGIN
+	UPDATE TB_ITEM_REVIEW
+	set IS_INCLUDED = @INCLUDE, IS_DELETED = 'FALSE'
+	WHERE REVIEW_ID = @REVIEW_ID 
+		 AND ITEM_ID IN
+		(SELECT VALUE FROM dbo.fn_Split_int(@ITEM_ID_LIST, ','))
+		AND not( IS_DELETED = 1 and IS_INCLUDED = 1)--this leaves shadow items alone
+END
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemInERWebANDZotero]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemInERWebANDZotero]
+(
+@ItemReviewId [bigint]
+)
+as
+Begin	
+  SELECT ZIR.Zotero_item_review_ID, ZIR.ItemKey, 
+  --ZIR.LibraryID, 
+  --ZIR.Version,
+  ZIR.ITEM_REVIEW_ID, I.DATE_EDITED as LAST_MODIFIED, 
+  IR.ITEM_ID, I.SHORT_TITLE, I.TITLE, ty.TYPE_NAME AS TypeName
+  FROM [TB_ZOTERO_ITEM_REVIEW] ZIR
+  INNER JOIN [TB_ITEM_REVIEW] IR
+	ON ZIR.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+  INNER JOIN [TB_ITEM] I
+	ON IR.ITEM_ID = I.ITEM_ID
+  INNER JOIN TB_ITEM_TYPE ty on I.TYPE_ID = ty.TYPE_ID
+  WHERE ZIR.ITEM_REVIEW_ID = @ItemReviewId
+  ORDER BY I.SHORT_TITLE
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemLinkDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemLinkDelete]
+(
+	@ITEM_LINK_ID INT
+)
+
+As
+	DELETE FROM TB_ITEM_LINK
+	WHERE ITEM_LINK_ID = @ITEM_LINK_ID
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemLinkInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemLinkInsert]
+(
+	@ITEM_ID_PRIMARY BIGINT,
+	@ITEM_ID_SECONDARY BIGINT,
+	@LINK_DESCRIPTION NVARCHAR(255),
+	@NEW_ITEM_LINK_ID INT OUTPUT
+)
+
+As
+
+	INSERT INTO TB_ITEM_LINK(ITEM_ID_PRIMARY, ITEM_ID_SECONDARY, LINK_DESCRIPTION)
+	VALUES (@ITEM_ID_PRIMARY, @ITEM_ID_SECONDARY, @LINK_DESCRIPTION)
+	
+	SET @NEW_ITEM_LINK_ID = @@IDENTITY
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemLinkList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemLinkList]
+(
+	@REVIEW_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+	SELECT ITEM_LINK_ID, ITEM_ID_PRIMARY, ITEM_ID_SECONDARY, LINK_DESCRIPTION, SHORT_TITLE, TITLE
+	FROM TB_ITEM_LINK
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_LINK.ITEM_ID_SECONDARY
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_LINK.ITEM_ID_PRIMARY
+	WHERE ITEM_ID_PRIMARY = @ITEM_ID AND REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemLinkUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemLinkUpdate]
+(
+	@ITEM_LINK_ID INT,
+	@ITEM_LINK_SECONDARY BIGINT,
+	@LINK_DESCRIPTION NVARCHAR(255)
+)
+
+As
+	UPDATE TB_ITEM_LINK
+	SET LINK_DESCRIPTION = @LINK_DESCRIPTION,
+	ITEM_ID_SECONDARY = @ITEM_LINK_SECONDARY
+	WHERE ITEM_LINK_ID = @ITEM_LINK_ID
+
+SET NOCOUNT OFF
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemList]
+(
+      @REVIEW_ID INT,
+      @SHOW_INCLUDED BIT = null,
+      @SHOW_DELETED BIT = 0,
+      @SOURCE_ID INT = 0,
+      @ATTRIBUTE_SET_ID_LIST NVARCHAR(MAX) = '',
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+IF (@SOURCE_ID = 0) AND (@ATTRIBUTE_SET_ID_LIST = '') /* LIST ALL ITEMS IN THE REVIEW */
+BEGIN
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID SELECT DISTINCT (I.ITEM_ID)
+      FROM TB_ITEM I
+      INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+            AND (TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED OR @SHOW_INCLUDED is null)
+            AND TB_ITEM_REVIEW.IS_DELETED = @SHOW_DELETED
+
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (ir.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, ir.ITEM_ID) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+END
+ELSE /* FILTER BY A LIST OF ATTRIBUTES */
+
+IF (@ATTRIBUTE_SET_ID_LIST != '')
+BEGIN
+      SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+            FROM TB_ITEM_REVIEW I
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+      INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID -- Make sure the correct set is being used - the same code can appear in more than one set!
+
+      WHERE (I.IS_INCLUDED = @SHOW_INCLUDED OR @SHOW_INCLUDED is null)
+            AND I.IS_DELETED = @SHOW_DELETED
+            AND I.REVIEW_ID = @REVIEW_ID
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID, ADDITIONAL_TEXT,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+      FROM TB_ITEM I
+       INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+            AND (TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED OR @SHOW_INCLUDED is null)
+            AND TB_ITEM_REVIEW.IS_DELETED = @SHOW_DELETED
+
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+      INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID -- Make sure the correct set is being used - the same code can appear in more than one set!
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS, ADDITIONAL_TEXT
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve 
+            ORDER BY RowNum
+END
+ELSE -- LISTING SOURCELESS
+IF (@SOURCE_ID = -1)
+BEGIN
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID 	  
+		select distinct IR.ITEM_ID
+		from TB_ITEM_REVIEW ir   
+		where ir.REVIEW_ID = @REVIEW_ID and ir.ITEM_ID not in 
+		( 
+			Select ir1.Item_id from tb_source s
+			inner join TB_ITEM_SOURCE tis on s.SOURCE_ID = tis.SOURCE_ID and s.REVIEW_ID = @REVIEW_ID
+			inner join TB_ITEM_REVIEW ir1 on tis.ITEM_ID = ir1.ITEM_ID and ir1.REVIEW_ID = @REVIEW_ID
+		)
+	  
+
+	  SELECT @TotalRows = @@ROWCOUNT
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (I.ITEM_ID), IR.IS_DELETED, IS_INCLUDED, IR.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+      FROM TB_ITEM I
+      INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] 
+      INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = I.ITEM_ID AND IR.REVIEW_ID = @REVIEW_ID
+      INNER JOIN @ID id on id.ItemID = I.ITEM_ID
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve 
+            ORDER BY RowNum
+      
+END
+ELSE -- LISTING BY A SOURCE
+BEGIN
+      SELECT @TotalRows = count(I.ITEM_ID)
+      FROM TB_ITEM_REVIEW I
+      INNER JOIN TB_ITEM_SOURCE ON TB_ITEM_SOURCE.ITEM_ID = I.ITEM_ID AND TB_ITEM_SOURCE.SOURCE_ID = @SOURCE_ID
+      WHERE I.REVIEW_ID = @REVIEW_ID
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+      FROM TB_ITEM I
+      INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+      INNER JOIN TB_ITEM_SOURCE ON TB_ITEM_SOURCE.ITEM_ID = I.ITEM_ID AND TB_ITEM_SOURCE.SOURCE_ID = @SOURCE_ID
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+      
+END
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemListFrequencyNoneOfTheAbove]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemListFrequencyNoneOfTheAbove]
+(
+	@ATTRIBUTE_ID BIGINT = null,
+	@SET_ID BIGINT,
+	@IS_INCLUDED BIT = null,
+	@FILTER_ATTRIBUTE_ID BIGINT,
+	@REVIEW_ID INT,
+
+	@PageNum INT = 1,
+	@PerPage INT = 3,
+	@CurrentPage INT OUTPUT,
+	@TotalPages INT OUTPUT,
+	@TotalRows INT OUTPUT 
+)
+
+As
+
+SET NOCOUNT ON
+	declare @RowsToRetrieve int
+	Declare @ID table (ItemID bigint ) --store IDs to build paged results as a simple join
+IF (@FILTER_ATTRIBUTE_ID = -1)
+BEGIN
+	insert into @ID
+	Select DISTINCT ITEM_ID
+			from TB_ITEM_REVIEW 
+			where ITEM_ID not in 
+					(
+						select TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+						  INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+								AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SET_ID
+						  RIGHT OUTER JOIN TB_ATTRIBUTE_SET ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+								AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+						  INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+						  INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+								AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+								AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+					)
+				AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+								AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+END
+ELSE
+BEGIN
+	insert into @ID
+	Select TB_ITEM_REVIEW.ITEM_ID
+			from TB_ITEM_REVIEW 
+			INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID AND IA2.ATTRIBUTE_ID = @FILTER_ATTRIBUTE_ID
+						  INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 'TRUE'
+			where TB_ITEM_REVIEW.ITEM_ID not in 
+					(
+						select TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+						  INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+								AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SET_ID
+						  RIGHT OUTER JOIN TB_ATTRIBUTE_SET ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+								AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.SET_ID = @SET_ID
+						  INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+						  INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+								AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+								AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+						  INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND IA2.ATTRIBUTE_ID = @FILTER_ATTRIBUTE_ID
+						  INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 'TRUE'
+					)
+				AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+								AND (TB_ITEM_REVIEW.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+END
+	--count results
+	SELECT @TotalRows = count(ItemID) from @ID
+	set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+		SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID
+			, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+		FROM TB_ITEM I
+		INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] 
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+			TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN @ID on I.ITEM_ID = ItemID
+	)
+	Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+			TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+			[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+			AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+			, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		FROM SearchResults 
+				  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+		WHERE RowNum > @RowsToRetrieve - @PerPage
+		AND RowNum <= @RowsToRetrieve 
+		ORDER BY RowNum
+
+
+SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemListFrequencyWithFilter]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemListFrequencyWithFilter]
+(
+	@ATTRIBUTE_ID BIGINT = null,
+	@SET_ID BIGINT,
+	@IS_INCLUDED BIT = null,
+	@FILTER_ATTRIBUTE_ID BIGINT,
+	@REVIEW_ID INT,
+
+	@PageNum INT = 1,
+	@PerPage INT = 3,
+	@CurrentPage INT OUTPUT,
+	@TotalPages INT OUTPUT,
+	@TotalRows INT OUTPUT 
+)
+
+As
+
+SET NOCOUNT ON
+	declare @RowsToRetrieve int
+	Declare @ID table (ItemID bigint ) --store IDs to build paged results as a simple join
+	insert into @ID
+	Select DISTINCT ir.ITEM_ID
+			from TB_ITEM_REVIEW ir
+			inner join TB_ITEM_ATTRIBUTE ia on ir.REVIEW_ID = @REVIEW_ID
+								AND (ir.IS_INCLUDED = @IS_INCLUDED OR @IS_INCLUDED is null)
+								AND ir.IS_DELETED = 'FALSE'
+								and ia.ITEM_ID = ir.ITEM_ID
+								AND ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+			inner join TB_ITEM_SET tis on tis.ITEM_SET_ID = ia.ITEM_SET_ID
+								AND tis.IS_COMPLETED = 1
+								and tis.SET_ID = @SET_ID
+			inner join TB_ITEM_ATTRIBUTE ia2  on  ia2.ITEM_ID = ir.ITEM_ID
+								and ia2.ATTRIBUTE_ID = @FILTER_ATTRIBUTE_ID
+			inner join TB_ITEM_SET tis2 on tis2.ITEM_SET_ID = ia2.ITEM_SET_ID
+								AND tis2.IS_COMPLETED = 1
+												
+	--count results
+	SELECT @TotalRows = count(ItemID) from @ID
+	set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+		SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID
+			, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+		FROM TB_ITEM I
+		INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] 
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+			TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN @ID on I.ITEM_ID = ItemID
+	)
+	Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+			TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+			[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+			AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+			, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		FROM SearchResults 
+				  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+		WHERE RowNum > @RowsToRetrieve - @PerPage
+		AND RowNum <= @RowsToRetrieve 
+		ORDER BY RowNum
+
+
+SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagMatches]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemListMagMatches]
+(
+      @REVIEW_ID INT,
+      @SHOW_INCLUDED BIT = 'true',
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+BEGIN
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID
+	  SELECT DISTINCT (I.ITEM_ID) FROM TB_ITEM_REVIEW I
+			INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID and IMM.REVIEW_ID = @REVIEW_ID 
+			WHERE  (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+			AND	I.REVIEW_ID = @REVIEW_ID AND I.IS_INCLUDED = @SHOW_INCLUDED
+			AND I.IS_DELETED = 'FALSE'
+
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (i.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, i.ITEM_ID) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+end
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagNoMatches]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemListMagNoMatches]
+(
+      @REVIEW_ID INT,
+      @SHOW_INCLUDED BIT = 'true',
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID SELECT DISTINCT (I.ITEM_ID)
+      FROM TB_ITEM I
+      INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+            AND TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED
+			AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			left outer JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID and IMM.REVIEW_ID = @REVIEW_ID
+			where imm.ITEM_ID is null
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (i.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, i.ITEM_ID) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagPreviousMatches]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemListMagPreviousMatches]
+(
+      @REVIEW_ID INT,
+      @SHOW_INCLUDED BIT = 'true',
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+BEGIN
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID
+	  SELECT DISTINCT (I.ITEM_ID) FROM TB_ITEM_REVIEW I
+			INNER JOIN TB_MAG_CHANGED_PAPER_IDS cpi on cpi.ITEM_ID = i.ITEM_ID
+			WHERE cpi.NewPaperId = -1
+			AND I.IS_DELETED = 'FALSE' AND I.REVIEW_ID = @REVIEW_ID
+
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (i.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, i.ITEM_ID) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+end
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagSimulationTPFN]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemListMagSimulationTPFN]
+(
+      @REVIEW_ID INT,
+      --@SHOW_INCLUDED BIT = 'true',
+	  @MAG_SIMULATION_ID INT,
+	  @FOUND BIT,
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+declare @SeedIds nvarchar(max)
+
+	select @SeedIds = SeedIds from TB_MAG_SIMULATION
+		where MAG_SIMULATION_ID = @MAG_SIMULATION_ID
+
+       --store IDs to build paged results as a simple join
+
+	  IF @FOUND = 'True'
+	  begin
+	  INSERT INTO @ID
+	  SELECT DISTINCT (I.ITEM_ID) FROM TB_ITEM_REVIEW I
+			INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID and IMM.REVIEW_ID = I.REVIEW_ID
+				AND (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+			INNER JOIN TB_MAG_SIMULATION_RESULT MSR ON MSR.PaperId = IMM.PaperId
+			WHERE I.REVIEW_ID = @REVIEW_ID AND I.IS_DELETED = 'FALSE' and MSR.INCLUDED = 'True'
+				and msr.MAG_SIMULATION_ID = @MAG_SIMULATION_ID
+	  END
+	  else
+	  begin
+
+		declare @seekingids nvarchar(max)
+
+		select @seekingids = (Select STRING_AGG(SeekingIds, ',') From TB_MAG_SIMULATION
+			where MAG_SIMULATION_ID = @MAG_SIMULATION_ID)
+			INSERT INTO @ID
+		SELECT DISTINCT (I.ITEM_ID) FROM TB_ITEM_REVIEW I
+			INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID AND IMM.REVIEW_ID = I.REVIEW_ID
+				AND (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+			inner join dbo.fn_Split_int(@seekingids, ',') s on s.value = imm.PaperId
+
+			left outer join TB_MAG_SIMULATION_RESULT MSR ON MSR.PaperId = IMM.PaperId AND msr.INCLUDED = 'True'
+				AND MSR.INCLUDED = 'True' and msr.MAG_SIMULATION_ID = @MAG_SIMULATION_ID
+			WHERE I.REVIEW_ID = @REVIEW_ID AND I.IS_DELETED = 'FALSE' and msr.PaperId is null
+
+	  end
+
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (i.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, i.ITEM_ID) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemListMaybeMagMatches]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemListMaybeMagMatches]
+(
+      @REVIEW_ID INT,
+      @SHOW_INCLUDED BIT = 'true',
+      @ATTRIBUTE_SET_ID_LIST NVARCHAR(MAX) = '',
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+begin
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+IF (@ATTRIBUTE_SET_ID_LIST = '')
+BEGIN
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID
+	  SELECT DISTINCT (I.ITEM_ID) FROM TB_ITEM I
+      INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+            AND TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED
+			AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID AND imm.REVIEW_ID = @REVIEW_ID
+
+			where imm.AutoMatchScore < 0.8 and ((imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null) and (imm.ManualTrueMatch = 'false' or imm.ManualTrueMatch is null))
+			and not imm.ITEM_ID in 
+			(
+				select imm2.ITEM_ID from tb_ITEM_MAG_MATCH imm2 
+				where imm.REVIEW_ID = @REVIEW_ID and imm2.ITEM_ID = imm.ITEM_ID
+				AND (
+						imm2.AutoMatchScore >=0.8 or 
+						(
+							imm2.ManualTrueMatch = 'true' and (imm2.ManualFalseMatch <> 'true' or imm2.ManualFalseMatch is null)
+						)
+					)
+			)
+
+	  SELECT @TotalRows = @@ROWCOUNT
+
+END
+ELSE /* FILTER BY A LIST OF ATTRIBUTES */
+BEGIN
+	  --store IDs to build paged results as a simple join
+	  INSERT INTO @ID
+	  SELECT DISTINCT I.ITEM_ID
+	  --SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+            FROM TB_ITEM_REVIEW I
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+      INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID -- Make sure the correct set is being used - the same code can appear in more than one set!
+	  INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID and imm.REVIEW_ID = i.REVIEW_ID
+
+      WHERE I.IS_INCLUDED = @SHOW_INCLUDED
+            AND I.REVIEW_ID = @REVIEW_ID
+			AND I.IS_DELETED = 'FALSE'
+
+		and imm.AutoMatchScore < 0.8 and ((imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null) and (imm.ManualTrueMatch = 'false' or imm.ManualTrueMatch is null))
+			and not imm.ITEM_ID in 
+			(
+				select imm2.ITEM_ID from tb_ITEM_MAG_MATCH imm2 
+				where imm.REVIEW_ID = @REVIEW_ID and imm2.ITEM_ID = imm.ITEM_ID
+				AND (
+						imm2.AutoMatchScore >=0.8 or 
+						(
+							imm2.ManualTrueMatch = 'true' and (imm2.ManualFalseMatch <> 'true' or imm2.ManualFalseMatch is null)
+						)
+					)
+			)
+	  SELECT @TotalRows = @@ROWCOUNT
+END
+	set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (i.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, i.ITEM_ID) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemListWithoutAttributes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemListWithoutAttributes]
+(
+	@REVIEW_ID INT,
+	@SHOW_INCLUDED BIT = 'true',
+	@SHOW_DELETED BIT = 'false',
+	@ATTRIBUTE_SET_ID_LIST NVARCHAR(MAX) = '',
+	
+	@PageNum INT = 1,
+	@PerPage INT = 3,
+	@CurrentPage INT OUTPUT,
+	@TotalPages INT OUTPUT,
+	@TotalRows INT OUTPUT 
+)
+WITH RECOMPILE
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+	Declare @ID table (ItemID bigint ) --store IDs to build paged results as a simple join
+
+	--get the relevant IDs
+	insert into @ID SELECT DISTINCT I.ITEM_ID
+		FROM TB_ITEM I
+		INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+		TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		AND TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED
+		AND TB_ITEM_REVIEW.IS_DELETED = @SHOW_DELETED
+		
+		where NOT I.ITEM_ID in
+		(
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE -- Make sure the correct set is being used - the same code can appear in more than one set!
+			INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID 
+			INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID 
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID 
+			inner join TB_ITEM_REVIEW IIR on TB_ITEM_ATTRIBUTE.ITEM_ID = IIR.ITEM_ID and IIR.IS_INCLUDED = @SHOW_INCLUDED and IIR.IS_DELETED = @SHOW_DELETED
+			--the last line is useful to reduce the number of lines to evaluate: it speeds up the (sub)query itself!
+	)
+	--count results
+	SELECT @TotalRows = count(ItemID) from @ID
+	set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+	SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID
+		, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+	FROM TB_ITEM I
+	INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+		TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		AND TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED
+		AND TB_ITEM_REVIEW.IS_DELETED = @SHOW_DELETED
+	INNER JOIN @ID on I.ITEM_ID = ItemID
+		
+		--old and slow way of selecting relevant IDs. We did this already when populating @ID
+		--where NOT I.ITEM_ID in
+		--(
+		--	SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE 
+		--		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID 
+		--		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID 
+		--		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		--		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID 
+		--		inner join TB_ITEM_REVIEW IIR on TB_ITEM_ATTRIBUTE.ITEM_ID = IIR.ITEM_ID and IIR.IS_INCLUDED = @SHOW_INCLUDED and IIR.IS_DELETED = @SHOW_DELETED
+		--		-- Make sure the correct set is being used - the same code can appear in more than one set!
+		--)
+	
+	)
+	Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+			TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+			[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+			AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+			, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+			--, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+		FROM SearchResults 
+				  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+		WHERE RowNum > @RowsToRetrieve - @PerPage
+		AND RowNum <= @RowsToRetrieve 
+		ORDER BY RowNum
+
+
+SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemReviewDeleteUndelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemReviewDeleteUndelete]
+(
+	@DELETE BIT,
+	@ITEM_ID_LIST varchar(max),
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	UPDATE TB_ITEM_REVIEW
+	set IS_DELETED = @DELETE,
+	 IS_INCLUDED = CASE WHEN @DELETE = 'true' THEN 'false' ELSE 'true' END
+	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID IN
+		(SELECT VALUE FROM dbo.fn_Split_int(@ITEM_ID_LIST, ','))
+	AND not( IS_DELETED = 1 and IS_INCLUDED = 1)--this leaves shadow items alone
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemReviewerCodingList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemReviewerCodingList]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@SET_ID INT,
+	@COMPLETED BIT,
+	
+	@PageNum INT = 1,
+	@PerPage INT = 3,
+	@CurrentPage INT OUTPUT,
+	@TotalPages INT OUTPUT,
+	@TotalRows INT OUTPUT 
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+
+SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'TRUE'
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+
+WHERE TB_ITEM_SET.SET_ID = @SET_ID
+AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+AND TB_ITEM_SET.IS_COMPLETED = @COMPLETED
+
+set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+SELECT I.ITEM_ID, I.[TYPE_ID], I.OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+	TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+	[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+	AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS
+	,TB_ITEM_REVIEW.MASTER_ITEM_ID, DOI, KEYWORDS
+	, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+
+WHERE TB_ITEM_SET.SET_ID = @SET_ID
+AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+AND TB_ITEM_SET.IS_COMPLETED = @COMPLETED
+AND IS_DELETED != 'TRUE'
+
+)
+	Select ITEM_ID, [TYPE_ID], OLD_ITEM_ID, AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, PARENTAUTHORS
+		,SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		, ROW_NUMBER() OVER(order by SHORT_TITLE, TITLE) RowNum
+	FROM SearchResults 
+	WHERE RowNum > @RowsToRetrieve - @PerPage
+	AND RowNum <= @RowsToRetrieve 
+	ORDER By RowNum
+	option (optimize for unknown)
+
+SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemReviewerCodingListUncomplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemReviewerCodingListUncomplete]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@SET_ID INT,
+	
+	@PageNum INT = 1,
+	@PerPage INT = 3,
+	@CurrentPage INT OUTPUT,
+	@TotalPages INT OUTPUT,
+	@TotalRows INT OUTPUT 
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+
+SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'TRUE'
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+
+WHERE (TB_ITEM_SET.SET_ID = @SET_ID
+AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+AND TB_ITEM_SET.IS_COMPLETED = 'FALSE')
+AND NOT TB_ITEM_SET.ITEM_ID IN
+(
+	SELECT IS2.ITEM_ID FROM TB_ITEM_SET IS2
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = IS2.ITEM_ID
+		WHERE IS2.SET_ID = @SET_ID
+		AND IS2.IS_COMPLETED = 'TRUE'
+)
+
+set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+SELECT I.ITEM_ID, I.[TYPE_ID], I.OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+	TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+	[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+	AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 1) as PARENTAUTHORS
+	,TB_ITEM_REVIEW.MASTER_ITEM_ID, DOI, KEYWORDS
+	, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+FROM TB_ITEM I
+INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+	TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+
+WHERE (TB_ITEM_SET.SET_ID = @SET_ID
+AND TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+AND TB_ITEM_SET.IS_COMPLETED = 'FALSE'
+AND IS_DELETED != 'TRUE')
+AND NOT TB_ITEM_SET.ITEM_ID IN
+(
+	SELECT IS2.ITEM_ID FROM TB_ITEM_SET IS2
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = IS2.ITEM_ID
+		WHERE IS2.SET_ID = @SET_ID
+		AND IS2.IS_COMPLETED = 'TRUE'
+)
+
+)
+	Select ITEM_ID, [TYPE_ID], OLD_ITEM_ID, AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, PARENTAUTHORS
+		,SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		, ROW_NUMBER() OVER(order by SHORT_TITLE, TITLE) RowNum
+	FROM SearchResults 
+	WHERE RowNum > @RowsToRetrieve - @PerPage
+	AND RowNum <= @RowsToRetrieve 
+	ORDER By RowNum
+	option (optimize for unknown)
+SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemScreenNext]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemScreenNext]
+(
+	@REVIEW_ID INT,
+	-- @CURRENT_ITEM_ID BIGINT, Can't remember why this parameter is there
+	@SHOW_PREVIOUSLY_SCREENED BIT = 'false',
+	@SET_ID INT, -- NEEDED, AS CONTACT_ID IS SIGNIFICANT SOMETIMES (IN DOUBLE SCREENING IT IS)
+	@IS_CODING_FINAL BIT, -- TRUE / FALSE - DEPENDS ON THE SET_ID IN THE GIVEN REVIEW
+	@CONTACT_ID INT,
+	@ATTRIBUTE_SET_ID BIGINT = 0 -- SCREENING A PARTICULAR GROUP OF STUDIES, OR ALL?
+)
+
+/* Returns the next item to be screened by a reviewer. The set of documents to select within can either be a 'group' - i.e. those coded with
+a given attribute, or all in the review. (Specific 'groups' can be assigned to particular reviewers for screening.)
+
+First we decide which set of items we are selecting from - all in review, or those assigned with a particular attribute.
+
+We also need to return either those items already screened, or all items (depending on user choice).
+*/
+
+As
+
+SET NOCOUNT ON
+
+IF (@ATTRIBUTE_SET_ID = 0) /* SELECT FROM ALL ITEMS IN THE REVIEW */
+BEGIN
+
+	IF (@SHOW_PREVIOUSLY_SCREENED = 'True')
+	BEGIN
+	-- First, just grab all the usual fields for item information
+	SELECT TOP (1) I.ITEM_ID, I.[TYPE_ID], [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, DOI, KEYWORDS
+	FROM TB_ITEM I
+
+	-- Limit to a given review
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+
+	ORDER BY NEWID()
+
+	END
+	ELSE
+	BEGIN
+	-- First, just grab all the usual fields for item information
+	SELECT TOP(1) I.ITEM_ID, I.[TYPE_ID], [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, DOI, KEYWORDS
+	FROM TB_ITEM I
+
+	-- Limit to a given review
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+
+	-- Limit to items not already coded with a given code set
+	WHERE I.ITEM_ID IN (SELECT * FROM dbo.fn_ItemsSetUncoded(@REVIEW_ID, @SET_ID, @IS_CODING_FINAL, @CONTACT_ID))
+
+	ORDER BY NEWID()
+
+	END
+END
+ELSE
+BEGIN
+
+	IF (@SHOW_PREVIOUSLY_SCREENED = 'True')
+	BEGIN
+	-- First, just grab all the usual fields for item information
+	SELECT TOP(1) I.ITEM_ID, I.[TYPE_ID], [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, DOI, KEYWORDS
+	FROM TB_ITEM I
+
+	-- Limit to a given review
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+
+	-- Limit to a given attribute
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		AND TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+	
+	ORDER BY NEWID()
+
+	END
+	ELSE
+	BEGIN
+	-- First, just grab all the usual fields for item information
+	SELECT TOP(1) I.ITEM_ID, I.[TYPE_ID], [dbo].fn_REBUILD_AUTHORS(I.ITEM_ID, 0) as AUTHORS,
+		TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY
+		[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+		AVAILABILITY, URL, ABSTRACT, COMMENTS, DOI, KEYWORDS
+	FROM TB_ITEM I
+
+	-- Limit to a given review
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+
+	-- Limit to a given attribute
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		AND TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID = @ATTRIBUTE_SET_ID
+
+	-- Limit to items not already coded with a given code set
+	WHERE I.ITEM_ID IN (SELECT * FROM dbo.fn_ItemsSetUncoded(@REVIEW_ID, @SET_ID, @IS_CODING_FINAL, @CONTACT_ID))
+
+	ORDER BY NEWID()
+
+	END
+END
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSearchList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSearchList] (
+      @REVIEW_ID INT,
+      @SEARCH_ID INT,
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+
+      SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+      FROM TB_ITEM_REVIEW I
+      INNER JOIN TB_SEARCH_ITEM ON TB_SEARCH_ITEM.ITEM_ID = I.ITEM_ID
+      AND TB_SEARCH_ITEM.SEARCH_ID = @SEARCH_ID
+      AND I.REVIEW_ID = @REVIEW_ID
+
+set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT I.ITEM_ID, ITEM_RANK,
+            ROW_NUMBER() OVER(order by ITEM_RANK desc, short_title asc, i.item_id) RowNum
+      FROM TB_ITEM I
+            --INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] 
+			--INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            --      TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+            INNER JOIN TB_SEARCH_ITEM ON TB_SEARCH_ITEM.ITEM_ID = I.ITEM_ID
+                  AND TB_SEARCH_ITEM.SEARCH_ID = @SEARCH_ID
+			inner join TB_SEARCH on TB_SEARCH.REVIEW_ID = @REVIEW_ID and TB_SEARCH.SEARCH_ID = TB_SEARCH_ITEM.SEARCH_ID
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, 
+				  [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, 
+				  [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS,
+                  TB_ITEM_REVIEW.MASTER_ITEM_ID, DOI, KEYWORDS, ITEM_RANK
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+				INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = SearchResults.ITEM_ID AND 
+					  TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID 
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID 
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+                  ORDER BY RowNum desc
+                
+      --OPTION (OPTIMIZE FOR (@PerPage=700, @SEARCH_ID UNKNOWN, @REVIEW_ID UNKNOWN))
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkComplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSetBulkComplete]
+(
+	@SET_ID INT,
+	@COMPLETE BIT,
+	@REVIEW_ID INT,
+	@CONTACT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+IF (@COMPLETE = 'FALSE')
+BEGIN
+	UPDATE TB_ITEM_SET
+		SET IS_COMPLETED = 'FALSE'
+		WHERE SET_ID = @SET_ID
+			AND CONTACT_ID = @CONTACT_ID
+			AND ITEM_ID IN (SELECT ITEM_ID FROM TB_ITEM_REVIEW WHERE REVIEW_ID = @REVIEW_ID)
+			--AND NOT IS_LOCKED = 'TRUE'
+END
+ELSE
+BEGIN
+	UPDATE TB_ITEM_SET
+		SET IS_COMPLETED = 'TRUE'
+		WHERE SET_ID = @SET_ID
+			AND CONTACT_ID = @CONTACT_ID
+			AND ITEM_ID IN (SELECT ITEM_ID FROM TB_ITEM_REVIEW WHERE REVIEW_ID = @REVIEW_ID)
+			AND NOT ITEM_ID IN (SELECT ITEM_ID FROM TB_ITEM_SET IS2 WHERE IS2.IS_COMPLETED = 'TRUE'
+									AND IS2.SET_ID = @SET_ID)
+			--AND NOT IS_LOCKED = 'TRUE'
+END
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttribute]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSetBulkCompleteOnAttribute]
+(
+	@SET_ID INT,
+	@ATTRIBUTE_ID bigint,
+	@COMPLETE BIT,
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@Affected INT = 0 output
+)
+
+As
+
+SET NOCOUNT ON
+declare @Items table (itemID bigint primary key)
+
+--get all items that have the selection ATTRIBUTE
+insert into @Items select distinct tis.ITEM_ID from TB_ITEM_SET tis
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+	inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 0
+delete from @Items where itemID not in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED != @COMPLETE and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						(
+						 (--we are completing someone's coding
+							tis.CONTACT_ID = @CONTACT_ID
+							AND
+							@COMPLETE = 1
+						 )
+						OR
+						 (-- we are un-completing everything that has the chosen ATTRIBUTE
+							@COMPLETE = 0
+						 )
+						)
+			
+	)
+IF @COMPLETE = 1 --we need to exclude items that have a completed version from someone else
+BEGIN
+delete from @Items where itemID in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED = 1 and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						--this is the bit that's doing the extra work along with "tis.IS_COMPLETED = 1"
+						tis.CONTACT_ID != @CONTACT_ID
+	)
+END
+	UPDATE TB_ITEM_SET
+			SET IS_COMPLETED = @COMPLETE
+			WHERE SET_ID = @SET_ID
+				AND ITEM_ID IN (SELECT itemID from @Items)
+				AND ( @COMPLETE = 0 --we are uncompleting all coding for the relevant items and the given set
+					OR
+						(--we are completing the personal version of @CONTACT_ID, not ALL versions of the relevant items and the given set!
+						CONTACT_ID = @CONTACT_ID AND @COMPLETE = 1
+						)
+					)
+					
+
+	set @Affected = @@ROWCOUNT
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttributePreview]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSetBulkCompleteOnAttributePreview]
+(
+	@SET_ID INT,
+	@ATTRIBUTE_ID bigint,
+	@COMPLETE BIT,
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@PotentiallyAffected int = 0 output,
+	@WouldBeAffected INT = 0 output
+)
+
+As
+
+SET NOCOUNT ON
+declare @Items table (itemID bigint primary key)
+
+--get all items that have the selection ATTRIBUTE
+insert into @Items select distinct tis.ITEM_ID from TB_ITEM_SET tis
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+	inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 0
+set @PotentiallyAffected = (select count(itemID) from @Items)
+delete from @Items where itemID not in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED != @COMPLETE and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						(
+						 (--we are completing someone's coding
+							tis.CONTACT_ID = @CONTACT_ID
+							AND
+							@COMPLETE = 1
+						 )
+						OR
+						 (-- we are un-completing everything that has the chosen ATTRIBUTE
+							@COMPLETE = 0
+						 )
+						)
+			
+	)
+IF @COMPLETE = 1 --we need to exclude items that have a completed version from someone else
+BEGIN
+delete from @Items where itemID in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED = 1 and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						--this is the bit that's doing the extra work along with "tis.IS_COMPLETED = 1"
+						tis.CONTACT_ID != @CONTACT_ID
+	)
+END
+set @WouldBeAffected = (select count(itemID) from @Items)
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetComplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSetComplete]
+(
+	@ITEM_SET_ID BIGINT,
+	@COMPLETE BIT,
+	@IS_LOCKED BIT,
+	@SUCCESSFUL BIT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+IF (@COMPLETE = 'FALSE')
+BEGIN
+	UPDATE TB_ITEM_SET
+		SET IS_COMPLETED = 'FALSE', IS_LOCKED = @IS_LOCKED
+		WHERE ITEM_SET_ID = @ITEM_SET_ID
+	SET @SUCCESSFUL = 'TRUE'
+END
+ELSE
+BEGIN
+	SELECT IS1.ITEM_SET_ID FROM TB_ITEM_SET IS1
+		INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_ID = IS1.ITEM_ID
+			AND IS2.SET_ID = IS1.SET_ID AND IS2.IS_COMPLETED = 'TRUE'
+			AND IS2.ITEM_SET_ID <> @ITEM_SET_ID
+		WHERE IS1.ITEM_SET_ID = @ITEM_SET_ID
+		
+	IF (@@ROWCOUNT > 0)
+	BEGIN
+		SET @SUCCESSFUL = 'FALSE'
+	END
+	ELSE
+	BEGIN
+		UPDATE TB_ITEM_SET
+			SET IS_COMPLETED = 'TRUE', IS_LOCKED = @IS_LOCKED
+			WHERE ITEM_SET_ID = @ITEM_SET_ID
+		SET @SUCCESSFUL = 'TRUE'
+	END
+END
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetDataList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSetDataList] (
+	@REVIEW_ID INT,
+	--@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	--this was changed on Aug 2013, previous version is commented below.
+	--the new version gets: all completed sets for the item, plus all coded text
+	--the old version was called by ItemSetList and was grabbing what was needed by the current user in DialogCoding:
+	--that's the completed sets, plus the incomplete ones that belong to the user when a completed version isn't present.
+	
+	--25/06/2020 THIS SP is "mirrored" in st_QuickCodingReportCodingData -- changes done here are likely to be necessary there as well...
+
+	--first, grab the completed item set (if any)
+	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	FROM TB_ITEM_SET
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+		--AND TB_REVIEW_SET.CODING_IS_FINAL = 'true'
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	
+	--second, get all data from TB_ITEM_ATTRIBUTE_PDF and TB_ITEM_ATTRIBUTE_TEXT using union and only from completed sets
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, 'Page ' + CONVERT
+							(varchar(10),PAGE) 
+							+ ':' + CHAR(10) + '[¬s]"' 
+							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+	--old version starts here
+	/* Collects just the item sets that are needed by a given reviewer - not all of them for every item
+	   Critically, this query NOTs out the set_ids already identified.
+	 */
+
+	-- first, grab the completed item set (if any)
+	--SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+	--	CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	--FROM TB_ITEM_SET
+	--	INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--	INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+	--	INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+	--	--AND TB_REVIEW_SET.CODING_IS_FINAL = 'true'
+	--	AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	
+	--UNION
+	----second get incomplete item_sets for the current Reviewer if no complete set is present
+	--	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+	--		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	--	FROM TB_ITEM_SET
+	--		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+	--		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+	--		and tb_ITEM_SET.IS_COMPLETED = 'false'
+	--		and TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+	--	AND NOT TB_ITEM_SET.SET_ID IN
+	--	(
+	--		SELECT TB_ITEM_SET.SET_ID FROM TB_ITEM_SET
+	--			INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--			WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+	--			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	--	)
+	--end of old version
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetDataListAll]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSetDataListAll]
+(
+	@REVIEW_ID INT,
+	--@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+
+	/* Collects all the item sets in a review
+	 */
+
+	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	FROM TB_ITEM_SET
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+	
+	ORDER BY SET_NAME
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetGetCompleted]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSetGetCompleted] (
+	@REVIEW_ID INT,
+	@ITEM_ID BIGINT,
+	@SET_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT ITEM_SET_ID FROM TB_ITEM_SET iset
+	INNER JOIN TB_ITEM_REVIEW IR on ir.ITEM_ID = iset.ITEM_ID and ir.IS_DELETED = 'false'
+	inner join TB_REVIEW_SET rs on rs.REVIEW_ID = ir.REVIEW_ID and rs.SET_ID = iset.SET_ID
+	WHERE iset.ITEM_ID = @ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and iset.SET_ID = @SET_ID and iset.IS_COMPLETED = 'true'
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSets]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSets]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT REVIEW_SET_ID, REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, SET_NAME, SET_TYPE, CODING_IS_FINAL
+	FROM TB_REVIEW_SET RS
+	INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+	INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+
+	WHERE RS.REVIEW_ID = @REVIEW_ID
+
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSingleSetDataList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSingleSetDataList] (
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@ITEM_ID BIGINT,
+	@SET_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	/* Collects just the item sets that are needed by a given reviewer - not all of them for every item
+	   Critically, this query NOTs out the set_ids already identified.
+	 */
+	--the code below comes straight from st_ItemSetDataList with the added
+	--AND TB_ITEM_SET.SET_ID = @SET_ID clauses so to get info only from one set
+	
+	-- first, grab the completed item set (if any)
+	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	FROM TB_ITEM_SET
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+		--AND TB_REVIEW_SET.CODING_IS_FINAL = 'true'
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		AND TB_ITEM_SET.SET_ID = @SET_ID
+	UNION
+	--second get incomplete item_sets for the current Reviewer if no complete set is present
+		SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+			CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+		FROM TB_ITEM_SET
+			INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+			INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+			INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+			and tb_ITEM_SET.IS_COMPLETED = 'false'
+			and TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+			AND TB_ITEM_SET.SET_ID = @SET_ID
+		AND NOT TB_ITEM_SET.SET_ID IN
+		(
+			SELECT TB_ITEM_SET.SET_ID FROM TB_ITEM_SET
+				INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+				WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+				AND TB_ITEM_SET.SET_ID = @SET_ID
+		)
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSourceDetails]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemSourceDetails]
+(
+	@ITEM_ID BIGINT,
+	@REVIEW_ID int
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT SOURCE_NAME, TB_SOURCE.SOURCE_ID
+	FROM TB_SOURCE
+	INNER JOIN TB_ITEM_SOURCE ON TB_ITEM_SOURCE.SOURCE_ID = TB_SOURCE.SOURCE_ID
+		AND TB_ITEM_SOURCE.ITEM_ID = @ITEM_ID and TB_SOURCE.REVIEW_ID = @REVIEW_ID
+
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemsWithCodes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemsWithCodes]
+(
+	@REVIEW_ID INT,
+	@CODES NVARCHAR(MAX),
+	@CODES_FROM NVARCHAR(MAX)
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT IA1.ATTRIBUTE_ID FROM TB_ITEM_ATTRIBUTE IA1
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = IA1.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN dbo.fn_Split(@CODES, ',') CODES ON CODES.VALUE = IA1.ATTRIBUTE_ID
+		INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA1.ITEM_ID = IA2.ITEM_ID
+		INNER JOIN dbo.fn_Split(@CODES_FROM, ',') CODES_FROM ON CODES_FROM.VALUE = IA2.ATTRIBUTE_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemTermDictionary]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemTermDictionary]
+
+As
+
+SET NOCOUNT ON
+
+SELECT TERM, SCORE FROM TB_ITEM_TERM_DICTIONARY
+ORDER BY SCORE DESC
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemTimepointCreate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemTimepointCreate]
+(
+	@ITEM_ID BIGINT
+,	@TIMEPOINT_VALUE FLOAT
+,	@TIMEPOINT_METRIC varchar(50)
+,	@NEW_ITEM_TIMEPOINT_ID BIGINT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+
+
+	INSERT INTO TB_ITEM_TIMEPOINT(ITEM_ID, TIMEPOINT_VALUE, TIMEPOINT_METRIC)
+	VALUES(@ITEM_ID, @TIMEPOINT_VALUE, @TIMEPOINT_METRIC)
+		
+	SET @NEW_ITEM_TIMEPOINT_ID = @@IDENTITY
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemTimepointDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemTimepointDelete]
+(
+	@ITEM_TIMEPOINT_ID BIGINT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+
+declare @ITEM_ID int = 0;
+
+set @ITEM_ID = (select ITEM_ID from TB_ITEM_TIMEPOINT WHERE 
+ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID)
+
+declare @check int = 0
+set @check = (select count(ITEM_ID) from TB_ITEM_REVIEW where ITEM_ID = @ITEM_ID and REVIEW_ID = @REVIEW_ID)
+if (@check != 1) return
+
+UPDATE TB_ITEM_OUTCOME
+	SET ITEM_TIMEPOINT_ID = NULL
+	WHERE ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID
+
+DELETE FROM TB_ITEM_TIMEPOINT
+	WHERE ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemTimepointDeleteWarning]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemTimepointDeleteWarning]
+	@ITEM_ID BIGINT,
+	@TIMEPOINT_ID BIGINT,
+	@NUM_OUTCOMES INT OUTPUT,
+	@REVIEW_ID INT
+As
+
+SET NOCOUNT ON
+
+	SELECT @NUM_OUTCOMES = COUNT(DISTINCT ITO.OUTCOME_ID) FROM TB_ITEM_OUTCOME ITO
+		WHERE ITO.ITEM_TIMEPOINT_ID = @TIMEPOINT_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemTimepointList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemTimepointList]
+(
+    @REVIEW_ID INT,
+    @ITEM_ID BIGINT
+)
+As
+
+SET NOCOUNT ON
+
+    SELECT TB_ITEM_TIMEPOINT.ITEM_ID, ITEM_TIMEPOINT_ID, TIMEPOINT_VALUE, TIMEPOINT_METRIC,
+        CASE
+            WHEN TIMEPOINT_METRIC = 'seconds' THEN DATEADD(SECOND, TIMEPOINT_VALUE, GETDATE())
+            WHEN TIMEPOINT_METRIC = 'minutes' THEN DATEADD(MINUTE, TIMEPOINT_VALUE, GETDATE())
+            WHEN TIMEPOINT_METRIC = 'hours' THEN DATEADD(HOUR, TIMEPOINT_VALUE, GETDATE())
+            WHEN TIMEPOINT_METRIC = 'days' THEN DATEADD(DAY, TIMEPOINT_VALUE, GETDATE())
+            WHEN TIMEPOINT_METRIC = 'weeks' THEN DATEADD(WEEK, TIMEPOINT_VALUE, GETDATE())
+            WHEN TIMEPOINT_METRIC = 'months' THEN DATEADD(MONTH, TIMEPOINT_VALUE, GETDATE())
+            WHEN TIMEPOINT_METRIC = 'years' THEN DATEADD(YEAR, TIMEPOINT_VALUE, GETDATE())
+        END AS TimepointVal
+    
+    FROM TB_ITEM_TIMEPOINT
+        INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_TIMEPOINT.ITEM_ID
+        WHERE REVIEW_ID = @REVIEW_ID
+        AND TB_ITEM_TIMEPOINT.ITEM_ID = @ITEM_ID
+        ORDER BY TimepointVal
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemTimepointUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemTimepointUpdate]
+(
+	@ITEM_TIMEPOINT_ID BIGINT
+,	@TIMEPOINT_VALUE FLOAT
+,	@TIMEPOINT_METRIC VARCHAR(50)
+,   @REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+
+declare @check int = 0
+
+declare @itemID bigint = (select ITEM_ID from 
+TB_ITEM_TIMEPOINT where ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID) 
+
+set @check = (select count(*) from 
+TB_ITEM_REVIEW where ITEM_ID = @itemID AND REVIEW_ID = @REVIEW_ID)
+
+if(@check != 1) return
+
+
+	UPDATE TB_ITEM_TIMEPOINT
+		SET TIMEPOINT_VALUE = @TIMEPOINT_VALUE,
+			TIMEPOINT_METRIC = @TIMEPOINT_METRIC
+		WHERE ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemTypeList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemTypeList]
+
+
+As
+
+SET NOCOUNT ON
+
+	SELECT * FROM TB_ITEM_TYPE
+	order by [TYPE_ID]
+		
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemUpdate]
+(
+	@ITEM_ID BIGINT
+,	@TITLE NVARCHAR(4000) = NULL
+,	@TYPE_ID TINYINT
+,	@PARENT_TITLE NVARCHAR(4000)
+,	@SHORT_TITLE NVARCHAR(70)
+,	@DATE_CREATED DATETIME = NULL
+,	@CREATED_BY NVARCHAR(50) = NULL
+,	@DATE_EDITED DATETIME = NULL
+,	@EDITED_BY NVARCHAR(50) = NULL
+,	@YEAR NCHAR(4) = NULL
+,	@MONTH NVARCHAR(10) = NULL
+,	@STANDARD_NUMBER NVARCHAR(255) = NULL
+,	@CITY NVARCHAR(100) = NULL
+,	@COUNTRY NVARCHAR(100) = NULL
+,	@PUBLISHER NVARCHAR(1000) = NULL
+,	@INSTITUTION NVARCHAR(1000) = NULL
+,	@VOLUME NVARCHAR(56) = NULL
+,	@PAGES NVARCHAR(50) = NULL
+,	@EDITION NVARCHAR(200) = NULL
+,	@ISSUE NVARCHAR(100) = NULL
+,	@IS_LOCAL BIT = NULL
+,	@AVAILABILITY NVARCHAR(255) = NULL
+,	@URL NVARCHAR(500) = NULL
+,	@COMMENTS NVARCHAR(MAX) = NULL
+,	@ABSTRACT NVARCHAR(MAX) = NULL
+,	@IS_INCLUDED BIT = NULL
+,	@REVIEW_ID INT
+,	@DOI NVARCHAR(500) = NULL
+,	@KEYWORDS NVARCHAR(MAX) = NULL
+,	@SEARCHTEXT NVARCHAR(500) = NULL
+)
+
+As
+
+SET NOCOUNT ON
+
+UPDATE TB_ITEM
+
+SET TITLE = @TITLE
+,	[TYPE_ID] = @TYPE_ID
+,	PARENT_TITLE = @PARENT_TITLE
+,	SHORT_TITLE = @SHORT_TITLE
+,	DATE_CREATED = @DATE_CREATED
+,	CREATED_BY = @CREATED_BY
+,	DATE_EDITED = @DATE_EDITED
+,	EDITED_BY = @EDITED_BY
+,	[YEAR] = @YEAR
+,	[MONTH] = @MONTH
+,	STANDARD_NUMBER = @STANDARD_NUMBER
+,	CITY = @CITY
+,	COUNTRY = @COUNTRY
+,	PUBLISHER = @PUBLISHER
+,	INSTITUTION = @INSTITUTION
+,	VOLUME = @VOLUME
+,	PAGES = @PAGES
+,	EDITION = @EDITION
+,	ISSUE = @ISSUE
+,	IS_LOCAL = @IS_LOCAL
+,	AVAILABILITY = @AVAILABILITY
+,	URL = @URL
+,	COMMENTS = @COMMENTS
+,	ABSTRACT = @ABSTRACT
+,	DOI = @DOI
+,	KEYWORDS = @KEYWORDS
+,	SearchText = @SEARCHTEXT
+
+WHERE ITEM_ID = @ITEM_ID
+
+UPDATE TB_ITEM_REVIEW
+SET IS_INCLUDED = @IS_INCLUDED 
+WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemURLSet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemURLSet]
+	-- Add the parameters for the stored procedure here
+	@Rid int,
+	@ItemID bigint,
+	@Contact nvarchar(255),
+	@URL varchar(max),
+	@Result int = -1 OUTPUT -- -1 if fail, 1 otherwise
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    declare @Check int 
+    set @Result = -1
+	set @Check = (SELECT count(ITEM_ID) from TB_ITEM_REVIEW where ITEM_ID = @ItemID and REVIEW_ID = @Rid)
+	
+	IF @Check = 1
+	BEGIN
+		UPDATE TB_ITEM set URL = @URL 
+			, EDITED_BY = @Contact
+			, DATE_EDITED = GETDATE()
+		where ITEM_ID = @ItemID
+		set @Result = 1
+	END
+	
+END
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemWorkAllocationList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ItemWorkAllocationList] (
+      @REVIEW_ID INT,
+      @WORK_ALLOCATION_ID INT,
+      @WHICH_FILTER NVARCHAR(10),
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+
+IF (@WHICH_FILTER = 'REMAINING')
+BEGIN
+      SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+      FROM TB_ITEM_REVIEW I
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_WORK_ALLOCATION ON TB_WORK_ALLOCATION.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+
+      WHERE NOT I.ITEM_ID IN
+            (SELECT ITEM_ID FROM TB_ITEM_SET
+                  WHERE TB_ITEM_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID AND TB_ITEM_SET.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID)
+            AND TB_WORK_ALLOCATION.WORK_ALLOCATION_ID = @WORK_ALLOCATION_ID
+            AND I.REVIEW_ID = @REVIEW_ID AND I.IS_DELETED = 'FALSE'
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+      FROM TB_ITEM I
+      INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+            
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_WORK_ALLOCATION ON TB_WORK_ALLOCATION.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+
+      WHERE NOT I.ITEM_ID IN
+            (SELECT ITEM_ID FROM TB_ITEM_SET
+                  WHERE TB_ITEM_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID AND TB_ITEM_SET.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID)
+            AND TB_WORK_ALLOCATION.WORK_ALLOCATION_ID = @WORK_ALLOCATION_ID
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+END
+ELSE
+IF (@WHICH_FILTER = 'ALL')
+BEGIN
+      SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+      FROM TB_ITEM_REVIEW I
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_WORK_ALLOCATION ON TB_WORK_ALLOCATION.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+      WHERE TB_WORK_ALLOCATION.WORK_ALLOCATION_ID = @WORK_ALLOCATION_ID
+      AND I.REVIEW_ID = @REVIEW_ID AND I.IS_DELETED = 'FALSE'
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+      FROM TB_ITEM I
+      INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_WORK_ALLOCATION ON TB_WORK_ALLOCATION.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+      WHERE TB_WORK_ALLOCATION.WORK_ALLOCATION_ID = @WORK_ALLOCATION_ID
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  ,SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+      FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve 
+            ORDER BY RowNum
+END
+ELSE
+IF (@WHICH_FILTER = 'STARTED')
+BEGIN
+SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+      FROM TB_ITEM_REVIEW I
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_WORK_ALLOCATION ON TB_WORK_ALLOCATION.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+
+      WHERE I.ITEM_ID IN
+      (SELECT ITEM_ID FROM TB_ITEM_SET
+            WHERE TB_ITEM_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID AND TB_ITEM_SET.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID)
+      AND TB_WORK_ALLOCATION.WORK_ALLOCATION_ID = @WORK_ALLOCATION_ID
+      AND I.REVIEW_ID = @REVIEW_ID AND I.IS_DELETED = 'FALSE'
+      
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+      FROM TB_ITEM I
+      INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_WORK_ALLOCATION ON TB_WORK_ALLOCATION.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+
+      WHERE I.ITEM_ID IN
+            (SELECT ITEM_ID FROM TB_ITEM_SET
+                  WHERE TB_ITEM_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID AND TB_ITEM_SET.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID)
+            AND TB_WORK_ALLOCATION.WORK_ALLOCATION_ID = @WORK_ALLOCATION_ID
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  ,SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+      FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY RowNum
+END
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_LogReviewJob]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_LogReviewJob]
+	-- Add the parameters for the stored procedure here
+	@ReviewId int,
+	@ContactId int,
+	@JobType nvarchar(50),
+	@CurrentState nvarchar(50),
+	@Success bit,
+	@JobMessage nvarchar(4000)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	INSERT INTO [dbo].[tb_REVIEW_JOB]
+           ([REVIEW_ID]
+           ,[CONTACT_ID]
+           ,[START_TIME]
+           ,[END_TIME]
+           ,[JOB_TYPE]
+           ,[CURRENT_STATE]
+           ,[SUCCESS]
+           ,[JOB_MESSAGE])
+     VALUES
+           (@ReviewId
+           ,@ContactId
+           ,GETDATE()
+           ,GETDATE()
+           ,@JobType
+           ,@CurrentState
+           ,@Success
+           ,@JobMessage)
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateClassifierScoresUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers in a given run
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateClassifierScoresUpdate] 
+	-- Add the parameters for the stored procedure here
+	@MAG_AUTO_UPDATE_RUN_ID int,
+	@Field nvarchar(30) = '',
+	@StudyTypeClassifier nvarchar(50) = '',
+	@UserClassifierModelId int = 0,
+	@UserClassifierReviewId int = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	if @Field = 'StudyTypeClassifierScore'
+	BEGIN
+		UPDATE MAUR
+		SET StudyTypeClassifierScore = Score
+		FROM TB_MAG_AUTO_UPDATE_RUN_PAPER MAUR
+		INNER JOIN TB_MAG_AUTO_UPDATE_CLASSIFIER_TEMP mac ON mac.MAG_AUTO_UPDATE_RUN_ID = maur.MAG_AUTO_UPDATE_RUN_ID and
+			mac.PaperId = MAUR.PaperId
+
+		UPDATE TB_MAG_AUTO_UPDATE_RUN
+			SET STUDY_TYPE_CLASSIFIER = @StudyTypeClassifier
+			WHERE MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID
+	END
+
+	IF @Field = 'UserClassifierScore'
+	BEGIN
+		UPDATE MAUR
+		SET UserClassifierScore = SCORE
+		FROM TB_MAG_AUTO_UPDATE_RUN_PAPER MAUR
+		INNER JOIN TB_MAG_AUTO_UPDATE_CLASSIFIER_TEMP mac ON mac.MAG_AUTO_UPDATE_RUN_ID = MAUR.MAG_AUTO_UPDATE_RUN_ID and
+			mac.PaperId = maur.PaperId
+
+		UPDATE TB_MAG_AUTO_UPDATE_RUN
+			SET USER_CLASSIFIER_MODEL_ID = @UserClassifierModelId,
+				USER_CLASSIFIER_REVIEW_ID = @UserClassifierReviewId
+			WHERE MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID
+	END
+
+	DELETE FROM TB_MAG_AUTO_UPDATE_CLASSIFIER_TEMP
+		WHERE MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Create new mag related run record
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateDelete] 
+	-- Add the parameters for the stored procedure here
+	@MAG_AUTO_UPDATE_ID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	delete from TB_MAG_AUTO_UPDATE
+	where MAG_AUTO_UPDATE_ID = @MAG_AUTO_UPDATE_ID
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Create new mag related run record
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateInsert] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID int
+,	@USER_DESCRIPTION NVARCHAR(1000)
+,	@ATTRIBUTE_ID bigint = 0
+,	@ALL_INCLUDED BIT
+,	@MAG_AUTO_UPDATE_ID int OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+
+	insert into TB_MAG_AUTO_UPDATE(REVIEW_ID, USER_DESCRIPTION, ATTRIBUTE_ID,
+		ALL_INCLUDED)
+	values(@REVIEW_ID, @USER_DESCRIPTION, @ATTRIBUTE_ID,
+		@ALL_INCLUDED)
+
+	set @MAG_AUTO_UPDATE_ID = @@IDENTITY
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateRunCountResults]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all results for a given simulation
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateRunCountResults] 
+	-- Add the parameters for the stored procedure here
+	
+	@MagAutoUpdateRunId int
+,	@AutoUpdateScore float
+,	@StudyTypeClassifierScore float
+,	@UserClassifierScore float
+,	@ResultCount int OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select @ResultCount = count(distinct PaperId) from TB_MAG_AUTO_UPDATE_RUN_PAPER
+		where MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId and
+			ContReviewScore >= @AutoUpdateScore and
+			StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+			UserClassifierScore >= @UserClassifierScore
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateRunDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Create new mag related run record
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateRunDelete] 
+	-- Add the parameters for the stored procedure here
+	@MAG_AUTO_UPDATE_RUN_ID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	delete from TB_MAG_AUTO_UPDATE_RUN_PAPER
+		where MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID
+
+	delete from TB_MAG_AUTO_UPDATE_RUN
+		WHERE MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateRunListIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers in a given run
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateRunListIds] 
+	-- Add the parameters for the stored procedure here
+	
+	@MagAutoUpdateRunId int = 0
+,	@OrderBy nvarchar(20) = 'AutoUpdate'
+,	@AutoUpdateScore float = 0
+,	@StudyTypeClassifierScore float = 0
+,	@UserClassifierScore float = 0
+
+
+,	@PageNo int = 1
+,	@RowsPerPage int = 10
+,	@REVIEW_ID int = 0
+,	@AutoupdateUserTopN int = 0
+,	@Total int = 0  OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	if @AutoupdateUserTopN = -1 -- i.e. we have to list everything
+	select @AutoupdateUserTopN = count(*) from TB_MAG_AUTO_UPDATE_RUN_PAPER maur
+		where maur.MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId
+		and ContReviewScore >= @AutoUpdateScore and
+			StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+			UserClassifierScore >= @UserClassifierScore
+
+
+if @RowsPerPage > @AutoupdateUserTopN - (@PageNo * @RowsPerPage) + @RowsPerPage
+	set @RowsPerPage = @AutoupdateUserTopN - (@PageNo * @RowsPerPage) + @RowsPerPage
+
+if @OrderBy = 'AutoUpdate'
+begin
+	--SELECT maur.PaperId, maur.ContReviewScore SimilarityScore, imm.ManualFalseMatch, imm.ManualTrueMatch, ir.ITEM_ID
+	--	from TB_MAG_AUTO_UPDATE_RUN_PAPER maur
+	--	left outer join tb_ITEM_MAG_MATCH imm on (imm.PaperId = maur.PaperId and imm.REVIEW_ID = @REVIEW_ID)
+	--		and imm.ManualFalseMatch <> 'True' 
+	--	   left outer join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'False'
+	--	where maur.MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId
+	--	and ContReviewScore >= @AutoUpdateScore and
+	--		StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+	--		UserClassifierScore >= @UserClassifierScore
+	--	order by maur.ContReviewScore desc
+	--	OFFSET (@PageNo-1) * @RowsPerPage ROWS
+	--	FETCH NEXT @RowsPerPage ROWS ONLY
+
+	SELECT maur.PaperId, maur.ContReviewScore SimilarityScore
+		from TB_MAG_AUTO_UPDATE_RUN_PAPER maur
+		where maur.MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId
+		and ContReviewScore >= @AutoUpdateScore and
+			StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+			UserClassifierScore >= @UserClassifierScore
+		order by maur.ContReviewScore desc
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+
+end
+else if @OrderBy = 'StudyTypeClassifier'
+begin
+	--SELECT maur.PaperId, maur.StudyTypeClassifierScore SimilarityScore, imm.ManualFalseMatch, imm.ManualTrueMatch, ir.ITEM_ID
+	--	from TB_MAG_AUTO_UPDATE_RUN_PAPER maur
+	--	left outer join tb_ITEM_MAG_MATCH imm on (imm.PaperId = maur.PaperId and imm.REVIEW_ID = @REVIEW_ID)
+	--		and imm.ManualFalseMatch <> 'True' 
+	--		left outer join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'False'
+	--	where maur.MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId
+	--	and ContReviewScore >= @AutoUpdateScore and
+	--		StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+	--		UserClassifierScore >= @UserClassifierScore
+	--	order by maur.StudyTypeClassifierScore desc
+	--	OFFSET (@PageNo-1) * @RowsPerPage ROWS
+	--	FETCH NEXT @RowsPerPage ROWS ONLY
+
+	SELECT maur.PaperId, maur.StudyTypeClassifierScore SimilarityScore
+		from TB_MAG_AUTO_UPDATE_RUN_PAPER maur
+		where maur.MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId
+		and ContReviewScore >= @AutoUpdateScore and
+			StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+			UserClassifierScore >= @UserClassifierScore
+		order by maur.StudyTypeClassifierScore desc
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+end
+else if @OrderBy = 'UserClassifier'
+begin
+
+	--SELECT maur.PaperId, maur.UserClassifierScore SimilarityScore, imm.ManualFalseMatch, imm.ManualTrueMatch, ir.ITEM_ID
+	--	from TB_MAG_AUTO_UPDATE_RUN_PAPER maur
+	--	left outer join tb_ITEM_MAG_MATCH imm on (imm.PaperId = maur.PaperId and imm.REVIEW_ID = @REVIEW_ID)
+	--		and imm.ManualFalseMatch <> 'True' 
+	--		left outer join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'False'
+	--	where maur.MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId
+	--	and ContReviewScore >= @AutoUpdateScore and
+	--		StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+	--		UserClassifierScore >= @UserClassifierScore
+	--	order by maur.UserClassifierScore desc
+	--	OFFSET (@PageNo-1) * @RowsPerPage ROWS
+	--	FETCH NEXT @RowsPerPage ROWS ONLY
+
+	SELECT maur.PaperId, maur.UserClassifierScore SimilarityScore
+		from TB_MAG_AUTO_UPDATE_RUN_PAPER maur
+		where maur.MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId
+		and ContReviewScore >= @AutoUpdateScore and
+			StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+			UserClassifierScore >= @UserClassifierScore
+		order by maur.UserClassifierScore desc
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+end
+
+	--SELECT  @Total as N'@Total'
+	SELECT @AutoupdateUserTopN as N'@Total'
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateRunResults]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all results for a given simulation
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateRunResults] 
+	-- Add the parameters for the stored procedure here
+	
+	@MagAutoUpdateRunId int
+,	@OrderBy nvarchar(19)
+,	@AutoUpdateScore float
+,	@StudyTypeClassifierScore float
+,	@UserClassifierScore float
+,	@TopN int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+if @OrderBy = 'AutoUpdate'
+begin
+	select top(@TopN) PaperId from TB_MAG_AUTO_UPDATE_RUN_PAPER
+		where MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId and
+			ContReviewScore >= @AutoUpdateScore and
+			StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+			UserClassifierScore >= @UserClassifierScore
+		order by ContReviewScore desc
+end
+else if @OrderBy = 'StudyTypeClassifier'
+begin
+	select top(@TopN) PaperId from TB_MAG_AUTO_UPDATE_RUN_PAPER
+		where MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId and
+			ContReviewScore >= @AutoUpdateScore and
+			StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+			UserClassifierScore >= @UserClassifierScore
+		order by StudyTypeClassifierScore desc
+end
+else if @OrderBy = 'UserClassifier'
+begin
+	select top(@TopN) PaperId from TB_MAG_AUTO_UPDATE_RUN_PAPER
+		where MAG_AUTO_UPDATE_RUN_ID = @MagAutoUpdateRunId and
+			ContReviewScore >= @AutoUpdateScore and
+			StudyTypeClassifierScore >= @StudyTypeClassifierScore and
+			UserClassifierScore >= @UserClassifierScore
+		order by UserClassifierScore desc
+end
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateRuns]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all runs for a given review
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateRuns] 
+	-- Add the parameters for the stored procedure here	
+	@REVIEW_ID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	select mau.MAG_AUTO_UPDATE_RUN_ID, mau.USER_DESCRIPTION, mau.ATTRIBUTE_ID, mau.ALL_INCLUDED,
+		a.ATTRIBUTE_NAME, mau.DATE_RUN, mau.N_PAPERS, mau.REVIEW_ID, mau.MAG_AUTO_UPDATE_ID,
+		mau.STUDY_TYPE_CLASSIFIER, mau.USER_CLASSIFIER_MODEL_ID, mau.USER_CLASSIFIER_REVIEW_ID,
+		cm.MODEL_TITLE, mau.MAG_VERSION
+		from TB_MAG_AUTO_UPDATE_RUN mau
+		left outer join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = mau.ATTRIBUTE_ID
+		left outer join tb_CLASSIFIER_MODEL cm on cm.MODEL_ID = mau.USER_CLASSIFIER_MODEL_ID
+		where mau.REVIEW_ID = @REVIEW_ID
+		order by MAU.MAG_AUTO_UPDATE_RUN_ID desc
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdates]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all runs for a given review
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdates] 
+	-- Add the parameters for the stored procedure here	
+	@REVIEW_ID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	select mau.MAG_AUTO_UPDATE_ID, mau.USER_DESCRIPTION, mau.ATTRIBUTE_ID, mau.ALL_INCLUDED,
+		mau.STUDY_TYPE_CLASSIFIER, mau.USER_CLASSIFIER_MODEL_ID, mau.USER_CLASSIFIER_REVIEW_ID,
+		a.ATTRIBUTE_NAME, mau.REVIEW_ID, cm.MODEL_TITLE from TB_MAG_AUTO_UPDATE mau
+		left outer join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = mau.ATTRIBUTE_ID
+		left outer join tb_CLASSIFIER_MODEL cm on cm.MODEL_ID = mau.USER_CLASSIFIER_MODEL_ID
+		where mau.REVIEW_ID = @REVIEW_ID
+		order by MAU.MAG_AUTO_UPDATE_ID
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateVisualise]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_MagAutoUpdateVisualise]
+(
+	@MAG_AUTO_UPDATE_RUN_ID INT,
+	@FIELD NVARCHAR(10)
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE @VALS TABLE
+(
+	VAL float
+,	TITLE NVARCHAR(10)
+)
+
+IF @FIELD = 'AutoUpdate'
+begin
+INSERT INTO @VALS (VAL, TITLE)
+VALUES (0.4, '0.4-'), (0.5, '0.5-'), (0.6, '0.6-'), (0.7, '0.7-'), (0.8, '0.8-'), (0.9, '-0.99')
+
+SELECT VAL, TITLE,
+	(SELECT COUNT(*) FROM TB_MAG_AUTO_UPDATE_RUN_PAPER WHERE 
+	ContReviewScore >= VAL AND ContReviewScore < VAL + 0.1 AND MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID) AS NUM
+FROM @VALS
+end
+
+IF @FIELD = 'StudyType'
+begin
+INSERT INTO @VALS (VAL, TITLE)
+VALUES (0, '0.0-'), (0.1, '0.1-'), (0.2, '0.2-'), (0.3, '0.3-'), (0.4, '0.4-'), (0.5, '0.5-'), (0.6, '0.6-'), (0.7, '0.7-'), (0.8, '0.8-'), (0.9, '-0.99')
+
+SELECT VAL, TITLE,
+	(SELECT COUNT(*) FROM TB_MAG_AUTO_UPDATE_RUN_PAPER WHERE 
+	StudyTypeClassifierScore >= VAL AND StudyTypeClassifierScore < VAL + 0.1 AND MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID) AS NUM
+FROM @VALS
+end
+
+IF @FIELD = 'User'
+begin
+INSERT INTO @VALS (VAL, TITLE)
+VALUES (0, '0.0-'), (0.1, '0.1-'), (0.2, '0.2-'), (0.3, '0.3-'), (0.4, '0.4-'), (0.5, '0.5-'), (0.6, '0.6-'), (0.7, '0.7-'), (0.8, '0.8-'), (0.9, '-0.99')
+
+SELECT VAL, TITLE,
+	(SELECT COUNT(*) FROM TB_MAG_AUTO_UPDATE_RUN_PAPER WHERE 
+	UserClassifierScore >= VAL AND UserClassifierScore < VAL + 0.1 AND MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID) AS NUM
+FROM @VALS
+end
+
+
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagChangedPapersNotAlreadyWrittenCheck]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	updates all tables storing PaperIds with their respective new IDs
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagChangedPapersNotAlreadyWrittenCheck] 
+	-- Add the parameters for the stored procedure here
+	@MagVersion nvarchar(20)
+,	@NumPapers int OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	SELECT @NumPapers = COUNT(*) FROM TB_MAG_CHANGED_PAPER_IDS
+		WHERE MagVersion = @MagVersion
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagCheckContReviewRunning]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Returns statistics about matching review items to MAG
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagCheckContReviewRunning] 
+	-- Add the parameters for the stored procedure here
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select top(1) * from TB_MAG_LOG
+		where JOB_TYPE = 'ContReview process'
+		order by MAG_LOG_ID desc
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagCheckNewPapersAlreadyDownloaded]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Get the last row in the table to check MagVersion
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagCheckNewPapersAlreadyDownloaded] 
+	-- Add the parameters for the stored procedure here
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select top(1) MagVersion
+	from TB_MAG_NEW_PAPERS order by MAG_NEW_PAPERS_ID desc
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagContReviewInsertResults]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Last stage in the ContReview workflow: put the 'found' papers in and update tb_MAG_RELATED_RUN
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagContReviewInsertResults] 
+	-- Add the parameters for the stored procedure here
+	@MAG_VERSION nvarchar(20)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	DELETE FROM TB_MAG_AUTO_UPDATE_RUN_PAPER
+		WHERE ContReviewScore < 0.65 and MAG_AUTO_UPDATE_RUN_ID in
+			(SELECT MAG_AUTO_UPDATE_RUN_ID FROM TB_MAG_AUTO_UPDATE_RUN WHERE N_PAPERS = -1)
+
+	UPDATE MAUR
+		SET MAUR.N_PAPERS = idcount --,
+			--MAUR.MAG_VERSION = @MAG_VERSION
+		FROM TB_MAG_AUTO_UPDATE_RUN MAUR
+		inner join (SELECT MAG_AUTO_UPDATE_RUN_ID, COUNT(*) idcount FROM TB_MAG_AUTO_UPDATE_RUN_PAPER
+			GROUP BY MAG_AUTO_UPDATE_RUN_ID) AS COUNTS ON COUNTS.MAG_AUTO_UPDATE_RUN_ID = MAUR.MAG_AUTO_UPDATE_RUN_ID
+		where maur.N_PAPERS = -1
+
+	UPDATE MAURP
+		SET MAURP.REVIEW_ID = MAUR.REVIEW_ID
+		FROM TB_MAG_AUTO_UPDATE_RUN_PAPER MAURP
+		INNER JOIN TB_MAG_AUTO_UPDATE_RUN MAUR on MAUR.MAG_AUTO_UPDATE_RUN_ID = MAURP.MAG_AUTO_UPDATE_RUN_ID
+		WHERE MAURP.REVIEW_ID IS NULL
+
+	-- i.e. in the rare situation that we have zero papers returned
+	UPDATE TB_MAG_AUTO_UPDATE_RUN
+		SET N_PAPERS = 0 --,
+		--MAG_VERSION = @MAG_VERSION
+		WHERE N_PAPERS = -1
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagContReviewRunGetSeedIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get seed MAG IDs for the Continuous Review run when a new MAG is available
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagContReviewRunGetSeedIds] 
+	@MAG_VERSION nvarchar(15)
+
+WITH RECOMPILE
+AS
+BEGIN
+
+	-- First, create new lines for each update in each review
+		INSERT INTO TB_MAG_AUTO_UPDATE_RUN(MAG_AUTO_UPDATE_ID, USER_DESCRIPTION, ATTRIBUTE_ID,
+			ALL_INCLUDED, DATE_RUN, N_PAPERS, REVIEW_ID, MAG_VERSION)
+		SELECT MAG_AUTO_UPDATE_ID, USER_DESCRIPTION, ATTRIBUTE_ID, ALL_INCLUDED, GETDATE(), -1, REVIEW_ID, @MAG_VERSION
+			FROM TB_MAG_AUTO_UPDATE
+
+	update tb_ITEM_MAG_MATCH 
+	set IsMatched = '1'
+	where (AutoMatchScore >= 0.8 or ManualTrueMatch = 'true') and (ManualFalseMatch <> 'true' or ManualFalseMatch is null) and IsMatched is null
+
+	-- Next, grab the seed ids (not filtered by an attribute)
+	SELECT imm.PaperId, mau.MAG_AUTO_UPDATE_RUN_ID AutoUpdateId, 1 as Included
+	from tb_ITEM_MAG_MATCH imm
+	inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = imm.REVIEW_ID and imm.ITEM_ID = ir.ITEM_ID and ir.IS_DELETED = 'false'
+	inner join TB_MAG_AUTO_UPDATE_RUN mau on mau.REVIEW_ID = ir.REVIEW_ID
+	where mau.N_PAPERS = -1 and(mau.ATTRIBUTE_ID = 0 OR mau.ATTRIBUTE_ID is null) and
+		--(imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+		IsMatched = 'True'
+
+	UNION ALL
+
+	-- seed ids filtered by a given attribute
+	SELECT imm.PaperId, mau.MAG_AUTO_UPDATE_RUN_ID AutoUpdateId, 1 as Included
+	from tb_ITEM_MAG_MATCH imm
+	inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = imm.REVIEW_ID and imm.ITEM_ID = ir.ITEM_ID and ir.IS_DELETED = 'false'
+	inner join TB_MAG_AUTO_UPDATE_RUN mau on mau.REVIEW_ID = ir.REVIEW_ID
+	inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = mau.ATTRIBUTE_ID
+	inner join TB_ITEM_SET iset on iset.ITEM_SET_ID = ia.ITEM_SET_ID and iset.IS_COMPLETED = 'true'
+	where mau.N_PAPERS = -1 and not mau.ATTRIBUTE_ID is null and
+		--(imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)		
+		IsMatched = 'True'
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagCurrentInfo]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get information - last update and whether MAG is available
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagCurrentInfo] 
+	-- Add the parameters for the stored procedure here
+	@MAKES_DEPLOYMENT_STATUS nvarchar(10)
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	SELECT TOP(1) MAG_CURRENT_INFO_ID, MAG_FOLDER, WHEN_LIVE, MATCHING_AVAILABLE, MAG_ONLINE, MAKES_ENDPOINT,
+		MAKES_DEPLOYMENT_STATUS
+	FROM TB_MAG_CURRENT_INFO
+	where MAKES_DEPLOYMENT_STATUS = @MAKES_DEPLOYMENT_STATUS
+	ORDER BY MAG_CURRENT_INFO_ID DESC
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagCurrentInfoDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get information - last update and whether MAG is available
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagCurrentInfoDelete] 
+	-- Add the parameters for the stored procedure here
+
+	@MAG_CURRENT_INFO_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	DELETE FROM TB_MAG_CURRENT_INFO
+		WHERE MAG_CURRENT_INFO_ID = @MAG_CURRENT_INFO_ID
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagCurrentInfoInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get information - last update and whether MAG is available
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagCurrentInfoInsert] 
+	-- Add the parameters for the stored procedure here
+	@MAG_FOLDER NVARCHAR(20)
+,	@WHEN_LIVE DATETIME
+,	@MAKES_DEPLOYMENT_STATUS NVARCHAR(10)
+,	@MAKES_ENDPOINT NVARCHAR(100)
+,	@MAG_ONLINE BIT
+,	@MAG_CURRENT_INFO_ID INT OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	INSERT INTO TB_MAG_CURRENT_INFO (MAG_FOLDER, WHEN_LIVE, MATCHING_AVAILABLE, MAG_ONLINE, MAKES_ENDPOINT, MAKES_DEPLOYMENT_STATUS)
+	VALUES (@MAG_FOLDER, @WHEN_LIVE, 'TRUE', @MAG_ONLINE, @MAKES_ENDPOINT, @MAKES_DEPLOYMENT_STATUS)
+	
+	SET @MAG_CURRENT_INFO_ID = SCOPE_IDENTITY()
+END
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagCurrentInfoList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get information - last update and whether MAG is available
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagCurrentInfoList] 
+	-- Add the parameters for the stored procedure here
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	SELECT MAG_CURRENT_INFO_ID, MAG_FOLDER, WHEN_LIVE, MATCHING_AVAILABLE, MAG_ONLINE, MAKES_ENDPOINT,
+		MAKES_DEPLOYMENT_STATUS
+	FROM TB_MAG_CURRENT_INFO
+	
+	ORDER BY MAG_CURRENT_INFO_ID DESC
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagCurrentInfoUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get information - last update and whether MAG is available
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagCurrentInfoUpdate] 
+	-- Add the parameters for the stored procedure here
+	@WHEN_LIVE DATETIME
+,	@MAKES_DEPLOYMENT_STATUS NVARCHAR(10)
+,	@MAG_ONLINE BIT
+,	@MAG_CURRENT_INFO_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	UPDATE TB_MAG_CURRENT_INFO
+		SET WHEN_LIVE = @WHEN_LIVE,
+			MAKES_DEPLOYMENT_STATUS = @MAKES_DEPLOYMENT_STATUS,
+			MAG_ONLINE = @MAG_ONLINE
+
+		WHERE MAG_CURRENT_INFO_ID = @MAG_CURRENT_INFO_ID
+
+	IF @MAKES_DEPLOYMENT_STATUS = 'PENDING'
+		UPDATE TB_MAG_CURRENT_INFO
+			SET MAKES_DEPLOYMENT_STATUS = 'OLD'
+		WHERE MAG_CURRENT_INFO_ID <> @MAG_CURRENT_INFO_ID AND MAKES_DEPLOYMENT_STATUS = 'PENDING'
+
+	IF @MAKES_DEPLOYMENT_STATUS = 'LIVE'
+		UPDATE TB_MAG_CURRENT_INFO
+			SET MAKES_DEPLOYMENT_STATUS = 'OLD'
+		WHERE MAG_CURRENT_INFO_ID <> @MAG_CURRENT_INFO_ID AND MAKES_DEPLOYMENT_STATUS = 'LIVE'
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagGetCurrentlyUsedPaperIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get the currently used PaperIds for checking deletions between MAG versions
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagGetCurrentlyUsedPaperIds] 
+	@REVIEW_ID INT = 0 
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	if @REVIEW_ID > 0 
+		SELECT distinct PaperId, imm.ITEM_ID from tb_ITEM_MAG_MATCH imm
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID
+			where ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'False' and
+			  (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+	ELSE -- i.e. every currently used PaperId - includes additional tables. Used when updating changed PaperIda
+		SELECT DISTINCT PaperId, ITEM_ID from tb_ITEM_MAG_MATCH	
+		UNION
+			select distinct PaperId, 0 from TB_MAG_AUTO_UPDATE_RUN_PAPER
+		UNION
+			select distinct PaperId, 0 from TB_MAG_RELATED_PAPERS
+
+
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagGetItemsWithMissingAbstracts]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Get recent MAG items without abstracts (to see if we can find them now)
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagGetItemsWithMissingAbstracts] 
+	-- Add the parameters for the stored procedure here
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select imm.ITEM_ID, imm.PaperId, imm.REVIEW_ID from tb_ITEM_MAG_MATCH imm
+		inner join TB_MAG_NEW_PAPERS np on np.PaperId = imm.PaperId
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false'
+		inner join TB_ITEM i on i.ITEM_ID = imm.ITEM_ID and (i.ABSTRACT is null or i.ABSTRACT = '')
+		where np.MagVersion in
+			(select top(4) mag_folder from TB_MAG_CURRENT_INFO order by MAG_CURRENT_INFO_ID desc) and
+			imm.AutoMatchScore > 0.95
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagGetMissingPaperIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get the list of changed PaperIds to look up in the new deployment
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagGetMissingPaperIds] 
+	@MagVersion nvarchar(20) 
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	SELECT distinct OldPaperId, MagChangedPaperIdsId, ITEM_ID from TB_MAG_CHANGED_PAPER_IDS
+		WHERE NewPaperId = -1 and MagVersion = @MagVersion
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagGetOpenAlexFolders]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get information - last update and whether MAG is available
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagGetOpenAlexFolders] 
+	-- Add the parameters for the stored procedure here
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	declare @j nvarchar(max)
+
+	SELECT @j= JSON_QUERY(f.openalexfolderjson, '$.childItems')
+		FROM er4ml.er4ml.dbo.OpenAlexFolder f 
+	
+	select name as FolderName from OPENJSON(@j)
+	WITH (name nvarchar(500), type nvarchar(500))
+	where type = 'Folder'
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagGetPaperIdsForFoSImport]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Get PaperIds to get field of study ids for
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagGetPaperIdsForFoSImport] 
+	-- Add the parameters for the stored procedure here
+	
+	@ITEM_IDS nvarchar(max)
+,	@ATTRIBUTE_ID bigint
+,	@REVIEW_ID int
+,	@REVIEW_SET_ID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+DECLARE @FILTERED_IDS TABLE (
+	ITEM_ID BIGINT PRIMARY KEY
+)
+	-- these already have attributes in that set so we filter them out
+	IF @REVIEW_SET_ID > 0
+	BEGIN
+		insert into @FILTERED_IDS
+		select iset.ITEM_ID from TB_ITEM_SET iset
+		inner join TB_REVIEW_SET rs on rs.SET_ID = iset.SET_ID
+		where rs.REVIEW_SET_ID = @REVIEW_SET_ID and iset.IS_COMPLETED = 'true' AND RS.REVIEW_ID = @REVIEW_ID
+	END
+
+    -- Insert statements for procedure here
+	
+	if @ATTRIBUTE_ID < 1
+	begin
+		if @ITEM_IDS = '' -- everything in the review
+		begin
+			select PaperId, imm.ITEM_ID from tb_ITEM_MAG_MATCH imm
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID
+			where ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'false' AND
+				(imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+				and not imm.ITEM_ID in (select ITEM_ID from @FILTERED_IDS)
+		end
+		else
+		begin -- filtred by the list of item_ids
+			select PaperId, imm.ITEM_ID from tb_ITEM_MAG_MATCH imm
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID
+			inner join dbo.fn_Split_int(@ITEM_IDS, ',') ids on ids.value = ir.ITEM_ID
+			where ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'false' AND
+				(imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+			and not imm.ITEM_ID in (select ITEM_ID from @FILTERED_IDS)
+		end
+	end
+	else
+	begin
+		if @ITEM_IDS = '' -- everything in the review filtered by attribute id
+		begin
+			select PaperId, imm.ITEM_ID from tb_ITEM_MAG_MATCH imm
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID
+			inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_ID = imm.ITEM_ID and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+			inner join TB_ITEM_SET iset on iset.ITEM_SET_ID = ia.ITEM_SET_ID and iset.IS_COMPLETED = 'true'
+			where ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'false' AND
+				(imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+			and not imm.ITEM_ID in (select ITEM_ID from @FILTERED_IDS)
+		end
+	end
+		
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagItemMagRelatedPaperInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Pull MAG papers found in a related papers run into tb_ITEM
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagItemMagRelatedPaperInsert] 
+	-- Add the parameters for the stored procedure here
+	@MAG_RELATED_RUN_ID INT,
+	@REVIEW_ID int = 0
+--WITH RECOMPILE
+AS 
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select PaperId
+	 FROM tb_MAG_RELATED_PAPERS mrp
+		where mrp.REVIEW_ID = @REVIEW_ID and mrp.MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID
+	 
+	 and not mrp.PaperId in 
+		(select paperid from tb_ITEM_MAG_MATCH imm
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and imm.REVIEW_ID = ir.REVIEW_ID
+			where ir.REVIEW_ID = @REVIEW_id and ir.IS_DELETED = 'false' and
+				(imm.AutoMatchScore > 0.8 or (imm.ManualFalseMatch = 'true' or imm.ManualTrueMatch = 'true')))
+
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagItemMatchedPapersIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Returns all the papers that are matched to a given tb_ITEM record
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagItemMatchedPapersIds] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID int = 0, 
+	@ITEM_ID BIGINT = 0
+,	@PageNo int = 1
+,	@RowsPerPage int = 10
+,	@Total int = 0  OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	/*
+	Not bothering with paging, as the same item is highly unlikely to be matched with more than one or two MAG records
+
+	SELECT @Total = count(*) from tb_ITEM_MAG_MATCH imm
+	inner join Papers p on p.PaperID = imm.PaperId
+	inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+	where imm.ITEM_ID = @ITEM_ID
+	*/
+
+    -- Insert statements for procedure here
+	SELECT imm.PaperId, imm.AutoMatchScore, imm.ManualFalseMatch, imm.ManualTrueMatch, imm.ITEM_ID
+	from tb_ITEM_MAG_MATCH imm
+	inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+	where imm.ITEM_ID = @ITEM_ID
+	ORDER BY ManualTrueMatch desc, imm.AutoMatchScore desc
+	/*
+	OFFSET (@PageNo-1) * @RowsPerPage ROWS
+	FETCH NEXT @RowsPerPage ROWS ONLY
+
+	SELECT  @Total as N'@Total'
+	*/
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagItemPaperInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Pull a limited number of MAG papers into tb_ITEM based on a list of IDs. e.g. user 'selected' list
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagItemPaperInsert] 
+	-- Add the parameters for the stored procedure here
+	@SOURCE_NAME nvarchar(255),
+	@CONTACT_ID INT = 0,
+	@REVIEW_ID INT = 0,
+	@GUID_JOB nvarchar(50),
+	@MAG_RELATED_RUN_ID INT = 0,
+	@N_IMPORTED INT OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	declare @SourceId int = 0
+
+	insert into Reviewer.dbo.TB_SOURCE(SOURCE_NAME, REVIEW_ID, IS_DELETED, DATE_OF_SEARCH, 
+		DATE_OF_IMPORT, SOURCE_DATABASE,  SEARCH_DESCRIPTION, SEARCH_STRING, NOTES, IMPORT_FILTER_ID)
+	values(@SOURCE_NAME, @REVIEW_id, 'false', GETDATE(),
+		GETDATE(), 'Microsoft Academic', 'Browsing items related to a given item', 'Browse', '', 0)
+
+	set @SourceId = @@IDENTITY
+
+	declare @ItemIds Table(ITEM_ID bigint, PaperId bigint)
+
+	insert into Reviewer.dbo.TB_ITEM(TYPE_ID, TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, YEAR, STANDARD_NUMBER, CITY,
+		COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, URL, OLD_ITEM_ID, ABSTRACT, DOI, SearchText)
+	output INSERTED.ITEM_ID, cast(inserted.OLD_ITEM_ID as bigint) into @ItemIds
+	SELECT 
+		/*   we don't currently have publication type in MAG items (once MAKES is live we will)
+		case
+			when p.DocType = 'Book' then 2
+			when p.DocType = 'BookChapter' then 3
+			when p.DocType = 'Conference' then 5
+			when p.DocType = 'Journal' then 14
+			when p.DocType = 'Patent' then 1
+			else 14
+		end
+		*/
+		14, mipi.title, mipi.journal,
+			(select top(1) LAST from TB_MAG_ITEM_PAPER_INSERT_AUTHORS_TEMP where GUID_JOB = @GUID_JOB and PaperId = mipi.PaperId and RANK = 1 ) + ' (' + cast(mipi.year as nvarchar) + ')',
+			GETDATE(), @CONTACT_ID, mipi.Year, 
+			'', '', '', '', '', mipi.volume, mipi.pages, '', mipi.issue, '', cast(mipi.PaperId as nvarchar), mipi.abstract, mipi.doi, mipi.SearchText
+	 FROM  reviewer.dbo.TB_MAG_ITEM_PAPER_INSERT_TEMP mipi
+	 where mipi.GUID_JOB = @GUID_JOB and not mipi.PaperId in 
+		(select paperid from Reviewer.dbo.tb_ITEM_MAG_MATCH imm
+			inner join Reviewer.dbo.TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			where ir.REVIEW_ID = @REVIEW_id and ir.IS_DELETED = 'false' and
+				(imm.AutoMatchScore > 0.8 or (imm.ManualFalseMatch = 'true' or imm.ManualTrueMatch = 'true')))
+
+	set @N_IMPORTED = @@ROWCOUNT
+
+	if @N_IMPORTED > 0
+	begin
+
+		 insert into Reviewer.dbo.TB_ITEM_SOURCE(ITEM_ID, SOURCE_ID)
+		 select ITEM_ID, @SourceId from @ItemIds
+
+		 insert into Reviewer.dbo.TB_ITEM_REVIEW(ITEM_ID, REVIEW_ID, IS_DELETED, IS_INCLUDED)
+		 select item_id, @REVIEW_id, 'false', 'true' from @ItemIds
+
+		 insert into reviewer.dbo.tb_ITEM_MAG_MATCH(ITEM_ID, REVIEW_ID, PaperId, AutoMatchScore, ManualTrueMatch, ManualFalseMatch)
+		 select item_id, @REVIEW_id, PaperId, 1, 'false', 'false' from @ItemIds
+
+		 insert into Reviewer.dbo.TB_ITEM_AUTHOR(ITEM_ID, LAST, FIRST, SECOND, ROLE, RANK)
+		 select ITEM_ID, LAST, FIRST, SECOND, 0, RANK FROM
+			TB_MAG_ITEM_PAPER_INSERT_AUTHORS_TEMP auTemp INNER JOIN @ItemIds I on i.PaperId = auTemp.PaperId
+			where auTemp.GUID_JOB = @GUID_JOB
+	end
+
+	IF @MAG_RELATED_RUN_ID > 0
+	BEGIN
+		update tb_MAG_RELATED_RUN
+			set USER_STATUS = 'Imported'
+			where MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID
+	END
+
+	delete from TB_MAG_ITEM_PAPER_INSERT_TEMP where GUID_JOB = @GUID_JOB
+	delete from TB_MAG_ITEM_PAPER_INSERT_AUTHORS_TEMP where GUID_JOB = @GUID_JOB
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagItemPaperInsertAvoidDuplicates]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 
+-- Description:	check what "selected" items actually need to be imported.
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagItemPaperInsertAvoidDuplicates] 
+	-- Add the parameters for the stored procedure here
+	@MAG_IDs nvarchar(4000),
+	@REVIEW_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	declare @IDs table (PaperId bigint)
+	insert into @IDs select value from dbo.fn_Split_int(@MAG_IDs, ',')
+	where value not in (
+		select paperid from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and imm.REVIEW_ID = @REVIEW_ID
+		where ir.REVIEW_ID = @REVIEW_id and ir.IS_DELETED = 'false' and
+			(imm.AutoMatchScore > 0.8 or (imm.ManualFalseMatch = 'true' or imm.ManualTrueMatch = 'true'))
+		)
+	select * from @IDs
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagLogInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Add record to tb_MAG_LOG
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagLogInsert] 
+	
+	@CONTACT_ID int,
+	@JOB_TYPE nvarchar(50),
+	@JOB_STATUS nvarchar(50),
+	@JOB_MESSAGE nvarchar(max),
+	@MAG_LOG_ID int OUTPUT
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    INSERT INTO TB_MAG_LOG(TIME_SUBMITTED, CONTACT_ID, JOB_TYPE, JOB_STATUS, JOB_MESSAGE)
+	VALUES(GETDATE(), @CONTACT_ID, @JOB_TYPE, @JOB_STATUS, @JOB_MESSAGE)
+	
+	SET @MAG_LOG_ID = @@IDENTITY
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagLogList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag update jobs
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagLogList] 
+	-- Add the parameters for the stored procedure here
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	select ML.CONTACT_ID, ML.JOB_MESSAGE, ML.JOB_STATUS, ML.JOB_TYPE, ML.MAG_LOG_ID, ML.TIME_SUBMITTED,
+		C.CONTACT_NAME, ML.TIME_UPDATED
+	from TB_MAG_LOG ML
+		INNER JOIN TB_CONTACT C ON C.CONTACT_ID = ML.CONTACT_ID
+		order by ML.MAG_LOG_ID desc
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagLogUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Update record in tb_MAG_LOG
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagLogUpdate] 
+	
+	@MAG_LOG_ID int,
+	@JOB_STATUS nvarchar(50),
+	@JOB_MESSAGE nvarchar(max)
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    UPDATE TB_MAG_LOG
+		SET JOB_STATUS = @JOB_STATUS, JOB_MESSAGE = @JOB_MESSAGE, TIME_UPDATED = GETDATE()
+		WHERE MAG_LOG_ID = @MAG_LOG_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagMatchedPaperManualEdit]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Add record to tb_item_mag_match based on manual lookup
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagMatchedPaperManualEdit] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT
+,	@ITEM_ID BIGINT
+,	@PaperId BIGINT
+,	@ManualTrueMatch bit
+,	@ManualFalseMatch bit
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	declare @chk int
+	select @chk = count(*) from tb_ITEM_MAG_MATCH
+		where REVIEW_ID = @REVIEW_ID and ITEM_ID = @ITEM_ID and PaperId = @PaperId
+
+	if @chk = 0
+	begin
+		insert into tb_ITEM_MAG_MATCH(REVIEW_ID, ITEM_ID, PaperId, ManualTrueMatch, ManualFalseMatch, AutoMatchScore)
+		values (@REVIEW_ID, @ITEM_ID, @PaperId, @ManualTrueMatch, @ManualFalseMatch, 1)
+	end
+	else
+	begin
+		update tb_ITEM_MAG_MATCH
+			set ManualTrueMatch = @ManualTrueMatch,
+				ManualFalseMatch = @ManualFalseMatch
+			where REVIEW_ID = @REVIEW_ID and ITEM_ID = @ITEM_ID and PaperId = @PaperId
+	end
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagMatchedPapersClear]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Add record to tb_item_mag_match based on manual lookup
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagMatchedPapersClear] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT
+,	@ITEM_ID BIGINT
+,	@ATTRIBUTE_ID BIGINT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if @ITEM_ID > 0
+		delete from tb_ITEM_MAG_MATCH
+		where ITEM_ID = @ITEM_ID and REVIEW_ID = @REVIEW_ID
+
+	else
+		if @ATTRIBUTE_ID > 0
+			delete from tb_ITEM_MAG_MATCH
+			where REVIEW_ID = @REVIEW_ID and item_id in
+				(select ia.ITEM_ID from TB_ITEM_ATTRIBUTE ia inner join TB_ITEM_SET iset on
+					iset.ITEM_SET_ID = ia.ITEM_SET_ID and iset.IS_COMPLETED = 'True'
+					where ia.ATTRIBUTE_ID = @ATTRIBUTE_ID)
+
+		else
+			delete from tb_ITEM_MAG_MATCH
+			where REVIEW_ID = @REVIEW_ID
+    
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagMatchedPapersClearNonManual]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Add record to tb_item_mag_match based on manual lookup
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagMatchedPapersClearNonManual] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT
+,	@ATTRIBUTE_ID BIGINT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+		if @ATTRIBUTE_ID > 0
+			delete from tb_ITEM_MAG_MATCH
+			where REVIEW_ID = @REVIEW_ID and ManualFalseMatch is null and ManualTrueMatch is null
+			and item_id in
+				(select ia.ITEM_ID from TB_ITEM_ATTRIBUTE ia inner join TB_ITEM_SET iset on
+					iset.ITEM_SET_ID = ia.ITEM_SET_ID and iset.IS_COMPLETED = 'True'
+					where ia.ATTRIBUTE_ID = @ATTRIBUTE_ID)
+
+		else
+			delete from tb_ITEM_MAG_MATCH
+			where REVIEW_ID = @REVIEW_ID and ManualFalseMatch is null and ManualTrueMatch is null
+    
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagMatchedPapersInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Add record to tb_item_mag_match based on manual lookup
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagMatchedPapersInsert] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT
+,	@ITEM_ID BIGINT
+,	@PaperId bigint
+,	@AutoMatchScore float
+,	@ManualTrueMatch bit = null
+,	@ManualFalseMatch bit = null
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	declare @chk int
+	select @chk = count(*) from tb_ITEM_MAG_MATCH
+		where REVIEW_ID = @REVIEW_ID and ITEM_ID = @ITEM_ID and PaperId = @PaperId
+
+	if @chk = 0
+	begin
+		insert into tb_ITEM_MAG_MATCH(REVIEW_ID, ITEM_ID, PaperId, ManualTrueMatch, ManualFalseMatch, AutoMatchScore)
+		values (@REVIEW_ID, @ITEM_ID, @PaperId, @ManualTrueMatch, @ManualFalseMatch, @AutoMatchScore)
+	end
+	else
+	begin
+		update Reviewer.dbo.tb_ITEM_MAG_MATCH
+			set ManualTrueMatch = @ManualTrueMatch,
+				ManualFalseMatch = @ManualFalseMatch
+			where REVIEW_ID = @REVIEW_ID and ITEM_ID = @ITEM_ID and PaperId = @PaperId
+	end
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagMatchItemsGetIdList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Match EPPI-Reviewer TB_ITEM records to MAG Papers
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagMatchItemsGetIdList] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT
+,	@ATTRIBUTE_ID BIGINT = 0
+AS
+BEGIN
+
+DECLARE @ITEMS TABLE
+(
+	ITEM_ID bigint
+)
+
+if @ATTRIBUTE_ID > 0
+begin
+	insert into @ITEMS
+	select distinct tir.ITEM_ID
+		from Reviewer.dbo.TB_ITEM_REVIEW tir 
+		inner join Reviewer.dbo.TB_ITEM_ATTRIBUTE tia on tia.ITEM_ID = tir.ITEM_ID and tia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+		inner join Reviewer.dbo.TB_ITEM_SET tis on tis.ITEM_SET_ID = tia.ITEM_SET_ID and tis.IS_COMPLETED = 'true'
+		where tir.REVIEW_ID = @REVIEW_ID and tir.IS_DELETED = 'false'
+			and not tir.ITEM_ID IN (SELECT ITEM_ID FROM tb_ITEM_MAG_MATCH IMM
+				WHERE IMM.ITEM_ID = TIR.ITEM_ID AND IMM.REVIEW_ID = @REVIEW_ID)
+end
+else
+begin
+	INSERT INTO @ITEMS
+	select distinct tir.ITEM_ID
+		from Reviewer.dbo.TB_ITEM_REVIEW tir where tir.REVIEW_ID = @REVIEW_ID and tir.IS_DELETED = 'false'
+		and not tir.ITEM_ID IN (SELECT ITEM_ID FROM tb_ITEM_MAG_MATCH IMM
+				WHERE IMM.ITEM_ID = TIR.ITEM_ID AND IMM.REVIEW_ID = @REVIEW_ID)
+end
+
+SELECT ITEM_ID FROM @ITEMS
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagPaper]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Returns a single paper
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagPaper] 
+	-- Add the parameters for the stored procedure here
+	@PaperId bigint = 0
+,	@REVIEW_ID int = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT 
+		imm.ITEM_ID, imm.AutoMatchScore, imm.ManualFalseMatch, imm.ManualTrueMatch
+		from Reviewer.dbo.tb_ITEM_MAG_MATCH imm where imm.PaperId = @PaperId
+			and imm.ManualFalseMatch <> 'True' and imm.REVIEW_ID = @REVIEW_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagPaperListByIdIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List of MAG papers from a list of paper IDs
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagPaperListByIdIds] 
+	-- Add the parameters for the stored procedure here
+	@PaperIds nvarchar(max)
+,	@PageNo int = 1
+,	@RowsPerPage int = 10
+,	@REVIEW_ID int = 0
+,	@Total int = 0  OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	SELECT @Total = count(value) from dbo.fn_Split_int(@PaperIds, ',')
+
+    -- Insert statements for procedure here
+	SELECT distinct ids.value PaperId, imm.AutoMatchScore, imm.ManualFalseMatch, imm.ManualTrueMatch, imm.ITEM_ID
+		from dbo.fn_Split_int(@PaperIds, ',') ids		
+		left outer join tb_ITEM_MAG_MATCH imm on imm.PaperId = ids.value
+			and imm.ManualFalseMatch <> 'True' and imm.REVIEW_ID = @REVIEW_ID and AutoMatchScore > 0.8
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'false'
+		order by PaperId
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+
+	SELECT  @Total as N'@Total'
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagRelatedPapersListIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers in a given run
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagRelatedPapersListIds] 
+	-- Add the parameters for the stored procedure here
+	
+	@MAG_RELATED_RUN_ID int = 0
+,	@PageNo int = 1
+,	@RowsPerPage int = 10
+,	@REVIEW_ID int = 0
+,	@Total int = 0  OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	select @Total = count(*) from tb_MAG_RELATED_PAPERS mrp
+		where mrp.MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID
+	
+	--SELECT mrp.PaperId, mrp.SimilarityScore, imm.AutoMatchScore, imm.ManualFalseMatch, imm.ManualTrueMatch, ir.ITEM_ID
+	--	from tb_MAG_RELATED_PAPERS mrp
+	--	left outer join tb_ITEM_MAG_MATCH imm on imm.PaperId = mrp.PaperId
+	--		and imm.ManualFalseMatch <> 'True' and imm.REVIEW_ID = @REVIEW_ID and AutoMatchScore > 0.8
+	--	left outer join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'false'
+	--	where mrp.MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID
+	--	order by mrp.SimilarityScore desc
+	--	OFFSET (@PageNo-1) * @RowsPerPage ROWS
+	--	FETCH NEXT @RowsPerPage ROWS ONLY
+
+	SELECT mrp.PaperId, mrp.SimilarityScore
+		from tb_MAG_RELATED_PAPERS mrp
+		where mrp.MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID
+		order by mrp.SimilarityScore desc
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+
+	SELECT  @Total as N'@Total'
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagRelatedPapersRunGetSeedIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Stage 1 in getting related papers: get the list of seed MAG IDs
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagRelatedPapersRunGetSeedIds] 
+	-- Add the parameters for the stored procedure here
+	@MAG_RELATED_RUN_ID int
+,	@REVIEW_ID INT
+,	@ATTRIBUTE_ID BIGINT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if @ATTRIBUTE_ID > 0
+	BEGIN
+		select imm.PaperId from Reviewer.dbo.tb_ITEM_MAG_MATCH imm
+		inner join Reviewer.dbo.TB_ITEM_ATTRIBUTE ia on ia.ITEM_ID = imm.ITEM_ID and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+		inner join Reviewer.dbo.TB_ITEM_SET tis on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 'true'
+		inner join Reviewer.dbo.TB_ITEM_REVIEW ir on ir.ITEM_ID = ia.ITEM_ID and ir.IS_DELETED = 'false' and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+		WHERE (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+		group by imm.PaperId
+		order by imm.PaperId
+	END
+	else
+	BEGIN
+		select imm.PaperId from Reviewer.dbo.tb_ITEM_MAG_MATCH imm
+		inner join Reviewer.dbo.TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+		WHERE (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+		group by imm.PaperId
+		order by imm.PaperId
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagRelatedPapersRuns]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all runs for a given review
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagRelatedPapersRuns] 
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	select mrr.MAG_RELATED_RUN_ID, mrr.REVIEW_ID, mrr.USER_DESCRIPTION, mrr.ATTRIBUTE_ID, a.ATTRIBUTE_NAME,
+		mrr.ALL_INCLUDED, mrr.DATE_FROM, mrr.DATE_RUN, mrr.STATUS, mrr.USER_STATUS, mrr.N_PAPERS,
+		mrr.MODE, mrr.Filtered from tb_MAG_RELATED_RUN mrr
+		left outer join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = mrr.ATTRIBUTE_ID
+		where review_id = @REVIEW_ID
+		order by MAG_RELATED_RUN_ID
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagRelatedPapersRunsDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers in a given run
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagRelatedPapersRunsDelete] 
+	-- Add the parameters for the stored procedure here
+	
+	@MAG_RELATED_RUN_ID int = 0
+,	@REVIEW_ID int = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	delete from tb_MAG_RELATED_PAPERS
+		where MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID -- and REVIEW_ID = @REVIEW_ID
+
+	delete from tb_MAG_RELATED_RUN
+		where MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID -- AND REVIEW_ID = @REVIEW_ID
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagRelatedPapersRunsInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Create new mag related run record
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagRelatedPapersRunsInsert] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID int
+,	@USER_DESCRIPTION NVARCHAR(1000)
+,	@PaperIdList nvarchar(max)
+,	@ATTRIBUTE_ID bigint = 0
+,	@ALL_INCLUDED BIT
+,	@DATE_FROM DATETIME
+--,	@AUTO_RERUN BIT
+,	@MODE nvarchar(50)
+,	@FILTERED NVARCHAR(50)
+,	@STATUS nvarchar(50)
+,	@MAG_RELATED_RUN_ID int OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	insert into tb_MAG_RELATED_RUN(REVIEW_ID, USER_DESCRIPTION, PaperIdList, ATTRIBUTE_ID,
+		ALL_INCLUDED, DATE_FROM, STATUS, USER_STATUS, MODE, Filtered, N_PAPERS, DATE_RUN)
+	values(@REVIEW_ID, @USER_DESCRIPTION, @PaperIdList, @ATTRIBUTE_ID,
+		@ALL_INCLUDED, @DATE_FROM, @STATUS, 'Waiting', @MODE, @FILTERED, 0, GETDATE())
+
+	set @MAG_RELATED_RUN_ID = @@IDENTITY
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagRelatedPapersRunsUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers in a given run
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagRelatedPapersRunsUpdate] 
+	-- Add the parameters for the stored procedure here
+	@MAG_RELATED_RUN_ID int,
+	--@AUTO_RERUN BIT,
+	@USER_DESCRIPTION NVARCHAR(1000)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	update tb_MAG_RELATED_RUN
+		set USER_STATUS = 'Checked',
+		--AUTO_RERUN = @AUTO_RERUN,
+		USER_DESCRIPTION = @USER_DESCRIPTION
+		where MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagRelatedPapersRunsUpdatePostRun]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	After the related item ids are found, this updates the record for the UI list
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagRelatedPapersRunsUpdatePostRun] 
+	-- Add the parameters for the stored procedure here
+	@MAG_RELATED_RUN_ID int,
+	@N_PAPERS int = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	update tb_MAG_RELATED_RUN
+		set [STATUS] = 'Complete',
+		N_PAPERS = @N_PAPERS,
+		DATE_RUN = GETDATE(),
+		USER_STATUS = 'Not imported'
+		where MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagRelatedRun_Update]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 
+-- Description:	mark a line in tb_MAG_RELATED_RUN as @STATUS
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagRelatedRun_Update] 
+	-- Add the parameters for the stored procedure here
+	@USER_STATUS nvarchar(50),
+	@STATUS nvarchar(50),
+	@REVIEW_ID INT,
+	@MAG_RELATED_RUN_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	if @STATUS = ''
+	update tb_MAG_RELATED_RUN
+			set USER_STATUS = @USER_STATUS
+			where MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID and REVIEW_ID = @REVIEW_ID
+	ELSE
+	update tb_MAG_RELATED_RUN
+			set USER_STATUS = @USER_STATUS,
+			[STATUS] = @STATUS
+			where MAG_RELATED_RUN_ID = @MAG_RELATED_RUN_ID and REVIEW_ID = @REVIEW_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagReviewMagInfo]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Returns statistics about matching review items to MAG
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagReviewMagInfo] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID int = 0, 
+	@NInReviewIncluded int = 0 OUTPUT,
+	@NInReviewExcluded int = 0 OUTPUT,
+	@NMatchedAccuratelyIncluded int = 0 OUTPUT,
+	@NMatchedAccuratelyExcluded int = 0 OUTPUT,
+	@NRequiringManualCheckIncluded int = 0 OUTPUT,
+	@NRequiringManualCheckExcluded int = 0 OUTPUT,
+	@NNotMatchedIncluded int = 0 OUTPUT,
+	@NNotMatchedExcluded INT = 0 OUTPUT,
+	@NPreviouslyMatched int = 0 OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select @NInReviewIncluded = count(*) from TB_ITEM_REVIEW ir
+		where ir.IS_DELETED = 'FALSE' and ir.IS_INCLUDED = 'TRUE' and REVIEW_ID = @REVIEW_ID
+
+	select @NInReviewExcluded = count(*) from TB_ITEM_REVIEW ir
+		where ir.IS_DELETED = 'false' and ir.IS_INCLUDED = 'false' and REVIEW_ID = @REVIEW_ID
+
+	select @NMatchedAccuratelyIncluded = count(distinct imm.ITEM_ID) from tb_ITEM_MAG_MATCH imm
+		inner join tb_item_review ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' 
+			and ir.IS_INCLUDED = 'true' and imm.REVIEW_ID = ir.REVIEW_ID
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+			 and ir.REVIEW_ID = @REVIEW_ID
+
+	select @NMatchedAccuratelyExcluded = count(distinct imm.ITEM_ID) from tb_ITEM_MAG_MATCH imm
+		inner join tb_item_review ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' 
+			and ir.IS_INCLUDED = 'false' and imm.REVIEW_ID = ir.REVIEW_ID
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+			 and ir.REVIEW_ID = @REVIEW_ID
+
+	select @NRequiringManualCheckIncluded = count(distinct imm.ITEM_ID) from tb_ITEM_MAG_MATCH imm
+		inner join tb_item_review ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' 
+			and ir.IS_INCLUDED = 'true' and imm.REVIEW_ID = ir.REVIEW_ID
+		where imm.AutoMatchScore < 0.8 and ((imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null) and (imm.ManualTrueMatch = 'false' or imm.ManualTrueMatch is null))
+			and not imm.ITEM_ID in 
+			(
+				select imm2.ITEM_ID from tb_ITEM_MAG_MATCH imm2 
+				where imm.REVIEW_ID = @REVIEW_ID and imm2.ITEM_ID = imm.ITEM_ID
+				AND (
+						imm2.AutoMatchScore >=0.8 or 
+						(
+							imm2.ManualTrueMatch = 'true' and (imm2.ManualFalseMatch <> 'true' or imm2.ManualFalseMatch is null)
+						)
+					)
+			)
+			 and ir.REVIEW_ID = @REVIEW_ID
+
+	select @NRequiringManualCheckExcluded = count(distinct imm.ITEM_ID) from tb_ITEM_MAG_MATCH imm
+		inner join tb_item_review ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' 
+			and ir.IS_INCLUDED = 'false' and imm.REVIEW_ID = ir.REVIEW_ID
+		where imm.AutoMatchScore < 0.8 and ((imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null) and (imm.ManualTrueMatch = 'false' or imm.ManualTrueMatch is null))
+			and not imm.ITEM_ID in 
+			(
+				select imm2.ITEM_ID from tb_ITEM_MAG_MATCH imm2 
+				where imm.REVIEW_ID = @REVIEW_ID and imm2.ITEM_ID = imm.ITEM_ID
+				AND (
+						imm2.AutoMatchScore >=0.8 or 
+						(
+							imm2.ManualTrueMatch = 'true' and (imm2.ManualFalseMatch <> 'true' or imm2.ManualFalseMatch is null)
+						)
+					)
+			)
+			 and ir.REVIEW_ID = @REVIEW_ID
+
+	select @NNotMatchedIncluded = count(distinct ir.ITEM_ID) from TB_ITEM_REVIEW ir
+		left outer join tb_ITEM_MAG_MATCH imm on imm.ITEM_ID = ir.ITEM_ID and imm.REVIEW_ID = ir.REVIEW_ID
+			where ir.IS_INCLUDED = 'true' and imm.ITEM_ID is null and ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'false'
+
+	select @NNotMatchedExcluded = count(distinct ir.ITEM_ID) from TB_ITEM_REVIEW ir
+		left outer join tb_ITEM_MAG_MATCH imm on imm.ITEM_ID = ir.ITEM_ID and imm.REVIEW_ID = ir.REVIEW_ID
+			where ir.IS_INCLUDED = 'false' and imm.ITEM_ID is null and ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'false'
+	
+	select @NPreviouslyMatched = count(distinct ir.ITEM_ID) from TB_ITEM_REVIEW ir
+		inner join TB_MAG_CHANGED_PAPER_IDS cpi on cpi.ITEM_ID = ir.ITEM_ID and
+		cpi.NewPaperId = -1
+		where ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 'false'
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagReviewMatchedPapersIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Returns all the papers that are matched to a given tb_ITEM record
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagReviewMatchedPapersIds] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID int = 0
+,	@INCLUDED varchar(10) = 'included'
+,	@PageNo int = 1
+,	@RowsPerPage int = 10
+,	@Total int = 0  OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if @INCLUDED = 'included'
+	begin
+		SELECT @Total = count(distinct imm.paperid) from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			and ir.IS_INCLUDED = 'true' and ir.IS_DELETED = 'false'
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and 
+			(imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null)
+
+		SELECT imm.PaperId, imm.AutoMatchScore, imm.ManualFalseMatch, imm.ManualTrueMatch, imm.ITEM_ID
+		from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			and ir.IS_INCLUDED = 'true' and ir.IS_DELETED = 'false'
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and 
+			(imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null)
+		ORDER BY imm.PaperId
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+	end
+	else if @INCLUDED = 'excluded'
+	begin
+		SELECT @Total = count(distinct imm.paperid) from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			and ir.IS_INCLUDED = 'false' and ir.IS_DELETED = 'false'
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and 
+			(imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null)
+
+		-- Insert statements for procedure here
+		SELECT imm.PaperId, imm.AutoMatchScore, imm.ManualFalseMatch, imm.ManualTrueMatch, imm.ITEM_ID
+		from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			and ir.IS_INCLUDED = 'false' and ir.IS_DELETED = 'false'
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and 
+			(imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null)
+		ORDER BY imm.PaperId
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+	end
+	else
+	begin -- i.e. included = included AND excluded
+		SELECT @Total = count(distinct imm.paperid) from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			and ir.IS_DELETED = 'false'
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and 
+			(imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null)
+
+		-- Insert statements for procedure here
+		SELECT imm.PaperId, imm.AutoMatchScore, imm.ManualFalseMatch, imm.ManualTrueMatch, imm.ITEM_ID
+		from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			and ir.IS_DELETED = 'false'
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and 
+			(imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null)
+		ORDER BY imm.PaperId
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+	end
+
+	SELECT  @Total as N'@Total'
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagReviewMatchedPapersWithThisCodeIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Returns all the papers that are matched to a given tb_ITEM record
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagReviewMatchedPapersWithThisCodeIds] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID int = 0
+,	@ATTRIBUTE_IDs nvarchar(max)
+,	@PageNo int = 1
+,	@RowsPerPage int = 10
+,	@Total int = 0  OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+		SELECT @Total = count(distinct imm.paperid) from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+			and ir.IS_INCLUDED = 'true' and ir.IS_DELETED = 'false' and ir.REVIEW_ID = imm.REVIEW_ID
+		inner join TB_ITEM_ATTRIBUTE tia on tia.ITEM_ID = ir.ITEM_ID
+		inner join dbo.fn_Split_int(@ATTRIBUTE_IDs, ',') ids on ids.value = tia.ATTRIBUTE_ID
+		inner join TB_ITEM_SET tis on tis.ITEM_SET_ID = tia.ITEM_SET_ID and tis.IS_COMPLETED = 'true'
+
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and 
+			(imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null)
+
+		-- Insert statements for procedure here
+		SELECT imm.PaperId, imm.AutoMatchScore, imm.ManualFalseMatch, imm.ManualTrueMatch, imm.ITEM_ID
+		
+		from tb_ITEM_MAG_MATCH imm
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+			and ir.IS_INCLUDED = 'true' and ir.IS_DELETED = 'false' and ir.REVIEW_ID = imm.REVIEW_ID
+		inner join TB_ITEM_ATTRIBUTE tia on tia.ITEM_ID = ir.ITEM_ID
+		inner join dbo.fn_Split_int(@ATTRIBUTE_IDs, ',') ids on ids.value = tia.ATTRIBUTE_ID
+		inner join TB_ITEM_SET tis on tis.ITEM_SET_ID = tia.ITEM_SET_ID and tis.IS_COMPLETED = 'true'
+
+		where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and 
+			(imm.ManualFalseMatch = 'false' or imm.ManualFalseMatch is null)
+
+		ORDER BY imm.PaperId
+		OFFSET (@PageNo-1) * @RowsPerPage ROWS
+		FETCH NEXT @RowsPerPage ROWS ONLY
+	
+
+	SELECT  @Total as N'@Total'
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSearch]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	gets a single magSearch on demand
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSearch] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT,
+	@MAG_SEARCH_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	SELECT MAG_SEARCH_ID, REVIEW_ID, C.CONTACT_ID, C.CONTACT_NAME, SEARCH_TEXT, SEARCH_NO, HITS_NO,
+		SEARCH_DATE, MAG_FOLDER, MAG_SEARCH_TEXT, SEARCH_IDS_STORED, SEARCH_IDS
+	FROM TB_MAG_SEARCH
+	INNER JOIN TB_CONTACT C ON C.CONTACT_ID = TB_MAG_SEARCH.CONTACT_ID
+	where REVIEW_ID = @REVIEW_ID AND MAG_SEARCH_ID = @MAG_SEARCH_ID
+		order by SEARCH_NO desc
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSearchDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag update jobs
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSearchDelete] 
+	-- Add the parameters for the stored procedure here
+	@MAG_SEARCH_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	DELETE FROM TB_MAG_SEARCH
+		WHERE MAG_SEARCH_ID = @MAG_SEARCH_ID
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSearchFilterToLatest]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Filter PaperIds to the last deployed set from MAG
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSearchFilterToLatest] 
+	-- Add the parameters for the stored procedure here
+	@MagVersion nvarchar(20)
+,	@IDs nvarchar(max)
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select mnp.PaperId
+	from TB_MAG_NEW_PAPERS mnp
+	inner join dbo.fn_Split_int(@IDs, ',') s on s.value = mnp.PaperId
+	where mnp.MagVersion = @MagVersion
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSearchInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Add record to tb_MAG_LOG
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSearchInsert] 
+	@REVIEW_ID INT,
+	@CONTACT_ID int,
+	@SEARCH_TEXT NVARCHAR(MAX) = NULL,
+	@SEARCH_NO INT = 0,
+	@HITS_NO INT = 0,
+	@SEARCH_DATE DATETIME,
+	@MAG_FOLDER NVARCHAR(15),
+	@MAG_SEARCH_TEXT NVARCHAR(MAX),
+	@SEARCH_IDS_STORED bit = 0,
+	@SEARCH_IDS NVARCHAR(MAX) = null,
+
+	@MAG_SEARCH_ID INT OUTPUT
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	SELECT @SEARCH_NO = MAX(SEARCH_NO) + 1 FROM TB_MAG_SEARCH
+		WHERE REVIEW_ID = @REVIEW_ID
+
+	IF @SEARCH_NO IS NULL
+		SET @SEARCH_NO = 1
+
+    INSERT INTO TB_MAG_SEARCH(REVIEW_ID, CONTACT_ID, SEARCH_TEXT, SEARCH_NO, HITS_NO,
+		SEARCH_DATE, MAG_FOLDER, MAG_SEARCH_TEXT, SEARCH_IDS_STORED, SEARCH_IDS)
+	VALUES(@REVIEW_ID, @CONTACT_ID, @SEARCH_TEXT, @SEARCH_NO, @HITS_NO,
+		@SEARCH_DATE, @MAG_FOLDER, @MAG_SEARCH_TEXT, @SEARCH_IDS_STORED, @SEARCH_IDS)
+	
+	SET @MAG_SEARCH_ID = @@IDENTITY
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSearchList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag update jobs
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSearchList] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	SELECT MAG_SEARCH_ID, REVIEW_ID, C.CONTACT_ID, C.CONTACT_NAME, SEARCH_TEXT, SEARCH_NO, HITS_NO,
+		SEARCH_DATE, MAG_FOLDER, MAG_SEARCH_TEXT, SEARCH_IDS_STORED
+	FROM TB_MAG_SEARCH
+	INNER JOIN TB_CONTACT C ON C.CONTACT_ID = TB_MAG_SEARCH.CONTACT_ID
+	where REVIEW_ID = @REVIEW_ID
+		order by SEARCH_NO desc
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationClassifierScoresUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers in a given run
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulationClassifierScoresUpdate] 
+	-- Add the parameters for the stored procedure here
+	@MAG_SIMULATION_ID int,
+	@Field nvarchar(30)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	if @Field = 'STUDY_TYPE_CLASSIFIER_SCORE'
+	BEGIN
+		UPDATE MSR
+		SET STUDY_TYPE_CLASSIFIER_SCORE = SCORE
+		FROM TB_MAG_SIMULATION_RESULT MSR
+		INNER JOIN TB_MAG_SIMULATION_CLASSIFIER_TEMP MSC ON MSC.MAG_SIMULATION_ID = MSR.MAG_SIMULATION_ID and MSC.PaperId = MSR.PaperId
+	END
+
+	IF @Field = 'USER_CLASSIFIER_MODEL_SCORE'
+	BEGIN
+		UPDATE MSR
+		SET USER_CLASSIFIER_MODEL_SCORE = SCORE
+		FROM TB_MAG_SIMULATION_RESULT MSR
+		INNER JOIN TB_MAG_SIMULATION_CLASSIFIER_TEMP MSC ON MSC.MAG_SIMULATION_ID = MSR.MAG_SIMULATION_ID and MSC.PaperId = MSR.PaperId
+	END
+
+	DELETE FROM TB_MAG_SIMULATION_CLASSIFIER_TEMP
+		WHERE MAG_SIMULATION_ID = @MAG_SIMULATION_ID
+
+	UPDATE TB_MAG_SIMULATION_RESULT
+			SET ENSEMBLE_SCORE = (NETWORK_STATISTIC_SCORE + USER_CLASSIFIER_MODEL_SCORE + STUDY_TYPE_CLASSIFIER_SCORE) / 3
+			WHERE MAG_SIMULATION_ID = @MAG_SIMULATION_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Delete simulation
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulationDelete] 
+	-- Add the parameters for the stored procedure here
+	
+	@MAG_SIMULATION_ID int = 0
+,	@REVIEW_ID int = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	delete from TB_MAG_SIMULATION_RESULT
+		where MAG_SIMULATION_ID = @MAG_SIMULATION_ID
+
+	delete from TB_MAG_SIMULATION
+		where MAG_SIMULATION_ID = @MAG_SIMULATION_ID AND REVIEW_ID = @REVIEW_ID
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationGetIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers 
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulationGetIds] 
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int = 0
+,	@ATTRIBUTE_ID_FILTER BIGINT = 0
+,	@ATTRIBUTE_ID_SEED BIGINT = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+
+	if not @ATTRIBUTE_ID_FILTER = 0
+	begin
+		if @ATTRIBUTE_ID_SEED = 0
+		begin
+			select DISTINCT imm.PaperId, 1 as Training from Reviewer.dbo.tb_ITEM_MAG_MATCH imm
+			inner join Reviewer.dbo.TB_ITEM_ATTRIBUTE ia on ia.ITEM_ID = imm.ITEM_ID and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID_FILTER
+			inner join Reviewer.dbo.TB_ITEM_SET tis on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 'true'
+			inner join Reviewer.dbo.TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+		end
+		else
+		begin
+			select DISTINCT imm.PaperId, case when iat.item_id is null then 0 else 1 end as Training from Reviewer.dbo.tb_ITEM_MAG_MATCH imm
+			inner join Reviewer.dbo.TB_ITEM_ATTRIBUTE ia on ia.ITEM_ID = imm.ITEM_ID and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID_FILTER
+			inner join Reviewer.dbo.TB_ITEM_SET tis on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 'true'
+			inner join Reviewer.dbo.TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			left outer join TB_ITEM_ATTRIBUTE iat on iat.ITEM_ID = imm.ITEM_ID and iat.ATTRIBUTE_ID = @ATTRIBUTE_ID_SEED
+			left outer join tb_item_set iset on iset.ITEM_SET_ID = iat.ITEM_SET_ID and iset.IS_COMPLETED = 'true'
+			where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+		end
+	end
+	else
+	begin
+		if @ATTRIBUTE_ID_SEED = 0
+		begin
+			select DISTINCT imm.PaperId, 1 as Training from Reviewer.dbo.tb_ITEM_MAG_MATCH imm
+			inner join Reviewer.dbo.TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+		end
+		else
+		begin
+			select DISTINCT imm.PaperId, case when iat.item_id is null then 0 else 1 end as Training from Reviewer.dbo.tb_ITEM_MAG_MATCH imm
+			inner join Reviewer.dbo.TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false' and ir.REVIEW_ID = @REVIEW_ID and ir.REVIEW_ID = imm.REVIEW_ID
+			left outer join TB_ITEM_ATTRIBUTE iat on iat.ITEM_ID = imm.ITEM_ID and iat.ATTRIBUTE_ID = @ATTRIBUTE_ID_SEED
+			left outer join tb_item_set iset on iset.ITEM_SET_ID = iat.ITEM_SET_ID and iset.IS_COMPLETED = 'true'
+			where (imm.AutoMatchScore >= 0.8 or imm.ManualTrueMatch = 'true') and (imm.ManualFalseMatch <> 'true' or imm.ManualFalseMatch is null)
+		end
+
+	end
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers in a given run
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulationInsert] 
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int = 0
+,	@YEAR INT = 0
+,	@CREATED_DATE DATETIME = NULL
+,	@WITH_THIS_ATTRIBUTE_ID BIGINT = 0
+,	@FILTERED_BY_ATTRIBUTE_ID BIGINT = 0
+,	@SEARCH_METHOD NVARCHAR(50) = NULL
+,	@NETWORK_STATISTIC NVARCHAR(50) = NULL
+,	@STUDY_TYPE_CLASSIFIER NVARCHAR(50) = NULL
+,	@USER_CLASSIFIER_MODEL_ID INT = NULL
+,	@STATUS NVARCHAR(50) = NULL
+,	@YEAR_END INT = NULL
+,	@CREATED_DATE_END DATETIME = NULL
+,	@USER_CLASSIFIER_REVIEW_ID INT = NULL
+,	@FOS_THRESHOLD FLOAT = NULL
+,	@SCORE_THRESHOLD FLOAT = NULL
+
+,	@MAG_SIMULATION_ID INT OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	if @USER_CLASSIFIER_MODEL_ID = 0
+		set @USER_CLASSIFIER_MODEL_ID = null
+
+	INSERT INTO TB_MAG_SIMULATION
+		(REVIEW_ID, YEAR, CREATED_DATE, WITH_THIS_ATTRIBUTE_ID, FILTERED_BY_ATTRIBUTE_ID, SEARCH_METHOD,
+		NETWORK_STATISTIC, STUDY_TYPE_CLASSIFIER, USER_CLASSIFIER_MODEL_ID, STATUS, YEAR_END, CREATED_DATE_END,
+		USER_CLASSIFIER_REVIEW_ID, FOS_THRESHOLD, SCORE_THRESHOLD)
+	VALUES(@REVIEW_ID, @YEAR, @CREATED_DATE, @WITH_THIS_ATTRIBUTE_ID, @FILTERED_BY_ATTRIBUTE_ID, @SEARCH_METHOD,
+		@NETWORK_STATISTIC, @STUDY_TYPE_CLASSIFIER, @USER_CLASSIFIER_MODEL_ID, @STATUS, @YEAR_END, @CREATED_DATE_END,
+		@USER_CLASSIFIER_REVIEW_ID, @FOS_THRESHOLD, @SCORE_THRESHOLD)
+
+	SET @MAG_SIMULATION_ID = @@IDENTITY
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationResults]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all results for a given simulation
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulationResults] 
+	-- Add the parameters for the stored procedure here
+	
+	@MagSimulationId int
+,	@OrderBy nvarchar(10)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+if @OrderBy = 'Network'
+	SELECT DISTINCT msr.MAG_SIMULATION_ID, msr.PaperId, msr.INCLUDED, msr.STUDY_TYPE_CLASSIFIER_SCORE,
+		msr.USER_CLASSIFIER_MODEL_SCORE, msr.NETWORK_STATISTIC_SCORE, msr.FOS_DISTANCE_SCORE,
+		msr.ENSEMBLE_SCORE
+	from TB_MAG_SIMULATION_RESULT msr
+		WHERE msr.MAG_SIMULATION_ID = @MagSimulationId
+		order by msr.NETWORK_STATISTIC_SCORE desc
+
+if @OrderBy = 'FoS'
+	SELECT DISTINCT msr.MAG_SIMULATION_ID, msr.PaperId, msr.INCLUDED, msr.STUDY_TYPE_CLASSIFIER_SCORE,
+		msr.USER_CLASSIFIER_MODEL_SCORE, msr.NETWORK_STATISTIC_SCORE, msr.FOS_DISTANCE_SCORE,
+		msr.ENSEMBLE_SCORE
+	from TB_MAG_SIMULATION_RESULT msr
+		WHERE msr.MAG_SIMULATION_ID = @MagSimulationId
+		order by msr.FOS_DISTANCE_SCORE
+
+if @OrderBy = 'User'
+	SELECT DISTINCT msr.MAG_SIMULATION_ID, msr.PaperId, msr.INCLUDED, msr.STUDY_TYPE_CLASSIFIER_SCORE,
+		msr.USER_CLASSIFIER_MODEL_SCORE, msr.NETWORK_STATISTIC_SCORE, msr.FOS_DISTANCE_SCORE,
+		msr.ENSEMBLE_SCORE
+	from TB_MAG_SIMULATION_RESULT msr
+		WHERE msr.MAG_SIMULATION_ID = @MagSimulationId
+		order by msr.USER_CLASSIFIER_MODEL_SCORE desc
+
+if @OrderBy = 'StudyType'
+	SELECT DISTINCT msr.MAG_SIMULATION_ID, msr.PaperId, msr.INCLUDED, msr.STUDY_TYPE_CLASSIFIER_SCORE,
+		msr.USER_CLASSIFIER_MODEL_SCORE, msr.NETWORK_STATISTIC_SCORE, msr.FOS_DISTANCE_SCORE,
+		msr.ENSEMBLE_SCORE
+	from TB_MAG_SIMULATION_RESULT msr
+		WHERE msr.MAG_SIMULATION_ID = @MagSimulationId
+		order by msr.STUDY_TYPE_CLASSIFIER_SCORE desc
+
+if @OrderBy = 'Ensemble'
+	SELECT DISTINCT msr.MAG_SIMULATION_ID, msr.PaperId, msr.INCLUDED, msr.STUDY_TYPE_CLASSIFIER_SCORE,
+		msr.USER_CLASSIFIER_MODEL_SCORE, msr.NETWORK_STATISTIC_SCORE, msr.FOS_DISTANCE_SCORE,
+		msr.ENSEMBLE_SCORE
+	from TB_MAG_SIMULATION_RESULT msr
+		WHERE msr.MAG_SIMULATION_ID = @MagSimulationId
+		order by msr.ENSEMBLE_SCORE desc
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSimulations]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all simulations for a given review
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulations] 
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+
+	SELECT ms.REVIEW_ID, ms.MAG_SIMULATION_ID, ms.YEAR, ms.CREATED_DATE, ms.WITH_THIS_ATTRIBUTE_ID, ms.FILTERED_BY_ATTRIBUTE_ID,
+		ms.SEARCH_METHOD, ms.NETWORK_STATISTIC, ms.STUDY_TYPE_CLASSIFIER, ms.USER_CLASSIFIER_MODEL_ID, ms.USER_CLASSIFIER_REVIEW_ID,
+		ms.STATUS, ms.tp, ms.FP, ms.FN, MS.NSEEDS, ms.YEAR_END, ms.CREATED_DATE_END, ms.FOS_THRESHOLD, ms.SCORE_THRESHOLD,
+		a.ATTRIBUTE_NAME FilteredByAttribute,
+		aa.ATTRIBUTE_NAME WithThisAttribute, cm.MODEL_TITLE
+		
+		from TB_MAG_SIMULATION ms
+		left outer join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = ms.FILTERED_BY_ATTRIBUTE_ID
+		left outer join TB_ATTRIBUTE aa on aa.ATTRIBUTE_ID = ms.WITH_THIS_ATTRIBUTE_ID
+		left outer join tb_CLASSIFIER_MODEL cm on cm.MODEL_ID = ms.USER_CLASSIFIER_MODEL_ID
+		WHERE ms.REVIEW_ID = @REVIEW_ID
+		order by ms.MAG_SIMULATION_ID
+		
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationUpdatePostRun]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	After the simulation has run, this updates the table accordingly
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulationUpdatePostRun] 
+	-- Add the parameters for the stored procedure here
+	@MAG_SIMULATION_ID int,
+	@REVIEW_ID int,
+	@SeedIds nvarchar(max),
+	@NSeeds int,
+	@InferenceIds nvarchar(max),
+	@ATTRIBUTE_ID_FILTER bigint = 0,
+	@ATTRIBUTE_ID_SEED bigint = 0
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	declare @SeekingIdsTable TABLE (
+		PaperId bigint
+	)
+
+	-- insert all the includes into the SeekingIds table
+	insert into @SeekingIdsTable(PaperId)
+		select value from dbo.fn_Split_int(@InferenceIds, ',')
+
+	-- remove any seedids from results which have snuck in through the graph search
+    delete from TB_MAG_SIMULATION_RESULT where MAG_SIMULATION_ID = @MAG_SIMULATION_ID and PaperId in
+		(select value from dbo.fn_Split_int(@seedids, ','))
+
+	-- clear out any seedids from the seeking ids table
+	delete from @SeekingIdsTable where PaperId in
+		(select value from dbo.fn_Split_int(@seedids, ','))
+
+	-- mark all the results as 'included' if they are in the list of items we're seeking
+	update sim
+	SET INCLUDED = 'True'
+	from TB_MAG_SIMULATION_RESULT sim
+		INNER JOIN @SeekingIdsTable s on s.PaperId = sim.PaperId
+		where MAG_SIMULATION_ID = @MAG_SIMULATION_ID
+	
+	-- finally calculate the stats
+	declare @FN int = 0
+	declare @FP int = 0
+	declare @TP int = 0
+	
+	select @TP = count(*) from TB_MAG_SIMULATION_RESULT msr
+		where msr.MAG_SIMULATION_ID = @MAG_SIMULATION_ID and msr.INCLUDED = 'True'
+
+	select @FN = count(*) - @TP from @SeekingIdsTable
+
+	select @FP = count(*) from TB_MAG_SIMULATION_RESULT msr
+		where msr.MAG_SIMULATION_ID = @MAG_SIMULATION_ID and msr.INCLUDED = 'False'
+
+	update TB_MAG_SIMULATION
+		set STATUS = 'Complete',
+		FP = @FP,
+		FN = @FN,
+		TP = @TP,
+		SeedIds = @SeedIds,
+		SeekingIds = (Select STRING_AGG(CAST(PaperId as nvarchar(max)), ',') From @SeekingIdsTable),
+		NSEEDS = @NSeeds
+		where MAG_SIMULATION_ID = @MAG_SIMULATION_ID	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationUpdateStatus]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Update the status on a simulation (e.g. failure)
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulationUpdateStatus] 
+	-- Add the parameters for the stored procedure here
+	@MAG_SIMULATION_ID int,
+	@STATUS nvarchar(50)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+
+
+	update TB_MAG_SIMULATION
+		set STATUS = @STATUS
+		where MAG_SIMULATION_ID = @MAG_SIMULATION_ID	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagUpdateChangedIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	updates all tables storing PaperIds with their respective new IDs
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagUpdateChangedIds] 
+	-- Add the parameters for the stored procedure here
+	@MagVersion nvarchar(20) 
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	begin transaction
+
+	update imm
+		set PaperId = NewPaperId,
+		AutoMatchScore = NewAutoMatchScore,
+		ManualTrueMatch = 'false',
+		ManualFalseMatch = 'false'
+	from tb_ITEM_MAG_MATCH imm
+		inner join TB_MAG_CHANGED_PAPER_IDS mcp on mcp.OldPaperId = imm.PaperId
+			and mcp.ITEM_ID = imm.ITEM_ID
+		where mcp.MagVersion = @MagVersion
+	
+	update mrp
+		set PaperId = NewPaperId
+	from TB_MAG_RELATED_PAPERS mrp
+		inner join TB_MAG_CHANGED_PAPER_IDS mcp on mcp.OldPaperId = mrp.PaperId
+		where mcp.MagVersion = @MagVersion
+
+	update maur
+		set maur.PaperId = NewPaperId
+	from TB_MAG_AUTO_UPDATE_RUN_PAPER maur
+		inner join TB_MAG_CHANGED_PAPER_IDS mcp on mcp.OldPaperId = maur.PaperId
+		where mcp.MagVersion = @MagVersion
+
+	-- There's a small chance that the above could put duplicates in the tables
+	-- e.g. if MAG had a duplicate that has now been removed and so we now have two rows pointing to the same paper
+	-- The following removes the duplicates and updates the N_PAPERS counts if so
+
+
+	;WITH cte AS (
+		SELECT ITEM_ID, REVIEW_ID, PaperId, 
+			row_number() OVER(PARTITION BY ITEM_ID, REVIEW_ID, PaperId ORDER BY AutoMatchScore DESC) AS [rn]
+		FROM tb_ITEM_MAG_MATCH
+		)
+		DELETE cte WHERE [rn] > 1
+
+	;WITH cte AS (
+		SELECT PaperId, REVIEW_ID, MAG_AUTO_UPDATE_RUN_ID, 
+			row_number() OVER(PARTITION BY REVIEW_ID, PaperId, MAG_AUTO_UPDATE_RUN_ID ORDER BY MAG_AUTO_UPDATE_RUN_PAPER_ID) AS [rn]
+		FROM TB_MAG_AUTO_UPDATE_RUN_PAPER
+		)
+		DELETE cte WHERE [rn] > 1
+
+	IF @@ROWCOUNT > 0
+	BEGIN
+		UPDATE TB_MAG_AUTO_UPDATE_RUN
+		set N_PAPERS = (SELECT COUNT(*) from TB_MAG_AUTO_UPDATE_RUN_PAPER
+			where TB_MAG_AUTO_UPDATE_RUN_PAPER.MAG_AUTO_UPDATE_RUN_ID = TB_MAG_AUTO_UPDATE_RUN.MAG_AUTO_UPDATE_RUN_ID)
+	END
+	
+	;WITH cte AS (
+		SELECT PaperId, REVIEW_ID, MAG_RELATED_RUN_ID, 
+			row_number() OVER(PARTITION BY REVIEW_ID, PaperId, MAG_RELATED_RUN_ID ORDER BY MAG_RELATED_PAPERS_ID) AS [rn]
+		FROM TB_MAG_RELATED_PAPERS
+		)
+		DELETE cte WHERE [rn] > 1
+
+	IF @@ROWCOUNT > 0
+	BEGIN
+		UPDATE TB_MAG_RELATED_RUN
+		set N_PAPERS = (SELECT COUNT(*) from TB_MAG_RELATED_PAPERS
+			where TB_MAG_RELATED_PAPERS.MAG_RELATED_RUN_ID = TB_MAG_RELATED_RUN.MAG_RELATED_RUN_ID)
+	END
+
+	-- delete the 'lost' records from tb_item_mag_match
+	-- i.e. these used to be matched, but we couldn't find a suitable replacement in the new MAG
+	delete from tb_ITEM_MAG_MATCH -- 
+	where PaperId = -1
+
+	-- Finally, there may be papers that could not be auto-matched; we just delete them and update counts
+	delete from maurp
+	from TB_MAG_AUTO_UPDATE_RUN_PAPER maurp
+	inner join TB_MAG_CHANGED_PAPER_IDS cpi on cpi.OldPaperId = maurp.PaperId
+	where cpi.NewPaperId = -1 and cpi.MagVersion = @MagVersion
+
+	IF @@ROWCOUNT > 0
+	BEGIN
+		UPDATE TB_MAG_AUTO_UPDATE_RUN
+		set N_PAPERS = (SELECT COUNT(*) from TB_MAG_AUTO_UPDATE_RUN_PAPER
+			where TB_MAG_AUTO_UPDATE_RUN_PAPER.MAG_AUTO_UPDATE_RUN_ID = TB_MAG_AUTO_UPDATE_RUN.MAG_AUTO_UPDATE_RUN_ID)
+	END
+
+	delete from mrp
+	from TB_MAG_RELATED_PAPERS mrp
+	inner join TB_MAG_CHANGED_PAPER_IDS cpi on cpi.OldPaperId = mrp.PaperId
+	where cpi.NewPaperId = -1 and cpi.MagVersion = @MagVersion
+
+	IF @@ROWCOUNT > 0
+	BEGIN
+		UPDATE TB_MAG_RELATED_RUN
+		set N_PAPERS = (SELECT COUNT(*) from TB_MAG_RELATED_PAPERS
+			where TB_MAG_RELATED_PAPERS.MAG_RELATED_RUN_ID = TB_MAG_RELATED_RUN.MAG_RELATED_RUN_ID)
+	END
+
+	-- finally finally - update the URLs of MAG records that have changed
+	UPDATE i
+	SET URL = 'https://academic.microsoft.com/paper/' + cast(NewPaperId as nvarchar)
+	from TB_ITEM i
+	inner join TB_MAG_CHANGED_PAPER_IDS cpi on cpi.ITEM_ID = i.ITEM_ID and
+		cast(cpi.OldPaperId as nvarchar) = i.OLD_ITEM_ID and
+		cpi.MagVersion = @MagVersion and NewPaperId <> -1
+
+	commit
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagUpdateMissingAbstract]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Update MAG items with abstracts (where they have been found)
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagUpdateMissingAbstract] 
+	@ITEM_ID bigint
+,	@ABSTRACT nvarchar(max)
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	UPDATE TB_ITEM
+		SET ABSTRACT = @ABSTRACT
+		WHERE ITEM_ID = @ITEM_ID
+
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MagUpdateMissingPaperIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Update the list of changed PaperIds with a new paperid
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagUpdateMissingPaperIds] 
+	@MagChangedPaperIdsId int,
+	@NewAutoMatchScore float,
+	@NewPaperId bigint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	update TB_MAG_CHANGED_PAPER_IDS
+		set NewPaperId = @NewPaperId,
+		NewAutoMatchScore = @NewAutoMatchScore
+		where MagChangedPaperIdsId = @MagChangedPaperIdsId
+		
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysis]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_MetaAnalysis]
+(
+	@META_ANALYSIS_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	SELECT META_ANALYSIS_ID, META_ANALYSIS_TITLE, CONTACT_ID, REVIEW_ID,
+	ATTRIBUTE_ID, SET_ID, ATTRIBUTE_ID_INTERVENTION, ATTRIBUTE_ID_CONTROL,
+	ATTRIBUTE_ID_ANSWER, ATTRIBUTE_ID_QUESTION,	ATTRIBUTE_ID_OUTCOME, META_ANALYSIS_TYPE_ID,
+
+	 Randomised, RoB, RoBComment, RoBSequence, RoBConcealment, RoBBlindingParticipants, RoBBlindingAssessors, RoBIncomplete, RoBSelective, 
+	 RoBNoIntention, RoBCarryover, RoBStopped, RoBUnvalidated, RoBOther, Incon, InconComment, InconPoint, InconCIs, InconDirection, 
+	 InconStatistical, InconOther, Indirect, IndirectComment, IndirectPopulation, IndirectOutcome, IndirectNoDirect, IndirectIntervention, 
+	 IndirectTime, IndirectOther, Imprec, ImprecComment, ImprecWide, ImprecFew, ImprecOnlyOne, ImprecOther, PubBias, PubBiasComment, 
+	 PubBiasCommercially, PubBiasAsymmetrical, PubBiasLimited, PubBiasMissing, PubBiasDiscontinued, PubBiasDiscrepancy, PubBiasOther, 
+	 UpgradeComment, UpgradeLarge, UpgradeVeryLarge, UpgradeAllPlausible, UpgradeClear, UpgradeNone, CertaintyLevel, CertaintyLevelComment
+	
+	FROM TB_META_ANALYSIS
+	
+	WHERE META_ANALYSIS_ID = @META_ANALYSIS_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_MetaAnalysisDelete]
+(
+	@META_ANALYSIS_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	DELETE FROM TB_META_ANALYSIS_OUTCOME
+	WHERE META_ANALYSIS_ID = @META_ANALYSIS_ID
+	
+	DELETE FROM TB_META_ANALYSIS
+	WHERE META_ANALYSIS_ID = @META_ANALYSIS_ID
+	
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_MetaAnalysisInsert]
+(
+	@TITLE NVARCHAR(255),
+	@CONTACT_ID INT,
+	@REVIEW_ID INT,
+	@ATTRIBUTE_ID BIGINT = NULL,
+	@SET_ID INT = NULL,
+	@ATTRIBUTE_ID_INTERVENTION BIGINT,
+	@ATTRIBUTE_ID_CONTROL BIGINT,
+	@ATTRIBUTE_ID_OUTCOME BIGINT,
+	@META_ANALYSIS_TYPE_ID INT,
+	@OUTCOME_IDS nvarchar(max),
+	@ATTRIBUTE_ID_ANSWER nvarchar(max) = '',
+	@ATTRIBUTE_ID_QUESTION nvarchar(max) = '',
+	@GRID_SETTINGS NVARCHAR(MAX) = '',
+	@NEW_META_ANALYSIS_ID INT OUTPUT,
+
+	@Randomised int  = NULL,
+	@RoB [int]  = NULL,
+	@RoBComment [ntext]  = NULL,
+	@RoBSequence [bit] =  NULL,
+	@RoBConcealment [bit] =  NULL,
+	@RoBBlindingParticipants [bit]  = NULL,
+	@RoBBlindingAssessors [bit]  = NULL,
+	@RoBIncomplete [bit]  = NULL,
+	@RoBSelective [bit]  = NULL,
+	@RoBNoIntention [bit] =  NULL,
+	@RoBCarryover [bit] =  NULL,
+	@RoBStopped [bit]  = NULL,
+	@RoBUnvalidated [bit]  = NULL,
+	@RoBOther [bit] =  NULL,
+	@Incon [int]  = NULL,
+	@InconComment [ntext]  = NULL,
+	@InconPoint [bit] =  NULL,
+	@InconCIs [bit]  = NULL,
+	@InconDirection [bit]  = NULL,
+	@InconStatistical [bit]  = NULL,
+	@InconOther [bit]  = NULL,
+	@Indirect [int]  = NULL,
+	@IndirectComment [ntext]  = NULL,
+	@IndirectPopulation [bit] =  NULL,
+	@IndirectOutcome [bit] =  NULL,
+	@IndirectNoDirect [bit]  = NULL,
+	@IndirectIntervention [bit]  = NULL,
+	@IndirectTime [bit]  = NULL,
+	@IndirectOther [bit]  = NULL,
+	@Imprec [int]  = NULL,
+	@ImprecComment [ntext]  = NULL,
+	@ImprecWide [bit]  = NULL,
+	@ImprecFew [bit]  = NULL,
+	@ImprecOnlyOne [bit]  = NULL,
+	@ImprecOther [bit]  = NULL,
+	@PubBias [int]  = NULL,
+	@PubBiasComment [ntext]  = NULL,
+	@PubBiasCommercially [bit]  = NULL,
+	@PubBiasAsymmetrical [bit] =  NULL,
+	@PubBiasLimited [bit]  = NULL,
+	@PubBiasMissing [bit] = NULL,
+	@PubBiasDiscontinued [bit] =  NULL,
+	@PubBiasDiscrepancy [bit] =  NULL,
+	@PubBiasOther [bit] =  NULL,
+	@UpgradeComment [ntext] =  NULL,
+	@UpgradeLarge [bit] =  NULL,
+	@UpgradeVeryLarge [bit]  = NULL,
+	@UpgradeAllPlausible [bit]  = NULL,
+	@UpgradeClear [bit]  = NULL,
+	@UpgradeNone [bit]  = NULL,
+	@CertaintyLevel [int]  = NULL,
+	@CertaintyLevelComment [ntext] =  NULL,
+
+	@ATTRIBUTE_ANSWER_TEXT NVARCHAR(MAX) OUTPUT,
+	@ATTRIBUTE_QUESTION_TEXT NVARCHAR(MAX) OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	INSERT INTO TB_META_ANALYSIS
+	(	META_ANALYSIS_TITLE
+	,	CONTACT_ID
+	,	REVIEW_ID
+	,	ATTRIBUTE_ID
+	,	SET_ID
+	,	ATTRIBUTE_ID_INTERVENTION
+	,	ATTRIBUTE_ID_CONTROL
+	,	ATTRIBUTE_ID_OUTCOME
+	,	META_ANALYSIS_TYPE_ID
+	,	ATTRIBUTE_ID_ANSWER
+	,	ATTRIBUTE_ID_QUESTION
+	,	GRID_SETTINGS,
+	[Randomised],
+	[RoB],
+	[RoBComment],
+	[RoBSequence],
+	[RoBConcealment],
+	[RoBBlindingParticipants],
+	[RoBBlindingAssessors],
+	[RoBIncomplete],
+	[RoBSelective],
+	[RoBNoIntention],
+	[RoBCarryover],
+	[RoBStopped],
+	[RoBUnvalidated],
+	[RoBOther],
+	[Incon],
+	[InconComment],
+	[InconPoint],
+	[InconCIs],
+	[InconDirection],
+	[InconStatistical],
+	[InconOther],
+	[Indirect],
+	[IndirectComment],
+	[IndirectPopulation],
+	[IndirectOutcome],
+	[IndirectNoDirect],
+	[IndirectIntervention],
+	[IndirectTime],
+	[IndirectOther],
+	[Imprec],
+	[ImprecComment],
+	[ImprecWide],
+	[ImprecFew],
+	[ImprecOnlyOne],
+	[ImprecOther],
+	[PubBias],
+	[PubBiasComment],
+	[PubBiasCommercially],
+	[PubBiasAsymmetrical],
+	[PubBiasLimited],
+	[PubBiasMissing],
+	[PubBiasDiscontinued],
+	[PubBiasDiscrepancy],
+	[PubBiasOther],
+	[UpgradeComment],
+	[UpgradeLarge],
+	[UpgradeVeryLarge],
+	[UpgradeAllPlausible],
+	[UpgradeClear],
+	[UpgradeNone],
+	[CertaintyLevel],
+	[CertaintyLevelComment]
+	)	
+	VALUES
+	(
+		@TITLE
+	,	@CONTACT_ID
+	,	@REVIEW_ID
+	,	@ATTRIBUTE_ID
+	,	@SET_ID
+	,	@ATTRIBUTE_ID_INTERVENTION
+	,	@ATTRIBUTE_ID_CONTROL
+	,	@ATTRIBUTE_ID_OUTCOME
+	,	@META_ANALYSIS_TYPE_ID
+	,	@ATTRIBUTE_ID_ANSWER
+	,	@ATTRIBUTE_ID_QUESTION
+	,	@GRID_SETTINGS,
+	@Randomised,
+	@RoB,
+	@RoBComment,
+	@RoBSequence,
+	@RoBConcealment,
+	@RoBBlindingParticipants,
+	@RoBBlindingAssessors,
+	@RoBIncomplete,
+	@RoBSelective,
+	@RoBNoIntention,
+	@RoBCarryover,
+	@RoBStopped,
+	@RoBUnvalidated,
+	@RoBOther,
+	@Incon,
+	@InconComment,
+	@InconPoint,
+	@InconCIs,
+	@InconDirection,
+	@InconStatistical,
+	@InconOther,
+	@Indirect,
+	@IndirectComment,
+	@IndirectPopulation,
+	@IndirectOutcome,
+	@IndirectNoDirect,
+	@IndirectIntervention,
+	@IndirectTime,
+	@IndirectOther,
+	@Imprec,
+	@ImprecComment,
+	@ImprecWide,
+	@ImprecFew,
+	@ImprecOnlyOne,
+	@ImprecOther,
+	@PubBias,
+	@PubBiasComment,
+	@PubBiasCommercially,
+	@PubBiasAsymmetrical,
+	@PubBiasLimited,
+	@PubBiasMissing,
+	@PubBiasDiscontinued,
+	@PubBiasDiscrepancy,
+	@PubBiasOther,
+	@UpgradeComment,
+	@UpgradeLarge,
+	@UpgradeVeryLarge,
+	@UpgradeAllPlausible,
+	@UpgradeClear,
+	@UpgradeNone,
+	@CertaintyLevel,
+	@CertaintyLevelComment
+	)
+	-- Get the identity and return it
+	SET @NEW_META_ANALYSIS_ID = @@identity
+	
+	IF (@OUTCOME_IDS != '')
+	BEGIN
+		INSERT INTO TB_META_ANALYSIS_OUTCOME (META_ANALYSIS_ID, OUTCOME_ID)
+		SELECT @NEW_META_ANALYSIS_ID, VALUE from DBO.fn_Split_int(@OUTCOME_IDS, ',')
+	END
+
+	SELECT @ATTRIBUTE_ANSWER_TEXT = COALESCE(@ATTRIBUTE_ANSWER_TEXT + '¬', '') + ATTRIBUTE_NAME 
+	FROM TB_ATTRIBUTE
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_ID_ANSWER, ',') id ON id.value = TB_ATTRIBUTE.ATTRIBUTE_ID
+		WHERE ATTRIBUTE_NAME IS NOT NULL
+
+	SELECT @ATTRIBUTE_QUESTION_TEXT = COALESCE(@ATTRIBUTE_QUESTION_TEXT + '¬', '') + ATTRIBUTE_NAME 
+	FROM TB_ATTRIBUTE
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_ID_QUESTION, ',') id ON id.value = TB_ATTRIBUTE.ATTRIBUTE_ID
+		WHERE ATTRIBUTE_NAME IS NOT NULL
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_MetaAnalysisList]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	SELECT META_ANALYSIS_ID, META_ANALYSIS_TITLE, TB_META_ANALYSIS.CONTACT_ID, REVIEW_ID,
+	TB_META_ANALYSIS.ATTRIBUTE_ID, SET_ID, ATTRIBUTE_ID_INTERVENTION, ATTRIBUTE_ID_CONTROL,
+	ATTRIBUTE_ID_OUTCOME, TB_META_ANALYSIS.META_ANALYSIS_TYPE_ID, META_ANALYSIS_TYPE_TITLE,
+	ATTRIBUTE_ID_ANSWER, ATTRIBUTE_ID_QUESTION,	GRID_SETTINGS,
+	Randomised, RoB, RoBComment, RoBSequence, RoBConcealment, RoBBlindingParticipants, RoBBlindingAssessors, RoBIncomplete, RoBSelective, 
+	 RoBNoIntention, RoBCarryover, RoBStopped, RoBUnvalidated, RoBOther, Incon, InconComment, InconPoint, InconCIs, InconDirection, 
+	 InconStatistical, InconOther, Indirect, IndirectComment, IndirectPopulation, IndirectOutcome, IndirectNoDirect, IndirectIntervention, 
+	 IndirectTime, IndirectOther, Imprec, ImprecComment, ImprecWide, ImprecFew, ImprecOnlyOne, ImprecOther, PubBias, PubBiasComment, 
+	 PubBiasCommercially, PubBiasAsymmetrical, PubBiasLimited, PubBiasMissing, PubBiasDiscontinued, PubBiasDiscrepancy, PubBiasOther, 
+	 UpgradeComment, UpgradeLarge, UpgradeVeryLarge, UpgradeAllPlausible, UpgradeClear, UpgradeNone, CertaintyLevel, CertaintyLevelComment,
+
+	--A1.ATTRIBUTE_NAME AS INTERVENTION_TEXT,	a2.ATTRIBUTE_NAME AS CONTROL_TEXT, a3.ATTRIBUTE_NAME AS OUTCOME_TEXT,
+
+	(SELECT ATTRIBUTE_NAME + '¬' FROM TB_ATTRIBUTE
+		INNER JOIN dbo.fn_Split_int(ATTRIBUTE_ID_ANSWER, ',') id ON id.value = TB_ATTRIBUTE.ATTRIBUTE_ID
+		FOR XML PATH('')) AS ATTRIBUTE_ANSWER_TEXT,
+
+	(SELECT ATTRIBUTE_NAME + '¬' FROM TB_ATTRIBUTE
+		INNER JOIN dbo.fn_Split_int(ATTRIBUTE_ID_QUESTION, ',') id ON id.value = TB_ATTRIBUTE.ATTRIBUTE_ID
+		FOR XML PATH('')) AS ATTRIBUTE_QUESTION_TEXT
+	
+	FROM TB_META_ANALYSIS
+	
+	INNER JOIN TB_META_ANALYSIS_TYPE ON TB_META_ANALYSIS_TYPE.META_ANALYSIS_TYPE_ID =
+		TB_META_ANALYSIS.META_ANALYSIS_TYPE_ID
+	
+	/*	
+	don't need this any more (for old MA interface) ??
+	left outer JOIN TB_ITEM_ATTRIBUTE IA1 ON IA1.ITEM_ATTRIBUTE_ID = TB_META_ANALYSIS.ATTRIBUTE_ID_INTERVENTION
+	left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = TB_META_ANALYSIS.ATTRIBUTE_ID_INTERVENTION 
+	left outer JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ATTRIBUTE_ID = TB_META_ANALYSIS.ATTRIBUTE_ID_CONTROL
+	left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = TB_META_ANALYSIS.ATTRIBUTE_ID_CONTROL
+	left outer JOIN TB_ITEM_ATTRIBUTE IA3 ON IA3.ITEM_ATTRIBUTE_ID = TB_META_ANALYSIS.ATTRIBUTE_ID_OUTCOME
+	left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = TB_META_ANALYSIS.ATTRIBUTE_ID_OUTCOME 
+	*/
+	WHERE REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+
+
+/*
+
+(SELECT COALESCE(ATTRIBUTE_ANSWER_TEXT + '¬', '') + ATTRIBUTE_NAME 
+	FROM TB_ATTRIBUTE
+		INNER JOIN dbo.fn_Split_int(ATTRIBUTE_ID_ANSWER, ',') id ON id.value = TB_ATTRIBUTE.ATTRIBUTE_ID
+		WHERE ATTRIBUTE_NAME IS NOT NULL) ATTRIBUTE_ANSWER_TEXT
+
+		*/
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_MetaAnalysisUpdate]
+(
+	@META_ANALYSIS_ID INT,
+	@TITLE NVARCHAR(255),
+	@CONTACT_ID INT,
+	@REVIEW_ID INT,
+	@ATTRIBUTE_ID BIGINT = NULL,
+	@SET_ID INT = NULL,
+	@ATTRIBUTE_ID_INTERVENTION BIGINT,
+	@ATTRIBUTE_ID_CONTROL BIGINT,
+	@ATTRIBUTE_ID_OUTCOME BIGINT,
+	@OUTCOME_IDS nvarchar(max),
+	@ATTRIBUTE_ID_ANSWER NVARCHAR(MAX) = '',
+	@ATTRIBUTE_ID_QUESTION NVARCHAR(MAX) = '',
+	@META_ANALYSIS_TYPE_ID INT,
+	@GRID_SETTINGS NVARCHAR(MAX) = '',
+
+	@Randomised int  = NULL,
+	@RoB [int]  = NULL,
+	@RoBComment [ntext]  = NULL,
+	@RoBSequence [bit] =  NULL,
+	@RoBConcealment [bit] =  NULL,
+	@RoBBlindingParticipants [bit]  = NULL,
+	@RoBBlindingAssessors [bit]  = NULL,
+	@RoBIncomplete [bit]  = NULL,
+	@RoBSelective [bit]  = NULL,
+	@RoBNoIntention [bit] =  NULL,
+	@RoBCarryover [bit] =  NULL,
+	@RoBStopped [bit]  = NULL,
+	@RoBUnvalidated [bit]  = NULL,
+	@RoBOther [bit] =  NULL,
+	@Incon [int]  = NULL,
+	@InconComment [ntext]  = NULL,
+	@InconPoint [bit] =  NULL,
+	@InconCIs [bit]  = NULL,
+	@InconDirection [bit]  = NULL,
+	@InconStatistical [bit]  = NULL,
+	@InconOther [bit]  = NULL,
+	@Indirect [int]  = NULL,
+	@IndirectComment [ntext]  = NULL,
+	@IndirectPopulation [bit] =  NULL,
+	@IndirectOutcome [bit] =  NULL,
+	@IndirectNoDirect [bit]  = NULL,
+	@IndirectIntervention [bit]  = NULL,
+	@IndirectTime [bit]  = NULL,
+	@IndirectOther [bit]  = NULL,
+	@Imprec [int]  = NULL,
+	@ImprecComment [ntext]  = NULL,
+	@ImprecWide [bit]  = NULL,
+	@ImprecFew [bit]  = NULL,
+	@ImprecOnlyOne [bit]  = NULL,
+	@ImprecOther [bit]  = NULL,
+	@PubBias [int]  = NULL,
+	@PubBiasComment [ntext]  = NULL,
+	@PubBiasCommercially [bit]  = NULL,
+	@PubBiasAsymmetrical [bit] =  NULL,
+	@PubBiasLimited [bit]  = NULL,
+	@PubBiasMissing [bit] = NULL,
+	@PubBiasDiscontinued [bit] =  NULL,
+	@PubBiasDiscrepancy [bit] =  NULL,
+	@PubBiasOther [bit] =  NULL,
+	@UpgradeComment [ntext] =  NULL,
+	@UpgradeLarge [bit] =  NULL,
+	@UpgradeVeryLarge [bit]  = NULL,
+	@UpgradeAllPlausible [bit]  = NULL,
+	@UpgradeClear [bit]  = NULL,
+	@UpgradeNone [bit]  = NULL,
+	@CertaintyLevel [int]  = NULL,
+	@CertaintyLevelComment [ntext] =  NULL,
+
+	@ATTRIBUTE_ANSWER_TEXT NVARCHAR(MAX) OUTPUT,
+	@ATTRIBUTE_QUESTION_TEXT NVARCHAR(MAX) OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	UPDATE TB_META_ANALYSIS
+	SET	META_ANALYSIS_TITLE = @TITLE
+	,	CONTACT_ID = @CONTACT_ID
+	,	REVIEW_ID = @REVIEW_ID
+	,	ATTRIBUTE_ID = @ATTRIBUTE_ID
+	,	SET_ID = @SET_ID
+	,	ATTRIBUTE_ID_INTERVENTION = @ATTRIBUTE_ID_INTERVENTION
+	,	ATTRIBUTE_ID_CONTROL = @ATTRIBUTE_ID_CONTROL
+	,	ATTRIBUTE_ID_OUTCOME = @ATTRIBUTE_ID_OUTCOME
+	,	META_ANALYSIS_TYPE_ID = @META_ANALYSIS_TYPE_ID
+	,	ATTRIBUTE_ID_ANSWER = @ATTRIBUTE_ID_ANSWER
+	,	ATTRIBUTE_ID_QUESTION = @ATTRIBUTE_ID_QUESTION
+	,	GRID_SETTINGS = @GRID_SETTINGS
+	,	Randomised = @Randomised
+	,	Rob = @RoB
+	,	RoBComment = @RoBComment
+	,	RoBSequence = @RoBSequence
+	,	RoBConcealment = @RoBConcealment
+	,	RoBBlindingParticipants = @RoBBlindingParticipants
+	,	RoBBlindingAssessors = @RoBBlindingAssessors
+	,	RoBIncomplete = @RoBIncomplete
+	,	RoBSelective = @RoBSelective
+	,	RoBNoIntention = @RoBNoIntention
+	,	RoBCarryover = @RoBCarryover
+	,	RoBStopped = @RoBStopped
+	,	RoBUnvalidated = @RoBUnvalidated
+	,	RoBOther = @RoBOther
+	,	Incon = @Incon
+	,	InconComment = @InconComment
+	,	InconPoint = @InconPoint
+	,	InconCIs = @InconCIs
+	,	InconDirection = @InconDirection
+	,	InconStatistical = @InconStatistical
+	,	InconOther = @InconOther
+	,	Indirect = @Indirect
+	,	IndirectComment = @IndirectComment
+	,	IndirectPopulation = @IndirectPopulation
+	,	IndirectOutcome = @IndirectOutcome
+	,	IndirectNoDirect = @IndirectNoDirect
+	,	IndirectIntervention = @IndirectIntervention
+	,	IndirectTime = @IndirectTime
+	,	IndirectOther = @IndirectOther
+	,	Imprec = @Imprec
+	,	ImprecComment = @ImprecComment
+	,	ImprecWide = @ImprecWide
+	,	ImprecFew = @ImprecFew
+	,	ImprecOnlyOne = @ImprecOnlyOne
+	,	ImprecOther = @ImprecOther
+	,	PubBias = @PubBias
+	,	PubBiasComment = @PubBiasComment
+	,	PubBiasCommercially = @PubBiasCommercially
+	,	PubBiasAsymmetrical = @PubBiasAsymmetrical
+	,	PubBiasLimited = @PubBiasLimited
+	,	PubBiasMissing = @PubBiasMissing
+	,	PubBiasDiscontinued = @PubBiasDiscontinued
+	,	PubBiasDiscrepancy = @PubBiasDiscrepancy
+	,	PubBiasOther = @PubBiasOther
+	,	UpgradeComment = @UpgradeComment
+	,	UpgradeLarge = @UpgradeLarge
+	,	UpgradeVeryLarge = @UpgradeVeryLarge
+	,	UpgradeAllPlausible = @UpgradeAllPlausible
+	,	UpgradeClear = @UpgradeClear
+	,	UpgradeNone = @UpgradeNone
+	,	CertaintyLevel = @CertaintyLevel
+	,	CertaintyLevelComment = @CertaintyLevelComment
+	
+	WHERE META_ANALYSIS_ID = @META_ANALYSIS_ID
+	
+	DELETE FROM TB_META_ANALYSIS_OUTCOME WHERE META_ANALYSIS_ID = @META_ANALYSIS_ID
+	
+	IF (@OUTCOME_IDS != '')
+	BEGIN
+		INSERT INTO TB_META_ANALYSIS_OUTCOME (META_ANALYSIS_ID, OUTCOME_ID)
+		SELECT @META_ANALYSIS_ID, VALUE from DBO.fn_Split_int(@OUTCOME_IDS, ',')
+	END
+
+	SELECT @ATTRIBUTE_ANSWER_TEXT = COALESCE(@ATTRIBUTE_ANSWER_TEXT + '¬', '') + ATTRIBUTE_NAME 
+	FROM TB_ATTRIBUTE
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_ID_ANSWER, ',') id ON id.value = TB_ATTRIBUTE.ATTRIBUTE_ID
+		WHERE ATTRIBUTE_NAME IS NOT NULL
+
+	SELECT @ATTRIBUTE_QUESTION_TEXT = COALESCE(@ATTRIBUTE_QUESTION_TEXT + '¬', '') + ATTRIBUTE_NAME 
+	FROM TB_ATTRIBUTE
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_ID_QUESTION, ',') id ON id.value = TB_ATTRIBUTE.ATTRIBUTE_ID
+		WHERE ATTRIBUTE_NAME IS NOT NULL
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_OutcomeItemAttributeList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_OutcomeItemAttributeList]
+(
+	@OUTCOME_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT ITEM_OUTCOME_ATTRIBUTE_ID, OUTCOME_ID, a.ATTRIBUTE_ID, ADDITIONAL_TEXT, a.ATTRIBUTE_NAME
+	FROM TB_ITEM_OUTCOME_ATTRIBUTE ioa
+	inner join TB_ATTRIBUTE a on ioa.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+	WHERE OUTCOME_ID = @OUTCOME_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_OutcomeItemAttributesSave]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_OutcomeItemAttributesSave]
+(
+	@OUTCOME_ID INT,
+	@ATTRIBUTES NVARCHAR(MAX)
+)
+
+As
+
+SET NOCOUNT ON
+	declare @t TABLE (value bigint)
+	DELETE FROM TB_ITEM_OUTCOME_ATTRIBUTE
+		WHERE OUTCOME_ID = @OUTCOME_ID
+	INSERT into @t select distinct value from dbo.fn_Split_int(@ATTRIBUTES, ',') where value > 0 
+	--you get one line with 0 as value if you try to split an empty string	
+	if @@ROWCOUNT >0 
+	BEGIN
+		INSERT INTO TB_ITEM_OUTCOME_ATTRIBUTE(OUTCOME_ID, ATTRIBUTE_ID)
+		SELECT @OUTCOME_ID, VALUE FROM @t
+	END
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_OutcomeItemDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_OutcomeItemDelete] 
+	-- Add the parameters for the stored procedure here
+	
+	@OUTCOME_ID INT
+AS
+BEGIN
+	DELETE FROM TB_ITEM_OUTCOME_ATTRIBUTE WHERE OUTCOME_ID = @OUTCOME_ID
+	DELETE FROM TB_ITEM_OUTCOME WHERE OUTCOME_ID = @OUTCOME_ID
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_OutcomeItemInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_OutcomeItemInsert]
+(
+	@ITEM_SET_ID BIGINT,
+	@OUTCOME_TYPE_ID INT = 1,
+	@ITEM_ATTRIBUTE_ID_INTERVENTION BIGINT,
+	@ITEM_ATTRIBUTE_ID_CONTROL BIGINT,
+	@ITEM_ATTRIBUTE_ID_OUTCOME BIGINT,
+	@OUTCOME_TITLE NVARCHAR(255),
+	@OUTCOME_DESCRIPTION NVARCHAR(4000),
+	@DATA1 DECIMAL (18, 9),
+	@DATA2 DECIMAL (18, 9),
+	@DATA3 DECIMAL (18, 9),
+	@DATA4 DECIMAL (18, 9),
+	@DATA5 DECIMAL (18, 9),
+	@DATA6 DECIMAL (18, 9),
+	@DATA7 DECIMAL (18, 9),
+	@DATA8 DECIMAL (18, 9),
+	@DATA9 DECIMAL (18, 9),
+	@DATA10 DECIMAL (18, 9),
+	@DATA11 DECIMAL (18, 9),
+	@DATA12 DECIMAL (18, 9),
+	@DATA13 DECIMAL (18, 9),
+	@DATA14 DECIMAL (18, 9),
+	@ITEM_TIMEPOINT_ID BIGINT,
+	@ITEM_ARM_ID_GRP1 BIGINT,
+	@ITEM_ARM_ID_GRP2 BIGINT,
+	@NEW_OUTCOME_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	INSERT INTO TB_ITEM_OUTCOME
+	(	ITEM_SET_ID
+	,	OUTCOME_TYPE_ID
+	,	ITEM_ATTRIBUTE_ID_INTERVENTION
+	,	ITEM_ATTRIBUTE_ID_CONTROL
+	,	ITEM_ATTRIBUTE_ID_OUTCOME
+	,	OUTCOME_TITLE
+	,	OUTCOME_DESCRIPTION
+	,	DATA1
+	,	DATA2
+	,	DATA3
+	,	DATA4
+	,	DATA5
+	,	DATA6
+	,	DATA7
+	,	DATA8
+	,	DATA9
+	,	DATA10
+	,	DATA11
+	,	DATA12
+	,	DATA13
+	,	DATA14
+	,	ITEM_TIMEPOINT_ID
+	,	ITEM_ARM_ID_GRP1
+	,	ITEM_ARM_ID_GRP2
+	)	
+	VALUES
+	(
+		@ITEM_SET_ID
+	,	@OUTCOME_TYPE_ID
+	,	@ITEM_ATTRIBUTE_ID_INTERVENTION
+	,	@ITEM_ATTRIBUTE_ID_CONTROL
+	,	@ITEM_ATTRIBUTE_ID_OUTCOME
+	,	@OUTCOME_TITLE
+	,	@OUTCOME_DESCRIPTION
+	,	@DATA1
+	,	@DATA2
+	,	@DATA3
+	,	@DATA4
+	,	@DATA5
+	,	@DATA6
+	,	@DATA7
+	,	@DATA8
+	,	@DATA9
+	,	@DATA10
+	,	@DATA11
+	,	@DATA12
+	,	@DATA13
+	,	@DATA14
+	,	@ITEM_TIMEPOINT_ID
+	,	@ITEM_ARM_ID_GRP1
+	,	@ITEM_ARM_ID_GRP2
+	)
+	-- Get the identity and return it
+	SET @NEW_OUTCOME_ID = @@identity
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_OutcomeItemList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_OutcomeItemList]
+(
+	@REVIEW_ID INT,
+	@ITEM_SET_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT OUTCOME_ID, SHORT_TITLE, TB_ITEM_OUTCOME.ITEM_SET_ID, OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+	ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, OUTCOME_DESCRIPTION,
+	DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+	A1.ATTRIBUTE_NAME AS INTERVENTION_TEXT,
+	a2.ATTRIBUTE_NAME AS CONTROL_TEXT,
+	a3.ATTRIBUTE_NAME AS OUTCOME_TEXT,
+	0 as META_ANALYSIS_OUTCOME_ID -- Meta-analysis id. 0 as not selected
+,	TB_ITEM_OUTCOME.ITEM_TIMEPOINT_ID
+,	TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP1
+,	TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP2
+,	CONCAT(TB_ITEM_TIMEPOINT.TIMEPOINT_VALUE, ' ', TB_ITEM_TIMEPOINT.TIMEPOINT_METRIC) TimepointDisplayValue
+,	arm1.ARM_NAME grp1ArmName
+,	arm2.ARM_NAME grp2ArmName
+FROM TB_ITEM_OUTCOME
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_OUTCOME.ITEM_SET_ID
+INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_SET.ITEM_ID
+left outer JOIN TB_ATTRIBUTE IA1 ON IA1.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_INTERVENTION
+left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = IA1.ATTRIBUTE_ID 
+left outer JOIN TB_ATTRIBUTE IA2 ON IA2.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_CONTROL
+left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = IA2.ATTRIBUTE_ID
+left outer JOIN TB_ATTRIBUTE IA3 ON IA3.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_OUTCOME
+left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = IA3.ATTRIBUTE_ID 
+left outer join TB_ITEM_TIMEPOINT ON TB_ITEM_TIMEPOINT.ITEM_TIMEPOINT_ID = TB_ITEM_OUTCOME.ITEM_TIMEPOINT_ID
+left outer join TB_ITEM_ARM arm1 ON arm1.ITEM_ARM_ID = TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP1
+left outer join TB_ITEM_ARM arm2 on arm2.ITEM_ARM_ID = TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP2
+
+WHERE TB_ITEM_OUTCOME.ITEM_SET_ID = @ITEM_SET_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_OutcomeItemUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_OutcomeItemUpdate]
+(
+	@OUTCOME_ID INT,
+	@OUTCOME_TYPE_ID INT,
+	@ITEM_ATTRIBUTE_ID_INTERVENTION BIGINT,
+	@ITEM_ATTRIBUTE_ID_CONTROL BIGINT,
+	@ITEM_ATTRIBUTE_ID_OUTCOME BIGINT,
+	@OUTCOME_TITLE NVARCHAR(255),
+	@OUTCOME_DESCRIPTION NVARCHAR(4000),
+	@DATA1 DECIMAL (18, 9),
+	@DATA2 DECIMAL (18, 9),
+	@DATA3 DECIMAL (18, 9),
+	@DATA4 DECIMAL (18, 9),
+	@DATA5 DECIMAL (18, 9),
+	@DATA6 DECIMAL (18, 9),
+	@DATA7 DECIMAL (18, 9),
+	@DATA8 DECIMAL (18, 9),
+	@DATA9 DECIMAL (18, 9),
+	@DATA10 DECIMAL (18, 9),
+	@DATA11 DECIMAL (18, 9),
+	@DATA12 DECIMAL (18, 9),
+	@DATA13 DECIMAL (18, 9),
+	@DATA14 DECIMAL (18, 9),
+	@ITEM_TIMEPOINT_ID BIGINT,
+	@ITEM_ARM_ID_GRP1 BIGINT,
+	@ITEM_ARM_ID_GRP2 BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	UPDATE TB_ITEM_OUTCOME SET
+	OUTCOME_TYPE_ID = @OUTCOME_TYPE_ID,
+	ITEM_ATTRIBUTE_ID_INTERVENTION = @ITEM_ATTRIBUTE_ID_INTERVENTION,
+	ITEM_ATTRIBUTE_ID_CONTROL = @ITEM_ATTRIBUTE_ID_CONTROL,
+	ITEM_ATTRIBUTE_ID_OUTCOME = @ITEM_ATTRIBUTE_ID_OUTCOME,
+	OUTCOME_TITLE = @OUTCOME_TITLE,
+	OUTCOME_DESCRIPTION = @OUTCOME_DESCRIPTION,
+	DATA1 = @DATA1,
+	DATA2 = @DATA2,
+	DATA3 = @DATA3,
+	DATA4 = @DATA4,
+	DATA5 = @DATA5,
+	DATA6 = @DATA6,
+	DATA7 = @DATA7,
+	DATA8 = @DATA8,
+	DATA9 = @DATA9,
+	DATA10 = @DATA10,
+	DATA11 = @DATA11,
+	DATA12 = @DATA12,
+	DATA13 = @DATA13,
+	DATA14 = @DATA14,
+	ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID,
+	ITEM_ARM_ID_GRP1 = @ITEM_ARM_ID_GRP1,
+	ITEM_ARM_ID_GRP2 = @ITEM_ARM_ID_GRP2
+	
+	WHERE OUTCOME_ID = @OUTCOME_ID
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_OutcomeList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_OutcomeList]
+(
+	@REVIEW_ID INT,
+	@META_ANALYSIS_ID INT,
+	@QUESTIONS nvarchar(max) = '',
+	@ANSWERS nvarchar(max) = ''
+	/*@SET_ID BIGINT,
+	@ITEM_ATTRIBUTE_ID_INTERVENTION BIGINT = NULL,
+	@ITEM_ATTRIBUTE_ID_CONTROL BIGINT = NULL,
+	@ITEM_ATTRIBUTE_ID_OUTCOME BIGINT = NULL,
+	@ATTRIBUTE_ID BIGINT = NULL,
+	
+	
+	@VARIABLES NVARCHAR(MAX) = NULL,
+	@ANSWERS NVARCHAR(MAX) = '',
+	@QUESTIONS NVARCHAR(MAX) = ''*/
+)
+
+As
+
+SET NOCOUNT ON
+	Declare @IOs table (OUTCOME_ID int, ITEM_ID bigint, ITEM_SET_ID bigint)
+	insert into @IOs select distinct OUTCOME_ID, ir.ITEM_ID, tis.ITEM_SET_ID
+	from TB_ITEM_OUTCOME tio
+	inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+	inner join TB_REVIEW_SET rs on tis.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID --stop outcomes for coming across if they belong to a deleted codeset
+	inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+
+
+	SELECT distinct tio.OUTCOME_ID, tio.ITEM_SET_ID, OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+	ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, SHORT_TITLE, OUTCOME_DESCRIPTION,
+	DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+	TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_OUTCOME_ID, ios.ITEM_SET_ID, TB_ITEM_ATTRIBUTE.ITEM_ID,
+	A1.ATTRIBUTE_NAME INTERVENTION_TEXT, A2.ATTRIBUTE_NAME CONTROL_TEXT, A3.ATTRIBUTE_NAME OUTCOME_TEXT
+	,	tio.ITEM_TIMEPOINT_ID
+	,	tio.ITEM_ARM_ID_GRP1
+	,	tio.ITEM_ARM_ID_GRP2
+	,	CONCAT(TB_ITEM_TIMEPOINT.TIMEPOINT_VALUE, ' ', TB_ITEM_TIMEPOINT.TIMEPOINT_METRIC) TimepointDisplayValue
+	,	arm1.ARM_NAME grp1ArmName
+	,	arm2.ARM_NAME grp2ArmName
+	FROM @IOs as ios
+	inner join TB_ITEM_OUTCOME tio on ios.OUTCOME_ID = tio.OUTCOME_ID
+	--inner join TB_ITEM_SET tis on tis.ITEM_SET_ID = tio.ITEM_SET_ID
+	--	AND tis.IS_COMPLETED = 1
+	--inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @REVIEW_ID and rs.SET_ID = tis.SET_ID
+	inner join TB_ITEM_REVIEW on tb_item_review.ITEM_ID = ios.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+	inner JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = ios.ITEM_SET_ID
+	inner join TB_ITEM on TB_ITEM.ITEM_ID = ios.ITEM_ID
+	LEFT OUTER JOIN TB_META_ANALYSIS_OUTCOME ON TB_META_ANALYSIS_OUTCOME.OUTCOME_ID = tio.OUTCOME_ID
+		AND TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_ID = @META_ANALYSIS_ID
+	left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_INTERVENTION 
+	left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_CONTROL
+	left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_OUTCOME
+	left outer join TB_ITEM_TIMEPOINT ON TB_ITEM_TIMEPOINT.ITEM_TIMEPOINT_ID = tio.ITEM_TIMEPOINT_ID
+	left outer join TB_ITEM_ARM arm1 ON arm1.ITEM_ARM_ID = tio.ITEM_ARM_ID_GRP1
+	left outer join TB_ITEM_ARM arm2 on arm2.ITEM_ARM_ID = tio.ITEM_ARM_ID_GRP2
+
+	--second sets of results, the answers
+	--we need to get these, even if empty, so that we always get a reader
+	
+	IF (@QUESTIONS is not null AND @QUESTIONS != '')
+	BEGIN
+		declare @QT table ( AttID bigint primary key)
+		insert into @QT select qss.value from dbo.fn_Split_int(@QUESTIONS, ',') as qss
+		select tio.OUTCOME_ID, tio.OUTCOME_TITLE, tis.ITEM_ID 
+			, ATTRIBUTE_NAME as Codename
+			, a.ATTRIBUTE_ID as ATTRIBUTE_ID
+			, tas.PARENT_ATTRIBUTE_ID
+		from TB_ITEM_OUTCOME tio 
+		inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+		inner join TB_REVIEW_SET rs on tis.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID
+		inner join TB_ITEM_REVIEW ir ON IR.ITEM_ID = TIS.ITEM_ID AND IR.REVIEW_ID = @REVIEW_ID
+
+		inner join TB_ITEM_SET tis2 on tis.ITEM_ID = tis2.ITEM_ID
+		inner join TB_ITEM_ATTRIBUTE tia on tis2.ITEM_SET_ID = tia.ITEM_SET_ID
+		inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = tia.ATTRIBUTE_ID
+		inner join @QT Qs on Qs.AttID = tas.PARENT_ATTRIBUTE_ID
+		inner join TB_ATTRIBUTE a on tas.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+		order by OUTCOME_ID, tas.PARENT_ATTRIBUTE_ID, tas.ATTRIBUTE_ORDER, a.ATTRIBUTE_ID
+	END
+	ELSE
+	BEGIN
+	select tio.OUTCOME_ID, tio.OUTCOME_TITLE, tis.ITEM_ID, 
+		tio.OUTCOME_TITLE as Codename
+		, tio.ITEM_ATTRIBUTE_ID_CONTROL as ATTRIBUTE_ID, tio.ITEM_ATTRIBUTE_ID_CONTROL as PARENT_ATTRIBUTE_ID
+		from TB_ITEM_OUTCOME tio
+		inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and 1=0
+	END
+
+
+	IF (@ANSWERS is not null AND @ANSWERS != '')
+	BEGIN
+	--third set of results, the questions
+	declare @AT table ( AttID bigint primary key)
+	insert into @AT select qss.value from dbo.fn_Split_int(@ANSWERS, ',') as qss
+	select distinct tio.OUTCOME_ID, tio.OUTCOME_TITLE, tis.ITEM_ID, 
+		--(Select top(1) a.ATTRIBUTE_NAME from @AT 
+		--inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = AttID
+		--inner join TB_ATTRIBUTE a on tas.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+		--inner join TB_ITEM_ATTRIBUTE tia on a.ATTRIBUTE_ID = tia.ATTRIBUTE_ID
+		--inner join TB_ITEM_SET tis1 on tia.ITEM_SET_ID = tis1.ITEM_SET_ID and tis1.IS_COMPLETED = 1 and tis.ITEM_ID = tis1.ITEM_ID
+		--inner join TB_REVIEW_SET rs1 on tis1.SET_ID = rs1.SET_ID and rs1.REVIEW_ID = @REVIEW_ID
+		--order by tas.ATTRIBUTE_ORDER ) as Codename
+		tia.ATTRIBUTE_ID, a.ATTRIBUTE_NAME
+	from TB_ITEM_OUTCOME tio 
+	inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+	inner join TB_REVIEW_SET rs on tis.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID
+	inner join TB_ITEM_REVIEW ir ON IR.ITEM_ID = TIS.ITEM_ID AND IR.REVIEW_ID = @REVIEW_ID
+	inner join TB_ITEM_SET tis2 on tis.ITEM_ID = tis2.ITEM_ID and tis2.IS_COMPLETED = 1
+	inner join TB_ATTRIBUTE_SET tas on tis2.SET_ID = tas.SET_ID -- and tas.SET_ID = rs.SET_ID
+	inner join TB_ITEM_ATTRIBUTE tia on tis2.ITEM_ID = tia.ITEM_ID and tas.ATTRIBUTE_ID = tia.ATTRIBUTE_ID
+	inner join @AT on AttID = tia.ATTRIBUTE_ID
+	inner join TB_ATTRIBUTE a on tia.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+	order by OUTCOME_ID
+	END
+	ELSE
+	BEGIN
+		select tio.OUTCOME_ID, tio.OUTCOME_TITLE, tis.ITEM_ID, 
+		tio.ITEM_ATTRIBUTE_ID_CONTROL as ATTRIBUTE_ID, tio.OUTCOME_TITLE as ATTRIBUTE_NAME
+	from TB_ITEM_OUTCOME tio inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and 1=0
+	
+	END
+	
+
+
+
+--DECLARE @START_TEXT NVARCHAR(MAX) = N' SELECT distinct tio.OUTCOME_ID, tio.ITEM_SET_ID, OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+--	ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, SHORT_TITLE, OUTCOME_DESCRIPTION,
+--	DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+--	TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_OUTCOME_ID, TB_ITEM_SET.ITEM_SET_ID, TB_ITEM_ATTRIBUTE.ITEM_ID,
+--	A1.ATTRIBUTE_NAME INTERVENTION_TEXT, A2.ATTRIBUTE_NAME CONTROL_TEXT, A3.ATTRIBUTE_NAME OUTCOME_TEXT'
+	
+--DECLARE @END_TEXT NVARCHAR(MAX) = N' FROM TB_ITEM_OUTCOME tio
+
+--	inner join TB_ITEM_SET on tb_item_set.ITEM_SET_ID = tio.ITEM_SET_ID
+--		AND TB_ITEM_SET.IS_COMPLETED = ''TRUE''
+--	inner join TB_ITEM_REVIEW on tb_item_review.ITEM_ID = tb_item_set.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+--	inner JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = tb_item_set.ITEM_SET_ID
+--	inner join TB_ITEM on TB_ITEM.ITEM_ID = TB_ITEM_SET.ITEM_ID
+	
+--	LEFT OUTER JOIN TB_META_ANALYSIS_OUTCOME ON TB_META_ANALYSIS_OUTCOME.OUTCOME_ID = tio.OUTCOME_ID
+--		AND TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_ID = @META_ANALYSIS_ID
+		
+--	left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_INTERVENTION 
+--	left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_CONTROL
+--	left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_OUTCOME'
+	
+--DECLARE @QUERY NVARCHAR(MAX) = @VARIABLES + @START_TEXT + @ANSWERS + @QUESTIONS + @END_TEXT
+	
+--EXEC (@QUERY)
+
+--/*
+--SELECT distinct tio.OUTCOME_ID, SHORT_TITLE, tio.ITEM_SET_ID, OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+--	ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, OUTCOME_DESCRIPTION,
+--	DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+--	TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_OUTCOME_ID, TB_ITEM_SET.ITEM_SET_ID,
+--	TB_ITEM_ATTRIBUTE.ITEM_ID, A1.ATTRIBUTE_NAME INTERVENTION_TEXT, A2.ATTRIBUTE_NAME CONTROL_TEXT,
+--		A3.ATTRIBUTE_NAME OUTCOME_TEXT
+	
+--	FROM TB_ITEM_OUTCOME tio
+
+--	inner join TB_ITEM_SET on tb_item_set.ITEM_SET_ID = tio.ITEM_SET_ID
+--		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+--	inner join TB_ITEM_REVIEW on tb_item_review.ITEM_ID = tb_item_set.ITEM_ID
+--	inner JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = tb_item_set.ITEM_SET_ID
+--	inner join TB_ITEM on TB_ITEM.ITEM_ID = TB_ITEM_SET.ITEM_ID
+	
+--	LEFT OUTER JOIN TB_META_ANALYSIS_OUTCOME ON TB_META_ANALYSIS_OUTCOME.OUTCOME_ID = tio.OUTCOME_ID
+--		AND TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_ID = @META_ANALYSIS_ID
+		
+--	left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_INTERVENTION 
+--	left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_CONTROL
+--	left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_OUTCOME
+	
+--	WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+--	AND (@ITEM_ATTRIBUTE_ID_INTERVENTION = 0 OR (ITEM_ATTRIBUTE_ID_INTERVENTION = @ITEM_ATTRIBUTE_ID_INTERVENTION))
+--	AND (@ITEM_ATTRIBUTE_ID_CONTROL = 0 OR (ITEM_ATTRIBUTE_ID_CONTROL = @ITEM_ATTRIBUTE_ID_CONTROL))
+--	AND (@ITEM_ATTRIBUTE_ID_OUTCOME = 0 OR (ITEM_ATTRIBUTE_ID_OUTCOME = @ITEM_ATTRIBUTE_ID_OUTCOME))
+--	--	AND (@ATTRIBUTE_ID IS NULL OR (TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID))
+--	--AND (
+--	--	@ATTRIBUTE_ID IS NULL OR 
+--	--		(
+--	--		TB_ITEM_SET.ITEM_ID IN
+--	--			( 
+--	--			SELECT IA2.ITEM_ID FROM TB_ITEM_ATTRIBUTE IA2 
+--	--			INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 'TRUE'
+--	--			WHERE IA2.ATTRIBUTE_ID = @ATTRIBUTE_ID
+--	--			)
+--	--		)
+--	--	)
+--	--AND (--temp correction for before publishing: @ATTRIBUTE_ID is (because of bug) actually the item_attribute_id
+--	--	@ATTRIBUTE_ID = 0 OR 
+--	--		(
+--	--		tio.OUTCOME_ID IN
+--	--			( 
+--	--				select tio2.OUTCOME_ID from TB_ATTRIBUTE_SET tas
+--	--				inner join TB_ITEM_OUTCOME_ATTRIBUTE ioa on tas.ATTRIBUTE_ID = ioa.ATTRIBUTE_ID and tas.ATTRIBUTE_SET_ID = @ATTRIBUTE_ID
+--	--				inner join TB_ITEM_OUTCOME tio2 on ioa.OUTCOME_ID = tio2.OUTCOME_ID
+--	--			)
+--	--		)
+--	--	)--end of temp correction
+--	AND (--real correction to use when bug is corrected in line 174 of dialogMetaAnalysisSetup.xaml.cs
+--		@ATTRIBUTE_ID = 0 OR 
+--			(
+--			tio.OUTCOME_ID IN 
+--				( 
+--					select tio2.OUTCOME_ID from TB_ITEM_OUTCOME_ATTRIBUTE ioa  
+--					inner join TB_ITEM_OUTCOME tio2 on ioa.OUTCOME_ID = tio2.OUTCOME_ID and ioa.ATTRIBUTE_ID = @ATTRIBUTE_ID
+--				)
+--			)
+--		)--end of real correction
+--	AND (@SET_ID = 0 OR (TB_ITEM_SET.SET_ID = @SET_ID))
+	
+--	--order by TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+--*/
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_OutcomeSingle]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_OutcomeSingle]
+(
+	@OUTCOME_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT OUTCOME_ID, SHORT_TITLE, TB_ITEM_OUTCOME.ITEM_SET_ID, TB_ITEM_OUTCOME.OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+	ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, OUTCOME_DESCRIPTION,
+	DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+	A1.ATTRIBUTE_NAME AS INTERVENTION_TEXT,
+	a2.ATTRIBUTE_NAME AS CONTROL_TEXT,
+	a3.ATTRIBUTE_NAME AS OUTCOME_TEXT,
+	0 as META_ANALYSIS_OUTCOME_ID, -- Meta-analysis id. 0 as not selected
+	OUTCOME_TYPE_NAME
+	,	TB_ITEM_OUTCOME.ITEM_TIMEPOINT_ID
+,	TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP1
+,	TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP2
+,	CONCAT(TB_ITEM_TIMEPOINT.TIMEPOINT_VALUE, ' ', TB_ITEM_TIMEPOINT.TIMEPOINT_METRIC) TimepointDisplayValue
+,	arm1.ARM_NAME grp1ArmName
+,	arm2.ARM_NAME grp2ArmName
+FROM TB_ITEM_OUTCOME
+INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_OUTCOME.ITEM_SET_ID
+INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_SET.ITEM_ID
+INNER JOIN TB_OUTCOME_TYPE ON TB_OUTCOME_TYPE.OUTCOME_TYPE_ID = TB_ITEM_OUTCOME.OUTCOME_TYPE_ID
+left outer JOIN TB_ATTRIBUTE IA1 ON IA1.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_INTERVENTION
+left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = IA1.ATTRIBUTE_ID 
+left outer JOIN TB_ATTRIBUTE IA2 ON IA2.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_CONTROL
+left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = IA2.ATTRIBUTE_ID
+left outer JOIN TB_ATTRIBUTE IA3 ON IA3.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_OUTCOME
+left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = IA3.ATTRIBUTE_ID
+left outer join TB_ITEM_TIMEPOINT ON TB_ITEM_TIMEPOINT.ITEM_TIMEPOINT_ID = TB_ITEM_OUTCOME.ITEM_TIMEPOINT_ID
+left outer join TB_ITEM_ARM arm1 ON arm1.ITEM_ARM_ID = TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP1
+left outer join TB_ITEM_ARM arm2 on arm2.ITEM_ARM_ID = TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP2
+
+WHERE TB_ITEM_OUTCOME.OUTCOME_ID = @OUTCOME_ID
+
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_QuickCodingReportCodingData]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_QuickCodingReportCodingData] 
+	-- Add the parameters for the stored procedure here
+	(
+		@revID int
+		,@input ITEMS_INPUT_TB READONLY
+		,@SetIds nvarchar(MAX)
+	)
+AS
+BEGIN
+	SET NOCOUNT ON
+
+
+
+	Declare @Sets table (SetID int primary key)
+	Insert into @Sets select [value] from dbo.fn_Split_int(@SetIds, ',') s
+		 inner join TB_REVIEW_SET rs on s.value = rs.SET_ID and REVIEW_ID = @revID
+	
+	--FIRST reader: ordinary coding data
+	SELECT ITEM_SET_ID, ir.ITEM_ID, tis.SET_ID, IS_COMPLETED, tis.CONTACT_ID, IS_LOCKED,
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	FROM @input i
+		Inner JOIN TB_ITEM_REVIEW ir on i.ItemId = ir.ITEM_ID and ir.REVIEW_ID = @revID
+		INNER Join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID
+		INNER JOIN @Sets ss on tis.SET_ID = ss.SetID
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = tis.SET_ID and TB_REVIEW_SET.REVIEW_ID = @revID
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = tis.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = tis.SET_ID
+	WHERE tis.IS_COMPLETED = 1
+
+	--SECOND reader: PDF and Text coding data
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, 'Page ' + CONVERT
+							(varchar(10),PAGE) 
+							+ ':' + CHAR(10) + '[¬s]"' 
+							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from @Sets ss
+		inner join TB_REVIEW_SET rs on ss.SetID = rs.SET_ID
+		inner join TB_ITEM_SET tis on tis.SET_ID = rs.SET_ID 
+		inner join @input ii on tis.ITEM_ID = ii.ItemId
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ii.ItemId = ia.ITEM_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from @Sets ss
+		inner join TB_REVIEW_SET rs on ss.SetID = rs.SET_ID
+		inner join TB_ITEM_SET tis on tis.SET_ID = rs.SET_ID 
+		inner join @input ii on tis.ITEM_ID = ii.ItemId
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ii.ItemId = ia.ITEM_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+			
+	SET nocount off
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_RandomAllocate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_RandomAllocate] (
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@FILTER_TYPE NVARCHAR(255),
+	@ATTRIBUTE_ID_FILTER BIGINT,
+	@SET_ID_FILTER INT,
+	@ATTRIBUTE_ID BIGINT,
+	@SET_ID INT,
+	@HOW_MANY INT,
+	@SAMPLE_NO INT,
+	@INCLUDED BIT
+)
+AS
+SET NOCOUNT ON
+
+	-- FIRST, GET A LIST OF ALL THE ITEM_IDs THAT WE'RE WORKING WITH BY USING THE VARIOUS FILTER OPTIONS
+	declare @IIds TABLE (idx BIGINT Primary Key, ui uniqueidentifier , destination bigint null)
+--declare @IIds TABLE (idx BIGINT , ui uniqueidentifier , destination bigint null, Primary Key(idx, ui))
+IF (@FILTER_TYPE = 'No code / code set filter')
+	BEGIN
+	INSERT INTO @IIds(idx, ui)
+		SELECT TOP (@SAMPLE_NO) PERCENT ITEM_ID, NEWID() as uuu FROM TB_ITEM_REVIEW
+			WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+				AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+				AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			ORDER BY uuu
+	END
+	
+	-- FILTER BY ALL WITH THIS ATTRIBUTE
+	IF (@FILTER_TYPE = 'All with this code')
+	BEGIN
+	INSERT INTO @IIds(idx, ui)
+		SELECT TOP (@SAMPLE_NO) PERCENT TB_ITEM_ATTRIBUTE.ITEM_ID, NEWID() as uuu FROM TB_ITEM_ATTRIBUTE
+			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID_FILTER
+				AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+				AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			ORDER BY uuu
+	END
+		
+	-- FILTER BY ALL WITHOUT THIS ATTRIBUTE
+	IF (@FILTER_TYPE = 'All without this code')
+	BEGIN
+	INSERT INTO @IIds(idx, ui)
+		SELECT TOP (@SAMPLE_NO) PERCENT ITEM_ID, NEWID() as uuu  FROM TB_ITEM_REVIEW
+			WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+				AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+				AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+				AND NOT ITEM_ID IN
+				(
+					SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+					INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+					INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+					WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID_FILTER AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+				)
+		ORDER BY uuu
+	END
+	
+	-- FILTER BY 'ALL WITHOUT ANY CODES FROM THIS SET'
+	IF (@FILTER_TYPE = 'All without any codes from this set')
+	BEGIN
+	INSERT INTO @IIds(idx, ui)
+		SELECT TOP (@SAMPLE_NO) PERCENT ITEM_ID, NEWID() as uuu  FROM TB_ITEM_REVIEW
+			WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+			AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			AND NOT ITEM_ID IN
+			(
+			SELECT TB_ITEM_SET.ITEM_ID FROM TB_ITEM_SET
+				INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_SET.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID_FILTER AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			)
+		ORDER BY uuu
+	END
+	
+	-- FILTER BY 'ALL WITH ANY CODES FROM THIS SET'
+	IF (@FILTER_TYPE = 'All with any codes from this set')
+	BEGIN
+	INSERT INTO @IIds(idx, ui)
+		SELECT TOP (@SAMPLE_NO) PERCENT TB_ITEM_REVIEW.ITEM_ID, NEWID() as uuu  FROM TB_ITEM_REVIEW
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+				AND TB_ITEM_SET.SET_ID = @SET_ID_FILTER
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+			AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		ORDER BY uuu
+	END
+	
+	-- NOW WE HAVE OUR LIST, CHECK THAT THERE ARE ENOUGH ITEM IDs IN IT
+	DECLARE @CHECK_COUNT INT
+	SELECT @CHECK_COUNT = COUNT(*) FROM @IIds
+
+	DECLARE @GROUP1 BIGINT
+	DECLARE @GROUP2 BIGINT
+	DECLARE @GROUP3 BIGINT
+	DECLARE @GROUP4 BIGINT
+	DECLARE @GROUP5 BIGINT
+	DECLARE @GROUP6 BIGINT
+	DECLARE @GROUP7 BIGINT
+	DECLARE @GROUP8 BIGINT
+	DECLARE @GROUP9 BIGINT
+	DECLARE @GROUP10 BIGINT
+
+	IF (@CHECK_COUNT > @HOW_MANY)
+	BEGIN
+		-- ATTRIBUTE_IDs FOR OUR NEW ATTRIBUTES
+		DECLARE @DUMMY_OUTPUT BIGINT -- WE'RE NOT INTERESTED IN THIS VALUE
+		
+		DECLARE @MAX_INDEX INT = 0 --used for the order of new attributes create
+
+		--How many items per group, and how many would remain out if we didn't account for the remainder
+		declare @perGroup int = Round( (select (Count(*)/@HOW_MANY) from @IIds), 0, 1)--we are truncating!
+		declare @remainder int = (select (Count(*) - (@HOW_MANY * @perGroup)) from @IIds)
+		
+		set @DUMMY_OUTPUT = null -- WE'RE NOT INTERESTED IN THIS VALUE
+		
+		set @MAX_INDEX  = 0
+		
+		SELECT @MAX_INDEX = MAX(ATTRIBUTE_ORDER) + 1 FROM TB_ATTRIBUTE_SET WHERE PARENT_ATTRIBUTE_ID = @ATTRIBUTE_ID AND SET_ID = @SET_ID
+		IF (@MAX_INDEX IS NULL) SET @MAX_INDEX = 0
+		
+		EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 1', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP1 OUTPUT
+		SET @MAX_INDEX = @MAX_INDEX + 1
+
+		
+		IF (@HOW_MANY > 1)
+		BEGIN
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 2', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP2 OUTPUT
+		END
+		
+		IF (@HOW_MANY > 2)
+		BEGIN
+			SET @MAX_INDEX = @MAX_INDEX + 1
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 3', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP3 OUTPUT
+		END
+		IF (@HOW_MANY > 3)
+		BEGIN
+			SET @MAX_INDEX = @MAX_INDEX + 1
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 4', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP4 OUTPUT
+		END
+		IF (@HOW_MANY > 4)
+		BEGIN
+			SET @MAX_INDEX = @MAX_INDEX + 1
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 5', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP5 OUTPUT
+		END
+		IF (@HOW_MANY > 5)
+		BEGIN
+			SET @MAX_INDEX = @MAX_INDEX + 1
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 6', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP6 OUTPUT
+		END
+		IF (@HOW_MANY > 6)
+		BEGIN
+			SET @MAX_INDEX = @MAX_INDEX + 1
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 7', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP7 OUTPUT
+		END
+		IF (@HOW_MANY > 7)
+		BEGIN
+			SET @MAX_INDEX = @MAX_INDEX + 1
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 8', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP8 OUTPUT
+		END
+		IF (@HOW_MANY > 8)
+		BEGIN
+			SET @MAX_INDEX = @MAX_INDEX + 1
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 9', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP9 OUTPUT
+		END
+		IF (@HOW_MANY > 9)
+		BEGIN
+			SET @MAX_INDEX = @MAX_INDEX + 1
+			EXECUTE st_AttributeSetInsert @SET_ID, @ATTRIBUTE_ID, 1, '', @MAX_INDEX, 'Group 10', '', @CONTACT_ID, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP10 OUTPUT
+		END
+		
+		-- NOW WE DO THE ACTUAL INPUTTING OF VALUES
+		-- FIRST, WE HAVE TO CREATE ITEM_SET RECORDS FOR ALL OF THE ITEMS
+		
+		INSERT INTO TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID) 
+			SELECT idx, @SET_ID, 'True', @CONTACT_ID FROM @IIds ids
+			EXCEPT
+			SELECT ITEM_ID, @SET_ID, 'True', @CONTACT_ID FROM TB_ITEM_SET WHERE TB_ITEM_SET.SET_ID = @SET_ID AND IS_COMPLETED = 'True'
+
+		--Associating items with code, we do it in 10 different cases, to keep the code intelligible, see IF (@HOW_MANY = 3) for all details
+		IF (@HOW_MANY = 1)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			update @IIds set destination = @GROUP1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+		END
+		
+		IF (@HOW_MANY = 2)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			update  @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			update @IIds set destination = @GROUP2 where destination is null
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+		END
+		
+		IF (@HOW_MANY = 3)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			--this is the first IF clause where the full pattern of statements is used. 
+			--First, we set the destination ATTRIBUTE_ID in @IIds (first series of 'update' statements), then insert into TB_ITEM_ATTRIBUTE accordingly (series of INSERTs).
+			--The Where idx in (...) clause does most of the work. 
+			-->>'ORDER BY ui' = get a random selection from the ITEMS that still needs allocating
+			-->>'where destination is null' = assign only items that have not been assigned already
+			-->>'top(CASE when [...])' this controls how many items get assigned to a given Attribute. We use the @perGroup value, +1 (if items are still in the remainder)
+			--We then reduce the value in the remainder if we added one ITEM to @perGroup value in the previous statement.
+			--Details change for first and last group, as follows:
+			--For Group 1 'destination' is null for all records, so we omit 'where destination is null' in the WHERE sub-query.
+			--Before the last group, we don't need to reduce the value in the remainder, as it's always going to be 0 already AND
+			--The last group always finishes up whatever has not been assigned already.
+			--At this point, all decisions have been made, the insert statements can "just" use the destination value to insert where needed.
+			update @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP2 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			update @IIds set destination = @GROUP3 where destination is null
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP3 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP3
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+		END
+		
+		IF (@HOW_MANY = 4)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			update @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP2 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP3 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			update @IIds set destination = @GROUP4 where destination is null
+
+			
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP3 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP3
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP4 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP4
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+		END
+		
+		IF (@HOW_MANY = 5)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			update @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP2 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP3 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP4 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			update @IIds set destination = @GROUP5 where destination is null
+			
+			
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP3 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP3
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP4 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP4
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP5 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP5
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+		END
+		
+		IF (@HOW_MANY = 6)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			update @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP2 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP3 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP4 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP5 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			update @IIds set destination = @GROUP6 where destination is null
+			
+			
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP3 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP3
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP4 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP4
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP5 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP5
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP6 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP6
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+		END
+		
+		IF (@HOW_MANY = 7)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			update @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP2 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP3 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP4 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP5 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP6 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			update @IIds set destination = @GROUP7 where destination is null
+		
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP3 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP3
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP4 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP4
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP5 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP5
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP6 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP6
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP7 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP7
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+		END
+		
+		IF (@HOW_MANY = 8)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			update @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP2 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP3 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP4 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP5 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP6 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP7 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			update @IIds set destination = @GROUP8 where destination is null
+			
+			
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP3 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP3
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP4 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP4
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP5 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP5
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP6 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP6
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP7 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP7
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP8 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP8
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+		END
+		
+		IF (@HOW_MANY = 9)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			update @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP2 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP3 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP4 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP5 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP6 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP7 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP8 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			update @IIds set destination = @GROUP9 where destination is null
+			
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP3 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP3
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP4 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP4
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP5 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP5
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP6 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP6
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP7 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP7
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP8 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP8
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP9 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP9
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+		END
+		
+		IF (@HOW_MANY = 10)
+		BEGIN
+			--reserve @perGroup items to be assigned to this new code
+			--the CASE statement adds 1 ref to the group(s) that might need it, to distribute items as evenly as possible
+			update @IIds set destination = @GROUP1
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP2 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP3 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP4 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP5 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP6
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP7 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP8 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			if @remainder > 0 set @remainder = @remainder -1
+			update @IIds set destination = @GROUP9 
+				Where idx in (SELECT top(case when @remainder > 0 then @perGroup + 1 else @perGroup end) idx from @IIds where destination is null ORDER BY ui)
+			update @IIds set destination = @GROUP10 where destination is null
+			
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND ids.destination = @GROUP1
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				--ORDER BY NEWID()
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP2 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP2
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP3 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP3
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP4 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP4
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP5 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP5
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP6 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP6
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP7 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP7
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP8 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP8
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP9 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP9
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				
+			INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+				SELECT idx, TB_ITEM_SET.ITEM_SET_ID, @GROUP10 FROM @IIds ids
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.idx AND  ids.destination = @GROUP10
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+		END
+		
+	END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_Report]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_Report]
+(
+	@REVIEW_ID INT
+	, @REPORT_ID int
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT REPORT_ID, REVIEW_ID, NAME, REPORT_TYPE, TB_REPORT.CONTACT_ID, CONTACT_NAME FROM TB_REPORT
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_REPORT.CONTACT_ID
+		WHERE REVIEW_ID = @REVIEW_ID AND REPORT_ID = @REPORT_ID
+		ORDER BY CONTACT_ID, NAME
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportAllCodingCommand]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER OFF
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportAllCodingCommand] (
+        @ReviewId int
+		,@SetId int
+)
+AS
+BEGIN
+	SET NOCOUNT ON
+
+
+	--declare @ReviewId int = 99 --7
+	--	 ,@SetId int = 894 --664 --27 --1851
+
+	declare @fa table (a_id bigint, p_id bigint, done bit, a_order int, a_name nvarchar(500), full_path nvarchar(max) null, level int null)
+	declare @items table (ItemId bigint, ItemSet int, ContactId int, ContactName varchar(255), Completed bit, [State] varchar(25), primary key(ItemId, ItemSet))
+
+	insert into @fa (a_id, p_id, done, a_order, a_name)
+		Select a.ATTRIBUTE_ID, tas.PARENT_ATTRIBUTE_ID, 0, tas.ATTRIBUTE_ORDER, a.ATTRIBUTE_NAME from TB_ATTRIBUTE a
+			inner join TB_ATTRIBUTE_SET tas on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and dbo.fn_IsAttributeInTree(a.ATTRIBUTE_ID) = 1
+			inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.SET_ID = @SetId
+
+
+	update f set done = 1, full_path =  f.a_name
+	from @fa f
+	 where done = 0  and p_id = 0
+
+	--select * from @fa order by p_id, a_order
+	declare @levind int = 0
+	declare @todoLines int = (select count(*) from @fa where done=0)
+	while (@todoLines > 0 AND @levind < 20)
+	BEGIN
+		set @levind = @levind + 1
+		update f1 
+		set done = 1, full_path = f2.full_path + '\' + f1.a_name , level = @levind + 1
+		from @fa f1 
+			inner join @fa f2 on f1.p_id = f2.a_id and f2.done = 1
+		where f1.done = 0
+
+		set @todoLines = (select count(*) from @fa where done=0) 
+	END
+	update @fa set level = 1 where level is null and done = 1
+	select * from @fa order by [level], p_id, a_order
+
+	insert into @items SELECT distinct tis.item_id, tis.ITEM_SET_ID, tis.CONTACT_ID, c.CONTACT_NAME, tis.IS_COMPLETED 
+	,case 
+		when ir.IS_INCLUDED = 1 and ir.IS_DELETED = 0 then '(I) Included'
+		when ir.IS_INCLUDED = 0 and ir.IS_DELETED = 0 then '(E) Excluded'
+		when ir.IS_INCLUDED = 1 and ir.IS_DELETED = 1 and ir.MASTER_ITEM_ID is not null then '(S) Duplicate'
+		when ir.IS_INCLUDED = 1 and ir.IS_DELETED = 1 then '(S) In deleted source'
+		when ir.IS_INCLUDED = 0 and ir.IS_DELETED = 1 then '(D) Deleted'
+		else ''
+	end AS [STATE]
+	from tb_item_set tis
+		inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @ReviewId and tis.SET_ID = @SetId
+		inner join TB_CONTACT c on tis.CONTACT_ID = c.CONTACT_ID
+
+	select i.*, tia.ATTRIBUTE_ID, tia.ITEM_ATTRIBUTE_ID, tia.ITEM_ARM_ID, fa.a_name, arm.ARM_NAME, ii.SHORT_TITLE, ii.TITLE, tia.ADDITIONAL_TEXT from @items i 
+		inner join TB_ITEM_ATTRIBUTE tia on i.ItemId = tia.ITEM_ID and i.ItemSet = tia.ITEM_SET_ID
+		inner join @fa fa on tia.ATTRIBUTE_ID = fa.a_id
+		inner join TB_ITEM ii on i.ItemId = ii.ITEM_ID
+		left join TB_ITEM_ARM arm on arm.ITEM_ARM_ID = tia.ITEM_ARM_ID 
+		order by ii.SHORT_TITLE, I.ItemId, i.ContactId, level, p_id, a_order
+
+	select i.*, tia.ATTRIBUTE_ID, tia.ITEM_ATTRIBUTE_ID, p.PAGE, replace( SELECTION_TEXTS, '¬', '<br />') as [TEXT], d.DOCUMENT_TITLE from @items i 
+		inner join TB_ITEM_ATTRIBUTE tia on i.ItemId = tia.ITEM_ID and i.ItemSet = tia.ITEM_SET_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on tia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT d on p.ITEM_DOCUMENT_ID = d.ITEM_DOCUMENT_ID
+	
+
+	select i.ItemId, i.Completed, i.ContactName, i.ContactId, OUTCOME_ID, SHORT_TITLE, TB_ITEM_OUTCOME.ITEM_SET_ID, OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+			ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, OUTCOME_DESCRIPTION,
+			DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+			A1.ATTRIBUTE_NAME AS INTERVENTION_TEXT,
+			a2.ATTRIBUTE_NAME AS CONTROL_TEXT,
+			a3.ATTRIBUTE_NAME AS OUTCOME_TEXT,
+			0 as META_ANALYSIS_OUTCOME_ID -- Meta-analysis id. 0 as not selected
+		,	TB_ITEM_OUTCOME.ITEM_TIMEPOINT_ID
+		,	TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP1
+		,	TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP2
+		,	CONCAT(TB_ITEM_TIMEPOINT.TIMEPOINT_VALUE, ' ', TB_ITEM_TIMEPOINT.TIMEPOINT_METRIC) TimepointDisplayValue
+		,	arm1.ARM_NAME grp1ArmName
+		,	arm2.ARM_NAME grp2ArmName
+		FROM @items i
+		inner join TB_ITEM_OUTCOME on i.ItemSet = TB_ITEM_OUTCOME.ITEM_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_OUTCOME.ITEM_SET_ID
+		INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_SET.ITEM_ID
+		left outer JOIN TB_ATTRIBUTE IA1 ON IA1.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_INTERVENTION
+		left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = IA1.ATTRIBUTE_ID 
+		left outer JOIN TB_ATTRIBUTE IA2 ON IA2.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_CONTROL
+		left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = IA2.ATTRIBUTE_ID
+		left outer JOIN TB_ATTRIBUTE IA3 ON IA3.ATTRIBUTE_ID = TB_ITEM_OUTCOME.ITEM_ATTRIBUTE_ID_OUTCOME
+		left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = IA3.ATTRIBUTE_ID 
+		left outer join TB_ITEM_TIMEPOINT ON TB_ITEM_TIMEPOINT.ITEM_TIMEPOINT_ID = TB_ITEM_OUTCOME.ITEM_TIMEPOINT_ID
+		left outer join TB_ITEM_ARM arm1 ON arm1.ITEM_ARM_ID = TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP1
+		left outer join TB_ITEM_ARM arm2 on arm2.ITEM_ARM_ID = TB_ITEM_OUTCOME.ITEM_ARM_ID_GRP2
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportColumnCodeInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportColumnCodeInsert]
+(
+	@REPORT_ID INT,
+	@REPORT_COLUMN_ID INT,
+	@CODE_ORDER INT,
+	@SET_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@PARENT_ATTRIBUTE_ID BIGINT,
+	@PARENT_ATTRIBUTE_TEXT NVARCHAR(255),
+	@USER_DEF_TEXT NVARCHAR(255),
+	@DISPLAY_CODE BIT,
+	@DISPLAY_ADDITIONAL_TEXT BIT,
+	@DISPLAY_CODED_TEXT BIT
+)
+
+As
+
+SET NOCOUNT ON
+
+	INSERT INTO TB_REPORT_COLUMN_CODE(REPORT_ID, REPORT_COLUMN_ID, CODE_ORDER, SET_ID, ATTRIBUTE_ID, PARENT_ATTRIBUTE_ID,
+		PARENT_ATTRIBUTE_TEXT, USER_DEF_TEXT, DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT)
+	VALUES (@REPORT_ID, @REPORT_COLUMN_ID, @CODE_ORDER, @SET_ID, @ATTRIBUTE_ID, @PARENT_ATTRIBUTE_ID,
+		@PARENT_ATTRIBUTE_TEXT, @USER_DEF_TEXT, @DISPLAY_CODE, @DISPLAY_ADDITIONAL_TEXT, @DISPLAY_CODED_TEXT)
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportColumnCodeList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportColumnCodeList]
+(
+	@REPORT_COLUMN_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT * FROM TB_REPORT_COLUMN_CODE
+		WHERE REPORT_COLUMN_ID = @REPORT_COLUMN_ID
+		ORDER BY CODE_ORDER
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportColumnDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportColumnDelete]
+(
+	@REPORT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM TB_REPORT_COLUMN_CODE WHERE REPORT_ID = @REPORT_ID
+	DELETE FROM TB_REPORT_COLUMN WHERE REPORT_ID = @REPORT_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportColumnInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportColumnInsert]
+(
+	@REPORT_COLUMN_NAME NVARCHAR(255),
+	@REPORT_ID INT,
+	@COLUMN_ORDER INT,
+	@NEW_REPORT_COLUMN_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	INSERT INTO TB_REPORT_COLUMN(REPORT_COLUMN_NAME, COLUMN_ORDER, REPORT_ID)
+	VALUES(@REPORT_COLUMN_NAME, @COLUMN_ORDER, @REPORT_ID)
+	
+	SET @NEW_REPORT_COLUMN_ID = @@IDENTITY
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportColumnList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportColumnList]
+(
+	@REPORT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT * FROM TB_REPORT_COLUMN
+		WHERE REPORT_ID = @REPORT_ID
+		ORDER BY COLUMN_ORDER
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportData]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportData]
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT
+,	@ITEM_IDS NVARCHAR(MAX)
+,	@REPORT_ID INT
+,	@ORDER_BY NVARCHAR(15)
+,	@ATTRIBUTE_ID BIGINT
+,	@IS_QUESTION bit
+,	@FULL_DETAILS bit
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+	DECLARE @TT TABLE
+	(
+	  ITEM_ID BIGINT primary key
+	)
+	DECLARE @AA TABLE
+	(
+	  A_ID BIGINT 
+	  , REPORT_COLUMN_CODE_ID int
+	  , ATTRIBUTE_ORDER int
+	)
+	IF @ATTRIBUTE_ID != 0
+	BEGIN
+		INSERT INTO @TT
+			SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+				AND TB_ITEM_REVIEW.IS_DELETED = 0
+				AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+	END
+	ELSE
+	BEGIN
+		INSERT INTO @TT
+			SELECT VALUE FROM dbo.fn_Split_int(@ITEM_IDS, ',')
+	END
+	IF @IS_QUESTION = 1
+	BEGIN
+		INSERT INTO @AA SELECT distinct tas.ATTRIBUTE_ID, cc.REPORT_COLUMN_CODE_ID, tas.ATTRIBUTE_ORDER
+			from TB_REPORT_COLUMN_CODE cc
+			INNER JOIN TB_ATTRIBUTE_SET tas ON tas.PARENT_ATTRIBUTE_ID = cc.ATTRIBUTE_ID 
+				AND tas.SET_ID = cc.SET_ID And cc.REPORT_ID = @REPORT_ID
+			inner join TB_ITEM_ATTRIBUTE ia on tas.ATTRIBUTE_ID = ia.ATTRIBUTE_ID
+			inner join @TT tt on ia.ITEM_ID = tt.ITEM_ID
+			order by tas.ATTRIBUTE_ID
+	END
+	ELSE
+	BEGIN
+		INSERT INTO @AA SELECT distinct tas.ATTRIBUTE_ID, cc.REPORT_COLUMN_CODE_ID, tas.ATTRIBUTE_ORDER
+			from TB_REPORT_COLUMN_CODE cc
+			INNER JOIN TB_ATTRIBUTE_SET tas ON tas.ATTRIBUTE_ID = cc.ATTRIBUTE_ID 
+				AND tas.SET_ID = cc.SET_ID And cc.REPORT_ID = @REPORT_ID
+			inner join TB_ITEM_ATTRIBUTE ia on tas.ATTRIBUTE_ID = ia.ATTRIBUTE_ID
+			inner join @TT tt on ia.ITEM_ID = tt.ITEM_ID
+	END
+	--select * from @AA
+    --First: the main report properties
+	SELECT * from TB_REPORT where REPORT_ID = @REPORT_ID
+	--Second: list of report columns
+	SELECT * from TB_REPORT_COLUMN where REPORT_ID = @REPORT_ID ORDER BY COLUMN_ORDER
+	--Third: what goes into each column, AKA "Rows" (In C# side)
+	SELECT * from TB_REPORT_COLUMN_CODE  
+		where REPORT_ID = @REPORT_ID ORDER BY CODE_ORDER
+	
+	
+	--Fourth: most of the real data
+	SELECT distinct cc.REPORT_COLUMN_ID, cc.REPORT_COLUMN_CODE_ID,cc.USER_DEF_TEXT
+				,a.*, ia.*, i.ITEM_ID, i.OLD_ITEM_ID, i.SHORT_TITLE, CODE_ORDER, ATTRIBUTE_ORDER
+				, CASE when tia.ARM_NAME is null then '' else tia.ARM_NAME END as ARM_NAME
+	from TB_REPORT_COLUMN_CODE cc
+	inner join @AA ats on ats.REPORT_COLUMN_CODE_ID = cc.REPORT_COLUMN_CODE_ID
+	--INNER JOIN TB_ATTRIBUTE_SET tas ON (--Question reports fetch data about a given code children
+	--									(tas.PARENT_ATTRIBUTE_ID = cc.ATTRIBUTE_ID and @IS_QUESTION = 1) 
+	--									OR 
+	--									(tas.ATTRIBUTE_ID = cc.ATTRIBUTE_ID and @IS_QUESTION = 0)
+	--								   )
+	--	AND tas.SET_ID = cc.SET_ID
+	INNER JOIN TB_ATTRIBUTE a ON a.ATTRIBUTE_ID = ats.A_ID
+	inner join TB_ITEM_ATTRIBUTE ia on a.ATTRIBUTE_ID = ia.ATTRIBUTE_ID 
+	inner join @TT tt on ia.ITEM_ID = tt.ITEM_ID
+	inner join TB_ITEM i on tt.ITEM_ID = i.ITEM_ID
+	inner join TB_ITEM_SET tis on cc.SET_ID = tis.SET_ID and tt.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.ITEM_SET_ID = ia.ITEM_SET_ID
+	left outer join TB_ITEM_ARM tia on ia.ITEM_ARM_ID = tia.ITEM_ARM_ID
+	where REPORT_ID = @REPORT_ID 
+	ORDER BY 
+		i.SHORT_TITLE -- we ignore the sorting order required for this report, sorting is done on c# side.
+		, i.ITEM_ID, CODE_ORDER, ATTRIBUTE_ORDER, a.ATTRIBUTE_ID
+	
+	
+	--Fift: data about coded TXT, uses "UNION" to grab data from TXT and PDF tables
+	SELECT cc.REPORT_COLUMN_ID, cc.REPORT_COLUMN_CODE_ID, a.ATTRIBUTE_ID, tt.ITEM_ID, id.DOCUMENT_TITLE
+	, 'Page ' + CONVERT(varchar(10),PAGE) + ':' + CHAR(10) + '[¬s]"' + replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' CODED_TEXT
+	, CASE when tia.ARM_NAME is null then '' else tia.ARM_NAME END as ARM_NAME
+	  from TB_REPORT_COLUMN_CODE cc
+	  inner join @AA ats on ats.REPORT_COLUMN_CODE_ID = cc.REPORT_COLUMN_CODE_ID
+	INNER JOIN TB_ATTRIBUTE a ON a.ATTRIBUTE_ID = ats.A_ID
+	inner join TB_ITEM_ATTRIBUTE ia on a.ATTRIBUTE_ID = ia.ATTRIBUTE_ID
+	inner join @TT tt on ia.ITEM_ID = tt.ITEM_ID
+	inner join TB_ITEM i on tt.ITEM_ID = i.ITEM_ID
+	inner join TB_ITEM_SET tis on cc.SET_ID = tis.SET_ID and tt.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.ITEM_SET_ID = ia.ITEM_SET_ID
+	inner join TB_ITEM_DOCUMENT id on ia.ITEM_ID = id.ITEM_ID
+	inner join TB_ITEM_ATTRIBUTE_PDF pdf on id.ITEM_DOCUMENT_ID = pdf.ITEM_DOCUMENT_ID and ia.ITEM_ATTRIBUTE_ID = pdf.ITEM_ATTRIBUTE_ID
+	left outer join TB_ITEM_ARM tia on ia.ITEM_ARM_ID = tia.ITEM_ARM_ID
+	UNION
+	SELECT cc.REPORT_COLUMN_ID, cc.REPORT_COLUMN_CODE_ID, a.ATTRIBUTE_ID, tt.ITEM_ID, id.DOCUMENT_TITLE
+	, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT
+	, CASE when tia.ARM_NAME is null then '' else tia.ARM_NAME END as ARM_NAME
+	  from TB_REPORT_COLUMN_CODE cc
+	inner join @AA ats on ats.REPORT_COLUMN_CODE_ID = cc.REPORT_COLUMN_CODE_ID
+	INNER JOIN TB_ATTRIBUTE a ON a.ATTRIBUTE_ID = ats.A_ID
+	inner join TB_ITEM_ATTRIBUTE ia on a.ATTRIBUTE_ID = ia.ATTRIBUTE_ID
+	inner join @TT tt on ia.ITEM_ID = tt.ITEM_ID
+	inner join TB_ITEM i on tt.ITEM_ID = i.ITEM_ID
+	inner join TB_ITEM_SET tis on cc.SET_ID = tis.SET_ID and tt.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.ITEM_SET_ID = ia.ITEM_SET_ID
+	inner join TB_ITEM_DOCUMENT id on ia.ITEM_ID = id.ITEM_ID
+	inner join TB_ITEM_ATTRIBUTE_TEXT txt on id.ITEM_DOCUMENT_ID = txt.ITEM_DOCUMENT_ID and ia.ITEM_ATTRIBUTE_ID = txt.ITEM_ATTRIBUTE_ID
+	left outer join TB_ITEM_ARM tia on ia.ITEM_ARM_ID = tia.ITEM_ARM_ID
+	
+	--sixth, items that do not have anything to report
+	
+	SELECT i.ITEM_ID, i.OLD_ITEM_ID, i.SHORT_TITLE from TB_ITEM i
+	inner join @TT t on t.ITEM_ID = i.ITEM_ID
+	where t.ITEM_ID not in
+	(SELECT distinct tt.ITEM_ID
+	from TB_REPORT_COLUMN_CODE cc
+	INNER JOIN TB_ATTRIBUTE_SET tas ON (--Question reports fetch data about a given code children
+										(tas.PARENT_ATTRIBUTE_ID = cc.ATTRIBUTE_ID and @IS_QUESTION = 1) 
+										OR 
+										(tas.ATTRIBUTE_ID = cc.ATTRIBUTE_ID and @IS_QUESTION = 0)
+									   )
+		AND tas.SET_ID = cc.SET_ID
+	INNER JOIN TB_ATTRIBUTE a ON a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+	inner join TB_ITEM_ATTRIBUTE ia on a.ATTRIBUTE_ID = ia.ATTRIBUTE_ID
+	inner join @TT tt on ia.ITEM_ID = tt.ITEM_ID
+	inner join TB_ITEM_SET tis on cc.SET_ID = tis.SET_ID and tt.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.ITEM_SET_ID = ia.ITEM_SET_ID
+	where REPORT_ID = @REPORT_ID)
+	ORDER BY 
+		i.SHORT_TITLE -- we ignore the sorting order required for this report, sorting is done on c# side.
+		, i.ITEM_ID
+	--optional Seventh: get Title, Abstract and Year, only if some of this is needed.
+	if (@FULL_DETAILS = 1)
+	BEGIN
+		select i.ITEM_ID, TITLE, ABSTRACT, [YEAR] from TB_ITEM i
+			inner join @TT t on t.ITEM_ID = i.ITEM_ID
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportDelete]
+(
+	@REPORT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM TB_REPORT_COLUMN_CODE WHERE REPORT_ID = @REPORT_ID
+	DELETE FROM TB_REPORT_COLUMN WHERE REPORT_ID = @REPORT_ID
+	DELETE FROM TB_REPORT WHERE REPORT_ID = @REPORT_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportExecute]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportExecute]
+(
+	@REVIEW_ID INT
+,	@ITEM_IDS NVARCHAR(MAX)
+,	@REPORT_ID INT
+,	@ORDER_BY NVARCHAR(15)
+,	@ATTRIBUTE_ID BIGINT
+,	@SET_ID INT
+
+)
+AS
+SET NOCOUNT ON
+
+DECLARE @TT TABLE
+	(
+	  ITEM_ID BIGINT
+	)
+
+-- FIRST GET THE LIST OF ITEM_IDs THAT WE'RE USING INTO THE TEMPORARY TABLE: THEY CAN EITHER BE IN
+-- THE @ITEM_IDS VARIABLE, OR THE RESULT OF A SEARCH ON THE @ATTRIBUTE_SET_ID
+
+IF @ATTRIBUTE_ID != 0
+BEGIN
+	INSERT INTO @TT
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.IS_DELETED != 'TRUE' 
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+END
+ELSE
+BEGIN
+	INSERT INTO @TT
+		SELECT VALUE FROM dbo.fn_Split_int(@ITEM_IDS, ',')
+END
+
+-- GET THE NAMES OF THE COLUMNS AS THE FIRST RESULT FROM THE READER 
+SELECT * FROM TB_REPORT_COLUMN WHERE REPORT_ID = @REPORT_ID
+ORDER BY COLUMN_ORDER
+
+-- 2ND RESULT FROM READER = THE DATA
+IF (@ORDER_BY LIKE 'Short title')
+BEGIN
+	select TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, ATTRIBUTE_NAME, ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+		SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT
+ 	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+		AND TB_ATTRIBUTE_SET.SET_ID = TB_REPORT_COLUMN_CODE.SET_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.IS_DELETED != 'TRUE'
+	--INNER JOIN dbo.fn_Split_int(@ITEM_IDS, ',') attribute_list ON attribute_list.value = TB_ITEM_ATTRIBUTE.ITEM_ID
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	ORDER BY TB_ITEM.SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, ATTRIBUTE_ORDER
+	option (optimize for unknown)
+END
+ELSE
+IF (@ORDER_BY LIKE 'Item Id')
+BEGIN
+	select TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, ATTRIBUTE_NAME, ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+				SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT
+	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+		AND TB_ATTRIBUTE_SET.SET_ID = TB_REPORT_COLUMN_CODE.SET_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.IS_DELETED != 'TRUE'
+	--INNER JOIN dbo.fn_Split_int(@ITEM_IDS, ',') attribute_list ON attribute_list.value = TB_ITEM_ATTRIBUTE.ITEM_ID
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	ORDER BY TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, ATTRIBUTE_ORDER
+	option (optimize for unknown)
+END
+ELSE
+BEGIN
+	select TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, ATTRIBUTE_NAME, ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+				SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT
+	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+		AND TB_ATTRIBUTE_SET.SET_ID = TB_REPORT_COLUMN_CODE.SET_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.IS_DELETED != 'TRUE'
+	--INNER JOIN dbo.fn_Split_int(@ITEM_IDS, ',') attribute_list ON attribute_list.value = TB_ITEM_ATTRIBUTE.ITEM_ID
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)	
+	ORDER BY TB_ITEM.OLD_ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, ATTRIBUTE_ORDER
+	option (optimize for unknown)
+END
+
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportExecuteSingleWithOutcomes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportExecuteSingleWithOutcomes]
+(
+	@REVIEW_ID INT
+,	@ITEM_IDS NVARCHAR(MAX)
+,	@REPORT_ID INT
+,	@ORDER_BY NVARCHAR(15)
+,	@ATTRIBUTE_ID BIGINT
+,	@SET_ID INT
+
+)
+AS
+SET NOCOUNT ON
+
+DECLARE @TT TABLE
+	(
+	  ITEM_ID BIGINT
+	)
+
+-- FIRST GET THE LIST OF ITEM_IDs THAT WE'RE USING INTO THE TEMPORARY TABLE: THEY CAN EITHER BE IN
+-- THE @ITEM_IDS VARIABLE, OR THE RESULT OF A SEARCH ON THE @ATTRIBUTE_SET_ID
+
+IF @ATTRIBUTE_ID != 0
+BEGIN
+	INSERT INTO @TT
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.IS_DELETED != 'TRUE'
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+END
+ELSE
+BEGIN
+	INSERT INTO @TT
+		SELECT VALUE FROM dbo.fn_Split_int(@ITEM_IDS, ',')
+END
+
+-- GET THE NAMES OF THE COLUMNS AS THE FIRST RESULT FROM THE READER 
+SELECT * FROM TB_REPORT_COLUMN WHERE REPORT_ID = @REPORT_ID
+ORDER BY COLUMN_ORDER
+
+-- 2ND RESULT: THE LIST OF ATTRIBUTES THAT HAVE BEEN APPLIED TO OUTCOMES IN THE MAIN DATA
+SELECT DISTINCT ATTRIBUTE_NAME FROM TB_ATTRIBUTE
+	INNER JOIN TB_ITEM_OUTCOME_ATTRIBUTE ON TB_ITEM_OUTCOME_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_OUTCOME ON TB_ITEM_OUTCOME.OUTCOME_ID = TB_ITEM_OUTCOME_ATTRIBUTE.OUTCOME_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_OUTCOME.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	WHERE TB_ITEM_SET.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+
+-- 3RD RESULT FROM READER = THE DATA
+IF (@ORDER_BY LIKE 'Short title')
+BEGIN
+	select distinct TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+				SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT,
+		TB_ITEM_OUTCOME.OUTCOME_TITLE, AT2.ATTRIBUTE_NAME OUTCOME_ATTRIBUTE, TB_ITEM_OUTCOME.OUTCOME_ID, CODE_ORDER,
+		TB_ITEM_ATTRIBUTE.ITEM_ARM_ID, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END
+
+	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = TB_ITEM_ATTRIBUTE.ITEM_ARM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	
+	INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_ID = TB_ITEM_SET.ITEM_ID
+		AND IS2.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_OUTCOME ON TB_ITEM_OUTCOME.ITEM_SET_ID = IS2.ITEM_SET_ID
+	LEFT OUTER JOIN TB_ITEM_OUTCOME_ATTRIBUTE ON TB_ITEM_OUTCOME_ATTRIBUTE.OUTCOME_ID = TB_ITEM_OUTCOME.OUTCOME_ID
+	LEFT OUTER JOIN TB_ATTRIBUTE AT2 ON AT2.ATTRIBUTE_ID = TB_ITEM_OUTCOME_ATTRIBUTE.ATTRIBUTE_ID
+	
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	--ORDER BY TB_ITEM.SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, OUTCOME_TITLE
+	ORDER BY SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID, OUTCOME_ID
+END
+
+ELSE
+IF (@ORDER_BY LIKE 'Item Id')
+BEGIN
+	select distinct TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+				SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT,
+		TB_ITEM_OUTCOME.OUTCOME_TITLE, AT2.ATTRIBUTE_NAME OUTCOME_ATTRIBUTE, TB_ITEM_OUTCOME.OUTCOME_ID, CODE_ORDER,
+		TB_ITEM_ATTRIBUTE.ITEM_ARM_ID, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END
+
+	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = TB_ITEM_ATTRIBUTE.ITEM_ARM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	
+	INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_ID = TB_ITEM_SET.ITEM_ID
+		AND IS2.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_OUTCOME ON TB_ITEM_OUTCOME.ITEM_SET_ID = IS2.ITEM_SET_ID
+	LEFT OUTER JOIN TB_ITEM_OUTCOME_ATTRIBUTE ON TB_ITEM_OUTCOME_ATTRIBUTE.OUTCOME_ID = TB_ITEM_OUTCOME.OUTCOME_ID
+	LEFT OUTER JOIN TB_ATTRIBUTE AT2 ON AT2.ATTRIBUTE_ID = TB_ITEM_OUTCOME_ATTRIBUTE.ATTRIBUTE_ID
+	
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	--ORDER BY TB_ITEM.SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, OUTCOME_TITLE
+	ORDER BY TB_ITEM_ATTRIBUTE.ITEM_ID, OUTCOME_ID
+END
+ELSE
+BEGIN
+	select distinct TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+				SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT,
+		TB_ITEM_OUTCOME.OUTCOME_TITLE, AT2.ATTRIBUTE_NAME OUTCOME_ATTRIBUTE, TB_ITEM_OUTCOME.OUTCOME_ID, CODE_ORDER,
+		TB_ITEM_ATTRIBUTE.ITEM_ARM_ID, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END
+
+	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = TB_ITEM_ATTRIBUTE.ITEM_ARM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	
+	INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_ID = TB_ITEM_SET.ITEM_ID
+		AND IS2.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_OUTCOME ON TB_ITEM_OUTCOME.ITEM_SET_ID = IS2.ITEM_SET_ID
+	LEFT OUTER JOIN TB_ITEM_OUTCOME_ATTRIBUTE ON TB_ITEM_OUTCOME_ATTRIBUTE.OUTCOME_ID = TB_ITEM_OUTCOME.OUTCOME_ID
+	LEFT OUTER JOIN TB_ATTRIBUTE AT2 ON AT2.ATTRIBUTE_ID = TB_ITEM_OUTCOME_ATTRIBUTE.ATTRIBUTE_ID
+	
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	--ORDER BY TB_ITEM.SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, OUTCOME_TITLE
+	ORDER BY OLD_ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_ID, OUTCOME_ID
+END
+
+
+SET NOCOUNT OFF
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportExecuteSingleWithoutOutcomes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportExecuteSingleWithoutOutcomes]
+(
+	@REVIEW_ID INT
+,	@ITEM_IDS NVARCHAR(MAX)
+,	@REPORT_ID INT
+,	@ORDER_BY NVARCHAR(15)
+,	@ATTRIBUTE_ID BIGINT
+,	@SET_ID INT
+
+)
+AS
+SET NOCOUNT ON
+
+DECLARE @TT TABLE
+	(
+	  ITEM_ID BIGINT
+	)
+
+-- FIRST GET THE LIST OF ITEM_IDs THAT WE'RE USING INTO THE TEMPORARY TABLE: THEY CAN EITHER BE IN
+-- THE @ITEM_IDS VARIABLE, OR THE RESULT OF A SEARCH ON THE @ATTRIBUTE_SET_ID
+
+IF @ATTRIBUTE_ID != 0
+BEGIN
+	INSERT INTO @TT
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.IS_DELETED != 'TRUE'
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		WHERE ATTRIBUTE_ID = @ATTRIBUTE_ID
+END
+ELSE
+BEGIN
+	INSERT INTO @TT
+		SELECT VALUE FROM dbo.fn_Split_int(@ITEM_IDS, ',')
+END
+
+-- GET THE NAMES OF THE COLUMNS AS THE FIRST RESULT FROM THE READER 
+SELECT * FROM TB_REPORT_COLUMN WHERE REPORT_ID = @REPORT_ID
+ORDER BY COLUMN_ORDER
+
+-- 2nd RESULT FROM READER = THE DATA
+IF (@ORDER_BY LIKE 'Short title')
+BEGIN
+	select distinct TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+				SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT, CODE_ORDER
+
+	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	--ORDER BY TB_ITEM.SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, OUTCOME_TITLE
+	ORDER BY SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID
+END
+
+ELSE
+IF (@ORDER_BY LIKE 'Item Id')
+BEGIN
+	select distinct TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+				SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT, CODE_ORDER
+
+	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	--ORDER BY TB_ITEM.SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, OUTCOME_TITLE
+	ORDER BY TB_ITEM_ATTRIBUTE.ITEM_ID
+END
+ELSE
+BEGIN
+	select distinct TB_ITEM_ATTRIBUTE.ITEM_ID, OLD_ITEM_ID, SHORT_TITLE, TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID,
+		REPORT_COLUMN_CODE_ID, COLUMN_ORDER, USER_DEF_TEXT, TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT,
+		DISPLAY_CODE, DISPLAY_ADDITIONAL_TEXT, DISPLAY_CODED_TEXT, REPORT_COLUMN_NAME,
+				SUBSTRING(
+					replace(TB_ITEM_DOCUMENT.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) CODED_TEXT, CODE_ORDER
+
+	FROM TB_REPORT_COLUMN_CODE
+	INNER JOIN TB_REPORT_COLUMN ON TB_REPORT_COLUMN.REPORT_COLUMN_ID = TB_REPORT_COLUMN_CODE.REPORT_COLUMN_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_REPORT_COLUMN_CODE.ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_ATTRIBUTE_TEXT ON TB_ITEM_ATTRIBUTE_TEXT.ITEM_ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+	LEFT OUTER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_DOCUMENT_ID = TB_ITEM_ATTRIBUTE_TEXT.ITEM_DOCUMENT_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+	
+	WHERE TB_REPORT_COLUMN_CODE.REPORT_ID = @REPORT_ID
+		AND TB_ITEM_ATTRIBUTE.ITEM_ID IN (SELECT ITEM_ID FROM @TT)
+	--ORDER BY TB_ITEM.SHORT_TITLE, TB_ITEM_ATTRIBUTE.ITEM_ID, COLUMN_ORDER, CODE_ORDER, OUTCOME_TITLE
+	ORDER BY OLD_ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_ID
+END
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportInsert]
+(
+	@REPORT_NAME NVARCHAR(255),
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@REPORT_TYPE NVARCHAR(10),
+	@NEW_REPORT_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	INSERT INTO TB_REPORT(NAME, REVIEW_ID, REPORT_TYPE, CONTACT_ID)
+	VALUES (@REPORT_NAME, @REVIEW_ID, @REPORT_TYPE, @CONTACT_ID)
+	
+	SET @NEW_REPORT_ID = @@IDENTITY
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportList]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT REPORT_ID, REVIEW_ID, NAME, REPORT_TYPE, TB_REPORT.CONTACT_ID, CONTACT_NAME FROM TB_REPORT
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_REPORT.CONTACT_ID
+		WHERE REVIEW_ID = @REVIEW_ID
+		ORDER BY CONTACT_ID, NAME
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReportUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReportUpdate]
+(
+	@REPORT_NAME NVARCHAR(255),
+	@REPORT_TYPE NVARCHAR(10),
+	@REPORT_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	UPDATE TB_REPORT SET NAME = @REPORT_NAME, REPORT_TYPE = @REPORT_TYPE
+	WHERE REPORT_ID = @REPORT_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewContact]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewContact]
+(
+	@CONTACT_ID INT
+)
+
+As
+
+SELECT REVIEW_CONTACT_ID, rc.REVIEW_ID, rc.CONTACT_ID, REVIEW_NAME, dbo.fn_REBUILD_ROLES(rc.REVIEW_CONTACT_ID) as ROLES
+	,own.CONTACT_NAME as 'OWNER', case when LR is null
+									then r.DATE_CREATED
+									else LR
+								 end
+								 as 'LAST_ACCESS'
+	, r.SHOW_SCREENING, r.SCREENING_CODE_SET_ID, r.SCREENING_MODE, r.SCREENING_WHAT_ATTRIBUTE_ID, r.SCREENING_N_PEOPLE
+	, r.SCREENING_RECONCILLIATION, r.SCREENING_AUTO_EXCLUDE, SCREENING_MODEL_RUNNING, SCREENING_INDEXED
+	, BL_ACCOUNT_CODE,BL_AUTH_CODE, BL_TX, BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX
+	, (SELECT SUM(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN MRR
+			WHERE REVIEW_ID = rc.REVIEW_ID  and USER_STATUS = 'Unchecked') NAutoUpdates
+FROM TB_REVIEW_CONTACT rc
+INNER JOIN TB_REVIEW r ON rc.REVIEW_ID = r.REVIEW_ID
+inner join TB_CONTACT own on r.FUNDER_ID = own.CONTACT_ID
+left join (
+			select MAX(LAST_RENEWED) LR, REVIEW_ID
+			from ReviewerAdmin.dbo.TB_LOGON_TICKET  
+			where @CONTACT_ID = CONTACT_ID
+			group by REVIEW_ID
+			) as t
+			on t.REVIEW_ID = r.REVIEW_ID
+WHERE rc.CONTACT_ID = @CONTACT_ID and (r.ARCHIE_ID is null OR r.ARCHIE_ID = 'prospective_______')
+ORDER BY REVIEW_NAME
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewContactForSiteAdmin]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewContactForSiteAdmin]
+(
+	@CONTACT_ID INT
+	,@REVIEW_ID int
+)
+
+As
+
+SELECT 0 as REVIEW_CONTACT_ID, - r.REVIEW_ID as REVIEW_ID, rc.CONTACT_ID, REVIEW_NAME, 'AdminUser;' as ROLES
+	,own.CONTACT_NAME as 'OWNER', case when LR is null
+									then r.DATE_CREATED
+									else LR
+								 end
+								 as 'LAST_ACCESS'
+	, r.SHOW_SCREENING, r.SCREENING_CODE_SET_ID, r.SCREENING_MODE, r.SCREENING_WHAT_ATTRIBUTE_ID, r.SCREENING_N_PEOPLE
+	, r.SCREENING_RECONCILLIATION, r.SCREENING_AUTO_EXCLUDE, SCREENING_MODEL_RUNNING, SCREENING_INDEXED
+	, BL_ACCOUNT_CODE,BL_AUTH_CODE, BL_TX, BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX
+	, (SELECT SUM(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN MRR
+			WHERE REVIEW_ID = @REVIEW_ID  and USER_STATUS = 'Unchecked') NAutoUpdates
+FROM TB_CONTACT rc
+INNER JOIN TB_REVIEW r ON rc.CONTACT_ID = @CONTACT_ID and rc.IS_SITE_ADMIN = 1 and r.REVIEW_ID = @REVIEW_ID 
+inner join TB_CONTACT own on r.FUNDER_ID = own.CONTACT_ID
+left join (
+			select MAX(LAST_RENEWED) LR, REVIEW_ID
+			from ReviewerAdmin.dbo.TB_LOGON_TICKET  
+			where @CONTACT_ID = CONTACT_ID and REVIEW_ID = @REVIEW_ID
+			group by REVIEW_ID
+			) as t
+			on t.REVIEW_ID = r.REVIEW_ID
+WHERE rc.CONTACT_ID = @CONTACT_ID
+ORDER BY REVIEW_NAME
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewContactList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewContactList]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+/* ADD TO THIS THE RETRIEVAL OF ROLES */
+
+/* original routine
+SELECT TB_REVIEW_CONTACT.CONTACT_ID, REVIEW_ID, CONTACT_NAME
+
+FROM TB_REVIEW_CONTACT
+
+INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_REVIEW_CONTACT.CONTACT_ID
+
+WHERE REVIEW_ID = @REVIEW_ID
+*/
+
+
+
+declare @reviewMembers table (CONTACT_ID int, REVIEW_ID int, CONTACT_NAME nvarchar(255), EMAIL nvarchar(500), 
+[EXPIRY_DATE] nvarchar(50), ROLE_NAME nvarchar(50), IS_EXPIRED int)
+
+declare @tv_members table (tv_review_contact_id int,  tv_contact_id int, tv_contact_name nvarchar(255), tv_email nvarchar(500), 
+tv_expiry_date date, tv_license_number int, tv_license_expiry datetime,  tv_role nvarchar(50), tv_last_expiry nvarchar(50), tv_is_expired int)
+
+insert into @tv_members (tv_contact_id, tv_contact_name, tv_email, tv_expiry_date, tv_license_number, tv_is_expired)
+SELECT rc.CONTACT_ID, c.CONTACT_NAME, c.EMAIL, c.[EXPIRY_DATE], 0, 0  
+FROM TB_REVIEW_CONTACT rc
+INNER JOIN TB_CONTACT c ON c.CONTACT_ID = rc.CONTACT_ID
+WHERE rc.REVIEW_ID = @REVIEW_ID
+
+update t1
+set tv_review_contact_id = t2.REVIEW_CONTACT_ID
+from @tv_members t1 inner join TB_REVIEW_CONTACT t2
+on t2.CONTACT_ID = t1.tv_contact_id
+and t2.REVIEW_ID = @REVIEW_ID
+
+update t1
+set tv_license_number = t2.SITE_LIC_ID
+from @tv_members t1 inner join TB_SITE_LIC_CONTACT t2
+on t2.CONTACT_ID = t1.tv_contact_id
+
+update t1
+set tv_license_expiry = t2.EXPIRY_DATE
+from @tv_members t1 inner join TB_SITE_LIC t2
+on t2.SITE_LIC_ID = t1.tv_license_number
+and t1.tv_license_number > 0
+
+
+
+
+
+-- get roles but be aware some older users have more than one role
+-- If a user has multiple roles there is a hierarchal order that is also alphabetical
+-- AdminUser, Coding only, ReadOnlyUser, RegularUser
+
+declare @role nvarchar(50)
+declare @lastExpiry nvarchar(50)
+declare @accountExpiry date
+declare @licenseExpiry date
+declare @licenseNumber int
+
+declare @WORKING_REVIEW_CONTACT_ID int
+	declare REVIEW_CONTACT_ID_CURSOR cursor for
+	select tv_review_contact_id FROM @tv_members
+	open REVIEW_CONTACT_ID_CURSOR
+	fetch next from REVIEW_CONTACT_ID_CURSOR
+	into @WORKING_REVIEW_CONTACT_ID
+	while @@FETCH_STATUS = 0
+	begin
+		set @role = (select top 1 ROLE_NAME 
+		from TB_CONTACT_REVIEW_ROLE
+		where REVIEW_CONTACT_ID = @WORKING_REVIEW_CONTACT_ID
+		order by ROLE_NAME asc)
+
+		update @tv_members
+		set tv_role = @role
+		where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID
+
+		set @licenseNumber = (select tv_license_number from @tv_members where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID)
+		if @licenseNumber = 0
+		begin
+			-- get the expiry date
+			set @accountExpiry = (select tv_expiry_date from @tv_members where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID)
+			
+			if @accountExpiry < GETDATE()
+			begin
+				update @tv_members
+				set tv_is_expired = 1 where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID
+			end
+
+			update @tv_members
+			set tv_last_expiry = CONVERT(VARCHAR(10),@accountExpiry,103)
+			where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID
+		end
+		else
+		begin
+			-- in a site license so pick the last expiry but mention the site license
+			set @accountExpiry = (select tv_expiry_date from @tv_members where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID)
+			set @licenseExpiry = (select tv_license_expiry from @tv_members where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID)
+			if @accountExpiry > @licenseExpiry
+			begin
+				-- last expiry is the account expiry
+				if @accountExpiry < GETDATE()
+				begin
+					update @tv_members
+					set tv_is_expired = 1 where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID
+				end
+
+				update @tv_members
+				set tv_last_expiry = CONVERT(VARCHAR(10),@accountExpiry,103)  + ' (site lic: ' + CAST(@licenseNumber AS varchar) + ')' 
+				where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID
+			end
+			else
+			begin
+				if @licenseExpiry < GETDATE()
+				begin
+					update @tv_members
+					set tv_is_expired = 1 where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID
+				end
+				-- last expiry is the license expiry
+				update @tv_members
+				set tv_last_expiry = CONVERT(VARCHAR(10),@licenseExpiry,103)  + ' (site lic: ' + CAST(@licenseNumber AS varchar) + ')' 
+				where tv_review_contact_id = @WORKING_REVIEW_CONTACT_ID
+			end
+		end
+				
+		FETCH NEXT FROM REVIEW_CONTACT_ID_CURSOR 
+		INTO @WORKING_REVIEW_CONTACT_ID
+	END
+
+	CLOSE REVIEW_CONTACT_ID_CURSOR
+	DEALLOCATE REVIEW_CONTACT_ID_CURSOR
+
+
+
+
+--select * from @tv_members
+
+insert into @reviewMembers (CONTACT_ID, REVIEW_ID, CONTACT_NAME, EMAIL, [EXPIRY_DATE], ROLE_NAME, IS_EXPIRED)
+select tv_contact_id, @REVIEW_ID, tv_contact_name, tv_email, tv_last_expiry, tv_role, tv_is_expired from @tv_members
+
+update @reviewMembers
+set ROLE_NAME = 'Review admin' where ROLE_NAME = 'AdminUser'
+update @reviewMembers
+set ROLE_NAME = 'Reviewer' where ROLE_NAME = 'RegularUser'
+update @reviewMembers
+set ROLE_NAME = 'Read only' where ROLE_NAME = 'ReadOnlyUser'
+
+select * from @reviewMembers
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewInfo]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewInfo]
+(
+	@REVIEW_ID INT
+	
+)
+
+As
+BEGIN
+	declare @chk int = ( 
+						 select count(REVIEW_ID) FROM TB_REVIEW
+						 where REVIEW_ID = @REVIEW_ID and SHOW_SCREENING = 1 and SCREENING_MODEL_RUNNING = 1
+						)
+    if @chk = 1 
+	BEGIN
+		--we want to check if we need to flip SCREENING_MODEL_RUNNING back to 0
+		declare @t_id int
+		select @t_id = max(training_id) from TB_TRAINING where REVIEW_ID = @REVIEW_ID
+		if @t_id is not null
+		BEGIN
+			select @chk = count(training_id) from TB_TRAINING 
+				where REVIEW_ID = @REVIEW_ID
+				AND TRAINING_ID = @t_id 
+				AND 
+					(
+					TIME_STARTED != TIME_ENDED
+					OR
+					GETDATE() > DATEADD(HOUR, 1, TIME_STARTED)
+					)
+				if @chk > 0 
+					UPDATE TB_REVIEW set SCREENING_MODEL_RUNNING = 0 where REVIEW_ID = @REVIEW_ID
+		END
+	END
+
+	SELECT * FROM TB_REVIEW
+	WHERE REVIEW_ID = @REVIEW_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewInfoUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewInfoUpdate]
+(
+	@REVIEW_ID int
+,	@SCREENING_CODE_SET_ID int
+,	@SCREENING_MODE nvarchar(10)
+,	@SCREENING_RECONCILLIATION nvarchar(10)
+,	@SCREENING_WHAT_ATTRIBUTE_ID bigint
+,	@SCREENING_N_PEOPLE int
+,	@SCREENING_AUTO_EXCLUDE bit
+,	@SCREENING_MODEL_RUNNING bit
+,	@SCREENING_INDEXED bit
+,	@MAG_ENABLED INT
+)
+
+As
+
+SET NOCOUNT ON
+
+UPDATE TB_REVIEW
+	SET SCREENING_CODE_SET_ID = @SCREENING_CODE_SET_ID
+,		SCREENING_MODE = @SCREENING_MODE
+,		SCREENING_RECONCILLIATION = @SCREENING_RECONCILLIATION
+,		SCREENING_WHAT_ATTRIBUTE_ID = @SCREENING_WHAT_ATTRIBUTE_ID
+,		SCREENING_N_PEOPLE = @SCREENING_N_PEOPLE
+,		SCREENING_AUTO_EXCLUDE = @SCREENING_AUTO_EXCLUDE
+--,		SCREENING_MODEL_RUNNING = @SCREENING_MODEL_RUNNING
+,		SCREENING_INDEXED = @SCREENING_INDEXED
+,		MAG_ENABLED = @MAG_ENABLED
+WHERE REVIEW_ID = @REVIEW_ID
+	
+
+SET NOCOUNT OFF
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewInsert]
+(
+	@REVIEW_NAME NVARCHAR(255),
+	@CONTACT_ID INT,
+	@NEW_REVIEW_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	INSERT INTO TB_REVIEW(REVIEW_NAME, FUNDER_ID, DATE_CREATED, MAG_ENABLED)
+	VALUES (@REVIEW_NAME, @CONTACT_ID, CURRENT_TIMESTAMP, 0)
+
+	SET @NEW_REVIEW_ID = @@IDENTITY
+	
+	DECLARE @NEW_CONTACT_REVIEW_ID INT
+	
+	INSERT INTO TB_REVIEW_CONTACT(CONTACT_ID, REVIEW_ID)
+	VALUES (@CONTACT_ID, @NEW_REVIEW_ID)
+	
+	SET @NEW_CONTACT_REVIEW_ID = @@IDENTITY
+	
+	INSERT INTO TB_CONTACT_REVIEW_ROLE(REVIEW_CONTACT_ID, ROLE_NAME)
+	VALUES(@NEW_CONTACT_REVIEW_ID, 'AdminUser')
+	
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewMagEnabled]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewMagEnabled]
+
+As
+
+SET NOCOUNT ON
+
+select * from TB_REVIEW where MAG_ENABLED > 0
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewMagEnabledUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewMagEnabledUpdate]
+(
+	@REVIEW_ID INT
+,	@MAG_ENABLED INT
+)
+As
+
+SET NOCOUNT ON
+
+UPDATE TB_REVIEW
+	SET MAG_ENABLED = @MAG_ENABLED
+	WHERE REVIEW_ID = @REVIEW_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSet]
+	-- Add the parameters for the stored procedure here
+	(
+	@REVIEW_SET_ID INT
+	)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT REVIEW_SET_ID, REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, SET_NAME,
+		SET_TYPE, CODING_IS_FINAL, SET_ORDER, MAX_DEPTH, S.SET_DESCRIPTION, S.ORIGINAL_SET_ID, USER_CAN_EDIT_URLS
+	FROM TB_REVIEW_SET RS
+	INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+	INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+
+	WHERE RS.REVIEW_SET_ID = @REVIEW_SET_ID
+	ORDER BY RS.SET_ORDER, RS.SET_ID
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetCheckCodingStatus]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetCheckCodingStatus]
+(
+	@SET_ID INT,
+	@REVIEW_ID INT,
+	@PROBLEMATIC_ITEM_COUNT INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT DISTINCT tis.ITEM_ID FROM TB_ITEM_SET tis
+	inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 0
+	WHERE SET_ID = @SET_ID AND IS_COMPLETED = 'FALSE'
+	
+	EXCEPT
+	
+	SELECT ITEM_ID FROM TB_ITEM_SET WHERE TB_ITEM_SET.SET_ID = @SET_ID AND IS_COMPLETED = 'TRUE'
+
+set @PROBLEMATIC_ITEM_COUNT = @@ROWCOUNT
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetControls]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetControls]
+(
+	@ITEM_SET_ID INT = NULL,
+	@SET_ID INT = NULL
+)
+
+As
+
+SET NOCOUNT ON
+
+IF (@SET_ID = 0)
+BEGIN
+	SELECT DISTINCT TB_ATTRIBUTE.ATTRIBUTE_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER
+	FROM TB_ITEM_SET
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ATTRIBUTE_TYPE ON TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	WHERE TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = 6 AND TB_ITEM_SET.ITEM_SET_ID = @ITEM_SET_ID
+	AND dbo.fn_IsAttributeInTree(TB_ATTRIBUTE.ATTRIBUTE_ID) = 1
+	ORDER BY TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ATTRIBUTE_SET.ATTRIBUTE_ORDER
+END
+ELSE
+BEGIN
+	SELECT DISTINCT TB_ATTRIBUTE.ATTRIBUTE_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER
+	FROM TB_ITEM_SET
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ATTRIBUTE_TYPE ON TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	WHERE TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = 6 AND TB_ITEM_SET.SET_ID = @SET_ID
+	AND dbo.fn_IsAttributeInTree(TB_ATTRIBUTE.ATTRIBUTE_ID) = 1
+	ORDER BY TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ATTRIBUTE_SET.ATTRIBUTE_ORDER
+END
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetDelete]
+(
+	@REVIEW_SET_ID INT,
+	@SET_ID INT,
+	@REVIEW_ID INT,
+	@SET_ORDER INT
+)
+
+As
+
+SET NOCOUNT ON
+
+
+-- HACK FOR CAMPBELL!! (Also protects against huge accidental data loss)
+
+UPDATE TB_REVIEW_SET
+	SET SET_ORDER = SET_ORDER -1
+	WHERE REVIEW_ID = @REVIEW_ID
+	AND SET_ORDER > @SET_ORDER
+
+DELETE FROM TB_REVIEW_SET WHERE REVIEW_SET_ID = @REVIEW_SET_ID and REVIEW_ID = @REVIEW_ID
+
+
+/*
+
+	SELECT TB_ITEM_SET.SET_ID FROM TB_ITEM_SET 
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_SET.ITEM_ID
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+	WHERE TB_ITEM_SET.SET_ID = @SET_ID AND TB_REVIEW_SET.REVIEW_SET_ID = @REVIEW_SET_ID
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+
+		DELETE FROM TB_REVIEW_SET WHERE REVIEW_SET_ID = @REVIEW_SET_ID
+
+		SELECT SET_ID FROM TB_REVIEW_SET WHERE SET_ID = @SET_ID
+
+		IF (@@ROWCOUNT = 0)
+		BEGIN
+			DELETE FROM TB_SET WHERE SET_ID = @SET_ID
+		END
+
+	END
+
+*/
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetDeleteWarning]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetDeleteWarning]
+(
+	@ATTRIBUTE_SET_ID BIGINT,
+	@SET_ID INT,
+	@NUM_ITEMS BIGINT OUTPUT,
+	@NUM_ALLOCATIONS int = 0 OUTPUT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+
+	SELECT @NUM_ITEMS = COUNT(DISTINCT TB_ITEM_SET.ITEM_ID) FROM TB_ITEM_SET
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_SET.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		WHERE TB_ITEM_SET.SET_ID = @SET_ID
+	Select @NUM_ALLOCATIONS = count(*) from TB_WORK_ALLOCATION w
+	inner join TB_ATTRIBUTE_SET tas on w.REVIEW_ID = @REVIEW_ID and tas.ATTRIBUTE_ID = w.ATTRIBUTE_ID and tas.SET_ID = @SET_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetInsert]
+(
+	@REVIEW_ID INT,
+	@SET_TYPE_ID INT = 3,
+	@ALLOW_CODING_EDITS BIT = false,
+	@SET_NAME NVARCHAR(255),
+	@CODING_IS_FINAL BIT = true,
+	@SET_ORDER INT = 0,
+	@SET_DESCRIPTION nvarchar(2000) = '',
+	@ORIGINAL_SET_ID int = null,
+	@NEW_REVIEW_SET_ID INT OUTPUT,
+	@NEW_SET_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	INSERT INTO TB_SET(SET_TYPE_ID, SET_NAME, SET_DESCRIPTION, ORIGINAL_SET_ID, USER_CAN_EDIT_URLS)
+		VALUES(@SET_TYPE_ID, @SET_NAME, @SET_DESCRIPTION, @ORIGINAL_SET_ID, 'False')
+
+	SET @NEW_SET_ID = @@IDENTITY
+
+	INSERT INTO TB_REVIEW_SET(REVIEW_ID, SET_ID, ALLOW_CODING_EDITS, CODING_IS_FINAL, SET_ORDER)
+		VALUES(@REVIEW_ID, @NEW_SET_ID, @ALLOW_CODING_EDITS, @CODING_IS_FINAL, @SET_ORDER)
+
+	SET @NEW_REVIEW_SET_ID = @@IDENTITY
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetInterventions]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetInterventions]
+(
+	@ITEM_SET_ID INT = NULL,
+	@SET_ID INT = NULL
+)
+
+As
+
+SET NOCOUNT ON
+IF (@SET_ID = 0)
+BEGIN
+	SELECT DISTINCT TB_ATTRIBUTE.ATTRIBUTE_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER
+	FROM TB_ITEM_SET
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ATTRIBUTE_TYPE ON TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	WHERE TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = 5 AND TB_ITEM_SET.ITEM_SET_ID = @ITEM_SET_ID
+	AND dbo.fn_IsAttributeInTree(TB_ATTRIBUTE.ATTRIBUTE_ID) = 1
+	ORDER BY TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ATTRIBUTE_SET.ATTRIBUTE_ORDER
+END
+ELSE
+BEGIN
+	SELECT DISTINCT TB_ATTRIBUTE.ATTRIBUTE_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER
+	FROM TB_ITEM_SET
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ATTRIBUTE_TYPE ON TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	WHERE TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = 5 AND TB_ITEM_SET.SET_ID = @SET_ID
+	AND dbo.fn_IsAttributeInTree(TB_ATTRIBUTE.ATTRIBUTE_ID) = 1
+	ORDER BY TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ATTRIBUTE_SET.ATTRIBUTE_ORDER
+END
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetMove]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetMove]
+(
+	@REVIEW_SET_ID BIGINT,
+	@NEW_SET_ORDER INT
+)
+
+As
+
+SET NOCOUNT ON
+
+DECLARE @OLD_SET_ORDER bigint
+DECLARE @SET_ID BIGINT
+DECLARE @REVIEW_ID int
+
+SELECT @OLD_SET_ORDER = SET_ORDER, @SET_ID = SET_ID, @REVIEW_ID = REVIEW_ID
+FROM TB_REVIEW_SET
+WHERE REVIEW_SET_ID = @REVIEW_SET_ID
+
+if @NEW_SET_ORDER < @OLD_SET_ORDER -- moving up
+begin
+	-- move existing to make room
+	UPDATE TB_REVIEW_SET
+		SET SET_ORDER = SET_ORDER + 1
+		WHERE REVIEW_ID = @REVIEW_ID
+		AND SET_ORDER >= @NEW_SET_ORDER
+		AND SET_ORDER < @OLD_SET_ORDER
+
+	-- change target
+	UPDATE TB_REVIEW_SET
+		SET SET_ORDER = @NEW_SET_ORDER
+		WHERE REVIEW_ID = @REVIEW_ID
+		and REVIEW_SET_ID = @REVIEW_SET_ID
+
+end
+else  -- moving down
+begin
+
+	-- move existing to make room
+	UPDATE TB_REVIEW_SET
+		SET SET_ORDER = SET_ORDER - 1
+		WHERE REVIEW_ID = @REVIEW_ID
+		AND SET_ORDER > @OLD_SET_ORDER
+		AND SET_ORDER <= @NEW_SET_ORDER
+
+	-- change target
+	UPDATE TB_REVIEW_SET
+		SET SET_ORDER = @NEW_SET_ORDER
+		WHERE REVIEW_ID = @REVIEW_ID
+		and REVIEW_SET_ID = @REVIEW_SET_ID
+
+end
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetOutcomes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetOutcomes]
+(
+	@ITEM_SET_ID INT = NULL,
+	@SET_ID INT = NULL
+)
+
+As
+
+SET NOCOUNT ON
+IF (@SET_ID = 0)
+BEGIN
+	SELECT DISTINCT TB_ATTRIBUTE.ATTRIBUTE_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER
+	FROM TB_ITEM_SET
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ATTRIBUTE_TYPE ON TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	WHERE TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = 4 AND TB_ITEM_SET.ITEM_SET_ID = @ITEM_SET_ID
+	AND dbo.fn_IsAttributeInTree(TB_ATTRIBUTE.ATTRIBUTE_ID) = 1
+	ORDER BY TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ATTRIBUTE_SET.ATTRIBUTE_ORDER
+END
+ELSE
+BEGIN
+	SELECT DISTINCT TB_ATTRIBUTE.ATTRIBUTE_ID, ATTRIBUTE_NAME, ATTRIBUTE_ORDER
+	FROM TB_ITEM_SET
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID
+	INNER JOIN TB_ATTRIBUTE_TYPE ON TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+	WHERE TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID = 4 AND TB_ITEM_SET.SET_ID = @SET_ID
+	AND dbo.fn_IsAttributeInTree(TB_ATTRIBUTE.ATTRIBUTE_ID) = 1
+	ORDER BY TB_ATTRIBUTE.ATTRIBUTE_NAME, TB_ATTRIBUTE_SET.ATTRIBUTE_ORDER
+END
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSets]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSets]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT REVIEW_SET_ID, REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, SET_NAME, SET_TYPE,
+		CODING_IS_FINAL, SET_ORDER, MAX_DEPTH, S.SET_DESCRIPTION, S.ORIGINAL_SET_ID, S.USER_CAN_EDIT_URLS
+	FROM TB_REVIEW_SET RS
+	INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+	INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+
+	WHERE RS.REVIEW_ID = @REVIEW_ID
+	ORDER BY RS.SET_ORDER, RS.SET_ID
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetsForCopy]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetsForCopy]
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int,
+	@CONTACT_ID int,
+	@PRIVATE_SETS bit
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	if @PRIVATE_SETS = 1
+	BEGIN
+		SELECT REVIEW_SET_ID, RS.REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, SET_NAME, SET_TYPE, CODING_IS_FINAL, SET_ORDER, MAX_DEPTH, S.SET_DESCRIPTION, S.ORIGINAL_SET_ID, USER_CAN_EDIT_URLS
+		FROM TB_REVIEW_SET RS
+		INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+		INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+		INNER JOIN TB_REVIEW_CONTACT rc on RS.REVIEW_ID = rc.REVIEW_ID and rc.CONTACT_ID = @CONTACT_ID
+		inner join TB_CONTACT_REVIEW_ROLE crr on rc.REVIEW_CONTACT_ID = crr.REVIEW_CONTACT_ID and ROLE_NAME = 'AdminUser'
+		WHERE RS.REVIEW_ID != @REVIEW_ID
+		ORDER BY RS.REVIEW_ID, RS.SET_ORDER, RS.SET_ID
+	END
+	ELSE
+	BEGIN
+		SELECT REVIEW_SET_ID, RS.REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, SET_NAME, SET_TYPE, CODING_IS_FINAL, SET_ORDER, MAX_DEPTH, S.SET_DESCRIPTION, S.ORIGINAL_SET_ID, USER_CAN_EDIT_URLS
+		FROM TB_REVIEW_SET RS
+		INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+		INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+		inner join ReviewerAdmin.dbo.TB_MANAGEMENT_SETTINGS ms on RS.REVIEW_ID = ms.PUBLIC_CODESETS_REVIEW_ID 
+		ORDER BY RS.REVIEW_ID, RS.SET_ORDER, RS.SET_ID
+	END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetUpdate]
+(
+	@REVIEW_SET_ID INT,
+	@SET_ID INT,
+	@ALLOW_CODING_EDITS BIT,
+	@CODING_IS_FINAL BIT,
+	@SET_NAME NVARCHAR(255),
+	@SET_ORDER INT,
+	@SET_DESCRIPTION nvarchar(2000),
+	@ITEM_SET_ID BIGINT = NULL,
+	@IS_COMPLETED BIT = NULL,
+	@IS_LOCKED BIT = NULL,
+	@REVIEW_ID INT,
+	@USER_CAN_EDIT_URLS BIT = 'False'
+)
+
+As
+
+SET NOCOUNT ON
+
+
+declare @check int = 0
+set @check = (select count(REVIEW_SET_ID) from 
+TB_REVIEW_SET where REVIEW_SET_ID = @REVIEW_SET_ID and REVIEW_ID = @REVIEW_ID)
+if(@check != 1) return
+
+UPDATE TB_SET SET SET_NAME = @SET_NAME, SET_DESCRIPTION = @SET_DESCRIPTION, USER_CAN_EDIT_URLS = @USER_CAN_EDIT_URLS
+	WHERE SET_ID = @SET_ID
+UPDATE TB_REVIEW_SET SET ALLOW_CODING_EDITS = @ALLOW_CODING_EDITS,
+	CODING_IS_FINAL = @CODING_IS_FINAL,
+	SET_ORDER = @SET_ORDER
+WHERE REVIEW_SET_ID = @REVIEW_SET_ID
+	
+IF (@ITEM_SET_ID > 0)
+BEGIN
+	UPDATE TB_ITEM_SET
+	SET IS_COMPLETED = @IS_COMPLETED, IS_LOCKED = @IS_LOCKED
+	WHERE ITEM_SET_ID = @ITEM_SET_ID
+END
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetUpdateOrder]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewSetUpdateOrder]
+(
+	@REVIEW_SET_ID INT,
+	@OLD_SET_ORDER INT,
+	@NEW_SET_ORDER INT,
+	@REVIEW_ID INT
+	
+)
+
+As
+
+SET NOCOUNT ON
+
+	UPDATE TB_REVIEW_SET
+	SET SET_ORDER = SET_ORDER -1
+	WHERE REVIEW_ID = @REVIEW_ID AND SET_ORDER > @OLD_SET_ORDER
+	
+	UPDATE TB_REVIEW_SET
+	SET SET_ORDER = SET_ORDER +1
+	WHERE REVIEW_ID = @REVIEW_ID AND SET_ORDER >= @NEW_SET_ORDER
+	
+	UPDATE TB_REVIEW_SET
+	SET SET_ORDER = @NEW_SET_ORDER
+	WHERE REVIEW_SET_ID = @REVIEW_SET_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewStatisticsCodeSetsComplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewStatisticsCodeSetsComplete]
+(
+	@REVIEW_ID INT
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+SELECT SET_NAME, TB_ITEM_SET.SET_ID, COUNT(DISTINCT TB_ITEM_SET.ITEM_ID) AS TOTAL
+FROM TB_ITEM_SET
+INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.REVIEW_ID = TB_REVIEW_SET.REVIEW_ID AND TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_SET.ITEM_ID
+INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND IS_DELETED = 'FALSE'
+GROUP BY TB_ITEM_SET.SET_ID, SET_NAME
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewStatisticsCodeSetsIncomplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewStatisticsCodeSetsIncomplete]
+(
+	@REVIEW_ID INT
+)
+WITH RECOMPILE
+As
+
+SET NOCOUNT ON
+
+SELECT SET_NAME, SET_ID, COUNT(DISTINCT ITEM_ID) AS TOTAL
+FROM 
+(
+	SELECT SET_NAME AS SET_NAME, IS1.SET_ID, IS1.ITEM_ID FROM 
+	TB_ITEM_SET IS1
+	INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = IS1.SET_ID
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.REVIEW_ID = TB_REVIEW_SET.REVIEW_ID AND TB_ITEM_REVIEW.ITEM_ID = IS1.ITEM_ID
+	INNER JOIN TB_SET ON TB_SET.SET_ID = IS1.SET_ID
+	WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND IS1.IS_COMPLETED = 'FALSE' AND IS_DELETED != 'TRUE'
+	
+	EXCEPT
+	
+	SELECT SET_NAME, IS2.SET_ID, IS2.ITEM_ID
+	FROM TB_ITEM_SET IS2
+	INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = IS2.ITEM_ID AND IR2.REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'TRUE'
+	INNER JOIN TB_SET ON TB_SET.SET_ID = IS2.SET_ID
+	WHERE IS2.IS_COMPLETED = 'TRUE'
+) AS X
+
+GROUP BY SET_ID, SET_NAME
+
+
+/*
+SELECT SET_NAME, IS1.SET_ID, COUNT(DISTINCT IS1.ITEM_ID) AS TOTAL
+FROM TB_ITEM_SET IS1
+INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = IS1.SET_ID
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.REVIEW_ID = TB_REVIEW_SET.REVIEW_ID AND TB_ITEM_REVIEW.ITEM_ID = IS1.ITEM_ID
+INNER JOIN TB_SET ON TB_SET.SET_ID = IS1.SET_ID
+WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND IS1.IS_COMPLETED = 'FALSE'
+AND NOT IS1.ITEM_ID IN
+(
+	SELECT IS2.ITEM_ID
+	FROM TB_ITEM_SET IS2
+	INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = IS2.ITEM_ID AND IR2.REVIEW_ID = @REVIEW_ID
+	WHERE IS2.IS_COMPLETED = 'TRUE' AND IS2.SET_ID = IS1.SET_ID
+)
+GROUP BY IS1.SET_ID, SET_NAME
+*/
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewStatisticsCodeSetsReviewersComplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewStatisticsCodeSetsReviewersComplete]
+(
+	@REVIEW_ID INT,
+	@SET_ID INT
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+SELECT SET_NAME, TB_ITEM_SET.SET_ID, TB_ITEM_SET.CONTACT_ID, CONTACT_NAME, COUNT(DISTINCT TB_ITEM_SET.ITEM_ID) AS TOTAL
+FROM TB_ITEM_SET
+INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.REVIEW_ID = TB_REVIEW_SET.REVIEW_ID AND TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_SET.ITEM_ID
+INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' and IS_DELETED = 'FALSE'
+	AND TB_ITEM_SET.SET_ID = @SET_ID
+GROUP BY TB_ITEM_SET.SET_ID, SET_NAME, TB_ITEM_SET.CONTACT_ID, CONTACT_NAME
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewStatisticsCodeSetsReviewersIncomplete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewStatisticsCodeSetsReviewersIncomplete]
+(
+	@REVIEW_ID INT,
+	@SET_ID INT 
+)
+with recompile
+As
+
+SET NOCOUNT ON
+--the local variables here stop all sniffing possibilities, according to:
+--https://stackoverflow.com/questions/440944/sql-server-query-fast-but-slow-from-procedure
+--and: http://www.sqlpointers.com/2006/11/parameter-sniffing-stored-procedures.html
+DECLARE @rid INT
+set @rid = @REVIEW_ID
+DECLARE @sid INT 
+SET @sid = @SET_ID
+
+declare @t table (ItemId bigint primary key)
+declare @unt table (ItemId bigint primary key)
+insert into @t SELECT distinct IS2.ITEM_ID
+	FROM TB_ITEM_SET IS2
+	INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = IS2.ITEM_ID AND IR2.REVIEW_ID = @rid
+	WHERE IS2.IS_COMPLETED = 'TRUE' AND IS2.SET_ID = @sid AND IR2.IS_DELETED = 'FALSE'
+	--option (optimize for unknown)
+--select @@ROWCOUNT
+
+insert into @unt SELECT distinct IS2.ITEM_ID
+	FROM TB_ITEM_SET IS2
+	INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = IS2.ITEM_ID AND IR2.REVIEW_ID = @rid
+	WHERE IS2.IS_COMPLETED = 'FALSE' AND IS2.SET_ID = @sid AND IR2.IS_DELETED = 'FALSE'
+	AND NOT IR2.ITEM_ID IN
+	(
+		select ItemId from @t
+	)
+	--option (optimize for unknown)
+--select @@ROWCOUNT
+
+SELECT SET_NAME, IS1.SET_ID, IS1.CONTACT_ID, CONTACT_NAME, COUNT(DISTINCT IS1.ITEM_ID) AS TOTAL
+FROM @unt un Inner Join TB_ITEM_SET IS1 on IS1.ITEM_ID = un.ItemId and IS1.SET_ID = @sid
+INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = IS1.SET_ID
+INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.REVIEW_ID = TB_REVIEW_SET.REVIEW_ID AND TB_ITEM_REVIEW.ITEM_ID = IS1.ITEM_ID
+INNER JOIN TB_SET ON TB_SET.SET_ID = IS1.SET_ID
+INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = IS1.CONTACT_ID
+WHERE TB_ITEM_REVIEW.REVIEW_ID = @rid AND IS1.IS_COMPLETED = 'FALSE' 
+--AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE' 
+GROUP BY IS1.SET_ID, SET_NAME, IS1.CONTACT_ID, CONTACT_NAME
+--option (optimize for unknown)
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewStatisticsCounts]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewStatisticsCounts]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT COUNT (DISTINCT ITEM_ID) FROM TB_ITEM_REVIEW
+	WHERE REVIEW_ID = @REVIEW_ID
+	AND IS_INCLUDED = 'TRUE'
+	AND IS_DELETED = 'FALSE'
+	
+SELECT COUNT (DISTINCT ITEM_ID) FROM TB_ITEM_REVIEW
+	WHERE REVIEW_ID = @REVIEW_ID
+	AND IS_INCLUDED = 'FALSE'
+	AND IS_DELETED = 'FALSE'
+	
+SELECT COUNT (DISTINCT ITEM_ID) FROM TB_ITEM_REVIEW
+	WHERE REVIEW_ID = @REVIEW_ID
+	AND IS_DELETED = 'TRUE'
+	
+SELECT COUNT (DISTINCT ITEM_ID) FROM TB_ITEM_REVIEW
+	WHERE REVIEW_ID = @REVIEW_ID
+	AND IS_DELETED = 'TRUE' and MASTER_ITEM_ID is not null
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewWorkAllocation]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewWorkAllocation]
+(
+	@REVIEW_ID INT
+)
+With recompile
+As
+
+SELECT CONTACT_NAME, TB_WORK_ALLOCATION.CONTACT_ID, SET_NAME, TB_WORK_ALLOCATION.SET_ID,
+	WORK_ALLOCATION_ID, ATTRIBUTE_NAME, TB_WORK_ALLOCATION.ATTRIBUTE_ID,
+	
+	(SELECT COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND IS_DELETED = 'FALSE'
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID)
+		AS TOTAL_ALLOCATION,
+		
+		
+		(SELECT COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID
+			AND TB_ITEM_ATTRIBUTE.ITEM_ID IN
+			(
+				SELECT ITEM_ID FROM TB_ITEM_SET WHERE TB_ITEM_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID AND 
+					TB_ITEM_SET.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID
+			))
+		AS TOTAL_STARTED
+		
+FROM TB_WORK_ALLOCATION
+
+INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID
+INNER JOIN TB_SET ON TB_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID
+INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID
+
+WHERE REVIEW_ID = @REVIEW_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewWorkAllocationCheckOrInsertFromWizard]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		SG
+-- Create date: <Create Date,,>
+-- Description:	Used to create Coding assignments, given "abstract" requirements generated on client side.
+-- WILL CREATE codes and coding Assignments, or generate previews, depending on parameters.
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewWorkAllocationCheckOrInsertFromWizard]
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID int 
+	,@IsPreview int = 1
+	,@Requestor_id int 
+	,@FILTER_TYPE NVARCHAR(255)
+	,@ATTRIBUTE_ID_FILTER bigint
+	,@SET_ID_FILTER INT = 0
+	,@Destination_Attribute_ID bigint = -1
+	,@Destination_set_ID int = -1
+	,@PercentageOfWholePot int
+	,@INCLUDED BIT
+	,@Work_to_do_setID int = -1
+	,@OneGroupPerPerson bit = 0
+	,@PeoplePerItem int = 1
+	,@ReviewersIds varchar(8000) = ''
+	,@ReviewerNames varchar(8000) = ''
+	,@ItemsPerEachReviewer varchar(8000) = ''
+	,@GroupsPrefix varchar(100) = ''
+    ,@NumberOfItemsToAssign int = 0
+	,@NumberOfAffectedItems int = 0 OUTPUT
+	,@Success bit = 1 OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	set @Success = 1
+	declare @ppl table (IDX int, C_ID int primary key, C_name nvarchar(255), N_items int, Remaining int, destination bigint null, work_alloc_id int null) --we need IDX to keep things in order
+	declare @Items table (IID bigint, ui uniqueidentifier, Reviewer1 int null, Reviewer2 int null, Reviewer3 int null, destination bigint null, work_alloc_id int null, primary key(IID, ui))
+	declare @SharedPots table (Reviewer1 int null, Reviewer2 int null, Reviewer3 int null, destination bigint null, work_alloc_id int null)
+
+	--FIRST build table for people and N of items they should get.
+	insert into @ppl select a.idx, a.value, b.value, c.value, c.value, null, null
+		from dbo.fn_Split_int(@ReviewersIds, ',') a 
+		inner join TB_REVIEW_CONTACT rc on a.value = rc.CONTACT_ID and rc.REVIEW_ID = @REVIEW_ID
+		inner join dbo.fn_Split(@ReviewerNames, ',') b on b.idx = a.idx
+		inner join dbo.fn_Split_int(@ItemsPerEachReviewer, ',') c on c.idx = b.idx
+	
+	--SECOND: get the items we need, with NEWID() for random order
+	--THIS USES the SAME logic as st_RandomAllocate!!
+	IF (@FILTER_TYPE = 'No code / coding tool filter' OR @FILTER_TYPE = 'No code / code set filter')
+	BEGIN
+	INSERT INTO @Items(IID, ui)
+		SELECT TOP (@PercentageOfWholePot) PERCENT ITEM_ID, NEWID() as uuu FROM TB_ITEM_REVIEW
+			WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+				AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+				AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			ORDER BY uuu
+	END	
+	-- FILTER BY ALL WITH THIS ATTRIBUTE
+	ELSE IF (@FILTER_TYPE = 'All with this code')
+	BEGIN
+	INSERT INTO @Items(IID, ui)
+		SELECT TOP (@PercentageOfWholePot) PERCENT TB_ITEM_ATTRIBUTE.ITEM_ID, NEWID() as uuu FROM TB_ITEM_ATTRIBUTE
+			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID_FILTER
+				AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+				AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			ORDER BY uuu
+	END
+	-- FILTER BY ALL WITHOUT THIS ATTRIBUTE
+	ELSE IF (@FILTER_TYPE = 'All without this code')
+	BEGIN
+	INSERT INTO @Items(IID, ui)
+		SELECT TOP (@PercentageOfWholePot) PERCENT ITEM_ID, NEWID() as uuu  FROM TB_ITEM_REVIEW
+			WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+				AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+				AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+				AND NOT ITEM_ID IN
+				(
+					SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+					INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+					INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+					WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID_FILTER AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+				)
+		ORDER BY uuu
+	END
+	-- FILTER BY 'ALL WITHOUT ANY CODES FROM THIS SET'
+	ELSE IF (@FILTER_TYPE = 'All without any codes from this set' OR @FILTER_TYPE = 'All without any codes from this coding tool')
+	BEGIN
+	INSERT INTO @Items(IID, ui)
+		SELECT TOP (@PercentageOfWholePot) PERCENT ITEM_ID, NEWID() as uuu  FROM TB_ITEM_REVIEW
+			WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+			AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			AND NOT ITEM_ID IN
+			(
+			SELECT TB_ITEM_SET.ITEM_ID FROM TB_ITEM_SET
+				INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_SET.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+				WHERE TB_ITEM_SET.SET_ID = @SET_ID_FILTER AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			)
+		ORDER BY uuu
+	END
+	-- FILTER BY 'ALL WITH ANY CODES FROM THIS SET'
+	ELSE IF (@FILTER_TYPE = 'All with any codes from this set' OR @FILTER_TYPE = 'All with any codes from this coding tool')
+	BEGIN
+	INSERT INTO @Items(IID, ui)
+		SELECT TOP (@PercentageOfWholePot) PERCENT TB_ITEM_REVIEW.ITEM_ID, NEWID() as uuu  FROM TB_ITEM_REVIEW
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+				AND TB_ITEM_SET.SET_ID = @SET_ID_FILTER
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+			AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		ORDER BY uuu
+	END
+	select @NumberOfAffectedItems =  count(*) from @Items --Used to check if the expected numbers are still valid. It is also an OUTPUT param, so rest of the APP will know how many
+
+	--STOP HERE if we're only getting a preview...
+	IF @IsPreview = 1
+	BEGIN
+		delete from @ppl
+		delete from @Items
+		return 
+	END
+
+	--Sanity check did we get the right number of items??
+	--First check is: we got N items from DB, does this correspond to the expected N?
+	--Second check is: does the N of items to be coded by each person add up to the expected figure?
+	--happens AFTER [IF @IsPreview = 1] because in that case, we are merely collecting the figures.
+	IF @NumberOfItemsToAssign != @NumberOfAffectedItems OR (select (Sum(N_items)) from @ppl) != @NumberOfItemsToAssign * @PeoplePerItem
+	BEGIN
+		--do something, this isn't right!
+		delete from @ppl
+		delete from @Items
+		set @Success = 0 --this failed, user needs to recalculate amounts, as number of items in pot has probably changed :-(
+		return
+	END
+
+	--NOW we need to add reviewers to each item in our table variable @Items.
+	--first column always gets filled.
+	declare @maxTries int = (select count(*) from @ppl), @tries int = 0
+	declare @CurrentPerson int, @remaining int
+	while ((select count(*) from @Items where Reviewer1 is null) > 0 AND @tries <= @maxTries)
+	BEGIN
+		set @CurrentPerson = (select top(1) C_ID from @ppl where Remaining > 0 order by IDX)
+		set @remaining = (select top(1) Remaining from @ppl where C_ID = @CurrentPerson)
+	
+		update A set Reviewer1 = @CurrentPerson
+		from (select top(@remaining) * from @Items where Reviewer1 is null order by ui) as A
+		set @remaining = @remaining - @@ROWCOUNT
+		update @ppl set remaining = @remaining where C_ID = @CurrentPerson
+		set @tries = @tries + 1
+	END
+	--Fill in the second colum, if needed
+	IF @PeoplePerItem > 1
+	BEGIN
+		set @tries = 0
+		while ((select count(*) from @Items where Reviewer2 is null) > 0 AND @tries <= @maxTries)
+		BEGIN
+			set @CurrentPerson = (select top(1) C_ID from @ppl where Remaining > 0 order by IDX)
+			set @remaining = (select top(1) Remaining from @ppl where C_ID = @CurrentPerson)
+			update A set Reviewer2 = @CurrentPerson
+			from (select top(@remaining) * from @Items where Reviewer2 is null order by ui) as A
+			set @remaining = @remaining - @@ROWCOUNT
+			update @ppl set remaining = @remaining where C_ID = @CurrentPerson
+			set @tries = @tries + 1
+		END
+		--select reviewer2, p.C_name, count(ui), Remaining from @Items i inner join @ppl p on i.Reviewer2 = p.C_ID group by reviewer2, p.C_name, Remaining order by reviewer2 
+	END
+	--Fill in the third colum, if needed
+	IF @PeoplePerItem > 2
+	BEGIN
+		set @tries = 0
+		while ((select count(*) from @Items where Reviewer3 is null) > 0 AND @tries <= @maxTries)
+		BEGIN
+			set @CurrentPerson = (select top(1) C_ID from @ppl where Remaining > 0 order by IDX)
+			set @remaining = (select top(1) Remaining from @ppl where C_ID = @CurrentPerson)
+			update A set Reviewer3 = @CurrentPerson
+			from (select top(@remaining) * from @Items where Reviewer3 is null order by ui) as A
+			set @remaining = @remaining - @@ROWCOUNT
+			update @ppl set remaining = @remaining where C_ID = @CurrentPerson
+			set @tries = @tries + 1
+		END
+		--select reviewer3, p.C_name, count(ui), Remaining from @Items i inner join @ppl p on i.Reviewer3 = p.C_ID group by reviewer3, p.C_name, Remaining order by reviewer3 
+	END
+
+	--SECOND kind of preview: tell me what you'd do in detail...
+	IF @IsPreview = 2 
+	BEGIN
+		--We return data in different "shapes", because we want it to be understandable by users...
+		if @OneGroupPerPerson = 0
+		begin
+			--we would create the minimum amount of groups, and then one allocation per group, per person
+			select distinct --Reviewer1, Reviewer2, Reviewer3,
+				Case WHEN Reviewer3 is null and Reviewer2 is null then 'One group (' + p1.C_name + ')'
+					WHEN  Reviewer3 is null then 'One group (' + p1.C_name + ', ' + p2.C_name  + ')'
+					ELSE 'One group (' + p1.C_name + ', ' + p2.C_name  + ', ' + p3.C_name  + ')'
+				END as [Description]
+				,Case WHEN Reviewer3 is null and Reviewer2 is null then '1'
+					WHEN  Reviewer3 is null then '2'
+					ELSE '3'
+				END as [Number of Allocations]
+			from @Items i 
+			inner join @ppl p1 on i.Reviewer1 = p1.C_ID
+			left join @ppl p2 on i.Reviewer2 = p2.C_ID
+			left join @ppl p3 on i.Reviewer3 = p3.C_ID
+		end
+		else
+		begin
+			--In this case, we get one group and one allocation per person, but each person might "bleed" into the "round" (might confuse?)
+			SELECT [Reviewer], [Role], [Items in allocation] from 
+			(
+				select IDX, C_name [Reviewer], 'First reviewer' [Role], CAST(count(*) as varchar(10)) [Items in allocation] 
+				from @ppl p 
+				inner join  @Items i  on p.C_ID = i.Reviewer1
+				group by C_name, IDX
+				UNION
+				select IDX, C_name [Reviewer], 'Second reviewer' [Role], CAST(count(*) as varchar(10)) [Items in allocation] 
+				from @ppl p 
+				inner join  @Items i  on p.C_ID = i.Reviewer2
+				group by C_name, IDX
+				UNION
+				select IDX, C_name [Reviewer], 'Third reviewer' [Role], CAST(count(*) as varchar(10)) [Items in allocation] 
+				from @ppl p 
+				inner join  @Items i  on p.C_ID = i.Reviewer3
+				group by C_name, IDX
+			) AS A
+			order by [Role], IDX --WE order BY IDX so to ensure that when one person bleeds into the next round, the two rows for that person are shown together.
+		end
+		delete from @ppl
+		delete from @Items
+		return
+	END
+
+	--LOGIC is again inspired by st_RandomAllocate!!
+	--TIME to start making changes, all wrapped within a transaction (XACT_ABORT ON) so to ensure we always do all or nothing
+	--we'll set the Success value to failure here, and again to success before closing the transaction.
+	set @Success = 0
+	SET XACT_ABORT ON  
+	BEGIN TRAN --all or nothing, see: https://docs.microsoft.com/en-us/sql/t-sql/language-elements/rollback-transaction-transact-sql?view=sql-server-2017
+		
+		--We have two big IF-ELSE blocks, but these variables are used in both.
+		DECLARE @MAX_INDEX INT = 0 --used for the order of new attributes create
+		SELECT @MAX_INDEX = MAX(ATTRIBUTE_ORDER) + 1 FROM TB_ATTRIBUTE_SET WHERE PARENT_ATTRIBUTE_ID = @Destination_Attribute_ID AND SET_ID = @Destination_set_ID
+		IF (@MAX_INDEX IS NULL) SET @MAX_INDEX = 0
+		DECLARE @DUMMY_OUTPUT BIGINT = NULL -- WE'll use it once without looking, then again to store  work allocation IDs
+		DECLARE @GroupName nvarchar(255), @GROUP1 bigint
+		set @tries = 0
+		IF @OneGroupPerPerson = 1
+			--We are using the strategy where each person gets their own allocation code and their own coding assignment
+			BEGIN
+			--ALL insertions happen within this loop:
+			--new Attributes, new ITEM_SET (as/if needed), new ITEM_ATTRIBUTE, new coding assignments (in this order)
+			while (@tries < @maxTries) --we loop, just as many times as there are rows in the ppl table
+			BEGIN
+				set @CurrentPerson = (select top(1) C_ID from @ppl where destination is null order by IDX)
+				set @GroupName = @GroupsPrefix + ' (' + (select C_name from @ppl where C_ID = @CurrentPerson) + ')'
+				--Create the allocation codes
+				EXECUTE st_AttributeSetInsert @Destination_set_ID, @Destination_Attribute_ID, 1, '', @MAX_INDEX
+						, @GroupName, '', @Requestor_id, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP1 OUTPUT
+				update @ppl set destination = @GROUP1 where C_ID = @CurrentPerson
+
+				--Create ITEM_SET records, we can do all of this in one go, so only the first time round
+				IF @tries = 0
+				BEGIN
+					INSERT INTO TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID) 
+						SELECT ids.IID, @Destination_set_ID, 'True', @Requestor_id FROM @Items ids
+						EXCEPT
+						SELECT ITEM_ID, @Destination_set_ID, 'True', @Requestor_id FROM TB_ITEM_SET WHERE TB_ITEM_SET.SET_ID = @Destination_set_ID AND IS_COMPLETED = 'True'
+				END 
+				--We can now assign items to codes
+				INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+						SELECT ITEM_ID, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @Items ids
+						INNER JOIN @ppl p on 
+							(ids.Reviewer1 = @CurrentPerson OR ids.Reviewer2 = @CurrentPerson OR ids.Reviewer3 = @CurrentPerson)
+						INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.IID AND p.destination = @GROUP1
+						WHERE TB_ITEM_SET.SET_ID = @Destination_set_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				SET @MAX_INDEX = @MAX_INDEX + 1
+			
+
+				--phew. We can finish by creating the coding assignment for @CurrentPerson
+				EXECUTE [dbo].[st_ReviewWorkAllocationInsert] 
+				   @REVIEW_ID
+				  ,@CurrentPerson
+				  ,@Work_to_do_setID
+				  ,@GROUP1
+				  ,@NEW_WORK_ALLOCATION_ID = @DUMMY_OUTPUT OUTPUT
+				update @ppl set work_alloc_id = @DUMMY_OUTPUT where C_ID = @CurrentPerson
+				set @tries = @tries + 1
+			END
+		END
+		ELSE BEGIN
+			-- we will "share" allocation codes between people (more allocations need to be created!)
+			-- basic logic is: within @items table, we need one pot for each combination of (Reviewer1, Reviewer2, Reviewer3) we can store single combinations in @SharedPots 
+			INSERT into @SharedPots select distinct Reviewer1,Reviewer2,Reviewer3, null,null from @Items
+			
+			select * from @SharedPots
+			select @maxTries = count(*) from @SharedPots
+			select @maxTries
+			declare @group_desc nvarchar(2000)
+			--ALL insertions happen within this loop:
+			--new Attributes, new ITEM_SET (as/if needed), new ITEM_ATTRIBUTE, new coding assignments (in this order)
+			while (@tries < @maxTries) --we loop, just as many times as there are rows in the @SharedPots table
+			BEGIN
+				--We'll create a shared pot for each row in @SharedPots, assign it to all people in that row.
+				select @group_desc = (select top(1) 'Used for: ' + p.C_name +
+															CASE WHEN Reviewer2 IS null then '' else  ', ' + p2.C_name END
+															+ 
+															CASE when Reviewer3 IS null then '' else  ', ' + p3.C_name END
+															+ '.'
+														from @SharedPots sp
+															inner join @ppl p on sp.Reviewer1 = p.C_ID
+															left join @ppl p2 on sp.Reviewer2 = p2.C_ID
+															left join @ppl p3 on sp.Reviewer3 = p3.C_ID
+														where sp.destination is null)
+				select @GroupName = @GroupsPrefix + ' (group ' + CAST((@tries+1) as varchar(10)) +')'
+				--Create the allocation codes
+				EXECUTE st_AttributeSetInsert @Destination_set_ID, @Destination_Attribute_ID, 1, @group_desc, @MAX_INDEX
+						, @GroupName, @group_desc, @Requestor_id, @NEW_ATTRIBUTE_SET_ID = @DUMMY_OUTPUT OUTPUT, @NEW_ATTRIBUTE_ID = @GROUP1 OUTPUT
+				update a set destination = @GROUP1
+					from (select top(1) * from @SharedPots where destination is null) as a
+				
+				select * from @SharedPots
+				
+				--Create ITEM_SET records, we can do all of this in one go, so only the first time round
+				IF @tries = 0
+				BEGIN
+					INSERT INTO TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID) 
+						SELECT ids.IID, @Destination_set_ID, 'True', @Requestor_id FROM @Items ids
+						EXCEPT
+						SELECT ITEM_ID, @Destination_set_ID, 'True', @Requestor_id FROM TB_ITEM_SET WHERE TB_ITEM_SET.SET_ID = @Destination_set_ID AND IS_COMPLETED = 'True'
+				END 
+
+				--We can now assign items to codes
+				INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+						SELECT ITEM_ID, TB_ITEM_SET.ITEM_SET_ID, @GROUP1 FROM @Items ids
+						INNER JOIN @SharedPots sp on 
+							sp.destination = @GROUP1
+							and
+							(
+								ids.Reviewer1 = sp.Reviewer1 
+								AND (ids.Reviewer2 = sp.Reviewer2 OR (ids.Reviewer2 is null and sp.Reviewer2 is null)) 
+								AND (ids.Reviewer3 = sp.Reviewer3 OR (ids.Reviewer3 is null and sp.Reviewer3 is null))
+							)
+						INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_ID = ids.IID
+						WHERE TB_ITEM_SET.SET_ID = @Destination_set_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+				SET @MAX_INDEX = @MAX_INDEX + 1
+				
+				--phew. We can finish by creating the coding assignment for each person in shared port
+				select @CurrentPerson = Reviewer1 from @SharedPots where destination = @GROUP1
+				EXECUTE [dbo].[st_ReviewWorkAllocationInsert] 
+				   @REVIEW_ID
+				  ,@CurrentPerson
+				  ,@Work_to_do_setID
+				  ,@GROUP1
+				  ,@NEW_WORK_ALLOCATION_ID = @DUMMY_OUTPUT OUTPUT
+				update @SharedPots set work_alloc_id = @DUMMY_OUTPUT where destination = @GROUP1
+
+				select @CurrentPerson = Reviewer2 from @SharedPots where destination = @GROUP1
+				--IF people per item = 1, there is nothing in Reviewer2 column from @SharedPots
+				IF @CurrentPerson is not null
+				begin
+						EXECUTE [dbo].[st_ReviewWorkAllocationInsert] 
+						   @REVIEW_ID
+						  ,@CurrentPerson
+						  ,@Work_to_do_setID
+						  ,@GROUP1
+						  ,@NEW_WORK_ALLOCATION_ID = @DUMMY_OUTPUT OUTPUT
+
+						select @CurrentPerson = Reviewer3 from @SharedPots where destination = @GROUP1
+						--IF people per item = 2, there is nothing in Reviewer3 column from @SharedPots
+						IF @CurrentPerson is not null
+						begin
+							EXECUTE [dbo].[st_ReviewWorkAllocationInsert] 
+							   @REVIEW_ID
+							  ,@CurrentPerson
+							  ,@Work_to_do_setID
+							  ,@GROUP1
+							  ,@NEW_WORK_ALLOCATION_ID = @DUMMY_OUTPUT OUTPUT
+						END
+				END
+				set @tries = @tries + 1
+			END
+			select 'todo'
+		END
+		--We reached this point without error, so we've succeeded (presumably)
+		set @Success = 1
+	COMMIT TRAN
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewWorkAllocationContact]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewWorkAllocationContact]
+(
+	@REVIEW_ID INT, 
+	@CONTACT_ID INT
+)
+with recompile
+As
+
+SELECT CONTACT_NAME, TB_WORK_ALLOCATION.CONTACT_ID, SET_NAME, TB_WORK_ALLOCATION.SET_ID,
+	WORK_ALLOCATION_ID, ATTRIBUTE_NAME, TB_WORK_ALLOCATION.ATTRIBUTE_ID,
+	
+	(SELECT COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID)
+		AS TOTAL_ALLOCATION,
+		
+		(SELECT COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID
+			AND TB_ITEM_ATTRIBUTE.ITEM_ID IN
+			(
+				SELECT ITEM_ID FROM TB_ITEM_SET WHERE TB_ITEM_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID AND 
+					TB_ITEM_SET.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID
+			))
+		AS TOTAL_STARTED
+
+FROM TB_WORK_ALLOCATION
+
+INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID
+INNER JOIN TB_SET ON TB_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID
+INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID
+
+WHERE TB_WORK_ALLOCATION.REVIEW_ID = @REVIEW_ID AND TB_WORK_ALLOCATION.CONTACT_ID = @CONTACT_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewWorkAllocationDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewWorkAllocationDelete]
+(
+	@WORK_ALLOCATION_ID INT,
+	@REVIEW_ID INT
+)
+
+As
+
+declare @check int = 0
+set @check = (select count(WORK_ALLOCATION_ID) from TB_WORK_ALLOCATION 
+where WORK_ALLOCATION_ID= @WORK_ALLOCATION_ID and REVIEW_ID = @REVIEW_ID)
+if (@check != 1) return
+
+
+DELETE FROM TB_WORK_ALLOCATION
+WHERE WORK_ALLOCATION_ID = @WORK_ALLOCATION_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewWorkAllocationInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ReviewWorkAllocationInsert]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@SET_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	
+	@NEW_WORK_ALLOCATION_ID INT OUTPUT
+)
+
+As
+
+/* ADD TO THIS THE RETRIEVAL OF ROLES */
+
+INSERT INTO TB_WORK_ALLOCATION (CONTACT_ID, SET_ID, REVIEW_ID, ATTRIBUTE_ID)
+VALUES (@CONTACT_ID, @SET_ID, @REVIEW_ID, @ATTRIBUTE_ID)
+
+SET @NEW_WORK_ALLOCATION_ID = @@IDENTITY
+GO
+/****** Object:  StoredProcedure [dbo].[st_ScreeningCreateMLList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ScreeningCreateMLList]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@WHAT_ATTRIBUTE_ID BIGINT,
+	@SCREENING_MODE nvarchar(10),
+	@CODE_SET_ID INT,
+	@TRAINING_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE @TP INT
+	DECLARE @TN INT
+
+	-- ***** FIRST, GET THE STATS IN TERMS OF # ITEMS SCREENED TO POPULATE THE TRIANING TABLE (GIVES US THE GRAPH ON THE SCREENING TAB)
+	SELECT @TP = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID = 10
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			AND TB_ITEM_SET.SET_ID = @CODE_SET_ID
+
+	SELECT @TN = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID = 11
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			AND TB_ITEM_SET.SET_ID = @CODE_SET_ID
+
+	-- ********** SECOND, ENTER THE LIST OF ITEMS INTO TB_TRAINING_ITEM ACCORDING TO WHETHER WE'RE FILTERING BY AN ATTRIBUTE OR DOING THE WHOLE REVIEW
+
+	IF @WHAT_ATTRIBUTE_ID > 0  -- i.e. we're filtering by a code
+	BEGIN
+		INSERT INTO TB_TRAINING_ITEM(TRAINING_ID, ITEM_ID, CONTACT_ID_CODING, [RANK], SCORE)
+			SELECT @TRAINING_ID, AZ.ITEM_ID, 0, 0, AZ.SCORE
+				FROM TB_SCREENING_ML_TEMP AZ
+			INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = AZ.ITEM_ID AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @WHAT_ATTRIBUTE_ID
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			INNER JOIN TB_ITEM_REVIEW IR ON IR.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND IR.REVIEW_ID = @REVIEW_ID
+			WHERE NOT AZ.ITEM_ID IN
+				(SELECT ITEM_ID FROM TB_ITEM_SET WHERE IS_COMPLETED = 'TRUE' AND SET_ID = @CODE_SET_ID) AND AZ.REVIEW_ID = @REVIEW_ID
+			ORDER BY AZ.SCORE DESC
+			
+	END
+	ELSE -- NOT FILTERING BY A CODE, SO EVERYTHING IN THE REVIEW THAT'S INCLUDED AND SO FAR UNCODED IS INCLUDED
+	BEGIN
+		INSERT INTO TB_TRAINING_ITEM(TRAINING_ID, ITEM_ID, CONTACT_ID_CODING, [RANK], SCORE)
+		SELECT @TRAINING_ID, AZ.ITEM_ID, 0, 0, AZ.SCORE
+				FROM TB_SCREENING_ML_TEMP AZ
+			WHERE NOT AZ.ITEM_ID IN
+				(SELECT ITEM_ID FROM TB_ITEM_SET WHERE IS_COMPLETED = 'TRUE' AND SET_ID = @CODE_SET_ID) AND AZ.REVIEW_ID = @REVIEW_ID
+			ORDER BY AZ.SCORE DESC
+	END
+
+	/* SET THE RANKS TO INCREMENT */
+	DECLARE @START_INDEX INT = 0
+	SELECT @START_INDEX = MIN(TRAINING_ITEM_ID) FROM TB_TRAINING_ITEM WHERE TRAINING_ID = @TRAINING_ID
+	UPDATE TB_TRAINING_ITEM
+		SET [RANK] = TRAINING_ITEM_ID - @START_INDEX + 1
+		WHERE TRAINING_ID = @TRAINING_ID
+
+
+	-- FINALLY, MIGRATE ANY NON-STALE CODING LOCKS FROM THE PREVIOUS TRAINING RUN
+	DECLARE @LAST_TRAINING_ID INT
+
+	SELECT @LAST_TRAINING_ID = TRAINING_ID FROM TB_TRAINING
+		WHERE REVIEW_ID = @REVIEW_ID AND TRAINING_ID < (SELECT MAX(TRAINING_ID) FROM TB_TRAINING WHERE REVIEW_ID = @REVIEW_ID)
+
+	DECLARE @CURRENT_ITERATION INT
+	
+	SELECT @CURRENT_ITERATION = MAX(ITERATION) + 1 FROM TB_TRAINING
+		WHERE REVIEW_ID = @REVIEW_ID
+		
+	IF (@CURRENT_ITERATION IS NULL)
+	BEGIN
+		SET @CURRENT_ITERATION = 1
+	END
+
+	UPDATE A
+		SET A.CONTACT_ID_CODING = B.CONTACT_ID_CODING,
+		A.WHEN_LOCKED = B.WHEN_LOCKED
+		FROM TB_TRAINING_ITEM A
+		JOIN
+		TB_TRAINING_ITEM B ON A.ITEM_ID = B.ITEM_ID AND CURRENT_TIMESTAMP < DATEADD(DAY, 7, B.WHEN_LOCKED) AND
+			B.TRAINING_ID = @LAST_TRAINING_ID
+		WHERE A.TRAINING_ID = @TRAINING_ID
+
+	UPDATE TB_TRAINING
+		SET TIME_ENDED = CURRENT_TIMESTAMP,
+		ITERATION = @CURRENT_ITERATION,
+		TRUE_POSITIVES = @TP,
+		TRUE_NEGATIVES = @TN
+		WHERE TB_TRAINING.TRAINING_ID = @TRAINING_ID
+
+	-- delete the old list(s) of items to screen for this review
+	DELETE TI
+	FROM TB_TRAINING_ITEM TI
+	INNER JOIN TB_TRAINING T ON T.TRAINING_ID = TI.TRAINING_ID
+	WHERE T.REVIEW_ID = @REVIEW_ID AND T.TRAINING_ID < @TRAINING_ID
+
+	UPDATE TB_REVIEW
+		SET SCREENING_INDEXED = 'TRUE',
+			SCREENING_MODEL_RUNNING = 'FALSE'
+		WHERE REVIEW_ID = @REVIEW_ID
+
+	DELETE FROM TB_SCREENING_ML_TEMP WHERE REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ScreeningCreateNonMLList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ScreeningCreateNonMLList]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@WHAT_ATTRIBUTE_ID BIGINT,
+	@SCREENING_MODE nvarchar(10),
+	@CODE_SET_ID INT,
+	@TRIGGERING_ITEM_ID BIGINT = 0
+)
+
+As
+
+SET NOCOUNT ON
+
+	-- ***** PRELIMINARY CHECK (SG Feb 2023): if we received an ITEM_ID val, it's because the training was triggered automatically
+	-- in which case we MIGHT not need to rebuild the list, because there is no point in re-shuffling a random list very often
+	-- this check can produce 3 effects: 
+	-- (1) do nothing (return immediately) when the "triggering item" has already triggered one of the other 2 outcomes
+	-- We check for (1) by looking if this item has been coded already by other people, in which case it has (probably) been served by the PS list already
+	-- It has been locked to the Other person, and lock has been released when that other person has screened the item.
+	-- (2) Create a new record (with updated numbers!) in TB_TRAINING, but without changing the current list. 
+	-- This is useful to ensure multiple coding remains efficient: serving the same Items to the required N of reviewers, can't happen if we scramble the items order all the time!
+	-- (3) Rebuild the whole list
+	DECLARE @shouldRebuild bit = 0
+	DECLARE @LAST_TRAINING_ID INT = (select MAX(t.TRAINING_ID) FROM TB_TRAINING t 
+									inner join TB_TRAINING_ITEM ti on t.REVIEW_ID = @REVIEW_ID and t.TRAINING_ID = ti.TRAINING_ID
+									)
+	--Nothing to check if @TRIGGERING_ITEM_ID = 0 as this means somebody ASKED to recreate the list, and thus we should just do that!
+	if @TRIGGERING_ITEM_ID = 0 set @shouldRebuild = 1
+	ELSE
+	BEGIN
+		--Check for case (1): is this item ALREADY coded by someone else? If it is, it has been "shown" to that other people already, so it almost certainly has already triggered this SP: we do NOT want
+		DECLARE @codedCount int = (select count(ITEM_SET_ID) from tb_item_set where SET_ID = @CODE_SET_ID and ITEM_ID = @TRIGGERING_ITEM_ID and CONTACT_ID != @CONTACT_ID)
+		
+		-- ***** If this item is coded by someone else: RETURN
+		if (@codedCount is not null AND @codedCount > 0) RETURN
+	
+		--Check for case (2) or (3)
+		declare @TotInList int = (select count (TRAINING_ITEM_ID) from TB_TRAINING_ITEM where TRAINING_ID = @LAST_TRAINING_ID)
+		declare @highestToDo int = (select RANK from TB_TRAINING_ITEM where ITEM_ID = @TRIGGERING_ITEM_ID and TRAINING_ID = @LAST_TRAINING_ID)
+		IF @highestToDo is null --very odd, should not happen, unless we don't have a list to replace!!
+				OR (
+					@highestToDo >= 1000 -- next item for the current user is 1000 items down the list, enough already!
+					OR @highestToDo >= (@TotInList / 2) --we're past half of the list
+					)
+				--OK we SHOULD rebuild
+				set @shouldRebuild = 1
+	END
+
+	DECLARE @NEW_TRAINING_ID INT
+	DECLARE @TP INT
+	DECLARE @TN INT
+
+	-- ***** FIRST, GET THE STATS IN TERMS OF # ITEMS SCREENED TO POPULATE THE TRIANING TABLE (GIVES US THE GRAPH ON THE SCREENING TAB)
+	SELECT @TP = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID = 10
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			AND TB_ITEM_SET.SET_ID = @CODE_SET_ID
+
+	SELECT @TN = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_ATTRIBUTE_SET.ATTRIBUTE_TYPE_ID = 11
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			AND TB_ITEM_SET.SET_ID = @CODE_SET_ID
+
+
+	-- ******** SECOND, ENTER A NEW LINE IN THE TRAINING TABLE ***************
+	DECLARE @CURRENT_ITERATION INT
+	
+	SELECT @CURRENT_ITERATION = MAX(ITERATION) + 1 FROM TB_TRAINING
+		WHERE REVIEW_ID = @REVIEW_ID
+
+	IF (@CURRENT_ITERATION IS NULL)
+	BEGIN
+		SET @CURRENT_ITERATION = 1
+	END
+
+	INSERT INTO TB_TRAINING(REVIEW_ID, CONTACT_ID, TIME_STARTED, TIME_ENDED, TRUE_POSITIVES, TRUE_NEGATIVES, ITERATION)
+		VALUES (@REVIEW_ID, @CONTACT_ID, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, @TP, @TN, @CURRENT_ITERATION)
+	   
+	SET @NEW_TRAINING_ID = @@IDENTITY
+
+	-- ********** THIRD, ENTER THE LIST OF ITEMS INTO TB_TRAINING_ITEM ACCORDING TO WHETHER WE'RE FILTERING BY AN ATTRIBUTE OR DOING THE WHOLE REVIEW
+	-- ********** NEW [SG Feb 2023] we also check if @shouldRebuild: if so, old code as usual,
+	-- ********** OTHERWISE we simply UPDATE the TRAINING_ID in tb_TRAINING_ITEM
+	IF @shouldRebuild = 1
+	BEGIN
+		IF @WHAT_ATTRIBUTE_ID > 0  -- i.e. we're filtering by a code
+		BEGIN
+			IF @SCREENING_MODE = 'Random' -- FILTERING BY A CODE AND ORDERING AT RANDOM
+			BEGIN
+				INSERT INTO TB_TRAINING_ITEM(TRAINING_ID, ITEM_ID, CONTACT_ID_CODING, [RANK])
+				SELECT @NEW_TRAINING_ID, TB_ITEM_REVIEW.ITEM_ID, 0, 0 FROM TB_ITEM_REVIEW
+				INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @WHAT_ATTRIBUTE_ID
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+				WHERE REVIEW_ID = @REVIEW_ID AND IS_INCLUDED = 'TRUE' AND IS_DELETED = 'FALSE' AND NOT TB_ITEM_REVIEW.ITEM_ID IN
+					(SELECT ITEM_ID FROM TB_ITEM_SET WHERE IS_COMPLETED = 'TRUE' AND SET_ID = @CODE_SET_ID)
+				ORDER BY NEWID()
+			END
+			ELSE -- FILTERING BY A CODE, BUT ORDERING BY THE VALUE PUT IN THE ADDITIONAL_TEXT FIELD
+			BEGIN
+				INSERT INTO TB_TRAINING_ITEM([RANK], TRAINING_ID, ITEM_ID, CONTACT_ID_CODING)
+				SELECT CASE WHEN ISNUMERIC(TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT)=1 THEN CAST(TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT AS INT) ELSE 0 END,
+					@NEW_TRAINING_ID, TB_ITEM_REVIEW.ITEM_ID, 0
+				FROM TB_ITEM_REVIEW
+				INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID AND TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @WHAT_ATTRIBUTE_ID
+				INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+				WHERE REVIEW_ID = @REVIEW_ID AND IS_INCLUDED = 'TRUE' AND IS_DELETED = 'FALSE' AND NOT TB_ITEM_REVIEW.ITEM_ID IN
+					(SELECT ITEM_ID FROM TB_ITEM_SET WHERE IS_COMPLETED = 'TRUE' AND SET_ID = @CODE_SET_ID)
+				ORDER BY TB_ITEM_ATTRIBUTE.ADDITIONAL_TEXT
+			END
+		END
+		ELSE -- NOT FILTERING BY A CODE, SO EVERYTHING IN THE REVIEW THAT'S INCLUDED AND SO FAR UNCODED IS INCLUDED
+		BEGIN
+			INSERT INTO TB_TRAINING_ITEM(TRAINING_ID, ITEM_ID, CONTACT_ID_CODING, [RANK])
+			SELECT @NEW_TRAINING_ID, ITEM_ID, 0, 0 FROM TB_ITEM_REVIEW
+				WHERE REVIEW_ID = @REVIEW_ID AND IS_INCLUDED = 'TRUE' AND IS_DELETED = 'FALSE' AND NOT ITEM_ID IN
+					(SELECT ITEM_ID FROM TB_ITEM_SET WHERE IS_COMPLETED = 'TRUE' AND SET_ID = @CODE_SET_ID)
+				ORDER BY NEWID()
+		END
+		/* SET THE RANKS TO INCREMENT */
+		DECLARE @START_INDEX INT = 0
+		SELECT @START_INDEX = MIN(TRAINING_ITEM_ID) FROM TB_TRAINING_ITEM WHERE TRAINING_ID = @NEW_TRAINING_ID
+		UPDATE TB_TRAINING_ITEM
+			SET [RANK] = TRAINING_ITEM_ID - @START_INDEX + 1
+			WHERE TRAINING_ID = @NEW_TRAINING_ID
+
+		-- FINALLY, MIGRATE ANY NON-STALE CODING LOCKS FROM THE PREVIOUS TRAINING RUN
+		UPDATE A
+			SET A.CONTACT_ID_CODING = B.CONTACT_ID_CODING,
+			A.WHEN_LOCKED = B.WHEN_LOCKED
+			FROM TB_TRAINING_ITEM A
+			JOIN
+			TB_TRAINING_ITEM B ON A.ITEM_ID = B.ITEM_ID AND CURRENT_TIMESTAMP < DATEADD(DAY, 7, B.WHEN_LOCKED) AND
+				B.TRAINING_ID = @LAST_TRAINING_ID
+			WHERE A.TRAINING_ID = @NEW_TRAINING_ID
+
+	
+
+		-- delete the old list(s) of items to screen for this review
+		DELETE TI
+		FROM TB_TRAINING_ITEM TI
+		INNER JOIN TB_TRAINING T ON T.TRAINING_ID = TI.TRAINING_ID
+		WHERE T.REVIEW_ID = @REVIEW_ID AND T.TRAINING_ID < @NEW_TRAINING_ID
+
+		END
+	ELSE
+	BEGIN
+		--@shouldRebuild = 0 so we don't scramble the list, just "link" the new TB_TRAINING record to what's already in TB_TRAINING_ITEM
+		UPDATE TB_TRAINING_ITEM set TRAINING_ID = @NEW_TRAINING_ID where TRAINING_ID = @LAST_TRAINING_ID
+	END
+
+	--got to make sure TIME_ENDED is different from TIME_STARTED!
+	UPDATE TB_TRAINING set TIME_ENDED = CURRENT_TIMESTAMP where TRAINING_ID = @NEW_TRAINING_ID
+
+	UPDATE TB_REVIEW
+		SET SCREENING_INDEXED = 'TRUE'
+		WHERE REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchCodes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchCodes]
+(
+	@SEARCH_ID int = null output
+,	@CONTACT_ID nvarchar(50) = null
+,	@REVIEW_ID nvarchar(50) = null
+,	@SEARCH_TITLE varchar(4000) = null
+,	@ATTRIBUTE_SET_ID_LIST varchar(max) = null
+,	@INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+
+)
+AS
+	-- Step One: Insert record into tb_SEARCH
+	EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @ATTRIBUTE_SET_ID_LIST, '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+	-- Step Two: Perform the search and get a hits count
+	-- NB: We're using a udf to split the string of answer id's into a table, joining this with the tb_EXTRACT_ATTR (and any others that are required)
+	-- to perform the insert.  @ANSWERS should be passed in as 'AT10225, AT10226' (with a comma and a space separating each id)
+
+	
+	INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+	SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW
+		INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID -- Make sure the correct set is being used - the same code can appear in more than one set!
+	WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		AND IS_DELETED != 'true'
+		AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+	 
+
+	-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+	UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchCodeSetCheck]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchCodeSetCheck]
+(
+	@SEARCH_ID int = null output
+,	@CONTACT_ID nvarchar(50) = null
+,	@REVIEW_ID nvarchar(50) = null
+,	@SEARCH_TITLE varchar(4000) = null
+,	@SET_ID INT = NULL
+,	@IS_CODED BIT = null
+,	@INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+,	@CODED_BY_CONTACT_ID INT = 0
+
+)
+
+AS
+	-- Step One: Insert record into tb_SEARCH
+	EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, '', '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+	-- Step Two: Perform the search and get a hits count
+
+	IF (@IS_CODED = 'TRUE')
+	BEGIN
+
+	INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+		SELECT DISTINCT TB_ITEM_SET.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM_SET
+			INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		WHERE SET_ID = @SET_ID AND REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true'
+			AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+			AND TB_ITEM_SET.CONTACT_ID =
+				CASE WHEN @CODED_BY_CONTACT_ID = 0 THEN TB_ITEM_SET.CONTACT_ID 
+				ELSE @CODED_BY_CONTACT_ID END
+			
+	END
+	ELSE
+	BEGIN
+	
+	INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+		SELECT DISTINCT TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM_REVIEW
+			WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+			
+		EXCEPT
+		
+		SELECT DISTINCT TB_ITEM_SET.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM_SET
+			INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = TB_ITEM_SET.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 1
+			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		WHERE SET_ID = @SET_ID AND REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true'
+			AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+			AND TB_ITEM_SET.CONTACT_ID =
+				CASE WHEN @CODED_BY_CONTACT_ID = 0 THEN TB_ITEM_SET.CONTACT_ID 
+				ELSE @CODED_BY_CONTACT_ID END
+	
+	END
+	
+	-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+	UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchCombine]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchCombine] (
+       @SEARCH_ID int = null output
+,      @CONTACT_ID nvarchar(50) = null
+,      @REVIEW_ID INT
+,      @SEARCH_TITLE varchar(4000) = null
+,      @SEARCHES varchar(MAX) = null
+,      @COMBINE_TYPE nvarchar(10)
+,      @INCLUDED BIT = NULL
+)
+AS
+ 
+EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @SEARCHES, '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+ 
+IF (@COMBINE_TYPE = 'OR')
+BEGIN
+       /*
+       James changed: 14 Feb 2011 as previous code was entering duplicate values if different ranks had been identified
+       INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+              SELECT DISTINCT  ITEM_ID, @SEARCH_ID, ITEM_RANK FROM dbo.fn_Split_int
+              (@SEARCHES, ',') JOIN tb_SEARCH_ITEM ON value = SEARCH_ID
+       */
+       INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+              SELECT DISTINCT  ITEM_ID, @SEARCH_ID, 0 FROM dbo.fn_Split_int
+              (@SEARCHES, ',') JOIN tb_SEARCH_ITEM ON value = SEARCH_ID
+END
+ELSE
+       IF (@COMBINE_TYPE = 'NOT')
+       BEGIN
+       INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+              SELECT  ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW WHERE REVIEW_ID = @REVIEW_ID 
+                     AND IS_DELETED != 'true' AND IS_INCLUDED = @INCLUDED
+              EXCEPT
+              SELECT DISTINCT ITEM_ID, @SEARCH_ID FROM        
+              dbo.fn_Split_int
+              (@SEARCHES, ',') JOIN tb_SEARCH_ITEM ON value = SEARCH_ID
+       END
+       ELSE
+              IF (@COMBINE_TYPE = 'AND')
+              BEGIN
+              DECLARE @NUM_RECORDS INT
+              DECLARE @DUMMY INT
+              SELECT @NUM_RECORDS = COUNT(VALUE) FROM dbo.fn_Split_int (@SEARCHES, ',')
+ 
+              INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+                     SELECT DISTINCT  ITEM_ID, @SEARCH_ID FROM
+                     dbo.fn_Split_int (@SEARCHES, ',') JOIN tb_SEARCH_ITEM ON value = SEARCH_ID
+                     GROUP BY ITEM_ID
+                     HAVING COUNT(ITEM_ID) = @NUM_RECORDS
+              
+ 
+              END
+ 
+       UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+ 
+       declare @searchCount int = 0
+       Select @searchCount = (len(@SEARCHES) - len(replace(@SEARCHES,',','')))
+       --big part: combine 2 searches by also combining their RANK values
+       if (@COMBINE_TYPE = 'AND' and @searchCount = 1)
+              begin
+                     declare @row1 int
+                     declare @row2 int
+                     select @row1 = (select top 1 value from dbo.fn_Split_int(@SEARCHES, ',') ORDER BY value Asc);
+                     select @row2 = (select top 1 value from dbo.fn_Split_int(@SEARCHES, ',') ORDER BY value Desc);
+                     --we're combining two searches but do we have ranking values?
+                     declare @Search1HasRANK bit 
+                     IF (Select MAX(ITEM_RANK) from TB_SEARCH_ITEM where SEARCH_ID = @row1) > 0
+                           set @Search1HasRANK = 1 ELSE set @Search1HasRANK = 0
+                     declare @Search2HasRANK bit
+                     IF (Select MAX(ITEM_RANK) from TB_SEARCH_ITEM where SEARCH_ID = @row2) > 0
+                           set @Search2HasRANK = 1 ELSE set @Search2HasRANK = 0
+                     --now we know which searches have a rank, 3 cases: both - multiply RANKS; only one, multiply rank, consider the other to be 100
+                     -- final case, do nothing, no ranks to work on.
+                     if (@Search1HasRANK = 1 AND @Search2HasRANK = 1)
+                     BEGIN
+                           update si
+                                  SET si.ITEM_RANK = ROUND(si1.item_rank * si2.item_rank / 100, 0)
+                                  from TB_SEARCH_ITEM si
+                                         inner join TB_SEARCH_ITEM si1 on si1.ITEM_ID = si.ITEM_ID and si1.SEARCH_ID = @row1
+                                         inner join TB_SEARCH_ITEM si2 on si2.ITEM_ID = si.ITEM_ID and si2.SEARCH_ID = @row2
+                                  where si.SEARCH_ID = @SEARCH_ID
+                     END
+                     ELSE IF (@Search1HasRANK = 0 AND @Search2HasRANK = 1)
+                     BEGIN
+                           update si
+                                  SET si.ITEM_RANK = si2.item_rank -- would be 100[si1 default rank] * si2.item_rank /100 = si2.item_rank
+                                  from TB_SEARCH_ITEM si
+                                         inner join TB_SEARCH_ITEM si1 on si1.ITEM_ID = si.ITEM_ID and si1.SEARCH_ID = @row1
+                                         inner join TB_SEARCH_ITEM si2 on si2.ITEM_ID = si.ITEM_ID and si2.SEARCH_ID = @row2
+                                  where si.SEARCH_ID = @SEARCH_ID
+                     END
+                     ELSE IF (@Search1HasRANK = 1 AND @Search2HasRANK = 0)
+                     BEGIN
+                           update si
+                                  SET si.ITEM_RANK = si1.item_rank -- would be 100[si2 default rank] * si1.item_rank /100 = si1.item_rank
+                                  from TB_SEARCH_ITEM si
+                                         inner join TB_SEARCH_ITEM si1 on si1.ITEM_ID = si.ITEM_ID and si1.SEARCH_ID = @row1
+                                         inner join TB_SEARCH_ITEM si2 on si2.ITEM_ID = si.ITEM_ID and si2.SEARCH_ID = @row2
+                                  where si.SEARCH_ID = @SEARCH_ID
+                     END
+                     --NO third case, we have nothing to update.
+                     --FINALLY: do we set the IS_CLASSIFIER_RESULT to TRUE?
+                     DECLARE @Max int, @Min int
+                     select @Max = MAX(ITEM_RANK), @Min = MIN(ITEM_RANK) from TB_SEARCH_ITEM where SEARCH_ID = @SEARCH_ID
+                     IF (Select IS_CLASSIFIER_RESULT from TB_SEARCH where SEARCH_ID = @row1) = 1
+                           set @Search1HasRANK = 1 ELSE set @Search1HasRANK = 0
+                     IF (Select IS_CLASSIFIER_RESULT from TB_SEARCH where SEARCH_ID = @row2) = 1
+                           set @Search2HasRANK = 1 ELSE set @Search2HasRANK = 0
+                     IF (
+                           (@Search1HasRANK = 1 and @Search2HasRANK = 1) --both searches are ranked searches
+                           OR
+                           (@Max <= 100 AND @Min >= 0) --can "visualise" distribution
+                           )
+                     BEGIN
+                           UPDATE TB_SEARCH SET IS_CLASSIFIER_RESULT = 'TRUE' WHERE SEARCH_ID = @SEARCH_ID
+                     END
+              END
+              
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchDelete]
+(
+	@SEARCHES NVARCHAR(MAX),
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @TEMP table (SEARCH_ID int) 
+insert into @TEMP SELECT SEARCH_ID FROM TB_SEARCH
+INNER JOIN fn_split_int(@SEARCHES, ',') SearchList on SearchList.value = TB_SEARCH.SEARCH_ID
+WHERE REVIEW_ID = @REVIEW_ID;
+
+--Make a check here on the temp table 
+if ( (SELECT COUNT(*) FROM @TEMP) != 
+(SELECT COUNT(*) FROM fn_split_int(@SEARCHES, ',') ) ) return
+
+
+DELETE FROM TB_SEARCH_ITEM
+	FROM TB_SEARCH_ITEM INNER JOIN fn_split_int(@SEARCHES, ',') SearchList on SearchList.value = TB_SEARCH_ITEM.SEARCH_ID
+		
+DELETE FROM TB_SEARCH
+	FROM TB_SEARCH INNER JOIN fn_split_int(@SEARCHES, ',') SearchList on SearchList.value = TB_SEARCH.SEARCH_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchForItemsWithDuplicateReferences]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchForItemsWithDuplicateReferences]
+(
+      @SEARCH_ID int = null output
+,     @CONTACT_ID nvarchar(50) = null
+,     @REVIEW_ID nvarchar(50) = null
+,     @SEARCH_TITLE varchar(4000) = null
+,     @INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+,     @SEARCH_ITEM_ID BIGINT = NULL
+
+)
+AS
+      -- Step One: Insert record into tb_SEARCH
+      EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, '', '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+	  --Two: get current dups
+	  INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+			SELECT distinct MASTER_ITEM_ID, @SEARCH_ID, NULL from TB_ITEM_REVIEW 
+			where REVIEW_ID = @REVIEW_ID and MASTER_ITEM_ID is not null and IS_DELETED = 1 and IS_INCLUDED = 1
+      
+      -- Step Three: Update the new search record in tb_SEARCH with the number of records added
+      UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchForItemsWithLinkedReferences]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchForItemsWithLinkedReferences]
+(
+      @SEARCH_ID int = null output
+,     @CONTACT_ID nvarchar(50) = null
+,     @REVIEW_ID nvarchar(50) = null
+,     @SEARCH_TITLE varchar(4000) = null
+,     @INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+,     @SEARCH_ITEM_ID BIGINT = NULL
+
+)
+AS
+      -- Step One: Insert record into tb_SEARCH
+      EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, '', '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+      -- Step Two: Perform the search and get a hits count     
+		INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, 1 FROM TB_ITEM_REVIEW
+            INNER JOIN TB_ITEM_LINK ON TB_ITEM_LINK.ITEM_ID_PRIMARY = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      
+      
+      -- Step Three: Update the new search record in tb_SEARCH with the number of records added
+      UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchForUploadedFiles]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchForUploadedFiles]
+(
+      @SEARCH_ID int = null output
+,     @CONTACT_ID nvarchar(50) = null
+,     @REVIEW_ID nvarchar(50) = null
+,     @SEARCH_TITLE varchar(4000) = null
+,	  @PRESENT BIT
+,     @INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+,     @SEARCH_ITEM_ID BIGINT = NULL
+
+)
+AS
+      -- Step One: Insert record into tb_SEARCH
+      EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, '', '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+      -- Step Two: Perform the search and get a hits count
+      
+      IF (@PRESENT = 'True')
+      BEGIN
+		INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, 1 FROM TB_ITEM_REVIEW
+            INNER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+      BEGIN
+		INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, 1 FROM TB_ITEM_REVIEW
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+            EXCEPT
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, 1 FROM TB_ITEM_REVIEW
+            INNER JOIN TB_ITEM_DOCUMENT ON TB_ITEM_DOCUMENT.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      
+      -- Step Three: Update the new search record in tb_SEARCH with the number of records added
+      UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchFreeText]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchFreeText]
+(
+      @SEARCH_ID int = null output
+,     @CONTACT_ID nvarchar(50) = null
+,     @REVIEW_ID nvarchar(50) = null
+,     @SEARCH_TITLE varchar(4000) = null
+,     @SEARCH_TEXT varchar(4000) = null
+,     @SEARCH_WHAT nvarchar(20) = null
+,     @INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+,     @SEARCH_ITEM_ID BIGINT = NULL
+
+)
+with recompile
+AS
+      -- Step One: Insert record into tb_SEARCH
+      EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @SEARCH_TEXT, '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+      -- Step Two: Perform the search and get a hits count
+
+      IF (@SEARCH_WHAT = 'TitleAbstract')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, RANK FROM TB_ITEM_REVIEW
+            INNER JOIN CONTAINSTABLE(TB_ITEM, (TITLE, ABSTRACT), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+	  IF (@SEARCH_WHAT = 'Title')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, RANK FROM TB_ITEM_REVIEW
+            INNER JOIN CONTAINSTABLE(TB_ITEM, (TITLE), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+	  IF (@SEARCH_WHAT = 'Abstract')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, RANK FROM TB_ITEM_REVIEW
+            INNER JOIN CONTAINSTABLE(TB_ITEM, (ABSTRACT), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+      IF (@SEARCH_WHAT = 'PubYear')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM_REVIEW
+            INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+            AND TB_ITEM.[YEAR] LIKE '%' + @SEARCH_TEXT + '%'
+      END
+      ELSE
+      IF (@SEARCH_WHAT = 'AdditionalText')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_ATTRIBUTE.ITEM_ID, @SEARCH_ID, RANK FROM TB_ITEM_ATTRIBUTE
+            INNER JOIN CONTAINSTABLE(TB_ITEM_ATTRIBUTE, ADDITIONAL_TEXT, @SEARCH_TEXT) AS KEY_TBL
+                  ON KEY_TBL.[KEY] =  TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+            INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+                  AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+            INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+      IF (@SEARCH_WHAT = 'ItemId')
+      BEGIN
+            INSERT INTO TB_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT TB_ITEM.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM
+            INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM.ITEM_ID
+                  WHERE (TB_ITEM.ITEM_ID = @SEARCH_ITEM_ID 
+                        OR OLD_ITEM_ID LIKE ('%' + @SEARCH_TEXT + '%'))
+                        AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+                        AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+      IF (@SEARCH_WHAT = 'Authors')
+      BEGIN
+            INSERT INTO TB_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT TB_ITEM_AUTHOR.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM_AUTHOR
+            INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_AUTHOR.ITEM_ID
+            WHERE (TB_ITEM_AUTHOR.LAST LIKE '%' + @SEARCH_TEXT + '%'
+                  OR TB_ITEM_AUTHOR.FIRST LIKE '%' + @SEARCH_TEXT + '%'
+                  OR TB_ITEM_AUTHOR.SECOND LIKE '%' + @SEARCH_TEXT + '%')
+                  AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+                  AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE -- must be uploaded documents
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  tb_ITEM_DOCUMENT.ITEM_ID, @SEARCH_ID, RANK FROM tb_ITEM_DOCUMENT
+            INNER JOIN CONTAINSTABLE(TB_ITEM_DOCUMENT, DOCUMENT_TEXT, @SEARCH_TEXT) AS KEY_TBL 
+                  ON KEY_TBL.[KEY] = tb_ITEM_DOCUMENT.ITEM_DOCUMENT_ID
+            INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = tb_ITEM_DOCUMENT.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      
+      -- Step Three: Update the new search record in tb_SEARCH with the number of records added
+      UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchGet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchGet]
+(
+	@SEARCH_ID INT,
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT SEARCH_ID, REVIEW_ID, TB_SEARCH.CONTACT_ID, SEARCH_TITLE,SEARCH_NO, ANSWERS, HITS_NO, SEARCH_DATE, IS_CLASSIFIER_RESULT,
+		CONTACT_NAME FROM TB_SEARCH
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_SEARCH.CONTACT_ID
+		WHERE SEARCH_ID = @SEARCH_ID
+		AND REVIEW_ID = @REVIEW_ID
+
+
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchImportedIDs]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchImportedIDs]
+(
+	@SEARCH_ID int = null output
+,	@CONTACT_ID nvarchar(50) = null
+,	@REVIEW_ID nvarchar(50) = null
+,	@SEARCH_TITLE varchar(4000) = null
+,	@ITEM_ID_LIST varchar(4000) = null
+,	@INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+
+)
+AS
+	-- Step One: Insert record into tb_SEARCH
+	EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @ITEM_ID_LIST, '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+	-- Step Two: Perform the search and get a hits count
+	-- NB: We're using a udf to split the string of answer id's into a table, joining this with the tb_EXTRACT_ATTR (and any others that are required)
+	-- to perform the insert.  @ANSWERS should be passed in as 'AT10225, AT10226' (with a comma and a space separating each id)
+
+	
+	INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+	SELECT DISTINCT  ir.ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW ir
+		INNER JOIN TB_ITEM i on ir.ITEM_ID = i.ITEM_ID
+		INNER JOIN dbo.fn_Split(@ITEM_ID_LIST, ',') id ON id.value = i.OLD_ITEM_ID
+		WHERE ir.REVIEW_ID = @REVIEW_ID
+		AND ir.IS_DELETED = '0'
+		AND ir.IS_INCLUDED = @INCLUDED
+	 
+
+	-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+	UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchInsert]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@SEARCH_TITLE NVARCHAR(4000),
+	@ANSWERS varchar(4000) = null,
+	@SEARCH_DESC varchar(4000) = null,
+	@NEW_SEARCH_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE @SEARCH_NO INT
+	
+	SELECT @SEARCH_NO = ISNULL(MAX(SEARCH_NO), 0) + 1 FROM tb_SEARCH WHERE REVIEW_ID = @REVIEW_ID
+
+	INSERT INTO tb_SEARCH
+	(	REVIEW_ID
+	,	CONTACT_ID
+	,	SEARCH_TITLE
+	,	SEARCH_NO
+	,	ANSWERS
+	,	HITS_NO
+	,	SEARCH_DATE
+	)	
+	VALUES
+	(
+		@REVIEW_ID
+	,	@CONTACT_ID
+	,	@SEARCH_TITLE
+	,	@SEARCH_NO
+	,	@ANSWERS
+	,	0
+	,	GetDate()
+	)
+	-- Get the identity and return it
+	SET @NEW_SEARCH_ID = @@identity
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchItems]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchItems]
+(
+	@SEARCH_ID int = null output
+,	@CONTACT_ID nvarchar(50) = null
+,	@REVIEW_ID nvarchar(50) = null
+,	@SEARCH_TITLE varchar(4000) = null
+,	@ITEM_ID_LIST varchar(4000) = null
+,	@INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+
+)
+AS
+	-- Step One: Insert record into tb_SEARCH
+	EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @ITEM_ID_LIST, '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+	-- Step Two: Perform the search and get a hits count
+	-- NB: We're using a udf to split the string of answer id's into a table, joining this with the tb_EXTRACT_ATTR (and any others that are required)
+	-- to perform the insert.  @ANSWERS should be passed in as 'AT10225, AT10226' (with a comma and a space separating each id)
+
+	
+	INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+	SELECT DISTINCT  ir.ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW ir
+		INNER JOIN dbo.fn_Split_int(@ITEM_ID_LIST, ',') id ON id.value = ir.ITEM_ID
+		WHERE ir.REVIEW_ID = @REVIEW_ID
+		AND ir.IS_DELETED = '0'
+		AND ir.IS_INCLUDED = @INCLUDED
+	 
+
+	-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+	UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchList]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT SEARCH_ID, REVIEW_ID, TB_SEARCH.CONTACT_ID, SEARCH_TITLE,SEARCH_NO, ANSWERS, HITS_NO, SEARCH_DATE, IS_CLASSIFIER_RESULT,
+		CONTACT_NAME FROM TB_SEARCH
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_SEARCH.CONTACT_ID
+		WHERE REVIEW_ID = @REVIEW_ID
+		--AND CONTACT_ID = @CONTACT_ID
+		ORDER BY SEARCH_NO
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchNullAbstract]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchNullAbstract]
+(
+	@SEARCH_ID int = null output
+,	@CONTACT_ID nvarchar(50) = null
+,	@REVIEW_ID nvarchar(50) = null
+,	@SEARCH_TITLE varchar(4000) = null
+,	@INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+)
+
+AS
+BEGIN
+	-- Step One: Insert record into tb_SEARCH
+	EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, '', '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+	-- Step Two: Perform the search and get a hits count
+
+	INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+		SELECT DISTINCT TB_ITEM.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM
+			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		WHERE TB_ITEM.ABSTRACT IS NULL OR TB_ITEM.ABSTRACT = ''
+			AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			
+	-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+	UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchSources]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchSources]
+(
+     @SEARCH_ID int = null output
+,    @CONTACT_ID nvarchar(50) = null
+,    @REVIEW_ID nvarchar(50) = null
+,    @SEARCH_TITLE varchar(4000) = null
+,    @SEARCH_WHAT varchar(20)
+,    @SOURCE_IDs varchar(4000) = null
+)
+AS
+
+-- Step One: Insert record into tb_SEARCH
+EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @SOURCE_IDs, '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+IF (@SEARCH_WHAT = 'AllItems')
+BEGIN
+		INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+			SELECT DISTINCT  ir.ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW ir
+			INNER JOIN TB_ITEM i on ir.ITEM_ID = i.ITEM_ID
+			INNER JOIN TB_ITEM_SOURCE its on its.ITEM_ID = ir.ITEM_ID
+			INNER JOIN dbo.fn_Split_int(@SOURCE_IDs, ',') id ON id.value = its.SOURCE_ID
+			WHERE ir.REVIEW_ID = @REVIEW_ID
+
+END
+ELSE IF (@SEARCH_WHAT = 'Included')
+BEGIN
+	   INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+			SELECT DISTINCT  ir.ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW ir
+			INNER JOIN TB_ITEM i on ir.ITEM_ID = i.ITEM_ID
+			INNER JOIN TB_ITEM_SOURCE its on its.ITEM_ID = ir.ITEM_ID
+			INNER JOIN dbo.fn_Split_int(@SOURCE_IDs, ',') id ON id.value = its.SOURCE_ID
+			WHERE ir.REVIEW_ID = @REVIEW_ID
+			AND ir.IS_DELETED = '0'
+			AND ir.IS_INCLUDED = '1'
+END
+ELSE IF (@SEARCH_WHAT = 'Excluded')
+BEGIN
+	   INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+			SELECT DISTINCT  ir.ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW ir
+			INNER JOIN TB_ITEM i on ir.ITEM_ID = i.ITEM_ID
+			INNER JOIN TB_ITEM_SOURCE its on its.ITEM_ID = ir.ITEM_ID
+			INNER JOIN dbo.fn_Split_int(@SOURCE_IDs, ',') id ON id.value = its.SOURCE_ID
+			WHERE ir.REVIEW_ID = @REVIEW_ID
+			AND ir.IS_DELETED = '0'
+			AND ir.IS_INCLUDED = '0'
+END
+ELSE IF (@SEARCH_WHAT = 'Deleted')
+BEGIN
+	   INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+			SELECT DISTINCT  ir.ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW ir
+			INNER JOIN TB_ITEM i on ir.ITEM_ID = i.ITEM_ID
+			INNER JOIN TB_ITEM_SOURCE its on its.ITEM_ID = ir.ITEM_ID
+			INNER JOIN dbo.fn_Split_int(@SOURCE_IDs, ',') id ON id.value = its.SOURCE_ID
+			WHERE ir.REVIEW_ID = @REVIEW_ID
+			AND ir.IS_DELETED = '1'
+			AND ir.MASTER_ITEM_ID IS NULL
+END
+ELSE IF (@SEARCH_WHAT = 'Duplicates')
+BEGIN
+		INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+			SELECT DISTINCT  ir.ITEM_ID, @SEARCH_ID FROM TB_ITEM_REVIEW ir
+			INNER JOIN TB_ITEM i on ir.ITEM_ID = i.ITEM_ID
+			INNER JOIN TB_ITEM_SOURCE its on its.ITEM_ID = ir.ITEM_ID
+			INNER JOIN dbo.fn_Split_int(@SOURCE_IDs, ',') id ON id.value = its.SOURCE_ID
+			WHERE ir.REVIEW_ID = @REVIEW_ID
+			AND ir.IS_DELETED = '1'
+			AND ir.MASTER_ITEM_ID IS NOT NULL
+END
+		
+	
+-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchUpdate]
+(
+	@SEARCH_ID INT,
+	@SEARCH_TITLE NVARCHAR(4000),
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+declare @check int = 0
+set @check = (select count(SEARCH_ID) from 
+TB_SEARCH where SEARCH_ID = @SEARCH_ID and REVIEW_ID = @REVIEW_ID)
+if(@check != 1) return
+
+
+UPDATE TB_SEARCH
+		SET SEARCH_TITLE = @SEARCH_TITLE
+		WHERE SEARCH_ID = @SEARCH_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchUpdateHitCount]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchUpdateHitCount]
+(
+	@SEARCH_ID INT,
+	@NEW_HITCOUNT INT = 0
+)
+
+As
+
+SET NOCOUNT ON
+
+	UPDATE TB_SEARCH
+		SET HITS_NO = @NEW_HITCOUNT
+		WHERE SEARCH_ID = @SEARCH_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchVisualise]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchVisualise]
+(
+	@SEARCH_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE @VALS TABLE
+(
+	VAL INT
+,	TITLE NVARCHAR(10)
+)
+
+INSERT INTO @VALS (VAL, TITLE)
+VALUES (0, '0-9'), (10, '10-19'), (20, '20-29'), (30, '30-39'), (40, '40-49'), (50, '50-59'), (60, '60-69'), (70, '70-79'), (80, '80-89'), (90, '90-99')
+
+SELECT VAL, TITLE,
+	(SELECT COUNT(*) FROM TB_SEARCH_ITEM WHERE 
+	[ITEM_RANK] >= VAL AND [ITEM_RANK] < VAL + 10 AND SEARCH_ID = @SEARCH_ID) AS NUM
+FROM @VALS
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchWeightedTerms]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchWeightedTerms]
+(
+	@SEARCH_ID int = null output
+,	@CONTACT_ID int = null
+,	@REVIEW_ID int = null
+,	@SEARCH_TITLE varchar(4000) = null
+,	@TERMS NVARCHAR(4000) = NULL
+,	@ANSWERS VARCHAR(max) = NULL
+,	@INCLUDED BIT
+,	@FILTER_TYPE NVARCHAR(10) = NULL
+
+)
+with RECOMPILE
+AS
+
+	-- Step One: Insert record into tb_SEARCH
+	EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @ANSWERS, @TERMS, @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+	
+
+	-- Step Two: Perform the search and get a hits count
+DECLARE @t TABLE (item_id BIGINT PRIMARY KEY )
+		-- No 'answers' to filter on - ADD FILTERS!
+IF (@FILTER_TYPE = 'NONE')
+BEGIN
+	INSERT INTO @t (ITEM_ID)
+	SELECT TB_ITEM_REVIEW.ITEM_ID FROM TB_ITEM_REVIEW
+	WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 1 AND IS_INCLUDED = @INCLUDED
+END
+ELSE
+IF (@FILTER_TYPE = 'INCLUDE') -- FILTER ON THE SET OF STUDIES IN THE LIST
+BEGIN
+	INSERT INTO @t (ITEM_ID)
+	SELECT DISTINCT  TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+	INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+	INNER JOIN dbo.fn_Split_int(@ANSWERS, ',') ON value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.SET_ID = TB_ATTRIBUTE_SET.SET_ID AND
+		TB_ITEM_SET.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND IS_INCLUDED = @INCLUDED
+END
+ELSE -- Final filter type is 'exclude': exclude the items in the list
+BEGIN
+	INSERT INTO @t (ITEM_ID)
+	SELECT DISTINCT  ir.ITEM_ID FROM  TB_ITEM_REVIEW ir
+	WHERE ir.REVIEW_ID = @REVIEW_ID AND ir.IS_DELETED != 'true' AND ir.IS_INCLUDED = @INCLUDED
+		AND NOT ir.ITEM_ID IN
+		(SELECT ir2.ITEM_ID FROM TB_ITEM_ATTRIBUTE IA2
+			INNER JOIN TB_ATTRIBUTE_SET AS2 ON AS2.ATTRIBUTE_ID = IA2.ATTRIBUTE_ID
+			INNER JOIN dbo.fn_Split_int(@ANSWERS, ',') ON value = AS2.ATTRIBUTE_SET_ID
+			INNER JOIN TB_ITEM_SET tis on IA2.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+			INNER JOIN TB_ITEM_REVIEW ir2 
+				ON ir2.ITEM_ID = IA2.ITEM_ID and ir2.REVIEW_ID = @REVIEW_ID 
+				AND ir2.IS_DELETED != 'true' AND ir2.IS_INCLUDED = @INCLUDED
+		)			
+		
+		
+END
+	-- Step Three: do the tex_mining part and insert the results.
+insert into tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)	
+	SELECT DISTINCT  r.ITEM_ID, @SEARCH_ID, RANK 
+	FROM @t r
+	INNER JOIN CONTAINSTABLE(tb_item, (TITLE, ABSTRACT), @TERMS) AS KEY_TBL ON KEY_TBL.[KEY] = r.ITEM_ID	
+	--for some reason, having the ids in @t helps CONTAINSTABLE not to waste too much work, presumably looking at all terms ins tb_item?
+	--see email from Sergio on 17 August 2012 12:00
+
+	
+	-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchWithoutCodes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SearchWithoutCodes]
+(
+	@SEARCH_ID int = null output
+,	@CONTACT_ID nvarchar(50) = null
+,	@REVIEW_ID nvarchar(50) = null
+,	@SEARCH_TITLE varchar(4000) = null
+,	@ATTRIBUTE_SET_ID_LIST varchar(max) = null
+,	@INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+
+)
+AS
+	-- Step One: Insert record into tb_SEARCH
+	EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @ATTRIBUTE_SET_ID_LIST, '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+	-- Step Two: Perform the search and get a hits count
+	-- NB: We're using a udf to split the string of answer id's into a table, joining this with the tb_EXTRACT_ATTR (and any others that are required)
+	-- to perform the insert.  @ANSWERS should be passed in as 'AT10225, AT10226' (with a comma and a space separating each id)
+
+	
+	INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID)
+	SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID
+		FROM TB_ITEM_REVIEW
+		WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		AND IS_DELETED != 'true'
+		AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+	EXCEPT SELECT TB_ITEM_ATTRIBUTE.ITEM_ID, @SEARCH_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID -- Make sure the correct set is being used - the same code can appear in more than one set!
+
+	-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+	UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SetTypeList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_SetTypeList]
+	-- Add the parameters for the stored procedure here
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT * from TB_SET_TYPE order by SET_TYPE_ID
+	SELECT * from TB_SET_TYPE_ATTRIBUTE_TYPE tat
+	inner join TB_ATTRIBUTE_TYPE t on t.ATTRIBUTE_TYPE_ID = tat.ATTRIBUTE_TYPE_ID
+	order by SET_TYPE_ID
+	SELECT * from TB_SET_TYPE_PASTE order by DEST_SET_TYPE_ID
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_Source_Update]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_Source_Update] 
+	-- Add the parameters for the stored procedure here
+	@s_ID int = 0, 
+	@sDB nvarchar(200),
+	@Name nvarchar(255),
+	@DoS date,
+	@DoI date,
+	@Descr nvarchar(4000),
+	@s_Str nvarchar(MAX),
+	@Notes nvarchar(4000),
+	@REVIEW_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+declare @check int = 0
+--make sure source belongs to review...
+set @check = (select count(SOURCE_ID) from 
+TB_SOURCE where SOURCE_ID = @s_ID and REVIEW_ID = @REVIEW_ID)
+if(@check != 1) return
+
+    -- Insert statements for procedure here
+	UPDATE TB_SOURCE
+	   SET [SOURCE_NAME] = @Name
+		  ,[DATE_OF_SEARCH] = @DoS
+		  ,[DATE_OF_IMPORT] = @DoI
+		  ,[SOURCE_DATABASE] = @sDB
+		  ,[SEARCH_DESCRIPTION] = @Descr
+		  ,[SEARCH_STRING] = @s_Str
+		  ,[NOTES] = @Notes
+      
+ WHERE SOURCE_ID = @s_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_SourceAddToReview]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_SourceAddToReview]
+	-- Add the parameters for the stored procedure here
+	@Source_ID int
+	,@Review_ID int
+	,@Included bit
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	BEGIN TRAN A
+	insert into TB_ITEM_REVIEW 
+		select item_id, @Review_ID, @Included, null, 0
+		from TB_SOURCE s
+			inner join TB_ITEM_SOURCE tis on s.SOURCE_ID = tis.SOURCE_ID
+					and s.REVIEW_ID = @Review_ID and s.SOURCE_ID = @Source_ID
+	COMMIT TRAN A				
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SourceDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SourceDelete] 
+	@source_ID int,
+	@REVIEW_ID int
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+declare @check int = 0
+set @check = (select count(SOURCE_ID) from TB_SOURCE 
+where SOURCE_ID= @source_ID and REVIEW_ID = @REVIEW_ID)
+if (@check != 1) return
+
+--second check: is this source being deleted forever right now? In odd situations, this case may semi-legitimately happen...
+set @check = null
+set @check = (select count(REVIEW_JOB_ID) from tb_REVIEW_JOB where REVIEW_ID = @REVIEW_ID AND JOB_TYPE = 'delete source' and CURRENT_STATE = 'running' and SUCCESS = @source_ID * -1) 
+if (@check is not null and @check > 0) return
+
+declare @state bit;
+declare @rev_ID int;
+Set @state = 1 - (select IS_DELETED from TB_SOURCE where SOURCE_ID = @source_ID)
+set @rev_ID = (select review_id from TB_SOURCE where SOURCE_ID = @source_ID)
+
+
+BEGIN TRY
+
+BEGIN TRANSACTION
+update TB_SOURCE set IS_DELETED = @state where SOURCE_ID = @source_ID
+update IR set IS_DELETED = @state, IS_INCLUDED = 1
+	from TB_SOURCE inner join
+		tb_item_source on TB_SOURCE.source_id = tb_item_source.source_id
+		inner join tb_item on tb_item_source.item_id = tb_item.Item_ID
+		inner join tb_item_review as IR on tb_item.Item_ID = IR.Item_ID
+	where (TB_SOURCE.SOURCE_ID = @source_ID AND IR.REVIEW_ID = @rev_ID)
+		AND (IR.MASTER_ITEM_ID is null OR IR.IS_DELETED = 0)
+
+COMMIT TRANSACTION
+END TRY
+
+BEGIN CATCH
+IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+END CATCH
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SourceDeleteForever]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 20/7/09 -update May 2022
+-- Description:	(Un/)Delete a source and all its Items
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_SourceDeleteForever] 
+	-- Add the parameters for the stored procedure here
+	@srcID int = 0,
+	@revID int,
+	@contactID int,
+	@result int = 0 output 
+AS
+BEGIN
+	
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+	--declare @start datetime = getdate()
+	
+	declare @JobId int
+	--FIRST BLOCK: we can call this SP for 2 reasons:
+	--(A) to try deleting a source, which will happen ONLY if there isn't an older deletion pending
+	-- (A.1) if no older deletion is pending, we trigger the new job
+	-- (A.2) if an older deletion is pending, but has been active in the last 10m, we return without doing nothing (it might still be active)
+	-- (A.3) if an older deletion is pending, but has NOT been active in the last 10m, we resume the older job, overwriting the @srcID supplied as input
+	--(B) to check if an older JOB is pending - it was triggered but didn't finish within the 10m timeout:
+	-- (B.1) if so, it should be resumed (in all cases).
+	-- (B.2) otherwise end here: nothing to do.
+	--Thus, we first check in tb_REVIEW_JOB
+	--@JobId becomes not null if there is an active deletion for this review
+
+	BEGIN TRANSACTION PRE
+	--see https://weblogs.sqlteam.com/dang/2007/10/28/conditional-insertupdate-race-condition/
+	--for details on how this is dealing with concurrency problems. Aim is to avoid having two instances of this SP insert
+	--SP is called whenever the list of duplicates is retrieved AND when we are asking to find new duplicates...
+	
+	--paired with the "lasting lock", the transaction prevents two instances to be triggered concurrently
+	--without the lasting lock, the TRAN itself won't work, see link above for the details.
+	--WHILE running a deletion job holds the source_id in the "SUCCESS" field (it's an INT), but as a negative int, because 1 means "Success".
+	set @JobId = (select top 1 REVIEW_JOB_ID from tb_REVIEW_JOB WITH (TABLOCKX, HOLDLOCK)
+				where REVIEW_ID = @revID AND JOB_TYPE = 'delete source' and CURRENT_STATE = 'running' order by REVIEW_JOB_ID desc)
+	IF @JobId is not null --cases (B.1, B.2, A.2 or A.3)
+	BEGIN
+		--2 possibilities: (1) last activity was more than 10m ago, it has TIMED OUT, so we'll resume it 
+		--(2) last activity (END_TIME) was less than 10m ago, we assume it is still working and do nothing.
+		if (select END_TIME from tb_REVIEW_JOB where REVIEW_JOB_ID = @JobId) < DATEADD(minute, -10, getdate()) --CASES A.3 or B.1
+		BEGIN
+			update tb_REVIEW_JOB set END_TIME = GETDATE() where REVIEW_JOB_ID = @JobId --if this SP is triggered again within 10m, check above will NOT come in here.
+			if (@srcID > 0) --A.3
+			BEGIN 
+				set @result = -2 --overriding @srcID supplied, we'll resume the deletion that never finished.
+			END
+			--cases A.3 and B.1 the @srcID we'll work on is the one for the pre-existing job that we need to resume
+			set @srcID = (SELECT SUCCESS * -1 from tb_REVIEW_JOB where REVIEW_JOB_ID = @JobId) 
+			
+		END
+		ELSE
+		BEGIN
+			set @result = -1 --OLDER deletion JOB is still running
+			COMMIT TRANSACTION PRE --can't return before we commit the transaction
+			return
+		END
+	END
+	IF @srcID = 0
+	BEGIN
+		--case B.2
+		--means that this was triggered ONLY to check if a job is already running, and that we did not find a job to resume, so we should stop here
+		set @result = 0 --nothing happening
+		COMMIT TRANSACTION PRE --can't return before we commit the transaction
+		return
+	END
+
+	--ALL cases in which we should NOT start/resume a deletion have "returned" already, if we reach the following it's because we have something to do.
+	--TO stay safe, IF @srcID = 0, we don't know what to do and end here
+	IF @srcID < 1 OR @srcID is null
+	BEGIN
+		set @result = -10 --unspecified error, should not happen
+		COMMIT TRANSACTION PRE --can't return before we commit the transaction
+		return
+	END
+	--LAST check: make sure the source belongs to review...
+	declare @check int = 0
+	set @check = (select count(source_id) from TB_SOURCE where SOURCE_ID = @srcID and REVIEW_ID = @revID and IS_DELETED = 1)
+	if (@check != 1) 
+	BEGIN
+		set @result = -11 --another unspecified error, should not happen, most likely, this source wasn't already marked as deleted.
+		COMMIT TRANSACTION PRE --can't return before we commit the transaction
+		return
+	END
+
+	--IF user supplied a @srcID and no older job needed resuming (we got the @srcID already), we need to create a new record in TB_REVIEW_JOB and get the @JobId
+	IF @JobId is null OR @JobId = 0
+	BEGIN
+	--we put "Source_id * -1" in the "Success" field, as it's of Int type (tells us what source is being deleted).
+		insert into tb_REVIEW_JOB select @revID, @contactID, GETDATE(), GETDATE(), 'delete source', 'running', @srcID * -1, ''
+		set @JobId = SCOPE_IDENTITY()
+	END
+
+	COMMIT TRANSACTION PRE --we've updated or inserted into tb_REVIEW_JOB, we can release the lock
+
+	
+	--IF we got all the way to here, we have work to do, at last!!
+
+	Declare @tt TABLE
+	(
+		item_ID bigint PRIMARY KEY
+	)
+	declare @bsize int = 400 --max size of batch we'll delete
+	declare @actualbsize int = @bsize --actual size of batch we'll delete
+	declare @counter int = 0
+	declare @delay nchar(8) = '00:00:04'--length of the pause after each batch
+
+	
+
+	--select DATEDIFF(millisecond, @start, getdate()) as 'prep'
+	--set @start = GETDATE()
+
+	while (@actualbsize > 0 AND @counter < 100000)
+	BEGIN
+		BEGIN TRY	--to be VERY sure this doesn't happen in part, we nest a transaction inside a try catch clause
+			BEGIN TRANSACTION
+				insert into @tt --First: get the ITEM_IDs we'll deal with, excluding those that appear in more than one review
+				SELECT top (@bsize) ITEM_ID FROM
+					(select ir.ITEM_ID, COUNT(ir.item_id) cnt from TB_ITEM_REVIEW ir 
+						inner join TB_ITEM_SOURCE tis on ir.ITEM_ID = tis.ITEM_ID
+						where tis.SOURCE_ID = @srcID -- cnt = 1
+						group by ir.ITEM_ID) cc
+						where cnt=1
+				Set @actualbsize = @@ROWCOUNT
+				--Second: delete the records in TB_ITEM_REVIEW for the items that are shared only in this review
+				--ON 27/04/2022 we start doing this deletion on items that are NOT shared, before we explicitly did it only for shared items
+				delete from TB_ITEM_REVIEW 
+					where REVIEW_ID = @revID
+						AND ITEM_ID in (select item_ID from @tt )
+
+	
+				--select DATEDIFF(millisecond, @start, getdate()) as 'ItemReview'
+				--set @start = GETDATE()
+
+				--Third: explicitly delete the records that can't be automatically deleted through the foreign key cascade actions
+				-- the cnt=1 clause makes sure we don't touch data related to items that appear in other reviews.
+				DELETE FROM TB_ITEM_DUPLICATES where ITEM_ID_OUT in (SELECT item_ID from @tt )	
+	
+				--select DATEDIFF(millisecond, @start, getdate()) as 'TB_ITEM_DUPLICATES'
+				--set @start = GETDATE()
+
+				DELETE FROM TB_ITEM_LINK where ITEM_ID_SECONDARY in (SELECT item_ID from @tt)
+
+				--select DATEDIFF(millisecond, @start, getdate()) as 'TB_ITEM_LINK'
+				--set @start = GETDATE()
+
+				DELETE FROM TB_ITEM_DOCUMENT where ITEM_ID in (SELECT item_ID from @tt)
+	
+				--select DATEDIFF(millisecond, @start, getdate()) as 'TB_ITEM_DOCUMENT'
+				--set @start = GETDATE()
+
+				DELETE From TB_ITEM_ATTRIBUTE where ITEM_ID in (SELECT item_ID from @tt) --and (ITEM_ARM_ID is not null AND ITEM_ARM_ID > 0)
+	
+				--select DATEDIFF(millisecond, @start, getdate()) as 'TB_ITEM_ATTRIBUTE'
+				--set @start = GETDATE()
+
+				DELETE From TB_ITEM_ARM where ITEM_ID in (SELECT item_ID from @tt)
+	
+				--select DATEDIFF(millisecond, @start, getdate()) as 'TB_ITEM_ARM'
+				--set @start = GETDATE()
+
+				DELETE From tb_ITEM_MAG_MATCH where ITEM_ID in (SELECT item_ID from @tt ) and REVIEW_ID = @revID
+	
+				--select DATEDIFF(millisecond, @start, getdate()) as 'tb_ITEM_MAG_MATCH'
+				--set @start = GETDATE()
+
+				--ADDED on 27/04/2022 rewrite
+				DELETE FROM TB_ITEM_SOURCE where ITEM_ID in (SELECT item_ID from @tt ) and SOURCE_ID = @srcID
+				
+				--select DATEDIFF(millisecond, @start, getdate()) as 'TB_ITEM_SOURCE'
+				--set @start = GETDATE()
+
+				--Fourth: delete the items 
+				DELETE  FROM TB_ITEM WHERE ITEM_ID in (SELECT item_ID from @tt)
+				
+				delete from @tt --we're adding to it at the top of the cycle
+				
+				set @counter = @counter+1
+			COMMIT TRANSACTION
+			update tb_REVIEW_JOB set END_TIME = GETDATE() where REVIEW_JOB_ID = @JobId
+			
+			--select DATEDIFF(millisecond, @start, getdate()), @counter as 'batch(r)'
+			
+			waitfor delay @delay
+			
+			--set @start = GETDATE()
+		END TRY
+
+		BEGIN CATCH
+		--select 'caught!!!!!'
+			IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+			set @result = -12 --exception
+			--we do the "CAST" to ensure the message fits, can't afford an exception in here...
+			update tb_REVIEW_JOB set JOB_MESSAGE = CAST(JOB_MESSAGE + Char(10)+ Char(13) + 'ERROR: ' + ERROR_MESSAGE()
+														+ Char(10)+ Char(13) + 'LINE: ' + ERROR_LINE() as varchar(4000))
+				where REVIEW_JOB_ID = @JobId
+			return --we stop if something broke down
+		END CATCH
+	END --WHILE cycle
+
+	--Fifth Items that are SHARED into multiple reviews, we delete them from TB_ITEM_SOURCE and TB_ITEM_REVIEW only
+	delete from @tt
+	insert into @tt 
+	SELECT top (@bsize) ITEM_ID FROM
+		(select ir.ITEM_ID, COUNT(ir.item_id) cnt from TB_ITEM_REVIEW ir 
+			inner join TB_ITEM_SOURCE tis on ir.ITEM_ID = tis.ITEM_ID
+			where tis.SOURCE_ID = @srcID -- cnt = 1
+			group by ir.ITEM_ID) cc
+			where cnt>1
+	
+	BEGIN TRY	--to be VERY sure this doesn't happen in part, we nest a transaction inside a try catch clause
+		BEGIN TRANSACTION
+			DELETE from TB_ITEM_REVIEW where ITEM_ID in (SELECT item_ID from @tt) and REVIEW_ID = @revID
+			
+			--select DATEDIFF(millisecond, @start, getdate()) as 'TB_ITEM_REVIEW (shared items)'
+			--set @start = GETDATE()
+
+			DELETE from TB_ITEM_SOURCE where ITEM_ID in (SELECT item_ID from @tt) and SOURCE_ID = @srcID 
+			
+			--select DATEDIFF(millisecond, @start, getdate()) as 'TB_ITEM_SOURCE (shared items)'
+			--set @start = GETDATE()
+
+			--Sixth: delete the source
+			DELETE FROM TB_SOURCE WHERE SOURCE_ID = @srcID
+			
+			--select DATEDIFF(millisecond, @start, getdate()) as 'TB_SOURCE'
+			--set @start = GETDATE()
+
+			--we do the "CAST" to ensure the message fits, can't afford an exception at this step...
+			update tb_REVIEW_JOB set END_TIME = GETDATE(), CURRENT_STATE = 'Ended', SUCCESS = 1, JOB_MESSAGE = cast('SOURCE_ID = ' + CAST(@srcID as varchar(100)) +  Char(10)+ Char(13) + JOB_MESSAGE as varchar(4000)) where REVIEW_JOB_ID = @JobId
+		COMMIT TRANSACTION
+	END TRY
+	BEGIN CATCH
+		--select 'caught!!!!!'
+			IF (@@TRANCOUNT > 0) ROLLBACK TRANSACTION
+			set @result = -12 --exception
+			
+			--we do the "CAST" to ensure the message fits, can't afford an exception in here...
+			update tb_REVIEW_JOB set JOB_MESSAGE = CAST(JOB_MESSAGE +  Char(10)+ Char(13) + 'ERROR: ' + ERROR_MESSAGE()
+														+  Char(10)+ Char(13) +'LINE: ' + ERROR_LINE() as varchar(4000))
+				where REVIEW_JOB_ID = @JobId
+			return --we stop if something broke down
+	END CATCH
+	IF @result is null OR @result = 0 Set @result = 1 -- "-2" is for when we did delete a source, but not the one the user asked for, 1 is for when we deleted the expected source
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SourceDeleteForeverIsRunning]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SourceDeleteForeverIsRunning] 
+	@revID int,
+	@result int = 0 output 
+AS
+BEGIN
+	
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	set @result = (select TOP 1 SUCCESS * -1 as SOURCE_ID from tb_REVIEW_JOB
+				where REVIEW_ID = @revID AND JOB_TYPE = 'delete source' and CURRENT_STATE = 'running' order by REVIEW_JOB_ID desc)
+	IF @result is null set @result = 0
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_SourceDetails]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 29-06-09
+-- Description:	Gets Sources from Review_ID
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_SourceDetails] 
+	-- Add the parameters for the stored procedure here
+	@revID int = 0,
+	@sourceID int = 0
+	with recompile
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	--declare @l1 nvarchar(200)
+	--declare @l2 nvarchar(200)
+	--declare @l3 nvarchar(200)
+	--declare @l4 nvarchar(200)
+	--declare @l5 nvarchar(200)
+	--declare @l6 nvarchar(200)
+	--declare @l7 nvarchar(200)
+	
+	--set @l1 = CONVERT(varchar, SYSDATETIME(), 121)
+	declare @tt table
+	(
+		SOURCE_NAME nvarchar(255)
+		,IS_DELETED bit
+		,Source_ID int
+		,DATE_OF_SEARCH date
+		,DATE_OF_IMPORT date
+		,SOURCE_DATABASE nvarchar(200)
+		,SEARCH_DESCRIPTION nvarchar(4000)
+		,SEARCH_STRING nvarchar(MAX)
+		,NOTES nvarchar(4000)
+		,IMPORT_FILTER nvarchar(60)
+		,REVIEW_ID int
+		
+	)
+	declare @t1 table
+	(
+		Source_ID int
+		,[Total_Items] int NULL
+		, [Deleted_Items] int NULL
+	)
+	declare @t2 table
+	(
+		Source_ID int
+		,CODES int NULL
+		,IDUCTIVE_CODES int NULL
+	)
+	declare @t3 table
+	(
+		Source_ID int
+		,[Attached Files]  int NULL
+		,OUTCOMES  int NULL
+	)
+	declare @t4 table
+	(
+		Source_ID int
+		,DUPLICATES int NULL
+		,isMasterOf  int NULL
+	)
+
+	insert into @tt
+	(	
+		SOURCE_NAME
+		,[REVIEW_ID]
+		,[Source_ID]
+		,[IS_DELETED]
+		,[DATE_OF_SEARCH]
+		,[DATE_OF_IMPORT]
+		,[SOURCE_DATABASE]
+		,[SEARCH_DESCRIPTION]
+		,[SEARCH_STRING]
+		,[NOTES]
+		,[IMPORT_FILTER]
+	)
+	SELECT SOURCE_NAME
+		,[REVIEW_ID]
+		,SOURCE_ID
+		,[IS_DELETED]
+		,[DATE_OF_SEARCH]
+		,[DATE_OF_IMPORT]
+		,[SOURCE_DATABASE]
+		,[SEARCH_DESCRIPTION]
+		,[SEARCH_STRING]
+		,ts.[NOTES]
+		,tif.IMPORT_FILTER_NAME
+	from TB_SOURCE ts Left outer join TB_IMPORT_FILTER tif on ts.IMPORT_FILTER_ID = tif.IMPORT_FILTER_ID
+	where REVIEW_ID = @revID and SOURCE_ID = @sourceID
+	--set @l2 = CONVERT(varchar, SYSDATETIME(), 121)
+
+	insert into @t1 
+		SELECT tt.source_id 
+		,COUNT(distinct(tis.ITEM_ID)) 'Total_Items'
+		,sum(CASE WHEN ir.IS_DELETED = 1 then 1 else 0 END) 
+		--, (SELECT COUNT(distinct(ttis.ITEM_ID)) from TB_ITEM_REVIEW ttir
+		--		inner join TB_ITEM_SOURCE ttis on ttis.ITEM_ID = ttir.ITEM_ID
+		--		where ttis.SOURCE_ID = tt.SOURCE_ID and ttir.IS_DELETED = 1) 'Deleted_Items'
+		from @tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+			inner join tb_item_review ir on tis.Item_ID = ir.Item_ID
+		WHERE ir.REVIEW_ID = @revID
+		group by tt.Source_ID
+	--set @l3 = CONVERT(varchar, SYSDATETIME(), 121)
+	Insert into @t2
+	(Source_ID, CODES, IDUCTIVE_CODES)  (select source_id, 0 ,0 from @tt)
+	update @t2   set CODES = sub.CODES--, IDUCTIVE_CODES = sub.IDUCTIVE_CODES
+	from
+		(
+			SELECT 
+			tt.source_id SSID
+			,COUNT(distinct(ia.ITEM_ID)) CODES 
+			--,COUNT(distinct(iat.ITEM_ATTRIBUTE_TEXT_ID)) IDUCTIVE_CODES
+			--,COUNT(distinct(tid.ITEM_DOCUMENT_ID)) [Attached Files]
+			--,COUNT(distinct(tio.OUTCOME_ID)) OUTCOMES  
+			from @tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+				--inner join tb_item_review ir on tis.Item_ID = ir.Item_ID
+				inner join TB_REVIEW_SET rs on rs.REVIEW_ID = tt.REVIEW_ID and tt.REVIEW_ID = @revID
+				inner join TB_ATTRIBUTE_SET tas on rs.SET_ID = tas.SET_ID
+				inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_ID = ia.ITEM_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+				--left outer join TB_ITEM_ATTRIBUTE_TEXT iat on ia.ITEM_ATTRIBUTE_ID = iat.ITEM_ATTRIBUTE_ID
+				--left outer join TB_ITEM_DOCUMENT tid on tid.ITEM_ID = tis.ITEM_ID
+				--left outer join TB_ITEM_SET tes on tis.ITEM_ID = tes.ITEM_ID 
+				--left outer join TB_ITEM_OUTCOME tio on tio.ITEM_SET_ID = tes.ITEM_SET_ID 
+			--WHERE ir.REVIEW_ID = @revID
+			
+			group by tt.Source_ID
+			
+		) sub
+		where sub.SSID = Source_ID
+		--OPTION (OPTIMIZE FOR UNKNOWN)
+	--set @l4 = CONVERT(varchar, SYSDATETIME(), 121)
+	Insert into @t3
+		SELECT tt.source_id
+		--,COUNT(distinct(ia.ITEM_ATTRIBUTE_ID)) CODES 
+		--,COUNT(distinct(iat.ITEM_ATTRIBUTE_TEXT_ID)) IDUCTIVE_CODES
+		,COUNT(distinct(tid.ITEM_DOCUMENT_ID)) [Attached Files]
+		,COUNT(distinct(tio.OUTCOME_ID)) OUTCOMES  
+		from @tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+			inner join tb_item_review ir on tis.Item_ID = ir.Item_ID
+			--left outer join TB_REVIEW_SET rs on rs.REVIEW_ID = tt.REVIEW_ID
+			--left outer join TB_ATTRIBUTE_SET tas on rs.SET_ID = tas.SET_ID
+			--left outer join TB_ITEM_ATTRIBUTE ia on tis.ITEM_ID = ia.ITEM_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+			--left outer join TB_ITEM_ATTRIBUTE_TEXT iat on ia.ITEM_ATTRIBUTE_ID = iat.ITEM_ATTRIBUTE_ID
+			left outer join TB_ITEM_DOCUMENT tid on tid.ITEM_ID = tis.ITEM_ID
+			left outer join TB_ITEM_SET tes on tis.ITEM_ID = tes.ITEM_ID 
+			left outer join TB_ITEM_OUTCOME tio on tio.ITEM_SET_ID = tes.ITEM_SET_ID 
+		WHERE ir.REVIEW_ID = @revID
+		group by tt.Source_ID
+	--set @l5 = CONVERT(varchar, SYSDATETIME(), 121)
+	Insert into @t4
+		SELECT
+		tt.source_id
+		--,(COUNT(distinct(dup.ITEM_DUPLICATES_ID)) + COUNT(distinct(dup2.ITEM_DUPLICATES_ID))) DUPLICATES
+		--,COUNT(distinct(ir2.ITEM_REVIEW_ID)) isMasterOf
+		,sum(CASE WHEN (
+				ir.IS_DELETED = 1 and ir.is_included = 1 AND ir.MASTER_ITEM_ID is NOT null
+			) then 1 else 0 END) as 'Duplicates'
+		,0
+		from 
+			@tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+			inner join tb_item_review ir on tis.Item_ID = ir.Item_ID
+			--left outer join TB_ITEM_REVIEW ir2 on ir2.MASTER_ITEM_ID = ir.ITEM_ID and ir2.REVIEW_ID = @revID
+		WHERE ir.REVIEW_ID = @revID
+		
+		group by tt.Source_ID
+
+	update @t4 set isMasterOf = a.c
+		from
+		(Select COUNT (distinct ir2.item_id) as c from @tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+			inner join tb_item_review ir on tis.Item_ID = ir.MASTER_ITEM_ID
+			inner join TB_ITEM_REVIEW ir2 on ir.MASTER_ITEM_ID = ir2.ITEM_ID and ir2.REVIEW_ID = @revID
+			) a
+	--set @l6 = CONVERT(varchar, SYSDATETIME(), 121)
+	select 
+		SOURCE_NAME
+		,[Total_Items]
+		,[Deleted_Items]
+		,IS_DELETED
+		,t1.Source_ID
+		,DATE_OF_SEARCH
+		,DATE_OF_IMPORT
+		,SOURCE_DATABASE
+		,SEARCH_DESCRIPTION
+		,SEARCH_STRING
+		,NOTES
+		,IMPORT_FILTER
+		,REVIEW_ID
+		,CODES
+		,IDUCTIVE_CODES
+		,[Attached Files]
+		,DUPLICATES
+		,isMasterOf
+		,OUTCOMES
+	from @tt tt
+	inner join @t1 t1 on tt.Source_ID = t1.Source_ID
+	inner join @t2 t2 on tt.Source_ID = t2.Source_ID
+	inner join @t3 t3 on tt.Source_ID = t3.Source_ID
+	inner join @t4 t4 on tt.Source_ID = t4.Source_ID
+	order by Source_ID
+	--set @l7 = CONVERT(varchar, SYSDATETIME(), 121)
+	--select @l1, @l2, @l3, @l4, @l5, @l6, @l7
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_SourceFromReview_ID]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SourceFromReview_ID] 
+	-- Add the parameters for the stored procedure here
+	@revID int = 0 
+with recompile
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	Select SOURCE_NAME, count(*) As 'Total_Items',
+		sum(CASE WHEN (tb_item_review.IS_DELETED = 1 and tb_item_review.MASTER_ITEM_ID is null) then 1 else 0 END) as 'Deleted_Items',
+		sum(CASE WHEN (
+				tb_item_review.IS_DELETED = 1 and tb_item_review.is_included = 1 AND tb_item_review.MASTER_ITEM_ID is NOT null
+			) then 1 else 0 END) as 'Duplicates',
+		TB_SOURCE.IS_DELETED,
+		TB_SOURCE.Source_ID,
+		0 as TO_ORDER
+		from TB_SOURCE inner join
+		tb_item_source on TB_SOURCE.source_id = tb_item_source.source_id
+		--inner join tb_item on tb_item_source.item_id = tb_item.Item_ID
+		inner join tb_item_review on tb_item_source.Item_ID = tb_item_review.Item_ID
+		left outer join TB_IMPORT_FILTER on TB_IMPORT_FILTER.IMPORT_FILTER_ID = TB_SOURCE.IMPORT_FILTER_ID
+	where TB_SOURCE.review_ID = @RevID AND TB_ITEM_REVIEW.REVIEW_ID = @RevID
+	group by SOURCE_NAME,
+			 TB_SOURCE.Source_ID,
+			 TB_SOURCE.IS_DELETED
+	
+	
+	-- get sourceless items count in a second resultset
+	--Select COUNT(ir.ITEM_REVIEW_ID) as 'SourcelessItems' from tb_item_review ir 
+	--	left outer join TB_ITEM_SOURCE tis on ir.ITEM_ID = tis.ITEM_ID
+	--	left outer join TB_SOURCE ts on tis.SOURCE_ID = ts.SOURCE_ID and ir.REVIEW_ID = ts.REVIEW_ID
+	--where ir.REVIEW_ID = @revID and ts.SOURCE_ID is null
+	UNION
+	Select 'NN_SOURCELESS_NN' as SOURCE_NAME, count(ir.ITEM_REVIEW_ID) As 'Total_Items',
+		sum(CASE WHEN (ir.IS_DELETED = 1 and ir.MASTER_ITEM_ID is null) then 1 else 0 END) as 'Deleted_Items',
+		sum(CASE WHEN (
+				ir.IS_DELETED = 1 and ir.is_included = 1 AND ir.MASTER_ITEM_ID is NOT null
+			) then 1 else 0 END) as 'Duplicates',
+		Case 
+			when COUNT(ir.ITEM_ID) = Sum(
+										case when ir.IS_DELETED = 1 then 1 else 0 end
+										) 
+			then 1 else 0 end
+		 as IS_DELETED,
+		-1 as Source_ID,
+		1 as TO_ORDER
+		from tb_item_review ir 
+		where ir.REVIEW_ID = @revID 
+			and ir.ITEM_ID not in 
+				(
+					Select ITEM_ID from TB_SOURCE s
+					inner join TB_ITEM_SOURCE tis on s.SOURCE_ID = tis.SOURCE_ID and s.REVIEW_ID = @revID
+				)
+		order by TO_ORDER, TB_SOURCE.Source_ID
+
+	select TOP 1 SUCCESS * -1 as SOURCE_ID from tb_REVIEW_JOB
+				where REVIEW_ID = @revID AND JOB_TYPE = 'delete source' and CURRENT_STATE = 'running' order by REVIEW_JOB_ID desc
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SourceFromReview_ID_Extended]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 29-06-09
+-- Description:	Gets Sources from Review_ID
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_SourceFromReview_ID_Extended] 
+	-- Add the parameters for the stored procedure here
+	@revID int = 0 
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @tt table
+	(
+		SOURCE_NAME nvarchar(255)
+		,IS_DELETED bit
+		,Source_ID int
+		,DATE_OF_SEARCH date
+		,DATE_OF_IMPORT date
+		,SOURCE_DATABASE nvarchar(200)
+		,SEARCH_DESCRIPTION nvarchar(4000)
+		,SEARCH_STRING nvarchar(1000)
+		,NOTES nvarchar(4000)
+		,IMPORT_FILTER nvarchar(60)
+		,REVIEW_ID int
+		
+	)
+	declare @t1 table
+	(
+		Source_ID int
+		,[Total_Items] int NULL
+		, [Deleted_Items] int NULL
+	)
+	declare @t2 table
+	(
+		Source_ID int
+		,CODES int NULL
+		,IDUCTIVE_CODES int NULL
+	)
+	declare @t3 table
+	(
+		Source_ID int
+		,[Attached Files]  int NULL
+		,OUTCOMES  int NULL
+	)
+	declare @t4 table
+	(
+		Source_ID int
+		,DUPLICATES int NULL
+		,isMasterOf  int NULL
+	)
+
+	insert into @tt
+	(	
+		SOURCE_NAME
+		,[REVIEW_ID]
+		,[Source_ID]
+		,[IS_DELETED]
+		,[DATE_OF_SEARCH]
+		,[DATE_OF_IMPORT]
+		,[SOURCE_DATABASE]
+		,[SEARCH_DESCRIPTION]
+		,[SEARCH_STRING]
+		,[NOTES]
+		,[IMPORT_FILTER]
+	)
+	SELECT SOURCE_NAME
+		,[REVIEW_ID]
+		,SOURCE_ID
+		,[IS_DELETED]
+		,[DATE_OF_SEARCH]
+		,[DATE_OF_IMPORT]
+		,[SOURCE_DATABASE]
+		,[SEARCH_DESCRIPTION]
+		,[SEARCH_STRING]
+		,ts.[NOTES]
+		,tif.IMPORT_FILTER_NAME
+	from TB_SOURCE ts Left outer join TB_IMPORT_FILTER tif on ts.IMPORT_FILTER_ID = tif.IMPORT_FILTER_ID
+	where REVIEW_ID = @revID
+
+
+	insert into @t1 
+		SELECT tt.source_id 
+		,COUNT(distinct(tis.ITEM_ID)) 'Total_Items'
+		,sum(CASE WHEN ir.IS_DELETED = 1 then 1 else 0 END) 
+		--, (SELECT COUNT(distinct(ttis.ITEM_ID)) from TB_ITEM_REVIEW ttir
+		--		inner join TB_ITEM_SOURCE ttis on ttis.ITEM_ID = ttir.ITEM_ID
+		--		where ttis.SOURCE_ID = tt.SOURCE_ID and ttir.IS_DELETED = 1) 'Deleted_Items'
+		from @tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+			inner join tb_item_review ir on tis.Item_ID = ir.Item_ID
+		WHERE ir.REVIEW_ID = @revID
+		group by tt.Source_ID
+
+	Insert into @t2
+	(Source_ID, CODES, IDUCTIVE_CODES)  (select source_id, 0 ,0 from @tt)
+	update @t2   set CODES = sub.CODES, IDUCTIVE_CODES = sub.IDUCTIVE_CODES
+	from
+		(
+			SELECT 
+			tt.source_id SSID
+			,COUNT(distinct(ia.ITEM_ATTRIBUTE_ID)) CODES 
+			,COUNT(distinct(iat.ITEM_ATTRIBUTE_TEXT_ID)) IDUCTIVE_CODES
+			--,COUNT(distinct(tid.ITEM_DOCUMENT_ID)) [Attached Files]
+			--,COUNT(distinct(tio.OUTCOME_ID)) OUTCOMES  
+			from @tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+				inner join tb_item_review ir on tis.Item_ID = ir.Item_ID
+				inner join TB_REVIEW_SET rs on rs.REVIEW_ID = tt.REVIEW_ID
+				inner join TB_ATTRIBUTE_SET tas on rs.SET_ID = tas.SET_ID
+				inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_ID = ia.ITEM_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+				left outer join TB_ITEM_ATTRIBUTE_TEXT iat on ia.ITEM_ATTRIBUTE_ID = iat.ITEM_ATTRIBUTE_ID
+				--left outer join TB_ITEM_DOCUMENT tid on tid.ITEM_ID = tis.ITEM_ID
+				--left outer join TB_ITEM_SET tes on tis.ITEM_ID = tes.ITEM_ID 
+				--left outer join TB_ITEM_OUTCOME tio on tio.ITEM_SET_ID = tes.ITEM_SET_ID 
+			WHERE ir.REVIEW_ID = @revID
+			
+			group by tt.Source_ID
+			
+		) sub
+		
+		where sub.SSID = Source_ID
+		OPTION (OPTIMIZE FOR UNKNOWN)
+
+	Insert into @t3
+		SELECT tt.source_id
+		--,COUNT(distinct(ia.ITEM_ATTRIBUTE_ID)) CODES 
+		--,COUNT(distinct(iat.ITEM_ATTRIBUTE_TEXT_ID)) IDUCTIVE_CODES
+		,COUNT(distinct(tid.ITEM_DOCUMENT_ID)) [Attached Files]
+		,COUNT(distinct(tio.OUTCOME_ID)) OUTCOMES  
+		from @tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+			inner join tb_item_review ir on tis.Item_ID = ir.Item_ID
+			--left outer join TB_REVIEW_SET rs on rs.REVIEW_ID = tt.REVIEW_ID
+			--left outer join TB_ATTRIBUTE_SET tas on rs.SET_ID = tas.SET_ID
+			--left outer join TB_ITEM_ATTRIBUTE ia on tis.ITEM_ID = ia.ITEM_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+			--left outer join TB_ITEM_ATTRIBUTE_TEXT iat on ia.ITEM_ATTRIBUTE_ID = iat.ITEM_ATTRIBUTE_ID
+			left outer join TB_ITEM_DOCUMENT tid on tid.ITEM_ID = tis.ITEM_ID
+			left outer join TB_ITEM_SET tes on tis.ITEM_ID = tes.ITEM_ID 
+			left outer join TB_ITEM_OUTCOME tio on tio.ITEM_SET_ID = tes.ITEM_SET_ID 
+		WHERE ir.REVIEW_ID = @revID
+		group by tt.Source_ID
+
+	Insert into @t4
+		SELECT
+		tt.source_id
+		--,(COUNT(distinct(dup.ITEM_DUPLICATES_ID)) + COUNT(distinct(dup2.ITEM_DUPLICATES_ID))) DUPLICATES
+		--,COUNT(distinct(ir2.ITEM_REVIEW_ID)) isMasterOf
+		,sum(CASE WHEN (
+				ir.IS_DELETED = 1 and ir.is_included = 1 AND ir.MASTER_ITEM_ID is NOT null
+			) then 1 else 0 END) as 'Duplicates'
+		,COUNT(distinct ir2.MASTER_ITEM_ID)
+		from 
+			@tt tt	inner join tb_item_source tis on tt.source_id = tis.source_id
+			inner join tb_item_review ir on tis.Item_ID = ir.Item_ID
+			left outer join TB_ITEM_REVIEW ir2 on ir2.MASTER_ITEM_ID = ir.ITEM_ID and ir2.REVIEW_ID = @revID
+		WHERE ir.REVIEW_ID = @revID
+		
+		group by tt.Source_ID
+		--OPTION (OPTIMIZE FOR UNKNOWN)
+	select 
+		SOURCE_NAME
+		,[Total_Items]
+		,[Deleted_Items]
+		,IS_DELETED
+		,t1.Source_ID
+		,DATE_OF_SEARCH
+		,DATE_OF_IMPORT
+		,SOURCE_DATABASE
+		,SEARCH_DESCRIPTION
+		,SEARCH_STRING
+		,NOTES
+		,IMPORT_FILTER
+		,REVIEW_ID
+		,CODES
+		,IDUCTIVE_CODES
+		,[Attached Files]
+		,DUPLICATES
+		,isMasterOf
+		,OUTCOMES
+	from @tt tt
+	inner join @t1 t1 on tt.Source_ID = t1.Source_ID
+	inner join @t2 t2 on tt.Source_ID = t2.Source_ID
+	inner join @t3 t3 on tt.Source_ID = t3.Source_ID
+	inner join @t4 t4 on tt.Source_ID = t4.Source_ID
+	order by Source_ID
+END
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SourceLessDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 20/7/09
+-- Description:	(Un/)Delete a source and all its Items
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_SourceLessDelete] 
+	-- Add the parameters for the stored procedure here
+
+	@rev_ID int
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+declare @state bit;
+--invert the cuerrent 'source' state (even if there is no source!)
+--if all sourceless items are currently deleted @state becomes 0 otherwise 1.
+-- we use the @state value to change the state of tb_item_review records...
+
+declare @t table (ItemId bigint primary key)
+insert into @t 
+	select distinct IR.ITEM_ID
+	from TB_ITEM_REVIEW ir   
+	where ir.REVIEW_ID = @rev_ID and ir.ITEM_ID not in 
+	( 
+		Select ir1.Item_id from tb_source s
+		inner join TB_ITEM_SOURCE tis on s.SOURCE_ID = tis.SOURCE_ID and s.REVIEW_ID = @rev_ID
+		inner join TB_ITEM_REVIEW ir1 on tis.ITEM_ID = ir1.ITEM_ID and ir1.REVIEW_ID = @rev_ID
+	)
+
+Set @state = (
+				SELECT Case 
+				when COUNT(ir.ITEM_ID) = Sum(
+											case when ir.IS_DELETED = 1 then 1 else 0 end
+											) 
+				then 0 else 1 end
+		 		from tb_item_review ir 
+				inner join @t t on t.ItemId = ir.ITEM_ID and ir.REVIEW_ID = @rev_ID
+			)
+update IR set IS_DELETED = @state, IS_INCLUDED = 1
+	from tb_item_review ir 
+	inner join @t t on t.ItemId = ir.ITEM_ID and ir.REVIEW_ID = @rev_ID
+	where (IR.MASTER_ITEM_ID is null OR IR.IS_DELETED = 0)		
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_SVMReviewData]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_SVMReviewData]
+(
+	@REVIEW_ID INT
+,	@SCREENING_CODE_SET_ID INT = NULL
+)
+
+As
+
+SET NOCOUNT ON
+
+
+
+
+	SELECT DISTINCT '+1', TB_ITEM_TERM_VECTORS.ITEM_ID, VECTORS FROM ReviewerTerms.dbo.TB_ITEM_TERM_VECTORS
+	INNER JOIN REVIEWER.DBO.TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	INNER JOIN REVIEWER.DBO.TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN REVIEWER.DBO.TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'True'
+	INNER JOIN Reviewer.dbo.TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	WHERE tb_item_term_vectors.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		
+	UNION
+	
+	SELECT DISTINCT '-1', ITEM_ID, VECTOR_S FROM (SELECT /* TOP(@N_INCLUDED) */ VECTORS
+		AS VECTOR_S, TB_ITEM_TERM_VECTORS.ITEM_ID FROM ReviewerTerms.dbo.TB_ITEM_TERM_VECTORS
+	INNER JOIN REVIEWER.DBO.TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	INNER JOIN REVIEWER.DBO.TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN REVIEWER.DBO.TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'False'
+	INNER JOIN Reviewer.dbo.TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+	/*ORDER BY NEWID()*/) AS X
+	
+	UNION
+	
+	SELECT DISTINCT '0', TB_ITEM_TERM_VECTORS.ITEM_ID, VECTORS FROM ReviewerTerms.dbo.TB_ITEM_TERM_VECTORS
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID AND NOT TB_ITEM_TERM_VECTORS.ITEM_ID IN
+	(SELECT TB_ITEM_SET.ITEM_ID FROM TB_ITEM_SET
+		WHERE TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		AND TB_ITEM_SET.SET_ID = @SCREENING_CODE_SET_ID
+	)
+	
+	/*
+	-- OLD VERSION, BEFORE WE SIMPLY FILTER BY WHETHER A CODE IS PRESENT IN A GIVEN CODE SET
+	
+	SELECT DISTINCT '0', TB_ITEM_TERM_VECTORS.ITEM_ID, VECTORS FROM ReviewerTerms.dbo.TB_ITEM_TERM_VECTORS
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+		AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID AND NOT TB_ITEM_TERM_VECTORS.ITEM_ID IN
+	(SELECT TB_ITEM_TERM_VECTORS.ITEM_ID FROM ReviewerTerms.dbo.TB_ITEM_TERM_VECTORS
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+	
+	WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID)
+	
+	*/
+	
+	--select @N_INCLUDED
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TemplateReviewList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_TemplateReviewList]
+	-- Add the parameters for the stored procedure here
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	Select * from ReviewerAdmin.dbo.TB_TEMPLATE_REVIEW order by TEMPLATE_REVIEW_ID
+	
+	Select * from ReviewerAdmin.dbo.TB_TEMPLATE_REVIEW tr
+		inner join ReviewerAdmin.dbo.TB_TEMPLATE_REVIEW_SET trs on tr.TEMPLATE_REVIEW_ID = trs.TEMPLATE_REVIEW_ID
+		inner join TB_REVIEW_SET rs on trs.REVIEW_SET_ID = rs.REVIEW_SET_ID
+		inner join TB_SET s on s.SET_ID = rs.SET_ID
+		Order by tr.TEMPLATE_REVIEW_ID, TEMPLATE_REVIEW_SET_ID
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TempTermExtractionItemList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TempTermExtractionItemList]
+As
+
+SET NOCOUNT ON
+
+SELECT I.ITEM_ID, I.ABSTRACT FROM TB_ITEM I
+INNER JOIN dbo.fn_Split_int('80272,80305,70069,69996,80281,66741,82475,72075,64944,80374,80392,80375,80308,80419,80301,80150,71125,80306,73339,80309,70539,80072,80372,69946,66073,69264,74623,66098,77740,80380,71290,77933,70250,64991,71036,80376,80307,70428,71034,67270', ',') ITEMS
+ON I.ITEM_ID = ITEMS.value
+WHERE I.ABSTRACT != ''
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TempTermExtractionSelectedItems]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TempTermExtractionSelectedItems]
+As
+
+SET NOCOUNT ON
+
+SELECT I.ITEM_ID, I.ABSTRACT FROM TB_ITEM I
+INNER JOIN dbo.fn_Split_int('23514,23513,23512,23518,23515,23516,59038,59039,59037,23510,23511', ',') ITEMS
+ON I.ITEM_ID = ITEMS.value
+WHERE I.ABSTRACT != ''
+
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_Termine_Log_Insert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_Termine_Log_Insert]
+	-- Add the parameters for the stored procedure here
+	@C_ID int,
+	@R_ID int,
+	@BYTES int,
+	@SUCCESS bit,
+	@N int,
+	@ERR nvarchar(2000) = null
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	INSERT INTO TB_TERMINE_LOG
+           (CONTACT_ID
+           ,REVIEW_ID
+           ,BYTES
+           ,SUCCESS
+           ,N_OF_TERMS
+           ,ERROR
+           )
+     VALUES
+           (@C_ID
+           ,@R_ID
+           ,@BYTES
+           ,@SUCCESS 
+		   ,@N 
+		   ,@ERR
+           )
+
+
+
+
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingCheckData]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingCheckData]
+(
+	@REVIEW_ID INT,
+	@N_INCLUDES INT OUTPUT,
+	@N_EXCLUDES INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT @N_INCLUDES = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_TRAINING_SCREENING_CRITERIA sc
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = sc.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_REVIEW ir on TB_ITEM_SET.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+	WHERE sc.REVIEW_ID = @REVIEW_ID and sc.INCLUDED = 'True'
+
+	SELECT @N_EXCLUDES = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_TRAINING_SCREENING_CRITERIA sc
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = sc.ATTRIBUTE_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_ITEM_REVIEW ir on TB_ITEM_SET.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+	WHERE sc.REVIEW_ID = @REVIEW_ID and sc.INCLUDED = 'false'
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingClassificationSet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingClassificationSet]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT '0', TB_ITEM_TERM_VECTORS.ITEM_ID, VECTORS, PROBABILITY FROM TB_ITEM_TERM_VECTORS
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+		AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+		WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID
+	
+	
+	EXCEPT
+	
+	SELECT '0', TB_ITEM_TERM_VECTORS.ITEM_ID, VECTORS, PROBABILITY FROM TB_ITEM_TERM_VECTORS
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+	WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingIncludedExcludedIds]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingIncludedExcludedIds]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT '1', TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'True'
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+	WHERE TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+		
+	UNION
+	
+	SELECT '-1', TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'False'
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+	WHERE TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingInsert]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@N_SCREENED INT = NULL,
+	@NEW_TRAINING_ID INT output
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE @START_TIME DATETIME
+	DECLARE @END_TIME DATETIME
+
+	SELECT @START_TIME = MAX(TIME_STARTED) FROM TB_TRAINING
+		WHERE REVIEW_ID = @REVIEW_ID
+
+	SELECT @END_TIME = MAX(TIME_ENDED) FROM TB_TRAINING
+		WHERE REVIEW_ID = @REVIEW_ID
+		
+	IF (@START_TIME IS NULL) OR (@START_TIME != @END_TIME) OR
+	(
+		(@START_TIME = @END_TIME) AND CURRENT_TIMESTAMP > DATEADD(HOUR, 1, @START_TIME) -- i.e. we run whenever something isn't already running and give up after 1 hours (i.e. try again, assuming there was an error)
+	)
+	BEGIN
+		INSERT INTO TB_TRAINING(REVIEW_ID, CONTACT_ID, TIME_STARTED, TIME_ENDED)
+		VALUES (@REVIEW_ID, @CONTACT_ID, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+	   
+	    SET @NEW_TRAINING_ID = @@IDENTITY
+		update TB_REVIEW set SCREENING_MODEL_RUNNING = 1 where REVIEW_ID = @REVIEW_ID 
+	END
+	ELSE
+	BEGIN
+		SET @NEW_TRAINING_ID = 0
+	END
+
+/*
+
+	DECLARE @TIME_WAIT INT = 60  -- we have to wait at least 10 minutes between 'runs'
+
+	--IF @N_SCREENED > 1000 BEGIN SET @TIME_WAIT = 600 END -- SO WE HAVE TO WAIT 10 MINUTES IF THERE ARE MORE THAN 1000 ITEMS BEING TRAINED
+	
+	DECLARE @START_TIME DATETIME
+	
+	--SELECT @START_TIME = TIME_STARTED FROM TB_TRAINING
+	--	WHERE REVIEW_ID = @REVIEW_ID
+	--	GROUP BY TIME_STARTED, ITERATION
+	--	HAVING ITERATION = MAX(ITERATION)
+	SELECT @START_TIME = MAX(TIME_STARTED) FROM TB_TRAINING
+		WHERE REVIEW_ID = @REVIEW_ID
+		
+	IF (@START_TIME IS NULL OR (CURRENT_TIMESTAMP > DATEADD(SECOND, @TIME_WAIT, @START_TIME)))
+	BEGIN
+		INSERT INTO TB_TRAINING(REVIEW_ID, CONTACT_ID, TIME_STARTED, TIME_ENDED)
+		VALUES (@REVIEW_ID, @CONTACT_ID, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+	   
+	    SET @NEW_TRAINING_ID = @@IDENTITY
+	END
+	ELSE
+	BEGIN
+		SET @NEW_TRAINING_ID = 0
+	END
+
+*/
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingItemText]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingItemText]
+(
+	@REVIEW_ID INT,
+	@ITEM_ID_LIST NVARCHAR(MAX)
+)
+
+As
+
+SET NOCOUNT ON
+	
+	SELECT TB_ITEM.ITEM_ID, @REVIEW_ID, TB_ITEM.TITLE + '. ' + TB_ITEM.PARENT_TITLE + '.' + TB_ITEM.ABSTRACT
+	FROM TB_ITEM
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+	INNER JOIN dbo.fn_Split_int(@ITEM_ID_LIST, ',') IDS ON IDS.value = TB_ITEM.ITEM_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingList]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	SELECT TRAINING_ID, TB_TRAINING.CONTACT_ID, TIME_STARTED, TIME_ENDED, ITERATION,
+		N_TRAINING_INC, N_TRAINING_EXC, CONTACT_NAME, C, TRUE_POSITIVES, TRUE_NEGATIVES, FALSE_POSITIVES, FALSE_NEGATIVES
+	from TB_TRAINING
+	INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_TRAINING.CONTACT_ID
+	WHERE REVIEW_ID = @REVIEW_ID
+	
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingNextItem]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingNextItem]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@TRAINING_CODE_SET_ID INT,
+	@SIMULATE bit = 0
+)
+
+As
+
+SET NOCOUNT ON
+
+		DECLARE @CURRENT_TRAINING_ID INT
+	--DECLARE @UPDATED_TRAINING_ITEM TABLE(TRAINING_ITEM_ID INT)
+
+-- FIRST, GET THE CURRENT TRAINING 'RUN' (CAN'T SEND TO THE STORED PROC, AS IT MAY HAVE CHANGED)
+	SELECT @CURRENT_TRAINING_ID = MAX(TRAINING_ID) FROM TB_TRAINING
+		WHERE REVIEW_ID = @REVIEW_ID
+		AND TIME_STARTED < TIME_ENDED
+
+	--SECOND (ByS) GET the ITEM_ID you need to LOCK (for reuse) This isn't straightfoward as it needs to follow the rules implied in the Sreening tab settings!
+	--this new bit includes a bugfix: non completed items (not completed as they are disagreements or b/c there is no auto completion) 
+	--got fed to new people even when enough have coded them...
+	--ALSO: get rid of stale LOCKS for ALL users.
+	Update TB_TRAINING_ITEM SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL
+				WHERE TRAINING_ID = @CURRENT_TRAINING_ID AND CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -13, GETDATE())
+	Declare @ListedItems TABLE(TRAINING_ITEM_ID int, ITEM_ID bigint, RANK int, CODED_COUNT int null)
+	
+	--insert into table var the items that current user might need to see (excluding the SCREENING_N_PEOPLE setting), that is:
+	--those that are not locked by someone else  [AND (ti.CONTACT_ID_CODING = @CONTACT_ID OR ti.CONTACT_ID_CODING = 0)]
+	--AND are not [AND tisSel.ITEM_SET_ID is NULL] (already completed OR coded by curr user) [and (tisSel.IS_COMPLETED = 1 OR tisSel.CONTACT_ID = @CONTACT_ID)]
+	INSERT into @ListedItems 
+		select TRAINING_ITEM_ID , ti.ITEM_ID , RANK , count(tisC.ITEM_SET_ID) as CODED_COUNT FROM
+		TB_TRAINING_ITEM ti 
+		LEFT OUTER JOIN TB_ITEM_SET tisSel on ti.ITEM_ID = tisSel.ITEM_ID and tisSel.SET_ID = @TRAINING_CODE_SET_ID 
+			and (tisSel.IS_COMPLETED = 1 OR tisSel.CONTACT_ID = @CONTACT_ID)
+		LEFT OUTER JOIN TB_ITEM_SET tisC on ti.ITEM_ID = tisC.ITEM_ID and tisC.SET_ID = @TRAINING_CODE_SET_ID
+		where @CURRENT_TRAINING_ID = ti.TRAINING_ID AND tisSel.ITEM_SET_ID is NULL
+		AND (ti.CONTACT_ID_CODING = @CONTACT_ID OR ti.CONTACT_ID_CODING = 0)
+		GROUP BY TRAINING_ITEM_ID , ti.ITEM_ID , RANK
+
+--SELECT * from @ListedItems
+--SELECT * from @ListedItems where CODED_COUNT < (select SCREENING_N_PEOPLE from TB_REVIEW where REVIEW_ID = @REVIEW_ID)
+
+
+
+-- NEXT, LOCK THE ITEM WE'RE GOING TO SEND BACK
+	DECLARE @sendingBackTID int
+	DECLARE @maxCoders int = 0 
+	SELECT @maxCoders = SCREENING_N_PEOPLE from TB_REVIEW where REVIEW_ID = @REVIEW_ID
+	IF @maxCoders = 0 OR @maxCoders is null
+	BEGIN --We don't care about SCREENING_N_PEOPLE
+		select @sendingBackTID = MIN(TRAINING_ITEM_ID) FROM @ListedItems
+	END
+	ELSE
+	BEGIN --We ignore items already screened by enough people, as per SCREENING_N_PEOPLE
+		select @sendingBackTID = MIN(TRAINING_ITEM_ID) FROM @ListedItems where CODED_COUNT < @maxCoders
+	END
+	
+	IF @SIMULATE = 0 --we ARE doing it!
+	BEGIN
+		UPDATE TB_TRAINING_ITEM
+			SET CONTACT_ID_CODING = @CONTACT_ID, WHEN_LOCKED = CURRENT_TIMESTAMP
+			WHERE
+			TRAINING_ITEM_ID = @sendingBackTID
+		if @@ROWCOUNT > 0
+		BEGIN
+			--[SG Feb 2023] given that we just locked a new item, we can and SHOULD remove all locks assigned to the current user
+			--after all, user can only see one item at the time, so having done the UPDATE above, we now know all pre-existing locks for this user are stale.
+			Update TB_TRAINING_ITEM SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL
+				WHERE TRAINING_ID = @CURRENT_TRAINING_ID AND CONTACT_ID_CODING = @CONTACT_ID and TRAINING_ITEM_ID != @sendingBackTID 
+		END
+	END
+	--following ELSE isn't needed: in simulation, we don't need to do anything anymore (ByS)
+	--ELSE --JUST a SIMULATION!
+	--BEGIN
+	--UPDATE TB_TRAINING_ITEM
+	--	SET CONTACT_ID_CODING = 0
+	--	OUTPUT INSERTED.TRAINING_ITEM_ID INTO @UPDATED_TRAINING_ITEM
+	--	WHERE
+	--	TRAINING_ITEM_ID = @sendingBackTID
+	--		--(SELECT MIN(TRAINING_ITEM_ID) FROM TB_TRAINING_ITEM TI
+	--		--	LEFT OUTER JOIN TB_ITEM_SET ISET ON ISET.ITEM_ID = TI.ITEM_ID AND (IS_COMPLETED = 'TRUE' OR ISET.CONTACT_ID = @CONTACT_ID) AND SET_ID = @TRAINING_CODE_SET_ID
+	--		--	WHERE (CONTACT_ID_CODING = @CONTACT_ID OR CONTACT_ID_CODING = 0) AND TRAINING_ID = @CURRENT_TRAINING_ID AND ISET.ITEM_ID IS NULL)
+	--END
+
+-- FINALLY, SEND IT BACK
+
+	SELECT TI.TRAINING_ITEM_ID, ITEM_ID, [RANK], TRAINING_ID, CONTACT_ID_CODING, SCORE
+		FROM TB_TRAINING_ITEM TI
+		WHERE TI.TRAINING_ITEM_ID = @sendingBackTID
+		--INNER JOIN @UPDATED_TRAINING_ITEM UTI ON UTI.TRAINING_ITEM_ID = TI.TRAINING_ITEM_ID
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingPreviousItem]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingPreviousItem]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+
+DECLARE @CURRENT_TRAINING_ID INT
+	DECLARE @UPDATED_TRAINING_ITEM TABLE(TRAINING_ITEM_ID INT)
+
+-- FIRST, GET THE CURRENT TRAINING 'RUN' (CAN'T SEND TO THE STORED PROC, AS IT MAY HAVE CHANGED)
+	SELECT @CURRENT_TRAINING_ID = MAX(TRAINING_ID) FROM TB_TRAINING
+		WHERE REVIEW_ID = @REVIEW_ID
+		AND TIME_STARTED < TIME_ENDED
+
+-- NEXT, TRY TO LOCK THE ITEM WE'RE GOING TO SEND BACK (BUT WE WON'T OVERRIDE SOMEONE ELSE'S LOCK)
+	--[SG Edit: Feb 2023] we now unlock ALL OTHER items currently locked by the present user
+	declare @trainingIId int = (select top 1 TRAINING_ITEM_ID from TB_TRAINING_ITEM 
+								where ITEM_ID = @ITEM_ID AND CONTACT_ID_CODING = 0 AND TRAINING_ID = @CURRENT_TRAINING_ID)
+	if @trainingIId is not null and @trainingIId > 0
+	BEGIN
+		UPDATE TB_TRAINING_ITEM
+			SET CONTACT_ID_CODING = @CONTACT_ID, WHEN_LOCKED = CURRENT_TIMESTAMP
+			WHERE TRAINING_ITEM_ID = @trainingIId
+		
+		IF @@ROWCOUNT > 0
+		BEGIN
+			--We have just locked our ITEM, so we know we can safely unlock all other items currently assigned to this user
+			Update TB_TRAINING_ITEM SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL
+				WHERE CONTACT_ID_CODING = @CONTACT_ID AND TRAINING_ID = @CURRENT_TRAINING_ID and TRAINING_ITEM_ID != @trainingIId
+		END
+	END
+-- FINALLY, SEND IT BACK
+
+	SELECT TI.TRAINING_ITEM_ID, ITEM_ID, [RANK], TRAINING_ID, @CONTACT_ID, SCORE
+		FROM TB_TRAINING_ITEM TI
+		WHERE TRAINING_ID = @CURRENT_TRAINING_ID AND ITEM_ID = @ITEM_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingProcessTerms]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingProcessTerms]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	-- GETTING THE SCORES FOR REVIEWER TERMS
+
+	UPDATE TB_ITEM_TERM_VECTORS
+	SET RELEVANT_TERMS = 
+	(SELECT COUNT(*) FROM TB_TRAINING_REVIEWER_TERM
+		INNER JOIN TB_ITEM_TERM_DICTIONARY ON TB_ITEM_TERM_DICTIONARY.ITEM_TERM_DICTIONARY_ID =
+			TB_TRAINING_REVIEWER_TERM.ITEM_TERM_DICTIONARY_ID
+		INNER JOIN TB_ITEM_TERM ON TB_ITEM_TERM.TERM = TB_ITEM_TERM_DICTIONARY.TERM
+		WHERE TB_TRAINING_REVIEWER_TERM.REVIEW_ID = @REVIEW_ID
+		AND TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID
+		AND TB_TRAINING_REVIEWER_TERM.INCLUDED = 'True'
+		AND TB_ITEM_TERM_VECTORS.ITEM_ID = TB_ITEM_TERM.ITEM_ID)
+	WHERE REVIEW_ID = @REVIEW_ID
+		
+		
+	UPDATE TB_ITEM_TERM_VECTORS
+	SET IRRELEVANT_TERMS = 
+	(SELECT COUNT(*) FROM TB_TRAINING_REVIEWER_TERM
+		INNER JOIN TB_ITEM_TERM_DICTIONARY ON TB_ITEM_TERM_DICTIONARY.ITEM_TERM_DICTIONARY_ID =
+			TB_TRAINING_REVIEWER_TERM.ITEM_TERM_DICTIONARY_ID
+		INNER JOIN TB_ITEM_TERM ON TB_ITEM_TERM.TERM = TB_ITEM_TERM_DICTIONARY.TERM
+		WHERE TB_TRAINING_REVIEWER_TERM.REVIEW_ID = @REVIEW_ID
+		AND TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID
+		AND TB_TRAINING_REVIEWER_TERM.INCLUDED = 'False'
+		AND TB_ITEM_TERM_VECTORS.ITEM_ID = TB_ITEM_TERM.ITEM_ID)
+	WHERE REVIEW_ID = @REVIEW_ID
+		
+	UPDATE TB_ITEM_TERM_VECTORS
+	SET PROBABILITY = LOG((CAST(RELEVANT_TERMS AS FLOAT) + 1) / (CAST(IRRELEVANT_TERMS AS FLOAT) + 1))
+		WHERE REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingProcessText]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingProcessText]
+(
+	@REVIEW_ID INT,
+	@CONTACT_ID INT
+)
+
+As
+
+
+SET NOCOUNT ON
+
+/*
+	
+	ALL DONE MANUALLY AT THE MOMENT, BUT THE CODE WORKS!
+	
+	-- ADD need to write to a log the fact that text is being processed
+	
+	-- CLEAN OUT EXISTING DATA (MAYBE NOT KEEP, SO THAT SUBSEQUENT PROCESSING IS QUICKER.
+	DELETE FROM TB_ITEM_TERM_TEXT WHERE REVIEW_ID = @REVIEW_ID
+	DELETE FROM TB_ITEM_TERM WHERE REVIEW_ID = @REVIEW_ID
+	DELETE FROM TB_ITEM_TERM_VECTORS WHERE REVIEW_ID = @REVIEW_ID
+
+	-- FIRST: PUT THE BITS OF TITLES AND ABSTRACTS INTO TB_ITEM_TERM_TEXT (21 secs on laptop for 44k rows)
+	INSERT INTO TB_ITEM_TERM_TEXT(ITEM_ID, REVIEW_ID, ITEM_TEXT)
+	SELECT TB_ITEM.ITEM_ID , @REVIEW_ID, TB_ITEM.TITLE + '. ' + TB_ITEM.PARENT_TITLE
+	FROM TB_ITEM
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+	
+	DECLARE @ITEM_ID BIGINT
+	DECLARE @ABSTRACT NVARCHAR(MAX)
+	DECLARE @LENGTH BIGINT
+	DECLARE @START BIGINT
+	DECLARE @END BIGINT
+	DECLARE @CONTINUE BIT = 1
+	DECLARE @SUBSTRING NVARCHAR(4000)
+
+	Declare textCursor CURSOR READ_ONLY FOR
+	SELECT TB_ITEM.ITEM_ID, ABSTRACT
+	FROM TB_ITEM
+	INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM.ITEM_ID
+		AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		--WHERE LEN(TB_ITEM.ABSTRACT) > 4000
+
+	Open textCursor
+	Fetch next from textCursor into @ITEM_ID, @ABSTRACT
+	While @@FETCH_STATUS = 0
+	Begin
+		SET @LENGTH = LEN(@ABSTRACT)
+		
+		IF (@LENGTH < 3999)
+		BEGIN
+			INSERT INTO TB_ITEM_TERM_TEXT(ITEM_ID, REVIEW_ID, ITEM_TEXT)
+			VALUES(@ITEM_ID, @REVIEW_ID, CAST(@ABSTRACT AS NVARCHAR(4000)))
+		END
+		ELSE
+		BEGIN
+			SET @START = 0
+			SET @CONTINUE = 1
+			IF (CHARINDEX(' ', @ABSTRACT, 3980) > 0)
+			BEGIN
+				SET @END = CHARINDEX(' ', @ABSTRACT, 3980)
+			END
+			ELSE
+			BEGIN
+				SET @END = 3980
+			END
+			WHILE (@CONTINUE = 1)
+			BEGIN
+				SET @SUBSTRING = CAST(SUBSTRING(@ABSTRACT, @START, @END - @START) AS NVARCHAR(4000))
+				INSERT INTO TB_ITEM_TERM_TEXT(ITEM_ID, REVIEW_ID, ITEM_TEXT)
+				VALUES(@ITEM_ID, @REVIEW_ID, @SUBSTRING)
+				
+				SET @START = @END
+				SET @END = @END + 3980
+				
+				IF (@END > @LENGTH)
+				BEGIN
+					SET @SUBSTRING = CAST(SUBSTRING(@ABSTRACT, @START, @LENGTH - @START) AS NVARCHAR(4000))
+					INSERT INTO TB_ITEM_TERM_TEXT(ITEM_ID, REVIEW_ID, ITEM_TEXT)
+					VALUES(@ITEM_ID, @REVIEW_ID, @SUBSTRING)
+					SET @CONTINUE = 0
+				END
+				ELSE
+				BEGIN
+					IF (CHARINDEX(' ', @ABSTRACT, @END) > 0)
+					BEGIN
+						SET @END = CHARINDEX(' ', @ABSTRACT, @END)
+					END
+					ELSE
+					BEGIN
+						SET @END = @END + 3980
+					END
+				END
+			END
+		END
+		
+		Fetch next from textCursor into @ITEM_ID, @ABSTRACT
+	End
+	Close textCursor
+	Deallocate textCursor
+	
+	DECLARE @MAX_IDENTITY INT
+	SELECT @MAX_IDENTITY = MAX(ITEM_TERM_DICTIONARY_ID) FROM TB_ITEM_TERM_DICTIONARY
+	DBCC CHECKIDENT (TB_ITEM_TERM_DICTIONARY, RESEED, @MAX_IDENTITY)
+		
+	-- HERE RUN THE DICTIONARY CREATION PACKAGE TERM EXTRACTION ************* ADD **************
+	
+	-- IN BETWEEN PACKAGES REMOVE DUPLICATE ENTRIES IN THE DICTIONARY TABLE
+	DELETE
+	FROM TB_ITEM_TERM_DICTIONARY
+	WHERE item_term_dictionary_id NOT IN
+	(
+	SELECT MAX(item_term_dictionary_id)
+	FROM TB_ITEM_TERM_DICTIONARY
+	GROUP BY TERM
+	)
+	
+	***************** ADD HERE - DBCC RESEED THE IDENTITY SO THAT IT FOLLOWS ON FROM MAX_ID *****************
+	
+	-- NOW RUN THE TERM LOOKUP PACKAGE ************* ADD ***************
+	
+	-- NOW CLEAN UP DUPLICATE ROWS
+	delete T1
+	from TB_ITEM_TERM T1, TB_ITEM_TERM T2
+	where T1.ITEM_ID = T2.ITEM_ID AND T1.TERM = T2.TERM
+	and T1.ITEM_TERM_ID > T2.ITEM_TERM_ID
+	
+	-- ONCE THE TERMS HAVE BEEN IDENTIFIED, THE FINAL TEXT PROCESSING STEP IS TO VECTORISE THEM (AROUND 1 MIN PER THOUSAND ITEMS ON MY LAPTOP)
+	INSERT INTO TB_ITEM_TERM_VECTORS(ITEM_ID, VECTORS, REVIEW_ID)
+	SELECT ITEM_ID, '', @REVIEW_ID FROM TB_ITEM_REVIEW
+		WHERE REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+
+	DECLARE @ITEM_TERM_DICTIONARY_ID BIGINT
+	DECLARE @SCORE INT
+
+	Declare textCursor CURSOR READ_ONLY FOR
+	SELECT ITEM_ID, TB_ITEM_TERM_DICTIONARY.ITEM_TERM_DICTIONARY_ID, TB_ITEM_TERM.SCORE FROM TB_ITEM_TERM
+	INNER JOIN TB_ITEM_TERM_DICTIONARY ON TB_ITEM_TERM_DICTIONARY.TERM = TB_ITEM_TERM.TERM
+	WHERE TB_ITEM_TERM.REVIEW_ID = @REVIEW_ID
+	ORDER BY ITEM_ID
+
+	DECLARE @CURRENT_VECTORS NVARCHAR(MAX) = ''
+	DECLARE @CURRENT_ITEM_ID BIGINT = 0
+	Open textCursor
+	Fetch next from textCursor into @ITEM_ID, @ITEM_TERM_DICTIONARY_ID, @SCORE
+	While @@FETCH_STATUS = 0
+	Begin
+			IF (@CURRENT_ITEM_ID = 0)
+			BEGIN
+				SET @CURRENT_ITEM_ID = @ITEM_ID
+			END
+			
+			IF (@CURRENT_ITEM_ID <> @ITEM_ID)
+			BEGIN
+				UPDATE TB_ITEM_TERM_VECTORS
+				SET VECTORS = @CURRENT_VECTORS
+				WHERE ITEM_ID = @CURRENT_ITEM_ID
+				
+				SET @CURRENT_VECTORS = ''
+				SET @CURRENT_ITEM_ID = @ITEM_ID
+			END
+			
+			SET @CURRENT_VECTORS = @CURRENT_VECTORS + CAST(@ITEM_TERM_DICTIONARY_ID AS NVARCHAR(10)) + ':1 '
+	       
+			Fetch next from textCursor into @ITEM_ID, @ITEM_TERM_DICTIONARY_ID, @SCORE
+	End
+	Close textCursor
+	Deallocate textCursor
+	
+	-- (As the last one wasn't written within the while... loop)
+	UPDATE TB_ITEM_TERM_VECTORS
+	SET VECTORS = @CURRENT_VECTORS
+	WHERE ITEM_ID = @ITEM_ID
+
+	DELETE FROM TB_ITEM_TERM_VECTORS WHERE VECTORS = ''
+
+*/
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingReviewerTermDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingReviewerTermDelete]
+(
+	@REVIEW_ID INT,
+	@TRAINING_REVIEWER_TERM_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	DELETE FROM TB_TRAINING_REVIEWER_TERM
+		WHERE TRAINING_REVIEWER_TERM_ID = @TRAINING_REVIEWER_TERM_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingReviewerTermInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingReviewerTermInsert]
+(
+	@REVIEW_ID INT,
+	@REVIEWER_TERM NVARCHAR(255),
+	@INCLUDED BIT,
+	@NEW_TRAINING_REVIEWER_TERM_ID INT output
+)
+
+As
+
+SET NOCOUNT ON
+	
+	DECLARE @ITEM_TERM_DICTIONARY_ID BIGINT
+	
+	SELECT @ITEM_TERM_DICTIONARY_ID = ITEM_TERM_DICTIONARY_ID FROM TB_ITEM_TERM_DICTIONARY
+		WHERE TB_ITEM_TERM_DICTIONARY.TERM = @REVIEWER_TERM
+	
+	INSERT INTO TB_TRAINING_REVIEWER_TERM(REVIEWER_TERM, INCLUDED, REVIEW_ID, ITEM_TERM_DICTIONARY_ID)
+	VALUES (@REVIEWER_TERM, @INCLUDED, @REVIEW_ID, @ITEM_TERM_DICTIONARY_ID)
+	
+	SET @NEW_TRAINING_REVIEWER_TERM_ID = @@IDENTITY
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingReviewerTermList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingReviewerTermList]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	SELECT REVIEWER_TERM, TRAINING_REVIEWER_TERM_ID, INCLUDED, TB_TRAINING_REVIEWER_TERM.ITEM_TERM_DICTIONARY_ID, TERM
+		FROM TB_TRAINING_REVIEWER_TERM
+	LEFT OUTER JOIN TB_ITEM_TERM_DICTIONARY
+		ON TB_ITEM_TERM_DICTIONARY.ITEM_TERM_DICTIONARY_ID = TB_TRAINING_REVIEWER_TERM.ITEM_TERM_DICTIONARY_ID
+	WHERE REVIEW_ID = @REVIEW_ID
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingReviewerTermUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingReviewerTermUpdate]
+(
+	@REVIEW_ID INT,
+	@REVIEWER_TERM NVARCHAR(255),
+	@INCLUDED BIT,
+	@TRAINING_REVIEWER_TERM_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	DECLARE @ITEM_TERM_DICTIONARY_ID BIGINT
+	
+	SELECT @ITEM_TERM_DICTIONARY_ID = ITEM_TERM_DICTIONARY_ID FROM TB_ITEM_TERM_DICTIONARY
+		WHERE TB_ITEM_TERM_DICTIONARY.TERM = @REVIEWER_TERM
+	
+	UPDATE TB_TRAINING_REVIEWER_TERM
+		SET REVIEWER_TERM = @REVIEWER_TERM,
+		INCLUDED = @INCLUDED,
+		ITEM_TERM_DICTIONARY_ID = @ITEM_TERM_DICTIONARY_ID
+	WHERE
+		TRAINING_REVIEWER_TERM_ID = @TRAINING_REVIEWER_TERM_ID
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingScreeningCriteriaDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingScreeningCriteriaDelete]
+(
+	@TRAINING_SCREENING_CRITERIA_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	DELETE FROM TB_TRAINING_SCREENING_CRITERIA
+		WHERE TRAINING_SCREENING_CRITERIA_ID = @TRAINING_SCREENING_CRITERIA_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingScreeningCriteriaDeleteAll]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingScreeningCriteriaDeleteAll]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM TB_TRAINING_SCREENING_CRITERIA WHERE REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingScreeningCriteriaInsert]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingScreeningCriteriaInsert]
+(
+	@REVIEW_ID INT,
+	@ATTRIBUTE_ID BIGINT,
+	@INCLUDED BIT,
+	@NEW_TRAINING_SCREENING_CRITERIA_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	SELECT ATTRIBUTE_ID FROM TB_TRAINING_SCREENING_CRITERIA
+		WHERE REVIEW_ID = @REVIEW_ID AND ATTRIBUTE_ID = @ATTRIBUTE_ID
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		INSERT INTO TB_TRAINING_SCREENING_CRITERIA(REVIEW_ID, ATTRIBUTE_ID, INCLUDED)
+		VALUES (@REVIEW_ID, @ATTRIBUTE_ID, @INCLUDED)
+	END
+	
+	SELECT @NEW_TRAINING_SCREENING_CRITERIA_ID = @@IDENTITY
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingScreeningCriteriaList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingScreeningCriteriaList]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID, INCLUDED, ATTRIBUTE_NAME, TRAINING_SCREENING_CRITERIA_ID
+		FROM TB_TRAINING_SCREENING_CRITERIA
+	INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID
+	WHERE TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingScreeningCriteriaUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingScreeningCriteriaUpdate]
+(
+	@REVIEW_ID INT,
+	@TRAINING_SCREENING_CRITERIA_ID int,
+	@INCLUDED BIT
+)
+
+As
+
+SET NOCOUNT ON
+	
+	UPDATE TB_TRAINING_SCREENING_CRITERIA
+		SET INCLUDED = @INCLUDED
+		WHERE TRAINING_SCREENING_CRITERIA_ID = @TRAINING_SCREENING_CRITERIA_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingSearchWeightedTerms]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingSearchWeightedTerms]
+(
+	@REVIEW_ID int = null
+,	@TERMS NVARCHAR(4000) = NULL
+)
+AS
+
+SET NOCOUNT ON
+
+DECLARE @ITEM_IDS TABLE
+	(
+	  ITEM_ID BIGINT,
+	  --PROBABILITY INT,
+	  IDX INT IDENTITY(1,1)
+	)
+	
+DECLARE @ITEM_IDS_EX TABLE
+(
+	  ITEM_ID BIGINT
+)
+	
+	INSERT INTO @ITEM_IDS(ITEM_ID)
+	
+		SELECT TB_ITEM_REVIEW.ITEM_ID FROM TB_ITEM_REVIEW 
+		INNER JOIN CONTAINSTABLE(TB_ITEM, (TITLE, ABSTRACT), @TERMS) AS KEY_TBL ON KEY_TBL.[KEY] = TB_ITEM_REVIEW.ITEM_ID
+		WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+		AND NOT TB_ITEM_REVIEW.ITEM_ID IN
+		(
+		SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+			TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		)
+		ORDER BY RANK
+	
+	-- EXCLUDED ITEMS (ACCORDING TO THE TERM SEARCH)
+	INSERT INTO @ITEM_IDS_EX(ITEM_ID)
+	SELECT TB_ITEM_REVIEW.ITEM_ID FROM TB_ITEM_REVIEW
+	WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_INCLUDED = 'TRUE'
+	EXCEPT
+	
+	(SELECT TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+			INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+				AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+			INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+				TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+	EXCEPT
+	SELECT ITEM_ID FROM @ITEM_IDS
+	)
+	
+	
+	-- USE IDX SO THAT MOST RELEVANT (LOWEST RANK) HAVE THE HIGHEST SCORE
+	SELECT '0', TB_ITEM_TERM_VECTORS.ITEM_ID, VECTORS, IDS.IDX FROM TB_ITEM_TERM_VECTORS
+		INNER JOIN @ITEM_IDS IDS ON IDS.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	UNION
+	-- EXCLUDED ARE ALL EQUALLY IRRELEVANT - HAVE NO WAY OF DIFFERENTIATING THEM AT THE MOMENT
+	SELECT '0', TB_ITEM_TERM_VECTORS.ITEM_ID, VECTORS, -1 FROM TB_ITEM_TERM_VECTORS
+		INNER JOIN @ITEM_IDS_EX IDSX ON IDSX.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingSetScreeningCodeSet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingSetScreeningCodeSet]
+(
+	@REVIEW_ID INT,
+	@CODE_SET_ID INT
+)
+
+As
+
+
+SET NOCOUNT ON
+
+UPDATE TB_REVIEW
+SET SCREENING_CODE_SET_ID = @CODE_SET_ID
+WHERE REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingTrainingSet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingTrainingSet]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DECLARE @INCLUDE_COUNT INT
+	
+	SELECT @INCLUDE_COUNT = COUNT(distinct TB_ITEM_TERM_VECTORS.ITEM_ID) FROM TB_ITEM_TERM_VECTORS
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'True'
+	WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID
+
+	SELECT '+1', VECTORS, TB_ITEM_TERM_VECTORS.ITEM_ID FROM TB_ITEM_TERM_VECTORS
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'True'
+	WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID
+		
+	UNION
+	
+	SELECT '-1', VECTOR_S, ITEM_ID FROM (SELECT TOP(@INCLUDE_COUNT) VECTORS
+		AS VECTOR_S, TB_ITEM_TERM_VECTORS.ITEM_ID FROM TB_ITEM_TERM_VECTORS
+	INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_TERM_VECTORS.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'False'
+	WHERE TB_ITEM_TERM_VECTORS.REVIEW_ID = @REVIEW_ID
+	ORDER BY NEWID()) AS X
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingWriteDataToAzure]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingWriteDataToAzure]
+(
+	@REVIEW_ID INT,
+	@SCREENING_INDEXED BIT = 'FALSE'
+--,	@SCREENING_DATA_FILE NVARCHAR(50)
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM TB_SCREENING_ML_TEMP WHERE REVIEW_ID = @REVIEW_ID
+
+	SELECT DISTINCT @REVIEW_ID REVIEW_ID, tia.ITEM_ID, TITLE, ABSTRACT, KEYWORDS, '1' INCLUDED 
+	FROM TB_ITEM_ATTRIBUTE tia
+	INNER JOIN TB_ITEM_REVIEW ir on tia.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_ITEM I ON I.ITEM_ID = tia.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = tia.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN REVIEWER.DBO.TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		tia.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'True'
+	WHERE TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+			
+	UNION ALL
+	
+	SELECT DISTINCT @REVIEW_ID REVIEW_ID, tia.ITEM_ID, TITLE, ABSTRACT, KEYWORDS, '0' INCLUDED  
+	FROM TB_ITEM_ATTRIBUTE tia
+	INNER JOIN TB_ITEM_REVIEW ir on tia.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_ITEM I ON I.ITEM_ID = tia.ITEM_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = tia.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN REVIEWER.DBO.TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		tia.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'False'
+	WHERE TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+
+	UNION ALL
+	
+	SELECT DISTINCT @REVIEW_ID REVIEW_ID, TB_ITEM_REVIEW.ITEM_ID, TITLE, ABSTRACT, KEYWORDS, '99' INCLUDED FROM TB_ITEM_REVIEW
+	INNER JOIN TB_ITEM I ON I.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+		where TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE' AND not TB_ITEM_REVIEW.ITEM_ID in
+		(
+			SELECT ITEM_ID FROM TB_ITEM_SET
+				INNER JOIN TB_REVIEW ON TB_REVIEW.SCREENING_CODE_SET_ID = TB_ITEM_SET.SET_ID
+				WHERE TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_REVIEW.REVIEW_ID = @REVIEW_ID
+		)
+
+	UPDATE TB_REVIEW
+		SET SCREENING_INDEXED = @SCREENING_INDEXED,
+			SCREENING_MODEL_RUNNING = @SCREENING_INDEXED
+		WHERE REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_TrainingWriteIncludeExcludeToAzure]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_TrainingWriteIncludeExcludeToAzure]
+(
+	@REVIEW_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM TB_SCREENING_ML_TEMP WHERE REVIEW_ID = @REVIEW_ID
+
+	SELECT DISTINCT @REVIEW_ID REVIEW_ID, tia.ITEM_ID, '1' INCLUDED  
+	FROM TB_ITEM_ATTRIBUTE tia
+	INNER JOIN TB_ITEM_REVIEW ir on tia.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = tia.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN REVIEWER.DBO.TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		tia.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'True'
+	WHERE TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+			
+	UNION ALL
+	
+	SELECT DISTINCT @REVIEW_ID REVIEW_ID, tia.ITEM_ID, '0' INCLUDED  
+	FROM TB_ITEM_ATTRIBUTE tia
+	INNER JOIN TB_ITEM_REVIEW ir on tia.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = tia.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN REVIEWER.DBO.TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		tia.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'False'
+	WHERE TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+
+	UNION ALL
+	
+	SELECT DISTINCT @REVIEW_ID REVIEW_ID, TB_ITEM_REVIEW.ITEM_ID, '99' INCLUDED FROM TB_ITEM_REVIEW
+		where TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE' AND not TB_ITEM_REVIEW.ITEM_ID in
+		(
+			SELECT ITEM_ID FROM TB_ITEM_SET
+				INNER JOIN TB_REVIEW ON TB_REVIEW.SCREENING_CODE_SET_ID = TB_ITEM_SET.SET_ID
+				WHERE TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_REVIEW.REVIEW_ID = @REVIEW_ID
+		)
+
+	/*
+	declare @tempTable table
+	(
+		REVIEW_ID int,
+		ITEM_ID bigint,
+		LABEL nvarchar(10)
+	)
+	
+	delete from EPPI_ML.[EPPITest].dbo.TB_REVIEW_ITEM_LABELS WHERE REVIEW_ID = @REVIEW_ID
+
+	INSERT INTO @tempTable(REVIEW_ID, ITEM_ID, LABEL)
+	SELECT DISTINCT @REVIEW_ID, TB_ITEM_ATTRIBUTE.ITEM_ID, '1' FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN REVIEWER.DBO.TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'True'
+	WHERE REVIEW_ID = @REVIEW_ID and TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+			
+	UNION ALL
+	
+	SELECT DISTINCT @REVIEW_ID, TB_ITEM_ATTRIBUTE.ITEM_ID, '0' FROM TB_ITEM_ATTRIBUTE
+	INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	INNER JOIN REVIEWER.DBO.TB_TRAINING_SCREENING_CRITERIA ON TB_TRAINING_SCREENING_CRITERIA.ATTRIBUTE_ID =
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID AND TB_TRAINING_SCREENING_CRITERIA.INCLUDED = 'False'
+	WHERE REVIEW_ID = @REVIEW_ID and TB_TRAINING_SCREENING_CRITERIA.REVIEW_ID = @REVIEW_ID
+
+	UNION ALL
+	
+	SELECT DISTINCT @REVIEW_ID, TB_ITEM_REVIEW.ITEM_ID, '99' FROM TB_ITEM_REVIEW
+		where TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE' AND not TB_ITEM_REVIEW.ITEM_ID in
+		(
+			SELECT ITEM_ID FROM TB_ITEM_SET
+				INNER JOIN TB_REVIEW ON TB_REVIEW.SCREENING_CODE_SET_ID = TB_ITEM_SET.SET_ID
+				WHERE TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_REVIEW.REVIEW_ID = @REVIEW_ID
+		)
+
+
+	INSERT INTO EPPI_ML.[EPPITest].dbo.TB_REVIEW_ITEM_LABELS(REVIEW_ID, ITEM_ID, LABEL)
+	select * from @tempTable
+	*/
+	
+SET NOCOUNT OFF
+
+
+
+
+
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbAllItems]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAllItems]
+	-- Add the parameters for the stored procedure here
+	@included bit null
+	, @RevId int 
+	, @WebDbId int
+      
+    , @PageNum INT = 1
+    , @PerPage INT = 100
+    , @CurrentPage INT OUTPUT
+    , @TotalPages INT OUTPUT
+    , @TotalRows INT OUTPUT  
+AS
+SET NOCOUNT ON
+	--sanity check, ensure @RevId and @WebDbId match...
+	Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+	declare @items table (ItemId bigint primary key)
+	declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	if @WebDbFilter is not null and @WebDbFilter > 1
+	BEGIN
+		insert into @items select distinct ir.item_id from TB_ITEM_REVIEW ir
+			inner join tb_item_set tis on ir.ITEM_ID = tis.ITEM_ID and ir.REVIEW_ID = @RevId 
+			and (@included is null OR ir.IS_INCLUDED = @included)
+			and ir.IS_DELETED = 0 and tis.IS_COMPLETED = 1
+			inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID and tia.ATTRIBUTE_ID = @WebDbFilter
+		SELECT @TotalRows = @@ROWCOUNT
+	END
+	ELSE
+	BEGIN
+		insert into @items select distinct ir.item_id from TB_ITEM_REVIEW ir
+			WHERE ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+				and (@included is null OR ir.IS_INCLUDED = @included)
+		SELECT @TotalRows = @@ROWCOUNT
+	END
+	declare @RowsToRetrieve int
+	set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+	SELECT DISTINCT (ir.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+		ROW_NUMBER() OVER(order by SHORT_TITLE, ir.ITEM_ID) RowNum
+	FROM TB_ITEM i
+		INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID
+		INNER JOIN @items id on id.ItemId = ir.ITEM_ID and ir.REVIEW_ID = @RevId
+	)
+	Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+				TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+				[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+				AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+				, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+				--, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+		FROM SearchResults
+				INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+				INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+		WHERE RowNum > @RowsToRetrieve - @PerPage
+		AND RowNum <= @RowsToRetrieve
+		ORDER BY RowNum
+	SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbAttributeAdd]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeAdd]
+(
+	@ATTRIBUTE_ID bigint,
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+
+--select @r_set_id
+
+declare @adders table (d_id bigint primary key)
+Declare @atts table (A_ID bigint primary key) --Attributes currently in the WebDB for this set
+Declare @All_atts table (AA_ID bigint primary key) --All valid attributes currently in the set (excluding detached ones)
+declare @rows int = 1
+declare @count int = 0
+
+INSERT into @atts select tas.Attribute_id from TB_WEBDB w
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE wa on w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID and wa.WEBDB_ID = @WEBDB_ID
+	inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = wa.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+	inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+--select * from @atts order by A_ID
+--select count(*) as c from @atts where A_ID = @ATTRIBUTE_ID
+
+insert into @All_atts select a.ATTRIBUTE_ID from tb_attribute a
+	 inner join TB_ATTRIBUTE_SET tas on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+				and dbo.fn_IsAttributeInTree(a.ATTRIBUTE_ID) = 1
+	 inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+
+--another check: is this Attribute inside the @All_atts table?
+IF (select count(*) from @All_atts where AA_ID = @ATTRIBUTE_ID) < 1 return
+insert into @adders (d_id) values (@ATTRIBUTE_ID)
+
+--limited recursion here: we want to add all children of the code we're taking out
+--500 rounds max: just making sure this can't run forever... Each round should handle one nesting level so in theory this works for trees that are 500 levels deep
+while @rows > 0 and @count < 500 
+BEGIN
+	set @count = @count +1
+	insert into @adders 
+		SELECT attribute_id from @All_atts a
+		inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = a.AA_ID and tas.SET_ID = @Set_ID
+		inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_SET_ID = @r_set_id
+		where tas.PARENT_ATTRIBUTE_ID in (select d_id from @adders) 
+			AND A.AA_ID not in (select d_id from @adders)--those we haven't found already
+			AND A.AA_ID not in (select A_ID from @atts)--those that aren't already in the WEBDB
+	set @rows = @@ROWCOUNT
+END
+Insert into [TB_WEBDB_PUBLIC_ATTRIBUTE]
+           ([WEBDB_ID]
+           ,[ATTRIBUTE_ID]
+           ,[WEBDB_ATTRIBUTE_NAME]
+           ,[WEBDB_ATTRIBUTE_DESCRIPTION])
+     SELECT @WEBDB_ID, a.d_id, NULL, NULL
+	 FROM @adders a
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbAttributeDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeDelete]
+(
+	@ATTRIBUTE_ID bigint,
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+
+--select @r_set_id
+
+declare @dels table (d_id bigint primary key)
+Declare @atts table (A_ID bigint primary key) 
+declare @rows int = 1
+declare @count int = 0
+
+INSERT into @atts select tas.Attribute_id from TB_WEBDB w
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE wa on w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID and wa.WEBDB_ID = @WEBDB_ID
+	inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = wa.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+	inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+--another check: is this Attribute inside the @atts table?
+--select * from @atts order by A_ID
+--select count(*) as c from @atts where A_ID = @ATTRIBUTE_ID
+
+IF (select count(*) from @atts where A_ID = @ATTRIBUTE_ID) < 1 return
+insert into @dels (d_id) values (@ATTRIBUTE_ID)
+
+--limited recursion here: we want to remove all children of the code we're taking out
+--500 rounds max: just making sure this can't run forever... Each round should handle one nesting level so in theory this works for trees that are 500 levels deep
+while @rows > 0 and @count < 500 
+BEGIN
+	set @count = @count +1
+	insert into @dels 
+		SELECT attribute_id from @atts a
+		inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = a.A_ID and tas.SET_ID = @Set_ID
+		inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_SET_ID = @r_set_id
+		where tas.PARENT_ATTRIBUTE_ID in (select d_id from @dels) 
+			AND A.A_ID not in (select d_id from @dels)--do not insert the same att twice
+	set @rows = @@ROWCOUNT
+END
+DELETE from TB_WEBDB_PUBLIC_ATTRIBUTE 
+	where ATTRIBUTE_ID in (select d_id from @dels)
+	AND WEBDB_ID = @WEBDB_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbAttributeEdit]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeEdit]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@ATTRIBUTE_ID bigint,
+	@Set_ID int,
+	@Public_Name nvarchar(255),
+	@Public_Descr nvarchar(2000)
+)
+As
+declare @WEBDB_PUBLIC_ATTRIBUTE_ID int = (select WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
+							on a.WEBDB_ID = w.WEBDB_ID and w.WEBDB_ID = @WEBDB_ID 
+							and ATTRIBUTE_ID = @ATTRIBUTE_ID and w.REVIEW_ID = @REVIEW_ID
+						Inner join TB_REVIEW_SET rs on rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @Set_ID
+						inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = @ATTRIBUTE_ID and tas.SET_ID = rs.SET_ID)
+--Just a basic sanity check: can we get the record to edit?
+IF @WEBDB_PUBLIC_ATTRIBUTE_ID is null OR @WEBDB_PUBLIC_ATTRIBUTE_ID < 1 return
+
+--NULL here signals to use the original Attribute name and description, when showing the WebDbs...
+IF @Public_Descr = '' SET @Public_Descr = null
+IF @Public_Name = '' SET @Public_Name = null
+
+update TB_WEBDB_PUBLIC_ATTRIBUTE set WEBDB_ATTRIBUTE_NAME = @Public_Name, WEBDB_ATTRIBUTE_DESCRIPTION = @Public_Descr 
+ where WEBDB_PUBLIC_ATTRIBUTE_ID = @WEBDB_PUBLIC_ATTRIBUTE_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbCodesetAdd]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodesetAdd]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int,
+	@WEBDB_PUBLIC_SET_ID int output
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+
+INSERT INTO [TB_WEBDB_PUBLIC_SET]
+           ([WEBDB_ID]
+           ,[REVIEW_SET_ID]
+           ,[WEBDB_SET_NAME]
+           ,[WEBDB_SET_DESCRIPTION])
+     VALUES
+           (@WEBDB_ID
+           ,@r_set_id
+           ,NULL, NULL)
+set @WEBDB_PUBLIC_SET_ID = SCOPE_IDENTITY()
+INSERT INTO [TB_WEBDB_PUBLIC_ATTRIBUTE]
+           ([WEBDB_ID]
+           ,[ATTRIBUTE_ID]
+           ,[WEBDB_ATTRIBUTE_NAME]
+           ,[WEBDB_ATTRIBUTE_DESCRIPTION])
+     SELECT @WEBDB_ID, a.ATTRIBUTE_ID, NULL, NULL
+	 FROM tb_attribute a
+	 inner join TB_ATTRIBUTE_SET tas on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+				and dbo.fn_IsAttributeInTree(a.ATTRIBUTE_ID) = 1
+	 inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbCodeSetDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodeSetDelete]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+
+Declare @atts table (A_ID bigint primary key)
+INSERT into @atts select tas.Attribute_id from TB_WEBDB w
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE wa on w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID and wa.WEBDB_ID = @WEBDB_ID
+	inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = wa.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+	inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+
+DELETE from TB_WEBDB_PUBLIC_ATTRIBUTE 
+	where ATTRIBUTE_ID in (select * from @atts)
+	and WEBDB_ID = @WEBDB_ID
+DELETE from TB_WEBDB_PUBLIC_SET where WEBDB_ID = @WEBDB_ID and REVIEW_SET_ID = @r_set_id
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbCodeSetEdit]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodeSetEdit]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int,
+	@Public_Name nvarchar(255),
+	@Public_Descr nvarchar(2000)
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+update TB_WEBDB_PUBLIC_SET set WEBDB_SET_NAME = @Public_Name, WEBDB_SET_DESCRIPTION = @Public_Descr 
+ where REVIEW_SET_ID = @r_set_id and WEBDB_ID = @WEBDB_ID
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbCreateOrEdit]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCreateOrEdit]
+(
+	@RevId int,
+	@AttIdFilter bigint,
+	@isOpen bit,
+	@ContactId int,
+	@Username varchar(50) = '',
+	@Password nvarchar(2000) = '',
+	@WebDbName nvarchar(1000),
+	@Subtitle nvarchar(1000) ,
+	@HeaderImage1Url nvarchar(1000) ,
+	@HeaderImage2Url nvarchar(1000) ,
+	@HeaderImage3Url nvarchar(1000) ,
+	@Description nvarchar(max),
+	@WebDbId int output,
+	@Result int = 0 output
+)
+AS
+
+--various possibilities: Create or Edit  
+--Create if @WebDbId = 0;
+--Edit if @WebDbId is supplied.
+--BUT ALSO: generate and update password hash or not.
+--Generate PW hash IF @Password != '' and @isOpen = 0 -- we will also update the username in this case.
+--Ignore PW field otherwise and empty the Username.
+--FAIL if @isOpen = 0 and we're creating a WebDb but don't have both username and password,
+--FAIL (negative @Result) if @isOpen = 0 and we're editing a WebDB that doesn't already have username and password.
+	set @Result = 0
+	--Initial checks (possible failures)
+	IF @WebDbId <= 0 --Creating new WebDb
+		AND @isOpen = 0 --we need username and PW
+		AND 
+		(
+			LEN(@Username) < 4 --username too short
+			OR LEN(@Password) < 6 --password too short
+		)
+	BEGIN
+		SET @Result = -1 --failure to pass first check, username or password are too short
+		return
+	END
+	ELSE IF @WebDbId > 0  
+		AND @isOpen = 0 --we might need username and PW
+		AND 
+		( --we have to change username/password as they are not present: 
+				(select count(*) from TB_WEBDB where WEBDB_ID = @WebDbId AND PWASHED is null) = 1
+		)	
+		AND 
+		( --we need username and password, are the one supplied long enough?
+			LEN(@Username) < 4 --username too short
+			OR LEN(@Password) < 6 --password too short
+		)
+	BEGIN
+		SET @Result = -1 --as above failure to pass first check, username or password are too short
+		return
+	END
+
+	declare @check int = -1
+	--other check is this user an admin in the review? (or a site_admin?)
+	set @check = (select count(*) from TB_CONTACT c
+					Where c.CONTACT_ID = @ContactId
+						AND (
+							@ContactId in 
+									(
+									select rc.CONTACT_ID 
+									from TB_REVIEW_CONTACT rc inner join TB_CONTACT_REVIEW_ROLE crr on 
+										rc.REVIEW_ID = @RevId 
+										and rc.REVIEW_CONTACT_ID = crr.REVIEW_CONTACT_ID
+										and crr.ROLE_NAME = 'AdminUser'
+									) --user is an admin for this review
+							OR
+							c.IS_SITE_ADMIN = 1 --user is a site admin, can do anything
+							)
+					)
+	if @check < 1
+	BEGIN
+		set @Result = -2 --not allowed!
+		return
+	END
+
+
+	--from here on, we believe the input is good (1 exception), we're not asked to achieve the impossible.
+	--Changing data: first we'll create OR edit the record, then IF @isOpen = 0 we'll do an update for username and PW.
+	--IF @isOpen = 1 we will wipe Username and PW, this is because if one opens the WebDb and then wants to close it, they might have forgotten old PW,
+	--so we are forcing them to re-set it...
+
+	IF @WebDbId > 0
+	BEGIN
+		set @check = -1
+		--we're updating something: can we find it? (should we also check if the user is an admin?)
+		set @check = (Select count(*) from TB_WEBDB w 
+								Inner join tb_review r on w.REVIEW_ID = @RevId and w.WEBDB_ID = @WebDbId and w.REVIEW_ID = r.REVIEW_ID
+								)
+		if @check != 1
+		BEGIN
+			set @Result = -3 --couldn't find this WebDb
+			return
+		END
+		--All good, we've been asked to edit a webDB that exists and is tied to the correct review.
+		UPDATE TB_WEBDB Set WITH_ATTRIBUTE_ID = @AttIdFilter, IS_OPEN = @isOpen, WEBDB_NAME = @WebDbName,
+				[DESCRIPTION] = @Description, EDITED_BY = @ContactId, SUBTITLE = @Subtitle
+				, HEADER_IMAGE_1_URL = @HeaderImage1Url, HEADER_IMAGE_2_URL = @HeaderImage2Url, HEADER_IMAGE_3_URL = @HeaderImage3Url
+				where WEBDB_ID = @WebDbId
+		--wipe username and password if WebDb is supposed to be open:
+		if @isOpen = 1 
+			UPDATE TB_WEBDB Set PWASHED = null, USERNAME = null, FLAVOUR = null where WEBDB_ID = @WebDbId
+	END
+	ELSE
+	BEGIN
+		Insert into TB_WEBDB 
+			(REVIEW_ID, WITH_ATTRIBUTE_ID, IS_OPEN, WEBDB_NAME, [DESCRIPTION], CREATED_BY, EDITED_BY
+			, SUBTITLE, HEADER_IMAGE_1_URL, HEADER_IMAGE_2_URL, HEADER_IMAGE_3_URL)
+		Values (@RevId, @AttIdFilter, @isOpen, @WebDbName, @Description, @ContactId, @ContactId
+			,@Subtitle, @HeaderImage1Url, @HeaderImage2Url, @HeaderImage3Url)
+		select @WebDbId = SCOPE_IDENTITY()
+	END
+
+	--at this point we deal with username and password if needed. 
+	if @isOpen = 0
+	BEGIN
+	--create salt!
+	DECLARE @chars char(100) = '!�#$%&�()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�����'
+	declare @rnd varchar(20)
+	declare @cnt int = 0
+	set @rnd = ''
+	WHILE (@cnt <= 20) 
+	BEGIN
+		SELECT @rnd = @rnd + 
+			SUBSTRING(@chars, CONVERT(int, RAND() * 100), 1)
+		SELECT @cnt = @cnt + 1
+	END
+		
+	UPDATE TB_WEBDB set USERNAME = @Username, FLAVOUR = @rnd, PWASHED = HASHBYTES('SHA1', @PASSWORD + @rnd)
+	where WEBDB_ID = @WebDbId
+	END
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbDelete]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int
+)
+As
+--basic check: does this thing exist?
+if (SELECT count(*) from TB_WEBDB where WEBDB_ID = @WEBDB_ID and @REVIEW_ID = REVIEW_ID) != 1 return
+
+--delete attributes
+delete from TB_WEBDB_PUBLIC_ATTRIBUTE where WEBDB_ID = @WEBDB_ID 
+--delete Sets
+delete from TB_WEBDB_PUBLIC_SET where WEBDB_ID = @WEBDB_ID
+--delete webdb
+delete from TB_WEBDB where WEBDB_ID = @WEBDB_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDBDeleteHeaderImage]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDBDeleteHeaderImage] 
+	-- Add the parameters for the stored procedure here
+	(
+		@RevId int 
+		, @WebDbId int
+		, @ImageN smallint
+	)
+AS
+BEGIN
+	--sanity check, ensure @RevId and @WebDbId match...
+	Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+	if @ImageN = 1
+		update TB_WEBDB set HEADER_IMAGE_1 = null where WEBDB_ID = @WebDbId
+	else if @ImageN = 2
+		update TB_WEBDB set HEADER_IMAGE_2 = null where WEBDB_ID = @WebDbId
+	else if @ImageN = 3
+		update TB_WEBDB set HEADER_IMAGE_3 = null where WEBDB_ID = @WebDbId
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbFrequencyCrosstabAndMap]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbFrequencyCrosstabAndMap]
+	-- Add the parameters for the stored procedure here
+	@attributeIdXAxis bigint 
+	, @setIdXAxis int
+	, @included bit null = null
+	, @attributeIdYAxis bigint = 0
+	, @setIdYAxis int = 0 
+	, @segmentsParent bigint = 0
+	, @setIdSegments int = 0
+	, @onlyThisAttribute bigint = 0
+	, @RevId int 
+	, @WebDbId int 
+AS
+BEGIN
+
+--declare 
+	--@attributeIdXAxis bigint = 64472  --62475 0
+	--, @setIdXAxis int = 644
+	--, @attributeIdYAxis bigint = 0
+	--, @setIdYAxis int = 0 --644 664
+	--, @SegmentsParent bigint = 119121
+	--, @setIdSegments int = 0--1880
+	--, @OnlyThisAttribute bigint = 0
+	--, @RevId int = 99
+	--, @WebDbId int = 18
+
+
+declare @items table (ItemId bigint primary key, X_atts varchar(max) null, Y_atts  varchar(max) null, segments varchar(max) null)
+declare @attsX table (ATTRIBUTE_ID bigint primary key, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+declare @attsY table (ATTRIBUTE_ID bigint primary key, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+declare @segments table (ATTRIBUTE_ID bigint primary key, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+--last minute table: the parent IDs and names are in @codeNames
+declare @codeNames table (SETIDX_ID bigint primary key, SETIDX_NAME nvarchar(255), SETIDY_ID bigint, SETIDY_NAME nvarchar(255),
+							ATTIBUTEIDX_ID bigint, ATTIBUTEIDX_NAME nvarchar(255), ATTIBUTEIDY_ID bigint, ATTIBUTEIDY_NAME nvarchar(255)
+							, SEGMENTS_PARENT_NAME nvarchar(255))
+
+--sanity check, ensure @RevId and @WebDbId match...
+Declare @CheckWebDbId int = null
+set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+IF @CheckWebDbId is null return;
+
+declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+if @WebDbFilter is not null and @WebDbFilter > 1
+BEGIN
+	if @OnlyThisAttribute > 0
+	BEGIN
+		insert into @items select distinct ir.item_id, null, null, null from TB_ITEM_REVIEW ir
+			inner join tb_item_set tis on ir.ITEM_ID = tis.ITEM_ID and ir.REVIEW_ID = @RevId 
+			and (@included is null OR ir.IS_INCLUDED = @included)
+			and ir.IS_DELETED = 0 and tis.IS_COMPLETED = 1
+			inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID and tia.ATTRIBUTE_ID = @WebDbFilter
+			inner join TB_ITEM_ATTRIBUTE tia2 on tia2.ITEM_ID = ir.ITEM_ID and tia2.ATTRIBUTE_ID = @OnlyThisAttribute 
+			inner join TB_ITEM_SET tis2 on tia2.ITEM_SET_ID = tis2.ITEM_SET_ID and tis2.IS_COMPLETED = 1 
+	END
+	ELSE
+	Begin
+		insert into @items select distinct ir.item_id, null, null, null from TB_ITEM_REVIEW ir
+			inner join tb_item_set tis on ir.ITEM_ID = tis.ITEM_ID and ir.REVIEW_ID = @RevId 
+			and (@included is null OR ir.IS_INCLUDED = @included) 
+			and ir.IS_DELETED = 0 and tis.IS_COMPLETED = 1
+			inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID and tia.ATTRIBUTE_ID = @WebDbFilter
+	END
+END
+else
+BEGIN
+	if @OnlyThisAttribute > 0
+	BEGIN
+		insert into @items select distinct ir.item_id, null, null, null from TB_ITEM_REVIEW ir
+			inner join TB_ITEM_ATTRIBUTE tia on ir.ITEM_ID = tia.ITEM_ID and tia.ATTRIBUTE_ID = @OnlyThisAttribute 
+				and ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+				and (@included is null OR ir.IS_INCLUDED = @included)  
+			inner join TB_ITEM_SET tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and IS_COMPLETED = 1
+	END
+	ELSE
+	Begin
+		insert into @items select distinct ir.item_id, null, null, null from TB_ITEM_REVIEW ir
+			where ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+			 and (@included is null OR ir.IS_INCLUDED = @included) 
+	END
+END
+
+insert into @attsX select distinct a.Attribute_id, 
+	 CASE when pa.WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
+		else pa.WEBDB_ATTRIBUTE_NAME
+	 END AS ATTRIBUTE_NAME
+	 , ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+	 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+	 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+	 where tas.SET_ID = @setIdXAxis and PARENT_ATTRIBUTE_ID = @attributeIdXAxis
+select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsX order by ord
+
+IF @setIdYAxis > 0
+BEGIN
+	insert into @attsY select distinct a.Attribute_id, 
+		 CASE When pa.WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
+			else pa.WEBDB_ATTRIBUTE_NAME
+		 END as ATTRIBUTE_NAME
+		 , ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+		 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+		where SET_ID = @setIdYAxis and PARENT_ATTRIBUTE_ID = @attributeIdYAxis
+	select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsY order by ord
+END
+
+-------------------------------------------------------
+insert into @codeNames (SETIDX_ID, SETIDY_ID, ATTIBUTEIDX_ID, ATTIBUTEIDY_ID)
+values (@setIdXAxis, @setIdYAxis, @attributeIdXAxis, @attributeIdYAxis)
+
+update @codeNames set SETIDX_NAME = (
+										CASE when ps.WEBDB_SET_NAME is null then s.SET_NAME
+										else ps.WEBDB_SET_NAME
+										END
+									) 
+	from TB_SET s
+	inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @RevId and s.SET_ID = rs.SET_ID
+	inner join TB_WEBDB_PUBLIC_SET ps on rs.REVIEW_SET_ID = ps.REVIEW_SET_ID and ps.WEBDB_ID = @WebDbId
+	where s.SET_ID = SETIDX_ID
+
+if @setIdYAxis != 0
+begin
+	update @codeNames set SETIDY_NAME = (
+										CASE when ps.WEBDB_SET_NAME is null then s.SET_NAME
+										else ps.WEBDB_SET_NAME
+										END
+									) 
+	from TB_SET s
+	inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @RevId and s.SET_ID = rs.SET_ID
+	inner join TB_WEBDB_PUBLIC_SET ps on rs.REVIEW_SET_ID = ps.REVIEW_SET_ID and ps.WEBDB_ID = @WebDbId
+	where s.SET_ID = SETIDY_ID
+END
+if @attributeIdXAxis != 0
+begin
+	update @codeNames set ATTIBUTEIDX_NAME = (
+												CASE when pa.WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
+												ELSE pa.WEBDB_ATTRIBUTE_NAME
+												END
+											)
+	from TB_ATTRIBUTE a
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+	where a.ATTRIBUTE_ID = ATTIBUTEIDX_ID
+end
+if @attributeIdYAxis != 0
+begin
+	update @codeNames set ATTIBUTEIDY_NAME = (
+												CASE when pa.WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
+												ELSE pa.WEBDB_ATTRIBUTE_NAME
+												END
+											)
+	from TB_ATTRIBUTE a
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+	where a.ATTRIBUTE_ID = ATTIBUTEIDY_ID
+end
+------------------------------------------------------------
+
+If @setIdSegments > 0
+BEGIN
+	insert into @segments select distinct a.Attribute_id,
+		 CASE when pa.WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
+			else pa.WEBDB_ATTRIBUTE_NAME
+		 END AS ATTRIBUTE_NAME
+		 , ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+		 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+		where SET_ID = @setIdSegments and PARENT_ATTRIBUTE_ID = @SegmentsParent
+	select ATTRIBUTE_ID, ATTRIBUTE_NAME from @segments order by ord
+
+	update @codeNames set SEGMENTS_PARENT_NAME = (
+												CASE when pa.WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
+												ELSE pa.WEBDB_ATTRIBUTE_NAME
+												END
+											)
+	from TB_ATTRIBUTE a
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = @segmentsParent and pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+	
+END
+
+--declare @currAtt bigint = (select top(1) ATTRIBUTE_ID from @attsX where done = 0 order by ord)
+--declare @limit int = 1000, @cycle int = 0
+--while @currAtt is not null and @currAtt > 0 and @cycle < @limit
+--BEGIN
+--	set @cycle = @cycle+1
+--	update @attsX set done = 1 where ATTRIBUTE_ID = @currAtt
+
+--	--select ItemId from @items i
+--	--	inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdXAxis
+--	--	inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = i.ItemId and ia.ATTRIBUTE_ID = @currAtt
+--	select @currAtt, STRING_AGG(cast (ItemId as nvarchar(max)), ',') from @items i
+--		inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdXAxis
+--		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = i.ItemId and ia.ATTRIBUTE_ID = @currAtt
+
+--	set @currAtt = (select top(1) ATTRIBUTE_ID from @attsX where done = 0 order by ord)
+--	--if @currAtt is not null print  cast(@currAtt as nvarchar(200)) + '!'
+--	--else print 'ending'
+--END
+
+--set @currAtt  = (select top(1) ATTRIBUTE_ID from @attsY where done = 0 order by ord)
+--set @cycle = 0
+--while @currAtt is not null and @currAtt > 0 and @cycle < @limit
+--BEGIN
+--	set @cycle = @cycle+1
+--	update @attsY set done = 1 where ATTRIBUTE_ID = @currAtt
+
+--	--select ItemId from @items i
+--	--	inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdXAxis
+--	--	inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = i.ItemId and ia.ATTRIBUTE_ID = @currAtt
+--	select @currAtt, STRING_AGG(cast (ItemId as nvarchar(max)), ',') from @items i
+--		inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdYAxis
+--		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = i.ItemId and ia.ATTRIBUTE_ID = @currAtt
+
+--	set @currAtt = (select top(1) ATTRIBUTE_ID from @attsY where done = 0 order by ord)
+--	--if @currAtt is not null print  cast(@currAtt as nvarchar(200)) + '!'
+--	--else print 'ending'
+--END
+
+update @items  set X_atts = Atts
+from 
+(
+	select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+	inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdXAxis
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+	inner join @attsX a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+	group by ItemId 
+	--order by ItemId
+) as big
+WHERE ItemId = Big.iid
+
+if @setIdYAxis > 0
+	update @items set Y_atts = Atts
+	from 
+	(
+		select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+		inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdYAxis
+		inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+		inner join @attsY a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+		group by ItemId 
+		--order by ItemId
+	) as big
+	WHERE ItemId = Big.iid
+
+if @setIdSegments > 0
+update @items set segments = Atts
+from 
+(
+	select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+	inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 and tis.SET_ID = @setIdSegments
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+	inner join @segments a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+	group by ItemId 
+	--order by ItemId
+) as big
+WHERE ItemId = Big.iid
+
+select * from @items
+
+
+
+select * from @codeNames
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDBget]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDBget]
+(
+	@WebDBid int,
+	@RevId int	
+)
+
+As
+BEGIN
+select [WEBDB_ID]
+		  ,[REVIEW_ID]
+		  ,[WITH_ATTRIBUTE_ID]
+		  ,[IS_OPEN]
+		  ,w.[USERNAME]
+		  ,[WEBDB_NAME]
+		  ,SUBTITLE
+		  ,w.[DESCRIPTION]
+		  ,c1.CONTACT_NAME as [CREATED_BY]
+		  ,c2.CONTACT_NAME as [EDITED_BY]
+		  ,w.[MAP_TITLE]
+		  ,w.[MAP_URL]
+		  ,w.[HEADER_IMAGE_1_URL]
+		  ,w.[HEADER_IMAGE_2_URL]
+		  ,w.[HEADER_IMAGE_3_URL]
+		  ,w.HEADER_IMAGE_1
+		  ,w.HEADER_IMAGE_2
+		  ,w.HEADER_IMAGE_3
+	  FROM [TB_WEBDB] w
+	  inner join TB_CONTACT c1 on w.CREATED_BY = c1.CONTACT_ID
+	  inner join TB_CONTACT c2 on w.EDITED_BY = c2.CONTACT_ID 
+	  where w.WEBDB_ID = @WebDBid AND w.REVIEW_ID = @RevId
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbGetAllAttributesInSet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbGetAllAttributesInSet]
+(
+	@SET_ID INT,
+	@WEBDB_ID int
+)
+
+As
+
+SELECT tas.ATTRIBUTE_SET_ID, tas.SET_ID, tas.ATTRIBUTE_ID, tas.PARENT_ATTRIBUTE_ID,
+	tas.ATTRIBUTE_TYPE_ID, tas.ATTRIBUTE_ORDER, ATTRIBUTE_TYPE, 
+	case 
+		WHEN WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
+		else WEBDB_ATTRIBUTE_NAME
+	END as ATTRIBUTE_NAME, 
+	case 
+		WHEN WEBDB_ATTRIBUTE_DESCRIPTION is null then tas.ATTRIBUTE_SET_DESC
+		else WEBDB_ATTRIBUTE_DESCRIPTION
+	END as ATTRIBUTE_SET_DESC, 
+	CONTACT_ID, ATTRIBUTE_DESC, 
+	Ext_URL, Ext_Type,
+	ORIGINAL_ATTRIBUTE_ID
+
+FROM TB_WEBDB_PUBLIC_ATTRIBUTE wa
+INNER JOIN TB_ATTRIBUTE a on wa.WEBDB_ID = @WEBDB_ID and a.ATTRIBUTE_ID = wa.ATTRIBUTE_ID
+INNER JOIN TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = a.ATTRIBUTE_ID and tas.SET_ID = @SET_ID and tas.PARENT_ATTRIBUTE_ID is not null
+INNER JOIN TB_SET ON TB_SET.SET_ID = tas.SET_ID 
+INNER JOIN TB_ATTRIBUTE_TYPE t ON t.ATTRIBUTE_TYPE_ID = tas.ATTRIBUTE_TYPE_ID
+
+WHERE  dbo.fn_IsAttributeInTree(a.attribute_id) = 1
+
+ORDER BY PARENT_ATTRIBUTE_ID, ATTRIBUTE_ORDER
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDBgetClosedAccess]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDBgetClosedAccess]
+(
+	@WebDBid int
+	,@userName  varchar(50)	
+	,@Password nvarchar(2000)
+)
+
+As
+
+select *  from TB_WEBDB w where w.WEBDB_ID = @WebDBid AND w.USERNAME = @userName 
+	and HASHBYTES('SHA1', @Password + FLAVOUR) = PWASHED 
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbGetCodesets]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbGetCodesets]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@WEBDB_PUBLIC_SET_ID int = 0
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT RS.REVIEW_SET_ID, REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, 
+		CASE 
+			WHEN WEBDB_SET_NAME IS Null then SET_NAME
+			else WEBDB_SET_NAME
+		END as SET_NAME, 
+		SET_TYPE, CODING_IS_FINAL, SET_ORDER, MAX_DEPTH, 
+		CASE 
+			WHEN WEBDB_SET_DESCRIPTION IS Null then S.SET_DESCRIPTION
+			else WEBDB_SET_DESCRIPTION
+		END as SET_DESCRIPTION, 
+		S.ORIGINAL_SET_ID, S.USER_CAN_EDIT_URLS,
+		WS.WEBDB_ID, WS.WEBDB_PUBLIC_SET_ID
+	FROM TB_WEBDB_PUBLIC_SET WS
+	INNER JOIN TB_REVIEW_SET RS on WS.WEBDB_ID = @WEBDB_ID and WS.REVIEW_SET_ID = RS.REVIEW_SET_ID and RS.REVIEW_ID = @REVIEW_ID
+				AND (@WEBDB_PUBLIC_SET_ID = 0 OR WS.WEBDB_PUBLIC_SET_ID = @WEBDB_PUBLIC_SET_ID)--this allows to have one SP to get all or just one set
+	INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+	INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+
+	ORDER BY RS.SET_ORDER, RS.SET_ID
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDBgetImages]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDBgetImages]
+(
+	@WebDBid int
+)
+
+As
+BEGIN
+select HEADER_IMAGE_1, HEADER_IMAGE_EXT_1, HEADER_IMAGE_2, HEADER_IMAGE_EXT_2, HEADER_IMAGE_3, HEADER_IMAGE_EXT_3  from TB_WEBDB w where w.WEBDB_ID = @WebDBid 
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDBgetOpenAccess]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDBgetOpenAccess]
+(
+	@WebDBid int	
+)
+
+As
+select * from TB_WEBDB w where w.WEBDB_ID = @WebDBid AND (w.USERNAME is NULL OR w.USERNAME = '') and PWASHED is null
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbItemAttributes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbItemAttributes]
+(
+	@ITEM_SET_ID BIGINT
+	, @RevId int 
+	, @WebDbId int
+)
+
+As
+
+SET NOCOUNT ON
+
+--sanity check, ensure @RevId and @WebDbId match...
+	Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+	SELECT DISTINCT ITEM_ATTRIBUTE_ID, TB_ITEM_ATTRIBUTE.ITEM_ID, TB_ITEM_ATTRIBUTE.ITEM_SET_ID,
+		TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID, ADDITIONAL_TEXT, TB_ITEM_ATTRIBUTE.ITEM_ARM_ID, CONTACT_ID, ATTRIBUTE_SET_ID
+		,CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_TITLE
+	FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_WEBDB_PUBLIC_ATTRIBUTE pa on TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.ITEM_SET_ID = @ITEM_SET_ID
+		INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = TB_ITEM_ATTRIBUTE.ITEM_ARM_ID
+	WHERE TB_ITEM_ATTRIBUTE.ITEM_SET_ID = @ITEM_SET_ID
+
+
+
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbItemListFrequencyNoneOfTheAbove]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbItemListFrequencyNoneOfTheAbove]
+	@ParentAttributeId bigint 
+	, @included bit null
+	, @RevId int 
+	, @WebDbId int
+	, @SetId int
+	, @FilterAttributeId int
+      
+    , @PageNum INT = 1
+    , @PerPage INT = 100
+    , @CurrentPage INT OUTPUT
+    , @TotalPages INT OUTPUT
+    , @TotalRows INT OUTPUT  
+AS
+SET NOCOUNT ON
+	--sanity check, ensure @RevId and @WebDbId match...
+	Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+
+	declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	declare @RowsToRetrieve int
+	Declare @ID table (ItemID bigint ) --store IDs to build paged results as a simple join
+	IF (@FilterAttributeId = 0)
+	BEGIN
+		insert into @ID
+		Select DISTINCT TB_ITEM_REVIEW.ITEM_ID
+				from TB_ITEM_REVIEW 
+				INNER JOIN TB_ITEM_ATTRIBUTE IA3 ON IA3.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID AND 
+						(IA3.ATTRIBUTE_ID = @WebDbFilter OR (@WebDbFilter is null OR @WebDbFilter = 0))
+					INNER JOIN TB_ITEM_SET IS3 ON IS3.ITEM_SET_ID = IA3.ITEM_SET_ID AND IS3.IS_COMPLETED = 1
+				where TB_ITEM_REVIEW.ITEM_ID not in 
+						(
+							select TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+							  INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+									AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SetId
+							  RIGHT OUTER JOIN TB_ATTRIBUTE_SET ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+									AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @ParentAttributeId AND TB_ATTRIBUTE_SET.SET_ID = @SetId
+							  INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+							  INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+									AND TB_ITEM_REVIEW.REVIEW_ID = @RevId
+									AND TB_ITEM_REVIEW.IS_INCLUDED = @included
+									AND TB_ITEM_REVIEW.IS_DELETED = 0
+						)
+					AND TB_ITEM_REVIEW.REVIEW_ID = @RevId
+									AND TB_ITEM_REVIEW.IS_INCLUDED = @included
+									AND TB_ITEM_REVIEW.IS_DELETED = 0
+	END
+	ELSE
+	BEGIN
+		insert into @ID
+		Select TB_ITEM_REVIEW.ITEM_ID
+				from TB_ITEM_REVIEW 
+				INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID AND IA2.ATTRIBUTE_ID = @FilterAttributeId
+					INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 1
+					INNER JOIN TB_ITEM_ATTRIBUTE IA3 ON IA3.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID AND 
+						(IA3.ATTRIBUTE_ID = @WebDbFilter OR (@WebDbFilter is null OR @WebDbFilter = 0))
+					INNER JOIN TB_ITEM_SET IS3 ON IS3.ITEM_SET_ID = IA3.ITEM_SET_ID AND IS3.IS_COMPLETED = 1
+				where TB_ITEM_REVIEW.ITEM_ID not in 
+						(
+							select TB_ITEM_ATTRIBUTE.ITEM_ID FROM TB_ITEM_ATTRIBUTE
+							  INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+									AND TB_ITEM_SET.IS_COMPLETED = 'TRUE' AND TB_ITEM_SET.SET_ID = @SetId
+							  RIGHT OUTER JOIN TB_ATTRIBUTE_SET ON TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+									AND TB_ATTRIBUTE_SET.PARENT_ATTRIBUTE_ID = @ParentAttributeId AND TB_ATTRIBUTE_SET.SET_ID = @SetId
+							  INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ATTRIBUTE_SET.ATTRIBUTE_ID
+							  INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+									AND TB_ITEM_REVIEW.REVIEW_ID = @RevId
+									AND TB_ITEM_REVIEW.IS_INCLUDED = @included
+									AND TB_ITEM_REVIEW.IS_DELETED = 0
+							  INNER JOIN TB_ITEM_ATTRIBUTE IA2 ON IA2.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND IA2.ATTRIBUTE_ID = @FilterAttributeId
+							  INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 1
+						)
+					AND TB_ITEM_REVIEW.REVIEW_ID = @RevId
+									AND TB_ITEM_REVIEW.IS_INCLUDED = @included
+									AND TB_ITEM_REVIEW.IS_DELETED = 0
+	END
+		--count results
+		SELECT @TotalRows = count(ItemID) from @ID
+		set @TotalPages = @TotalRows/@PerPage
+
+		if @PageNum < 1
+		set @PageNum = 1
+
+		if @TotalRows % @PerPage != 0
+		set @TotalPages = @TotalPages + 1
+
+		set @RowsToRetrieve = @PerPage * @PageNum
+		set @CurrentPage = @PageNum;
+
+		WITH SearchResults AS
+		(
+			SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID
+				, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+			FROM TB_ITEM I
+			INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] 
+			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+				TB_ITEM_REVIEW.REVIEW_ID = @RevId
+			INNER JOIN @ID on I.ITEM_ID = ItemID
+		)
+		Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+				TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+				[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+				AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+				, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+			FROM SearchResults 
+					  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+					  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+			WHERE RowNum > @RowsToRetrieve - @PerPage
+			AND RowNum <= @RowsToRetrieve 
+			ORDER BY RowNum
+
+
+	SELECT	@CurrentPage as N'@CurrentPage',
+			@TotalPages as N'@TotalPages',
+			@TotalRows as N'@TotalRows'
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbItemListFromIDs]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbItemListFromIDs]
+	@RevId int
+    , @Items varchar(max)
+	, @webDbId int null
+as 
+BEGIN
+	Select II.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, II.CREATED_BY, DATE_EDITED, II.EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , II.MASTER_ITEM_ID, DOI, KEYWORDS
+                  
+            FROM dbo.fn_Split_int(@Items, ',')  SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.value = II.ITEM_ID
+				  inner join TB_ITEM_REVIEW ir on II.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @RevId
+				  inner join TB_WEBDB w on ir.REVIEW_ID = w.REVIEW_ID and w.WEBDB_ID = @webDbId
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+			order by SHORT_TITLE, II.ITEM_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbItemListWithWithoutCodes]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+--CREATE OR ALTER PROCEDURE st_WebDbItemListWithWithoutCodes
+--	@WithAttributesIds varchar(max)
+--    , @WithSetIdsList varchar(max)
+--	, @included bit null
+--    , @WithOutAttributesIdsList varchar(max) = ''
+--    , @WithOutSetIdsList varchar(max) = ''
+--	, @RevId int 
+--	, @WebDbId int
+      
+--    , @PageNum INT = 1
+--    , @PerPage INT = 100
+--    , @CurrentPage INT OUTPUT
+--    , @TotalPages INT OUTPUT
+--    , @TotalRows INT OUTPUT  
+--AS
+--SET NOCOUNT ON
+--	--sanity check, ensure @RevId and @WebDbId match...
+--	Declare @CheckWebDbId int = null
+--	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+--	IF @CheckWebDbId is null return;
+
+--	--declare @startT datetime = getdate(), @stepT datetime = getdate()
+--	declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+--	declare @RowsToRetrieve int
+--	Declare @ID table (ItemID bigint primary key) --store IDs to build paged results as a simple join
+--	Declare @WithAtt table (AttID bigint primary key, SetId int, itemsN int, done bit) 
+--	Declare @WithOutAtt table (AttID bigint primary key, SetId int) 
+--	declare @currA bigint, @currS int, @2ndA bigint, @2ndS int
+--	--check input: need to be able to match Att and Set IDs...
+--	--see: https://arulmouzhi.wordpress.com/2020/01/13/counting-number-of-occurrences-of-a-particular-word-inside-the-string-using-t-sql/
+--	declare @commas int = (LEN(@WithAttributesIds) - LEN(REPLACE(@WithAttributesIds,',','')))
+--	declare @commas2 int = (LEN(@WithOutAttributesIdsList) - LEN(REPLACE(@WithOutAttributesIdsList,',','')))
+	
+--	if @commas = (LEN(@WithSetIdsList) - LEN(REPLACE(@WithSetIdsList,',','')))
+--		AND
+--		@commas2 = (LEN(@WithOutSetIdsList) - LEN(REPLACE(@WithOutSetIdsList,',','')))
+--	BEGIN
+--		--we put things in @ID as we believe this will work.
+--		Insert into	@WithAtt select distinct s.value, ss.value, count(distinct ir.item_id), 0 from dbo.fn_Split_int(@WithAttributesIds,',') s
+--			inner join dbo.fn_Split_int(@WithSetIdsList,',') ss on s.idx = ss.idx and s.value > 0
+--			inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0  and ir.IS_INCLUDED = @included
+--			inner join TB_ITEM_SET tis on tis.IS_COMPLETED = 1 and ir.ITEM_ID = tis.ITEM_ID and tis.SET_ID = ss.value 
+--			inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = s.value
+--				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on ia.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+--			group by s.value, ss.value
+					
+--		declare @imax int = @@rowcount, @i int = 0 --we'll use this below in the WHILE loop
+--		--print '1111111111'
+--		Insert into	@WithOutAtt select distinct s.value, ss.value from dbo.fn_Split_int(@WithOutAttributesIdsList,',') s
+--			inner join dbo.fn_Split_int(@WithOutSetIdsList,',') ss on s.idx = ss.idx and s.value > 0
+--		--select * from @WithOutAtt
+--		set @currA  = (select top 1 AttID from @WithAtt order by itemsN asc)
+--		set @currS = (select top 1 SetId from @WithAtt where AttID = @currA)
+
+--		--select count(distinct ir.item_id), w.AttID from TB_ITEM_REVIEW ir
+--		--		inner join TB_ITEM_SET tis on ir.REVIEW_ID = @RevId and tis.IS_COMPLETED = 1 and ir.ITEM_ID = tis.ITEM_ID 
+--		--			and ir.IS_DELETED = 0  and ir.IS_INCLUDED = @included
+--		--		inner join @WithAtt w on tis.SET_ID = w.SetId --and w.AttID = @currA and w.SetId = @currS
+--		--		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = w.AttID
+--		--		inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on ia.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+--		--		--inner join tb_item_set tis3 on ir.ITEM_ID = tis3.ITEM_ID and tis3.SET_ID = @2ndS and tis3.IS_COMPLETED = 1
+--		--		--inner join TB_ITEM_ATTRIBUTE ia3 on tis3.ITEM_SET_ID = ia3.ITEM_SET_ID and ia3.ATTRIBUTE_ID = @2ndA
+--		--		group by w.AttID
+		
+--		--set @stepT = getdate()
+--		--print 'step 1: ' + Cast(datediff(second, @startT, @stepT) as varchar(max))
+
+--		--in the first pass, we put in @ID items found with a not-very selective query, they just need to match for one "with this code" so we're getting too many items...
+--		IF (@WebDbFilter = 0 and @imax > 1)
+--		BEGIN
+--		--print '22222222!'
+--		set @2ndA  = (select top 1 AttID from @WithAtt where AttID != @currA order by itemsN asc)
+--		set @2ndS = (select top 1 SetId from @WithAtt where AttID = @2ndA)
+--		insert into @ID
+--			Select DISTINCT ir.ITEM_ID from TB_ITEM_REVIEW ir
+--				inner join TB_ITEM_SET tis on ir.REVIEW_ID = @RevId and tis.IS_COMPLETED = 1 and ir.ITEM_ID = tis.ITEM_ID 
+--					and ir.IS_DELETED = 0  and ir.IS_INCLUDED = @included
+--				inner join @WithAtt w on tis.SET_ID = w.SetId and w.AttID = @currA and w.SetId = @currS
+--				inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = w.AttID
+--				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on ia.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+--				inner join tb_item_set tis3 on ir.ITEM_ID = tis3.ITEM_ID and tis3.SET_ID = @2ndS and tis3.IS_COMPLETED = 1
+--				inner join TB_ITEM_ATTRIBUTE ia3 on tis3.ITEM_SET_ID = ia3.ITEM_SET_ID and ia3.ATTRIBUTE_ID = @2ndA
+--			--WHERE ir.ITEM_ID not in (
+--			--	Select DISTINCT ir2.ITEM_ID from TB_ITEM_REVIEW ir2
+--			--	inner join TB_ITEM_SET tis2 on ir2.REVIEW_ID = @RevId and tis2.IS_COMPLETED = 1 and ir2.ITEM_ID = tis2.ITEM_ID
+--			--	inner join @WithOutAtt w2 on tis2.SET_ID = w2.SetId
+--			--	inner join TB_ITEM_ATTRIBUTE ia2 on ia2.ITEM_SET_ID = tis2.ITEM_SET_ID and ia2.ITEM_ID = ir2.ITEM_ID and ia2.ATTRIBUTE_ID = w2.AttID
+--			--	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on ia2.ATTRIBUTE_ID = pa2.ATTRIBUTE_ID and pa2.WEBDB_ID = @WebDbId
+--			--	)
+--		update @WithAtt set done = 1 where AttID = @currA or AttID = @2ndA		
+--		END
+--		ELSE IF @WebDbFilter = 0
+--		Begin
+--			--print '33333333333!'
+--			insert into @ID
+--			Select DISTINCT ir.ITEM_ID from TB_ITEM_REVIEW ir
+--				inner join TB_ITEM_SET tis on ir.REVIEW_ID = @RevId and tis.IS_COMPLETED = 1 and ir.ITEM_ID = tis.ITEM_ID 
+--					and ir.IS_DELETED = 0  and ir.IS_INCLUDED = @included
+--				inner join @WithAtt w on tis.SET_ID = w.SetId and w.AttID = @currA and w.SetId = @currS
+--				inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = w.AttID
+--				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on ia.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+--			--WHERE ir.ITEM_ID not in (
+--			--	Select DISTINCT ir2.ITEM_ID from TB_ITEM_REVIEW ir2
+--			--	inner join TB_ITEM_SET tis2 on ir2.REVIEW_ID = @RevId and tis2.IS_COMPLETED = 1 and ir2.ITEM_ID = tis2.ITEM_ID
+--			--	inner join @WithOutAtt w2 on tis2.SET_ID = w2.SetId
+--			--	inner join TB_ITEM_ATTRIBUTE ia2 on ia2.ITEM_SET_ID = tis2.ITEM_SET_ID and ia2.ITEM_ID = ir2.ITEM_ID and ia2.ATTRIBUTE_ID = w2.AttID
+--			--	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on ia2.ATTRIBUTE_ID = pa2.ATTRIBUTE_ID and pa2.WEBDB_ID = @WebDbId
+--			--	)
+--				update @WithAtt set done = 1 where AttID = @currA --or AttID = @2ndA
+--		END
+--		Else IF @imax > 1
+--		BEGIN
+--			--print '4444444444!'
+--			set @2ndA  = (select top 1 AttID from @WithAtt where AttID != @currA)
+--			set @2ndS = (select top 1 SetId from @WithAtt where AttID = @2ndA)
+--			insert into @ID
+--			Select DISTINCT ir.ITEM_ID from TB_ITEM_REVIEW ir
+--				inner join TB_ITEM_SET tis on ir.REVIEW_ID = @RevId and tis.IS_COMPLETED = 1 and ir.ITEM_ID = tis.ITEM_ID
+--					and ir.IS_DELETED = 0  and ir.IS_INCLUDED = @included
+--				inner join @WithAtt w on tis.SET_ID = w.SetId and w.AttID = @currA and w.SetId = @currS
+--				inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = w.AttID
+--				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on ia.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+--				inner join TB_ITEM_ATTRIBUTE ia3 on ir.ITEM_ID = ia3.ITEM_ID and ia3.ATTRIBUTE_ID = @WebDbFilter
+--				inner join tb_item_set tis3 on ia3.ITEM_SET_ID = tis3.ITEM_SET_ID and tis3.IS_COMPLETED = 1				
+--				inner join tb_item_set tis4 on ir.ITEM_ID = tis4.ITEM_ID and tis4.SET_ID = @2ndS and tis4.IS_COMPLETED = 1
+--				inner join TB_ITEM_ATTRIBUTE ia4 on tis4.ITEM_SET_ID = ia4.ITEM_SET_ID and ia4.ATTRIBUTE_ID = @2ndA
+--			--WHERE ir.ITEM_ID not in (
+--			--	Select DISTINCT ir2.ITEM_ID from TB_ITEM_REVIEW ir2
+--			--	inner join TB_ITEM_SET tis2 on ir.REVIEW_ID = @RevId and tis2.IS_COMPLETED = 1 and ir2.ITEM_ID = tis2.ITEM_ID
+--			--	inner join @WithOutAtt w2 on tis2.SET_ID = w2.SetId
+--			--	inner join TB_ITEM_ATTRIBUTE ia2 on ia2.ITEM_SET_ID = tis2.ITEM_SET_ID and ia2.ITEM_ID = ir2.ITEM_ID and ia2.ATTRIBUTE_ID = w2.AttID
+--			--	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on ia2.ATTRIBUTE_ID = pa2.ATTRIBUTE_ID and pa2.WEBDB_ID = @WebDbId
+--			--	)
+--			update @WithAtt set done = 1 where AttID = @currA or AttID = @2ndA
+--		END
+--		ELSE
+--		BEGIN
+--			--print '55555555555!'
+--			insert into @ID
+--			Select DISTINCT ir.ITEM_ID from TB_ITEM_REVIEW ir
+--				inner join TB_ITEM_SET tis on ir.REVIEW_ID = @RevId and tis.IS_COMPLETED = 1 and ir.ITEM_ID = tis.ITEM_ID
+--					and ir.IS_DELETED = 0  and ir.IS_INCLUDED = @included
+--				inner join @WithAtt w on tis.SET_ID = w.SetId and w.AttID = @currA and w.SetId = @currS
+--				inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = w.AttID
+--				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on ia.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+--				inner join TB_ITEM_ATTRIBUTE ia3 on ir.ITEM_ID = ia3.ITEM_ID and ia3.ATTRIBUTE_ID = @WebDbFilter
+--				inner join tb_item_set tis3 on ia3.ITEM_SET_ID = tis3.ITEM_SET_ID and tis3.IS_COMPLETED = 1
+--			--WHERE ir.ITEM_ID not in (
+--			--	Select DISTINCT ir2.ITEM_ID from TB_ITEM_REVIEW ir2
+--			--	inner join TB_ITEM_SET tis2 on ir.REVIEW_ID = @RevId and tis2.IS_COMPLETED = 1 and ir2.ITEM_ID = tis2.ITEM_ID
+--			--	inner join @WithOutAtt w2 on tis2.SET_ID = w2.SetId
+--			--	inner join TB_ITEM_ATTRIBUTE ia2 on ia2.ITEM_SET_ID = tis2.ITEM_SET_ID and ia2.ITEM_ID = ir2.ITEM_ID and ia2.ATTRIBUTE_ID = w2.AttID
+--			--	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on ia2.ATTRIBUTE_ID = pa2.ATTRIBUTE_ID and pa2.WEBDB_ID = @WebDbId
+--			--	)
+--			update @WithAtt set done = 1 where AttID = @currA --or AttID = @2ndA
+--		END
+
+		
+--		--print 'step 2: ' + cast( datediff(second, @stepT, getdate()) as varchar(max))
+--		--set @stepT = getdate()
+--		--now we need to remove items that DON't have all of the codes we want.
+		
+--		--print '6666666666666!'
+--		set @imax = (select count(*) from @WithAtt where done = 0)
+--		WHILE @i < @imax
+--		BEGIN
+--			--we delete from @ID items that don't have each code present in @WithAtt
+--			set @i = @i + 1
+--			set @currA  = (select top 1 AttID from @WithAtt where done = 0)
+--			set @currS = (select top 1 SetId from @WithAtt where AttID = @currA)
+--			delete from @ID  where ItemID not in 
+--			(
+--				select ia.Item_id from 
+--				--@ID i 
+--				--inner join 
+--				TB_ITEM_ATTRIBUTE ia --on i.ItemID = ia.ITEM_ID 
+--				inner join tb_item_set tis on ia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @currA and tis.SET_ID = @currS
+--			)
+--			delete from @WithAtt where @currA = AttID
+--			--print 'step 3 (c ' + CAST(@i as varchar(max)) +'):' + CAST(datediff(second, @stepT, getdate()) as varchar(max))
+--			--set @stepT = getdate()
+--		END
+--		--Finally, we'll remove those that have any one of the "without these" list
+--		set @i = 0
+--		set @imax = (select count(*) from @WithOutAtt)
+		
+--		WHILE @i < @imax
+--		BEGIN
+--			--we delete from @ID items that do have each code present in @WithOutAtt
+--			set @i = @i + 1
+--			set @currA  = (select top 1 AttID from @WithOutAtt)
+--			set @currS = (select top 1 SetId from @WithOutAtt where AttID = @currA)
+--			delete from @ID where ItemID in 
+--			(
+--				select ia.Item_id from 
+--				@ID i 
+--				inner join TB_ITEM_ATTRIBUTE ia on i.ItemID = ia.ITEM_ID
+--				inner join tb_item_set tis on ia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @currA and tis.SET_ID = @currS
+--			)
+--			delete from @WithAtt where @currA = AttID
+--			--print 'step 4 (c ' + CAST(@i as varchar(max)) +'):' + CAST(datediff(second, @stepT, getdate()) as varchar(max))
+--			--set @stepT = getdate()
+--		END
+--	END
+
+	
+--		--count results
+--		SELECT @TotalRows = count(ItemID) from @ID
+--		set @TotalPages = @TotalRows/@PerPage
+
+--		if @PageNum < 1
+--		set @PageNum = 1
+
+--		if @TotalRows % @PerPage != 0
+--		set @TotalPages = @TotalPages + 1
+
+--		set @RowsToRetrieve = @PerPage * @PageNum
+--		set @CurrentPage = @PageNum;
+
+--		WITH SearchResults AS
+--		(
+--			SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID
+--				, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+--			FROM TB_ITEM I
+--			INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] 
+--			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+--				TB_ITEM_REVIEW.REVIEW_ID = @RevId
+--			INNER JOIN @ID on I.ITEM_ID = ItemID
+--		)
+--		Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+--				TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+--				[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+--				AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+--				, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+--			FROM SearchResults 
+--					  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+--					  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+--			WHERE RowNum > @RowsToRetrieve - @PerPage
+--			AND RowNum <= @RowsToRetrieve 
+--			ORDER BY RowNum
+
+
+--	SELECT	@CurrentPage as N'@CurrentPage',
+--			@TotalPages as N'@TotalPages',
+--			@TotalRows as N'@TotalRows'
+--	--print 'END:' + CAST(datediff(second, @startT, getdate()) as varchar(max))
+--SET NOCOUNT OFF
+--GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbItemListWithWithoutCodes]
+	@WithAttributesIds varchar(max)
+    , @WithSetIdsList varchar(max)
+	, @included bit null
+    , @WithOutAttributesIdsList varchar(max) = ''
+    , @WithOutSetIdsList varchar(max) = ''
+	, @RevId int 
+	, @WebDbId int
+      
+    --, @PageNum INT = 1
+    --, @PerPage INT = 100
+    --, @CurrentPage INT OUTPUT
+    --, @TotalPages INT OUTPUT
+    --, @TotalRows INT OUTPUT  
+AS
+
+BEGIN
+
+--declare 
+	--@attributeIdXAxis bigint = 64472  --62475 0
+	--, @setIdXAxis int = 644
+	--, @attributeIdYAxis bigint = 0
+	--, @setIdYAxis int = 0 --644 664
+	--, @SegmentsParent bigint = 119121
+	--, @setIdSegments int = 0--1880
+	--, @OnlyThisAttribute bigint = 0
+	--, @RevId int = 99
+	--, @WebDbId int = 18
+
+
+	--check input: need to be able to match Att and Set IDs...
+	--see: https://arulmouzhi.wordpress.com/2020/01/13/counting-number-of-occurrences-of-a-particular-word-inside-the-string-using-t-sql/
+	declare @commas int = (LEN(@WithAttributesIds) - LEN(REPLACE(@WithAttributesIds,',','')))
+	declare @commas2 int = (LEN(@WithOutAttributesIdsList) - LEN(REPLACE(@WithOutAttributesIdsList,',','')))
+	
+	if @commas != (LEN(@WithSetIdsList) - LEN(REPLACE(@WithSetIdsList,',','')))
+		OR
+		@commas2 != (LEN(@WithOutSetIdsList) - LEN(REPLACE(@WithOutSetIdsList,',',''))) RETURN
+
+
+declare @items table (ItemId bigint primary key, With_atts varchar(max) null, reject varchar(max) null)
+declare @attsX table (ATTRIBUTE_ID bigint primary key, SET_ID int, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+declare @attsY table (ATTRIBUTE_ID bigint primary key, SET_ID int, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+declare @segments table (ATTRIBUTE_ID bigint primary key, ATTRIBUTE_NAME nvarchar(255), ord int, done bit)
+
+--sanity check, ensure @RevId and @WebDbId match...
+Declare @CheckWebDbId int = null
+set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+IF @CheckWebDbId is null return;
+
+declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+if @WebDbFilter is not null and @WebDbFilter > 1
+BEGIN
+	insert into @items select distinct ir.item_id, null, null from TB_ITEM_REVIEW ir
+		inner join tb_item_set tis on ir.ITEM_ID = tis.ITEM_ID and ir.REVIEW_ID = @RevId 
+		and (@included is null OR ir.IS_INCLUDED = @included) 
+		and ir.IS_DELETED = 0 and tis.IS_COMPLETED = 1
+		inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID and tia.ATTRIBUTE_ID = @WebDbFilter
+END
+else
+BEGIN
+	insert into @items select distinct ir.item_id, null, null from TB_ITEM_REVIEW ir
+		where ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+			and (@included is null OR ir.IS_INCLUDED = @included) 
+END
+
+insert into @attsX select distinct a.Attribute_id, ss.value, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from 
+	dbo.fn_Split_int(@WithAttributesIds,',') s
+	inner join dbo.fn_Split_int(@WithSetIdsList,',') ss on s.idx = ss.idx and s.value > 0
+	inner join TB_ATTRIBUTE_SET tas on s.value = tas.ATTRIBUTE_ID and ss.value = tas.SET_ID
+	inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+	 
+select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsX order by ord
+
+
+
+insert into @attsY select distinct a.Attribute_id, ss.value, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from 
+	dbo.fn_Split_int(@WithOutAttributesIdsList,',') s
+	inner join dbo.fn_Split_int(@WithOutSetIdsList,',') ss on s.idx = ss.idx and s.value > 0
+	inner join TB_ATTRIBUTE_SET tas on s.value = tas.ATTRIBUTE_ID and ss.value = tas.SET_ID
+	inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+
+select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsY order by ord
+
+
+
+update @items  set With_atts = Atts
+from 
+(
+	select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+	inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+	inner join @attsX a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID and tis.SET_ID = a.SET_ID
+	group by ItemId 
+	--order by ItemId
+) as big
+WHERE ItemId = Big.iid
+
+if @WithOutAttributesIdsList != ''
+	update @items set reject = 1
+	from 
+	(
+		select STRING_AGG(cast (ia.ATTRIBUTE_ID as nvarchar(max)), ',') as Atts, i.itemId as iid from @items i 
+		inner join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.ITEM_ID = ia.ITEM_ID
+		inner join @attsY a on ia.ATTRIBUTE_ID = a.ATTRIBUTE_ID and tis.SET_ID = a.SET_ID
+		group by ItemId 
+		--order by ItemId
+	) as big
+	WHERE ItemId = Big.iid
+
+
+
+select ii.*, i.SHORT_TITLE from @items ii
+	inner join tb_item i on ii.ItemId = i.ITEM_ID
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbItemSetDataList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbItemSetDataList] (
+	@ITEM_ID BIGINT
+	, @RevId int 
+	, @WebDbId int
+)
+
+As
+
+SET NOCOUNT ON
+	--sanity check, ensure @RevId and @WebDbId match...
+	Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+	--first, grab the completed item set (if any)
+	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED
+		--, TB_ITEM_SET.CONTACT_ID
+		, IS_LOCKED,
+		CODING_IS_FINAL, 
+		CASE 
+			WHEN WEBDB_SET_NAME IS Null then SET_NAME
+			else WEBDB_SET_NAME
+		END as SET_NAME 
+		--, CONTACT_NAME
+	FROM TB_ITEM_SET
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+		--INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+		inner JOIN TB_WEBDB_PUBLIC_SET ps on ps.REVIEW_SET_ID = TB_REVIEW_SET.REVIEW_SET_ID and ps.WEBDB_ID = @WebDbId
+	WHERE REVIEW_ID = @RevId AND ITEM_ID = @ITEM_ID
+		--AND TB_REVIEW_SET.CODING_IS_FINAL = 'true'
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	
+	--second, get all data from TB_ITEM_ATTRIBUTE_PDF and TB_ITEM_ATTRIBUTE_TEXT using union and only from completed sets
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, 'Page ' + CONVERT
+							(varchar(10),PAGE) 
+							+ ':' + CHAR(10) + '[¬s]"' 
+							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from TB_REVIEW_SET rs		
+		inner JOIN TB_WEBDB_PUBLIC_SET ps on ps.REVIEW_SET_ID = rs.REVIEW_SET_ID and ps.WEBDB_ID = @WebDbId
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @RevId and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from TB_REVIEW_SET rs		
+		inner JOIN TB_WEBDB_PUBLIC_SET ps on ps.REVIEW_SET_ID = rs.REVIEW_SET_ID and ps.WEBDB_ID = @WebDbId
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @RevId and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+	
+SET NOCOUNT OFF
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbListGet]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbListGet]
+(
+	@RevId INT,
+	@ContactId int
+)
+As
+BEGIN
+	declare @check int = -1
+	--check is this user in the review? (or a site_admin?)
+		set @check = (select count(*) from TB_REVIEW_CONTACT rc
+					inner join TB_CONTACT c on (rc.CONTACT_ID = @ContactId and rc.CONTACT_ID = c.CONTACT_ID and REVIEW_ID = @RevId)
+												--OR (c.CONTACT_ID = @ContactId and c.IS_SITE_ADMIN = 1)
+				 )
+
+	if @check < 1 
+	BEGIN
+		set @check = (select count(*) from TB_CONTACT where CONTACT_ID = @ContactId and IS_SITE_ADMIN = 1)
+	END
+	if @check < 1 return
+	
+	SELECT [WEBDB_ID]
+		  ,[REVIEW_ID]
+		  ,[WITH_ATTRIBUTE_ID]
+		  ,[IS_OPEN]
+		  ,w.[USERNAME]
+		  ,[WEBDB_NAME]
+		  ,SUBTITLE
+		  ,w.[DESCRIPTION]
+		  ,c1.CONTACT_NAME as [CREATED_BY]
+		  ,c2.CONTACT_NAME as [EDITED_BY]
+		  , w.HEADER_IMAGE_1
+		  , w.HEADER_IMAGE_2
+		  , w.HEADER_IMAGE_3
+		  , w.MAP_TITLE
+		  , w.MAP_URL
+		  , w.HEADER_IMAGE_1_URL
+		  , w.HEADER_IMAGE_2_URL
+		  , w.HEADER_IMAGE_3_URL
+	  FROM [TB_WEBDB] w
+	  inner join TB_CONTACT c1 on w.CREATED_BY = c1.CONTACT_ID
+	  inner join TB_CONTACT c2 on w.EDITED_BY = c2.CONTACT_ID
+	  where REVIEW_ID = @RevId
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbMap]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbMap]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@WEBDB_MAP_ID INT
+)
+As
+--first, check that all parameters match up...
+declare @check int = (select WEBDB_ID from TB_WEBDB w
+						where w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID 
+						)
+IF @check is null OR @check < 1 return
+--OK, all checks match up, phew
+
+select m.*, s1.SET_ID as [COLUMNS_SET_ID], s2.SET_ID as [ROWS_SET_ID], s3.SET_ID as [SEGMENTS_SET_ID]
+	, a1.ATTRIBUTE_ID as [COLUMNS_ATTRIBUTE_ID], a2.ATTRIBUTE_ID as [ROWS_ATTRIBUTE_ID], a3.ATTRIBUTE_ID as [SEGMENTS_ATTRIBUTE_ID]
+	, CASE when (ps1.WEBDB_SET_NAME = '' OR ps1.WEBDB_SET_NAME is null) then s1.SET_NAME
+		else ps1.WEBDB_SET_NAME
+	END as COLUMNS_SET_NAME
+	, CASE when (ps2.WEBDB_SET_NAME = '' OR ps2.WEBDB_SET_NAME is null) then s2.SET_NAME
+		else ps2.WEBDB_SET_NAME
+	END as ROWS_SET_NAME
+	, CASE when (ps3.WEBDB_SET_NAME = '' OR ps3.WEBDB_SET_NAME is null) then s3.SET_NAME
+		else ps3.WEBDB_SET_NAME
+	END as SEGMENTS_SET_NAME
+
+	, CASE when ((pa1.WEBDB_ATTRIBUTE_NAME = '' OR pa1.WEBDB_ATTRIBUTE_NAME is null) AND m.COLUMNS_PUBLIC_ATTRIBUTE_ID > 0) then a1.ATTRIBUTE_NAME
+		WHEN (pa1.WEBDB_ATTRIBUTE_NAME is null and m.COLUMNS_PUBLIC_ATTRIBUTE_ID = 0) then ''
+		else pa1.WEBDB_ATTRIBUTE_NAME
+	END as COLUMNS_ATTRIBUTE_NAME
+	, CASE when ((pa2.WEBDB_ATTRIBUTE_NAME = '' OR pa2.WEBDB_ATTRIBUTE_NAME is null )AND m.ROWS_PUBLIC_ATTRIBUTE_ID > 0) then a2.ATTRIBUTE_NAME
+		WHEN (pa2.WEBDB_ATTRIBUTE_NAME is null and m.ROWS_PUBLIC_ATTRIBUTE_ID = 0) then ''
+		else pa2.WEBDB_ATTRIBUTE_NAME
+	END as ROWS_ATTRIBUTE_NAME
+	, CASE when ((pa3.WEBDB_ATTRIBUTE_NAME = '' OR pa3.WEBDB_ATTRIBUTE_NAME is null) AND m.SEGMENTS_PUBLIC_ATTRIBUTE_ID > 0) then a3.ATTRIBUTE_NAME
+		WHEN (pa3.WEBDB_ATTRIBUTE_NAME is null and m.SEGMENTS_PUBLIC_ATTRIBUTE_ID = 0) then ''
+		else pa3.WEBDB_ATTRIBUTE_NAME
+	END as SEGMENTS_ATTRIBUTE_NAME
+
+	from TB_WEBDB_MAP m
+	inner join TB_WEBDB_PUBLIC_SET ps1 on m.COLUMNS_PUBLIC_SET_ID = ps1.WEBDB_PUBLIC_SET_ID and ps1.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs1 on ps1.REVIEW_SET_ID = rs1.REVIEW_SET_ID and rs1.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s1 on rs1.SET_ID = s1.SET_ID
+	left join TB_WEBDB_PUBLIC_ATTRIBUTE pa1 on m.COLUMNS_PUBLIC_ATTRIBUTE_ID = pa1.WEBDB_PUBLIC_ATTRIBUTE_ID
+	left join TB_ATTRIBUTE a1 on pa1.ATTRIBUTE_ID = a1.ATTRIBUTE_ID
+
+	inner join TB_WEBDB_PUBLIC_SET ps2 on m.ROWS_PUBLIC_SET_ID = ps2.WEBDB_PUBLIC_SET_ID and ps2.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs2 on ps2.REVIEW_SET_ID = rs2.REVIEW_SET_ID and rs2.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s2 on rs2.SET_ID = s2.SET_ID
+	left join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on m.ROWS_PUBLIC_ATTRIBUTE_ID = pa2.WEBDB_PUBLIC_ATTRIBUTE_ID
+	left join TB_ATTRIBUTE a2 on pa2.ATTRIBUTE_ID = a2.ATTRIBUTE_ID
+
+	inner join TB_WEBDB_PUBLIC_SET ps3 on m.SEGMENTS_PUBLIC_SET_ID = ps3.WEBDB_PUBLIC_SET_ID and ps3.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs3 on ps3.REVIEW_SET_ID = rs3.REVIEW_SET_ID and rs3.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s3 on rs3.SET_ID = s3.SET_ID
+	left join TB_WEBDB_PUBLIC_ATTRIBUTE pa3 on m.SEGMENTS_PUBLIC_ATTRIBUTE_ID = pa3.WEBDB_PUBLIC_ATTRIBUTE_ID
+	left join TB_ATTRIBUTE a3 on pa3.ATTRIBUTE_ID = a3.ATTRIBUTE_ID
+     where WEBDB_MAP_ID = @WEBDB_MAP_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbMapAdd]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbMapAdd]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@ColumnsSetID int,
+	@ColumnsAttributeID bigint,
+	@RowsSetID int,
+	@RowsAttributeID bigint,
+	@SegmentsSetID int,
+	@SegmentsAttributeID bigint,
+	@MapName nvarchar(1000),
+	@MapDescription nvarchar(max),
+	@WEBDB_MAP_ID int output
+)
+As
+--first, check that all parameters match up and get the value we need...
+declare @ColumnsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @ColumnsSetID
+						)
+IF @ColumnsPublicSetID is null OR @ColumnsPublicSetID < 1 return
+
+declare @RowsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @RowsSetID
+						)
+IF @RowsPublicSetID is null OR @RowsPublicSetID < 1 return
+
+declare @SegmentsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @SegmentsSetID
+						)
+IF @SegmentsPublicSetID is null OR @SegmentsPublicSetID < 1 return
+
+declare @ColumnsPublicAttributeID int
+IF @ColumnsAttributeID > 0
+begin 
+	set @ColumnsPublicAttributeID = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @ColumnsAttributeID
+						)
+	IF @ColumnsPublicAttributeID is null OR @ColumnsPublicAttributeID < 1 return
+end
+else SET @ColumnsPublicAttributeID = 0
+
+
+declare @RowsPublicAttributeID int
+IF @RowsAttributeID > 0
+BEGIN
+	set @RowsPublicAttributeID = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @RowsAttributeID
+						)
+	IF @RowsPublicAttributeID is null OR @RowsPublicAttributeID < 1 return
+END
+else SET @RowsPublicAttributeID = 0
+
+declare @SegmentsPublicAttributeID int
+IF @SegmentsAttributeID > 0
+BEGIN
+	set @SegmentsPublicAttributeID = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @SegmentsAttributeID
+						)
+	IF @SegmentsPublicAttributeID is null OR @SegmentsPublicAttributeID < 1 return
+END
+else SET @SegmentsPublicAttributeID = 0
+--OK, all checks match up, phew
+
+
+INSERT INTO TB_WEBDB_MAP
+           ([WEBDB_ID]
+           ,[COLUMNS_PUBLIC_ATTRIBUTE_ID]
+           ,[COLUMNS_PUBLIC_SET_ID]
+           ,[ROWS_PUBLIC_ATTRIBUTE_ID]
+           ,[ROWS_PUBLIC_SET_ID]
+           ,[SEGMENTS_PUBLIC_ATTRIBUTE_ID]
+           ,[SEGMENTS_PUBLIC_SET_ID]
+           ,[MAP_NAME]
+           ,[MAP_DESCRIPTION])
+     VALUES
+           (@WEBDB_ID
+           , @ColumnsPublicAttributeID
+           , @ColumnsPublicSetID
+           , @RowsPublicAttributeID
+           , @RowsPublicSetID
+           , @SegmentsPublicAttributeID
+           , @SegmentsPublicSetID
+           , @MapName
+           , @MapDescription)
+
+set @WEBDB_MAP_ID = SCOPE_IDENTITY()
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbMapDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbMapDelete]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@WEBDB_MAP_ID int
+)
+As
+--first, check that all parameters match up...
+declare @check int = (select m.WEBDB_MAP_ID from TB_WEBDB w
+						inner join TB_WEBDB_MAP m
+							on m.WEBDB_MAP_ID = @WEBDB_MAP_ID and w.REVIEW_ID = @REVIEW_ID and m.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID 
+						)
+IF @check is null OR @check < 1 return
+--OK, all checks match up, phew
+
+delete from TB_WEBDB_MAP
+     where WEBDB_MAP_ID = @WEBDB_MAP_ID and WEBDB_ID = @WEBDB_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbMapEdit]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbMapEdit]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@WEBDB_MAP_ID int,
+	@ColumnsSetID int,
+	@ColumnsAttributeID bigint,
+	@RowsSetID int,
+	@RowsAttributeID bigint,
+	@SegmentsSetID int,
+	@SegmentsAttributeID bigint,
+	@MapName nvarchar(1000),
+	@MapDescription nvarchar(max)
+)
+As
+--first, check that all parameters match up and get the value we need...
+declare @ColumnsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @ColumnsSetID
+						)
+IF @ColumnsPublicSetID is null OR @ColumnsPublicSetID < 1 return
+
+declare @RowsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @RowsSetID
+						)
+IF @RowsPublicSetID is null OR @RowsPublicSetID < 1 return
+
+declare @SegmentsPublicSetID int = (select rps.WEBDB_PUBLIC_SET_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_SET rps 
+							on  w.REVIEW_ID = @REVIEW_ID and rps.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID
+						inner join TB_REVIEW_SET rs on rps.REVIEW_SET_ID = rs.REVIEW_SET_ID and rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @SegmentsSetID
+						)
+IF @SegmentsPublicSetID is null OR @SegmentsPublicSetID < 1 return
+
+declare @ColumnsPublicAttributeID int
+IF @ColumnsAttributeID > 0
+begin 
+	set @ColumnsPublicAttributeID = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @ColumnsAttributeID
+						)
+	IF @ColumnsPublicAttributeID is null OR @ColumnsPublicAttributeID < 1 return
+end
+else SET @ColumnsPublicAttributeID = 0
+
+
+declare @RowsPublicAttributeID int
+IF @RowsAttributeID > 0
+BEGIN
+	set @RowsPublicAttributeID = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @RowsAttributeID
+						)
+	IF @RowsPublicAttributeID is null OR @RowsPublicAttributeID < 1 return
+END
+else SET @RowsPublicAttributeID = 0
+
+declare @SegmentsPublicAttributeID int
+IF @SegmentsAttributeID > 0
+BEGIN
+	set @SegmentsPublicAttributeID = (select pa.WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa 
+							on w.REVIEW_ID = @REVIEW_ID and pa.WEBDB_ID = w.WEBDB_ID 
+							and w.WEBDB_ID = @WEBDB_ID 
+						inner join TB_ATTRIBUTE a on pa.ATTRIBUTE_ID = a.ATTRIBUTE_ID and pa.ATTRIBUTE_ID = @SegmentsAttributeID
+						)
+	IF @SegmentsPublicAttributeID is null OR @SegmentsPublicAttributeID < 1 return
+END
+else SET @SegmentsPublicAttributeID = 0
+--OK, all checks match up, phew
+
+UPDATE TB_WEBDB_MAP set 
+           [COLUMNS_PUBLIC_ATTRIBUTE_ID] =  @ColumnsPublicAttributeID
+           ,[COLUMNS_PUBLIC_SET_ID] = @ColumnsPublicSetID
+           ,[ROWS_PUBLIC_ATTRIBUTE_ID] = @RowsPublicAttributeID
+           ,[ROWS_PUBLIC_SET_ID] = @RowsPublicSetID
+           ,[SEGMENTS_PUBLIC_ATTRIBUTE_ID] = @SegmentsPublicAttributeID
+           ,[SEGMENTS_PUBLIC_SET_ID] = @SegmentsPublicSetID
+           ,[MAP_NAME] = @MapName
+           ,[MAP_DESCRIPTION] = @MapDescription
+     where WEBDB_MAP_ID = @WEBDB_MAP_ID and WEBDB_ID = @WEBDB_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbMapsList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbMapsList]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int
+)
+As
+--first, check that all parameters match up...
+declare @check int = (select WEBDB_ID from TB_WEBDB w
+						where w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID 
+						)
+IF @check is null OR @check < 1 return
+--OK, all checks match up, phew
+
+select m.*, s1.SET_ID as [COLUMNS_SET_ID], s2.SET_ID as [ROWS_SET_ID], s3.SET_ID as [SEGMENTS_SET_ID]
+	, a1.ATTRIBUTE_ID as [COLUMNS_ATTRIBUTE_ID], a2.ATTRIBUTE_ID as [ROWS_ATTRIBUTE_ID], a3.ATTRIBUTE_ID as [SEGMENTS_ATTRIBUTE_ID]
+	, CASE when (ps1.WEBDB_SET_NAME = '' OR ps1.WEBDB_SET_NAME is null) then s1.SET_NAME
+		else ps1.WEBDB_SET_NAME
+	END as COLUMNS_SET_NAME
+	, CASE when (ps2.WEBDB_SET_NAME = '' OR ps2.WEBDB_SET_NAME is null) then s2.SET_NAME
+		else ps2.WEBDB_SET_NAME
+	END as ROWS_SET_NAME
+	, CASE when (ps3.WEBDB_SET_NAME = '' OR ps3.WEBDB_SET_NAME is null) then s3.SET_NAME
+		else ps3.WEBDB_SET_NAME
+	END as SEGMENTS_SET_NAME
+
+	, CASE when ((pa1.WEBDB_ATTRIBUTE_NAME = '' OR pa1.WEBDB_ATTRIBUTE_NAME is null) AND m.COLUMNS_PUBLIC_ATTRIBUTE_ID > 0) then a1.ATTRIBUTE_NAME
+		WHEN (pa1.WEBDB_ATTRIBUTE_NAME is null and m.COLUMNS_PUBLIC_ATTRIBUTE_ID = 0) then ''
+		else pa1.WEBDB_ATTRIBUTE_NAME
+	END as COLUMNS_ATTRIBUTE_NAME
+	, CASE when ((pa2.WEBDB_ATTRIBUTE_NAME = '' OR pa2.WEBDB_ATTRIBUTE_NAME is null )AND m.ROWS_PUBLIC_ATTRIBUTE_ID > 0) then a2.ATTRIBUTE_NAME
+		WHEN (pa2.WEBDB_ATTRIBUTE_NAME is null and m.ROWS_PUBLIC_ATTRIBUTE_ID = 0) then ''
+		else pa2.WEBDB_ATTRIBUTE_NAME
+	END as ROWS_ATTRIBUTE_NAME
+	, CASE when ((pa3.WEBDB_ATTRIBUTE_NAME = '' OR pa3.WEBDB_ATTRIBUTE_NAME is null) AND m.SEGMENTS_PUBLIC_ATTRIBUTE_ID > 0) then a3.ATTRIBUTE_NAME
+		WHEN (pa3.WEBDB_ATTRIBUTE_NAME is null and m.SEGMENTS_PUBLIC_ATTRIBUTE_ID = 0) then ''
+		else pa3.WEBDB_ATTRIBUTE_NAME
+	END as SEGMENTS_ATTRIBUTE_NAME
+
+
+	from TB_WEBDB_MAP m
+	inner join TB_WEBDB_PUBLIC_SET ps1 on m.COLUMNS_PUBLIC_SET_ID = ps1.WEBDB_PUBLIC_SET_ID and ps1.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs1 on ps1.REVIEW_SET_ID = rs1.REVIEW_SET_ID and rs1.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s1 on rs1.SET_ID = s1.SET_ID
+	left join TB_WEBDB_PUBLIC_ATTRIBUTE pa1 on m.COLUMNS_PUBLIC_ATTRIBUTE_ID = pa1.WEBDB_PUBLIC_ATTRIBUTE_ID
+	left join TB_ATTRIBUTE a1 on pa1.ATTRIBUTE_ID = a1.ATTRIBUTE_ID
+
+	inner join TB_WEBDB_PUBLIC_SET ps2 on m.ROWS_PUBLIC_SET_ID = ps2.WEBDB_PUBLIC_SET_ID and ps2.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs2 on ps2.REVIEW_SET_ID = rs2.REVIEW_SET_ID and rs2.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s2 on rs2.SET_ID = s2.SET_ID
+	left join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on m.ROWS_PUBLIC_ATTRIBUTE_ID = pa2.WEBDB_PUBLIC_ATTRIBUTE_ID
+	left join TB_ATTRIBUTE a2 on pa2.ATTRIBUTE_ID = a2.ATTRIBUTE_ID
+
+	inner join TB_WEBDB_PUBLIC_SET ps3 on m.SEGMENTS_PUBLIC_SET_ID = ps3.WEBDB_PUBLIC_SET_ID and ps3.WEBDB_ID = m.WEBDB_ID
+	inner join TB_REVIEW_SET rs3 on ps3.REVIEW_SET_ID = rs3.REVIEW_SET_ID and rs3.REVIEW_ID = @REVIEW_ID
+	inner join tb_set s3 on rs3.SET_ID = s3.SET_ID
+	left join TB_WEBDB_PUBLIC_ATTRIBUTE pa3 on m.SEGMENTS_PUBLIC_ATTRIBUTE_ID = pa3.WEBDB_PUBLIC_ATTRIBUTE_ID
+	left join TB_ATTRIBUTE a3 on pa3.ATTRIBUTE_ID = a3.ATTRIBUTE_ID
+    where m.WEBDB_ID = @WEBDB_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbSearchFreeText]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbSearchFreeText]
+(
+     @RevId int 
+    ,@WebDbId int
+	,@SEARCH_TEXT varchar(4000) 
+	,@SEARCH_WHAT nvarchar(20) 
+	,@INCLUDED BIT = NULL -- 'INCLUDED', 'EXCLUDED' or BOTH
+
+
+	
+    , @PageNum INT = 1
+    , @PerPage INT = 100
+    , @CurrentPage INT OUTPUT
+    , @TotalPages INT OUTPUT
+    , @TotalRows INT OUTPUT  
+)
+
+AS
+    Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+	declare @items table (ItemId bigint, found bit, primary key(ItemId, found))
+	declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	if (@WebDbFilter is not null and @WebDbFilter > 0)
+	Begin 
+		insert into @items 
+		select distinct i.item_id, 0 from TB_ITEM i
+			inner join TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.IS_DELETED = 0  
+			and (ir.IS_INCLUDED = @Included OR @Included is null) and ir.REVIEW_ID = @RevId
+			inner join TB_ITEM_ATTRIBUTE tia on tia.ITEM_ID = i.ITEM_ID and tia.ATTRIBUTE_ID = @WebDbFilter
+			inner join TB_ITEM_SET tis2 on tia.ITEM_SET_ID = tis2.ITEM_SET_ID and tis2.IS_COMPLETED = 1 
+	end
+	else 
+	begin
+		insert into @items 
+		select distinct i.item_id, 0 from TB_ITEM i
+			inner join TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.IS_DELETED = 0  
+			and (ir.IS_INCLUDED = @Included OR @Included is null) and ir.REVIEW_ID = @RevId
+	end
+
+    IF (@SEARCH_WHAT = 'TitleAbstract')
+      BEGIN
+			UPDATE @items set found = 1 from @items i
+			INNER JOIN CONTAINSTABLE(TB_ITEM, (ABSTRACT), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = i.ItemId
+			UPDATE @items set found = 1 from @items i 
+            INNER JOIN CONTAINSTABLE(TB_ITEM, (TITLE), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = i.ItemId AND found = 0
+      END
+    ELSE IF (@SEARCH_WHAT = 'Title')
+      BEGIN
+            UPDATE @items set found = 1 from @items i
+			INNER JOIN CONTAINSTABLE(TB_ITEM, (TITLE), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = i.ItemId
+      END
+    ELSE IF (@SEARCH_WHAT = 'Abstract')
+      BEGIN
+            UPDATE @items set found = 1 from @items i
+			INNER JOIN CONTAINSTABLE(TB_ITEM, (ABSTRACT), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = i.ItemId
+      END
+    ELSE IF (@SEARCH_WHAT = 'PubYear')
+      BEGIN
+		declare @len int = Len(@SEARCH_TEXT)
+		if @len = 4
+            UPDATE @items set found = 1 from @items i
+			INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = i.ItemId
+            WHERE TB_ITEM.[YEAR] =  @SEARCH_TEXT
+		else if @SEARCH_TEXT = 'Unknown' OR @len = 0
+			UPDATE @items set found = 1 from @items i
+			INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = i.ItemId
+            WHERE TB_ITEM.[YEAR] =  '    ' OR TB_ITEM.[YEAR] ='0   ' OR TB_ITEM.[YEAR] =' 0  ' OR TB_ITEM.[YEAR] ='  0 ' OR TB_ITEM.[YEAR] ='   0'
+		else if @len = 2
+			UPDATE @items set found = 1 from @items i
+			INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = i.ItemId
+				WHERE TB_ITEM.[YEAR] = @SEARCH_TEXT + '  ' 
+				OR TB_ITEM.[YEAR] =' ' + @SEARCH_TEXT + ' ' 
+				OR TB_ITEM.[YEAR] ='  ' + @SEARCH_TEXT
+		else if @len = 3
+			UPDATE @items set found = 1 from @items i
+			INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = i.ItemId
+				WHERE TB_ITEM.[YEAR] = @SEARCH_TEXT + ' ' 
+				OR TB_ITEM.[YEAR] =' ' + @SEARCH_TEXT
+		else if @len = 1
+			UPDATE @items set found = 1 from @items i
+			INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = i.ItemId
+				WHERE TB_ITEM.[YEAR] = @SEARCH_TEXT + '   ' 
+				OR TB_ITEM.[YEAR] =' ' + @SEARCH_TEXT + '  ' 
+				OR TB_ITEM.[YEAR] ='  ' + @SEARCH_TEXT + ' ' 
+				OR TB_ITEM.[YEAR] ='   ' + @SEARCH_TEXT
+      END
+    ELSE IF (@SEARCH_WHAT = 'AdditionalText')
+      BEGIN
+            UPDATE @items set found = 1 from @items i
+			INNER JOIN TB_ITEM_SET tis ON tis.ITEM_ID = i.ItemId AND tis.IS_COMPLETED = 1
+			INNER JOIN TB_ITEM_ATTRIBUTE tia ON tis.ITEM_SET_ID = tia.ITEM_SET_ID
+			inner JOIN TB_WEBDB_PUBLIC_ATTRIBUTE pa on pa.ATTRIBUTE_ID = tia.ATTRIBUTE_ID
+			INNER JOIN CONTAINSTABLE(TB_ITEM_ATTRIBUTE, ADDITIONAL_TEXT, @SEARCH_TEXT) AS k
+                  ON k.[KEY] =  tia.ITEM_ATTRIBUTE_ID 
+      END
+    ELSE IF (@SEARCH_WHAT = 'ItemId')
+      BEGIN
+			UPDATE @items set found = 1 from @items i
+			INNER JOIN dbo.fn_Split(@SEARCH_TEXT, ',') id ON id.value = cast(i.ItemId as varchar(8000))
+      END
+	ELSE IF (@SEARCH_WHAT = 'OldItemId')
+      BEGIN
+            UPDATE @items set found = 1 from @items i
+			inner join tb_item ii on i.ItemId = ii.ITEM_ID
+			INNER JOIN dbo.fn_Split(@SEARCH_TEXT, ',') id ON id.value = ii.OLD_ITEM_ID
+      END
+    ELSE IF (@SEARCH_WHAT = 'Authors')
+      BEGIN
+            UPDATE @items set found = 1 from @items i
+			inner join TB_ITEM_AUTHOR ia on i.ItemId = ia.ITEM_ID
+				and (
+					dbo.fn_REBUILD_AUTHORS(i.ItemId, 0) like '%'+ @SEARCH_TEXT +'%'
+				)
+      END
+
+	--get results!
+	declare @RowsToRetrieve int
+	SELECT @TotalRows = count(ItemId) from @items where found = 1
+	set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+		SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID
+			, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+		FROM TB_ITEM I
+		INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] 
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+			TB_ITEM_REVIEW.REVIEW_ID = @RevId
+		INNER JOIN @items ii on I.ITEM_ID = ii.ItemId and found = 1
+	)
+	Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+			TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+			[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+			AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+			, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+		FROM SearchResults 
+					INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+					INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+		WHERE RowNum > @RowsToRetrieve - @PerPage
+		AND RowNum <= @RowsToRetrieve 
+		ORDER BY RowNum
+
+
+	SELECT	@CurrentPage as N'@CurrentPage',
+			@TotalPages as N'@TotalPages',
+			@TotalRows as N'@TotalRows'
+      
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbUploadImage]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbUploadImage]
+	-- Add the parameters for the stored procedure here
+	@RevId int,
+	@WebDbId int,
+	@BIN IMAGE,
+	@Extension nchar(10),
+	@imageNumber tinyint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	if @imageNumber = 1
+		update TB_WEBDB set HEADER_IMAGE_1 = @BIN, HEADER_IMAGE_EXT_1 = @Extension where WEBDB_ID = @WebDbId and REVIEW_ID = @RevId
+	else if @imageNumber = 2
+		update TB_WEBDB set HEADER_IMAGE_2 = @BIN, HEADER_IMAGE_EXT_2 = @Extension where WEBDB_ID = @WebDbId and REVIEW_ID = @RevId
+	else if @imageNumber = 3
+		update TB_WEBDB set HEADER_IMAGE_3 = @BIN, HEADER_IMAGE_EXT_3 = @Extension where WEBDB_ID = @WebDbId and REVIEW_ID = @RevId
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbWithThisCode]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbWithThisCode]
+	-- Add the parameters for the stored procedure here
+	@attributeId bigint 
+	, @included bit null
+	, @RevId int 
+	, @WebDbId int
+      
+    , @PageNum INT = 1
+    , @PerPage INT = 100
+    , @CurrentPage INT OUTPUT
+    , @TotalPages INT OUTPUT
+    , @TotalRows INT OUTPUT  
+AS
+SET NOCOUNT ON
+	--sanity check, ensure @RevId and @WebDbId match...
+	Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+	declare @items table (ItemId bigint primary key)
+	declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	if @WebDbFilter is not null and @WebDbFilter > 1
+	BEGIN
+		insert into @items select distinct ir.item_id from TB_ITEM_REVIEW ir
+			inner join tb_item_set tis on ir.ITEM_ID = tis.ITEM_ID and ir.REVIEW_ID = @RevId 
+			and (@included is null OR ir.IS_INCLUDED = @included)
+			and ir.IS_DELETED = 0 and tis.IS_COMPLETED = 1
+			inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID and tia.ATTRIBUTE_ID = @WebDbFilter
+			inner join TB_ITEM_ATTRIBUTE tia2 on tia2.ITEM_ID = ir.ITEM_ID and tia2.ATTRIBUTE_ID = @attributeId 
+			inner join TB_ITEM_SET tis2 on tia2.ITEM_SET_ID = tis2.ITEM_SET_ID and tis2.IS_COMPLETED = 1 
+		SELECT @TotalRows = @@ROWCOUNT
+	END
+	ELSE
+	BEGIN
+		insert into @items select distinct ir.item_id from TB_ITEM_REVIEW ir
+			inner join TB_ITEM_ATTRIBUTE tia on ir.ITEM_ID = tia.ITEM_ID and tia.ATTRIBUTE_ID = @attributeId 
+				and ir.REVIEW_ID = @RevId and ir.IS_DELETED = 0
+				and (@included is null OR ir.IS_INCLUDED = @included)  
+			inner join TB_ITEM_SET tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and IS_COMPLETED = 1
+		SELECT @TotalRows = @@ROWCOUNT
+	END
+	declare @RowsToRetrieve int
+	set @TotalPages = @TotalRows/@PerPage
+
+	if @PageNum < 1
+	set @PageNum = 1
+
+	if @TotalRows % @PerPage != 0
+	set @TotalPages = @TotalPages + 1
+
+	set @RowsToRetrieve = @PerPage * @PageNum
+	set @CurrentPage = @PageNum;
+
+	WITH SearchResults AS
+	(
+	SELECT DISTINCT (ir.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+		ROW_NUMBER() OVER(order by SHORT_TITLE, ir.ITEM_ID) RowNum
+	FROM TB_ITEM i
+		INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @RevId
+		INNER JOIN @items id on id.ItemId = ir.ITEM_ID
+	)
+	Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+				TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+				[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+				AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+				, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+				--, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+		FROM SearchResults
+				INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+				INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+		WHERE RowNum > @RowsToRetrieve - @PerPage
+		AND RowNum <= @RowsToRetrieve
+		ORDER BY RowNum
+	SELECT	@CurrentPage as N'@CurrentPage',
+		@TotalPages as N'@TotalPages',
+		@TotalRows as N'@TotalRows'
+SET NOCOUNT OFF
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDbYearFrequency]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbYearFrequency]
+(	
+		@RevId int
+		, @WebDbId int
+		, @Included bit = null
+)
+AS
+BEGIN
+	--sanity check, ensure @RevId and @WebDbId match...
+	Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+	--declare @items table (ItemId bigint, year nchar(4), primary key (ItemId, year))
+	declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	if (@WebDbFilter is not null and @WebDbFilter > 0)
+	Begin 
+		--insert into @items 
+		select count(distinct i.item_id) AS [Count], year from TB_ITEM i
+			inner join TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.IS_DELETED = 0  
+			and (ir.IS_INCLUDED = @Included OR @Included is null) and ir.REVIEW_ID = @RevId
+			inner join TB_ITEM_ATTRIBUTE tia on tia.ITEM_ID = i.ITEM_ID and tia.ATTRIBUTE_ID = @WebDbFilter
+			inner join TB_ITEM_SET tis2 on tia.ITEM_SET_ID = tis2.ITEM_SET_ID and tis2.IS_COMPLETED = 1 
+			group by YEAR order by YEAR
+	end
+	else 
+	begin
+		--insert into @items 
+		select count(distinct i.item_id) AS [Count], year from TB_ITEM i
+			inner join TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and ir.IS_DELETED = 0  
+			and (ir.IS_INCLUDED = @Included OR @Included is null) and ir.REVIEW_ID = @RevId
+			group by YEAR order by YEAR
+	end
+END
+GO
+/****** Object:  StoredProcedure [dbo].[st_WorkAllocation]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WorkAllocation]
+(
+	@REVIEW_ID INT,
+	@WORK_ALLOCATION_ID INT
+)
+
+As
+
+SELECT CONTACT_NAME, TB_WORK_ALLOCATION.CONTACT_ID, SET_NAME, TB_WORK_ALLOCATION.SET_ID,
+	WORK_ALLOCATION_ID, ATTRIBUTE_NAME, TB_WORK_ALLOCATION.ATTRIBUTE_ID,
+	
+	(SELECT COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND IS_DELETED = 'FALSE'
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID)
+		AS TOTAL_ALLOCATION,
+		
+		
+		(SELECT COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		WHERE TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID
+			AND TB_ITEM_ATTRIBUTE.ITEM_ID IN
+			(
+				SELECT ITEM_ID FROM TB_ITEM_SET WHERE TB_ITEM_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID AND 
+					TB_ITEM_SET.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID
+			))
+		AS TOTAL_STARTED
+		
+FROM TB_WORK_ALLOCATION
+
+INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_WORK_ALLOCATION.CONTACT_ID
+INNER JOIN TB_SET ON TB_SET.SET_ID = TB_WORK_ALLOCATION.SET_ID
+INNER JOIN TB_ATTRIBUTE ON TB_ATTRIBUTE.ATTRIBUTE_ID = TB_WORK_ALLOCATION.ATTRIBUTE_ID
+
+WHERE REVIEW_ID = @REVIEW_ID
+AND WORK_ALLOCATION_ID  = @WORK_ALLOCATION_ID
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroConnectionCreate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroConnectionCreate](
+	@LibraryID nvarchar(50) NULL,
+	@ApiKey nvarchar(50) NULL,
+	@ZoteroUserId int NULL,
+	@USER_ID INT NULL,
+	@REVIEW_ID BIGINT NULL,
+	@ZOTERO_CONNECTION_ID INT OUT
+)
+as
+Begin
+	--first check: ensure 
+	declare @check int = (select count(*) from TB_ZOTERO_REVIEW_CONNECTION where ReviewId = @REVIEW_ID)
+	if (@check > 0) THROW 51000, 'Review is already in use.', 1;
+	INSERT INTO [dbo].[TB_ZOTERO_REVIEW_CONNECTION]([LibraryID], [ZoteroUserId], [ApiKey], [UserId], [ReviewId], DateCreated, [Version])
+	VALUES(@LibraryID,@ZoteroUserId,@ApiKey,@USER_ID, @REVIEW_ID, GETDATE(),0)
+	set @ZOTERO_CONNECTION_ID = SCOPE_IDENTITY()
+End
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroConnectionDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroConnectionDelete](
+@ApiKey nvarchar(50), @REVIEW_ID INT)
+as
+Begin
+
+DELETE FROM [dbo].[TB_ZOTERO_REVIEW_CONNECTION]
+WHERE ApiKey = @ApiKey AND ReviewId = @REVIEW_ID
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroConnectionUpdate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroConnectionUpdate](
+@LibraryID nvarchar(50),
+@ZoteroUserId int,
+@ApiKey nvarchar(50),
+@USER_ID INT,
+@REVIEW_ID INT)
+as
+Begin
+
+UPDATE [dbo].[TB_ZOTERO_REVIEW_CONNECTION]
+SET LibraryID = @LibraryID, ApiKey = @ApiKey , UserId = @USER_ID , ZoteroUserId = @ZoteroUserId
+WHERE ReviewId = @REVIEW_ID
+
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroERWebReviewItemList]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroERWebReviewItemList]
+(
+	@AttributeId bigint,
+	@ReviewId int
+)
+as
+Begin	
+  declare @ids table (ItemId bigint, ITEM_REVIEW_ID bigint, Primary key(ItemId, ITEM_REVIEW_ID))
+
+  --to start, find the itemIDs we want, we'll use this table for both results we return
+  if @AttributeId > 0
+  BEGIN
+	--getting "items with this code", this is used to drive the "left side" table in the UI, showing what can be done with Items to the user
+	  Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
+	  inner join TB_ITEM_ATTRIBUTE tia on ir.REVIEW_ID = @ReviewId and tia.ATTRIBUTE_ID = @AttributeId and ir.ITEM_ID = tia.ITEM_ID and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
+	  inner join tb_item_set tis on tia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+  END
+  ELSE
+  BEGIN
+	--no meaningful @AttributeId, so we get ALL items known to be present in Zotero, this is used to find out the sync state of refs present on the Zotero side.
+	Insert into @ids Select distinct ir.ITEM_ID, ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir
+	inner join TB_ZOTERO_ITEM_REVIEW zi on ir.REVIEW_ID = @ReviewId and ir.ITEM_REVIEW_ID = zi.ITEM_REVIEW_ID --and ir.IS_DELETED = 0 and ir.IS_INCLUDED = 1
+  END
+
+  --first set of results, the data we want about ITEMs
+  select I.ITEM_ID, I.DATE_EDITED,
+	t.TYPE_NAME AS TypeName, ids.ITEM_REVIEW_ID, zi.Zotero_item_review_ID, zi.ItemKey, i.DATE_EDITED as LAST_MODIFIED, I.TITLE, I.SHORT_TITLE
+  from @ids ids
+  inner join TB_ITEM I on ids.ItemId = I.ITEM_ID
+  inner join TB_ITEM_TYPE t on i.TYPE_ID = t.TYPE_ID
+  LEFT JOIN TB_ZOTERO_ITEM_REVIEW zi on zi.ITEM_REVIEW_ID = ids.ITEM_REVIEW_ID
+
+  --2nd set of results, the data about DOCUMENTS
+  select id.ITEM_ID, id.ITEM_DOCUMENT_ID,id.DOCUMENT_TITLE, zid.DocZoteroKey from @ids ids
+  inner join TB_ITEM_DOCUMENT id on ids.ItemId = id.ITEM_ID
+  left join TB_ZOTERO_ITEM_DOCUMENT zid on id.ITEM_DOCUMENT_ID = zid.ItemDocumentId
+
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemDocumentCreate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroItemDocumentCreate](
+@DocZoteroKey  nvarchar(50),
+@ItemDocumentId  bigint )
+as
+Begin
+
+	INSERT INTO [dbo].[TB_ZOTERO_ITEM_DOCUMENT]([DocZoteroKey], [ItemDocumentId])
+	VALUES( @DocZoteroKey, @ItemDocumentId)
+	   
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemDocumentDeleteInBulk]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroItemDocumentDeleteInBulk](
+@DocumentKeys varchar(8000),
+@ReviewId int 
+)
+as
+Begin
+
+	DELETE FROM [dbo].[TB_ZOTERO_ITEM_DOCUMENT]
+	WHERE ItemDocumentId in (
+		select id.ITEM_DOCUMENT_ID from TB_ITEM_REVIEW ir 
+		inner join TB_ITEM_DOCUMENT id on ir.REVIEW_ID = @ReviewId and ir.ITEM_ID = id.ITEM_ID
+		inner join TB_ZOTERO_ITEM_DOCUMENT zi on  id.ITEM_DOCUMENT_ID = zi.ItemDocumentId
+		inner join dbo.fn_Split(@DocumentKeys, ',') s on s.value = zi.DocZoteroKey
+	)
+	   
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewCreate]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroItemReviewCreate](
+@ItemKey nvarchar(50),
+@ReviewId int, 
+@ITEM_REVIEW_ID BIGINT
+)
+as
+Begin
+	declare @check int = (select count(ITEM_ID) from TB_ITEM_REVIEW where REVIEW_ID = @ReviewId and ITEM_REVIEW_ID = @ITEM_REVIEW_ID)
+
+	if @check = 1
+	INSERT INTO TB_ZOTERO_ITEM_REVIEW
+	([ItemKey], 
+	[ITEM_REVIEW_ID])
+	VALUES (@ItemKey, @ITEM_REVIEW_ID)
+	   
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewDelete]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroItemReviewDelete](
+@ReviewId int,
+@ItemKey nvarchar(50)
+)
+as
+Begin
+
+	declare @check int = (
+		select count(ITEM_ID) from TB_ITEM_REVIEW ir
+		inner join TB_ZOTERO_ITEM_REVIEW zir on ir.REVIEW_ID = @ReviewId and ir.ITEM_REVIEW_ID = zir.ITEM_REVIEW_ID
+	)
+
+	if @check = 1
+		DELETE FROM [dbo].[TB_ZOTERO_ITEM_REVIEW]
+		WHERE ItemKey = @ItemKey
+	   
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroItemReviewDeleteInBulk]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroItemReviewDeleteInBulk](
+@ItemKeys varchar(8000) ,
+@ReviewId int 
+)
+as
+Begin
+
+	DELETE FROM [dbo].[TB_ZOTERO_ITEM_REVIEW]
+	WHERE ITEM_REVIEW_ID in (
+		select ir.ITEM_REVIEW_ID from TB_ITEM_REVIEW ir 
+		inner join TB_ZOTERO_ITEM_REVIEW zi on ir.REVIEW_ID = @ReviewId and ir.ITEM_REVIEW_ID = zi.ITEM_REVIEW_ID
+		inner join dbo.fn_Split(@ItemKeys, ',') s on s.value = zi.ItemKey
+	)
+	   
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroRebuildItemLinks]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroRebuildItemLinks] 
+	-- Add the parameters for the stored procedure here
+	(
+		@revID int
+		,@itemsAndKeys ITEMS_ZOT_INPUT_TB READONLY
+		,@docsAndKeys ITEMS_ZOT_INPUT_TB READONLY
+	)
+AS
+BEGIN
+ declare @missingItems table (ERId bigint primary key, ZOTEROKEY varchar(10)) 
+ declare @missingDocs table (ERId bigint primary key, ZOTEROKEY varchar(10)) 
+
+ insert into TB_ZOTERO_ITEM_REVIEW (ITEM_REVIEW_ID, ItemKey)
+  select ir.ITEM_REVIEW_ID, iak.ZOTEROKEY
+  from @itemsAndKeys iak inner join 
+  TB_ITEM_REVIEW ir on iak.ERId = ir.ITEM_ID and ir.REVIEW_ID = @revID
+  left join TB_ZOTERO_ITEM_REVIEW zir on zir.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID 
+  where zir.ITEM_REVIEW_ID is null
+
+ insert into TB_ZOTERO_ITEM_DOCUMENT (ItemDocumentId, DocZoteroKey)
+  select d.ITEM_DOCUMENT_ID, dak.ZOTEROKEY
+  from @docsAndKeys dak 
+  inner join TB_ITEM_DOCUMENT d on dak.ERId = d.ITEM_DOCUMENT_ID
+  inner join TB_ITEM_REVIEW ir on d.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @revID
+  left join TB_ZOTERO_ITEM_DOCUMENT zid on zid.ItemDocumentId = d.ITEM_DOCUMENT_ID 
+  where zid.ItemDocumentId is null
+
+END
+
+GO
+/****** Object:  StoredProcedure [dbo].[st_ZoteroReviewConnection]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_ZoteroReviewConnection](
+@ReviewID int)
+as
+Begin
+	SELECT * FROM [dbo].[TB_ZOTERO_REVIEW_CONNECTION]
+	WHERE ReviewId = @ReviewID;
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[stSearchClassifierScores]    Script Date: 2/27/2023 2:55:00 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE OR ALTER PROCEDURE [dbo].[stSearchClassifierScores]
+(
+	@SEARCH_ID int = null output
+,	@CONTACT_ID nvarchar(50) = null
+,	@REVIEW_ID nvarchar(50) = null
+,	@SEARCH_TYPE nvarchar(10) = null
+,	@SEARCH_TITLE varchar(4000) = null
+,	@SCORE1 int = null
+,	@SCORE2 int = null
+,	@ORIGINAL_SEARCH_ID int
+
+)
+AS
+	-- Step One: Insert record into tb_SEARCH
+	EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, '', '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+	-- Step Two: Perform the search and get a hits count
+	   	
+	if @SEARCH_TYPE = 'Less'
+	BEGIN
+		INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+			SELECT DISTINCT  I.ITEM_ID, @SEARCH_ID, ITEM_RANK FROM TB_SEARCH_ITEM I
+					where I.ITEM_RANK < @SCORE1 and i.SEARCH_ID = @ORIGINAL_SEARCH_ID
+
+	END
+	ELSE IF @SEARCH_TYPE = 'More'
+	BEGIN
+		INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+			SELECT DISTINCT  I.ITEM_ID, @SEARCH_ID, ITEM_RANK FROM TB_SEARCH_ITEM I
+				where I.ITEM_RANK > @SCORE1 and i.SEARCH_ID = @ORIGINAL_SEARCH_ID
+	END
+	ELSE IF @SEARCH_TYPE = 'Between'
+	BEGIN
+		INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+			SELECT DISTINCT  I.ITEM_ID, @SEARCH_ID, ITEM_RANK FROM TB_SEARCH_ITEM I
+				where i.ITEM_RANK >= @SCORE1 and i.ITEM_RANK <= @SCORE2 and i.SEARCH_ID = @ORIGINAL_SEARCH_ID
+	END
+
+	-- Step Three: Update the new search record in tb_SEARCH with the number of records added
+	UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+GO

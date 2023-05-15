@@ -31,6 +31,14 @@ namespace BusinessLibrary.BusinessClasses
 
 #if SILVERLIGHT
         public MetaAnalysisList() { }
+        public bool HasMAsToSave 
+        {
+            get 
+            {
+                if (this.FirstOrDefault(f => f.IsSavable == true) == null) return false;
+                else return true;
+            }
+        }
 #else
         private MetaAnalysisList() { }
 #endif

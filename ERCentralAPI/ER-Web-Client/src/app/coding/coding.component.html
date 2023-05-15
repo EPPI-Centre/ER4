@@ -5,11 +5,10 @@
     <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details" [Context]="HelpAndFeebackContext"></HeaderComponent>
 	<div class="h-100 mh-100 pr-0">
 		<div *ngIf="IsServiceBusy()" class="k-loading-image" style="height:100vh;position: fixed; top: 0%;"></div>
-		<div class=""
-			 [ngClass]="{'bg-light':IsSmallScreen(),
+		<div [ngClass]="{'bg-light':IsSmallScreen(),
                     'row d-flex flex-wrap-reverse ml-1 mr-1':!IsSmallScreen() }">
 			<button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen" class="btn btn-success p-1 CodesBtnL" (click)="ShowHideCodes()"
-              style="min-width: 28px;">
+							style="min-width: 28px;">
 				<div class="CodesBtnContent">
 					<span class="k-icon k-i-arrow-right"></span>
 					Codes
@@ -17,66 +16,102 @@
 				</div>
 			</button>
 
+			
+
+
 			<div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
-                             ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
+                             ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen() && !ShowOutComes
+                             ,'col-12 col-sm-12 col-md-6 col-lg-5 pl-2 pr-2 align-self-end':!IsSmallScreen() && ShowOutComes
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
                             , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
 
 				<button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success p-1 CodesBtnR" (click)="ShowHideCodes()"
-                  style="min-width: 28px;">
+								style="min-width: 28px;">
 					<div class="CodesBtnContent">
 						<span class="k-icon k-i-arrow-left"></span>
 						Codes
 						<span class="k-icon k-i-arrow-left"></span>
 					</div>
 				</button>
-				<ArmsComp #cmp class="card-text"></ArmsComp>
+
+				<div class="mb-1 rounded mx-0">
+					<!--<button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
+									title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
+									(click)="HotKeysOn=!HotKeysOn"></button>
+					<span *ngIf="HotKeysOn"> Hot keys: Press Alt + code number to code</span>-->
+					<div class="mx-1 d-inline-flex row rounded bg-light border border-info px-1 mt-1" title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code.">
+						<div>Hot Keys?</div>
+						<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="HotKeysOn">
+					</div>
+				</div>
+				<ArmsComp #cmp class="card-text" [CurrentItem]="item"></ArmsComp>
 				<div [hidden]="ShowOutComes">
 					<codesetTreeCoding #codesetTreeCoding class="bg-light" Context="CodingOnly"
-									   [InitiateFetchPDFCoding]="ShouldFetchPDFCoding">
+														 (RemoveCodeModalOpened)="RemoveCodeModalOpenedIncoming()"
+														 (RemoveCodeModalClosed)="RemoveCodeModalClosedIncoming()"
+														 [InitiateFetchPDFCoding]="ShouldFetchPDFCoding" [HotKeysOn]="HotKeysOn">
 					</codesetTreeCoding>
 				</div>
 				<div *ngIf="ShowOutComes"
-					 class="my-1 ml-0 pl-1 pr-0 container">
+						 class="my-1 ml-0 pl-1 pr-0 container">
 					<OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
 				</div>
 				<!--<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>-->
 			</div>
-			<div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end">
+			<div class=" m-0 pr-0 pl-0 align-self-end"
+					 [ngClass]="{'col-12 col-md-7 col-lg-9':IsSmallScreen()
+                             ,'col-sm-12 col-md-7 col-lg-9':!IsSmallScreen() && !ShowOutComes
+                             ,'col-sm-12 col-md-6 col-lg-7':!IsSmallScreen() && ShowOutComes}">
 				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
-					<itemDetailsPaginator [item]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
-										  class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
-					<div class="pr-0 pl-0 col-12 col-sm pr-0">
-						<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
-							Close/back
-						</button>
-						<div class="row bg-info float-right mb-1 ml-1 mr-1">
-							<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-								<div>Auto Advance?</div>
-								<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
-							</div>
-						</div>
-						<div class="row float-right mb-1 pb-1 ml-0 mr-0">
-							<button title="Refresh Terms"
-											class="btn btn-sm btn-outline-success mx-1 my-0 py-0 px-2"
-											(click)="RefreshTerms()">
-								<fa-icon *ngIf="!IsServiceBusyTerms()" [icon]="faArrowsRotate" class="my-0"></fa-icon>
-								<fa-icon *ngIf="IsServiceBusyTerms()" [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
-							</button>
-						</div>
-						<div class="row bg-info float-right mb-1 ml-0 mr-0">
-							<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-								<div>Show terms?</div>
-								<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
-							</div>
+					<div class="col-12 col-sm px-0 mb-1">
+						<itemDetailsPaginator [item]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
+																	class="pr-0 pl-0"></itemDetailsPaginator>
+						<div *ngIf="IsSmallScreen() == true && ShowCodesInSmallScreen == false" class="mx-1 d-inline-flex row rounded bg-light border border-info px-1 mt-1" title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code.">
+							<div>Hot Keys?</div>
+							<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="HotKeysOn">
 						</div>
 					</div>
+          <div class="pr-0 pl-0 col-12 col-sm pr-0">
+            <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
+              Close/back
+            </button>
+            <!--<div class="row bg-info float-right mb-1 ml-1 mr-1">
+				<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+					<div>Auto Advance?</div>
+					<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+				</div>
+			</div>-->
+            <div class="row float-right my-1 pb-1 mx-1">
+              <button title="Refresh Terms" style="min-height:26px;"
+                      class="btn btn-sm btn-outline-success mx-0 my-0 py-0 px-2"
+                      (click)="RefreshTerms()">
+                <fa-icon *ngIf="!IsServiceBusyTerms()" [icon]="faArrowsRotate" class="my-0" ></fa-icon>
+                <fa-icon *ngIf="IsServiceBusyTerms()" [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
+              </button>
+            </div>
+            <div class="ml-1 mr-0 float-right d-inline-flex row rounded bg-light border border-info px-1 mt-1">
+              <div>Show terms</div>
+              <input type="checkbox" class="mx-1 my-1" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+            </div>
+            <div class="ml-1 mr-0 float-right d-inline-flex row rounded bg-light border border-info px-1 mt-1">
+              <div>Auto Advance</div>
+              <input type="checkbox" class="mx-1 my-1" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+            </div>
+
+
+            <!--<div class="row bg-info float-right mb-1 ml-0 mr-0">
+				<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+					<div>Show terms?</div>
+					<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+				</div>
+			</div>-->
+          </div>
 				</div>
 				<kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
 					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
 						<ng-template kendoTabContent>
 							<itemDetailsComp #ItemDetailsCmp Context="CodingOnly"
-											 [item]="item" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
+															 [item]="item" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
 					<kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">

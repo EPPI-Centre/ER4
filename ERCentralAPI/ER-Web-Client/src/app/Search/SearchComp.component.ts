@@ -314,6 +314,7 @@ export class SearchComp implements OnInit, OnDestroy {
         this._searchService.cmdSearches._searchWhat = "";
         this._searchService.cmdSearches._sourceIds = "";
         this._searchService.cmdSearches._title = "";
+        this.ShowSources = false;
     }
     CloseCodeDropDown() {
         if (this.WithOrWithoutCodeSelector) {
@@ -1021,8 +1022,14 @@ export class SearchComp implements OnInit, OnDestroy {
 
                 this._searchService.cmdSearches._withCodes = 'true';
                 this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-                this._searchService.cmdSearches._contactId = this.ContactChoice.contactId;
-                this._searchService.cmdSearches._contactName = this.ContactChoice.contactName;
+                if (this.SearchForPersonModel === false) {
+                  this._searchService.cmdSearches._contactId = 0;
+                  this._searchService.cmdSearches._contactName = "";
+                }
+                else {
+                  this._searchService.cmdSearches._contactId = this.ContactChoice.contactId;
+                  this._searchService.cmdSearches._contactName = this.ContactChoice.contactName;
+                }
                 this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
             }
@@ -1178,12 +1185,13 @@ export class SearchComp implements OnInit, OnDestroy {
                 break;
             }
             case 11: {
-                if (this.ReviewSources.length > 0) {
-
-                    this.ShowSources = true;
-                }
-                break;
+              this.ShowSources = true;
+              if (this.ReviewSources.length === 0) {
+                this._sourcesService.FetchSources();
+              }
+                  break;
             }
+
             default: {
                 break;
             }

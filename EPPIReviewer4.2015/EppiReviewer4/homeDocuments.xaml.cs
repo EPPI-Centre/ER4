@@ -566,11 +566,7 @@ namespace EppiReviewer4
             ////dialogMetaAnalysisControl.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged); i.e. previously commented out
             //dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
         }
-
-        void dialogMetaAnalysisSetupControl_ReloadMetaAnalyses(object sender, EventArgs e)
-        {
-            RefreshMetaAnalysisListData();            
-        }
+        
 
         public void LoadData()
         {
@@ -997,7 +993,7 @@ namespace EppiReviewer4
 
             if (totalScreened <= 1000)
             {
-                if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 500 ||
+                if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 300 || currentCount == 500 ||
                     currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000))
                 {
                     cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
@@ -1005,14 +1001,14 @@ namespace EppiReviewer4
             }
             else if (totalScreened > 1000 && totalScreened < 5000)
             {
-                if ((currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000))
+                if ((currentCount == 250 || currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000))
                 {
                     cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
                 }
             }
             else if (totalScreened >= 5000)
             {
-                if ((currentCount == 1000 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000 || currentCount == 3500))
+                if ((currentCount == 500 || currentCount == 1000 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000 || currentCount == 3500))
                 {
                     cmdTrainingRunTraining_Click(Tea, new RoutedEventArgs());
                 }
@@ -2587,58 +2583,52 @@ namespace EppiReviewer4
             windowMetaAnalysisTraining.ShowDialog();
         }
 
-        private void RefreshMetaAnalysisListData()
-        {
-            CslaDataProvider MetaAnalysisListData = ((CslaDataProvider)this.Resources["MetaAnalysisListData"]);
-            MetaAnalysisListData.FactoryMethod = "GetMetaAnalysisList";
-            MetaAnalysisListData.Refresh();
-        }
+        
 
-        private void CslaDataProviderMetaAnalysisListData_DataChanged(object sender, EventArgs e)
-        {
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["MetaAnalysisListData"]);
-            if (provider.Error != null)
-                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
-        }
+        
 
         private void cmdMetaNewMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
             dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
             dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
-            dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
+            //dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
             dialogMetaAnalysisSetupControl.ShowWindow(new MetaAnalysis());
-        }
-
-        private void cmdDeleteMetaAnalysis_Click(object sender, RoutedEventArgs e)
-        {
-            MetaAnalysis _currentSelectedMetaAnalysis = ((Button)(sender)).DataContext as MetaAnalysis;
-            BusyPleaseWait.IsRunning = true;
-            windowPleaseWait.ShowDialog();
-
-            if (_currentSelectedMetaAnalysis != null && MessageBox.Show("Are you sure you want to delete this meta-analysis?",
-                "Confirm delete", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-            {
-                _currentSelectedMetaAnalysis.Delete();
-                _currentSelectedMetaAnalysis.Saved += (o, e2) =>
-                {
-                    BusyPleaseWait.IsRunning = false;
-                    windowPleaseWait.Close();
-
-                    if (e2.Error != null)
-                        MessageBox.Show(e2.Error.Message);
-                    RefreshMetaAnalysisListData();
-                };
-                _currentSelectedMetaAnalysis.BeginSave(true);
-            }
         }
 
         private void cmdEditMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
             dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
             dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
-            dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
+            //dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
             MetaAnalysis _currentSelectedMetaAnalysis = ((Button)(sender)).DataContext as MetaAnalysis;
             dialogMetaAnalysisSetupControl.ShowWindow(((Button)(sender)).DataContext as MetaAnalysis);
+        }
+        private void cmdDeleteMetaAnalysis_Click(object sender, RoutedEventArgs e)
+        {
+            MetaAnalysis _currentSelectedMetaAnalysis = ((Button)(sender)).DataContext as MetaAnalysis;
+            CslaDataProvider MetaAnalysisListData = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+            MetaAnalysisList list = null;
+            if (MetaAnalysisListData != null) list = MetaAnalysisListData.Data as MetaAnalysisList;
+
+            if (_currentSelectedMetaAnalysis != null && list != null && list.Count > 0
+                && MessageBox.Show("Are you sure you want to delete this meta-analysis?",
+                "Confirm delete", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {
+                BusyPleaseWait.IsRunning = true;
+                windowPleaseWait.ShowDialog();
+
+                _currentSelectedMetaAnalysis.Delete();
+                list.Remove(_currentSelectedMetaAnalysis);
+                list.SaveItem(_currentSelectedMetaAnalysis);
+                list.Saved += (o, e2) =>
+                {
+                    BusyPleaseWait.IsRunning = false;
+                    windowPleaseWait.Close();
+                    if (e2.Error != null) MessageBox.Show(e2.Error.Message);
+                    MetaAnalysisListData.Rebind();
+                };
+                MetaAnalysisListData.Save();
+            }
         }
 
         private void cmdRunMetaAnalysis_Click(object sender, RoutedEventArgs e)
@@ -2656,7 +2646,7 @@ namespace EppiReviewer4
                 }
                 else
                 {
-                    ma.Outcomes = e2.Object as OutcomeList;
+                    ma.SetOutcomesList(e2.Object as OutcomeList);
                     windowMetaAnalysisOptions.ShowDialog();
                 }
             };
@@ -2664,13 +2654,89 @@ namespace EppiReviewer4
             dp.BeginFetch(new BusinessLibrary.BusinessClasses.OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), ma.SetId, ma.AttributeIdIntervention,
                 ma.AttributeIdControl, ma.AttributeIdOutcome, 0, ma.MetaAnalysisId, ma.AttributeIdQuestion, ma.AttributeIdAnswer));
         }
-
-        //private void CslaDataProvider_ReviewContactNVLDataDataChanged(object sender, EventArgs e)
+        private void GridViewMetaAnalyses_SelectionChanged(object sender, SelectionChangeEventArgs e)
+        {
+            while (GridViewMetaAnalyses.SelectedItems.Count > 2)
+            {
+                GridViewMetaAnalyses.SelectedItems.RemoveAt(0);
+            }
+        }
+        private void cmdSaveMetaAnalysis_Click(object sender, RoutedEventArgs e)
+        {
+            MetaAnalysis ma = (sender as Button).DataContext as MetaAnalysis;
+            ma.Saved += (o, e2) =>
+            {
+                if (e2.Error != null)
+                    MessageBox.Show(e2.Error.Message);
+                else
+                {
+                    MetaAnalysis returnedMA = (MetaAnalysis)e2.NewObject;
+                    if (returnedMA != null)
+                    {
+                        CslaDataProvider maldProvider = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+                        if (maldProvider != null)
+                        {
+                            MetaAnalysisList mald = maldProvider.Data as MetaAnalysisList;
+                            MetaAnalysis toSwap = mald.FirstOrDefault(f => f.MetaAnalysisId == ma.MetaAnalysisId);
+                            int index = mald.IndexOf(toSwap);
+                            if (index == -1) mald.Add(returnedMA);
+                            else mald[index] = returnedMA;
+                            maldProvider.Rebind();
+                        }
+                    }
+                }
+            };
+            ma.BeginSave();
+            CslaDataProvider MetaAnalysisListData = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+            //MetaAnalysisListData.FactoryMethod = "GetMetaAnalysisList";
+            MetaAnalysisListData.Save();
+        }
+        private void cmdMetaAnalysisListRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            MetaAnalysisListRefresh();
+        }
+        public void MetaAnalysisListRefresh()
+        {
+            CslaDataProvider provider = App.Current.Resources["MetaAnalysisListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MetaAnalysisList list = provider.Data as MetaAnalysisList;
+                if (list != null)
+                {
+                    if (list.HasMAsToSave)
+                    {
+                        //refreshing the list would forget the changes, we'll warn the user
+                        RadWindow.Confirm("You have unsaved changes!" + Environment.NewLine + "Refhreshing the Meta-Analysis list will discard all changes."
+                            + Environment.NewLine + "Continue?"
+                            , OnConfrim_Refresh_MAs_List);
+                    }
+                    else
+                    {
+                        provider.Refresh();
+                    }
+                }
+                else provider.Refresh();
+            }
+        }
+        //private void RefreshMetaAnalysisListData()
         //{
-        //    CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["ReviewContactNVLData"]);
-        //    if (provider.Error != null)
-        //        System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+        //    CslaDataProvider MetaAnalysisListData = ((CslaDataProvider)App.Current.Resources["MetaAnalysisListData"]);
+        //    MetaAnalysisListData.FactoryMethod = "GetMetaAnalysisList";
+        //    MetaAnalysisListData.Refresh();
         //}
+        private void OnConfrim_Refresh_MAs_List(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {// user wants to discard changes
+                CslaDataProvider provider = App.Current.Resources["MetaAnalysisListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    provider.Refresh();
+                }
+            }
+            //we do nothing in all other cases
+        }
 
         private void CslaDataProvider_WorkAllocationListDataDataChanged(object sender, EventArgs e)
         {
@@ -3134,9 +3200,7 @@ namespace EppiReviewer4
 
             if (DocumentListPane.SelectedPane.Name == "PaneMetaAnalysis")
             {
-                CslaDataProvider provider = this.Resources["MetaAnalysisListData"] as CslaDataProvider;
-                if (provider != null)
-                    provider.Refresh();
+                MetaAnalysisListRefresh();//this checks if the list has unsaved changes!
             }
 
             if (DocumentListPane.SelectedPane.Name == "PaneCollaborate")
@@ -4899,13 +4963,7 @@ on the right of the main screen");
             dp.BeginExecute(command);
         }
 
-        private void GridViewMetaAnalyses_SelectionChanged(object sender, SelectionChangeEventArgs e)
-        {
-            while (GridViewMetaAnalyses.SelectedItems.Count > 2)
-            {
-                GridViewMetaAnalyses.SelectedItems.RemoveAt(0);
-            }
-        }
+        
 
         private void cmdMetaSubGroup_Click(object sender, RoutedEventArgs e)
         {
@@ -4928,7 +4986,7 @@ on the right of the main screen");
                         }
                         else
                         {
-                            ma1.Outcomes = e2.Object as OutcomeList;
+                            ma1.SetOutcomesList(e2.Object as OutcomeList);
                             DataPortal<OutcomeList> dp2 = new DataPortal<OutcomeList>();
                             dp2.FetchCompleted += (o2, e22) =>
                             {
@@ -4939,7 +4997,7 @@ on the right of the main screen");
                                 }
                                 else
                                 {
-                                    ma2.Outcomes = e22.Object as OutcomeList;
+                                    ma2.SetOutcomesList(e22.Object as OutcomeList);
                                     windowMetaAnalysisOptions.ShowDialog();
                                 }
                             };

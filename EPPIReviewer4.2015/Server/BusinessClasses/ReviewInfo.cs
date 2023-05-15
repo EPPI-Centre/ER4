@@ -356,6 +356,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SCREENING_MODEL_RUNNING", ReadProperty(ScreeningModelRunningProperty)));
                     command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", ReadProperty(ScreeningIndexedProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_ENABLED", ReadProperty(MagEnabledProperty)));
+                    command.Parameters.Add(new SqlParameter("@SHOW_SCREENING", ReadProperty(ShowScreeningProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

@@ -164,6 +164,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSearchList.cs" Link="Models\MagSearchList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSimulation.cs" Link="Models\MagSimulation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSimulationList.cs" Link="Models\MagSimulationList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisFilterSetting.cs" Link="Models\MetaAnalysisFilterSetting.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisFilterSettingList.cs" Link="Models\MetaAnalysisFilterSettingList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttribute.cs" Link="Models\OutcomeItemAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />

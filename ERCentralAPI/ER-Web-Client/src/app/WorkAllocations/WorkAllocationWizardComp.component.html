@@ -71,7 +71,7 @@
                                     id="dropdownBasicCodingTool" ngbDropdownToggle>
                                 {{selectedCodeSetDropDown.name}}
                             </button>
-                            <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                            <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
                                 <button (click)="setCodeSetDropDown(item)"
                                         *ngFor="let item of CodeSets;" class="dropdown-item">
                                     {{item.name}}
@@ -180,7 +180,7 @@
                                 id="dropdownBasicCodingTool" ngbDropdownToggle>
                             {{WorkToDoSelectedCodeSet.name}}
                         </button>
-                        <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                        <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
                             <button (click)="SetWorkToDoCodeSet(item)"
                                     *ngFor="let item of CodeSets;" class="dropdown-item">
                                 {{item.name}}

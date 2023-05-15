@@ -187,18 +187,18 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       if (training.totalN > totalScreened) totalScreened = training.totalN;
     }
     if (totalScreened <= 1000) {
-      if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 500 ||
+      if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 300 || currentCount == 500 ||
         currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
         this.RunNewTrainingCommand(screeningItem);
       }
     }
     else if (totalScreened > 1000 && totalScreened < 5000) {
-      if ((currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
+      if ((currentCount == 250 || currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
         this.RunNewTrainingCommand(screeningItem);
       }
     }
     else if (totalScreened >= 5000) {
-      if ((currentCount == 1000 || currentCount == 1500 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000
+      if ((currentCount == 500 || currentCount == 1000 || currentCount == 1500 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000
         || currentCount == 3800 || currentCount == 4800 || currentCount == 5800 || currentCount == 6800 || currentCount == 7800
         || currentCount == 8800 || currentCount == 9800 || currentCount == 18000 || currentCount == 11800)) {
         this.RunNewTrainingCommand(screeningItem);
