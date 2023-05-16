@@ -130,6 +130,8 @@ import { ZoteroManagerComponent } from './Zotero/ZoteroManager.component';
 import { ZoteroSetupComponent } from './Zotero/ZoteroSetup.component';
 import { ZoteroSyncComponent } from './Zotero/ZoteroSync.component';
 import { ZoteroHeaderBarComp } from './commonComponents/ZoteroHeaderBar.component';
+import { MetaAnalysisComp } from './MetaAnalysis/MetaAnalysis.component';
+import { MetaAnalysisDetailsComp } from './MetaAnalysis/MetaAnalysisDetails.component';
 
 
 
@@ -257,7 +259,9 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     ZoteroManagerComponent,
     ZoteroSetupComponent,
     ZoteroSyncComponent,
-    ZoteroHeaderBarComp
+    ZoteroHeaderBarComp,
+    MetaAnalysisComp,
+    MetaAnalysisDetailsComp
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -317,6 +321,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'SiteAdmin', component: SiteAdminComponent },
       { path: 'WebDBs', component: WebDBsComponent },
       { path: 'Zotero', component: ZoteroManagerComponent },
+      { path: 'MetaAnalysis', component: MetaAnalysisComp },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,

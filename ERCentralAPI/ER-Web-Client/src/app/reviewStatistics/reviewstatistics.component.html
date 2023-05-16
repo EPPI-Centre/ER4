@@ -8,15 +8,19 @@
                        style="border-color: #04070b;background-color: #e1e4eb;">
       Import Items
     </kendo-splitbutton>
-    <button kendoButton class="mx-1"
+    <button kendoButton class="ml-1" title="Manage Duplicates"
             (click)="GoToDuplicates()">
-      Manage Duplicates
+      Duplicates
     </button>
-    <button kendoButton class="mx-1" *ngIf="ReviewIsMagEnabled"
+    <button kendoButton class="ml-1" title="go to Meta-Analysis Page"
+            (click)="GoToMetaAnalysis()">
+      MA
+    </button>
+    <button kendoButton class="ml-1" *ngIf="ReviewIsMagEnabled"
             (click)="OpenMAG()">
       Update review
     </button>
-    <button kendoButton class="mx-1" *ngIf="ReviewIsZoteroEnabled"
+    <button kendoButton class="ml-1" *ngIf="ReviewIsZoteroEnabled"
             (click)="OpenZotero()">
       Zotero
     </button>
