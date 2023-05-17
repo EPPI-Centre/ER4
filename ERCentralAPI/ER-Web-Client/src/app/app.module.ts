@@ -132,6 +132,7 @@ import { ZoteroSyncComponent } from './Zotero/ZoteroSync.component';
 import { ZoteroHeaderBarComp } from './commonComponents/ZoteroHeaderBar.component';
 import { MetaAnalysisComp } from './MetaAnalysis/MetaAnalysis.component';
 import { MetaAnalysisDetailsComp } from './MetaAnalysis/MetaAnalysisDetails.component';
+import { MAoutcomesComp } from './MetaAnalysis/MAoutcomes.component';
 
 
 
@@ -261,7 +262,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     ZoteroSyncComponent,
     ZoteroHeaderBarComp,
     MetaAnalysisComp,
-    MetaAnalysisDetailsComp
+    MetaAnalysisDetailsComp,
+    MAoutcomesComp
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

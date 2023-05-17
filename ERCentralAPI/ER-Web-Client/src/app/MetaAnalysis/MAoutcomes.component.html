@@ -1,0 +1,56 @@
+<div class="row alert-primary"> Outcomes table:</div>
+<div style="max-height: 30vh; overflow:auto;" class="small">
+  <table class="table table-sm table-bordered table-striped">
+    <thead>
+
+    </thead>
+    <tbody>
+      <tr *ngFor="let oo of Outcomes">
+        <td style="text-align: center; vertical-align: middle;">
+          <input class="m-auto" type="checkbox" [(ngModel)]="oo.isSelected" [disabled]="!oo.canSelect" />
+        </td>
+        <td >
+          <div class="alert-primary m-1">
+            {{oo.es.toFixed(3)}}
+          </div>
+        </td>
+        <td>
+          <div class="alert-primary m-1">
+            {{oo.sees.toFixed(3)}}
+          </div>
+        </td>
+        <td>
+          {{oo.outcomeId}}
+        </td>
+        <td>
+          {{oo.shortTitle}}
+        </td>
+        <td>
+          {{oo.title}}
+        </td>
+        <td>
+          {{oo.timepointDisplayValue}}
+        </td>
+        <td>
+          {{oo.outcomeTypeName}}
+        </td>
+        <td>
+          {{oo.outcomeText}}
+        </td>
+        <td>
+          {{oo.interventionText}}
+        </td>
+        <td>
+          {{oo.controlText}}
+        </td>
+        <td>
+          {{oo.grp1ArmName}}
+        </td>
+        <td>
+          {{oo.grp2ArmName}}
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+</div>

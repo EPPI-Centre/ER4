@@ -2178,9 +2178,39 @@ namespace BusinessLibrary.BusinessClasses
             return retVal;
         }
 
-        protected void DataPortal_Fetch(SingleCriteria<MetaAnalysis, int> criteria)
+        protected void DataPortal_Fetch(MetaAnalysisSelectionCrit criteria)
         {
-            
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MetaAnalysis", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@META_ANALYSIS_ID", criteria.MetaAnalysisId));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            MetaAnalysis.FillMetaAnalysis(this, reader);
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            if (criteria.GetAllDetails)
+            {
+                OutcomeList.OutcomeListSelectionCriteria c2 = new OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), SetId, AttributeIdIntervention,
+                AttributeIdControl, AttributeIdOutcome, 0, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
+                OutcomeList outcomes = DataPortal.Fetch<OutcomeList>(c2);
+                if (outcomes != null)
+                {
+                    SetOutcomesList(outcomes);
+                    Outcomes.SetMetaAnalysisType(MetaAnalysisTypeId);
+                    SetupModeratorList();
+                }
+            }
         }
 
         protected override void DataPortal_DeleteSelf()
@@ -2198,10 +2228,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        /* SHOULD BE POSSIBLE TO REMOVE PROPERTIES RELATING TO INTERVENTION / OUTCOME / CONTROL ONCE WE ARE USING THE NEW MA INTERFACE */
         internal static MetaAnalysis GetMetaAnalysis(SafeDataReader reader)
         {
             MetaAnalysis returnValue = new MetaAnalysis();
+            FillMetaAnalysis(returnValue, reader);
+            return returnValue;
+        }
+            /* SHOULD BE POSSIBLE TO REMOVE PROPERTIES RELATING TO INTERVENTION / OUTCOME / CONTROL ONCE WE ARE USING THE NEW MA INTERFACE */
+        internal static MetaAnalysis FillMetaAnalysis(MetaAnalysis returnValue, SafeDataReader reader)
+        {
             returnValue.LoadProperty<int>(MetaAnalysisIdProperty, reader.GetInt32("META_ANALYSIS_ID"));
             returnValue.LoadProperty<string>(TitleProperty, reader.GetString("META_ANALYSIS_TITLE"));
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
@@ -2476,7 +2511,35 @@ namespace BusinessLibrary.BusinessClasses
         }
 
      }
+}
+[Serializable]
+public class MetaAnalysisSelectionCrit : BusinessBase
+{
+    public MetaAnalysisSelectionCrit() { }
+    public static MetaAnalysisSelectionCrit CreateMetaAnalysisSelectionCrit(int MetaAnId, bool getAllDetails = false)
+    {
+        MetaAnalysisSelectionCrit res = new MetaAnalysisSelectionCrit();
+        res.MetaAnalysisId = MetaAnId;
+        res.GetAllDetails = getAllDetails;
+        return res;
+    }
+    public static readonly PropertyInfo<bool> GetAllDetailsProperty = RegisterProperty<bool>(typeof(MetaAnalysisSelectionCrit), new PropertyInfo<bool>("GetAllDetails", "GetAllDetails", false));
+    public bool GetAllDetails
+    {
+        get { return ReadProperty(GetAllDetailsProperty); }
+        set
+        {
+            SetProperty(GetAllDetailsProperty, value);
+        }
+    }
 
-   
-
+    public static readonly PropertyInfo<int> MetaAnalysisIdProperty = RegisterProperty<int>(typeof(MetaAnalysisSelectionCrit), new PropertyInfo<int>("MetaAnalysisId", "MetaAnalysisId", 0));
+    public int MetaAnalysisId
+    {
+        get { return ReadProperty(MetaAnalysisIdProperty); }
+        set
+        {
+            SetProperty(MetaAnalysisIdProperty, value);
+        }
+    }
 }

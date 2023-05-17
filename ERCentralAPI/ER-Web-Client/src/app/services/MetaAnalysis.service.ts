@@ -4,6 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ConfigService } from './config.service';
 import { forEach } from 'lodash';
+import { iOutcome, Outcome } from './outcomes.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,42 @@ export class MetaAnalysisService extends BusyAwareService {
 
   public MetaAnalysisList: MetaAnalysis[] = [];
 
+  public CurrentMetaAnalysis: MetaAnalysis | null = null;
+  private CurrentMetaAnalysisUnchanged: MetaAnalysis | null = null;
 
+  public get CurrentMAhasChanges(): boolean {
+    //console.log("CurrentMA:", this.CurrentMetaAnalysis?.metaAnalysisTypeId ,this.CurrentMetaAnalysis?.metaAnalysisTypeTitle);
+    if (this.CurrentMetaAnalysis == null || this.CurrentMetaAnalysisUnchanged == null) return false;
+    else if (this.CurrentMetaAnalysis.title !== this.CurrentMetaAnalysisUnchanged.title
+      || this.CurrentMetaAnalysis.metaAnalysisTypeId !== this.CurrentMetaAnalysisUnchanged.metaAnalysisTypeId
+      || this.CurrentMetaAnalysis.sortDirection !== this.CurrentMetaAnalysisUnchanged.sortDirection
+      || this.CurrentMetaAnalysis.sortedBy !== this.CurrentMetaAnalysisUnchanged.sortedBy
+      || this.CurrentMetaAnalysis.attributeIdQuestion !== this.CurrentMetaAnalysisUnchanged.attributeIdQuestion
+      || this.CurrentMetaAnalysis.attributeIdAnswer !== this.CurrentMetaAnalysisUnchanged.attributeIdAnswer
+      || this.CurrentMetaAnalysis.title !== this.CurrentMetaAnalysisUnchanged.title
+    ) return true;
+    if (this.CurrentMetaAnalysis.filterSettingsList.length != this.CurrentMetaAnalysisUnchanged.filterSettingsList.length) return true;
+    for (let i = 0; i < this.CurrentMetaAnalysis.filterSettingsList.length; i++) {
+      if (this.CurrentMetaAnalysis.filterSettingsList[i].columnName != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].columnName
+        || this.CurrentMetaAnalysis.filterSettingsList[i].filter1 != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1
+        || this.CurrentMetaAnalysis.filterSettingsList[i].filter1CaseSensitive != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1CaseSensitive
+        || this.CurrentMetaAnalysis.filterSettingsList[i].filter1Operator != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1Operator
+        || this.CurrentMetaAnalysis.filterSettingsList[i].filter2 != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter2
+        || this.CurrentMetaAnalysis.filterSettingsList[i].filter2CaseSensitive != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter2CaseSensitive
+        || this.CurrentMetaAnalysis.filterSettingsList[i].filter2Operator != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter2Operator
+        || this.CurrentMetaAnalysis.filterSettingsList[i].selectedValues != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].selectedValues
+        || this.CurrentMetaAnalysis.filterSettingsList[i].metaAnalysisFilterSettingId != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].metaAnalysisFilterSettingId
+      ) return true;
+    }
+    for (let i = 0; i < this.CurrentMetaAnalysis.outcomes.length; i++) {
+      if (this.CurrentMetaAnalysis.outcomes[i].isSelected != this.CurrentMetaAnalysisUnchanged.outcomes[i].isSelected) return true;
+    }
+
+    return false;
+  }
+  public DiscardMAChanges() {
+    if (this.CurrentMetaAnalysisUnchanged) this.CurrentMetaAnalysis = new MetaAnalysis(this.CurrentMetaAnalysisUnchanged);
+  }
   public FetchMAsList() {
     this._BusyMethods.push("FetchMAsList");
     this.MetaAnalysisList = [];
@@ -40,9 +76,22 @@ export class MetaAnalysisService extends BusyAwareService {
         }
       );
   }
-
+  public FetchMetaAnalysis(crit: MetaAnalysisSelectionCrit) {
+    this._BusyMethods.push("FetchMetaAnalysis");
+    this._httpC.post<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/FetchMetaAnalysis',
+      crit).subscribe(result => {
+        this.CurrentMetaAnalysis = new MetaAnalysis(result);
+        this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(result);
+        this.RemoveBusy("FetchMetaAnalysis");
+      }, error => {
+        this.RemoveBusy("FetchMetaAnalysis");
+        this.modalService.GenericError(error);
+      });
+  }
   Clear() {
-
+    this.MetaAnalysisList = [];
+    this.CurrentMetaAnalysis = null;
+    this.CurrentMetaAnalysisUnchanged = null;
   }
 }
 interface iMetaAnalysis {
@@ -136,14 +185,14 @@ interface iMetaAnalysis {
   interventionText: string;
   controlText: string;
   outcomeText: string;
-  outcomes: [];
+  outcomes: iOutcome[];
   metaAnalysisModerators: [];
   attributeIdQuestion: string;
   attributeQuestionText: string;
   attributeIdAnswer: string;
   attributeAnswerText: string;
   gridSettings: string;
-  filterSettingsList: [];
+  filterSettingsList: iFilterSettings[];
   feForestPlot: null;
   reForestPlot: null;
   feFunnelPlot: null;
@@ -166,7 +215,7 @@ interface iMetaAnalysis {
   reSumWeightsTimesOutcome: number;
   wY_squared: number;
 }
-export class MetaAnalysis {
+export class MetaAnalysis implements iMetaAnalysis {
   constructor(iMA: iMetaAnalysis) {
     this.analysisType = iMA.analysisType;
     this.title = iMA.title;
@@ -258,14 +307,14 @@ export class MetaAnalysis {
     this.interventionText = iMA.interventionText;
     this.controlText = iMA.controlText;
     this.outcomeText = iMA.outcomeText;
-    this.outcomes = iMA.outcomes;
+    this.outcomes = [];// iMA.outcomes;
     this.metaAnalysisModerators = iMA.metaAnalysisModerators;
     this.attributeIdQuestion = iMA.attributeIdQuestion;
     this.attributeQuestionText = iMA.attributeQuestionText;
     this.attributeIdAnswer = iMA.attributeIdAnswer;
     this.attributeAnswerText = iMA.attributeAnswerText;
     this.gridSettings = iMA.gridSettings;
-    this.filterSettingsList = iMA.filterSettingsList;
+    this.filterSettingsList = []; iMA.filterSettingsList;
     this.feForestPlot =null;
     this.reForestPlot =null;
     this.feFunnelPlot =null;
@@ -287,6 +336,14 @@ export class MetaAnalysis {
     this.sumWeightsSquared = iMA.sumWeightsSquared;
     this.reSumWeightsTimesOutcome = iMA.reSumWeightsTimesOutcome;
     this.wY_squared = iMA.wY_squared;
+    for (let iO of iMA.outcomes) {
+      let Oc: Outcome = new Outcome(iO);
+      this.outcomes.push(Oc);
+    }
+    for (let inFS of iMA.filterSettingsList) {
+      let FS: FilterSettings = new FilterSettings(inFS);
+      this.filterSettingsList.push(FS);
+    }
   }
   public analysisType: number;
   public title: string;
@@ -378,14 +435,14 @@ export class MetaAnalysis {
   public interventionText: string;
   public controlText: string;
   public outcomeText: string;
-  public outcomes: [];
+  public outcomes: Outcome[];
   public metaAnalysisModerators: [];
   public attributeIdQuestion: string;
   public attributeQuestionText: string;
   public attributeIdAnswer: string;
   public attributeAnswerText: string;
   public gridSettings: string;
-  public filterSettingsList: [];
+  public filterSettingsList: iFilterSettings[];
   public feForestPlot: null;
   public reForestPlot: null;
   public feFunnelPlot: null;
@@ -407,4 +464,51 @@ export class MetaAnalysis {
   public sumWeightsSquared: number;
   public reSumWeightsTimesOutcome: number;
   public wY_squared: number;
-} 
+}
+
+export interface iFilterSettings {
+  isClear: boolean;
+  metaAnalysisFilterSettingId: number;
+  metaAnalysisId: number;
+  columnName: string;
+  selectedValues: string;
+  filter1: string;
+  filter1Operator: string;
+  filter1CaseSensitive: boolean;
+  filtersLogicalOperator: string;
+  filter2: string;
+  filter2Operator: string;
+  filter2CaseSensitive: boolean;
+}
+export class FilterSettings implements iFilterSettings{
+  constructor(iF: iFilterSettings) {
+    this.isClear = iF.isClear;
+    this.metaAnalysisFilterSettingId = iF.metaAnalysisFilterSettingId;
+    this.metaAnalysisId = iF.metaAnalysisId;
+    this.columnName = iF.columnName;
+    this.selectedValues = iF.selectedValues;
+    this.filter1 = iF.filter1;
+    this.filter1Operator = iF.filter1Operator;
+    this.filter1CaseSensitive = iF.filter1CaseSensitive;
+    this.filtersLogicalOperator = iF.filtersLogicalOperator;
+    this.filter2 = iF.filter2;
+    this.filter2Operator = iF.filter2Operator;
+    this.filter2CaseSensitive = iF.filter2CaseSensitive;
+  }
+  isClear: boolean;
+  metaAnalysisFilterSettingId: number;
+  metaAnalysisId: number;
+  columnName: string;
+  selectedValues: string;
+  filter1: string;
+  filter1Operator: string;
+  filter1CaseSensitive: boolean;
+  filtersLogicalOperator: string;
+  filter2: string;
+  filter2Operator: string;
+  filter2CaseSensitive: boolean;
+}
+export class MetaAnalysisSelectionCrit {
+  GetAllDetails: boolean = false;
+  MetaAnalysisId: number = 0;
+}

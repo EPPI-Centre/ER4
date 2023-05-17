@@ -33,12 +33,40 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "GetFrequencies data portal error");
+                _logger.LogException(e, "GetMAList data portal error");
                 return StatusCode(500, e.Message);
             }
 
 		}
-               
+        [HttpPost("[action]")]
+        public IActionResult FetchMetaAnalysis([FromBody] MetaAnalysisSelectionCritJSON crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                MetaAnalysis result = DataPortal.Fetch<MetaAnalysis>(crit.ToCSLACirteria());
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMetaAnalysis data portal error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+        public class MetaAnalysisSelectionCritJSON
+        {
+            public bool GetAllDetails { get; set;}
+
+            public int MetaAnalysisId { get; set; }
+            public MetaAnalysisSelectionCrit ToCSLACirteria()
+            {
+                MetaAnalysisSelectionCrit res = new MetaAnalysisSelectionCrit();
+                res.GetAllDetails = GetAllDetails;
+                res.MetaAnalysisId= MetaAnalysisId;
+                return res;
+            }
+        }
     }
 }
 

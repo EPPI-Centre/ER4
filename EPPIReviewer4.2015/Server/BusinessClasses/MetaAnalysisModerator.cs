@@ -25,16 +25,12 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MetaAnalysisModerator : BusinessBase<MetaAnalysisModerator>
     {
-#if SILVERLIGHT
     public MetaAnalysisModerator()
     {
         this.References = new MetaAnalysisModeratorReferenceList();
     }
 
-        
-#else
-        public MetaAnalysisModerator() {  }
-#endif
+  
 
     public override string ToString()
         {

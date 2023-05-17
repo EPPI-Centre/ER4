@@ -1,17 +1,6 @@
 import { Component, OnInit,Input, ViewChild, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
-import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
-import { ReviewerTermsService, ReviewerTerm } from '../services/ReviewerTerms.service';
-import { ItemDocsService } from '../services/itemdocs.service';
-import { ModalService } from '../services/modal.service';
-import { Helpers } from '../helpers/HelperMethods';
-import { PriorityScreeningService } from '../services/PriorityScreening.service';
-import { TextSelectEvent } from "../helpers/text-select.directive";
-import { ItemCodingService } from '../services/ItemCoding.service';
-import { ReviewerIdentityService, PersistingOptions } from '../services/revieweridentity.service';
-import { Subscription } from 'rxjs';
-import { ItemDocListComp } from '../ItemDocumentList/itemDocListComp.component';
-import { faBook } from '@fortawesome/free-solid-svg-icons';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { MetaAnalysis, MetaAnalysisService } from '../services/MetaAnalysis.service';
 
 @Component({
   selector: 'MetaAnalysisDetailsComp',
@@ -22,11 +11,25 @@ import { faBook } from '@fortawesome/free-solid-svg-icons';
 export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
 
   constructor(
-    //list of services, etc.
+    private ReviewerIdentityServ: ReviewerIdentityService,
+    private MetaAnalysisService: MetaAnalysisService
   ) { }
 
 
   ngOnInit() { }
+  public get HasWriteRights(): boolean {
+    return this.ReviewerIdentityServ.HasWriteRights;
+  }
+  public get CurrentMA(): MetaAnalysis | null {
+    return this.MetaAnalysisService.CurrentMetaAnalysis;
+  }
+  public get CanSave(): boolean {
+    return this.HasWriteRights && this.MetaAnalysisService.CurrentMAhasChanges;
+  }
+
+  public Save() {
+
+  }
 
 
   ngOnDestroy() { }

@@ -6,7 +6,7 @@
   Close/back
 </button>
 
-<div class="container rounded m-1 p-2 bg-light">
+<div class="rounded ml-1 mr-2 p-2 bg-light w-100">
   <div class="row mx-0 px-0">
     <table class="table table-bordered table-sm col-12">
       <thead>
@@ -20,11 +20,12 @@
         <td>{{ma.metaAnalysisId}}</td>
         <td>{{ma.title}}</td>
         <td>{{ma.metaAnalysisTypeTitle}}</td>
+        <td><button class="btn btn-outline-success btn-sm" (click)="EditMA(ma)">Edit/Run</button></td>
       </tr>
     </table>
 
   </div>
 </div>
-<MetaAnalysisDetailsComp></MetaAnalysisDetailsComp>
+<MetaAnalysisDetailsComp *ngIf="CurrentMA != null" class="mt-2"></MetaAnalysisDetailsComp>
 
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

@@ -582,6 +582,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected"));
+        [JsonProperty]
         public bool IsSelected
         {
             get
@@ -602,6 +603,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<bool> CanSelectProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CanSelect", "CanSelect"));
+        [JsonProperty]
         public bool CanSelect
         {
             get
