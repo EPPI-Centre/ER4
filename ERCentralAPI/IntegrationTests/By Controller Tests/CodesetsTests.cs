@@ -138,12 +138,13 @@ namespace IntegrationTests.By_Controller_Tests
             // add an exclude code
             var attributeName = "Exclude 1";
             var attributeTypeId = 10; // exclude code
-            JsonNode? AttrRes1 = await AddCode(setId, reviewSetId, attributeName, attributeTypeId);
+            var parentAtrributeId = 0;
+            JsonNode? AttrRes1 = await AddCode(setId, reviewSetId, parentAtrributeId, attributeName, attributeTypeId);
 
             // add an include code
             attributeName = "Include 1";
             attributeTypeId = 11; // include code
-            JsonNode? AttrRes2 = await AddCode(setId, reviewSetId, attributeName, attributeTypeId);
+            JsonNode? AttrRes2 = await AddCode(setId, reviewSetId, parentAtrributeId, attributeName, attributeTypeId);
 
 
             /* 
@@ -268,6 +269,8 @@ namespace IntegrationTests.By_Controller_Tests
             CSRes = await GetCodesets();
             CSRes.AsArray().Count().Should().Be(0);
 
+
+
         }
 
     }
@@ -324,11 +327,11 @@ namespace IntegrationTests.Fixtures
         }
 
 
-        public async Task<JsonNode?> AddCode(int setId, int reviewSetId, string attributeName, int attributeTypeId)
+        public async Task<JsonNode?> AddCode(int setId, int reviewSetId, int parentAtrributeId, string attributeName, int attributeTypeId)
         {
             AttributeSetCreateOrUpdateJSON attr = new AttributeSetCreateOrUpdateJSON();
             attr.setId = setId;
-            attr.parentAttributeId = 0;
+            attr.parentAttributeId = parentAtrributeId;
             attr.attributeTypeId = attributeTypeId;
             attr.attributeOrder = 0;
             attr.attributeName = attributeName;

@@ -1,0 +1,364 @@
+﻿TY  - JOUR
+T1  - Is everyone doing enough to finish the job?
+JF  - Journal of participation
+A1  - Answer Ashley
+KW  - eppi-reviewer
+KW  - consectetuer
+KW  - euismod
+KW  - commodo
+PY  - 2001
+DA  - 2001/01//
+Y1  - 2001/01//
+AB  - Duis te feugifacilisi per suscipit lobortis nisl ut aliquip ex en commodo consequat.Ut wisi enim ad minim veniam, quis nostrud exerci taion ullamcorper suscipit lobortis nisl ut aliquip ex en commodo consequat. Duis te feugifacilisi per suscipit lobortis nisl ut aliquip ex en commodo consequat.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diem nonummy nibh euismod tincidunt ut lacreet dolore magna aliguam erat volutpat. Ut wisis enim ad minim veniam, quis nostrud exerci tution ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis te feugifacilisi. Duis autem dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit au gue duis dolore te feugat nulla facilisi. Ut wisi enim ad minim veniam, quis nostrud exerci
+DO  - 10.1002/002-8231
+VL  - 2
+IS  - 5
+SP  - 7
+EP  - 9
+CY  - 
+U1  - 84339500
+N1  - 7
+ER  - 
+
+TY  - JOUR
+T1  - European agreement on residuals will bring concessions.
+JF  - European options
+A1  - Botherly Tim
+KW  - eppi-reviewer
+PY  - 2001
+DA  - 2001/01//
+Y1  - 2001/01//
+AB  - Duis te feugifacilisi. Duis autem dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit au gue duis dolore te feugat nulla facilisi. Ut wisi enim ad minim veniam, quis nostrud exerci taion ullamcorper suscipit lobortis nisl ut aliquip ex en commodo consequat.
+VL  - 4
+IS  - 3
+SP  - 98
+EP  - 117
+CY  - 
+U1  - 84339501
+N1  - 6
+ER  - 
+
+TY  - JOUR
+T1  - Hourly interventions add substance to concerns.
+JF  - Early Starts
+A1  - Cautious Konrad
+KW  - eppi-reviewer
+PY  - 1998
+DA  - 1998/01//
+Y1  - 1998/01//
+AB  - Id falli aeque nam. Sale omittam ex mei, eam ad kasd accusamus sadipscing, nemore docendi eam ne. Exerci possit et eos, mentitum vivendum at his. Scaevola urbanitas deseruisse ei sit, has te kasd mundi ornatus.Fugit laudem consequat ei duo, vim ut illum nihil quidam. Aliquando similique pro ut, mei ea platonem persecuti mediocritatem. In latine copiosae eos. Nec no aliquam oporteat honestatis, pri ullum conceptam instructior id. Eripuit appellantur ex eos.Soleat utamur offendit his cu. Tritani dissentiunt per at, et per fugit aliquid electram. Consul diceret nec an, eum ea malis accommodare, scripta dignissim definitiones ex his. Ea impetus explicari eum, assum tation nam ei. Cum dico labore percipit at, ad eros suscipiantur pri, choro laoreet efficiendi ea pro. Vis eu diceret dissentiunt, ne sumo puto exerci eum, postea consequuntur cu duo.
+VL  - 45
+IS  - 7
+SP  - 56
+EP  - 67
+CY  - 
+U1  - 84339502
+N1  - 19
+ER  - 
+
+TY  - JOUR
+T1  - Worrisome trends point to future difficulties
+JF  - Isolated incidents
+A1  - Evenly Jane
+KW  - eppi-reviewer
+PY  - 2006
+DA  - 2006/01//
+Y1  - 2006/01//
+AB  - Ut wisi enim ad minim veniam, quis nostrud exerci taion ullamcorper suscipit lobortis nisl ut aliquip ex en commodo consequat. Duis te feugifacilisi per suscipit lobortis nisl ut aliquip ex en commodo consequat.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diem nonummy nibh euismod tincidunt ut lacreet dolore magna aliguam erat volutpat..
+VL  - 22
+IS  - 3
+SP  - 45
+EP  - 48
+CY  - 
+U1  - 84339503
+N1  - 13
+ER  - 
+
+TY  - JOUR
+T1  - Recovery rates related to social interchange.
+JF  - Holistic humour
+A1  - Falter Sally
+KW  - eppi-reviewer
+PY  - 2001
+DA  - 2001/01//
+Y1  - 2001/01//
+AB  - Ut wisi enim ad minim veniam, quis nostrud exerci taion ullamcorper suscipit lobortis nisl ut aliquip ex en commodo consequat. Duis te feugifacilisi per suscipit lobortis nisl ut aliquip ex en commodo consequat.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diem nonummy nibh euismod tincidunt ut lacreet dolore magna aliguam erat volutpat.
+VL  - 3
+IS  - 6
+SP  - 45
+EP  - 49
+CY  - 
+U1  - 84339504
+N1  - 3
+ER  - 
+
+TY  - JOUR
+T1  - Wishful thinking will not bring about change.
+JF  - Opening opportunities
+A1  - Fitfull Steven
+KW  - eppi-reviewer
+PY  - 1999
+DA  - 1999/01//
+Y1  - 1999/01//
+AB  - Duis te feugifacilisi. Duis autem dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit au gue duis dolore te feugat nulla facilisi.
+VL  - 35
+IS  - 8
+SP  - 56
+EP  - 59
+CY  - 
+U1  - 84339505
+N1  - 15
+ER  - 
+
+TY  - JOUR
+T1  - Absenteeism in the workplace
+JF  - Jobwise special issue
+A1  - Fortunate Farley
+KW  - eppi-reviewer
+PY  - 2002
+DA  - 2002/01//
+Y1  - 2002/01//
+AB  - Velit alterum eloquentiam mei ad. Lorem iudico ubique qui te, eu assum aeque mediocritatem est, quo malis eruditi percipit ne. Prima voluptaria pri no. Nam assum error homero an. Menandri constituam eam id, cu mea atomorum dissentiet, et eum decore graeci deleniti.At assum voluptatibus mea. No qui modo dicat appellantur, lorem harum inimicus has ea. Harum mediocrem cu mei, et mei eius facer. Vix consetetur moderatius concludaturque ex.Elitr nominati ad pro. Agam laudem vim an. Sit et interesset signiferumque. Legendos adipiscing mediocritatem nam eu.
+VL  - 67
+IS  - 3
+SP  - 87
+EP  - 92
+CY  - 
+U1  - 84339506
+N1  - 17
+ER  - 
+
+TY  - JOUR
+T1  - Multi-agency services may substitude existing standards.
+JF  - Journal substitutional
+A1  - Fourly Charles J
+KW  - eppi-reviewer
+PY  - 2003
+DA  - 2003/01//
+Y1  - 2003/01//
+AB  - Ut wisis enim ad minim veniam, quis nostrud exerci tution ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis te feugifacilisi. Duis autem dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit au gue duis dolore te feugat nulla facilisi.
+VL  - 77
+IS  - 4
+SP  - 3
+EP  - 17
+CY  - 
+U1  - 84339507
+N1  - 4
+ER  - 
+
+TY  - JOUR
+T1  - Is there a future for Jobwise
+JF  - Jobwise special issue
+A1  - Further Jeff
+KW  - eppi-reviewer
+PY  - 1999
+DA  - 1999/01//
+Y1  - 1999/01//
+AB  - Duis te feugifacilisi. Duis autem dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit au gue duis dolore te feugat nulla facilisi. Ut wisi enim ad minim veniam, quis nostrud exerci taion ullamcorper suscipit lobortis nisl ut aliquip ex en commodo consequat. Duis te feugifacilisi per suscipit lobortis nisl ut aliquip ex en commodo consequat.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diem nonummy nibh euismod tincidunt ut lacreet dolore magna aliguam erat volutpat.
+VL  - 12
+IS  - 3
+SP  - 12
+EP  - 14
+CY  - 
+U1  - 84339508
+N1  - 2
+ER  - 
+
+TY  - JOUR
+T1  - New protocals will alleviate the confusion
+JF  - European options
+A1  - Hurried Harry
+KW  - eppi-reviewer
+PY  - 2001
+DA  - 2001/01//
+Y1  - 2001/01//
+AB  - Duo probo sapientem ei. Id eam summo eripuit, duo munere splendide ad. Ea eos graeco commodo omittantur, minim iuvaret et has. Pri cu movet integre docendi, principes definiebas ei mea.Vel accusam corpora ea, est etiam indoctum te, sed ad nibh facilisi. Iusto vitae vituperata sea an, nihil corpora no vis. Dolor voluptatum interesset eu has. Delicata liberavisse sit ne, mel accusam detracto eu, omnesque pertinacia voluptatum et sit.
+VL  - 26
+IS  - 2
+SP  - 8
+EP  - 12
+CY  - 
+U1  - 84339509
+N1  - 18
+ER  - 
+
+TY  - JOUR
+T1  - Lack of resources will delay developments
+JF  - Issued opinion
+A1  - Interest Alice
+KW  - eppi-reviewer
+PY  - 2002
+DA  - 2002/01//
+Y1  - 2002/01//
+AB  - Ex volumus invenire mel, lobortis honestatis interpretaris sit at. An ius tritani nostrud, ius vituperatoribus suas partem et, per ad consulatu tincidunt. Sea ne admodum offendit reformidans. Ut pro fabellas apeirian percipitur, duis accusam insolens et sea. Duo ridens nemore accusata ei. Mandamus forensibus comprehensam his ea.Nemore inciderint ea sea, nam partem commodo id. Adhuc nostrud maiorum et pri, eius numquam interpretaris mel ex. Persius conceptam te quo, mel novum facilisi persequeris et. Singulis erroribus cum cu, vel civibus imperdiet in. In sit soluta causae, nam semper nonummy suavitate ad.
+VL  - 56
+IS  - 3
+SP  - 22
+EP  - 27
+CY  - 
+U1  - 84339510
+N1  - 16
+ER  - 
+
+TY  - JOUR
+T1  - How can we get our industrious message across.
+JF  - Industrial behavoir
+A1  - Listful Viginia
+KW  - eppi-reviewer
+PY  - 2000
+DA  - 2000/01//
+Y1  - 2000/01//
+AB  - Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diem nonummy nibh euismod tincidunt ut lacreet dolore magna aliguam erat volutpat. Ut wisis enim ad minim veniam, quis nostrud exerci tution ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+VL  - 09
+IS  - 6
+SP  - 36
+EP  - 40
+CY  - 
+U1  - 84339511
+N1  - 8
+ER  - 
+
+TY  - JOUR
+T1  - Why are we hesitant to accept results
+JF  - Post Plural
+A1  - Lockly Ethan
+KW  - eppi-reviewer
+PY  - 2003
+DA  - 2003/01//
+Y1  - 2003/01//
+AB  - Vim quod mediocritatem conclusionemque ea, mel ea putant quaestio percipitur. Mea ut putant habemus. Vel ut impetus sanctus corpora, ceteros legendos adipisci at vel. Cu ius elit inermis nonummy, sonet vivendum eum no. Usu porro equidem ne. Ut alii nibh eirmod vim.Dicat phaedrum quo at. Sed cu maiorum accusata quaerendum, tamquam feugiat intellegebat eos ea, sit et esse propriae cotidieque. Doctus fastidii ex his, duo probo convenire efficiendi ei, eirmod commune quo et. Commodo volutpat repudiare ex duo, vitae dictas ei nec, meliore ceteros quo ut.
+VL  - 78
+IS  - 4
+SP  - 3
+EP  - 78
+CY  - 
+U1  - 84339512
+N1  - 12
+ER  - 
+
+TY  - JOUR
+T1  - Clinical trials on misodial bring unexpected results
+JF  - Eyesight
+A1  - Malable John
+KW  - eppi-reviewer
+PY  - 2000
+DA  - 2000/01//
+Y1  - 2000/01//
+AB  - Duis te feugifacilisi. Duis autem dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit au gue duis dolore te feugat nulla facilisi.
+VL  - 88
+IS  - 5
+SP  - 8
+EP  - 12
+CY  - 
+U1  - 84339513
+N1  - 9
+ER  - 
+
+TY  - JOUR
+T1  - When ideas collide who will rise above.
+JF  - Problematic solutions
+A1  - Rigorous David
+KW  - eppi-reviewer
+PY  - 1996
+DA  - 1996/01//
+Y1  - 1996/01//
+AB  - Ea duis solum duo. Ne eam assum verterem, eam ex habemus disputationi, no aeque elitr insolens qui. In cum tibique perfecto appellantur, vix cu invidunt oportere incorrupte, te esse unum cotidieque vis. Voluptaria consequuntur eos ne, tamquam perpetua dissentiet in qui. Eam in invidunt elaboraret, nec legere perpetua euripidis id. Nec ignota omittantur an, id has petentium democritum.
+VL  - 33
+IS  - 87
+SP  - 23
+EP  - 25
+CY  - 
+U1  - 84339514
+N1  - 11
+ER  - 
+
+TY  - JOUR
+T1  - Can social policy influence future investors?
+JF  - Forceful futures
+A1  - Soluable Donald
+KW  - eppi-reviewer
+PY  - 2002
+DA  - 2002/01//
+Y1  - 2002/01//
+AB  - Ut wisi enim ad minim veniam, quis nostrud exerci taion ullamcorper suscipit lobortis nisl ut aliquip ex en commodo consequat. Duis te feugifacilisi per suscipit lobortis nisl ut aliquip ex en commodo consequat.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diem nonummy nibh euismod tincidunt ut lacreet dolore magna aliguam erat volutpat.
+VL  - 3
+IS  - 5
+SP  - 7
+EP  - 4
+CY  - 
+U1  - 84339515
+N1  - 10
+ER  - 
+
+TY  - JOUR
+T1  - First forum for capacity
+JF  - Early Starts
+A1  - Startle James
+KW  - eppi-reviewer
+PY  - 1996
+DA  - 1996/01//
+Y1  - 1996/01//
+AB  - Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diem nonummy nibh euismod tincidunt ut lacreet dolore magna aliguam erat volutpat. Ut wisis enim ad minim veniam, quis nostrud exerci tution ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis te feugifacilisi. Duis autem dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit au gue duis dolore te feugat nulla facilisi.
+VL  - 16
+IS  - 3
+SP  - 22
+EP  - 27
+CY  - 
+U1  - 84339516
+N1  - 1
+ER  - 
+
+TY  - JOUR
+T1  - Where do we go with data that disagrees?
+JF  - Issued opinion
+A1  - Sussful Fiona
+KW  - eppi-reviewer
+PY  - 2001
+DA  - 2001/01//
+Y1  - 2001/01//
+AB  - Duis te feugifacilisi. Duis autem dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit au gue duis dolore te feugat nulla facilisi. Ut wisi enim ad minim veniam, quis nostrud exerci taion ullamcorper suscipit lobortis nisl ut aliquip ex en commodo consequat. Duis te feugifacilisi per suscipit lobortis nisl ut aliquip ex en commodo consequat.
+VL  - 56
+IS  - 22
+SP  - 6
+EP  - 7
+CY  - 
+U1  - 84339517
+N1  - 5
+ER  - 
+
+TY  - JOUR
+T1  - Extrenuous cardiovascular provisions may complicate listings
+JF  - Journal of participation
+A1  - Torrid Trent
+KW  - eppi-reviewer
+PY  - 2000
+DA  - 2000/01//
+Y1  - 2000/01//
+AB  - Pro cu dolorem ullamcorper. No civibus expetenda forensibus ius, id vel sadipscing signiferumque. Cu sed graeco iudicabit, eos an quodsi delectus comprehensam. Has ex facilisi posidonium. Vim facer tempor an, malis possim mentitum ut pro. Sit ad quis meis disputando, has ut mundi simul ponderum.Ut puto denique nominavi sed, pro facete cetero oporteat eu. At eum dolore invidunt, integre deleniti conceptam ei ius. Error apeirian vix eu, vim id tation iudicabit dignissim. Eum choro molestiae evertitur ei.
+VL  - 45
+IS  - 6
+SP  - 34
+EP  - 78
+CY  - 
+U1  - 84339518
+N1  - 20
+ER  - 
+
+TY  - JOUR
+T1  - This may be the time to consolidate your returns.
+JF  - Worthy considerations
+A1  - Underlying Ivan
+KW  - eppi-reviewer
+PY  - 2004
+DA  - 2004/01//
+Y1  - 2004/01//
+AB  - His ad quando animal evertitur, labore scriptorem per ex. Errem omnium ea per, sit erant tation convenire in. Cu scripta impedit nec. Volutpat dissentiunt in sit, cu utinam eleifend intellegam est.Per ei tale wisi. Vim te nullam atomorum repudiare, his vitae nemore putant ea, nam at doming prompta. No per vitae tollit everti, fugit suavitate ad eam, ad sea solum tamquam pericula. Graece evertitur ne sed, omittantur referrentur ut sea.
+VL  - 56
+IS  - 89
+SP  - 45
+EP  - 50
+CY  - 
+U1  - 84339519
+N1  - 14
+ER  - 
+
