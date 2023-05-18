@@ -1,0 +1,335 @@
+<strong class="row ">Outcomes table:</strong>
+<div style="max-height: 55vh; overflow:auto; max-width:95vw;" class="small OutcomesTableContainer">
+  <table class="table table-sm OutcomesTable">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="sortableTH" (click)="Sort('es')">ES<span [innerHTML]="SortingSymbol('es')"></span><kendo-icon [ngClass]="{'text-primary' : SortingSymbol('es') != ''}" class=" filterIcon" name="filter" size="small"></kendo-icon></th>
+        <th class="sortableTH" (click)="Sort('sees')">SE<span [innerHTML]="SortingSymbol('sees')"></span></th>
+        <th>ID</th>
+        <th class="sortableTH" (click)="Sort('shortTitle')">Study<span [innerHTML]="SortingSymbol('shortTitle')"></span></th>
+        <th class="sortableTH" (click)="Sort('title')">Outc. Desc.<span [innerHTML]="SortingSymbol('title')"></span></th>
+        <th class="sortableTH" (click)="Sort('timepointDisplayValue')">Timepoint<span [innerHTML]="SortingSymbol('timepointDisplayValue')"></span></th>
+        <th class="sortableTH" (click)="Sort('outcomeTypeName')">Type<span [innerHTML]="SortingSymbol('outcomeTypeName')"></span></th>
+        <th class="sortableTH" (click)="Sort('outcomeText')">Outcome<span [innerHTML]="SortingSymbol('outcomeText')"></span></th>
+        <th class="sortableTH" (click)="Sort('interventionText')">Intervention<span [innerHTML]="SortingSymbol('interventionText')"></span></th>
+        <th class="sortableTH" (click)="Sort('controlText')">Comparison<span [innerHTML]="SortingSymbol('controlText')"></span></th>
+        <th class="sortableTH" (click)="Sort('grp1ArmName')">Arm 1<span [innerHTML]="SortingSymbol('grp1ArmName')"></span></th>
+        <th class="sortableTH" (click)="Sort('grp2ArmName')">Arm 2<span [innerHTML]="SortingSymbol('grp2ArmName')"></span></th>
+        <th (click)="Sort('aa1')" *ngIf="ColumnVisibility.AnswerHeaders.length > 0" class="FirstAnswer AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[0].Name}}<span [innerHTML]="SortingSymbol('aa1')"></span>
+        </th>
+        <th (click)="Sort('aa2')" *ngIf="ColumnVisibility.AnswerHeaders.length > 1" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[1].Name}}<span [innerHTML]="SortingSymbol('aa2')"></span>
+        </th>
+        <th  (click)="Sort('aa3')" *ngIf="ColumnVisibility.AnswerHeaders.length > 2" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[2].Name}}<span [innerHTML]="SortingSymbol('aa3')"></span>
+        </th>
+        <th (click)="Sort('aa4')" *ngIf="ColumnVisibility.AnswerHeaders.length > 3" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[3].Name}}<span [innerHTML]="SortingSymbol('aa4')"></span>
+        </th>
+        <th (click)="Sort('aa5')" *ngIf="ColumnVisibility.AnswerHeaders.length > 4" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[4].Name}}<span [innerHTML]="SortingSymbol('aa5')"></span>
+        </th>
+        <th (click)="Sort('aa6')" *ngIf="ColumnVisibility.AnswerHeaders.length > 5" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[5].Name}}<span [innerHTML]="SortingSymbol('aa6')"></span>
+        </th>
+        <th (click)="Sort('aa7')" *ngIf="ColumnVisibility.AnswerHeaders.length > 6" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[6].Name}}<span [innerHTML]="SortingSymbol('aa7')"></span>
+        </th>
+        <th (click)="Sort('aa8')" *ngIf="ColumnVisibility.AnswerHeaders.length > 7" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[7].Name}}<span [innerHTML]="SortingSymbol('aa8')"></span>
+        </th>
+        <th (click)="Sort('aa9')" *ngIf="ColumnVisibility.AnswerHeaders.length > 8" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[8].Name}}<span [innerHTML]="SortingSymbol('aa9')"></span>
+        </th>
+        <th (click)="Sort('aa10')" *ngIf="ColumnVisibility.AnswerHeaders.length > 9" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[9].Name}}<span [innerHTML]="SortingSymbol('aa10')"></span>
+        </th>
+        <th (click)="Sort('aa11')" *ngIf="ColumnVisibility.AnswerHeaders.length > 10" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[10].Name}}<span [innerHTML]="SortingSymbol('aa11')"></span>
+        </th>
+        <th (click)="Sort('aa12')" *ngIf="ColumnVisibility.AnswerHeaders.length > 11" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[11].Name}}<span [innerHTML]="SortingSymbol('aa12')"></span>
+        </th>
+        <th (click)="Sort('aa13')" *ngIf="ColumnVisibility.AnswerHeaders.length > 12" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[12].Name}}<span [innerHTML]="SortingSymbol('aa13')"></span>
+        </th>
+        <th (click)="Sort('aa14')" *ngIf="ColumnVisibility.AnswerHeaders.length > 13" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[13].Name}}<span [innerHTML]="SortingSymbol('aa14')"></span>
+        </th>
+        <th (click)="Sort('aa15')" *ngIf="ColumnVisibility.AnswerHeaders.length > 14" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[14].Name}}<span [innerHTML]="SortingSymbol('aa15')"></span>
+        </th>
+        <th (click)="Sort('aa16')" *ngIf="ColumnVisibility.AnswerHeaders.length > 15" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[15].Name}}<span [innerHTML]="SortingSymbol('aa16')"></span>
+        </th>
+        <th (click)="Sort('aa17')" *ngIf="ColumnVisibility.AnswerHeaders.length > 16" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[16].Name}}<span [innerHTML]="SortingSymbol('aa17')"></span>
+        </th>
+        <th (click)="Sort('aa18')" *ngIf="ColumnVisibility.AnswerHeaders.length > 17" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[17].Name}}<span [innerHTML]="SortingSymbol('aa18')"></span>
+        </th>
+        <th (click)="Sort('aa19')" *ngIf="ColumnVisibility.AnswerHeaders.length > 18" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[18].Name}}<span [innerHTML]="SortingSymbol('aa19')"></span>
+        </th>
+        <th (click)="Sort('aa20')" *ngIf="ColumnVisibility.AnswerHeaders.length > 19" class="AnswerCol">
+          {{ColumnVisibility.AnswerHeaders[19].Name}}<span [innerHTML]="SortingSymbol('aa20')"></span>
+        </th>
+
+        <th (click)="Sort('aq1')" *ngIf="ColumnVisibility.QuestionHeaders.length > 0" class="FirstQuestion QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[0].Name}}<span [innerHTML]="SortingSymbol('aq1')"></span>
+        </th>
+        <th (click)="Sort('aq2')" *ngIf="ColumnVisibility.QuestionHeaders.length > 1" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[1].Name}}<span [innerHTML]="SortingSymbol('aq2')"></span>
+        </th>
+        <th (click)="Sort('aq3')" *ngIf="ColumnVisibility.QuestionHeaders.length > 2" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[2].Name}}<span [innerHTML]="SortingSymbol('aq3')"></span>
+        </th>
+        <th (click)="Sort('aq4')" *ngIf="ColumnVisibility.QuestionHeaders.length > 3" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[3].Name}}<span [innerHTML]="SortingSymbol('aq4')"></span>
+        </th>
+        <th (click)="Sort('aq5')" *ngIf="ColumnVisibility.QuestionHeaders.length > 4" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[4].Name}}<span [innerHTML]="SortingSymbol('aq5')"></span>
+        </th>
+        <th (click)="Sort('aq6')" *ngIf="ColumnVisibility.QuestionHeaders.length > 5" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[5].Name}}<span [innerHTML]="SortingSymbol('aq6')"></span>
+        </th>
+        <th (click)="Sort('aq7')" *ngIf="ColumnVisibility.QuestionHeaders.length > 6" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[6].Name}}<span [innerHTML]="SortingSymbol('aq7')"></span>
+        </th>
+        <th (click)="Sort('aq8')" *ngIf="ColumnVisibility.QuestionHeaders.length > 7" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[7].Name}}<span [innerHTML]="SortingSymbol('aq8')"></span>
+        </th>
+        <th (click)="Sort('aq9')" *ngIf="ColumnVisibility.QuestionHeaders.length > 8" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[8].Name}}<span [innerHTML]="SortingSymbol('aq9')"></span>
+        </th>
+        <th (click)="Sort('aq10')" *ngIf="ColumnVisibility.QuestionHeaders.length > 9" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[9].Name}}<span [innerHTML]="SortingSymbol('aq10')"></span>
+        </th>
+        <th (click)="Sort('aq12')" *ngIf="ColumnVisibility.QuestionHeaders.length > 10" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[10].Name}}<span [innerHTML]="SortingSymbol('aq12')"></span>
+        </th>
+        <th (click)="Sort('aq12')" *ngIf="ColumnVisibility.QuestionHeaders.length > 11" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[11].Name}}<span [innerHTML]="SortingSymbol('aq12')"></span>
+        </th>
+        <th (click)="Sort('aq13')" *ngIf="ColumnVisibility.QuestionHeaders.length > 12" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[12].Name}}<span [innerHTML]="SortingSymbol('aq13')"></span>
+        </th>
+        <th (click)="Sort('aq14')" *ngIf="ColumnVisibility.QuestionHeaders.length > 13" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[13].Name}}<span [innerHTML]="SortingSymbol('aq14')"></span>
+        </th>
+        <th (click)="Sort('aq15')" *ngIf="ColumnVisibility.QuestionHeaders.length > 14" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[14].Name}}<span [innerHTML]="SortingSymbol('aq15')"></span>
+        </th>
+        <th (click)="Sort('aq16')" *ngIf="ColumnVisibility.QuestionHeaders.length > 15" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[15].Name}}<span [innerHTML]="SortingSymbol('aq16')"></span>
+        </th>
+        <th (click)="Sort('aq17')" *ngIf="ColumnVisibility.QuestionHeaders.length > 16" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[16].Name}}<span [innerHTML]="SortingSymbol('aq17')"></span>
+        </th>
+        <th (click)="Sort('aq18')" *ngIf="ColumnVisibility.QuestionHeaders.length > 17" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[17].Name}}<span [innerHTML]="SortingSymbol('aq18')"></span>
+        </th>
+        <th (click)="Sort('aq19')" *ngIf="ColumnVisibility.QuestionHeaders.length > 18" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[18].Name}}<span [innerHTML]="SortingSymbol('aq19')"></span>
+        </th>
+        <th (click)="Sort('aq20')" *ngIf="ColumnVisibility.QuestionHeaders.length > 19" class="QuestionCol">
+          {{ColumnVisibility.QuestionHeaders[19].Name}}<span [innerHTML]="SortingSymbol('aq20')"></span>
+        </th>
+
+        <th (click)="Sort('occ1')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 0" class="FirstClassif ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[0].Name}}<span [innerHTML]="SortingSymbol('occ1')"></span>
+        </th>
+        <th (click)="Sort('occ2')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 1" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[1].Name}}<span [innerHTML]="SortingSymbol('occ2')"></span>
+        </th>
+        <th (click)="Sort('occ3')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 2" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[2].Name}}<span [innerHTML]="SortingSymbol('occ3')"></span>
+        </th>
+        <th (click)="Sort('occ4')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 3" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[3].Name}}<span [innerHTML]="SortingSymbol('occ4')"></span>
+        </th>
+        <th (click)="Sort('occ5')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 4" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[4].Name}}<span [innerHTML]="SortingSymbol('occ5')"></span>
+        </th>
+        <th (click)="Sort('occ6')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 5" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[5].Name}}<span [innerHTML]="SortingSymbol('occ6')"></span>
+        </th>
+        <th (click)="Sort('occ7')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 6" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[6].Name}}<span [innerHTML]="SortingSymbol('occ7')"></span>
+        </th>
+        <th (click)="Sort('occ8')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 7" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[7].Name}}<span [innerHTML]="SortingSymbol('occ8')"></span>
+        </th>
+        <th (click)="Sort('occ9')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 8" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[8].Name}}<span [innerHTML]="SortingSymbol('occ9')"></span>
+        </th>
+        <th (click)="Sort('occ10')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 9" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[9].Name}}<span [innerHTML]="SortingSymbol('occ10')"></span>
+        </th>
+        <th (click)="Sort('occ11')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 10" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[10].Name}}<span [innerHTML]="SortingSymbol('occ11')"></span>
+        </th>
+        <th (click)="Sort('occ12')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 11" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[11].Name}}<span [innerHTML]="SortingSymbol('occ12')"></span>
+        </th>
+        <th (click)="Sort('occ13')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 12" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[12].Name}}<span [innerHTML]="SortingSymbol('occ13')"></span>
+        </th>
+        <th (click)="Sort('occ14')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 13" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[13].Name}}<span [innerHTML]="SortingSymbol('occ14')"></span>
+        </th>
+        <th (click)="Sort('occ15')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 14" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[14].Name}}<span [innerHTML]="SortingSymbol('occ15')"></span>
+        </th>
+        <th (click)="Sort('occ16')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 15" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[15].Name}}<span [innerHTML]="SortingSymbol('occ16')"></span>
+        </th>
+        <th (click)="Sort('occ17')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 16" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[16].Name}}<span [innerHTML]="SortingSymbol('occ17')"></span>
+        </th>
+        <th (click)="Sort('occ18')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 17" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[17].Name}}<span [innerHTML]="SortingSymbol('occ18')"></span>
+        </th>
+        <th (click)="Sort('occ19')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 18" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[18].Name}}<span [innerHTML]="SortingSymbol('occ19')"></span>
+        </th>
+        <th (click)="Sort('occ20')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 19" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[19].Name}}<span [innerHTML]="SortingSymbol('occ20')"></span>
+        </th>
+        <th (click)="Sort('occ21')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 20" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[20].Name}}<span [innerHTML]="SortingSymbol('occ21')"></span>
+        </th>
+        <th (click)="Sort('occ22')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 21" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[21].Name}}<span [innerHTML]="SortingSymbol('occ22')"></span>
+        </th>
+        <th (click)="Sort('occ23')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 22" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[22].Name}}<span [innerHTML]="SortingSymbol('occ23')"></span>
+        </th>
+        <th (click)="Sort('occ24')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 23" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[23].Name}}<span [innerHTML]="SortingSymbol('occ24')"></span>
+        </th>
+        <th (click)="Sort('occ25')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 24" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[24].Name}}<span [innerHTML]="SortingSymbol('occ25')"></span>
+        </th>
+        <th (click)="Sort('occ26')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 25" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[25].Name}}<span [innerHTML]="SortingSymbol('occ26')"></span>
+        </th>
+        <th (click)="Sort('occ27')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 26" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[26].Name}}<span [innerHTML]="SortingSymbol('occ27')"></span>
+        </th>
+        <th (click)="Sort('occ28')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 27" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[27].Name}}<span [innerHTML]="SortingSymbol('occ28')"></span>
+        </th>
+        <th (click)="Sort('occ29')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 28" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[28].Name}}<span [innerHTML]="SortingSymbol('occ29')"></span>
+        </th>
+        <th (click)="Sort('occ30')" *ngIf="ColumnVisibility.ClassificationHeaders.length > 29" class="ClassifCol">
+          {{ColumnVisibility.ClassificationHeaders[29].Name}}<span [innerHTML]="SortingSymbol('occ30')"></span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let oo of Outcomes">
+        <td style="text-align: center; vertical-align: middle;">
+          <input class="m-auto" type="checkbox" [(ngModel)]="oo.isSelected" [disabled]="!oo.canSelect" />
+        </td>
+        <td>
+          <div class="alert-primary m-1">
+            {{oo.es.toFixed(3)}}
+          </div>
+        </td>
+        <td>
+          <div class="alert-primary m-1">
+            {{oo.sees.toFixed(3)}}
+          </div>
+        </td>
+        <td>{{oo.outcomeId}}</td>
+        <td>{{oo.shortTitle}}</td>
+        <td>{{oo.title}}</td>
+        <td>{{oo.timepointDisplayValue}}</td>
+        <td>{{oo.outcomeTypeName}}</td>
+        <td>{{oo.outcomeText}}</td>
+        <td>{{oo.interventionText}}</td>
+        <td>{{oo.controlText}}</td>
+        <td>{{oo.grp1ArmName}}</td>
+        <td>{{oo.grp2ArmName}}</td>
+
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 0" class="FirstAnswer AnswerCol">{{oo.aa1}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 1" class="AnswerCol">{{oo.aa2}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 2" class="AnswerCol">{{oo.aa3}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 3" class="AnswerCol">{{oo.aa4}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 4" class="AnswerCol">{{oo.aa5}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 5" class="AnswerCol">{{oo.aa6}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 6" class="AnswerCol">{{oo.aa7}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 7" class="AnswerCol">{{oo.aa8}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 8" class="AnswerCol">{{oo.aa9}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 9" class="AnswerCol">{{oo.aa10}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 10" class="AnswerCol">{{oo.aa11}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 11" class="AnswerCol">{{oo.aa12}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 12" class="AnswerCol">{{oo.aa13}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 13" class="AnswerCol">{{oo.aa14}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 14" class="AnswerCol">{{oo.aa15}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 15" class="AnswerCol">{{oo.aa16}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 16" class="AnswerCol">{{oo.aa17}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 17" class="AnswerCol">{{oo.aa18}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 18" class="AnswerCol">{{oo.aa19}}</td>
+        <td *ngIf="ColumnVisibility.AnswerHeaders.length > 19" class="AnswerCol">{{oo.aa20}}</td>
+
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 0" class="FirstQuestion QuestionCol">{{oo.aq1}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 1" class="QuestionCol">{{oo.aq2}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 2" class="QuestionCol">{{oo.aq3}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 3" class="QuestionCol">{{oo.aq4}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 4" class="QuestionCol">{{oo.aq5}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 5" class="QuestionCol">{{oo.aq6}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 6" class="QuestionCol">{{oo.aq7}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 7" class="QuestionCol">{{oo.aq8}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 8" class="QuestionCol">{{oo.aq9}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 9" class="QuestionCol">{{oo.aq10}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 10" class="QuestionCol">{{oo.aq11}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 11" class="QuestionCol">{{oo.aq12}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 12" class="QuestionCol">{{oo.aq13}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 13" class="QuestionCol">{{oo.aq14}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 14" class="QuestionCol">{{oo.aq15}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 15" class="QuestionCol">{{oo.aq16}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 16" class="QuestionCol">{{oo.aq17}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 17" class="QuestionCol">{{oo.aq18}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 18" class="QuestionCol">{{oo.aq19}}</td>
+        <td *ngIf="ColumnVisibility.QuestionHeaders.length > 19" class="QuestionCol">{{oo.aq20}}</td>
+
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 0" class="FirstClassif ClassifCol">{{oo.occ1}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 1" class="ClassifCol">{{oo.occ2}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 2" class="ClassifCol">{{oo.occ3}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 3" class="ClassifCol">{{oo.occ4}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 4" class="ClassifCol">{{oo.occ5}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 5" class="ClassifCol">{{oo.occ6}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 6" class="ClassifCol">{{oo.occ7}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 7" class="ClassifCol">{{oo.occ8}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 8" class="ClassifCol">{{oo.occ9}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 9" class="ClassifCol">{{oo.occ10}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 10" class="ClassifCol">{{oo.occ11}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 11" class="ClassifCol">{{oo.occ12}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 12" class="ClassifCol">{{oo.occ13}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 13" class="ClassifCol">{{oo.occ14}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 14" class="ClassifCol">{{oo.occ15}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 15" class="ClassifCol">{{oo.occ16}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 16" class="ClassifCol">{{oo.occ17}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 17" class="ClassifCol">{{oo.occ18}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 18" class="ClassifCol">{{oo.occ19}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 19" class="ClassifCol">{{oo.occ20}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 20" class="ClassifCol">{{oo.occ21}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 21" class="ClassifCol">{{oo.occ22}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 22" class="ClassifCol">{{oo.occ23}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 23" class="ClassifCol">{{oo.occ24}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 24" class="ClassifCol">{{oo.occ25}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 25" class="ClassifCol">{{oo.occ26}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 26" class="ClassifCol">{{oo.occ27}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 27" class="ClassifCol">{{oo.occ28}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 28" class="ClassifCol">{{oo.occ29}}</td>
+        <td *ngIf="ColumnVisibility.ClassificationHeaders.length > 29" class="ClassifCol">{{oo.occ30}}</td>
+
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -28,9 +28,9 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch();
         }
 
-
-#if SILVERLIGHT
         public MetaAnalysisList() { }
+#if SILVERLIGHT
+        
         public bool HasMAsToSave 
         {
             get 
@@ -39,8 +39,6 @@ namespace BusinessLibrary.BusinessClasses
                 else return true;
             }
         }
-#else
-        private MetaAnalysisList() { }
 #endif
 
 

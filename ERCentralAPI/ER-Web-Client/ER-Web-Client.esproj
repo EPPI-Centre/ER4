@@ -6,4 +6,7 @@
     <StartupCommand>npm start</StartupCommand>
     <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\app\MetaAnalysis\" />
+  </ItemGroup>
 </Project>

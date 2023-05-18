@@ -16,7 +16,6 @@ using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using System.Text.RegularExpressions;
 using System.Xml;
-using BusinessLibrary.s.uk.ac.nactem.www;
 using System.Data.SqlTypes;
 
 using Microsoft.SqlServer.Server;
@@ -49,10 +48,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-
-
-
     }
 
-    
 }

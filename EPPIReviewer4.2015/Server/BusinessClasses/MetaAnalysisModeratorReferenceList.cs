@@ -16,7 +16,6 @@ using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using System.Text.RegularExpressions;
 using System.Xml;
-using BusinessLibrary.s.uk.ac.nactem.www;
 using System.Data.SqlTypes;
 
 using Microsoft.SqlServer.Server;
@@ -34,15 +33,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MetaAnalysisModeratorReferenceList : DynamicBindingListBase<MetaAnalysisModeratorReference>
     {
-
-
-
-#if SILVERLIGHT
         public MetaAnalysisModeratorReferenceList() { }
-        
-#else
-        private MetaAnalysisModeratorReferenceList() { }
-#endif
+
 
 
 #if !SILVERLIGHT
@@ -54,8 +46,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-
-
 
     }
 
