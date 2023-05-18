@@ -4,7 +4,8 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ConfigService } from './config.service';
 import { forEach } from 'lodash';
-import { iOutcome, Outcome } from './outcomes.service';
+import { iExtendedOutcome, ExtendedOutcome } from './outcomes.service';
+import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,34 @@ export class MetaAnalysisService extends BusyAwareService {
 
   public CurrentMetaAnalysis: MetaAnalysis | null = null;
   private CurrentMetaAnalysisUnchanged: MetaAnalysis | null = null;
+
+  public ColumnVisibility: DynamicColumnsOutcomes = new DynamicColumnsOutcomes();
+
+  public LocalSort: LocalSort = new LocalSort();
+  private UnsortedOutcomesList: ExtendedOutcome[] = [];
+
+  public UnSortOutcomes(): void {
+    if (this.CurrentMetaAnalysis == null || this.CurrentMetaAnalysisUnchanged == null) return;
+    this.CurrentMetaAnalysis.outcomes = [];
+    for (let iO of this.UnsortedOutcomesList) {
+      let Oc: ExtendedOutcome = new ExtendedOutcome(iO);
+      this.CurrentMetaAnalysis.outcomes.push(Oc);
+    }
+    this.CurrentMetaAnalysis.sortDirection = this.CurrentMetaAnalysisUnchanged.sortDirection;
+    this.CurrentMetaAnalysis.sortedBy = "";
+    this.LocalSort = new LocalSort();
+  }
+  public SortOutcomesBy(fieldName: string) {
+    if (this.CurrentMetaAnalysis == null) return;
+    if (this.LocalSort.SortBy == fieldName && this.LocalSort.Direction == false) this.UnSortOutcomes();
+    else {
+      CustomSorting.SortBy(fieldName, this.CurrentMetaAnalysis.outcomes, this.LocalSort);
+      if (this.LocalSort.Direction) this.CurrentMetaAnalysis.sortDirection = "Ascending";
+      else this.CurrentMetaAnalysis.sortDirection = "Descending";
+      this.CurrentMetaAnalysis.sortedBy = fieldName;
+    }
+  }
+
 
   public get CurrentMAhasChanges(): boolean {
     //console.log("CurrentMA:", this.CurrentMetaAnalysis?.metaAnalysisTypeId ,this.CurrentMetaAnalysis?.metaAnalysisTypeTitle);
@@ -82,16 +111,83 @@ export class MetaAnalysisService extends BusyAwareService {
       crit).subscribe(result => {
         this.CurrentMetaAnalysis = new MetaAnalysis(result);
         this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(result);
+        if (crit.GetAllDetails == true) {
+          this.UnsortedOutcomesList = [];
+          this.UnsortedOutcomesList = this.UnsortedOutcomesList.concat(this.CurrentMetaAnalysisUnchanged.outcomes);
+          this.CalculateColsVisibility();
+          this.ApplySavedSorting();
+        }
         this.RemoveBusy("FetchMetaAnalysis");
       }, error => {
         this.RemoveBusy("FetchMetaAnalysis");
         this.modalService.GenericError(error);
       });
   }
+  private CalculateColsVisibility() {
+    if (this.CurrentMetaAnalysis == null) return;
+    this.ColumnVisibility = new DynamicColumnsOutcomes();
+    for(let otc of this.CurrentMetaAnalysis.outcomes)
+    {
+      for(let oia of otc.outcomeCodes.outcomeItemAttributesList)
+      {
+        if (this.ColumnVisibility.ClassificationHeaders.findIndex(f => f.Id == oia.attributeId) == -1) {
+          let minicode: IdAndNamePair = new IdAndNamePair();
+          minicode.Id = oia.attributeId; minicode.Name = oia.attributeName;
+          this.ColumnVisibility.ClassificationHeaders.push(minicode);
+        }
+      }
+    }
+    const separator = String.fromCharCode(0x00AC);
+    let AnswersColIds: string[] = [];
+    if (this.CurrentMetaAnalysis.attributeIdAnswer) AnswersColIds = this.CurrentMetaAnalysis.attributeIdAnswer.split(",");
+    let AnswersColNames: string[] = [];
+    if (this.CurrentMetaAnalysis.attributeAnswerText) AnswersColNames = this.CurrentMetaAnalysis.attributeAnswerText.split(separator);
+    if (AnswersColIds.length > 0 //nothing to do if we don't have answers cols to show
+      && AnswersColIds.length + 1 == AnswersColNames.length //can't do anything reliable if we get 2 arrays of diff length! (AnswersColNames ends with an empty string)
+    ) {
+      for (let i = 0; i < AnswersColIds.length; i++) {
+        if (AnswersColNames[i] && AnswersColNames[i] != "") {
+          let minicode: IdAndNamePair = new IdAndNamePair();
+          minicode.Id = Number.parseInt(AnswersColIds[i], 10);
+          minicode.Name = AnswersColNames[i];
+          this.ColumnVisibility.AnswerHeaders.push(minicode);
+        }
+      }
+    }
+    let QuestionColIds = this.CurrentMetaAnalysis.attributeIdQuestion.split(",");
+    let QuestionColNames = this.CurrentMetaAnalysis.attributeQuestionText.split(separator);
+    if (QuestionColIds.length > 0 && QuestionColIds.length + 1 == QuestionColNames.length) {
+      //can't do anything reliable if we get 2 arrays of diff length! (QuestionColNames ends with an empty string)
+      for (let i = 0; i < QuestionColIds.length; i++) {
+        if (QuestionColNames[i] && QuestionColNames[i] != "") {
+          let minicode: IdAndNamePair = new IdAndNamePair();
+          minicode.Id = Number.parseInt(QuestionColIds[i], 10);
+          minicode.Name = QuestionColNames[i];
+          this.ColumnVisibility.QuestionHeaders.push(minicode);
+        }
+      }
+    }
+  }
+
+  private ApplySavedSorting() {
+    if (this.CurrentMetaAnalysis == null || this.CurrentMetaAnalysisUnchanged == null) return;
+    if (this.CurrentMetaAnalysis.sortedBy != "") {
+      let booleanDir: boolean = this.CurrentMetaAnalysis.sortDirection == "Ascending" ? true : false;
+      this.LocalSort = {
+        SortBy: this.CurrentMetaAnalysis.sortedBy ,
+        Direction: booleanDir
+      };
+      CustomSorting.DoSort(this.CurrentMetaAnalysis.outcomes, this.LocalSort)
+      CustomSorting.DoSort(this.CurrentMetaAnalysisUnchanged.outcomes, this.LocalSort)
+    }
+    else { this.LocalSort = new LocalSort(); }
+  }
+
   Clear() {
     this.MetaAnalysisList = [];
     this.CurrentMetaAnalysis = null;
     this.CurrentMetaAnalysisUnchanged = null;
+    this.ColumnVisibility = new DynamicColumnsOutcomes();
   }
 }
 interface iMetaAnalysis {
@@ -185,7 +281,7 @@ interface iMetaAnalysis {
   interventionText: string;
   controlText: string;
   outcomeText: string;
-  outcomes: iOutcome[];
+  outcomes: iExtendedOutcome[];
   metaAnalysisModerators: [];
   attributeIdQuestion: string;
   attributeQuestionText: string;
@@ -337,7 +433,7 @@ export class MetaAnalysis implements iMetaAnalysis {
     this.reSumWeightsTimesOutcome = iMA.reSumWeightsTimesOutcome;
     this.wY_squared = iMA.wY_squared;
     for (let iO of iMA.outcomes) {
-      let Oc: Outcome = new Outcome(iO);
+      let Oc: ExtendedOutcome = new ExtendedOutcome(iO);
       this.outcomes.push(Oc);
     }
     for (let inFS of iMA.filterSettingsList) {
@@ -435,7 +531,7 @@ export class MetaAnalysis implements iMetaAnalysis {
   public interventionText: string;
   public controlText: string;
   public outcomeText: string;
-  public outcomes: Outcome[];
+  public outcomes: ExtendedOutcome[];
   public metaAnalysisModerators: [];
   public attributeIdQuestion: string;
   public attributeQuestionText: string;
@@ -511,4 +607,16 @@ export class FilterSettings implements iFilterSettings{
 export class MetaAnalysisSelectionCrit {
   GetAllDetails: boolean = false;
   MetaAnalysisId: number = 0;
+}
+export class DynamicColumnsOutcomes {
+  //ClassificationsCount: number = 0;
+  //AnswersCount: number = 0;
+  //QuestionsCount: number = 0;
+  ClassificationHeaders: IdAndNamePair[] = [];
+  AnswerHeaders: IdAndNamePair[] = [];
+  QuestionHeaders: IdAndNamePair[] = [];
+}
+export class IdAndNamePair {
+  Id: number = -1;
+  Name: string = "";
 }

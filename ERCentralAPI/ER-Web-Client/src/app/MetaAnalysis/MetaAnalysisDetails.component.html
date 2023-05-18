@@ -1,4 +1,4 @@
-<div *ngIf="CurrentMA" class="rounded ml-1 mr-2 p-2 bg-light w-100">
+<div *ngIf="CurrentMA" class="rounded mx-1 p-2 bg-light">
   <div class="row mx-0 px-0">
     <div class="col-3 col-sm-1">Title:</div>
     <input [(ngModel)]="CurrentMA.title"
@@ -21,10 +21,12 @@
       </select>
     </div>
   </div>
-
-  <MAoutcomes></MAoutcomes>
-
-  <div class="row mx-0 px-0">
+</div>
+  <div class="rounded border border-primary mx-1 p-2 mt-1 bg-light row">
     <button class="btn btn-outline-danger btn-sm" (click)="Save()" [disabled]="!CanSave">Save</button>
   </div>
-</div>
+  <div class="rounded border border-dark mx-1 p-2 mt-1 bg-light row">
+    <MAoutcomes class="w-100 mx-1 mt-1 p-2 bg-light"></MAoutcomes>
+  </div>
+
+

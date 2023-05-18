@@ -15,7 +15,39 @@ import { MetaAnalysis, MetaAnalysisSelectionCrit, MetaAnalysisService } from '..
   selector: 'MetaAnalysis',
   templateUrl: './MetaAnalysis.component.html',
   providers: [],
-  styles: []
+  styles: [`
+@keyframes hiding {
+  0%   {max-height:70vh;}
+  33%   {max-height:60vh;}
+  100% {max-height:0vh;}
+}
+@keyframes showing {
+  0%   {max-height:0vh;}
+  33%   {max-height:10vh;}
+  100% {max-height:70vh;}
+}
+.HideAnim { }
+.HideAnim.hide {
+animation-name: hiding;
+animation-duration: 0.5s;
+animation-timing-function: linear;
+animation-delay: 0s;
+animation-iteration-count: 1;
+overflow:clip;
+max-height:0vh;
+z-index:-1500;
+}
+.HideAnim.show {
+z-index:auto;
+max-height:70vh;
+animation-name: showing;
+animation-duration: 0.5s;
+animation-timing-function: linear;
+animation-delay: 0s;
+animation-iteration-count: 1;
+overflow:auto;
+}
+  `]
 })
 export class MetaAnalysisComp implements OnInit, OnDestroy {
 
@@ -33,7 +65,8 @@ export class MetaAnalysisComp implements OnInit, OnDestroy {
     }
   }
 
-
+  public TopIsExpanded: boolean = true;
+  public BottomIsExpanded: boolean = false;
 
   public get IsServiceBusy(): boolean {
     return (
@@ -51,10 +84,17 @@ export class MetaAnalysisComp implements OnInit, OnDestroy {
   public get CurrentMA(): MetaAnalysis | null {
     return this.MetaAnalysisService.CurrentMetaAnalysis;
   }
+  public get ExpandCollapseTopTxt(): string {
+    if (this.TopIsExpanded) return "Collapse MAs list";
+    else return "Expand MAs list";
+  }
+
 
   public EditMA(ma: MetaAnalysis) {
     const crit: MetaAnalysisSelectionCrit = { MetaAnalysisId: ma.metaAnalysisId, GetAllDetails: true };
     this.MetaAnalysisService.FetchMetaAnalysis(crit);
+    this.BottomIsExpanded = true;
+    this.TopIsExpanded = false;
   }
 
   BackHome() {

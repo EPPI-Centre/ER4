@@ -559,12 +559,12 @@
                                     RowIndicatorVisibility="Collapsed" Grid.Row="0" DataLoaded="CodingRecordGrid_DataLoaded"
                                     SelectionMode="Single" >
                                     <telerikGridView:RadGridView.Columns>
-                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleSelected}" Width="25" Header="" DataMemberBinding="{Binding SetId}"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleSelected}" Width="25"  DataMemberBinding="{Binding SetId}"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Code set" DataMemberBinding="{Binding SetName}" IsFilterable="False" Width="*" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Reviewer" DataMemberBinding="{Binding ContactName}" ShowDistinctFilters="False" Width="150" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Completed?" DataMemberBinding="{Binding IsCompleted}" ShowDistinctFilters="False" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Locked?" DataMemberBinding="{Binding IsLocked}" ShowDistinctFilters="False" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-                                        <telerikGridView:GridViewDataColumn x:Name="ViewReportColumn" IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleCodingReport}" Width="60" Header="" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn x:Name="ViewReportColumn" IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleCodingReport}" Width="60" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                     </telerikGridView:RadGridView.Columns>
                                 </telerikGridView:RadGridView>
                                 <StackPanel Orientation="Horizontal" Grid.Row="1" x:Name="ComparisonButtons">
