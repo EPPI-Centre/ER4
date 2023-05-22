@@ -3,9 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ConfigService } from './config.service';
-import { forEach } from 'lodash';
+import { first, forEach } from 'lodash';
 import { iExtendedOutcome, ExtendedOutcome } from './outcomes.service';
 import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
+import { bookIcon } from '@progress/kendo-svg-icons';
 
 @Injectable({
   providedIn: 'root',
@@ -29,14 +30,21 @@ export class MetaAnalysisService extends BusyAwareService {
   public ColumnVisibility: DynamicColumnsOutcomes = new DynamicColumnsOutcomes();
 
   public LocalSort: LocalSort = new LocalSort();
-  private UnsortedOutcomesList: ExtendedOutcome[] = [];
+  //private UnsortedOutcomesList: ExtendedOutcome[] = [];
+
+  private _FilteredOutcomes: ExtendedOutcome[] = [];
+  public get FilteredOutcomes(): ExtendedOutcome[] {
+    return this._FilteredOutcomes;
+  }
 
   public UnSortOutcomes(): void {
     if (this.CurrentMetaAnalysis == null || this.CurrentMetaAnalysisUnchanged == null) return;
-    this.CurrentMetaAnalysis.outcomes = [];
-    for (let iO of this.UnsortedOutcomesList) {
+    
+    const tArr = this._FilteredOutcomes.concat();
+    this._FilteredOutcomes = [];
+    for (let iO of this.CurrentMetaAnalysis.outcomes) {
       let Oc: ExtendedOutcome = new ExtendedOutcome(iO);
-      this.CurrentMetaAnalysis.outcomes.push(Oc);
+      if (tArr.findIndex(f=> f.outcomeId == Oc.outcomeId) > -1) this._FilteredOutcomes.push(Oc);
     }
     this.CurrentMetaAnalysis.sortDirection = this.CurrentMetaAnalysisUnchanged.sortDirection;
     this.CurrentMetaAnalysis.sortedBy = "";
@@ -46,10 +54,10 @@ export class MetaAnalysisService extends BusyAwareService {
     if (this.CurrentMetaAnalysis == null) return;
     if (this.LocalSort.SortBy == fieldName && this.LocalSort.Direction == false) this.UnSortOutcomes();
     else {
-      CustomSorting.SortBy(fieldName, this.CurrentMetaAnalysis.outcomes, this.LocalSort);
+      CustomSorting.SortBy(fieldName, this._FilteredOutcomes, this.LocalSort);
       if (this.LocalSort.Direction) this.CurrentMetaAnalysis.sortDirection = "Ascending";
       else this.CurrentMetaAnalysis.sortDirection = "Descending";
-      this.CurrentMetaAnalysis.sortedBy = fieldName;
+      this.CurrentMetaAnalysis.sortedBy = MetaAnalysisService.ER4ColNameFromFieldName(fieldName, true);
     }
   }
 
@@ -112,9 +120,8 @@ export class MetaAnalysisService extends BusyAwareService {
         this.CurrentMetaAnalysis = new MetaAnalysis(result);
         this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(result);
         if (crit.GetAllDetails == true) {
-          this.UnsortedOutcomesList = [];
-          this.UnsortedOutcomesList = this.UnsortedOutcomesList.concat(this.CurrentMetaAnalysisUnchanged.outcomes);
           this.CalculateColsVisibility();
+          this.ApplyFilters();
           this.ApplySavedSorting();
         }
         this.RemoveBusy("FetchMetaAnalysis");
@@ -137,7 +144,7 @@ export class MetaAnalysisService extends BusyAwareService {
         }
       }
     }
-    const separator = String.fromCharCode(0x00AC);
+    const separator = String.fromCharCode(0x00AC); //the "not" simbol, or inverted pipe
     let AnswersColIds: string[] = [];
     if (this.CurrentMetaAnalysis.attributeIdAnswer) AnswersColIds = this.CurrentMetaAnalysis.attributeIdAnswer.split(",");
     let AnswersColNames: string[] = [];
@@ -174,13 +181,177 @@ export class MetaAnalysisService extends BusyAwareService {
     if (this.CurrentMetaAnalysis.sortedBy != "") {
       let booleanDir: boolean = this.CurrentMetaAnalysis.sortDirection == "Ascending" ? true : false;
       this.LocalSort = {
-        SortBy: this.CurrentMetaAnalysis.sortedBy ,
+        SortBy: MetaAnalysisService.FieldNameFromER4ColName(this.CurrentMetaAnalysis.sortedBy) ,
         Direction: booleanDir
       };
-      CustomSorting.DoSort(this.CurrentMetaAnalysis.outcomes, this.LocalSort)
-      CustomSorting.DoSort(this.CurrentMetaAnalysisUnchanged.outcomes, this.LocalSort)
+      CustomSorting.DoSort(this._FilteredOutcomes, this.LocalSort);
     }
     else { this.LocalSort = new LocalSort(); }
+  }
+  public ApplyFilters() {
+    if (this.CurrentMetaAnalysis == null) return;
+    let res = this.CurrentMetaAnalysis.outcomes;
+    for (let FF of this.CurrentMetaAnalysis.filterSettingsList) {
+      res = this.ProcessSingleFilter(res, FF);
+    }
+    this._FilteredOutcomes = res;
+  }
+  private ProcessSingleFilter(outcomes: ExtendedOutcome[], filter: iFilterSettings): ExtendedOutcome[] {
+    const separator = "{" + String.fromCharCode(0x00AC) + "}";
+    let res: ExtendedOutcome[] = [];
+    const key = MetaAnalysisService.FieldNameFromER4ColName(filter.columnName) as keyof ExtendedOutcome;
+    if (filter.selectedValues && filter.selectedValues != "") {
+      const selectors = filter.selectedValues.split(separator);
+      res = outcomes.filter(f => {
+        for (const sel of selectors) {
+          if (f[key] == sel) return true;
+        }
+        return false;
+      });
+    } else res = res.concat(outcomes);
+    let FirstFilterSet: boolean = !(filter.filter1 == "" && filter.filter1Operator == "Is equal to");
+    let SecondFilterSet: boolean = false;
+    if (!FirstFilterSet) return res;
+    SecondFilterSet = !(filter.filter2 == "" && filter.filter2Operator == "Is equal to");
+    if (!SecondFilterSet) {
+      //easy case - only one filter to deal with...
+      res = this.FilterByNumberedFilter(outcomes, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
+    }
+    else if (filter.filtersLogicalOperator == "And") {
+      //fairly easy, filter by filter1 then filter the result by filter2
+      res = this.FilterByNumberedFilter(outcomes, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
+      res = this.FilterByNumberedFilter(res, filter.filter2, filter.filter2Operator, filter.filter2CaseSensitive, key);
+    }
+    else {
+      //ouch: filter by "OR" across filter1 and filter2, not so easy!
+      let interim1 = this.FilterByNumberedFilter(outcomes, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
+      let interim2 = this.FilterByNumberedFilter(outcomes, filter.filter2, filter.filter2Operator, filter.filter2CaseSensitive, key);
+      res = interim1.concat(interim2.filter((f) => interim1.indexOf(f) < 0));
+    }
+    console.log("sub-filtering result: ", res);
+    return res;
+  }
+  private FilterByNumberedFilter(outcomes: ExtendedOutcome[], FilterBy: string, Operator: string, CaseSensitive: boolean, field: keyof ExtendedOutcome): ExtendedOutcome[] {
+    let res: ExtendedOutcome[] = [];
+    res = res.concat(outcomes);
+    //possible filtering Operators are:
+    //Is equal to
+    //Is not equal to
+    //Starts with
+    //Ends with
+    //Contains
+    //Does not contain
+    //Is contained in
+    //Is not contained in
+    //Is empty
+    //Is not empty
+    //Is less than
+    //Is less than or equal to
+    //Is greater than
+    //Is greater than or equal to
+    //Is null
+    //Is not null
+    if (CaseSensitive) FilterBy = FilterBy.toLowerCase();
+    if (Operator == "IsEqualTo") {
+      if (CaseSensitive) res = res.filter(f => f[field] == FilterBy);
+      else res = res.filter(f => f[field].toString().toLowerCase() == FilterBy);
+    }
+    else if (Operator == "INotEqualTo") {
+      if (CaseSensitive) res = res.filter(f => f[field] != FilterBy);
+      else res = res.filter(f => f[field].toString().toLowerCase() != FilterBy);
+    }
+    else if (Operator == "StartsWith") {
+      if (CaseSensitive) res = res.filter(f => f[field].toString().startsWith(FilterBy));
+      else res = res.filter(f => f[field].toString().toLowerCase().startsWith(FilterBy));
+    }
+    else if (Operator == "EndsWith") {
+      if (CaseSensitive) res = res.filter(f => f[field].toString().endsWith(FilterBy));
+      else res = res.filter(f => f[field].toString().toLowerCase().endsWith(FilterBy));
+    }
+    else if (Operator == "Contains") {
+      if (CaseSensitive) res = res.filter(f => f[field].toString().indexOf(FilterBy) != -1);
+      else res = res.filter(f => f[field].toString().toLowerCase().indexOf(FilterBy) != -1);
+    }
+    else if (Operator == "DoesNotContain") {
+      if (CaseSensitive) res = res.filter(f => !(f[field].toString().indexOf(FilterBy) != -1));
+      else res = res.filter(f => !(f[field].toString().toLowerCase().indexOf(FilterBy) != -1));
+    }
+    else if (Operator == "IsContainedIn") {
+      if (CaseSensitive) res = res.filter(f => FilterBy.indexOf(f[field].toString()) != -1);
+      else res = res.filter(f => FilterBy.indexOf(f[field].toString().toLowerCase()) != -1);
+    }
+    else if (Operator == "IsNotContainedIn") {
+      if (CaseSensitive) res = res.filter(f => !(FilterBy.indexOf(f[field].toString()) != -1));
+      else res = res.filter(f => !(FilterBy.indexOf(f[field].toString().toLowerCase()) != -1));
+    }
+    else if (Operator == "IsEmpty") {
+      res = res.filter(f => f[field] == "");
+    }
+    else if (Operator == "IsNotEmpty") {
+      res = res.filter(f => f[field] != "");
+    }
+    else if (Operator == "IsLessThan") {
+      if (CaseSensitive) res = res.filter(f => f[field].toString() < FilterBy);
+      else res = res.filter(f => f[field].toString().toLowerCase() < FilterBy);
+    }
+    else if (Operator == "IsLessThanOrEqualTo") {
+      if (CaseSensitive) res = res.filter(f => f[field].toString() <= FilterBy);
+      else res = res.filter(f => f[field].toString().toLowerCase() <= FilterBy);
+    }
+    else if (Operator == "IsGreaterThan") {
+      if (CaseSensitive) res = res.filter(f => f[field].toString() > FilterBy);
+      else res = res.filter(f => f[field].toString().toLowerCase() > FilterBy);
+    }
+    else if (Operator == "IsGreaterThanOrEqualTo") {
+      if (CaseSensitive) res = res.filter(f => f[field].toString() >= FilterBy);
+      else res = res.filter(f => f[field].toString().toLowerCase() >= FilterBy);
+    }
+    else if (Operator == "IsNull") {
+      res = res.filter(f => f[field] == "");
+    }
+    else if (Operator == "IsNotNull") {
+      res = res.filter(f => f[field] != "");
+    } 
+    return res;
+  }
+
+
+  private static FieldNameFromER4ColName(ColName: string): string {
+    switch (ColName) {
+      case "ESColumn": return "es";
+      case "SEESColumn": return "sees";
+      case "ES": return "es";//case for sorting
+      case "SEES": return "sees";//case for sorting
+      case "titleColumn": return "shortTitle";
+      case "ShortTitle": return "shortTitle";
+      case "DescColumn": return "title";
+      case "TimepointColumn": return "timepointDisplayValue";
+      case "OutcomeTypeName": return "outcomeTypeName";
+      case "OutcomeColumn": return "outcomeText";
+      case "InterventionColumn": return "interventionText";
+      case "ComparisonColumn": return "controlText";
+      case "Arm1Column": return "grp1ArmName";
+      case "Arm2Column": return "grp2ArmName";
+      default: return ColName;
+    }
+  }
+  private static ER4ColNameFromFieldName(ColName: string, ForSorting: boolean): string {
+    //we need to do slightly different things if we are sorting or filtering.
+
+    switch (ColName) {
+      case "es": return ForSorting ? "ES" : "ESColumn";
+      case "sees": return ForSorting ? "SEES" : "SEESColumn";
+      case "shortTitle": return "titleColumn";
+      case "title": return "DescColumn";
+      case "timepointDisplayValue": return "TimepointColumn";
+      case "outcomeTypeName": return "OutcomeTypeName";
+      case "outcomeText": return "OutcomeColumn";
+      case "interventionText": return "InterventionColumn";
+      case "controlText": return "ComparisonColumn";
+      case "grp1ArmName": return "Arm1Column";
+      case "grp2ArmName": return "Arm2Column";
+      default: return ColName;
+    }
   }
 
   Clear() {

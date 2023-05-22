@@ -49,7 +49,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   }
   public get Outcomes(): ExtendedOutcome[] {
     if (this.MetaAnalysisService.CurrentMetaAnalysis == null) return [];
-    else return this.MetaAnalysisService.CurrentMetaAnalysis.outcomes;
+    else return this.MetaAnalysisService.FilteredOutcomes;
   }
   public get ColumnVisibility(): DynamicColumnsOutcomes {
     return this.MetaAnalysisService.ColumnVisibility;
@@ -61,7 +61,11 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   public Sort(fieldname: string) {
     this.MetaAnalysisService.SortOutcomesBy(fieldname);
   }
-
+  public IsFilteringOnThisCol(ER4Colname: string): boolean {
+    if (this.MetaAnalysisService.CurrentMetaAnalysis == null) return false;
+    if (this.MetaAnalysisService.CurrentMetaAnalysis.filterSettingsList.findIndex(f => f.columnName == ER4Colname) > -1) return true;
+    return false;
+  }
   //public get CurrentMA(): MetaAnalysis | null {
   //  return this.MetaAnalysisService.CurrentMetaAnalysis;
   //}

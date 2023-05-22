@@ -4,18 +4,51 @@
     <thead>
       <tr>
         <th></th>
-        <th class="sortableTH" (click)="Sort('es')">ES<span [innerHTML]="SortingSymbol('es')"></span><kendo-icon [ngClass]="{'text-primary' : SortingSymbol('es') != ''}" class=" filterIcon" name="filter" size="small"></kendo-icon></th>
-        <th class="sortableTH" (click)="Sort('sees')">SE<span [innerHTML]="SortingSymbol('sees')"></span></th>
+        <th class="sortableTH" (click)="Sort('es')">
+          ES<span [innerHTML]="SortingSymbol('es')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ESColumn')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('sees')">
+          SE<span [innerHTML]="SortingSymbol('sees')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('SEESColumn')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
         <th>ID</th>
-        <th class="sortableTH" (click)="Sort('shortTitle')">Study<span [innerHTML]="SortingSymbol('shortTitle')"></span></th>
-        <th class="sortableTH" (click)="Sort('title')">Outc. Desc.<span [innerHTML]="SortingSymbol('title')"></span></th>
-        <th class="sortableTH" (click)="Sort('timepointDisplayValue')">Timepoint<span [innerHTML]="SortingSymbol('timepointDisplayValue')"></span></th>
-        <th class="sortableTH" (click)="Sort('outcomeTypeName')">Type<span [innerHTML]="SortingSymbol('outcomeTypeName')"></span></th>
-        <th class="sortableTH" (click)="Sort('outcomeText')">Outcome<span [innerHTML]="SortingSymbol('outcomeText')"></span></th>
-        <th class="sortableTH" (click)="Sort('interventionText')">Intervention<span [innerHTML]="SortingSymbol('interventionText')"></span></th>
-        <th class="sortableTH" (click)="Sort('controlText')">Comparison<span [innerHTML]="SortingSymbol('controlText')"></span></th>
-        <th class="sortableTH" (click)="Sort('grp1ArmName')">Arm 1<span [innerHTML]="SortingSymbol('grp1ArmName')"></span></th>
-        <th class="sortableTH" (click)="Sort('grp2ArmName')">Arm 2<span [innerHTML]="SortingSymbol('grp2ArmName')"></span></th>
+        <th class="sortableTH" (click)="Sort('shortTitle')">
+          Study<span [innerHTML]="SortingSymbol('shortTitle')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('titleColumn')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('title')">
+          Outc. Desc.<span [innerHTML]="SortingSymbol('title')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('DescColumn')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('timepointDisplayValue')">
+          Timepoint<span [innerHTML]="SortingSymbol('timepointDisplayValue')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('TimepointColumn')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('outcomeTypeName')">
+          Type<span [innerHTML]="SortingSymbol('outcomeTypeName')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('OutcomeTypeName')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('outcomeText')">
+          Outcome<span [innerHTML]="SortingSymbol('outcomeText')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('OutcomeColumn')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('interventionText')">
+          Intervention<span [innerHTML]="SortingSymbol('interventionText')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('InterventionColumn')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('controlText')">
+          Comparison<span [innerHTML]="SortingSymbol('controlText')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ComparisonColumn')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('grp1ArmName')">
+          Arm 1<span [innerHTML]="SortingSymbol('grp1ArmName')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('Arm1Column')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH" (click)="Sort('grp2ArmName')">
+          Arm 2<span [innerHTML]="SortingSymbol('grp2ArmName')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('Arm2Column')}" class=" filterIcon" name="filter" size="small"></kendo-icon>
+        </th>
         <th (click)="Sort('aa1')" *ngIf="ColumnVisibility.AnswerHeaders.length > 0" class="FirstAnswer AnswerCol">
           {{ColumnVisibility.AnswerHeaders[0].Name}}<span [innerHTML]="SortingSymbol('aa1')"></span>
         </th>
