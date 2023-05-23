@@ -209,10 +209,10 @@ export class MetaAnalysisService extends BusyAwareService {
         return false;
       });
     } else res = res.concat(outcomes);
-    let FirstFilterSet: boolean = !(filter.filter1 == "" && filter.filter1Operator == "Is equal to");
+    let FirstFilterSet: boolean = !(filter.filter1 == "" && filter.filter1Operator == "IsEqualTo");
     let SecondFilterSet: boolean = false;
     if (!FirstFilterSet) return res;
-    SecondFilterSet = !(filter.filter2 == "" && filter.filter2Operator == "Is equal to");
+    SecondFilterSet = !(filter.filter2 == "" && filter.filter2Operator == "IsEqualTo");
     if (!SecondFilterSet) {
       //easy case - only one filter to deal with...
       res = this.FilterByNumberedFilter(outcomes, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
