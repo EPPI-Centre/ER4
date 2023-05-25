@@ -17,14 +17,34 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
 
 
   ngOnInit() { }
+  public ActivePanel: string = "";
   public get HasWriteRights(): boolean {
     return this.ReviewerIdentityServ.HasWriteRights;
   }
+  public FilterToBeEdited: string = "";
+
   public get CurrentMA(): MetaAnalysis | null {
     return this.MetaAnalysisService.CurrentMetaAnalysis;
   }
   public get CanSave(): boolean {
     return this.HasWriteRights && this.MetaAnalysisService.CurrentMAhasChanges;
+  }
+  public CloseActivePanel() {
+    this.FilterToBeEdited = "";
+    this.ActivePanel = "";
+  }
+  public EditFilters() {
+    this.FilterToBeEdited = "";
+    this.ActivePanel = "EditFilters";
+  }
+
+  public PleaseEditThisFilter(fieldName: string) {
+    if (this.ActivePanel != "EditFilters") {
+      this.FilterToBeEdited = fieldName;
+      this.ActivePanel = "EditFilters";
+    } else {
+      //what to do when panel is open and user clicks on the "filter" icon for a column in the outcomes table? For now: nothing!
+    }
   }
 
   public Save() {

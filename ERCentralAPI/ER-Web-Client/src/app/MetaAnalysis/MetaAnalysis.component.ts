@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
-import { Item, ItemListService, KeyValue } from '../services/ItemList.service';
+import { Item, ItemListService, StringKeyValue } from '../services/ItemList.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';

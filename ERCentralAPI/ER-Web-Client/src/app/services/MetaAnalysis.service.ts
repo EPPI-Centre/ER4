@@ -251,12 +251,12 @@ export class MetaAnalysisService extends BusyAwareService {
     //Is greater than or equal to
     //Is null
     //Is not null
-    if (CaseSensitive) FilterBy = FilterBy.toLowerCase();
+    if (!CaseSensitive) FilterBy = FilterBy.toLowerCase();
     if (Operator == "IsEqualTo") {
       if (CaseSensitive) res = res.filter(f => f[field] == FilterBy);
       else res = res.filter(f => f[field].toString().toLowerCase() == FilterBy);
     }
-    else if (Operator == "INotEqualTo") {
+    else if (Operator == "IsNotEqualTo") {
       if (CaseSensitive) res = res.filter(f => f[field] != FilterBy);
       else res = res.filter(f => f[field].toString().toLowerCase() != FilterBy);
     }
@@ -316,7 +316,7 @@ export class MetaAnalysisService extends BusyAwareService {
   }
 
 
-  private static FieldNameFromER4ColName(ColName: string): string {
+  public static FieldNameFromER4ColName(ColName: string): string {
     switch (ColName) {
       case "ESColumn": return "es";
       case "SEESColumn": return "sees";
@@ -335,7 +335,7 @@ export class MetaAnalysisService extends BusyAwareService {
       default: return ColName;
     }
   }
-  private static ER4ColNameFromFieldName(ColName: string, ForSorting: boolean): string {
+  public static ER4ColNameFromFieldName(ColName: string, ForSorting: boolean): string {
     //we need to do slightly different things if we are sorting or filtering.
 
     switch (ColName) {
@@ -749,7 +749,7 @@ export interface iFilterSettings {
 }
 export class FilterSettings implements iFilterSettings{
   constructor(iF: iFilterSettings) {
-    this.isClear = iF.isClear;
+    //this.isClear = iF.isClear;
     this.metaAnalysisFilterSettingId = iF.metaAnalysisFilterSettingId;
     this.metaAnalysisId = iF.metaAnalysisId;
     this.columnName = iF.columnName;
@@ -762,7 +762,17 @@ export class FilterSettings implements iFilterSettings{
     this.filter2Operator = iF.filter2Operator;
     this.filter2CaseSensitive = iF.filter2CaseSensitive;
   }
-  isClear: boolean;
+  public get isClear(): boolean {
+    if (this.selectedValues == ""
+      && this.filter1 == ""
+      && this.filter1CaseSensitive == false
+      && this.filter1Operator == "IsEqualTo"
+      && this.filter2 == ""
+      && this.filter2CaseSensitive == false
+      && this.filter2Operator == "IsEqualTo"
+      && this.filtersLogicalOperator == "And") return true;
+    else return false;
+  }
   metaAnalysisFilterSettingId: number;
   metaAnalysisId: number;
   columnName: string;

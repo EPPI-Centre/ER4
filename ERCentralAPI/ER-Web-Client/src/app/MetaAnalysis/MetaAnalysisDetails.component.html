@@ -22,11 +22,18 @@
     </div>
   </div>
 </div>
-  <div class="rounded border border-primary mx-1 p-2 mt-1 bg-light row">
-    <button class="btn btn-outline-danger btn-sm" (click)="Save()" [disabled]="!CanSave">Save</button>
+<div class="rounded border border-primary mx-1 p-2 mt-1 bg-light row">
+  <button class="btn btn-outline-success btn-sm" (click)="EditFilters()" >Edit Filters</button>
+  <button class="btn btn-outline-danger btn-sm" (click)="Save()" [disabled]="!CanSave">Save</button>
+</div>
+<div *ngIf="ActivePanel != ''">
+  <div *ngIf="ActivePanel == 'EditFilters'">
+    <FilterOutcomesFormComp (PleaseCloseMe)="CloseActivePanel()" [IncomingFilterFieldName]="FilterToBeEdited"></FilterOutcomesFormComp>
   </div>
-  <div class="rounded border border-dark mx-1 p-2 mt-1 bg-light row">
-    <MAoutcomes class="w-100 mx-1 mt-1 p-2 bg-light"></MAoutcomes>
-  </div>
+
+</div>
+<div class="rounded border border-dark mx-1 p-2 mt-1 bg-light row">
+  <MAoutcomes class="w-100 mx-1 mt-1 p-2 bg-light" (PleaseEditThisFilter)="PleaseEditThisFilter($event)"></MAoutcomes>
+</div>
 
 

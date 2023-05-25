@@ -133,6 +133,7 @@ import { ZoteroHeaderBarComp } from './commonComponents/ZoteroHeaderBar.componen
 import { MetaAnalysisComp } from './MetaAnalysis/MetaAnalysis.component';
 import { MetaAnalysisDetailsComp } from './MetaAnalysis/MetaAnalysisDetails.component';
 import { MAoutcomesComp } from './MetaAnalysis/MAoutcomes.component';
+import { FilterOutcomesFormComp } from './MetaAnalysis/FilterOutcomesForm.component'; 
 
 
 
@@ -263,7 +264,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     ZoteroHeaderBarComp,
     MetaAnalysisComp,
     MetaAnalysisDetailsComp,
-    MAoutcomesComp
+    MAoutcomesComp,
+    FilterOutcomesFormComp
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

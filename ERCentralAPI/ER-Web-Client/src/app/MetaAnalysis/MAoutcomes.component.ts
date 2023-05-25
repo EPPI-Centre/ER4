@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
-import { Item, ItemListService, KeyValue } from '../services/ItemList.service';
+import { Item, ItemListService, StringKeyValue } from '../services/ItemList.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -43,6 +43,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     
   }
 
+  @Output() PleaseEditThisFilter = new EventEmitter<string>();
 
   public get HasWriteRights(): boolean {
     return this.ReviewerIdentityServ.HasWriteRights;
@@ -66,9 +67,11 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     if (this.MetaAnalysisService.CurrentMetaAnalysis.filterSettingsList.findIndex(f => f.columnName == ER4Colname) > -1) return true;
     return false;
   }
-  //public get CurrentMA(): MetaAnalysis | null {
-  //  return this.MetaAnalysisService.CurrentMetaAnalysis;
-  //}
+
+  public DoEditThisFilter(fieldName: string, event: Event) {
+    event.stopPropagation();
+    this.PleaseEditThisFilter.emit(fieldName);
+  }
 
   
   ngOnDestroy() { }

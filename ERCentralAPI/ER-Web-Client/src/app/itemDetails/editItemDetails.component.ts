@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
-import { Item, ItemListService, KeyValue } from '../services/ItemList.service';
+import { Item, ItemListService, StringKeyValue } from '../services/ItemList.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -54,8 +54,8 @@ export class editItemDetailsComp implements OnInit, OnDestroy {
     private itemString: string = '0';
     public showOptionalFields = false;
     private returnTo: string = "Main";
-    private _ItemTypes: KeyValue[] = [];
-    public get ItemTypes(): KeyValue[] {
+  private _ItemTypes: StringKeyValue[] = [];
+  public get ItemTypes(): StringKeyValue[] {
         //looking at this.ItemListService.ItemTypes makes the service fetch the data if it's not already there
         //the below is a system to make it ask only once
         if (this._ItemTypes.length == 0 && this.ItemListService.ItemTypes.length > 0) this._ItemTypes = this.ItemListService.ItemTypes;
@@ -87,12 +87,12 @@ export class editItemDetailsComp implements OnInit, OnDestroy {
     public FieldsByType(typeId: number) {
         return Helpers.FieldsByPubType(typeId);
     }
-    private _ItemFlagOptions: KeyValue[] = [new KeyValue('I', 'Included'), new KeyValue('E', 'Excluded')];//, new KeyValueState('D', 'Deleted') can't do deleted 'cause BO doesn't save this state...
-    public get ItemFlagOptions(): KeyValue[] {
+  private _ItemFlagOptions: StringKeyValue[] = [new StringKeyValue('I', 'Included'), new StringKeyValue('E', 'Excluded')];//, new KeyValueState('D', 'Deleted') can't do deleted 'cause BO doesn't save this state...
+  public get ItemFlagOptions(): StringKeyValue[] {
         return this._ItemFlagOptions;
     }
    
-    public get ItemFlagStatus(): KeyValue {
+  public get ItemFlagStatus(): StringKeyValue {
         let i = this._ItemFlagOptions.findIndex(found => (this.item != null && found.key == this.item.itemStatus));
         if (i == -1) return this._ItemFlagOptions[0];
         else return this._ItemFlagOptions[i];
