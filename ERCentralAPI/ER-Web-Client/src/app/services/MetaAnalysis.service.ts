@@ -215,17 +215,17 @@ export class MetaAnalysisService extends BusyAwareService {
     SecondFilterSet = !(filter.filter2 == "" && filter.filter2Operator == "IsEqualTo");
     if (!SecondFilterSet) {
       //easy case - only one filter to deal with...
-      res = this.FilterByNumberedFilter(outcomes, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
+      res = this.FilterByNumberedFilter(res, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
     }
     else if (filter.filtersLogicalOperator == "And") {
       //fairly easy, filter by filter1 then filter the result by filter2
-      res = this.FilterByNumberedFilter(outcomes, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
+      res = this.FilterByNumberedFilter(res, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
       res = this.FilterByNumberedFilter(res, filter.filter2, filter.filter2Operator, filter.filter2CaseSensitive, key);
     }
     else {
       //ouch: filter by "OR" across filter1 and filter2, not so easy!
-      let interim1 = this.FilterByNumberedFilter(outcomes, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
-      let interim2 = this.FilterByNumberedFilter(outcomes, filter.filter2, filter.filter2Operator, filter.filter2CaseSensitive, key);
+      let interim1 = this.FilterByNumberedFilter(res, filter.filter1, filter.filter1Operator, filter.filter1CaseSensitive, key);
+      let interim2 = this.FilterByNumberedFilter(res, filter.filter2, filter.filter2Operator, filter.filter2CaseSensitive, key);
       res = interim1.concat(interim2.filter((f) => interim1.indexOf(f) < 0));
     }
     console.log("sub-filtering result: ", res);
