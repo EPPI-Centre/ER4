@@ -48,7 +48,9 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
   }
 
   public Save() {
-
+    if (this.CurrentMA) {
+      this.MetaAnalysisService.SaveMetaAnalysis(this.CurrentMA)
+    }
   }
 
 

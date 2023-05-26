@@ -407,10 +407,10 @@ export class Outcome implements iOutcome {
 		if (iO) {
 
 			this.itemSetId = iO.itemSetId;
-			this.OutcomeTypeId = iO.outcomeTypeId;
+			this.outcomeTypeId = iO.outcomeTypeId;
 			this.manuallyEnteredOutcomeTypeId = iO.manuallyEnteredOutcomeTypeId;
 			this.unifiedOutcomeTypeId = iO.unifiedOutcomeTypeId;
-			this.OutcomeTypeName = iO.outcomeTypeName;
+			this.outcomeTypeName = iO.outcomeTypeName;
 			this.itemAttributeIdIntervention =  iO.itemAttributeIdIntervention;
 			this.itemAttributeIdControl = iO.itemAttributeIdControl;
 			this.itemAttributeIdOutcome = iO.itemAttributeIdOutcome
@@ -1131,25 +1131,25 @@ export class Outcome implements iOutcome {
 	}
 	outcomeId: number = 0;
 	itemSetId: number = 0;
-	private OutcomeTypeName: string = "Manual entry";
-	public get outcomeTypeName(): string {
+	public outcomeTypeName: string = "Continuous: Ns, means and SD";
+	//public get outcomeTypeName(): string {
 
-		return this.OutcomeTypeName;
-	}
-	public set outcomeTypeName(val: string) {
+	//	return this.OutcomeTypeName;
+	//}
+	//public set outcomeTypeName(val: string) {
 
-		this.OutcomeTypeName = val;
-	}
-	private OutcomeTypeId: number = 0;
-	public get outcomeTypeId(): number {
+	//	this.OutcomeTypeName = val;
+	//}
+	public outcomeTypeId: number = 1;
+	//public get outcomeTypeId(): number {
 
-		//this.SetCalculatedValues();
-		return this.OutcomeTypeId;
-	}
-	public set outcomeTypeId(val: number) {
-		this.OutcomeTypeId = val;
-		this.SetCalculatedValues();
-	}
+	//	//this.SetCalculatedValues();
+	//	return this.OutcomeTypeId;
+	//}
+	//public set outcomeTypeId(val: number) {
+	//	this.OutcomeTypeId = val;
+	//	this.SetCalculatedValues();
+	//}
 	
 	itemAttributeIdIntervention: number = 0;
 	itemAttributeIdControl: number = 0;

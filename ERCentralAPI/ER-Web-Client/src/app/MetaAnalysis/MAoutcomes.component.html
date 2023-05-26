@@ -27,7 +27,7 @@
         </th>
         <th class="sortableTH" (click)="Sort('outcomeTypeName')" id="col-outcomeTypeName">
           Type<span [innerHTML]="SortingSymbol('outcomeTypeName')"></span>
-          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('OutcomeTypeName')}" (click)="DoEditThisFilter('outcomeTypeName', $event)" class=" filterIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('outcomeTypeName')}" (click)="DoEditThisFilter('outcomeTypeName', $event)" class=" filterIcon" name="filter" size="small"></kendo-icon>
         </th>
         <th class="sortableTH" (click)="Sort('outcomeText')" id="col-outcomeText">
           Outcome<span [innerHTML]="SortingSymbol('outcomeText')"></span>

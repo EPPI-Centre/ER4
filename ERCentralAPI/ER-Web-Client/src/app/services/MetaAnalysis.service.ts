@@ -130,6 +130,31 @@ export class MetaAnalysisService extends BusyAwareService {
         this.modalService.GenericError(error);
       });
   }
+
+  public SaveMetaAnalysis(MA: MetaAnalysis) {
+    this._BusyMethods.push("SaveMetaAnalysis");
+
+    //console.log("saving reviewSet via command", rs, rsC);
+    return this._httpC.post<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/SaveMetaAnalysis', MA).subscribe((res) => {
+
+      //let returned = new MetaAnalysis(res);
+      //let ind = this.MetaAnalysisList.findIndex(f => f.metaAnalysisId == returned.metaAnalysisId)
+      //if (ind == -1) {
+      //  this.MetaAnalysisList.push(returned);
+      //}
+      //else {
+      //  this.MetaAnalysisList.splice(ind, 1, returned);
+      //}
+
+      this.RemoveBusy("SaveMetaAnalysis");
+    },
+      (err) => {
+        console.log("Error SaveMetaAnalysis:", err);
+        this.RemoveBusy("SaveMetaAnalysis");
+        this.modalService.GenericError(err);
+      });
+  }
+
   private CalculateColsVisibility() {
     if (this.CurrentMetaAnalysis == null) return;
     this.ColumnVisibility = new DynamicColumnsOutcomes();
@@ -325,11 +350,16 @@ export class MetaAnalysisService extends BusyAwareService {
       case "titleColumn": return "shortTitle";
       case "ShortTitle": return "shortTitle";
       case "DescColumn": return "title";
+      case "Title": return "title";// sorting
       case "TimepointColumn": return "timepointDisplayValue";
+      case "TimepointDisplayValue": return "timepointDisplayValue"; //sorting
       case "OutcomeTypeName": return "outcomeTypeName";
       case "OutcomeColumn": return "outcomeText";
+      case "OutcomeText": return "outcomeText";//sorting
       case "InterventionColumn": return "interventionText";
+      case "InterventionText": return "interventionText";//sorting
       case "ComparisonColumn": return "controlText";
+      case "ControlText": return "controlText";//sorting 
       case "Arm1Column": return "grp1ArmName";
       case "Arm2Column": return "grp2ArmName";
       default: return ColName;
@@ -342,14 +372,14 @@ export class MetaAnalysisService extends BusyAwareService {
       case "es": return ForSorting ? "ES" : "ESColumn";
       case "sees": return ForSorting ? "SEES" : "SEESColumn";
       case "shortTitle": return "titleColumn";
-      case "title": return "DescColumn";
-      case "timepointDisplayValue": return "TimepointColumn";
-      case "outcomeTypeName": return "OutcomeTypeName";
+      case "title": return ForSorting ? "Title" : "DescColumn";
+      case "timepointDisplayValue": return ForSorting ? "TimepointDisplayValue": "TimepointColumn";
+      case "outcomeTypeName": return ForSorting ? "OutcomeText" : "OutcomeTypeName";
       case "outcomeText": return "OutcomeColumn";
-      case "interventionText": return "InterventionColumn";
-      case "controlText": return "ComparisonColumn";
-      case "grp1ArmName": return "Arm1Column";
-      case "grp2ArmName": return "Arm2Column";
+      case "interventionText": return ForSorting ? "InterventionText" : "InterventionColumn"; 
+      case "controlText": return ForSorting ? "ControlText" : "ComparisonColumn"; 
+      case "grp1ArmName": return ForSorting ? "grp1ArmName" : "Arm1Column";
+      case "grp2ArmName": return ForSorting ? "grp2ArmName" : "Arm2Column";
       default: return ColName;
     }
   }
