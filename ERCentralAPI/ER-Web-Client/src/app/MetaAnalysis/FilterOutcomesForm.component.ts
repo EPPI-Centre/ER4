@@ -81,8 +81,11 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
 
   private _SelectableValues: string[] = [];
   public get SelectableValues(): string[] {
-    if (!this.MetaAnalysisService.CurrentMetaAnalysis || !this.CurrentFilterSetting.columnName ) return [];
-    const key = MetaAnalysisService.FieldNameFromER4ColName(this.CurrentFilterSetting.columnName) as keyof ExtendedOutcome;
+    if (!this.MetaAnalysisService.CurrentMetaAnalysis || !this.CurrentFilterSetting.columnName) return [];
+    let AdjustedColName = this.CurrentFilterSetting.columnName;
+    if (AdjustedColName == "ESColumn") AdjustedColName = "esRounded";
+    else if (AdjustedColName == "SEESColumn") AdjustedColName = "seesRounded";
+    const key = MetaAnalysisService.FieldNameFromER4ColName(AdjustedColName) as keyof ExtendedOutcome;
     let res = this.MetaAnalysisService.CurrentMetaAnalysis.outcomes.filter((value, index, array) => {
       return array.findIndex(f => value[key] === f[key]) === index;
     });
@@ -129,6 +132,8 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     this.MetaAnalysisService.ApplyFilters();
   }
   private _FixedColumns: StringKeyValue[] = [
+    new StringKeyValue("es", "Effect Size"),
+    new StringKeyValue("sees", "Standard Error"),
     new StringKeyValue("shortTitle", "Study"),
     new StringKeyValue("title", "Outc. Desc."),
     new StringKeyValue("timepointDisplayValue", "Timepoint"),
@@ -210,21 +215,56 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
         this.CurrentMA.filterSettingsList.push(this._CurrentFilterSetting);
       }
     }
-    console.log(event);
+    //console.log(event);
   }
 
   public ValIsSelected(val: string): boolean {
     const separator = "{" + String.fromCharCode(0x00AC) + "}";
     const SelectedVals = this.CurrentFilterSetting.selectedValues.split(separator);//.filter(f => f != '');
-    if (SelectedVals.find(f => f == val)) return true;
+    if ((this.CurrentFilterSetting.columnName == "ESColumn" || this.CurrentFilterSetting.columnName == "SEESColumn")
+      && this.CurrentMA && this.CurrentMA.outcomes.length > 0) //these we use to find the "ShowSignificantDigits" val in outcomes
+    {
+      const currMA = this.CurrentMA;
+      if (
+        SelectedVals.find(
+          f => {
+            const multiplier = 10 ** currMA.outcomes[0].ShowSignificantDigits;
+            //return Math.round((this.sees + Number.EPSILON) * multiplier) / multiplier;
+            return (Math.round((Number.parseFloat(f) + Number.EPSILON) * multiplier) / multiplier).toString() == val;
+          }
+        )
+      ) return true;
+    }
+    else if (SelectedVals.find(f => f == val)) return true;
     return false;
   }
   public ChangeSelected(val: string, event: Event) {
     //split by "{¬}" see if
     //if (!this.CurrentFilterSetting) return;
-    console.log("changeSel", event, val);
+    //console.log("changeSel", event, val);
+
+    //we show only up to 3 decimal places for ER and SEES, so to find the real filter-by vals we need to do some work...
+    if (this.CurrentFilterSetting.columnName == "ESColumn") {
+      if (this.CurrentMA) {
+        let res = this.CurrentMA.outcomes.filter(f => f.esRounded.toString() == val).map(m => m.es);
+        for (let fullVal of res) {
+          this.innerChangeSelected(fullVal.toString(), event);
+        }
+      }
+    }
+    else if (this.CurrentFilterSetting.columnName == "SEESColumn") {
+      if (this.CurrentMA) {
+        let res = this.CurrentMA.outcomes.filter(f => f.seesRounded.toString() == val).map(m => m.sees);
+        for (let fullVal of res) {
+          this.innerChangeSelected(fullVal.toString(), event);
+        }
+      }
+    }
+    else this.innerChangeSelected(val, event);
+  }
+  private innerChangeSelected(val: string, event: Event) {
     const separator = "{" + String.fromCharCode(0x00AC) + "}";
-    let SelectedVals = this.CurrentFilterSetting.selectedValues.split(separator);//.filter(f => f != '');
+    let SelectedVals = this.CurrentFilterSetting.selectedValues.split(separator).filter(f => val== '' ||f != '');
     const chbx = event.target as HTMLInputElement;
     if (chbx.checked) {
       //adding this val

@@ -1310,20 +1310,8 @@ export class Outcome implements iOutcome {
 	seMeanDifference: number = 0;
 	petoOR: number = 0;
 	sePetoOR: number = 0;
-	private _es: number = 0;
-    public get es(): number {
-        return this._es;
-    }
-    public set es(value: number) {
-        this._es = value;
-    }
-	private _sees: number = 0;
-    public get sees(): number {
-        return this._sees;
-    }
-    public set sees(value: number) {
-        this._sees = value;
-    }
+	es: number = 0;
+    sees: number = 0;
 	nRows: number = 0;
 	ciLower: number = 0;
 	ciUpper: number = 0;
@@ -1591,20 +1579,15 @@ export class ExtendedOutcome extends Outcome implements iExtendedOutcome {
     this.occ30 = iO.occ30;
   }
   ShowSignificantDigits: number = 3;
-  public override get es(): number {
+  public get esRounded(): number {
     const multiplier = 10 ** this.ShowSignificantDigits;
-    return Math.round((super.es + Number.EPSILON) * multiplier) / multiplier;
+    return Math.round((this.es + Number.EPSILON) * multiplier) / multiplier;
   }
-  public override set es(val: number) {
-    super.es = val;
-  }
-  public override get sees(): number {
+  public get seesRounded(): number {
     const multiplier = 10 ** this.ShowSignificantDigits;
-    return Math.round((super.sees + Number.EPSILON) * multiplier) / multiplier;
+    return Math.round((this.sees + Number.EPSILON) * multiplier) / multiplier;
   }
-  public override set sees(val: number) {
-    super.sees = val;
-  }
+  
   aq1: string;
   aq2: string;
   aq3: string;
