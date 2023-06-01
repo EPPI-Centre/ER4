@@ -23,15 +23,20 @@ import { CustomSorting } from '../helpers/CustomSorting';
 .OutcomesTable th {border: 1px dotted Silver; min-width:3vw;}
 .OutcomesTable td {border: 1px dotted Silver;}
 .sortableTH { cursor:pointer;}
-.QuestionCol { background: Khaki;  cursor:pointer;}
-.AnswerCol { background: LemonChiffon; cursor:pointer;}
-.ClassifCol { background: LightGray; border: 1px dotted white !important; cursor:pointer;}
+.QuestionCol { background: Khaki !important;  cursor:pointer;}
+.AnswerCol { background: LemonChiffon !important; cursor:pointer;}
+.ClassifCol { background: LightGray !important; border: 1px dotted white !important; cursor:pointer;}
 .FirstQuestion, .FirstAnswer, .FirstClassif {border-left:1px solid DarkBlue !important;}
 .filterIcon {padding: 6px 8px 8px 8px ; border: 1px solid #00000000; border-radius: 3px;}
 .filterIcon:hover {border: 1px solid blue; border-radius: 3px; color:blue;}
-`
-  ]
+
+.tableFixHead          { overflow: auto; max-height: 50vh; max-width: 90vm; }
+.tableFixHead thead th { position: sticky; top: 0; z-index: 1; background-color: #fbfbfb; box-shadow: inset 0px -0.8px #222222, 0 0 #000}
+
+`]
 })
+  //see https://stackoverflow.com/a/47923622 for how the "ticky" thing works for tableFixHead!!
+
 export class MAoutcomesComp implements OnInit, OnDestroy {
 
   constructor(
@@ -64,7 +69,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   }
   public IsFilteringOnThisCol(ER4Colname: string): boolean {
     if (this.MetaAnalysisService.CurrentMetaAnalysis == null) return false;
-    if (this.MetaAnalysisService.CurrentMetaAnalysis.filterSettingsList.findIndex(f => f.columnName == ER4Colname) > -1) return true;
+    if (this.MetaAnalysisService.CurrentMetaAnalysis.filterSettingsList.findIndex(f => !f.isClear && f.columnName == ER4Colname) > -1) return true;
     return false;
   }
 

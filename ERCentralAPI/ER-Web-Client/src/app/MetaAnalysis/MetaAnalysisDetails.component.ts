@@ -1,6 +1,7 @@
 import { Component, OnInit,Input, ViewChild, OnDestroy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MetaAnalysis, MetaAnalysisService } from '../services/MetaAnalysis.service';
+import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
 
 @Component({
   selector: 'MetaAnalysisDetailsComp',
@@ -15,7 +16,7 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
     private MetaAnalysisService: MetaAnalysisService
   ) { }
 
-
+  @ViewChild('FilterOutcomesFormComp') FilterOutcomesFormComp!: FilterOutcomesFormComp;
   ngOnInit() { }
   public ActivePanel: string = "";
   public get HasWriteRights(): boolean {
@@ -43,7 +44,11 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
       this.FilterToBeEdited = fieldName;
       this.ActivePanel = "EditFilters";
     } else {
-      //what to do when panel is open and user clicks on the "filter" icon for a column in the outcomes table? For now: nothing!
+      if (this.FilterOutcomesFormComp) {
+        //if the panel is already open, we ask the child-component to do the change
+        this.FilterToBeEdited = fieldName;
+        this.FilterOutcomesFormComp.ChangingColumn(fieldName);
+      }
     }
   }
 

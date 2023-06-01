@@ -43,8 +43,8 @@ export class MetaAnalysisService extends BusyAwareService {
     const tArr = this._FilteredOutcomes.concat();
     this._FilteredOutcomes = [];
     for (let iO of this.CurrentMetaAnalysis.outcomes) {
-      let Oc: ExtendedOutcome = new ExtendedOutcome(iO);
-      if (tArr.findIndex(f=> f.outcomeId == Oc.outcomeId) > -1) this._FilteredOutcomes.push(Oc);
+      //let Oc: ExtendedOutcome = new ExtendedOutcome(iO);
+      if (tArr.findIndex(f => f.outcomeId == iO.outcomeId) > -1) this._FilteredOutcomes.push(iO);
     }
     this.CurrentMetaAnalysis.sortDirection = this.CurrentMetaAnalysisUnchanged.sortDirection;
     this.CurrentMetaAnalysis.sortedBy = "";
@@ -201,7 +201,7 @@ export class MetaAnalysisService extends BusyAwareService {
     }
   }
 
-  private ApplySavedSorting() {
+  public ApplySavedSorting() {
     if (this.CurrentMetaAnalysis == null || this.CurrentMetaAnalysisUnchanged == null) return;
     if (this.CurrentMetaAnalysis.sortedBy != "") {
       let booleanDir: boolean = this.CurrentMetaAnalysis.sortDirection == "Ascending" ? true : false;
@@ -215,11 +215,17 @@ export class MetaAnalysisService extends BusyAwareService {
   }
   public ApplyFilters() {
     if (this.CurrentMetaAnalysis == null) return;
-    let res = this.CurrentMetaAnalysis.outcomes;
+    let res = this.CurrentMetaAnalysis.outcomes.concat();
     for (let FF of this.CurrentMetaAnalysis.filterSettingsList) {
       res = this.ProcessSingleFilter(res, FF);
     }
     this._FilteredOutcomes = res;
+    for (let oc of this.CurrentMetaAnalysis.outcomes.filter(f => f.isSelected == true)) {
+      if (this._FilteredOutcomes.findIndex(f => f.outcomeId == oc.outcomeId) == -1) {
+        //we have filtered out this outcome, so we also un-select it as otherwise it will be included in forest plots et al.
+        oc.isSelected = false;
+      }
+    }
   }
   private ProcessSingleFilter(outcomes: ExtendedOutcome[], filter: iFilterSettings): ExtendedOutcome[] {
     const separator = "{" + String.fromCharCode(0x00AC) + "}";

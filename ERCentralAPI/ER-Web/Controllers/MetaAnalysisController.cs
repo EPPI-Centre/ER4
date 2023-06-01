@@ -70,15 +70,16 @@ namespace ERxWebClient2.Controllers
                     MetaAnalysis toSave = DataPortal.Fetch<MetaAnalysis>(crit);
                     toSave.Outcomes = OutcomeList.GetOutcomeList(toSave.SetId, toSave.AttributeIdIntervention, toSave.AttributeIdControl,
                         toSave.AttributeIdOutcome, toSave.AttributeId, toSave.MetaAnalysisId, toSave.AttributeIdQuestion, toSave.AttributeIdAnswer);
+                    toSave.Outcomes.SetMetaAnalysisType(toSave.MetaAnalysisTypeId);
                     //now we need to pick all the "selected" outcomes, which requires a bit of work
-                    //foreach (OutcomeJSON OJ in MAjson.outcomes)
-                    //{
-                    //    if (OJ.isSelected == true)
-                    //    {
-                    //        Outcome? outcome = toSave.Outcomes.FirstOrDefault(f => f.OutcomeId == OJ.outcomeId);
-                    //        if (outcome != null) outcome.IsSelected = true;
-                    //    }
-                    //}
+                    foreach (OutcomeJSON OJ in MAjson.outcomes)
+                    {
+                        if (OJ.isSelected == true)
+                        {
+                            Outcome? outcome = toSave.Outcomes.FirstOrDefault(f => f.OutcomeId == OJ.outcomeId);
+                            if (outcome != null) outcome.IsSelected = true;
+                        }
+                    }
                     //similar for filters...
                     List<MetaAnalysisFilterSetting> toSaveSettings = new List<MetaAnalysisFilterSetting>();
                     foreach (FiltersettingsJSON FsJ in MAjson.filterSettingsList)

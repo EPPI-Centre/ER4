@@ -28,7 +28,7 @@
 </div>
 <div *ngIf="ActivePanel != ''">
   <div *ngIf="ActivePanel == 'EditFilters'">
-    <FilterOutcomesFormComp (PleaseCloseMe)="CloseActivePanel()" [IncomingFilterFieldName]="FilterToBeEdited"></FilterOutcomesFormComp>
+    <FilterOutcomesFormComp #FilterOutcomesFormComp (PleaseCloseMe)="CloseActivePanel()" [IncomingFilterFieldName]="FilterToBeEdited"></FilterOutcomesFormComp>
   </div>
 
 </div>

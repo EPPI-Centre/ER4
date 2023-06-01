@@ -1,4 +1,5 @@
 import { Component, OnInit,Input, ViewChild, OnDestroy, EventEmitter, Output } from '@angular/core';
+import { sep } from 'path';
 import { StringKeyValue } from '../services/ItemList.service';
 import { FilterSettings, MetaAnalysis, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { ExtendedOutcome } from '../services/outcomes.service';
@@ -190,8 +191,12 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     }
     else return false;
   }
-  public ChangingColumn(event: Event) {
+  public ChangingColumnFromDropdown(event: Event) {
     const ColFieldName: string = (event.target as HTMLOptionElement).value;
+    if (ColFieldName != '') this.ChangingColumn(ColFieldName);
+  }
+  public ChangingColumn(ColFieldName: string) {
+    //const ColFieldName: string = (event.target as HTMLOptionElement).value;
     const Col = this._CurrentColumns.find(f => f.key == ColFieldName);
     if (Col && this.CurrentMA) {
       const CurrFil = this._CurrentFilterSetting;
@@ -264,7 +269,25 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
   }
   private innerChangeSelected(val: string, event: Event) {
     const separator = "{" + String.fromCharCode(0x00AC) + "}";
-    let SelectedVals = this.CurrentFilterSetting.selectedValues.split(separator).filter(f => val== '' ||f != '');
+    let SelectedVals: string[] = [];
+    //console.log("innerChangeSelected START:", val, JSON.stringify(this.CurrentFilterSetting.selectedValues));
+    //selectedValues.split(separator) will retun an array with 1 empty string if selectedValues is empty
+    //which then means we're "filtering in" outcomes with no value in the col
+    //so we actually handle 4 possible cases:
+    if (this.CurrentFilterSetting.selectedValues == separator) {
+      //only the separator: special case where ONLY the "...no value" option is ticked
+      SelectedVals.push('');
+    }
+    else if(this.CurrentFilterSetting.selectedValues.indexOf(separator) != -1) {
+      //separator is in here, we have 2 or more selected vals
+      SelectedVals = this.CurrentFilterSetting.selectedValues.split(separator);
+    }
+    else if (this.CurrentFilterSetting.selectedValues !== '') {
+      //we have something in this.CurrentFilterSetting.selectedValues, but it's only one value
+      SelectedVals.push(this.CurrentFilterSetting.selectedValues);
+    }
+    //console.log("innerChangeSelected 1:", JSON.stringify(this.CurrentFilterSetting.selectedValues), SelectedVals);
+    //else, this.CurrentFilterSetting.selectedValues is empty, thus SelectedVals is an empty array, which it's how we initialised
     const chbx = event.target as HTMLInputElement;
     if (chbx.checked) {
       //adding this val
@@ -275,9 +298,13 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
       const i = SelectedVals.findIndex(f => f == val);
       if (i > -1) SelectedVals.splice(i, 1);
     }
+    //console.log("innerChangeSelected 2:", JSON.stringify(this.CurrentFilterSetting.selectedValues), SelectedVals);
     SelectedVals.sort();
-    this.CurrentFilterSetting.selectedValues = SelectedVals.join(separator);
+    if (SelectedVals.length == 1 && SelectedVals[0] == '') this.CurrentFilterSetting.selectedValues = separator;//otherwise it's empty, meaning nothing is selected
+    else this.CurrentFilterSetting.selectedValues = SelectedVals.join(separator);
+    //console.log("innerChangeSelected END:", JSON.stringify(this.CurrentFilterSetting.selectedValues));
     this.MetaAnalysisService.ApplyFilters();
+    this.MetaAnalysisService.ApplySavedSorting();
   }
 
   
