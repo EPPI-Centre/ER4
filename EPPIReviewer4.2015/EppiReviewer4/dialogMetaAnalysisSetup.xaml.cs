@@ -878,7 +878,9 @@ namespace EppiReviewer4
                     string aggregateVals = "";
                     foreach (object distinctValueObj in e.ColumnFilterDescriptor.DistinctFilter.DistinctValues)
                     {
-                        string valStr = distinctValueObj.ToString();
+                        string valStr = "";
+                        if (colName =="ESColumn" || colName == "SEESColumn") valStr = ((double)distinctValueObj).ToString("G16");
+                        else valStr = distinctValueObj.ToString();
                         aggregateVals += valStr + "{¬}";
                     }
                     if (aggregateVals != "") aggregateVals = aggregateVals.Substring(0, aggregateVals.Length - 3);
