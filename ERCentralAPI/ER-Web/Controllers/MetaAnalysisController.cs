@@ -74,11 +74,8 @@ namespace ERxWebClient2.Controllers
                     //now we need to pick all the "selected" outcomes, which requires a bit of work
                     foreach (OutcomeJSON OJ in MAjson.outcomes)
                     {
-                        if (OJ.isSelected == true)
-                        {
-                            Outcome? outcome = toSave.Outcomes.FirstOrDefault(f => f.OutcomeId == OJ.outcomeId);
-                            if (outcome != null) outcome.IsSelected = true;
-                        }
+                        Outcome? outcome = toSave.Outcomes.FirstOrDefault(f => f.OutcomeId == OJ.outcomeId);
+                        if (outcome != null) outcome.IsSelected = OJ.isSelected;                        
                     }
                     //similar for filters...
                     List<MetaAnalysisFilterSetting> toSaveSettings = new List<MetaAnalysisFilterSetting>();

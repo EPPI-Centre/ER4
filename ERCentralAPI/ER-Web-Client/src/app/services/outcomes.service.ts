@@ -429,25 +429,25 @@ export class Outcome implements iOutcome {
 			this.shortTitle = iO.shortTitle;
 			this.outcomeDescription = iO.outcomeDescription
             this.outcomeId = iO.outcomeId;
-			this.data1 = Number(iO.data1 == null ? 0 : iO.data1);
-			this.data2 = Number(iO.data2 == null ? 0 : iO.data2);
-			this.data3 = Number(iO.data3 == null ? 0 : iO.data3);
-			this.data4 = Number(iO.data4 == null ? 0 : iO.data4);
-			this.data5 = Number(iO.data5 == null ? 0 : iO.data5);
-			this.data6 = Number(iO.data6 == null ? 0 : iO.data6);
-			this.data7 = Number(iO.data7 == null ? 0 : iO.data7);
-			this.data8 = Number(iO.data8 == null ? 0 : iO.data8);
-			this.data9 = Number(iO.data9 == null ? 0 : iO.data9);
+			this.Data1 = Number(iO.data1 == null ? 0 : iO.data1);
+			this.Data2 = Number(iO.data2 == null ? 0 : iO.data2);
+			this.Data3 = Number(iO.data3 == null ? 0 : iO.data3);
+			this.Data4 = Number(iO.data4 == null ? 0 : iO.data4);
+			this.Data5 = Number(iO.data5 == null ? 0 : iO.data5);
+			this.Data6 = Number(iO.data6 == null ? 0 : iO.data6);
+			this.Data7 = Number(iO.data7 == null ? 0 : iO.data7);
+			this.Data8 = Number(iO.data8 == null ? 0 : iO.data8);
+			this.Data9 = Number(iO.data9 == null ? 0 : iO.data9);
 			if (this.data9 != null && this.data9 > 0) {
 				this.isSelected = true;
 			} else {
 				this.isSelected = false;
 			}
-			this.data10 = Number(iO.data10 == null ? 0 : iO.data10);
-			this.data11 = Number(iO.data11 == null ? 0 : iO.data11);
-			this.data12 = Number(iO.data12 == null ? 0 : iO.data12);
-			this.data13 = Number(iO.data13 == null ? 0 : iO.data13);
-			this.data14 = Number(iO.data14 == null ? 0 : iO.data14);
+			this.Data10 = Number(iO.data10 == null ? 0 : iO.data10);
+			this.Data11 = Number(iO.data11 == null ? 0 : iO.data11);
+			this.Data12 = Number(iO.data12 == null ? 0 : iO.data12);
+			this.Data13 = Number(iO.data13 == null ? 0 : iO.data13);
+			this.Data14 = Number(iO.data14 == null ? 0 : iO.data14);
 			this.interventionText = iO.interventionText;
 			this.controlText = iO.controlText;
 			this.outcomeText = iO.outcomeText;
@@ -807,6 +807,62 @@ export class Outcome implements iOutcome {
 
 	}
 
+  public SetESForThisOutcomeType(MAType: number) {
+    /* Meta-analysis types:
+ *     0: Continuous: d (Hedges g)
+ *     1: Continuous: r
+ *     2: Binary: odds ratio
+ *     3: Binary: risk ratio
+ *     4: Binary: risk difference
+ *     5: Binary: diagnostic test OR
+ *     6: Binary: Peto OR
+ *     7: Continuous: mean difference
+ */
+    if (this.outcomeTypeId != 0) {
+      this.es = 0.0;
+      this.sees = 0.0;
+      switch (MAType) {
+        case 0: this.es = this.smd;
+          this.sees = this.sesmd; break;
+        case 1: this.es = this.r;
+          this.sees = this.ser; break;
+        case 2: this.es = this.oddsRatio;
+          this.sees = this.seOddsRatio; break;
+        case 3: this.es = this.riskRatio;
+          this.sees = this.seRiskRatio; break;
+        case 4: this.es = this.riskDifference;
+          this.sees = this.seRiskDifference; break;
+        case 5: this.es = this.oddsRatio;
+          this.sees =  this.seOddsRatio; break;
+        case 6: this.es = this.petoOR;
+          this.sees = this.sePetoOR; break;
+        case 7: this.es = this.meanDifference;
+          this.sees = this.seMeanDifference; break;
+        default: break;
+      }
+    }
+  }
+  public updateCanSelect(MAType: number) {
+    this.canSelect = false;
+    if (this.sees == 0 || isNaN(this.sees)) {
+      return;
+    }
+    switch (MAType) {
+      // Hedges g
+      case 0: if (this.unifiedOutcomeTypeId == 1 || this.unifiedOutcomeTypeId == 3 || this.unifiedOutcomeTypeId == 4 || this.unifiedOutcomeTypeId == 5) this.canSelect = true;
+        break;
+      // correlation coefficient
+      case 1: if (this.unifiedOutcomeTypeId == 7) this.canSelect = true;
+        break;
+      // mean difference
+      case 7: if (this.unifiedOutcomeTypeId == 1 || this.unifiedOutcomeTypeId == 3 || this.unifiedOutcomeTypeId == 4 || this.unifiedOutcomeTypeId == 5) this.canSelect = true;
+        break;
+      // 2, 3, 4, 5, 6 - binary outcomes
+      default: if (this.unifiedOutcomeTypeId == 2) this.canSelect = true;
+        break;
+    }
+  }
+
 	SetESforManualEntry(): any {
 
 		if (this.oddsRatio == 0 && this.riskRatio == 0 &&
@@ -827,7 +883,7 @@ export class Outcome implements iOutcome {
 			this.outcomeTypeName = "Binary";
 
 		}
-		if (this.smd == 0 && this.smd == 0 && this.riskDifference == 0
+		if (this.smd == 0 && this.oddsRatio == 0 && this.riskDifference == 0
 			&& this.petoOR == 0 && this.r == 0 && this.meanDifference == 0) {
 			this.es = this.riskRatio;
 			this.sees = this.seRiskRatio;

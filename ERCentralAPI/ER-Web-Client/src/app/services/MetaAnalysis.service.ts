@@ -134,17 +134,16 @@ export class MetaAnalysisService extends BusyAwareService {
   public SaveMetaAnalysis(MA: MetaAnalysis) {
     this._BusyMethods.push("SaveMetaAnalysis");
 
-    //console.log("saving reviewSet via command", rs, rsC);
     return this._httpC.post<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/SaveMetaAnalysis', MA).subscribe((res) => {
-
-      //let returned = new MetaAnalysis(res);
-      //let ind = this.MetaAnalysisList.findIndex(f => f.metaAnalysisId == returned.metaAnalysisId)
-      //if (ind == -1) {
-      //  this.MetaAnalysisList.push(returned);
-      //}
-      //else {
-      //  this.MetaAnalysisList.splice(ind, 1, returned);
-      //}
+      let returned = new MetaAnalysis(res);
+      let ind = this.MetaAnalysisList.findIndex(f => f.metaAnalysisId == returned.metaAnalysisId)
+      if (ind == -1) {
+        this.MetaAnalysisList.push(returned);
+      }
+      else {
+        this.MetaAnalysisList.splice(ind, 1, returned);
+      }
+      this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(MA);
 
       this.RemoveBusy("SaveMetaAnalysis");
     },
@@ -605,7 +604,7 @@ export class MetaAnalysis implements iMetaAnalysis {
     this.upgradeClear = iMA.upgradeClear;
     this.upgradeNone = iMA.upgradeNone;
     this.certaintyLevelComment = iMA.certaintyLevelComment;
-    this.metaAnalysisTypeId = iMA.metaAnalysisTypeId;
+    this._metaAnalysisTypeId = iMA.metaAnalysisTypeId;
     this.metaAnalysisTypeTitle = iMA.metaAnalysisTypeTitle;
     this.interventionText = iMA.interventionText;
     this.controlText = iMA.controlText;
@@ -733,7 +732,21 @@ export class MetaAnalysis implements iMetaAnalysis {
   public upgradeClear: boolean;
   public upgradeNone: boolean;
   public certaintyLevelComment: string;
-  public metaAnalysisTypeId: number;
+  private _metaAnalysisTypeId: number;
+  public set metaAnalysisTypeId(val: number) {
+    this._metaAnalysisTypeId = val;
+    for(let o of this.outcomes)
+    {
+      o.SetESForThisOutcomeType(this._metaAnalysisTypeId);
+      o.updateCanSelect(this._metaAnalysisTypeId);
+      if (!o.canSelect) {
+        o.isSelected = false;
+      }
+    }
+  }
+  public get metaAnalysisTypeId(): number {
+    return this._metaAnalysisTypeId;
+  }
   public metaAnalysisTypeTitle: string;
   public interventionText: string;
   public controlText: string;
