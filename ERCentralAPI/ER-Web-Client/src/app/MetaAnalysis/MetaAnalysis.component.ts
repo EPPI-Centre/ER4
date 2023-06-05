@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
@@ -8,6 +8,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { MetaAnalysis, MetaAnalysisSelectionCrit, MetaAnalysisService } from '../services/MetaAnalysis.service';
+import { MetaAnalysisDetailsComp } from './MetaAnalysisDetails.component';
 
 
 
@@ -56,6 +57,9 @@ export class MetaAnalysisComp implements OnInit, OnDestroy {
     private router: Router,
     private MetaAnalysisService: MetaAnalysisService
   ) { }
+
+  @ViewChild('MetaAnalysisDetailsComp') MetaAnalysisDetailsComp!: MetaAnalysisDetailsComp;
+
   ngOnInit() {
     if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
       this.router.navigate(['home']);
@@ -92,6 +96,7 @@ export class MetaAnalysisComp implements OnInit, OnDestroy {
 
   public EditMA(ma: MetaAnalysis) {
     const crit: MetaAnalysisSelectionCrit = { MetaAnalysisId: ma.metaAnalysisId, GetAllDetails: true };
+    if (this.MetaAnalysisDetailsComp) this.MetaAnalysisDetailsComp.CloseActivePanel();
     this.MetaAnalysisService.FetchMetaAnalysis(crit);
     this.BottomIsExpanded = true;
     this.TopIsExpanded = false;

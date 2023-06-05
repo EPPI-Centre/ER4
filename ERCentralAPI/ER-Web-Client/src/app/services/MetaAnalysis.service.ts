@@ -281,6 +281,11 @@ export class MetaAnalysisService extends BusyAwareService {
     //Is greater than or equal to
     //Is null
     //Is not null
+    if (field == "es" || field == "sees" || field.startsWith("aa") || field.startsWith("occ")) {
+      //field holds numeric vals, so we use ad-hoc logic
+      res = this.FilterByNumberedFilterAgainstNumericValues(res, FilterBy, Operator, field);
+      return res;
+    }
     if (!CaseSensitive) FilterBy = FilterBy.toLowerCase();
     if (Operator == "IsEqualTo") {
       if (CaseSensitive) res = res.filter(f => f[field] == FilterBy);
@@ -344,7 +349,75 @@ export class MetaAnalysisService extends BusyAwareService {
     } 
     return res;
   }
-
+  private FilterByNumberedFilterAgainstNumericValues(res: ExtendedOutcome[], FilterByString: string, Operator: string, field: keyof ExtendedOutcome): ExtendedOutcome[] {
+    const FilterBy = Number.parseFloat(FilterByString);
+    //possible filtering Operators are:
+    //Is equal to
+    //Is not equal to
+    //Starts with
+    //Ends with
+    //Contains
+    //Does not contain
+    //Is contained in
+    //Is not contained in
+    //Is empty
+    //Is not empty
+    //Is less than
+    //Is less than or equal to
+    //Is greater than
+    //Is greater than or equal to
+    //Is null
+    //Is not null
+    if (Operator == "IsEqualTo") {
+      res = res.filter(f => f[field] == FilterBy);
+    }
+    else if (Operator == "IsNotEqualTo") {
+      res = res.filter(f => f[field] != FilterBy);
+    }
+    else if (Operator == "StartsWith") {
+      res = res.filter(f => f[field].toString().startsWith(FilterByString));
+    }
+    else if (Operator == "EndsWith") {
+      res = res.filter(f => f[field].toString().endsWith(FilterByString));
+    }
+    else if (Operator == "Contains") {
+      res = res.filter(f => f[field].toString().indexOf(FilterByString) != -1);
+    }
+    else if (Operator == "DoesNotContain") {
+      res = res.filter(f => !(f[field].toString().indexOf(FilterByString) != -1));
+    }
+    else if (Operator == "IsContainedIn") {
+      res = res.filter(f => FilterByString.indexOf(f[field].toString()) != -1);
+    }
+    else if (Operator == "IsNotContainedIn") {
+      res = res.filter(f => !(FilterByString.indexOf(f[field].toString()) != -1));
+    }
+    else if (Operator == "IsEmpty") {
+      res = res.filter(f => f[field] == "");
+    }
+    else if (Operator == "IsNotEmpty") {
+      res = res.filter(f => f[field] != "");
+    }
+    else if (Operator == "IsLessThan") {
+      res = res.filter(f => f[field] < FilterBy);
+    }
+    else if (Operator == "IsLessThanOrEqualTo") {
+      res = res.filter(f => f[field] <= FilterBy);
+    }
+    else if (Operator == "IsGreaterThan") {
+      res = res.filter(f => f[field] > FilterBy);
+    }
+    else if (Operator == "IsGreaterThanOrEqualTo") {
+      res = res.filter(f => f[field] >= FilterBy);
+    }
+    else if (Operator == "IsNull") {
+      res = res.filter(f => f[field] == "");
+    }
+    else if (Operator == "IsNotNull") {
+      res = res.filter(f => f[field] != "");
+    }
+    return res;
+  }
 
   public static FieldNameFromER4ColName(ColName: string): string {
     switch (ColName) {
@@ -604,7 +677,6 @@ export class MetaAnalysis implements iMetaAnalysis {
     this.upgradeClear = iMA.upgradeClear;
     this.upgradeNone = iMA.upgradeNone;
     this.certaintyLevelComment = iMA.certaintyLevelComment;
-    this._metaAnalysisTypeId = iMA.metaAnalysisTypeId;
     this.metaAnalysisTypeTitle = iMA.metaAnalysisTypeTitle;
     this.interventionText = iMA.interventionText;
     this.controlText = iMA.controlText;
@@ -646,6 +718,7 @@ export class MetaAnalysis implements iMetaAnalysis {
       let FS: FilterSettings = new FilterSettings(inFS);
       this.filterSettingsList.push(FS);
     }
+    this.metaAnalysisTypeId = iMA.metaAnalysisTypeId;
   }
   public analysisType: number;
   public title: string;
@@ -732,7 +805,7 @@ export class MetaAnalysis implements iMetaAnalysis {
   public upgradeClear: boolean;
   public upgradeNone: boolean;
   public certaintyLevelComment: string;
-  private _metaAnalysisTypeId: number;
+  private _metaAnalysisTypeId: number = -1;
   public set metaAnalysisTypeId(val: number) {
     this._metaAnalysisTypeId = val;
     for(let o of this.outcomes)

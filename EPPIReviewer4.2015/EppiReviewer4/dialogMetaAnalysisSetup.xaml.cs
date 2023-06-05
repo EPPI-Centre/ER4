@@ -417,6 +417,14 @@ namespace EppiReviewer4
                                             int intVal;
                                             if (int.TryParse(selval, out intVal)) colFilter.DistinctFilter.AddDistinctValue(intVal);
                                         }
+                                        else if (col.UniqueName == "ESColumn" || col.UniqueName == "SEESColumn")
+                                        {
+                                            double dVal;
+                                            if (double.TryParse(selval, out dVal))
+                                            {
+                                                colFilter.DistinctFilter.AddDistinctValue(dVal);
+                                            }
+                                        }
                                         else colFilter.DistinctFilter.AddDistinctValue(selval);
 
                                     }
@@ -879,7 +887,7 @@ namespace EppiReviewer4
                     foreach (object distinctValueObj in e.ColumnFilterDescriptor.DistinctFilter.DistinctValues)
                     {
                         string valStr = "";
-                        if (colName =="ESColumn" || colName == "SEESColumn") valStr = ((double)distinctValueObj).ToString("G16");
+                        if (colName =="ESColumn" || colName == "SEESColumn") valStr = ((double)distinctValueObj).ToString("G17");
                         else valStr = distinctValueObj.ToString();
                         aggregateVals += valStr + "{¬}";
                     }

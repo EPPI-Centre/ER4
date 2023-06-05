@@ -32,7 +32,7 @@
     </div>
   </div>
 
-  <MetaAnalysisDetailsComp *ngIf="CurrentMA != null && BottomIsExpanded" class="mt-1 w-100"></MetaAnalysisDetailsComp>
+  <MetaAnalysisDetailsComp #MetaAnalysisDetailsComp *ngIf="CurrentMA != null && BottomIsExpanded" class="mt-1 w-100"></MetaAnalysisDetailsComp>
 </div>
 
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
