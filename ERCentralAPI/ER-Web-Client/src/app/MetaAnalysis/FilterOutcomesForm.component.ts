@@ -8,8 +8,8 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 @Component({
   selector: 'FilterOutcomesFormComp',
   templateUrl: './FilterOutcomesForm.component.html',
-    providers: [],
-    styles: []
+  providers: [],
+  styles: []
 })
 export class FilterOutcomesFormComp implements OnInit, OnDestroy {
 
@@ -166,6 +166,18 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     if (res) return res.value;
     return "N/A";
   }
+
+  public get HasSelections(): number {
+    console.log("HasSelections1", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
+    const selectedCount = this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length;
+    if (selectedCount == 0) return 0;
+    const selectableCount = this.SelectableValues.length;
+    console.log("HasSelections2", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
+    if (selectedCount != selectableCount) return 1; //partial selection
+    else return 2;
+  }
+
+
 
   BringFilteringColIntoView() {
     setTimeout(() => {
@@ -333,6 +345,50 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     }
     this.MetaAnalysisService.ApplyFilters();
   }
+
+  public SelectAll() {
+    let fil = this.CurrentFilterSetting;
+    fil.selectedValues = "";
+    const separator = "{" + String.fromCharCode(0x00AC) + "}";
+    let SelectedVals: string[] = [];
+    
+    if (this.CurrentFilterSetting.columnName == "ESColumn") {
+      if (this.CurrentMA) {
+        for (let val of this.SelectableValues) {
+          let res = this.CurrentMA.outcomes.filter(f => f.esRounded.toString() == val).map(m => m.es);
+          for (let fullVal of res) {
+            SelectedVals.push(fullVal.toString());
+          }
+        }
+      }
+    }
+    else if (this.CurrentFilterSetting.columnName == "SEESColumn") {
+      if (this.CurrentMA) {
+        for (let val of this.SelectableValues) {
+          let res = this.CurrentMA.outcomes.filter(f => f.seesRounded.toString() == val).map(m => m.sees);
+          for (let fullVal of res) {
+            SelectedVals.push(fullVal.toString());
+          }
+        }
+      }
+    }
+    else {
+      for (let val of this.SelectableValues) {
+        SelectedVals.push(val);
+      }
+    }
+
+    SelectedVals.sort();
+    if (SelectedVals.length == 1 && SelectedVals[0] == '') this.CurrentFilterSetting.selectedValues = separator;//otherwise it's empty, meaning nothing is selected
+    else this.CurrentFilterSetting.selectedValues = SelectedVals.join(separator);
+  }
+
+  public UnSelectAll() {
+    let fil = this.CurrentFilterSetting;
+    fil.selectedValues = "";
+    this.MetaAnalysisService.ApplyFilters();
+  }
+
 
   public CloseMe() {
     const CurrFil = this._CurrentFilterSetting;

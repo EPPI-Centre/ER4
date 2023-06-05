@@ -13,18 +13,7 @@ import { SyncState, ZoteroItem, ZoteroERWebReviewItem} from '../services/ZoteroC
   selector: 'ZoteroSync',
   templateUrl: './ZoteroSync.component.html',
   providers: [],
-  styles: [
-    `.linear-fade {
-    mask-image: linear-gradient(
-      to top left,
-      rgba(0, 0, 0, 0) 0em,
-      rgba(0, 0, 0, 1) 1.15em);
-    -webkit-mask-image: linear-gradient(
-      to top left,
-      rgba(0, 0, 0, 0) 0em,
-      rgba(0, 0, 0, 1) 1.15em);
-    }`
-    ]
+  styles: []
 })
 
 export class ZoteroSyncComponent implements OnInit, OnDestroy {

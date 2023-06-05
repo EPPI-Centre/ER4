@@ -22,8 +22,15 @@
     </div>
 
     <div *ngIf="CurrentFilterSetting.columnName != ''" class="col-12 col-sm-6 bg-white rounded border border-secondary mb-1">
-      <div>Show only outcomes with these values:</div>
-      <div class="row mx-0 px-1" style="max-height: 12ex; overflow-y: auto;">
+      <div class="row mx-0 p-1">
+        <div class="mr-1">Show only outcomes with these values:</div>
+        <ng-container [ngSwitch]="HasSelections">
+          <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll()" class="my-auto" title="No values selected" />
+          <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll()" checked class="my-auto linear-fade" title="Some values are selected" />
+          <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll()" class="my-auto" title="All values are selected" />
+        </ng-container>
+      </div>
+      <div class="row mx-0 px-0" style="max-height: 12ex; overflow-y: auto;">
         <div *ngFor="let val of SelectableValues" class="px-1 rounded alert-info m-1">
           <input type="checkbox" (change)="ChangeSelected(val, $event)" [checked]="ValIsSelected(val)" />
           {{((val.trim() == '') ? '[...no value]' : val)}}

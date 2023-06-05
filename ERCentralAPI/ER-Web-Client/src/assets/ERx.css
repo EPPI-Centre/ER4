@@ -232,3 +232,7 @@ ul.k-tabstrip-items li.k-item.k-state-active {
   max-height: 60vh;
   overflow: auto;
 }
+.linear-fade {
+  mask-image: linear-gradient( to top left, rgba(0, 0, 0, 0) 0em, rgba(0, 0, 0, 1) 1.15em);
+  -webkit-mask-image: linear-gradient( to top left, rgba(0, 0, 0, 0) 0em, rgba(0, 0, 0, 1) 1.15em);
+}
