@@ -19,8 +19,10 @@ import { CustomSorting } from '../helpers/CustomSorting';
   providers: [],
   styles: [
 `
-.OutcomesTableContainer {border-top: 1px solid DarkBlue; border-bottom: 1px solid DarkBlue;}
+.OutcomesTableContainer {border-top: 1px solid DarkBlue; border-bottom: 1px solid DarkBlue; max-height: 55vh; overflow:auto; max-width:95vw;}
+.OutcomesTable table { max-height: 50vh; max-width: 90vm; }
 .OutcomesTable th {border: 1px dotted Silver; min-width:3vw;}
+.OutcomesTable thead th {background-color: #fbfbfb; box-shadow: inset 0px -0.8px #222222, 0 0 #000; }
 .OutcomesTable td {border: 1px dotted Silver;}
 .sortableTH { cursor:pointer;}
 .QuestionCol { background: Khaki !important;  cursor:pointer;}
@@ -30,8 +32,7 @@ import { CustomSorting } from '../helpers/CustomSorting';
 .filterIcon {padding: 6px 8px 8px 8px ; border: 1px solid #00000000; border-radius: 3px;}
 .filterIcon:hover {border: 1px solid blue; border-radius: 3px; color:blue;}
 
-.tableFixHead          { overflow: auto; max-height: 50vh; max-width: 90vm; }
-.tableFixHead thead th { position: sticky; top: 0; z-index: 1; background-color: #fbfbfb; box-shadow: inset 0px -0.8px #222222, 0 0 #000}
+
 
 `]
 })
@@ -61,6 +62,16 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     return this.MetaAnalysisService.ColumnVisibility;
   }
 
+  public get HasSelections(): number {
+    //console.log("HasSelections o1", this.Outcomes.length, this.Outcomes.filter(f => f.isSelected == true).length);
+    const selectedCount = this.Outcomes.filter(f => f.isSelected == true).length;
+    if (selectedCount == 0) return 0;
+    const selectableCount = this.Outcomes.filter(f => f.canSelect == true).length;
+    //console.log("HasSelections o2", this.Outcomes.length, this.Outcomes.filter(f => f.canSelect == true).length);
+    if (selectedCount != selectableCount) return 1; //partial selection
+    else return 2;
+  }
+
   public SortingSymbol(fieldName: string): string {
     return CustomSorting.SortingSymbol(fieldName, this.MetaAnalysisService.LocalSort);
   }
@@ -77,7 +88,15 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     event.stopPropagation();
     this.PleaseEditThisFilter.emit(fieldName);
   }
-
-  
+  public SelectAll() {
+    for (let o of this.Outcomes) {
+      if (o.canSelect == true) o.isSelected = true;
+    }
+  }
+  public UnSelectAll() {
+    for (let o of this.Outcomes) {
+      o.isSelected = false;
+    }
+  }
   ngOnDestroy() { }
 }

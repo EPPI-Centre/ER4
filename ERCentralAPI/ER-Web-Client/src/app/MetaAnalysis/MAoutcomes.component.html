@@ -1,9 +1,15 @@
 <strong class="row ">Outcomes table:</strong>
-<div style="max-height: 55vh; overflow:auto; max-width:95vw;" class="small OutcomesTableContainer">
+<div class="small OutcomesTableContainer">
   <table class="table table-sm OutcomesTable tableFixHead">
     <thead>
       <tr>
-        <th></th>
+        <th style="text-align: center; vertical-align: bottom;">
+          <ng-container [ngSwitch]="HasSelections">
+            <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll()" class="my-auto" title="No outcomes selected" />
+            <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll()" checked class="my-auto linear-fade" title="Some outcomes are selected" />
+            <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll()" class="my-auto" title="All outcomes are selected" />
+          </ng-container>
+        </th>
         <th class="sortableTH" (click)="Sort('es')" id="col-es">
           ES<span [innerHTML]="SortingSymbol('es')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ESColumn')}" (click)="DoEditThisFilter('es', $event)" class=" filterIcon" name="filter" size="small"></kendo-icon>

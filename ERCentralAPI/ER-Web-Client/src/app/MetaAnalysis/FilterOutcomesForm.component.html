@@ -50,7 +50,7 @@
       </div>
       <div class="row mx-0 px-1">
         <select (change)="ChangingFilterOperator($event, true)" class="py-1">
-          <option *ngFor="let operator of TextFilterOperators" [value]="operator.key" [selected]="IsThisTheCurrentOperator(operator.value, true)" class="py-0">
+          <option *ngFor="let operator of FilterOperators" [value]="operator.key" [selected]="IsThisTheCurrentOperator(operator.value, true)" class="py-0">
             {{operator.value}}
           </option>
         </select>
@@ -83,7 +83,7 @@
       </div>
       <div class="row mx-0 px-1 ">
         <select (change)="ChangingFilterOperator($event, false)" class="py-1">
-          <option *ngFor="let operator of TextFilterOperators" [value]="operator.key" [selected]="IsThisTheCurrentOperator(operator.value, false)" class="py-0">
+          <option *ngFor="let operator of FilterOperators" [value]="operator.key" [selected]="IsThisTheCurrentOperator(operator.value, false)" class="py-0">
             {{operator.value}}
           </option>
         </select>

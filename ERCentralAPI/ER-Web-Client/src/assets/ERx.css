@@ -236,3 +236,15 @@ ul.k-tabstrip-items li.k-item.k-state-active {
   mask-image: linear-gradient( to top left, rgba(0, 0, 0, 0) 0em, rgba(0, 0, 0, 1) 1.15em);
   -webkit-mask-image: linear-gradient( to top left, rgba(0, 0, 0, 0) 0em, rgba(0, 0, 0, 1) 1.15em);
 }
+
+
+
+.tableFixHead {
+  overflow: auto;
+}
+
+.tableFixHead thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}

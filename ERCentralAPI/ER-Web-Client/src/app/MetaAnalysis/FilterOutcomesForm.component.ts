@@ -99,7 +99,7 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
   public get CurrentMA(): MetaAnalysis | null {
     return this.MetaAnalysisService.CurrentMetaAnalysis;
   }
-  public TextFilterOperators: StringKeyValue[] = [
+  private _TextFilterOperators: StringKeyValue[] = [
     new StringKeyValue("IsEqualTo", "Is Equal To"),
     new StringKeyValue("IsNotEqualTo", "Is Not Equal To"),
     new StringKeyValue("StartsWith", "Starts With"),
@@ -117,6 +117,29 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     new StringKeyValue("IsNull", "Is Null"),
     new StringKeyValue("IsNotNull", "Is Not Null")
   ];
+  private _NumberFilterOperators: StringKeyValue[] = [
+    new StringKeyValue("IsEqualTo", "Is Equal To"),
+    new StringKeyValue("IsNotEqualTo", "Is Not Equal To"),
+    new StringKeyValue("IsLessThan", "Is Less Than"),
+    new StringKeyValue("IsLessThanOrEqualTo", "Is Less Than Or Equal To"),
+    new StringKeyValue("IsGreaterThan", "Is Greater Than"),
+    new StringKeyValue("IsGreaterThanOrEqualTo", "Is Greater Than Or Equal To")
+  ];
+
+  public get FilterOperators(): StringKeyValue[] {
+    if (this.CurrentFilterSetting.columnName == "titleColumn"
+      || this.CurrentFilterSetting.columnName == "DescColumn"
+      || this.CurrentFilterSetting.columnName == "TimepointColumn"
+      || this.CurrentFilterSetting.columnName == "OutcomeTypeName"
+      || this.CurrentFilterSetting.columnName == "OutcomeColumn"
+      || this.CurrentFilterSetting.columnName == "InterventionColumn"
+      || this.CurrentFilterSetting.columnName == "ComparisonColumn"
+      || this.CurrentFilterSetting.columnName == "Arm1Column"
+      || this.CurrentFilterSetting.columnName == "Arm2Column"
+    ) {
+      return this._TextFilterOperators;
+    } else return this._NumberFilterOperators;
+  }
 
   public IsThisTheCurrentOperator(operatorString: string, isFirstFilter: boolean): boolean {
     if (isFirstFilter) return this.CurrentFilterSetting.filter1Operator == operatorString;
@@ -168,11 +191,11 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
   }
 
   public get HasSelections(): number {
-    console.log("HasSelections1", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
+    //console.log("HasSelections1", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
     const selectedCount = this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length;
     if (selectedCount == 0) return 0;
     const selectableCount = this.SelectableValues.length;
-    console.log("HasSelections2", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
+    //console.log("HasSelections2", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
     if (selectedCount != selectableCount) return 1; //partial selection
     else return 2;
   }

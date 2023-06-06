@@ -561,7 +561,7 @@ interface iMetaAnalysis {
   controlText: string;
   outcomeText: string;
   outcomes: iExtendedOutcome[];
-  metaAnalysisModerators: [];
+  metaAnalysisModerators: iModerator[];
   attributeIdQuestion: string;
   attributeQuestionText: string;
   attributeIdAnswer: string;
@@ -681,14 +681,12 @@ export class MetaAnalysis implements iMetaAnalysis {
     this.interventionText = iMA.interventionText;
     this.controlText = iMA.controlText;
     this.outcomeText = iMA.outcomeText;
-    this.outcomes = [];// iMA.outcomes;
     this.metaAnalysisModerators = iMA.metaAnalysisModerators;
     this.attributeIdQuestion = iMA.attributeIdQuestion;
     this.attributeQuestionText = iMA.attributeQuestionText;
     this.attributeIdAnswer = iMA.attributeIdAnswer;
     this.attributeAnswerText = iMA.attributeAnswerText;
     this.gridSettings = iMA.gridSettings;
-    this.filterSettingsList = []; iMA.filterSettingsList;
     this.feForestPlot =null;
     this.reForestPlot =null;
     this.feFunnelPlot =null;
@@ -710,13 +708,20 @@ export class MetaAnalysis implements iMetaAnalysis {
     this.sumWeightsSquared = iMA.sumWeightsSquared;
     this.reSumWeightsTimesOutcome = iMA.reSumWeightsTimesOutcome;
     this.wY_squared = iMA.wY_squared;
+    this.outcomes = [];
     for (let iO of iMA.outcomes) {
       let Oc: ExtendedOutcome = new ExtendedOutcome(iO);
       this.outcomes.push(Oc);
     }
+    this.filterSettingsList = []; 
     for (let inFS of iMA.filterSettingsList) {
       let FS: FilterSettings = new FilterSettings(inFS);
       this.filterSettingsList.push(FS);
+    }
+    this.metaAnalysisModerators = [];
+    for (let iMod of iMA.metaAnalysisModerators) {
+      let Mod: Moderator = new Moderator(iMod);
+      this.metaAnalysisModerators.push(Mod);
     }
     this.metaAnalysisTypeId = iMA.metaAnalysisTypeId;
   }
@@ -825,7 +830,7 @@ export class MetaAnalysis implements iMetaAnalysis {
   public controlText: string;
   public outcomeText: string;
   public outcomes: ExtendedOutcome[];
-  public metaAnalysisModerators: [];
+  public metaAnalysisModerators: Moderator[];
   public attributeIdQuestion: string;
   public attributeQuestionText: string;
   public attributeIdAnswer: string;
@@ -853,6 +858,12 @@ export class MetaAnalysis implements iMetaAnalysis {
   public sumWeightsSquared: number;
   public reSumWeightsTimesOutcome: number;
   public wY_squared: number;
+
+  public get CanTrimFill(): boolean {
+    const selectedModerators = this.metaAnalysisModerators.filter(f => f.isSelected == true);
+    if (selectedModerators.length == 1) return false;
+    else return true;
+  }
 }
 
 export interface iFilterSettings {
@@ -907,6 +918,41 @@ export class FilterSettings implements iFilterSettings{
   filter2Operator: string;
   filter2CaseSensitive: boolean;
 }
+
+export interface iModerator {
+  name: string;
+  fieldName: string;
+  attributeID: number;
+  reference: string;
+  references: iReference[];
+  isSelected: boolean;
+  isFactor: boolean;
+}
+
+export class Moderator implements iModerator {
+  constructor(incoming: iModerator) {
+    this.name = incoming.name;
+    this.fieldName = incoming.fieldName;
+    this.attributeID = incoming.attributeID;
+    this.reference = incoming.reference;
+    this.references = incoming.references;
+    this.isSelected = incoming.isSelected;
+    this.isFactor = incoming.isFactor;
+  }
+  name: string;
+  fieldName: string;
+  attributeID: number;
+  reference: string;
+  references: iReference[];
+  isSelected: boolean;
+  isFactor: boolean;
+}
+
+export interface iReference {
+  "name": string,
+  "attributeID": number,
+}
+
 export class MetaAnalysisSelectionCrit {
   GetAllDetails: boolean = false;
   MetaAnalysisId: number = 0;
