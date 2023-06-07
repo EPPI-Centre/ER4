@@ -51,6 +51,13 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
       }
     }
   }
+  public ChangingMAtype(event: Event) {
+    if (this.CurrentMA) {
+      const target: HTMLSelectElement = (event.target as HTMLSelectElement);
+      let val = target.options[target.options.selectedIndex];
+      this.CurrentMA.metaAnalysisTypeTitle = val.text;
+    }
+  }
 
   public Save() {
     if (this.CurrentMA) {

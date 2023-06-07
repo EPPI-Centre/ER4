@@ -8,7 +8,7 @@
            placeholder="New MA name">
     <div class="col-3 col-sm-1">Type:</div>
     <div class="col-9 col-sm-5">
-      <select class="form-control mb-1 pr-1 pl-1 p-2" name="rev2"
+      <select class="form-control mb-1 pr-1 pl-1 p-2" name="rev2" (change)="ChangingMAtype($event)"
               [disabled]="!HasWriteRights" [(ngModel)]="CurrentMA.metaAnalysisTypeId">
         <option [ngValue]=0 [selected]="CurrentMA.metaAnalysisTypeId == 0">Continuous: d (Hedges g)</option>
         <option [ngValue]=1 [selected]="CurrentMA.metaAnalysisTypeId == 1">Continuous: r</option>
@@ -21,7 +21,7 @@
       </select>
     </div>
   </div>
-  <div>Can TrimFill: {{CurrentMA.CanTrimFill}}</div>
+  <div>Can TrimFill: {{CurrentMA.CanTrimFill}} typename: {{CurrentMA.metaAnalysisTypeTitle}}</div>
 </div>
 <div class="rounded border border-primary mx-1 p-2 mt-1 bg-light row">
   <button class="btn btn-outline-success btn-sm" (click)="ShowPanel('EditFilters')">Edit Filters</button>

@@ -133,7 +133,7 @@ export class MetaAnalysisService extends BusyAwareService {
 
   public SaveMetaAnalysis(MA: MetaAnalysis) {
     this._BusyMethods.push("SaveMetaAnalysis");
-    const ToSend: iMetaAnalysis = MA.ToJSON();
+    const ToSend: iMetaAnalysis = MA.ToiMetaAnalysis();
     return this._httpC.post<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/SaveMetaAnalysis', ToSend).subscribe((res) => {
       let returned = new MetaAnalysis(res);
       let ind = this.MetaAnalysisList.findIndex(f => f.metaAnalysisId == returned.metaAnalysisId)
@@ -143,6 +143,7 @@ export class MetaAnalysisService extends BusyAwareService {
       else {
         this.MetaAnalysisList.splice(ind, 1, returned);
       }
+      this.MetaAnalysisList = this.MetaAnalysisList.concat();//ensures the UI notices we've changed something...
       this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(MA);
 
       this.RemoveBusy("SaveMetaAnalysis");
@@ -864,7 +865,7 @@ export class MetaAnalysis implements iMetaAnalysis {
     if (selectedModerators.length == 1) return false;
     else return true;
   }
-  public ToJSON(): iMetaAnalysis {
+  public ToiMetaAnalysis(): iMetaAnalysis {
     //we need this because "get" methods don't get in the JSON string by default, so we have to do it explictly for any "property" that is implemented with get/set...
     const ResString = JSON.stringify(this);
     let res: iMetaAnalysis = JSON.parse(ResString);

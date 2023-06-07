@@ -118,6 +118,7 @@ namespace ERxWebClient2.Controllers
                     toSave.FilterSettingsList.AddRange(toSaveSettings);
                     toSave.Title = MAjson.title;
                     toSave.MetaAnalysisTypeId = MAjson.metaAnalysisTypeId;
+                    toSave.MetaAnalysisTypeTitle = MAjson.metaAnalysisTypeTitle;
                     toSave.SortDirection = MAjson.sortDirection;
                     toSave.SortedBy = MAjson.sortedBy;
                     toSave = toSave.Save();
