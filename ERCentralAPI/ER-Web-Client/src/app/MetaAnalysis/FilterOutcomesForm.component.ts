@@ -75,7 +75,7 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     , metaAnalysisId: (this.MetaAnalysisService.CurrentMetaAnalysis) ? this.MetaAnalysisService.CurrentMetaAnalysis.metaAnalysisId : 0
     , columnName: "", selectedValues: "", filter1: "", filter1Operator: "IsEqualTo", filter1CaseSensitive: false, filtersLogicalOperator: "And"
     , filter2: "", filter2Operator: "IsEqualTo", filter2CaseSensitive: false
-  });;
+  });
   public get CurrentFilterSetting(): FilterSettings {
     return this._CurrentFilterSetting;
   }
@@ -142,8 +142,12 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
   }
 
   public IsThisTheCurrentOperator(operatorString: string, isFirstFilter: boolean): boolean {
-    if (isFirstFilter) return this.CurrentFilterSetting.filter1Operator == operatorString;
-    else return this.CurrentFilterSetting.filter2Operator == operatorString;
+    const KV = this._TextFilterOperators.find(f => f.value == operatorString);
+    if (KV) {
+      if (isFirstFilter) return this.CurrentFilterSetting.filter1Operator == KV.key;
+      else return this.CurrentFilterSetting.filter2Operator == KV.key;
+    }
+    else return false;
   }
 
   public ChangingFilterOperator(event: Event, isFirstFilter: boolean) {
@@ -229,6 +233,14 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
   public ChangingColumnFromDropdown(event: Event) {
     const ColFieldName: string = (event.target as HTMLOptionElement).value;
     if (ColFieldName != '') this.ChangingColumn(ColFieldName);
+    else {
+      this._CurrentFilterSetting = new FilterSettings({
+        isClear: false, metaAnalysisFilterSettingId: 0
+        , metaAnalysisId: (this.MetaAnalysisService.CurrentMetaAnalysis) ? this.MetaAnalysisService.CurrentMetaAnalysis.metaAnalysisId : 0
+        , columnName: "", selectedValues: "", filter1: "", filter1Operator: "IsEqualTo", filter1CaseSensitive: false, filtersLogicalOperator: "And"
+        , filter2: "", filter2Operator: "IsEqualTo", filter2CaseSensitive: false
+      });
+    }
   }
   public ChangingColumn(ColFieldName: string) {
     //const ColFieldName: string = (event.target as HTMLOptionElement).value;
