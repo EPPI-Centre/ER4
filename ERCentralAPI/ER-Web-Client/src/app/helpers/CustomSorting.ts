@@ -1,10 +1,13 @@
 
 //class implements STATIC methods to operate of sorting for tables, regardless of what is being sorted
 
+import { orderBy, SortDescriptor } from "@progress/kendo-data-query";
+
 export class CustomSorting {
-  public static SortBy(fieldName: string, listToSort: object[], sortingStorage: LocalSort) {
+  public static SortBy<T>(fieldName: string, listToSort: T[], sortingStorage: LocalSort): T[] {
     //console.log("SortBy", fieldName);
-    if (listToSort.length == 0) return;
+    //let start = Date.now();
+    if (listToSort.length == 0) return listToSort;
     for (let property of Object.getOwnPropertyNames(listToSort[0])) {
       //console.log("SortByP", property);
       if (property == fieldName) {
@@ -16,36 +19,67 @@ export class CustomSorting {
           sortingStorage.Direction = true;
           sortingStorage.SortBy = fieldName;
         }
-        CustomSorting.DoSort(listToSort, sortingStorage);
+        listToSort = CustomSorting.DoSort(listToSort, sortingStorage);
         break;
       }
     }
+    //let timetaken = Date.now() - start;
+    //console.log("Total time taken (my method): " + timetaken + " milliseconds");
+    return listToSort;
   }
-  public static DoSort(listToSort: object[], sortingStorage: LocalSort) {
+  public static DoSort<T>(listToSort: T[], sortingStorage: LocalSort): T[] {
     //console.log("doSort", this.LocalSort);
+
+    let Tsort: SortDescriptor[] = [{
+      field: sortingStorage.SortBy,
+      dir: sortingStorage.Direction ? 'asc' : 'desc'
+    }];
+
+    listToSort = orderBy(listToSort, Tsort);
+    return listToSort;
+  }
+  private static OldDoSort(listToSort: object[], sortingStorage: LocalSort) { 
+
+    //deprecated!
+
     if (listToSort.length == 0 || sortingStorage.SortBy == "") return;
     for (let property of Object.getOwnPropertyNames(listToSort[0])) {
       //console.log("doSort2", property);
       if (property == sortingStorage.SortBy) {
-        listToSort.sort((a: any, b: any) => {
+        const ObjTypeChk: any = listToSort[0];
+        const TypeChecker: any = ObjTypeChk[property];
+        if (typeof TypeChecker == "string") {
           if (sortingStorage.Direction) {
-            if (a[property] > b[property]) {
-              return 1;
-            } else if (a[property] < b[property]) {
-              return -1;
-            } else {
-              return 0;
-            }
+            listToSort.sort((a: any, b: any) => {
+              return a[property].localeCompare(b[property], "en-001", { sensitivity: "accent" });
+            });
           } else {
-            if (a[property] > b[property]) {
-              return -1;
-            } else if (a[property] < b[property]) {
-              return 1;
-            } else {
-              return 0;
-            }
+            listToSort.sort((b: any, a: any) => {
+              return a[property].localeCompare(b[property], "en-001", { sensitivity: "accent" });
+            });
           }
-        });
+        }
+        else {
+          listToSort.sort((a: any, b: any) => {
+            if (sortingStorage.Direction) {
+              if (a[property] > b[property]) {
+                return 1;
+              } else if (a[property] < b[property]) {
+                return -1;
+              } else {
+                return 0;
+              }
+            } else {
+              if (a[property] > b[property]) {
+                return -1;
+              } else if (a[property] < b[property]) {
+                return 1;
+              } else {
+                return 0;
+              }
+            }
+          });
+        }
         break;
       }
     }

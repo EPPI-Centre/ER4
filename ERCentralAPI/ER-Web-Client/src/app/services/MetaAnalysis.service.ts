@@ -54,7 +54,7 @@ export class MetaAnalysisService extends BusyAwareService {
     if (this.CurrentMetaAnalysis == null) return;
     if (this.LocalSort.SortBy == fieldName && this.LocalSort.Direction == false) this.UnSortOutcomes();
     else {
-      CustomSorting.SortBy(fieldName, this._FilteredOutcomes, this.LocalSort);
+      this._FilteredOutcomes = CustomSorting.SortBy(fieldName, this._FilteredOutcomes, this.LocalSort);
       if (this.LocalSort.Direction) this.CurrentMetaAnalysis.sortDirection = "Ascending";
       else this.CurrentMetaAnalysis.sortDirection = "Descending";
       this.CurrentMetaAnalysis.sortedBy = MetaAnalysisService.ER4ColNameFromFieldName(fieldName, true);
@@ -209,7 +209,7 @@ export class MetaAnalysisService extends BusyAwareService {
         SortBy: MetaAnalysisService.FieldNameFromER4ColName(this.CurrentMetaAnalysis.sortedBy) ,
         Direction: booleanDir
       };
-      CustomSorting.DoSort(this._FilteredOutcomes, this.LocalSort);
+      this._FilteredOutcomes = CustomSorting.DoSort(this._FilteredOutcomes, this.LocalSort);
     }
     else { this.LocalSort = new LocalSort(); }
   }
@@ -259,7 +259,7 @@ export class MetaAnalysisService extends BusyAwareService {
       let interim2 = this.FilterByNumberedFilter(res, filter.filter2, filter.filter2Operator, filter.filter2CaseSensitive, key);
       res = interim1.concat(interim2.filter((f) => interim1.indexOf(f) < 0));
     }
-    console.log("sub-filtering result: ", res);
+    //console.log("sub-filtering result: ", res);
     return res;
   }
   private FilterByNumberedFilter(outcomes: ExtendedOutcome[], FilterBy: string, Operator: string, CaseSensitive: boolean, field: keyof ExtendedOutcome): ExtendedOutcome[] {

@@ -248,10 +248,10 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
   private LocalSort1: LocalSort = new LocalSort();
   private LocalSort2: LocalSort = new LocalSort();
   public SortBy1(field: string) {
-    CustomSorting.SortBy(field, this._zoteroService.ZoteroERWebReviewItemList, this.LocalSort1);
+    this._zoteroService.ZoteroERWebReviewItemList = CustomSorting.SortBy(field, this._zoteroService.ZoteroERWebReviewItemList, this.LocalSort1);
   }
   public SortBy2(field: string) {
-    CustomSorting.SortBy(field, this._zoteroService.ZoteroItems, this.LocalSort2);
+    this._zoteroService.ZoteroItems = CustomSorting.SortBy(field, this._zoteroService.ZoteroItems, this.LocalSort2);
   }
   public SortingSymbol1(fieldName: string): string {
     return CustomSorting.SortingSymbol(fieldName, this.LocalSort1);
@@ -425,7 +425,7 @@ export class ZoteroSyncComponent implements OnInit, OnDestroy {
     this._TotPages2 = -1;
     const res2 = await this._zoteroService.CheckAndFetchZoteroItems(true);
     if (res2 == true) {
-      CustomSorting.DoSort(this._zoteroService.ZoteroItems, this.LocalSort2);
+      this._zoteroService.ZoteroItems = CustomSorting.DoSort(this._zoteroService.ZoteroItems, this.LocalSort2);
       let CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
       if (CurrentDropdownSelectedCode !== null) {
         this._zoteroService.fetchZoteroERWebReviewItemListAsync(CurrentDropdownSelectedCode.attribute_id.toString(), this.LocalSort1);

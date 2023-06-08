@@ -63,12 +63,17 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
   public get ZoteroItems(): ZoteroItem[] {
     return this._ZoteroItems;
   }
+  public set ZoteroItems(val: ZoteroItem[]) {
+    this._ZoteroItems = val;
+  }
 
   private _zoteroERWebReviewItemList: ZoteroERWebReviewItem[] = [];
   public get ZoteroERWebReviewItemList() {
     return this._zoteroERWebReviewItemList;
   }
-
+  public set ZoteroERWebReviewItemList(val: ZoteroERWebReviewItem[]) {
+    this._zoteroERWebReviewItemList = val;
+  }
   private _BusyMessage = "";
   public get BusyMessage(): string {
     if (this._BusyMethods.length == 0) {
@@ -479,7 +484,7 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
           //console.log("state2", zri.syncState);
           this._zoteroERWebReviewItemList.push(zri);
         }
-        CustomSorting.DoSort(this._zoteroERWebReviewItemList, sortResultsBy);
+        this._zoteroERWebReviewItemList = CustomSorting.DoSort(this._zoteroERWebReviewItemList, sortResultsBy);
         this.RemoveBusy("fetchZoteroERWebReviewItemListAsync");
       },
         error => {
