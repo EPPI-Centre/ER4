@@ -3281,7 +3281,7 @@ namespace BusinessLibrary.BusinessClasses
                             returnValue.LoadProperty<Int64>(ItemTimepointIdProperty, reader.GetInt64("ITEM_TIMEPOINT_ID"));
                             returnValue.LoadProperty<Int64>(ItemArmIdGrp1Property, reader.GetInt64("ITEM_ARM_ID_GRP1"));
                             returnValue.LoadProperty<Int64>(ItemArmIdGrp2Property, reader.GetInt64("ITEM_ARM_ID_GRP2"));
-                            returnValue.LoadProperty<string>(TimepointDisplayValueProperty, reader.GetString("TimepointDisplayValue"));
+                            returnValue.LoadProperty<string>(TimepointDisplayValueProperty, reader.GetString("TimepointDisplayValue").Trim());
                             returnValue.LoadProperty<string>(grp1ArmNameProperty, reader.GetString("grp1ArmName"));
                             returnValue.LoadProperty<string>(grp2ArmNameProperty, reader.GetString("grp2ArmName"));
 
@@ -3352,7 +3352,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(ItemTimepointIdProperty, reader.GetInt64("ITEM_TIMEPOINT_ID"));
             returnValue.LoadProperty<Int64>(ItemArmIdGrp1Property, reader.GetInt64("ITEM_ARM_ID_GRP1"));
             returnValue.LoadProperty<Int64>(ItemArmIdGrp2Property, reader.GetInt64("ITEM_ARM_ID_GRP2"));
-            returnValue.LoadProperty<string>(TimepointDisplayValueProperty, reader.GetString("TimepointDisplayValue"));
+            returnValue.LoadProperty<string>(TimepointDisplayValueProperty, reader.GetString("TimepointDisplayValue").Trim());
             returnValue.LoadProperty<string>(grp1ArmNameProperty, reader.GetString("grp1ArmName"));
             returnValue.LoadProperty<string>(grp2ArmNameProperty, reader.GetString("grp2ArmName"));
             returnValue.LoadProperty<bool>(IsSelectedProperty, reader.GetInt32("META_ANALYSIS_OUTCOME_ID") == 0 ? false : true);

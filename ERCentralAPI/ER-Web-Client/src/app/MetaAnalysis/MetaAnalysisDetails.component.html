@@ -24,9 +24,10 @@
   <div>Can TrimFill: {{CurrentMA.CanTrimFill}} typename: {{CurrentMA.metaAnalysisTypeTitle}}</div>
 </div>
 <div class="rounded border border-primary mx-1 p-2 mt-1 bg-light row">
-  <button class="btn btn-outline-success btn-sm" (click)="ShowPanel('EditFilters')">Edit Filters</button>
-  <button class="btn btn-outline-success btn-sm" (click)="ShowPanel('Moderators')">Moderators</button>
-  <button class="btn btn-outline-danger btn-sm" (click)="Save()" [disabled]="!CanSave">Save</button>
+  <button class="btn btn-outline-success btn-sm mr-1" (click)="ShowPanel('EditFilters')">Edit Filters</button>
+  <button class="btn btn-outline-success btn-sm mr-1" (click)="ShowPanel('Moderators')">Moderators</button>
+  <button class="btn btn-outline-primary btn-sm mr-1" (click)="ShowPanel('AddColumn')">Add Column</button>
+  <button class="btn btn-outline-danger btn-sm mr-1" (click)="Save()" [disabled]="!CanSave">Save</button>
 </div>
 <div *ngIf="ActivePanel != ''">
   <div *ngIf="ActivePanel == 'EditFilters'">
@@ -34,6 +35,9 @@
   </div>
   <div *ngIf="ActivePanel == 'Moderators'">
     <MAmoderatorsComp (PleaseCloseMe)="CloseActivePanel()"></MAmoderatorsComp>
+  </div>
+  <div *ngIf="ActivePanel == 'AddColumn'">
+    <MAaddOutcomesColumnComp (PleaseCloseMe)="CloseActivePanel()"></MAaddOutcomesColumnComp>
   </div>
 </div>
 <div class="rounded border border-dark mx-1 p-2 mt-1 bg-light row">

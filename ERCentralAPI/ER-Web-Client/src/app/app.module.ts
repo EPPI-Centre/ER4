@@ -135,6 +135,7 @@ import { MetaAnalysisDetailsComp } from './MetaAnalysis/MetaAnalysisDetails.comp
 import { MAoutcomesComp } from './MetaAnalysis/MAoutcomes.component';
 import { FilterOutcomesFormComp } from './MetaAnalysis/FilterOutcomesForm.component'; 
 import { MAmoderatorsComp } from './MetaAnalysis/MAmoderators.component';
+import { MAaddOutcomesColumnComp } from './MetaAnalysis/MAaddOutcomesColumn.component';
 
 
 
@@ -267,7 +268,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     MetaAnalysisDetailsComp,
     MAoutcomesComp,
     FilterOutcomesFormComp,
-    MAmoderatorsComp
+    MAmoderatorsComp,
+    MAaddOutcomesColumnComp
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
