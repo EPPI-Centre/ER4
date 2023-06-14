@@ -59,9 +59,16 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
     }
   }
 
-  public Save() {
+  public async Save() {
     if (this.CurrentMA) {
-      this.MetaAnalysisService.SaveMetaAnalysis(this.CurrentMA)
+      const ReturnToFilter = this.FilterToBeEdited;
+      if (ReturnToFilter != '') this.PleaseEditThisFilter('');
+      let res = await this.MetaAnalysisService.SaveMetaAnalysis(this.CurrentMA);
+      if (res != false) {
+        this.PleaseEditThisFilter(ReturnToFilter);
+      } else {
+        this.PleaseEditThisFilter('');
+        }
     }
   }
 

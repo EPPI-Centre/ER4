@@ -234,16 +234,22 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     const ColFieldName: string = (event.target as HTMLOptionElement).value;
     if (ColFieldName != '') this.ChangingColumn(ColFieldName);
     else {
-      this._CurrentFilterSetting = new FilterSettings({
-        isClear: false, metaAnalysisFilterSettingId: 0
-        , metaAnalysisId: (this.MetaAnalysisService.CurrentMetaAnalysis) ? this.MetaAnalysisService.CurrentMetaAnalysis.metaAnalysisId : 0
-        , columnName: "", selectedValues: "", filter1: "", filter1Operator: "IsEqualTo", filter1CaseSensitive: false, filtersLogicalOperator: "And"
-        , filter2: "", filter2Operator: "IsEqualTo", filter2CaseSensitive: false
-      });
+      this.SetEditingNoFilter();
     }
   }
+  private SetEditingNoFilter() {
+    this._CurrentFilterSetting = new FilterSettings({
+      isClear: false, metaAnalysisFilterSettingId: 0
+      , metaAnalysisId: (this.MetaAnalysisService.CurrentMetaAnalysis) ? this.MetaAnalysisService.CurrentMetaAnalysis.metaAnalysisId : 0
+      , columnName: "", selectedValues: "", filter1: "", filter1Operator: "IsEqualTo", filter1CaseSensitive: false, filtersLogicalOperator: "And"
+      , filter2: "", filter2Operator: "IsEqualTo", filter2CaseSensitive: false
+    });
+  }
   public ChangingColumn(ColFieldName: string) {
-    //const ColFieldName: string = (event.target as HTMLOptionElement).value;
+    if (ColFieldName == '') {
+      this.SetEditingNoFilter();
+      return;
+    }
     const Col = this._CurrentColumns.find(f => f.key == ColFieldName);
     if (Col && this.CurrentMA) {
       const CurrFil = this._CurrentFilterSetting;

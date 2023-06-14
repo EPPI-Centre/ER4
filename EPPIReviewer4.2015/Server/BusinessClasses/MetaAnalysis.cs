@@ -2152,6 +2152,12 @@ namespace BusinessLibrary.BusinessClasses
                     settingsSaved = true;
                     MetaAnalysisFilterSetting throwAway = el.Save();
                 }
+                else if (el.IsClear)
+                {
+                    settingsSaved = true;
+                    el.Delete();
+                    MetaAnalysisFilterSetting throwAway = el.Save();
+                }
             }
             if (settingsSaved)
             {

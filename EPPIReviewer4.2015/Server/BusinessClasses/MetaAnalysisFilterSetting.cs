@@ -207,37 +207,46 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            if (!this.IsClear)
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MetaAnalysisFilterSettingCreate", connection))
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@META_ANALYSIS_ID", ReadProperty(MetaAnalysisIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@COLUMN_NAME", ReadProperty(ColumnNameProperty)));
-                    command.Parameters.Add(new SqlParameter("@SELECTED_VALUES", ReadProperty(SelectedValuesProperty)));
-                    command.Parameters.Add(new SqlParameter("@FILTER_1_VALUE", ReadProperty(Filter1Property)));
-                    command.Parameters.Add(new SqlParameter("@FILTER_1_OPERATOR", ReadProperty(Filter1OperatorProperty)));
-                    command.Parameters.Add(new SqlParameter("@FILTER_1_CASE_SENSITIVE", ReadProperty(Filter1CaseSensitiveProperty)));
-                    command.Parameters.Add(new SqlParameter("@FIELD_FILTER_LOGICAL_OPERATOR", ReadProperty(FiltersLogicalOperatorProperty)));
-                    command.Parameters.Add(new SqlParameter("@FILTER_2_VALUE", ReadProperty(Filter2Property)));
-                    command.Parameters.Add(new SqlParameter("@FILTER_2_OPERATOR", ReadProperty(Filter2OperatorProperty)));
-                    command.Parameters.Add(new SqlParameter("@FILTER_2_CASE_SENSITIVE", ReadProperty(Filter2CaseSensitiveProperty)));
-                    
-                    command.Parameters.Add(new SqlParameter("@META_ANALYSIS_FILTER_SETTING_ID", System.Data.SqlDbType.Int));
-                    command.Parameters["@META_ANALYSIS_FILTER_SETTING_ID"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_MetaAnalysisFilterSettingCreate", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@META_ANALYSIS_ID", ReadProperty(MetaAnalysisIdProperty)));
+                        command.Parameters.Add(new SqlParameter("@COLUMN_NAME", ReadProperty(ColumnNameProperty)));
+                        command.Parameters.Add(new SqlParameter("@SELECTED_VALUES", ReadProperty(SelectedValuesProperty)));
+                        command.Parameters.Add(new SqlParameter("@FILTER_1_VALUE", ReadProperty(Filter1Property)));
+                        command.Parameters.Add(new SqlParameter("@FILTER_1_OPERATOR", ReadProperty(Filter1OperatorProperty)));
+                        command.Parameters.Add(new SqlParameter("@FILTER_1_CASE_SENSITIVE", ReadProperty(Filter1CaseSensitiveProperty)));
+                        command.Parameters.Add(new SqlParameter("@FIELD_FILTER_LOGICAL_OPERATOR", ReadProperty(FiltersLogicalOperatorProperty)));
+                        command.Parameters.Add(new SqlParameter("@FILTER_2_VALUE", ReadProperty(Filter2Property)));
+                        command.Parameters.Add(new SqlParameter("@FILTER_2_OPERATOR", ReadProperty(Filter2OperatorProperty)));
+                        command.Parameters.Add(new SqlParameter("@FILTER_2_CASE_SENSITIVE", ReadProperty(Filter2CaseSensitiveProperty)));
 
-                    LoadProperty(MetaAnalysisFilterSettingIdProperty, command.Parameters["@META_ANALYSIS_FILTER_SETTING_ID"].Value);// -1 would mean it failed
+                        command.Parameters.Add(new SqlParameter("@META_ANALYSIS_FILTER_SETTING_ID", System.Data.SqlDbType.Int));
+                        command.Parameters["@META_ANALYSIS_FILTER_SETTING_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+
+                        LoadProperty(MetaAnalysisFilterSettingIdProperty, command.Parameters["@META_ANALYSIS_FILTER_SETTING_ID"].Value);// -1 would mean it failed
+                    }
+                    connection.Close();
                 }
-                connection.Close();
             }
         }
 
         protected override void DataPortal_Update()
         {
+            if (this.IsClear)
+            {
+                //safety measure, to be very sure we don't "keep" cleared filters.
+                this.DataPortal_DeleteSelf();
+                return;
+            }
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;

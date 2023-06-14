@@ -94,7 +94,7 @@ namespace ERxWebClient2.Controllers
                             newF.FiltersLogicalOperator = FsJ.filtersLogicalOperator;
                             //newF.MetaAnalysisId = toSave.MetaAnalysisId;
                             newF.SelectedValues = FsJ.selectedValues;
-                            toSaveSettings.Add(newF);
+                            if (!newF.IsClear) toSaveSettings.Add(newF);//don't add an empty filter!
                         }
                         else
                         {//not a new setting, so we need to find it in the current list
@@ -110,6 +110,7 @@ namespace ERxWebClient2.Controllers
                                 toChangeSett.Filter2Operator = FsJ.filter2Operator;
                                 toChangeSett.FiltersLogicalOperator = FsJ.filtersLogicalOperator;
                                 toChangeSett.SelectedValues = FsJ.selectedValues;
+                                if (toChangeSett.IsClear) toChangeSett.Delete();
                                 toSaveSettings.Add(toChangeSett);
                             }
                         }

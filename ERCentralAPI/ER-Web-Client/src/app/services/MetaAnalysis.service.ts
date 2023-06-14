@@ -6,7 +6,7 @@ import { ConfigService } from './config.service';
 import { first, forEach } from 'lodash';
 import { iExtendedOutcome, ExtendedOutcome } from './outcomes.service';
 import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
-import { bookIcon } from '@progress/kendo-svg-icons';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -131,10 +131,11 @@ export class MetaAnalysisService extends BusyAwareService {
       });
   }
 
-  public SaveMetaAnalysis(MA: MetaAnalysis) {
+  public SaveMetaAnalysis(MA: MetaAnalysis): Promise<MetaAnalysis | boolean> {
     this._BusyMethods.push("SaveMetaAnalysis");
     const ToSend: iMetaAnalysis = MA.ToiMetaAnalysis();
-    return this._httpC.post<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/SaveMetaAnalysis', ToSend).subscribe((res) => {
+    return lastValueFrom(this._httpC.post<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/SaveMetaAnalysis', ToSend)
+    ).then((res) => {
       let returned = new MetaAnalysis(res);
       let ind = this.MetaAnalysisList.findIndex(f => f.metaAnalysisId == returned.metaAnalysisId)
       if (ind == -1) {
@@ -144,15 +145,22 @@ export class MetaAnalysisService extends BusyAwareService {
         this.MetaAnalysisList.splice(ind, 1, returned);
       }
       this.MetaAnalysisList = this.MetaAnalysisList.concat();//ensures the UI notices we've changed something...
-      this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(MA);
-
+      this.CurrentMetaAnalysis = returned;
+      this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(res);
       this.RemoveBusy("SaveMetaAnalysis");
+      return returned;
     },
       (err) => {
         console.log("Error SaveMetaAnalysis:", err);
         this.RemoveBusy("SaveMetaAnalysis");
         this.modalService.GenericError(err);
-      });
+        return false;
+      }).catch(
+        (error) => {
+          this.modalService.GenericErrorMessage("Saving this Meta Analysis produced this error: " + error);
+          this.RemoveBusy("SaveMetaAnalysis");
+          return false;
+        });
   }
 
   private CalculateColsVisibility() {
