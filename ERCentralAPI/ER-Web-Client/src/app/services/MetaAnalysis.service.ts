@@ -147,6 +147,9 @@ export class MetaAnalysisService extends BusyAwareService {
       this.MetaAnalysisList = this.MetaAnalysisList.concat();//ensures the UI notices we've changed something...
       this.CurrentMetaAnalysis = returned;
       this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(res);
+      this.CalculateColsVisibility();
+      this.ApplyFilters();
+      this.ApplySavedSorting();
       this.RemoveBusy("SaveMetaAnalysis");
       return returned;
     },

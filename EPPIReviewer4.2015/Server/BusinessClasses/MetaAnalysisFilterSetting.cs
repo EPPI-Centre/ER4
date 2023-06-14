@@ -244,6 +244,7 @@ namespace BusinessLibrary.BusinessClasses
             if (this.IsClear)
             {
                 //safety measure, to be very sure we don't "keep" cleared filters.
+                this.Delete();
                 this.DataPortal_DeleteSelf();
                 return;
             }

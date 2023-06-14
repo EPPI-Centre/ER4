@@ -293,7 +293,7 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
         )
       ) return true;
     }
-    else if (SelectedVals.find(f => f == val)) return true;
+    else if (SelectedVals.findIndex(f => f == val) != -1) return true;
     return false;
   }
   public ChangeSelected(val: string, event: Event) {
@@ -302,19 +302,27 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     //console.log("changeSel", event, val);
 
     //we show only up to 3 decimal places for ER and SEES, so to find the real filter-by vals we need to do some work...
-    if (this.CurrentFilterSetting.columnName == "ESColumn") {
+    if (this.CurrentFilterSetting.columnName == "ESColumn" && val != '0') {
       if (this.CurrentMA) {
+        let done: number[] = [];
         let res = this.CurrentMA.outcomes.filter(f => f.esRounded.toString() == val).map(m => m.es);
         for (let fullVal of res) {
-          this.innerChangeSelected(fullVal.toString(), event);
+          if (done.indexOf(fullVal) == -1) {
+            done.push(fullVal);
+            this.innerChangeSelected(fullVal.toString(), event);
+          }
         }
       }
     }
-    else if (this.CurrentFilterSetting.columnName == "SEESColumn") {
+    else if (this.CurrentFilterSetting.columnName == "SEESColumn" && val != '0') {
       if (this.CurrentMA) {
+        let done: number[] = [];
         let res = this.CurrentMA.outcomes.filter(f => f.seesRounded.toString() == val).map(m => m.sees);
         for (let fullVal of res) {
-          this.innerChangeSelected(fullVal.toString(), event);
+          if (done.indexOf(fullVal) == -1) {
+            done.push(fullVal);
+            this.innerChangeSelected(fullVal.toString(), event);
+          }
         }
       }
     }
