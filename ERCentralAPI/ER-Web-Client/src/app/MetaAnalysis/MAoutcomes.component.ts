@@ -7,9 +7,10 @@ import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
-import { DynamicColumnsOutcomes, MetaAnalysis, MetaAnalysisSelectionCrit, MetaAnalysisService } from '../services/MetaAnalysis.service';
+import { DynamicColumnsOutcomes, IdAndNamePair, MetaAnalysis, MetaAnalysisSelectionCrit, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { ExtendedOutcome } from '../services/outcomes.service';
 import { CustomSorting } from '../helpers/CustomSorting';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 
@@ -29,9 +30,9 @@ import { CustomSorting } from '../helpers/CustomSorting';
 .AnswerCol { background: LemonChiffon !important; cursor:pointer;}
 .ClassifCol { background: LightGray !important; border: 1px dotted white !important; cursor:pointer;}
 .FirstQuestion, .FirstAnswer, .FirstClassif {border-left:1px solid DarkBlue !important;}
-.filterIcon {padding: 6px 8px 8px 8px ; border: 1px solid #00000000; border-radius: 3px;}
-.filterIcon:hover {border: 1px solid blue; border-radius: 3px; color:blue;}
-
+.clickableIcon {padding: 6px 8px 8px 8px ; border: 1px solid #00000000; border-radius: 3px;}
+.clickableIcon:hover {border: 1px solid blue; border-radius: 3px; color:blue;}
+.text-danger.clickableIcon:hover {border: 1px solid red; border-radius: 3px; color:red;}
 
 
 `]
@@ -43,7 +44,8 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   constructor(
     private ReviewerIdentityServ: ReviewerIdentityService,
     private router: Router,
-    private MetaAnalysisService: MetaAnalysisService
+    private MetaAnalysisService: MetaAnalysisService,
+    private ConfirmationDialogService: ConfirmationDialogService
   ) { }
   ngOnInit() {
     
@@ -96,6 +98,76 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   public UnSelectAll() {
     for (let o of this.Outcomes) {
       o.isSelected = false;
+    }
+  }
+  public DeleteColumn(colToDelete: IdAndNamePair, event: Event) {
+    event.stopPropagation();
+    this.ConfirmationDialogService.confirm("Delete column?"
+      , "Are you sure you want to delete this column? "
+      + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+      + colToDelete.Name + "</strong></div>"
+      + "This change will be saved when you save the whole Meta Analysis."
+      , false, '')
+      .then((confirm: any) => {
+        if (confirm) {
+          this.DoDeleteColumn(colToDelete);
+        }
+      });
+  }
+  private DoDeleteColumn(colToDelete: IdAndNamePair) {
+    //need to:
+    //1. remove name/id from 2 fields in CurrentMetaAnalysis
+    //2. remove column from this.ColumnVisibility
+    //3. check "sortBy", react if we're sorting by the column that's about to disappear.
+
+    if (this.MetaAnalysisService.CurrentMetaAnalysis == null) return;
+    const separator = String.fromCharCode(0x00AC); //the "not" simbol, or inverted pipe
+    let ind: number = this.ColumnVisibility.AnswerHeaders.indexOf(colToDelete);
+    let colname = "";
+    if (ind != -1) {
+      //answer col
+      //attributeIdAnswer only has commas between elements, so there is some discerning to do...
+      if (this.ColumnVisibility.AnswerHeaders.length == 1) {//only element
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeAnswerText = "";
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswer = "";
+      } else {
+        if (ind == 0) {//first element of many
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswer =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswer.replace(colToDelete.Id.toString() + ',', '');
+        } else {
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswer =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswer.replace(',' + colToDelete.Id.toString(), '');
+        }
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeAnswerText =
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeAnswerText.replace(colToDelete.Name + separator, '');
+      }
+      colname = "aa" + (ind + 1).toString();
+      this.ColumnVisibility.AnswerHeaders.splice(ind, 1);
+    } else {
+      ind = this.ColumnVisibility.QuestionHeaders.indexOf(colToDelete);
+      if (ind != -1) {
+        //question col
+        //attributeIdQuestion only has commas between elements, so there is some discerning to do...
+        if (this.ColumnVisibility.QuestionHeaders.length == 1) {//only element
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText = "";
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion = "";
+        } else {
+          if (ind == 0) {//first element of many 
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion =
+              this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion.replace(colToDelete.Id.toString() + ',', '');
+          } else {
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion =
+              this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion.replace(',' + colToDelete.Id.toString(), '');
+          }
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText.replace(colToDelete.Name + separator, '');
+        }
+        colname = "aq" + (ind + 1).toString();
+        this.ColumnVisibility.QuestionHeaders.splice(ind, 1);
+      }
+    }
+    if (this.MetaAnalysisService.CurrentMetaAnalysis.sortedBy == colname) {
+      this.MetaAnalysisService.UnSortOutcomes();
     }
   }
   ngOnDestroy() { }

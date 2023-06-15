@@ -62,16 +62,20 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
   public async Save() {
     if (this.CurrentMA) {
       const ReturnToFilter = this.FilterToBeEdited;
-      if (ReturnToFilter != '') this.PleaseEditThisFilter('');
+      if (ReturnToFilter != '' && this.ActivePanel == "EditFilters") this.PleaseEditThisFilter('');
       let res = await this.MetaAnalysisService.SaveMetaAnalysis(this.CurrentMA);
-      if (res != false) {
-        this.PleaseEditThisFilter(ReturnToFilter);
-      } else {
-        this.PleaseEditThisFilter('');
+      if (this.ActivePanel == "EditFilters") {
+        if (res != false) {
+          this.PleaseEditThisFilter(ReturnToFilter);
+        } else {
+          this.PleaseEditThisFilter('');
         }
+      }
     }
   }
-
+  public CheckAndSave() {
+    if (this.CanSave) this.Save();
+  }
 
   ngOnDestroy() { }
 }

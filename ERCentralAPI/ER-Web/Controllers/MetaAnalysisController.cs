@@ -122,7 +122,13 @@ namespace ERxWebClient2.Controllers
                     toSave.MetaAnalysisTypeTitle = MAjson.metaAnalysisTypeTitle;
                     toSave.SortDirection = MAjson.sortDirection;
                     toSave.SortedBy = MAjson.sortedBy;
+                    toSave.AttributeIdAnswer = MAjson.attributeIdAnswer;
+                    toSave.AttributeIdQuestion = MAjson.attributeIdQuestion;
                     toSave = toSave.Save();
+                    crit.GetAllDetails = true;
+                    //we need to re-fetch the whole thing, because we re-bind everything on the UI, so we have to send back 100% up-to-date data...
+                    toSave = DataPortal.Fetch<MetaAnalysis>(crit);
+                    
                     return Ok(toSave);
 
                 }
