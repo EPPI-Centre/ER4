@@ -33,7 +33,8 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 .clickableIcon {padding: 6px 8px 8px 8px ; border: 1px solid #00000000; border-radius: 3px;}
 .clickableIcon:hover {border: 1px solid blue; border-radius: 3px; color:blue;}
 .text-danger.clickableIcon:hover {border: 1px solid red; border-radius: 3px; color:red;}
-
+.DisabledClickableIcon { color:Gray !important;}
+.DisabledClickableIcon:hover {border: 1px solid Gray !important; color:Gray !important;}
 
 `]
 })
@@ -102,6 +103,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   }
   public DeleteColumn(colToDelete: IdAndNamePair, event: Event) {
     event.stopPropagation();
+    if (!this.HasWriteRights) return;
     this.ConfirmationDialogService.confirm("Delete column?"
       , "Are you sure you want to delete this column? "
       + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"

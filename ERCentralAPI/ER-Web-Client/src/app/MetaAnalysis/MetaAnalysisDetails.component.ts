@@ -60,6 +60,7 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
   }
 
   public async Save() {
+    if (!this.CanSave) return;
     if (this.CurrentMA) {
       const ReturnToFilter = this.FilterToBeEdited;
       if (ReturnToFilter != '' && this.ActivePanel == "EditFilters") this.PleaseEditThisFilter('');
@@ -72,9 +73,6 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
         }
       }
     }
-  }
-  public CheckAndSave() {
-    if (this.CanSave) this.Save();
   }
 
   ngOnDestroy() { }

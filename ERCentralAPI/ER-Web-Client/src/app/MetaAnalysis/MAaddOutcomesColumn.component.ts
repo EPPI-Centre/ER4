@@ -39,6 +39,10 @@ export class MAaddOutcomesColumnComp implements OnInit, OnDestroy {
   public ColumnCode: SetAttribute | null = null;
   public ShowingCodes: boolean = false;
 
+  public get HasWriteRights(): boolean {
+    return this.ReviewerIdentityServ.HasWriteRights;
+  }
+
   public get CurrentMA(): MetaAnalysis | null {
     return this.MetaAnalysisService.CurrentMetaAnalysis;
   }
@@ -114,7 +118,7 @@ export class MAaddOutcomesColumnComp implements OnInit, OnDestroy {
         if (this.CurrentMA.attributeIdQuestion == '') this.CurrentMA.attributeIdQuestion += this.ColumnCode.attribute_id.toString();
         else this.CurrentMA.attributeIdQuestion += ',' + this.ColumnCode.attribute_id.toString();
       }
-      setTimeout(() => { if (this.CanSave) this.PleaseSaveTheMA.emit(); }, 10);
+      setTimeout(() => { if (this.CanSave) this.PleaseSaveTheMA.emit(); this.CloseMe(); }, 10);
     }
   }
   public CloseMe() {
