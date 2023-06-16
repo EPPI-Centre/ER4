@@ -194,18 +194,6 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     return "N/A";
   }
 
-  public get HasSelections(): number {
-    //console.log("HasSelections1", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
-    const selectedCount = this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length;
-    if (selectedCount == 0) return 0;
-    const selectableCount = this.SelectableValues.length;
-    //console.log("HasSelections2", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
-    if (selectedCount != selectableCount) return 1; //partial selection
-    else return 2;
-  }
-
-
-
   BringFilteringColIntoView() {
     setTimeout(() => {
       const element = document.getElementById("col-" + MetaAnalysisService.FieldNameFromER4ColName(this.CurrentFilterSetting.columnName));
@@ -253,8 +241,8 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     const Col = this._CurrentColumns.find(f => f.key == ColFieldName);
     if (Col && this.CurrentMA) {
       const CurrFil = this._CurrentFilterSetting;
-      //what do we do with the current filter, if any? We'll remove it if it's empty, do nothing otherwise
-      if (CurrFil.isClear) {
+      //what do we do with the current filter, if any? We'll remove it if it's empty AND new (id=0), do nothing otherwise
+      if (CurrFil.metaAnalysisFilterSettingId == 0 && CurrFil.isClear) {
         let i = this.CurrentMA.filterSettingsList.findIndex(f => f.columnName == CurrFil.columnName);
         if (i> -1) this.CurrentMA.filterSettingsList.splice(i, 1);
       }
@@ -276,9 +264,22 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     //console.log(event);
   }
 
+  public get HasSelections(): number {
+    //console.log("HasSelections1", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
+    if (this.CurrentFilterSetting.selectedValues == "") return 0;
+    const selectedCount = this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length;
+    if (selectedCount == 0) return 0;//nothing selected
+    const selectableCount = this.SelectableValues.length;
+    //console.log("HasSelections2", this.SelectableValues.length, this.SelectableValues.filter(f => this.ValIsSelected(f) == true).length);
+    if (selectedCount != selectableCount) return 1; //partial selection
+    else return 2;
+  }
+
   public ValIsSelected(val: string): boolean {
+    if (this.CurrentFilterSetting.selectedValues == '') return false;
     const separator = "{" + String.fromCharCode(0x00AC) + "}";
     const SelectedVals = this.CurrentFilterSetting.selectedValues.split(separator);//.filter(f => f != '');
+    
     if ((this.CurrentFilterSetting.columnName == "ESColumn" || this.CurrentFilterSetting.columnName == "SEESColumn")
       && this.CurrentMA && this.CurrentMA.outcomes.length > 0) //these we use to find the "ShowSignificantDigits" val in outcomes
     {
@@ -399,30 +400,43 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     let fil = this.CurrentFilterSetting;
     fil.selectedValues = "";
     const separator = "{" + String.fromCharCode(0x00AC) + "}";
+    const SelectableValues = this.SelectableValues;
     let SelectedVals: string[] = [];
-    
+    let DoneZero: boolean = false;
     if (this.CurrentFilterSetting.columnName == "ESColumn") {
       if (this.CurrentMA) {
-        for (let val of this.SelectableValues) {
-          let res = this.CurrentMA.outcomes.filter(f => f.esRounded.toString() == val).map(m => m.es);
-          for (let fullVal of res) {
-            SelectedVals.push(fullVal.toString());
+        for (let val of SelectableValues) {
+          if (val == '0' && DoneZero == false) {
+            DoneZero = true;
+            SelectedVals.push(val);
+          }
+          else {
+            let res = this.CurrentMA.outcomes.filter(f => f.esRounded.toString() == val).map(m => m.es);
+            for (let fullVal of res) {
+              SelectedVals.push(fullVal.toString());
+            }
           }
         }
       }
     }
     else if (this.CurrentFilterSetting.columnName == "SEESColumn") {
       if (this.CurrentMA) {
-        for (let val of this.SelectableValues) {
-          let res = this.CurrentMA.outcomes.filter(f => f.seesRounded.toString() == val).map(m => m.sees);
-          for (let fullVal of res) {
-            SelectedVals.push(fullVal.toString());
+        for (let val of SelectableValues) {
+          if (val == '0' && DoneZero == false) {
+            DoneZero = true;
+            SelectedVals.push(val);
+          }
+          else {
+            let res = this.CurrentMA.outcomes.filter(f => f.seesRounded.toString() == val).map(m => m.sees);
+            for (let fullVal of res) {
+              SelectedVals.push(fullVal.toString());
+            }
           }
         }
       }
     }
     else {
-      for (let val of this.SelectableValues) {
+      for (let val of SelectableValues) {
         SelectedVals.push(val);
       }
     }
