@@ -9,6 +9,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { MetaAnalysis, MetaAnalysisSelectionCrit, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { MetaAnalysisDetailsComp } from './MetaAnalysisDetails.component';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 
@@ -50,6 +51,13 @@ animation-iteration-count: 1;
 overflow:auto;
 padding:0.5rem;
 }
+.MAsTableContainer { max-height: 60vh; overflow:auto; max-width:98vw;}
+.MAsTable thead th {background-color: #f8f9fa; box-shadow: inset 0px -0.8px #222222, 0 0 #000; }
+
+.MAsTable td {padding:0;}
+.MAsTable div {padding:0.3rem;}
+.selectedMA td {background-color: #cce5ff;}
+.selectedMA div {font-weight:bold;}
   `]
 })
 export class MetaAnalysisComp implements OnInit, OnDestroy {
@@ -57,7 +65,8 @@ export class MetaAnalysisComp implements OnInit, OnDestroy {
   constructor(
     private ReviewerIdentityServ: ReviewerIdentityService,
     private router: Router,
-    private MetaAnalysisService: MetaAnalysisService
+    private MetaAnalysisService: MetaAnalysisService,
+    private ConfirmationDialogService: ConfirmationDialogService
   ) { }
 
   @ViewChild('MetaAnalysisDetailsComp') MetaAnalysisDetailsComp!: MetaAnalysisDetailsComp;
@@ -102,6 +111,35 @@ export class MetaAnalysisComp implements OnInit, OnDestroy {
     this.MetaAnalysisService.FetchMetaAnalysis(crit);
     this.BottomIsExpanded = true;
     this.TopIsExpanded = false;
+  }
+  public NewMA() {
+    if (this.MetaAnalysisDetailsComp) this.MetaAnalysisDetailsComp.CloseActivePanel();
+    this.MetaAnalysisService.FetchEmptyMetaAnalysis();
+    this.BottomIsExpanded = true;
+    this.TopIsExpanded = false;
+  }
+
+  public DeleteMA(ma: MetaAnalysis) {
+    if (!this.HasWriteRights) return;
+    this.ConfirmationDialogService.confirm("Delete Meta Analysis?"
+      , "Are you sure you want to delete this Meta Analysis? "
+      + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+      + ma.title + "</strong></div>"
+      + "This deletion would be <strong>permanent</strong>."
+      , false, '')
+      .then((confirm: any) => {
+        if (confirm) {
+          this.DoDeleteMA(ma);
+        }
+      });
+  }
+  public DoDeleteMA(ma: MetaAnalysis) {
+    if (!this.HasWriteRights) return;
+    if (this.BottomIsExpanded && this.CurrentMA != null && this.CurrentMA.metaAnalysisId == ma.metaAnalysisId) {
+      this.BottomIsExpanded = false;
+      this.TopIsExpanded = true;
+    }
+    this.MetaAnalysisService.DeleteMetaAnalysis(ma.metaAnalysisId);
   }
 
   BackHome() {

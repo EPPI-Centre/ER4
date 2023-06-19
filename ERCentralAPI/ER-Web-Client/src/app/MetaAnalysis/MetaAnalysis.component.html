@@ -11,26 +11,34 @@
       <div  class="containsAtoolbar border border-dark rounded mx-1 mt-1">
         <kendo-toolbar class="small rounded" style="background-color: #e5e5ef; ">
           <!--<kendo-toolbar class=" rounded border border-primary mx-1 p-2 bg-light w-100">-->
-          <kendo-toolbar-button class=" btn btn-outline-success" [text]="'New MA'" [title]="'Create new Meta-Analysis'"></kendo-toolbar-button>
+          <kendo-toolbar-button class=" btn btn-outline-success" (click)="NewMA()" [text]="'New MA'" [title]="'Create new Meta-Analysis'" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
           <kendo-toolbar-button class=" btn btn-outline-primary" (click)="TopIsExpanded = !TopIsExpanded" [text]="ExpandCollapseTopTxt" [selected]="TopIsExpanded == true"></kendo-toolbar-button>
         </kendo-toolbar>
       </div>
 
         <div [ngClass]="{'show':TopIsExpanded, 'hide': !TopIsExpanded}" class="HideAnim rounded mx-1 bg-light w-100">
-          <div class="row mx-0 px-0" style="max-height: 60vh; overflow:auto;">
-            <table class="table table-bordered table-sm col-12 ">
+          <div class="row mx-0 px-0 MAsTableContainer" >
+            <table class="table table-bordered table-sm col-12 MAsTable tableFixHead">
               <thead>
                 <tr>
                   <th>ID</th>
                   <th>Name</th>
                   <th>Type</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tr *ngFor="let ma of MaList">
-                <td>{{ma.metaAnalysisId}}</td>
-                <td>{{ma.title}}</td>
-                <td>{{ma.metaAnalysisTypeTitle}}</td>
-                <td><button class="btn btn-outline-success btn-sm" (click)="EditMA(ma)">Edit/Run</button></td>
+              <tr *ngFor="let ma of MaList" style="" [ngClass]="{'selectedMA':(CurrentMA != null && CurrentMA.metaAnalysisId == ma.metaAnalysisId)}">
+                <td><div class="my-auto">{{ma.metaAnalysisId}}</div></td>
+                <td><div class="my-auto">{{ma.title}}</div></td>
+                <td><div class="my-auto">{{ma.metaAnalysisTypeTitle}}</div></td>
+                <td>
+                  <div class="my-auto p-1">
+                    <button class="btn btn-outline-success btn-sm " (click)="EditMA(ma)">Edit/Run</button>
+                    <button class="btn btn-outline-danger btn-sm" (click)="DeleteMA(ma)" title="Delete!" [disabled]="!HasWriteRights">
+                      <kendo-icon name="delete" size="small"></kendo-icon>
+                    </button>
+                  </div>
+                </td>
               </tr>
             </table>
 

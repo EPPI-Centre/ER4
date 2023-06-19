@@ -130,7 +130,22 @@ export class MetaAnalysisService extends BusyAwareService {
         this.modalService.GenericError(error);
       });
   }
-
+  
+  public FetchEmptyMetaAnalysis() {
+    this._BusyMethods.push("FetchEmptyMetaAnalysis");
+    this._httpC.get<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/FetchEmptyMetaAnalysis',).subscribe(result => {
+        this.CurrentMetaAnalysis = new MetaAnalysis(result);
+        this.CurrentMetaAnalysisUnchanged = new MetaAnalysis(result);
+        this.CalculateColsVisibility();
+        this.ApplyFilters();
+        this.ApplySavedSorting();
+        this.RemoveBusy("FetchEmptyMetaAnalysis");
+      }, error => {
+        this.RemoveBusy("FetchEmptyMetaAnalysis");
+        this.modalService.GenericError(error);
+      });
+  }
+  
   public SaveMetaAnalysis(MA: MetaAnalysis): Promise<MetaAnalysis | boolean> {
     this._BusyMethods.push("SaveMetaAnalysis");
     const ToSend: iMetaAnalysis = MA.ToiMetaAnalysis();
@@ -164,6 +179,27 @@ export class MetaAnalysisService extends BusyAwareService {
           this.RemoveBusy("SaveMetaAnalysis");
           return false;
         });
+  }
+
+
+  public DeleteMetaAnalysis(Id: number) {
+    const crit: MetaAnalysisSelectionCrit = { MetaAnalysisId: Id, GetAllDetails: false };
+    this._BusyMethods.push("DeleteMetaAnalysis");
+    this._httpC.post<void>(this._baseUrl + 'api/MetaAnalysis/DeleteMetaAnalysis',
+      crit).subscribe(() => {
+        if (this.CurrentMetaAnalysis != null && this.CurrentMetaAnalysis.metaAnalysisId == Id) {
+          this.CurrentMetaAnalysis = null;
+          this.CurrentMetaAnalysisUnchanged = null;
+        }
+        let ind = this.MetaAnalysisList.findIndex(f => f.metaAnalysisId == Id)
+        if (ind !== -1) {
+          this.MetaAnalysisList.splice(ind, 1);
+        }
+        this.RemoveBusy("DeleteMetaAnalysis");
+      }, error => {
+        this.RemoveBusy("DeleteMetaAnalysis");
+        this.modalService.GenericError(error);
+      });
   }
 
   private CalculateColsVisibility() {

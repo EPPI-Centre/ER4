@@ -55,6 +55,22 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        [HttpGet("[action]")]
+        public IActionResult FetchEmptyMetaAnalysis()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                MetaAnalysis result = MetaAnalysis.CreateNewMAWithAllChildren();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMetaAnalysis data portal error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
         [HttpPost("[action]")]
         public IActionResult SaveMetaAnalysis([FromBody] MetaAnalysisJSON MAjson)
         {
@@ -63,11 +79,21 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    MetaAnalysisSelectionCrit crit = new MetaAnalysisSelectionCrit();
-                    crit.GetAllDetails = false;
-                    crit.MetaAnalysisId = MAjson.metaAnalysisId;
 
-                    MetaAnalysis toSave = DataPortal.Fetch<MetaAnalysis>(crit);
+
+                    MetaAnalysisSelectionCrit crit = new MetaAnalysisSelectionCrit();
+
+                    MetaAnalysis toSave ;
+                    if (MAjson.metaAnalysisId > 0)
+                    {//existing MA, we can fetch it from the DB
+                        crit.GetAllDetails = false;
+                        crit.MetaAnalysisId = MAjson.metaAnalysisId;
+                        toSave = DataPortal.Fetch<MetaAnalysis>(crit);
+                    }
+                    else
+                    {//new MA, will do it with an empty MA
+                        toSave = MetaAnalysis.CreateNewMAWithAllChildren();
+                    }
                     toSave.Outcomes = OutcomeList.GetOutcomeList(toSave.SetId, toSave.AttributeIdIntervention, toSave.AttributeIdControl,
                         toSave.AttributeIdOutcome, toSave.AttributeId, toSave.MetaAnalysisId, toSave.AttributeIdQuestion, toSave.AttributeIdAnswer);
                     toSave.Outcomes.SetMetaAnalysisType(toSave.MetaAnalysisTypeId);
@@ -126,6 +152,7 @@ namespace ERxWebClient2.Controllers
                     toSave.AttributeIdQuestion = MAjson.attributeIdQuestion;
                     toSave = toSave.Save();
                     crit.GetAllDetails = true;
+                    if (crit.MetaAnalysisId < 1) crit.MetaAnalysisId = toSave.MetaAnalysisId;
                     //we need to re-fetch the whole thing, because we re-bind everything on the UI, so we have to send back 100% up-to-date data...
                     toSave = DataPortal.Fetch<MetaAnalysis>(crit);
                     
@@ -138,6 +165,27 @@ namespace ERxWebClient2.Controllers
             {
                 _logger.LogError(e, "SaveMetaAnalysis error, for MA ID: {0}", MAjson.metaAnalysisId);
                     //,  JsonConvert.SerializeObject(comparisonAttributesCriteria));
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult DeleteMetaAnalysis([FromBody] MetaAnalysisSelectionCritJSON crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    MetaAnalysisSelectionCrit crit2 = crit.ToCSLACirteria();
+                    MetaAnalysis toDelete = DataPortal.Fetch<MetaAnalysis>(crit2);
+                    toDelete.Delete();
+                    toDelete = toDelete.Save();
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "DeleteMetaAnalysis error, for MA ID: {0}", crit.MetaAnalysisId.ToString());
                 return StatusCode(500, e.Message);
             }
         }

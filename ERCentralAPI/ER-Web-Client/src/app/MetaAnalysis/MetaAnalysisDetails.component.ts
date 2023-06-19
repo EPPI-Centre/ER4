@@ -22,13 +22,20 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
   public get HasWriteRights(): boolean {
     return this.ReviewerIdentityServ.HasWriteRights;
   }
+
   public FilterToBeEdited: string = "";
 
   public get CurrentMA(): MetaAnalysis | null {
     return this.MetaAnalysisService.CurrentMetaAnalysis;
   }
   public get CanSave(): boolean {
-    return this.HasWriteRights && this.MetaAnalysisService.CurrentMAhasChanges;
+    return this.HasWriteRights && this.MetaAnalysisService.CurrentMAhasChanges && this.CurrentMAIsValid;
+  }
+
+  public get CurrentMAIsValid(): boolean {
+    if (this.CurrentMA == null) return false;
+    else if (this.CurrentMA.title == "") return false;
+    return true;
   }
   public CloseActivePanel() {
     this.FilterToBeEdited = "";

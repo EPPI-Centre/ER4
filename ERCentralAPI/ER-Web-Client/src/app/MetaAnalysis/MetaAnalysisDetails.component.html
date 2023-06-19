@@ -31,7 +31,7 @@
     <kendo-toolbar class="small rounded" style="background-color: #e5e5ef; ">
       <kendo-toolbar-button text="Edit Filters" icon="filter" themeColor="tertiary" class="mr-1" (click)="ShowPanel('EditFilters')" [selected]="ActivePanel == 'EditFilters'"></kendo-toolbar-button>
       <kendo-toolbar-button text="Moderators" themeColor="secondary" class="mr-1" (click)="ShowPanel('Moderators')" [selected]="ActivePanel == 'Moderators'"></kendo-toolbar-button>
-      <kendo-toolbar-button text="Add Column" icon="plus" themeColor="success" class="mr-1" (click)="ShowPanel('AddColumn')" [selected]="ActivePanel == 'AddColumn'" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+      <kendo-toolbar-button text="Add Column" icon="plus" themeColor="success" class="mr-1" (click)="ShowPanel('AddColumn')" [selected]="ActivePanel == 'AddColumn'" [disabled]="!HasWriteRights || !CurrentMAIsValid"></kendo-toolbar-button>
       <kendo-toolbar-button text="Save" icon="save" themeColor="primary" class="mr-1" (click)="Save()" [disabled]="!CanSave"></kendo-toolbar-button>
     </kendo-toolbar>
   </div>

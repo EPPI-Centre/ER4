@@ -45,6 +45,12 @@ namespace BusinessLibrary.BusinessClasses
             //Outcomes = new OutcomeList();
             FilterSettingsList = new MetaAnalysisFilterSettingList();
         }
+        public static MetaAnalysis CreateNewMAWithAllChildren()
+        {
+            MetaAnalysis res = new MetaAnalysis();
+            res.GetAllDetails();
+            return res;
+        }
 
         public void SetOutcomesList(OutcomeList outcomes)
         {
@@ -2207,15 +2213,19 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (criteria.GetAllDetails)
             {
-                OutcomeList.OutcomeListSelectionCriteria c2 = new OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), SetId, AttributeIdIntervention,
+                GetAllDetails();
+            }
+        }
+        private void GetAllDetails()
+        {
+            OutcomeList.OutcomeListSelectionCriteria c2 = new OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), SetId, AttributeIdIntervention,
                 AttributeIdControl, AttributeIdOutcome, 0, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
-                OutcomeList outcomes = DataPortal.Fetch<OutcomeList>(c2);
-                if (outcomes != null)
-                {
-                    SetOutcomesList(outcomes);
-                    Outcomes.SetMetaAnalysisType(MetaAnalysisTypeId);
-                    SetupModeratorList();
-                }
+            OutcomeList outcomes = DataPortal.Fetch<OutcomeList>(c2);
+            if (outcomes != null)
+            {
+                SetOutcomesList(outcomes);
+                Outcomes.SetMetaAnalysisType(MetaAnalysisTypeId);
+                SetupModeratorList();
             }
         }
 
