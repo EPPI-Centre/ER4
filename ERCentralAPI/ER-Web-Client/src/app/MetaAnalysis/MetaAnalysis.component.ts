@@ -18,16 +18,16 @@ import { MetaAnalysisDetailsComp } from './MetaAnalysisDetails.component';
   providers: [],
   styles: [`
 @keyframes hiding {
-  0%   {max-height:70vh;}
-  33%   {max-height:60vh;}
-  100% {max-height:0vh;}
+  0%   {max-height:70vh; padding:0.5rem;}
+  33%   {max-height:60vh; padding:0.2rem;}
+  100% {max-height:0vh; padding:0;}
 }
 @keyframes showing {
-  0%   {max-height:0vh;}
-  33%   {max-height:10vh;}
-  100% {max-height:70vh;}
+  0%   {max-height:0vh; padding:0;}
+  33%   {max-height:10vh; padding:0.3rem;}
+  100% {max-height:70vh; padding:0.5rem;}
 }
-.HideAnim { }
+.HideAnim { padding:0.5rem;}
 .HideAnim.hide {
 animation-name: hiding;
 animation-duration: 0.5s;
@@ -35,6 +35,7 @@ animation-timing-function: linear;
 animation-delay: 0s;
 animation-iteration-count: 1;
 overflow:clip;
+padding:0;
 max-height:0vh;
 z-index:-1500;
 }
@@ -47,6 +48,7 @@ animation-timing-function: linear;
 animation-delay: 0s;
 animation-iteration-count: 1;
 overflow:auto;
+padding:0.5rem;
 }
   `]
 })
