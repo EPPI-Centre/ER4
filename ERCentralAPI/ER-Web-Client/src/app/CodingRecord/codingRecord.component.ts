@@ -7,7 +7,6 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { Subscription } from 'rxjs';
 import { ComparisonsService } from '../services/comparisons.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { error } from '@angular/compiler/src/util';
 import { Helpers } from '../helpers/HelperMethods';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';

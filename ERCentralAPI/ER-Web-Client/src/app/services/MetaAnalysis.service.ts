@@ -73,7 +73,7 @@ export class MetaAnalysisService extends BusyAwareService {
       || this.CurrentMetaAnalysis.attributeIdAnswer !== this.CurrentMetaAnalysisUnchanged.attributeIdAnswer
       || this.CurrentMetaAnalysis.title !== this.CurrentMetaAnalysisUnchanged.title
     ) return true;
-    if (this.CurrentMetaAnalysis.filterSettingsList.length != this.CurrentMetaAnalysisUnchanged.filterSettingsList.length) return true;
+    if (this.CurrentMetaAnalysis.filterSettingsList.filter(f => f.isClear == false).length != this.CurrentMetaAnalysisUnchanged.filterSettingsList.filter(f => f.isClear == false).length) return true;
     for (let i = 0; i < this.CurrentMetaAnalysis.filterSettingsList.length; i++) {
       if (this.CurrentMetaAnalysis.filterSettingsList[i].columnName != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].columnName
         || this.CurrentMetaAnalysis.filterSettingsList[i].filter1 != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1

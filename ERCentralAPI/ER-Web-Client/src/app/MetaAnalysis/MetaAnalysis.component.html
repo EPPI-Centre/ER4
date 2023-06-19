@@ -3,16 +3,18 @@
   <div *ngIf="IsServiceBusy"
        class="k-loading-image" style="position: fixed; top: 0%; z-index:300">
   </div>
-  <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:1000;" (click)="BackHome()">
+  <button class="page-link pt-0 pb-1 rounded float-right" style="position:absolute; margin-top:0.45rem; right: 0.7rem;  z-index:1000;" (click)="BackHome()">
     Close/back
   </button>
   <div class="col-12 row mx-0 mt-0 mb-1 p-0 ">
-    <div class="containsAtoolbar w-100">
-      <kendo-toolbar class="small" style="background-color: #f5f6fa;">
-        <!--<kendo-toolbar class=" rounded border border-primary mx-1 p-2 bg-light w-100">-->
+    <div class="w-100">
+      <div  class="containsAtoolbar border border-dark rounded mx-1 mt-1">
+        <kendo-toolbar class="small rounded" style="background-color: #e5e5ef; ">
+          <!--<kendo-toolbar class=" rounded border border-primary mx-1 p-2 bg-light w-100">-->
           <kendo-toolbar-button class=" btn btn-outline-success" [text]="'New MA'" [title]="'Create new Meta-Analysis'"></kendo-toolbar-button>
-          <kendo-toolbar-button class=" btn btn-outline-primary" (click)="TopIsExpanded = !TopIsExpanded" [text]="ExpandCollapseTopTxt" [selected]="TopIsExpanded == true" ></kendo-toolbar-button>
+          <kendo-toolbar-button class=" btn btn-outline-primary" (click)="TopIsExpanded = !TopIsExpanded" [text]="ExpandCollapseTopTxt" [selected]="TopIsExpanded == true"></kendo-toolbar-button>
         </kendo-toolbar>
+      </div>
 
         <div [ngClass]="{'show':TopIsExpanded, 'hide': !TopIsExpanded}" class="HideAnim rounded mx-1 bg-light w-100">
           <div class="row mx-0 px-0" style="max-height: 60vh; overflow:auto;">

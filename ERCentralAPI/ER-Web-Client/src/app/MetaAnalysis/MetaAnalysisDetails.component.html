@@ -1,5 +1,5 @@
 <div *ngIf="CurrentMA" class="mx-1 py-2 px-0 bg-white">
-  <div class="row mx-0 px-0 py-1 rounded bg-light border border-success">
+  <div class="row mx-0 px-0 py-1 mb-1 rounded bg-light border border-success">
     <div class="row col-12 col-md-7 p-0 mx-0 my-1">
       <div class="col-auto px-1 my-auto font-weight-bold ml-1 mr-0">Meta Analysis name:</div>
       <div class="col px-0 mr-1">
@@ -27,29 +27,28 @@
       </div>
     </div>
   </div>
-  <!--<div>Can TrimFill: {{CurrentMA.CanTrimFill}} typename: {{CurrentMA.metaAnalysisTypeTitle}}</div>-->
-</div>
-<div class="containsAtoolbar w-100">
-  <kendo-toolbar class="small" style="background-color: #f5f6fa;">
-    <kendo-toolbar-button text="Edit Filters" themeColor="primary" class="mr-1" (click)="ShowPanel('EditFilters')"></kendo-toolbar-button>
-    <kendo-toolbar-button text="Moderators" themeColor="secondary" class="mr-1" (click)="ShowPanel('Moderators')"></kendo-toolbar-button>
-    <kendo-toolbar-button text="Add Column" themeColor="success" class="mr-1" (click)="ShowPanel('AddColumn')" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-    <kendo-toolbar-button text="Save" themeColor="warning" class="mr-1" (click)="Save()" [disabled]="!CanSave"></kendo-toolbar-button>
-  </kendo-toolbar>
-</div>
-<div *ngIf="ActivePanel != ''">
-  <div *ngIf="ActivePanel == 'EditFilters'">
-    <FilterOutcomesFormComp #FilterOutcomesFormComp (PleaseCloseMe)="CloseActivePanel()" [IncomingFilterFieldName]="FilterToBeEdited"></FilterOutcomesFormComp>
+  <div class="w-100 border border-dark rounded mb-1">
+    <kendo-toolbar class="small rounded" style="background-color: #e5e5ef; ">
+      <kendo-toolbar-button text="Edit Filters" icon="filter" themeColor="tertiary" class="mr-1" (click)="ShowPanel('EditFilters')" [selected]="ActivePanel == 'EditFilters'"></kendo-toolbar-button>
+      <kendo-toolbar-button text="Moderators" themeColor="secondary" class="mr-1" (click)="ShowPanel('Moderators')" [selected]="ActivePanel == 'Moderators'"></kendo-toolbar-button>
+      <kendo-toolbar-button text="Add Column" icon="plus" themeColor="success" class="mr-1" (click)="ShowPanel('AddColumn')" [selected]="ActivePanel == 'AddColumn'" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+      <kendo-toolbar-button text="Save" icon="save" themeColor="primary" class="mr-1" (click)="Save()" [disabled]="!CanSave"></kendo-toolbar-button>
+    </kendo-toolbar>
   </div>
-  <div *ngIf="ActivePanel == 'Moderators'">
-    <MAmoderatorsComp (PleaseCloseMe)="CloseActivePanel()"></MAmoderatorsComp>
+  <div *ngIf="ActivePanel != ''">
+    <div *ngIf="ActivePanel == 'EditFilters'">
+      <FilterOutcomesFormComp #FilterOutcomesFormComp (PleaseCloseMe)="CloseActivePanel()" [IncomingFilterFieldName]="FilterToBeEdited"></FilterOutcomesFormComp>
+    </div>
+    <div *ngIf="ActivePanel == 'Moderators'">
+      <MAmoderatorsComp (PleaseCloseMe)="CloseActivePanel()"></MAmoderatorsComp>
+    </div>
+    <div *ngIf="ActivePanel == 'AddColumn'">
+      <MAaddOutcomesColumnComp (PleaseCloseMe)="CloseActivePanel()" (PleaseSaveTheMA)="Save()" [CanSave]="CanSave"></MAaddOutcomesColumnComp>
+    </div>
   </div>
-  <div *ngIf="ActivePanel == 'AddColumn'">
-    <MAaddOutcomesColumnComp (PleaseCloseMe)="CloseActivePanel()" (PleaseSaveTheMA)="Save()" [CanSave]="CanSave"></MAaddOutcomesColumnComp>
+  <div class="rounded border border-dark mx-0 p-2 mt-1 bg-light row">
+    <MAoutcomes class="w-100 mx-1 mt-1 p-2 bg-light" (PleaseEditThisFilter)="PleaseEditThisFilter($event)"></MAoutcomes>
   </div>
-</div>
-<div class="rounded border border-dark mx-1 p-2 mt-1 bg-light row">
-  <MAoutcomes class="w-100 mx-1 mt-1 p-2 bg-light" (PleaseEditThisFilter)="PleaseEditThisFilter($event)"></MAoutcomes>
 </div>
 
 

@@ -35,8 +35,8 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
     this.ActivePanel = "";
   }
   public ShowPanel(PanelName: string) {
-    if (this.ActivePanel != PanelName) this.CloseActivePanel();
-    this.ActivePanel = PanelName;
+    if (this.ActivePanel == PanelName) this.CloseActivePanel();
+    else this.ActivePanel = PanelName;
   }
 
   public PleaseEditThisFilter(fieldName: string) {

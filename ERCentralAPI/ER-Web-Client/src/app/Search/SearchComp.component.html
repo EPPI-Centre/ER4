@@ -255,9 +255,9 @@
                     </label>
                 </div>
                 <div class="col-12">
-                    <div *ngIf="mode == '2' && (selectedNode && selectedNode.nodeType == 'SetAttribute')" class="p-1 m-1 bg-info row p-1 "> Current code: {{selectedNode?.name}}</div>
+                    <div *ngIf="mode == '2' && (selectedNode && selectedNode.nodeType == 'SetAttribute')" class="p-1 m-1 bg-info row p-1 "> Current code: {{selectedNode.name}}</div>
                     <div *ngIf="mode == '2' && !selectedNode" class="p-1 m-1 alert-danger row p-1 ">Please select a code from the right.</div>
-                    <div *ngIf="mode == '2' && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode?.name}}) is a Coding Tool.</div>
+                    <div *ngIf="mode == '2' && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode.name}}) is a Coding Tool.</div>
                 </div>
                 <div *ngIf="mode == '3' && ReviewSources">
                   <div>

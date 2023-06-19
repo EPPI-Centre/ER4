@@ -37,7 +37,7 @@
                                 | All Items
                             </span>
                             <span *ngIf="!ScreenAllItems && DropdownWithWithoutSelectedCode != null">
-                                | Items with this code: {{DropdownWithWithoutSelectedCode?.name}}
+                                | Items with this code: {{DropdownWithWithoutSelectedCode.name}}
                             </span>
                         </div>
                     </div>
@@ -520,7 +520,7 @@
                     <div class="col-3 p-0 mt-2">Details:</div>
                     <div class="d-block my-1 col-9 p-0">
                         <div class="m-2 small alert-info">
-                            You'll add the code "<strong>{{DropdownAddTrainingCriteriaSelectedCode?.name}}</strong>" and will be treated as an "<strong>{{TrainingCriteriaAddingCodeType}}</strong>" decision.
+                            You'll add the code "<strong>{{DropdownAddTrainingCriteriaSelectedCode.name}}</strong>" and will be treated as an "<strong>{{TrainingCriteriaAddingCodeType}}</strong>" decision.
                         </div>
                         <button class="m-1 py-1 px-1 btn btn-outline-primary btn-sm" [disabled]="!CanWrite()" (click)="AddTrainingCriteriaDoItClick()">
                             Add!

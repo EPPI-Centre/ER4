@@ -29,9 +29,7 @@
               "src/web.config"
             ],
             "styles": [
-              {
-                "input": "node_modules/@progress/kendo-theme-default/dist/all.css"
-              },
+              "./node_modules/@progress/kendo-theme-default/dist/all.css",
               "./node_modules/bootstrap/dist/css/bootstrap.css",
               "src/assets/ERx.css",
               "src/styles.css"
@@ -113,7 +111,6 @@
       }
     }
   },
-  "defaultProject": "ER-Web_Client",
   "cli": {
     "analytics": false
   }

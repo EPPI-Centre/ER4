@@ -147,27 +147,27 @@
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Master Item ID:</td>
                         <td class="bg-white">
-                            <button *ngIf="DirtyMaster && CanGoToThisItem(DirtyMaster.itemId); else JustTheMasterId" class="btn btn-link p-0" (click)="OpenItem(DirtyMaster.itemId)">{{DirtyMaster?.itemId}}</button>
-                            <ng-template #JustTheMasterId>{{DirtyMaster?.itemId}}</ng-template>
+                            <button *ngIf="DirtyMaster && CanGoToThisItem(DirtyMaster.itemId); else JustTheMasterId" class="btn btn-link p-0" (click)="OpenItem(DirtyMaster.itemId)">{{DirtyMaster.itemId}}</button>
+                            <ng-template #JustTheMasterId>{{DirtyMaster.itemId}}</ng-template>
                         </td>
                         <td class="font-weight-bold">Coded count:</td>
-                        <td [ngClass]="{'font-weight-bold alert-danger' : DirtyMaster && DirtyMaster.codedCount > 0}">{{DirtyMaster?.codedCount}}</td>
+                        <td [ngClass]="{'font-weight-bold alert-danger' : DirtyMaster && DirtyMaster.codedCount > 0}">{{DirtyMaster.codedCount}}</td>
                         <td class="font-weight-bold">Uploaded Docs:</td>
-                        <td class="bg-white" [ngClass]="{'alert-danger font-weight-bold' : DirtyMaster && DirtyMaster.docCount > 0}">{{DirtyMaster?.docCount}}</td>
+                        <td class="bg-white" [ngClass]="{'alert-danger font-weight-bold' : DirtyMaster && DirtyMaster.docCount > 0}">{{DirtyMaster.docCount}}</td>
                         <td class="font-weight-bold">Date:</td>
-                        <td class="bg-white">{{DirtyMaster?.year}}</td>
+                        <td class="bg-white">{{DirtyMaster.year}}</td>
                     </tr>
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Authors(s): </td>
-                        <td colspan="7" class="bg-white">{{DirtyMaster?.authors}}</td>
+                        <td colspan="7" class="bg-white">{{DirtyMaster.authors}}</td>
                     </tr>
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Title: </td>
-                        <td colspan="7" class="bg-white">{{DirtyMaster?.title}}</td>
+                        <td colspan="7" class="bg-white">{{DirtyMaster.title}}</td>
                     </tr>
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Pub Name: </td>
-                        <td colspan="7" class="bg-white">{{DirtyMaster?.parentTitle}}</td>
+                        <td colspan="7" class="bg-white">{{DirtyMaster.parentTitle}}</td>
                     </tr>
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Status: </td>
@@ -333,36 +333,36 @@
                     <thead style="position: relative; z-index: 22;">
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Master Item ID:</td>
-                            <td class="bg-white">{{CurrentGroup.Master?.itemId}}</td>
+                            <td class="bg-white">{{CurrentGroup.Master.itemId}}</td>
                             <td class="font-weight-bold">Coded count:</td>
-                            <td class="bg-white">{{CurrentGroup.Master?.codedCount}}</td>
+                            <td class="bg-white">{{CurrentGroup.Master.codedCount}}</td>
                             <td class="font-weight-bold">Uploaded Docs:</td>
-                            <td class="bg-white">{{CurrentGroup.Master?.docCount}}</td>
+                            <td class="bg-white">{{CurrentGroup.Master.docCount}}</td>
                             <td class="font-weight-bold">Pages:</td>
-                            <td class="bg-white">{{CurrentGroup.Master?.pages}}</td>
+                            <td class="bg-white">{{CurrentGroup.Master.pages}}</td>
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Pub Type:</td>
-                            <td class="bg-white">{{CurrentGroup.Master?.typeName}}</td>
+                            <td class="bg-white">{{CurrentGroup.Master.typeName}}</td>
                             <td></td>
                             <td class="font-weight-bold">Date:</td>
-                            <td class="bg-white">{{CurrentGroup.Master?.year}}</td>
+                            <td class="bg-white">{{CurrentGroup.Master.year}}</td>
                             <td class="font-weight-bold">Source:</td>
-                            <td class="bg-white" colspan="2">{{CurrentGroup.Master?.source}}</td>
+                            <td class="bg-white" colspan="2">{{CurrentGroup.Master.source}}</td>
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Authors(s): </td>
-                            <td colspan="7" class="bg-white"><div style="max-height:200px;overflow-y:auto;">{{CurrentGroup.Master?.authors}}</div></td>
+                            <td colspan="7" class="bg-white"><div style="max-height:200px;overflow-y:auto;">{{CurrentGroup.Master.authors}}</div></td>
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Title: </td>
-                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.title}}</td>
+                            <td colspan="7" class="bg-white">{{CurrentGroup.Master.title}}</td>
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Pub Name: </td>
-                            <td colspan="4" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
+                            <td colspan="4" class="bg-white">{{CurrentGroup.Master.parentTitle}}</td>
                             <td class="font-weight-bold">DOI: </td>
-                            <td colspan="2" class="bg-white">{{CurrentGroup.Master?.doi}}</td>
+                            <td colspan="2" class="bg-white">{{CurrentGroup.Master.doi}}</td>
                         </tr>
                         <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" class="alert-dark">
                             <td colspan="8">
@@ -466,36 +466,36 @@
                         <thead style="position: relative; z-index: -20;">
                             <tr class="alert-info ">
                                 <td class="font-weight-bold">Master Item ID:</td>
-                                <td class="bg-white">{{CurrentGroup.Master?.itemId}}</td>
+                                <td class="bg-white">{{CurrentGroup.Master.itemId}}</td>
                                 <td class="font-weight-bold">Coded count:</td>
-                                <td class="bg-white">{{CurrentGroup.Master?.codedCount}}</td>
+                                <td class="bg-white">{{CurrentGroup.Master.codedCount}}</td>
                                 <td class="font-weight-bold">Uploaded Docs:</td>
-                                <td class="bg-white">{{CurrentGroup.Master?.docCount}}</td>
+                                <td class="bg-white">{{CurrentGroup.Master.docCount}}</td>
                                 <td class="font-weight-bold">Pages:</td>
-                                <td class="bg-white">{{CurrentGroup.Master?.pages}}</td>
+                                <td class="bg-white">{{CurrentGroup.Master.pages}}</td>
                             </tr>
                             <tr class="alert-info ">
                                 <td class="font-weight-bold">Pub Type:</td>
-                                <td class="bg-white">{{CurrentGroup.Master?.typeName}}</td>
+                                <td class="bg-white">{{CurrentGroup.Master.typeName}}</td>
                                 <td></td>
                                 <td class="font-weight-bold">Date:</td>
-                                <td class="bg-white">{{CurrentGroup.Master?.year}}</td>
+                                <td class="bg-white">{{CurrentGroup.Master.year}}</td>
                                 <td class="font-weight-bold">Source:</td>
-                                <td class="bg-white" colspan="2">{{CurrentGroup.Master?.source}}</td>
+                                <td class="bg-white" colspan="2">{{CurrentGroup.Master.source}}</td>
                             </tr>
                             <tr class="alert-info ">
                                 <td class="font-weight-bold">Authors(s): </td>
-                                <td colspan="7" class="bg-white"><div style="max-height:200px;overflow-y:auto;">{{CurrentGroup.Master?.authors}}</div></td>
+                                <td colspan="7" class="bg-white"><div style="max-height:200px;overflow-y:auto;">{{CurrentGroup.Master.authors}}</div></td>
                             </tr>
                             <tr class="alert-info ">
                                 <td class="font-weight-bold">Title: </td>
-                                <td colspan="7" class="bg-white">{{CurrentGroup.Master?.title}}</td>
+                                <td colspan="7" class="bg-white">{{CurrentGroup.Master.title}}</td>
                             </tr>
                             <tr class="alert-info ">
                                 <td class="font-weight-bold">Pub Name: </td>
-                                <td colspan="4" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
+                                <td colspan="4" class="bg-white">{{CurrentGroup.Master.parentTitle}}</td>
                                 <td class="font-weight-bold">DOI: </td>
-                                <td colspan="2" class="bg-white">{{CurrentGroup.Master?.doi}}</td>
+                                <td colspan="2" class="bg-white">{{CurrentGroup.Master.doi}}</td>
                             </tr>
                             <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" class="alert-dark">
                                 <td colspan="8">
@@ -517,7 +517,7 @@
                                     <td>Uploaded Docs:</td>
                                     <td [ngClass]="{'bg-white' : member.docCount <= 0, 'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
                                     <td>Pages:</td>
-                                    <td [ngClass]="DistanceClass(member.pages, CurrentGroup.Master?.pages)">{{member.pages}}</td>
+                                    <td [ngClass]="DistanceClass(member.pages, CurrentGroup.Master.pages)">{{member.pages}}</td>
                                 </tr>
                                 <tr class="bg-light">
                                     <td>Pub Type:</td>
@@ -530,23 +530,23 @@
                                         Similarity: Unknown
                                     </td>
                                     <td>Date:</td>
-                                    <td><span [ngClass]="DistanceClass(member.year, CurrentGroup.Master?.year)">{{member.year}}</span>&nbsp;<span [ngClass]="DistanceClass(member.month, CurrentGroup.Master?.month)">{{member.month}}</span></td>
+                                    <td><span [ngClass]="DistanceClass(member.year, CurrentGroup.Master.year)">{{member.year}}</span>&nbsp;<span [ngClass]="DistanceClass(member.month, CurrentGroup.Master.month)">{{member.month}}</span></td>
                                     <td>Source:</td>
                                     <td class="bg-white" colspan="2">{{member.source}}</td>
                                 </tr>
                                 <tr class="bg-light">
                                     <td>Authors(s): </td>
-                                    <td colspan="7" [ngClass]="DistanceClass(member.authors, CurrentGroup.Master?.authors)">
+                                    <td colspan="7" [ngClass]="DistanceClass(member.authors, CurrentGroup.Master.authors)">
                                         <div style="max-height:200px;overflow-y:auto;">{{member.authors}}</div>
                                     </td>
                                 </tr>
                                 <tr class="bg-light">
                                     <td>Title: </td>
-                                    <td colspan="7" [ngClass]="DistanceClass(member.title, CurrentGroup.Master?.title)">{{member.title}}</td>
+                                    <td colspan="7" [ngClass]="DistanceClass(member.title, CurrentGroup.Master.title)">{{member.title}}</td>
                                 </tr>
                                 <tr class="bg-light">
                                     <td>Pub Name: </td>
-                                    <td colspan="4" [ngClass]="DistanceClass(member.parentTitle, CurrentGroup.Master?.parentTitle)">{{member.parentTitle}}</td>
+                                    <td colspan="4" [ngClass]="DistanceClass(member.parentTitle, CurrentGroup.Master.parentTitle)">{{member.parentTitle}}</td>
                                     <td class="font-weight-bold">DOI: </td>
                                     <td colspan="2" [ngClass]="(CurrentGroup.Master) && member.doi.length > 0 && CurrentGroup.Master.doi.length > 0 && CurrentGroup.Master.doi != member.doi ? 'bg-lev3' : 'bg-white'">{{member.doi}}</td>
                                 </tr>
