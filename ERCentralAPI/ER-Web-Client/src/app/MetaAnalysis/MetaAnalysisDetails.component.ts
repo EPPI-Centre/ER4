@@ -63,6 +63,8 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
       const target: HTMLSelectElement = (event.target as HTMLSelectElement);
       let val = target.options[target.options.selectedIndex];
       this.CurrentMA.metaAnalysisTypeTitle = val.text;
+      this.MetaAnalysisService.ApplyFilters();
+      this.MetaAnalysisService.ApplySavedSorting();
     }
   }
 

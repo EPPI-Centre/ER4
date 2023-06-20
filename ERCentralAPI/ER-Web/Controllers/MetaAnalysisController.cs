@@ -89,13 +89,16 @@ namespace ERxWebClient2.Controllers
                         crit.GetAllDetails = false;
                         crit.MetaAnalysisId = MAjson.metaAnalysisId;
                         toSave = DataPortal.Fetch<MetaAnalysis>(crit);
+                        toSave.Outcomes = OutcomeList.GetOutcomeList(toSave.SetId, toSave.AttributeIdIntervention, toSave.AttributeIdControl,
+                            toSave.AttributeIdOutcome, toSave.AttributeId, toSave.MetaAnalysisId, toSave.AttributeIdQuestion, toSave.AttributeIdAnswer);
                     }
                     else
                     {//new MA, will do it with an empty MA
                         toSave = MetaAnalysis.CreateNewMAWithAllChildren();
                     }
-                    toSave.Outcomes = OutcomeList.GetOutcomeList(toSave.SetId, toSave.AttributeIdIntervention, toSave.AttributeIdControl,
-                        toSave.AttributeIdOutcome, toSave.AttributeId, toSave.MetaAnalysisId, toSave.AttributeIdQuestion, toSave.AttributeIdAnswer);
+
+                    //next, we need to set the MA typeID nice and early, as that determines what Outcomes CAN be "selected" and saved in TB_META_ANALYSIS_OUTCOME
+                    toSave.MetaAnalysisTypeId = MAjson.metaAnalysisTypeId;
                     toSave.Outcomes.SetMetaAnalysisType(toSave.MetaAnalysisTypeId);
                     //now we need to pick all the "selected" outcomes, which requires a bit of work
                     foreach (OutcomeJSON OJ in MAjson.outcomes)
@@ -144,7 +147,6 @@ namespace ERxWebClient2.Controllers
                     toSave.FilterSettingsList.Clear();
                     toSave.FilterSettingsList.AddRange(toSaveSettings);
                     toSave.Title = MAjson.title;
-                    toSave.MetaAnalysisTypeId = MAjson.metaAnalysisTypeId;
                     toSave.MetaAnalysisTypeTitle = MAjson.metaAnalysisTypeTitle;
                     toSave.SortDirection = MAjson.sortDirection;
                     toSave.SortedBy = MAjson.sortedBy;

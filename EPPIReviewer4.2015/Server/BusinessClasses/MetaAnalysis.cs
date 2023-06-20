@@ -2132,6 +2132,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
 
                     LoadProperty(MetaAnalysisIdProperty, command.Parameters["@NEW_META_ANALYSIS_ID"].Value);
+                    SetMAidInChildren();
                     if (AttributeIdAnswer != "")
                         LoadProperty(AttributeAnswerTextProperty, command.Parameters["@ATTRIBUTE_ANSWER_TEXT"].Value);
                     else
@@ -2146,6 +2147,13 @@ namespace BusinessLibrary.BusinessClasses
                     MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
                 }
                 connection.Close();
+            }
+        }
+        private void SetMAidInChildren()
+        {
+            foreach (MetaAnalysisFilterSetting fs in FilterSettingsList)
+            {
+                fs.MetaAnalysisId = this.MetaAnalysisId;
             }
         }
         private void SaveFilterSettings()

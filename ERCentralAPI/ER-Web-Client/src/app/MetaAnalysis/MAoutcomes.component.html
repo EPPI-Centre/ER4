@@ -128,7 +128,7 @@
         <th (click)="Sort('aa15')" *ngIf="ColumnVisibility.AnswerHeaders.length > 14" class="AnswerCol" id="col-aa15">
           {{ColumnVisibility.AnswerHeaders[14].Name}}<span [innerHTML]="SortingSymbol('aa15')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aa15')}" (click)="DoEditThisFilter('aa15', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
-          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerHeaders[14], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerHeaders[14], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
         </th>
         <th (click)="Sort('aa16')" *ngIf="ColumnVisibility.AnswerHeaders.length > 15" class="AnswerCol" id="col-aa16">
           {{ColumnVisibility.AnswerHeaders[15].Name}}<span [innerHTML]="SortingSymbol('aa16')"></span>
