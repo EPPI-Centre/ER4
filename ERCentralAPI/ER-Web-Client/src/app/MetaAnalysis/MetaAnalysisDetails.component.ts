@@ -37,6 +37,11 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
     else if (this.CurrentMA.title == "") return false;
     return true;
   }
+  public get CurrentMAIsInvalidMsg(): string {
+    if (this.CurrentMAIsValid == true) return "";
+    else if (this.CurrentMA && this.CurrentMA.title == "") return "Please give this Meta Analysis a name";
+    else return "This Meta Analysis is invalid for unknown reasons";
+  }
   public CloseActivePanel() {
     this.FilterToBeEdited = "";
     this.ActivePanel = "";

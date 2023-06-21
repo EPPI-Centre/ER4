@@ -34,6 +34,7 @@
       <kendo-toolbar-button text="Add Column" icon="plus" themeColor="success" class="mr-1" (click)="ShowPanel('AddColumn')" [selected]="ActivePanel == 'AddColumn'" [disabled]="!HasWriteRights || !CurrentMAIsValid"></kendo-toolbar-button>
       <kendo-toolbar-button text="Save" icon="save" themeColor="primary" class="mr-1" (click)="Save()" [disabled]="!CanSave"></kendo-toolbar-button>
     </kendo-toolbar>
+    <div class="row mx-0 px-0"><div *ngIf="!CurrentMAIsValid" class="rounded small alert-warning px-2 py-1 my-1 ml-2 mr-auto">{{CurrentMAIsInvalidMsg}}</div></div>
   </div>
   <div *ngIf="ActivePanel != ''">
     <div *ngIf="ActivePanel == 'EditFilters'">

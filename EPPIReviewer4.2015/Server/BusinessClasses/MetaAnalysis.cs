@@ -45,13 +45,14 @@ namespace BusinessLibrary.BusinessClasses
             //Outcomes = new OutcomeList();
             FilterSettingsList = new MetaAnalysisFilterSettingList();
         }
+#if !SILVERLIGHT
         public static MetaAnalysis CreateNewMAWithAllChildren()
         {
             MetaAnalysis res = new MetaAnalysis();
             res.GetAllDetails();
             return res;
         }
-
+#endif
         public void SetOutcomesList(OutcomeList outcomes)
         {
             bool wasDirty = this.IsDirty;
