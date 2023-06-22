@@ -75,7 +75,10 @@ export class MetaAnalysisService extends BusyAwareService {
     ) return true;
     if (this.CurrentMetaAnalysis.filterSettingsList.filter(f => f.isClear == false).length != this.CurrentMetaAnalysisUnchanged.filterSettingsList.filter(f => f.isClear == false).length) return true;
     for (let i = 0; i < this.CurrentMetaAnalysis.filterSettingsList.length; i++) {
-      if (this.CurrentMetaAnalysis.filterSettingsList[i].columnName != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].columnName
+      if (this.CurrentMetaAnalysisUnchanged.filterSettingsList[i] == undefined) {//we can have more filters in the currentMA as in the case before, we are only counting the "not clear" filters!
+        if (this.CurrentMetaAnalysis.filterSettingsList[i].isClear == false) return true;//I dont' think this can happen, but checking for this case just in case
+      }
+      else if (this.CurrentMetaAnalysis.filterSettingsList[i].columnName != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].columnName
         || this.CurrentMetaAnalysis.filterSettingsList[i].filter1 != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1
         || this.CurrentMetaAnalysis.filterSettingsList[i].filter1CaseSensitive != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1CaseSensitive
         || this.CurrentMetaAnalysis.filterSettingsList[i].filter1Operator != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1Operator
