@@ -32,7 +32,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MetaAnalysisRunInRCommand : CommandBase<MetaAnalysisRunInRCommand>
     {
-#if SILVERLIGHT
+//#if SILVERLIGHT
         
         public MetaAnalysisRunInRCommand() 
         {
@@ -40,76 +40,76 @@ namespace BusinessLibrary.BusinessClasses
             ConfIntervals = new MobileList<double>();
             StudyLabels = new MobileList<string>();
             ResultsLabels = new MobileList<string>();
-            //GraphsList = new MobileList<byte[]>();
+            GraphsList = new MobileList<byte[]>();
             GraphsTitles = new MobileList<string>();
         }
-#else
-        protected MetaAnalysisRunInRCommand()
-        {
-            //EffectSizes = new MobileList<double>();
-            //ConfnItervals = new MobileList<double>();
-            //StudyLabels = new MobileList<string>();
-            //ResultsText = new MobileList<string>();
-            GraphsList = new MobileList<byte[]>();
-            //GraphsTitles = new MobileList<string>();
-        }
-#endif
-        private static PropertyInfo<MetaAnalysis> MetaAnalaysisObjectProperty = RegisterProperty<MetaAnalysis>(new PropertyInfo<MetaAnalysis>("MetaAnalaysisObject", "MetaAnalaysisObject"));
+//#else
+//        public MetaAnalysisRunInRCommand()
+//        {
+//            //EffectSizes = new MobileList<double>();
+//            //ConfnItervals = new MobileList<double>();
+//            //StudyLabels = new MobileList<string>();
+//            //ResultsText = new MobileList<string>();
+//            GraphsList = new MobileList<byte[]>();
+//            //GraphsTitles = new MobileList<string>();
+//        }
+//#endif
+        public static readonly PropertyInfo<MetaAnalysis> MetaAnalaysisObjectProperty = RegisterProperty<MetaAnalysis>(new PropertyInfo<MetaAnalysis>("MetaAnalaysisObject", "MetaAnalaysisObject"));
         public MetaAnalysis MetaAnalaysisObject
         {
             get { return ReadProperty(MetaAnalaysisObjectProperty); }
             set { LoadProperty(MetaAnalaysisObjectProperty, value); }
         }
 
-        private static PropertyInfo<MobileList<double>> EffectSizesProperty = RegisterProperty<MobileList<double>>(new PropertyInfo<MobileList<double>>("EffectSizes", "EffectSizes"));
+        public static readonly PropertyInfo<MobileList<double>> EffectSizesProperty = RegisterProperty<MobileList<double>>(new PropertyInfo<MobileList<double>>("EffectSizes", "EffectSizes"));
         public MobileList<double> EffectSizes
         {
             get { return ReadProperty(EffectSizesProperty); }
             set { LoadProperty(EffectSizesProperty, value); }
         }
-        private static PropertyInfo<MobileList<double>> ConfIntervalsProperty = RegisterProperty<MobileList<double>>(new PropertyInfo<MobileList<double>>("ConfIntervals", "ConfIntervals"));
+        public static readonly PropertyInfo<MobileList<double>> ConfIntervalsProperty = RegisterProperty<MobileList<double>>(new PropertyInfo<MobileList<double>>("ConfIntervals", "ConfIntervals"));
         public MobileList<double> ConfIntervals
         {
             get { return ReadProperty(ConfIntervalsProperty); }
             set { LoadProperty(ConfIntervalsProperty, value); }
         }
-        private static PropertyInfo<MobileList<string>> StudyLabelsProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("StudyLabels", "StudyLabels"));
+        public static readonly PropertyInfo<MobileList<string>> StudyLabelsProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("StudyLabels", "StudyLabels"));
         public MobileList<string> StudyLabels
         {
             get { return ReadProperty(StudyLabelsProperty); }
             set { LoadProperty(StudyLabelsProperty, value); }
         }
-        private static PropertyInfo<string> RCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("RCode", "RCode"));
+        public static readonly PropertyInfo<string> RCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("RCode", "RCode"));
         public string RCode
         {
             get { return ReadProperty(RCodeProperty); }
             set { LoadProperty(RCodeProperty, value); }
         }
-        private static PropertyInfo<MobileList<string>> ResultsTextProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("ResultsText", "ResultsText"));
+        public static readonly PropertyInfo<MobileList<string>> ResultsTextProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("ResultsText", "ResultsText"));
         public MobileList<string> ResultsText
         {
             get { return ReadProperty(ResultsTextProperty); }
             set { LoadProperty(ResultsTextProperty, value); }
         }
-        private static PropertyInfo<MobileList<string>> ResultsLabelsProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("ResultsLabels", "ResultsLabels"));
+        public static readonly PropertyInfo<MobileList<string>> ResultsLabelsProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("ResultsLabels", "ResultsLabels"));
         public MobileList<string> ResultsLabels
         {
             get { return ReadProperty(ResultsLabelsProperty); }
             set { LoadProperty(ResultsLabelsProperty, value); }
         }
-        private static PropertyInfo<string> OptionsProperty = RegisterProperty<string>(new PropertyInfo<string>("Options", "Options"));
+        public static readonly PropertyInfo<string> OptionsProperty = RegisterProperty<string>(new PropertyInfo<string>("Options", "Options"));
         public string Options
         {
             get { return ReadProperty(OptionsProperty); }
             set { LoadProperty(OptionsProperty, value); }
         }
-        private static PropertyInfo<MobileList<byte[]>> GraphsListProperty = RegisterProperty<MobileList<byte[]>>(new PropertyInfo<MobileList<byte[]>>("GraphsList", "GraphsList"));
+        public static readonly PropertyInfo<MobileList<byte[]>> GraphsListProperty = RegisterProperty<MobileList<byte[]>>(new PropertyInfo<MobileList<byte[]>>("GraphsList", "GraphsList"));
         public MobileList<byte[]> GraphsList
         {
             get { return ReadProperty(GraphsListProperty); }
             set { LoadProperty(GraphsListProperty, value); }
         }
-        private static PropertyInfo<MobileList<string>> GraphsTitlesProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("GraphsTitles", "GraphsTitles"));
+        public static readonly PropertyInfo<MobileList<string>> GraphsTitlesProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("GraphsTitles", "GraphsTitles"));
        
         public MobileList<string> GraphsTitles
         {

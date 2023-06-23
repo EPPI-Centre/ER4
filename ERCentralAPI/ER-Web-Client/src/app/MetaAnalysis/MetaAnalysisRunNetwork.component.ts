@@ -7,12 +7,12 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'MetaAnalysisRunComp',
-  templateUrl: './MetaAnalysisRun.component.html',
+  selector: 'MetaAnalysisRunNetworkComp',
+  templateUrl: './MetaAnalysisRunNetwork.component.html',
   providers: [],
   styles: []
 })
-export class MetaAnalysisRunComp implements OnInit, OnDestroy {
+export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
 
   constructor(
     private ReviewerIdentityServ: ReviewerIdentityService,
@@ -23,11 +23,9 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
 
   @Output() PleaseCloseMe = new EventEmitter();
   ngOnInit() {
-    if (this.MAreportSource && this.MAreportSource.metaAnalaysisObject.analysisType == 1) this.MetaAnalysisService.Clear(true);
-    if (this.CurrentMA) this.CurrentMA.analysisType = 0;
+    this.BuildReferences();
   }
   public HideReport: boolean = false;
-  public ActivePanel: string = "";
 
   public get CurrentMA(): MetaAnalysis | null {
     return this.MetaAnalysisService.CurrentMetaAnalysis;
@@ -39,48 +37,35 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
     if (this.MetaAnalysisService.MAreport) return this.sanitizer.bypassSecurityTrustHtml(this.MetaAnalysisService.MAreport);
     else return null;
   }
-
-  public CloseActivePanel() {
-    this.ActivePanel = "";
-  }
-  public ShowPanel(PanelName: string) {
-    if (this.ActivePanel == PanelName) this.CloseActivePanel();
-    else this.ActivePanel = PanelName;
+  private _references: iReference[] = [];
+  public get References(): iReference[] {
+    if (this._references.length == 0) this.BuildReferences();
+    return this._references;
   }
 
+  private BuildReferences() {
+    if (!this.CurrentMA) return;
+    this.CurrentMA.analysisType = 1;
+    if (this.MAreportSource && this.MAreportSource.metaAnalaysisObject.analysisType == 0) this.MetaAnalysisService.Clear(true);
+    this._references = [];
+    for (let mam of this.CurrentMA.metaAnalysisModerators) {
+      if (mam.fieldName == "InterventionText") this._references = mam.references;
+      break;
+    }
+    if (this._references.length > 0) this.CurrentMA.nmaReference = this._references[0].name;
+  }
   public SaveReport() {
     let tmp = document.getElementById('MAreportContent');
     if (tmp) {
       let partialFilename = " - ";
       if (this.MAreportSource) partialFilename += this.MAreportSource.metaAnalaysisObject.title;
       const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(tmp.outerHTML, this._baseUrl, "Items Table"));
-      saveAs(dataURI, "Meta Analysis Report" + partialFilename + ".html");
+      saveAs(dataURI, "Network Meta Analysis Report" + partialFilename + ".html");
     }
   }
-  ChangingModel(event: Event) {
-    this.EnableDisableKNHA();
-  }
-   EnableDisableKNHA() {
-    //if (cbModel != null && cbModel.SelectedIndex == 0) {
-    //  cbKNHA.IsChecked = false;
-    //  cbKNHA.IsEnabled = false;
-    //}
-    //else {
-    //  if (cbKNHA != null)
-    //    cbKNHA.IsEnabled = true;
-    //}
-  }
-  public get knhaIsDisabled(): boolean {
-    if (!this.CurrentMA) return true;
-    else if (this.CurrentMA.statisticalModel == 0) {
-      this.CurrentMA.knha = false;
-      return true;
-    }
-    else return false;
-  }
+  
   public Run() {
     if (this.CurrentMA) {
-      this.CurrentMA.analysisType = 0;
       this.HideReport = false;
       this.MetaAnalysisService.RunMetaAnalysis(this.CurrentMA);
     }

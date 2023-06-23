@@ -191,6 +191,76 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult RunMetaAnalysis([FromBody] MetaAnalysisJSON MAjson)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    MetaAnalysisSelectionCrit crit = new MetaAnalysisSelectionCrit();
+                    crit.GetAllDetails = true;
+                    crit.MetaAnalysisId = MAjson.metaAnalysisId;
+                    MetaAnalysis toRun = DataPortal.Fetch<MetaAnalysis>(crit);
+                    
+                    toRun.MetaAnalysisTypeId = MAjson.metaAnalysisTypeId;
+                    toRun.Outcomes.SetMetaAnalysisType(toRun.MetaAnalysisTypeId);
+                    //now we need to pick all the "selected" outcomes
+                    foreach (OutcomeJSON OJ in MAjson.outcomes)
+                    {
+                        Outcome? outcome = toRun.Outcomes.FirstOrDefault(f => f.OutcomeId == OJ.outcomeId);
+                        if (outcome != null) outcome.IsSelected = OJ.isSelected;
+                    }
+
+                    foreach(MetaAnalysisModeratorJSON modJ in MAjson.metaAnalysisModerators)
+                    {
+                        MetaAnalysisModerator? mod = toRun.MetaAnalysisModerators.FirstOrDefault(f => f.Name == modJ.name && f.FieldName == modJ.fieldName);
+                        if (mod !=  null)
+                        {
+                            mod.IsSelected = modJ.isSelected;
+                            mod.IsFactor = modJ.isFactor;
+                            mod.Reference = modJ.reference;
+                        }
+
+                    }
+
+                    //all "options for Running MA" don't get saved, so we need to set them from the data received
+                    toRun.StatisticalModel = MAjson.statisticalModel;
+                    toRun.SignificanceLevel = MAjson.significanceLevel;
+                    toRun.Verbose = MAjson.verbose;
+                    toRun.DecPlaces = MAjson.decPlaces;
+                    toRun.RankCorr = MAjson.rankCorr;
+                    toRun.TrimFill = MAjson.trimFill;
+                    toRun.Egger = MAjson.egger;
+                    toRun.KNHA = MAjson.knha;
+                    toRun.FitStats = MAjson.fitStats;
+                    toRun.Confint = MAjson.confint;
+                    toRun.XAxisTitle = MAjson.xAxisTitle;
+                    toRun.SummaryEstimateTitle = MAjson.summaryEstimateTitle;
+                    toRun.ShowAnnotations = MAjson.showAnnotations;
+                    toRun.ShowAnnotationWeights = MAjson.showAnnotationWeights;
+                    toRun.FittedVals = MAjson.fittedVals;
+                    toRun.CredInt = MAjson.credInt;
+                    toRun.ShowBoxplot = MAjson.showBoxplot;
+                    toRun.ShowFunnel = MAjson.showFunnel;
+                    toRun.NMAReference = MAjson.nmaReference;
+                    toRun.NMAStatisticalModel = MAjson.nmaStatisticalModel;
+
+                    toRun.AnalysisType = MAjson.analysisType;
+
+                    MetaAnalysisRunInRCommand RrunCmd = new MetaAnalysisRunInRCommand();
+                    RrunCmd.MetaAnalaysisObject = toRun;
+                    RrunCmd = DataPortal.Execute<MetaAnalysisRunInRCommand>(RrunCmd);
+                    return Ok(RrunCmd);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "RunMetaAnalysis error, for MA ID: {0}", MAjson.metaAnalysisId.ToString());
+                return StatusCode(500, e.Message);
+            }
+        }
 
     }
     public class MetaAnalysisSelectionCritJSON
@@ -330,7 +400,7 @@ namespace ERxWebClient2.Controllers
         public FiltersettingsJSON[] filterSettingsList { get; set; } = new FiltersettingsJSON[0];
         public OutcomeJSON[] outcomes { get; set; } = new OutcomeJSON[0];
         //public MetaAnalysisModeratorJSON[] metaAnalysisModerators { get; set; } = new MetaAnalysisModeratorJSON[0];
-
+        public MetaAnalysisModeratorJSON[] metaAnalysisModerators { get; set; } = new MetaAnalysisModeratorJSON[0];
     }
 
 
@@ -544,7 +614,7 @@ namespace ERxWebClient2.Controllers
         public string fieldName { get; set; }
         public int attributeID { get; set; }
         public string reference { get; set; }
-        public List<ReferenceJSON> references { get; set; }
+        public ReferenceJSON[] references { get; set; } = new ReferenceJSON[0];
         public bool isSelected { get; set; }
         public bool isFactor { get; set; }
     }

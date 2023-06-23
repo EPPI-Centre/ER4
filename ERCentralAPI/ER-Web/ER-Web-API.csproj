@@ -172,6 +172,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisModeratorList.cs" Link="Models\MetaAnalysisModeratorList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisModeratorReference.cs" Link="Models\MetaAnalysisModeratorReference.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisModeratorReferenceList.cs" Link="Models\MetaAnalysisModeratorReferenceList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisRunInRCommand.cs" Link="Models\MetaAnalysisRunInRCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttribute.cs" Link="Models\OutcomeItemAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />
@@ -272,6 +273,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="DeployR7.4">
+      <HintPath>..\..\EPPIReviewer4.2015\Solution Items\DeployR7.4.dll</HintPath>
+    </Reference>
+    <Reference Include="DeployRBroker7.4">
+      <HintPath>..\..\EPPIReviewer4.2015\Solution Items\DeployRBroker7.4.dll</HintPath>
+    </Reference>
     <Reference Include="EPPIiFilter">
       <HintPath>..\Dlls\EPPIiFilter.dll</HintPath>
     </Reference>

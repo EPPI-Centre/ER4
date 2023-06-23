@@ -54,7 +54,7 @@
       <div class="row mx-1">
         <button class="btn btn-outline-dark ml-1" (click)="CloseMe()">Close</button>
         <div *ngIf="SelectionState == 1" class="row mx-1">
-          <button class="btn btn-outline-danger " (click)="Add()" [disabled]="!HasWriteRights">Add!</button>
+          <button class="btn btn-outline-danger " (click)="Add()" [disabled]="!HasWriteRights">Add</button>
           <div class="rounded alert-info small py-1 px-2 ml-2 my-auto">Adding the column will <strong>save</strong> the current MA</div>
         </div>
       </div>
