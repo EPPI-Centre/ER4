@@ -2105,11 +2105,11 @@ namespace BusinessLibrary.BusinessClasses
                     SetProperty(SEESProperty, SESMD);
                     break;
 
-                case 6: // diagnostic binary 2 x 2 table
-                    es = calcOddsRatio();
-                    se = calcOddsRatioSE();
-                    SetProperty(ESProperty, OddsRatio);
-                    SetProperty(SEESProperty, SEOddsRatio);
+                case 6: // diagnostic binary 2 x 2 table - not implemented (26/06/2023), shows Zero as ES and SE for all implemented MA types and reports.
+                    //es = calcOddsRatio();
+                    //se = calcOddsRatioSE();
+                    SetProperty(ESProperty, 0.0);//, OddsRatio);
+                    SetProperty(SEESProperty, 0.0);//, SEOddsRatio);
                     break;
 
                 case 7: // correlation coefficient r

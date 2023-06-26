@@ -72,7 +72,7 @@
                         <ComboBoxItem Content="Binary: odds ratio"></ComboBoxItem>
                         <ComboBoxItem Content="Binary: risk ratio"></ComboBoxItem>
                         <ComboBoxItem Content="Binary: risk difference"></ComboBoxItem>
-                        <ComboBoxItem Content="Binary: diagnostic test OR"></ComboBoxItem>
+                        <ComboBoxItem Content="Binary: diagnostic test OR" IsEnabled="False" IsHitTestVisible="False"></ComboBoxItem>
                         <ComboBoxItem Content="Binary: Peto OR"></ComboBoxItem>
                         <ComboBoxItem Content="Continuous: mean difference"></ComboBoxItem>
                      </ComboBox.Items>
@@ -181,7 +181,7 @@
                             <ComboBoxItem Content="Binary: odds ratio"></ComboBoxItem>
                             <ComboBoxItem Content="Binary: risk ratio"></ComboBoxItem>
                             <ComboBoxItem Content="Binary: risk difference"></ComboBoxItem>
-                            <ComboBoxItem Content="Binary: diagnostic test OR"></ComboBoxItem>
+                            <ComboBoxItem Content="Binary: diagnostic test OR" IsEnabled="False" IsHitTestVisible="False"></ComboBoxItem>
                             <ComboBoxItem Content="Binary: Peto OR"></ComboBoxItem>
                             <ComboBoxItem Content="Continuous: mean difference"></ComboBoxItem>
                         </ComboBox.Items>

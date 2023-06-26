@@ -7,7 +7,9 @@ import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
   selector: 'MetaAnalysisDetailsComp',
   templateUrl: './MetaAnalysisDetails.component.html',
     providers: [],
-    styles: []
+  styles: [`
+option:disabled {color: rgb(199, 199, 199);}
+`]
 })
 export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
 
