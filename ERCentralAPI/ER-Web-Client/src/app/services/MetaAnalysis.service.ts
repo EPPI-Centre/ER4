@@ -543,7 +543,7 @@ export class MetaAnalysisService extends BusyAwareService {
     switch (ColName) {
       case "es": return ForSorting ? "ES" : "ESColumn";
       case "sees": return ForSorting ? "SEES" : "SEESColumn";
-      case "shortTitle": return "titleColumn";
+      case "shortTitle": return ForSorting ? "ShortTitle" : "titleColumn";
       case "title": return ForSorting ? "Title" : "DescColumn";
       case "timepointDisplayValue": return ForSorting ? "TimepointDisplayValue": "TimepointColumn";
       case "outcomeTypeName": return ForSorting ? "OutcomeText" : "OutcomeTypeName";
