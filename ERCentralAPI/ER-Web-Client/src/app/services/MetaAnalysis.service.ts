@@ -957,7 +957,7 @@ export class MetaAnalysis implements iMetaAnalysis {
   public attributeIdAnswer: string;
   public attributeAnswerText: string;
   public gridSettings: string;
-  public filterSettingsList: iFilterSettings[];
+  public filterSettingsList: FilterSettings[];
   public feForestPlot: null;
   public reForestPlot: null;
   public feFunnelPlot: null;
@@ -1074,6 +1074,12 @@ export class FilterSettings implements iFilterSettings{
       && this.filter2CaseSensitive == false
       && this.filter2Operator == "IsEqualTo"
       && this.filtersLogicalOperator == "And") return true;
+    else return false;
+  }
+  public get TextFilter1isClear(): boolean {
+    if (this.filter1 == ""
+      && this.filter1CaseSensitive == false
+      && this.filter1Operator == "IsEqualTo") return true;
     else return false;
   }
   metaAnalysisFilterSettingId: number;

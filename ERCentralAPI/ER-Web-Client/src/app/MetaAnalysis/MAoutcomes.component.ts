@@ -53,6 +53,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   }
 
   @Output() PleaseEditThisFilter = new EventEmitter<string>();
+  @Output() PleaseSaveTheCurrentMA = new EventEmitter<void>();
 
   public get HasWriteRights(): boolean {
     return this.ReviewerIdentityServ.HasWriteRights;
@@ -108,7 +109,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
       , "Are you sure you want to delete this column? "
       + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
       + colToDelete.Name + "</strong></div>"
-      + "This change will be saved when you save the whole Meta Analysis."
+      + "Removing this column will <strong>save</strong> the whole Meta Analysis."
       , false, '')
       .then((confirm: any) => {
         if (confirm) {
@@ -121,6 +122,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     //1. remove name/id from 2 fields in CurrentMetaAnalysis
     //2. remove column from this.ColumnVisibility
     //3. check "sortBy", react if we're sorting by the column that's about to disappear.
+    //4. save all changes! (this is to match the behaviour of "add column" where we HAVE to save the whole MA)
 
     if (this.MetaAnalysisService.CurrentMetaAnalysis == null) return;
     const separator = String.fromCharCode(0x00AC); //the "not" simbol, or inverted pipe
@@ -171,6 +173,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     if (this.MetaAnalysisService.CurrentMetaAnalysis.sortedBy == colname) {
       this.MetaAnalysisService.UnSortOutcomes();
     }
+    this.PleaseSaveTheCurrentMA.emit();
   }
   ngOnDestroy() { }
 }
