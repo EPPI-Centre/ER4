@@ -1077,6 +1077,7 @@ export class FilterSettings implements iFilterSettings{
     else return false;
   }
   public get TextFilter1isClear(): boolean {
+    //console.log("TextFilter1isClear");
     if (this.filter1 == ""
       && this.filter1CaseSensitive == false
       && this.filter1Operator == "IsEqualTo") return true;

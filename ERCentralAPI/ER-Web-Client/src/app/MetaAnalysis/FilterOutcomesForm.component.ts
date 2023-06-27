@@ -77,7 +77,12 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     , filter2: "", filter2Operator: "IsEqualTo", filter2CaseSensitive: false
   });
   public get CurrentFilterSetting(): FilterSettings {
+    //console.log("CurrentFilterSetting");
     return this._CurrentFilterSetting;
+  }
+  public tmp(): boolean {
+    console.log('mad');
+    return true;
   }
 
   private _SelectableValues: string[] = [];
