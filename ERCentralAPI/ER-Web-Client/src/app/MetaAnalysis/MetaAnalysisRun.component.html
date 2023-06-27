@@ -9,7 +9,7 @@
         <select class="form-control pr-1 pl-1 p-2" (change)="ChangingModel($event)"
                 [(ngModel)]="CurrentMA.statisticalModel">
           <option [ngValue]=0 [selected]="CurrentMA.statisticalModel == 0">"FE": fixed effect</option>
-          <option [ngValue]=1 [selected]="CurrentMA.statisticalModel == 1">"DL": DerSimonian-Laird estimator'</option>
+          <option [ngValue]=1 [selected]="CurrentMA.statisticalModel == 1">"DL": DerSimonian-Laird estimator</option>
           <option [ngValue]=2 [selected]="CurrentMA.statisticalModel == 2">"ML": Maximum-likelihood estimator</option>
           <option [ngValue]=3 [selected]="CurrentMA.statisticalModel == 3">"REML": Restricted maximum likelihood</option>
           <option [ngValue]=4 [selected]="CurrentMA.statisticalModel == 4">"EB": Empirical Bayes estimator</option>
@@ -21,7 +21,7 @@
         <div class="ml-auto mr-1 my-auto">Significance Level:</div>
       </div>
       <div class="col-8 d-flex px-1">
-        <input type="number" min="90" max="99.9" step="0.1" [(ngModel)]="CurrentMA.significanceLevel" class="ml-1 mr-1 my-auto" />
+        <input type="number" [min]="SigLevMin" [max]="SigLevMax" step="1" [(ngModel)]="CurrentMA.significanceLevel" (focusout)="SigLevLostFocus()" class="ml-1 mr-1 my-auto" />
       </div>
     </div>
     <div class="col-12 col-md-6 row mx-0 px-0">
@@ -42,7 +42,7 @@
         <div class="ml-auto mr-1 my-auto">Decimal places:</div>
       </div>
       <div class="col-8 d-flex px-1">
-        <input type="number" min="1" max="8" step="1" [(ngModel)]="CurrentMA.decPlaces" class="ml-1 mr-1 my-auto" />
+        <input type="number" [min]="decPlacesMin" [max]="decPlacesMax" step="1" [(ngModel)]="CurrentMA.decPlaces" class="ml-1 mr-1 my-auto" (focusout)="DecPlacesLostFocus()"/>
       </div>
     </div>
     <div class="col-12 col-md-6 row mx-0 px-0">

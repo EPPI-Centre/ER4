@@ -141,6 +141,7 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
       || this.CurrentFilterSetting.columnName == "ComparisonColumn"
       || this.CurrentFilterSetting.columnName == "Arm1Column"
       || this.CurrentFilterSetting.columnName == "Arm2Column"
+      || this.CurrentFilterSetting.columnName.startsWith("aq")
     ) {
       return this._TextFilterOperators;
     } else return this._NumberFilterOperators;

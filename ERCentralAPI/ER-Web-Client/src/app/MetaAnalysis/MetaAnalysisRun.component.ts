@@ -28,7 +28,12 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
   }
   public HideReport: boolean = false;
   public ActivePanel: string = "";
+  public SigLevMin: number = 75;
+  public SigLevMax: number = 99;
+  public decPlacesMin: number = 2;
+  public decPlacesMax: number = 8;
 
+  
   public get CurrentMA(): MetaAnalysis | null {
     return this.MetaAnalysisService.CurrentMetaAnalysis;
   }
@@ -73,7 +78,7 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
   public get knhaIsDisabled(): boolean {
     if (!this.CurrentMA) return true;
     else if (this.CurrentMA.statisticalModel == 0) {
-      this.CurrentMA.knha = false;
+      if (this.CurrentMA.knha == true) setTimeout(() => { if (this.CurrentMA) this.CurrentMA.knha = false; }, 5);
       return true;
     }
     else return false;
@@ -83,6 +88,25 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
       this.CurrentMA.analysisType = 0;
       this.HideReport = false;
       this.MetaAnalysisService.RunMetaAnalysis(this.CurrentMA);
+    }
+  }
+
+  public SigLevLostFocus() {
+    if (this.CurrentMA) {
+      const check = parseInt(this.CurrentMA.significanceLevel.toString());
+      if (check == NaN) this.CurrentMA.significanceLevel = 95;
+      else if (check > this.SigLevMax) this.CurrentMA.significanceLevel = this.SigLevMax;
+      else if (check < this.SigLevMin) this.CurrentMA.significanceLevel = this.SigLevMin;
+      else if (check != this.CurrentMA.significanceLevel) this.CurrentMA.significanceLevel = check;
+    }
+  }
+  public DecPlacesLostFocus() {
+    if (this.CurrentMA) {
+      const check = parseInt(this.CurrentMA.decPlaces.toString());
+      if (check == NaN) this.CurrentMA.decPlaces = 4;
+      else if (check > this.decPlacesMax) this.CurrentMA.decPlaces = this.decPlacesMax;
+      else if (check < this.decPlacesMin) this.CurrentMA.decPlaces = this.decPlacesMin;
+      else if (check != this.CurrentMA.decPlaces) this.CurrentMA.decPlaces = check;
     }
   }
 

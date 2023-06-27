@@ -77,6 +77,11 @@ namespace ERxWebClient2.Controllers
 
             try
             {
+                if (MAjson == null)
+                {
+                    _logger.LogError("SaveMetaAnalysis error, input object is null");
+                    return StatusCode(500, "Invalid input: not recognised or null MA object");
+                }
                 if (SetCSLAUser4Writing())
                 {
 
@@ -196,7 +201,12 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (MAjson == null)
+                {
+                    _logger.LogError("RunMetaAnalysis error, input object is null");
+                    return StatusCode(500, "Invalid input: not recognised or null MA object");
+                }
+                if (SetCSLAUser())
                 {
                     MetaAnalysisSelectionCrit crit = new MetaAnalysisSelectionCrit();
                     crit.GetAllDetails = true;
