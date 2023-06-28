@@ -4,10 +4,10 @@
     <table class="table table-sm ModeratorsTable tableFixHead">
       <thead>
         <tr>
-          <th>Selected?</th>
-          <th>Moderator</th>
-          <th>Factor?</th>
-          <th>Reference</th>
+          <th style="max-width:8vw;">Selected?</th>
+          <th style="min-width:20vw;">Moderator</th>
+          <th style="max-width:8vw;">Factor?</th>
+          <th style="min-width:25vw;">Reference</th>
         </tr>
       </thead>
       <tbody>
@@ -19,10 +19,10 @@
             {{mod.name}}
           </td>
           <td>
-            <input type="checkbox" [(ngModel)]="mod.isFactor" />
+            <input type="checkbox" [(ngModel)]="mod.isFactor" [disabled]="!mod.isSelected" />
           </td>
           <td>
-            <select (change)="ChangingReference($event, mod)" class="py-1">
+            <select (change)="ChangingReference($event, mod)" class="py-1" [disabled]="!mod.isSelected">
               <option *ngFor="let ref of mod.references" [value]="ref.name" [selected]="mod.reference == ref.name" class="py-0">
                 {{ref.name}}
               </option>
