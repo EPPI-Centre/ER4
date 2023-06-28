@@ -1111,8 +1111,11 @@ export class Moderator implements iModerator {
     this.name = incoming.name;
     this.fieldName = incoming.fieldName;
     this.attributeID = incoming.attributeID;
-    this.reference = incoming.reference;
     this.references = incoming.references;
+    if (incoming.reference != '') this.reference = incoming.reference;
+    else if (this.references.length > 0) {
+      this.reference = this.references[0].name;
+    } else this.reference = "";
     this.isSelected = incoming.isSelected;
     this.isFactor = incoming.isFactor;
   }

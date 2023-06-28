@@ -20,7 +20,7 @@
         <div class="m-auto">
           Showing filter for:
           <span class="alert alert-success rounded p-1 mx-0 font-weight-bold text-black">{{CurrentColDisplayName}}</span>
-          <button class="btn btn-sm ml-1 py-0 px-1 btn-outline-primary" (click)="BringFilteringColIntoView()">show</button>
+          <button class="btn btn-sm ml-1 py-0 px-1 btn-outline-primary" (click)="BringFilteringColIntoView()">Scroll to</button>
         </div>
       </div>
     </div>
@@ -28,11 +28,14 @@
     <div *ngIf="CurrentFilterSetting.columnName != ''" class="col-12 col-sm-6 bg-white rounded border border-secondary mb-1">
       <div class="row mx-0 p-1">
         <div class="mr-1">Show only outcomes with these values:</div>
-        <ng-container [ngSwitch]="HasSelections">
-          <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll()" class="my-auto" title="No values selected" />
-          <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll()" checked class="my-auto linear-fade" title="Some values are selected" />
-          <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll()" class="my-auto" title="All values are selected" />
-        </ng-container>
+        <div class="justify-content-end col d-flex ml-1 px-0 mr-0">
+          <div class="small mr-1 my-auto">(Un/)Select all</div>
+          <ng-container [ngSwitch]="HasSelections">
+            <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll()" class="my-auto" title="No values selected" />
+            <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll()" checked class="my-auto linear-fade" title="Some values are selected" />
+            <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll()" class="my-auto" title="All values are selected" />
+          </ng-container>
+        </div>
       </div>
       <div class="row mx-0 px-0" style="max-height: 12ex; overflow-y: auto;">
         <div *ngFor="let val of SelectableValues" class="px-1 rounded alert-info m-1">
