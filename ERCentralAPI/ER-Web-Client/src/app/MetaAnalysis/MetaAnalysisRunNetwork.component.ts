@@ -59,7 +59,7 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
     if (tmp) {
       let partialFilename = " - ";
       if (this.MAreportSource) partialFilename += this.MAreportSource.metaAnalaysisObject.title;
-      const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(tmp.outerHTML, this._baseUrl, "Items Table"));
+      const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(tmp.outerHTML, this._baseUrl, "Network Meta Analysis"));
       saveAs(dataURI, "Network Meta Analysis Report" + partialFilename + ".html");
     }
   }

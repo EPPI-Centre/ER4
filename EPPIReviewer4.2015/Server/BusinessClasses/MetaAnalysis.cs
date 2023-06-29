@@ -532,23 +532,25 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
-                    // check for filtered out reference values and that we have at least two factors on which to compare
-                    retVal = false;
-                    bool haveAnother = false;
-                    foreach (Outcome o in this.Outcomes)
-                    {
-                        if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() == mam.Reference)
+                    if (mam.IsFactor)
+                    {// check for filtered out reference values and that we have at least two factors on which to compare
+                        retVal = false;
+                        bool haveAnother = false;
+                        foreach (Outcome o in this.Outcomes)
                         {
-                            retVal = true;
+                            if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() == mam.Reference)
+                            {
+                                retVal = true;
+                            }
+                            if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() != mam.Reference)
+                            {
+                                haveAnother = true;
+                            }
                         }
-                        if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() != mam.Reference)
+                        if (retVal == false || haveAnother == false)
                         {
-                            haveAnother = true;
+                            return false;
                         }
-                    }
-                    if (retVal == false || haveAnother == false)
-                    {
-                        return false;
                     }
                 }
             }

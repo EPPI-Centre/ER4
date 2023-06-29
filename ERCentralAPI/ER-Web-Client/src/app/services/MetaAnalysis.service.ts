@@ -1007,21 +1007,22 @@ export class MetaAnalysis implements iMetaAnalysis {
             }
           }
         }
-        // check for filtered out reference values and that we have at least two factors on which to compare
-        retVal = false;
-        let haveAnother: boolean = false;
-        const key2 = mam.fieldName as keyof ExtendedOutcome;
-        for(let o of this.outcomes)
-        {
-          if (o.isSelected == true && o[key].toString() == mam.reference) {
-            retVal = true;
+        if (mam.isFactor) {
+          // check for filtered out reference values and that we have at least two factors on which to compare
+          retVal = false;
+          let haveAnother: boolean = false;
+          const key2 = mam.fieldName as keyof ExtendedOutcome;
+          for (let o of this.outcomes) {
+            if (o.isSelected == true && o[key].toString() == mam.reference) {
+              retVal = true;
+            }
+            if (o.isSelected == true && o[key].toString() != mam.reference) {
+              haveAnother = true;
+            }
           }
-          if (o.isSelected == true && o[key].toString() != mam.reference) {
-            haveAnother = true;
+          if (retVal == false || haveAnother == false) {
+            return false;
           }
-        }
-        if (retVal == false || haveAnother == false) {
-          return false;
         }
       }
     }

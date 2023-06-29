@@ -22,7 +22,7 @@
             <input type="checkbox" [(ngModel)]="mod.isFactor" [disabled]="!mod.isSelected" />
           </td>
           <td>
-            <select (change)="ChangingReference($event, mod)" class="py-1" [disabled]="!mod.isSelected">
+            <select (change)="ChangingReference($event, mod)" class="py-1" [disabled]="!mod.isSelected || !mod.isFactor">
               <option *ngFor="let ref of mod.references" [value]="ref.name" [selected]="mod.reference == ref.name" class="py-0">
                 {{ref.name}}
               </option>
