@@ -1,6 +1,6 @@
 import { Component, OnInit,Input, ViewChild, OnDestroy, EventEmitter, Output, Inject } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { iMetaAnalysisRunInRCommand, iReference, MetaAnalysis, MetaAnalysisService, Moderator } from '../services/MetaAnalysis.service';
+import { iMetaAnalysisRunInRCommand, iReference, MetaAnalysis, MetaAnalysisService, Moderator, NMAmatrixRow } from '../services/MetaAnalysis.service';
 import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
@@ -42,6 +42,10 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
     if (this._references.length == 0) this.BuildReferences();
     return this._references;
   }
+  private _NMAmatrixRows: NMAmatrixRow[] = [];
+  public get NMAmatrixRows(): NMAmatrixRow[] {
+    return this._NMAmatrixRows;
+  }
 
   private BuildReferences() {
     if (!this.CurrentMA) return;
@@ -68,6 +72,37 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
     if (this.CurrentMA) {
       this.HideReport = false;
       this.MetaAnalysisService.RunMetaAnalysis(this.CurrentMA);
+    }
+  }
+
+  public BuildNMAmatrix() {
+    this._NMAmatrixRows = [];
+    if (this.CurrentMA) {
+      const outcomes = this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true);
+      let interventions: string[] = [];
+      for (let o of outcomes) {
+        if (interventions.indexOf(o.interventionText) == -1) {
+          interventions.push(o.interventionText);
+          const Fouts = outcomes.filter(f => f.interventionText == o.interventionText);
+          for (let oo of Fouts) {
+            const IndexOfRelevantRow = this._NMAmatrixRows.findIndex(f => f.intervention == o.interventionText); 
+            if (IndexOfRelevantRow == -1) {
+              let row = new NMAmatrixRow()
+              row.intervention = o.interventionText;
+              row.comparator.push({ Id: 1, Name: oo.controlText });
+              this._NMAmatrixRows.push(row);
+            } else {
+              const IndexOfRelevantComparator = this._NMAmatrixRows[IndexOfRelevantRow].comparator.findIndex(f => f.Name == oo.controlText);
+              if (IndexOfRelevantComparator == -1) {
+                this._NMAmatrixRows[IndexOfRelevantRow].comparator.push({ Id: 1, Name: oo.controlText });
+              } else {
+                this._NMAmatrixRows[IndexOfRelevantRow].comparator[IndexOfRelevantComparator].Id = this._NMAmatrixRows[IndexOfRelevantRow].comparator[IndexOfRelevantComparator].Id + 1;
+              }
+            }
+          }
+        }
+      }
+
     }
   }
 

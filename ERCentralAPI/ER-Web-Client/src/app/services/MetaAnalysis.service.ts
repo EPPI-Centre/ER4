@@ -1163,3 +1163,8 @@ export interface iMetaAnalysisRunInRCommand {
   graphsList: string[];
   graphsTitles: string[];
 }
+
+export class NMAmatrixRow {
+  intervention: string = "";
+  comparator: IdAndNamePair[] = []; //id will carry the count number, Name the name of the comparator
+}

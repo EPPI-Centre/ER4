@@ -80,10 +80,6 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     //console.log("CurrentFilterSetting");
     return this._CurrentFilterSetting;
   }
-  public tmp(): boolean {
-    console.log('mad');
-    return true;
-  }
 
   private _SelectableValues: string[] = [];
   public get SelectableValues(): string[] {
