@@ -619,7 +619,7 @@ namespace BusinessLibrary.BusinessClasses
 
             GraphsTitles.Add("Forest Plot");
             RCode += Environment.NewLine + "png(filename=\"" + "Forest_Plot" + "\", height = 431, width = 804, units = \"px\")"
-                    + Environment.NewLine + "forest(net1, ref='" + ma.NMAReference + "')"
+                    + Environment.NewLine + "forest(net1, ref='" + Regex.Replace(ma.NMAReference, @"[^A-Za-z0-9]+", "") + "')"
                     + Environment.NewLine + "dev.off()";
 
             GraphsTitles.Add("Heat Plot");

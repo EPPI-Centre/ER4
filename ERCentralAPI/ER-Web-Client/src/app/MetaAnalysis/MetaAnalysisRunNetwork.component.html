@@ -38,7 +38,7 @@
   </div>
   <div class="row mx-1 px-0 mb-1"><button class="btn btn-outline-success px-2 py-1 mx-auto" (click)="BuildNMAmatrix()">build matrix</button></div>
   <div class="row mx-1 px-0 mb-1">
-    
+
     <div *ngIf="NMAmatrixRows.length > 0" class="col-auto mx-auto">
       <table *ngIf="NMAmatrixRows.length > 0" class="mx-auto small table table-sm table-striped">
         <thead>
@@ -56,6 +56,26 @@
             </td>
             <td>
               <div *ngFor="let cc of row.comparator">{{cc.Id}}</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="NMAmatrixRows.length > 0" class="col-auto mx-auto">
+      <table *ngIf="NMAmatrixRows.length > 0" class="mx-auto small table table-sm table-striped">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ntArr of networks; let i = index">
+            <td>
+              Network {{i.toString()}}
+            </td>
+            <td>
+              <div *ngFor="let nd of ntArr">{{nd}};&nbsp;</div>
             </td>
           </tr>
         </tbody>

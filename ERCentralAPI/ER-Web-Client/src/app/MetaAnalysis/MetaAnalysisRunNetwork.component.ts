@@ -1,10 +1,12 @@
 import { Component, OnInit,Input, ViewChild, OnDestroy, EventEmitter, Output, Inject } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { iMetaAnalysisRunInRCommand, iReference, MetaAnalysis, MetaAnalysisService, Moderator, NMAmatrixRow } from '../services/MetaAnalysis.service';
+import { IdAndNamePair, iMetaAnalysisRunInRCommand, iReference, MetaAnalysis, MetaAnalysisService, Moderator, NMAmatrixRow } from '../services/MetaAnalysis.service';
 import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
+import { ExtendedOutcome, Outcome } from '../services/outcomes.service';
+import { last, single } from 'rxjs';
 
 @Component({
   selector: 'MetaAnalysisRunNetworkComp',
@@ -74,7 +76,8 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
       this.MetaAnalysisService.RunMetaAnalysis(this.CurrentMA);
     }
   }
-
+  public networks: string[][] = [];
+  public connectedOutcomes: ExtendedOutcome[][] = [];
   public BuildNMAmatrix() {
     this._NMAmatrixRows = [];
     if (this.CurrentMA) {
@@ -102,8 +105,79 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
           }
         }
       }
+      //here we try to check if each outcome is part of a unique network, which is the same as finding out how many distinct network we have
+      //for each outcome, see if you can connect it to something
+      //if you can't it goes in its own solitary network
+      //if you can, see if one of its elements is in an existing network, but the other isn't
+      //if it is, add the other to existing network and check if you need to merge this network
+      //ELSE if both elements are in the SAME existing network, move on
+      //ELSE, if one element is in one network, and the other in a different network, merge the networks
+      //else, it's connected to something, but not in an already known network, so add a new network
+      this.networks = [];
+      let singletons: ExtendedOutcome[] = [];
+      let DoneOutcomes: ExtendedOutcome[] = [];
+      let DoneInterventions: string[] = [];
+      let DoneControls: string[] = [];
 
+      for (let o of outcomes) {
+        DoneOutcomes.push(o);
+        let cnt = outcomes.filter(f => o.interventionText == f.interventionText || o.controlText == f.controlText).length;
+        if (cnt == 1) {
+          singletons.push(o);//it's the same outcome we're dealing with
+        }
+        else {
+          let indexOfInterventionNetw = this.IndexofNetwork(o.interventionText);
+          let indexOfControlNetw = this.IndexofNetwork(o.controlText);
+          if (indexOfInterventionNetw == -1 && indexOfControlNetw != -1) {
+            //add intervention to network where control is
+            this.networks[indexOfControlNetw].push(o.interventionText);
+          }
+          else if (indexOfInterventionNetw != -1 && indexOfControlNetw == -1) {
+            //add control to network where intervention is
+            this.networks[indexOfInterventionNetw].push(o.controlText);
+          }
+          else if (indexOfInterventionNetw != -1 && indexOfControlNetw != -1) {
+            //both sides are already somewhere
+            if (indexOfControlNetw != indexOfInterventionNetw) {
+              //merge these two networks!
+              const biggerI = indexOfControlNetw > indexOfInterventionNetw ? indexOfControlNetw : indexOfInterventionNetw;
+              const smallerI = indexOfControlNetw < indexOfInterventionNetw ? indexOfControlNetw : indexOfInterventionNetw;
+              for (let el of this.networks[biggerI]) {
+                if (this.networks[smallerI].indexOf(el) == -1) this.networks[smallerI].push(el);
+              }
+              this.networks.splice(biggerI, 1);
+            }
+            else {
+              //nothing to do
+            }
+          }
+          else {
+            //both sides are in no existing network:
+            //new network
+            let NN: string[] = [];
+            NN.push(o.interventionText, o.controlText);
+            this.networks.push(NN);
+          }
+        }
+      }
+
+
+      for (let sing of singletons) {
+        let NewN: string[] = [];
+        NewN.push(sing.interventionText, sing.controlText);
+        this.networks.push(NewN);
+        let NewCO: ExtendedOutcome[] = [];
+        NewCO.push(sing);
+        this.connectedOutcomes.push(NewCO);
+      }
     }
+  }
+  private IndexofNetwork(val: string): number {
+    if (this.networks.length == 0) return -1;
+    for (let i = 0; i < this.networks.length; i++) {
+      if (this.networks[i].indexOf(val) != -1) return i;
+    }
+    return -1;
   }
 
   public CloseMe() {
