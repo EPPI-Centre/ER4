@@ -48,6 +48,38 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
   public get NMAmatrixRows(): NMAmatrixRow[] {
     return this._NMAmatrixRows;
   }
+  public IntervAndCompNetworks: string[][] = [];
+  public connectedOutcomes: ExtendedOutcome[][] = [];
+  public incompleteOutcomes: ExtendedOutcome[] = [];
+  private _MappedOutcomes: ExtendedOutcome[] = [];
+
+  public showIncompleteOutcomesHelp: boolean = false;
+
+  public get DataIsMapped(): boolean {
+    if (this._MappedOutcomes) {
+      const ToCompare = this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true && f.interventionText != '' && f.controlText != '');
+      for (let i = 0; i < this._MappedOutcomes.length; i++) {
+        if (this._MappedOutcomes[i] != ToCompare[i]) return false;
+      }
+    }
+    if (this._NMAmatrixRows.length > 0 || this.IntervAndCompNetworks.length > 0
+      || this.connectedOutcomes.length > 0 || this.incompleteOutcomes.length > 0) return true;
+    else return false;
+  }
+
+  public get canRunNMA(): number {
+    // -1: not enough outcomes selected; 0: NMA can run,
+    // 1: need to "map outcomes" 1st, 2: please unselect incomplete outcomes, 3 please unselect extra networks, only one network can be analysed at a given time
+    //4: there is no network to analyse, 5: not enough elements in the one network that exists; 6: the "reference" selected is not in the network
+    if (this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true).length < 2) return -1;
+    else if (this.DataIsMapped == false) return 1;
+    else if (this.incompleteOutcomes.length > 0) return 2;
+    else if (this.IntervAndCompNetworks.length > 1) return 3;
+    else if (this.IntervAndCompNetworks.length == 0) return 4;
+    else if (this.IntervAndCompNetworks[0].length < 3) return 5;
+    else if (this.CurrentMA && this.IntervAndCompNetworks[0].indexOf(this.CurrentMA.nmaReference) == -1) return 6;
+    else return 0;
+  }
 
   private BuildReferences() {
     if (!this.CurrentMA) return;
@@ -76,12 +108,18 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
       this.MetaAnalysisService.RunMetaAnalysis(this.CurrentMA);
     }
   }
-  public networks: string[][] = [];
-  public connectedOutcomes: ExtendedOutcome[][] = [];
   public BuildNMAmatrix() {
     this._NMAmatrixRows = [];
+    this.incompleteOutcomes = [];
+    this.connectedOutcomes = [];
+    this._MappedOutcomes = [];
     if (this.CurrentMA) {
-      const outcomes = this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true);
+      //identify all outcomes without an intervention or a control
+      const PartialOutcomes = this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true && (f.interventionText == '' || f.controlText == ''));
+      this.incompleteOutcomes = PartialOutcomes;
+      const outcomes = this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true && f.interventionText != '' && f.controlText != '');
+      this._MappedOutcomes = outcomes;
+      //build the 1st table matching Interventions with Comparators
       let interventions: string[] = [];
       for (let o of outcomes) {
         if (interventions.indexOf(o.interventionText) == -1) {
@@ -113,7 +151,7 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
       //ELSE if both elements are in the SAME existing network, move on
       //ELSE, if one element is in one network, and the other in a different network, merge the networks
       //else, it's connected to something, but not in an already known network, so add a new network
-      this.networks = [];
+      this.IntervAndCompNetworks = [];
       let singletons: ExtendedOutcome[] = [];
       let DoneOutcomes: ExtendedOutcome[] = [];
       let DoneInterventions: string[] = [];
@@ -130,11 +168,13 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
           let indexOfControlNetw = this.IndexofNetwork(o.controlText);
           if (indexOfInterventionNetw == -1 && indexOfControlNetw != -1) {
             //add intervention to network where control is
-            this.networks[indexOfControlNetw].push(o.interventionText);
+            this.IntervAndCompNetworks[indexOfControlNetw].push(o.interventionText);
+            this.connectedOutcomes[indexOfControlNetw].push(o);
           }
           else if (indexOfInterventionNetw != -1 && indexOfControlNetw == -1) {
             //add control to network where intervention is
-            this.networks[indexOfInterventionNetw].push(o.controlText);
+            this.IntervAndCompNetworks[indexOfInterventionNetw].push(o.controlText);
+            this.connectedOutcomes[indexOfInterventionNetw].push(o);
           }
           else if (indexOfInterventionNetw != -1 && indexOfControlNetw != -1) {
             //both sides are already somewhere
@@ -142,13 +182,19 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
               //merge these two networks!
               const biggerI = indexOfControlNetw > indexOfInterventionNetw ? indexOfControlNetw : indexOfInterventionNetw;
               const smallerI = indexOfControlNetw < indexOfInterventionNetw ? indexOfControlNetw : indexOfInterventionNetw;
-              for (let el of this.networks[biggerI]) {
-                if (this.networks[smallerI].indexOf(el) == -1) this.networks[smallerI].push(el);
+              for (let el of this.IntervAndCompNetworks[biggerI]) {
+                if (this.IntervAndCompNetworks[smallerI].indexOf(el) == -1) this.IntervAndCompNetworks[smallerI].push(el);
               }
-              this.networks.splice(biggerI, 1);
+              this.IntervAndCompNetworks.splice(biggerI, 1);
+              for (let el of this.connectedOutcomes[biggerI]) {
+                if (this.connectedOutcomes[smallerI].indexOf(el) == -1) this.connectedOutcomes[smallerI].push(el);
+              }
+              if (this.connectedOutcomes[smallerI].indexOf(o) == -1) this.connectedOutcomes[smallerI].push(o);
+              this.connectedOutcomes.splice(biggerI, 1);
             }
             else {
-              //nothing to do
+              //just put the outcome in the correct "network"...
+              this.connectedOutcomes[indexOfControlNetw].push(o);
             }
           }
           else {
@@ -156,7 +202,10 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
             //new network
             let NN: string[] = [];
             NN.push(o.interventionText, o.controlText);
-            this.networks.push(NN);
+            this.IntervAndCompNetworks.push(NN);
+            let NNo: ExtendedOutcome[] = [];
+            NNo.push(o);
+            this.connectedOutcomes.push(NNo);
           }
         }
       }
@@ -165,7 +214,7 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
       for (let sing of singletons) {
         let NewN: string[] = [];
         NewN.push(sing.interventionText, sing.controlText);
-        this.networks.push(NewN);
+        this.IntervAndCompNetworks.push(NewN);
         let NewCO: ExtendedOutcome[] = [];
         NewCO.push(sing);
         this.connectedOutcomes.push(NewCO);
@@ -173,11 +222,28 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
     }
   }
   private IndexofNetwork(val: string): number {
-    if (this.networks.length == 0) return -1;
-    for (let i = 0; i < this.networks.length; i++) {
-      if (this.networks[i].indexOf(val) != -1) return i;
+    if (this.IntervAndCompNetworks.length == 0) return -1;
+    for (let i = 0; i < this.IntervAndCompNetworks.length; i++) {
+      if (this.IntervAndCompNetworks[i].indexOf(val) != -1) return i;
     }
     return -1;
+  }
+
+  public UnselectIncompleteOutcomes() {
+    for (let o of this.incompleteOutcomes) {
+      o.isSelected = false;
+    }
+    this.BuildNMAmatrix();
+  }
+
+  public UnselectThisNetwork(index: number) {
+    const ToUnselect = this.connectedOutcomes[index];
+    if (ToUnselect) {
+      for (let o of ToUnselect) {
+        o.isSelected = false;
+      }
+      this.BuildNMAmatrix();
+    }
   }
 
   public CloseMe() {

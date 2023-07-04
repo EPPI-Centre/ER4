@@ -75,6 +75,9 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     if (selectedCount != selectableCount) return 1; //partial selection
     else return 2;
   }
+  public get SelectedCount(): number {
+    return this.Outcomes.filter(f => f.isSelected == true).length;
+  }
 
   public SortingSymbol(fieldName: string): string {
     return CustomSorting.SortingSymbol(fieldName, this.MetaAnalysisService.LocalSort);
