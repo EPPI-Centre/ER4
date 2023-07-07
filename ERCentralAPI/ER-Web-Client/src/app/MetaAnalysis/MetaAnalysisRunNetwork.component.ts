@@ -58,6 +58,7 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
   public get DataIsMapped(): boolean {
     if (this._MappedOutcomes) {
       const ToCompare = this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true && f.interventionText != '' && f.controlText != '');
+      if (this._MappedOutcomes.length != ToCompare.length) return false;
       for (let i = 0; i < this._MappedOutcomes.length; i++) {
         if (this._MappedOutcomes[i] != ToCompare[i]) return false;
       }
