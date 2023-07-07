@@ -37,6 +37,22 @@ export class MetaAnalysisService extends BusyAwareService {
     return this._FilteredOutcomes;
   }
 
+  private _MAreportSource: iMetaAnalysisRunInRCommand | null = null;
+  public get MAreportSource(): iMetaAnalysisRunInRCommand | null {
+    return this._MAreportSource;
+  }
+
+  private _MAreport: string = "";
+  public get MAreport(): string {
+    if (this._MAreport == "") {
+      if (this._MAreportSource != null) {
+        this.BuildMAreportInHTML();
+      }
+    }
+    return this._MAreport;
+  }
+
+
   public UnSortOutcomes(): void {
     if (this.CurrentMetaAnalysis == null || this.CurrentMetaAnalysisUnchanged == null) return;
     
@@ -75,7 +91,10 @@ export class MetaAnalysisService extends BusyAwareService {
     ) return true;
     if (this.CurrentMetaAnalysis.filterSettingsList.filter(f => f.isClear == false).length != this.CurrentMetaAnalysisUnchanged.filterSettingsList.filter(f => f.isClear == false).length) return true;
     for (let i = 0; i < this.CurrentMetaAnalysis.filterSettingsList.length; i++) {
-      if (this.CurrentMetaAnalysis.filterSettingsList[i].columnName != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].columnName
+      if (this.CurrentMetaAnalysisUnchanged.filterSettingsList[i] == undefined) {//we can have more filters in the currentMA as in the case before, we are only counting the "not clear" filters!
+        if (this.CurrentMetaAnalysis.filterSettingsList[i].isClear == false) return true;//I dont' think this can happen, but checking for this case just in case
+      }
+      else if (this.CurrentMetaAnalysis.filterSettingsList[i].columnName != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].columnName
         || this.CurrentMetaAnalysis.filterSettingsList[i].filter1 != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1
         || this.CurrentMetaAnalysis.filterSettingsList[i].filter1CaseSensitive != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1CaseSensitive
         || this.CurrentMetaAnalysis.filterSettingsList[i].filter1Operator != this.CurrentMetaAnalysisUnchanged.filterSettingsList[i].filter1Operator
@@ -114,6 +133,7 @@ export class MetaAnalysisService extends BusyAwareService {
       );
   }
   public FetchMetaAnalysis(crit: MetaAnalysisSelectionCrit) {
+    this.Clear(true);
     this._BusyMethods.push("FetchMetaAnalysis");
     this._httpC.post<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/FetchMetaAnalysis',
       crit).subscribe(result => {
@@ -132,6 +152,7 @@ export class MetaAnalysisService extends BusyAwareService {
   }
   
   public FetchEmptyMetaAnalysis() {
+    this.Clear(true);
     this._BusyMethods.push("FetchEmptyMetaAnalysis");
     this._httpC.get<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/FetchEmptyMetaAnalysis',).subscribe(result => {
         this.CurrentMetaAnalysis = new MetaAnalysis(result);
@@ -147,6 +168,7 @@ export class MetaAnalysisService extends BusyAwareService {
   }
   
   public SaveMetaAnalysis(MA: MetaAnalysis): Promise<MetaAnalysis | boolean> {
+    this.Clear(true);
     this._BusyMethods.push("SaveMetaAnalysis");
     const ToSend: iMetaAnalysis = MA.ToiMetaAnalysis();
     return lastValueFrom(this._httpC.post<iMetaAnalysis>(this._baseUrl + 'api/MetaAnalysis/SaveMetaAnalysis', ToSend)
@@ -181,8 +203,32 @@ export class MetaAnalysisService extends BusyAwareService {
         });
   }
 
+  public RunMetaAnalysis(MA: MetaAnalysis): Promise<iMetaAnalysisRunInRCommand | boolean> {
+    this.Clear(true);
+    this._BusyMethods.push("RunMetaAnalysis");
+    const ToSend: iMetaAnalysis = MA.ToiMetaAnalysis();
+    return lastValueFrom(this._httpC.post<iMetaAnalysisRunInRCommand>(this._baseUrl + 'api/MetaAnalysis/RunMetaAnalysis', ToSend)
+    ).then((res) => {
+      this._MAreportSource = res;
+      this.RemoveBusy("RunMetaAnalysis");
+      return res;
+    },
+      (err) => {
+        console.log("Error RunMetaAnalysis:", err);
+        this.RemoveBusy("RunMetaAnalysis");
+        this.modalService.GenericError(err);
+        return false;
+      }).catch(
+        (error) => {
+          this.modalService.GenericErrorMessage("Running this Meta Analysis produced this error: " + error);
+          this.RemoveBusy("RunMetaAnalysis");
+          return false;
+        });
+  }
+
 
   public DeleteMetaAnalysis(Id: number) {
+    if (this._MAreportSource && this._MAreportSource.metaAnalaysisObject.metaAnalysisId == Id) this.Clear(true);
     const crit: MetaAnalysisSelectionCrit = { MetaAnalysisId: Id, GetAllDetails: false };
     this._BusyMethods.push("DeleteMetaAnalysis");
     this._httpC.post<void>(this._baseUrl + 'api/MetaAnalysis/DeleteMetaAnalysis',
@@ -497,7 +543,7 @@ export class MetaAnalysisService extends BusyAwareService {
     switch (ColName) {
       case "es": return ForSorting ? "ES" : "ESColumn";
       case "sees": return ForSorting ? "SEES" : "SEESColumn";
-      case "shortTitle": return "titleColumn";
+      case "shortTitle": return ForSorting ? "ShortTitle" : "titleColumn";
       case "title": return ForSorting ? "Title" : "DescColumn";
       case "timepointDisplayValue": return ForSorting ? "TimepointDisplayValue": "TimepointColumn";
       case "outcomeTypeName": return ForSorting ? "OutcomeText" : "OutcomeTypeName";
@@ -510,11 +556,38 @@ export class MetaAnalysisService extends BusyAwareService {
     }
   }
 
-  Clear() {
-    this.MetaAnalysisList = [];
-    this.CurrentMetaAnalysis = null;
-    this.CurrentMetaAnalysisUnchanged = null;
-    this.ColumnVisibility = new DynamicColumnsOutcomes();
+  private BuildMAreportInHTML() {
+    this._MAreport = "";
+    if (this._MAreportSource == null) {
+      return;
+    }
+    this._MAreport += "<H2>Meta Analysis name: " + this._MAreportSource.metaAnalaysisObject.title + "</H2>";
+    for (let i = 0; i < this._MAreportSource.resultsLabels.length; i++)
+    {
+      this._MAreport += (i == 0 ? "<H4>" : "<H5>") + this._MAreportSource.resultsLabels[i] + (i == 0 ? "</H4>" : "</H5>");
+      this._MAreport += "<P style='font-family:monospace;white-space:pre'>" + this._MAreportSource.resultsText[i].replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />') + "</P>";
+    }
+    for (let i = 0; i < this._MAreportSource.graphsList.length; i++) {
+      this._MAreport += "<H5>" + this._MAreportSource.graphsTitles[i] + "</H5>";
+      this._MAreport += "<img src='data:image/jpg;base64," + this._MAreportSource.graphsList[i] + "' />";
+    }
+    this._MAreport += "<H4>R-Code (Metafor)</H4>";
+    this._MAreport += "<div style='border: 1px solid black; margin:5px; padding:0.5em;'><code>" + this._MAreportSource.rCode.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />') + "</code></div>";
+    this._MAreport += "<P style='font-size:0.8em;'>"
+      + "These results are provided by the Metafor Package for R, please include the following citation when publishing the above.Wolfgang Viechtbauer (2010).<br />"
+      + "Conducting meta-analyses in R with the metafor package.Journal of Statistical Software, 36(3), 1 - 48."
+      + "</P>";
+  }
+
+  Clear(onlyPartialClear: boolean = false) {
+    if (onlyPartialClear == false) {
+      this.MetaAnalysisList = [];
+      this.CurrentMetaAnalysis = null;
+      this.CurrentMetaAnalysisUnchanged = null;
+      this.ColumnVisibility = new DynamicColumnsOutcomes();
+    }
+    this._MAreportSource = null;
+    this._MAreport = "";
   }
 }
 interface iMetaAnalysis {
@@ -884,7 +957,7 @@ export class MetaAnalysis implements iMetaAnalysis {
   public attributeIdAnswer: string;
   public attributeAnswerText: string;
   public gridSettings: string;
-  public filterSettingsList: iFilterSettings[];
+  public filterSettingsList: FilterSettings[];
   public feForestPlot: null;
   public reForestPlot: null;
   public feFunnelPlot: null;
@@ -911,6 +984,49 @@ export class MetaAnalysis implements iMetaAnalysis {
     const selectedModerators = this.metaAnalysisModerators.filter(f => f.isSelected == true);
     if (selectedModerators.length == 1) return false;
     else return true;
+  }
+  
+  public get CanRun(): number {
+    //0 = can run, 1 = no outcomes selected, 2 = moderators are not valid
+    if (this.outcomes.filter(f => f.isSelected == true && f.es != 0).length == 0) return 1;
+    else if (this.analysisType == 0 && this.CheckValidModerators() == false) return 2;
+    return 0;
+  }
+  private CheckValidModerators(): boolean {
+    let retVal: boolean = true;
+    for(let mam of this.metaAnalysisModerators)
+    {
+      const key = mam.fieldName.charAt(0).toLowerCase() + mam.fieldName.slice(1) as keyof ExtendedOutcome;//for the JS fieldname, we need the 1st letter to be lower case
+      if (mam.isSelected == true) {
+        // check for empty values in the outcomes list for a given moderator
+        if (mam.fieldName.startsWith("aq") == true || mam.fieldName == "InterventionText" || mam.fieldName == "ControlText" || mam.fieldName == "OutcomeText") {
+          for (let o of this.outcomes)
+          {
+            if (o.isSelected == true && o[key].toString() == "") {
+              return false;
+            }
+          }
+        }
+        if (mam.isFactor) {
+          // check for filtered out reference values and that we have at least two factors on which to compare
+          retVal = false;
+          let haveAnother: boolean = false;
+          const key2 = mam.fieldName as keyof ExtendedOutcome;
+          for (let o of this.outcomes) {
+            if (o.isSelected == true && o[key].toString() == mam.reference) {
+              retVal = true;
+            }
+            if (o.isSelected == true && o[key].toString() != mam.reference) {
+              haveAnother = true;
+            }
+          }
+          if (retVal == false || haveAnother == false) {
+            return false;
+          }
+        }
+      }
+    }
+    return retVal;
   }
   public ToiMetaAnalysis(): iMetaAnalysis {
     //we need this because "get" methods don't get in the JSON string by default, so we have to do it explictly for any "property" that is implemented with get/set...
@@ -961,6 +1077,13 @@ export class FilterSettings implements iFilterSettings{
       && this.filtersLogicalOperator == "And") return true;
     else return false;
   }
+  public get TextFilter1isClear(): boolean {
+    //console.log("TextFilter1isClear");
+    if (this.filter1 == ""
+      && this.filter1CaseSensitive == false
+      && this.filter1Operator == "IsEqualTo") return true;
+    else return false;
+  }
   metaAnalysisFilterSettingId: number;
   metaAnalysisId: number;
   columnName: string;
@@ -989,8 +1112,11 @@ export class Moderator implements iModerator {
     this.name = incoming.name;
     this.fieldName = incoming.fieldName;
     this.attributeID = incoming.attributeID;
-    this.reference = incoming.reference;
     this.references = incoming.references;
+    if (incoming.reference != '') this.reference = incoming.reference;
+    else if (this.references.length > 0) {
+      this.reference = this.references[0].name;
+    } else this.reference = "";
     this.isSelected = incoming.isSelected;
     this.isFactor = incoming.isFactor;
   }
@@ -1023,4 +1149,22 @@ export class DynamicColumnsOutcomes {
 export class IdAndNamePair {
   Id: number = -1;
   Name: string = "";
+}
+
+export interface iMetaAnalysisRunInRCommand {
+  metaAnalaysisObject: iMetaAnalysis;
+  effectSizes: number[];
+  confIntervals: number[];
+  studyLabels: string[];
+  rCode: string;
+  resultsText: string[];
+  resultsLabels: string[];
+  options: string;
+  graphsList: string[];
+  graphsTitles: string[];
+}
+
+export class NMAmatrixRow {
+  intervention: string = "";
+  comparator: IdAndNamePair[] = []; //id will carry the count number, Name the name of the comparator
 }

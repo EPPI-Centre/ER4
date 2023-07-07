@@ -77,6 +77,7 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     , filter2: "", filter2Operator: "IsEqualTo", filter2CaseSensitive: false
   });
   public get CurrentFilterSetting(): FilterSettings {
+    //console.log("CurrentFilterSetting");
     return this._CurrentFilterSetting;
   }
 
@@ -136,6 +137,7 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
       || this.CurrentFilterSetting.columnName == "ComparisonColumn"
       || this.CurrentFilterSetting.columnName == "Arm1Column"
       || this.CurrentFilterSetting.columnName == "Arm2Column"
+      || this.CurrentFilterSetting.columnName.startsWith("aq")
     ) {
       return this._TextFilterOperators;
     } else return this._NumberFilterOperators;

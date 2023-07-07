@@ -32,7 +32,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MetaAnalysisRunInRCommand : CommandBase<MetaAnalysisRunInRCommand>
     {
-#if SILVERLIGHT
+//#if SILVERLIGHT
         
         public MetaAnalysisRunInRCommand() 
         {
@@ -40,76 +40,76 @@ namespace BusinessLibrary.BusinessClasses
             ConfIntervals = new MobileList<double>();
             StudyLabels = new MobileList<string>();
             ResultsLabels = new MobileList<string>();
-            //GraphsList = new MobileList<byte[]>();
+            GraphsList = new MobileList<byte[]>();
             GraphsTitles = new MobileList<string>();
         }
-#else
-        protected MetaAnalysisRunInRCommand()
-        {
-            //EffectSizes = new MobileList<double>();
-            //ConfnItervals = new MobileList<double>();
-            //StudyLabels = new MobileList<string>();
-            //ResultsText = new MobileList<string>();
-            GraphsList = new MobileList<byte[]>();
-            //GraphsTitles = new MobileList<string>();
-        }
-#endif
-        private static PropertyInfo<MetaAnalysis> MetaAnalaysisObjectProperty = RegisterProperty<MetaAnalysis>(new PropertyInfo<MetaAnalysis>("MetaAnalaysisObject", "MetaAnalaysisObject"));
+//#else
+//        public MetaAnalysisRunInRCommand()
+//        {
+//            //EffectSizes = new MobileList<double>();
+//            //ConfnItervals = new MobileList<double>();
+//            //StudyLabels = new MobileList<string>();
+//            //ResultsText = new MobileList<string>();
+//            GraphsList = new MobileList<byte[]>();
+//            //GraphsTitles = new MobileList<string>();
+//        }
+//#endif
+        public static readonly PropertyInfo<MetaAnalysis> MetaAnalaysisObjectProperty = RegisterProperty<MetaAnalysis>(new PropertyInfo<MetaAnalysis>("MetaAnalaysisObject", "MetaAnalaysisObject"));
         public MetaAnalysis MetaAnalaysisObject
         {
             get { return ReadProperty(MetaAnalaysisObjectProperty); }
             set { LoadProperty(MetaAnalaysisObjectProperty, value); }
         }
 
-        private static PropertyInfo<MobileList<double>> EffectSizesProperty = RegisterProperty<MobileList<double>>(new PropertyInfo<MobileList<double>>("EffectSizes", "EffectSizes"));
+        public static readonly PropertyInfo<MobileList<double>> EffectSizesProperty = RegisterProperty<MobileList<double>>(new PropertyInfo<MobileList<double>>("EffectSizes", "EffectSizes"));
         public MobileList<double> EffectSizes
         {
             get { return ReadProperty(EffectSizesProperty); }
             set { LoadProperty(EffectSizesProperty, value); }
         }
-        private static PropertyInfo<MobileList<double>> ConfIntervalsProperty = RegisterProperty<MobileList<double>>(new PropertyInfo<MobileList<double>>("ConfIntervals", "ConfIntervals"));
+        public static readonly PropertyInfo<MobileList<double>> ConfIntervalsProperty = RegisterProperty<MobileList<double>>(new PropertyInfo<MobileList<double>>("ConfIntervals", "ConfIntervals"));
         public MobileList<double> ConfIntervals
         {
             get { return ReadProperty(ConfIntervalsProperty); }
             set { LoadProperty(ConfIntervalsProperty, value); }
         }
-        private static PropertyInfo<MobileList<string>> StudyLabelsProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("StudyLabels", "StudyLabels"));
+        public static readonly PropertyInfo<MobileList<string>> StudyLabelsProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("StudyLabels", "StudyLabels"));
         public MobileList<string> StudyLabels
         {
             get { return ReadProperty(StudyLabelsProperty); }
             set { LoadProperty(StudyLabelsProperty, value); }
         }
-        private static PropertyInfo<string> RCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("RCode", "RCode"));
+        public static readonly PropertyInfo<string> RCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("RCode", "RCode"));
         public string RCode
         {
             get { return ReadProperty(RCodeProperty); }
             set { LoadProperty(RCodeProperty, value); }
         }
-        private static PropertyInfo<MobileList<string>> ResultsTextProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("ResultsText", "ResultsText"));
+        public static readonly PropertyInfo<MobileList<string>> ResultsTextProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("ResultsText", "ResultsText"));
         public MobileList<string> ResultsText
         {
             get { return ReadProperty(ResultsTextProperty); }
             set { LoadProperty(ResultsTextProperty, value); }
         }
-        private static PropertyInfo<MobileList<string>> ResultsLabelsProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("ResultsLabels", "ResultsLabels"));
+        public static readonly PropertyInfo<MobileList<string>> ResultsLabelsProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("ResultsLabels", "ResultsLabels"));
         public MobileList<string> ResultsLabels
         {
             get { return ReadProperty(ResultsLabelsProperty); }
             set { LoadProperty(ResultsLabelsProperty, value); }
         }
-        private static PropertyInfo<string> OptionsProperty = RegisterProperty<string>(new PropertyInfo<string>("Options", "Options"));
+        public static readonly PropertyInfo<string> OptionsProperty = RegisterProperty<string>(new PropertyInfo<string>("Options", "Options"));
         public string Options
         {
             get { return ReadProperty(OptionsProperty); }
             set { LoadProperty(OptionsProperty, value); }
         }
-        private static PropertyInfo<MobileList<byte[]>> GraphsListProperty = RegisterProperty<MobileList<byte[]>>(new PropertyInfo<MobileList<byte[]>>("GraphsList", "GraphsList"));
+        public static readonly PropertyInfo<MobileList<byte[]>> GraphsListProperty = RegisterProperty<MobileList<byte[]>>(new PropertyInfo<MobileList<byte[]>>("GraphsList", "GraphsList"));
         public MobileList<byte[]> GraphsList
         {
             get { return ReadProperty(GraphsListProperty); }
             set { LoadProperty(GraphsListProperty, value); }
         }
-        private static PropertyInfo<MobileList<string>> GraphsTitlesProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("GraphsTitles", "GraphsTitles"));
+        public static readonly PropertyInfo<MobileList<string>> GraphsTitlesProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("GraphsTitles", "GraphsTitles"));
        
         public MobileList<string> GraphsTitles
         {
@@ -150,33 +150,35 @@ namespace BusinessLibrary.BusinessClasses
             RStringVector rNDateVect = RDataFactory.createStringVector("studylabs", NameVec); // nb - JT changed this name from author
 
             //PropertyDescriptor prop = TypeDescriptor.GetProperties(typeof(Outcome)).Find(MetaAnalaysisObject.SortedBy, false);
-            IEnumerable<Outcome> Outcomes;
+            List<Outcome> Outcomes;
             switch (this.MetaAnalaysisObject.SortDirection)
             {
                 case "Ascending":
                     Outcomes =
-                from outcome in this.MetaAnalaysisObject.Outcomes
+                (from outcome in this.MetaAnalaysisObject.Outcomes
                 where outcome.IsSelected == true
                 orderby outcome.GetType().GetProperty(this.MetaAnalaysisObject.SortedBy).GetValue(outcome, null) ascending
-                select outcome;
+                select outcome).ToList();
                     break;
 
                 case "Descending":
                     Outcomes =
-                from outcome in this.MetaAnalaysisObject.Outcomes
+                (from outcome in this.MetaAnalaysisObject.Outcomes
                 where outcome.IsSelected == true
                 orderby outcome.GetType().GetProperty(this.MetaAnalaysisObject.SortedBy).GetValue(outcome, null) descending
-                select outcome;
+                select outcome).ToList();
                     break;
 
                 default:
                     Outcomes =
-                from outcome in this.MetaAnalaysisObject.Outcomes
+                (from outcome in this.MetaAnalaysisObject.Outcomes
                 where outcome.IsSelected == true
-                select outcome;
+                select outcome).ToList();
                     break;
             }
 
+            
+            
             foreach (Outcome outc in Outcomes)
             {
                 if (outc.IsSelected)
@@ -185,6 +187,153 @@ namespace BusinessLibrary.BusinessClasses
                     numVect.Add(outc.GetEffectSizeDisplaying(this.MetaAnalaysisObject.MetaAnalysisTypeId));
                     numVect2.Add(outc.SEES);
                 }
+            }
+            //new July 2023 - special logic for NMAs 
+            if (this.MetaAnalaysisObject.AnalysisType == 1)
+            {
+                //NMAs can fail if we are sending more than on outcome from the same study,
+                //because NETMETA in such cases requires to provide ALL possible pairwise comparisons between arms.
+                //So we can try to build this info "on the fly" if we're lucky and the kind of Outcome allows us to do so
+                //bool builtSomeVirtualOutcomes = false;
+                var groupedOutcomes = Outcomes.GroupBy(f => f.ShortTitle);
+                foreach(var groupO in groupedOutcomes)
+                {
+                    if (groupO.Count() > 1)
+                    {
+                        //build list of arm names
+                        List<string> armNames = new List<string>();
+                        foreach(Outcome o in groupO)
+                        {
+                            if (o.InterventionText == "") throw new Exception("Can't run this NMA: at least one outcome is not assigned to an intervention");
+                            if (o.ControlText == "") throw new Exception("Can't run this NMA: at least one outcome is not assigned to a control");
+                            if (!armNames.Contains(o.InterventionText)) armNames.Add(o.InterventionText);
+                            if (!armNames.Contains(o.ControlText)) armNames.Add(o.ControlText);
+                        }
+                        //build all possible pairs for our list of arms
+                        List<KeyValuePair<string,string>> pairs = new List<KeyValuePair<string, string>>();
+                        while (armNames.Count() > 0)
+                        {
+                            string currentA = armNames[0];
+                            armNames.RemoveAt(0);
+                            foreach(string otherArm in armNames) 
+                            {
+                                pairs.Add(new KeyValuePair<string, string>(currentA, otherArm));
+                            }
+                        }
+                        List<KeyValuePair<string, string>> missingPairs = new List<KeyValuePair<string, string>>();
+                        foreach(KeyValuePair<string, string> pair in pairs)
+                        {
+                            var matches = from mOutc in groupO
+                                          where (mOutc.InterventionText == pair.Key && mOutc.ControlText == pair.Value)
+                                          || (mOutc.InterventionText == pair.Value && mOutc.ControlText == pair.Key)
+                                          select mOutc;
+                            if (matches.Count() == 0) missingPairs.Add(pair);
+                            else if (matches.Count() > 1)
+                            {
+                                throw new Exception("Can't run this NMA: two or more outcomes refer to the same study, intervention and control combination.");
+                            }
+                        }
+                        if (missingPairs.Count() > 0)
+                        {
+                            //so, we need to calculate the effect size for some pairs of "arm" (we have missing pairs), but we don't know if we can
+                            //to check if we can: we need all outcomes to be of the same type, and to be of types 1,2,3 or 4
+                            var groupedByOutcomeType = groupO.ToList().GroupBy(f => f.OutcomeTypeId);
+                            if (groupedByOutcomeType.Count() != 1)
+                            {
+                                throw new Exception("Can't run this NMA: two or more outcomes refer to the same study, but have different outcome types.");
+                            }
+                            int grpOutcomeTypeId = groupedByOutcomeType.First().First().OutcomeTypeId;
+                            if (grpOutcomeTypeId == 0 || grpOutcomeTypeId == 5 || grpOutcomeTypeId == 6 || grpOutcomeTypeId == 7)
+                            {
+                                throw new Exception("Can't run this NMA: two or more outcomes refer to the same study, but outcome types make it impossible to calculate all arm-pair effect sizes.");
+                            }
+                            //if we get here, we have missing ESs to calculate AND we can calculate them :-)
+                            foreach (KeyValuePair<string, string> pairToDo in missingPairs)
+                            {
+                                Outcome newSide1 = groupO.FirstOrDefault(f => f.InterventionText == pairToDo.Key || f.ControlText == pairToDo.Key);
+                                if (newSide1 == null)
+                                {//odd, this shouldn't happen!
+                                    throw new Exception("Can't run this NMA: two or more outcomes refer to the same study, but outcome data can't be reconstructed on the fly.");
+                                }
+                                Outcome newSide2 = groupO.FirstOrDefault(f => f.InterventionText == pairToDo.Value || f.ControlText == pairToDo.Value);
+                                if (newSide2 == null)
+                                {//odd, this shouldn't happen!
+                                    throw new Exception("Can't run this NMA: two or more outcomes refer to the same study, but outcome data can't be reconstructed on the fly.");
+                                }
+                                Outcome addingOutc = newSide1.Clone();
+                                bool takeInterventionDataFromNewSide2 = newSide2.InterventionText == pairToDo.Value;
+                                bool keepInterventionDataFromNewSide1 = newSide1.InterventionText == pairToDo.Key;
+                                addingOutc.OutcomeTypeId = newSide1.OutcomeTypeId;
+                                addingOutc.OutcomeText = "synthetic outcome";
+                                if (takeInterventionDataFromNewSide2 && keepInterventionDataFromNewSide1)
+                                {//put intervention data from newSide2 in the control slot of the cloned outcome
+                                    addingOutc.ControlText = newSide2.InterventionText;
+                                    addingOutc.Data2 = newSide2.Data1;
+                                    addingOutc.Data4 = newSide2.Data3;
+                                    addingOutc.Data6 = newSide2.Data5;
+                                }
+                                else if (takeInterventionDataFromNewSide2 && !keepInterventionDataFromNewSide1)
+                                {//put intervention data from newSide2 in the intervention slot of the cloned outcome
+                                    addingOutc.InterventionText = newSide2.InterventionText;
+                                    addingOutc.Data1 = newSide2.Data1;
+                                    addingOutc.Data3 = newSide2.Data3;
+                                    addingOutc.Data5 = newSide2.Data5;
+                                }
+                                else if (!takeInterventionDataFromNewSide2 && keepInterventionDataFromNewSide1)
+                                {//put control data from newSide2 in the control slot of the cloned outcome
+                                    addingOutc.ControlText = newSide2.ControlText;
+                                    addingOutc.Data2 = newSide2.Data2;
+                                    addingOutc.Data4 = newSide2.Data4;
+                                    addingOutc.Data6 = newSide2.Data6;
+                                }
+                                else
+                                {//put control data from newSide2 in the intervention slot of the cloned outcome
+                                    addingOutc.InterventionText = newSide2.ControlText;
+                                    addingOutc.Data1 = newSide2.Data2;
+                                    addingOutc.Data3 = newSide2.Data4;
+                                    addingOutc.Data5 = newSide2.Data6;
+                                }
+                                addingOutc.SetCalculatedValues();
+                                addingOutc.SetESForThisOutcomeType(this.MetaAnalaysisObject.MetaAnalysisTypeId);
+                                //this.MetaAnalaysisObject.Outcomes.Add(addingOutc);
+                                int IndToInsert = Outcomes.IndexOf(groupO.Last());
+                                //if (IndToInsert != -1) Outcomes.Insert(IndToInsert, addingOutc);
+                                //else
+                                Outcomes.Add(addingOutc);
+                                NameVec.Add(addingOutc.ShortTitle);
+                                numVect.Add(addingOutc.GetEffectSizeDisplaying(this.MetaAnalaysisObject.MetaAnalysisTypeId));
+                                numVect2.Add(addingOutc.SEES);
+                                //builtSomeVirtualOutcomes = true;
+                            }
+                        }
+                    }
+                }
+                //if (builtSomeVirtualOutcomes)
+                //{
+
+                //    switch (this.MetaAnalaysisObject.SortDirection)
+                //    {
+                //        case "Ascending":
+                //            Outcomes =
+                //        (from outcome in Outcomes
+                //         orderby outcome.GetType().GetProperty(this.MetaAnalaysisObject.SortedBy).GetValue(outcome, null) ascending
+                //         select outcome).ToList();
+                //            break;
+
+                //        case "Descending":
+                //            Outcomes =
+                //        (from outcome in Outcomes
+                //         orderby outcome.GetType().GetProperty(this.MetaAnalaysisObject.SortedBy).GetValue(outcome, null) descending
+                //         select outcome).ToList();
+                //            break;
+
+                //        default:
+                //            Outcomes =
+                //        (from outcome in Outcomes
+                //         select outcome).ToList();
+                //            break;
+                //    }
+                //}
             }
             List<RData> dfVector = new List<RData>();
             dfVector.Add(rNumVector);
@@ -619,7 +768,7 @@ namespace BusinessLibrary.BusinessClasses
 
             GraphsTitles.Add("Forest Plot");
             RCode += Environment.NewLine + "png(filename=\"" + "Forest_Plot" + "\", height = 431, width = 804, units = \"px\")"
-                    + Environment.NewLine + "forest(net1, ref='" + ma.NMAReference + "')"
+                    + Environment.NewLine + "forest(net1, ref='" + Regex.Replace(ma.NMAReference, @"[^A-Za-z0-9]+", "") + "')"
                     + Environment.NewLine + "dev.off()";
 
             GraphsTitles.Add("Heat Plot");

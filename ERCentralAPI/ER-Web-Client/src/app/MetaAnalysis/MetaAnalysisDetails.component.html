@@ -20,34 +20,42 @@
           <option [ngValue]=2 [selected]="CurrentMA.metaAnalysisTypeId == 2">Binary: odds ratio</option>
           <option [ngValue]=3 [selected]="CurrentMA.metaAnalysisTypeId == 3">Binary: risk ratio</option>
           <option [ngValue]=4 [selected]="CurrentMA.metaAnalysisTypeId == 4">Binary: risk difference</option>
-          <option [ngValue]=5 [selected]="CurrentMA.metaAnalysisTypeId == 5">Binary: diagnostic test OR</option>
+          <option [ngValue]=5 [selected]="CurrentMA.metaAnalysisTypeId == 5" disabled>Binary: diagnostic test OR</option>
           <option [ngValue]=6 [selected]="CurrentMA.metaAnalysisTypeId == 6">Binary: Peto OR</option>
           <option [ngValue]=7 [selected]="CurrentMA.metaAnalysisTypeId == 7">Continuous: mean difference</option>
         </select>
       </div>
     </div>
+    <div  *ngIf="!CurrentMAIsValid" class="row mx-0 px-0"><div class="rounded small alert-warning px-2 py-1 my-1 ml-2 mr-auto">{{CurrentMAIsInvalidMsg}}</div></div>
   </div>
   <div class="w-100 border border-dark rounded mb-1">
     <kendo-toolbar class="small rounded" style="background-color: #e5e5ef; ">
       <kendo-toolbar-button text="Edit Filters" icon="filter" themeColor="tertiary" class="mr-1" (click)="ShowPanel('EditFilters')" [selected]="ActivePanel == 'EditFilters'"></kendo-toolbar-button>
-      <kendo-toolbar-button text="Moderators" themeColor="secondary" class="mr-1" (click)="ShowPanel('Moderators')" [selected]="ActivePanel == 'Moderators'"></kendo-toolbar-button>
       <kendo-toolbar-button text="Add Column" icon="plus" themeColor="success" class="mr-1" (click)="ShowPanel('AddColumn')" [selected]="ActivePanel == 'AddColumn'" [disabled]="!HasWriteRights || !CurrentMAIsValid"></kendo-toolbar-button>
       <kendo-toolbar-button text="Save" icon="save" themeColor="primary" class="mr-1" (click)="Save()" [disabled]="!CanSave"></kendo-toolbar-button>
+      <kendo-toolbar-separator></kendo-toolbar-separator>
+      <!--<kendo-toolbar-button text="Moderators" themeColor="secondary" class="mr-1" (click)="ShowPanel('Moderators')" [selected]="ActivePanel == 'Moderators'"></kendo-toolbar-button>-->
+      <kendo-toolbar-button text="&nbsp;Run" icon="arrow-end-right" themeColor="secondary" class="mr-1" (click)="ShowPanel('Run')" [selected]="ActivePanel == 'Run'"></kendo-toolbar-button>
+      <kendo-toolbar-button text="&nbsp;Network MA (Run)" icon="arrows-dimensions" themeColor="tertiary" class="mr-1" (click)="ShowPanel('RunNetwork')" [selected]="ActivePanel == 'Run'"></kendo-toolbar-button>
     </kendo-toolbar>
+    
   </div>
   <div *ngIf="ActivePanel != ''">
     <div *ngIf="ActivePanel == 'EditFilters'">
       <FilterOutcomesFormComp #FilterOutcomesFormComp (PleaseCloseMe)="CloseActivePanel()" [IncomingFilterFieldName]="FilterToBeEdited"></FilterOutcomesFormComp>
     </div>
-    <div *ngIf="ActivePanel == 'Moderators'">
-      <MAmoderatorsComp (PleaseCloseMe)="CloseActivePanel()"></MAmoderatorsComp>
-    </div>
     <div *ngIf="ActivePanel == 'AddColumn'">
       <MAaddOutcomesColumnComp (PleaseCloseMe)="CloseActivePanel()" (PleaseSaveTheMA)="Save()" [CanSave]="CanSave"></MAaddOutcomesColumnComp>
     </div>
+    <div *ngIf="ActivePanel == 'Run'">
+      <MetaAnalysisRunComp (PleaseCloseMe)="CloseActivePanel()"></MetaAnalysisRunComp>
+    </div>
+    <div *ngIf="ActivePanel == 'RunNetwork'">
+      <MetaAnalysisRunNetworkComp (PleaseCloseMe)="CloseActivePanel()"></MetaAnalysisRunNetworkComp>
+    </div>
   </div>
   <div class="rounded border border-dark mx-0 p-2 mt-1 bg-light row">
-    <MAoutcomes class="w-100 mx-1 mt-1 p-2 bg-light" (PleaseEditThisFilter)="PleaseEditThisFilter($event)"></MAoutcomes>
+    <MAoutcomes class="w-100 mx-1 mt-1 p-2 bg-light" (PleaseEditThisFilter)="PleaseEditThisFilter($event)" (PleaseSaveTheCurrentMA)="Save()"></MAoutcomes>
   </div>
 </div>
 

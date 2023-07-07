@@ -45,13 +45,14 @@ namespace BusinessLibrary.BusinessClasses
             //Outcomes = new OutcomeList();
             FilterSettingsList = new MetaAnalysisFilterSettingList();
         }
+#if !SILVERLIGHT
         public static MetaAnalysis CreateNewMAWithAllChildren()
         {
             MetaAnalysis res = new MetaAnalysis();
             res.GetAllDetails();
             return res;
         }
-
+#endif
         public void SetOutcomesList(OutcomeList outcomes)
         {
             bool wasDirty = this.IsDirty;
@@ -531,23 +532,25 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
-                    // check for filtered out reference values and that we have at least two factors on which to compare
-                    retVal = false;
-                    bool haveAnother = false;
-                    foreach (Outcome o in this.Outcomes)
-                    {
-                        if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() == mam.Reference)
+                    if (mam.IsFactor)
+                    {// check for filtered out reference values and that we have at least two factors on which to compare
+                        retVal = false;
+                        bool haveAnother = false;
+                        foreach (Outcome o in this.Outcomes)
                         {
-                            retVal = true;
+                            if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() == mam.Reference)
+                            {
+                                retVal = true;
+                            }
+                            if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() != mam.Reference)
+                            {
+                                haveAnother = true;
+                            }
                         }
-                        if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() != mam.Reference)
+                        if (retVal == false || haveAnother == false)
                         {
-                            haveAnother = true;
+                            return false;
                         }
-                    }
-                    if (retVal == false || haveAnother == false)
-                    {
-                        return false;
                     }
                 }
             }
@@ -2132,6 +2135,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
 
                     LoadProperty(MetaAnalysisIdProperty, command.Parameters["@NEW_META_ANALYSIS_ID"].Value);
+                    SetMAidInChildren();
                     if (AttributeIdAnswer != "")
                         LoadProperty(AttributeAnswerTextProperty, command.Parameters["@ATTRIBUTE_ANSWER_TEXT"].Value);
                     else
@@ -2146,6 +2150,13 @@ namespace BusinessLibrary.BusinessClasses
                     MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
                 }
                 connection.Close();
+            }
+        }
+        private void SetMAidInChildren()
+        {
+            foreach (MetaAnalysisFilterSetting fs in FilterSettingsList)
+            {
+                fs.MetaAnalysisId = this.MetaAnalysisId;
             }
         }
         private void SaveFilterSettings()

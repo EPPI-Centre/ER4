@@ -1,5 +1,8 @@
 <div *ngIf="CurrentFilterSetting" class="rounded mx-1 p-2 bg-light">
-  <div class="row mx-0 px-0 mb-1">
+  <div class="row mx-0 px-0 mb-1" *ngIf="{val:CurrentFilterSetting.TextFilter1isClear} as localTextFilter1isClear">
+    <!-- we use the ngIf above to effectively declare the localTextFilter1isClear variable. This allows to evaluate CurrentFilterSetting.TextFilter1isClear once,
+    and then use its value multiple times in the child components, saving CPU cycles...
+    See comments to this question: https://stackoverflow.com/questions/38582293/how-to-declare-a-variable-in-a-template-in-angular-->
     <div class="col-12 col-sm-6 mb-1 px-0 mx-0">
       <div class="row px-0 mx-0 h-25 " style="min-height:40px;">
         <div class="col-auto my-auto d-flex justify-content-end px-0"><strong class="text-primary">Filter </strong>&nbsp;by Column:</div>
@@ -14,9 +17,10 @@
         </div>
       </div>
       <div class="px-0 mx-0 d-flex h-75" style="min-height:50px;">
-        <div class="m-auto">Showing filter for:
-           <span class="alert alert-success rounded p-1 mx-0 font-weight-bold text-black">{{CurrentColDisplayName}}</span>
-           <button class="btn btn-sm ml-1 py-0 px-1 btn-outline-primary" (click)="BringFilteringColIntoView()">show</button>
+        <div class="m-auto">
+          Showing filter for:
+          <span class="alert alert-success rounded p-1 mx-0 font-weight-bold text-black">{{CurrentColDisplayName}}</span>
+          <button class="btn btn-sm ml-1 py-0 px-1 btn-outline-primary" (click)="BringFilteringColIntoView()">Scroll to</button>
         </div>
       </div>
     </div>
@@ -24,11 +28,14 @@
     <div *ngIf="CurrentFilterSetting.columnName != ''" class="col-12 col-sm-6 bg-white rounded border border-secondary mb-1">
       <div class="row mx-0 p-1">
         <div class="mr-1">Show only outcomes with these values:</div>
-        <ng-container [ngSwitch]="HasSelections">
-          <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll()" class="my-auto" title="No values selected" />
-          <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll()" checked class="my-auto linear-fade" title="Some values are selected" />
-          <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll()" class="my-auto" title="All values are selected" />
-        </ng-container>
+        <div class="justify-content-end col d-flex ml-1 px-0 mr-0">
+          <div class="small mr-1 my-auto">(Un/)Select all</div>
+          <ng-container [ngSwitch]="HasSelections">
+            <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll()" class="my-auto" title="No values selected" />
+            <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll()" checked class="my-auto linear-fade" title="Some values are selected" />
+            <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll()" class="my-auto" title="All values are selected" />
+          </ng-container>
+        </div>
       </div>
       <div class="row mx-0 px-0" style="max-height: 12ex; overflow-y: auto;">
         <div *ngFor="let val of SelectableValues" class="px-1 rounded alert-info m-1">
@@ -38,7 +45,7 @@
       </div>
     </div>
 
-    <div *ngIf="CurrentFilterSetting.columnName != ''" class="col-12 col-sm alert-secondary rounded border border-secondary p-1">
+    <div *ngIf="CurrentFilterSetting.columnName != ''" class="col-12 col-sm alert-secondary rounded border border-secondary mb-1 p-1">
       <div class="row mx-0 px-1">
         <div>Free Text Filter 1:</div>
       </div>
@@ -62,33 +69,36 @@
     <div *ngIf="CurrentFilterSetting.columnName != ''" class="col-12 col-sm-auto row mx-0 px-0">
       <div class="col-12 mx-0 px-1">
         <div>Combine with:</div>
-        <div class="row mx-1">
-          <input class="m-1 p-1" type="radio" value="And" name="CombineWithRadio"
+        <div class="row mx-1" style="position:relative;">
+          <div *ngIf="localTextFilter1isClear.val" class="rounded" style="position:absolute;left:0; top:0;z-index:90; background-color:#d8d8e2;opacity:0.35; width:100%;height:100%"></div>
+
+          <input class="m-1 p-1" type="radio" value="And" name="CombineWithRadio" [disabled]="localTextFilter1isClear.val"
                  [(ngModel)]="CurrentFilterSetting.filtersLogicalOperator">And
-        
-          <input class="m-1 p-1" type="radio" value="Or" name="CombineWithRadio"
+
+          <input class="m-1 p-1" type="radio" value="Or" name="CombineWithRadio" [disabled]="localTextFilter1isClear.val"
                  [(ngModel)]="CurrentFilterSetting.filtersLogicalOperator">Or
         </div>
       </div>
-      
+
     </div>
 
     <div *ngIf="CurrentFilterSetting.columnName != ''" class="col-12 col-sm alert-secondary rounded border border-secondary mb-1 p-1">
+      <div *ngIf="localTextFilter1isClear.val" class="rounded" style="position:absolute;left:0; top:0;z-index:90; background-color:#d8d8e2;opacity:0.35; width:100%;height:100%"></div>
       <div>Free Text Filter 2:</div>
       <div class="row mx-0 px-1">
-        <input class="col-11 mb-1" type="text" maxlength="500" [(ngModel)]="CurrentFilterSetting.filter2" (keyup.enter)="ApplyFilter()" />
+        <input class="col-11 mb-1" type="text" maxlength="500" [(ngModel)]="CurrentFilterSetting.filter2" (keyup.enter)="ApplyFilter()" [disabled]="localTextFilter1isClear.val" />
         <button kendoButton [icon]="'convert-lowercase'" class="small my-1 ml-1 col-auto" [selected]="CurrentFilterSetting.filter2CaseSensitive == true"
                 title="{{CurrentFilterSetting.filter2CaseSensitive ? 'Case sensitive: is on' : 'Case sensitive: is off'}}"
-                [disabled]="!HasWriteRights" (click)="CurrentFilterSetting.filter2CaseSensitive=!CurrentFilterSetting.filter2CaseSensitive"></button>
+                [disabled]="!HasWriteRights || localTextFilter1isClear.val" (click)="CurrentFilterSetting.filter2CaseSensitive=!CurrentFilterSetting.filter2CaseSensitive"></button>
       </div>
       <div class="row mx-0 px-1 ">
-        <select (change)="ChangingFilterOperator($event, false)" class="py-1">
+        <select (change)="ChangingFilterOperator($event, false)" class="py-1" [disabled]="localTextFilter1isClear.val">
           <option *ngFor="let operator of FilterOperators" [value]="operator.key" [selected]="IsThisTheCurrentOperator(operator.value, false)" class="py-0">
             {{operator.value}}
           </option>
         </select>
-        <button class="btn btn-sm btn-outline-secondary py-0 ml-2" (click)="ApplyFilter()">Apply</button>
-        <button class="btn btn-sm btn-outline-danger py-0 ml-2" (click)="ClearFreeTextFilter(false)">Clear</button>
+        <button class="btn btn-sm btn-outline-secondary py-0 ml-2" (click)="ApplyFilter()" [disabled]="localTextFilter1isClear.val">Apply</button>
+        <button class="btn btn-sm btn-outline-danger py-0 ml-2" (click)="ClearFreeTextFilter(false)" [disabled]="localTextFilter1isClear.val">Clear</button>
       </div>
     </div>
   </div>

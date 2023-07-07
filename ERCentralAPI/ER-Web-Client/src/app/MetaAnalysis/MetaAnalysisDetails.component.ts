@@ -7,7 +7,9 @@ import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
   selector: 'MetaAnalysisDetailsComp',
   templateUrl: './MetaAnalysisDetails.component.html',
     providers: [],
-    styles: []
+  styles: [`
+option:disabled {color: rgb(199, 199, 199);}
+`]
 })
 export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
 
@@ -37,6 +39,11 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
     else if (this.CurrentMA.title == "") return false;
     return true;
   }
+  public get CurrentMAIsInvalidMsg(): string {
+    if (this.CurrentMAIsValid == true) return "";
+    else if (this.CurrentMA && this.CurrentMA.title == "") return "Please give this Meta Analysis a name";
+    else return "This Meta Analysis is invalid for unknown reasons";
+  }
   public CloseActivePanel() {
     this.FilterToBeEdited = "";
     this.ActivePanel = "";
@@ -63,6 +70,8 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
       const target: HTMLSelectElement = (event.target as HTMLSelectElement);
       let val = target.options[target.options.selectedIndex];
       this.CurrentMA.metaAnalysisTypeTitle = val.text;
+      this.MetaAnalysisService.ApplyFilters();
+      this.MetaAnalysisService.ApplySavedSorting();
     }
   }
 

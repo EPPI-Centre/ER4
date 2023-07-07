@@ -77,6 +77,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(MetaAnalysisIdProperty);
             }
+            set
+            {
+                SetProperty(MetaAnalysisIdProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<string> ColumnNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ColumnName", "ColumnName", string.Empty));
