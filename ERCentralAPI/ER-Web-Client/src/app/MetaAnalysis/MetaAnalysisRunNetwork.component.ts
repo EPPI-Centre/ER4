@@ -56,16 +56,34 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
   public showIncompleteOutcomesHelp: boolean = false;
 
   public get DataIsMapped(): boolean {
+    //console.log("DataIsMapped?", this.incompleteOutcomes.length);
     if (this._MappedOutcomes) {
+      const ToCompare0 = this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true && (f.interventionText == '' || f.controlText == ''));
+      if (this.incompleteOutcomes.length != ToCompare0.length) {
+        if (this.incompleteOutcomes.length > 0 || ToCompare0.length > 0) this.ClearMap();
+        return false;
+      }
+      for (let i = 0; i < this.incompleteOutcomes.length; i++) {
+        if (this.incompleteOutcomes[i] != ToCompare0[i]) {
+          if (this.incompleteOutcomes.length > 0 || ToCompare0.length > 0) this.ClearMap();
+          return false;
+        }
+      }
       const ToCompare = this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true && f.interventionText != '' && f.controlText != '');
-      if (this._MappedOutcomes.length != ToCompare.length) return false;
+      if (this._MappedOutcomes.length != ToCompare.length) {
+        this.ClearMap(); return false;
+      }
       for (let i = 0; i < this._MappedOutcomes.length; i++) {
-        if (this._MappedOutcomes[i] != ToCompare[i]) return false;
+        if (this._MappedOutcomes[i] != ToCompare[i]) {
+          this.ClearMap(); return false;
+        }
       }
     }
     if (this._NMAmatrixRows.length > 0 || this.IntervAndCompNetworks.length > 0
       || this.connectedOutcomes.length > 0 || this.incompleteOutcomes.length > 0) return true;
-    else return false;
+    else {
+      this.ClearMap(); return false;
+    }
   }
 
   public get canRunNMA(): number {
@@ -81,7 +99,14 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
     else if (this.CurrentMA && this.IntervAndCompNetworks[0].indexOf(this.CurrentMA.nmaReference) == -1) return 6;
     else return 0;
   }
-
+  private ClearMap() {
+    //console.log("ClearMap?", this.incompleteOutcomes.length);
+    this._MappedOutcomes = [];
+    this._NMAmatrixRows = [];
+    this.IntervAndCompNetworks = [];
+    this.connectedOutcomes = [];
+    this.incompleteOutcomes = [];
+  }
   private BuildReferences() {
     if (!this.CurrentMA) return;
     this.CurrentMA.analysisType = 1;
@@ -110,6 +135,7 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
     }
   }
   public BuildNMAmatrix() {
+    //console.log("BuildNMAmatrix", this.incompleteOutcomes.length);
     this._NMAmatrixRows = [];
     this.incompleteOutcomes = [];
     this.connectedOutcomes = [];
@@ -221,6 +247,8 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
         this.connectedOutcomes.push(NewCO);
       }
     }
+
+    //console.log("BuildNMAmatrix 2", this.incompleteOutcomes.length);
   }
   private IndexofNetwork(val: string): number {
     if (this.IntervAndCompNetworks.length == 0) return -1;

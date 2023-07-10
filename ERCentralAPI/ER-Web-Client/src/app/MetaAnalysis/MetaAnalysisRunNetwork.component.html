@@ -37,72 +37,79 @@
     
   </div>
   <div class="row mx-1 px-0 mb-1"><button class="btn btn-outline-success px-2 py-1 mx-auto" (click)="BuildNMAmatrix()">Map (selected) outcomes</button></div>
-  <div *ngIf="incompleteOutcomes.length > 0" class="row mx-1 px-2 mb-1 bg-white border rounded border-warning">
-    <div class="col-auto  font-weight-bold my-auto px-0">
-      Incomplete outcomes:
-    </div>
-    <div class="col-auto px-0 row mx-0">
-      <button class="btn btn-outline-warning px-1 py-0 m-1" (click)="UnselectIncompleteOutcomes()">Unselect All</button>
-      <button class="btn btn-outline-info px-1 py-0 m-1" (click)="showIncompleteOutcomesHelp = !showIncompleteOutcomesHelp">?</button>
-    </div>
-    <div *ngIf="showIncompleteOutcomesHelp" class="col-auto mx-1 px-1 small alert-info border border-info rounded">
-      "Incomplete Outcomes" are outcomes that are not associated with an intervention, a control/comparator, or both.
-      While these outcomes are "selected" running a Network Meta Analysis can't work, as they would fail to "connect" to the network of outcomes
-      (all "connections" are done via the intervention and control/comparator fields).
-    </div>
-    <div class="row m-1 px-1">
-      <div *ngFor="let o of incompleteOutcomes" class="m-1 rounded border border-warning px-1 alert-warning">
-        {{o.shortTitle}} - {{o.title}}
+  <ng-container *ngIf="DataIsMapped ">
+    <div *ngIf="incompleteOutcomes.length > 0" class="row mx-1 px-2 mb-1 bg-white border rounded border-warning">
+      <div class="col-auto  font-weight-bold my-auto px-0">
+        Incomplete outcomes:
+      </div>
+      <div class="col-auto px-0 row mx-0">
+        <button class="btn btn-outline-warning px-1 py-0 m-1" (click)="UnselectIncompleteOutcomes()">Unselect All</button>
+        <button class="btn btn-outline-info px-1 py-0 m-1" (click)="showIncompleteOutcomesHelp = !showIncompleteOutcomesHelp">?</button>
+      </div>
+      <div *ngIf="showIncompleteOutcomesHelp" class="col-auto mx-1 px-1 small alert-info border border-info rounded">
+        "Incomplete Outcomes" are outcomes that are not associated with an intervention, a control/comparator, or both.
+        While these outcomes are "selected" running a Network Meta Analysis can't work, as they would fail to "connect" to the network of outcomes
+        (all "connections" are done via the intervention and control/comparator fields).
+      </div>
+      <div class="row m-1 px-1">
+        <div *ngFor="let o of incompleteOutcomes" class="m-1 rounded border border-warning px-1 alert-warning">
+          {{o.shortTitle}} - {{o.title}}
+        </div>
       </div>
     </div>
-  </div>
-  <div *ngIf="DataIsMapped" class="row mx-1 px-0 mb-1 border border-dark rounded">
-    <div *ngIf="NMAmatrixRows.length > 0" class="col-auto mx-auto" style="max-height: 45vh; overflow:auto;">
-      <table class="mx-auto small table table-sm table-striped">
-        <thead>
-          <tr>
-            <th>Intervention</th>
-            <th>Comparator</th>
-            <th>N</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of NMAmatrixRows">
-            <td>{{row.intervention}}</td>
-            <td>
-              <div *ngFor="let cc of row.comparator">{{cc.Name}}</div>
-            </td>
-            <td>
-              <div *ngFor="let cc of row.comparator">{{cc.Id}}</div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div  *ngIf="NMAmatrixRows.length > 0 || IntervAndCompNetworks.length > 0" class="row mx-1 px-0 mb-1 border border-dark rounded">
+      <div class="row mx-2 px-1 mt-1 mb-1 col-12 ">
+        <div class="my-1 mx-auto px-1 border border-info alert-info small rounded ">
+          This page checks for minimal <strong>technical</strong>&nbsp;requirements for running Network Meta Analyses. It looks <strong>only</strong>&nbsp;at intervention and comparators data.<br />
+          It <strong>DOES NOT</strong>&nbsp;check if outcomes <strong>should</strong>&nbsp;belong to the same Network Meta Analysis, as it is blind to other PICO elements and ignores timepoints.
+        </div>
+      </div>
+      <div *ngIf="NMAmatrixRows.length > 0" class="col-auto mx-auto" style="max-height: 45vh; overflow:auto;">
+        <table class="mx-auto small table table-sm table-striped">
+          <thead>
+            <tr>
+              <th>Intervention</th>
+              <th>Comparator</th>
+              <th>N</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of NMAmatrixRows">
+              <td>{{row.intervention}}</td>
+              <td>
+                <div *ngFor="let cc of row.comparator">{{cc.Name}}</div>
+              </td>
+              <td>
+                <div *ngFor="let cc of row.comparator">{{cc.Id}}</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="IntervAndCompNetworks.length > 0" class="col-auto mx-auto" style="max-height: 45vh; overflow:auto">
+        <table class="mx-auto small table table-sm table-striped">
+          <thead>
+            <tr>
+              <th colspan="3">Networks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ntArr of IntervAndCompNetworks; let i = index">
+              <td>
+                Network {{(i+1).toString()}}
+              </td>
+              <td>
+                <div *ngFor="let nd of ntArr">{{nd}};&nbsp;</div>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-warning px-1 py-0 my-auto" (click)="UnselectThisNetwork(i)">Unselect</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div *ngIf="IntervAndCompNetworks.length > 0" class="col-auto mx-auto"  style="max-height: 45vh; overflow:auto">
-      <table class="mx-auto small table table-sm table-striped">
-        <thead>
-          <tr>
-            <th colspan="3">Networks</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let ntArr of IntervAndCompNetworks; let i = index">
-            <td>
-              Network {{(i+1).toString()}}
-            </td>
-            <td>
-              <div *ngFor="let nd of ntArr">{{nd}};&nbsp;</div>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-outline-warning px-1 py-0 my-auto" (click)="UnselectThisNetwork(i)">Unselect</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
+  </ng-container>
 
 
   <div class="row mx-1 px-0 mb-1">
