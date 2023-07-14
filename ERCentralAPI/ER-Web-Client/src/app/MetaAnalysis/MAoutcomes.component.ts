@@ -103,6 +103,9 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   }
   public UnSelectAll(event: Event) {
     event.stopPropagation();
+    if (this.MetaAnalysisService.CurrentMetaAnalysis && this.MetaAnalysisService.CurrentMetaAnalysis.sortedBy == "isSelected") {
+      this.MetaAnalysisService.UnSortOutcomes();
+    }
     for (let o of this.Outcomes) {
       o.isSelected = false;
     }
