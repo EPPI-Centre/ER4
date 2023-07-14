@@ -54,6 +54,15 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
   private _MappedOutcomes: ExtendedOutcome[] = [];
 
   public showIncompleteOutcomesHelp: boolean = false;
+  public showSelectedOutcomesTable: boolean = false;
+  public get showSelectedOutcomesBtnText(): string {
+    if (this.showSelectedOutcomesTable) return "Hide Selected Outcomes";
+    else return "Show Selected Outcomes";
+  }
+
+  public get SelectedOutcomes(): ExtendedOutcome[] {
+    return this.MetaAnalysisService.FilteredOutcomes.filter(f => f.isSelected == true);
+  }
 
   public get DataIsMapped(): boolean {
     //console.log("DataIsMapped?", this.incompleteOutcomes.length);

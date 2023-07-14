@@ -57,12 +57,13 @@
         </div>
       </div>
     </div>
-    <div  *ngIf="NMAmatrixRows.length > 0 || IntervAndCompNetworks.length > 0" class="row mx-1 px-0 mb-1 border border-dark rounded">
-      <div class="row mx-2 px-1 mt-1 mb-1 col-12 ">
+    <div *ngIf="NMAmatrixRows.length > 0 || IntervAndCompNetworks.length > 0" class="row mx-1 px-0 mb-1 border border-dark rounded">
+      <div class="row mx-0 px-1 mt-1 mb-1 col-12 ">
         <div class="my-1 mx-auto px-1 border border-info alert-info small rounded ">
           This page checks for minimal <strong>technical</strong>&nbsp;requirements for running Network Meta Analyses. It looks <strong>only</strong>&nbsp;at intervention and comparators data.<br />
           It <strong>DOES NOT</strong>&nbsp;check if outcomes <strong>should</strong>&nbsp;belong to the same Network Meta Analysis, as it is blind to other PICO elements and ignores timepoints.
         </div>
+        <button class="btn btn-outline-info btn-sm px-1 py-0 col-auto m-auto" (click)="showSelectedOutcomesTable = !showSelectedOutcomesTable">{{showSelectedOutcomesBtnText}}</button>
       </div>
       <div *ngIf="NMAmatrixRows.length > 0" class="col-auto mx-auto" style="max-height: 45vh; overflow:auto;">
         <table class="mx-auto small table table-sm table-striped">
@@ -108,8 +109,34 @@
           </tbody>
         </table>
       </div>
-    </div>
-  </ng-container>
+      <div *ngIf="showSelectedOutcomesTable" class="col-auto mx-auto" style="max-height: 45vh; overflow:auto;">
+        <table class="mx-auto small table table-sm table-striped">
+          <thead>
+            <tr>
+              <th>ES</th>
+              <th>SE</th>
+              <th>Study</th>
+              <th>Outc. Desc.</th>
+              <th>Timepoint</th>
+              <th>Intervention</th>
+              <th>Comparator</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let oo of SelectedOutcomes">
+              <td>{{oo.esRounded}}</td>
+              <td>{{oo.seesRounded}}</td>
+              <td>{{oo.shortTitle}}</td>
+              <td>{{oo.title}}</td>
+              <td>{{oo.timepointDisplayValue}}</td>
+              <td>{{oo.interventionText}}</td>
+              <td>{{oo.controlText}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+</ng-container>
 
 
   <div class="row mx-1 px-0 mb-1">
