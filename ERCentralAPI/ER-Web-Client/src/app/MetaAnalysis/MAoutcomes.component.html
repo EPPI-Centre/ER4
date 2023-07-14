@@ -3,12 +3,15 @@
   <table class="table table-sm OutcomesTable tableFixHead">
     <thead>
       <tr>
-        <th style="text-align: center; vertical-align: bottom;">
-          <ng-container [ngSwitch]="HasSelections">
-            <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll()" class="my-auto" title="No outcomes selected" />
-            <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll()" checked class="my-auto linear-fade" title="Some outcomes are selected" />
-            <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll()" class="my-auto" title="All outcomes are selected" />
-          </ng-container>
+        <th style="text-align: center; vertical-align: bottom;" class="sortableTH" (click)="Sort('isSelected')">
+          <div class="d-inline-flex">
+            <ng-container [ngSwitch]="HasSelections">
+              <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll($event)" class="my-auto" title="No outcomes selected" />
+              <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll($event)" checked class="my-auto linear-fade" title="Some outcomes are selected" />
+              <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll($event)" class="my-auto" title="All outcomes are selected" />
+            </ng-container>
+            <span class="mb-1" [innerHTML]="SortingSymbol('isSelected')"></span>
+          </div>
         </th>
         <th class="sortableTH" (click)="Sort('es')" id="col-es">
           ES<span [innerHTML]="SortingSymbol('es')"></span>

@@ -380,9 +380,14 @@ namespace EppiReviewer4
                     else if (_currentSelectedMetaAnalysis.SortedBy == "ControlText") colname = "ComparisonColumn";
                     else if (_currentSelectedMetaAnalysis.SortedBy == "grp1ArmName") colname = "Arm1Column";
                     else if (_currentSelectedMetaAnalysis.SortedBy == "grp2ArmName") colname = "Arm2Column";
-                    csd.Column = GridViewMetaStudies.Columns[colname];
-                    csd.SortDirection = _currentSelectedMetaAnalysis.SortDirection == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
-                    GridViewMetaStudies.SortDescriptors.Add(csd);
+                    GridViewColumn colToSort = GridViewMetaStudies.Columns[colname];
+                    if (colToSort != null)
+                    {
+                        csd.Column = GridViewMetaStudies.Columns[colname];
+                        csd.SortDirection = _currentSelectedMetaAnalysis.SortDirection == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
+                        GridViewMetaStudies.SortDescriptors.Add(csd);
+                    }
+                    
                     //GridViewMetaStudies.InvalidateArrange();
                     //GridViewMetaStudies.Rebind();
                     //GridViewMetaStudies.UpdateLayout();

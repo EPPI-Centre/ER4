@@ -95,12 +95,14 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     event.stopPropagation();
     this.PleaseEditThisFilter.emit(fieldName);
   }
-  public SelectAll() {
+  public SelectAll(event: Event) {
+    event.stopPropagation();
     for (let o of this.Outcomes) {
       if (o.canSelect == true) o.isSelected = true;
     }
   }
-  public UnSelectAll() {
+  public UnSelectAll(event: Event) {
+    event.stopPropagation();
     for (let o of this.Outcomes) {
       o.isSelected = false;
     }
