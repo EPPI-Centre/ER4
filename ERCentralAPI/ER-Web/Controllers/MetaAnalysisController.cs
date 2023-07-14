@@ -268,6 +268,11 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "RunMetaAnalysis error, for MA ID: {0}", MAjson.metaAnalysisId.ToString());
+                if (e.Message == "DataPortal.Update failed (missing value where TRUE/FALSE needed)")
+                {
+                    string Msg = "Possible inconsistency in your outcomes data. Alternatively, this combination of outcomes (especially re multiple outcomes for the same study) is not (yet) supported. Please consider exporting your data and running your analysis elsewhere.";
+                    return StatusCode(500, Msg);
+                }
                 return StatusCode(500, e.Message);
             }
         }
