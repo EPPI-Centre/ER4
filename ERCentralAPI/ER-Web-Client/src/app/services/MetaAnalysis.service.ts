@@ -573,10 +573,17 @@ export class MetaAnalysisService extends BusyAwareService {
     }
     this._MAreport += "<H4>R-Code (Metafor)</H4>";
     this._MAreport += "<div style='border: 1px solid black; margin:5px; padding:0.5em;'><code>" + this._MAreportSource.rCode.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />') + "</code></div>";
-    this._MAreport += "<P style='font-size:0.8em;'>"
-      + "These results are provided by the Metafor Package for R, please include the following citation when publishing the above.Wolfgang Viechtbauer (2010).<br />"
-      + "Conducting meta-analyses in R with the metafor package.Journal of Statistical Software, 36(3), 1 - 48."
-      + "</P>";
+    if (this._MAreportSource.metaAnalaysisObject.analysisType == 0) {
+      this._MAreport += "<P style='font-size:0.8em;'>"
+        + "These results are provided by the Metafor Package for R, please include the following citation when publishing the above. Wolfgang Viechtbauer (2010).<br />"
+        + "Conducting meta-analyses in R with the metafor package. Journal of Statistical Software, 36(3), 1 - 48."
+        + "</P>";
+    }
+    else if (this._MAreportSource.metaAnalaysisObject.analysisType == 1) {
+      this._MAreport += "<P style='font-size:0.8em;'>"
+        + "These results are provided by the <a href='https://CRAN.R-project.org/package=netmeta' target='_blank'>NetMeta Package for R</a>, maintained by Guido Schwarzer."
+        + "</P>";
+    }
   }
 
   Clear(onlyPartialClear: boolean = false) {

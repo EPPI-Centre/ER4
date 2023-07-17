@@ -116,7 +116,7 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
     this.connectedOutcomes = [];
     this.incompleteOutcomes = [];
   }
-  private BuildReferences() {
+  public BuildReferences() {
     if (!this.CurrentMA) return;
     this.CurrentMA.analysisType = 1;
     if (this.MAreportSource && this.MAreportSource.metaAnalaysisObject.analysisType == 0) this.MetaAnalysisService.Clear(true);
@@ -140,6 +140,7 @@ export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
   public Run() {
     if (this.CurrentMA) {
       this.HideReport = false;
+      this.CurrentMA.analysisType = 1;
       this.MetaAnalysisService.RunMetaAnalysis(this.CurrentMA);
     }
   }

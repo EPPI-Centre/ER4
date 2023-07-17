@@ -51,7 +51,7 @@
       <MetaAnalysisRunComp (PleaseCloseMe)="CloseActivePanel()"></MetaAnalysisRunComp>
     </div>
     <div *ngIf="ActivePanel == 'RunNetwork'">
-      <MetaAnalysisRunNetworkComp (PleaseCloseMe)="CloseActivePanel()"></MetaAnalysisRunNetworkComp>
+      <MetaAnalysisRunNetworkComp #MetaAnalysisRunNetworkComp (PleaseCloseMe)="CloseActivePanel()"></MetaAnalysisRunNetworkComp>
     </div>
   </div>
   <div class="rounded border border-dark mx-0 p-2 mt-1 bg-light row">

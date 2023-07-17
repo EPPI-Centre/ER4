@@ -2,6 +2,7 @@ import { Component, OnInit,Input, ViewChild, OnDestroy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MetaAnalysis, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
+import { MetaAnalysisRunNetworkComp } from './MetaAnalysisRunNetwork.component';
 
 @Component({
   selector: 'MetaAnalysisDetailsComp',
@@ -18,7 +19,9 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
     private MetaAnalysisService: MetaAnalysisService
   ) { }
 
+  
   @ViewChild('FilterOutcomesFormComp') FilterOutcomesFormComp!: FilterOutcomesFormComp;
+  @ViewChild('MetaAnalysisRunNetworkComp') MetaAnalysisRunNetworkComp!: MetaAnalysisRunNetworkComp;
   ngOnInit() { }
   public ActivePanel: string = "";
   public get HasWriteRights(): boolean {
@@ -80,12 +83,20 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
     if (this.CurrentMA) {
       const ReturnToFilter = this.FilterToBeEdited;
       if (ReturnToFilter != '' && this.ActivePanel == "EditFilters") this.PleaseEditThisFilter('');
+      let CurrentNMAReferenceVal = this.CurrentMA.nmaReference;
       let res = await this.MetaAnalysisService.SaveMetaAnalysis(this.CurrentMA);
       if (this.ActivePanel == "EditFilters") {
         if (res != false) {
+          this.CurrentMA.nmaReference = CurrentNMAReferenceVal;
           this.PleaseEditThisFilter(ReturnToFilter);
         } else {
           this.PleaseEditThisFilter('');
+        }
+      }
+      else if (this.ActivePanel == "RunNetwork" && res != false) {
+        if (this.MetaAnalysisRunNetworkComp) {
+          this.MetaAnalysisRunNetworkComp.BuildReferences();
+          this.CurrentMA.nmaReference = CurrentNMAReferenceVal;
         }
       }
     }

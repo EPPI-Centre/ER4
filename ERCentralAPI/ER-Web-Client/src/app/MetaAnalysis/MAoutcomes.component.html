@@ -1,6 +1,21 @@
-<strong class="row ">Outcomes table: {{SelectedCount}} selected</strong>
+<div class="row px-0 mx-0">
+  <strong class=" ">Outcomes table: {{SelectedCount}} selected</strong>
+  <div class="mb-1">
+    <button class="btn btn-primary btn-sm px-1 py-0 mx-1 my-auto" (click)="ExportOutcomes()">Export To:</button>
+    <select [(ngModel)]="ExportTo" class="px-1 py-0 mx-1 my-auto">
+      <option Value="Excel">Excel (Table)</option>
+      <option Value="Html">Html (Table)</option>
+      <option Value="CSV">CSV (Table)</option>
+      <option Value="TSV">TSV (Table)</option>
+      <option Value="ExcelRD">Excel (Raw Data)</option>
+      <option Value="HtmlRD">Html (Raw Data)</option>
+      <option Value="CSVRD">CSV (Raw Data)</option>
+      <option Value="TSVRD">TSV (Raw Data)</option>
+    </select>
+  </div>
+</div>
 <div class="small OutcomesTableContainer">
-  <table class="table table-sm OutcomesTable tableFixHead">
+  <table class="table table-sm OutcomesTable tableFixHead" id="OutcomesTable">
     <thead>
       <tr>
         <th style="text-align: center; vertical-align: bottom;" class="sortableTH" (click)="Sort('isSelected')">
