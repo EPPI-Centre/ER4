@@ -255,6 +255,7 @@ namespace ERxWebClient2.Controllers
                     toRun.ShowFunnel = MAjson.showFunnel;
                     toRun.NMAReference = MAjson.nmaReference;
                     toRun.NMAStatisticalModel = MAjson.nmaStatisticalModel;
+                    toRun.LargeValuesGood = MAjson.largeValuesGood;
 
                     toRun.AnalysisType = MAjson.analysisType;
 
