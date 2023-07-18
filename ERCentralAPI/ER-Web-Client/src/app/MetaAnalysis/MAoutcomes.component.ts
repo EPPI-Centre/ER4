@@ -191,10 +191,9 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   public ExportOutcomes() {
     if (this.ExportTo == "Excel" || this.ExportTo == "Html"
       || this.ExportTo == "CSV" || this.ExportTo == "TSV") this.ExportTable();
-    else if (this.ExportTo == "ExcelRD") this.ExportToExcel();
-    else if (this.ExportTo == "HtmlRD" || this.ExportTo == "CSVRD" || this.ExportTo == "TSVRD") this.ExportRawData();
+    else if (this.ExportTo == "ExcelRD" || this.ExportTo == "HtmlRD" || this.ExportTo == "CSVRD" || this.ExportTo == "TSVRD") this.ExportRawData();
   }
-  public ExportTable() {
+  private ExportTable() {
     //first build the list of columns
     let Cols: NameValuePair[] = [
       { name: "Is Selected", value: "isSelected" }
@@ -335,60 +334,28 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
       saveAs(dataURI, title + ".tsv");
     }
   }
-  public ExportToExcel() {
-    if (this.MetaAnalysisService.CurrentMetaAnalysis) {
-      let res: any[] = [];
-      //res.push(["Code", "CodeId", "Count"]);
-      for (let row of this.Outcomes) {
-        res.push(row);
-      }
-      this.ExcelService.exportAsExcelFile(res, this.MetaAnalysisService.CurrentMetaAnalysis.title + ' - Outcomes');
-    }
-  }
+
   private ExportRawData() {
     if (this.MetaAnalysisService.CurrentMetaAnalysis && this.Outcomes.length > 0) {
       const data = this.Outcomes;
+      let ToSend: any[] = [];
       //1st the headers
-      const row1 = data[0] as any;
-      let headerRow: any = {};
-      for (var prop in row1) {
-        if (Object.prototype.hasOwnProperty.call(row1, prop) && prop.toString() != "outcomeCodes" && prop.toString() != "manuallyEnteredOutcomeTypeId" &&  prop.toString() != "outcomeTimePoint") {
-          headerRow[prop] = prop.toString();
+      if (this.ExportTo == "ExcelRD") {
+        const row1 = data[0] as any;
+        let headerRow: any = {};
+        for (var prop in row1) {
+          if (Object.prototype.hasOwnProperty.call(row1, prop) && prop.toString() != "outcomeCodes" && prop.toString() != "manuallyEnteredOutcomeTypeId" && prop.toString() != "outcomeTimePoint") {
+            headerRow[prop] = prop.toString();
+          }
         }
+        ToSend.push(headerRow);
       }
-      let ToSend = [headerRow];
       ToSend = ToSend.concat(data);
-      if (this.ExportTo == "HtmlRD") this.ExportThisDataToHTML(ToSend);
+      if (this.ExportTo == "ExcelRD") this.ExportThisDataToExcel(ToSend);
+      else if (this.ExportTo == "HtmlRD") this.ExportThisDataToHTML(ToSend);
       else if (this.ExportTo == "CSVRD") this.ExportThisDataToCSV(ToSend);
       else if (this.ExportTo == "TSVRD") this.ExportThisDataToTSV(ToSend);
 
-
-      //let title = this.MetaAnalysisService.CurrentMetaAnalysis.title + ' - Outcomes';
-      //let report = "<table border='1' style='border-collapse:collapse'><thead><tr>";
-      //const data = this.Outcomes;
-      ////1st the headers
-      //const row1 = data[0] as any;
-      //for (var prop in row1) {
-      //  if (Object.prototype.hasOwnProperty.call(row1, prop)) {
-      //    report += "<th>" + Helpers.htmlEncode( prop.toString()) + "</th>";
-      //  }
-      //}
-      //report += "</tr></thead><tbody>";
-      //for (let i = 1; i < data.length; i++) {
-      //  const row = data[i] as any;
-      //  for (var prop in row) {
-      //    if (Object.prototype.hasOwnProperty.call(row, prop) && prop.toString() != "outcomeCodes" && prop.toString() != "manuallyEnteredOutcomeTypeId" &&  prop.toString() != "outcomeTimePoint") {
-      //      let val = "";
-      //      if (row[prop] != undefined) val = "<td>" + Helpers.htmlEncode(row[prop].toString()) + "</td>";
-      //      else val = "<td></td>"
-      //      report += val;
-      //    }
-      //  }
-      //  report += "</tr>";
-      //}
-      //report += "</tbody></table>";
-      //const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, title));
-      //saveAs(dataURI, title + ".html");
     }
   }
 
