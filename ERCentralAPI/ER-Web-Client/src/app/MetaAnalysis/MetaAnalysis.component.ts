@@ -103,7 +103,14 @@ export class MetaAnalysisComp implements OnInit, OnDestroy {
     if (this.TopIsExpanded) return "Collapse MAs list";
     else return "Expand MAs list";
   }
-
+  public get Context(): string {
+    if (this.BottomIsExpanded == false || !this.MetaAnalysisDetailsComp) return "metaanalysis";
+    else {
+      if (this.MetaAnalysisDetailsComp.ActivePanel == "Run") return "metaanalysis\\run";
+      else if (this.MetaAnalysisDetailsComp.ActivePanel == "RunNetwork") return "metaanalysis\\runnetwork";
+      else return "metaanalysis";
+    }
+  }
 
   public EditMA(ma: MetaAnalysis) {
     const crit: MetaAnalysisSelectionCrit = { MetaAnalysisId: ma.metaAnalysisId, GetAllDetails: true };
