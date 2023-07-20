@@ -10,7 +10,7 @@
 					<th class="text-center">Edit</th>
 					<th class="text-center">Remove</th>
 				</tr>
-				<tr *ngFor="let outcome of _OutcomesService.outcomesList; let key = index">
+				<tr *ngFor="let outcome of OutcomesBySet; let key = index">
 					<td class="p-1 m-0" >{{outcome.title}}</td>
 					<td >{{outcome.interventionText}}</td>
 					<td class="p-0 m-0" style="white-space:nowrap;">
@@ -48,7 +48,7 @@
 			</div>
 		</div>
 	</div>
-	<div *ngIf="ShowOutcomesStatistics && outcome != null" class="col-md-12 row card p-0 m-0">
+	<div *ngIf="ShowOutcomesList == false  && item != undefined" class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid bg-light border rounded  p-0 m-0">
 			<div *ngIf="OutcomeTitle.invalid && (OutcomeTitle.dirty || OutcomeTitle.touched)"
 				 class="alert alert-danger">
@@ -89,7 +89,7 @@
 				<div class="row col-md-12 p-1 m-0">
 					<label class="col-md-4 ">Timepoint</label>
 					<div class="d-inline-block col-md-8 p-0 m-0">
-						<select #timePoint [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
+						<select  [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
 								class="form-control col-md-12 p-0 m-0">
 							<option [ngValue]="timepoint.itemTimepointId"
 									[selected]="timepoint.itemTimepointId == _OutcomesService.currentOutcome.itemTimepointId"
@@ -102,7 +102,7 @@
 
 				<div class="row col-md-12 p-1 m-0">
 					<label class="col-md-4">Outcome Description</label>
-					<input name="outcomeDescription" #OutcomeDescription="ngModel"
+					<input 
 						   value="_OutcomesService.currentOutcome.outcomeDescription"
 						   [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription"
 						   type="text" class="form-control col-md-8 form-input" />
@@ -110,7 +110,7 @@
 				<div class="row col-md-12  p-1 m-0">
 					<label class="col-md-4">Outcome type</label>
 					<div ngbDropdown class="col-12 col-md-8  p-1">
-						<select #outcomeType [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
+						<select [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
 								class="form-control col-md-12">
 							<option [ngValue]="outcomeT.outcomeTypeId"
 									[selected]="outcomeT.outcomeTypeId == _OutcomesService.currentOutcome.outcomeTypeId"
@@ -124,7 +124,7 @@
 					<label class="col-md-4">Outcome</label>
 					<div ngbDropdown class="col-12  col-md-8  p-1"
 						 placeholder="Outcomes">
-						<select #outcomeDD [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
+						<select  [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
 								class="form-control col-md-12">
 							<option [ngValue]="out.attributeId"
 									[selected]="out.attributeId == _OutcomesService.currentOutcome.itemAttributeIdOutcome"
@@ -139,10 +139,10 @@
 
 					<label class="col-md-4">Intervention</label>
 					<div ngbDropdown class="col-12  col-md-8  p-1">
-						<select #interventionDD="ngModel"
+						<select  (change)="UpdateInterventionName($event)"
 								[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdIntervention"
 								class="form-control col-md-12">
-							<option [ngValue]="intervention.attributeId"
+							<option [value]="intervention.attributeId"
 									[selected]="intervention.attributeId == _OutcomesService.currentOutcome.itemAttributeIdIntervention"
 									*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
 								{{intervention.attributeName}}
@@ -153,10 +153,10 @@
 
 					<label class="col-md-4">Comparison</label>
 					<div ngbDropdown class="col-12  col-md-8  p-1">
-						<select #controlDD="ngModel"
+						<select  (change)="UpdateComparisonName($event)"
 								[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdControl"
 								class="form-control col-md-12">
-							<option [ngValue]="control.attributeId"
+							<option [value]="control.attributeId"
 									[selected]="control.attributeId == _OutcomesService.currentOutcome.itemAttributeIdControl"
 									*ngFor="let control of _OutcomesService.ReviewSetControlList">
 								{{control.attributeName}}
@@ -169,11 +169,10 @@
 
 					<label class="col-md-4">Group 1 arm</label>
 					<div ngbDropdown class="col-12 col-md-8  p-1">
-						<select #GroupOneArm="ngModel" [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
+						<select  [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
 								class="form-control col-md-12">
-							<option [ngValue]="arm.itemArmId"
-									[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1"
-									*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
+							<option *ngFor="let arm of item.arms" [ngValue]="arm.itemArmId"
+									[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1">
 								{{arm.title}}
 							</option>
 						</select>
@@ -182,11 +181,10 @@
 
 					<label class="col-md-4">Group 2 arm</label>
 					<div ngbDropdown class="col-12  col-md-8 p-1">
-						<select #GroupTwoArm="ngModel" [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
+						<select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
 								class="form-control col-md-12">
-							<option [ngValue]="arm.itemArmId"
-									[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2"
-									*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
+							<option *ngFor="let arm of item.arms" [ngValue]="arm.itemArmId"
+									[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2">
 								{{arm.title}}
 							</option>
 						</select>
@@ -225,7 +223,7 @@
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data2Desc}}</label>
-						<input class="form-control col-md-6" #group2NModel="ngModel"
+						<input class="form-control col-md-6" 
 							   [(ngModel)]="_OutcomesService.currentOutcome.data2"
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   name="outcomedata2" #outcomedata2="ngModel"
@@ -235,9 +233,8 @@
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7">
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data3Desc}}</label>
-						<input #group1MeanModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data3"
-							   name="outcomedata3" #outcomedata3="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data3"
+							   name="outcomedata3" 
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data3"
 							   type="number" class="form-control col-md-6" />
@@ -247,9 +244,8 @@
 						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 ">
 
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data4Desc}}</label>
-						<input #group2MeanModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data4"
-							   name="outcomedata4" #outcomedata4="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data4"
+							   name="outcomedata4"
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data4"
 							   type="number" class="form-control col-md-6" />
@@ -260,9 +256,8 @@
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
 
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data5Desc}}</label>
-						<input #group1SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data5"
-							   name="outcomedata5" #outcomedata5="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data5"
+							   name="outcomedata5"
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data5"
 							   type="number" class="form-control col-md-6" />
@@ -272,9 +267,8 @@
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
 
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data6Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data6"
-							   name="outcomedata6" #outcomedata6="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data6"
+							   name="outcomedata6"
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data6"
 							   type="number" class="form-control col-md-6" />
@@ -287,9 +281,8 @@
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data7Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data7"
-							   name="outcomedata7" #outcomedata7="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data7"
+							   name="outcomedata7"
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data7"
 							   type="number" class="form-control col-md-6" />
@@ -301,9 +294,8 @@
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data8Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data8"
-							   name="outcomedata8" #outcomedata8="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data8"
+							   name="outcomedata8" 
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data8"
 							   type="number" class="form-control col-md-6" />
@@ -316,9 +308,8 @@
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data11Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data11"
-							   name="outcomedata11" #outcomedata11="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data11"
+							   name="outcomedata11"
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data11"
 							   type="number" class="form-control col-md-6 small" />
@@ -331,9 +322,8 @@
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data12Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data12"
-							   name="outcomedata12" #outcomedata12="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data12"
+							   name="outcomedata12"
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data12"
 							   type="number" class="form-control col-md-6 small" />
@@ -346,9 +336,8 @@
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data13Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data13"
-							   name="outcomedata13" #outcomedata13="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data13"
+							   name="outcomedata13"
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data13"
 							   type="number" class="form-control col-md-6 small" />
@@ -359,9 +348,8 @@
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 						<label class="col-md-6">{{_OutcomesService.currentOutcome.data14Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data14"
-							   name="outcomedata14" #outcomedata14="ngModel"
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data14"
+							   name="outcomedata14" 
 							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 							   value="_OutcomesService.currentOutcome.data14"
 							   type="number" class="form-control col-md-6 small" />
@@ -375,18 +363,16 @@
                                  class="row col-12  p-1 m-2">
                                 <div class="col-12 row p-1">
                                     <label class="col-12 col-md-8 p-1 m-0">Mean cluster size</label>
-                                    <input #group2SDModel="ngModel"
-                                           [(ngModel)]="_OutcomesService.currentOutcome.data9"
-                                           name="outcomedata9" #outcomedata9="ngModel"
+                                    <input [(ngModel)]="_OutcomesService.currentOutcome.data9"
+                                           name="outcomedata9"
                                            pattern="^[-+]?[0-9]*\.?[0-9]+$"
                                            value="_OutcomesService.currentOutcome.data9"
                                            type="number" class="form-control col-12 col-md-4" />
                                 </div>
                                 <div class="col-12 row p-1">
                                     <label class="col-12 col-md-8 p-1 m-0">ICC</label>
-                                    <input #group2SDModel="ngModel"
-                                           [(ngModel)]="_OutcomesService.currentOutcome.data10"
-                                           name="outcomedata10" #outcomedata10="ngModel"
+                                    <input [(ngModel)]="_OutcomesService.currentOutcome.data10"
+                                           name="outcomedata10" 
                                            pattern="^[-+]?[0-9]*\.?[0-9]+$"
                                            value="_OutcomesService.currentOutcome.data10"
                                            type="number" class="form-control col-12 col-md-4" />

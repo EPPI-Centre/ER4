@@ -239,30 +239,6 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
-
-		//FetchItemArmList
-		[HttpPost("[action]")]
-		public IActionResult FetchItemArmList([FromBody] SingleIntCriteria itemId)
-		{
-			try
-			{
-				if (!SetCSLAUser()) return Unauthorized();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
-				SingleCriteria<Item, Int64> criteria =
-					new SingleCriteria<Item, Int64>(itemId.Value);
-				ItemArmList result = dp.Fetch(criteria);
-
-				return Ok(result);
-			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, "Fetch FetchItemArmList Errors");
-				return StatusCode(500, e.Message);
-			}
-		}
-			
-
 		// DELETE
 		[HttpPost("[action]")]
 		public IActionResult DeleteOutcome([FromBody] OutcomeIds outcome)
@@ -272,17 +248,17 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 					DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
 					SingleCriteria<OutcomeItemList, Int64> criteria = 
 						new SingleCriteria<OutcomeItemList, Int64>(outcome.itemSetId);
 
 					OutcomeItemList result = dp.Fetch(criteria);
 					Outcome currentOutcome = result.FirstOrDefault(x => x.OutcomeId == outcome.outcomeId);
+					
 					currentOutcome.Delete();
 					currentOutcome = currentOutcome.Save();
 
-					return Ok(result);
+					return Ok();
 				}
 				else
 				{
@@ -291,7 +267,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when Deleting an outcome: {0}" + JsonConvert.SerializeObject(outcome));
+				_logger.LogError(e, "Error when Deleting an outcome: {0}" + outcome.outcomeId.ToString());
 				return StatusCode(500, e.Message);
 			}
 		}

@@ -292,57 +292,17 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   public ShowingOutComes() {
     this.ShowOutComes = !this.ShowOutComes;
   }
-  private outcomeSubscription: Subscription | null = null;
   ngOnInit() {
 
     this.RefreshTerms();
     this.innerWidth = window.innerWidth;
-    //this.route.params.subscribe((params:any) => {
-
-    //	alert(params);
-
-    //	if (params['itemId']) {
-
-    //		alert(params['itemId']);
-    //	}
-    //});
+    
 
 
     if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
       this.router.navigate(['home']);
     }
     else {
-      this.outcomeSubscription = this._outcomeService.outcomesChangedEE.subscribe(
-
-        (res: any) => {
-
-          var selectedNode = res as SetAttribute;
-
-          if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
-
-            console.log('a node has been selected');
-            var itemSet = this.ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
-            if (itemSet != null) {
-              this._outcomeService.ItemSetId = itemSet.itemSetId;
-              this._outcomeService.FetchOutcomes(itemSet.itemSetId);
-              //this._outcomeService.outcomesList = itemSet.OutcomeList;
-            }
-            this.ShowingOutComes();
-
-          } else {
-
-            console.log('a code is not selected');
-            if (this.OutcomesCmpRef) {
-              console.log('inside OutcomesCmpRef');
-              this._outcomeService.outcomesList = [];
-              this.OutcomesCmpRef.ShowOutcomesList = false;
-              this.ShowingOutComes();
-            }
-          }
-        }
-        // ERROR HANDLING IN HERE NEXT....
-      );
-
 
       //if (this.ArmsCompRef) {
       this.armservice.armChangedEE.subscribe(() => {
@@ -375,6 +335,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 
 
   public GetItem() {
+    this.ShowOutComes = false;
     this.WipeHighlights();
     this.ItemDocsService.Clear();
     if (this.itemString == 'PriorityScreening') {
@@ -429,7 +390,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       this.armservice.FetchAll(this.item);
       //this.armservice.Fetchtimepoints(this.item);
     }
-    this._outcomeService.outcomesChangedEE.emit();
+    //this._outcomeService.outcomesChangedEE.emit();
     this.ItemCodingService.Fetch(this.itemID);
 
   }
@@ -671,7 +632,6 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
     if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
-    if (this.outcomeSubscription) this.outcomeSubscription.unsubscribe();
   }
   WipeHighlights() {
     if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();

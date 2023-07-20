@@ -49,12 +49,13 @@
 					<codesetTreeCoding #codesetTreeCoding class="bg-light" Context="CodingOnly"
 														 (RemoveCodeModalOpened)="RemoveCodeModalOpenedIncoming()"
 														 (RemoveCodeModalClosed)="RemoveCodeModalClosedIncoming()"
+														 (PleaseOpenOutcomesPanel)="ShowOutComes = true"
 														 [InitiateFetchPDFCoding]="ShouldFetchPDFCoding" [HotKeysOn]="HotKeysOn">
 					</codesetTreeCoding>
 				</div>
 				<div *ngIf="ShowOutComes"
 						 class="my-1 ml-0 pl-1 pr-0 container">
-					<OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
+					<OutcomesComp #OutcomesCmp [item]="item" (PleaseCloseMe)="ShowOutComes = false"></OutcomesComp>
 				</div>
 				<!--<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>-->
 			</div>

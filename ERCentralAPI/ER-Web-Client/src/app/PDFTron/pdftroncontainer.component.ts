@@ -1,4 +1,4 @@
-﻿import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input, OnDestroy, NgZone } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input, OnDestroy, NgZone } from '@angular/core';
 import { WebViewerComponent } from './webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -269,7 +269,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     }
     
     async buildHighlights() {
-        console.log("buildHighlights");
+        console.log("buildHighlights (pdf)");
         if (this.ItemCodingService.IsBusy) {
             //we try to avoid doing this if the service is busy. 
             let counter: number = 0;

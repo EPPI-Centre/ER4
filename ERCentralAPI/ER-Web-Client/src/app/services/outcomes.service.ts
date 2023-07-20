@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SetAttribute } from './ReviewSets.service';
-import { iTimePoint } from './ArmTimepointLinkList.service';
+import { ArmTimepointLinkListService, iTimePoint } from './ArmTimepointLinkList.service';
 import { StatFunctions } from '../helpers/StatisticsMethods';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
@@ -23,29 +23,30 @@ export class OutcomesService extends BusyAwareService {
   }
 
   private _currentItemSetId: number = 0;
-  private _Outcomes: Outcome[] = [];
+  //private _Outcomes: Outcome[] = [];
   public ItemSetId: number = 0;
   public currentOutcome: Outcome = new Outcome();
   public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
 
-  public get outcomesList(): Outcome[] {
+  //public get outcomesList(): Outcome[] {
 
-    if (this._Outcomes) return this._Outcomes;
-    else {
-      this._Outcomes = [];
-      return this._Outcomes;
-    }
-  }
-  public set outcomesList(Outcomes: Outcome[]) {
-    this._Outcomes = Outcomes;
-  }
+  //  if (this._Outcomes) return this._Outcomes;
+  //  else {
+  //    this._Outcomes = [];
+  //    return this._Outcomes;
+  //  }
+  //}
+  //public set outcomesList(Outcomes: Outcome[]) {
+  //  this._Outcomes = Outcomes;
+  //}
 
   @Output() outcomesChangedEE = new EventEmitter();
 
   public ReviewSetOutcomeList: ReviewSetDropDownResult[] = [];
   public ReviewSetControlList: ReviewSetDropDownResult[] = [];
   public ReviewSetInterventionList: ReviewSetDropDownResult[] = [];
-  public ReviewSetItemArmList: ItemArm[] = [];
+  
+  
 
   public IsServiceBusy(): boolean {
 
@@ -56,31 +57,31 @@ export class OutcomesService extends BusyAwareService {
     }
   }
 
-  public FetchOutcomes(ItemSetId: number): Subscription {
-    this._BusyMethods.push("FetchOutcomes");
-    let body = JSON.stringify({ Value: ItemSetId });
-    this._Outcomes = [];
-    return this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body)
-      .subscribe(result => {
+  //public FetchOutcomes(ItemSetId: number): Subscription {
+  //  this._BusyMethods.push("FetchOutcomes");
+  //  let body = JSON.stringify({ Value: ItemSetId });
+  //  this._Outcomes = [];
+  //  return this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body)
+  //    .subscribe(result => {
 
-        for (let iO of result.outcomesList) {
+  //      for (let iO of result.outcomesList) {
 
-          let RealOutcome: Outcome = new Outcome(iO);
-          this._Outcomes.push(RealOutcome);
-        }
+  //        let RealOutcome: Outcome = new Outcome(iO);
+  //        this._Outcomes.push(RealOutcome);
+  //      }
 
-        this.RemoveBusy("FetchOutcomes");
-      }, error => {
+  //      this.RemoveBusy("FetchOutcomes");
+  //    }, error => {
 
-        this.modalService.SendBackHomeWithError(error);
-        this.RemoveBusy("FetchOutcomes");
+  //      this.modalService.SendBackHomeWithError(error);
+  //      this.RemoveBusy("FetchOutcomes");
 
-      },
-        () => {
-          this.RemoveBusy("FetchOutcomes");
-        });
+  //    },
+  //      () => {
+  //        this.RemoveBusy("FetchOutcomes");
+  //      });
 
-  }
+  //}
 
   public FetchReviewSetOutcomeList(itemSetId: number, setId: number) {
 
@@ -153,119 +154,100 @@ export class OutcomesService extends BusyAwareService {
 
   }
 
-  public FetchItemArmList(itemId: number) {
+  //public FetchItemArmList(itemId: number) {
 
-    this._BusyMethods.push("FetchItemArmList");
-    let body = JSON.stringify({ Value: itemId });
+  //  this._BusyMethods.push("FetchItemArmList");
+  //  let body = JSON.stringify({ Value: itemId });
 
-    this._http.post<ItemArm[]>(this._baseUrl + 'api/OutcomeList/FetchItemArmList',
-      body)
-      .subscribe(result => {
+  //  this._http.post<ItemArm[]>(this._baseUrl + 'api/OutcomeList/FetchItemArmList',
+  //    body)
+  //    .subscribe(result => {
 
-        this.ReviewSetItemArmList = result;
+  //      this.ReviewSetItemArmList = result;
 
-        this.RemoveBusy("FetchItemArmList");
-      }, error => {
-        this.modalService.SendBackHomeWithError(error);
-        this.RemoveBusy("FetchItemArmList");
-      },
-        () => {
-          this.RemoveBusy("FetchItemArmList");
-        }
-      );
-  }
+  //      this.RemoveBusy("FetchItemArmList");
+  //    }, error => {
+  //      this.modalService.SendBackHomeWithError(error);
+  //      this.RemoveBusy("FetchItemArmList");
+  //    },
+  //      () => {
+  //        this.RemoveBusy("FetchItemArmList");
+  //      }
+  //    );
+  //}
 
   public listOutcomes: Outcome[] = [];
 
-  public Createoutcome(currentoutcome: Outcome): Promise<Outcome> {
+  public Createoutcome(currentoutcome: Outcome): Promise<Outcome | boolean> {
 
     this._BusyMethods.push("CreateOutcome");
-    let ErrMsg = "Something went wrong when creating an outcome. \r\n If the problem persists, please contact EPPISupport.";
-
+    
     //console.log('did call this...');
-    return lastValueFrom(this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/Createoutcome',
-
-      currentoutcome))
-      .then(
+    return lastValueFrom(this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/Createoutcome', currentoutcome)
+    ).then(
         (result) => {
-
           //console.log('did get results....');
           var newOutcome: Outcome = new Outcome(result);
-          this.outcomesList.push(newOutcome);
-
-          if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+          //this.outcomesList.push(newOutcome);
           this.RemoveBusy("CreateOutcome");
-
+          return newOutcome;
         }
         , (error) => {
-
-          this.FetchOutcomes(this._currentItemSetId);
-          this.modalService.GenericErrorMessage(ErrMsg);
+          //this.FetchOutcomes(this._currentItemSetId);
+          this.modalService.GenericError(error);
           this.RemoveBusy("CreateOutcome");
-          return error;
+          return false;
         }
       )
       .catch(
         (error) => {
-          this.FetchOutcomes(this._currentItemSetId);
-          this.modalService.GenericErrorMessage(ErrMsg);
+          //this.FetchOutcomes(this._currentItemSetId);
+          this.modalService.GenericError(error);
           this.RemoveBusy("CreateOutcome");
-          return error;
+          return false;
         }
       );
   }
 
-  public Updateoutcome(currentOutcome: Outcome) {
+  public Updateoutcome(currentOutcome: Outcome): Promise<Outcome | boolean> {
 
     //console.log('outcome codes are: ' + JSON.stringify(currentOutcome.outcomeCodes));
     this._BusyMethods.push("UpdateOutcome");
-    let ErrMsg = "Something went wrong when updating an outcome. \r\n If the problem persists, please contact EPPISupport.";
-
-    this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/UpdateOutcome',
-
-      currentOutcome).subscribe(
-
+    
+    return lastValueFrom(this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/UpdateOutcome', currentOutcome)
+      ).then(
         (result) => {
-
-          this.RemoveBusy("UpdateOutcome");
-          if (!result) {
-            this.modalService.GenericErrorMessage(ErrMsg);
-            this.FetchOutcomes(currentOutcome.itemSetId);
-            return;
-          }
           var updateOutcome: Outcome = new Outcome(result);
+          this.RemoveBusy("UpdateOutcome");
           return updateOutcome;
         }
         , (error) => {
-          this.FetchOutcomes(currentOutcome.itemSetId);
-          this.modalService.GenericErrorMessage(ErrMsg);
+          //this.FetchOutcomes(currentOutcome.itemSetId);
+          this.modalService.GenericError(error);
           this.RemoveBusy("UpdateOutcome");
-          return error;
+          return false;
         });
   }
 
-  public DeleteOutcome(outcomeId: number, itemSetId: number, key: number) {
+  public DeleteOutcome(outcomeId: number, itemSetId: number, key: number): Promise<boolean> {
 
     this._BusyMethods.push("DeleteOutcome");
-    let ErrMsg = "Something went wrong when deleting an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
     let body = JSON.stringify({ outcomeId: outcomeId, itemSetId: itemSetId });
-    this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/DeleteOutcome',
-
-      body).subscribe(
+    return lastValueFrom(this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/DeleteOutcome', body)
+      ).then(
         (result) => {
 
-          this.outcomesList.splice(key, 1);
-          if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+          //this.outcomesList.splice(key, 1);
           this.RemoveBusy("DeleteOutcome");
-          return result;
+          return true;
         }
         , (error) => {
 
-          this.FetchOutcomes(this._currentItemSetId);
-          this.modalService.GenericErrorMessage(ErrMsg);
+          //this.FetchOutcomes(this._currentItemSetId);
+          this.modalService.GenericError(error);
           this.RemoveBusy("DeleteOutcome");
-          return error;
+          return false;
         }
       );
   }
@@ -273,12 +255,12 @@ export class OutcomesService extends BusyAwareService {
 }
 
 
-export class ItemArm {
+//export class ItemArm {
 
-  itemArmId: number = 0;
-  title: string = '';
+//  itemArmId: number = 0;
+//  title: string = '';
 
-}
+//}
 export interface iOutcomeList {
   outcomesList: iOutcome[];
 }

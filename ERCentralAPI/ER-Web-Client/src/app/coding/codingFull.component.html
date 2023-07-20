@@ -55,6 +55,7 @@
             <ArmsComp #ArmsCmp [hidden]="leftPanel !==''" [CurrentItem]="item" class="card-text"></ArmsComp>
             <div [hidden]="leftPanel !==''">
               <codesetTreeCoding #codesetTreeCoding class="bg-light"
+								 (PleaseOpenOutcomesPanel)="ShowOutComes = true"
                                  [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"
                                  [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}"
                                  [HotKeysOn]="HotKeysOn">
@@ -66,7 +67,7 @@
             </div>
             <div *ngIf="leftPanel =='OutComes'"
                  class="my-1 ml-0 pl-1 pr-0 container">
-              <OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
+              <OutcomesComp #OutcomesCmp [item]="item" (PleaseCloseMe)="ShowOutComes = false"></OutcomesComp>
             </div>
           </div>
             <div class="col-sm-12 m-0 pr-0 pl-0"

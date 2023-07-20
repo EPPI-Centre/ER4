@@ -5,7 +5,7 @@ import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, ItemSetComplete
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 //import { ITreeNode } from 'angular-tree-component/dist/defs/api';
-import { ItemCodingService, ItemAttPDFCodingCrit } from '../services/ItemCoding.service';
+import { ItemCodingService, ItemAttPDFCodingCrit, ItemSet } from '../services/ItemCoding.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -65,6 +65,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   subRedrawTree: Subscription | null = null;
   @Output() RemoveCodeModalOpened = new EventEmitter<void>();
   @Output() RemoveCodeModalClosed = new EventEmitter<void>();
+  @Output() PleaseOpenOutcomesPanel = new EventEmitter<ItemSet>();//emits the ItemSetId where outcomesList is
 
   // this is the hotkeys code
   @HostListener('window:keydown.Alt.1', ['$event'])
@@ -165,7 +166,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   public attributeType: string = '';
   public outcomesPresent: boolean = false;
   public checkOutComes(data: singleNode): boolean {
-    var selectedNode: boolean = false;
     var itemSetId = 0;
     if (data.nodeType == 'ReviewSet') {
       return false;
@@ -177,8 +177,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
       if (itemSet) {
         itemSetId = itemSet.itemSetId
       }
-
-      selectedNode = data.isSelected;
     }
     let okayAttType: boolean = false;
     if (nodeAttType == 'Outcome'
@@ -186,13 +184,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
       || nodeAttType == 'Comparison') {
       okayAttType = true;
     }
-    if (okayAttType
-    ) {
-
-      return true;
-    } else {
-      return false;
-    }
+    return okayAttType;
   }
   public OutcomePanel: boolean = false;
   public openOutcomePanel(data: singleNode) {
@@ -200,7 +192,13 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     let node = data as SetAttribute;
     if (node != null && node.isSelected) {
       this.NodeSelectedInternal(data);
-      this._outcomeService.outcomesChangedEE.emit(node);
+      var itemSet = this._ItemCodingService.FindItemSetBySetId(node.set_id);
+      if (itemSet) {
+        this._outcomeService.ItemSetId = itemSet.itemSetId;
+        this.PleaseOpenOutcomesPanel.emit(itemSet);
+      }
+
+      //this._outcomeService.outcomesChangedEE.emit(node);
     }
   }
   //nodes: singleNode[] = [];
