@@ -22,31 +22,51 @@ export class OutcomesService extends BusyAwareService {
     super(configService);
   }
 
-  private _currentItemSetId: number = 0;
-  //private _Outcomes: Outcome[] = [];
   public ItemSetId: number = 0;
   public currentOutcome: Outcome = new Outcome();
+  public UnchangedOutcome: Outcome = new Outcome();
   public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
-
-  //public get outcomesList(): Outcome[] {
-
-  //  if (this._Outcomes) return this._Outcomes;
-  //  else {
-  //    this._Outcomes = [];
-  //    return this._Outcomes;
-  //  }
-  //}
-  //public set outcomesList(Outcomes: Outcome[]) {
-  //  this._Outcomes = Outcomes;
-  //}
-
-  @Output() outcomesChangedEE = new EventEmitter();
 
   public ReviewSetOutcomeList: ReviewSetDropDownResult[] = [];
   public ReviewSetControlList: ReviewSetDropDownResult[] = [];
   public ReviewSetInterventionList: ReviewSetDropDownResult[] = [];
   
-  
+  public get currentOutcomeHasChanges(): boolean {
+    const curr = this.currentOutcome;
+    const un = this.UnchangedOutcome;
+    if (curr.outcomeId != un.outcomeId) return true;
+    else if (curr.data1 != un.data1
+      || curr.data2 != un.data2
+      || curr.data3 != un.data3
+      || curr.data4 != un.data4
+      || curr.data5 != un.data5
+      || curr.data6 != un.data6
+      || curr.data7 != un.data7
+      || curr.data8 != un.data8
+      || curr.data9 != un.data9
+      || curr.data10 != un.data10
+      || curr.data11 != un.data11
+      || curr.data12 != un.data12
+      || curr.data13 != un.data13
+      || curr.data14 != un.data14) return true;
+    else if (curr.title != un.title
+      || curr.itemTimepointId != un.itemTimepointId
+      || curr.outcomeDescription != un.outcomeDescription
+      || curr.outcomeTypeId != un.outcomeTypeId
+      || curr.itemAttributeIdOutcome != un.itemAttributeIdOutcome
+      || curr.itemAttributeIdIntervention != un.itemAttributeIdIntervention
+      || curr.itemAttributeIdControl != un.itemAttributeIdControl
+      || curr.itemArmIdGrp1 != un.itemArmIdGrp1
+      || curr.itemArmIdGrp2 != un.itemArmIdGrp2) return true;
+    //es oddsRatio smd r sees seOddsRatio sesmd ser - these depend on DATA_N and outcomeType, so we can skip them, I think
+    else if (curr.outcomeCodes.outcomeItemAttributesList.length != un.outcomeCodes.outcomeItemAttributesList.length) return true;
+    else {
+      for (let i = 1; i < curr.outcomeCodes.outcomeItemAttributesList.length; i++) {
+        if (curr.outcomeCodes.outcomeItemAttributesList[i].outcomeItemAttributeId != un.outcomeCodes.outcomeItemAttributesList[i].outcomeItemAttributeId) return true;
+      }
+    }
+    return false;
+  }
 
   public IsServiceBusy(): boolean {
 

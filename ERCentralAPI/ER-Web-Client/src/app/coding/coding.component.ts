@@ -115,6 +115,37 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   //    opacity: 1;
   //    height: 100 %;
   //}
+
+  ngOnInit() {
+    this.RefreshTerms();
+    this.innerWidth = window.innerWidth;
+    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+      this.router.navigate(['home']);
+    }
+    else {
+      this.armservice.armChangedEE.subscribe(() => {
+        if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+        else this.SetArmCoding(0);
+      });
+      this.subItemIDinPath = this.route.params.subscribe((params: any) => {
+        this.itemString = params['itemId'];
+        this.GetItem();
+        console.log('coding kjkhjkhk: ' + this.itemID);
+      });
+      this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
+
+        () => {
+          if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
+            //console.log('data changed event caught');
+            this.SetCoding();
+          }
+        }
+      );
+      this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+      this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
+    }
+  }
+
   @ViewChild('OutcomesCmp')
   private OutcomesCmpRef!: OutcomesComponent;
   @ViewChild('cmp') private ArmsCompRef!: any;
@@ -292,48 +323,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   public ShowingOutComes() {
     this.ShowOutComes = !this.ShowOutComes;
   }
-  ngOnInit() {
+  
 
-    this.RefreshTerms();
-    this.innerWidth = window.innerWidth;
-    
-
-
-    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-      this.router.navigate(['home']);
-    }
-    else {
-
-      //if (this.ArmsCompRef) {
-      this.armservice.armChangedEE.subscribe(() => {
-        if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
-        else this.SetArmCoding(0);
-      });
-      //}
-      this.subItemIDinPath = this.route.params.subscribe((params:any) => {
-        this.itemString = params['itemId'];
-        this.GetItem();
-        console.log('coding kjkhjkhk: ' + this.itemID);
-      });
-      this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
-
-        () => {
-          if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
-            //console.log('data changed event caught');
-            this.SetCoding();
-          }
-        }
-      );
-      this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
-      this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
-      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
-      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
-    }
-
-
+  public get HasOutcomeUnsavedChanges(): boolean {
+    if (this.ShowOutComes == false) return false;
+    else return this._outcomeService.currentOutcomeHasChanges;
   }
-
-
   public GetItem() {
     this.ShowOutComes = false;
     this.WipeHighlights();

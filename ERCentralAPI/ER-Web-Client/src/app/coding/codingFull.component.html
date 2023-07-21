@@ -75,7 +75,7 @@
                  , 'col-md-6 col-lg-7' : ShowOutComes}">
                 <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
                     <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
-                                          class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
+                                          [HasOutcomeUnsavedChanges]="HasOutcomeUnsavedChanges" class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
                     <div class="pr-0 pl-0 col-12 col-sm pr-0">
                       <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
                         Close/back

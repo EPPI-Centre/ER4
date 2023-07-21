@@ -18,7 +18,6 @@ import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
 export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
   DataSource: any;
   constructor(
-    private reviewSetsService: ReviewSetsService,
     private _ReviewerIdentityServ: ReviewerIdentityService,
     private ItemCodingService: ItemCodingService,
     public _OutcomesService: OutcomesService
@@ -42,8 +41,17 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
     { "outcomeTypeId": 6, "outcomeTypeName": "Diagnostic test: 2 x 2 table" },
     { "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
   ];
-  private UnchangedOutcome: Outcome = new Outcome();
 
+  public get currentOutcomeHasChanges(): boolean {
+    return this._OutcomesService.currentOutcomeHasChanges;
+  }
+
+  private get UnchangedOutcome(): Outcome {
+    return this._OutcomesService.UnchangedOutcome;
+  }
+  private set UnchangedOutcome(val: Outcome){
+    this._OutcomesService.UnchangedOutcome = val;
+  }
 
   async ngOnInit() {
     await this.SelfSetup();
@@ -62,9 +70,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   private async FetchData() {
     if (this.CurrentItemSet) {
-      //this.GetReviewSetOutcomeList(this.CurrentItemSet.itemSetId);
-      await this.GetReviewSetInterventionList(this.CurrentItemSet.itemSetId);
-      await this.GetReviewSetControlList(this.CurrentItemSet.itemSetId);
+      await this._OutcomesService.FetchReviewSetOutcomeList(this.CurrentItemSet.itemSetId, 0);
+      await this._OutcomesService.FetchReviewSetInterventionList(this.CurrentItemSet.itemSetId, 0);
+      await this._OutcomesService.FetchReviewSetControlList(this.CurrentItemSet.itemSetId, 0);
       //this.GetItemArmList();
     }
   }
@@ -76,18 +84,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  //public GetReviewSetOutcomeList(ItemSetId: number) {
-
-  //  this._OutcomesService.FetchReviewSetOutcomeList(ItemSetId, 0);
-  //}
-  public GetReviewSetInterventionList(ItemSetId: number) {
-
-    this._OutcomesService.FetchReviewSetInterventionList(ItemSetId, 0);
-  }
-  public GetReviewSetControlList(ItemSetId: number) {
-
-    this._OutcomesService.FetchReviewSetControlList(ItemSetId, 0);
-  }
 
   public ShowCFUOAEBoolCheck(): boolean {
     if (this._OutcomesService.currentOutcome.data9 > 0 ||
@@ -136,25 +132,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
       return this.item.timepoints;
     }
   }
-  private _calculatedEffectSize: number = 0;
-  public CalculatedEffectSize(): number {
-
-    if (this._OutcomesService.currentOutcome.esDesc == 'Effect size') {
-      return this._OutcomesService.currentOutcome.es;
-    }
-    if (this._OutcomesService.currentOutcome.esDesc == 'SMD') {
-      return this._OutcomesService.currentOutcome.smd;
-    }
-    if (this._OutcomesService.currentOutcome.esDesc == 'Diagnostic OR') {
-      return this._OutcomesService.currentOutcome.petoOR;
-    }
-    if (this._OutcomesService.currentOutcome.esDesc == 'r') {
-
-      return this._OutcomesService.currentOutcome.r;
-    }
-
-    return this._calculatedEffectSize;
-  }
+  
   public UpdateInterventionName(event: Event) {
     if (this.CurrentItemSet && this._OutcomesService.currentOutcome) {
       let Id: number = parseInt((event.target as HTMLOptionElement).value);
@@ -211,6 +189,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
         if (Result == false) {//didn't work!!
         } else if (Result != true) {//true case doesn't happen
           this._OutcomesService.currentOutcome = Result;
+          this._OutcomesService.UnchangedOutcome = new Outcome(Result);
           this.CurrentItemSet.OutcomeList.push(Result);
         }
       } else {
@@ -221,25 +200,74 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
           let key = this.CurrentItemSet.OutcomeList.findIndex(f => f.outcomeId == this._OutcomesService.currentOutcome.outcomeId);
           if (key != -1) {
             this._OutcomesService.currentOutcome = Result;
+            this._OutcomesService.UnchangedOutcome = new Outcome(Result);
             this.CurrentItemSet.OutcomeList.splice(key, 1, Result);
           }
         }
       }
-    }
+    } 
     this.ShowOutcomesList = true;
   }
-  ngOnDestroy() {
+  
+  //public IsThisArmSelected(armId: number, slotNumber: number): boolean {
+  //  if (slotNumber == 1) {
+  //    console.log("IsThisArmSelected1", armId, slotNumber, this._OutcomesService.currentOutcome.itemArmIdGrp1);
+  //    if (armId == this._OutcomesService.currentOutcome.itemArmIdGrp2) return true;
+  //  }
+  //  else if (slotNumber == 2) {
+  //    console.log("IsThisArmSelected2", armId, slotNumber, this._OutcomesService.currentOutcome.itemArmIdGrp2);
+  //    if (armId == this._OutcomesService.currentOutcome.itemArmIdGrp2) return true;
+  //  }
+  //  console.log("IsThisArmSelected - false!");
+  //  return false;
+  //}
+  //== _OutcomesService.currentOutcome.itemArmIdGrp1
+  public CopyOutcome(toCopy: Outcome) {
+    this._OutcomesService.currentOutcome = new Outcome(toCopy);
+    this._OutcomesService.currentOutcome.outcomeId = 0;
+    if (this._OutcomesService.currentOutcome.title.endsWith("(copy)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 6) + "(copy2)";
+    }
+    else if (this._OutcomesService.currentOutcome.title.endsWith("(copy2)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 7) + "(copy3)";
+    }
+    else if (this._OutcomesService.currentOutcome.title.endsWith("(copy3)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 7) + "(copy4)";
+    }
+    else if (this._OutcomesService.currentOutcome.title.endsWith("(copy4)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 7) + "(copy5)";
+    }
+    else if (this._OutcomesService.currentOutcome.title.endsWith("(copy5)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 7) + "(copy6)";
+    }
+    else if (this._OutcomesService.currentOutcome.title.endsWith("(copy6)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 7) + "(copy7)";
+    }
+    else if (this._OutcomesService.currentOutcome.title.endsWith("(copy7)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 7) + "(copy8)";
+    }
+    else if (this._OutcomesService.currentOutcome.title.endsWith("(copy8)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 7) + "(copy9)";
+    }
+    else if (this._OutcomesService.currentOutcome.title.endsWith("(copy9)")) {
+      this._OutcomesService.currentOutcome.title = this._OutcomesService.currentOutcome.title.substring(0, this._OutcomesService.currentOutcome.title.length - 7) + "(copy10)";
+    }
+    else {
+      this._OutcomesService.currentOutcome.title += " (copy)";
+    }
+    this.UnchangedOutcome = new Outcome();//outcome we're editing is NOT saved to DB, so we want it to be always different from the "unchanged" one, making it always salveable
+    this._OutcomesService.currentOutcome.SetCalculatedValues();
+    this.ShowOutcomesList = false;
   }
-  ngAfterViewInit() {
 
-  }
+
   CreateNewOutcome() {
 
     this._OutcomesService.currentOutcome = new Outcome();
     this.UnchangedOutcome = new Outcome();
     //console.log(this._OutcomesService.currentOutcome);
-    this.ShowOutcomesList = false;
     this._OutcomesService.currentOutcome.SetCalculatedValues();
+    this.ShowOutcomesList = false;
   }
   ClearAndCancelSave() {
     //this._OutcomesService.FetchOutcomes(this.ItemSetId);
@@ -255,5 +283,12 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
   ClearAndCancelEdit() {
     this.ShowOutcomesList = false;
     this.PleaseCloseMe.emit();
+  }
+
+
+  ngOnDestroy() {
+  }
+  ngAfterViewInit() {
+
   }
 }

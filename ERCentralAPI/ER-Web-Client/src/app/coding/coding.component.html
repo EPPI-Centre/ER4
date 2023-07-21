@@ -66,7 +66,7 @@
 				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
 					<div class="col-12 col-sm px-0 mb-1">
 						<itemDetailsPaginator [item]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
-																	class="pr-0 pl-0"></itemDetailsPaginator>
+																	[HasOutcomeUnsavedChanges]="HasOutcomeUnsavedChanges" class="pr-0 pl-0"></itemDetailsPaginator>
 						<div *ngIf="IsSmallScreen() == true && ShowCodesInSmallScreen == false" class="mx-1 d-inline-flex row rounded bg-light border border-info px-1 mt-1" title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code.">
 							<div>Hot Keys?</div>
 							<input type="checkbox" class="ml-2 my-auto mr-2" [(ngModel)]="HotKeysOn">

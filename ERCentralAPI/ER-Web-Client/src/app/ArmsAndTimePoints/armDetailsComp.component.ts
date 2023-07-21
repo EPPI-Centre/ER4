@@ -160,7 +160,8 @@ export class armDetailsComp implements OnInit {
             this.armsList.splice(key, 1);
             if (SelectedId == ToRemove.itemArmId) this._armsService.SetSelectedArm(0);
         }
-	}
+  }
+  
 
 	add(title: string) {
 		//console.log("Add arm:", title);

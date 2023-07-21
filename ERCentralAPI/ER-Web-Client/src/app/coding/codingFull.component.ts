@@ -52,6 +52,50 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private _outcomeService: OutcomesService
   ) { }
 
+  ngOnInit() {
+    //console.log('init!');
+
+    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+      this.router.navigate(['home']);
+    }
+    else {
+      this.RefreshTerms();
+
+      this.ArmTimepointLinkListService.armChangedEE.subscribe(() => {
+        if (this.ArmTimepointLinkListService.SelectedArm) this.SetArmCoding(this.ArmTimepointLinkListService.SelectedArm.itemArmId);
+        else this.SetArmCoding(0);
+      });
+      //this.timePointsService.gotNewTimepoints.subscribe(() => {
+
+      //    console.log('need to do something here of course....');
+      //});
+      this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
+        this.ShowLiveComparison = !this.ShowLiveComparison;
+      })
+      this.subItemIDinPath = this.route.params.subscribe((params: any) => {
+        this.itemString = params['itemId'];
+        this.GetItem();
+        //console.log('coding full sajdhfkjasfdh: ' + this.itemID);
+      });
+      this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
+
+        () => {
+          //console.log('ItemCodingService data changed event caught');
+          if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
+            this.SetCoding();
+          }
+        }
+      );
+      this.ReloadItemCoding = this.ReviewSetsService.GetReviewStatsEmit.subscribe(
+        () => { this.SetCoding(); }
+      );
+      this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+      this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
+
+      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
+      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
+    }
+  }
   @ViewChild('ArmsCmp')
   private ArmsCompRef!: any;
   @ViewChild('TimePointsComp')
@@ -110,50 +154,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     this.ReviewerIdentityServ.SaveOptions();//otherwise they won't persist...
   }
   public EditCodesPanel: string = "";
-  ngOnInit() {
-    //console.log('init!');
 
-    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-      this.router.navigate(['home']);
-    }
-    else {
-      this.RefreshTerms();
-
-      this.ArmTimepointLinkListService.armChangedEE.subscribe(() => {
-        if (this.ArmTimepointLinkListService.SelectedArm) this.SetArmCoding(this.ArmTimepointLinkListService.SelectedArm.itemArmId);
-        else this.SetArmCoding(0);
-      });
-      //this.timePointsService.gotNewTimepoints.subscribe(() => {
-
-      //    console.log('need to do something here of course....');
-      //});
-      this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
-        this.ShowLiveComparison = !this.ShowLiveComparison;
-      })
-      this.subItemIDinPath = this.route.params.subscribe((params:any) => {
-        this.itemString = params['itemId'];
-        this.GetItem();
-        //console.log('coding full sajdhfkjasfdh: ' + this.itemID);
-      });
-      this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
-
-        () => {
-          console.log('ItemCodingService data changed event caught');
-          if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
-            this.SetCoding();
-          }
-        }
-      );
-      this.ReloadItemCoding = this.ReviewSetsService.GetReviewStatsEmit.subscribe(
-        () => { this.SetCoding(); }
-      );
-      this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
-      this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
-
-      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
-      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
-    }
+  public get HasOutcomeUnsavedChanges(): boolean {
+    if (this.ShowOutComes == false) return false;
+    else return this._outcomeService.currentOutcomeHasChanges;
   }
+
+
   public RefreshTerms() {
 
     // need to reload the page 
@@ -162,9 +169,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     this.ReviewerTermsService.Fetch();
   }
 
-  public ShowingOutComes() {
-    this.ShowOutComes = !this.ShowOutComes;
-  }
   public SetCreateNewCode() {
     if (this.EditCodesPanel == "CreateNewCode") {
       this.EditCodesPanel = "";
