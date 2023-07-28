@@ -36,14 +36,14 @@
     </div>
     
   </div>
-  <div class="row mx-1 px-0 mb-1"><button class="btn btn-outline-success px-2 py-1 mx-auto" (click)="BuildNMAmatrix()">Map (selected) outcomes</button></div>
+  <div class="row mx-1 px-0 mb-1"><button class="btn btn-success px-2 py-1 mx-auto" (click)="BuildNMAmatrix()">Map (selected) outcomes</button></div>
   <ng-container *ngIf="DataIsMapped ">
     <div *ngIf="incompleteOutcomes.length > 0" class="row mx-1 px-2 mb-1 bg-white border rounded border-warning">
       <div class="col-auto  font-weight-bold my-auto px-0">
         Incomplete outcomes:
       </div>
       <div class="col-auto px-0 row mx-0">
-        <button class="btn btn-outline-warning px-1 py-0 m-1" (click)="UnselectIncompleteOutcomes()">Unselect All</button>
+        <button class="btn btn-warning px-1 py-0 m-1" (click)="UnselectIncompleteOutcomes()">Unselect All</button>
         <button class="btn btn-outline-info px-1 py-0 m-1" (click)="showIncompleteOutcomesHelp = !showIncompleteOutcomesHelp">?</button>
       </div>
       <div *ngIf="showIncompleteOutcomesHelp" class="col-auto mx-1 px-1 small alert-info border border-info rounded">
@@ -103,7 +103,7 @@
                 <div *ngFor="let nd of ntArr">{{nd}};&nbsp;</div>
               </td>
               <td>
-                <button class="btn btn-sm btn-outline-warning px-1 py-0 my-auto" (click)="UnselectThisNetwork(i)">Unselect</button>
+                <button class="btn btn-sm btn-warning px-1 py-0 my-auto" (click)="UnselectThisNetwork(i)">Unselect</button>
               </td>
             </tr>
           </tbody>
