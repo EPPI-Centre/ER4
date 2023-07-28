@@ -44,11 +44,11 @@
       </div>
       <div class="col-auto px-0 row mx-0">
         <button class="btn btn-warning px-1 py-0 m-1" (click)="UnselectIncompleteOutcomes()">Unselect All</button>
-        <button class="btn btn-outline-info px-1 py-0 m-1" (click)="showIncompleteOutcomesHelp = !showIncompleteOutcomesHelp">?</button>
+        <button class="btn btn-outline-info px-1 py-0 m-1 font-weight-bold" (click)="showIncompleteOutcomesHelp = !showIncompleteOutcomesHelp">?</button>
       </div>
       <div *ngIf="showIncompleteOutcomesHelp" class="col-auto mx-1 px-1 small alert-info border border-info rounded">
         "Incomplete Outcomes" are outcomes that are not associated with an intervention, a control/comparator, or both.
-        While these outcomes are "selected" running a Network Meta Analysis can't work, as they would fail to "connect" to the network of outcomes
+        When these outcomes are "selected", running a Network Meta Analysis can't work, as they would fail to "connect" to the network of outcomes
         (all "connections" are done via the intervention and control/comparator fields).
       </div>
       <div class="row m-1 px-1">
@@ -71,7 +71,7 @@
             <tr>
               <th>Intervention</th>
               <th>Comparator</th>
-              <th>N</th>
+              <th># Outcomes</th>
             </tr>
           </thead>
           <tbody>
