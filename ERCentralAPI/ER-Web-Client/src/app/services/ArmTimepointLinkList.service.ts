@@ -440,29 +440,28 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 
 	}
 
-	public DeleteArm(arm: iArm) {
-		this._BusyMethods.push("DeleteArm");
-		let ErrMsg = "Something went wrong when deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
+  public DeleteArm(arm: iArm): Promise<boolean> {
+    this._BusyMethods.push("DeleteArm");
+    let ErrMsg = "Something went wrong when deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
 
-		this._http.post<iArm>(this._baseUrl + 'api/ArmTimepointLinkList/DeleteArm',
+    return lastValueFrom(this._http.post<iArm>(this._baseUrl + 'api/ArmTimepointLinkList/DeleteArm', arm)
+    ).then(
+      (result) => {
 
-			arm).subscribe(
-				(result) => {
+        if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+        this.RemoveBusy("DeleteArm");
+        return true;
+      }
+      , (error) => {
 
-					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
-					this.RemoveBusy("DeleteArm");
-					return result;
-				}
-				, (error) => {
+        this.FetchArms(this._currentItem);
+        this.modalService.GenericError(error);
+        this.RemoveBusy("DeleteArm");
+        return false;
+      }
+    );
 
-					this.FetchArms(this._currentItem);
-					this.modalService.GenericErrorMessage(ErrMsg);
-					this.RemoveBusy("DeleteArm");
-					return error;
-				}
-			);
-
-	}
+  }
 
 	public CreateItemLink(link: iItemLink): Promise<boolean> {
 

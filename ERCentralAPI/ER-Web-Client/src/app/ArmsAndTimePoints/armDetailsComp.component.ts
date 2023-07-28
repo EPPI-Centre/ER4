@@ -5,6 +5,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NgForm } from '@angular/forms';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -152,14 +153,20 @@ export class armDetailsComp implements OnInit {
 		this.editTitle = false;
 	}
 
-	ActuallyRemove(key: number) {
-        let ToRemove = this.armsList[key];
-        if (ToRemove) {
-            let SelectedId = this._armsService.SelectedArm ? this._armsService.SelectedArm.itemArmId : -1;
-            this._armsService.DeleteArm(ToRemove);
-            this.armsList.splice(key, 1);
-            if (SelectedId == ToRemove.itemArmId) this._armsService.SetSelectedArm(0);
-        }
+  async ActuallyRemove(key: number) {
+    let ToRemove = this.armsList[key];
+    if (ToRemove && this.item) {
+      let SelectedId = this._armsService.SelectedArm ? this._armsService.SelectedArm.itemArmId : -1;
+      let something = await this._armsService.DeleteArm(ToRemove);
+      let toKeep = this.item.arms;
+      this.item.arms = [];
+      //for some reason, if we don't await, the arms dropdowns show the first arm as "selected", when in fact it isn't...
+      await Helpers.Sleep(5);
+      toKeep.splice(key, 1);
+      this.item.arms = toKeep;
+      if (SelectedId == ToRemove.itemArmId) this._armsService.SetSelectedArm(0);
+      
+    }
   }
   
 
