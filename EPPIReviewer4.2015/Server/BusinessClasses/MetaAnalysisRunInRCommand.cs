@@ -150,31 +150,35 @@ namespace BusinessLibrary.BusinessClasses
             RStringVector rNDateVect = RDataFactory.createStringVector("studylabs", NameVec); // nb - JT changed this name from author
 
             //PropertyDescriptor prop = TypeDescriptor.GetProperties(typeof(Outcome)).Find(MetaAnalaysisObject.SortedBy, false);
-            List<Outcome> Outcomes;
-            switch (this.MetaAnalaysisObject.SortDirection)
+            List<Outcome> Outcomes = (from outcome in this.MetaAnalaysisObject.Outcomes
+                where outcome.IsSelected == true
+                select outcome).ToList();
+            string SortedBy = this.MetaAnalaysisObject.SortedBy;
+            if (SortedBy != "" && this.MetaAnalaysisObject.Outcomes.Count > 0)
             {
-                case "Ascending":
-                    Outcomes =
-                (from outcome in this.MetaAnalaysisObject.Outcomes
-                where outcome.IsSelected == true
-                orderby outcome.GetType().GetProperty(this.MetaAnalaysisObject.SortedBy).GetValue(outcome, null) ascending
-                select outcome).ToList();
-                    break;
+                System.Reflection.PropertyInfo SortByProp = this.MetaAnalaysisObject.Outcomes[0].GetType().GetProperty(SortedBy);
+                if (SortByProp != null)
+                {
+                    switch (this.MetaAnalaysisObject.SortDirection)
+                    {
+                        case "Ascending":
+                            Outcomes =
+                        (from outcome in Outcomes
+                         orderby SortByProp.GetValue(outcome, null) ascending
+                         select outcome).ToList();
+                            break;
 
-                case "Descending":
-                    Outcomes =
-                (from outcome in this.MetaAnalaysisObject.Outcomes
-                where outcome.IsSelected == true
-                orderby outcome.GetType().GetProperty(this.MetaAnalaysisObject.SortedBy).GetValue(outcome, null) descending
-                select outcome).ToList();
-                    break;
+                        case "Descending":
+                            Outcomes =
+                        (from outcome in Outcomes
+                         orderby SortByProp.GetValue(outcome, null) descending
+                         select outcome).ToList();
+                            break;
 
-                default:
-                    Outcomes =
-                (from outcome in this.MetaAnalaysisObject.Outcomes
-                where outcome.IsSelected == true
-                select outcome).ToList();
-                    break;
+                        default:
+                            break;
+                    }
+                }
             }
 
             

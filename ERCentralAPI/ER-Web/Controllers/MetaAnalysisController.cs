@@ -259,6 +259,9 @@ namespace ERxWebClient2.Controllers
 
                     toRun.AnalysisType = MAjson.analysisType;
 
+                    toRun.SortedBy = MAjson.sortedBy;
+                    toRun.SortDirection = MAjson.sortDirection;
+
                     MetaAnalysisRunInRCommand RrunCmd = new MetaAnalysisRunInRCommand();
                     RrunCmd.MetaAnalaysisObject = toRun;
                     RrunCmd = DataPortal.Execute<MetaAnalysisRunInRCommand>(RrunCmd);

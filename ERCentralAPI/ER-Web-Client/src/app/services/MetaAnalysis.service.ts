@@ -534,6 +534,7 @@ export class MetaAnalysisService extends BusyAwareService {
       case "ControlText": return "controlText";//sorting 
       case "Arm1Column": return "grp1ArmName";
       case "Arm2Column": return "grp2ArmName";
+      case "IsSelected": return "isSelected";
       default: return ColName;
     }
   }
@@ -552,6 +553,7 @@ export class MetaAnalysisService extends BusyAwareService {
       case "controlText": return ForSorting ? "ControlText" : "ComparisonColumn"; 
       case "grp1ArmName": return ForSorting ? "grp1ArmName" : "Arm1Column";
       case "grp2ArmName": return ForSorting ? "grp2ArmName" : "Arm2Column";
+      case "isSelected": return "IsSelected";
       default: return ColName;
     }
   }
