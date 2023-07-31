@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
-import { ArmTimepointLinkListService, iArm, Arm } from '../services/ArmTimepointLinkList.service';
+import { ArmTimepointLinkListService, iArm, Arm, ItemArmDeleteWarningCommandJSON } from '../services/ArmTimepointLinkList.service';
 import { Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -106,50 +106,49 @@ export class armDetailsComp implements OnInit {
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 
-	public openConfirmationDialogDeleteArmsWithText(key: number, numCodings: number) {
-		
-		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
-			'<br /><b>This Arm is associated with ' + numCodings + ' codes.</b>' +
-            '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true,'I confirm')
-			.then(
-			(confirm: any) => {
-								
-				//console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
-			
-                if (confirm && this.eventsService.UserInput.toLowerCase().trim()  == 'i confirm') {
-						this.ActuallyRemove(key);
-					} else {
-					
-					}
-				}
-			)
-			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
-	}
+  public openConfirmationDialogDeleteArmsWithText(key: number, numCodings: number, numOutcomes: number) {
+    let contents: string = "Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.";
+
+    if (numCodings == 1) contents += '<br /><b>This Arm is associated with one code.</b>';
+    else if (numCodings > 1) contents += '<br /><b>This Arm is associated with ' + numCodings + ' codes.</b>';
+
+    if (numOutcomes == 1) contents += '<br /><b>This Arm is associated with one outcome.</b>';
+    else if (numOutcomes > 1) contents += '<br /><b>This Arm is associated with ' + numOutcomes + ' outcomes.</b>';
+
+    contents += '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.';
+    this.confirmationDialogService.confirm('Please confirm', contents, true, 'I confirm')
+      .then(
+        (confirm: any) => {
+
+          //console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
+
+          if (confirm && this.eventsService.UserInput.toLowerCase().trim() == 'i confirm') {
+            this.ActuallyRemove(key);
+          } else {
+
+          }
+        }
+      )
+      .catch(() => { 
+        //console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)')
+      });
+  }
 
 	removeWarning(key: number) {
-
-		
 		// first call the dialog then call this part
 		this._armsService.DeleteWarningArm(this.armsList[key]).then(
 
-			(res: numCodings) => {
-
-				if (res.numCodings == 0) {
-
+      (res: ItemArmDeleteWarningCommandJSON) => {
+				if (res.numCodings == 0 && res.numOutcomes == 0) {
 					this.openConfirmationDialogDeleteArms(key);
-
-				
 				} else if (res.numCodings == -1) {
 					return;
 				}
 				else {
-					
-					this.openConfirmationDialogDeleteArmsWithText(key, res.numCodings);
+					this.openConfirmationDialogDeleteArmsWithText(key, res.numCodings, res.numOutcomes);
 				} 
-
 			}
 		);
-
 		this.editTitle = false;
 	}
 
@@ -198,8 +197,4 @@ export class armDetailsComp implements OnInit {
 
 }
 
-export interface numCodings {
 
-	numCodings: number;
-
-}

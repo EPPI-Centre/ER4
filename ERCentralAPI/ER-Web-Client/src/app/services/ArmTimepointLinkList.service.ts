@@ -593,11 +593,10 @@ export class Arm {
 
 }
 export class ItemArmDeleteWarningCommandJSON {
-
-	itemId: number = 0;
-	itemArmId: number = 0;
-	numCodings: number = 0;
-
+  itemId: number = 0;
+  itemArmId: number = 0;
+  numCodings: number = 0;
+  numOutcomes: number = 0;
 }
 export interface iItemLink {
 	itemLinkId: number;
