@@ -119,7 +119,7 @@ export class timePointsComp  implements OnInit {
 		this.confirmationDialogService.confirm('Please confirm',
 			'Deleting a timepoint is a permanent operation '
 			+ 'which will remove the timepoint from all outcomes associated with it.' +
-			'<br /><b>This timepoint is associated with ' + numCodings + ' outcomes(s).</b>' +
+			'<br /><b>This timepoint is associated with ' + numCodings + ' outcome(s).</b>' +
 			'<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.',
 			true, 'i confirm')
 			.then(
