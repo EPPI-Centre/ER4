@@ -6,6 +6,7 @@ import { Item } from './ItemList.service';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { ConfigService } from './config.service';
 import { lastValueFrom } from 'rxjs';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Injectable({
     providedIn: 'root',
@@ -178,39 +179,39 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 	}
 
 
-	public Createtimepoint(currenttimepoint: iTimePoint): Promise<iTimePoint> {
+  public Createtimepoint(currenttimepoint: iTimePoint): Promise<iTimePoint> {
+    this._BusyMethods.push("Createtimepoint");
+    let ErrMsg = "Something went wrong when creating an timepoint. \r\n If the problem persists, please contact EPPISupport.";
 
-		this._BusyMethods.push("Createtimepoint");
-		let ErrMsg = "Something went wrong when creating an timepoint. \r\n If the problem persists, please contact EPPISupport.";
+    return lastValueFrom(this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/CreateTimePoint', currenttimepoint))
+      .then(
+        (result) => {
+          this.timepoints = result;
+          this._currentItem.timepoints = [];
+          //for some reason, if we do the below *immediately*, and if the "edit outcome" form is open (with no timepoint selected)
+          //then the 1st timepoint shows up as selected in the form, even if it's not.
+          //doing it in steps (1 above: wipe timepoints in the item; 2 add them again below, with a delay) resolves this. Go figure!
+          setTimeout(() => { this._currentItem.timepoints = result; }, 50);
+          this.RemoveBusy("Createtimepoint");
+          return result;
+        }
+        , (error) => {
+          this.Fetchtimepoints(this._currentItem);
+          this.modalService.GenericErrorMessage(ErrMsg);
+          this.RemoveBusy("Createtimepoint");
+          return error;
+        }
+      )
+      .catch(
+        (error) => {
+          this.Fetchtimepoints(this._currentItem);
+          this.modalService.GenericErrorMessage(ErrMsg);
+          this.RemoveBusy("Createtimepoint");
+          return error;
+        }
+      );
 
-    return lastValueFrom(this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/CreateTimePoint',
-
-			currenttimepoint))
-						.then(
-							(result) => {
-								this.timepoints = result;
-								//console.log('got inside the timepoints service: ' + this.timepoints.length);
-								this._currentItem.timepoints = this.timepoints;
-								this.RemoveBusy("Createtimepoint");
-								return result;
-							}
-						, (error) => {
-							this.Fetchtimepoints(this._currentItem);		
-							this.modalService.GenericErrorMessage(ErrMsg);
-							this.RemoveBusy("Createtimepoint");
-							return error;
-						}
-						)
-						.catch(
-							(error) => {
-								this.Fetchtimepoints(this._currentItem);		
-								this.modalService.GenericErrorMessage(ErrMsg);
-								this.RemoveBusy("Createtimepoint");
-								return error;
-						}
-		);
-
-	}
+  }
 
 
 	public Updatetimepoint(currenttimepoint: iTimePoint) {
@@ -274,27 +275,25 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 
 	}
 
-	public Deletetimepoint(timepoint: iTimePoint) {
-		this._BusyMethods.push("Deletetimepoint");
-			let ErrMsg = "Something went wrong when deleting an timepoint. \r\n If the problem persists, please contact EPPISupport.";
-			
-		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/DeleteTimePoint',
+  public Deletetimepoint(timepoint: iTimePoint): Promise<boolean> {
+    this._BusyMethods.push("Deletetimepoint");
 
-			timepoint).subscribe(
-				(result) => {
-					this.timepoints = result;
-					this._currentItem.timepoints = result;
-					this._selectedtimepoint = null;
-					this.RemoveBusy("Deletetimepoint");
-				}
-				, (error) => {
-					this.Fetchtimepoints(this._currentItem);					
-					this.modalService.GenericErrorMessage(ErrMsg);
-					this.RemoveBusy("Deletetimepoint");
-				}
-				);
-
-	}
+    return lastValueFrom(this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/DeleteTimePoint', timepoint)
+    ).then( (result) => {
+      this.timepoints = result;
+      this._currentItem.timepoints = result;
+      this._selectedtimepoint = null;
+      this.RemoveBusy("Deletetimepoint");
+      return true;
+    }
+      , (error) => {
+        this.Fetchtimepoints(this._currentItem);
+        this.modalService.GenericError(error);
+        this.RemoveBusy("Deletetimepoint");
+        return false;
+      }
+    );
+  }
 
 	public FetchArms(currentItem: Item) {
 

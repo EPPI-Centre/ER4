@@ -52,7 +52,7 @@
 	<div *ngIf="ShowOutcomesList == false  && item != undefined" class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid bg-light border rounded  p-0 m-0">
 			<div *ngIf="OutcomeTitle.invalid && (OutcomeTitle.dirty || OutcomeTitle.touched)"
-				 class="alert alert-danger">
+					 class="alert alert-danger">
 				<div *ngIf="OutcomeTitle.errors && OutcomeTitle.errors.pattern">
 					Title must not be empty
 				</div>
@@ -64,18 +64,34 @@
 				</div>
 			</div>
 			<div *ngIf="outcomedata1.invalid && (outcomedata1.dirty || outcomedata1.touched)"
-				 class="alert alert-danger">
+					 class="alert alert-danger">
 				<div *ngIf="outcomedata1.errors && outcomedata1.errors.pattern">
 					outcomedata1 must be numeric
 				</div>
 			</div>
 			<div *ngIf="outcomedata2.invalid && (outcomedata2.dirty || outcomedata2.touched)"
-				 class="alert alert-danger">
+					 class="alert alert-danger">
 				<div *ngIf="outcomedata2.errors && outcomedata2.errors.pattern">
 					outcomedata2 must be numeric
 				</div>
 			</div>
-			
+			<div *ngIf="ArmsCheckIsFailing"
+					 class="alert alert-danger">
+				<div>
+					<strong>Outcome refers to a missing arm.</strong> <br />
+					To fix this, please use the "Remove Arm Selection" button (<span class="k-icon k-i-error"></span>)
+					for the arm(s) where it is enabled, but no arm name is selected in the drop-down.
+				</div>
+			</div>
+			<div *ngIf="TimepointsCheckIsFailing"
+					 class="alert alert-danger">
+				<div>
+					<strong>Outcome refers to a missing Timepoint.</strong> <br />
+					To fix this, please use the "Remove Timepoint Selection" button (<span class="k-icon k-i-error"></span>)
+					below.
+				</div>
+			</div>
+
 			<div class=" col-md-12 p-0 m-0">
 				<div class="row col-md-12 p-1 m-0">
 					<label class="col-md-4 mt-1">Title</label>
@@ -87,8 +103,9 @@
 									 value="_OutcomesService.currentOutcome.title"
 									 pattern="^.+$"
 									 type="text" class="form-control form-input" />
-						<button [disabled]="!this.HasWriteRights 
+						<button [disabled]="!this.HasWriteRights
 								|| !currentOutcomeHasChanges
+								|| ArmsCheckIsFailing || TimepointsCheckIsFailing
 								||	OutcomeTitle.invalid &&
 								(OutcomeTitle.dirty || !OutcomeTitle.touched)
 								&& ( (OutcomeTitle.errors &&
@@ -97,7 +114,7 @@
 										|| OutcomeTitle.errors.minlength
 										)
 									  )
-									)" 
+									)"
 										class="btn btn-primary btn-sm py-0 mx-1 "
 										title="Save and Close" (click)="SaveOutcome()">
 							<span class="k-icon k-i-save"></span>
@@ -124,10 +141,9 @@
 
 				<div class="row col-md-12 p-1 m-0">
 					<label class="col-md-4 mt-1">Outcome Description</label>
-					<input 
-						   value="_OutcomesService.currentOutcome.outcomeDescription"
-						   [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription"
-						   type="text" class="form-control col-md-8 form-input" />
+					<input value="_OutcomesService.currentOutcome.outcomeDescription"
+								 [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription"
+								 type="text" class="form-control col-md-8 form-input" />
 				</div>
 				<div class="row col-md-12  p-1 m-0">
 					<label class="col-md-4 mt-1">Outcome type</label>
@@ -235,192 +251,192 @@
 				</div>
 
 				<!-- Need 8 sections here for the different outcomeTypes that can occur
-				/* Meta-analysis types:
-				*     0: Continuous: d (Hedges g)		outcomeTypeId==0
-				*     1: Continuous: r					outcomeTypeId==1	correlation coefficient r
-				*     2: Binary: odds ratio				outcomeTypeId==2	
-				*     3: Binary: risk ratio				outcomeTypeId==3
-				*     4: Binary: risk difference		outcomeTypeId==4
-				*     5: Binary: diagnostic test OR		outcomeTypeId==5	diagnostic binary 2 x 2 table
-				*     6: Binary: Peto OR				outcomeTypeId==6
-				*     7: Continuous: mean difference	outcomeTypeId==7
-				*/
+					/* Meta-analysis types:
+					*     0: Continuous: d (Hedges g)		outcomeTypeId==0
+					*     1: Continuous: r					outcomeTypeId==1	correlation coefficient r
+					*     2: Binary: odds ratio				outcomeTypeId==2
+					*     3: Binary: risk ratio				outcomeTypeId==3
+					*     4: Binary: risk difference		outcomeTypeId==4
+					*     5: Binary: diagnostic test OR		outcomeTypeId==5	diagnostic binary 2 x 2 table
+					*     6: Binary: Peto OR				outcomeTypeId==6
+					*     7: Continuous: mean difference	outcomeTypeId==7
+					*/
 
-					<div *ngFor="let code of _OutcomesService.currentOutcome.outcomeCodes.outcomeItemAttributesList">
-					{{code.attributeName}}
-				</div>
+						<div *ngFor="let code of _OutcomesService.currentOutcome.outcomeCodes.outcomeItemAttributesList">
+						{{code.attributeName}}
+					</div>
 
-				<button (click)="printstuff()"></button>
-	-->
+					<button (click)="printstuff()"></button>
+		-->
 
 				<div class="row col-md-12 p-1 m-0">
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data1Desc}}</label>
 						<input class="form-control col-md-6" #outcomedata1="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data1"
-							   name="outcomedata1"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data1"
-							   type="number" />
+									 [(ngModel)]="_OutcomesService.currentOutcome.data1"
+									 name="outcomedata1"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data1"
+									 type="number" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data2Desc}}</label>
-						<input class="form-control col-md-6" 
-							   [(ngModel)]="_OutcomesService.currentOutcome.data2"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   name="outcomedata2" #outcomedata2="ngModel"
-							   value="_OutcomesService.currentOutcome.data2"
-							   type="number" />
+						<input class="form-control col-md-6"
+									 [(ngModel)]="_OutcomesService.currentOutcome.data2"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 name="outcomedata2" #outcomedata2="ngModel"
+									 value="_OutcomesService.currentOutcome.data2"
+									 type="number" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7">
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7">
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data3Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data3"
-							   name="outcomedata3" 
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data3"
-							   type="number" class="form-control col-md-6" />
+									 name="outcomedata3"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data3"
+									 type="number" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 ">
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 ">
 
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data4Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data4"
-							   name="outcomedata4"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data4"
-							   type="number" class="form-control col-md-6" />
+									 name="outcomedata4"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data4"
+									 type="number" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
 
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data5Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data5"
-							   name="outcomedata5"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data5"
-							   type="number" class="form-control col-md-6" />
+									 name="outcomedata5"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data5"
+									 type="number" class="form-control col-md-6" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
 
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data6Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data6"
-							   name="outcomedata6"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data6"
-							   type="number" class="form-control col-md-6" />
+									 name="outcomedata6"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data6"
+									 type="number" class="form-control col-md-6" />
 
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data7Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data7"
-							   name="outcomedata7"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data7"
-							   type="number" class="form-control col-md-6" />
+									 name="outcomedata7"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data7"
+									 type="number" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data8Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data8"
-							   name="outcomedata8" 
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data8"
-							   type="number" class="form-control col-md-6" />
+									 name="outcomedata8"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data8"
+									 type="number" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data11Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data11"
-							   name="outcomedata11"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data11"
-							   type="number" class="form-control col-md-6 small" />
+									 name="outcomedata11"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data11"
+									 type="number" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data12Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data12"
-							   name="outcomedata12"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data12"
-							   type="number" class="form-control col-md-6 small" />
+									 name="outcomedata12"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data12"
+									 type="number" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data13Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data13"
-							   name="outcomedata13"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data13"
-							   type="number" class="form-control col-md-6 small" />
+									 name="outcomedata13"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data13"
+									 type="number" class="form-control col-md-6 small" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data14Desc}}</label>
 						<input [(ngModel)]="_OutcomesService.currentOutcome.data14"
-							   name="outcomedata14" 
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data14"
-							   type="number" class="form-control col-md-6 small" />
+									 name="outcomedata14"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data14"
+									 type="number" class="form-control col-md-6 small" />
 					</div>
 					<div class="row col-12 p-0 my-0 mx-1">
-                        <div class="row p-1 m-2 border border-success rounded alert-info w-100">
-                            <div class="col-12 m-0 p-0">
-                                <label class="p-0 m-2 small font-weight-bold">{{ShowCFUOAEtext}}: </label> <button class="btn btn-sm btn-outline-success px-2 py-0" (click)="ShowCFUOAE()">Go</button>
-                            </div>
-                            <div *ngIf="ShowCFUOAEBoolCheck()"
-                                 class="row col-12  p-1 m-2">
-                                <div class="col-12 row p-1">
-                                    <label class="col-12 col-md-8 p-1 m-0">Mean cluster size</label>
-                                    <input [(ngModel)]="_OutcomesService.currentOutcome.data9"
-                                           name="outcomedata9"
-                                           pattern="^[-+]?[0-9]*\.?[0-9]+$"
-                                           value="_OutcomesService.currentOutcome.data9"
-                                           type="number" class="form-control col-12 col-md-4" />
-                                </div>
-                                <div class="col-12 row p-1">
-                                    <label class="col-12 col-md-8 p-1 m-0">ICC</label>
-                                    <input [(ngModel)]="_OutcomesService.currentOutcome.data10"
-                                           name="outcomedata10" 
-                                           pattern="^[-+]?[0-9]*\.?[0-9]+$"
-                                           value="_OutcomesService.currentOutcome.data10"
-                                           type="number" class="form-control col-12 col-md-4" />
-                                </div>
-                            </div>
-                        </div>
+						<div class="row p-1 m-2 border border-success rounded alert-info w-100">
+							<div class="col-12 m-0 p-0">
+								<label class="p-0 m-2 small font-weight-bold">{{ShowCFUOAEtext}}: </label> <button class="btn btn-sm btn-outline-success px-2 py-0" (click)="ShowCFUOAE()">Go</button>
+							</div>
+							<div *ngIf="ShowCFUOAEBoolCheck()"
+									 class="row col-12  p-1 m-2">
+								<div class="col-12 row p-1">
+									<label class="col-12 col-md-8 p-1 m-0">Mean cluster size</label>
+									<input [(ngModel)]="_OutcomesService.currentOutcome.data9"
+												 name="outcomedata9"
+												 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+												 value="_OutcomesService.currentOutcome.data9"
+												 type="number" class="form-control col-12 col-md-4" />
+								</div>
+								<div class="col-12 row p-1">
+									<label class="col-12 col-md-8 p-1 m-0">ICC</label>
+									<input [(ngModel)]="_OutcomesService.currentOutcome.data10"
+												 name="outcomedata10"
+												 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+												 value="_OutcomesService.currentOutcome.data10"
+												 type="number" class="form-control col-12 col-md-4" />
+								</div>
+							</div>
+						</div>
 						<div class="row col-md-12 p-0 m-0">
 							<div class="col-12 col-md-12 col-lg-12 row p-0 m-0">
 								<label class="col-md-5 bold">{{_OutcomesService.currentOutcome.esDesc}}</label>
@@ -456,6 +472,7 @@
 					<div class="row col-12">
 						<button [disabled]="!this.HasWriteRights
 								|| !currentOutcomeHasChanges
+								|| ArmsCheckIsFailing || TimepointsCheckIsFailing
 								||	OutcomeTitle.invalid &&
 								(OutcomeTitle.dirty || !OutcomeTitle.touched)
 								&& ( (OutcomeTitle.errors &&
@@ -465,20 +482,20 @@
 										)
 									  )
 									)"
-								class="btn btn-primary mt-1 p-1 m-1 "
-								title="Save and Close" (click)="SaveOutcome()">
+										class="btn btn-primary mt-1 p-1 m-1 "
+										title="Save and Close" (click)="SaveOutcome()">
 							<span class="k-icon k-i-save"></span> Save
 						</button>
 
 						<button class="btn  btn-danger mt-1 p-1 m-1"
-								(click)="ClearAndCancelSave()">
+										(click)="ClearAndCancelSave()">
 							Cancel
 						</button>
 
 					</div>
 				</div>
 			</div>
-			</div>
+		</div>
 		</div>
 </div>
 

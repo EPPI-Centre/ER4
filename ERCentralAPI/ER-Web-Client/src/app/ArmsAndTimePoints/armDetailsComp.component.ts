@@ -89,8 +89,8 @@ export class armDetailsComp implements OnInit {
 
 	
 	public openConfirmationDialogDeleteArms(key: number) {
-		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
-			'<br />This Arm is associated with 0 codes.', false, '')
+		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation.' +
+			'<br />This Arm is <strong>not applied</strong> to any Code or Outcome, so it\'s safe to delete it.', false, '')
 			.then(
 				(confirmed: any) => {
 					console.log('User confirmed:');

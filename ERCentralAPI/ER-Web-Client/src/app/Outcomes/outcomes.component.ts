@@ -132,6 +132,34 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
       return this.item.timepoints;
     }
   }
+
+  public get ArmsCheckIsFailing(): boolean {
+    if (!this._OutcomesService.currentOutcome || !this.item) return true;
+    else {
+      const outc = this._OutcomesService.currentOutcome;
+      if (outc.itemArmIdGrp1 > 0) {
+        const index = this.item.arms.findIndex(f => f.itemArmId == outc.itemArmIdGrp1);
+        if (index == -1) return true;
+      }
+      if (outc.itemArmIdGrp2 > 0) {
+        const index = this.item.arms.findIndex(f => f.itemArmId == outc.itemArmIdGrp2);
+        if (index == -1) return true;
+      }
+    }
+    return false;
+  }
+
+  public get TimepointsCheckIsFailing(): boolean {
+    if (!this._OutcomesService.currentOutcome || !this.item) return true;
+    else {
+      const outc = this._OutcomesService.currentOutcome;
+      if (outc.itemTimepointId > 0) {
+        const index = this.item.timepoints.findIndex(f => f.itemTimepointId == outc.itemTimepointId);
+        if (index == -1) return true;
+      }
+    }
+    return false;
+  }
   
   public UpdateInterventionName(event: Event) {
     if (this.CurrentItemSet && this._OutcomesService.currentOutcome) {
