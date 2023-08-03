@@ -7,13 +7,13 @@
       <div class="w-100 row p-1 mx-0 ">
         <div class="col-8 mx-0 p-1" >
           <div style="max-width:460px;">
-            <img src="assets/Images/EPPI Reviewer Web Logo Blue.png" class="img-fluid mr-4 " />
+            <img src="assets/Images/EPPI Reviewer Web Logo Blue.png" class="img-fluid mr-4 " alt="EPPI Reviewer Web logo" />
           </div>
         </div>
         <div class="col-4 mx-0 p-1">
           <div class="float-right d-flex mr-2 h-100" style="max-width:340px;">
             <a href="https://eppi.ioe.ac.uk/cms" target="_blank" class=" my-auto">
-              <img src="assets/Images/EPPILogo2021.png" class="mr-2 img-fluid" />
+              <img src="assets/Images/EPPILogo2021.png" class="mr-2 img-fluid"  alt="EPPI Centre logo" />
             </a>
           </div>
         </div>
@@ -22,33 +22,11 @@
       <!--<h3 class="justify-center m-1 ">EPPI-Reviewer <span class="font-italic font-weight-bold text-danger" style="font-family: 'Times New Roman'; font-size:1.1em;">Web</span></h3><br />-->
     </div>
   </div>
+  <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
+    <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-white">
+      <div class="col-12 col-md-7 justify-content-center d-flex px-0">
+        <div class="form-horizontal w-100" role="form">
 
-  <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center flex-row-reverse bg-white border-bottom border-primary">
-
-    <div class="col-auto m-0 px-0">
-      <!--<div class="panel" style="background-color: #33b5e5">-->
-      <div class="panel" style="background-color: #FFFFFF">
-        <table class="">
-          <!--<tr>
-            <td class="border-bottom border-dark" style="padding: 6px;color: #FFFFFF;">
-              <img src="assets/Images/EPPILogo2021.png" />
-            </td>
-          </tr>-->
-          <tr>
-            <td>
-              <p class="text-right border-bottom border-dark">
-                <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Click here</a><br />
-                to Create your Account.
-              </p>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <div class="col-auto col-md-1 justify-content-center d-flex px-0"></div>
-    <div class="col-12 col-md-7 justify-content-center d-flex px-0">
-      <div class="form-horizontal w-100" role="form">
-        <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
           <div class="form-group row m-0 p-1">
             <label class="col-auto control-label text-left text-sm-right px-1 my-auto" for="tbTFullNameReg" style="width:6em;">Username:</label>
             <div class="col w-100">
@@ -67,24 +45,28 @@
               <div class="badge badge-warning ml-1 pt-1 mx-1 pt-1 text-wrap"><span class="ml-1 mt-1 mr-1">Password Required (or too short)</span></div>
             </div>
           </div>
-          <div class="form-group row m-1 p-0 align-content-center ">
-            <div class="col-4 col-sm-2 text-right ">
-              <input type="submit" value="Login" class="btn btn-primary m-1" [disabled]="IsBusy" />
-            </div>
-            <div class="col-4 col-sm-2 text-left  align-self-center">
-              <fa-icon *ngIf="IsBusy" [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
-              <div *ngIf="ShowLoginFailed" class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div>
-            </div>
-            <div class="col-4 col-sm-8   text-left align-self-center ">
-              <a class="ml-3" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Forgot Password?</a>
-            </div>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
-    <div class="col-auto col-md-1 justify-content-center d-flex px-0"></div>
-  </div>
-
+    <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-white border-bottom border-primary">
+      <div class="col-auto col-sm-1"></div>
+      <div class="col-12 col-sm-3 justify-content-center justify-content-sm-end d-flex px-1">
+        <div *ngIf="ShowLoginFailed" class="badge badge-warning ml-1 pt-1 my-auto"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div>
+        <input type="submit" value="Login" class="btn btn-primary m-1 px-3" [disabled]="IsBusy" />
+        
+          <div style="min-width:22px;" class="my-auto">
+            <fa-icon *ngIf="IsBusy" [icon]="faSpinner" [spin]="true" class="text-success mt-1 my-auto"></fa-icon>
+          </div>
+      </div>
+      <div class="col-6 col-sm-4 text-center align-self-center px-0">
+        <a class="mx-1 my-auto" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Forgot Password?</a>
+      </div>
+      <div class="col-6 col-sm-3 text-left  align-self-center px-1">
+        <a class="mx-1 my-auto" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Create Account</a>
+      </div>
+      <div class="col-auto col-sm-1"></div>
+    </div>
+  </form>
   <div class="row mx-1 mt-0 mb-0 p-0 d-flex p-0 justify-content-center bg-light border-bottom border-primary">
     <div class="col-12 col-sm-10 py-0 px-1">
       <div class="text-center my-2">
@@ -96,20 +78,20 @@
       </div>
     </div>
     <div class="col-12 col-sm-auto mt-2 mb-1 mx-0 p-1 float-right d-flex d-sm-block justify-content-center ">
-      <div class="col-auto col-sm-12 px-0"><a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="assets/FollowUs.png" /></a></div>
+      <div class="col-auto col-sm-12 px-0"><a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="assets/FollowUs.png"  alt="follow us on Twitter image"/></a></div>
       <div class="col-auto col-sm-12 px-1">on <a href="https://twitter.com/EPPIReviewer" target="_blank">Twitter</a></div>
     </div>
     <!--<div class=" mt-4 ml-1 p-0 container text-center"><a class="text-danger font-weight-bold justify-center" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>-->
   </div>
   <div class="row mx-1 mt-2 mb-2 d-flex justify-content-center bg-white border-top border-bottom border-primary">
     <div class="p-1">
-      <img src="assets/Images/cochrane_logo.png" width="30" height="30" class="mr-1" />
-      <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
+      <img src="assets/Images/cochrane_logo.png" width="30" height="30" class="mr-1"  alt="Cochrane logo"/>
+      <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane/Campbell Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
       <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info...</button>
     </div>
     <div *ngIf="showCochraneHelp" class="col-11 justify-center border border-info rounded alert-info mb-1">
       <p class="mb-1">
-        This link allows <b>Cochrane Authors</b> to log in EPPI-Reviewer with their Cochrane Account details.<br />
+        This link allows <b>Cochrane and Campbell Authors</b> to log in EPPI-Reviewer with their Cochrane Account details.<br />
         Within EPPI-Reviewer, Cochrane Authors are automatically licensed to:
       </p>
       <ol class="small">
