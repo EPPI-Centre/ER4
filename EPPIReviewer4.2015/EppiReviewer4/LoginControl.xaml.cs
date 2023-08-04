@@ -77,7 +77,12 @@ namespace EppiReviewer4
                         hlbURL.NavigateUri = new Uri(command.URL, UriKind.Absolute);
                         hlbURL.Visibility = System.Windows.Visibility.Visible;
                         txtLatest.Text = command.Description;
-                        txtVer.Text = "Version: " + command.VersionN;
+                        string vNumber = command.VersionN;
+                        if (vNumber.StartsWith("6."))
+                        {
+                            vNumber = "4" + vNumber.Substring(1);
+                        }
+                        txtVer.Text = "Version: " + vNumber;
                     }
                 }
             };

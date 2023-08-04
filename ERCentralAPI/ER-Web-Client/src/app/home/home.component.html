@@ -5,7 +5,7 @@
   <div class="bg-white mx-1">
     <div class="d-flex w-100 mx-1 mt-0 mb-0 py-2 justify-content-center  ">
       <div class="w-100 row p-1 mx-0 ">
-        <div class="col-8 mx-0 p-1" >
+        <div class="col-8 mx-0 p-1">
           <div style="max-width:460px;">
             <img src="assets/Images/EPPI Reviewer Web Logo Blue.png" class="img-fluid mr-4 " alt="EPPI Reviewer Web logo" />
           </div>
@@ -13,7 +13,7 @@
         <div class="col-4 mx-0 p-1">
           <div class="float-right d-flex mr-2 h-100" style="max-width:340px;">
             <a href="https://eppi.ioe.ac.uk/cms" target="_blank" class=" my-auto">
-              <img src="assets/Images/EPPILogo2021.png" class="mr-2 img-fluid"  alt="EPPI Centre logo" />
+              <img src="assets/Images/EPPILogo2021.png" class="mr-2 img-fluid" alt="EPPI Centre logo" />
             </a>
           </div>
         </div>
@@ -53,10 +53,10 @@
       <div class="col-12 col-sm-3 justify-content-center justify-content-sm-end d-flex px-1">
         <div *ngIf="ShowLoginFailed" class="badge badge-warning ml-1 pt-1 my-auto"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div>
         <input type="submit" value="Login" class="btn btn-primary m-1 px-3" [disabled]="IsBusy" />
-        
-          <div style="min-width:22px;" class="my-auto">
-            <fa-icon *ngIf="IsBusy" [icon]="faSpinner" [spin]="true" class="text-success mt-1 my-auto"></fa-icon>
-          </div>
+
+        <div style="min-width:22px;" class="my-auto">
+          <fa-icon *ngIf="IsBusy" [icon]="faSpinner" [spin]="true" class="text-success mt-1 my-auto"></fa-icon>
+        </div>
       </div>
       <div class="col-6 col-sm-4 text-center align-self-center px-0">
         <a class="mx-1 my-auto" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Forgot Password?</a>
@@ -78,14 +78,14 @@
       </div>
     </div>
     <div class="col-12 col-sm-auto mt-2 mb-1 mx-0 p-1 float-right d-flex d-sm-block justify-content-center ">
-      <div class="col-auto col-sm-12 px-0"><a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="assets/FollowUs.png"  alt="follow us on Twitter image"/></a></div>
+      <div class="col-auto col-sm-12 px-0"><a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="assets/FollowUs.png" alt="follow us on Twitter image" /></a></div>
       <div class="col-auto col-sm-12 px-1">on <a href="https://twitter.com/EPPIReviewer" target="_blank">Twitter</a></div>
     </div>
     <!--<div class=" mt-4 ml-1 p-0 container text-center"><a class="text-danger font-weight-bold justify-center" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>-->
   </div>
   <div class="row mx-1 mt-2 mb-2 d-flex justify-content-center bg-white border-top border-bottom border-primary">
     <div class="p-1">
-      <img src="assets/Images/cochrane_logo.png" width="30" height="30" class="mr-1"  alt="Cochrane logo"/>
+      <img src="assets/Images/cochrane_logo.png" width="30" height="30" class="mr-1" alt="Cochrane logo" />
       <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane/Campbell Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
       <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info...</button>
     </div>
@@ -106,9 +106,9 @@
     </div>
   </div>
 
-  <div  class="row mx-1 px-2 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+  <div class="row mx-1 px-2 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 font-weight-bold p-0 m-0">
-      Latest Changes:
+      Latest Changes: <fa-icon *ngIf="IsGettingVersionInfo" [icon]="faSpinner" [spin]="true" class="text-success mt-1 my-auto"></fa-icon>
     </div>
     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
       Version: {{vInfo.versionN}}
@@ -121,16 +121,15 @@
     <div *ngIf="!versionIsNew; else Newmsg" class="col-md-12 px-1 m-1">
       {{vInfo.description}}
     </div>
-    <ng-template #Newmsg>
-      <div class="col-md-12 px-1 m-2" >
-        <div style="animation: glowingText 1.4s infinite; " class="rounded py-1 px-2" >{{vInfo.description}}</div>
-      </div>
-    </ng-template>
-
-    <div class="col-md-12 justify-content-end">
+    <div *ngIf="vInfo.url != ''" class="col-md-12 justify-content-end">
       <a href="{{vInfo.url}}" target="_blank">Read More...</a>
     </div>
   </div>
+  <ng-template #Newmsg>
+    <div class="col-md-12 px-1 m-2">
+      <div style="animation: glowingText 1.4s infinite; " class="rounded py-1 px-2">{{vInfo.description}}</div>
+    </div>
+  </ng-template>
   <ng-template #ConnErr>
     <div class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
       <div class="col-12 px-1 m-1">
@@ -143,7 +142,7 @@
     </div>
   </ng-template>
 
-    <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-light align-bottom">
-      &nbsp;
-    </div>
+  <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-light align-bottom">
+    &nbsp;
+  </div>
 </div>
