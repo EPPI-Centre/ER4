@@ -754,6 +754,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
     if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
     if (this.ReloadItemCoding) this.ReloadItemCoding.unsubscribe();
+    this._outcomeService.Clear();
   }
 }
 

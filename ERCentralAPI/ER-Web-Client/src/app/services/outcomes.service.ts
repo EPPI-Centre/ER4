@@ -24,6 +24,7 @@ export class OutcomesService extends BusyAwareService {
 
   public ItemSetId: number = 0;
   public currentOutcome: Outcome = new Outcome();
+  public listOutcomes: Outcome[] = [];
   public UnchangedOutcome: Outcome = new Outcome();
   public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
 
@@ -170,33 +171,9 @@ export class OutcomesService extends BusyAwareService {
           this.RemoveBusy("FetchReviewSetControlList");
         }
       );
-
-
   }
 
-  //public FetchItemArmList(itemId: number) {
-
-  //  this._BusyMethods.push("FetchItemArmList");
-  //  let body = JSON.stringify({ Value: itemId });
-
-  //  this._http.post<ItemArm[]>(this._baseUrl + 'api/OutcomeList/FetchItemArmList',
-  //    body)
-  //    .subscribe(result => {
-
-  //      this.ReviewSetItemArmList = result;
-
-  //      this.RemoveBusy("FetchItemArmList");
-  //    }, error => {
-  //      this.modalService.SendBackHomeWithError(error);
-  //      this.RemoveBusy("FetchItemArmList");
-  //    },
-  //      () => {
-  //        this.RemoveBusy("FetchItemArmList");
-  //      }
-  //    );
-  //}
-
-  public listOutcomes: Outcome[] = [];
+  
 
   public Createoutcome(currentoutcome: Outcome): Promise<Outcome | boolean> {
 
@@ -271,7 +248,14 @@ export class OutcomesService extends BusyAwareService {
         }
       );
   }
-
+  public Clear() {
+    this.currentOutcome = new Outcome();
+    this.listOutcomes = [];
+    this.UnchangedOutcome = new Outcome();
+    this.ReviewSetOutcomeList = [];
+    this.ReviewSetControlList = [];
+    this.ReviewSetInterventionList = [];
+  }
 }
 
 

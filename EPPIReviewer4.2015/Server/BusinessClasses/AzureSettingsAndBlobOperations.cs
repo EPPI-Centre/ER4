@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.IO;
 using System.Configuration;
+using Azure.Storage;
+using Azure.Core;
 #if (CSLA_NETCORE)
 using Microsoft.Extensions.Configuration;
 using Azure;
@@ -331,7 +333,17 @@ namespace BusinessLibrary.BusinessClasses
 
         private static BlobClient GetBlob(string blobConnectionStr, string containerName, string blobName)
         {
-            BlobServiceClient blobServiceClient = new BlobServiceClient(blobConnectionStr);
+            BlobClientOptions opts = new BlobClientOptions()
+            {
+                Retry = {
+                    Delay = TimeSpan.FromSeconds(2),
+                    MaxRetries = 2,
+                    Mode = RetryMode.Exponential,
+                    MaxDelay = TimeSpan.FromSeconds(10),
+                    NetworkTimeout = TimeSpan.FromMinutes(5)
+                },
+            };
+            BlobServiceClient blobServiceClient = new BlobServiceClient(blobConnectionStr, opts);
             BlobContainerClient container = blobServiceClient.GetBlobContainerClient(containerName);
             //await container.CreateIfNotExistsAsync();
             BlobClient blob = container.GetBlobClient(blobName);

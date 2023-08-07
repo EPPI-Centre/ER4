@@ -45,8 +45,8 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   @Input() item: Item | undefined;
   @Input() Context: string = "CodingFull";
   @Input() HasOutcomeUnsavedChanges: boolean = false;
-  private ConfirmTitle = "Discard outcome changes?"
-  private ConfirmContent = "You have unsaved outcome changes. Changing item will <strong>discard</strong> these changes.<br /><strong>Continue?</strong>"
+  private OutcomeDiscardChangesTitle = "Discard outcome changes?"
+  private OutcomeDiscardChangesContent = "You have unsaved outcome changes. Changing item will <strong>discard</strong> these changes.<br /><strong>Continue?</strong>"
 
   ngOnInit() {
     //if (this.item) this.itemID = this.item.itemId;
@@ -73,7 +73,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
   public prevScreeningItem() {
     if (this.HasOutcomeUnsavedChanges) {
-      this.ConfirmationDialogService.confirm(this.ConfirmTitle, this.ConfirmContent, false, '')
+      this.ConfirmationDialogService.confirm(this.OutcomeDiscardChangesTitle, this.OutcomeDiscardChangesContent, false, '')
         .then((confirm: any) => {
           if (confirm) {
             this.InnerprevScreeningItem();
@@ -96,7 +96,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
   public GetScreeningItem() {
     if (this.HasOutcomeUnsavedChanges) {
-      this.ConfirmationDialogService.confirm(this.ConfirmTitle, this.ConfirmContent, false, '')
+      this.ConfirmationDialogService.confirm(this.OutcomeDiscardChangesTitle, this.OutcomeDiscardChangesContent, false, '')
         .then((confirm: any) => {
           if (confirm) {
             this.GoToNextScreeningItemClicked.emit();
@@ -124,7 +124,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   firstItem() {
     if (this.item) {
       if (this.HasOutcomeUnsavedChanges) {
-        this.ConfirmationDialogService.confirm(this.ConfirmTitle, this.ConfirmContent, false, '')
+        this.ConfirmationDialogService.confirm(this.OutcomeDiscardChangesTitle, this.OutcomeDiscardChangesContent, false, '')
           .then((confirm: any) => {
             if (confirm) {
               this.goToItem(this.ItemListService.getFirst());
@@ -137,7 +137,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
     if (this.item) {
       const iid = this.item.itemId;
       if (this.HasOutcomeUnsavedChanges) {
-        this.ConfirmationDialogService.confirm(this.ConfirmTitle, this.ConfirmContent, false, '')
+        this.ConfirmationDialogService.confirm(this.OutcomeDiscardChangesTitle, this.OutcomeDiscardChangesContent, false, '')
           .then((confirm: any) => {
             if (confirm) {
               this.goToItem(this.ItemListService.getPrevious(iid));
@@ -150,7 +150,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
     if (this.item) {
       const iid = this.item.itemId;
       if (this.HasOutcomeUnsavedChanges) {
-        this.ConfirmationDialogService.confirm(this.ConfirmTitle, this.ConfirmContent, false, '')
+        this.ConfirmationDialogService.confirm(this.OutcomeDiscardChangesTitle, this.OutcomeDiscardChangesContent, false, '')
           .then((confirm: any) => {
             if (confirm) {
               this.goToItem(this.ItemListService.getNext(iid));
@@ -162,7 +162,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   lastItem() {
     if (this.item) {
       if (this.HasOutcomeUnsavedChanges) {
-        this.ConfirmationDialogService.confirm(this.ConfirmTitle, this.ConfirmContent, false, '')
+        this.ConfirmationDialogService.confirm(this.OutcomeDiscardChangesTitle, this.OutcomeDiscardChangesContent, false, '')
           .then((confirm: any) => {
             if (confirm) {
               this.goToItem(this.ItemListService.getLast());

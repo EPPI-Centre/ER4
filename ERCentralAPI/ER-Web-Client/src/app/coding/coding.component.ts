@@ -627,6 +627,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
     if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
+    this._outcomeService.Clear();
   }
   WipeHighlights() {
     if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();
