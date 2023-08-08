@@ -36,7 +36,7 @@
           SE<span [innerHTML]="SortingSymbol('sees')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('SEESColumn')}" (click)="DoEditThisFilter('sees', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th>ID</th>
+        <!--<th>ID</th>-->
         <th class="sortableTH" (click)="Sort('shortTitle')" id="col-shortTitle">
           Study<span [innerHTML]="SortingSymbol('shortTitle')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('titleColumn')}" (click)="DoEditThisFilter('shortTitle', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
@@ -412,7 +412,7 @@
             {{oo.seesRounded}}
           </div>
         </td>
-        <td>{{oo.outcomeId}}</td>
+        <!--<td>{{oo.outcomeId}}</td>-->
         <td>{{oo.shortTitle}}</td>
         <td>{{oo.title}}</td>
         <td>{{oo.timepointDisplayValue}}</td>
