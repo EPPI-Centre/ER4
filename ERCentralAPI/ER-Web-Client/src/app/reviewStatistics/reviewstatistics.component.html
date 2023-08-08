@@ -12,9 +12,8 @@
             (click)="GoToDuplicates()">
       Duplicates
     </button>
-    <button kendoButton class="ml-1" title="go to Meta-Analysis Page"
-            (click)="GoToMetaAnalysis()">
-      MA
+    <button kendoButton class="ml-1 " title="go to Meta-Analysis Page"
+            (click)="GoToMetaAnalysis()">Meta-A<span class="ml-1"><img src="assets/Images/MA.png" width="18" height="18" style="margin-top: -2px; margin-bottom:-2px;"></span>
     </button>
     <button kendoButton class="ml-1" *ngIf="ReviewIsMagEnabled"
             (click)="OpenMAG()">
