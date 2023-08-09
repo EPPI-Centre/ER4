@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.IO;
 using System.Configuration;
-using Azure.Storage;
-using Azure.Core;
 #if (CSLA_NETCORE)
 using Microsoft.Extensions.Configuration;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage;
+using Azure.Core;
 #else
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage;
