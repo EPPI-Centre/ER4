@@ -1001,10 +1001,10 @@ public class Utils
 
         //msg.To = e.Item.Cells[2].Text;
         //msg.From = "eppi.edinfo@ioe.ac.uk";
-        msg.Subject = "EPPI-Reviewer 4: password information";
+        msg.Subject = "EPPI-Reviewer: password information";
         msg.IsBodyHtml = true;
         //msg.Body = "&gt;&gt;This is an automatically generated message&lt;&lt; <br>";
-        msg.Body = "EPPI-Reviewer 4: Software for research synthesis";
+        msg.Body = "EPPI-Reviewer: Software for research synthesis";
         msg.Body += "<br><br>";
         msg.Body += "Dear " + stCont;
         msg.Body += "<br><br>";
@@ -1078,7 +1078,7 @@ public class Utils
         }
         msg.From = new MailAddress(EmailFrom);
 
-        msg.Subject = "EPPI-Reviewer 4: password reset";
+        msg.Subject = "EPPI-Reviewer: password reset";
         msg.IsBodyHtml = true;
 
 
@@ -1134,7 +1134,7 @@ public class Utils
         }
         msg.From = new MailAddress(EmailFrom);
 
-        msg.Subject = "EPPI-Reviewer 4: username reminder";
+        msg.Subject = "EPPI-Reviewer: username reminder";
         msg.IsBodyHtml = true;
 
 
@@ -1185,7 +1185,7 @@ public class Utils
 
         msg.From = new MailAddress(EmailFrom);
 
-        msg.Subject = "EPPI-Reviewer 4: Review invitation";
+        msg.Subject = "EPPI-Reviewer: Review invitation";
         msg.IsBodyHtml = true;
 
         bool isAdmDB = true;
@@ -1277,7 +1277,7 @@ public class Utils
         //}
         msg.From = new MailAddress(EmailFrom);
 
-        msg.Subject = "EPPI-Reviewer 4: Account Activation";
+        msg.Subject = "EPPI-Reviewer: Account Activation";
         msg.IsBodyHtml = true;
 
 
@@ -1414,7 +1414,7 @@ public class Utils
         //}
         msg.From = new MailAddress(EmailFrom);
 
-        msg.Subject = "EPPI-Reviewer 4: Account Activation (On behalf of: " + PurcharserName + ")";
+        msg.Subject = "EPPI-Reviewer: Account Activation (On behalf of: " + PurcharserName + ")";
         msg.IsBodyHtml = true;
 
 
@@ -1469,7 +1469,7 @@ public class Utils
         //}
         msg.From = new MailAddress(EmailFrom);
 
-        msg.Subject = "EPPI-Reviewer 4: Account Extension (On behalf of: " + PurcharserName + ")";
+        msg.Subject = "EPPI-Reviewer: Account Extension (On behalf of: " + PurcharserName + ")";
         msg.IsBodyHtml = true;
 
 
@@ -1531,11 +1531,11 @@ public class Utils
         msg.From = new MailAddress(mailFrom);
         //msg.Bcc.Add(new MailAddress(inviterEmail));
 
-        msg.Subject = "EPPI-Reviewer 4: Error - Example review creation failure";
+        msg.Subject = "EPPI-Reviewer: Error - Example review creation failure";
         msg.IsBodyHtml = true;
 
 
-        msg.Body = "EPPI-Reviewer 4: Software for research synthesis";
+        msg.Body = "EPPI-Reviewer: Software for research synthesis";
         msg.Body += "<br><br>";
 
         msg.Body += "An example review being created for ContactID " + newUser + "  has generated an error message<br>";
@@ -1578,7 +1578,7 @@ public class Utils
         msg.From = new MailAddress(EmailFrom);
         //msg.Bcc.Add(new MailAddress(inviterEmail));
 
-        msg.Subject = "EPPI-Reviewer 4: Error - Example review creation failure";
+        msg.Subject = "EPPI-Reviewer: Error - Example review creation failure";
         msg.IsBodyHtml = true;
 
 
