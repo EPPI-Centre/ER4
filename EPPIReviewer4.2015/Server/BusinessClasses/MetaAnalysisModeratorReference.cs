@@ -25,23 +25,10 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MetaAnalysisModeratorReference : BusinessBase<MetaAnalysisModeratorReference>
     {
-#if SILVERLIGHT
-    public MetaAnalysisModeratorReference()
-    {
-        
-    }
 
-        
-#else
         public MetaAnalysisModeratorReference() { }
-#endif
-        //public void DoMarkAsOld()
-        //{
-        //    this.MarkOld();
-        //}
 
-
-        private static PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
+        public static readonly PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
         public string Name
         {
             get
@@ -54,7 +41,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeID", "AttributeID", 0.0));
+        public static readonly PropertyInfo<Int64> AttributeIDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeID", "AttributeID", 0.0));
         public Int64 AttributeID
         {
             get

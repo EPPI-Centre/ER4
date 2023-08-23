@@ -45,7 +45,14 @@ namespace BusinessLibrary.BusinessClasses
             //Outcomes = new OutcomeList();
             FilterSettingsList = new MetaAnalysisFilterSettingList();
         }
-
+#if !SILVERLIGHT
+        public static MetaAnalysis CreateNewMAWithAllChildren()
+        {
+            MetaAnalysis res = new MetaAnalysis();
+            res.GetAllDetails();
+            return res;
+        }
+#endif
         public void SetOutcomesList(OutcomeList outcomes)
         {
             bool wasDirty = this.IsDirty;
@@ -63,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             this.MarkDirty();
         }
-//#endif
+        //#endif
         /*
          * Sets which type of analysis we're dealing with
          * 0 = meta-analysis
@@ -71,7 +78,7 @@ namespace BusinessLibrary.BusinessClasses
          * 2 = QCA
          */
 
-        private static PropertyInfo<int> AnalysisTypeProperty = RegisterProperty<int>(new PropertyInfo<int>("AnalysisType", "AnalysisType", 0));
+        public static readonly PropertyInfo<int> AnalysisTypeProperty = RegisterProperty<int>(new PropertyInfo<int>("AnalysisType", "AnalysisType", 0));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -90,7 +97,7 @@ namespace BusinessLibrary.BusinessClasses
 
         /* ************* Properties to bind to the UI - to generate the R code ***************/
 
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         public string Title
         {
             get
@@ -105,7 +112,7 @@ namespace BusinessLibrary.BusinessClasses
         /// <summary>
         /// Not Saved in the db
         /// </summary>
-        private static PropertyInfo<bool> KNHAProperty = RegisterProperty<bool>(new PropertyInfo<bool>("KNHA", "KNHA", false));
+        public static readonly PropertyInfo<bool> KNHAProperty = RegisterProperty<bool>(new PropertyInfo<bool>("KNHA", "KNHA", false));
         public bool KNHA
         {
             get
@@ -118,7 +125,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> FitStatsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("FitStats", "FitStats", true));
+        public static readonly PropertyInfo<bool> FitStatsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("FitStats", "FitStats", true));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -134,7 +141,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ConfintProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Confint", "Confint", false));
+        public static readonly PropertyInfo<bool> ConfintProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Confint", "Confint", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -150,7 +157,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> EggerProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Egger", "Egger", false));
+        public static readonly PropertyInfo<bool> EggerProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Egger", "Egger", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -166,7 +173,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RankCorrProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RankCorr", "RankCorr", false));
+        public static readonly PropertyInfo<bool> RankCorrProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RankCorr", "RankCorr", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -182,7 +189,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> TrimFillProperty = RegisterProperty<bool>(new PropertyInfo<bool>("TrimFill", "TrimFill", false));
+        public static readonly PropertyInfo<bool> TrimFillProperty = RegisterProperty<bool>(new PropertyInfo<bool>("TrimFill", "TrimFill", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -205,7 +212,7 @@ namespace BusinessLibrary.BusinessClasses
             <ComboBoxItem Content="&quot;REML&quot; Restricted maximum likelihood" Tag="REML"/>
             <ComboBoxItem Content="&quot;EB&quot;: Empirical Bayes estimator" Tag="EB"/>
         */
-        private static PropertyInfo<int> StatisticalModelProperty = RegisterProperty<int>(new PropertyInfo<int>("StatisticalModel", "StatisticalModel"));
+        public static readonly PropertyInfo<int> StatisticalModelProperty = RegisterProperty<int>(new PropertyInfo<int>("StatisticalModel", "StatisticalModel"));
 
         /// <summary>
         /// Not Saved in the db
@@ -235,7 +242,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> VerboseProperty = RegisterProperty<int>(new PropertyInfo<int>("Verbose", "Verbose", 0));
+        public static readonly PropertyInfo<int> VerboseProperty = RegisterProperty<int>(new PropertyInfo<int>("Verbose", "Verbose", 0));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -251,7 +258,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SignificanceLevelProperty = RegisterProperty<int>(new PropertyInfo<int>("SignificanceLevel", "SignificanceLevel", 95));
+        public static readonly PropertyInfo<int> SignificanceLevelProperty = RegisterProperty<int>(new PropertyInfo<int>("SignificanceLevel", "SignificanceLevel", 95));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -270,7 +277,7 @@ namespace BusinessLibrary.BusinessClasses
         /// <summary>
         /// Not Saved in the db
         /// </summary>
-        private static PropertyInfo<int> DecPlacesProperty = RegisterProperty<int>(new PropertyInfo<int>("DecPlaces", "DecPlaces", 4));
+        public static readonly PropertyInfo<int> DecPlacesProperty = RegisterProperty<int>(new PropertyInfo<int>("DecPlaces", "DecPlaces", 4));
         public int DecPlaces
         {
             get
@@ -283,7 +290,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> XAxisTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("XAxisTitle", "XAxisTitle", string.Empty));
+        public static readonly PropertyInfo<string> XAxisTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("XAxisTitle", "XAxisTitle", string.Empty));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -299,7 +306,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> SummaryEstimateTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("SummaryEstimateTitle", "SummaryEstimateTitle", string.Empty));
+        public static readonly PropertyInfo<string> SummaryEstimateTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("SummaryEstimateTitle", "SummaryEstimateTitle", string.Empty));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -315,7 +322,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ShowAnnotationsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAnnotations", "ShowAnnotations", true));
+        public static readonly PropertyInfo<bool> ShowAnnotationsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAnnotations", "ShowAnnotations", true));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -331,7 +338,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ShowAnnotationWeightsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAnnotationWeights", "ShowAnnotationWeights", false));
+        public static readonly PropertyInfo<bool> ShowAnnotationWeightsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAnnotationWeights", "ShowAnnotationWeights", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -347,7 +354,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> FittedValsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("FittedVals", "FittedVals", true));
+        public static readonly PropertyInfo<bool> FittedValsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("FittedVals", "FittedVals", true));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -363,7 +370,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> CredIntProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CredInt", "CredInt", false));
+        public static readonly PropertyInfo<bool> CredIntProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CredInt", "CredInt", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -379,7 +386,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ShowFunnelProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowFunnel", "ShowFunnel", false));
+        public static readonly PropertyInfo<bool> ShowFunnelProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowFunnel", "ShowFunnel", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -395,7 +402,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ShowBoxplotProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowBoxplot", "ShowBoxplot", false));
+        public static readonly PropertyInfo<bool> ShowBoxplotProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowBoxplot", "ShowBoxplot", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -525,30 +532,32 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
-                    // check for filtered out reference values and that we have at least two factors on which to compare
-                    retVal = false;
-                    bool haveAnother = false;
-                    foreach (Outcome o in this.Outcomes)
-                    {
-                        if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() == mam.Reference)
+                    if (mam.IsFactor)
+                    {// check for filtered out reference values and that we have at least two factors on which to compare
+                        retVal = false;
+                        bool haveAnother = false;
+                        foreach (Outcome o in this.Outcomes)
                         {
-                            retVal = true;
+                            if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() == mam.Reference)
+                            {
+                                retVal = true;
+                            }
+                            if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() != mam.Reference)
+                            {
+                                haveAnother = true;
+                            }
                         }
-                        if (o.IsSelected == true && o.GetType().GetProperty(mam.FieldName).GetValue(o, null).ToString() != mam.Reference)
+                        if (retVal == false || haveAnother == false)
                         {
-                            haveAnother = true;
+                            return false;
                         }
-                    }
-                    if (retVal == false || haveAnother == false)
-                    {
-                        return false;
                     }
                 }
             }
             return retVal;
         }
 
-        private static PropertyInfo<string> SortedByProperty = RegisterProperty<string>(new PropertyInfo<string>("SortedBy", "SortedBy", string.Empty));
+        public static readonly PropertyInfo<string> SortedByProperty = RegisterProperty<string>(new PropertyInfo<string>("SortedBy", "SortedBy", string.Empty));
         public string SortedBy
         {
             get
@@ -561,7 +570,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> SortDirectionProperty = RegisterProperty<string>(new PropertyInfo<string>("SortDirection", "SortDirection", string.Empty));
+        public static readonly PropertyInfo<string> SortDirectionProperty = RegisterProperty<string>(new PropertyInfo<string>("SortDirection", "SortDirection", string.Empty));
         public string SortDirection
         {
             get
@@ -577,7 +586,7 @@ namespace BusinessLibrary.BusinessClasses
 
         /* ************* NETWORK META-ANALYSIS PROPERTIES ********************/
 
-        private static PropertyInfo<int> NMAStatisticalModelProperty = RegisterProperty<int>(new PropertyInfo<int>("NMAStatisticalModel", "NMAStatisticalModel"));
+        public static readonly PropertyInfo<int> NMAStatisticalModelProperty = RegisterProperty<int>(new PropertyInfo<int>("NMAStatisticalModel", "NMAStatisticalModel"));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -593,7 +602,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> LargeValuesGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("LargeValuesGood", "LargeValuesGood", false));
+        public static readonly PropertyInfo<bool> LargeValuesGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("LargeValuesGood", "LargeValuesGood", false));
 
         public bool LargeValuesGood
         {
@@ -607,7 +616,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> NMAReferenceProperty = RegisterProperty<string>(new PropertyInfo<string>("NMAReference", "NMAReference", string.Empty));
+        public static readonly PropertyInfo<string> NMAReferenceProperty = RegisterProperty<string>(new PropertyInfo<string>("NMAReference", "NMAReference", string.Empty));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -625,7 +634,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ExponentiatedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Exponentiated", "Exponentiated", false));
+        public static readonly PropertyInfo<bool> ExponentiatedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Exponentiated", "Exponentiated", false));
         /// <summary>
         /// Not Saved in the db
         /// </summary>
@@ -641,7 +650,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> AllTreatmentsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllTreatments", "AllTreatments", true));
+        public static readonly PropertyInfo<bool> AllTreatmentsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllTreatments", "AllTreatments", true));
         public bool AllTreatments
         {
             get
@@ -657,7 +666,7 @@ namespace BusinessLibrary.BusinessClasses
 
         /* ************* Database properties *****************/
 
-        private static PropertyInfo<int> MetaAnalysisIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MetaAnalysisId", "MetaAnalysisId", 0));
+        public static readonly PropertyInfo<int> MetaAnalysisIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MetaAnalysisId", "MetaAnalysisId", 0));
         public int MetaAnalysisId
         {
             get
@@ -668,7 +677,7 @@ namespace BusinessLibrary.BusinessClasses
 
         
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -681,7 +690,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
+        public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
         public int SetId
         {
             get
@@ -694,7 +703,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdInterventionProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeIdIntervention", "AttributeIdIntervention"));
+        public static readonly PropertyInfo<Int64> AttributeIdInterventionProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeIdIntervention", "AttributeIdIntervention"));
         public Int64 AttributeIdIntervention
         {
             get
@@ -707,7 +716,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdControlProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeIdControl", "AttributeIdControl"));
+        public static readonly PropertyInfo<Int64> AttributeIdControlProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeIdControl", "AttributeIdControl"));
         public Int64 AttributeIdControl
         {
             get
@@ -720,7 +729,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdOutcomeProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeIdOutcome", "AttributeIdOutcome"));
+        public static readonly PropertyInfo<Int64> AttributeIdOutcomeProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeIdOutcome", "AttributeIdOutcome"));
         public Int64 AttributeIdOutcome
         {
             get
@@ -735,7 +744,7 @@ namespace BusinessLibrary.BusinessClasses
 
         // ****************************** THESE FIELDS ARE FOR THE GRADE ASSESSMENT OF THIS META-ANALYSIS *************************
 
-        private static PropertyInfo<int> RandomisedProperty = RegisterProperty<int>(new PropertyInfo<int>("Randomised", "Randomised"));
+        public static readonly PropertyInfo<int> RandomisedProperty = RegisterProperty<int>(new PropertyInfo<int>("Randomised", "Randomised"));
         public int Randomised
         {
             get
@@ -748,7 +757,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> RoBProperty = RegisterProperty<int>(new PropertyInfo<int>("RoB", "RoB"));
+        public static readonly PropertyInfo<int> RoBProperty = RegisterProperty<int>(new PropertyInfo<int>("RoB", "RoB"));
         public int RoB
         {
             get
@@ -761,7 +770,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> InconProperty = RegisterProperty<int>(new PropertyInfo<int>("Incon", "Incon"));
+        public static readonly PropertyInfo<int> InconProperty = RegisterProperty<int>(new PropertyInfo<int>("Incon", "Incon"));
         public int Incon
         {
             get
@@ -774,7 +783,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> IndirectProperty = RegisterProperty<int>(new PropertyInfo<int>("Indirect", "Indirect"));
+        public static readonly PropertyInfo<int> IndirectProperty = RegisterProperty<int>(new PropertyInfo<int>("Indirect", "Indirect"));
         public int Indirect
         {
             get
@@ -787,7 +796,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ImprecProperty = RegisterProperty<int>(new PropertyInfo<int>("Imprec", "Imprec"));
+        public static readonly PropertyInfo<int> ImprecProperty = RegisterProperty<int>(new PropertyInfo<int>("Imprec", "Imprec"));
         public int Imprec
         {
             get
@@ -800,7 +809,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> PubBiasProperty = RegisterProperty<int>(new PropertyInfo<int>("PubBias", "PubBias"));
+        public static readonly PropertyInfo<int> PubBiasProperty = RegisterProperty<int>(new PropertyInfo<int>("PubBias", "PubBias"));
         public int PubBias
         {
             get
@@ -813,7 +822,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> CertaintyLevelProperty = RegisterProperty<int>(new PropertyInfo<int>("CertaintyLevel", "CertaintyLevel"));
+        public static readonly PropertyInfo<int> CertaintyLevelProperty = RegisterProperty<int>(new PropertyInfo<int>("CertaintyLevel", "CertaintyLevel"));
         public int CertaintyLevel
         {
             get
@@ -826,7 +835,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> RoBCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("RoBComment", "RoBComment", string.Empty));
+        public static readonly PropertyInfo<string> RoBCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("RoBComment", "RoBComment", string.Empty));
         public string RoBComment
         {
             get
@@ -839,7 +848,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBSequenceProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBSequence", "RoBSequence", false));
+        public static readonly PropertyInfo<bool> RoBSequenceProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBSequence", "RoBSequence", false));
         public bool RoBSequence
         {
             get
@@ -852,7 +861,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBConcealmentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBConcealment", "RoBConcealment", false));
+        public static readonly PropertyInfo<bool> RoBConcealmentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBConcealment", "RoBConcealment", false));
         public bool RoBConcealment
         {
             get
@@ -865,7 +874,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBBlindingParticipantsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBBlindingParticipants", "RoBBlindingParticipants", false));
+        public static readonly PropertyInfo<bool> RoBBlindingParticipantsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBBlindingParticipants", "RoBBlindingParticipants", false));
         public bool RoBBlindingParticipants
         {
             get
@@ -878,7 +887,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBBlindingAssessorsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBBlindingAssessors", "RoBBlindingAssessors", false));
+        public static readonly PropertyInfo<bool> RoBBlindingAssessorsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBBlindingAssessors", "RoBBlindingAssessors", false));
         public bool RoBBlindingAssessors
         {
             get
@@ -891,7 +900,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBIncompleteProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBIncomplete", "RoBIncomplete", false));
+        public static readonly PropertyInfo<bool> RoBIncompleteProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBIncomplete", "RoBIncomplete", false));
         public bool RoBIncomplete
         {
             get
@@ -904,7 +913,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBSelectiveProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBSelective", "RoBSelective", false));
+        public static readonly PropertyInfo<bool> RoBSelectiveProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBSelective", "RoBSelective", false));
         public bool RoBSelective
         {
             get
@@ -917,7 +926,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBNoIntentionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBNoIntention", "RoBNoIntention", false));
+        public static readonly PropertyInfo<bool> RoBNoIntentionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBNoIntention", "RoBNoIntention", false));
         public bool RoBNoIntention
         {
             get
@@ -930,7 +939,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBCarryoverProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBCarryover", "RoBCarryover", false));
+        public static readonly PropertyInfo<bool> RoBCarryoverProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBCarryover", "RoBCarryover", false));
         public bool RoBCarryover
         {
             get
@@ -943,7 +952,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBStoppedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBStopped", "RoBStopped", false));
+        public static readonly PropertyInfo<bool> RoBStoppedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBStopped", "RoBStopped", false));
         public bool RoBStopped
         {
             get
@@ -956,7 +965,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBUnvalidatedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBUnvalidated", "RoBUnvalidated", false));
+        public static readonly PropertyInfo<bool> RoBUnvalidatedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBUnvalidated", "RoBUnvalidated", false));
         public bool RoBUnvalidated
         {
             get
@@ -969,7 +978,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> RoBOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBOther", "RoBOther", false));
+        public static readonly PropertyInfo<bool> RoBOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBOther", "RoBOther", false));
         public bool RoBOther
         {
             get
@@ -982,7 +991,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> InconCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("InconComment", "InconComment", string.Empty));
+        public static readonly PropertyInfo<string> InconCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("InconComment", "InconComment", string.Empty));
         public string InconComment
         {
             get
@@ -995,7 +1004,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> InconPointProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconPoint", "InconPoint", false));
+        public static readonly PropertyInfo<bool> InconPointProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconPoint", "InconPoint", false));
         public bool InconPoint
         {
             get
@@ -1008,7 +1017,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> InconCIsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconCIs", "InconCIs", false));
+        public static readonly PropertyInfo<bool> InconCIsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconCIs", "InconCIs", false));
         public bool InconCIs
         {
             get
@@ -1021,7 +1030,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> InconDirectionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconDirection", "InconDirection", false));
+        public static readonly PropertyInfo<bool> InconDirectionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconDirection", "InconDirection", false));
         public bool InconDirection
         {
             get
@@ -1034,7 +1043,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> InconStatisticalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconStatistical", "InconStatistical", false));
+        public static readonly PropertyInfo<bool> InconStatisticalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconStatistical", "InconStatistical", false));
         public bool InconStatistical
         {
             get
@@ -1047,7 +1056,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> InconOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconOther", "InconOther", false));
+        public static readonly PropertyInfo<bool> InconOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconOther", "InconOther", false));
         public bool InconOther
         {
             get
@@ -1060,7 +1069,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> IndirectCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("IndirectComment", "IndirectComment", string.Empty));
+        public static readonly PropertyInfo<string> IndirectCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("IndirectComment", "IndirectComment", string.Empty));
         public string IndirectComment
         {
             get
@@ -1073,7 +1082,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IndirectPopulationProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectPopulation", "IndirectPopulation", false));
+        public static readonly PropertyInfo<bool> IndirectPopulationProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectPopulation", "IndirectPopulation", false));
         public bool IndirectPopulation
         {
             get
@@ -1086,7 +1095,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IndirectOutcomeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectOutcome", "IndirectOutcome", false));
+        public static readonly PropertyInfo<bool> IndirectOutcomeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectOutcome", "IndirectOutcome", false));
         public bool IndirectOutcome
         {
             get
@@ -1099,7 +1108,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IndirectNoDirectProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectNoDirect", "IndirectNoDirect", false));
+        public static readonly PropertyInfo<bool> IndirectNoDirectProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectNoDirect", "IndirectNoDirect", false));
         public bool IndirectNoDirect
         {
             get
@@ -1112,7 +1121,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IndirectInterventionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectIntervention", "IndirectIntervention", false));
+        public static readonly PropertyInfo<bool> IndirectInterventionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectIntervention", "IndirectIntervention", false));
         public bool IndirectIntervention
         {
             get
@@ -1125,7 +1134,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IndirectTimeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectTime", "IndirectTime", false));
+        public static readonly PropertyInfo<bool> IndirectTimeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectTime", "IndirectTime", false));
         public bool IndirectTime
         {
             get
@@ -1138,7 +1147,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IndirectOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectOther", "IndirectOther", false));
+        public static readonly PropertyInfo<bool> IndirectOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectOther", "IndirectOther", false));
         public bool IndirectOther
         {
             get
@@ -1151,7 +1160,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ImprecCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("ImprecComment", "ImprecComment", string.Empty));
+        public static readonly PropertyInfo<string> ImprecCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("ImprecComment", "ImprecComment", string.Empty));
         public string ImprecComment
         {
             get
@@ -1164,7 +1173,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ImprecWideProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecWide", "ImprecWide", false));
+        public static readonly PropertyInfo<bool> ImprecWideProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecWide", "ImprecWide", false));
         public bool ImprecWide
         {
             get
@@ -1177,7 +1186,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ImprecFewProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecFew", "ImprecFew", false));
+        public static readonly PropertyInfo<bool> ImprecFewProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecFew", "ImprecFew", false));
         public bool ImprecFew
         {
             get
@@ -1190,7 +1199,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ImprecOnlyOneProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecOnlyOne", "ImprecOnlyOne", false));
+        public static readonly PropertyInfo<bool> ImprecOnlyOneProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecOnlyOne", "ImprecOnlyOne", false));
         public bool ImprecOnlyOne
         {
             get
@@ -1203,7 +1212,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ImprecOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecOther", "ImprecOther", false));
+        public static readonly PropertyInfo<bool> ImprecOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecOther", "ImprecOther", false));
         public bool ImprecOther
         {
             get
@@ -1216,7 +1225,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> PubBiasCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("PubBiasComment", "PubBiasComment", string.Empty));
+        public static readonly PropertyInfo<string> PubBiasCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("PubBiasComment", "PubBiasComment", string.Empty));
         public string PubBiasComment
         {
             get
@@ -1229,7 +1238,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> PubBiasCommerciallyProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasCommercially", "PubBiasCommercially", false));
+        public static readonly PropertyInfo<bool> PubBiasCommerciallyProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasCommercially", "PubBiasCommercially", false));
         public bool PubBiasCommercially
         {
             get
@@ -1242,7 +1251,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> PubBiasAsymmetricalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasAsymmetrical", "PubBiasAsymmetrical", false));
+        public static readonly PropertyInfo<bool> PubBiasAsymmetricalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasAsymmetrical", "PubBiasAsymmetrical", false));
         public bool PubBiasAsymmetrical
         {
             get
@@ -1255,7 +1264,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> PubBiasLimitedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasLimited", "PubBiasLimited", false));
+        public static readonly PropertyInfo<bool> PubBiasLimitedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasLimited", "PubBiasLimited", false));
         public bool PubBiasLimited
         {
             get
@@ -1268,7 +1277,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> PubBiasMissingProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasMissing", "PubBiasMissing", false));
+        public static readonly PropertyInfo<bool> PubBiasMissingProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasMissing", "PubBiasMissing", false));
         public bool PubBiasMissing
         {
             get
@@ -1281,7 +1290,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> PubBiasDiscontinuedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasDiscontinued", "PubBiasDiscontinued", false));
+        public static readonly PropertyInfo<bool> PubBiasDiscontinuedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasDiscontinued", "PubBiasDiscontinued", false));
         public bool PubBiasDiscontinued
         {
             get
@@ -1294,7 +1303,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> PubBiasDiscrepancyProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasDiscrepancy", "PubBiasDiscrepancy", false));
+        public static readonly PropertyInfo<bool> PubBiasDiscrepancyProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasDiscrepancy", "PubBiasDiscrepancy", false));
         public bool PubBiasDiscrepancy
         {
             get
@@ -1307,7 +1316,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> PubBiasOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasOther", "PubBiasOther", false));
+        public static readonly PropertyInfo<bool> PubBiasOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasOther", "PubBiasOther", false));
         public bool PubBiasOther
         {
             get
@@ -1320,7 +1329,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> UpgradeCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("UpgradeComment", "UpgradeComment", string.Empty));
+        public static readonly PropertyInfo<string> UpgradeCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("UpgradeComment", "UpgradeComment", string.Empty));
         public string UpgradeComment
         {
             get
@@ -1333,7 +1342,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> UpgradeLargeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeLarge", "UpgradeLarge", false));
+        public static readonly PropertyInfo<bool> UpgradeLargeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeLarge", "UpgradeLarge", false));
         public bool UpgradeLarge
         {
             get
@@ -1346,7 +1355,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> UpgradeVeryLargeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeVeryLarge", "UpgradeVeryLarge", false));
+        public static readonly PropertyInfo<bool> UpgradeVeryLargeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeVeryLarge", "UpgradeVeryLarge", false));
         public bool UpgradeVeryLarge
         {
             get
@@ -1359,7 +1368,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> UpgradeAllPlausibleProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeAllPlausible", "UpgradeAllPlausible", false));
+        public static readonly PropertyInfo<bool> UpgradeAllPlausibleProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeAllPlausible", "UpgradeAllPlausible", false));
         public bool UpgradeAllPlausible
         {
             get
@@ -1372,7 +1381,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> UpgradeClearProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeClear", "UpgradeClear", false));
+        public static readonly PropertyInfo<bool> UpgradeClearProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeClear", "UpgradeClear", false));
         public bool UpgradeClear
         {
             get
@@ -1385,7 +1394,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> UpgradeNoneProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeNone", "UpgradeNone", false));
+        public static readonly PropertyInfo<bool> UpgradeNoneProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeNone", "UpgradeNone", false));
         public bool UpgradeNone
         {
             get
@@ -1398,7 +1407,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> CertaintyLevelCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("CertaintyLevelComment", "CertaintyLevelComment", string.Empty));
+        public static readonly PropertyInfo<string> CertaintyLevelCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("CertaintyLevelComment", "CertaintyLevelComment", string.Empty));
         public string CertaintyLevelComment
         {
             get
@@ -1441,7 +1450,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> MetaAnalysisTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MetaAnalysisTypeId", "MetaAnalysisTypeId"));
+        public static readonly PropertyInfo<int> MetaAnalysisTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MetaAnalysisTypeId", "MetaAnalysisTypeId"));
         public int MetaAnalysisTypeId
         {
             get
@@ -1454,7 +1463,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> MetaAnalysisTypeTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("MetaAnalysisTypeTitle", "MetaAnalysisTypeTitle", string.Empty));
+        public static readonly PropertyInfo<string> MetaAnalysisTypeTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("MetaAnalysisTypeTitle", "MetaAnalysisTypeTitle", string.Empty));
         public string MetaAnalysisTypeTitle
         {
             get
@@ -1467,7 +1476,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> InterventionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("InterventionText", "InterventionText", string.Empty));
+        public static readonly PropertyInfo<string> InterventionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("InterventionText", "InterventionText", string.Empty));
         public string InterventionText
         {
             get
@@ -1476,7 +1485,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ControlTextProperty = RegisterProperty<string>(new PropertyInfo<string>("ControlText", "ControlText", string.Empty));
+        public static readonly PropertyInfo<string> ControlTextProperty = RegisterProperty<string>(new PropertyInfo<string>("ControlText", "ControlText", string.Empty));
         public string ControlText
         {
             get
@@ -1485,7 +1494,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> OutcomeTextProperty = RegisterProperty<string>(new PropertyInfo<string>("OutcomeText", "OutcomeText", string.Empty));
+        public static readonly PropertyInfo<string> OutcomeTextProperty = RegisterProperty<string>(new PropertyInfo<string>("OutcomeText", "OutcomeText", string.Empty));
         public string OutcomeText
         {
             get
@@ -1494,7 +1503,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<OutcomeList> OutcomesProperty = RegisterProperty<OutcomeList>(new PropertyInfo<OutcomeList>("Outcomes", "Outcomes"));
+        public static readonly PropertyInfo<OutcomeList> OutcomesProperty = RegisterProperty<OutcomeList>(new PropertyInfo<OutcomeList>("Outcomes", "Outcomes"));
         public OutcomeList Outcomes
         {
             get
@@ -1507,7 +1516,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<MetaAnalysisModeratorList> MetaAnalysisModeratorsProperty = RegisterProperty<MetaAnalysisModeratorList>(new PropertyInfo<MetaAnalysisModeratorList>("MetaAnalysisModerators", "MetaAnalysisModerators"));
+        public static readonly PropertyInfo<MetaAnalysisModeratorList> MetaAnalysisModeratorsProperty = RegisterProperty<MetaAnalysisModeratorList>(new PropertyInfo<MetaAnalysisModeratorList>("MetaAnalysisModerators", "MetaAnalysisModerators"));
         public MetaAnalysisModeratorList MetaAnalysisModerators
         {
             get
@@ -1520,7 +1529,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeIdQuestionProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIdQuestion", "AttributeIdQuestion", string.Empty));
+        public static readonly PropertyInfo<string> AttributeIdQuestionProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIdQuestion", "AttributeIdQuestion", string.Empty));
         public string AttributeIdQuestion
         {
             get
@@ -1533,7 +1542,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeQuestionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeQuestionText", "AttributeQuestionText", string.Empty));
+        public static readonly PropertyInfo<string> AttributeQuestionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeQuestionText", "AttributeQuestionText", string.Empty));
         public string AttributeQuestionText
         {
             get
@@ -1546,7 +1555,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeIdAnswerProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIdAnswer", "AttributeIdAnswer", string.Empty));
+        public static readonly PropertyInfo<string> AttributeIdAnswerProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIdAnswer", "AttributeIdAnswer", string.Empty));
         public string AttributeIdAnswer
         {
             get
@@ -1559,7 +1568,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeAnswerTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeAnswerText", "AttributeAnswerText", string.Empty));
+        public static readonly PropertyInfo<string> AttributeAnswerTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeAnswerText", "AttributeAnswerText", string.Empty));
         public string AttributeAnswerText
         {
             get
@@ -1572,7 +1581,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> GridSettingsProperty = RegisterProperty<string>(new PropertyInfo<string>("GridSettings", "GridSettings", string.Empty));
+        public static readonly PropertyInfo<string> GridSettingsProperty = RegisterProperty<string>(new PropertyInfo<string>("GridSettings", "GridSettings", string.Empty));
         public string GridSettings
         {
             get
@@ -1586,7 +1595,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        private static PropertyInfo<MetaAnalysisFilterSettingList> FilterSettingsListProperty = RegisterProperty<MetaAnalysisFilterSettingList>(new PropertyInfo<MetaAnalysisFilterSettingList>("FilterSettingsList", "FilterSettingsList"));
+        public static readonly PropertyInfo<MetaAnalysisFilterSettingList> FilterSettingsListProperty = RegisterProperty<MetaAnalysisFilterSettingList>(new PropertyInfo<MetaAnalysisFilterSettingList>("FilterSettingsList", "FilterSettingsList"));
         public MetaAnalysisFilterSettingList FilterSettingsList
         {
             get
@@ -1602,7 +1611,7 @@ namespace BusinessLibrary.BusinessClasses
 
         /* ************* Calculated properties *****************/
         //none of them saves to the DB => all use "LoadProperty(...)" to set their value (we don't want the object to be dirty when we change these vals).
-        private static PropertyInfo<Byte[]> feForestPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("feForestPlot", "feForestPlot"));
+        public static readonly PropertyInfo<Byte[]> feForestPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("feForestPlot", "feForestPlot"));
         public Byte[] feForestPlot
         {
             get
@@ -1615,7 +1624,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Byte[]> reForestPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("reForestPlot", "reForestPlot"));
+        public static readonly PropertyInfo<Byte[]> reForestPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("reForestPlot", "reForestPlot"));
         public Byte[] reForestPlot
         {
             get
@@ -1628,7 +1637,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Byte[]> feFunnelPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("feFunnelPlot", "feFunnelPlot"));
+        public static readonly PropertyInfo<Byte[]> feFunnelPlotProperty = RegisterProperty<Byte[]>(new PropertyInfo<Byte[]>("feFunnelPlot", "feFunnelPlot"));
         public Byte[] feFunnelPlot
         {
             get
@@ -1641,7 +1650,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> feSumWeightProperty = RegisterProperty<double>(new PropertyInfo<double>("feSumWeight", "feSumWeight"));
+        public static readonly PropertyInfo<double> feSumWeightProperty = RegisterProperty<double>(new PropertyInfo<double>("feSumWeight", "feSumWeight"));
         public double feSumWeight // just used when sending objects to the forest plotter.
         {
             get
@@ -1654,7 +1663,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> reSumWeightProperty = RegisterProperty<double>(new PropertyInfo<double>("reSumWeight", "reSumWeight"));
+        public static readonly PropertyInfo<double> reSumWeightProperty = RegisterProperty<double>(new PropertyInfo<double>("reSumWeight", "reSumWeight"));
         public double reSumWeight // just used when sending objects to the forest plotter.
         {
             get
@@ -1667,112 +1676,112 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> _feEffect = RegisterProperty<double>(new PropertyInfo<double>("feEffect", "feEffect"));
+        public static readonly PropertyInfo<double> _feEffect = RegisterProperty<double>(new PropertyInfo<double>("feEffect", "feEffect"));
         public double feEffect
         {
             get { return ReadProperty(_feEffect); }
             set { LoadProperty(_feEffect, value); }
         }
 
-        private static PropertyInfo<double> _feSE = RegisterProperty<double>(new PropertyInfo<double>("feSE", "feSE"));
+        public static readonly PropertyInfo<double> _feSE = RegisterProperty<double>(new PropertyInfo<double>("feSE", "feSE"));
         public double feSE
         {
             get { return ReadProperty(_feSE); }
             set { LoadProperty(_feSE, value); }
         }
 
-        private static PropertyInfo<double> _feCiUpper = RegisterProperty<double>(new PropertyInfo<double>("_feCiUpper", "_feCiUpper"));
+        public static readonly PropertyInfo<double> _feCiUpper = RegisterProperty<double>(new PropertyInfo<double>("_feCiUpper", "_feCiUpper"));
         public double feCiUpper
         {
             get { return ReadProperty(_feCiUpper); }
             set { LoadProperty(_feCiUpper, value); }
         }
 
-        private static PropertyInfo<double> _feCiLower = RegisterProperty<double>(new PropertyInfo<double>("_feCiLower", "_feCiLower"));
+        public static readonly PropertyInfo<double> _feCiLower = RegisterProperty<double>(new PropertyInfo<double>("_feCiLower", "_feCiLower"));
         public double feCiLower
         {
             get { return ReadProperty(_feCiLower); }
             set { LoadProperty(_feCiLower, value); }
         }
 
-        private static PropertyInfo<double> _reEffect = RegisterProperty<double>(new PropertyInfo<double>("reEffect", "reEffect"));
+        public static readonly PropertyInfo<double> _reEffect = RegisterProperty<double>(new PropertyInfo<double>("reEffect", "reEffect"));
         public double reEffect
         {
             get { return ReadProperty(_reEffect); }
             set { LoadProperty(_reEffect, value); }
         }
 
-        private static PropertyInfo<double> _reSE = RegisterProperty<double>(new PropertyInfo<double>("reSE", "reSE"));
+        public static readonly PropertyInfo<double> _reSE = RegisterProperty<double>(new PropertyInfo<double>("reSE", "reSE"));
         public double reSE
         {
             get { return ReadProperty(_reSE); }
             set { LoadProperty(_reSE, value); }
         }
 
-        private static PropertyInfo<double> _reCiUpper = RegisterProperty<double>(new PropertyInfo<double>("_reCiUpper", "_reCiUpper"));
+        public static readonly PropertyInfo<double> _reCiUpper = RegisterProperty<double>(new PropertyInfo<double>("_reCiUpper", "_reCiUpper"));
         public double reCiUpper
         {
             get { return ReadProperty(_reCiUpper); }
             set { LoadProperty(_reCiUpper, value); }
         }
 
-        private static PropertyInfo<double> _reCiLower = RegisterProperty<double>(new PropertyInfo<double>("_reCiLower", "_reCiLower"));
+        public static readonly PropertyInfo<double> _reCiLower = RegisterProperty<double>(new PropertyInfo<double>("_reCiLower", "_reCiLower"));
         public double reCiLower
         {
             get { return ReadProperty(_reCiLower); }
             set { LoadProperty(_reCiLower, value); }
         }
 
-        private static PropertyInfo<double> _tauSquared = RegisterProperty<double>(new PropertyInfo<double>("_tauSquared", "_tauSquared"));
+        public static readonly PropertyInfo<double> _tauSquared = RegisterProperty<double>(new PropertyInfo<double>("_tauSquared", "_tauSquared"));
         public double tauSquared
         {
             get { return ReadProperty(_tauSquared); }
             set { LoadProperty(_tauSquared, value); }
         }
 
-        private static PropertyInfo<double> _Q = RegisterProperty<double>(new PropertyInfo<double>("_Q", "_Q"));
+        public static readonly PropertyInfo<double> _Q = RegisterProperty<double>(new PropertyInfo<double>("_Q", "_Q"));
         public double Q
         {
             get { return ReadProperty(_Q); }
             set { LoadProperty(_Q, value); }
         }
 
-        private static PropertyInfo<double> _reQ = RegisterProperty<double>(new PropertyInfo<double>("_reQ", "_reQ"));
+        public static readonly PropertyInfo<double> _reQ = RegisterProperty<double>(new PropertyInfo<double>("_reQ", "_reQ"));
         public double reQ
         {
             get { return ReadProperty(_reQ); }
             set { LoadProperty(_reQ, value); }
         }
 
-        private static PropertyInfo<double> _numStudies = RegisterProperty<double>(new PropertyInfo<double>("_numStudies", "_numStudies"));
+        public static readonly PropertyInfo<double> _numStudies = RegisterProperty<double>(new PropertyInfo<double>("_numStudies", "_numStudies"));
         public double numStudies
         {
             get { return ReadProperty(_numStudies); }
             set { LoadProperty(_numStudies, value); }
         }
 
-        private static PropertyInfo<double> _FileDrawerZ = RegisterProperty<double>(new PropertyInfo<double>("_FileDrawerZ", "_FileDrawerZ"));
+        public static readonly PropertyInfo<double> _FileDrawerZ = RegisterProperty<double>(new PropertyInfo<double>("_FileDrawerZ", "_FileDrawerZ"));
         public double FileDrawerZ
         {
             get { return ReadProperty(_FileDrawerZ); }
             set { LoadProperty(_FileDrawerZ, value); }
         }
 
-        private static PropertyInfo<double> _sumWeightsSquared = RegisterProperty<double>(new PropertyInfo<double>("_sumWeightsSquared", "_sumWeightsSquared"));
+        public static readonly PropertyInfo<double> _sumWeightsSquared = RegisterProperty<double>(new PropertyInfo<double>("_sumWeightsSquared", "_sumWeightsSquared"));
         public double sumWeightsSquared
         {
             get { return ReadProperty(_sumWeightsSquared); }
             set { LoadProperty(_sumWeightsSquared, value); }
         }
 
-        private static PropertyInfo<double> _reSumWeightsTimesOutcome = RegisterProperty<double>(new PropertyInfo<double>("_reSumWeightsTimesOutcome", "_reSumWeightsTimesOutcome"));
+        public static readonly PropertyInfo<double> _reSumWeightsTimesOutcome = RegisterProperty<double>(new PropertyInfo<double>("_reSumWeightsTimesOutcome", "_reSumWeightsTimesOutcome"));
         public double reSumWeightsTimesOutcome
         {
             get { return ReadProperty(_reSumWeightsTimesOutcome); }
             set { LoadProperty(_reSumWeightsTimesOutcome, value); }
         }
 
-        private static PropertyInfo<double> _WY_squared = RegisterProperty<double>(new PropertyInfo<double>("_WY_squared", "_WY_squared"));
+        public static readonly PropertyInfo<double> _WY_squared = RegisterProperty<double>(new PropertyInfo<double>("_WY_squared", "_WY_squared"));
         public double WY_squared
         {
             get { return ReadProperty(_WY_squared); }
@@ -2126,6 +2135,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
 
                     LoadProperty(MetaAnalysisIdProperty, command.Parameters["@NEW_META_ANALYSIS_ID"].Value);
+                    SetMAidInChildren();
                     if (AttributeIdAnswer != "")
                         LoadProperty(AttributeAnswerTextProperty, command.Parameters["@ATTRIBUTE_ANSWER_TEXT"].Value);
                     else
@@ -2142,6 +2152,13 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Close();
             }
         }
+        private void SetMAidInChildren()
+        {
+            foreach (MetaAnalysisFilterSetting fs in FilterSettingsList)
+            {
+                fs.MetaAnalysisId = this.MetaAnalysisId;
+            }
+        }
         private void SaveFilterSettings()
         {
             bool settingsSaved = false;
@@ -2150,6 +2167,12 @@ namespace BusinessLibrary.BusinessClasses
                 if (el.IsDirty == true)
                 {
                     settingsSaved = true;
+                    MetaAnalysisFilterSetting throwAway = el.Save();
+                }
+                else if (el.IsClear)
+                {
+                    settingsSaved = true;
+                    el.Delete();
                     MetaAnalysisFilterSetting throwAway = el.Save();
                 }
             }
@@ -2178,9 +2201,43 @@ namespace BusinessLibrary.BusinessClasses
             return retVal;
         }
 
-        protected void DataPortal_Fetch(SingleCriteria<MetaAnalysis, int> criteria)
+        protected void DataPortal_Fetch(MetaAnalysisSelectionCrit criteria)
         {
-            
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MetaAnalysis", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@META_ANALYSIS_ID", criteria.MetaAnalysisId));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            MetaAnalysis.FillMetaAnalysis(this, reader);
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            if (criteria.GetAllDetails)
+            {
+                GetAllDetails();
+            }
+        }
+        private void GetAllDetails()
+        {
+            OutcomeList.OutcomeListSelectionCriteria c2 = new OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), SetId, AttributeIdIntervention,
+                AttributeIdControl, AttributeIdOutcome, 0, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
+            OutcomeList outcomes = DataPortal.Fetch<OutcomeList>(c2);
+            if (outcomes != null)
+            {
+                SetOutcomesList(outcomes);
+                Outcomes.SetMetaAnalysisType(MetaAnalysisTypeId);
+                SetupModeratorList();
+            }
         }
 
         protected override void DataPortal_DeleteSelf()
@@ -2198,10 +2255,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        /* SHOULD BE POSSIBLE TO REMOVE PROPERTIES RELATING TO INTERVENTION / OUTCOME / CONTROL ONCE WE ARE USING THE NEW MA INTERFACE */
         internal static MetaAnalysis GetMetaAnalysis(SafeDataReader reader)
         {
             MetaAnalysis returnValue = new MetaAnalysis();
+            FillMetaAnalysis(returnValue, reader);
+            return returnValue;
+        }
+            /* SHOULD BE POSSIBLE TO REMOVE PROPERTIES RELATING TO INTERVENTION / OUTCOME / CONTROL ONCE WE ARE USING THE NEW MA INTERFACE */
+        internal static MetaAnalysis FillMetaAnalysis(MetaAnalysis returnValue, SafeDataReader reader)
+        {
             returnValue.LoadProperty<int>(MetaAnalysisIdProperty, reader.GetInt32("META_ANALYSIS_ID"));
             returnValue.LoadProperty<string>(TitleProperty, reader.GetString("META_ANALYSIS_TITLE"));
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
@@ -2476,7 +2538,35 @@ namespace BusinessLibrary.BusinessClasses
         }
 
      }
+}
+[Serializable]
+public class MetaAnalysisSelectionCrit : BusinessBase
+{
+    public MetaAnalysisSelectionCrit() { }
+    public static MetaAnalysisSelectionCrit CreateMetaAnalysisSelectionCrit(int MetaAnId, bool getAllDetails = false)
+    {
+        MetaAnalysisSelectionCrit res = new MetaAnalysisSelectionCrit();
+        res.MetaAnalysisId = MetaAnId;
+        res.GetAllDetails = getAllDetails;
+        return res;
+    }
+    public static readonly PropertyInfo<bool> GetAllDetailsProperty = RegisterProperty<bool>(typeof(MetaAnalysisSelectionCrit), new PropertyInfo<bool>("GetAllDetails", "GetAllDetails", false));
+    public bool GetAllDetails
+    {
+        get { return ReadProperty(GetAllDetailsProperty); }
+        set
+        {
+            SetProperty(GetAllDetailsProperty, value);
+        }
+    }
 
-   
-
+    public static readonly PropertyInfo<int> MetaAnalysisIdProperty = RegisterProperty<int>(typeof(MetaAnalysisSelectionCrit), new PropertyInfo<int>("MetaAnalysisId", "MetaAnalysisId", 0));
+    public int MetaAnalysisId
+    {
+        get { return ReadProperty(MetaAnalysisIdProperty); }
+        set
+        {
+            SetProperty(MetaAnalysisIdProperty, value);
+        }
+    }
 }

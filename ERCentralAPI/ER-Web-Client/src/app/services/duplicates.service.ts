@@ -476,7 +476,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             });
     }
   public DoSort() {
-    CustomSorting.DoSort(this.DuplicateGroups.WholeList, this.LocalSort);
+    this.DuplicateGroups.WholeList = CustomSorting.DoSort(this.DuplicateGroups.WholeList, this.LocalSort);
     //    //console.log("doSort", this.LocalSort);
     //    if (this.DuplicateGroups.WholeList.length == 0 || this.LocalSort.SortBy == "") return;
     //    for (let property of Object.getOwnPropertyNames(this.DuplicateGroups.WholeList[0])) {

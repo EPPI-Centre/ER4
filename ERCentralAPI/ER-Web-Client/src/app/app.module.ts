@@ -130,6 +130,14 @@ import { ZoteroManagerComponent } from './Zotero/ZoteroManager.component';
 import { ZoteroSetupComponent } from './Zotero/ZoteroSetup.component';
 import { ZoteroSyncComponent } from './Zotero/ZoteroSync.component';
 import { ZoteroHeaderBarComp } from './commonComponents/ZoteroHeaderBar.component';
+import { MetaAnalysisComp } from './MetaAnalysis/MetaAnalysis.component';
+import { MetaAnalysisDetailsComp } from './MetaAnalysis/MetaAnalysisDetails.component';
+import { MAoutcomesComp } from './MetaAnalysis/MAoutcomes.component';
+import { FilterOutcomesFormComp } from './MetaAnalysis/FilterOutcomesForm.component';
+import { MAmoderatorsComp } from './MetaAnalysis/MAmoderators.component';
+import { MAaddOutcomesColumnComp } from './MetaAnalysis/MAaddOutcomesColumn.component';
+import { MetaAnalysisRunComp } from './MetaAnalysis/MetaAnalysisRun.component';
+import { MetaAnalysisRunNetworkComp } from './MetaAnalysis/MetaAnalysisRunNetwork.component'
 
 
 
@@ -149,7 +157,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
             if (x.status !== 404) {
               resolve(false);
             }
-            config.baseUrl = fallback ;
+            config.baseUrl = fallback;
             resolve(true);
             return of({});
           })
@@ -257,7 +265,15 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     ZoteroManagerComponent,
     ZoteroSetupComponent,
     ZoteroSyncComponent,
-    ZoteroHeaderBarComp
+    ZoteroHeaderBarComp,
+    MetaAnalysisComp,
+    MetaAnalysisDetailsComp,
+    MAoutcomesComp,
+    FilterOutcomesFormComp,
+    MAmoderatorsComp,
+    MAaddOutcomesColumnComp,
+    MetaAnalysisRunComp,
+    MetaAnalysisRunNetworkComp
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -317,6 +333,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'SiteAdmin', component: SiteAdminComponent },
       { path: 'WebDBs', component: WebDBsComponent },
       { path: 'Zotero', component: ZoteroManagerComponent },
+      { path: 'MetaAnalysis', component: MetaAnalysisComp },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,
@@ -346,7 +363,6 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
   ],
-  entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

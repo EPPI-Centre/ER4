@@ -25,16 +25,12 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MetaAnalysisModerator : BusinessBase<MetaAnalysisModerator>
     {
-#if SILVERLIGHT
     public MetaAnalysisModerator()
     {
         this.References = new MetaAnalysisModeratorReferenceList();
     }
 
-        
-#else
-        public MetaAnalysisModerator() {  }
-#endif
+  
 
     public override string ToString()
         {
@@ -49,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
         //    }
         //}
         
-        private static PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
+        public static readonly PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
         public string Name
         {
             get
@@ -62,7 +58,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> FieldNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldName", "FieldName", string.Empty));
+        public static readonly PropertyInfo<string> FieldNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldName", "FieldName", string.Empty));
         public string FieldName
         {
             get
@@ -75,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeID", "AttributeID", 0.0));
+        public static readonly PropertyInfo<Int64> AttributeIDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeID", "AttributeID", 0.0));
         public Int64 AttributeID
         {
             get
@@ -88,7 +84,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ReferenceProperty = RegisterProperty<string>(new PropertyInfo<string>("Reference", "Reference", string.Empty));
+        public static readonly PropertyInfo<string> ReferenceProperty = RegisterProperty<string>(new PropertyInfo<string>("Reference", "Reference", string.Empty));
         public string Reference
         {
             get
@@ -102,7 +98,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        private static PropertyInfo<MetaAnalysisModeratorReferenceList> ReferencesProperty = RegisterProperty<MetaAnalysisModeratorReferenceList>(new PropertyInfo<MetaAnalysisModeratorReferenceList>("References", "References"));
+        public static readonly PropertyInfo<MetaAnalysisModeratorReferenceList> ReferencesProperty = RegisterProperty<MetaAnalysisModeratorReferenceList>(new PropertyInfo<MetaAnalysisModeratorReferenceList>("References", "References"));
         public MetaAnalysisModeratorReferenceList References
         {
             get
@@ -135,7 +131,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
+        public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
         public bool IsSelected
         {
             get
@@ -148,7 +144,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsFactorProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFactor", "IsFactor", false));
+        public static readonly PropertyInfo<bool> IsFactorProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFactor", "IsFactor", false));
         public bool IsFactor
         {
             get

@@ -152,7 +152,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
   }
   public FetchItemTypes() {
     this._BusyMethods.push("FetchItemTypes");
-    this._httpC.get<KeyValue[]>(this._baseUrl + 'api/ItemList/ItemTypes')
+    this._httpC.get<StringKeyValue[]>(this._baseUrl + 'api/ItemList/ItemTypes')
       .subscribe(
         (res) => {
           this.RemoveBusy("FetchItemTypes");
@@ -1047,7 +1047,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 
   private static FindKeywordSeparator(Keywords: string): RegExp[]{
     let res: RegExp[] = [];
-    let scores: KeyValue[] = [];
+    let scores: StringKeyValue[] = [];
     const len = Keywords.length;
     if (len <= 6) return res;
     const separators4Keywords: RegExp[] = [new RegExp("\r\n", "g"), new RegExp("\r", "g"), new RegExp("\n", "g"), new RegExp(";", "g")
@@ -1073,7 +1073,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         //matched something, but not too much, so might be one of many separators
         matchesCount = matchesCount + OneSepCnt;
         res.push(re);
-        const kvp = new KeyValue(re.source, OneSepCnt.toString());
+        const kvp = new StringKeyValue(re.source, OneSepCnt.toString());
         scores.push(kvp);//used later, perhaps, for sorting our separators that match
       }
     }
@@ -1381,7 +1381,7 @@ export interface iItemDuplicatesReadOnly {
   shortTitle: string;
   sourceName: string;
 }
-export class KeyValue {//used in more than one place...
+export class StringKeyValue {//used in more than one place...
   constructor(k: string, v: string) {
     this.key = k;
     this.value = v;

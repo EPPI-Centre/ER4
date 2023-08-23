@@ -380,9 +380,14 @@ namespace EppiReviewer4
                     else if (_currentSelectedMetaAnalysis.SortedBy == "ControlText") colname = "ComparisonColumn";
                     else if (_currentSelectedMetaAnalysis.SortedBy == "grp1ArmName") colname = "Arm1Column";
                     else if (_currentSelectedMetaAnalysis.SortedBy == "grp2ArmName") colname = "Arm2Column";
-                    csd.Column = GridViewMetaStudies.Columns[colname];
-                    csd.SortDirection = _currentSelectedMetaAnalysis.SortDirection == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
-                    GridViewMetaStudies.SortDescriptors.Add(csd);
+                    GridViewColumn colToSort = GridViewMetaStudies.Columns[colname];
+                    if (colToSort != null)
+                    {
+                        csd.Column = GridViewMetaStudies.Columns[colname];
+                        csd.SortDirection = _currentSelectedMetaAnalysis.SortDirection == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
+                        GridViewMetaStudies.SortDescriptors.Add(csd);
+                    }
+                    
                     //GridViewMetaStudies.InvalidateArrange();
                     //GridViewMetaStudies.Rebind();
                     //GridViewMetaStudies.UpdateLayout();
@@ -416,6 +421,14 @@ namespace EppiReviewer4
                                         {//these cols refer to int values
                                             int intVal;
                                             if (int.TryParse(selval, out intVal)) colFilter.DistinctFilter.AddDistinctValue(intVal);
+                                        }
+                                        else if (col.UniqueName == "ESColumn" || col.UniqueName == "SEESColumn")
+                                        {
+                                            double dVal;
+                                            if (double.TryParse(selval, out dVal))
+                                            {
+                                                colFilter.DistinctFilter.AddDistinctValue(dVal);
+                                            }
                                         }
                                         else colFilter.DistinctFilter.AddDistinctValue(selval);
 
@@ -878,7 +891,9 @@ namespace EppiReviewer4
                     string aggregateVals = "";
                     foreach (object distinctValueObj in e.ColumnFilterDescriptor.DistinctFilter.DistinctValues)
                     {
-                        string valStr = distinctValueObj.ToString();
+                        string valStr = "";
+                        if (colName =="ESColumn" || colName == "SEESColumn") valStr = ((double)distinctValueObj).ToString("G17");
+                        else valStr = distinctValueObj.ToString();
                         aggregateVals += valStr + "{¬}";
                     }
                     if (aggregateVals != "") aggregateVals = aggregateVals.Substring(0, aggregateVals.Length - 3);

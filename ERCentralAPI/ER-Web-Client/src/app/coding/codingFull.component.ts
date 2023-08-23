@@ -52,6 +52,50 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private _outcomeService: OutcomesService
   ) { }
 
+  ngOnInit() {
+    //console.log('init!');
+
+    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+      this.router.navigate(['home']);
+    }
+    else {
+      this.RefreshTerms();
+
+      this.ArmTimepointLinkListService.armChangedEE.subscribe(() => {
+        if (this.ArmTimepointLinkListService.SelectedArm) this.SetArmCoding(this.ArmTimepointLinkListService.SelectedArm.itemArmId);
+        else this.SetArmCoding(0);
+      });
+      //this.timePointsService.gotNewTimepoints.subscribe(() => {
+
+      //    console.log('need to do something here of course....');
+      //});
+      this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
+        this.ShowLiveComparison = !this.ShowLiveComparison;
+      })
+      this.subItemIDinPath = this.route.params.subscribe((params: any) => {
+        this.itemString = params['itemId'];
+        this.GetItem();
+        //console.log('coding full sajdhfkjasfdh: ' + this.itemID);
+      });
+      this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
+
+        () => {
+          //console.log('ItemCodingService data changed event caught');
+          if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
+            this.SetCoding();
+          }
+        }
+      );
+      this.ReloadItemCoding = this.ReviewSetsService.GetReviewStatsEmit.subscribe(
+        () => { this.SetCoding(); }
+      );
+      this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+      this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
+
+      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
+      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
+    }
+  }
   @ViewChild('ArmsCmp')
   private ArmsCompRef!: any;
   @ViewChild('TimePointsComp')
@@ -110,83 +154,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     this.ReviewerIdentityServ.SaveOptions();//otherwise they won't persist...
   }
   public EditCodesPanel: string = "";
-  ngOnInit() {
-    //console.log('init!');
 
-    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-      this.router.navigate(['home']);
-    }
-    else {
-
-
-
-      this.RefreshTerms();
-      this.outcomeSubscription = this._outcomeService.outcomesChangedEE.subscribe(
-
-        (res: any) => {
-
-          var selectedNode = res as SetAttribute;
-
-          if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
-
-            console.log('a node has been selected');
-            var itemSet = this.ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
-            if (itemSet != null) {
-              this._outcomeService.ItemSetId = itemSet.itemSetId;
-              this._outcomeService.FetchOutcomes(itemSet.itemSetId);
-              //this._outcomeService.outcomesList = itemSet.OutcomeList;
-            }
-            this.ShowingOutComes();
-
-          } else {
-
-            console.log('a code is not selected');
-            if (this.OutcomesCmpRef) {
-              console.log('inside OutcomesCmpRef');
-              this._outcomeService.outcomesList = [];
-              this.OutcomesCmpRef.ShowOutcomesList = false;
-              this.ShowingOutComes();
-            }
-          }
-        }
-        // ERROR HANDLING IN HERE NEXT....
-      );
-
-      this.ArmTimepointLinkListService.armChangedEE.subscribe(() => {
-        if (this.ArmTimepointLinkListService.SelectedArm) this.SetArmCoding(this.ArmTimepointLinkListService.SelectedArm.itemArmId);
-        else this.SetArmCoding(0);
-      });
-      //this.timePointsService.gotNewTimepoints.subscribe(() => {
-
-      //    console.log('need to do something here of course....');
-      //});
-      this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
-        this.ShowLiveComparison = !this.ShowLiveComparison;
-      })
-      this.subItemIDinPath = this.route.params.subscribe((params:any) => {
-        this.itemString = params['itemId'];
-        this.GetItem();
-        //console.log('coding full sajdhfkjasfdh: ' + this.itemID);
-      });
-      this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
-
-        () => {
-          console.log('ItemCodingService data changed event caught');
-          if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
-            this.SetCoding();
-          }
-        }
-      );
-      this.ReloadItemCoding = this.ReviewSetsService.GetReviewStatsEmit.subscribe(
-        () => { this.SetCoding(); }
-      );
-      this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
-      this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
-
-      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
-      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
-    }
+  public get HasOutcomeUnsavedChanges(): boolean {
+    if (this.ShowOutComes == false) return false;
+    else return this._outcomeService.currentOutcomeHasChanges;
   }
+
+
   public RefreshTerms() {
 
     // need to reload the page 
@@ -195,9 +169,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     this.ReviewerTermsService.Fetch();
   }
 
-  public ShowingOutComes() {
-    this.ShowOutComes = !this.ShowOutComes;
-  }
   public SetCreateNewCode() {
     if (this.EditCodesPanel == "CreateNewCode") {
       this.EditCodesPanel = "";
@@ -206,7 +177,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       this.EditCodesPanel = "CreateNewCode";
       this.ShowOutComes = false;
       if (this.OutcomesCmpRef) {
-        this.OutcomesCmpRef.ShowOutcomesStatistics = false;
         this.OutcomesCmpRef.ShowOutcomesList = false;
       }
     }
@@ -398,8 +368,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     else return false;
   }
 
-  private outcomeSubscription: Subscription | null = null;
-
 
 
   async CheckAndMoveToPDFTab() {
@@ -420,6 +388,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
   }
 
   public GetItem() {
+    this.ShowOutComes = false;
     this.WipeHighlights();
     this.ItemDocsService.Clear();
     if (this.itemString == 'PriorityScreening') {
@@ -477,7 +446,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     this.ItemDocsService.FetchDocList(this.itemID);
     if (this.item) {
 
-      this._outcomeService.outcomesChangedEE.emit();
+      //this._outcomeService.outcomesChangedEE.emit();
       //if (this.ArmsCompRef) this.ArmsCompRef.CurrentItem = this.item;
       this.ArmTimepointLinkListService.FetchAll(this.item);
 
@@ -770,12 +739,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       this.HelpAndFeebackContext = "itemdetails\\pdf";//no record in DB for the help!!
     }
     else if (e.title == 'OpenAlex') {
-
-      console.log('test tabs');
+      //console.log('test tabs');
       this.HelpAndFeebackContext = "itemdetails\\Microsoft Academic";
     }
     else {
-
       this.HelpAndFeebackContext = "itemdetails";
     }
   }
@@ -786,8 +753,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
     if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
-    if (this.outcomeSubscription) this.outcomeSubscription.unsubscribe();
     if (this.ReloadItemCoding) this.ReloadItemCoding.unsubscribe();
+    this._outcomeService.Clear();
   }
 }
 

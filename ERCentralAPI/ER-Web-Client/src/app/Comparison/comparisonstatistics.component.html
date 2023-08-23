@@ -150,7 +150,7 @@
                             <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs2Sc')"
                                     [disabled]="!_comparisonsService.Statistics || _comparisonsService.Statistics.SCAgreements1vs2 == 0"
                                     style="overflow-x:hidden">
-                                {{_comparisonsService.Statistics?.SCAgreements1vs2 }}  / {{_comparisonsService.Statistics?.RawStats?.n1vs2 }} (list)
+                                {{_comparisonsService.Statistics.SCAgreements1vs2 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)
                             </button>
                             <div class="col-3 m-0 p-0 px-1">
                                 <button class="btn btn-outline-primary w-100 mr-1 py-0 small" (click)="SendToComplete('1And2','Complete1vs2Sc', true)"
@@ -162,7 +162,7 @@
                             <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2Sc')"
                                     [disabled]="!_comparisonsService.Statistics || !_comparisonsService.Statistics.RawStats || _comparisonsService.Statistics.RawStats.scDisagreements1vs2 == 0"
                                     style="overflow-x:hidden">
-                                {{_comparisonsService.Statistics?.RawStats?.scDisagreements1vs2 }}  / {{_comparisonsService.Statistics?.RawStats?.n1vs2 }} (list)
+                                {{_comparisonsService.Statistics.RawStats.scDisagreements1vs2 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)
                             </button>
                             <div class="col-3 px-1 mb-1">
                                 <button class="btn btn-outline-info  h-100 w-100"
@@ -183,7 +183,7 @@
                             <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree2vs3Sc')"
                                     [disabled]="!_comparisonsService.Statistics || _comparisonsService.Statistics.SCAgreements2vs3 == 0"
                                     style="overflow-x:hidden">
-                                {{_comparisonsService.Statistics?.SCAgreements2vs3 }}  / {{_comparisonsService.Statistics?.RawStats?.n2vs3 }} (list)
+                                {{_comparisonsService.Statistics.SCAgreements2vs3 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)
                             </button>
                             <div class="col-3 m-0 p-0 px-1">
                                 <button class="btn btn-outline-primary w-100 mr-1 py-0 small" (click)="SendToComplete('2And3','Complete2vs3Sc', true)"
@@ -196,7 +196,7 @@
                             <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree2vs3Sc')"
                                     [disabled]="!_comparisonsService.Statistics || _comparisonsService.Statistics.RawStats.scDisagreements2vs3 == 0"
                                     style="overflow-x:hidden">
-                                {{_comparisonsService.Statistics?.RawStats?.scDisagreements2vs3 }}  / {{_comparisonsService.Statistics?.RawStats?.n2vs3 }} (list)
+                                {{_comparisonsService.Statistics.RawStats.scDisagreements2vs3 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)
                             </button>
                             <div class="col-3 px-1 mb-1">
                                 <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree2vs3Sc')"
@@ -218,7 +218,7 @@
                             <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs3Sc')"
                                     [disabled]="!_comparisonsService.Statistics || _comparisonsService.Statistics.SCAgreements1vs3 == 0"
                                     style="overflow-x:hidden">
-                                {{_comparisonsService.Statistics?.SCAgreements1vs3 }} / {{_comparisonsService.Statistics?.RawStats?.n1vs3 }} (list)
+                                {{_comparisonsService.Statistics.SCAgreements1vs3 }} / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)
                             </button>
                             <div class="col-3 m-0 p-0 px-1">
                                 <button class="btn btn-outline-primary w-100 mr-1 py-0 small" (click)="SendToComplete('1And3','Complete1vs3Sc', true)"
@@ -230,7 +230,7 @@
                             <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3Sc')"
                                     [disabled]="!_comparisonsService.Statistics || !_comparisonsService.Statistics.RawStats || _comparisonsService.Statistics.RawStats.scDisagreements1vs3 == 0"
                                     style="overflow-x:hidden">
-                                {{_comparisonsService.Statistics?.RawStats?.scDisagreements1vs3 }}  / {{_comparisonsService.Statistics?.RawStats?.n1vs3 }} (list)
+                                {{_comparisonsService.Statistics.RawStats.scDisagreements1vs3 }}  / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)
                             </button>
                             <div class="col-3 px-1 mb-1">
                                 <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3Sc')"

@@ -164,13 +164,21 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSearchList.cs" Link="Models\MagSearchList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSimulation.cs" Link="Models\MagSimulation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSimulationList.cs" Link="Models\MagSimulationList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysis.cs" Link="Models\MetaAnalysis.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisFilterSetting.cs" Link="Models\MetaAnalysisFilterSetting.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisFilterSettingList.cs" Link="Models\MetaAnalysisFilterSettingList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisList.cs" Link="Models\MetaAnalysisList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisModerator.cs" Link="Models\MetaAnalysisModerator.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisModeratorList.cs" Link="Models\MetaAnalysisModeratorList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisModeratorReference.cs" Link="Models\MetaAnalysisModeratorReference.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisModeratorReferenceList.cs" Link="Models\MetaAnalysisModeratorReferenceList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MetaAnalysisRunInRCommand.cs" Link="Models\MetaAnalysisRunInRCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttribute.cs" Link="Models\OutcomeItemAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributesSaveCommand.cs" Link="Models\OutcomeItemAttributesSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemList.cs" Link="Models\OutcomeItemList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeList.cs" Link="Models\OutcomeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformClusterCommand.cs" Link="Models\PerformClusterCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformRandomAllocateCommand.cs" Link="Models\PerformRandomAllocateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PubMedSearch.cs" Link="Models\PubMedSearch.cs" />
@@ -265,6 +273,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="DeployR7.4">
+      <HintPath>..\..\EPPIReviewer4.2015\Solution Items\DeployR7.4.dll</HintPath>
+    </Reference>
+    <Reference Include="DeployRBroker7.4">
+      <HintPath>..\..\EPPIReviewer4.2015\Solution Items\DeployRBroker7.4.dll</HintPath>
+    </Reference>
     <Reference Include="EPPIiFilter">
       <HintPath>..\Dlls\EPPIiFilter.dll</HintPath>
     </Reference>

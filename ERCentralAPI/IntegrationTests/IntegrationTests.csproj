@@ -30,6 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Files\20 demo refs.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Files\20 refs.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

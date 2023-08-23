@@ -1600,7 +1600,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER procedure [dbo].[st_CopyCodeset_times_out]
+CREATE OR ALTER procedure [dbo].[st_CopyCodeset_times_out]
 (
 	@SOURCE_SET_ID int,
 	@SOURCE_REVIEW_ID int,
@@ -1823,7 +1823,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER   procedure [dbo].[st_CopyReviewStep09]
+create or ALTER   procedure [dbo].[st_CopyReviewStep09]
 (	
 	@CONTACT_ID int,
 	@SOURCE_REVIEW_ID int,
@@ -2013,7 +2013,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER procedure [dbo].[st_CopyReviewStep09altVersion]
+CREATE OR ALTER procedure [dbo].[st_CopyReviewStep09altVersion]
 (	
 	@CONTACT_ID int,
 	@SOURCE_REVIEW_ID int,
@@ -2195,7 +2195,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER procedure [dbo].[st_CopyCodeset_orig]
+CREATE OR ALTER procedure [dbo].[st_CopyCodeset_orig]
 (
 	@SOURCE_SET_ID int,
 	@SOURCE_REVIEW_ID int,
@@ -2330,7 +2330,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER procedure [dbo].[st_CopyReviewShareableStep01]
+CREATE OR ALTER procedure [dbo].[st_CopyReviewShareableStep01]
 (
 	@CONTACT_ID int,
 	@SOURCE_REVIEW_ID int,
@@ -2427,7 +2427,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER procedure [dbo].[st_CopyReviewShareableStep03]
+CREATE OR ALTER procedure [dbo].[st_CopyReviewShareableStep03]
 (
 	@CONTACT_ID int,
 	@SOURCE_REVIEW_ID int,
@@ -2691,7 +2691,7 @@ GO
 -- ALTER date: <>
 -- Description:	gets contact table for a contactID
 -- =============================================
-ALTER PROCEDURE [dbo].[st_GetInfo] 
+CREATE OR ALTER PROCEDURE [dbo].[st_GetInfo] 
 (
 	@ITEM_ATTRIBUTE_ID int
 )

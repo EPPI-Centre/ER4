@@ -1,6 +1,6 @@
 <div class="row m-1 p-0 d-flex justify-content-between">
     <button class="btn btn-primary" (click)="fetchFrequencies(chosenNode, chosenFilter?.attribute_id)" >Get Frequencies</button>
-    <div *ngIf="selectedNode" class="align-self-center small"> &nbsp; Current code: {{selectedNode?.name}}</div>
+    <div *ngIf="selectedNode" class="align-self-center small"> &nbsp; Current code: {{selectedNode.name}}</div>
 </div>
 <div class="row m-1 p-0">
     <div style="width:200px;"><span class="mt-1">Selected (parent) Code: &nbsp;</span></div>

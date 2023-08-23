@@ -1,0 +1,172 @@
+<div *ngIf="CurrentMA" class="rounded border border-secondary mx-1 p-2 bg-light">
+  <div class="row mx-1"><div class="mx-auto font-weight-bold">Network Meta Analysis Options</div></div>
+  <div class="row mx-0 px-0">
+    <div class="col-12 col-md-6 row mx-0 px-0">
+      <div class="col-4 d-flex px-1">
+        <div class="ml-auto mr-0 my-auto">Model:</div>
+      </div>
+      <div class="col-8 px-1">
+        <select class="form-control pr-1 pl-1 p-2"
+                [(ngModel)]="CurrentMA.nmaStatisticalModel">
+          <option [ngValue]=0 [selected]="CurrentMA.nmaStatisticalModel == 0">Fixed Effect</option>
+          <option [ngValue]=1 [selected]="CurrentMA.nmaStatisticalModel == 1">Random effects</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 row mx-0 px-0">
+      <div class="col-4 d-flex px-1">
+        <div class="ml-auto mr-1 my-auto">Forest Plot Reference:</div>
+      </div>
+      <div class="col-8 px-1">
+        <select class="form-control pr-1 pl-1 p-2"
+                [(ngModel)]="CurrentMA.nmaReference">
+          <option *ngFor="let m of References" [ngValue]="m.name" [selected]="CurrentMA.nmaReference == m.name">{{m.name}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-auto row mx-auto my-1 border-info border bg-white rounded p-1">
+      <div class="col-auto px-1">
+        <div class="ml-auto mr-1 my-auto">Large values are good?</div>
+      </div>
+      <div class="col-auto d-flex px-1">
+        <div class="mr-auto ml-1 my-auto">
+          <input type="checkbox" [(ngModel)]="CurrentMA.largeValuesGood" class="ml-1 mr-1 my-auto" />
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  <div class="row mx-1 px-0 mb-1"><button class="btn btn-success px-2 py-1 mx-auto" (click)="BuildNMAmatrix()">Map (selected) outcomes</button></div>
+  <ng-container *ngIf="DataIsMapped ">
+    <div *ngIf="incompleteOutcomes.length > 0" class="row mx-1 px-2 mb-1 bg-white border rounded border-warning">
+      <div class="col-auto  font-weight-bold my-auto px-0">
+        Incomplete outcomes:
+      </div>
+      <div class="col-auto px-0 row mx-0">
+        <button class="btn btn-warning px-1 py-0 m-1" (click)="UnselectIncompleteOutcomes()">Unselect All</button>
+        <button class="btn btn-outline-info px-1 py-0 m-1 font-weight-bold" (click)="showIncompleteOutcomesHelp = !showIncompleteOutcomesHelp">?</button>
+      </div>
+      <div *ngIf="showIncompleteOutcomesHelp" class="col-auto mx-1 px-1 small alert-info border border-info rounded">
+        "Incomplete Outcomes" are outcomes that are not associated with an intervention, a control/comparator, or both.
+        When these outcomes are "selected", running a Network Meta Analysis can't work, as they would fail to "connect" to the network of outcomes
+        (all "connections" are done via the intervention and control/comparator fields).
+      </div>
+      <div class="row m-1 px-1">
+        <div *ngFor="let o of incompleteOutcomes" class="m-1 rounded border border-warning px-1 alert-warning">
+          {{o.shortTitle}} - {{o.title}}
+        </div>
+      </div>
+    </div>
+    <div *ngIf="NMAmatrixRows.length > 0 || IntervAndCompNetworks.length > 0" class="row mx-1 px-0 mb-1 border border-dark rounded">
+      <div class="row mx-0 px-1 mt-1 mb-1 col-12 ">
+        <div class="my-1 mx-auto px-1 border border-info alert-info small rounded ">
+          This page checks for minimal <strong>technical</strong>&nbsp;requirements for running Network Meta Analyses. It looks <strong>only</strong>&nbsp;at intervention and comparators data.<br />
+          It <strong>DOES NOT</strong>&nbsp;check if outcomes <strong>should</strong>&nbsp;belong to the same Network Meta Analysis, as it is blind to other PICO elements and ignores timepoints.
+        </div>
+        <button class="btn btn-outline-info btn-sm px-1 py-0 col-auto m-auto" (click)="showSelectedOutcomesTable = !showSelectedOutcomesTable">{{showSelectedOutcomesBtnText}}</button>
+      </div>
+      <div *ngIf="NMAmatrixRows.length > 0" class="col-auto mx-auto" style="max-height: 45vh; overflow:auto;">
+        <table class="mx-auto small table table-sm table-striped">
+          <thead>
+            <tr>
+              <th>Intervention</th>
+              <th>Comparator</th>
+              <th># Outcomes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of NMAmatrixRows">
+              <td>{{row.intervention}}</td>
+              <td>
+                <div *ngFor="let cc of row.comparator">{{cc.Name}}</div>
+              </td>
+              <td>
+                <div *ngFor="let cc of row.comparator">{{cc.Id}}</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="IntervAndCompNetworks.length > 0" class="col-auto mx-auto" style="max-height: 45vh; overflow:auto">
+        <table class="mx-auto small table table-sm table-striped">
+          <thead>
+            <tr>
+              <th colspan="3">Networks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ntArr of IntervAndCompNetworks; let i = index">
+              <td>
+                Network {{(i+1).toString()}}
+              </td>
+              <td>
+                <div *ngFor="let nd of ntArr">{{nd}};&nbsp;</div>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-warning px-1 py-0 my-auto" (click)="UnselectThisNetwork(i)">Unselect</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="showSelectedOutcomesTable" class="col-auto mx-auto" style="max-height: 45vh; overflow:auto;">
+        <table class="mx-auto small table table-sm table-striped">
+          <thead>
+            <tr>
+              <th>ES</th>
+              <th>SE</th>
+              <th>Study</th>
+              <th>Outc. Desc.</th>
+              <th>Timepoint</th>
+              <th>Intervention</th>
+              <th>Comparator</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let oo of SelectedOutcomes">
+              <td>{{oo.esRounded}}</td>
+              <td>{{oo.seesRounded}}</td>
+              <td>{{oo.shortTitle}}</td>
+              <td>{{oo.title}}</td>
+              <td>{{oo.timepointDisplayValue}}</td>
+              <td>{{oo.interventionText}}</td>
+              <td>{{oo.controlText}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+</ng-container>
+
+
+  <div class="row mx-1 px-0 mb-1">
+    <button class="btn btn-outline-success px-2 py-1" (click)="CloseMe()">Close</button>
+    <button class="btn btn-outline-primary px-2 py-1 ml-1" (click)="Run()" [disabled]="canRunNMA != 0"> <img src="assets/Images/RIcon5.png" style="height:18px;" class="mr-1" />Run</button>
+    <ng-container [ngSwitch]="canRunNMA">
+      <div *ngSwitchCase="-1" class="small font-weight-bold rounded alert-danger px-1 py-1 mx-1 my-auto">Please select at least 2 outcomes</div>
+      <div *ngSwitchCase="1" class="small font-weight-bold rounded alert-danger px-1 py-1 mx-1 my-auto">Please "Map (selected) outcomes"</div>
+      <div *ngSwitchCase="2" class="small font-weight-bold rounded alert-danger px-1 py-1 mx-1 my-auto">Some incomplete outcomes are selected, please unselect them</div>
+      <div *ngSwitchCase="3" class="small font-weight-bold rounded alert-danger px-1 py-1 mx-1 my-auto">Please unselect extra networks, only one network can be analysed at a given time</div>
+      <div *ngSwitchCase="4" class="small font-weight-bold rounded alert-danger px-1 py-1 mx-1 my-auto">There is no network to analyse, please select more outcomes and click on "Map (selected) outcomes" </div>
+      <div *ngSwitchCase="5" class="small font-weight-bold rounded alert-danger px-1 py-1 mx-1 my-auto">There aren't enough nodes in the network: please select more outcomes and click on "Map (selected) outcomes"</div>
+      <div *ngSwitchCase="6" class="small font-weight-bold rounded alert-danger px-1 py-1 mx-1 my-auto">The "reference" selected is not in the network, please change it</div>
+    </ng-container>
+  </div>
+
+  <div *ngIf="MAreportSource" class="rounded border border-info mx-1 px-3 py-1">
+    <div class="font-weight-bold border-bottom border-dark row mx-1 px-1 mb-1">
+      <div class="mr-1 mb-1">MA Report:</div>
+      <button (click)="SaveReport()" class="btn btn-sm btn-outline-primary px-1 py-0 mb-1"><kendo-icon name="save" size="small" class="mr-1"></kendo-icon> Save</button>
+      <button *ngIf="HideReport" class="btn btn-outline-info px-1 py-0 mb-1 ml-1" (click)="HideReport = false">Show Report</button>
+      <button *ngIf="!HideReport" class="btn btn-outline-info px-1 py-0 mb-1 ml-1" (click)="HideReport = true">Hide Report</button>
+    </div>
+    <div *ngIf="!HideReport" class="bg-white" style="max-height:50vh;overflow:auto;">
+      <div [innerHTML]="MAreportHTML" id="MAreportContent"></div>
+    </div>
+
+    <!--whhooop
+    <img *ngIf="MAreportSource.graphsList[0]" src="data:image/jpg;base64,{{MAreportSource.graphsList[0]}}" />-->
+  </div>
+</div>
+
+

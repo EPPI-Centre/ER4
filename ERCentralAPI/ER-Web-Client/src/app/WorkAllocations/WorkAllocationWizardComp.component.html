@@ -16,7 +16,7 @@
                             ({{IncludedExcludedText}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
                         </span>
                         <span *ngIf="workAllocationFromWizardCommand.filterType == 'All without any codes from this coding tool' || workAllocationFromWizardCommand.filterType == 'All with any codes from this coding tool'">
-                            ({{selectedCodeSetDropDown?.name}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
+                            ({{selectedCodeSetDropDown.name}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
                         </span>
                         <span *ngIf="workAllocationFromWizardCommand.filterType == 'All with this code' || workAllocationFromWizardCommand.filterType == 'All without this code'">
                             ({{DropdownWithWithoutSelectedCode?.name}}, {{IncludedExcludedText}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)

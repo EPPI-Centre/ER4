@@ -59,19 +59,12 @@ namespace IntegrationTests.By_Controller_Tests
 
         [Theory]
         [InlineData("20 refs.txt")]
-        public async Task CodesetsCreateScreeningTool(string filename, string importFilterName = "RIS")
+        public async Task CRUDScreeningToolandAttributes(string filename, string importFilterName = "RIS")
         {
             //every [Fact] should start with this line
             (await AuthenticationDone()).Should().Be(true);
 
-            //upload the file, check the answer
-            string fileCont = File.ReadAllText(@"Files\" + filename);
-            _ = fileCont.Should().NotBeNullOrEmpty();
-            UploadOrCheckSource data = new UploadOrCheckSource() { fileContent = fileCont, importFilter = importFilterName, source_Name = filename };
-            IncomingItemsListJSON? SOres = await client.PostAndDeserialize<IncomingItemsListJSON>("api/Sources/UploadSource", data);
-            SOres.Should().NotBeNull();
-            SOres.totalReferences.Should().Be(20);
-            SOres.incomingItems.Count.Should().Be(0);
+
 
             /* ReviewSetUpdateCommandJSON fields
             public int SetId;
@@ -85,9 +78,8 @@ namespace IntegrationTests.By_Controller_Tests
             public bool usersCanEditURLs;
             */
 
-
+            /* default values
             ReviewSetUpdateCommandJSON rsc = new ReviewSetUpdateCommandJSON();
-            // settings for a new screening tool
             rsc.SetId = -1;
             rsc.ReviewSetId = -1;
             rsc.SetName = "test 1";
@@ -97,19 +89,28 @@ namespace IntegrationTests.By_Controller_Tests
             rsc.AllowCodingEdits = true;
             rsc.SetTypeId = 5; // screening tool
             rsc.usersCanEditURLs = false;
+            */
 
-            JsonNode? CSRes = await CreateCodeset(rsc);
+            var codesetName = "test 1";
+            var setTypeID = 5; // screening tool
+            var allowCodingEdits = true;
+            var codingIsFinal = true; // single coding
+            JsonNode? CSRes = await CreateCodeset(codesetName, setTypeID, allowCodingEdits, codingIsFinal);
 
             CSRes = await GetCodesets();
-            CSRes.AsArray().Count().Should().Be(1);
+            CSRes.AsArray().Count().Should().Be(1);         
+            var setId = (int)CSRes[0]["setId"];
+            var reviewSetId = (int)CSRes[0]["reviewSetId"];
 
-            var setID = (int)CSRes[0]["setId"];
-            var reviewSetID = (int)CSRes[0]["reviewSetId"];
-
-            // edit the coding tool
-            rsc.SetId = setID;
+            // edit the coding tool name
+            ReviewSetUpdateCommandJSON rsc = new ReviewSetUpdateCommandJSON();
+            rsc.SetId = setId;
             rsc.SetName = "test 1111";
-            rsc.ReviewSetId = reviewSetID;
+            rsc.ReviewSetId = reviewSetId;
+            rsc.AllowCodingEdits = (bool)CSRes[0]["allowCodingEdits"];
+            rsc.SetTypeId = 5;
+            rsc.setDescription = "";
+
             CSRes = await UpdateCodeset(rsc);
 
             CSRes = await GetCodesets();
@@ -133,6 +134,20 @@ namespace IntegrationTests.By_Controller_Tests
 
 
             // add a couple of codes to the tool
+
+            // add an exclude code
+            var attributeName = "Exclude 1";
+            var attributeTypeId = 10; // exclude code
+            var parentAtrributeId = 0;
+            JsonNode? AttrRes1 = await AddCode(setId, reviewSetId, parentAtrributeId, attributeName, attributeTypeId);
+
+            // add an include code
+            attributeName = "Include 1";
+            attributeTypeId = 11; // include code
+            JsonNode? AttrRes2 = await AddCode(setId, reviewSetId, parentAtrributeId, attributeName, attributeTypeId);
+
+
+            /* 
             AttributeSetCreateOrUpdateJSON incAttr = new AttributeSetCreateOrUpdateJSON();
             // settings for a new 'Include' code
             incAttr.setId = setID;
@@ -147,6 +162,8 @@ namespace IntegrationTests.By_Controller_Tests
             incAttr.attributeId = 0;
             incAttr.extURL = "";
             incAttr.extType = "";
+
+            JsonNode? AttrRes1 = await AddCode(incAttr);
 
             AttributeSetCreateOrUpdateJSON excAttr = new AttributeSetCreateOrUpdateJSON();
             // settings for a new 'Exclude' code
@@ -163,28 +180,47 @@ namespace IntegrationTests.By_Controller_Tests
             excAttr.extURL = "";
             excAttr.extType = "";
 
-            JsonNode? AttrRes1 = await AddCode(incAttr);
+            
             JsonNode? AttrRes2 = await AddCode(excAttr);
+            */
 
+
+            
             CSRes = await GetCodesets();
             CSRes.AsArray().Count().Should().Be(1);
 
             test = CSRes[0]["attributes"]["attributesList"][0]["attributeName"].ToString();
-            CSRes[0]["attributes"]["attributesList"][1]["attributeName"].ToString().Should().Be("Exclude 1");
+            CSRes[0]["attributes"]["attributesList"][1]["attributeName"].ToString().Should().Be("Include 1");
+            
+
 
             //update an attribute
-            var attributeSetId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeSetId"].ToString());
-            var attributeId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeId"].ToString());
+            AttributeSetCreateOrUpdateJSON incAttr = new AttributeSetCreateOrUpdateJSON();
+            incAttr.setId = setId;
+            incAttr.parentAttributeId = 0;
+            incAttr.attributeTypeId = 10;
+            incAttr.attributeOrder = 1;
             incAttr.attributeName = "Include 1111";
-            incAttr.attributeSetId = attributeSetId;
-            incAttr.attributeId = attributeId;
+            incAttr.attributeSetDescription = "";
+            incAttr.contactId = 5;  // this is the default login person
+            incAttr.originalAttributeID = 0;
+            incAttr.attributeSetId = int.Parse(CSRes[0]["attributes"]["attributesList"][1]["attributeSetId"].ToString());
+            incAttr.attributeId = int.Parse(CSRes[0]["attributes"]["attributesList"][1]["attributeId"].ToString());
+            incAttr.extURL = "";
+            incAttr.extType = "";
+
             JsonNode? AttrRes3 = await UpdateCode(incAttr);
 
             CSRes = await GetCodesets();
             test = CSRes[0]["attributes"]["attributesList"][0]["attributeName"].ToString();
-            CSRes[0]["attributes"]["attributesList"][0]["attributeName"].ToString().Should().Be("Include 1111");
+            CSRes[0]["attributes"]["attributesList"][1]["attributeName"].ToString().Should().Be("Include 1111");
+            
+
+
 
             // delete the attributes
+            
+            
             /* for AttributeDeleteCommandJSON
             public Int64 attributeSetId;
             public Int64 attributeId;
@@ -192,6 +228,8 @@ namespace IntegrationTests.By_Controller_Tests
             public int attributeOrder;
             public bool successful;
             */
+
+            CSRes = await GetCodesets();
 
             AttributeDeleteCommandJSON attrDelete = new AttributeDeleteCommandJSON();
             attrDelete.attributeSetId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeSetId"].ToString());
@@ -231,6 +269,8 @@ namespace IntegrationTests.By_Controller_Tests
             CSRes = await GetCodesets();
             CSRes.AsArray().Count().Should().Be(0);
 
+
+
         }
 
     }
@@ -254,9 +294,22 @@ namespace IntegrationTests.Fixtures
             return res;
         }
         
-        public async Task<JsonNode?> CreateCodeset(ReviewSetUpdateCommandJSON rsc)
+        public async Task<JsonNode?> CreateCodeset(string setName, int setTypeId, bool allowCodingEdits, bool codingIsFinal)
         {
-            JsonNode? res = await client.PostAndDeserialize("api/Codeset/ReviewSetCreate", rsc);
+            ReviewSetUpdateCommandJSON newCT = new ReviewSetUpdateCommandJSON();
+            // settings for a new screening tool
+            newCT.SetId = -1;
+            newCT.ReviewSetId = -1;
+            newCT.SetName = setName;
+            newCT.setOrder = 0;
+            newCT.setDescription = "";
+            newCT.CodingIsFinal = codingIsFinal;
+            newCT.AllowCodingEdits = allowCodingEdits;
+            newCT.SetTypeId = setTypeId; 
+            newCT.usersCanEditURLs = false;
+
+
+            JsonNode? res = await client.PostAndDeserialize("api/Codeset/ReviewSetCreate", newCT);
             res.Should().NotBeNull();
             return res;
         }
@@ -274,9 +327,23 @@ namespace IntegrationTests.Fixtures
         }
 
 
-        public async Task<JsonNode?> AddCode(AttributeSetCreateOrUpdateJSON rsc)
+        public async Task<JsonNode?> AddCode(int setId, int reviewSetId, int parentAtrributeId, string attributeName, int attributeTypeId)
         {
-            JsonNode? res = await client.PostAndDeserialize("api/Codeset/AttributeCreate", rsc);
+            AttributeSetCreateOrUpdateJSON attr = new AttributeSetCreateOrUpdateJSON();
+            attr.setId = setId;
+            attr.parentAttributeId = parentAtrributeId;
+            attr.attributeTypeId = attributeTypeId;
+            attr.attributeOrder = 0;
+            attr.attributeName = attributeName;
+            attr.attributeSetDescription = "";
+            attr.contactId = 5;  // this is the default login person
+            attr.originalAttributeID = 0;
+            attr.attributeSetId = 0;
+            attr.attributeId = 0;
+            attr.extURL = "";
+            attr.extType = "";
+
+            JsonNode? res = await client.PostAndDeserialize("api/Codeset/AttributeCreate", attr);
             res.Should().NotBeNull();
             return res;
         }

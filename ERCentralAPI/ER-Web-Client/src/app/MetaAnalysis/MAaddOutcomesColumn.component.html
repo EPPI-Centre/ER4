@@ -1,0 +1,64 @@
+<div *ngIf="CurrentMA" class="rounded mx-1 p-2 bg-light">
+  
+  <div class="mx-1 mb-1">
+    <div class="row mx-1"><div class="h4 mx-auto text-success">Add Column</div></div>
+    <div class="row mx-1">
+      <div class="row m-auto rounded py-1 px-2 border border-info bg-white">
+        <div class="ml-auto">Column type:</div>
+        <div class="row ml-1 mr-auto">
+          <input class="m-1 p-1" type="radio" value="Answer" name="QorARadio" [disabled]="HasMaxAnswerCols" (click)="DelayedCheckSelectionState()"
+                 [(ngModel)]="ColumnMode">Answer
+
+          <input class="m-1 p-1" type="radio" value="Question" name="QorARadio" [disabled]="HasMaxQuestionCols" (click)="DelayedCheckSelectionState()"
+                 [(ngModel)]="ColumnMode">Question
+        </div>
+      </div>
+    </div>
+    <div class="row mx-0 mt-1">
+      <div *ngIf="ColumnMode == 'Answer' && !HasMaxAnswerCols" class="row mx-1">
+        <div class="my-auto">Select (answer) code: </div>
+        <div ngbDropdown>
+          <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
+                  (click)="ToggleDropDown('Question')" style="min-width: 100px;">
+            {{ColumnCode?.name}}
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!ShowingCodes">
+            <codesetSelector #ColCodeSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="360"
+                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="ColumnMode == 'Question' && !HasMaxQuestionCols" class="row mx-1">
+        <div class="my-auto">Select (question) code: </div>
+        <div ngbDropdown>
+          <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
+                  (click)="ToggleDropDown('Question')" style="min-width: 100px;">
+            {{ColumnCode?.name}}
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!ShowingCodes">
+            <codesetSelector #ColCodeSelector [IsMultiSelect]="false" [WhatIsSelectable]="'CodeWithChildren'" [MaxHeight]="360"
+                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="ColumnMode == 'Answer' && HasMaxAnswerCols" class="rounded alert-warning py-1 px-2 my-auto">You already have the maximum number of Answer columns</div>
+      <div *ngIf="ColumnMode == 'Question' && HasMaxQuestionCols" class="rounded alert-warning py-1 px-2 my-auto">You already have the maximum number of Question columns</div>
+      <div *ngIf="SelectionState != 0" class="row mx-1">
+        <ng-container [ngSwitch]="SelectionState">
+          <div *ngSwitchCase="1" class="rounded alert-success py-1 px-2 my-auto">Selected code is <strong>valid</strong></div>
+          <div *ngSwitchCase="2" class="rounded alert-warning py-1 px-2 my-auto">Error: you already have added that column</div>
+          <div *ngSwitchDefault class="rounded alert-warning py-1 px-2 my-auto">Error: can't add a question column for this code, as it has no child codes</div>
+        </ng-container>
+      </div>
+    </div>
+      <div class="row mx-1">
+        <button class="btn btn-outline-dark ml-1" (click)="CloseMe()">Close</button>
+        <div *ngIf="SelectionState == 1" class="row mx-1">
+          <button class="btn btn-outline-danger " (click)="Add()" [disabled]="!HasWriteRights">Add</button>
+          <div class="rounded alert-info small py-1 px-2 ml-2 my-auto">Adding the column will <strong>save</strong> the current MA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+

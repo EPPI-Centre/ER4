@@ -119,7 +119,7 @@ export class timePointsComp  implements OnInit {
 		this.confirmationDialogService.confirm('Please confirm',
 			'Deleting a timepoint is a permanent operation '
 			+ 'which will remove the timepoint from all outcomes associated with it.' +
-			'<br /><b>This timepoint is associated with ' + numCodings + ' outcomes(s).</b>' +
+			'<br /><b>This timepoint is associated with ' + numCodings + ' outcome(s).</b>' +
 			'<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.',
 			true, 'i confirm')
 			.then(
@@ -159,15 +159,21 @@ export class timePointsComp  implements OnInit {
 		//this.edit = false;
 	}
 
-	ActuallyRemove(tp: iTimePoint) {
-	
-		let ToRemove = tp;
-		if (ToRemove) {
-			let SelectedId = this._timePointsService.Selectedtimepoint ? this._timePointsService.Selectedtimepoint.itemTimepointId : -1;
-			this._timePointsService.Deletetimepoint(ToRemove);
-			if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
-		}
-	}
+  async ActuallyRemove(ToRemove: iTimePoint) {
+
+    if (this.item) {
+      let SelectedId = this._timePointsService.Selectedtimepoint ? this._timePointsService.Selectedtimepoint.itemTimepointId : -1;
+      const res = await this._timePointsService.Deletetimepoint(ToRemove);
+      if (res == true) {
+        let toKeep = this.item.timepoints;
+        this.item.timepoints = [];
+        //for some reason, if we don't await, the arms dropdowns show the first arm as "selected", when in fact it isn't...
+        await Helpers.Sleep(5);
+        this.item.timepoints = toKeep;
+        if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
+      }
+    }
+  }
 
 	CreateTimepoint() {
 		if (!this.HasWriteRights || this.TimePointTheSame || this.item == undefined || this.item.itemId < 1) return;

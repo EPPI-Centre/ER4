@@ -7,31 +7,32 @@
 				<tr>
 					<th class="text-center">Outcome Title</th>
 					<th class="text-center">Intervention</th>
-					<th class="text-center">Edit</th>
-					<th class="text-center">Remove</th>
+					<th class="text-center">Actions</th>
 				</tr>
-				<tr *ngFor="let outcome of _OutcomesService.outcomesList; let key = index">
-					<td class="p-1 m-0" >{{outcome.title}}</td>
-					<td >{{outcome.interventionText}}</td>
-					<td class="p-0 m-0" style="white-space:nowrap;">
-						<span class="table-remove">
-							<button (click)="editOutcome(outcome)"
-									[disabled]="!HasWriteRights"
-									type="button" rounded="true"
-									size="sm" class="btn btn-outline-info p-1 m-1">
-								Edit
-							</button>
-						</span>
-					</td>
-					<td class="p-0 m-0" style="white-space:nowrap;">
-						<span class="table-remove">
-							<button type="button" rounded="true"
-									size="sm" class="btn btn-outline-danger p-1 m-1"
-									[disabled]="!HasWriteRights"
-									(click)="removeWarning(outcome, key)">
-								Remove
-							</button>
-						</span>
+				<tr *ngFor="let outcome of OutcomesBySet; let key = index">
+					<td class="p-1" >{{outcome.title}}</td>
+					<td class="p-1">{{outcome.interventionText}}</td>
+					<td class="p-0 m-0">
+            <div class="mt-1">
+              <button (click)="editOutcome(outcome)"
+                      [disabled]="!HasWriteRights"
+                      type="button" rounded="true"
+                      size="sm" class="btn btn-sm btn-outline-success my-auto py-0 px-1 ml-1">
+                <span class="k-icon k-i-edit"></span>&nbsp;Edit
+              </button>
+              <button type="button" rounded="true"
+                      size="sm" class="btn btn-sm btn-outline-danger my-auto py-0 px-1 ml-1"
+                      [disabled]="!HasWriteRights"
+                      (click)="removeWarning(outcome, key)">
+                <span class="k-icon k-i-delete"></span>
+              </button>
+              <button type="button" rounded="true" title="Create a copy and open it"
+                      size="sm" class="btn btn-sm btn-outline-secondary my-auto py-0 px-1 ml-1"
+                      [disabled]="!HasWriteRights"
+                      (click)="CopyOutcome(outcome)">
+                <span class="k-icon k-i-copy"></span>
+              </button>
+            </div>
 					</td>
 				</tr>
 			</table>
@@ -48,10 +49,10 @@
 			</div>
 		</div>
 	</div>
-	<div *ngIf="ShowOutcomesStatistics && outcome != null" class="col-md-12 row card p-0 m-0">
+	<div *ngIf="ShowOutcomesList == false  && item != undefined" class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid bg-light border rounded  p-0 m-0">
 			<div *ngIf="OutcomeTitle.invalid && (OutcomeTitle.dirty || OutcomeTitle.touched)"
-				 class="alert alert-danger">
+					 class="alert alert-danger">
 				<div *ngIf="OutcomeTitle.errors && OutcomeTitle.errors.pattern">
 					Title must not be empty
 				</div>
@@ -63,336 +64,379 @@
 				</div>
 			</div>
 			<div *ngIf="outcomedata1.invalid && (outcomedata1.dirty || outcomedata1.touched)"
-				 class="alert alert-danger">
+					 class="alert alert-danger">
 				<div *ngIf="outcomedata1.errors && outcomedata1.errors.pattern">
 					outcomedata1 must be numeric
 				</div>
 			</div>
 			<div *ngIf="outcomedata2.invalid && (outcomedata2.dirty || outcomedata2.touched)"
-				 class="alert alert-danger">
+					 class="alert alert-danger">
 				<div *ngIf="outcomedata2.errors && outcomedata2.errors.pattern">
 					outcomedata2 must be numeric
 				</div>
 			</div>
-			
+			<div *ngIf="ArmsCheckIsFailing"
+					 class="alert alert-danger">
+				<div>
+					<strong>Outcome refers to a missing arm.</strong> <br />
+					To fix this, please click the "Remove Arm Selection" button (<span class="k-icon k-i-error"></span>)
+					where the missing arm was used and now shows no arm name selected in the drop-down.
+				</div>
+			</div>
+			<div *ngIf="TimepointsCheckIsFailing"
+					 class="alert alert-danger">
+				<div>
+					<strong>Outcome refers to a missing Timepoint.</strong> <br />
+					To fix this, please click the "Remove Timepoint Selection" button (<span class="k-icon k-i-error"></span>)
+					below.
+				</div>
+			</div>
+
 			<div class=" col-md-12 p-0 m-0">
 				<div class="row col-md-12 p-1 m-0">
-					<label class="col-md-4">Title</label>
-					<input placeholder="Title"
-						   name="OutcomeTitle" #OutcomeTitle="ngModel"
-						   [(ngModel)]="_OutcomesService.currentOutcome.title"
-						   required minlength="3"
-						   value="_OutcomesService.currentOutcome.title"
-						   pattern="^.+$"
-						   type="text" class="form-control col-md-8 form-input" />
+					<label class="col-md-4 mt-1">Title</label>
+					<div class="col-md-8 d-flex px-0">
+						<input placeholder="Title"
+									 name="OutcomeTitle" #OutcomeTitle="ngModel"
+									 [(ngModel)]="_OutcomesService.currentOutcome.title"
+									 required minlength="3"
+									 value="_OutcomesService.currentOutcome.title"
+									 pattern="^.+$"
+									 type="text" class="form-control form-input" />
+						<button [disabled]="!this.HasWriteRights
+								|| !currentOutcomeHasChanges
+								|| ArmsCheckIsFailing || TimepointsCheckIsFailing
+								||	OutcomeTitle.invalid &&
+								(OutcomeTitle.dirty || !OutcomeTitle.touched)
+								&& ( (OutcomeTitle.errors &&
+										(OutcomeTitle.errors.pattern
+										|| OutcomeTitle.errors.required
+										|| OutcomeTitle.errors.minlength
+										)
+									  )
+									)"
+										class="btn btn-primary btn-sm py-0 mx-1 "
+										title="Save and Close" (click)="SaveOutcome()">
+							<span class="k-icon k-i-save"></span>
+						</button>
+					</div>
 				</div>
 				<div class="row col-md-12 p-1 m-0">
 					<label class="col-md-4 ">Timepoint</label>
-					<div class="d-inline-block col-md-8 p-0 m-0">
-						<select #timePoint [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
-								class="form-control col-md-12 p-0 m-0">
+					<div class="d-flex col-md-8 p-0 m-0">
+						<select [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
+										class="form-control p-0 m-0">
 							<option [ngValue]="timepoint.itemTimepointId"
-									[selected]="timepoint.itemTimepointId == _OutcomesService.currentOutcome.itemTimepointId"
-									*ngFor="let timepoint of timePointsList">
+											[selected]="timepoint.itemTimepointId == _OutcomesService.currentOutcome.itemTimepointId"
+											*ngFor="let timepoint of timePointsList">
 								{{timepoint.timepointValue}} &nbsp; {{timepoint.timepointMetric}}
 							</option>
 						</select>
+						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemTimepointId == 0"
+										title="Remove Timepoint Selection" (click)="_OutcomesService.currentOutcome.itemTimepointId = 0">
+							<span class="k-icon k-i-error"></span>
+						</button>
 					</div>
 				</div>
 
 				<div class="row col-md-12 p-1 m-0">
-					<label class="col-md-4">Outcome Description</label>
-					<input name="outcomeDescription" #OutcomeDescription="ngModel"
-						   value="_OutcomesService.currentOutcome.outcomeDescription"
-						   [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription"
-						   type="text" class="form-control col-md-8 form-input" />
+					<label class="col-md-4 mt-1">Outcome Description</label>
+					<input value="_OutcomesService.currentOutcome.outcomeDescription"
+								 [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription"
+								 type="text" class="form-control col-md-8 form-input" />
 				</div>
 				<div class="row col-md-12  p-1 m-0">
-					<label class="col-md-4">Outcome type</label>
-					<div ngbDropdown class="col-12 col-md-8  p-1">
-						<select #outcomeType [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
-								class="form-control col-md-12">
+					<label class="col-md-4 mt-1">Outcome type</label>
+					<div class="d-flex col-12 col-md-8  p-1">
+						<select [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
+										class="form-control">
 							<option [ngValue]="outcomeT.outcomeTypeId"
-									[selected]="outcomeT.outcomeTypeId == _OutcomesService.currentOutcome.outcomeTypeId"
-									*ngFor="let outcomeT of OutcomeTypeList">
+											[selected]="outcomeT.outcomeTypeId == _OutcomesService.currentOutcome.outcomeTypeId"
+											*ngFor="let outcomeT of OutcomeTypeList">
 								{{outcomeT.outcomeTypeName}}
 							</option>
 						</select>
 					</div>
 
 
-					<label class="col-md-4">Outcome</label>
-					<div ngbDropdown class="col-12  col-md-8  p-1"
-						 placeholder="Outcomes">
-						<select #outcomeDD [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
-								class="form-control col-md-12">
+					<label class="col-md-4 mt-1">Outcome</label>
+					<div class="d-flex col-12  col-md-8  p-1"
+							 placeholder="Outcomes">
+						<select [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
+										class="form-control ">
 							<option [ngValue]="out.attributeId"
-									[selected]="out.attributeId == _OutcomesService.currentOutcome.itemAttributeIdOutcome"
-									*ngFor="let out of _OutcomesService.ReviewSetOutcomeList">
+											[selected]="out.attributeId == _OutcomesService.currentOutcome.itemAttributeIdOutcome"
+											*ngFor="let out of _OutcomesService.ReviewSetOutcomeList">
 								{{out.attributeName}}
 							</option>
 						</select>
+						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdOutcome == 0"
+										title="Remove Outcome Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdOutcome = 0">
+							<span class="k-icon k-i-error"></span>
+						</button>
 					</div>
 
 				</div>
 				<div class="row col-md-12  p-1 m-0">
 
-					<label class="col-md-4">Intervention</label>
-					<div ngbDropdown class="col-12  col-md-8  p-1">
-						<select #interventionDD="ngModel"
-								[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdIntervention"
-								class="form-control col-md-12">
-							<option [ngValue]="intervention.attributeId"
-									[selected]="intervention.attributeId == _OutcomesService.currentOutcome.itemAttributeIdIntervention"
-									*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
+					<label class="col-md-4 mt-1">Intervention</label>
+					<div class="d-flex col-12 col-md-8  p-1">
+						<select (change)="UpdateInterventionName($event)"
+										[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdIntervention"
+										class="form-control">
+							<option [value]="intervention.attributeId"
+											[selected]="intervention.attributeId == _OutcomesService.currentOutcome.itemAttributeIdIntervention"
+											*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
 								{{intervention.attributeName}}
 							</option>
 						</select>
+						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdIntervention == 0"
+										title="Remove Intervention Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdIntervention = 0">
+							<span class="k-icon k-i-error"></span>
+						</button>
 					</div>
 
 
-					<label class="col-md-4">Comparison</label>
-					<div ngbDropdown class="col-12  col-md-8  p-1">
-						<select #controlDD="ngModel"
-								[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdControl"
-								class="form-control col-md-12">
-							<option [ngValue]="control.attributeId"
-									[selected]="control.attributeId == _OutcomesService.currentOutcome.itemAttributeIdControl"
-									*ngFor="let control of _OutcomesService.ReviewSetControlList">
+					<label class="col-md-4 mt-1">Comparison</label>
+					<div class="d-flex col-12 col-md-8  p-1">
+						<select (change)="UpdateComparisonName($event)"
+										[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdControl"
+										class="form-control">
+							<option [value]="control.attributeId"
+											[selected]="control.attributeId == _OutcomesService.currentOutcome.itemAttributeIdControl"
+											*ngFor="let control of _OutcomesService.ReviewSetControlList">
 								{{control.attributeName}}
 							</option>
 						</select>
+						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdControl == 0"
+										title="Remove Comparison Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdControl = 0">
+							<span class="k-icon k-i-error"></span>
+						</button>
 					</div>
 
 				</div>
 				<div class="row col-md-12 p-1 m-0">
 
-					<label class="col-md-4">Group 1 arm</label>
-					<div ngbDropdown class="col-12 col-md-8  p-1">
-						<select #GroupOneArm="ngModel" [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
-								class="form-control col-md-12">
-							<option [ngValue]="arm.itemArmId"
-									[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1"
-									*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
+					<label class="col-md-4 mt-1">Group 1 arm</label>
+					<div class="d-flex col-12 col-md-8  p-1">
+						<select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
+										class="form-control">
+							<option *ngFor="let arm of item.arms" [ngValue]="arm.itemArmId"
+											[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1">
 								{{arm.title}}
 							</option>
 						</select>
+						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp1 == 0"
+										title="Remove Arm1 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp1 = 0">
+							<span class="k-icon k-i-error"></span>
+						</button>
 					</div>
 
 
-					<label class="col-md-4">Group 2 arm</label>
-					<div ngbDropdown class="col-12  col-md-8 p-1">
-						<select #GroupTwoArm="ngModel" [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
-								class="form-control col-md-12">
-							<option [ngValue]="arm.itemArmId"
-									[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2"
-									*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
+					<label class="col-md-4 mt-1">Group 2 arm</label>
+					<div class="d-flex col-12 col-md-8 p-1">
+						<select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
+										class="form-control ">
+							<option *ngFor="let arm of item.arms" [ngValue]="arm.itemArmId"
+											[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2">
 								{{arm.title}}
 							</option>
 						</select>
+						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp2 == 0"
+										title="Remove Arm2 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp2 = 0">
+							<span class="k-icon k-i-error"></span>
+						</button>
 					</div>
 
 				</div>
 
 				<!-- Need 8 sections here for the different outcomeTypes that can occur
-				/* Meta-analysis types:
-				*     0: Continuous: d (Hedges g)		outcomeTypeId==0
-				*     1: Continuous: r					outcomeTypeId==1	correlation coefficient r
-				*     2: Binary: odds ratio				outcomeTypeId==2	
-				*     3: Binary: risk ratio				outcomeTypeId==3
-				*     4: Binary: risk difference		outcomeTypeId==4
-				*     5: Binary: diagnostic test OR		outcomeTypeId==5	diagnostic binary 2 x 2 table
-				*     6: Binary: Peto OR				outcomeTypeId==6
-				*     7: Continuous: mean difference	outcomeTypeId==7
-				*/
+					/* Meta-analysis types:
+					*     0: Continuous: d (Hedges g)		outcomeTypeId==0
+					*     1: Continuous: r					outcomeTypeId==1	correlation coefficient r
+					*     2: Binary: odds ratio				outcomeTypeId==2
+					*     3: Binary: risk ratio				outcomeTypeId==3
+					*     4: Binary: risk difference		outcomeTypeId==4
+					*     5: Binary: diagnostic test OR		outcomeTypeId==5	diagnostic binary 2 x 2 table
+					*     6: Binary: Peto OR				outcomeTypeId==6
+					*     7: Continuous: mean difference	outcomeTypeId==7
+					*/
 
-					<div *ngFor="let code of _OutcomesService.currentOutcome.outcomeCodes.outcomeItemAttributesList">
-					{{code.attributeName}}
-				</div>
+						<div *ngFor="let code of _OutcomesService.currentOutcome.outcomeCodes.outcomeItemAttributesList">
+						{{code.attributeName}}
+					</div>
 
-				<button (click)="printstuff()"></button>
-	-->
+					<button (click)="printstuff()"></button>
+		-->
 
 				<div class="row col-md-12 p-1 m-0">
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data1Desc}}</label>
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data1Desc}}</label>
 						<input class="form-control col-md-6" #outcomedata1="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data1"
-							   name="outcomedata1"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data1"
-							   type="number" />
+									 [(ngModel)]="_OutcomesService.currentOutcome.data1"
+									 name="outcomedata1"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data1"
+									 type="number" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data2Desc}}</label>
-						<input class="form-control col-md-6" #group2NModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data2"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   name="outcomedata2" #outcomedata2="ngModel"
-							   value="_OutcomesService.currentOutcome.data2"
-							   type="number" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data2Desc}}</label>
+						<input class="form-control col-md-6"
+									 [(ngModel)]="_OutcomesService.currentOutcome.data2"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 name="outcomedata2" #outcomedata2="ngModel"
+									 value="_OutcomesService.currentOutcome.data2"
+									 type="number" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7">
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data3Desc}}</label>
-						<input #group1MeanModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data3"
-							   name="outcomedata3" #outcomedata3="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data3"
-							   type="number" class="form-control col-md-6" />
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7">
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data3Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data3"
+									 name="outcomedata3"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data3"
+									 type="number" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 ">
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 ">
 
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data4Desc}}</label>
-						<input #group2MeanModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data4"
-							   name="outcomedata4" #outcomedata4="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data4"
-							   type="number" class="form-control col-md-6" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data4Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data4"
+									 name="outcomedata4"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data4"
+									 type="number" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
 
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data5Desc}}</label>
-						<input #group1SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data5"
-							   name="outcomedata5" #outcomedata5="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data5"
-							   type="number" class="form-control col-md-6" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data5Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data5"
+									 name="outcomedata5"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data5"
+									 type="number" class="form-control col-md-6" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
 
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data6Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data6"
-							   name="outcomedata6" #outcomedata6="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data6"
-							   type="number" class="form-control col-md-6" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data6Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data6"
+									 name="outcomedata6"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data6"
+									 type="number" class="form-control col-md-6" />
 
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data7Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data7"
-							   name="outcomedata7" #outcomedata7="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data7"
-							   type="number" class="form-control col-md-6" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data7Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data7"
+									 name="outcomedata7"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data7"
+									 type="number" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data8Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data8"
-							   name="outcomedata8" #outcomedata8="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data8"
-							   type="number" class="form-control col-md-6" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data8Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data8"
+									 name="outcomedata8"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data8"
+									 type="number" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data11Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data11"
-							   name="outcomedata11" #outcomedata11="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data11"
-							   type="number" class="form-control col-md-6 small" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data11Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data11"
+									 name="outcomedata11"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data11"
+									 type="number" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data12Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data12"
-							   name="outcomedata12" #outcomedata12="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data12"
-							   type="number" class="form-control col-md-6 small" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data12Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data12"
+									 name="outcomedata12"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data12"
+									 type="number" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data13Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data13"
-							   name="outcomedata13" #outcomedata13="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data13"
-							   type="number" class="form-control col-md-6 small" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data13Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data13"
+									 name="outcomedata13"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data13"
+									 type="number" class="form-control col-md-6 small" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
 						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
-						<label class="col-md-6">{{_OutcomesService.currentOutcome.data14Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="_OutcomesService.currentOutcome.data14"
-							   name="outcomedata14" #outcomedata14="ngModel"
-							   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-							   value="_OutcomesService.currentOutcome.data14"
-							   type="number" class="form-control col-md-6 small" />
+						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data14Desc}}</label>
+						<input [(ngModel)]="_OutcomesService.currentOutcome.data14"
+									 name="outcomedata14"
+									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+									 value="_OutcomesService.currentOutcome.data14"
+									 type="number" class="form-control col-md-6 small" />
 					</div>
 					<div class="row col-12 p-0 my-0 mx-1">
-                        <div class="row p-1 m-2 border border-success rounded alert-info w-100">
-                            <div class="col-12 m-0 p-0">
-                                <label class="p-0 m-2 small font-weight-bold">{{ShowCFUOAEtext}}: </label> <button class="btn btn-sm btn-outline-success px-2 py-0" (click)="ShowCFUOAE()">Go</button>
-                            </div>
-                            <div *ngIf="ShowCFUOAEBoolCheck()"
-                                 class="row col-12  p-1 m-2">
-                                <div class="col-12 row p-1">
-                                    <label class="col-12 col-md-8 p-1 m-0">Mean cluster size</label>
-                                    <input #group2SDModel="ngModel"
-                                           [(ngModel)]="_OutcomesService.currentOutcome.data9"
-                                           name="outcomedata9" #outcomedata9="ngModel"
-                                           pattern="^[-+]?[0-9]*\.?[0-9]+$"
-                                           value="_OutcomesService.currentOutcome.data9"
-                                           type="number" class="form-control col-12 col-md-4" />
-                                </div>
-                                <div class="col-12 row p-1">
-                                    <label class="col-12 col-md-8 p-1 m-0">ICC</label>
-                                    <input #group2SDModel="ngModel"
-                                           [(ngModel)]="_OutcomesService.currentOutcome.data10"
-                                           name="outcomedata10" #outcomedata10="ngModel"
-                                           pattern="^[-+]?[0-9]*\.?[0-9]+$"
-                                           value="_OutcomesService.currentOutcome.data10"
-                                           type="number" class="form-control col-12 col-md-4" />
-                                </div>
-                            </div>
-                        </div>
+						<div class="row p-1 m-2 border border-success rounded alert-info w-100">
+							<div class="col-12 m-0 p-0">
+								<label class="p-0 m-2 small font-weight-bold">{{ShowCFUOAEtext}}: </label> <button class="btn btn-sm btn-outline-success px-2 py-0" (click)="ShowCFUOAE()">Go</button>
+							</div>
+							<div *ngIf="ShowCFUOAEBoolCheck()"
+									 class="row col-12  p-1 m-2">
+								<div class="col-12 row p-1">
+									<label class="col-12 col-md-8 p-1 m-0">Mean cluster size</label>
+									<input [(ngModel)]="_OutcomesService.currentOutcome.data9"
+												 name="outcomedata9"
+												 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+												 value="_OutcomesService.currentOutcome.data9"
+												 type="number" class="form-control col-12 col-md-4" />
+								</div>
+								<div class="col-12 row p-1">
+									<label class="col-12 col-md-8 p-1 m-0">ICC</label>
+									<input [(ngModel)]="_OutcomesService.currentOutcome.data10"
+												 name="outcomedata10"
+												 pattern="^[-+]?[0-9]*\.?[0-9]+$"
+												 value="_OutcomesService.currentOutcome.data10"
+												 type="number" class="form-control col-12 col-md-4" />
+								</div>
+							</div>
+						</div>
 						<div class="row col-md-12 p-0 m-0">
 							<div class="col-12 col-md-12 col-lg-12 row p-0 m-0">
 								<label class="col-md-5 bold">{{_OutcomesService.currentOutcome.esDesc}}</label>
@@ -427,6 +471,8 @@
 				<div class="col-md-12">
 					<div class="row col-12">
 						<button [disabled]="!this.HasWriteRights
+								|| !currentOutcomeHasChanges
+								|| ArmsCheckIsFailing || TimepointsCheckIsFailing
 								||	OutcomeTitle.invalid &&
 								(OutcomeTitle.dirty || !OutcomeTitle.touched)
 								&& ( (OutcomeTitle.errors &&
@@ -436,20 +482,20 @@
 										)
 									  )
 									)"
-								class="btn btn-primary mt-1 p-1 m-1 "
-								(click)="SaveOutcome()">
-							Save Outcome
+										class="btn btn-primary mt-1 p-1 m-1 "
+										title="Save and Close" (click)="SaveOutcome()">
+							<span class="k-icon k-i-save"></span> Save
 						</button>
 
 						<button class="btn  btn-danger mt-1 p-1 m-1"
-								(click)="ClearAndCancelSave()">
+										(click)="ClearAndCancelSave()">
 							Cancel
 						</button>
 
 					</div>
 				</div>
 			</div>
-			</div>
+		</div>
 		</div>
 </div>
 

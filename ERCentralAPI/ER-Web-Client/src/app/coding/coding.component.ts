@@ -115,6 +115,37 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   //    opacity: 1;
   //    height: 100 %;
   //}
+
+  ngOnInit() {
+    this.RefreshTerms();
+    this.innerWidth = window.innerWidth;
+    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+      this.router.navigate(['home']);
+    }
+    else {
+      this.armservice.armChangedEE.subscribe(() => {
+        if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+        else this.SetArmCoding(0);
+      });
+      this.subItemIDinPath = this.route.params.subscribe((params: any) => {
+        this.itemString = params['itemId'];
+        this.GetItem();
+        console.log('coding kjkhjkhk: ' + this.itemID);
+      });
+      this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
+
+        () => {
+          if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
+            //console.log('data changed event caught');
+            this.SetCoding();
+          }
+        }
+      );
+      this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+      this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
+    }
+  }
+
   @ViewChild('OutcomesCmp')
   private OutcomesCmpRef!: OutcomesComponent;
   @ViewChild('cmp') private ArmsCompRef!: any;
@@ -292,89 +323,14 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
   public ShowingOutComes() {
     this.ShowOutComes = !this.ShowOutComes;
   }
-  private outcomeSubscription: Subscription | null = null;
-  ngOnInit() {
+  
 
-    this.RefreshTerms();
-    this.innerWidth = window.innerWidth;
-    //this.route.params.subscribe((params:any) => {
-
-    //	alert(params);
-
-    //	if (params['itemId']) {
-
-    //		alert(params['itemId']);
-    //	}
-    //});
-
-
-    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-      this.router.navigate(['home']);
-    }
-    else {
-      this.outcomeSubscription = this._outcomeService.outcomesChangedEE.subscribe(
-
-        (res: any) => {
-
-          var selectedNode = res as SetAttribute;
-
-          if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
-
-            console.log('a node has been selected');
-            var itemSet = this.ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
-            if (itemSet != null) {
-              this._outcomeService.ItemSetId = itemSet.itemSetId;
-              this._outcomeService.FetchOutcomes(itemSet.itemSetId);
-              //this._outcomeService.outcomesList = itemSet.OutcomeList;
-            }
-            this.ShowingOutComes();
-
-          } else {
-
-            console.log('a code is not selected');
-            if (this.OutcomesCmpRef) {
-              console.log('inside OutcomesCmpRef');
-              this._outcomeService.outcomesList = [];
-              this.OutcomesCmpRef.ShowOutcomesList = false;
-              this.ShowingOutComes();
-            }
-          }
-        }
-        // ERROR HANDLING IN HERE NEXT....
-      );
-
-
-      //if (this.ArmsCompRef) {
-      this.armservice.armChangedEE.subscribe(() => {
-        if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
-        else this.SetArmCoding(0);
-      });
-      //}
-      this.subItemIDinPath = this.route.params.subscribe((params:any) => {
-        this.itemString = params['itemId'];
-        this.GetItem();
-        console.log('coding kjkhjkhk: ' + this.itemID);
-      });
-      this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
-
-        () => {
-          if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
-            //console.log('data changed event caught');
-            this.SetCoding();
-          }
-        }
-      );
-      this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
-      this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
-      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
-      //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
-    }
-
-
+  public get HasOutcomeUnsavedChanges(): boolean {
+    if (this.ShowOutComes == false) return false;
+    else return this._outcomeService.currentOutcomeHasChanges;
   }
-
-
   public GetItem() {
+    this.ShowOutComes = false;
     this.WipeHighlights();
     this.ItemDocsService.Clear();
     if (this.itemString == 'PriorityScreening') {
@@ -429,7 +385,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       this.armservice.FetchAll(this.item);
       //this.armservice.Fetchtimepoints(this.item);
     }
-    this._outcomeService.outcomesChangedEE.emit();
+    //this._outcomeService.outcomesChangedEE.emit();
     this.ItemCodingService.Fetch(this.itemID);
 
   }
@@ -671,7 +627,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
     if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
-    if (this.outcomeSubscription) this.outcomeSubscription.unsubscribe();
+    this._outcomeService.Clear();
   }
   WipeHighlights() {
     if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();

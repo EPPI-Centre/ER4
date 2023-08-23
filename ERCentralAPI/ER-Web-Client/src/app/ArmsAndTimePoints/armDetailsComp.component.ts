@@ -1,10 +1,11 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
-import { ArmTimepointLinkListService, iArm, Arm } from '../services/ArmTimepointLinkList.service';
+import { ArmTimepointLinkListService, iArm, Arm, ItemArmDeleteWarningCommandJSON } from '../services/ArmTimepointLinkList.service';
 import { Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NgForm } from '@angular/forms';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -88,8 +89,8 @@ export class armDetailsComp implements OnInit {
 
 	
 	public openConfirmationDialogDeleteArms(key: number) {
-		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
-			'<br />This Arm is associated with 0 codes.', false, '')
+		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation.' +
+			'<br />This Arm is <strong>not applied</strong> to any Code or Outcome, so it\'s safe to delete it.', false, '')
 			.then(
 				(confirmed: any) => {
 					console.log('User confirmed:');
@@ -105,62 +106,68 @@ export class armDetailsComp implements OnInit {
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 
-	public openConfirmationDialogDeleteArmsWithText(key: number, numCodings: number) {
-		
-		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
-			'<br /><b>This Arm is associated with ' + numCodings + ' codes.</b>' +
-            '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true,'I confirm')
-			.then(
-			(confirm: any) => {
-								
-				//console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
-			
-                if (confirm && this.eventsService.UserInput.toLowerCase().trim()  == 'i confirm') {
-						this.ActuallyRemove(key);
-					} else {
-					
-					}
-				}
-			)
-			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
-	}
+  public openConfirmationDialogDeleteArmsWithText(key: number, numCodings: number, numOutcomes: number) {
+    let contents: string = "Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.";
+
+    if (numCodings == 1) contents += '<br /><b>This Arm is associated with one code.</b>';
+    else if (numCodings > 1) contents += '<br /><b>This Arm is associated with ' + numCodings + ' codes.</b>';
+
+    if (numOutcomes == 1) contents += '<br /><b>This Arm is associated with one outcome.</b>';
+    else if (numOutcomes > 1) contents += '<br /><b>This Arm is associated with ' + numOutcomes + ' outcomes.</b>';
+
+    contents += '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.';
+    this.confirmationDialogService.confirm('Please confirm', contents, true, 'I confirm')
+      .then(
+        (confirm: any) => {
+
+          //console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
+
+          if (confirm && this.eventsService.UserInput.toLowerCase().trim() == 'i confirm') {
+            this.ActuallyRemove(key);
+          } else {
+
+          }
+        }
+      )
+      .catch(() => { 
+        //console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)')
+      });
+  }
 
 	removeWarning(key: number) {
-
-		
 		// first call the dialog then call this part
 		this._armsService.DeleteWarningArm(this.armsList[key]).then(
 
-			(res: numCodings) => {
-
-				if (res.numCodings == 0) {
-
+      (res: ItemArmDeleteWarningCommandJSON) => {
+				if (res.numCodings == 0 && res.numOutcomes == 0) {
 					this.openConfirmationDialogDeleteArms(key);
-
-				
 				} else if (res.numCodings == -1) {
 					return;
 				}
 				else {
-					
-					this.openConfirmationDialogDeleteArmsWithText(key, res.numCodings);
+					this.openConfirmationDialogDeleteArmsWithText(key, res.numCodings, res.numOutcomes);
 				} 
-
 			}
 		);
-
 		this.editTitle = false;
 	}
 
-	ActuallyRemove(key: number) {
-        let ToRemove = this.armsList[key];
-        if (ToRemove) {
-            let SelectedId = this._armsService.SelectedArm ? this._armsService.SelectedArm.itemArmId : -1;
-            this._armsService.DeleteArm(ToRemove);
-            this.armsList.splice(key, 1);
-            if (SelectedId == ToRemove.itemArmId) this._armsService.SetSelectedArm(0);
-        }
-	}
+  async ActuallyRemove(key: number) {
+    let ToRemove = this.armsList[key];
+    if (ToRemove && this.item) {
+      let SelectedId = this._armsService.SelectedArm ? this._armsService.SelectedArm.itemArmId : -1;
+      let something = await this._armsService.DeleteArm(ToRemove);
+      let toKeep = this.item.arms;
+      this.item.arms = [];
+      //for some reason, if we don't await, the arms dropdowns show the first arm as "selected", when in fact it isn't...
+      await Helpers.Sleep(5);
+      toKeep.splice(key, 1);
+      this.item.arms = toKeep;
+      if (SelectedId == ToRemove.itemArmId) this._armsService.SetSelectedArm(0);
+      
+    }
+  }
+  
 
 	add(title: string) {
 		//console.log("Add arm:", title);
@@ -190,8 +197,4 @@ export class armDetailsComp implements OnInit {
 
 }
 
-export interface numCodings {
 
-	numCodings: number;
-
-}

@@ -28,6 +28,10 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
   //"AttributeSet":Codes(AttributeSet) only
   //"ReviewSet":Codesets(ReviewSet) only
   //"NodeWithChildren":Anything that does have children
+  //"RandomAllocation": admin set, node can have children
+  //"CodeWithChildren": a code (not a ReviewSet) with children, used in MA "add column" for question columns
+
+
   //"CanHaveChildren": any node that is allowed to contain children(future)
   public IsAdmin: boolean = false;
 
@@ -144,13 +148,21 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
       }
 
     }
+    else if (this.WhatIsSelectable == 'CodeWithChildren' ) {
+      if (node.nodeType == "SetAttribute" && node.attributes.length > 0) {
+        this.SelectedNodeData = node;
+        this.selectedNodeInTree.emit();
+      }
+    }
     else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
 
       this.SelectedNodeData = node;
       this.selectedNodeInTree.emit();
       this._eventEmitterService.nodeSelected = node;
 
-    } else if (node.nodeType == "SetAttribute" && this.IsMultiSelect == true) {
+    }
+
+    else if (node.nodeType == "SetAttribute" && this.IsMultiSelect == true) {
       console.log('you cannot use multiselect here 1');
 
     } else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == true) {

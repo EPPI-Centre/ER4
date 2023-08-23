@@ -13,7 +13,7 @@
         <div class="border px-1 font-italic mt-0 mb-auto mr-auto px-1" style="opacity:70;">Not set (optional)</div>
     </ng-template>
     <div class="col-1 mt-0 pl-1 pr-1 mt-1 mb-auto" style="min-width:90px;">Rows:&nbsp;</div>
-    <div class="col-5 px-0 mt-1"><div *ngIf="selectedNodeDataY != null; else NoCodeSet" class="border px-1 mt-0 mb-auto">{{selectedNodeDataY?.name}}</div></div>
+    <div class="col-5 px-0 mt-1"><div *ngIf="selectedNodeDataY != null; else NoCodeSet" class="border px-1 mt-0 mb-auto">{{selectedNodeDataY.name}}</div></div>
     <div class="col">
         <button (click)="setYaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
         <button *ngIf="selectedNodeDataY != null" class="btn btn-sm btn-outline-primary ml-1" (click)="fetchFrequencies(selectedNodeDataY, selectedFilterAttribute)"
@@ -24,14 +24,14 @@
 </div>
 <div class="row m-1 p-0">
     <div class="col-1 mt-0 pl-1 pr-1 mt-1 mb-auto" style="min-width:90px;">Columns:&nbsp;</div>
-    <div class="col-5 px-0 mt-1"><div *ngIf="selectedNodeDataX != null; else NoCodeSetXtab" class="border px-1 mt-0 mb-auto">{{selectedNodeDataX?.name}}</div></div>
+    <div class="col-5 px-0 mt-1"><div *ngIf="selectedNodeDataX != null; else NoCodeSetXtab" class="border px-1 mt-0 mb-auto">{{selectedNodeDataX.name}}</div></div>
     <div class="col">
         <button (click)="setXaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
     </div>
 </div>
 <div class="row m-1 p-0">
     <div class="col-1 mt-1 pl-1 pr-1 mt-1 mb-auto" style="min-width:90px;">Filter:&nbsp;</div>
-    <div class="col-5 px-0 mt-1"><div *ngIf="selectedFilterAttribute != null; else NoFilterSet" class="border px-1 mt-0 mb-auto">{{selectedFilterAttribute?.name}}</div></div>
+    <div class="col-5 px-0 mt-1"><div *ngIf="selectedFilterAttribute != null; else NoFilterSet" class="border px-1 mt-0 mb-auto">{{selectedFilterAttribute.name}}</div></div>
     <div class="col">
         <button (click)="setFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
         <button (click)="clearFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
@@ -70,7 +70,7 @@
                 <div *ngIf="selectedNode; else PleaseSelectAcode" class="align-self-center text-wrap small alert-info px-1 m-auto">
                     Current code:
                     <strong class="mx-1">
-                        {{selectedNode?.name}}
+                        {{selectedNode.name}}
                     </strong>
                 </div>
             </div>

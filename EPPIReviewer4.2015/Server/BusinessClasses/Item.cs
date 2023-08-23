@@ -1533,7 +1533,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             if (ss == "")
                 return "";
-            else if (ss.Length == 1) return ss;//what else can we do? Added by SG on 22/09/2021
+            else if (ss.Length == 1) return ss.Trim();//what else can we do? Added by SG on 22/09/2021
             string orig = ss;
             ss = RemoveLanguageAndThesisText(ss);
             ss = MagMakesHelpers.CleanText(ss);//the true paramater would it use a less aggressive stripping out if the original string gets shortened by 90% or more
@@ -1562,7 +1562,8 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 return r;
             }
-            else return Item.DoCharsBasedShortString(orig.ToLower().Trim());//apparently "ToLower()" does a decent job even on non-latin alphabets...
+            //final Trim() is to remove trailing spaces, which SQL ignores when comparing strings with "=" operator making searchtext like "abcdef  " match "abcdef"
+            else return Item.DoCharsBasedShortString(orig.ToLower().Trim()).Trim();//apparently "ToLower()" does a decent job even on non-latin alphabets...
         }
         private static string DoCharsBasedShortString(string s)
         {

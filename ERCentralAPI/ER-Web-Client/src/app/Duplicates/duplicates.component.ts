@@ -282,7 +282,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         else return "bg-lev3";
     }
   public SortBy(fieldName: string) {
-    CustomSorting.SortBy(fieldName, this.DuplicatesService.DuplicateGroups.WholeList, this.DuplicatesService.LocalSort);
+    this.DuplicatesService.DuplicateGroups.WholeList = CustomSorting.SortBy(fieldName, this.DuplicatesService.DuplicateGroups.WholeList, this.DuplicatesService.LocalSort);
     }
     public SortingSymbol(fieldName: string): string {
       return CustomSorting.SortingSymbol(fieldName, this.DuplicatesService.LocalSort);

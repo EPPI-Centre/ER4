@@ -251,14 +251,7 @@ export class MagSimulation {
     fn: number = 0;
     tn: number = 0;
 }
-export class KeyValue {
-    constructor(k: string, v: string) {
-        this.key = k;
-        this.value = v;
-    }
-    key: string;
-    value: string;
-}
+
 export class TopicLink {
 
     displayName: string = '';

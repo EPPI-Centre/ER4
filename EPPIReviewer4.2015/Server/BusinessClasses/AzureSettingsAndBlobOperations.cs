@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage;
+using Azure.Core;
 #else
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage;
@@ -331,7 +333,17 @@ namespace BusinessLibrary.BusinessClasses
 
         private static BlobClient GetBlob(string blobConnectionStr, string containerName, string blobName)
         {
-            BlobServiceClient blobServiceClient = new BlobServiceClient(blobConnectionStr);
+            BlobClientOptions opts = new BlobClientOptions()
+            {
+                Retry = {
+                    Delay = TimeSpan.FromSeconds(2),
+                    MaxRetries = 2,
+                    Mode = RetryMode.Exponential,
+                    MaxDelay = TimeSpan.FromSeconds(10),
+                    NetworkTimeout = TimeSpan.FromMinutes(5)
+                },
+            };
+            BlobServiceClient blobServiceClient = new BlobServiceClient(blobConnectionStr, opts);
             BlobContainerClient container = blobServiceClient.GetBlobContainerClient(containerName);
             //await container.CreateIfNotExistsAsync();
             BlobClient blob = container.GetBlobClient(blobName);
