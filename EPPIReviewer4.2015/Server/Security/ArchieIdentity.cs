@@ -838,24 +838,32 @@ namespace BusinessLibrary.Security
         {
             get
             {
-                string host = Environment.MachineName.ToLower();
-                if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-                {//use live address: this is the real published ER4
-                    return "https://archie.cochrane.org/";
-                }
-                if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
-                {//use live address: this is the real published ER4
-                    return "https://archie.cochrane.org/";
-                }
-                else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-                {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                    //changes are to be made here depending on what test we're doing
-                    return "https://test-archie.cochrane.org/";
-                }
-                else
-                {//not a live publish, use test archie
-                    return "https://test-archie.cochrane.org/";
-                }
+#if (!CSLA_NETCORE)
+                return System.Configuration.ConfigurationManager.AppSettings["CochraneArchieBaseAddress"];
+#else
+                if (RootConfig == null) BuildConfig();
+                var CochraneArchieBaseAddress = RootConfig.GetValue<string>("AppSettings:CochraneArchieBaseAddress");
+                if (CochraneArchieBaseAddress == null || CochraneArchieBaseAddress == "") throw new Exception("No CochraneArchieBaseAddress!");
+                return CochraneArchieBaseAddress;
+#endif
+                //string host = Environment.MachineName.ToLower();
+                //if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
+                //{//use live address: this is the real published ER4
+                //    return "https://archie.cochrane.org/";
+                //}
+                //if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
+                //{//use live address: this is the real published ER4
+                //    return "https://archie.cochrane.org/";
+                //}
+                //else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
+                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
+                //    //changes are to be made here depending on what test we're doing
+                //    return "https://test-archie.cochrane.org/";
+                //}
+                //else
+                //{//not a live publish, use test archie
+                //    return "https://test-archie.cochrane.org/";
+                //}
             }
         }
 
@@ -929,30 +937,31 @@ namespace BusinessLibrary.Security
                 string host = Environment.MachineName.ToLower();
 
                 string redirect = "";
-                if (host == "eppi.ioe.ac.uk" || host == "epi2" || host == "epi2.ioe.ac.uk")
-                {//use live address: this is the real published ER4
-                    redirect = "https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx";
-                }
-                else if (host == "http://epi3.westeurope.cloudapp.azure.com" || host == "epi3")
-                {//not clear, when azure environment goes live, this should point to eppi.ioe.ac.uk, before that, for testing it might be worth pointing to epi3.westeurope.cloudapp.azure.com
-                    redirect = "https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx";
-                }
-                else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-                {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                    //changes are to be made here depending on what test we're doing
-                    redirect = "https://bk-epi.ioe.ac.uk/testing/er4/ArchieCallBack.aspx";
-                }
-                else if (host == "eppi-management")
-                {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                    //changes are to be made here depending on what test we're doing
-                    redirect = "https://eppi-management/WcfHostPortal/ArchieCallBack.aspx";
-                }
-                else
-                {//not a live publish, use test archie
-                    //this won't work if used on a machine that isn't mine!!!!
-                    //!!!needs to be changed for ER4.
-                    redirect = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";
-                }
+                redirect = System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthRedirectUri"];
+                //if (host == "eppi.ioe.ac.uk" || host == "epi2" || host == "epi2.ioe.ac.uk")
+                //{//use live address: this is the real published ER4
+                //    redirect = "https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx";
+                //}
+                //else if (host == "http://epi3.westeurope.cloudapp.azure.com" || host == "epi3")
+                //{//not clear, when azure environment goes live, this should point to eppi.ioe.ac.uk, before that, for testing it might be worth pointing to epi3.westeurope.cloudapp.azure.com
+                //    redirect = "https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx";
+                //}
+                //else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
+                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
+                //    //changes are to be made here depending on what test we're doing
+                //    redirect = "https://bk-epi.ioe.ac.uk/testing/er4/ArchieCallBack.aspx";
+                //}
+                //else if (host == "eppi-management")
+                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
+                //    //changes are to be made here depending on what test we're doing
+                //    redirect = "https://eppi-management/WcfHostPortal/ArchieCallBack.aspx";
+                //}
+                //else
+                //{//not a live publish, use test archie
+                //    //this won't work if used on a machine that isn't mine!!!!
+                //    //!!!needs to be changed for ER4.
+                //    redirect = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";
+                //}
                 return redirect;
 #else
                 if (RootConfig == null) BuildConfig();
