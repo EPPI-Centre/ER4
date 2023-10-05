@@ -217,8 +217,6 @@ GO
 
 
 declare @Content nvarchar(max) = '
-<p class="font-weight-bold">Links, Arms and Timepoints</p>
-<p>The <b>Links Arms Timepoints</b> tab has functionality to assist in linking related documents, dealing with multiple arm trials and the entry of numeric outcome data at specific timepoints.</p>
 <div class="container-fluid">
 <div class="row">
 	<div class="col-sm">		
