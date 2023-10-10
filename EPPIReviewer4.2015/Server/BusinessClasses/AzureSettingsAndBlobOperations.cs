@@ -122,6 +122,14 @@ namespace BusinessLibrary.BusinessClasses
 
 
         public static string MagMatchItemsMaxThreadCount { get { return AppSettings["MagMatchItemsMaxThreadCount"]; } }
+        public static string AccountManagerURL { get { return AppSettings["AccountManagerURL"]; } }
+        public static string AddHostNamePrefixToBlobs { get { return AppSettings["AddHostNamePrefixToBlobs"]; } }
+        public static string SMTP { get { return AppSettings["SMTP"]; } }
+        public static string SMTPUser { get { return AppSettings["SMTPUser"]; } }
+        public static string SMTPAuthentic { get { return AppSettings["SMTPAuthentic"]; } }
+        public static string mailFrom { get { return AppSettings["mailFrom"]; } }
+        public static string Lingo3Gendpoint { get { return AppSettings["Lingo3Gendpoint"]; } }
+
 
         public static string tenantID { get { return AzureContReviewSettings["tenantID"]; } }
         public static string appClientId { get { return AzureContReviewSettings["appClientId"]; } }

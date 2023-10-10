@@ -21,6 +21,7 @@ using BusinessLibrary.Data;
 using System.Text.RegularExpressions;
 using System.Net.Mail;
 using System.IO;
+using BusinessLibrary.BusinessClasses;
 #endif
 
 namespace BusinessLibrary.Security
@@ -190,23 +191,23 @@ namespace BusinessLibrary.Security
                 }
                 //5. send activate email
                 //create linkcheck record
-                string host = Environment.MachineName.ToLower();
-                string BaseUrl = "";
-                if (host == "epi3" || host == "eppi.ioe.ac.uk" || host == "epi2.ioe.ac.uk")
-                {//use live address: this is the real published ER4
-                    BaseUrl = "https://eppi.ioe.ac.uk/ER4Manager/";
-                }
-                else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-                {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                    //changes are to be made here depending on what test we're doing
-                    BaseUrl = "http://bk-epi/testing/ER4Manager/";
-                }
-                else
-                {//not a live publish, use test archie
-                    //this won't work if used on a machine that isn't mine!!!!
-                    //!!!needs to be changed for ER4.
-                    BaseUrl = "http://localhost/ER4Manager/";
-                }
+                //string host = Environment.MachineName.ToLower();
+                string BaseUrl = AzureSettings.AccountManagerURL;
+                //if (host == "epi3b" || host == "epi3" || host == "eppi.ioe.ac.uk" || host == "epi2.ioe.ac.uk")
+                //{//use live address: this is the real published ER4
+                //    BaseUrl = "https://eppi.ioe.ac.uk/ER4Manager/";
+                //}
+                //else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
+                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
+                //    //changes are to be made here depending on what test we're doing
+                //    BaseUrl = "http://bk-epi/testing/ER4Manager/";
+                //}
+                //else
+                //{//not a live publish, use test archie
+                //    //this won't work if used on a machine that isn't mine!!!!
+                //    //!!!needs to be changed for ER4.
+                //    BaseUrl = "http://localhost/ER4Manager/";
+                //}
                 string LinkUI = "";
                 using (SqlCommand command = new SqlCommand("st_CheckLinkCreate", connection))
                 {
@@ -302,40 +303,11 @@ namespace BusinessLibrary.Security
                 msg.Body = msg.Body.Replace("AdminMessageHere", "");
             }
 
-            string SMTP = "***REMOVED***";
-            string SMTPUser = "wrongUname";
-            string mailFrom = "EPPIsupport@ioe.ac.uk";
-            string fromCred = "wrongPW";
-#if !CSLA_NETCORE
-            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/WcfHostPortal");
-            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            //{
-            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["SMTP"];
-            //    if (customSetting != null)
-            //        SMTP =  customSetting.Value;
-            //    customSetting = rootWebConfig1.AppSettings.Settings["SMTPUser"];
-            //        if (customSetting != null)
-            //        SMTPUser =  customSetting.Value;
-            //    customSetting = rootWebConfig1.AppSettings.Settings["SMTPAuthentic"];
-            //        if (customSetting != null)
-            //            fromCred =  customSetting.Value;
-            //    customSetting = rootWebConfig1.AppSettings.Settings["mailFrom"];
-            //    if (customSetting != null)
-            //        mailFrom = customSetting.Value;
-            //}
-            SMTP = System.Configuration.ConfigurationManager.AppSettings["SMTP"];
-            SMTPUser = System.Configuration.ConfigurationManager.AppSettings["SMTPUser"];
-            fromCred = System.Configuration.ConfigurationManager.AppSettings["SMTPAuthentic"];
-            mailFrom = System.Configuration.ConfigurationManager.AppSettings["mailFrom"];
-#else
-            Microsoft.Extensions.Configuration.IConfigurationBuilder builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder();
-            builder.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"));
-            var RootConfig = builder.Build();
-            SMTP = RootConfig.GetValue<string>("AppSettings:SMTP");
-            SMTPUser = RootConfig.GetValue<string>("AppSettings:SMTPUser");
-            fromCred = RootConfig.GetValue<string>("AppSettings:SMTPAuthentic");
-            mailFrom = RootConfig.GetValue<string>("AppSettings:mailFrom");
-#endif
+            string SMTP = AzureSettings.SMTP;
+            string SMTPUser = AzureSettings.SMTPUser;
+            string fromCred = AzureSettings.SMTPAuthentic;
+            string mailFrom = AzureSettings.mailFrom;
+
             msg.From = new MailAddress(mailFrom);
             SmtpClient smtp = new SmtpClient(SMTP);
 
