@@ -5,7 +5,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Criteria, ItemList } from '../services/ItemList.service';
 import { ItemListService } from '../services/ItemList.service'
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand } from '../services/codesetstatistics.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand, ReviewStatisticsCodeSet2, iReviewStatisticsReviewer2 } from '../services/codesetstatistics.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -86,14 +86,14 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   public get IsReportsServiceBusy(): boolean {
     return this.configurablereportServ.IsBusy || this.saving;
   }
-  public get ScreeningSets(): StatsCompletion[] {
-    return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Screening');
+  public get ScreeningSets(): ReviewStatisticsCodeSet2[] {
+    return this.codesetStatsServ.CodingProgressStats.filter(found => found.subTypeName == 'Screening');
   }
-  public get StandardSets(): StatsCompletion[] {
-    return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Standard');
+  public get StandardSets(): ReviewStatisticsCodeSet2[] {
+    return this.codesetStatsServ.CodingProgressStats.filter(found => found.subTypeName == 'Standard');
   }
-  public get AdminSets(): StatsCompletion[] {
-    return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Administration');
+  public get AdminSets(): ReviewStatisticsCodeSet2[] {
+    return this.codesetStatsServ.CodingProgressStats.filter(found => found.subTypeName == 'Administration');
   }
 
   public get HasWriteRights(): boolean {
@@ -220,13 +220,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     this.tabSelectEvent.emit();
     //this.tabset.select('ItemListTab');
   }
-  CompletedBySetAndContact(statsByContact: StatsByReviewer, setName: string) {
+  CompletedBySetAndContact(statsByContact: iReviewStatisticsReviewer2, setName: string) {
     let cri: Criteria = new Criteria();
-    cri.contactId = statsByContact.ContactId;
-    cri.setId = statsByContact.SetId;
+    cri.contactId = statsByContact.contactId;
+    cri.setId = statsByContact.setId;
     cri.pageSize = this.ItemListService.ListCriteria.pageSize;
     cri.listType = "ReviewerCodingCompleted";
-    this.ItemListService.FetchWithCrit(cri, statsByContact.ContactName + ": documents with completed coding using '" + setName + "'");
+    this.ItemListService.FetchWithCrit(cri, statsByContact.contactName + ": documents with completed coding using '" + setName + "'");
     this.tabSelectEvent.emit();
   }
   IncompleteBySetAndContact(statsByContact: StatsByReviewer, setName: string) {
