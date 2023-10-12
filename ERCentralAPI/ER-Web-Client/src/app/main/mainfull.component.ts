@@ -158,8 +158,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             () => this.GetStats()
         );
         if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
-            || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
-            || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
+          || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.CodingProgressStats.length == 0)
+          || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.CodingProgressStats.length == 0)
         ) this.Reload();
 
     }

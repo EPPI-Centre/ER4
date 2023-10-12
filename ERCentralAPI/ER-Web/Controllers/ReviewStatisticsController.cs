@@ -65,7 +65,28 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		[HttpPost("[action]")]
+        [HttpGet("[action]")]
+        public IActionResult FetchAllCounts()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                
+                DataPortal<ReviewStatisticsCodeSetList2> dp = new DataPortal<ReviewStatisticsCodeSetList2>();
+
+                ReviewStatisticsCodeSetList2 result = dp.Fetch();
+
+                //return Json(result);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in FetchAllCounts");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
 		public IActionResult ExcecuteItemSetBulkCompleteCommand([FromBody]  MVCItemSetBulkCompleteCommand MVCcmd)
 		{
 			try
