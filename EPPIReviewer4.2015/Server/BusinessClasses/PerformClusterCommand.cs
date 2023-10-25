@@ -185,10 +185,10 @@ namespace BusinessLibrary.BusinessClasses
             //use the following URI if running within the IOE firewall
             upload.Uri = new Uri("http://localhost:8080/dcs/rest");
 
-            string tmp = Dns.GetHostName().ToLower();
-            if (tmp == "epi3" || tmp == "eppi.ioe.ac.uk" || tmp == "eppi" || tmp == "eppi-management")
+            string tmp = AzureSettings.Lingo3Gendpoint;
+            if (tmp != null && tmp != "")
             {
-                upload.Uri = new Uri("***REMOVED***");
+                upload.Uri = new Uri(tmp);
             }
 
 

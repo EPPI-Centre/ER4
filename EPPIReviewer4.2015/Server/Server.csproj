@@ -441,6 +441,10 @@
     <Compile Include="BusinessClasses\ReadOnlyTemplateReviewList.cs" />
     <Compile Include="BusinessClasses\ReviewInfo.cs" />
     <Compile Include="BusinessClasses\ReviewSetCopyCommand.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsCodeSet2.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsCodeSetList2.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsReviewer2.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsReviewerList2.cs" />
     <Compile Include="BusinessClasses\RobotHBCPCommand.cs" />
     <Compile Include="BusinessClasses\RobotReviewerCommand.cs" />
     <Compile Include="BusinessClasses\SearchClassifierScoresCommand.cs" />
