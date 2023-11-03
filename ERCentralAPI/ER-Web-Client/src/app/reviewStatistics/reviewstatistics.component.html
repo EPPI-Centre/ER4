@@ -249,14 +249,14 @@
       </div>
       <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.contactName}}'">
         <img *ngIf="HasWriteRights" class="thumbnail btn px-0 py-1 mx-0 my-auto" o src="assets/CodingComplete.png" title="Items with completed coding (change to incomplete)"
-             (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId,singleContact.ContactId,  'false')" />
+             (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId,singleContact.contactId,  'false')" />
         <img *ngIf="!HasWriteRights" class="thumbnail btn px-0 py-1 mx-0 my-auto" o src="assets/CodingComplete.png" title="Items with completed coding by '{{singleContact.contactName}}'" />
         <span class="btn btn-link border-0 my-auto px-1 font-weight-bold" title="List items with completed coding by '{{singleContact.contactName}}'"
               (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.numItemsCompleted}}</span>
       </div>
       <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.contactName}}'">
         <img *ngIf="HasWriteRights" class="thumbnail btn px-0 py-1 mx-0 my-auto" src="assets/CodingNotComplete.png" title="Items with incomplete coding (change to complete)"
-             (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId, singleContact.ContactId,  'true')" />
+             (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId, singleContact.contactId,  'true')" />
         <img *ngIf="!HasWriteRights" class="thumbnail btn px-0 py-1 mx-0 my-auto" src="assets/CodingNotComplete.png" title="Items with incomplete coding by '{{singleContact.contactName}}'" />
         <span class="btn btn-link border-0 my-auto px-1 font-weight-bold" title="List items with incomplete coding by '{{singleContact.contactName}}'"
               (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.numItemsIncomplete}}</span>
