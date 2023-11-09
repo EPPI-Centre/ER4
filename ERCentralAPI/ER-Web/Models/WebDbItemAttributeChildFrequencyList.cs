@@ -159,12 +159,25 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return ReadProperty(onlyThisAttributeProperty); }
         }
-        
+
+        private static PropertyInfo<string> WebDBMapNameProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("WebDBMapName", "WebDBMapName"));
+        public string WebDBMapName
+        {
+            get { return ReadProperty(WebDBMapNameProperty); }
+        }
+        private static PropertyInfo<string> WebDBMapDescriptionProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("WebDBMapDescription", "WebDBMapDescription"));
+        public string WebDBMapDescription
+        {
+            get { return ReadProperty(WebDBMapDescriptionProperty); }
+        }
+
+
         public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string NameXaxis
                                                             , string Included = "", string Graphic =""
                                                             , Int64 OnlyThisAttribute = 0
                                                             , Int64 AttributeIdYAxis = 0, int SetIdYAxis = 0, string NameYaxis = ""
-                                                            , Int64 SegmentsParent = 0, int SegmentsSetId = 0)
+                                                            , Int64 SegmentsParent = 0, int SegmentsSetId = 0
+                                                            , string WebDBMapName = "", string WebDBMapDescription = "")
         {
             LoadProperty(webDbIdProperty, WebDbId);
             LoadProperty(attributeIdXAxisProperty, AttributeIdXAxis);
@@ -178,6 +191,8 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(onlyThisAttributeProperty, OnlyThisAttribute);
             LoadProperty(segmentsParentProperty, SegmentsParent);
             LoadProperty(setIdSegmentsProperty, SegmentsSetId);
+            LoadProperty(WebDBMapNameProperty, WebDBMapName);
+            LoadProperty(WebDBMapDescriptionProperty, WebDBMapDescription);
         }
         public WebDbFrequencyCrosstabAndMapSelectionCriteria() { }
     }
