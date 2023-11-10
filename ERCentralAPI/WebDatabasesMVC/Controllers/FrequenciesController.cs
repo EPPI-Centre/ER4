@@ -299,9 +299,9 @@ namespace WebDatabasesMVC.Controllers
 
         public IActionResult GetMapByQueryId([FromQuery] int mapId)
         {
-            return InternalGetMapById(mapId);
+            return InternalGetMapById(mapId, true);
         }
-        private IActionResult InternalGetMapById(int mapId)
+        private IActionResult InternalGetMapById(int mapId, bool RedirectToHome = false)
         {
             try
             {
@@ -318,7 +318,8 @@ namespace WebDatabasesMVC.Controllers
                     if (map == null || map.WebDBMapId < 1)
                     {
                         _logger.LogError("Error in GetMapById, no such map! MapId: " + mapId);
-                        return Unauthorized();
+                        if (RedirectToHome) return Redirect("~/Review/Index");
+                        else return Unauthorized();
                     }
                     WebDbFrequencyCrosstabAndMapSelectionCriteria crit
                         = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, map.ColumnsAttributeID, map.ColumnsSetID
