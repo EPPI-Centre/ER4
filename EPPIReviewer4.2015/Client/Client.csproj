@@ -778,6 +778,9 @@
     <Compile Include="..\Server\BusinessClasses\RobotHBCPCommand.cs">
       <Link>BusinessClasses\RobotHBCPCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\RobotOpenAICommand.cs">
+      <Link>BusinessClasses\RobotOpenAICommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\RobotReviewerCommand.cs">
       <Link>BusinessClasses\RobotReviewerCommand.cs</Link>
     </Compile>
