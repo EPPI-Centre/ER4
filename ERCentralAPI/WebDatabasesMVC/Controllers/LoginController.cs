@@ -136,7 +136,7 @@ namespace WebDatabasesMVC.Controllers
         }
         [HttpGet]
         //[ValidateAntiForgeryToken]
-        public IActionResult Open([FromQuery] string WebDBid)
+        public IActionResult Open([FromQuery] string WebDBid, string MapiD)
         {
             try
             {
@@ -160,7 +160,22 @@ namespace WebDatabasesMVC.Controllers
                                 // log to TB_WEBDB_LOG
                                 ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login", "Open access", WebDbId, Revid);
 
-                                return Redirect("~/Review/Index");
+
+                                if (MapiD != null)
+                                {
+                                    if (int.TryParse(MapiD, out int MapID))
+                                    {
+                                        return Redirect("~/Frequencies/GetMapByQueryId?MapId=" + MapID);
+                                    }
+                                    else
+                                    {
+                                        return Redirect("~/Review/Index");
+                                    }
+                                }
+                                else
+                                {
+                                    return Redirect("~/Review/Index");
+                                }
                             }
                             else
                             {

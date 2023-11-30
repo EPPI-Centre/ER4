@@ -1,5 +1,7 @@
 ﻿@model BusinessLibrary.BusinessClasses.WebDbFrequencyCrosstabAndMapSelectionCriteria
 @using BusinessLibrary.BusinessClasses
+@using Microsoft.AspNetCore.Html;
+@using WebDatabasesMVC.ViewModels;
 
 
 <input type="hidden" value="@Model.included" name="included" id="includedCrit" />
@@ -13,11 +15,16 @@
 <input type="hidden" value="@Model.setIdSegments" name="SetIdSegments" id="SetIdSegments" />
 <input type="hidden" value="@Model.graphic" name="Graphic" id="GraphicCrit" />
 
+<input type="hidden" value="@Model.WebDBMapName" name="WebDBMapName" id="WebDBMapNameCrit" />
+<input type="hidden" value="@Model.WebDBMapDescription" name="WebDBMapDescription" id="WebDBMapDescriptionCrit" />
+
 
 <input type="hidden" value="-1" name="SetIdXName" id="SetIdXNameCrit" />
 <input type="hidden" value="-1" name="SetIdYName" id="SetIdYNameCrit" />
 <input type="hidden" value="" name="AttibuteIdXName" id="AttibuteIdXNameCrit" />
 <input type="hidden" value="" name="AttibuteIdYName" id="AttibuteIdYNameCrit" />
+
+
 
 
 <script type="text/javascript">
@@ -38,8 +45,8 @@
         //console.log("ready function is happening");
         var pars = {
             attributeIdXAxis: @Model.attributeIdXAxis
-            , setIdXAxis: @Model.setIdXAxis
             , attributeIdYAxis: @Model.attributeIdYAxis
+            , setIdXAxis: @Model.setIdXAxis
             , setIdYAxis: @Model.setIdYAxis
             , segmentsParent: @Model.segmentsParent
             , setIdSegments: @Model.setIdSegments
@@ -50,6 +57,30 @@
         $("#resultsTable").hide();
         $("#mapLegend").hide();
         $.post("../Frequencies/GetMapJSON", pars, (data, status) => buildResults(data, status));
+
+        $("#MapTitle").html(WebDBMapNameCrit.defaultValue);
+        $("#customMapDiv").show();
+        if (WebDBMapNameCrit.defaultValue == "") {
+            $("#MapTitleDefault").html("Evidence (gap) Map");
+            $("#customMapDiv").hide();
+        }
+
+        const descrPanel = $("#MapDescription");
+        //console.log("descrPanel:", descrPanel, descrPanel.height());
+        if (descrPanel && descrPanel.height() > 300) {
+            //ExpandDescription ReduceDescription
+            $("#ExpandDescription").show();
+            $("#ReduceDescription").hide();
+            $("#HideDescriptionDiv").show();
+            $("#ShowDescriptionDiv").hide();
+            descrPanel.css("max-height", "200px");
+        } else {
+            $("#ExpandDescription").hide();
+            $("#ReduceDescription").hide();
+        }
+
+
+
     });
     function buildResults(data, status) {
         mapData = data;
@@ -58,7 +89,7 @@
     }
     function buildDescription() {
         let el = $("#MapDescription");
-        if (!el) return;
+        if (!el.innerHTML) return;
         let descr = "";
         if (mapData.graphic == "table") {
             if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0)) {
@@ -452,6 +483,43 @@
     }
 
 
+    function ToggleDescrPanelSize() {
+        const descrPanel = $("#MapDescription");
+        if (descrPanel) {
+            if (descrPanel.css("max-height") == "200px") {
+                descrPanel.css("max-height", "");
+            }
+            else {
+                descrPanel.css("max-height", "200px");
+            }
+            $("#ExpandDescription").toggle();
+            $("#ReduceDescription").toggle();
+        }
+    }
+
+
+    function HideShowDescriptionDiv() {
+        const descrPanel = $("#MapDescription");
+        const descrShowHideIcon = $("#ShowHideDescriptionDivIcon");
+        if (descrPanel) {
+            descrPanel.css("max-height", "200px");
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
+                $("#ExpandDescription").show();
+                $("#ReduceDescription").hide();
+                $("#MapDescriptionBody").show();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-minus";
+            }
+            else {
+                $("#ExpandDescription").hide();
+                $("#ReduceDescription").hide();
+                $("#MapDescriptionBody").hide();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
+            }
+        }
+    }
+
+
+
 
 </script>
 
@@ -467,75 +535,125 @@
         <div class="card mb-2">
             <div class="card-body">
                 <div class="" style="max-width:99vw; overflow:auto;">
-                    <table width="100%">
-                        <tr>
-                            <td>
-                                <h5 class="card-title mb-3">Evidence (gap) Map</h5>
-                                <div id="MapDescription">Loading...</div>
+                    <div class="card-body py-1" id="customMapDiv">
 
-                            </td>
-                            <td style="text-align:right">
-                                <div class="card-tools">
-                                    <div id="ExpandMapDiv" class="btn btn-primary btn-sm btn-round"
-                                         onclick="ToggleMapDivSize()">
-                                        <div class="flaticon-down-arrow-1">
-                                            &nbsp;&nbsp;View more&nbsp;
-                                        </div>
-                                    </div>
-                                    <div id="ReduceMapDiv" class="btn btn-primary btn-sm btn-round"
-                                         onclick="ToggleMapDivSize()">
-                                        <div class="flaticon-up-arrow-1">
-                                            &nbsp;&nbsp;View less&nbsp;
-                                        </div>
-                                    </div>
+                        <!-- Description card -->
+                        <div class="card ">
+                            <div class="card-header">
+                                <table width="100%">
+                                    <tr>
+                                        <td>
+                                            <!--<h5 class="card-title mb-3">Evidence (gap) Map</h5>-->
+                                            <div class="card-title mb-3" id="MapTitle"></div>                               
+                                        </td>
+                                        <td style="text-align:right;padding-top:5px">
+                                            <div id="ExpandDescription" class="btn btn-primary btn-sm btn-round"
+                                                    onclick="ToggleDescrPanelSize()">
+                                                <div class="flaticon-down-arrow-1">
+                                                    &nbsp;&nbsp;More&nbsp;
+                                                </div>
+                                            </div>
+                                            <div id="ReduceDescription" class="btn btn-primary btn-sm btn-round"
+                                                    onclick="ToggleDescrPanelSize()">
+                                                <div class="flaticon-up-arrow-1">
+                                                    &nbsp;&nbsp;Less&nbsp;
+                                                </div>
+                                            </div>
+                                            <div id="ShowHideDescriptionDivButton" class="btn btn-primary btn-sm"
+                                                    onclick="HideShowDescriptionDiv()">
+                                                <div id="ShowHideDescriptionDivIcon" class="fa fa-minus">
+                                                </div>
+                                            </div>
+                                        </td>
+                            
+                                    </tr>
 
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubble')" disabled id="showBubbleButton">
-                                        <span class="btn-label">
-                                            <i class="fa fa-circle"></i>
-                                        </span>
-                                        Bubble map
-                                    </button>
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')" disabled id="showTableButton">
-                                        <span class="btn-label">
-                                            <i class="fa fa-table"></i>
-                                        </span>
-                                        Table
-                                    </button>
-
-                                    <!--<button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
-                                        <span class="btn-label">
-                                            <i class="fa fa-circle"></i>
-                                        </span>
-                                        Bubble (log)
-                                    </button>*
-                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
-                                        <span class="btn-label">
-                                            <i class="fa fa-file-excel"></i>
-                                        </span>
-                                        Export
-                                    </a>-->
-                                    <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm">
-                                        <span class="btn-label">
-                                            <i class="fa fa-copy"></i>
-                                        </span>
-                                        Copy
-                                    </a>-->
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <div id="spinner" class="w-100" style="display:none;">
-                        <div class="d-flex justify-content-center">
-                            <div class="spinner-border" role="status">
-                                <span class="sr-only">Loading...</span>
+                                </table>
                             </div>
+
+                            <div class="card-body" id="MapDescriptionBody" tooltip="">
+                                <div class="card-category" style="overflow-y:auto;" id="MapDescription">
+                                    @(new HtmlString(Model.WebDBMapDescription))
+                                </div>
+                            </div>
+                           
                         </div>
                     </div>
-                    <div class="card-body row mx-0 px-0">
-                        <div class="d-block" id="resultsTable" style="max-height:50vh; overflow:auto;display:none;"></div>
-                    </div>
-                    <div class="card-body py-1" id="mapLegend">
+
+
+
+                    <div>
+                
+                        <table width="100%">
+                                <tr>
+                                <td>
+                                    <div class="card-tools">
+                                        <div class="card-title mb-3" id="MapTitleDefault"></div>
+                                    </div>
+                                </td>
+                                <td style="text-align:right">
+                                    <div class="card-tools">
+                                        <div id="ExpandMapDiv" class="btn btn-primary btn-sm btn-round"
+                                                onclick="ToggleMapDivSize()">
+                                            <div class="flaticon-down-arrow-1">
+                                                &nbsp;&nbsp;View more&nbsp;
+                                            </div>
+                                        </div>
+                                        <div id="ReduceMapDiv" class="btn btn-primary btn-sm btn-round"
+                                                onclick="ToggleMapDivSize()">
+                                            <div class="flaticon-up-arrow-1">
+                                                &nbsp;&nbsp;View less&nbsp;
+                                            </div>
+                                        </div>
+
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubble')" disabled id="showBubbleButton">
+                                            <span class="btn-label">
+                                                <i class="fa fa-circle"></i>
+                                            </span>
+                                            Bubble map
+                                        </button>
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')" disabled id="showTableButton">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>
+                                            Table
+                                        </button>
+
+                                        <!--<button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
+                                            <span class="btn-label">
+                                                <i class="fa fa-circle"></i>
+                                            </span>
+                                            Bubble (log)
+                                        </button>*
+                                        <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                            <span class="btn-label">
+                                                <i class="fa fa-file-excel"></i>
+                                            </span>
+                                            Export
+                                        </a>-->
+                                        <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm">
+                                            <span class="btn-label">
+                                                <i class="fa fa-copy"></i>
+                                            </span>
+                                            Copy
+                                        </a>-->
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div id="spinner" class="w-100" style="display:none;">
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body row mx-0 px-0">
+                            <div class="d-block" id="resultsTable" style="max-height:50vh; overflow:auto;display:none;"></div>
+                        </div>
+                        <div class="card-body py-1" id="mapLegend">
+                        </div>
                     </div>
                 </div>
             </div>
