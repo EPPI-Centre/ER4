@@ -110,9 +110,7 @@ namespace EppiReviewer4
             if (rs != null)
             {
                 DataPortal<RobotOpenAICommand> dp2 = new DataPortal<RobotOpenAICommand>();
-                RobotOpenAICommand rr = new RobotOpenAICommand(SelectedTitle);
-                rr.SelectedReviewSet = rs;
-                rr.SelectedItemDocument = SelectedItemDocument;
+                RobotOpenAICommand rr = new RobotOpenAICommand(rs.ReviewSetId, SelectedItemDocument.ItemId, SelectedItemDocument.ItemDocumentId);
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
                     busyIndicatorRobots.IsBusy = false;

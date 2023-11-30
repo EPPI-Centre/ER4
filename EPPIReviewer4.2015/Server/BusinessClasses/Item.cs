@@ -1524,6 +1524,28 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        internal static Item GetItemById(Int64 ItemId, int ReviewId)
+        {
+            Item i = null;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_Item", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                            i = Item.GetItem(reader);
+                    }
+                }
+                connection.Close();
+            }
+            return i;
+        }
+
 
         // *********************** BEGIN TOSHORTSEARCHTEXT **********************
 
