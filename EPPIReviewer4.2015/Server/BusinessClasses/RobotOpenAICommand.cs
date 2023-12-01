@@ -204,20 +204,20 @@ namespace BusinessLibrary.BusinessClasses
             };
 
 
-            // *** currently unused, but we can experiment with these parameters (maybe put in web.config?)
+            // *** additional params (modifiable in web.config)
             string engine = "gpt35";
             int max_tokens = 800;
-            double temperature = 0.7;
-            int frequency_penalty = 0;
-            int presence_penalty = 0;
-            double top_p = 0.95;
+            double temperature = Convert.ToDouble(configuration["RobotOpenAITemperature"]);
+            int frequency_penalty = Convert.ToInt16(configuration["RobotOpenAIFrequencyPenalty"]);
+            int presence_penalty = Convert.ToInt16(configuration["RobotOpenAIPresencePenalty"]);
+            double top_p = Convert.ToDouble(configuration["RobotOpenAITopP"]);
             object stop = null;
 
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("api-key", $"{key}");
-            var requestBody = new { messages };
+            var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p};
             var json = JsonConvert.SerializeObject(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             try
