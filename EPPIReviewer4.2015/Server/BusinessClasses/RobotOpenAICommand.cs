@@ -149,6 +149,8 @@ namespace BusinessLibrary.BusinessClasses
             string key = configuration["RobotOpenAIKey2"];
             //string document = GetDoc(_itemDocumentId, ReviewId);  // when we re-enable this, we need to check the stored proc (below) will return the text
 
+
+            // *** Get item and check that it has an abstract
             Item i = Item.GetItemById(_itemId, ReviewId);
             if (i == null)
             {
@@ -167,6 +169,8 @@ namespace BusinessLibrary.BusinessClasses
                 return false;
             }
             
+
+            // *** Get the codeset, build the list of prompts, and return if no valid prompts are present
             ReviewSet rs = null;
             rs = ReviewSet.GetReviewSet(_reviewSetId);
             if (rs == null)
@@ -185,14 +189,22 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
-            //document = "Internet-based interventions for smoking cessation could help millions of people stop smoking at very low unit costs; however, long-term biochemically verified evidence is scarce and such interventions might be less effective for smokers with low socioeconomic status than for those with high status because of lower online literacy to engage with websites. We aimed to assess a new interactive internet-based intervention (StopAdvisor) for smoking cessation that was designed with particular attention directed to people with low socioeconomic status. We did this online randomised controlled trial between Dec 6, 2011, and Oct 11, 2013, in the UK. Participants aged 18 years and older who smoked every day were randomly assigned (1:1) to receive treatment with StopAdvisor or an information-only website. Randomisation was automated with an unseen random number function embedded in the website to establish which treatment was revealed after the online baseline assessment. Recruitment continued until the required sample size had been achieved from both high and low socioeconomic status subpopulations. Participants, and researchers who obtained data and did laboratory analyses, were masked to treatment allocation. The primary outcome was 6 month sustained, biochemically verified abstinence. The main secondary outcome was 6 month, 7 day biochemically verified point prevalence. Analysis was by intention to treat. Homogeneity of intervention effect across the socioeconomic subsamples was first assessed to establish whether overall or separate subsample analyses were appropriate. The study is registered as an International Standard Randomised Controlled Trial, number ISRCTN99820519. We randomly assigned 4613 participants to the StopAdvisor group (n=2321) or the control group (n=2292); 2142 participants were of low socioeconomic status and 2471 participants were of high status. The overall rate of smoking cessation was similar between participants in the StopAdvisor and control groups for the primary (237 [10%] vs 220 [10%] participants; relative risk [RR] 1·06, 95% CI 0·89–1·27; p=0·49) and the secondary (358 [15%] vs 332 [15%] participants; 1·06, 0·93–1·22; p=0·37) outcomes; however, the intervention effect differed across socioeconomic status subsamples (1·44, 0·99–2·09; p=0·0562 and 1·37, 1·02–1·84; p=0·0360, respectively). StopAdvisor helped participants with low socioeconomic status stop smoking compared with the information-only website (primary outcome: 90 [8%] of 1088 vs 64 [6%] of 1054 participants; RR 1·36, 95% CI 1·00–1·86; p=0·0499; secondary outcome: 136 [13%] vs 100 [10%] participants; 1·32, 1·03–1·68, p=0·0267), but did not improve cessation rates in those with high socioeconomic status (147 [12%] of 1233 vs 156 [13%] of 1238 participants; 0·95, 0·77–1·17; p=0·61 and 222 [18%] vs 232 [19%] participants; 0·96, 0·81–1·13, p=0·64, respectively).";
+            if (prompt == "")
+            {
+                _message = "No valid prompts in codeset";
+                return false;
+            }
 
+
+            // *** Create the prompt for the LLM
             List<OpenAIChatClass> messages = new List<OpenAIChatClass>
             {
                 new OpenAIChatClass { role = "system", content = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}"}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
                 new OpenAIChatClass { role = "user", content = "Text: " + i.Abstract},
             };
 
+
+            // *** currently unused, but we can experiment with these parameters (maybe put in web.config?)
             string engine = "gpt35";
             int max_tokens = 800;
             double temperature = 0.7;
@@ -201,6 +213,8 @@ namespace BusinessLibrary.BusinessClasses
             double top_p = 0.95;
             object stop = null;
 
+
+            // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("api-key", $"{key}");
             var requestBody = new { messages };
@@ -220,6 +234,8 @@ namespace BusinessLibrary.BusinessClasses
                 var responses = generatedText.choices[0].message.content;
                 var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
 
+
+                // *** Go through each of the responses, find the right code, and save results
                 foreach (var kv in dict)
                 {
                     AttributeSet matched = null;
@@ -249,7 +265,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private void SaveAttribute(AttributeSet aSet, Int64 ItemId, string info, int ReviewId, int ContactId)
         {
-            // i.e. it's a Boolean type field and we don't want the box 'ticked'
+            // i.e. it's a Boolean type field, or the attribute wasn't found and we don't want the box 'ticked'
             if (info == "False" || info == "false")
             {
                 return;
