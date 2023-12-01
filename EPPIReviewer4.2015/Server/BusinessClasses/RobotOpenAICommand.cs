@@ -99,7 +99,15 @@ namespace BusinessLibrary.BusinessClasses
                     currentPrompt += newPrompt + ",";
                 }
             }
-            return aSet.AttributeSetDescription;
+            string possiblePrompt = aSet.AttributeSetDescription;
+            if (possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':')) // checking it's in the right format
+            {
+                return possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}",""); // once out of Alpha we could make this more complete
+            }
+            else
+            {
+                return "";
+            }
         }
 
         private AttributeSet getAttributeFromPromptKey(string key, AttributeSet aSet)
@@ -181,7 +189,7 @@ namespace BusinessLibrary.BusinessClasses
 
             List<OpenAIChatClass> messages = new List<OpenAIChatClass>
             {
-                new OpenAIChatClass { role = "system", content = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'null' for that field. \nShape: {" + prompt + "}"}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
+                new OpenAIChatClass { role = "system", content = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}"}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
                 new OpenAIChatClass { role = "user", content = "Text: " + i.Abstract},
             };
 
@@ -241,6 +249,12 @@ namespace BusinessLibrary.BusinessClasses
 
         private void SaveAttribute(AttributeSet aSet, Int64 ItemId, string info, int ReviewId, int ContactId)
         {
+            // i.e. it's a Boolean type field and we don't want the box 'ticked'
+            if (info == "False" || info == "false")
+            {
+                return;
+            }
+
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
