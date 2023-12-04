@@ -77,6 +77,13 @@ namespace EppiReviewer4
                     return;
                 }
 
+                if (SelectedItemDocument == null)
+                {
+                    RadWindow.Alert("Please use the 'robots' button against the document you want to submit");
+                    this.closeWindowRobots.Invoke(sender, e);
+                    return;
+                }
+
                 DataPortal<RobotReviewerCommand> dp2 = new DataPortal<RobotReviewerCommand>();
                 RobotReviewerCommand rr = new RobotReviewerCommand(SelectedTitle, SelectedAbstract);
                 rr.SelectedReviewSet = rs;
@@ -106,6 +113,11 @@ namespace EppiReviewer4
 
         private void DoOpenAI(object sender, RoutedEventArgs e)
         {
+            if (SelectedAbstract == null || SelectedAbstract == "")
+            {
+                RadWindow.Alert("No abstract present");
+                return;
+            }
             ReviewSet rs = dialogRobotsComboSelectCodeSet.SelectedItem as ReviewSet;
             if (rs != null)
             {

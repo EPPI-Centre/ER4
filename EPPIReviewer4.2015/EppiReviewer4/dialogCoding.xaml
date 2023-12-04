@@ -472,6 +472,13 @@
                                             <TextBlock Text="Translate" Margin="4,0,0,0"></TextBlock>
                                         </StackPanel>
                                     </Button>
+                                    <Button x:Name="cmdRobotDlgOpen"  IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Width="80" 
+                                            Click="cmdRobotDlgOpen_Click" ToolTipService.ToolTip="Use automatic coding">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/AutoCode.png"/>
+                                            <TextBlock Text="Robots" Margin="5,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
                                 </telerikNavigation:RadToolBar>
 
                                 <ScrollViewer x:Name="ScrollViewerCitationDetails" Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0">
