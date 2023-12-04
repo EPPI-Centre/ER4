@@ -26,6 +26,7 @@ namespace EppiReviewer4
         public ItemDocument SelectedItemDocument;
         public string SelectedTitle;
         public string SelectedAbstract;
+        public Int64 SelectedItemId;
         public RadWRobots()
         {
             InitializeComponent();
@@ -122,7 +123,7 @@ namespace EppiReviewer4
             if (rs != null)
             {
                 DataPortal<RobotOpenAICommand> dp2 = new DataPortal<RobotOpenAICommand>();
-                RobotOpenAICommand rr = new RobotOpenAICommand(rs.ReviewSetId, SelectedItemDocument.ItemId, SelectedItemDocument.ItemDocumentId);
+                RobotOpenAICommand rr = new RobotOpenAICommand(rs.ReviewSetId, SelectedItemId, -1);
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
                     busyIndicatorRobots.IsBusy = false;
@@ -139,6 +140,7 @@ namespace EppiReviewer4
                         RadWindow.Alert(rr2.ReturnMessage);
                     }
                 };
+                RadWindow.Alert("two");
                 busyIndicatorRobots.IsBusy = true;
                 hlCancel.IsEnabled = false;
                 hlGo.IsEnabled = false;

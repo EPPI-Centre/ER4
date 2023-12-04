@@ -3583,6 +3583,7 @@ namespace EppiReviewer4
             Item thisItem = DataContext as Item;
             WindowRobots.SelectedTitle = thisItem.Title;
             WindowRobots.SelectedAbstract = thisItem.Abstract;
+            WindowRobots.SelectedItemId = thisItem.ItemId;
             WindowRobots.ShowDialog();
         }
 
