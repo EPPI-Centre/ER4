@@ -1,6 +1,9 @@
 ﻿@model BusinessLibrary.BusinessClasses.WebDbFrequencyCrosstabAndMapSelectionCriteria
 @using BusinessLibrary.BusinessClasses
 
+@{
+    Layout = "~/Views/Shared/_MinimalLayout.cshtml";
+}
 
 <input type="hidden" value="@Model.included" name="included" id="includedCrit" />
 <input type="hidden" value="@Model.attributeIdXAxis" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
@@ -35,10 +38,19 @@
         $("#ShorterBarBT").hide();
         $("#TallerTreeBT").hide();
         $("#ShorterTreeBT").hide();
-        $.post("../Frequencies/GetFrequenciesResultsJSON", pars, (data, status) => buildResults(data, status));
+        $.post("../Frequencies/GetFrequenciesResultsJSON", pars, (data, status) => buildResults(data, status))
+        .fail(function (response) {
+            alert(showAjaxError(response));
+            $("#spinner").hide();
+        });
     });
 
     function buildResults(data, status) {
+            freqData = data;
+            GoToFreq();
+        }
+
+        /*
         if (data && status == "success") {
             freqData = data;
             GoToFreq();
@@ -46,7 +58,8 @@
         else if (status != "success") {
             //show some error message??
         }
-    }
+        */
+
 
     function GoToFreq() {
         $("#GoToFreqBT").prop("disabled", true);
