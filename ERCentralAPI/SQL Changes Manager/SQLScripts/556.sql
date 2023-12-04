@@ -3,7 +3,7 @@ GO
 /****** Object:  StoredProcedure [dbo].[st_WebDbMap]    Script Date: 21/11/2023 15:48:00 ******/
 SET ANSI_NULLS OFF
 GO
-SET QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON 
 GO
 
 CREATE or ALTER   PROCEDURE [dbo].[st_WebDbMap]
