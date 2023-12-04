@@ -140,7 +140,6 @@ namespace EppiReviewer4
                         RadWindow.Alert(rr2.ReturnMessage);
                     }
                 };
-                RadWindow.Alert("two");
                 busyIndicatorRobots.IsBusy = true;
                 hlCancel.IsEnabled = false;
                 hlGo.IsEnabled = false;
