@@ -3576,6 +3576,17 @@ namespace EppiReviewer4
             WindowRobots.SelectedAbstract = thisItem.Abstract;
             WindowRobots.ShowDialog();
         }
+
+        private void cmdRobotDlgOpen_Click(object sender, RoutedEventArgs e)
+        {
+            WindowRobots.SelectedItemDocument = null;
+            Item thisItem = DataContext as Item;
+            WindowRobots.SelectedTitle = thisItem.Title;
+            WindowRobots.SelectedAbstract = thisItem.Abstract;
+            WindowRobots.SelectedItemId = thisItem.ItemId;
+            WindowRobots.ShowDialog();
+        }
+
         private void WindowRobotsClose(object sender, RoutedEventArgs e)
         {
             Item thisItem = DataContext as Item;
@@ -3584,6 +3595,7 @@ namespace EppiReviewer4
             WindowRobots.Close();
         }
 
+       
         private void It_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
             if (e.Error != null)

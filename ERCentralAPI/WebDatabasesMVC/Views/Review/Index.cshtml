@@ -10,6 +10,8 @@
     Claim WebDbIDclaim = User.FindFirst("WebDbID");
     string imgPath1 = "";
     string imgPath2 = "";
+    bool smallPhone = false;
+
     //string imgMapPath1 = "";
     if (WebDbIDclaim != null)
     {
@@ -100,6 +102,13 @@
         $("#BuildBarShowNOA").hide();
         $("#BuildBarHideNOA").hide();
         $("#tableVisible").val("0");
+
+        $("#smallPhoneButton").hide();
+        if ($(window).outerWidth() <= 325) {
+            $("#smallPhoneButton").show();
+        }
+
+
     });
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
@@ -319,7 +328,8 @@
             $("#FrequenciesGrid").html("Error: unauthorised. You may need to re-open, or login to, this visualisation.");
         }
         else {
-            $("#FrequenciesGrid").html("Error, status code is: " + response.status);
+            alert(showAjaxError(response));
+            //$("#FrequenciesGrid").html("Error, status code is: " + response.status);
         }
     }
 
@@ -1154,17 +1164,34 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
 
+            
+
+
+
+
+
             <ul class="nav nav-primary">
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
 
-                    <h4 class="text-section">
+
+
+
+                    <div style="padding-left:10px">
+                        <!-- this button should be invisible if the screen is > 325px wide --> 
+                        <button id="smallPhoneButton" class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" 
+                            data-target="collapse" aria-expanded="false" aria-label="Toggle navigation" style="padding-left:0px">
+                            <span class="navbar-toggler-icon">
+                                <i class="icon-menu"></i>
+                            </span>
+                        </button>
+
                         <!--CODING TOOLS<br /><br />-->
                         <button id="GoToItemsWithThisCodeSB" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
                         <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreqSB">Frequencies</button>
-                    </h4>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
