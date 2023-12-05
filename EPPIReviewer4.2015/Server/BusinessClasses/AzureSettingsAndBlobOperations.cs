@@ -30,6 +30,7 @@ namespace BusinessLibrary.BusinessClasses
             _AzureMagSettings = config.GetSection("AzureMagSettings");
             _ClassifierSettings = config.GetSection("ClassifierSettings");
             _AppSettings = config.GetSection("AppSettings");
+            _RobotSettings = config.GetSection("RobotSettings");
         }
 
         private static Microsoft.Extensions.Configuration.IConfigurationSection _AppSettings;
@@ -83,6 +84,14 @@ namespace BusinessLibrary.BusinessClasses
                 return _ClassifierSettings;
             }
         }
+        private static Microsoft.Extensions.Configuration.IConfigurationSection _RobotSettings;
+        private static Microsoft.Extensions.Configuration.IConfigurationSection RobotSettings
+        {
+            get
+            {
+                return _RobotSettings;
+            }
+        }
 #else
         private static NameValueCollection _AllAppSettings;
         private static NameValueCollection AppSettings
@@ -110,6 +119,14 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static NameValueCollection ClassifierSettings
+        {
+            get
+            {
+                if (_AllAppSettings == null) _AllAppSettings = ConfigurationManager.AppSettings;
+                return _AllAppSettings;
+            }
+        }
+        private static NameValueCollection RobotSettings
         {
             get
             {
@@ -181,6 +198,16 @@ namespace BusinessLibrary.BusinessClasses
         public static string apiKeyVectorise { get { return ClassifierSettings["apiKeyVectorise"]; } }
         public static string BaseUrlSimulation5 { get { return ClassifierSettings["BaseUrlSimulation5"]; } }
         public static string apiKeySimulation5 { get { return ClassifierSettings["apiKeySimulation5"]; } }
+
+        //robots:
+        public static string RobotReviewerEndpoint { get { return RobotSettings["RobotReviewerEndpoint"]; } }
+        public static string RobotHBCPEndpoint { get { return RobotSettings["RobotHBCPEndpoint"]; } }
+        public static string RobotOpenAIEndpoint { get { return RobotSettings["RobotOpenAIEndpoint"]; } }
+        public static string RobotOpenAIKey2 { get { return RobotSettings["RobotOpenAIKey2"]; } }
+        public static string RobotOpenAITemperature { get { return RobotSettings["RobotOpenAITemperature"]; } }
+        public static string RobotOpenAITopP { get { return RobotSettings["RobotOpenAITopP"]; } }
+        public static string RobotOpenAIFrequencyPenalty { get { return RobotSettings["RobotOpenAIFrequencyPenalty"]; } }
+        public static string RobotOpenAIPresencePenalty { get { return RobotSettings["RobotOpenAIPresencePenalty"]; } }
     }
     public class BlobOperations
     {

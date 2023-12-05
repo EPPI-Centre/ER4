@@ -145,8 +145,8 @@ namespace BusinessLibrary.BusinessClasses
             };
             int errors = 0;
 
-            string endpoint = configuration["RobotOpenAIEndpoint"];
-            string key = configuration["RobotOpenAIKey2"];
+            string endpoint = AzureSettings.RobotOpenAIEndpoint;
+            string key = AzureSettings.RobotOpenAIKey2;
             //string document = GetDoc(_itemDocumentId, ReviewId);  // when we re-enable this, we need to check the stored proc (below) will return the text
 
 

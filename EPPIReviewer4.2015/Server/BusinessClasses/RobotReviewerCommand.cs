@@ -128,7 +128,7 @@ namespace BusinessLibrary.BusinessClasses
 
             var json = JsonConvert.SerializeObject(UploadData);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            string endpoint = configuration["RobotReviewerEndpoint"];
+            string endpoint = AzureSettings.RobotReviewerEndpoint;
 
             var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
