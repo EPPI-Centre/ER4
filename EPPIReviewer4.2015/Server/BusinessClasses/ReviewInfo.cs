@@ -288,7 +288,18 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-
+        public static readonly PropertyInfo<bool> OpenAIEnabledProperty = RegisterProperty<bool>(new PropertyInfo<bool>("OpenAIEnabled", "OpenAIEnabled", false));
+        public bool OpenAIEnabled
+        {
+            get
+            {
+                return GetProperty(OpenAIEnabledProperty);
+            }
+            set
+            {
+                SetProperty(OpenAIEnabledProperty, value);
+            }
+        }
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
@@ -414,6 +425,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(BL_CC_AUTH_CODEProperty, reader.GetString("BL_CC_AUTH_CODE"));
                             LoadProperty<string>(BL_CC_TXProperty, reader.GetString("BL_CC_TX"));
                             LoadProperty<int>(MagEnabledProperty, reader.GetInt32("MAG_ENABLED"));
+                            LoadProperty<bool>(OpenAIEnabledProperty, reader.GetBoolean("OPEN_AI_ENABLED")); 
                         }
                     }
                 }

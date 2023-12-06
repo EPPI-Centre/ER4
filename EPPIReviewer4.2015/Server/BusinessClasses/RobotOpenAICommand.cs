@@ -130,19 +130,7 @@ namespace BusinessLibrary.BusinessClasses
         private async Task<bool> DoRobot(int ReviewId, int UserId)
         {
             bool result = true;
-#if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-
-#else
-            var configuration = ConfigurationManager.AppSettings;
-
-#endif
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
             int errors = 0;
 
             string endpoint = AzureSettings.RobotOpenAIEndpoint;
@@ -205,13 +193,10 @@ namespace BusinessLibrary.BusinessClasses
 
 
             // *** additional params (modifiable in web.config)
-            string engine = "gpt35";
-            int max_tokens = 800;
-            double temperature = Convert.ToDouble(configuration["RobotOpenAITemperature"]);
-            int frequency_penalty = Convert.ToInt16(configuration["RobotOpenAIFrequencyPenalty"]);
-            int presence_penalty = Convert.ToInt16(configuration["RobotOpenAIPresencePenalty"]);
-            double top_p = Convert.ToDouble(configuration["RobotOpenAITopP"]);
-            object stop = null;
+            double temperature = Convert.ToDouble(AzureSettings.RobotOpenAITemperature);
+            int frequency_penalty = Convert.ToInt16(AzureSettings.RobotOpenAIFrequencyPenalty);
+            int presence_penalty = Convert.ToInt16(AzureSettings.RobotOpenAIPresencePenalty);
+            double top_p = Convert.ToDouble(AzureSettings.RobotOpenAITopP);
 
 
             // *** Create the client and submit the request to the LLM
