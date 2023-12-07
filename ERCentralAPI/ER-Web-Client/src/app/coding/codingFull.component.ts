@@ -21,6 +21,9 @@ import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service'
 import { OutcomesService } from '../services/outcomes.service';
 import { OutcomesComponent } from '../Outcomes/outcomes.component';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { forEach } from 'lodash';
+import { iRobotOpenAICommand, RobotsService } from '../services/Robots.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -49,7 +52,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private ArmTimepointLinkListService: ArmTimepointLinkListService,
     private notificationService: NotificationService,
     private _reviewSetsEditingService: ReviewSetsEditingService,
-    private _outcomeService: OutcomesService
+    private _outcomeService: OutcomesService,
+    private robotsService: RobotsService,
+    private confirmationDialogService: ConfirmationDialogService
   ) { }
 
   ngOnInit() {
@@ -160,6 +165,15 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     else return this._outcomeService.currentOutcomeHasChanges;
   }
 
+  public get CanRunOpenAIrobot(): boolean {
+    if (!this.HasWriteRights) return false;
+    else if (!this.reviewInfoService.ReviewInfo.openAIEnabled) return false;
+    else {
+      let node = this.ReviewSetsService.selectedNode;
+      if (node != null && node.nodeType == 'ReviewSet' && node.subTypeName == "Standard") return true;
+      else return false;
+    }
+  }
 
   public RefreshTerms() {
 
@@ -283,7 +297,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this._reviewSetsEditingService.IsBusy || this.ItemDocsService.IsBusy ||
       this.ArmTimepointLinkListService.IsBusy ||
       this.reviewInfoService.IsBusy || this._outcomeService.IsBusy
-      || this.ReviewerTermsService.IsBusy) {
+      || this.ReviewerTermsService.IsBusy || this.robotsService.IsBusy) {
       return true;
     }
     else return false;
@@ -707,6 +721,48 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     else { console.log('Ouch'); }
   }
+
+  public async RunRobotOpenAICommand() {
+     
+    if (!this.CanRunOpenAIrobot) {
+      this.notificationService.show({
+        content: "Can't run the OpenAI GPT4 robot given the current code-selection.",
+        position: { horizontal: 'center', vertical: 'top' },
+        animation: { type: 'fade', duration: 500 },
+        type: { style: 'error', icon: false },
+        hideAfter: 3000
+      });
+      return;
+    }
+    const RSnode = this.ReviewSetsService.selectedNode as ReviewSet;
+    if (!RSnode || !RSnode) return;
+    for (let node of RSnode.attributes) {
+      if (node.description == "") {
+        this.notificationService.show({
+          content: "Can't run the OpenAI GPT4 robot: the code '" + node.name + "' has no description.",
+          position: { horizontal: 'center', vertical: 'top' },
+          animation: { type: 'fade', duration: 500 },
+          type: { style: 'error', icon: false },
+          hideAfter: 3000
+        });
+      }
+    }
+    //checks passed, we can try this.
+    let cmd: iRobotOpenAICommand = {
+      reviewSetId: RSnode.reviewSetId,
+      itemDocumentId: 0,
+      itemId: this.itemID,
+      returnMessage: ""
+    }
+    let res = await this.robotsService.RunRobotOpenAICommand(cmd);
+    if (res.returnMessage != "Error") {
+      //no need to handle errors here - we do that in the service as usual
+      this.confirmationDialogService.ShowInformationalModal(res.returnMessage, "GPT4 result");
+      this.GetItemCoding();
+    }
+  }
+
+
   SelectTab(i: number) {
     if (!this.tabstrip) return;
     else {

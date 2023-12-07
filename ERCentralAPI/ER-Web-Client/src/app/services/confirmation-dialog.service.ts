@@ -20,7 +20,7 @@ export class ConfirmationDialogService implements OnDestroy {
 		title: string,
 		message: string,
 		ShowInputTextWarning: boolean,
-        RequiredConfirmationTxt: string = "I confirm",
+    RequiredConfirmationTxt: string = "I confirm",
 		btnOkText: string = 'OK',
 		btnCancelText: string = 'Cancel',
 
@@ -34,12 +34,22 @@ export class ConfirmationDialogService implements OnDestroy {
 		modalRef.componentInstance.title = title;
 		modalRef.componentInstance.message = message;
 		modalRef.componentInstance.btnOkText = btnOkText;
-        modalRef.componentInstance.btnCancelText = btnCancelText;
-        modalRef.componentInstance.ShowInputTextWarning = ShowInputTextWarning;
-        modalRef.componentInstance.RequiredConfirmationTxt = RequiredConfirmationTxt;
+    modalRef.componentInstance.btnCancelText = btnCancelText;
+    modalRef.componentInstance.ShowInputTextWarning = ShowInputTextWarning;
+    modalRef.componentInstance.RequiredConfirmationTxt = RequiredConfirmationTxt;
 		
 		return modalRef.result;
-	}
+  }
+  public ShowInformationalModal(message: string, title: string = "Information", dialogSize: 'sm' | 'lg' = 'sm'): any {
+    let modalRef = this.modalService.open(ConfirmationDialogComponent,
+      { size: dialogSize }
+    ); 
+    modalRef.componentInstance.title = title;
+    modalRef.componentInstance.message = message;
+    modalRef.componentInstance.btnCancelText = "OK";
+    modalRef.componentInstance.ShowInputTextWarning = false;
+    modalRef.componentInstance.IsInformational = true;
+  }
 
 	public showMAGRunMessage(notifyMsg: string) {
 
