@@ -3596,6 +3596,7 @@ namespace EppiReviewer4
             Item thisItem = DataContext as Item;
             WindowRobots.SelectedTitle = thisItem.Title;
             WindowRobots.SelectedAbstract = thisItem.Abstract;
+            WindowRobots.rbRobotOpenAI.IsEnabled = CanUseOpenAIrobot;
             WindowRobots.ShowDialog();
         }
 
@@ -3606,6 +3607,7 @@ namespace EppiReviewer4
             WindowRobots.SelectedTitle = thisItem.Title;
             WindowRobots.SelectedAbstract = thisItem.Abstract;
             WindowRobots.SelectedItemId = thisItem.ItemId;
+            WindowRobots.rbRobotOpenAI.IsEnabled = CanUseOpenAIrobot;
             WindowRobots.ShowDialog();
         }
 
@@ -3613,7 +3615,8 @@ namespace EppiReviewer4
         {
             Item thisItem = DataContext as Item;
             codesTreeControl.ReloadAllSets();
-            BindTree(thisItem);
+            if (this.dialogItemDetailsControl.IsPriorityScreening) BindScreening();
+            else BindTree(thisItem);
             WindowRobots.Close();
         }
 
