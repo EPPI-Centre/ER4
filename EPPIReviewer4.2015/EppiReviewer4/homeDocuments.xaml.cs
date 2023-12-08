@@ -426,6 +426,13 @@ namespace EppiReviewer4
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
             }
 
+            // New embeddings clustering only available to admins 
+            if (ri.IsSiteAdmin)
+            {
+                windowDocumentCluster.GridWindowDocumentCluster.ColumnDefinitions[4].Width = new GridLength(190);
+                windowDocumentCluster.GridWindowDocumentCluster.ColumnDefinitions[5].Width = new GridLength(190);
+            }
+
             SetMicrosoftAcademicAlertIcon();
         }
 

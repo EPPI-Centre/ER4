@@ -26,11 +26,14 @@
             <ColumnDefinition Width="190"></ColumnDefinition>
             <ColumnDefinition Width="190"></ColumnDefinition>
             <ColumnDefinition Width="190"></ColumnDefinition>
+            <ColumnDefinition Width="0"></ColumnDefinition>
+            <ColumnDefinition Width="0"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Automatically assign codes" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" Margin="6,6,6,6"></TextBlock>
+        <TextBlock Text="Automatically assign codes" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="6" Margin="6,6,6,6"></TextBlock>
         <TextBlock Text="Lingo3G" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
         <TextBlock Text="OpenAlex" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+        <TextBlock Text="Embeddings" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="4" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
         <TextBlock Text="Maximum hierarchy depth" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2" Margin="6,6,6,6"></TextBlock>
         <telerikInput:RadNumericUpDown x:Name="NumericUpDownMaxHierarchyDepth" Maximum="5" Minimum="1" Value="2" SmallChange="1" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
         <TextBlock Text="Minimum cluster size" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="6,6,6,6"></TextBlock>
@@ -42,17 +45,18 @@
         <TextBlock Text="Minimum label length" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="6,6,6,6"></TextBlock>
         <telerikInput:RadNumericUpDown x:Name="NumericUpDownMinLabelLength" Maximum="8" Minimum="1" Value="0.35" SmallChange="1" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
 
-        <TextBlock Text="Assign codes to (applies to Lingo3G and OpenAlex)" HorizontalAlignment="Right" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" Margin="6,10,6,6"></TextBlock>
+        <TextBlock Text="Assign codes to (applies to all methods)" HorizontalAlignment="Right" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" Margin="6,10,6,6"></TextBlock>
         <ComboBox x:Name="ComboClusterWhat" Grid.Column="2" Grid.Row="8" Margin="6,6,6,6" SelectionChanged="ComboClusterWhat_SelectionChanged">
             <ComboBoxItem Content="All included items" IsSelected="True"></ComboBoxItem>
             <ComboBoxItem Content="All selected items"></ComboBoxItem>
             <ComboBoxItem Content="All items with this code"></ComboBoxItem>
         </ComboBox>
+        
         <TextBlock Text="Select Code:" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="9" Margin="6,10,6,6"></TextBlock>
         <local:codesSelectControl x:Name="codesSelectControlClusterSelect" Grid.Row="9" Grid.Column="2" Margin="4,4,4,4"></local:codesSelectControl>
         <TextBlock Text="Cluster documents?" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="10" Margin="6,6,6,6" Visibility="Collapsed"></TextBlock>
         <CheckBox x:Name="CheckBoxClusterIncludeDocs" Visibility="Collapsed" IsChecked="False" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="10" Margin="6,6,6,6"></CheckBox>
-        <Button x:Name="cmdCluster" HorizontalAlignment="Center" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Grid.Row="11" Grid.Column="0" FontSize="10" Grid.ColumnSpan="2" Content="Cluster documents" Width="100" Margin="6,0,6,12" Click="cmdCluster_Click"></Button>
+        <Button x:Name="cmdCluster" HorizontalAlignment="Center" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Grid.Row="11" Grid.Column="0" FontSize="10" Grid.ColumnSpan="2" Content="Cluster documents" Width="130" Margin="6,0,6,12" Click="cmdCluster_Click"></Button>
 
         <RadioButton x:Name="rbClusterNewCodeSet" Grid.Row="2" Grid.Column="2" Content="Create new code set" GroupName="rbGroupCluster" IsChecked="true" Checked="rbClusterNewCodeSet_Checked"></RadioButton>
         <RadioButton x:Name="rbClusterExistingCodeSet" Grid.Row="2" Grid.Column="3" Content="Using this code set" GroupName="rbGroupCluster" Checked="rbClusterExistingCodeSet_Checked"></RadioButton>
@@ -66,5 +70,14 @@
             <Button x:Name="cmdGetMicrosoftAcademicTopics" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" FontSize="10" Content="Get OpenAlex topics (from OA)" Width="170" Click="cmdGetMicrosoftAcademicTopics_Click" Margin="6,0,6,12"></Button>
             <Button x:Name="cmdGetOpenAlexTopicsNLP" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" FontSize="10" Content="Get OpenAlex topics (using NLP)" Width="170" Click="cmdGetOpenAlexTopicsNLP_Click" Margin="6,0,6,12"></Button>
         </StackPanel>
+
+        <RadioButton x:Name="rbClusterEmbeddingsNewCodeSet" Grid.Row="2" Grid.Column="4" Content="Create new code set" GroupName="rbGroupClusterEmbeddings" IsChecked="true" Checked="rbClusterEmbeddingsNewCodeSet_Checked"></RadioButton>
+        <RadioButton x:Name="rbClusterEmbeddingsExistingCodeSet" Grid.Row="2" Grid.Column="5" Content="Using this code" GroupName="rbGroupClusterEmbeddings" IsEnabled="False" Checked="rbClusterEmbeddingsExistingCodeSet_Checked"></RadioButton>
+        <local:codesSelectControl x:Name="codesSelectControlClusterEmbeddingsSelect" Grid.Row="3" Grid.Column="5" Margin="4,4,4,4" IsEnabled="False"></local:codesSelectControl>
+        <RadioButton x:Name="rbClusterEmbeddingsUseAbstract" Grid.Row="4" Grid.Column="4" Content="Use text in abstract" GroupName="rbGroupClusterEmbeddingsAbstract" IsChecked="true" Checked="rbClusterEmbeddingsUseAbstract_Checked"></RadioButton>
+        <RadioButton x:Name="rbClusterEmbeddingsUseThisCode" Grid.Row="4" Grid.Column="5" Content="Using info for this code" GroupName="rbGroupClusterEmbeddingsAbstract" IsEnabled="False" Checked="rbClusterEmbeddingsUseThisCode_Checked"></RadioButton>
+        <local:codesSelectControl x:Name="codesSelectControlClusterEmbeddingsThisCodeSelect" Grid.Row="5" Grid.Column="5" Margin="4,4,4,4" IsEnabled="False"></local:codesSelectControl>
+        <Button x:Name="cmdClusterEmbeddings" HorizontalAlignment="Center" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Grid.Row="11" Grid.Column="4" FontSize="10" Grid.ColumnSpan="2" Content="Cluster documents (embeddings)" Width="180" Margin="6,0,6,12" Click="cmdClusterEmbeddings_Click"></Button>
+
     </Grid>
 </telerik:RadWindow>
