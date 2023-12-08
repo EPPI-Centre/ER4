@@ -122,6 +122,24 @@ namespace EppiReviewer4
                 }
             }
         }
+        public bool CanUseOpenAIrobot
+        {//used by most controls in here (needed to allow enabling "add/delete code" from text in PDFs
+            get
+            {
+                if (ri == null) return false;
+                else
+                {
+                    if (!ri.HasWriteRights()) return false;
+                    else if (CodingOnlyMode) return false;
+                    else
+                    {
+                        ReviewInfo rInfo = ((App)(Application.Current)).GetReviewInfo();
+                        if (rInfo != null) return rInfo.OpenAIEnabled;
+                    }
+                    return false;
+                }
+            }
+        }
         //end of read-only ui hack
         public bool CodeTreeIsBusy
         {
@@ -147,6 +165,7 @@ namespace EppiReviewer4
             ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
             isEn.DataContext = this;
             isEnorCodingOnly.DataContext = this;
+            CanUseOpenAIrobotSR.DataContext = this;
             //end of read-only ui hack
             //pdf coding
             highlights = new Highlights();
@@ -303,6 +322,7 @@ namespace EppiReviewer4
 
         public void BindList(ItemList TheItemList, int index, DataItemCollection TheFilteredList)
         {
+            NotifyPropertyChanged("CanUseOpenAIrobot");
             cmdPrevious.Visibility = System.Windows.Visibility.Visible;
             cmdNext.Visibility = System.Windows.Visibility.Visible;
             cmdNextScreening.Visibility = System.Windows.Visibility.Collapsed;
@@ -328,6 +348,7 @@ namespace EppiReviewer4
 
         public void BindNew(ItemList TheItemList, DataItemCollection TheFilteredList)
         {
+            NotifyPropertyChanged("CanUseOpenAIrobot");
             cmdPrevious.Visibility = System.Windows.Visibility.Visible;
             cmdNext.Visibility = System.Windows.Visibility.Visible;
             cmdNextScreening.Visibility = System.Windows.Visibility.Collapsed;
@@ -367,6 +388,7 @@ namespace EppiReviewer4
 
         public void BindScreening()
         {
+            NotifyPropertyChanged("CanUseOpenAIrobot");
             cmdPrevious.Visibility = System.Windows.Visibility.Collapsed;
             cmdNext.Visibility = System.Windows.Visibility.Collapsed;
             cmdOk.Visibility = System.Windows.Visibility.Collapsed;
@@ -3574,6 +3596,8 @@ namespace EppiReviewer4
             Item thisItem = DataContext as Item;
             WindowRobots.SelectedTitle = thisItem.Title;
             WindowRobots.SelectedAbstract = thisItem.Abstract;
+            WindowRobots.SelectedItemId = thisItem.ItemId;
+            WindowRobots.rbRobotOpenAI.IsEnabled = CanUseOpenAIrobot;
             WindowRobots.ShowDialog();
         }
 
@@ -3584,6 +3608,7 @@ namespace EppiReviewer4
             WindowRobots.SelectedTitle = thisItem.Title;
             WindowRobots.SelectedAbstract = thisItem.Abstract;
             WindowRobots.SelectedItemId = thisItem.ItemId;
+            WindowRobots.rbRobotOpenAI.IsEnabled = CanUseOpenAIrobot;
             WindowRobots.ShowDialog();
         }
 
@@ -3591,7 +3616,8 @@ namespace EppiReviewer4
         {
             Item thisItem = DataContext as Item;
             codesTreeControl.ReloadAllSets();
-            BindTree(thisItem);
+            if (this.dialogItemDetailsControl.IsPriorityScreening) BindScreening();
+            else BindTree(thisItem);
             WindowRobots.Close();
         }
 

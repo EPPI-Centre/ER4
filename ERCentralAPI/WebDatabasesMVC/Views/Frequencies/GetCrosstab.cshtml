@@ -1,11 +1,9 @@
 ﻿@model BusinessLibrary.BusinessClasses.WebDbFrequencyCrosstabAndMapSelectionCriteria
 @using BusinessLibrary.BusinessClasses
 
-
-
-
-
-
+@{
+    Layout = "~/Views/Shared/_MinimalLayout.cshtml";
+}
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -20,16 +18,18 @@
         };
 
         $("#spinner").show();
-        $.post("../Frequencies/GetCrosstabJSON", pars, (data, status) => {
-            if (status == "success") {
-                xTabData = data;
-                buildTable();
-            }
+        $.post("../Frequencies/GetCrosstabJSON", pars, (data, status) => buildResults(data, status))
+        .fail(function (response) {
+            alert(showAjaxError(response));
+            $("#spinner").hide();
         });
-        //$('[tool-tip-toggle="tooltip-demo"]').tooltip({
-        //    placement: 'top'
-        //});
     });
+
+    function buildResults(data, status) {
+        xTabData = data;
+        buildTable();
+    }
+
     let xTabData = null;
     let rgx = new RegExp("'", 'g');
     let rgx2 = new RegExp("\"", 'g');

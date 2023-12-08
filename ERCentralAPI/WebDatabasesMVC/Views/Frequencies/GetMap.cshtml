@@ -24,7 +24,9 @@
 <input type="hidden" value="" name="AttibuteIdXName" id="AttibuteIdXNameCrit" />
 <input type="hidden" value="" name="AttibuteIdYName" id="AttibuteIdYNameCrit" />
 
-
+@{
+    Layout = "~/Views/Shared/_MinimalLayout.cshtml";
+}
 
 
 <script type="text/javascript">
@@ -56,7 +58,11 @@
         $("#spinner").show();
         $("#resultsTable").hide();
         $("#mapLegend").hide();
-        $.post("../Frequencies/GetMapJSON", pars, (data, status) => buildResults(data, status));
+        $.post("../Frequencies/GetMapJSON", pars, (data, status) => buildResults(data, status))
+            .fail(function (response) {
+                alert(showAjaxError(response));
+                $("#spinner").hide();
+            });
 
         $("#MapTitle").html(WebDBMapNameCrit.defaultValue);
         $("#customMapDiv").show();
@@ -78,10 +84,8 @@
             $("#ExpandDescription").hide();
             $("#ReduceDescription").hide();
         }
-
-
-
     });
+
     function buildResults(data, status) {
         mapData = data;
         buildDescription();
@@ -539,7 +543,7 @@
 
                         <!-- Description card -->
                         <div class="card ">
-                            <div class="card-header">
+                            <div class="card-header" style="padding-top:2px; padding-bottom:2px">
                                 <table width="100%">
                                     <tr>
                                         <td>

@@ -231,6 +231,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsReviewer2.cs" Link="Models\ReviewStatisticsReviewer2.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsReviewerList.cs" Link="Models\ReviewStatisticsReviewerList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsReviewerList2.cs" Link="Models\ReviewStatisticsReviewerList2.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\RobotOpenAICommand.cs" Link="Models\RobotOpenAICommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Search.cs" Link="Models\Search.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchClassifierScoresCommand.cs" Link="Models\SearchClassifierScoresCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchCodesCommand.cs" Link="Models\SearchCodesCommand.cs" />

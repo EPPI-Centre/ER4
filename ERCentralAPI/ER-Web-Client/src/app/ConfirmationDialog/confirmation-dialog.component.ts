@@ -9,16 +9,16 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 export class ConfirmationDialogComponent implements OnInit {
 
 	@Input() title: string='';
-	@Input() message: string='';
-    @Input() btnOkText: string = '';
-    @Input() btnCancelText: string = '';
-    @Input() RequiredConfirmationTxt: string = ''; 
+  @Input() message: string = '';
+  @Input() btnOkText: string = '';
+  @Input() btnCancelText: string = '';
+  @Input() RequiredConfirmationTxt: string = '';
+  @Input() IsInformational: boolean = false; 
 	//@Output() action = new EventEmitter<string>();
 
 	public UserInputConfirmationText: string = '';
 
 	public ShowInputTextWarning: boolean = false;
-	
 	constructor(private activeModal: NgbActiveModal,
 		private eventsService: EventEmitterService) {
 

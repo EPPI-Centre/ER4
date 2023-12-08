@@ -114,7 +114,7 @@ namespace BusinessLibrary.BusinessClasses
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
 
-            string endpoint = configuration["RobotHBCPEndpoint"];
+            string endpoint = AzureSettings.RobotHBCPEndpoint;
             byte[] document = GetPdfDoc(SelectedItemDocument.ItemDocumentId, ReviewId);
 
             MultipartFormDataContent mpf = new MultipartFormDataContent("file");

@@ -41,3 +41,13 @@ function Buildnode(attr) {
     //};
     return res;
 }
+
+function showAjaxError(response) {
+    var res = response.responseText;
+    if (response.responseText.includes("Timeout")) {
+        res = "This operation has timed out.\r\nPlease return to the Home page and try again.\r\n\r\n" + 
+        "If this problem persists, please contact EPPI Support (EPPISupport@ucl.ac.uk)."
+    }
+    // there may be other errors that require custom messages...
+    return res;
+};

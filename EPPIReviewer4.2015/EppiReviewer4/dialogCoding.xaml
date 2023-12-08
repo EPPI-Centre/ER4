@@ -46,7 +46,8 @@
 
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         <Button x:Name="isEnorCodingOnly" IsEnabled="{Binding HasWriteRightsOrCodingOnly, Mode=OneWay}" ></Button>
-        
+        <Button x:Name="CanUseOpenAIrobotSR" IsEnabled="{Binding CanUseOpenAIrobot, Mode=OneWay}" ></Button>
+
         <Style TargetType="grid:GridViewCell" x:Name="cellStyleText">
             <Setter Property="Template">
                 <Setter.Value>
@@ -472,7 +473,7 @@
                                             <TextBlock Text="Translate" Margin="4,0,0,0"></TextBlock>
                                         </StackPanel>
                                     </Button>
-                                    <Button x:Name="cmdRobotDlgOpen"  IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Width="80" 
+                                    <Button x:Name="cmdRobotDlgOpen"  Visibility="{Binding Source={StaticResource CanUseOpenAIrobotSR}, Path=IsEnabled, Converter={StaticResource EditTrueFalseVisibility}, Mode=OneWay}" Width="80" 
                                             Click="cmdRobotDlgOpen_Click" ToolTipService.ToolTip="Use automatic coding">
                                         <StackPanel Orientation="Horizontal">
                                             <Image Width="16" Height="16" Source="Icons/AutoCode.png"/>
