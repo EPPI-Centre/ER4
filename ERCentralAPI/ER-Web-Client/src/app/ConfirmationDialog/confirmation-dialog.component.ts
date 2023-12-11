@@ -9,7 +9,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 export class ConfirmationDialogComponent implements OnInit {
 
 	@Input() title: string='';
-  @Input() message: string = '';
+	@Input() message: string='';
   @Input() btnOkText: string = '';
   @Input() btnCancelText: string = '';
   @Input() RequiredConfirmationTxt: string = '';

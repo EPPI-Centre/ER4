@@ -736,17 +736,17 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     const RSnode = this.ReviewSetsService.selectedNode as ReviewSet;
     if (!RSnode || !RSnode) return;
-    for (let node of RSnode.attributes) {
-      if (node.description == "") {
-        this.notificationService.show({
-          content: "Can't run the OpenAI GPT4 robot: the code '" + node.name + "' has no description.",
-          position: { horizontal: 'center', vertical: 'top' },
-          animation: { type: 'fade', duration: 500 },
-          type: { style: 'error', icon: false },
-          hideAfter: 3000
-        });
-      }
-    }
+    //for (let node of RSnode.attributes) {
+    //  if (node.description == "") {
+    //    this.notificationService.show({
+    //      content: "Can't run the OpenAI GPT4 robot: the code '" + node.name + "' has no description.",
+    //      position: { horizontal: 'center', vertical: 'top' },
+    //      animation: { type: 'fade', duration: 500 },
+    //      type: { style: 'error', icon: false },
+    //      hideAfter: 3000
+    //    });
+    //  }
+    //}
     //checks passed, we can try this.
     let cmd: iRobotOpenAICommand = {
       reviewSetId: RSnode.reviewSetId,

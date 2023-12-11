@@ -582,7 +582,7 @@ namespace BusinessLibrary.BusinessClasses
             if (mp.Volume != null && this.Volume.Length < mp.Volume.Length)
                 this.Volume = mp.Volume;
             if (this.URL == "")
-                this.URL = "https://explore.openalex.org/works/W" + mp.PaperId.ToString();
+                this.URL = "https://openalex.org/works/W" + mp.PaperId.ToString();
             if (mp.Journal != null && this.ParentTitle.Length < mp.Journal.Length)
                 this.ParentTitle = mp.Journal;
             if (mp.Authors != null && this.Authors == "")
