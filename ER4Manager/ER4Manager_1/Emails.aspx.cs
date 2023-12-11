@@ -46,7 +46,7 @@ public partial class Emails : System.Web.UI.Page
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                     if (lbl1 != null)
                     {
-                        lbl1.Text = "EPPI-Reviewer 4 newsletter";
+                        lbl1.Text = "EPPI Reviewer newsletter";
                     }
 
 

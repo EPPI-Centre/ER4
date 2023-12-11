@@ -32,7 +32,7 @@ public partial class Newsletter : System.Web.UI.Page
                     System.Web.UI.WebControls.Label lbl = (Label)Master.FindControl("lblPageTitle");
                     if (lbl != null)
                     {
-                        lbl.Text = "EPPI-Reviewer 4 newsletter";
+                        lbl.Text = "EPPI Reviewer newsletter";
                     }
 
 
@@ -46,7 +46,7 @@ public partial class Newsletter : System.Web.UI.Page
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                     if (lbl1 != null)
                     {
-                        lbl1.Text = "EPPI-Reviewer 4 newsletter";
+                        lbl1.Text = "EPPI Reviewer newsletter";
                     }
 
 
@@ -317,7 +317,7 @@ public partial class Newsletter : System.Web.UI.Page
         }
         idr.Close();
 
-        string subject = "EPPI-Reviewer 4 newsletter " + month + " " + year;
+        string subject = "EPPI Reviewer newsletter " + month + " " + year;
 
         string sendResult = "";
    
@@ -498,7 +498,7 @@ public partial class Newsletter : System.Web.UI.Page
         }
         idr.Close();
 
-        string subject = "EPPI-Reviewer 4 newsletter " + month + " " + year;
+        string subject = "EPPI Reviewer newsletter " + month + " " + year;
 
         string sendResult = "";
 

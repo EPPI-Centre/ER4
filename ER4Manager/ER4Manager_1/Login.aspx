@@ -52,10 +52,10 @@
             <br />
         </asp:Panel>
         <asp:Panel ID="pnlChoose" runat="server">
-            <!--<b>Welcome to the EPPI-Reviewer 4 account and review manager.</b><br />
+            <!--<b>Welcome to the EPPI Reviewer account and review manager.</b><br />
             <br />
             The account and review manager will allow you to create and manage your 
-            EPPI-Reviewer 4 accounts and reviews.
+            EPPI Reviewer accounts and reviews.
             <br />
             <br />-->
             <table ID="Table1" border="1" cellpadding="0" cellspacing="0" width="100%">

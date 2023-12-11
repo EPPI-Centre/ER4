@@ -1331,7 +1331,7 @@ public class Utils
         //}
         msg.From = new MailAddress(EmailFrom);
 
-        msg.Subject = "Welcome to EPPI-Reviewer 4";
+        msg.Subject = "Welcome to EPPI Reviewer";
         msg.IsBodyHtml = true;
 
 

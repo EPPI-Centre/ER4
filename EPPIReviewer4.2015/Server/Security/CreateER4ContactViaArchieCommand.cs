@@ -271,7 +271,7 @@ namespace BusinessLibrary.Security
             //}
             
 
-            msg.Subject = "EPPI-Reviewer 4: Account Activation";
+            msg.Subject = "EPPI Reviewer: Account Activation";
             msg.IsBodyHtml = true;
 
 

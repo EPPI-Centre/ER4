@@ -325,12 +325,12 @@ public partial class SummaryCochrane : System.Web.UI.Page
         idr.Close();
         if (rowCount > 1)
         {
-            lblInviteMsgCochrane.Text = "There is more than one account with this email address. Please contact EPPI-Reviewer 4 support staff at EPPISupport@ucl.ac.uk.";
+            lblInviteMsgCochrane.Text = "There is more than one account with this email address. Please contact EPPI Reviewer support staff at EPPISupport@ucl.ac.uk.";
             lblInviteMsgCochrane.Visible = true;
         }
         else if (rowCount < 1)
         {
-            lblInviteMsgCochrane.Text = "There is no match in the EPPI-Reviewer 4 database for this email address";
+            lblInviteMsgCochrane.Text = "There is no match in the EPPI Reviewer database for this email address";
             lblInviteMsgCochrane.Visible = true;
         }
         else
@@ -358,10 +358,10 @@ public partial class SummaryCochrane : System.Web.UI.Page
                     // check that the account meets the new account requirements. 
                     // If it doesn't include this info in the email sent to the invitee.
                     bool accountConditionsMet = true;
-                    string emailAccountMsg = "<b>Your EPPI-Reviewer 4 account details need updating</b>.<br>Please log into the EPPI-Reviewer 4.0 gateway at " +
+                    string emailAccountMsg = "<b>Your EPPI Reviewer account details need updating</b>.<br>Please log into the EPPI-Reviewer 4.0 gateway at " +
                     //"\http://eppi.ioe.ac.uk/cms/er4 and update your username and password";
 
-                    "<a href='http://eppi.ioe.ac.uk/cms/er4'>eppi.ioe.ac.uk/cms/er4</a> to update your details.";
+                    "<a href='https://eppi.ioe.ac.uk/cms/er4'>eppi.ioe.ac.uk/cms/er4</a> to update your details.";
 
                     //Regex passwordRegex = new Regex("^.*(?=.{8,})(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
                     //Match m = passwordRegex.Match(idr["PASSWORD"].ToString());

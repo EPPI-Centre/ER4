@@ -6,9 +6,9 @@
                                 <br />
                                 An error has been generated.<br />
                                 <br />
-                                The most likely reason is that your session in&nbsp;the EPPI-Reviewer 4.0 
+                                The most likely reason is that your session in&nbsp;the EPPI Reviewer  
                                 account and&nbsp;review manager has timed out.<br />
-                                Please select <b>ER4 MANAGER</b> in the main menu to log back in.<br />
+                                Please select <b>ER MANAGER</b> in the main menu to log back in.<br />
                                 <br />
                                 <br />
         
