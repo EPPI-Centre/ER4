@@ -346,6 +346,7 @@
     <Compile Include="BusinessClasses\ClassifierCreateCodesCommand.cs" />
     <Compile Include="BusinessClasses\ClassifierModel.cs" />
     <Compile Include="BusinessClasses\ClassifierModelList.cs" />
+    <Compile Include="BusinessClasses\ClassifierTopicModelCommand.cs" />
     <Compile Include="BusinessClasses\ComparisonAttribute.cs" />
     <Compile Include="BusinessClasses\ComparisonAttributeList.cs" />
     <Compile Include="BusinessClasses\ComparisonCompleteCommand.cs" />

@@ -229,6 +229,9 @@
     <Compile Include="..\Server\BusinessClasses\ClassifierModelList.cs">
       <Link>BusinessClasses\ClassifierModelList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierTopicModelCommand.cs">
+      <Link>BusinessClasses\ClassifierTopicModelCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\Comparison.cs">
       <Link>BusinessClasses\Comparison.cs</Link>
     </Compile>
