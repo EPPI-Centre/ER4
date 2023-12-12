@@ -1,5 +1,5 @@
-import { Inject, Injectable, Output, EventEmitter } from '@angular/core';
-import { lastValueFrom, Observable, of, race } from 'rxjs';
+import { Injectable, Output, EventEmitter } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';

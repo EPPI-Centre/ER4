@@ -294,6 +294,15 @@ namespace WebDatabasesMVC.Controllers
         }
         public IActionResult GetMapById([FromForm] int mapId)
         {
+            return InternalGetMapById(mapId);
+        }
+
+        public IActionResult GetMapByQueryId([FromQuery] int mapId)
+        {
+            return InternalGetMapById(mapId, true);
+        }
+        private IActionResult InternalGetMapById(int mapId, bool RedirectToHome = false)
+        {
             try
             {
                 if (SetCSLAUser())
@@ -309,14 +318,15 @@ namespace WebDatabasesMVC.Controllers
                     if (map == null || map.WebDBMapId < 1)
                     {
                         _logger.LogError("Error in GetMapById, no such map! MapId: " + mapId);
-                        return Unauthorized();
+                        if (RedirectToHome) return Redirect("~/Review/Index");
+                        else return Unauthorized();
                     }
-                    WebDbFrequencyCrosstabAndMapSelectionCriteria crit 
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria crit
                         = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, map.ColumnsAttributeID, map.ColumnsSetID
                             , map.ColumnsPublicAttributeName != "" ? map.ColumnsPublicAttributeName : map.ColumnsPublicSetName, "true"
                             , "bubble", 0, map.RowsAttributeID, map.RowsSetID
                             , map.RowsPublicAttributeName != "" ? map.RowsPublicAttributeName : map.RowsPublicSetName
-                            , map.SegmentsAttributeID, map.SegmentsSetID);
+                            , map.SegmentsAttributeID, map.SegmentsSetID, map.WebDBMapName, map.WebDBMapDescription);
                     return View("GetMap", crit);
                 }
                 else return Unauthorized();
@@ -327,7 +337,6 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
         public IActionResult GetEPPIMapperMap([FromQuery] string eppiMapperMapUrl)
         {
             string url = eppiMapperMapUrl;

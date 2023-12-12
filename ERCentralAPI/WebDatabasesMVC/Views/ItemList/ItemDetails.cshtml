@@ -5,6 +5,7 @@
 @using Newtonsoft.Json.Serialization;
 @using System.Linq; 
 @{
+    Layout = "~/Views/Shared/_MinimalLayout.cshtml";
     Item itm = Model.Item;
     bool isFair = false;
     if (ViewBag.isFair != null && ViewBag.isFair == true)

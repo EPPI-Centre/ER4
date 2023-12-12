@@ -483,7 +483,7 @@ namespace BusinessLibrary.BusinessClasses
             //    string[] urls = mp.URLs.Split(';');
             //    if (urls.Length > 0) tItem.Url = urls[0];
             //}
-            tItem.Url = "https://explore.openalex.org/works/W" + mp.PaperId.ToString();
+            tItem.Url = "https://openalex.org/works/W" + mp.PaperId.ToString();
             if (mp.Publisher != null) tItem.Publisher = mp.Publisher;
             tItem.MAGManualFalseMatch = false;
             tItem.MAGManualTrueMatch = false;

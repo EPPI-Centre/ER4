@@ -31,6 +31,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ER-Web-API", "ER-Web\ER-Web-API.csproj", "{EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ER-Web-Client", "ER-Web-Client\ER-Web-Client.esproj", "{FF8E9864-49B7-4A4A-BA1D-FF618CA99D16}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8} = {EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{F68FCCD2-9866-464E-B1C1-8D1D8953D753}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -38,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "Integra
 		{EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8} = {EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutcomesGridSettingsConverter", "OutcomesGridSettingsConverter\OutcomesGridSettingsConverter.csproj", "{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutcomesGridSettingsConverter", "OutcomesGridSettingsConverter\OutcomesGridSettingsConverter.csproj", "{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

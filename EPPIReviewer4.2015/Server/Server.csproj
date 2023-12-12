@@ -346,6 +346,7 @@
     <Compile Include="BusinessClasses\ClassifierCreateCodesCommand.cs" />
     <Compile Include="BusinessClasses\ClassifierModel.cs" />
     <Compile Include="BusinessClasses\ClassifierModelList.cs" />
+    <Compile Include="BusinessClasses\ClassifierTopicModelCommand.cs" />
     <Compile Include="BusinessClasses\ComparisonAttribute.cs" />
     <Compile Include="BusinessClasses\ComparisonAttributeList.cs" />
     <Compile Include="BusinessClasses\ComparisonCompleteCommand.cs" />
@@ -446,6 +447,7 @@
     <Compile Include="BusinessClasses\ReviewStatisticsReviewer2.cs" />
     <Compile Include="BusinessClasses\ReviewStatisticsReviewerList2.cs" />
     <Compile Include="BusinessClasses\RobotHBCPCommand.cs" />
+    <Compile Include="BusinessClasses\RobotOpenAICommand.cs" />
     <Compile Include="BusinessClasses\RobotReviewerCommand.cs" />
     <Compile Include="BusinessClasses\SearchClassifierScoresCommand.cs" />
     <Compile Include="BusinessClasses\SearchNullAbstract.cs" />

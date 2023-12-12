@@ -52,7 +52,7 @@ namespace BusinessLibrary.BusinessClasses
         public static readonly PropertyInfo<string> ExternalMagLinkProperty = RegisterProperty<string>(new PropertyInfo<string>("ExternalMagLink", "ExternalMagLink", string.Empty));
         public string ExternalMagLink()
         {
-            return "https://explore.openalex.org/works/W" + PaperId.ToString();
+            return "https://openalex.org/works/W" + PaperId.ToString();
         }
 
         public static readonly PropertyInfo<string> FullRecordProperty = RegisterProperty<string>(new PropertyInfo<string>("FullRecord", "FullRecord", string.Empty));
@@ -467,7 +467,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return "https://explore.openalex.org/works/W" + this.PaperId.ToString();
+                return "https://openalex.org/works/W" + this.PaperId.ToString();
             }
         }
 

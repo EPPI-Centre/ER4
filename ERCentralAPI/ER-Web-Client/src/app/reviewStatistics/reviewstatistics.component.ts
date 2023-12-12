@@ -229,13 +229,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     this.ItemListService.FetchWithCrit(cri, statsByContact.contactName + ": documents with completed coding using '" + setName + "'");
     this.tabSelectEvent.emit();
   }
-  IncompleteBySetAndContact(statsByContact: StatsByReviewer, setName: string) {
+  IncompleteBySetAndContact(statsByContact: iReviewStatisticsReviewer2, setName: string) {
     let cri: Criteria = new Criteria();
-    cri.contactId = statsByContact.ContactId;
-    cri.setId = statsByContact.SetId;
+    cri.contactId = statsByContact.contactId;
+    cri.setId = statsByContact.setId;
     cri.pageSize = this.ItemListService.ListCriteria.pageSize;
     cri.listType = "ReviewerCodingIncomplete";
-    this.ItemListService.FetchWithCrit(cri, statsByContact.ContactName + ": documents with incomplete (but started) coding using '" + setName + "'");
+    this.ItemListService.FetchWithCrit(cri, statsByContact.contactName + ": documents with incomplete (but started) coding using '" + setName + "'");
     this.tabSelectEvent.emit();
   }
 

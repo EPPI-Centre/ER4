@@ -43,6 +43,7 @@ namespace EPPIDataServices.Helpers
                     ie = ie.InnerException;
                 }
             }
+            logger.LogError("END" + Environment.NewLine);
         }
 
         static LoggerExtensions()

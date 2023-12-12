@@ -229,6 +229,9 @@
     <Compile Include="..\Server\BusinessClasses\ClassifierModelList.cs">
       <Link>BusinessClasses\ClassifierModelList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierTopicModelCommand.cs">
+      <Link>BusinessClasses\ClassifierTopicModelCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\Comparison.cs">
       <Link>BusinessClasses\Comparison.cs</Link>
     </Compile>
@@ -777,6 +780,9 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\RobotHBCPCommand.cs">
       <Link>BusinessClasses\RobotHBCPCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\RobotOpenAICommand.cs">
+      <Link>BusinessClasses\RobotOpenAICommand.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\RobotReviewerCommand.cs">
       <Link>BusinessClasses\RobotReviewerCommand.cs</Link>

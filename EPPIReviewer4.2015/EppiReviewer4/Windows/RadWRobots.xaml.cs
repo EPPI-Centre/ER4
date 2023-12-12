@@ -26,6 +26,7 @@ namespace EppiReviewer4
         public ItemDocument SelectedItemDocument;
         public string SelectedTitle;
         public string SelectedAbstract;
+        public Int64 SelectedItemId;
         public RadWRobots()
         {
             InitializeComponent();
@@ -55,7 +56,14 @@ namespace EppiReviewer4
             }
             else
             {
-                DoHBCP(sender, e);
+                if (rbRobotOpenAI.IsChecked == true)
+                {
+                    DoOpenAI(sender, e);
+                }
+                else
+                {
+                    DoHBCP(sender, e);
+                }
             }
         }
 
@@ -67,6 +75,13 @@ namespace EppiReviewer4
                 if (rs.RobotReviewerValidated() == false)
                 {
                     RadWindow.Alert("Please select a RobotReviewer compatible coding tool");
+                    return;
+                }
+
+                if (SelectedItemDocument == null)
+                {
+                    RadWindow.Alert("Please use the 'robots' button against the document you want to submit");
+                    this.closeWindowRobots.Invoke(sender, e);
                     return;
                 }
 
@@ -86,6 +101,41 @@ namespace EppiReviewer4
                     else
                     {
                         RobotReviewerCommand rr2 = e2.Object as RobotReviewerCommand;
+                        this.closeWindowRobots.Invoke(sender, e);
+                        RadWindow.Alert(rr2.ReturnMessage);
+                    }
+                };
+                busyIndicatorRobots.IsBusy = true;
+                hlCancel.IsEnabled = false;
+                hlGo.IsEnabled = false;
+                dp2.BeginExecute(rr);
+            }
+        }
+
+        private void DoOpenAI(object sender, RoutedEventArgs e)
+        {
+            if (SelectedAbstract == null || SelectedAbstract == "")
+            {
+                RadWindow.Alert("No abstract present");
+                return;
+            }
+            ReviewSet rs = dialogRobotsComboSelectCodeSet.SelectedItem as ReviewSet;
+            if (rs != null)
+            {
+                DataPortal<RobotOpenAICommand> dp2 = new DataPortal<RobotOpenAICommand>();
+                RobotOpenAICommand rr = new RobotOpenAICommand(rs.ReviewSetId, SelectedItemId, -1);
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    busyIndicatorRobots.IsBusy = false;
+                    hlCancel.IsEnabled = true;
+                    hlGo.IsEnabled = true;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RobotOpenAICommand rr2 = e2.Object as RobotOpenAICommand;
                         this.closeWindowRobots.Invoke(sender, e);
                         RadWindow.Alert(rr2.ReturnMessage);
                     }

@@ -31,6 +31,9 @@
               <button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
                       title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
                       [disabled]="!HasWriteRights" (click)="HotKeysOn=!HotKeysOn"></button>
+              <button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1" 
+                      title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
+                      [disabled]="!HasWriteRights" (click)="RunRobotOpenAICommand()"></button>
             </div>
             
             <div class="col-12 bg-light" *ngIf="EditCodesPanel =='CreateNewCode'">
