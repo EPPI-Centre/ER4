@@ -93,28 +93,31 @@ namespace BusinessLibrary.BusinessClasses
         {
             foreach (AttributeSet subSet in aSet.Attributes)
             {
-                string newPrompt = getPrompts(currentPrompt, subSet);
-                if (newPrompt != "")
-                {
-                    currentPrompt += newPrompt + ",";
-                }
+                currentPrompt = getPrompts(currentPrompt, subSet);
             }
             string possiblePrompt = aSet.AttributeSetDescription;
             if (possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':')) // checking it's in the right format
             {
-                return possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}",""); // once out of Alpha we could make this more complete
+                possiblePrompt = possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}",""); // once out of Alpha we could make this more complete
+                currentPrompt += possiblePrompt + ",\n";
+                return currentPrompt;
             }
             else
             {
-                return "";
+                return currentPrompt;
             }
         }
 
         private AttributeSet getAttributeFromPromptKey(string key, AttributeSet aSet)
         {
-            if (aSet.AttributeSetDescription.StartsWith(key))
+            int columnIndex = aSet.AttributeSetDescription.IndexOf(':');
+            if (columnIndex > 0)
             {
-                return aSet;
+                string label = aSet.AttributeSetDescription.Substring(0, columnIndex);
+                if (label == key)
+                {
+                    return aSet;
+                }
             }
             foreach (AttributeSet subSet in aSet.Attributes)
             {
@@ -170,10 +173,10 @@ namespace BusinessLibrary.BusinessClasses
             string prompt = "";
             foreach (AttributeSet subSet in rs.Attributes)
             {
-                string newPrompt = getPrompts(prompt, subSet);
+                string newPrompt = getPrompts("", subSet);
                 if (newPrompt != "")
                 {
-                    prompt += newPrompt + ",\n";
+                    prompt += newPrompt;
                 }
             }
 
