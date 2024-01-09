@@ -346,6 +346,9 @@
     <Compile Include="dialogSearch.xaml.cs">
       <DependentUpon>dialogSearch.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FeedbackForm.xaml.cs">
+      <DependentUpon>FeedbackForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PDFCoding\Annotation.xaml.cs">
       <DependentUpon>Annotation.xaml</DependentUpon>
     </Compile>
@@ -687,6 +690,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="dialogSearch.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FeedbackForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

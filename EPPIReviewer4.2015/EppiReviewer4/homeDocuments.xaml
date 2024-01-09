@@ -1366,15 +1366,14 @@
                     
                     <radDock:RadDocumentPane Header="Codes" Title="Codes" CanUserClose="False" CanDockInDocumentHost="False"  CanFloat="False" CanUserPin="False">
                             <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="10"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                </Grid.RowDefinitions>
-
-
-                            <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="0" HorizontalAlignment="Left" />
-                                
-                                <local:CodesTreeControl Grid.Row="1" x:Name="codesTreeControl" SelectedItemChanged="TreeView_SelectionChanged"
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <local:FeedbackForm x:Name="feedBackForm"  Grid.Row="0" ></local:FeedbackForm>
+                            <cslaXAML:BusyAnimation x:Name="BusyLoading" HorizontalAlignment="Right"  Grid.Row="0" VerticalAlignment="Top" />
+                            <Border Grid.Row="2" Height="700"></Border>
+                            <local:CodesTreeControl Grid.Row="1" x:Name="codesTreeControl" SelectedItemChanged="TreeView_SelectionChanged"
                                                         ControlContext="homeDocuments"
                                                         ListItemsWithCode="codesTreeControl_ListItemsWithCode"
                                                         ListItemsWithCodeExcluded="codesTreeControl_ListItemsWithCode"
@@ -1390,7 +1389,7 @@
                                                         AssignSearchSelected="codesTreeControl_AssignSearchSelected"
                                                         RemoveSearchSelected="codesTreeControl_RemoveSearchSelected"
                                                         ></local:CodesTreeControl>
-                            </Grid>
+                        </Grid>
                     </radDock:RadDocumentPane>
 
                         <radDock:RadDocumentPane Header="Sources" Title="Sources/Add" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed" CanFloat="False" CanUserPin="False" CanUserClose="False">

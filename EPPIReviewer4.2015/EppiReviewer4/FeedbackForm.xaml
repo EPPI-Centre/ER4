@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="EppiReviewer4.FeedbackForm"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
+    xmlns:EppiReviewer4="clr-namespace:EppiReviewer4"
+    mc:Ignorable="d"
+    d:DesignWidth="220">
+    
+    <UserControl.Resources>
+        <cslaXAML:CslaDataProvider x:Key="FeedbackAndClientErrorListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.FeedbackAndClientErrorList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetFeedbackAndClientErrorList"
+                           />
+    </UserControl.Resources>
+    <Grid x:Name="LayoutRootFBF" Background="White" Visibility="Visible">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="FbRow0" Height="Auto"/>
+            <RowDefinition x:Name="FbRow1" Height="Auto"/>
+            <RowDefinition x:Name="FbRow2" Height="Auto"/>
+            <RowDefinition x:Name="FbRow3" Height="26"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="85" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,0,2,0">
+                <Span>Why are you (still) using EPPI Reviewer 4?</Span></TextBlock>
+        <Button Grid.Row="0" Margin="1" Grid.Column="1" Click="Button_ClickShowFull" VerticalAlignment="Center">Answer Here</Button>
+        <Border BorderBrush="LightCoral" Background="#FFE9FDE9" BorderThickness="1" Margin="3" Grid.Row="1" Grid.ColumnSpan="2">
+        <RichTextBlock x:Name="rtbFeedbackForm"    TextWrapping="Wrap" Margin="1,0">
+                <Paragraph FontSize="12" FontWeight="Bold">
+                    <InlineUIContainer >
+                        <Image Source="Icons/NextDocument.png" Margin="1,0"  Width="10" Height="9"/>
+                    </InlineUIContainer>
+                        <Span Foreground="#FF1A39C1">EPPI-Reviewer 4</Span>
+                        is reaching the end of its viable life!
+                    
+                    <InlineUIContainer >
+                        <Image Source="Icons/PreviousDocument.png" Margin="0"  Width="10" Height="9" />
+                    </InlineUIContainer>
+                </Paragraph>
+                <Paragraph>
+                    Before we can let it enjoy its well-deserved retirement, we need to learn why you are still using it.
+                <LineBreak />
+                    In our view, most activities can be performed better and faster in
+                <Hyperlink TargetName="_blank" NavigateUri="https://eppi.ioe.ac.uk/eppireviewer-web/">EPPI Reviewer 6</Hyperlink>,
+                however, you are here, and therefore you have reasons to use Version 4 instead.
+            </Paragraph>
+            <Paragraph>
+                <Bold>Please tell us why:</Bold>
+            </Paragraph>
+        </RichTextBlock>
+        </Border>
+        <TextBox x:Name="tboxFeedback" Grid.Row="2" Grid.ColumnSpan="2" Margin="4,1" Background="#FFFBF6F0" 
+                 AcceptsReturn="True" MaxLength="4000" TextWrapping="Wrap"></TextBox>
+        <Button Margin="1,1,3,1" Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Right" Click="Button_ClickSubmit" VerticalAlignment="Center">Submit</Button>
+        <Button Margin="1" Grid.Row="3" Grid.Column="1" Click="Button_ClickHideFull" VerticalAlignment="Center">Cancel/Close</Button>
+
+    </Grid>
+</UserControl>
