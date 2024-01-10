@@ -26,6 +26,27 @@
     }
 }
 
+
+<style>
+    .popupContent {
+    padding: 5px;
+    color: #ffffff;
+    background-color: #0a0a16;
+    font-size: 13px;
+    font-family: Helvetica, Arial, sans-serif;
+    letter-spacing: 1px;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,.05);
+  }
+
+  .popupWindow {
+    min-width: 160px;
+    height: 35px;
+  }
+</style>
+
+
+
 <script>
     var treeviewData = null;
     var dataItem = null;
@@ -36,7 +57,7 @@
     var freqData = null;
     let MapsData = null;
 
-    
+
 
 
     $(document).ready(function () {
@@ -68,6 +89,9 @@
                             //    };
                             nodes.push(nd);
                         }
+
+                        createWorldMap(); // draw map
+
                         GetYearsFreqs();//getting the years chart after the codes...
                         setTimeout(function () {
                             GetMaps();
@@ -107,9 +131,214 @@
         if ($(window).outerWidth() <= 325) {
             $("#smallPhoneButton").show();
         }
-
-
     });
+
+    var ds = new kendo.data.DataSource({
+        data: [
+            {"location": [37.090240, -95.712891], "value": 35, "country": "United States"}, 
+            {"location": [56.130366, -106.346771], "value": 8, "country": "Canada"},
+            {"location": [55.378051, -3.435973], "value": 25, "country": "United Kingdom"},
+            {"location": [-25.274398, 133.775136], "value": 7, "country": "Australia"},
+            {"location": [56.26392, 9.501785], "value": 6, "country": "Denmark"},
+            {"location": [51.165691, 10.451526], "value": 3, "country": "Germany"},
+            {"location": [53.41291, -8.24389], "value": 10, "country": "Ireland" }
+        ]
+    });
+
+
+
+    function createWorldMapTouchScreen() {  
+        var template = kendo.template($("#info-template").html());
+        var emptyTemplate = kendo.template($("#empty-info-template").html());
+        var activeShape;
+
+        $("#map").kendoMap({
+            center: [-37.090240, 0.0000],
+            controls: {
+                zoom: false
+            },
+            zoom: [1],
+            zoomable: false,
+            layerDefaults: {
+                bubble: {
+                    style: {
+                        fill: {
+                            color: "#00f",
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            width: 0
+                        }
+                    },
+                maxSize: 50
+                }
+            },
+            layers: [
+                {
+                type: "tile",
+                urlTemplate: "https://#= subdomain #.tile.openstreetmap.org/#= zoom #/#= x #/#= y #.png",
+                subdomains: ["a", "b", "c"]
+                },                    
+                {
+                type: "bubble",
+                dataSource: ds
+                }
+            ],
+            shapeMouseEnter: onShapeMouseEnter,
+            shapeMouseLeave: onShapeMouseLeave,
+            shapeClick: onShapeClick,
+            reset: onReset
+        });
+
+        function onShapeMouseEnter(e) {
+
+            // worldMapCard x-postion = 343px or 114px
+            var wMPx = 343;
+
+
+
+            var oe = e.originalEvent;
+            var x = oe.pageX || oi.clientX;
+            var y = oe.pageY || oi.clientY;
+
+            var x2 = e.shape._geometry.center.x;
+            var y2 = e.shape._geometry.center.y;
+
+            var name = e.shape.dataItem.country + ": " + e.shape.dataItem.value;
+            popup.element.html(name);
+            popup.open(x2+wMPx-80,y+51);
+                                
+            if (activeShape) {
+                activeShape.options.set("stroke", null);
+            }
+            
+            activeShape = e.shape;
+            activeShape.options.set("stroke", { width: 2.5, color: "#00f" });
+
+            $("#info").html(template(e.shape.dataItem));
+        }
+
+        function onShapeMouseLeave(e) {
+            if (!$(e.originalEvent.relatedTarget).is(".k-popup, .k-animation-container")) {
+                popup.close();
+
+                // Necessary to stop the animations,
+                // will be fixed in future versions
+                popup.element.kendoStop(true, true);
+            }
+        }
+
+        function onShapeClick(e) {
+            if (!$(e.originalEvent.relatedTarget).is(".k-popup, .k-animation-container")) {
+                popup.close();
+            }
+        }
+
+        function onReset() {
+            $("#info").html(emptyTemplate({}));
+            activeShape = null;
+        }
+    }
+
+    function createWorldMap() {        
+        var template = kendo.template($("#info-template").html());
+        var emptyTemplate = kendo.template($("#empty-info-template").html());
+        var activeShape;
+
+        $("#map").kendoMap({
+            center: [37.090240, 0.0000],
+            controls: {
+                zoom: false
+            },
+            zoom: [2],
+            zoomable: false,
+            layerDefaults: {
+                bubble: {
+                    style: {
+                        fill: {
+                            color: "#00f",
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            width: 0
+                        }
+                    },
+                maxSize: 50
+                }
+            },
+            layers: [
+                {
+                type: "tile",
+                urlTemplate: "https://#= subdomain #.tile.openstreetmap.org/#= zoom #/#= x #/#= y #.png",
+                subdomains: ["a", "b", "c"]
+                },                    
+                {
+                type: "bubble",
+                dataSource: ds
+                }
+            ],
+            shapeMouseEnter: onShapeMouseEnter,
+            shapeMouseLeave: onShapeMouseLeave,
+            shapeClick: onShapeClick,
+            reset: onReset
+        });
+
+        function onShapeMouseEnter(e) {
+
+            // worldMapCard x-postion = 343px or 114px
+            var wMPx = 343;
+
+
+
+            var oe = e.originalEvent;
+            var x = oe.pageX || oi.clientX;
+            var y = oe.pageY || oi.clientY;
+
+            var x2 = e.shape._geometry.center.x;
+            var y2 = e.shape._geometry.center.y;
+
+            var name = e.shape.dataItem.country + ": " + e.shape.dataItem.value;
+            popup.element.html(name);
+            popup.open(x2+wMPx-80,y+51);
+                                
+            if (activeShape) {
+                activeShape.options.set("stroke", null);
+            }
+            
+            activeShape = e.shape;
+            activeShape.options.set("stroke", { width: 2.5, color: "#00f" });
+
+            $("#info").html(template(e.shape.dataItem));
+        }
+
+        function onShapeMouseLeave(e) {
+            if (!$(e.originalEvent.relatedTarget).is(".k-popup, .k-animation-container")) {
+                popup.close();
+
+                // Necessary to stop the animations,
+                // will be fixed in future versions
+                popup.element.kendoStop(true, true);
+            }
+        }
+
+        function onShapeClick(e) {
+            if (!$(e.originalEvent.relatedTarget).is(".k-popup, .k-animation-container")) {
+                popup.close();
+            }
+        }
+
+        function onReset() {
+            $("#info").html(emptyTemplate({}));
+            activeShape = null;
+        }
+
+
+
+    }
+
+    $(document).ready(createWorldMap);
+
+
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
         if (descrPanel) {
@@ -1428,6 +1657,7 @@
                         </div>
                     </div>
 
+                    
 
 
                 </div>
@@ -1574,6 +1804,59 @@
 
                 </div>
             </div>
+
+            <div class="row mx-0 mt--2">
+                <div class="col-12 col-md-12 col-lg-12">
+                    <!-- Map card -->
+                    <div class="card" id="worldMapCard">
+                        <div class="card-header">
+                            <table>
+                                <tr>
+                                <td style="vertical-align: bottom;">
+                                    <div class="card-title" id="FrequenciesResult">Map of the world</div>
+                                </td>
+                                    <td class="px-4 py-1" style="vertical-align: bottom;">
+                                        <input type="checkbox" id="cbTouchScreen" />&nbsp;
+                                    <label for="cbTouchScreen">Touchscreen</label>
+                                </td>
+                                </tr>
+                            </table>
+                            <script>
+                                $("#cbTouchScreen").change(function() {
+                                    if(this.checked){
+                                        //alert("The Check-box is Checked"); 
+                                        createWorldMapTouchScreen();
+                                    } else {
+                                        //alert("The Check-box is Un-Checked"); 
+                                        createWorldMap();
+                                    }
+                                });
+                            </script>
+                            <div id="info" class="box-col"></div>
+                        </div>
+                        <div class="card-body" id="VisualsDiv">
+                            <div id="map"></div>
+                            <script>
+                                var popup = $("<div class='popupContent popupWindow'>Foo</div>")
+                            .appendTo(document.body)
+                            .kendoPopup()
+                            .data("kendoPopup");
+                            </script>
+                            <script id="info-template" type="text/x-kendo-template">
+                                <h5>#= country #: #= kendo.toString(value, "N0") #</h5>
+                            </script>
+                            <script id="empty-info-template" type="text/x-kendo-template">                             
+                                <h5><div id="hoverMessage">Hover over a bubble</div></h5>    
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
 
         </div>
     </div>
