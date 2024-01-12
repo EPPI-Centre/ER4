@@ -34,25 +34,18 @@
         <Border BorderBrush="LightCoral" Background="#FFE9FDE9" BorderThickness="1" Margin="3" Grid.Row="1" Grid.ColumnSpan="2">
         <RichTextBlock x:Name="rtbFeedbackForm"    TextWrapping="Wrap" Margin="1,0">
                 <Paragraph FontSize="12" FontWeight="Bold">
-                    <InlineUIContainer >
-                        <Image Source="Icons/NextDocument.png" Margin="1,0"  Width="10" Height="9"/>
-                    </InlineUIContainer>
-                        <Span Foreground="#FF1A39C1">EPPI-Reviewer 4</Span>
+                    <Span Foreground="#FF1A39C1">EPPI-Reviewer 4</Span>
                         is reaching the end of its viable life!
-                    
-                    <InlineUIContainer >
-                        <Image Source="Icons/PreviousDocument.png" Margin="0"  Width="10" Height="9" />
-                    </InlineUIContainer>
                 </Paragraph>
                 <Paragraph>
                     Before we can let it enjoy its well-deserved retirement, we need to learn why you are still using it.
                 <LineBreak />
                     In our view, most activities can be performed better and faster in
                 <Hyperlink TargetName="_blank" NavigateUri="https://eppi.ioe.ac.uk/eppireviewer-web/">EPPI Reviewer 6</Hyperlink>,
-                however, you are here, and therefore you have reasons to use Version 4 instead.
+                however, you are still using it so we would like to know why.
             </Paragraph>
             <Paragraph>
-                <Bold>Please tell us why:</Bold>
+                <Bold>Please tell us:</Bold>
             </Paragraph>
         </RichTextBlock>
         </Border>
