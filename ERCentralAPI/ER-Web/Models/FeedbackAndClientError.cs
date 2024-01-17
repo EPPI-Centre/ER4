@@ -1,12 +1,17 @@
-﻿using BusinessLibrary.Data;
+﻿
 using BusinessLibrary.Security;
 using Csla;
+using Csla.Serialization;
 using Csla.Data;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+#if !SILVERLIGHT
+using BusinessLibrary.Data;
+using System.Data.SqlClient;
+#endif
+
 
 namespace BusinessLibrary.BusinessClasses
 {

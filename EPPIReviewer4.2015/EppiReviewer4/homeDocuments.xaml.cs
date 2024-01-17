@@ -6508,8 +6508,6 @@ on the right of the main screen");
                 windowMagBrowser.ShowDialog();
             }
         }
-
-       
-
+        
     }
 }

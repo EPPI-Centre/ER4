@@ -323,6 +323,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\ERCentralAPI\ER-Web\Models\FeedbackAndClientError.cs">
+      <Link>BusinessClasses\FeedbackAndClientError.cs</Link>
+    </Compile>
+    <Compile Include="..\..\ERCentralAPI\ER-Web\Models\FeedbackAndClientErrorList.cs">
+      <Link>BusinessClasses\FeedbackAndClientErrorList.cs</Link>
+    </Compile>
     <Compile Include="BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs" />
     <Compile Include="BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyBase.cs" />
     <Compile Include="BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyListBase.cs" />
