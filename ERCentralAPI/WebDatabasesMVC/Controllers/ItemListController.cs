@@ -459,6 +459,7 @@ namespace WebDatabasesMVC.Controllers
                     ,"Title"
                     ,"Abstract"
                     ,"PubYear"
+                    ,"Country"
                     ,"AdditionalText"
                     ,"ItemId"
                     ,"OldItemId"
@@ -477,6 +478,7 @@ namespace WebDatabasesMVC.Controllers
             if (SearchWhat == "TitleAbstract") descr += "Title and Abstract" + ") for: ";
             else if (SearchWhat == "AdditionalText") descr += "\"Coded\" Text" + ") for: ";
             else if (SearchWhat == "PubYear") descr += "Publication Year" + ") for: ";
+            else if (SearchWhat == "Country") descr += "Country" + ") for: ";
             else if (SearchWhat == "OldItemId") descr += "Imported ID(s)" + ") for: ";
             else descr += SearchWhat + ") for: ";
             if (SearchString.Length > 30)

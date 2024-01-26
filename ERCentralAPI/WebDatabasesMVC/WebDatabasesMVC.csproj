@@ -75,6 +75,8 @@
     <Compile Include="..\ER-Web\Models\WebDBsList.cs" Link="Models\WebDBsList.cs" />
     <Compile Include="..\ER-Web\Models\WebDbYearFrequency.cs" Link="Models\WebDbYearFrequency.cs" />
     <Compile Include="..\ER-Web\Models\WebDbYearFrequencyList.cs" Link="Models\WebDbYearFrequencyList.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbCountryFrequency.cs" Link="Models\WebDbCountryFrequency.cs" />
+    <Compile Include="..\ER-Web\Models\WebDbCountryFrequencyList.cs" Link="Models\WebDbCountryFrequencyList.cs" />
     <Compile Include="..\ER-Web\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
     <Compile Include="..\ER-Web\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
   </ItemGroup>

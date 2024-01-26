@@ -125,6 +125,28 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        public IActionResult CountryHistogramJSON()
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    WebDbCountryFrequencyCrit crit = new WebDbCountryFrequencyCrit(WebDbId, true);
+                    WebDbCountryFrequencyList res = DataPortal.Fetch<WebDbCountryFrequencyList>(crit);
+                    return Json(res);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in CountryHistogramJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+
         public IActionResult MapsListJSON()
         {
             try
