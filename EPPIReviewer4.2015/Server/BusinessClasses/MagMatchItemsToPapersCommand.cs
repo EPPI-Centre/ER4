@@ -78,7 +78,17 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #if !SILVERLIGHT
-
+        private Boolean AppIsShuttingDown
+        {
+            get
+            {
+#if CSLA_NETCORE
+                return Program.AppIsShuttingDown;
+#else
+                return false;      
+#endif
+            }
+        }
         protected override void DataPortal_Execute()
         {
 
@@ -95,7 +105,8 @@ namespace BusinessLibrary.BusinessClasses
                         ", Threads: " + AzureSettings.MagMatchItemsMaxThreadCount, ri.UserId);
 
 #if CSLA_NETCORE
-            System.Threading.Tasks.Task.Run(() => doMatchItems(ri.ReviewId, MagLogId, Convert.ToInt32(AzureSettings.MagMatchItemsMaxThreadCount)));
+                    //see AppIsShuttingDown property to see how we're making graceful shutdown possible in both ER4 and ER6
+                    System.Threading.Tasks.Task.Run(() => doMatchItems(ri.ReviewId, MagLogId, Convert.ToInt32(AzureSettings.MagMatchItemsMaxThreadCount)));
 #else
                     //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
                     HostingEnvironment.QueueBackgroundWorkItem(cancellationToken =>
@@ -160,12 +171,15 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         while (reader.Read())
                         {
-                            if (cancellationToken.IsCancellationRequested)
+                            if (cancellationToken.IsCancellationRequested || AppIsShuttingDown)
                             {
                                 MagLog.UpdateLogEntry("CancelToken!!", "Review: " + ReviewId + ", totalDone: " + totalCount.ToString() +
                                     ", errors: " + errorCount.ToString() + ", Threads: " + maxThreadCount.ToString(), MagLogId);
+                                //if (Program.Logger != null) Program.Logger.Error("Cancelling inside MagMatchItemsCommand");
                                 return;
                             }
+                            //if (Program.Logger != null) Program.Logger.Error("please make sense AGAIN! " + Program.cancelling.ToString());
+
                             totalCount++;
                             if (activeThreadCount < maxThreadCount)
                             {
@@ -228,5 +242,5 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
 
-    }
+            }
 }
