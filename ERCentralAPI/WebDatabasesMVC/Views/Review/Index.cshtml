@@ -98,20 +98,25 @@
                             nodes.push(nd);
                         }
 
-                        if (sessionStorage.getItem("IsTouchScreen") == "Yes") {
-                            setTimeout(function () {
-                            createWorldMapTouchScreen();
-                            }, 150);
-                            //$("#cbTouchScreen").checked = true;
-                            document.getElementById("cbTouchScreen").checked = true;
-                            $("#info").html("Click a bubble");
-                            $("#ListItemsTouchScreen").show();
-                            $("#ListItemsTouchScreen").prop("disabled", true);
-                        } 
-                        else {
-                            setTimeout(function () {
-                            createWorldMap(); // draw map
-                            }, 150);
+
+                        const showWorldMap = new Boolean(@Model.WebDb.ShowWorldMap.ToString().ToLower());
+
+                        if (showWorldMap == true) {
+                            if (sessionStorage.getItem("IsTouchScreen") == "Yes") {
+                                setTimeout(function () {
+                                    createWorldMapTouchScreen();
+                                }, 150);
+                                //$("#cbTouchScreen").checked = true;
+                                document.getElementById("cbTouchScreen").checked = true;
+                                $("#info").html("Click a bubble");
+                                $("#ListItemsTouchScreen").show();
+                                $("#ListItemsTouchScreen").prop("disabled", true);
+                            }
+                            else {
+                                setTimeout(function () {
+                                    createWorldMap(); // draw map
+                                }, 150);
+                            }
                         }
 
                         //createWorldMap(); // draw map
@@ -157,12 +162,13 @@
                             HideShowCrosstabDivIcon.className = "fa fa-plus";
                             $("#crosstabDiv").css("max-height", "0px");
                         }
-                        if (sessionStorage.getItem("HideShowWorldMap") == "Yes") {
-                            $("#WorldMapDiv").hide();
-                            HideShowWorldMapDivIcon.className = "fa fa-plus";
-                            $("#WorldMapInformationDiv").hide();
+                        if (showWorldMap) {
+                            if (sessionStorage.getItem("HideShowWorldMap") == "Yes") {
+                                $("#WorldMapDiv").hide();
+                                HideShowWorldMapDivIcon.className = "fa fa-plus";
+                                $("#WorldMapInformationDiv").hide();
+                            }
                         }
-
                         return nodes;
                     }
                 }
@@ -397,7 +403,9 @@
         }
     }
 
-    $(document).ready(createWorldMap);
+
+    //$(document).ready(createWorldMap);
+    
     
     function ListItemsByCountry(e) {
         //alert("The marker is clicked");
@@ -607,6 +615,9 @@
     }
 
     function HideShowAllCards() {
+
+        const showWorldMap = new Boolean(@Model.WebDb.ShowWorldMap.ToString().ToLower());
+
         if (HideShowAllCardsIcon.className == "fa fa-plus") {   
             HideShowAllCardsIcon.className = "fa fa-minus";            
             if ("#crosstabDiv") {
@@ -615,21 +626,23 @@
                 $("#crosstabDiv").css("max-height", "1000px");
                 sessionStorage.setItem("HideShowCrosstab", "No");
             }
-            if ("#WorldMapDiv") {
-                $("#WorldMapDiv").show();
-                HideShowWorldMapDivIcon.className = "fa fa-minus";
-                $("#WorldMapInformationDiv").show();
-                sessionStorage.setItem("HideShowWorldMap", "No");
-                if (sessionStorage.getItem("IsTouchScreen") == "Yes") {
-                    setTimeout(function () {
-                        createWorldMapTouchScreen();
+            if (showWorldMap == true) {
+                if ("#WorldMapDiv") {
+                    $("#WorldMapDiv").show();
+                    HideShowWorldMapDivIcon.className = "fa fa-minus";
+                    $("#WorldMapInformationDiv").show();
+                    sessionStorage.setItem("HideShowWorldMap", "No");
+                    if (sessionStorage.getItem("IsTouchScreen") == "Yes") {
+                        setTimeout(function () {
+                            createWorldMapTouchScreen();
                         }, 150);
+                    }
+                    else {
+                        setTimeout(function () {
+                            createWorldMap();
+                        }, 150);
+                    }
                 }
-                else {
-                    setTimeout(function () {
-                    createWorldMap();
-                    }, 150);
-                }               
             }
             if ("#VisualsDiv") {
                 $("#VisualsDiv").show();
@@ -685,11 +698,13 @@
                 $("#crosstabDiv").css("max-height", "0px");
                 sessionStorage.setItem("HideShowCrosstab", "Yes");
             }
-            if ("#WorldMapDiv") {
-                $("#WorldMapDiv").hide();
-                HideShowWorldMapDivIcon.className = "fa fa-plus";
-                $("#WorldMapInformationDiv").hide();
-                sessionStorage.setItem("HideShowWorldMap", "Yes");           
+            if (showWorldMap == true) {
+                if ("#WorldMapDiv") {
+                    $("#WorldMapDiv").hide();
+                    HideShowWorldMapDivIcon.className = "fa fa-plus";
+                    $("#WorldMapInformationDiv").hide();
+                    sessionStorage.setItem("HideShowWorldMap", "Yes");
+                }
             }
             if ("#VisualsDiv") {
                 $("#VisualsDiv").hide();
@@ -2071,74 +2086,79 @@
                 </div>
             </div>
 
-            <div class="row mx-0 mt--2">
-                <div class="col-12 col-md-12 col-lg-12">
-                    <!-- World Map card -->
-                    <div class="card" id="worldMapCard">
-                        <div class="card-header">
-                            <table width="100%">
-                                <tr>
-                                    <td style="vertical-align: bottom;text-align: left; width:165px">
-                                        <div class="card-title" id="FrequenciesResult">Map of the world</div>
-                                    </td>
-                                        <td class="px-4 py-1" style="vertical-align: bottom;text-align: left">
-                                            <input type="checkbox" id="cbTouchScreen" />&nbsp;
-                                        <label for="cbTouchScreen">Touchscreen</label>
-                                    </td>
-                                    <td style="text-align:right">
-                                        <div id="WorldMapDivButton" class="btn btn-primary btn-sm"
-                                             onclick="HideShowWorldMapDiv()">
-                                            <div id="HideShowWorldMapDivIcon" class="fa fa-minus">
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                            <script>
-                                $("#cbTouchScreen").change(function() {
-                                    if(this.checked){
-                                        //alert("The Check-box is Checked"); 
-                                        createWorldMapTouchScreen();
-                                        $("#info").html("Click a bubble");
-                                        $("#ListItemsTouchScreen").show();
-                                        $("#ListItemsTouchScreen").prop("disabled", true);
-                                        sessionStorage.setItem("IsTouchScreen", "Yes");
-                                    } else {
-                                        //alert("The Check-box is Un-Checked"); 
-                                        createWorldMap();
-                                        $("#info").html("Hover over and click a marker");
-                                        $("#ListItemsTouchScreen").hide();
-                                        sessionStorage.setItem("IsTouchScreen", "No");
-                                    }
-                                });
-                            </script>
-                            <div id="WorldMapInformationDiv">
-                                <table>
+
+            <!-- World Map card -->
+            @if (@Model.WebDb.ShowWorldMap.ToString() == "True")
+            {
+                <div class="row mx-0 mt--2">
+                    <div class="col-12 col-md-12 col-lg-12">
+                                                        
+                        <div class="card" id="worldMapCard">
+                            <div class="card-header">
+                                <table width="100%">
                                     <tr>
-                                    <td class="pt-1">
-                                        <div id="info" class="box-col"></div>
-                                    </td>
-                                    <td class="px-4 py-1">
-                                        <button id="ListItemsTouchScreen" onclick="ListItemsByCountryTouchScreen()" class="btn btn-secondary btn-sm btn-round" disabled >List records</button> 
-                                    </td>
+                                        <td style="vertical-align: bottom;text-align: left; width:165px">
+                                            <div class="card-title" id="FrequenciesResult">Map of the world</div>
+                                        </td>
+                                            <td class="px-4 py-1" style="vertical-align: bottom;text-align: left">
+                                                <input type="checkbox" id="cbTouchScreen" />&nbsp;
+                                            <label for="cbTouchScreen">Touchscreen</label>
+                                        </td>
+                                        <td style="text-align:right">
+                                            <div id="WorldMapDivButton" class="btn btn-primary btn-sm"
+                                                 onclick="HideShowWorldMapDiv()">
+                                                <div id="HideShowWorldMapDivIcon" class="fa fa-minus">
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </table>
+                                <script>
+                                    $("#cbTouchScreen").change(function() {
+                                        if(this.checked){
+                                            //alert("The Check-box is Checked"); 
+                                            createWorldMapTouchScreen();
+                                            $("#info").html("Click a bubble");
+                                            $("#ListItemsTouchScreen").show();
+                                            $("#ListItemsTouchScreen").prop("disabled", true);
+                                            sessionStorage.setItem("IsTouchScreen", "Yes");
+                                        } else {
+                                            //alert("The Check-box is Un-Checked"); 
+                                            createWorldMap();
+                                            $("#info").html("Hover over and click a marker");
+                                            $("#ListItemsTouchScreen").hide();
+                                            sessionStorage.setItem("IsTouchScreen", "No");
+                                        }
+                                    });
+                                </script>
+                                <div id="WorldMapInformationDiv">
+                                    <table>
+                                        <tr>
+                                        <td class="pt-1">
+                                            <div id="info" class="box-col"></div>
+                                        </td>
+                                        <td class="px-4 py-1">
+                                            <button id="ListItemsTouchScreen" onclick="ListItemsByCountryTouchScreen()" class="btn btn-secondary btn-sm btn-round" disabled >List records</button> 
+                                        </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-body" id="WorldMapDiv">
+                                <div id="map"></div>                                                      
+                                <script id="info-template" type="text/x-kendo-template">
+                                    <h5>#= country #: #= kendo.toString(value, "N0") #</h5>
+                                </script>
+                                <script id="empty-info-template" type="text/x-kendo-template">                               
+                                    <h5><div id="hoverMessage">Hover over and click a marker to list the records</div></h5>
+                                </script>                           
+                                                      
                             </div>
                         </div>
-                        <div class="card-body" id="WorldMapDiv">
-                            <div id="map"></div>                                                      
-                            <script id="info-template" type="text/x-kendo-template">
-                                <h5>#= country #: #= kendo.toString(value, "N0") #</h5>
-                            </script>
-                            <script id="empty-info-template" type="text/x-kendo-template">                               
-                                <h5><div id="hoverMessage">Hover over and click a marker to list the records</div></h5>
-                            </script>                           
-                                                      
-                        </div>
+                    
                     </div>
                 </div>
-            </div>
-
+            }
 
 
 

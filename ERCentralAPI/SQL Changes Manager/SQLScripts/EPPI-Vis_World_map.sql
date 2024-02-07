@@ -510,8 +510,81 @@ where ir.REVIEW_ID = @reviewID
 and i.COUNTRY = @countryToSet
 
 */
--------------------------------------
 
 
+
+---------------------------------------------------------------------------------
+-- add 2 columns
+USE [Reviewer]
+GO
+IF COL_LENGTH('dbo.TB_WEBDB', 'HIDDEN_FIELDS') IS NULL
+	and COL_LENGTH('dbo.TB_WEBDB', 'SHOW_WORLD_MAP') IS NULL
+BEGIN
+
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+
+ALTER TABLE dbo.TB_WEBDB ADD
+	HIDDEN_FIELDS nvarchar(max) NOT NULL DEFAULT '',
+	SHOW_WORLD_MAP bit NOT NULL DEFAULT 0
+
+COMMIT
+END
+GO
+
+
+-----------------------------------------------
+
+
+
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_WebDBget]    Script Date: 06/02/2024 14:02:37 ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE or ALTER       procedure [dbo].[st_WebDBget]
+(
+	@WebDBid int,
+	@RevId int	
+)
+
+As
+BEGIN
+select [WEBDB_ID]
+		  ,[REVIEW_ID]
+		  ,[WITH_ATTRIBUTE_ID]
+		  ,[IS_OPEN]
+		  ,w.[USERNAME]
+		  ,[WEBDB_NAME]
+		  ,SUBTITLE
+		  ,w.[DESCRIPTION]
+		  ,c1.CONTACT_NAME as [CREATED_BY]
+		  ,c2.CONTACT_NAME as [EDITED_BY]
+		  ,w.[MAP_TITLE]
+		  ,w.[MAP_URL]
+		  ,w.[HEADER_IMAGE_1_URL]
+		  ,w.[HEADER_IMAGE_2_URL]
+		  ,w.[HEADER_IMAGE_3_URL]
+		  ,w.HEADER_IMAGE_1
+		  ,w.HEADER_IMAGE_2
+		  ,w.HEADER_IMAGE_3
+		  ,[SHOW_WORLD_MAP]
+	  FROM [TB_WEBDB] w
+	  inner join TB_CONTACT c1 on w.CREATED_BY = c1.CONTACT_ID
+	  inner join TB_CONTACT c2 on w.EDITED_BY = c2.CONTACT_ID 
+	  where w.WEBDB_ID = @WebDBid AND w.REVIEW_ID = @RevId
+END
 
 
