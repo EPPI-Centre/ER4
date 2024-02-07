@@ -7,11 +7,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-    <PropertyGroup>
+    <!--<PropertyGroup>
         <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
         <ThreadPoolMinThreads>20</ThreadPoolMinThreads>
         <ThreadPoolMaxThreads>20</ThreadPoolMaxThreads>
-    </PropertyGroup>
+    </PropertyGroup>-->
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants)TRACE;CSLA_NETCORE</DefineConstants>
@@ -44,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AbstractClasses\LongLastingFireAndForgetCommand.cs" Link="Models\AbstractClasses\LongLastingFireAndForgetCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs" Link="Models\ArchieAbstractClasses\ArchieCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyBase.cs" Link="Models\ArchieAbstractClasses\ArchieReadOnlyBase.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyListBase.cs" Link="Models\ArchieAbstractClasses\ArchieReadOnlyListBase.cs" />
@@ -285,6 +286,10 @@
     <Reference Include="EPPIiFilter">
       <HintPath>..\Dlls\EPPIiFilter.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\AbstractClasses\" />
   </ItemGroup>
 
 </Project>

@@ -27,20 +27,16 @@ using System.Web.Hosting;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class MagMatchItemsToPapersCommand : CommandBase<MagMatchItemsToPapersCommand>
+    public class MagMatchItemsToPapersCommand : LongLastingFireAndForgetCommand<MagMatchItemsToPapersCommand>
     {
-
-#if SILVERLIGHT
-    public MagMatchItemsToPapersCommand(){}
-#else
         public MagMatchItemsToPapersCommand() { }
-#endif
+
 
         private bool _AllInReview;
         private Int64 _ITEM_ID;
         private Int64 _ATTRIBUTE_ID;
-        private string _FindOrRemove;
-        private string _currentStatus;
+        private string _FindOrRemove = "";
+        private string _currentStatus = "";
         [Newtonsoft.Json.JsonProperty]
         public string currentStatus
         {
@@ -78,17 +74,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #if !SILVERLIGHT
-        private Boolean AppIsShuttingDown
-        {
-            get
-            {
-#if CSLA_NETCORE
-                return Program.AppIsShuttingDown;
-#else
-                return false;      
-#endif
-            }
-        }
+
         protected override void DataPortal_Execute()
         {
 
@@ -173,9 +159,9 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             if (cancellationToken.IsCancellationRequested || AppIsShuttingDown)
                             {
-                                MagLog.UpdateLogEntry("CancelToken!!", "Review: " + ReviewId + ", totalDone: " + totalCount.ToString() +
+                                ErrorLogSink("Cancelling inside MagMatchItemsCommand");
+                                MagLog.UpdateLogEntry("CancelToken(1)!", "Review: " + ReviewId + ", totalDone: " + totalCount.ToString() +
                                     ", errors: " + errorCount.ToString() + ", Threads: " + maxThreadCount.ToString(), MagLogId);
-                                //if (Program.Logger != null) Program.Logger.Error("Cancelling inside MagMatchItemsCommand");
                                 return;
                             }
                             //if (Program.Logger != null) Program.Logger.Error("please make sense AGAIN! " + Program.cancelling.ToString());
@@ -191,11 +177,23 @@ namespace BusinessLibrary.BusinessClasses
                                     {
                                         MagPaperItemMatch.MatchItemToMag(ItemId, ReviewId);
                                     }
-                                    catch
+                                    catch (Exception e)
                                     {
-                                        resultQueue.Enqueue("ERROR: " + ItemId);
-                                        MagLog.UpdateLogEntry("Running", "Review: " + ReviewId + ", total: " + totalCount.ToString() +
-                                            ", errors: " + errorCount.ToString() + ", last: " + ItemId.ToString(), MagLogId);// maxThreadCount.ToString(), MagLogId);
+                                        if (e.Message == "Thread was being aborted.")
+                                        {
+                                            ErrorLogSink("Cancelling inside MagMatchItemsCommand");
+                                            MagLog.UpdateLogEntry("CancelToken(2)!", "Review: " + ReviewId + ", totalDone: " + totalCount.ToString() +
+                                                ", errors: " + errorCount.ToString() + ", Threads: " + maxThreadCount.ToString(), MagLogId);
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            resultQueue.Enqueue("ERROR: " + ItemId);
+                                            MagLog.UpdateLogEntry("Running", "Review: " + ReviewId + ", total: " + totalCount.ToString() +
+                                                ", errors: " + errorCount.ToString() + ", last: " + ItemId.ToString()
+                                                + " Exception: " + e.Message
+                                                , MagLogId);// maxThreadCount.ToString(), MagLogId);
+                                        }
                                     }
                                     finally
                                     {
@@ -237,10 +235,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        
-
 #endif
 
 
-            }
-}
+        }
+    }

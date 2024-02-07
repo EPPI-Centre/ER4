@@ -176,7 +176,7 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
     public Task StartAsync(CancellationToken cancellationToken)
     {
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is starting, with ID: " + ID);
-        Logger.Information("Timed Background Service is starting, with ID: " + ID);
+        Logger.Information("GracefulShutdownGuardianService is starting, with ID: " + ID);
         //Logger.Information("CT ID: " + cancellationToken.GetHashCode().ToString());
         _appLifetime.ApplicationStarted.Register(OnStarted);
         _appLifetime.ApplicationStopping.Register(OnStopping);
@@ -198,8 +198,8 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
     {
         Program.AppIsShuttingDown = true;
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is stopping, with ID: " + ID);
-        Logger.Information("CT ID: " + cancellationToken.GetHashCode().ToString() + " please make sense! " + cancellationToken.IsCancellationRequested.ToString());
-        Logger.Information("Timed Background Service is stopping, with ID: " + ID);
+        //Logger.Information("CT ID: " + cancellationToken.GetHashCode().ToString() + " please make sense! " + cancellationToken.IsCancellationRequested.ToString());
+        Logger.Information("GracefulShutdownGuardianService is stopping, with ID: " + ID);
         //_timer?.Change(Timeout.Infinite, 0);
         return Task.CompletedTask;
     }
@@ -210,17 +210,17 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
     private void OnStarted()
     {
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStarted(), with ID: " + ID);
-        Logger.Information("Timed Background Srv OnStarted(), with ID: " + ID);
+        Logger.Information("GracefulShutdownGuardianService OnStarted(), with ID: " + ID);
     }
     private void OnStopping()
     {
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStopping(), with ID: " + ID);
-        Logger.Information("Timed Background Srv OnStopping(), with ID: " + ID);
+        Logger.Information("GracefulShutdownGuardianService OnStopping(), with ID: " + ID);
     }
     private void OnStopped()
     {
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStopped(), with ID: " + ID);
-        Logger.Information("Timed Background Srv OnStopped(), with ID: " + ID);
+        Logger.Information("GracefulShutdownGuardianService OnStopped(), with ID: " + ID);
     }
 }
 
