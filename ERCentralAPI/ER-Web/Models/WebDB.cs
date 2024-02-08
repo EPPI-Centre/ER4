@@ -272,16 +272,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<bool> ShowWorldMapProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowWorldMap", "ShowWorldMap"));
-        public bool ShowWorldMap
+        public static readonly PropertyInfo<string> WorldMapProperty = RegisterProperty<string>(new PropertyInfo<string>("WorldMap", "WorldMap"));
+        public string WorldMap
         {
             get
             {
-                return GetProperty(ShowWorldMapProperty);
+                return GetProperty(WorldMapProperty);
             }
             set
             {
-                SetProperty(ShowWorldMapProperty, value);
+                SetProperty(WorldMapProperty, value);
             }
         }
 
@@ -330,7 +330,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty(HeaderImage1UrlProperty, reader.GetString("HEADER_IMAGE_1_URL"));
                             LoadProperty(HeaderImage2UrlProperty, reader.GetString("HEADER_IMAGE_2_URL"));
                             LoadProperty(HeaderImage3UrlProperty, reader.GetString("HEADER_IMAGE_3_URL"));
-                            LoadProperty(ShowWorldMapProperty, reader.GetBoolean("SHOW_WORLD_MAP"));
+                            LoadProperty(WorldMapProperty, reader.GetString("WORLD_MAP"));
                         }
                     }
                 }
@@ -360,7 +360,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@HeaderImage1Url", HeaderImage1Url));
                     command.Parameters.Add(new SqlParameter("@HeaderImage2Url", HeaderImage2Url));
                     command.Parameters.Add(new SqlParameter("@HeaderImage3Url", HeaderImage3Url));
-                    command.Parameters.Add(new SqlParameter("@ShowWorldMap", ShowWorldMap));
+                    command.Parameters.Add(new SqlParameter("@WorldMap", WorldMap));
                     SqlParameter par = new SqlParameter("@WebDbId", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     par.Direction = System.Data.ParameterDirection.Output;
@@ -417,7 +417,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@HeaderImage1Url", HeaderImage1Url));
                     command.Parameters.Add(new SqlParameter("@HeaderImage2Url", HeaderImage2Url));
                     command.Parameters.Add(new SqlParameter("@HeaderImage3Url", HeaderImage3Url));
-                    command.Parameters.Add(new SqlParameter("@ShowWorldMap", ShowWorldMap));
+                    command.Parameters.Add(new SqlParameter("@WorldMap", WorldMap));
 
                     SqlParameter par = new SqlParameter("@WebDbId", System.Data.SqlDbType.Int);
                     par.Direction = System.Data.ParameterDirection.InputOutput;//!!Crucial
@@ -491,7 +491,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty(HeaderImage1UrlProperty, reader.GetString("HEADER_IMAGE_1_URL"));
             returnValue.LoadProperty(HeaderImage2UrlProperty, reader.GetString("HEADER_IMAGE_2_URL"));
             returnValue.LoadProperty(HeaderImage3UrlProperty, reader.GetString("HEADER_IMAGE_3_URL"));
-            returnValue.LoadProperty(IsOpenProperty, reader.GetBoolean("SHOW_WORLD_MAP"));
+            returnValue.LoadProperty(WorldMapProperty, reader.GetString("WORLD_MAP"));
             byte[] t = (byte[])reader["HEADER_IMAGE_1"];
             string base64ImageRepresentation;
             if (t != null)

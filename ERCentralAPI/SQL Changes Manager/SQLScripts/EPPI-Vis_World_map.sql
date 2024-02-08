@@ -514,11 +514,11 @@ and i.COUNTRY = @countryToSet
 
 
 ---------------------------------------------------------------------------------
--- add 2 columns
+-- add 2 columns (both must be absent for this to run)
 USE [Reviewer]
 GO
 IF COL_LENGTH('dbo.TB_WEBDB', 'HIDDEN_FIELDS') IS NULL
-	and COL_LENGTH('dbo.TB_WEBDB', 'SHOW_WORLD_MAP') IS NULL
+	and COL_LENGTH('dbo.TB_WEBDB', 'WORLD_MAP') IS NULL
 BEGIN
 
 BEGIN TRANSACTION
@@ -534,7 +534,7 @@ BEGIN TRANSACTION
 
 ALTER TABLE dbo.TB_WEBDB ADD
 	HIDDEN_FIELDS nvarchar(max) NOT NULL DEFAULT '',
-	SHOW_WORLD_MAP bit NOT NULL DEFAULT 0
+	WORLD_MAP varchar(20) NOT NULL DEFAULT 'NO_MAP'
 
 COMMIT
 END
@@ -580,7 +580,7 @@ select [WEBDB_ID]
 		  ,w.HEADER_IMAGE_1
 		  ,w.HEADER_IMAGE_2
 		  ,w.HEADER_IMAGE_3
-		  ,[SHOW_WORLD_MAP]
+		  ,[WORLD_MAP]
 	  FROM [TB_WEBDB] w
 	  inner join TB_CONTACT c1 on w.CREATED_BY = c1.CONTACT_ID
 	  inner join TB_CONTACT c2 on w.EDITED_BY = c2.CONTACT_ID 

@@ -98,10 +98,12 @@
                             nodes.push(nd);
                         }
 
+                        var worldMap = new String("@Model.WebDb.WorldMap");
+                        if (worldMap == "") {
+                            worldMap = "NO_MAP"
+                        }
 
-                        const showWorldMap = new Boolean(@Model.WebDb.ShowWorldMap.ToString().ToLower());
-
-                        if (showWorldMap == true) {
+                        if (worldMap == "FROM_FIELD") {
                             if (sessionStorage.getItem("IsTouchScreen") == "Yes") {
                                 setTimeout(function () {
                                     createWorldMapTouchScreen();
@@ -162,7 +164,7 @@
                             HideShowCrosstabDivIcon.className = "fa fa-plus";
                             $("#crosstabDiv").css("max-height", "0px");
                         }
-                        if (showWorldMap) {
+                        if (worldMap != "NO_MAP") {
                             if (sessionStorage.getItem("HideShowWorldMap") == "Yes") {
                                 $("#WorldMapDiv").hide();
                                 HideShowWorldMapDivIcon.className = "fa fa-plus";
@@ -616,7 +618,10 @@
 
     function HideShowAllCards() {
 
-        const showWorldMap = new Boolean(@Model.WebDb.ShowWorldMap.ToString().ToLower());
+        var worldMap = new String("@Model.WebDb.WorldMap");
+        if (worldMap == "") {
+            worldMap = "NO_MAP"
+        }
 
         if (HideShowAllCardsIcon.className == "fa fa-plus") {   
             HideShowAllCardsIcon.className = "fa fa-minus";            
@@ -626,7 +631,7 @@
                 $("#crosstabDiv").css("max-height", "1000px");
                 sessionStorage.setItem("HideShowCrosstab", "No");
             }
-            if (showWorldMap == true) {
+            if (worldMap != "NO_MAP") {
                 if ("#WorldMapDiv") {
                     $("#WorldMapDiv").show();
                     HideShowWorldMapDivIcon.className = "fa fa-minus";
@@ -698,7 +703,7 @@
                 $("#crosstabDiv").css("max-height", "0px");
                 sessionStorage.setItem("HideShowCrosstab", "Yes");
             }
-            if (showWorldMap == true) {
+            if (worldMap != "NO_MAP") {
                 if ("#WorldMapDiv") {
                     $("#WorldMapDiv").hide();
                     HideShowWorldMapDivIcon.className = "fa fa-plus";
@@ -2088,7 +2093,7 @@
 
 
             <!-- World Map card -->
-            @if (@Model.WebDb.ShowWorldMap.ToString() == "True")
+            @if (@Model.WebDb.WorldMap.ToString() != "NO_MAP")
             {
                 <div class="row mx-0 mt--2">
                     <div class="col-12 col-md-12 col-lg-12">
