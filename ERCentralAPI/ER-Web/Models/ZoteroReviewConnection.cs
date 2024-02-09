@@ -158,7 +158,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_ZoteroConnectionCreate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@LibraryID", ReadProperty(LibraryIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@LibraryID", LibraryId == "" ? DBNull.Value : LibraryId));
                     command.Parameters.Add(new SqlParameter("@ZoteroUserId", ZoteroUserId));
                     command.Parameters.Add(new SqlParameter("@ApiKey", ApiKey));
                     command.Parameters.Add(new SqlParameter("@USER_ID", localCONTACT_ID));
@@ -181,7 +181,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_ZoteroConnectionUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@LibraryID", ReadProperty(LibraryIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@LibraryID", LibraryId == "" ? DBNull.Value : LibraryId));
                     command.Parameters.Add(new SqlParameter("@ZoteroUserId", ZoteroUserId));
                     command.Parameters.Add(new SqlParameter("@ApiKey", ApiKey));
                     command.Parameters.Add(new SqlParameter("@USER_ID", ReadProperty(USER_IDProperty)));
