@@ -52,7 +52,14 @@ export class itemDetailsComp implements OnInit, OnDestroy {
   }
   public HAbstract: string = "";
   public brAbstract: string = "";
-    public HTitle: string = "";
+  public HTitle: string = "";
+
+  //safetyString4Regex is a negative "lookbehind" to avoid matching the term "term" inside the span tags like: <span class = 'RelevantTerm' >[term]</span>
+  //which we use to create highlights. Thus, this makes highlights work *even when* user picked "term" as a workd that needs to be highlighted.
+  //It will still break if they pick "RelevantTerm" or "IrrelevantTerm" or "relevantTerm" or "irrelevantTerm" (or any ), though!
+  //will NOT match if the given term is preceded ("(?<!" negative lookbehind) by: "<span class='" followed by any letter ("[a-zA-Z]") present between zero and 20 times ("{0,21}")
+  private safetyString4Regex = "(?<!<span class='[a-zA-Z]{0,20})";
+  
 	public showOptionalFields = false;
 	public NoTextSelected: boolean = true;
 	public data: Array<any> = [{
@@ -313,8 +320,8 @@ export class itemDetailsComp implements OnInit, OnDestroy {
               let lTerm = lFirst + term.reviewerTerm.substr(1);
               let uTerm = uFirst + term.reviewerTerm.substr(1);
 
-              const reg = new RegExp(this.cleanSpecialRegexChars(lTerm), "g");
-              const reg2 = new RegExp(this.cleanSpecialRegexChars(uTerm), "g");
+              const reg = new RegExp(this.safetyString4Regex + this.cleanSpecialRegexChars(lTerm), "g");
+              const reg2 = new RegExp(this.safetyString4Regex + this.cleanSpecialRegexChars(uTerm), "g");
               if (term.included) {
                 this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + lTerm + "</span>");
                 this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + uTerm + "</span>");
