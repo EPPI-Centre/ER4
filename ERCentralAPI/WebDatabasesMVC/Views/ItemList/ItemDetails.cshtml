@@ -3,8 +3,14 @@
 @using BusinessLibrary.BusinessClasses;
 @using Newtonsoft.Json;
 @using Newtonsoft.Json.Serialization;
-@using System.Linq; 
+@using System.Linq;
+@using System.Security.Claims;
+
 @{
+    Claim HiddenFieldsClaim = User.FindFirst("HiddenFields");
+    List<string> HiddenFields = new List<string>();
+    if (HiddenFieldsClaim != null) HiddenFields = HiddenFieldsClaim.ToString().Split(",").ToList();
+
     Layout = "~/Views/Shared/_MinimalLayout.cshtml";
     Item itm = Model.Item;
     bool isFair = false;
@@ -16,31 +22,33 @@
 }
 <script type="text/javascript">
     function toggleDetails() {
-        $(document).find('.showhide1').toggle(100);
-        $(document).find('.showhide2').toggle(100);
+    $(document).find('.showhide1').toggle(100);
+    $(document).find('.showhide2').toggle(100);
     }
     var IsFair = @isFair.ToString().ToLower();
     var ModelData = null;
     var CurrentItemsCriteria = null;
     var ItemsIds = null;
     function BackToList() {
-        if (IsFair == true )
-            postwith("../Fair/ListFromCrit", CurrentItemsCriteria);
-        else postwith("../ItemList/ListFromCrit", CurrentItemsCriteria);
+    if (IsFair == true )
+    postwith("../Fair/ListFromCrit", CurrentItemsCriteria);
+    else postwith("../ItemList/ListFromCrit", CurrentItemsCriteria);
     }
 </script>
 <script id="InitialScript" type="text/javascript">
-    @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver = new CamelCasePropertyNamesContractResolver() }));};
+    @{
+        var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver() }));
+    };
     $(document).ready(function () {
-        ModelData = @jdata;
-        ItemsIds = ModelData.itemIds.split(',').map(cal => Number(cal));
-        //console.log("parsed:", ItemsIds);
-        CurrentItemsCriteria = ModelData.listCrit;
-        //console.log(ModelData);
-        $("#InitialScript").remove();
+    ModelData = @jdata;
+    ItemsIds = ModelData.itemIds.split(',').map(cal => Number(cal));
+    //console.log("parsed:", ItemsIds);
+    CurrentItemsCriteria = ModelData.listCrit;
+    //console.log(ModelData);
+    $("#InitialScript").remove();
     });
 
 </script>
@@ -296,20 +304,32 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
-                                    <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
-                                        @itm.Comments
+
+
+                            @if ((!HiddenFields.Contains("Comments")) && (!HiddenFields.Contains("Keywords"))) {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+
+                                @if(!HiddenFields.Contains("Comments")) {
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Comments
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
-                                    <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
-                                        @itm.Keywords
+                                }
+                                @if (!HiddenFields.Contains("Keywords")) {
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Keywords
+                                        </div>
                                     </div>
+                                }
                                 </div>
-                            </div>
+                            }
+
+
+
                             <div class="row w-100 p-0 m-0 small">
                                 @*<div class="col-3 row p-0 m-0 font-weight-bold">
                                         Created by: @itm.CreatedBy

@@ -99,7 +99,7 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
                                 //SetImages(WebDbId, reader);
 
                                 // log to TB_WEBDB_LOG
@@ -154,7 +154,7 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
                                 //SetImages(WebDbId, reader);
 
                                 // log to TB_WEBDB_LOG
@@ -205,7 +205,7 @@ namespace WebDatabasesMVC.Controllers
         {
             return Forbid();
         }
-        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, SqlDataReader reader)
+        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, string HiddenFields, SqlDataReader reader)
         {
             var userClaims = new List<Claim>()
             {
@@ -213,6 +213,7 @@ namespace WebDatabasesMVC.Controllers
                 new Claim(ClaimTypes.Name, Name),
                 new Claim("reviewId", revId.ToString()),
                 new Claim("WebDbID", WebDbID.ToString()),
+                new Claim("HiddenFields", HiddenFields),
                 //new Claim("ItemsCode", itemsCode.ToString()) //we don't need to store this in the Cookie: the SPs for WebDBs should retrieve it from the DB
             };
             var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");
