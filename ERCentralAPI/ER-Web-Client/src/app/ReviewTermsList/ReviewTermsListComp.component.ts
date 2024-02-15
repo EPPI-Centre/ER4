@@ -77,15 +77,13 @@ export class ReviewTermsListComp implements OnInit, OnDestroy {
 	public InsertNewRow() {
 
 		if (this.newReviewTerm != '') {
-			let newTerm: ReviewerTerm = {} as ReviewerTerm;
+			let newTerm: ReviewerTerm = new ReviewerTerm(this.newReviewTerm);
 			newTerm.included = this.newReviewIncluded;
-			newTerm.term = this.newReviewTerm;
 			this.ReviewTermsServ.CreateTerm(newTerm);
-			this.ReviewTermsServ.TermsList.push(newTerm);
+			//this.ReviewTermsServ.TermsList.push(newTerm);
 			this.newReviewTerm = '';
 			this.newReviewIncluded = false;
 			this.ShowNewTermPanel = false;
 		}
 	}
 }
- 

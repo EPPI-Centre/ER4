@@ -301,6 +301,28 @@ export class Helpers {
       } else return "";
     }
   }
+
+
+  //METHOD to ensure a given string does not contain bits that have special regex meanings
+  //used when we need to dynamically create regexes from strings at runtime
+  public static cleanSpecialRegexChars(input: string): string {
+    //need to replace these: [\^$.|?*+(){}
+    let result = input.replace(/\\/g, "\\\\");
+    result = result.replace(/\[/g, "\\[");
+    result = result.replace(/\^/g, "\\^");
+    result = result.replace(/\$/g, "\\$");
+    result = result.replace(/\./g, "\\.");
+    result = result.replace(/\|/g, "\\|");
+    result = result.replace(/\?/g, "\\?");
+    result = result.replace(/\*/g, "\\*");
+    result = result.replace(/\+/g, "\\+");
+    result = result.replace(/\(/g, "\\(");
+    result = result.replace(/\)/g, "\\)");
+    result = result.replace(/\{/g, "\\{");
+    result = result.replace(/\}/g, "\\}");
+    //console.log(input, result);
+    return result;
+  }
 }
 export interface SubstituteString {
   searchFor: string;
