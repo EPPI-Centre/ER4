@@ -373,7 +373,13 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "UpdateGroupToReview has an error");
-                return StatusCode(500, e.Message);
+                if (e.Message.Contains("dbo.TB_ZOTERO_REVIEW_CONNECTION' with unique index 'UIX_TB_ZOTERO_REVIEW_CONNECTION_LibraryId"))
+                {
+                    return StatusCode(500, "<b>The selected group library is already linked to a review.</b><br><br>" + e.Message);
+                }
+                else {
+                    return StatusCode(500, e.Message);
+                }
             }
         }
         /// <summary>
