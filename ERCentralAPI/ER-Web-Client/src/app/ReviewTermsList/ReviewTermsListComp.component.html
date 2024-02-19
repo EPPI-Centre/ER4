@@ -12,10 +12,12 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Review Term</th>
-                    <td class="small font-weight-bold">Relevant?</td>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
+                  <th>Review Term</th>
+                  <td class="small font-weight-bold" style="max-width:38px;">
+                    <div style="position:relative; left:-12px;">Relevant?</div>
+                  </td>
+                  <th style="width:36px;">&nbsp;</th>
+                  <th>&nbsp;</th>
                 </tr>
 
             </thead>
@@ -44,7 +46,7 @@
                         <input class="form-control" type="checkbox" [(ngModel)]="term.included" />
                     </td>
                     <td>
-                        <button [disabled]="!HasWriteRights || !term.CanSave" title="Update"
+                        <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Update"
                                 class="btn btn-sm btn-outline-primary"
                                 (click)="Update(term)">
                           <span class="k-icon k-i-floppy"></span>
