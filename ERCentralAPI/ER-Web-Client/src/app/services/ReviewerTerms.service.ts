@@ -135,14 +135,14 @@ export interface iReviewerTerm {
 }
 export class ReviewerTerm {
   private static spanStrings: string[] = [
-    "span class='RelevantTerm'>",
-    "span class='IrrelevantTerm'>",
-    "span class='RelevantTermER4'>",
-    "span class='IrrelevantTermER4'>",
-    "span class='RelevantTermBW'>",
-    "span class='IrrelevantTermBW'>",
-    "span class='RelevantTermFainter'>",
-    "span class='IrrelevantTermFainter'>",
+    "<span class='RelevantTerm'>",
+    "<span class='IrrelevantTerm'>",
+    "<span class='RelevantTermER4'>",
+    "<span class='IrrelevantTermER4'>",
+    "<span class='RelevantTermBW'>",
+    "<span class='IrrelevantTermBW'>",
+    "<span class='RelevantTermFainter'>",
+    "<span class='IrrelevantTermFainter'>",
     "/span>"
   ];
   constructor(iTerm: iReviewerTerm | string = '') {
@@ -163,14 +163,17 @@ export class ReviewerTerm {
     this.Originalincluded = iTerm.included;
     this.included = iTerm.included;
     this.term = iTerm.term;
+    this.SetHighlightSearchString();
+  }
+  private SetHighlightSearchString() {
 
-    if (iTerm.reviewerTerm.length == 0) {
+    if (this.reviewerTerm.length == 0) {
       this.highlightSearchString = "";
       return;
     }
     //we can assume our actual term isn't an empty string from now on
     let index: number = -1;
-    let SafeReviewerTerm = Helpers.cleanSpecialRegexChars(iTerm.reviewerTerm);
+    let SafeReviewerTerm = Helpers.cleanSpecialRegexChars(this.reviewerTerm);
     if (SafeReviewerTerm.substring(0, 1).toUpperCase() !== SafeReviewerTerm.substring(0, 1).toLowerCase()) {
       //we do this if the first char of our term has upper/lower case variants
       //this part of the final regex makes sure we match Uppercase and lowercase versions the same term (thus matching both "Term" and "term"):
@@ -189,11 +192,11 @@ export class ReviewerTerm {
           spansToDealWith.push(toAdd);//given this term, if this span appears in the "highlighted title/abstract" the term would be found within the span
           //we can't allow this, so we'll build a regex that uses negative lookbehind to make sure we won't match such spans.
         }
-        index = spanSt.indexOf(iTerm.reviewerTerm, index+1);
+        index = spanSt.indexOf(this.reviewerTerm, index + 1);
       }
     }
     if (spansToDealWith.length == 0) {
-      if (SafeReviewerTerm.endsWith('<')){
+      if (SafeReviewerTerm.endsWith('<')) {
         //extra special case - a string ending in ' <' would break the start|end of a span if it's preceded by a space and the rest of the string (if any)
         SafeReviewerTerm += "(?!(span class=')|(/span>)|(br />))"
       }
@@ -225,8 +228,9 @@ export class ReviewerTerm {
   public set reviewerTerm(val: string) {
     this._reviewerTerm = val;
     this.term = val;
+    this.SetHighlightSearchString();
   }
-  public highlightSearchString: string;
+  public highlightSearchString: string = "";
   public included: boolean;
   public term: string;
   private OriginalTerm: string = "";
