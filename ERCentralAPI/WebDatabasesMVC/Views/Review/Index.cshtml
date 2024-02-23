@@ -31,31 +31,6 @@
 }
 
 
-<style>
-    .popupContent {
-    padding: 5px;
-    color: #ffffff;
-    background-color: #0a0a16;
-    font-size: 13px;
-    font-family: Helvetica, Arial, sans-serif;
-    letter-spacing: 1px;
-    text-align: center;
-    border: 1px solid rgba(0,0,0,.05);
-  }
-
-  .popupWindow {
-    min-width: 160px;
-    height: 35px;
-  }
-
-  .standard_text {
-    font-size: 15px;
-    font-family: Helvetica, Arial, sans-serif;
-    color: #8d9498;
-  }
-
-</style>
-
 
 <script>
     var treeviewData = null;
@@ -252,7 +227,7 @@
             zoom: [2],
             minZoom: 2,
             maxZoom: 5,
-            zoomable: false,
+            zoomable: true,
             layerDefaults: {
                 bubble: {
                     style: {
@@ -281,6 +256,7 @@
             ],
             shapeMouseEnter: onShapeMouseEnter,
             shapeClick: onShapeClick,
+            wraparound: false,
             reset: onReset
         });
 
@@ -383,7 +359,8 @@
                 }             
             ],
             markerClick: onMarkerClick, 
-            reset: onReset,
+            wraparound: false,
+            reset: onReset
         });
 
         var map = $("#map").data("kendoMap");

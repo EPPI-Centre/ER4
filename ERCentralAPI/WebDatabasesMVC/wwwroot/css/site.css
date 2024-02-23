@@ -338,5 +338,9 @@ body {
     padding: 10px 10px 10px 10px;
     text-align: center;
 }
-
+.standard_text {
+    font-size: 15px;
+    font-family: Helvetica, Arial, sans-serif;
+    color: #8d9498;
+}
 
