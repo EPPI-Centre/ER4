@@ -173,7 +173,7 @@ export class ReviewerTerm {
     }
     //we can assume our actual term isn't an empty string from now on
     let index: number = -1;
-    let SafeReviewerTerm = Helpers.cleanSpecialRegexChars(this.reviewerTerm);
+    let SafeReviewerTerm = Helpers.cleanSpecialRegexChars(Helpers.htmlEncode(this.reviewerTerm));
     if (SafeReviewerTerm.substring(0, 1).toUpperCase() !== SafeReviewerTerm.substring(0, 1).toLowerCase()) {
       //we do this if the first char of our term has upper/lower case variants
       //this part of the final regex makes sure we match Uppercase and lowercase versions the same term (thus matching both "Term" and "term"):

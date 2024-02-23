@@ -289,8 +289,12 @@ export class itemDetailsComp implements OnInit, OnDestroy {
   public SetHighlights() {
     if (this.item) {
       const reg0 = new RegExp('\r\n|\r|\n', "g");
-      this.HTitle = this.item.title;
-      this.HAbstract = this.item.abstract;
+      this.HTitle = Helpers.htmlEncode(this.item.title);
+      this.HAbstract = Helpers.htmlEncode(this.item.abstract);
+      //two values below are used to check if a given term matches the *original* (before adding <spans>) version of our text
+      //if it does not, we do not "replace", thus greatly reducing the risk of replacing text coming the bits we have already added to highlight something else
+      const tempHAbstract: string = this.HAbstract;
+      const tempHTitle: string = this.HTitle;
       this.brAbstract = this.item.abstract;
       //console.log('set highlights called (0): ' + this.brAbstract);
       if (this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
@@ -301,16 +305,16 @@ export class itemDetailsComp implements OnInit, OnDestroy {
             if (term.reviewerTerm) {//minimum term length is 1 char
               const reg = new RegExp(term.highlightSearchString, "g");
               if (term.included) {
-                if (this.item.title.match(reg))
+                if (tempHTitle.match(reg))
                   this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + term.reviewerTerm + "</span>");
-                if (this.item.abstract.match(reg))
-                  this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + term.reviewerTerm + "</span>");
+                if (tempHAbstract.match(reg))
+                this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + Helpers.htmlEncode(term.reviewerTerm) + "</span>");
               }
               else {
-                if (this.item.title.match(reg))
+                if (tempHTitle.match(reg))
                   this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + term.reviewerTerm + "</span>");
-                if (this.item.abstract.match(reg))
-                  this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + term.reviewerTerm + "</span>");
+                if (tempHAbstract.match(reg))
+                  this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + Helpers.htmlEncode(term.reviewerTerm) + "</span>");
               }
             }
           }
@@ -320,8 +324,8 @@ export class itemDetailsComp implements OnInit, OnDestroy {
           }
         }
       }
-      this.HAbstract = this.HAbstract.replace(reg0, "<br />");
-      this.brAbstract = this.brAbstract.replace(reg0, "<br />");
+      //this.HAbstract = this.HAbstract.replace(reg0, "<br />");
+      //this.brAbstract = this.brAbstract.replace(reg0, "<br />");
     }
   }
   public get HasWriteRights(): boolean {
