@@ -9,7 +9,7 @@
 @{
     Claim HiddenFieldsClaim = User.FindFirst("HiddenFields");
     List<string> HiddenFields = new List<string>();
-    if (HiddenFieldsClaim != null) HiddenFields = HiddenFieldsClaim.ToString().Split(",").ToList();
+    if (HiddenFieldsClaim != null) HiddenFields = HiddenFieldsClaim.Value.ToString().Split(",").ToList();
 
     Layout = "~/Views/Shared/_MinimalLayout.cshtml";
     Item itm = Model.Item;
@@ -107,24 +107,55 @@
                 <div class="content-full">
                     <div class="row col-12 p-1 m-1 mt-2 bg-light">
 
-                        <div class="row col-12"><h4>@itm.Title</h4></div>
-                        <div class="row col-12 border-top  ml-0 pl-0">
-                            <b>Abstract:&nbsp;</b>
-                            <text class="bg-white">@itm.Abstract</text>
-                        </div>
+                        @if (HiddenFields.Contains("Title"))
+                        {
+                            //skip the row...
+                        }
+                        else
+                        {
+                            <div class="row col-12"><h4>@itm.Title</h4></div>
+                        }
 
-                        <div class="row w-100 p-0 m-0 border-bottom   ">
-                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
-                            <div class="col p-1 m-1 bg-white">
-                                @itm.Authors
+                        @if (HiddenFields.Contains("Abstract"))
+                        {
+                            //skip the row...
+                        }
+                        else
+                        {
+                            <div class="row col-12 border-top  ml-0 pl-0">
+                                <b>Abstract:&nbsp;</b>
+                                <text class="bg-white">@itm.Abstract</text>
                             </div>
-                        </div>
+                        }
+
+                        @if (HiddenFields.Contains("Authors"))
+                        {
+                            //skip the row...
+                        }
+                        else
+                        {
+                            <div class="row w-100 p-0 m-0 border-bottom   ">
+                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
+                                <div class="col p-1 m-1 bg-white">
+                                    @itm.Authors
+                                </div>
+                            </div>
+                        }
+
+                        @if (HiddenFields.Contains("ParentTitle"))
+                        {
+                            //skip the row...
+                        }
+                        else
+                        {
                         <div class="row w-100 p-0 m-0 border-bottom   ">
                             <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("ParentTitle")</div>
                             <div class="col p-1 m-1 bg-white">
                                 @itm.ParentTitle
                             </div>
                         </div>
+                        }
+
                         <div class="row w-100 p-0 my-0 mx-auto btn btn-link showhide2" onclick="toggleDetails()">
                             Full record
                         </div>
@@ -132,93 +163,357 @@
                             <div class="row w-100 p-0 m-0 btn btn-link " onclick="toggleDetails()">
                                 Hide
                             </div>
-                            <div class="row w-100 p-0 m-0 border-bottom">
-                                <div class="col-4 row p-0 m-0">
-                                    @if (itm.IsDupilcate)
-                                    {
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
-                                        <div class="col p-1 m-1 bg-white">@itm.MasterItemId</div>
-                                    }
-                                    else if (itm.ItemStatus == "I")
-                                    {
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
-                                        <div class="col p-1 m-1 bg-white">Included</div>
-                                    }
-                                    else if (itm.ItemStatus == "E")
-                                    {
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
-                                        <div class="col p-1 m-1 bg-white">Excluded</div>
-                                    }
-                                    else if (itm.ItemStatus == "D")
-                                    {
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
-                                        <div class="col p-1 m-1 bg-white">Deleted</div>
-                                    }
-                                    else if (itm.ItemStatus == "S")
-                                    {
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
-                                        <div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
-                                    }
+
+                            @if ((HiddenFields.Contains("ItemStatus")) && (HiddenFields.Contains("ItemID")) && (HiddenFields.Contains("OldItemID")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("ItemStatus")) && (!HiddenFields.Contains("ItemID")) && (!HiddenFields.Contains("OldItemID")))
+                            {
+                                // show everything
+                                <div class="row w-100 p-0 m-0 border-bottom">
+
+                                    <div class="col-4 row p-0 m-0">
+                                        @if (itm.IsDupilcate)
+                                        {
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
+                                            <div class="col p-1 m-1 bg-white">@itm.MasterItemId</div>
+                                        }
+                                        else if (itm.ItemStatus == "I")
+                                        {
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                            <div class="col p-1 m-1 bg-white">Included</div>
+                                        }
+                                        else if (itm.ItemStatus == "E")
+                                        {
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                            <div class="col p-1 m-1 bg-white">Excluded</div>
+                                        }
+                                        else if (itm.ItemStatus == "D")
+                                        {
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                            <div class="col p-1 m-1 bg-white">Deleted</div>
+                                        }
+                                        else if (itm.ItemStatus == "S")
+                                        {
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                            <div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
+                                        }
+                                    </div>
+
+                                    <div class="col-4 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
+                                        <div class="col p-1 m-1 bg-white font-weight-bold">@itm.ItemId</div>
+                                    </div>
+
+                                    <div class="col-4 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
+                                        <div class="col p-1 m-1 bg-white">@itm.OldItemId</div>
+                                    </div>
 
                                 </div>
-                                <div class="col-4 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
-                                    <div class="col p-1 m-1 bg-white font-weight-bold">@itm.ItemId</div>
+                            }
+                            else  // deal with the remaining combinations!!
+                            {                              
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                   
+                                    @if ((HiddenFields.Contains("ItemStatus")) && (HiddenFields.Contains("ItemID")) && (!HiddenFields.Contains("OldItemID")))
+                                    {
+                                        // hide 1 and 2, show 3
+                                        <div class="col-12 row p-0 m-0">
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
+                                            <div class="col p-1 m-1 bg-white">@itm.OldItemId</div>
+                                        </div>
+                                    }
+                                    else if ((!HiddenFields.Contains("ItemStatus")) && (HiddenFields.Contains("ItemID")) && (HiddenFields.Contains("OldItemID")))
+                                    {
+                                        //hide 2 and 3, show 1
+                                        <div class="col-12 row p-0 m-0">
+                                            @if (itm.IsDupilcate)
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
+                                                <div class="col p-1 m-1 bg-white">@itm.MasterItemId</div>
+                                            }
+                                            else if (itm.ItemStatus == "I")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Included</div>
+                                            }
+                                            else if (itm.ItemStatus == "E")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Excluded</div>
+                                            }
+                                            else if (itm.ItemStatus == "D")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Deleted</div>
+                                            }
+                                            else if (itm.ItemStatus == "S")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
+                                            }
+                                        </div>
+                                    }
+                                    else if ((HiddenFields.Contains("ItemStatus")) && (!HiddenFields.Contains("ItemID")) && (HiddenFields.Contains("OldItemID")))
+                                    {
+                                        //hide 1 and 3, show 2
+                                        <div class="col-12 row p-0 m-0">
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
+                                            <div class="col p-1 m-1 bg-white font-weight-bold">@itm.ItemId</div>
+                                        </div>
+                                    }
+                                    else if ((HiddenFields.Contains("ItemStatus")) && (!HiddenFields.Contains("ItemID")) && (!HiddenFields.Contains("OldItemID")))
+                                    {
+                                        //hide 1, show 2 and 3
+                                        <div class="col-6 row p-0 m-0">
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
+                                            <div class="col p-1 m-1 bg-white font-weight-bold">@itm.ItemId</div>
+                                        </div>
+
+                                        <div class="col-6 row p-0 m-0">
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
+                                            <div class="col p-1 m-1 bg-white">@itm.OldItemId</div>
+                                        </div>
+                                    }
+                                    else if ((!HiddenFields.Contains("ItemStatus")) && (HiddenFields.Contains("ItemID")) && (!HiddenFields.Contains("OldItemID")))
+                                    {
+                                        //hide 2, show 1 and 3
+                                        <div class="col-6 row p-0 m-0">
+                                            @if (itm.IsDupilcate)
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
+                                                <div class="col p-1 m-1 bg-white">@itm.MasterItemId</div>
+                                            }
+                                            else if (itm.ItemStatus == "I")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Included</div>
+                                            }
+                                            else if (itm.ItemStatus == "E")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Excluded</div>
+                                            }
+                                            else if (itm.ItemStatus == "D")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Deleted</div>
+                                            }
+                                            else if (itm.ItemStatus == "S")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
+                                            }
+                                        </div>
+                                        <div class="col-6 row p-0 m-0">
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
+                                            <div class="col p-1 m-1 bg-white">@itm.OldItemId</div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        //hide 3, show 1 and 2
+                                        <div class="col-6 row p-0 m-0">
+                                            @if (itm.IsDupilcate)
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
+                                                <div class="col p-1 m-1 bg-white">@itm.MasterItemId</div>
+                                            }
+                                            else if (itm.ItemStatus == "I")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Included</div>
+                                            }
+                                            else if (itm.ItemStatus == "E")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Excluded</div>
+                                            }
+                                            else if (itm.ItemStatus == "D")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Deleted</div>
+                                            }
+                                            else if (itm.ItemStatus == "S")
+                                            {
+                                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                                <div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
+                                            }
+                                        </div>
+                                        <div class="col-6 row p-0 m-0">
+                                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
+                                            <div class="col p-1 m-1 bg-white font-weight-bold">@itm.ItemId</div>
+                                        </div>
+                                    }
                                 </div>
-                                <div class="col-4 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
-                                    <div class="col p-1 m-1 bg-white">@itm.OldItemId</div>
-                                </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("parentAuthors")</div>
-                                <div class="col p-1 m-1 bg-white">
-                                    @itm.ParentAuthors
-                                </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Year</div>
+                            }
+
+
+
+
+                            @if (HiddenFields.Contains("ParentAuthors"))
+                            {
+                                //skip the row...
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom  ">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("parentAuthors")</div>
                                     <div class="col p-1 m-1 bg-white">
-                                        @itm.Year
+                                        @itm.ParentAuthors
                                     </div>
                                 </div>
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("StandardNumber")</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.StandardNumber
+                            }
+
+
+                            @if ((HiddenFields.Contains("Year")) && (HiddenFields.Contains("StandardNumber")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("Year")) && (!HiddenFields.Contains("StandardNumber")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Year</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Year
+                                        </div>
+                                    </div>
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("StandardNumber")</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.StandardNumber
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Short Title</div>
-                                    <div class="col p-1 m-1 bg-white font-weight-bold">
-                                        @itm.ShortTitle
+                            }
+                            else if ((HiddenFields.Contains("Year")) && (!HiddenFields.Contains("StandardNumber")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("StandardNumber")</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.StandardNumber
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Pages</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Pages
+
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Year</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Year
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Volume</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Volume
+                            }
+
+
+                            @if ((HiddenFields.Contains("ShortTitle")) && (HiddenFields.Contains("Pages")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("ShortTitle")) && (!HiddenFields.Contains("Pages")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Short Title</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.ShortTitle
+                                        </div>
+                                    </div>
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Pages</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Pages
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Issue</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Issue
+                            }
+                            else if ((HiddenFields.Contains("ShortTitle")) && (!HiddenFields.Contains("Pages")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Pages</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Pages
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 border-bottom">
+
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Short Title</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.ShortTitle
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+
+                            @if ((HiddenFields.Contains("Volume")) && (HiddenFields.Contains("Issue")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("Volume")) && (!HiddenFields.Contains("Issue")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Volume</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Volume
+                                        </div>
+                                    </div>
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Issue</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Issue
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if ((HiddenFields.Contains("Volume")) && (!HiddenFields.Contains("Issue")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Issue</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Issue
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Volume</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Volume
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+                            @if (HiddenFields.Contains("URL"))
+                            {
+                                //skip the row...
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
                                 @if (Model.URLLink() == "")
                                 {
                                     <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
@@ -235,141 +530,365 @@
                                     @itm.URL
                                 </div>
                             </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="w-50 row p-0 m-0">
-
-                                    @if (Model.DOILink() == "")
-                                    {
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
-                                            DOI
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
-                                            <a href="@Model.DOILink()" target="_blank">DOI</a>
-                                        </div>
-                                    }
-
-                                    <div class="col p-1 m-1 bg-white ">
-                                        @itm.DOI
-                                    </div>
-                                </div>
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Availability
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Edition
-                                    </div>
-                                </div>
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Publisher
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 " style="min-width:90px;">Month</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Month
-                                    </div>
-                                </div>
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 " style="min-width:90px;">City</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.City
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 border-bottom  ">
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 " style="min-width:90px;">Country</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Country
-                                    </div>
-                                </div>
-                                <div class="w-50 row p-0 m-0">
-                                    <div class="p-1 ml-1 " style="min-width:90px;">Institution</div>
-                                    <div class="col p-1 m-1 bg-white">
-                                        @itm.Institution
-                                    </div>
-                                </div>
-                            </div>
+                            }
 
 
-                            @if ((!HiddenFields.Contains("Comments")) && (!HiddenFields.Contains("Keywords"))) {
+                            @if ((HiddenFields.Contains("DOI")) && (HiddenFields.Contains("Availability")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("DOI")) && (!HiddenFields.Contains("Availability")))
+                            {
                                 <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">DOI</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @if (Model.DOILink() == "")
+                                            {
+                                                @itm.DOI
+                                            }
+                                            else
+                                            {
+                                                <a href="@Model.DOILink()" target="_blank">DOI</a>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Availability</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Availability
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if ((HiddenFields.Contains("DOI")) && (!HiddenFields.Contains("Availability")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Availability</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Availability
+                                        </div>
+                                    </div>
+                                </div>
 
-                                @if(!HiddenFields.Contains("Comments")) {
-                                    <div class="w-50 row p-0 m-0">
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">DOI</div>
                                         <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
-                                            @itm.Comments
-                                        </div>
+                                            @if (Model.DOILink() == "")
+                                            {
+                                                @itm.DOI
+                                            }
+                                            else
+                                            {
+                                                <a href="@Model.DOILink()" target="_blank">DOI</a>
+                                            }                                         
+                                         </div>
                                     </div>
-                                }
-                                @if (!HiddenFields.Contains("Keywords")) {
-                                    <div class="w-50 row p-0 m-0">
-                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
-                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
-                                            @itm.Keywords
-                                        </div>
-                                    </div>
-                                }
                                 </div>
                             }
 
 
 
-                            <div class="row w-100 p-0 m-0 small">
-                                @*<div class="col-3 row p-0 m-0 font-weight-bold">
-                                        Created by: @itm.CreatedBy
-                                    </div>*@
-                                <div class="col-6 row p-0 m-0 ">
-                                    Created on: @itm.DateCreated
+
+
+
+                            @if ((HiddenFields.Contains("Edition")) && (HiddenFields.Contains("Publisher")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("Edition")) && (!HiddenFields.Contains("Publisher")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Edition</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Edition
+                                        </div>
+                                    </div>
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Publisher</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Publisher
+                                        </div>
+                                    </div>
                                 </div>
-                                @*<div class="col-3 row p-0 m-0 font-weight-bold">
-                                        Edited by: @itm.EditedBy
-                                    </div>*@
-                                <div class="col-6 row py-0 pl-1 pr-0 m-0">
-                                    Edited on: @itm.DateEdited
+                            }
+                            else if ((HiddenFields.Contains("Edition")) && (!HiddenFields.Contains("Publisher")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Publisher</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Publisher
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row w-100 p-0 m-0 small">
-                                @if (@Model.Source != null && @Model.Source.Source_ID > 0)
-                                {
-                                    <div class="col-6 row p-0 m-0 font-weight-bold">
-                                        Source Name: @Model.Source.Source_Name
+
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Edition</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Edition
+                                        </div>
                                     </div>
-                                }
-                                else
-                                {
-                                    <div class="col-6 row p-0 m-0 font-weight-bold">
-                                        Source: N/A
+                                </div>
+                            }
+
+
+                            @if ((HiddenFields.Contains("Month")) && (HiddenFields.Contains("City")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("Month")) && (!HiddenFields.Contains("City")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Month</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Month
+                                        </div>
                                     </div>
-                                }
-                                @if (Model.Duplicates != null && Model.Duplicates.Count > 0)
-                                {
-                                    <div class="col-6 row py-0 pl-1 pr-0 m-0 ">
-                                        This reference has&nbsp;<strong>@Model.Duplicates.Count</strong>&nbsp;duplicates
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">City</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.City
+                                        </div>
                                     </div>
-                                }
-                                else
-                                {
+                                </div>
+                            }
+                            else if ((HiddenFields.Contains("Month")) && (!HiddenFields.Contains("City")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">City</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.City
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Month</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Month
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+                            @if ((HiddenFields.Contains("Country")) && (HiddenFields.Contains("Institution")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("Country")) && (!HiddenFields.Contains("Institution")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Country</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Country
+                                        </div>
+                                    </div>
+                                    <div class="w-50 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Institution</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Institution
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if ((HiddenFields.Contains("Country")) && (!HiddenFields.Contains("Institution")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Institution</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Institution
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Country</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Country
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+                            @if ((HiddenFields.Contains("Comments")) && (HiddenFields.Contains("Keywords"))) {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("Comments")) && (!HiddenFields.Contains("Keywords")))
+                            {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
+                                    <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                        @itm.Comments
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
+                                    <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                        @itm.Keywords
+                                    </div>
+                                </div>
+                                </div>
+                            }
+                            else if ((HiddenFields.Contains("Comments")) && (!HiddenFields.Contains("Keywords")))
+                            {
+                                    <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Keywords
+                                        </div>
+                                    </div>
+                                    </div>
+                                
+                            }
+                            else {
+                                <div class="row w-100 p-0 m-0 border-bottom">
+                                    <div class="w-100 row p-0 m-0">
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
+                                        <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                            @itm.Comments
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+
+                            @if ((HiddenFields.Contains("DateCreated")) && (HiddenFields.Contains("DateEdited")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("DateCreated")) && (!HiddenFields.Contains("DateEdited")))
+                            {
+                                <div class="row w-100 p-0 m-0 small">
+                                    <div class="col-6 row p-0 m-0 ">
+                                        Created on: @itm.DateCreated
+                                    </div>
                                     <div class="col-6 row py-0 pl-1 pr-0 m-0">
-                                        No Duplicates
+                                        Edited on: @itm.DateEdited
                                     </div>
-                                }
-                            </div>
+                                </div>
+                            }
+                            else if ((HiddenFields.Contains("DateCreated")) && (!HiddenFields.Contains("DateEdited")))
+                            {
+                                <div class="row w-100 p-0 m-0 small">
+                                    <div class="col-12 row py-0 pl-1 pr-0 m-0">
+                                        Edited on: @itm.DateEdited
+                                    </div>
+                                </div>
+
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 small">
+                                    <div class="col-12 row py-0 pl-1 pr-0 m-0">
+                                        Edited on: @itm.DateCreated
+                                    </div>
+                                </div>
+                            }
+
+
+
+
+
+
+                            @if ((HiddenFields.Contains("Source")) && (HiddenFields.Contains("Duplicates")))
+                            {
+                                //skip the row...
+                            }
+                            else if ((!HiddenFields.Contains("Source")) && (!HiddenFields.Contains("Duplicates")))
+                            {
+                                <div class="row w-100 p-0 m-0 small">
+                                
+                                    @if (@Model.Source != null && @Model.Source.Source_ID > 0)
+                                    {
+                                        <div class="col-6 row p-0 m-0 font-weight-bold">
+                                            Source Name: @Model.Source.Source_Name
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-6 row p-0 m-0 font-weight-bold">
+                                            Source Name: N/A
+                                        </div>
+                                    }
+                                    
+                                    @if (Model.Duplicates != null && Model.Duplicates.Count > 0)
+                                    {
+                                        <div class="col-6 row py-0 pl-1 pr-0 m-0 ">
+                                            This reference has&nbsp;<strong>@Model.Duplicates.Count</strong>&nbsp;duplicates
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-6 row py-0 pl-1 pr-0 m-0">
+                                        No Duplicates
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else if ((HiddenFields.Contains("Source")) && (!HiddenFields.Contains("Duplicates")))
+                            {
+                                <div class="row w-100 p-0 m-0 small">
+                                    @if (Model.Duplicates != null && Model.Duplicates.Count > 0)
+                                    {
+                                        <div class="col-12 row py-0 pl-1 pr-0 m-0 ">
+                                            This reference has&nbsp;<strong>@Model.Duplicates.Count</strong>&nbsp;duplicates
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-12 row py-0 pl-1 pr-0 m-0">
+                                            No Duplicates
+                                        </div>
+                                    }
+                                </div>
+
+                            }
+                            else
+                            {
+                                <div class="row w-100 p-0 m-0 small">
+                                    @if (@Model.Source != null && @Model.Source.Source_ID > 0)
+                                    {
+                                        <div class="col-12 row p-0 m-0 font-weight-bold">
+                                            Source Name: @Model.Source.Source_Name
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-12 row p-0 m-0 font-weight-bold">
+                                            Source Name: N/A
+                                        </div>
+                                    }
+                                </div>
+                            }
+
                         </div>
 
                     </div>

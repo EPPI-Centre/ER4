@@ -272,6 +272,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> HiddenFieldsProperty = RegisterProperty<string>(new PropertyInfo<string>("HiddenFields", "HiddenFields", ""));
+        public string HiddenFields
+        {
+            get
+            {
+                return GetProperty(HiddenFieldsProperty);
+            }
+            set
+            {
+                SetProperty(HiddenFieldsProperty, value);
+            }
+        }
+
         protected override void AddBusinessRules()
         {
             //BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
@@ -317,6 +330,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty(HeaderImage1UrlProperty, reader.GetString("HEADER_IMAGE_1_URL"));
                             LoadProperty(HeaderImage2UrlProperty, reader.GetString("HEADER_IMAGE_2_URL"));
                             LoadProperty(HeaderImage3UrlProperty, reader.GetString("HEADER_IMAGE_3_URL"));
+                            LoadProperty(HeaderImage3UrlProperty, reader.GetString("HIDDEN_FIELDS"));
                         }
                     }
                 }
@@ -346,6 +360,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@HeaderImage1Url", HeaderImage1Url));
                     command.Parameters.Add(new SqlParameter("@HeaderImage2Url", HeaderImage2Url));
                     command.Parameters.Add(new SqlParameter("@HeaderImage3Url", HeaderImage3Url));
+                    command.Parameters.Add(new SqlParameter("@HiddenFields", HiddenFields));
                     SqlParameter par = new SqlParameter("@WebDbId", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     par.Direction = System.Data.ParameterDirection.Output;
@@ -402,6 +417,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@HeaderImage1Url", HeaderImage1Url));
                     command.Parameters.Add(new SqlParameter("@HeaderImage2Url", HeaderImage2Url));
                     command.Parameters.Add(new SqlParameter("@HeaderImage3Url", HeaderImage3Url));
+                    command.Parameters.Add(new SqlParameter("@HiddenFields", HiddenFields));
 
                     SqlParameter par = new SqlParameter("@WebDbId", System.Data.SqlDbType.Int);
                     par.Direction = System.Data.ParameterDirection.InputOutput;//!!Crucial
@@ -475,6 +491,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty(HeaderImage1UrlProperty, reader.GetString("HEADER_IMAGE_1_URL"));
             returnValue.LoadProperty(HeaderImage2UrlProperty, reader.GetString("HEADER_IMAGE_2_URL"));
             returnValue.LoadProperty(HeaderImage3UrlProperty, reader.GetString("HEADER_IMAGE_3_URL"));
+            returnValue.LoadProperty(HiddenFieldsProperty, reader.GetString("HIDDEN_FIELDS"));
             byte[] t = (byte[])reader["HEADER_IMAGE_1"];
             string base64ImageRepresentation;
             if (t != null)

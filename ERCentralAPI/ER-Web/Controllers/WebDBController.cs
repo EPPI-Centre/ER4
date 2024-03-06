@@ -399,6 +399,7 @@ namespace ERxWebClient2.Controllers
         public string headerImage1Url;
         public string headerImage2Url;
         public string headerImage3Url;
+        public string hiddenFields;
         public WebDB GetWebDBCSLA()
         {
             WebDB res = new WebDB();
@@ -416,6 +417,7 @@ namespace ERxWebClient2.Controllers
             res.HeaderImage1Url = headerImage1Url;
             res.HeaderImage2Url = headerImage2Url;
             res.HeaderImage3Url = headerImage3Url;
+            res.HiddenFields = hiddenFields;
             return res;
         }
 

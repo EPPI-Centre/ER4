@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute, iWebDBMap, iWebDBLog } from '../services/WebDB.service';
+import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute, iWebDBMap, iWebDBLog, FieldList } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
@@ -29,11 +29,11 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	ngOnInit() {
 		if (!this.ReviewerIdentityService.HasAdminRights) this.BackToMain();
 		if (this.WebDBService.WebDBs.length == 0) this.WebDBService.Fetch();
-		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets(false);
+    if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets(false); 
 	}
 
 	async ngAfterViewInit() {
-		//await this.loadScript("https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js");
+    //await this.loadScript("https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js");
 	}
 
 	private loadScript(scriptUrl: string) {
@@ -61,6 +61,39 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
   public get uploadSaveUrl(): string {
     return this.WebDBService.BaseUrl + 'api/WebDB/UploadImage';
   }
+
+  public FieldList: FieldList[] = [
+    { "fieldNumber": 0, enabled: false, selected: true, "fieldName": "Title", "friendlyFieldName": "Title" },
+    { "fieldNumber": 1, enabled: true, selected: true, "fieldName": "Abstract", "friendlyFieldName": "Abstract" },
+    { "fieldNumber": 2, enabled: false, selected: true, "fieldName": "Authors", "friendlyFieldName": "Author(s)" },
+    { "fieldNumber": 3, enabled: false, selected: true, "fieldName": "ParentTitle", "friendlyFieldName": "Journal / Book" },
+    { "fieldNumber": 4, enabled: true, selected: true, "fieldName": "ItemStatus", "friendlyFieldName": "Item status" },
+    { "fieldNumber": 5, enabled: false, selected: true, "fieldName": "ItemID", "friendlyFieldName": "Item ID" },
+    { "fieldNumber": 6, enabled: true, selected: true, "fieldName": "OldItemID", "friendlyFieldName": "Imported ID" },
+    { "fieldNumber": 7, enabled: true, selected: true, "fieldName": "ParentAuthors", "friendlyFieldName": "Book editor(s)" },
+    { "fieldNumber": 8, enabled: false, selected: true, "fieldName": "Year", "friendlyFieldName": "Year" },
+    { "fieldNumber": 9, enabled: true, selected: true, "fieldName": "StandardNumber", "friendlyFieldName": "ISSN / ISBN" },
+    { "fieldNumber": 10, enabled: false, selected: true, "fieldName": "ShortTitle", "friendlyFieldName": "Short title" },
+    { "fieldNumber": 11, enabled: true, selected: true, "fieldName": "Pages", "friendlyFieldName": "Pages" },
+    { "fieldNumber": 12, enabled: true, selected: true, "fieldName": "Volume", "friendlyFieldName": "Volume" },
+    { "fieldNumber": 13, enabled: true, selected: true, "fieldName": "Issue", "friendlyFieldName": "Issue" },
+    { "fieldNumber": 14, enabled: true, selected: true, "fieldName": "URL", "friendlyFieldName": "Url" },
+    { "fieldNumber": 15, enabled: true, selected: true, "fieldName": "DOI", "friendlyFieldName": "DOI" },
+    { "fieldNumber": 16, enabled: true, selected: true, "fieldName": "Availability", "friendlyFieldName": "Availability" },
+    { "fieldNumber": 17, enabled: true, selected: true, "fieldName": "Edition", "friendlyFieldName": "Edition" },
+    { "fieldNumber": 18, enabled: true, selected: true, "fieldName": "Publisher", "friendlyFieldName": "Publisher" },
+    { "fieldNumber": 19, enabled: true, selected: true, "fieldName": "Month", "friendlyFieldName": "Month" },
+    { "fieldNumber": 20, enabled: true, selected: true, "fieldName": "City", "friendlyFieldName": "City" },
+    { "fieldNumber": 21, enabled: true, selected: true, "fieldName": "Country", "friendlyFieldName": "Country" },
+    { "fieldNumber": 22, enabled: true, selected: true, "fieldName": "Institution", "friendlyFieldName": "Institution" },
+    { "fieldNumber": 23, enabled: true, selected: true, "fieldName": "Comments", "friendlyFieldName": "Comments" },
+    { "fieldNumber": 24, enabled: true, selected: true, "fieldName": "Keywords", "friendlyFieldName": "Keywords" },
+    { "fieldNumber": 25, enabled: true, selected: true, "fieldName": "DateCreated", "friendlyFieldName": "Created on" },
+    { "fieldNumber": 26, enabled: true, selected: true, "fieldName": "DateEdited", "friendlyFieldName": "Edited on" },
+    { "fieldNumber": 27, enabled: true, selected: true, "fieldName": "Source", "friendlyFieldName": "Source name" },
+    { "fieldNumber": 28, enabled: true, selected: true, "fieldName": "Duplicates", "friendlyFieldName": "Duplicates" }
+  ];
+
 	public uploadRestrictions: FileRestrictions = {
 		allowedExtensions: [
 			'.jpg'
@@ -86,7 +119,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	public get CurrentMaps(): iWebDBMap[] {
 		return this.WebDBService.CurrentMaps;
-	}
+  }
 	public get CurrentLogs(): iWebDBLog[] {
 		return this.WebDBService.CurrentLogs;
 	}
@@ -197,6 +230,71 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		else return "";
     }
 
+  public allFieldsSelectedUnselected(event: Event) {
+    
+    for (let i = 0; i < this.FieldList.length; i++) {
+      let checked = (event.target as HTMLInputElement).checked;
+      
+      if (checked == true) {
+        this.FieldList[i].selected = true;
+      }
+      else {
+        if (this.FieldList[i].enabled == true) {
+          this.FieldList[i].selected = false;
+        }
+      }
+    }
+
+    // update hiddenFields
+    let hiddenFields = "";
+    for (let i = 0; i < this.FieldList.length; i++) {
+      if (this.FieldList[i].enabled == true) {
+        if (this.FieldList[i].selected == false) {
+          hiddenFields += this.FieldList[i].fieldName;
+          hiddenFields += ",";
+        }
+      }
+    }
+    if (this.EditingDB != null) {
+      this.EditingDB.hiddenFields = hiddenFields.substring(0, hiddenFields.length-1);
+    }
+  }
+
+
+  public FieldChangeSelected(fieldNumber: number, event: Event) {
+    // update FieldList
+    let i = fieldNumber;
+    let checked = (event.target as HTMLInputElement).checked;
+    if (checked == true) {
+      this.FieldList[i].selected = true;
+    }
+    else {
+      this.FieldList[i].selected = false;
+    }
+
+    // update hiddenFields
+    // this is recreating the list each time. Not very efficient but..
+    // the list needs to be in the correct order to work correctly in EPPI Vis.
+    // I may need to fix that somehow.
+
+    let hiddenFields = "";
+    for (let i = 0; i < this.FieldList.length; i++) {
+      if (this.FieldList[i].enabled == true) {
+        if (this.FieldList[i].selected == false) {
+          hiddenFields += this.FieldList[i].fieldName;
+          hiddenFields += ",";
+        }
+      }
+    }
+    if (this.EditingDB != null) {
+      this.EditingDB.hiddenFields = hiddenFields.substring(0, hiddenFields.length - 1);
+    }
+
+  }
+
+
+
+
 	Edit(item: iWebDB | null = null) {
 		if (!item) {
 			item = {
@@ -215,12 +313,24 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				encodedImage3: '',
 				headerImage1Url: '',
 				headerImage2Url: '',
-				headerImage3Url: ''
+        headerImage3Url: '',
+        hiddenFields: ''
 			};
-        }
-		this.EditingDB = this.WebDBService.CloneWebDBforEdit(item);
-        //this.isExpanded = true;
     }
+		this.EditingDB = this.WebDBService.CloneWebDBforEdit(item);
+    //this.isExpanded = true;
+
+    if (this.EditingDB != null) {
+      let hiddenFields = this.EditingDB.hiddenFields;
+      // set the values in FieldList
+      for (let i = 0; i < this.FieldList.length; i++) {
+        if (hiddenFields.includes(this.FieldList[i].fieldName)) {
+          this.FieldList[i].selected = false;
+        }
+      }
+    }
+
+  }
 	CancelEdit() {
 		this.EditingDB = null;
 		this.EditingFilter = false;
@@ -679,5 +789,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	ngOnDestroy() {
 		this.WebDBService.Clear();
 	}
-	
+
+  
+
+
+
 }

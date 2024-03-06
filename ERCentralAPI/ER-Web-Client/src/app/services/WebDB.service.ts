@@ -216,7 +216,8 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             encodedImage3: '',
             headerImage1Url: toClone.headerImage1Url,
             headerImage2Url: toClone.headerImage2Url,
-            headerImage3Url: toClone.headerImage3Url
+            headerImage3Url: toClone.headerImage3Url,
+            hiddenFields: toClone.hiddenFields
         }
         return res;
     }
@@ -577,6 +578,7 @@ export interface iWebDB {
     headerImage1Url: string;
     headerImage2Url: string;
     headerImage3Url: string;
+    hiddenFields: string;
 }
 export interface iWebDbReviewSet extends iReviewSet {
     webDBId: number;
@@ -677,4 +679,12 @@ export interface iWebDBLog {
     dateTimeCreated: string;
     logType: string;
     logDetails: string;
+}
+
+export class FieldList {
+  fieldNumber: number = 0;
+  enabled: boolean = false;
+  selected: boolean = false;
+  fieldName: string = '';
+  friendlyFieldName: string = '';
 }

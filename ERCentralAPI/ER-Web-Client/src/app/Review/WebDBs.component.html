@@ -5,865 +5,885 @@
 <div class=" row mx-0 mt-0 mb-1 p-0 ">
 
 
-    <div class="col-12 p-0">
-        
-        <div *ngIf="WebDbs.length > 0; else CreateNewBlock" class="col-12  p-0 m-0 row ">
-            <div class="m-1 font-weight-bold">Pick WebDatabase:</div>
-            <select (change)="ShowDBSettingById($event)" class="d-inline mb-1">
-                <option *ngFor="let db of WebDbs" [value]="db.webDBId" [selected]="CurrentDB && db.webDBId == CurrentDB.webDBId">
-                    {{db.webDBName}}
-                </option>
-            </select>
-            <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()" [disabled]="!CanWrite">Add New...</button>
-            <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right" style="z-index:91;"
-                    (click)="BackToMain()">
-                Close/back
-            </button>
-            <div *ngIf="EditingSomething" style="position:absolute;top:0;z-index:90; background-color:#d8d8e2;opacity:0.35; width:100%;height:100%"></div>
-        </div>
-        <ng-template #CreateNewBlock>
-            <div class="col-12  p-0 m-0 row ">
-                <div>Create new Visualisation:</div>
-                <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right"
-                        (click)="BackToMain()">
-                    Close/back
-                </button>
-                <div class="col-12 m-3 rounded alert-info border">
-                    To get started, you will:
-                    <ul>
-                        <li>Create a new Visualisation, give it a name and click "Save";</li>
-                        <li>Click "Edit" to add a description, logos and other properties such as password protection;</li>
-                        <li>Define what data will be visible (including coding tools and items).</li>
-                    </ul>
-                    Further information on creating your visualisation is available by clicking Help at the top of the page.
-                </div>
-                <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()">Add New...</button>
-            </div>
-        </ng-template>
+  <div class="col-12 p-0">
 
-        <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
-            <div class="row m-0 px-0 py-1" style="background-image: linear-gradient( -45deg, rgb(6, 65, 142), rgb(21, 114, 232)) !important;">
-                <div class="col-1 p-0 mx-auto my-0">
-                    <img *ngIf="CurrentDB.encodedImage3 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage3}}" alt="logo"
-                         style="max-width: 80px; max-height: 53px; object-fit: cover;" class="pb-2 mb-auto ml-1 mt-1" />
-                </div>
-                <div class="col-6 p-0 mx-auto my-0">
-                    <h3 class="text-white ml-3 pb-1">{{CurrentDB.webDBName}}</h3>
-                    <h6 class="text-white ml-3 op-7 mb-2">{{CurrentDB.subtitle}}</h6>
-                </div>
-                <div class="col-5 mx-0 pl-0 pr-3 row">
-                    <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1"
-                         style="max-height: 60px; object-fit: cover;" class="pb-2 my-auto ml-auto" />
-
-                    <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2"
-                         style="max-height: 60px; object-fit: cover;" class="pb-2 my-auto ml-auto" />
-                </div>
-            </div>
-            <div *ngIf="CanWrite" class="row col-12  m-0 p-0 justify-content-center">
-                <button class="btn btn-outline-success btn-sm ml-1 mb-1 mt-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
-                    Edit!
-                </button>
-                <button class="btn btn-outline-danger btn-sm ml-1 mb-1 mt-1" (click)="DeleteDB(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
-                    <span class="k-icon k-i-delete "></span>
-                </button>
-                <button class="btn btn-outline-primary btn-sm ml-1 mb-1 mt-1" (click)="ShowLogs = !ShowLogs">
-                    <span>{{ShowLogs ? 'Close log' : 'Show log'}}</span>
-                </button>
-                <div class="ml-1 my-auto">
-                    &nbsp;&nbsp;
-                    <a href="{{VisitURL}}" target="_blank">View in EPPI-Vis</a>
-                    <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
-                </div>
-
-            </div>
-            <VisLogComp *ngIf="ShowLogs"></VisLogComp>
-            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 col-sm-2 row m-0 p-0">
-                    <div class="col-auto">
-                        ID:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        {{CurrentDB.webDBId}}
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 row m-0 p-0">
-                    <div class="col-auto">
-                        Name:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        {{CurrentDB.webDBName}}
-                    </div>
-                </div>
-                <div class="col-12 col-sm-4 row m-0 p-0">
-                    <div class="col-auto">
-                        Filter
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        {{FilterName(CurrentDB.attributeIdFilter)}}
-                    </div>
-                </div>
-            </div>
-            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 row m-0 p-1 ">
-                    <div class="col-auto p-1 small">
-                        Subtitle:
-                    </div>
-                    <div class="rounded bg-white col w-100 px-1">
-                        {{CurrentDB.subtitle}}
-                    </div>
-                </div>
-            </div>
-            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 col-sm-9 row m-0 p-0">
-                    <div class="col-auto">
-                        Description:
-                    </div>
-                    <div class="rounded bg-white col w-100 border border-dark" style="max-height:400px;overflow:auto;" [innerHTML]="CurrentDB.webDBDescription">
-
-                    </div>
-                </div>
-                <div class="col-12 col-sm-3 row m-0 p-0">
-                    <div class="rounded bg-white col w-100">
-                        {{CurrentDB.isOpen ? 'Open Access' : 'Password protected'}}
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="CurrentDB.userName !== ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 col-sm-6 row m-0 p-0">
-                    <div class="col-auto">
-                        Username:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        {{CurrentDB.userName}}
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 row m-0 p-0">
-                    <div class="col-auto">
-                        Password:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        ****
-                    </div>
-                </div>
-            </div>
-            <div class="row col-12 p-1 mx-0 mt-0 border-bottom border-info">
-                <div class="mx-auto p-1">
-                    Public URL:
-                    <a href="{{VisitURL}}" target="_blank">{{VisitURL}}</a>
-                    <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
-                </div>
-            </div>
-            <div *ngIf="CurrentDB.headerImage1Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 row m-0 p-1 ">
-                    <div class="col-auto p-1 small">
-                        Image 1 URL:
-                    </div>
-                    <div class="rounded bg-white col w-100 px-1">
-                        <a class="p-1 w-100" href="{{CurrentDB.headerImage1Url}}" target="_blank">
-                            {{CurrentDB.headerImage1Url}}
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="CurrentDB.headerImage2Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 row m-0 p-1">
-                    <div class="col-auto p-1 small">
-                        Image 2 URL:
-                    </div>
-                    <div class="rounded bg-white col w-100 px-1">
-                        <a class="p-1 w-100" href="{{CurrentDB.headerImage2Url}}" target="_blank">
-                            {{CurrentDB.headerImage2Url}}
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="CurrentDB.headerImage3Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 row m-0 p-1">
-                    <div class="col-auto p-1 small">
-                        Top left logo URL:
-                    </div>
-                    <div class="rounded bg-white col w-100 px-1">
-                        <a class="p-1 w-100" href="{{CurrentDB.headerImage3Url}}" target="_blank">
-                            {{CurrentDB.headerImage3Url}}
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <div *ngIf="EditingDB !== null" class="bg-light rounded">
-            <div class="w-100 m-0 p-0 text-center">
-                <button class="btn btn-outline-dark btn-sm ml-1 mb-1" (click)="CancelEdit()">Cancel</button>
-                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" [disabled]="!CanSave" (click)="Save()">Save</button>
-                <div *ngIf="!CanSave" class="m-0 p-0 text-center">
-                    <span class="alert-danger rounded small border border-danger px-1">{{CantSaveMessage}}</span>
-                </div>
-            </div>
-            <div class=" row m-2 p-1 rounded border-primary border">
-                <div class="row col-12 mx-0 mb-1 font-weight-bold">
-                    <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId  && CurrentDB.encodedImage3 != '' ">
-                        <img src="data:image/jpg;base64,{{CurrentDB.encodedImage3}}" alt="image3" class="  p-0 ml-0 mr-auto my-auto" style="max-width:80px; max-height: 45px; object-fit: cover;" />
-                    </div>
-                    <div class="mx-auto">Logos and Images</div>
-                    <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId  && CurrentDB.encodedImage1 != '' ">
-                        <img src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
-                    </div>
-                    <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId && CurrentDB.encodedImage2 != '' ">
-                        <img src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
-                    </div>
-                </div>
-                <div *ngIf="!ShowUpload && CanWrite && EditingDB && EditingDB.webDBId > 0" class="row ml-2 bg-white mr-1 p-0">
-                    <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true; ImageSizeError = ''">Edit Images</button> <div class="ml-1 my-auto">(Upload/change and/or delete)</div>
-                </div>
-                <div *ngIf="!ShowUpload && CanWrite && (!EditingDB || EditingDB.webDBId < 1)" class="row m-2 rouded small alert-info p-1">
-                    You&nbsp;<strong>must Save</strong>&nbsp;the Visualisation before you can upload logos.
-                </div>
-                <div *ngIf="ShowUpload" class="row col-12 mx-0 bg-white p-0 mb-1">
-                    <div class="row mx-0 col">
-                        <div class="col-auto">
-                            <div>
-                                <div class="mr-1 text-right">
-                                    Top Left Logo (all pages) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="3" />
-                                </div>
-                                <div class="mr-1 text-right">
-                                    Image 1 (header, home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="1" />
-                                </div>
-                                <div class="mr-1 text-right">
-                                    Image 2  (header, home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="2" />
-                                </div>
-                            </div>
-                        </div>
-                        <kendo-upload class="col" [autoUpload]="false"
-                                      [multiple]="false"
-                                      [saveUrl]="uploadSaveUrl"
-                                      (select)="selectEventHandler($event)"
-                                      [restrictions]="uploadRestrictions"
-                                      (upload)="uploadEventHandler($event)"
-                                      (clear)="clearUploadImageEventHandler()"
-                                      (complete)="completeEventHandler()">
-                        </kendo-upload>
-                        <div class="col-12 mx-0 px-1">
-                            <div class="m-1 p-1 rounded alert-danger small">
-                                <div class="rounded text-danger p-1 bg-white">
-                                    <strong>Top Left logo:</strong><br />
-                                    In EPPI-Vis, this logo will be reduced to a maximum width of 80 pixels and a maximum height of 45 pixels.<br />
-                                    If it does not look good once uploaded and reduced, you may need to change or edit the image using an image editor.
-                                    Rescaling or cropping the image might produce a better final result.
-                                </div>
-                            </div>
-                        </div>
-                        <div *ngIf="ImageSizeError != ''" class="col-auto mb-auto small alert-danger mt-1 mx-1 rounded">{{ImageSizeError}}</div>
-                    </div>
-
-                    <div *ngIf="CurrentDB && (CurrentDB.encodedImage1 != '' || CurrentDB.encodedImage2 != '')" class="row mx-0 col">
-
-
-                        <div *ngIf="CurrentDB" class="mx-1">
-                            <div class="col-12 mx-0">
-                                Logo (top left):
-                                <img *ngIf="CurrentDB.encodedImage3 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage3}}"
-                                     alt="logo" class=" col-auto p-1 m-1 border border-dark "
-                                     style=" object-fit: cover; max-width:200px;" />
-                                <button *ngIf="CurrentDB.encodedImage3 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(3)" [disabled]="!CanWrite">
-                                    <span class="k-icon k-i-delete "></span>
-                                </button>
-                            </div>
-                            <div class="col-12 mx-0">
-                                Image 1:
-                                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}"
-                                     alt="image1" class=" col-auto p-1 m-1 border border-dark "
-                                     style=" object-fit: cover; max-width:200px;" />
-                                <button *ngIf="CurrentDB.encodedImage1 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(1)" [disabled]="!CanWrite">
-                                    <span class="k-icon k-i-delete "></span>
-                                </button>
-                            </div>
-                            <div class="col-12 mx-0">
-                                Image 2:
-                                <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}"
-                                     alt="image1" class=" col-auto p-1 m-1 border border-dark "
-                                     style=" object-fit: cover; max-width:200px;" />
-                                <button *ngIf="CurrentDB.encodedImage2 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(2)" [disabled]="!CanWrite">
-                                    <span class="k-icon k-i-delete "></span>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div *ngIf="imagePreview" class="row m-0 p-0 col-12">
-                        <div class="col-12">Image preview:</div>
-                        <div class="mx-auto border border-primary" style="overflow:auto; max-height:25vh; max-width:90vw;">
-                            <img #ImagePreview
-                                 [src]="imagePreview.src"
-                                 alt="image preview"
-                                 style="margin: 10px;" />
-                        </div>
-                        <div class="mx-auto">
-                            <div>Height: {{ImagePreviewH}}  <span *ngIf="ImagePreviewH > MaxImgH" class="mx-1 small alert-danger">Too high (max:{{MaxImgH}}px)</span></div>
-                            <div>Width: {{ImagePreviewW}} <span *ngIf="ImagePreviewW > MaxImgW" class="mx-1 small alert-danger">Too wide (max:{{MaxImgW}}px)</span></div>
-                            <div *ngIf="!ImageToUploadisGood" class="alert-danger">Can't upload this image</div>
-                        </div>
-                    </div>
-                    <div class="row mx-0 mt-1 p-0 col-12">
-                        <div class="col-auto m-0 px-1 row align-items-center">
-                            <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false; imagePreview = null">Cancel</button>
-                        </div>
-                        <div class="col m-0 p-0">
-                            <div class="p-1 mx-1 rounded small alert-info">
-                                <strong>Note:</strong> images are cached in EPPI-Vis, for up to 24 hours. To see logo changes <em>immediately</em>:<br />
-                                (1) delete the current image; <br />
-                                (2) visit the Visualisation "open/login" url, the deleted logo should not be shown; <br />
-                                (3) upload the new image.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 col-sm-2 row m-0 p-0">
-                    <div class="col-auto">
-                        ID:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        {{EditingDB.webDBId}}
-                    </div>
-                </div>
-                <div class="col-12 col-sm-4 row m-0 p-0">
-                    <div class="col-auto">
-                        Name:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBName" />
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 row m-0 p-0">
-                    <div class="col-auto">
-                        Only items with this code?
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        <div *ngIf="EditingDB.attributeIdFilter == 0 && !EditingFilter">
-                            <button *ngIf="EditingDB.attributeIdFilter == 0" (click)="EditFilter()"
-                                    class="btn btn-outline-success btn-sm ml-1 my-1">
-                                Add...
-                            </button>
-                            (no filter)
-                        </div>
-                        <div *ngIf="EditingDB.attributeIdFilter > 0 && !EditingFilter">
-                            <button (click)="EditFilter()"
-                                    class="btn btn-outline-success btn-sm ml-1 my-1">
-                                Change...
-                            </button>
-                            {{FilterName(EditingDB.attributeIdFilter)}}
-                        </div>
-                        <div *ngIf="EditingFilter">
-                            <button (click)="CancelEditFilter()"
-                                    class="btn btn-outline-dark btn-sm ml-1 my-1">
-                                Cancel...
-                            </button>
-                            {{FilterName(EditingDB.attributeIdFilter)}}
-                        </div>
-                    </div>
-                    <div *ngIf="EditingFilter" class="row col-12">
-                        <div class="col-5">Pick the code:</div>
-                        <div class="d-block my-1 col-7 p-0">
-                            <div ngbDropdown class="">
-                                <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle"
-                                        id="dropdownTreeRandomAllocate"
-                                        style="min-width: 200px; max-width:720px;"
-                                        (click)="isCollapsedFilterCode = !isCollapsedFilterCode;"
-                                        [attr.aria-expanded]="!isCollapsedFilterCode" aria-controls="collapseCodeTreeWithWithout">
-                                    {{DropdownSelectedCodeName}}
-                                </button>
-                                <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedFilterCode">
-                                    <codesetSelector [IsMultiSelect]="false"
-                                                     [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #FilterCodeSelector
-                                                     (selectedNodeInTree)="CloseCodeDropDownFilterCode()"></codesetSelector>
-                                </div>
-                            </div>
-                            <button (click)="RemoveFilter()"
-                                    class="btn btn-outline-dark btn-sm ml-1 my-1">
-                                No filter...
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 row m-0 p-1">
-                    <div class="col-auto p-1">
-                        SubTitle:
-                    </div>
-                    <div class="rounded bg-white col w-100 px-1">
-                        <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.subtitle" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 col-md-9 row m-0 p-0">
-                    <div class="col-auto">
-                        Description:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        <ckeditor [(ngModel)]="EditingDB.webDBDescription" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js">
-
-                        </ckeditor>
-                        <!--<textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBDescription" rows="4"></textarea>-->
-                        <!--<ckeditor [(ngModel)]="EditingDB.webDBDescription"
-                      [config]="{uiColor: '#bbbbbb'
-                                }"
-                      [readonly]="false"
-                      debounce="500">
-                    </ckeditor>
-
-                    (change)="onChange($event)"
-                    (editorChange)="onEditorChange($event)"
-                    (ready)="onReady($event)"
-                    (focus)="onFocus($event)"
-                    (blur)="onBlur($event)"
-                    (contentDom)="onContentDom($event)"
-                    (fileUploadRequest)="onFileUploadRequest($event)"
-                    (fileUploadResponse)="onFileUploadResponse($event)"
-                    (paste)="onPaste($event)"
-                    (drop)="onDrop($event)"
-                     -->
-                    </div>
-                </div>
-                <div class="col-12 col-md-3 row m-0 p-0">
-                    <div class="col-12">
-                        Is open access:
-                        <span class="brightSwitch" style="zoom:75%;">
-                            <kendo-switch name="showOptionalFieldsSW" class="small small mt-0"
-                                          [(ngModel)]="EditingDB.isOpen"
-                                          [onLabel]="'Yes'"
-                                          [offLabel]="'No'"></kendo-switch>
-                        </span>
-                    </div>
-                    <ng-container *ngIf="!EditingDB.isOpen">
-                        <div class="col-12 small m-0 p-0">
-                            <div class="alert-info mx-3 my-1 py-1 px-2">
-                                Username is mandatory and needs to be at least 4 characters long. It is not case-sensitive.
-                                Passwords are case-sensitive and need to be at least 6 characters long.
-                            </div>
-                        </div>
-                        <div class="col-12 row m-0 p-0">
-                            <div class="col-auto">
-                                Username:
-                            </div>
-                            <div class="rounded bg-white col-auto">
-                                <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.userName" />
-                            </div>
-                        </div>
-                        <div class="col-12 row m-0 p-0">
-                            <ng-container *ngIf="!ShowPassword">
-                                <div class="border">
-                                    <div class="col-auto my-auto">
-                                        Password: (show <input type="checkbox" [(ngModel)]="ShowPassword" />)
-                                    </div>
-                                    <div class="rounded col-auto my-auto">
-                                        <input class="p-1 w-100" type="password" [(ngModel)]="EditingDB.password" />
-                                    </div>
-                                </div>
-                                <div class="border" [ngClass]="{'alert-danger' : ConfirmPassword.length == 0 || ConfirmPassword != EditingDB.password}">
-                                    <div class="col-auto my-auto">
-                                        Confirm Password:
-                                    </div>
-                                    <div class="rounded col-auto my-auto">
-                                        <input class="p-1 w-100" type="password" [(ngModel)]="ConfirmPassword" />
-                                    </div>
-                                </div>
-                            </ng-container>
-                            <ng-container *ngIf="ShowPassword">
-                                <div class="border">
-                                    <div class="col-auto my-auto">
-                                        Password: (show <input type="checkbox" [(ngModel)]="ShowPassword" />)
-                                    </div>
-                                    <div class="rounded col-auto my-auto">
-                                        <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.password" />
-                                    </div>
-                                </div>
-                                <div class="border" [ngClass]="{'alert-danger' : ConfirmPassword.length == 0 || ConfirmPassword != EditingDB.password}">
-                                    <div class="col-auto my-auto">
-                                        Confirm Password:
-                                    </div>
-                                    <div class="rounded col-auto my-auto">
-                                        <input class="p-1 w-100" type="text" [(ngModel)]="ConfirmPassword" />
-                                    </div>
-                                </div>
-                            </ng-container>
-                        </div>
-                    </ng-container>
-                </div>
-            </div>
-
-            <div *ngIf="CurrentDB && CurrentDB.encodedImage1 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 row m-0 p-1">
-                    <div class="col-auto p-1">
-                        Image 1 URL:
-                    </div>
-                    <div class="rounded bg-white col w-100 px-1">
-                        <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage1Url" />
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="CurrentDB && CurrentDB.encodedImage2 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 row m-0 p-1">
-                    <div class="col-auto p-1">
-                        Image 2 URL:
-                    </div>
-                    <div class="rounded bg-white col w-100 px-1">
-                        <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage2Url" />
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="CurrentDB && CurrentDB.encodedImage3 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 row m-0 p-1">
-                    <div class="col-auto p-1">
-                        Top left logo URL:
-                    </div>
-                    <div class="rounded bg-white col w-100 px-1">
-                        <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage3Url" />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div *ngIf="CurrentDB !== null" class="row p-0 m-0">
-            <div class="row col-4 p-1 mx-0 mt-2 border-top border-info">
-                <WebDbCcodesetTree class="w-100" [MaxHeight]="400" [CanChangeSelectedCode]="!(EditingSomething && EditingMap == null)"></WebDbCcodesetTree>
-            </div>
-            <div class="row col-8 p-1 mx-0 mt-2 border-top border-info">
-                <div class="bg-light w-100 rounded">
-                    <div class="row col-12 p-1 mx-0 mt-2 ">
-                        <div class="col-4 p-0 mt-2">
-                            Add Coding Tool:
-                        </div>
-                        <div class="d-block my-1 col-8 p-0">
-                            <div ngbDropdown class="" style="min-width:200px;">
-                                <button class="btn btn-outline-secondary dropdown-toggle"
-                                        style="min-width: 200px; max-width:720px;"
-                                        (click)="isCollapsedAddTool = false;" [disabled]="EditingSomething || !CanWrite"
-                                        id="dropdownBasicCodingTool" ngbDropdownToggle>
-                                    {{GetCodingToolName()}}
-                                </button>
-                                <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool"  class="FlatDropdown">
-                                    <button (click)="SetCodeSetDropDown(item)"
-                                            *ngFor="let item of AddableCodingTools;" class="dropdown-item">
-                                        {{item.name}}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div *ngIf="selectedCodeSetDropDown != null" class="col-12 row m-0 p-0">
-                            <div class="col-4 p-0 mt-2">
-                                Add This Tool:
-                            </div>
-                            <div class="d-block my-1 col-8 p-0">
-                                {{GetCodingToolName()}}
-                                <button class="btn btn-outline-secondary my-1" [disabled]="!CanWrite || EditingSomething"
-                                        (click)="AddCodingTool(selectedCodeSetDropDown)">
-                                    Add!
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row col-12 p-1 mx-0 mt-2 ">
-                        <ng-container [ngSwitch]="true">
-                            <div *ngSwitchCase="SelectedNodeIsRoot === null">
-                                No Code is Selected
-                            </div>
-                            <div *ngSwitchCase="SelectedNodeIsRoot === true" class="row col-12 m-0 p-0">
-                                <div *ngIf="EditingWebDbReviewSet == null; else editingSetBlock">
-                                    Selected Coding Tool: {{SelectedCodingTool?.name}}
-                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="EditTool(SelectedCodingTool)">
-                                        Edit
-                                    </button>
-                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveTool(SelectedCodingTool)">
-                                        <span class="k-icon k-i-delete "></span>
-                                    </button>
-                                </div>
-                                <ng-template #editingSetBlock>
-                                    <div *ngIf="EditingWebDbReviewSet" class="w-100">
-                                        <div class="row p-0 m-0">
-                                            <div class="col-4">Public name for this set:</div>
-                                            <input class="col-8" type="text" [(ngModel)]="EditingWebDbReviewSet.set_name" maxlength="255" />
-                                        </div>
-                                        <div class="row p-0 m-0">
-                                            <div class="col-4">Public description for this set:</div>
-                                            <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
-                                        </div>
-                                        <div class="row m-0">
-                                            <div class="mx-auto">
-                                                <button class="btn btn-sm btn-outline-secondary  px-1 m-1" (click)="CancelEditTool()">
-                                                    Cancel
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedTool()">
-                                                    Save
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 m-0 p-0 border-top border-info ">
-                                        <div *ngIf="MissingAttributes.length > 0" class="font-weight-bold ml-3">
-                                            Hidden Codes:
-                                        </div>
-                                        <div *ngIf="MissingAttributes.length == 0" class="">
-                                            No codes are hidden for this Coding Tool.
-                                        </div>
-                                        <div style="max-height:400px;overflow:auto;background-color:#d8d8e2;" class="col-12 m-1 p-1 rounded ">
-                                            <div *ngFor="let missing of MissingAttributes" class="row mx-1">
-                                                <div class="bg-white rounded border border-info my-1 ml-1 mr-auto px-2 ">
-                                                    <span *ngIf="missing.path.length > 0">{{missing.path}}\</span><strong>{{missing.name}}</strong> <button class="btn btn-sm btn-outline-primary ml-2 py-0 my-1 small" (click)="RestoreCode(missing)">Restore...</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </ng-template>
-                            </div>
-                            <div *ngSwitchDefault class="row col-12 m-0 p-0">
-                                <div *ngIf="EditingSetAttribute == null; else editingAttributeBlock">
-                                    Selected Code: {{SelectedAttribute?.name}}
-                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 py-0 m-1" (click)="EditAttribute(SelectedAttribute)" [disabled]="EditingSomething">
-                                        Edit
-                                    </button>
-                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveAttribute(SelectedAttribute)" [disabled]="EditingSomething">
-                                        <span class="k-icon k-i-delete "></span>
-                                    </button>
-                                </div>
-                                <ng-template #editingAttributeBlock>
-                                    <div *ngIf="EditingSetAttribute" class="w-100">
-                                        <div class="row p-0 m-0">
-                                            <div class="col-4">Public name for this Code:</div>
-                                            <input class="col-8" type="text" [(ngModel)]="EditingSetAttribute.attribute_name" maxlength="255" />
-                                        </div>
-                                        <div class="row p-0 m-0">
-                                            <div class="col-4">Public description for this Code:</div>
-                                            <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingSetAttribute.attribute_set_desc"></textarea>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-secondary  px-2 m-1" (click)="CancelEditAttribute()">
-                                            Cancel
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedAttribute()">
-                                            Save
-                                        </button>
-                                    </div>
-                                </ng-template>
-                            </div>
-                        </ng-container>
-                    </div>
-                </div>
-                <div *ngIf="EditingDB !== null" style="position:absolute;top:0;z-index:90; background-color:#d8d8e2;opacity:0.55; width:100%;height:100%"></div>
-
-                <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info rounded bg-white" style="max-height:55vh;overflow-y:auto;">
-                    <div class="col-12 row px-1 mx-0 mb-1 font-weight-bold">
-                        Pre-configured maps:
-                        <button class="btn btn-sm btn-outline-primary py-0 ml-auto mr-1 my-auto" [disabled]="EditingMap !== null || EditingSomething" (click)="CreateMap()">Create map</button>
-                        <button *ngIf="(CurrentMaps.length > 0 || EditingMap !== null)" class="btn btn-sm btn-outline-primary py-0 mx-1 my-auto" (click)="ShowMapsMiniHelp = !ShowMapsMiniHelp">
-                          <span style="font-weight:bold;color:blue">?</span>
-                        </button>
-                        <div *ngIf="ShowMapsMiniHelp; then MapsMiniHelp;"></div>
-                    </div>
-                    <div *ngIf="(CurrentMaps.length > 0 || EditingMap !== null)  else MapsMiniHelp" class="row col-12 mx-0 px-0 ">
-                        <div *ngIf="EditingMap == null else EditingMapTmpl">
-                            <div *ngFor="let map of CurrentMaps" class="col-12 px-0 mx-0 row border-dark border rounded small">
-                                <div class="col-12 mx-0 p-1 row">
-                                    <div class="col-auto mx-0 p-1 border border-primary alert-primary rounded">Name: <strong>{{map.webDBMapName}}</strong></div>
-                                    <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="DeleteMap(map)"><span class="k-icon k-i-delete "></span></button>
-                                    <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
-                                </div>
-
-                                <div class="row col-12 p-1 mx-0 ">
-                                    <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                                      <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        <span class="k-icon k-i-table-column-insert-left k-color-info"></span>&nbsp;Columns:
-                                      </div>
-                                        <div class="rounded bg-white col w-100">
-                                            Code: {{map.columnsPublicAttributeName}} <br />
-                                            Tool: {{map.columnsPublicSetName}}
-                                        </div>
-                                    </div>
-                                    <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                                      <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        <span class="k-icon k-i-table-row-insert-above k-color-info"></span>&nbsp;Rows:
-                                      </div>
-                                        <div class="rounded bg-white col w-100">
-                                            Code: {{map.rowsPublicAttributeName}} <br />
-                                            Tool: {{map.rowsPublicSetName}}
-                                        </div>
-                                    </div>
-                                    <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                                      <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                        <span class="k-icon k-i-chart-bubble k-color-success"></span>&nbsp;Segments:
-                                      </div>
-                                        <div class="rounded bg-white col w-100">
-                                            Code: {{map.segmentsPublicAttributeName}} <br />
-                                            Tool: {{map.segmentsPublicSetName}}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="m-0 col-12 p-0 ">
-                                    <div class="m-1 border border-info rounded">
-                                        <div class="col-12 px-1 font-weight-bold">Map Description:</div>
-                                        <div [innerHTML]="map.webDBMapDescription" class="col-12 alert-info px-1 rounded" style="max-height:200px;overflow-y:auto;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <ng-template #MapsMiniHelp>
-                        <div class="col-12">
-                            <div class="m-1 p-1 alert-info small rounded">
-                                <p>
-                                    <strong>A Map is a graphical, interactive 3-dimensional visualisation of research evidence in a particular domain.</strong><br />
-                                    It is a matrix of rows and columns (ex. rows could represent interventions and columns could represent outcomes)
-                                    with categorising segments in each node (ex. segments could represent study quality).<br />
-
-                                    Each dimension is set by picking a code/node from the tools on the left, which then form the columns, rows
-                                    and segments in the map. The saved map will be available to view in the EPPI-Vis home page.
-                                </p>
-                                <ul>
-                                    <li>Rows and columns - you can pick any node/code that has at least one child code.</li>
-                                    <li>Segments - you can pick any node/code that has between one and six child code(s).</li>
-                                    <li>You must specify all 3 dimensions along with a map name. The description is optional.</li>
-                                </ul>
-
-                                <!--
-                            <p>
-                                <strong>Maps are data-visualisation tools that allow to present data about 3 different "dimensions"</strong>.
-                                Each dimension is set by picking a code/node from the tools on the left, which then form the columns, rows and "within cell" categories (segments) in the visualisation.<br />
-                                The following rules apply:
-                            </p>
-                            <ul>
-                                <li>For rows and columns, you can pick any node/code that has at least one child code.</li>
-                                <li>For "within cell" categories (segments), you can pick any node/code that has between one and six child code(s).</li>
-                                <li>Maps need to have all three dimensions specified, as well as a Map Name. The description is optional.</li>
-                            </ul>
-                            <p>The corresponding map will become available in the Visualisation home page as soon as it is Saved!</p>
-                            -->
-                            </div>
-                        </div>
-                    </ng-template>
-                    <ng-template #EditingMapTmpl>
-                        <div *ngIf="EditingMap">
-
-                            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                                <div class="col-12 row m-0 p-0">
-                                    <div class="col-auto">
-                                        Name:
-                                    </div>
-                                    <div class="rounded bg-white col w-100">
-                                        <input class="p-1 w-100" type="text" [(ngModel)]="EditingMap.webDBMapName" />
-                                    </div>
-                                    <ng-container *ngTemplateOutlet="SaveMapTemplate"></ng-container>
-                                </div>
-                            </div>
-                            <div class="row col-12 px-1 mx-auto mt-0">
-                                <div class="mx-auto mt-1 px-1 row border border-success rounded">
-                                    <div class="mr-1">
-                                        Currently selected code:
-                                    </div>
-                                    <div class="">
-                                        <ng-container [ngSwitch]="true">
-                                            <div *ngSwitchCase="SelectedNodeIsRoot === null" class="small alert-danger rounded px-1 mx-1 my-1 ">
-                                                None (select codes on the left, to set dimensions for the map).
-                                            </div>
-                                            <div *ngSwitchCase="SelectedNodeIsRoot === true" class="">
-                                                (Coding Tool) <span class="px-1 alert-primary">{{SelectedCodingTool?.name}}</span>
-                                            </div>
-                                            <div *ngSwitchDefault class="">
-                                                (Code) <span class="px-1 alert-primary">{{SelectedAttribute?.name}}</span>
-                                            </div>
-                                        </ng-container>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div  class="row col-12 p-1 mx-0 ">
-                                <div class="col row m-1 p-0 border border-info rounded">
-                                    <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                      <table width="100%">
-                                        <tr>
-                                          <td>
-                                            Columns:
-                                          </td>
-                                          <td style="text-align:right">
-                                            <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetColumnsNode()">Set</button>
-                                          </td>
-                                        </tr>
-                                      </table>   
-                                    </div>
-                                    <div class="rounded bg-white col w-100">
-                                        Code: {{EditingMap.columnsPublicAttributeName}} <br />
-                                        Tool: {{EditingMap.columnsPublicSetName}}
-                                    </div>
-                                </div>
-                                <div class="col row m-1 p-0 border border-info rounded">
-                                  <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                    <table width="100%">
-                                      <tr>
-                                        <td>
-                                          Rows:
-                                        </td>
-                                        <td style="text-align:right">
-                                          <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetRowsNode()">Set</button>
-                                        </td>
-                                      </tr>
-                                    </table>                                   
-                                  </div>
-                                    <div class="rounded bg-white col w-100">
-                                        Code: {{EditingMap.rowsPublicAttributeName}} <br />
-                                        Tool: {{EditingMap.rowsPublicSetName}}
-                                    </div>
-                                </div>
-                                <div class="col row m-1 p-0 border border-info rounded">
-                                  <div class="col-12 pr-0 pl-1 font-weight-bold">
-                                    <table width="100%">
-                                      <tr>
-                                        <td>
-                                          Segments:
-                                        </td>
-                                        <td style="text-align:right">
-                                          <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapSegments" (click)="SetSegmentsNode()">Set</button>
-                                        </td>
-                                      </tr>
-                                    </table>                                   
-                                  </div>
-                                    <div class="rounded bg-white col w-100">
-                                        Code: {{EditingMap.segmentsPublicAttributeName}} <br />
-                                        Tool: {{EditingMap.segmentsPublicSetName}}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-1 mx-0">
-                                <div class="col-12 mx-0 p-0 font-weight-bold">Map Description:</div>
-                                <ckeditor *ngIf="EditingMap" [(ngModel)]="EditingMap.webDBMapDescription" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js">
-                                </ckeditor>
-                            </div>
-                            <div class="row col-12 p-1 mx-0 align-items-center">
-                                <div class="mx-auto"><ng-container *ngTemplateOutlet="SaveMapTemplate"></ng-container></div>
-                            </div>
-                        </div>
-                    </ng-template>
-                    <ng-template #SaveMapTemplate>
-                        <div class="row mx-0 px-0">
-                            <button class="ml-auto mr-1 btn btn-sm btn-outline-dark px-3 py-1" (click)="EditingMap = null">Cancel</button>
-                            <button class=" btn btn-sm btn-outline-danger px-1 py-1"
-                                    [disabled]="CanSaveMap != ''" (click)="SaveMap(EditingMap)">
-                                Save
-                            </button>
-                            <div *ngIf="CanSaveMap != '' && CanSaveMap != 'no change'" class="small col-auto alert-danger rounded px-1 mx-1 my-auto">{{CanSaveMap}}</div>
-                        </div>
-                    </ng-template>
-                </div>
-
-            </div>
-        </div>
+    <div *ngIf="WebDbs.length > 0; else CreateNewBlock" class="col-12  p-0 m-0 row ">
+      <div class="m-1 font-weight-bold">Pick WebDatabase:</div>
+      <select (change)="ShowDBSettingById($event)" class="d-inline mb-1">
+        <option *ngFor="let db of WebDbs" [value]="db.webDBId" [selected]="CurrentDB && db.webDBId == CurrentDB.webDBId">
+          {{db.webDBName}}
+        </option>
+      </select>
+      <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()" [disabled]="!CanWrite">Add New...</button>
+      <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right" style="z-index:91;"
+              (click)="BackToMain()">
+        Close/back
+      </button>
+      <div *ngIf="EditingSomething" style="position:absolute;top:0;z-index:90; background-color:#d8d8e2;opacity:0.35; width:100%;height:100%"></div>
     </div>
+    <ng-template #CreateNewBlock>
+      <div class="col-12  p-0 m-0 row ">
+        <div>Create new Visualisation:</div>
+        <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right"
+                (click)="BackToMain()">
+          Close/back
+        </button>
+        <div class="col-12 m-3 rounded alert-info border">
+          To get started, you will:
+          <ul>
+            <li>Create a new Visualisation, give it a name and click "Save";</li>
+            <li>Click "Edit" to add a description, logos and other properties such as password protection;</li>
+            <li>Define what data will be visible (including coding tools and items).</li>
+          </ul>
+          Further information on creating your visualisation is available by clicking Help at the top of the page.
+        </div>
+        <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()">Add New...</button>
+      </div>
+    </ng-template>
+
+    <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
+      <div class="row m-0 px-0 py-1" style="background-image: linear-gradient( -45deg, rgb(6, 65, 142), rgb(21, 114, 232)) !important;">
+        <div class="col-1 p-0 mx-auto my-0">
+          <img *ngIf="CurrentDB.encodedImage3 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage3}}" alt="logo"
+               style="max-width: 80px; max-height: 53px; object-fit: cover;" class="pb-2 mb-auto ml-1 mt-1" />
+        </div>
+        <div class="col-6 p-0 mx-auto my-0">
+          <h3 class="text-white ml-3 pb-1">{{CurrentDB.webDBName}}</h3>
+          <h6 class="text-white ml-3 op-7 mb-2">{{CurrentDB.subtitle}}</h6>
+        </div>
+        <div class="col-5 mx-0 pl-0 pr-3 row">
+          <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1"
+               style="max-height: 60px; object-fit: cover;" class="pb-2 my-auto ml-auto" />
+
+          <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2"
+               style="max-height: 60px; object-fit: cover;" class="pb-2 my-auto ml-auto" />
+        </div>
+      </div>
+      <div *ngIf="CanWrite" class="row col-12  m-0 p-0 justify-content-center">
+        <button class="btn btn-outline-success btn-sm ml-1 mb-1 mt-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
+          Edit!
+        </button>
+        <button class="btn btn-outline-danger btn-sm ml-1 mb-1 mt-1" (click)="DeleteDB(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
+          <span class="k-icon k-i-delete "></span>
+        </button>
+        <button class="btn btn-outline-primary btn-sm ml-1 mb-1 mt-1" (click)="ShowLogs = !ShowLogs">
+          <span>{{ShowLogs ? 'Close log' : 'Show log'}}</span>
+        </button>
+        <div class="ml-1 my-auto">
+          &nbsp;&nbsp;
+          <a href="{{VisitURL}}" target="_blank">View in EPPI-Vis</a>
+          <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
+        </div>
+
+      </div>
+      <VisLogComp *ngIf="ShowLogs"></VisLogComp>
+      <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 col-sm-2 row m-0 p-0">
+          <div class="col-auto">
+            ID:
+          </div>
+          <div class="rounded bg-white col w-100">
+            {{CurrentDB.webDBId}}
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 row m-0 p-0">
+          <div class="col-auto">
+            Name:
+          </div>
+          <div class="rounded bg-white col w-100">
+            {{CurrentDB.webDBName}}
+          </div>
+        </div>
+        <div class="col-12 col-sm-4 row m-0 p-0">
+          <div class="col-auto">
+            Filter
+          </div>
+          <div class="rounded bg-white col w-100">
+            {{FilterName(CurrentDB.attributeIdFilter)}}
+          </div>
+        </div>
+      </div>
+      <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 row m-0 p-1 ">
+          <div class="col-auto p-1 small">
+            Subtitle:
+          </div>
+          <div class="rounded bg-white col w-100 px-1">
+            {{CurrentDB.subtitle}}
+          </div>
+        </div>
+      </div>
+      <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 col-sm-9 row m-0 p-0">
+          <div class="col-auto">
+            Description:
+          </div>
+          <div class="rounded bg-white col w-100 border border-dark" style="max-height:400px;overflow:auto;" [innerHTML]="CurrentDB.webDBDescription">
+
+          </div>
+        </div>
+        <div class="col-12 col-sm-3 row m-0 p-0">
+          <div class="rounded bg-white col w-100">
+            {{CurrentDB.isOpen ? 'Open Access' : 'Password protected'}}
+          </div>
+        </div>
+      </div>
+      <div *ngIf="CurrentDB.userName !== ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 col-sm-6 row m-0 p-0">
+          <div class="col-auto">
+            Username:
+          </div>
+          <div class="rounded bg-white col w-100">
+            {{CurrentDB.userName}}
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 row m-0 p-0">
+          <div class="col-auto">
+            Password:
+          </div>
+          <div class="rounded bg-white col w-100">
+            ****
+          </div>
+        </div>
+      </div>
+      <div class="row col-12 p-1 mx-0 mt-0 border-bottom border-info">
+        <div class="mx-auto p-1">
+          Public URL:
+          <a href="{{VisitURL}}" target="_blank">{{VisitURL}}</a>
+          <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
+        </div>
+      </div>
+      <div *ngIf="CurrentDB.headerImage1Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 row m-0 p-1 ">
+          <div class="col-auto p-1 small">
+            Image 1 URL:
+          </div>
+          <div class="rounded bg-white col w-100 px-1">
+            <a class="p-1 w-100" href="{{CurrentDB.headerImage1Url}}" target="_blank">
+              {{CurrentDB.headerImage1Url}}
+            </a>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="CurrentDB.headerImage2Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 row m-0 p-1">
+          <div class="col-auto p-1 small">
+            Image 2 URL:
+          </div>
+          <div class="rounded bg-white col w-100 px-1">
+            <a class="p-1 w-100" href="{{CurrentDB.headerImage2Url}}" target="_blank">
+              {{CurrentDB.headerImage2Url}}
+            </a>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="CurrentDB.headerImage3Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 row m-0 p-1">
+          <div class="col-auto p-1 small">
+            Top left logo URL:
+          </div>
+          <div class="rounded bg-white col w-100 px-1">
+            <a class="p-1 w-100" href="{{CurrentDB.headerImage3Url}}" target="_blank">
+              {{CurrentDB.headerImage3Url}}
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div *ngIf="EditingDB !== null" class="bg-light rounded">
+      <div class="w-100 m-0 p-0 text-center">
+        <button class="btn btn-outline-dark btn-sm ml-1 mb-1" (click)="CancelEdit()">Cancel</button>
+        <button class="btn btn-outline-danger btn-sm ml-1 mb-1" [disabled]="!CanSave" (click)="Save()">Save</button>
+        <div *ngIf="!CanSave" class="m-0 p-0 text-center">
+          <span class="alert-danger rounded small border border-danger px-1">{{CantSaveMessage}}</span>
+        </div>
+      </div>
+      <div class=" row m-2 p-1 rounded border-primary border">
+        <div class="row col-12 mx-0 mb-1 font-weight-bold">
+          <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId  && CurrentDB.encodedImage3 != '' ">
+            <img src="data:image/jpg;base64,{{CurrentDB.encodedImage3}}" alt="image3" class="  p-0 ml-0 mr-auto my-auto" style="max-width:80px; max-height: 45px; object-fit: cover;" />
+          </div>
+          <div class="mx-auto">Logos and Images</div>
+          <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId  && CurrentDB.encodedImage1 != '' ">
+            <img src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
+          </div>
+          <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId && CurrentDB.encodedImage2 != '' ">
+            <img src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
+          </div>
+        </div>
+        <div *ngIf="!ShowUpload && CanWrite && EditingDB && EditingDB.webDBId > 0" class="row ml-2 bg-white mr-1 p-0">
+          <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true; ImageSizeError = ''">Edit Images</button> <div class="ml-1 my-auto">(Upload/change and/or delete)</div>
+        </div>
+        <div *ngIf="!ShowUpload && CanWrite && (!EditingDB || EditingDB.webDBId < 1)" class="row m-2 rouded small alert-info p-1">
+          You&nbsp;<strong>must Save</strong>&nbsp;the Visualisation before you can upload logos.
+        </div>
+        <div *ngIf="ShowUpload" class="row col-12 mx-0 bg-white p-0 mb-1">
+          <div class="row mx-0 col">
+            <div class="col-auto">
+              <div>
+                <div class="mr-1 text-right">
+                  Top Left Logo (all pages) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="3" />
+                </div>
+                <div class="mr-1 text-right">
+                  Image 1 (header, home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="1" />
+                </div>
+                <div class="mr-1 text-right">
+                  Image 2  (header, home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="2" />
+                </div>
+              </div>
+            </div>
+            <kendo-upload class="col" [autoUpload]="false"
+                          [multiple]="false"
+                          [saveUrl]="uploadSaveUrl"
+                          (select)="selectEventHandler($event)"
+                          [restrictions]="uploadRestrictions"
+                          (upload)="uploadEventHandler($event)"
+                          (clear)="clearUploadImageEventHandler()"
+                          (complete)="completeEventHandler()">
+            </kendo-upload>
+            <div class="col-12 mx-0 px-1">
+              <div class="m-1 p-1 rounded alert-danger small">
+                <div class="rounded text-danger p-1 bg-white">
+                  <strong>Top Left logo:</strong><br />
+                  In EPPI-Vis, this logo will be reduced to a maximum width of 80 pixels and a maximum height of 45 pixels.<br />
+                  If it does not look good once uploaded and reduced, you may need to change or edit the image using an image editor.
+                  Rescaling or cropping the image might produce a better final result.
+                </div>
+              </div>
+            </div>
+            <div *ngIf="ImageSizeError != ''" class="col-auto mb-auto small alert-danger mt-1 mx-1 rounded">{{ImageSizeError}}</div>
+          </div>
+
+          <div *ngIf="CurrentDB && (CurrentDB.encodedImage1 != '' || CurrentDB.encodedImage2 != '')" class="row mx-0 col">
+
+
+            <div *ngIf="CurrentDB" class="mx-1">
+              <div class="col-12 mx-0">
+                Logo (top left):
+                <img *ngIf="CurrentDB.encodedImage3 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage3}}"
+                     alt="logo" class=" col-auto p-1 m-1 border border-dark "
+                     style=" object-fit: cover; max-width:200px;" />
+                <button *ngIf="CurrentDB.encodedImage3 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(3)" [disabled]="!CanWrite">
+                  <span class="k-icon k-i-delete "></span>
+                </button>
+              </div>
+              <div class="col-12 mx-0">
+                Image 1:
+                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}"
+                     alt="image1" class=" col-auto p-1 m-1 border border-dark "
+                     style=" object-fit: cover; max-width:200px;" />
+                <button *ngIf="CurrentDB.encodedImage1 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(1)" [disabled]="!CanWrite">
+                  <span class="k-icon k-i-delete "></span>
+                </button>
+              </div>
+              <div class="col-12 mx-0">
+                Image 2:
+                <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}"
+                     alt="image1" class=" col-auto p-1 m-1 border border-dark "
+                     style=" object-fit: cover; max-width:200px;" />
+                <button *ngIf="CurrentDB.encodedImage2 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(2)" [disabled]="!CanWrite">
+                  <span class="k-icon k-i-delete "></span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+          <div *ngIf="imagePreview" class="row m-0 p-0 col-12">
+            <div class="col-12">Image preview:</div>
+            <div class="mx-auto border border-primary" style="overflow:auto; max-height:25vh; max-width:90vw;">
+              <img #ImagePreview
+                   [src]="imagePreview.src"
+                   alt="image preview"
+                   style="margin: 10px;" />
+            </div>
+            <div class="mx-auto">
+              <div>Height: {{ImagePreviewH}}  <span *ngIf="ImagePreviewH > MaxImgH" class="mx-1 small alert-danger">Too high (max:{{MaxImgH}}px)</span></div>
+              <div>Width: {{ImagePreviewW}} <span *ngIf="ImagePreviewW > MaxImgW" class="mx-1 small alert-danger">Too wide (max:{{MaxImgW}}px)</span></div>
+              <div *ngIf="!ImageToUploadisGood" class="alert-danger">Can't upload this image</div>
+            </div>
+          </div>
+          <div class="row mx-0 mt-1 p-0 col-12">
+            <div class="col-auto m-0 px-1 row align-items-center">
+              <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false; imagePreview = null">Cancel</button>
+            </div>
+            <div class="col m-0 p-0">
+              <div class="p-1 mx-1 rounded small alert-info">
+                <strong>Note:</strong> images are cached in EPPI-Vis, for up to 24 hours. To see logo changes <em>immediately</em>:<br />
+                (1) delete the current image; <br />
+                (2) visit the Visualisation "open/login" url, the deleted logo should not be shown; <br />
+                (3) upload the new image.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 col-sm-2 row m-0 p-0">
+          <div class="col-auto">
+            ID:
+          </div>
+          <div class="rounded bg-white col w-100">
+            {{EditingDB.webDBId}}
+          </div>
+        </div>
+        <div class="col-12 col-sm-4 row m-0 p-0">
+          <div class="col-auto">
+            Name:
+          </div>
+          <div class="rounded bg-white col w-100">
+            <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBName" />
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 row m-0 p-0">
+          <div class="col-auto">
+            Only items with this code?
+          </div>
+          <div class="rounded bg-white col w-100">
+            <div *ngIf="EditingDB.attributeIdFilter == 0 && !EditingFilter">
+              <button *ngIf="EditingDB.attributeIdFilter == 0" (click)="EditFilter()"
+                      class="btn btn-outline-success btn-sm ml-1 my-1">
+                Add...
+              </button>
+              (no filter)
+            </div>
+            <div *ngIf="EditingDB.attributeIdFilter > 0 && !EditingFilter">
+              <button (click)="EditFilter()"
+                      class="btn btn-outline-success btn-sm ml-1 my-1">
+                Change...
+              </button>
+              {{FilterName(EditingDB.attributeIdFilter)}}
+            </div>
+            <div *ngIf="EditingFilter">
+              <button (click)="CancelEditFilter()"
+                      class="btn btn-outline-dark btn-sm ml-1 my-1">
+                Cancel...
+              </button>
+              {{FilterName(EditingDB.attributeIdFilter)}}
+            </div>
+          </div>
+          <div *ngIf="EditingFilter" class="row col-12">
+            <div class="col-5">Pick the code:</div>
+            <div class="d-block my-1 col-7 p-0">
+              <div ngbDropdown class="">
+                <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle"
+                        id="dropdownTreeRandomAllocate"
+                        style="min-width: 200px; max-width:720px;"
+                        (click)="isCollapsedFilterCode = !isCollapsedFilterCode;"
+                        [attr.aria-expanded]="!isCollapsedFilterCode" aria-controls="collapseCodeTreeWithWithout">
+                  {{DropdownSelectedCodeName}}
+                </button>
+                <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedFilterCode">
+                  <codesetSelector [IsMultiSelect]="false"
+                                   [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #FilterCodeSelector
+                                   (selectedNodeInTree)="CloseCodeDropDownFilterCode()"></codesetSelector>
+                </div>
+              </div>
+              <button (click)="RemoveFilter()"
+                      class="btn btn-outline-dark btn-sm ml-1 my-1">
+                No filter...
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 row m-0 p-1">
+          <div class="col-auto p-1">
+            SubTitle:
+          </div>
+          <div class="rounded bg-white col w-100 px-1">
+            <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.subtitle" />
+          </div>
+        </div>
+      </div>
+
+      <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 col-md-7 row m-0 p-0">
+          <div class="col-auto">
+            Description:
+          </div>
+          <div class="rounded bg-white col w-100">
+            <ckeditor [(ngModel)]="EditingDB.webDBDescription" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js">
+
+            </ckeditor>
+            <!--<textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBDescription" rows="4"></textarea>-->
+            <!--<ckeditor [(ngModel)]="EditingDB.webDBDescription"
+              [config]="{uiColor: '#bbbbbb'
+                        }"
+              [readonly]="false"
+              debounce="500">
+            </ckeditor>
+
+            (change)="onChange($event)"
+            (editorChange)="onEditorChange($event)"
+            (ready)="onReady($event)"
+            (focus)="onFocus($event)"
+            (blur)="onBlur($event)"
+            (contentDom)="onContentDom($event)"
+            (fileUploadRequest)="onFileUploadRequest($event)"
+            (fileUploadResponse)="onFileUploadResponse($event)"
+            (paste)="onPaste($event)"
+            (drop)="onDrop($event)"
+             -->
+          </div>
+        </div>
+        <div class="col-12 col-md-3 row m-0 p-0">
+          <div class="col-12">
+            Is open access:
+            <span class="brightSwitch" style="zoom:75%;">
+              <kendo-switch name="showOptionalFieldsSW" class="small small mt-0"
+                            [(ngModel)]="EditingDB.isOpen"
+                            [onLabel]="'Yes'"
+                            [offLabel]="'No'"></kendo-switch>
+            </span>
+          </div>
+          <ng-container *ngIf="!EditingDB.isOpen">
+            <div class="col-12 small m-0 p-0">
+              <div class="alert-info mx-3 my-1 py-1 px-2">
+                Username is mandatory and needs to be at least 4 characters long. It is not case-sensitive.
+                Passwords are case-sensitive and need to be at least 6 characters long.
+              </div>
+            </div>
+            <div class="col-12 row m-0 p-0">
+              <div class="col-auto">
+                Username:
+              </div>
+              <div class="rounded bg-white col-auto">
+                <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.userName" />
+              </div>
+            </div>
+            <div class="col-12 row m-0 p-0">
+              <ng-container *ngIf="!ShowPassword">
+                <div class="border">
+                  <div class="col-auto my-auto">
+                    Password: (show <input type="checkbox" [(ngModel)]="ShowPassword" />)
+                  </div>
+                  <div class="rounded col-auto my-auto">
+                    <input class="p-1 w-100" type="password" [(ngModel)]="EditingDB.password" />
+                  </div>
+                </div>
+                <div class="border" [ngClass]="{'alert-danger' : ConfirmPassword.length == 0 || ConfirmPassword != EditingDB.password}">
+                  <div class="col-auto my-auto">
+                    Confirm Password:
+                  </div>
+                  <div class="rounded col-auto my-auto">
+                    <input class="p-1 w-100" type="password" [(ngModel)]="ConfirmPassword" />
+                  </div>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="ShowPassword">
+                <div class="border">
+                  <div class="col-auto my-auto">
+                    Password: (show <input type="checkbox" [(ngModel)]="ShowPassword" />)
+                  </div>
+                  <div class="rounded col-auto my-auto">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.password" />
+                  </div>
+                </div>
+                <div class="border" [ngClass]="{'alert-danger' : ConfirmPassword.length == 0 || ConfirmPassword != EditingDB.password}">
+                  <div class="col-auto my-auto">
+                    Confirm Password:
+                  </div>
+                  <div class="rounded col-auto my-auto">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="ConfirmPassword" />
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </ng-container>
+        </div>
+        <div class="col-12 col-sm-2 row m-0 p-0">
+          <div class="rounded bg-white col w-100">
+            Select fields to display<br />
+            <input type='checkbox' checked (change)="allFieldsSelectedUnselected($event)" /> Unselect/Select all
+            <textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.hiddenFields" rows="2"></textarea>
+            <br /><hr />
+            <div style="max-height:30vh;overflow-y:auto;">
+              <table>
+                <tr *ngFor="let fields of FieldList">
+                  <td>
+                    <input type='checkbox' (change)="FieldChangeSelected(fields.fieldNumber, $event)" [disabled]="!fields.enabled" [checked]="fields.selected" />
+                    &nbsp;&nbsp;{{fields.friendlyFieldName}}
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="CurrentDB && CurrentDB.encodedImage1 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 row m-0 p-1">
+          <div class="col-auto p-1">
+            Image 1 URL:
+          </div>
+          <div class="rounded bg-white col w-100 px-1">
+            <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage1Url" />
+          </div>
+        </div>
+      </div>
+      <div *ngIf="CurrentDB && CurrentDB.encodedImage2 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 row m-0 p-1">
+          <div class="col-auto p-1">
+            Image 2 URL:
+          </div>
+          <div class="rounded bg-white col w-100 px-1">
+            <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage2Url" />
+          </div>
+        </div>
+      </div>
+      <div *ngIf="CurrentDB && CurrentDB.encodedImage3 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+        <div class="col-12 row m-0 p-1">
+          <div class="col-auto p-1">
+            Top left logo URL:
+          </div>
+          <div class="rounded bg-white col w-100 px-1">
+            <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage3Url" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="CurrentDB !== null" class="row p-0 m-0">
+      <div class="row col-4 p-1 mx-0 mt-2 border-top border-info">
+        <WebDbCcodesetTree class="w-100" [MaxHeight]="400" [CanChangeSelectedCode]="!(EditingSomething && EditingMap == null)"></WebDbCcodesetTree>
+      </div>
+      <div class="row col-8 p-1 mx-0 mt-2 border-top border-info">
+        <div class="bg-light w-100 rounded">
+          <div class="row col-12 p-1 mx-0 mt-2 ">
+            <div class="col-4 p-0 mt-2">
+              Add Coding Tool:
+            </div>
+            <div class="d-block my-1 col-8 p-0">
+              <div ngbDropdown class="" style="min-width:200px;">
+                <button class="btn btn-outline-secondary dropdown-toggle"
+                        style="min-width: 200px; max-width:720px;"
+                        (click)="isCollapsedAddTool = false;" [disabled]="EditingSomething || !CanWrite"
+                        id="dropdownBasicCodingTool" ngbDropdownToggle>
+                  {{GetCodingToolName()}}
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
+                  <button (click)="SetCodeSetDropDown(item)"
+                          *ngFor="let item of AddableCodingTools;" class="dropdown-item">
+                    {{item.name}}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="selectedCodeSetDropDown != null" class="col-12 row m-0 p-0">
+              <div class="col-4 p-0 mt-2">
+                Add This Tool:
+              </div>
+              <div class="d-block my-1 col-8 p-0">
+                {{GetCodingToolName()}}
+                <button class="btn btn-outline-secondary my-1" [disabled]="!CanWrite || EditingSomething"
+                        (click)="AddCodingTool(selectedCodeSetDropDown)">
+                  Add!
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="row col-12 p-1 mx-0 mt-2 ">
+            <ng-container [ngSwitch]="true">
+              <div *ngSwitchCase="SelectedNodeIsRoot === null">
+                No Code is Selected
+              </div>
+              <div *ngSwitchCase="SelectedNodeIsRoot === true" class="row col-12 m-0 p-0">
+                <div *ngIf="EditingWebDbReviewSet == null; else editingSetBlock">
+                  Selected Coding Tool: {{SelectedCodingTool?.name}}
+                  <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="EditTool(SelectedCodingTool)">
+                    Edit
+                  </button>
+                  <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveTool(SelectedCodingTool)">
+                    <span class="k-icon k-i-delete "></span>
+                  </button>
+                </div>
+                <ng-template #editingSetBlock>
+                  <div *ngIf="EditingWebDbReviewSet" class="w-100">
+                    <div class="row p-0 m-0">
+                      <div class="col-4">Public name for this set:</div>
+                      <input class="col-8" type="text" [(ngModel)]="EditingWebDbReviewSet.set_name" maxlength="255" />
+                    </div>
+                    <div class="row p-0 m-0">
+                      <div class="col-4">Public description for this set:</div>
+                      <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
+                    </div>
+                    <div class="row m-0">
+                      <div class="mx-auto">
+                        <button class="btn btn-sm btn-outline-secondary  px-1 m-1" (click)="CancelEditTool()">
+                          Cancel
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedTool()">
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 m-0 p-0 border-top border-info ">
+                    <div *ngIf="MissingAttributes.length > 0" class="font-weight-bold ml-3">
+                      Hidden Codes:
+                    </div>
+                    <div *ngIf="MissingAttributes.length == 0" class="">
+                      No codes are hidden for this Coding Tool.
+                    </div>
+                    <div style="max-height:400px;overflow:auto;background-color:#d8d8e2;" class="col-12 m-1 p-1 rounded ">
+                      <div *ngFor="let missing of MissingAttributes" class="row mx-1">
+                        <div class="bg-white rounded border border-info my-1 ml-1 mr-auto px-2 ">
+                          <span *ngIf="missing.path.length > 0">{{missing.path}}\</span><strong>{{missing.name}}</strong> <button class="btn btn-sm btn-outline-primary ml-2 py-0 my-1 small" (click)="RestoreCode(missing)">Restore...</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+              </div>
+              <div *ngSwitchDefault class="row col-12 m-0 p-0">
+                <div *ngIf="EditingSetAttribute == null; else editingAttributeBlock">
+                  Selected Code: {{SelectedAttribute?.name}}
+                  <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 py-0 m-1" (click)="EditAttribute(SelectedAttribute)" [disabled]="EditingSomething">
+                    Edit
+                  </button>
+                  <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveAttribute(SelectedAttribute)" [disabled]="EditingSomething">
+                    <span class="k-icon k-i-delete "></span>
+                  </button>
+                </div>
+                <ng-template #editingAttributeBlock>
+                  <div *ngIf="EditingSetAttribute" class="w-100">
+                    <div class="row p-0 m-0">
+                      <div class="col-4">Public name for this Code:</div>
+                      <input class="col-8" type="text" [(ngModel)]="EditingSetAttribute.attribute_name" maxlength="255" />
+                    </div>
+                    <div class="row p-0 m-0">
+                      <div class="col-4">Public description for this Code:</div>
+                      <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingSetAttribute.attribute_set_desc"></textarea>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary  px-2 m-1" (click)="CancelEditAttribute()">
+                      Cancel
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedAttribute()">
+                      Save
+                    </button>
+                  </div>
+                </ng-template>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div *ngIf="EditingDB !== null" style="position:absolute;top:0;z-index:90; background-color:#d8d8e2;opacity:0.55; width:100%;height:100%"></div>
+
+        <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info rounded bg-white" style="max-height:55vh;overflow-y:auto;">
+          <div class="col-12 row px-1 mx-0 mb-1 font-weight-bold">
+            Pre-configured maps:
+            <button class="btn btn-sm btn-outline-primary py-0 ml-auto mr-1 my-auto" [disabled]="EditingMap !== null || EditingSomething" (click)="CreateMap()">Create map</button>
+            <button *ngIf="(CurrentMaps.length > 0 || EditingMap !== null)" class="btn btn-sm btn-outline-primary py-0 mx-1 my-auto" (click)="ShowMapsMiniHelp = !ShowMapsMiniHelp">
+              <span style="font-weight:bold;color:blue">?</span>
+            </button>
+            <div *ngIf="ShowMapsMiniHelp; then MapsMiniHelp;"></div>
+          </div>
+          <div *ngIf="(CurrentMaps.length > 0 || EditingMap !== null)  else MapsMiniHelp" class="row col-12 mx-0 px-0 ">
+            <div *ngIf="EditingMap == null else EditingMapTmpl">
+              <div *ngFor="let map of CurrentMaps" class="col-12 px-0 mx-0 row border-dark border rounded small">
+                <div class="col-12 mx-0 p-1 row">
+                  <div class="col-auto mx-0 p-1 border border-primary alert-primary rounded">Name: <strong>{{map.webDBMapName}}</strong></div>
+                  <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="DeleteMap(map)"><span class="k-icon k-i-delete "></span></button>
+                  <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
+                </div>
+
+                <div class="row col-12 p-1 mx-0 ">
+                  <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                    <div class="col-12 pr-0 pl-1 font-weight-bold">
+                      <span class="k-icon k-i-table-column-insert-left k-color-info"></span>&nbsp;Columns:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                      Code: {{map.columnsPublicAttributeName}} <br />
+                      Tool: {{map.columnsPublicSetName}}
+                    </div>
+                  </div>
+                  <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                    <div class="col-12 pr-0 pl-1 font-weight-bold">
+                      <span class="k-icon k-i-table-row-insert-above k-color-info"></span>&nbsp;Rows:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                      Code: {{map.rowsPublicAttributeName}} <br />
+                      Tool: {{map.rowsPublicSetName}}
+                    </div>
+                  </div>
+                  <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                    <div class="col-12 pr-0 pl-1 font-weight-bold">
+                      <span class="k-icon k-i-chart-bubble k-color-success"></span>&nbsp;Segments:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                      Code: {{map.segmentsPublicAttributeName}} <br />
+                      Tool: {{map.segmentsPublicSetName}}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="m-0 col-12 p-0 ">
+                  <div class="m-1 border border-info rounded">
+                    <div class="col-12 px-1 font-weight-bold">Map Description:</div>
+                    <div [innerHTML]="map.webDBMapDescription" class="col-12 alert-info px-1 rounded" style="max-height:200px;overflow-y:auto;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #MapsMiniHelp>
+            <div class="col-12">
+              <div class="m-1 p-1 alert-info small rounded">
+                <p>
+                  <strong>A Map is a graphical, interactive 3-dimensional visualisation of research evidence in a particular domain.</strong><br />
+                  It is a matrix of rows and columns (ex. rows could represent interventions and columns could represent outcomes)
+                  with categorising segments in each node (ex. segments could represent study quality).<br />
+
+                  Each dimension is set by picking a code/node from the tools on the left, which then form the columns, rows
+                  and segments in the map. The saved map will be available to view in the EPPI-Vis home page.
+                </p>
+                <ul>
+                  <li>Rows and columns - you can pick any node/code that has at least one child code.</li>
+                  <li>Segments - you can pick any node/code that has between one and six child code(s).</li>
+                  <li>You must specify all 3 dimensions along with a map name. The description is optional.</li>
+                </ul>
+
+                <!--
+                <p>
+                    <strong>Maps are data-visualisation tools that allow to present data about 3 different "dimensions"</strong>.
+                    Each dimension is set by picking a code/node from the tools on the left, which then form the columns, rows and "within cell" categories (segments) in the visualisation.<br />
+                    The following rules apply:
+                </p>
+                <ul>
+                    <li>For rows and columns, you can pick any node/code that has at least one child code.</li>
+                    <li>For "within cell" categories (segments), you can pick any node/code that has between one and six child code(s).</li>
+                    <li>Maps need to have all three dimensions specified, as well as a Map Name. The description is optional.</li>
+                </ul>
+                <p>The corresponding map will become available in the Visualisation home page as soon as it is Saved!</p>
+                -->
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #EditingMapTmpl>
+            <div *ngIf="EditingMap">
+
+              <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+                <div class="col-12 row m-0 p-0">
+                  <div class="col-auto">
+                    Name:
+                  </div>
+                  <div class="rounded bg-white col w-100">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="EditingMap.webDBMapName" />
+                  </div>
+                  <ng-container *ngTemplateOutlet="SaveMapTemplate"></ng-container>
+                </div>
+              </div>
+              <div class="row col-12 px-1 mx-auto mt-0">
+                <div class="mx-auto mt-1 px-1 row border border-success rounded">
+                  <div class="mr-1">
+                    Currently selected code:
+                  </div>
+                  <div class="">
+                    <ng-container [ngSwitch]="true">
+                      <div *ngSwitchCase="SelectedNodeIsRoot === null" class="small alert-danger rounded px-1 mx-1 my-1 ">
+                        None (select codes on the left, to set dimensions for the map).
+                      </div>
+                      <div *ngSwitchCase="SelectedNodeIsRoot === true" class="">
+                        (Coding Tool) <span class="px-1 alert-primary">{{SelectedCodingTool?.name}}</span>
+                      </div>
+                      <div *ngSwitchDefault class="">
+                        (Code) <span class="px-1 alert-primary">{{SelectedAttribute?.name}}</span>
+                      </div>
+                    </ng-container>
+                  </div>
+                </div>
+
+              </div>
+              <div class="row col-12 p-1 mx-0 ">
+                <div class="col row m-1 p-0 border border-info rounded">
+                  <div class="col-12 pr-0 pl-1 font-weight-bold">
+                    <table width="100%">
+                      <tr>
+                        <td>
+                          Columns:
+                        </td>
+                        <td style="text-align:right">
+                          <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetColumnsNode()">Set</button>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                  <div class="rounded bg-white col w-100">
+                    Code: {{EditingMap.columnsPublicAttributeName}} <br />
+                    Tool: {{EditingMap.columnsPublicSetName}}
+                  </div>
+                </div>
+                <div class="col row m-1 p-0 border border-info rounded">
+                  <div class="col-12 pr-0 pl-1 font-weight-bold">
+                    <table width="100%">
+                      <tr>
+                        <td>
+                          Rows:
+                        </td>
+                        <td style="text-align:right">
+                          <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapRowAndCols" (click)="SetRowsNode()">Set</button>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                  <div class="rounded bg-white col w-100">
+                    Code: {{EditingMap.rowsPublicAttributeName}} <br />
+                    Tool: {{EditingMap.rowsPublicSetName}}
+                  </div>
+                </div>
+                <div class="col row m-1 p-0 border border-info rounded">
+                  <div class="col-12 pr-0 pl-1 font-weight-bold">
+                    <table width="100%">
+                      <tr>
+                        <td>
+                          Segments:
+                        </td>
+                        <td style="text-align:right">
+                          <button class="btn btn-sm btn-outline-primary px-2 py-0 pull-right" [disabled]="!CanAssignToMapSegments" (click)="SetSegmentsNode()">Set</button>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                  <div class="rounded bg-white col w-100">
+                    Code: {{EditingMap.segmentsPublicAttributeName}} <br />
+                    Tool: {{EditingMap.segmentsPublicSetName}}
+                  </div>
+                </div>
+              </div>
+              <div class="p-1 mx-0">
+                <div class="col-12 mx-0 p-0 font-weight-bold">Map Description:</div>
+                <ckeditor *ngIf="EditingMap" [(ngModel)]="EditingMap.webDBMapDescription" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js">
+                </ckeditor>
+              </div>
+              <div class="row col-12 p-1 mx-0 align-items-center">
+                <div class="mx-auto"><ng-container *ngTemplateOutlet="SaveMapTemplate"></ng-container></div>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #SaveMapTemplate>
+            <div class="row mx-0 px-0">
+              <button class="ml-auto mr-1 btn btn-sm btn-outline-dark px-3 py-1" (click)="EditingMap = null">Cancel</button>
+              <button class=" btn btn-sm btn-outline-danger px-1 py-1"
+                      [disabled]="CanSaveMap != ''" (click)="SaveMap(EditingMap)">
+                Save
+              </button>
+              <div *ngIf="CanSaveMap != '' && CanSaveMap != 'no change'" class="small col-auto alert-danger rounded px-1 mx-1 my-auto">{{CanSaveMap}}</div>
+            </div>
+          </ng-template>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+
+
 
