@@ -96,7 +96,7 @@ export class ReviewerTermsService extends BusyAwareService {
       );
   }
 
-  public UpdateTerm(term: ReviewerTerm) {
+  public UpdateTerm(term: ReviewerTerm, IsLastToSave: boolean = true) {
     if (term.reviewerTerm.trim().length < 1) return;
     this._BusyMethods.push("UpdateTerm");
 
@@ -106,21 +106,21 @@ export class ReviewerTermsService extends BusyAwareService {
       reviewerTerm: term.reviewerTerm,
       included: term.included,
       term: term.term };
-    return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/UpdateReviewerTerm',
-      body)
-      .subscribe(result => {
-
-        //let ind: number = this._TermsList.findIndex(x => x.trainingReviewerTermId == term.trainingReviewerTermId);
-        //this._TermsList[ind] = result;
-        this.Fetch();
+    return lastValueFrom( this._httpC.post<iReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/UpdateReviewerTerm',
+      body)).then(result => {
+        if (IsLastToSave == false) {
+          const ind: number = this._TermsList.findIndex(x => x.trainingReviewerTermId == term.trainingReviewerTermId);
+          if (ind != -1) this._TermsList[ind] = new ReviewerTerm(result);
+        }
+        else this.Fetch();
         this.RemoveBusy("UpdateTerm");
         //return this.TermsList;
       },
         error => {
-
           this.modalService.GenericError(error);
           this.RemoveBusy("UpdateTerm");
-        }, () => {
+        }).catch(caught => {
+          this.modalService.GenericErrorMessage(caught.toString());
           this.RemoveBusy("UpdateTerm");
         }
       );

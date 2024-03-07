@@ -46,9 +46,9 @@
                         <input class="form-control" type="checkbox" [(ngModel)]="term.included" />
                     </td>
                     <td>
-                        <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Update"
+                        <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Save Changes"
                                 class="btn btn-sm btn-outline-primary"
-                                (click)="Update(term)">
+                                (click)="SaveChanges()">
                           <span class="k-icon k-i-floppy"></span>
                         </button>
                     </td>
