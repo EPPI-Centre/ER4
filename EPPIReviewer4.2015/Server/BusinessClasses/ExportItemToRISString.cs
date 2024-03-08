@@ -64,6 +64,7 @@ namespace BusinessLibrary.BusinessClasses
                 tmp = au.Trim();
                 if (tmp != "") res += "A2  - " + tmp + System.Environment.NewLine;
             }
+            res += "ST  - " + it.ShortTitle + System.Environment.NewLine;
             res += "KW  - eppi-reviewer4" + System.Environment.NewLine
                 + ((it.Keywords != null && it.Keywords.Length > 2) ? it.Keywords.Trim() + Environment.NewLine : "");
             int Month, Yr;
