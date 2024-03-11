@@ -27,6 +27,22 @@ namespace BusinessLibrary.BusinessClasses
         {
             return RuleName;
         }
+        public static readonly PropertyInfo<string> RuleNameProperty = RegisterProperty<string>(new PropertyInfo<string>("RuleName", "RuleName"));
+        public string RuleName
+        {
+            get
+            {
+                return GetProperty(RuleNameProperty);
+            }
+        }
+        public static readonly PropertyInfo<string> DescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("Description", "Description"));
+        public string Description
+        {
+            get
+            {
+                return GetProperty(DescriptionProperty);
+            }
+        }
 
         internal static ReadOnlyImportFilterRule NewReadOnlyImportFilterRule()
         {
@@ -59,14 +75,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(typesMapProperty);
             }
         }
-        public static readonly PropertyInfo<string> RuleNameProperty = RegisterProperty<string>(new PropertyInfo<string>("RuleName", "RuleName"));
-        public string RuleName
-        {
-            get
-            {
-                return GetProperty(RuleNameProperty);
-            }
-        }
+        
         public static readonly PropertyInfo<string> StartOfNewRecProperty = RegisterProperty<string>(new PropertyInfo<string>("StartOfNewRec", "StartOfNewRec"));
         public string StartOfNewRec
         {
@@ -337,6 +346,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             returnValue.LoadProperty<int>(FilterIDProperty, reader.GetInt32("IMPORT_FILTER_ID"));
             returnValue.LoadProperty<string>(RuleNameProperty, reader.GetString("IMPORT_FILTER_NAME"));
+            returnValue.LoadProperty<string>(DescriptionProperty, reader.GetString("IMPORT_FILTER_NOTES"));
             returnValue.LoadProperty<string>(StartOfNewRecProperty, reader.GetString("STARTOFNEWREC"));
             returnValue.LoadProperty<string>(typeFieldProperty, reader.GetString("TYPEFIELD"));
             returnValue.LoadProperty<string>(StartOfNewFieldProperty, reader.GetString("STARTOFNEWFIELD"));

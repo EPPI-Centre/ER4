@@ -48,7 +48,23 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
     public WizPhase: number = 1
     public ShowPreviewTable: boolean = false;
     public Source4upload: SourceForUpload | null = null;
-    public currentFilterName: string = "RIS";
+  private _currentFilter: ImportFilter | null = null;
+  public get currentFilter(): ImportFilter {
+    if (this._currentFilter == null) {
+      if (this.SourcesService.ImportFilters.length > 0) {
+        this._currentFilter = this.SourcesService.ImportFilters[0];
+      }
+      else {
+        return {
+          filterID: -1,
+          ruleName: "Loading...",
+          description: 'List of filters is loading',
+          startOfNewRec: '',
+        };
+      }
+    }
+    return this._currentFilter;
+  }
     private currentFileName: string = "";
 
     addFile() {
@@ -89,7 +105,7 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
             //console.log("fileRead: " + fileContent.length);
             let filename = "Please update";
             if (this.currentFileName) filename = this.currentFileName.trim();
-            this.Source4upload = this.SourcesService.newSourceForUpload(fileContent, filename, this.currentFilterName);
+            this.Source4upload = this.SourcesService.newSourceForUpload(fileContent, filename, this.currentFilter.ruleName);
             this.SourcesService.CheckUpload(this.Source4upload).then(
                 (result) => {
                     if (!result) {
@@ -139,7 +155,8 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
     }
   FilterChanged(event: Event) {
     let selection = (event.target as HTMLOptionElement).value;
-    this.currentFilterName = selection;
+    const index = this.SourcesService.ImportFilters.findIndex(f => f.filterID.toString() == selection);
+    if (index != -1) this._currentFilter = this.SourcesService.ImportFilters[index];
   }
     Upload() {
         if (!this.Source4upload) return;
