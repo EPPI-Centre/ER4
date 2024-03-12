@@ -19,6 +19,7 @@ using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using System.Configuration;
 using System.Collections.Concurrent;
+//using System.Timers;
 #if !CSLA_NETCORE
 using System.Web.Hosting;
 #endif
@@ -87,8 +88,34 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else
                 {
+                    //from March 2024: we check if there is a job running already!
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open(); 
+                        using (SqlCommand command = new SqlCommand("st_MagMatchingCheckOngoingLog", connection))
+                        {
+                            int MagMatchTimeoutInMinutes;
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add("@revID", System.Data.SqlDbType.Int);
+                            command.Parameters["@revID"].Value = ri.ReviewId;
+                            
+                            if (int.TryParse(AzureSettings.MagMatchTimeoutInMinutes, out MagMatchTimeoutInMinutes))  
+                                command.Parameters.Add(new SqlParameter("@customTimeoutInMinutes", MagMatchTimeoutInMinutes));
+                            
+                            command.Parameters.Add("@RETURN_VALUE", System.Data.SqlDbType.Int);
+                            command.Parameters["@RETURN_VALUE"].Direction = System.Data.ParameterDirection.ReturnValue;
+                            command.ExecuteNonQuery();
+                            if (command.Parameters["@RETURN_VALUE"].Value.ToString() == "-1")
+                            {
+                                _currentStatus = "Another matching job is already running for this review.";
+                                return;
+                            }
+                            else if (command.Parameters["@RETURN_VALUE"].Value.ToString() == "2")
+                                ErrorLogSink("Check for OA matching job concurrency (st_MagMatchingCheckOngoingLog) returned '2' which is NOT SUPPOSED TO HAPPEN!");
+                        }
+                    }
                     int MagLogId = MagLog.SaveLogEntry("MAG matching", "Starting", "Review: " + ri.ReviewId +
-                        ", Threads: " + AzureSettings.MagMatchItemsMaxThreadCount, ri.UserId);
+                                ", Threads: " + AzureSettings.MagMatchItemsMaxThreadCount, ri.UserId);
 
 #if CSLA_NETCORE
                     //see AppIsShuttingDown property to see how we're making graceful shutdown possible in both ER4 and ER6
@@ -144,6 +171,8 @@ namespace BusinessLibrary.BusinessClasses
             int errorCount = 0;
             string result;
             int totalCount = 0;
+            int partialCount = 0;
+            int UpdateLogEveryN_items = 200;
             ConcurrentQueue<string> resultQueue = new ConcurrentQueue<string>();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -155,6 +184,17 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
+                        Int64 ItemId = -1;
+                        //System.Timers.Timer timer = new System.Timers.Timer(20000);//update TB_MAG_LOG every 20 seconds
+                        //timer.Elapsed += (source, eventArgs) =>
+                        //{
+                        //    MagLog.UpdateLogEntry("Running", "Review: " + ReviewId + ", total: " + totalCount.ToString() +
+                        //                       ", errors: " + errorCount.ToString() + ", last: " + ItemId.ToString()
+                        //                       , MagLogId);
+                        //};
+                        //timer.AutoReset = true;
+                        //timer.Enabled = true;
+                        DateTime nextCheckpoint = DateTime.Now.AddSeconds(20);
                         while (reader.Read())
                         {
                             if (cancellationToken.IsCancellationRequested || AppIsShuttingDown)
@@ -170,7 +210,7 @@ namespace BusinessLibrary.BusinessClasses
                             if (activeThreadCount < maxThreadCount)
                             {
                                 Interlocked.Increment(ref activeThreadCount);
-                                Int64 ItemId = reader.GetInt64("ITEM_ID");
+                                ItemId = reader.GetInt64("ITEM_ID");
                                 Task.Run(() =>
                                 {
                                     try
@@ -200,7 +240,16 @@ namespace BusinessLibrary.BusinessClasses
                                         Interlocked.Decrement(ref activeThreadCount);
                                     }
                                 });
-
+                                partialCount++;
+                                if (DateTime.Now > nextCheckpoint || partialCount >= UpdateLogEveryN_items)
+                                {
+                                    nextCheckpoint = DateTime.Now.AddSeconds(20);
+                                    MagLog.UpdateLogEntry("Running", "Review: " + ReviewId + ", total: " + totalCount.ToString() +
+                                               ", errors: " + errorCount.ToString() + ", last: " + ItemId.ToString()
+                                               + ", processed " + partialCount.ToString() + " since last log-update."
+                                               , MagLogId);
+                                    partialCount = 0;
+                                }
                                 while (activeThreadCount >= maxThreadCount)
                                 {
                                     // Clear out queue
