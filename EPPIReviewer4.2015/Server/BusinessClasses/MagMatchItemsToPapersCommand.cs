@@ -184,7 +184,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        Int64 ItemId = -1;
+                        //Int64 ItemId = -1;
                         //System.Timers.Timer timer = new System.Timers.Timer(20000);//update TB_MAG_LOG every 20 seconds
                         //timer.Elapsed += (source, eventArgs) =>
                         //{
@@ -210,7 +210,7 @@ namespace BusinessLibrary.BusinessClasses
                             if (activeThreadCount < maxThreadCount)
                             {
                                 Interlocked.Increment(ref activeThreadCount);
-                                ItemId = reader.GetInt64("ITEM_ID");
+                                Int64 ItemId = reader.GetInt64("ITEM_ID");
                                 Task.Run(() =>
                                 {
                                     try

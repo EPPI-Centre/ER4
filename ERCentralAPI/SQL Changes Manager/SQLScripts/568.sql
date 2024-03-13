@@ -58,7 +58,7 @@ select [WEBDB_ID]
 		  ,w.HEADER_IMAGE_1
 		  ,w.HEADER_IMAGE_2
 		  ,w.HEADER_IMAGE_3
-		  ,[WORLD_MAP]
+		  --,[WORLD_MAP]
 		  ,[HIDDEN_FIELDS]
 	  FROM [TB_WEBDB] w
 	  inner join TB_CONTACT c1 on w.CREATED_BY = c1.CONTACT_ID
