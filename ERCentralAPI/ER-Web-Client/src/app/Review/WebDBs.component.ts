@@ -263,8 +263,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
     // this is recreating the list each time. Not very efficient but..
     // the list needs to be in the correct order to work correctly in EPPI Vis.
     // I may need to fix that somehow.
-    this.HiddenFieldsSetDataFromUI();   
-
+    this.HiddenFieldsSetDataFromUI();
   }
 
 
