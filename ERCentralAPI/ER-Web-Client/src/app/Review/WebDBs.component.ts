@@ -244,20 +244,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }
     }
-
-    // update hiddenFields
-    let hiddenFields = "";
-    for (let i = 0; i < this.FieldList.length; i++) {
-      if (this.FieldList[i].enabled == true) {
-        if (this.FieldList[i].selected == false) {
-          hiddenFields += this.FieldList[i].fieldName;
-          hiddenFields += ",";
-        }
-      }
-    }
-    if (this.EditingDB != null) {
-      this.EditingDB.hiddenFields = hiddenFields.substring(0, hiddenFields.length-1);
-    }
+    this.HiddenFieldsSetDataFromUI();
   }
 
 
@@ -276,19 +263,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
     // this is recreating the list each time. Not very efficient but..
     // the list needs to be in the correct order to work correctly in EPPI Vis.
     // I may need to fix that somehow.
-
-    let hiddenFields = "";
-    for (let i = 0; i < this.FieldList.length; i++) {
-      if (this.FieldList[i].enabled == true) {
-        if (this.FieldList[i].selected == false) {
-          hiddenFields += this.FieldList[i].fieldName;
-          hiddenFields += ",";
-        }
-      }
-    }
-    if (this.EditingDB != null) {
-      this.EditingDB.hiddenFields = hiddenFields.substring(0, hiddenFields.length - 1);
-    }
+    this.HiddenFieldsSetDataFromUI();   
 
   }
 
@@ -320,17 +295,37 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.EditingDB = this.WebDBService.CloneWebDBforEdit(item);
     //this.isExpanded = true;
 
+    this.HiddenFieldsSetUIfromData();
+  }
+
+  private HiddenFieldsSetUIfromData() {
     if (this.EditingDB != null) {
       let hiddenFields = this.EditingDB.hiddenFields;
       // set the values in FieldList
       for (let i = 0; i < this.FieldList.length; i++) {
         if (hiddenFields.includes(this.FieldList[i].fieldName)) {
           this.FieldList[i].selected = false;
+        } else {
+          this.FieldList[i].selected = true;
         }
       }
     }
-
   }
+  private HiddenFieldsSetDataFromUI() {
+    if (this.EditingDB != null) {
+      let hiddenFields = "";
+      for (let i = 0; i < this.FieldList.length; i++) {
+        if (this.FieldList[i].enabled == true) {
+          if (this.FieldList[i].selected == false) {
+            hiddenFields += this.FieldList[i].fieldName;
+            hiddenFields += ",";
+          }
+        }
+      }
+      this.EditingDB.hiddenFields = hiddenFields.substring(0, hiddenFields.length - 1);
+    }
+  }
+
 	CancelEdit() {
 		this.EditingDB = null;
 		this.EditingFilter = false;
