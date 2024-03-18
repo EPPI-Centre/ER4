@@ -230,6 +230,21 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		else return "";
     }
 
+
+  public get HasSelections(): number {
+    // how many checkboxes are ticked...
+    let selectedCount = 0;
+    for (let i = 0; i < this.FieldList.length; i++) {
+      if (this.FieldList[i].selected == true) {
+        selectedCount += 1;
+      }
+    }
+    // 29 fields, 6 fields are disabled
+    if (selectedCount == 6) return 0; // nothing selected
+    else if (selectedCount == 29) return 2; // all selected
+    else return 1; // partial selection
+  }
+
   public allFieldsSelectedUnselected(event: Event) {
     
     for (let i = 0; i < this.FieldList.length; i++) {
@@ -246,7 +261,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.HiddenFieldsSetDataFromUI();
   }
-
+  
 
   public FieldChangeSelected(fieldNumber: number, event: Event) {
     // update FieldList
@@ -302,10 +317,16 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
       let hiddenFields = this.EditingDB.hiddenFields;
       // set the values in FieldList
       for (let i = 0; i < this.FieldList.length; i++) {
-        if (hiddenFields.includes(this.FieldList[i].fieldName)) {
-          this.FieldList[i].selected = false;
-        } else {
+        // if the field is disabled, check the box
+        if (this.FieldList[i].enabled == false) {
           this.FieldList[i].selected = true;
+        }
+        else { // see if it is in the hidden list
+          if (hiddenFields.includes(this.FieldList[i].fieldName)) {
+            this.FieldList[i].selected = false;
+          } else {
+            this.FieldList[i].selected = true;
+          }
         }
       }
     }
