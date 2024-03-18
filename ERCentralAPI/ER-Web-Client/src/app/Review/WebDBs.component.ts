@@ -232,16 +232,10 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   public get HasSelections(): number {
-    // how many checkboxes are ticked...
-    let selectedCount = 0;
-    for (let i = 0; i < this.FieldList.length; i++) {
-      if (this.FieldList[i].selected == true) {
-        selectedCount += 1;
-      }
-    }
-    // 29 fields, 6 fields are disabled
-    if (selectedCount == 6) return 0; // nothing selected
-    else if (selectedCount == 29) return 2; // all selected
+    const OptionalFields = this.FieldList.filter(f => f.enabled == true);
+    const selectedCount = OptionalFields.filter(f => f.selected == true).length;
+    if (selectedCount == 0) return 0; // nothing selected
+    else if (selectedCount == OptionalFields.length) return 2; // all selected
     else return 1; // partial selection
   }
 
@@ -303,7 +297,8 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				headerImage1Url: '',
 				headerImage2Url: '',
         headerImage3Url: '',
-        hiddenFields: ''
+        hiddenFields: '',
+        SplittedHiddenFields: undefined
 			};
     }
 		this.EditingDB = this.WebDBService.CloneWebDBforEdit(item);
@@ -314,11 +309,11 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private HiddenFieldsSetUIfromData() {
     if (this.EditingDB != null) {
-      let hiddenFields = this.EditingDB.hiddenFields;
+      let hiddenFields = this.EditingDB.SplittedHiddenFields;
       // set the values in FieldList
       for (let i = 0; i < this.FieldList.length; i++) {
-        // if the field is disabled, check the box
-        if (this.FieldList[i].enabled == false) {
+        // if the field is disabled, or if no fields are hidden, check the box
+        if (this.FieldList[i].enabled == false || hiddenFields === undefined || hiddenFields.length === 0) {
           this.FieldList[i].selected = true;
         }
         else { // see if it is in the hidden list
@@ -333,10 +328,12 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   private HiddenFieldsSetDataFromUI() {
     if (this.EditingDB != null) {
+      this.EditingDB.SplittedHiddenFields = [];
       let hiddenFields = "";
       for (let i = 0; i < this.FieldList.length; i++) {
         if (this.FieldList[i].enabled == true) {
           if (this.FieldList[i].selected == false) {
+            this.EditingDB.SplittedHiddenFields.push(this.FieldList[i].fieldName);
             hiddenFields += this.FieldList[i].fieldName;
             hiddenFields += ",";
           }

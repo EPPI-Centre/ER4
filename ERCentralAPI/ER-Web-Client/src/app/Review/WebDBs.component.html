@@ -502,14 +502,15 @@
           <div class="rounded bg-white col w-100">
             Select fields to display<br />
             <ng-container [ngSwitch]="HasSelections">
-              <input *ngSwitchCase="0" type="checkbox" (click)="allFieldsSelectedUnselected($event)" class="my-auto" title="No outcomes selected" />
-              <input *ngSwitchCase="1" type="checkbox" (click)="allFieldsSelectedUnselected($event)" checked class="my-auto linear-fade" title="Some outcomes are selected" />
-              <input *ngSwitchDefault type="checkbox" checked (click)="allFieldsSelectedUnselected($event)" class="my-auto" title="All outcomes are selected" />
+              <input *ngSwitchCase="0" type="checkbox" (click)="allFieldsSelectedUnselected($event)" class="my-auto" title="All (optional) fields will be hidden" />
+              <input *ngSwitchCase="1" type="checkbox" (click)="allFieldsSelectedUnselected($event)" checked class="my-auto linear-fade" title="Some fields will be hidden" />
+              <input *ngSwitchDefault type="checkbox" checked (click)="allFieldsSelectedUnselected($event)" class="my-auto" title="All fields will be shown" />
             </ng-container>
-            <!--<input type='checkbox' checked (change)="allFieldsSelectedUnselected($event)" />--> Unselect/Select all
-            <textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.hiddenFields" rows="2"></textarea>
-            <br /><hr />
-            <div style="max-height:30vh;overflow-y:auto;">
+            Unselect/Select all
+            <!--<input type='checkbox' checked (change)="allFieldsSelectedUnselected($event)" />
+              <textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.hiddenFields" rows="2"></textarea>-->
+            
+            <div class="border-top" style="max-height:35vh;overflow-y:auto;">
               <table>
                 <tr *ngFor="let fields of FieldList">
                   <td>
