@@ -714,14 +714,11 @@
                                         <ColumnDefinition Width="40*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
 
-                                    <HyperlinkButton x:Name="LBMatchAllIncluded" FontSize="11" Grid.Row="0" Grid.Column="0" Content="Run auto-matching algorithm" Margin="5,5,5,5" Click="LBMatchAllIncluded_Click" Tag="All" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                     IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LBMatchAllIncluded" FontSize="11" Grid.Row="0" Grid.Column="0" Content="Run auto-matching algorithm" Margin="5,5,5,5" Click="LBMatchAllIncluded_Click" Tag="All" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"></HyperlinkButton>
                                     <HyperlinkButton x:Name="lbRefreshCounts" FontSize="11" Grid.Row="0" Grid.Column="1" Content="Refresh counts on this page" HorizontalAlignment="Left" VerticalAlignment="Center"
                                      Margin="5,5,5,5" Click="lbRefreshCounts_Click"  IsTabStop="False" Visibility="Collapsed"></HyperlinkButton>
-                                    <HyperlinkButton x:Name="LbClearAllMatchesInReview" Grid.Row="1" Grid.Column="0" Content="Clear all matches in review" Margin="5,5,5,5" Click="LbClearAllMatchesInReview_Click"  Tag="ALL" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                     IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"></HyperlinkButton>
-                                    <HyperlinkButton x:Name="LbClearAllNonManualMatchesInReview" Grid.Row="2" Grid.Column="0" Content="Clear all non-manual matches in review" Margin="5,5,5,5" Click="LbClearAllMatchesInReview_Click"  Tag="ALL NON-MANUAL" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                     IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LbClearAllMatchesInReview" Grid.Row="1" Grid.Column="0" Content="Clear all matches in review" Margin="5,5,5,5" Click="LbClearAllMatchesInReview_Click"  Tag="ALL" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LbClearAllNonManualMatchesInReview" Grid.Row="2" Grid.Column="0" Content="Clear all non-manual matches in review" Margin="5,5,5,5" Click="LbClearAllMatchesInReview_Click"  Tag="ALL NON-MANUAL" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"></HyperlinkButton>
 
                                     <telerik:RadBusyIndicator x:Name="busyIndicatorMatches" Grid.Row="0" Grid.RowSpan="7" Grid.Column="1" Background="Transparent" BorderBrush="Transparent" />
 

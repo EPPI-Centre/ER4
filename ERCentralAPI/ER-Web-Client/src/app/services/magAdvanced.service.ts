@@ -4,8 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { MAGBrowserService } from './MAGBrowser.service';
 import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,  
-      MagList,
-    MagCheckContReviewRunningCommand,  MagCurrentInfo} from './MAGClasses.service';
+      MagList, MagCheckContReviewRunningCommand,  MagCurrentInfo, iMagMatchItemsToPapersCommand} from './MAGClasses.service';
 import { Router } from '@angular/router';
 import { EventEmitterService } from './EventEmitter.service';
 import { MAGTopicsService } from './MAGTopics.service';
@@ -233,8 +232,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
     
     public FetchMagReviewMagInfo() {
         this._BusyMethods.push("FetchMagReviewMagInfo");
-        this._httpC.get<MagReviewMagInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagReviewMagInfo')
-            .subscribe(result => {
+        return lastValueFrom( this._httpC.get<MagReviewMagInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagReviewMagInfo')
+        ).then(result => {
                 this.RemoveBusy("FetchMagReviewMagInfo");
                 if (result != null) {
                     this.AdvancedReviewInfo = result;
@@ -243,7 +242,7 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
                 error => {
                     this.RemoveBusy("FetchMagReviewMagInfo");
                     this.modalService.GenericError(error);
-            },
+            }).catch(
             () => {
                 this.RemoveBusy("FetchMagReviewMagInfo");
             });
@@ -252,17 +251,17 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("RunMatchingAlgorithm");
         let body = JSON.stringify({ Value: attributeId});
-      return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm', body)
+      return lastValueFrom(this._httpC.post<iMagMatchItemsToPapersCommand>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm', body)
             ).then(
 
                 result => {
                     this.RemoveBusy("RunMatchingAlgorithm");
-                    return result;
+                    return result.currentStatus;
                 },
                 error => {
                     this.RemoveBusy("RunMatchingAlgorithm");
                     this.modalService.GenericError(error);
-                    return error;
+                    return error.toString();
                 });
     }
     public MagMatchItemsToPapers(itemId: number): Promise<MagPaper[]> {
