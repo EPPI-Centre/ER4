@@ -501,7 +501,12 @@
         <div class="col-12 col-sm-2 row m-0 p-0">
           <div class="rounded bg-white col w-100">
             Select fields to display<br />
-            <input type='checkbox' checked (change)="allFieldsSelectedUnselected($event)" /> Unselect/Select all
+            <ng-container [ngSwitch]="HasSelections">
+              <input *ngSwitchCase="0" type="checkbox" (click)="allFieldsSelectedUnselected($event)" class="my-auto" title="No outcomes selected" />
+              <input *ngSwitchCase="1" type="checkbox" (click)="allFieldsSelectedUnselected($event)" checked class="my-auto linear-fade" title="Some outcomes are selected" />
+              <input *ngSwitchDefault type="checkbox" checked (click)="allFieldsSelectedUnselected($event)" class="my-auto" title="All outcomes are selected" />
+            </ng-container>
+            <!--<input type='checkbox' checked (change)="allFieldsSelectedUnselected($event)" />--> Unselect/Select all
             <textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.hiddenFields" rows="2"></textarea>
             <br /><hr />
             <div style="max-height:30vh;overflow-y:auto;">
