@@ -306,7 +306,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
       this.ConfirmationDialogService.showMAGRunMessage('Matching has returned an error please try again. Contact EPPISupport if the problem repeats.');
     }
     else if (result == "Another matching job is already running for this review.") {
-      this.ConfirmationDialogService.showMAGRunMessage('Another matching job is already running for this review.');
+      this.ConfirmationDialogService.showWarningMessageInStrip('Another matching job is already running for this review.');
       this._magAdvancedService.AdvancedReviewInfo.matchingTaskIsRunning = true;
       if (!this.AutoRefreshIsRunning) this.AutoRefreshOnTimer(30);
     }

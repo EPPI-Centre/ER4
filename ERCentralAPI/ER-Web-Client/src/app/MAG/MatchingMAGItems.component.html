@@ -78,14 +78,14 @@
         <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
       </button>
       <button *ngIf="_magAdvancedService.AdvancedReviewInfo.matchingTaskIsRunning && !AutoRefreshIsRunning" class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand(); AutoRefreshOnTimer();">
-        Start Auto Refresh: <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+        Restart auto-refresh <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
       </button>
     </div>
   </div>
   <div *ngIf="AutoRefreshIsRunning" class="row">
     <div class="col-auto mx-auto row py-1">
-      <div class="col-auto mx-auto small rounded alert-info m-1">Matching Items: auto refreshing these figures every 30 seconds.</div>
-      <button class="btn btn-outline-info btn-sm ml-1" (click)="CancelAutoRefresh()">Cancel auto refresh</button>
+      <div class="col-auto mx-auto small rounded alert-info m-1">Auto-refresh will update the values every 30 seconds.</div>
+      <button class="btn btn-outline-info btn-sm ml-1" (click)="CancelAutoRefresh()">Cancel auto-refresh</button>   
     </div>
   </div>
 
