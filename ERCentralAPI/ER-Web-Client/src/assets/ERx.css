@@ -248,3 +248,6 @@ ul.k-tabstrip-items li.k-item.k-state-active {
   top: 0;
   z-index: 1;
 }
+.light-yellow-bg {
+  background-color: #fff3cd;
+}

@@ -63,6 +63,19 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
   @Input() HasAdminRights: boolean = false;//ditto. If not, any "on the fly" editing of coding is disabled.
   private _ReconcilingItem: ReconcilingItem | undefined = undefined;
   private _lastReconcilingItemId: number = 0;
+
+  private _MatchedOutcomesHTML: string = "";
+  @Input() public set MatchedOutcomesHTML(val: string) {
+    this._MatchedOutcomesHTML = val;
+  }
+  public get MatchedOutcomesHTML(): string { return this._MatchedOutcomesHTML; }
+
+  private _UnmatchedOutcomesHTML: string = "";
+  @Input() public set UnmatchedOutcomesHTML(val: string) {
+    this._UnmatchedOutcomesHTML = val;
+  }
+  public get UnmatchedOutcomesHTML(): string { return this._UnmatchedOutcomesHTML; }
+
   @Input() public set ReconcilingItem(it: ReconcilingItem | undefined) {
     //console.log("set ReconcilingItem", it, this._ReconcilingItem);
     if (it && (this._ReconcilingItem == undefined || this._ReconcilingItem.Item.itemId != it.Item.itemId)) {
@@ -107,7 +120,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
   //NodesState: ITreeState = {};// see https://angular2-tree.readme.io/docs/save-restore
   SelectedNode: ReconcilingSetAttribute | null = null;
   LoadPDFCoding: boolean = false;
-  ShowOutcomes: boolean = false;
+  ShowOutcomes: string = "none";
   FindingDisagreements: boolean = false;
   ShowingTransferPanelForCoding: ReconcilingCode | null = null;
   TransferringToReviewer: string = "reviewer2";//this is the key that drives who we are transferring coding to. All logic should refer to this value...
@@ -431,9 +444,9 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
   }
 
   OutcomeHTMLtable(data: Outcome[]): string {
-    return this.ItemCodingService.OutcomesTable(data, true);
+    return this.ItemCodingService.OutcomesTable(data, false);
   }
-
+  
   public DisagreementPosition(): number {
     if (this.SelectedNode !== null) {
       const curr = this.SelectedNode;

@@ -64,6 +64,8 @@
                               [ReconcilingItem]="allItems[selectedRow]"
                               [HasWriteRights]="HasWriteRights"
                               [HasAdminRights]="HasAdminRights"
+                              [MatchedOutcomesHTML] ="MatchedOutcomesHTML"
+                              [UnmatchedOutcomesHTML] ="UnmatchedOutcomesHTML"
                               (CompleteEvent)="Complete($event.item, $event.contactId)"
                               (CompleteAndLockEvent)="CompleteAndLock($event.item, $event.contactId)"
                               (UnCompleteEvent)="UnComplete($event)"
