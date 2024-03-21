@@ -741,75 +741,155 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     } else {
       this.MatchOutcomeInPairs(Outcomes1, Outcomes2, result);
     }
+    console.log("MatchOutcomesResult:", result);
     return result;
   }
 
   private MatchOutcomeInPairs(Outcomes1: Outcome[], Outcomes2: Outcome[], result: any[]): any[] {
-    let usedIds1: number[] = [];
-    let usedIds2: number[] = [];
+    //let usedIds1: number[] = [];
+    //let usedIds2: number[] = [];
     for (const o1 of Outcomes1) {
       o1.SetCalculatedValues();
       const o2s = Outcomes2.filter(f => f.outcomeTypeId == o1.outcomeTypeId && f.es == o1.es && f.sees == o1.sees);
       if (o2s.length == 1) {
         //easy case - we have only one possible match, we'll use it...
         let resLine = [o1.outcomeId, o2s[0].outcomeId];
-        usedIds1.push(o1.outcomeId);
-        usedIds2.push(o2s[0].outcomeId);
+        //usedIds1.push(o1.outcomeId);
+        //usedIds2.push(o2s[0].outcomeId);
         Outcomes2 = Outcomes2.filter(f => f.outcomeId != o2s[0].outcomeId); //remove the matched outcome
         result.push(resLine);
       } else if (o2s.length > 1) {
         //Difficult one, we'll try calculating an additional matching score, based on Intervention, Outcome, Comparison code, plus timepoint and arms.
         //Max total score is 6
-        let scoredMatches: OutcomeSimilaritiesKeyValue[] = [];
-        for (const o2 of o2s) {
-          let o2Score = new OutcomeSimilaritiesKeyValue(o2, 0);
-          if (o1.interventionText !== '' && o1.interventionText == o2.interventionText) o2Score.value++;
-          if (o1.outcomeText !== '' && o1.outcomeText == o2.outcomeText) o2Score.value++;
-          if (o1.controlText !== '' && o1.controlText == o2.controlText) o2Score.value++;
-          if (o1.itemTimepointId > 0 && o1.itemTimepointId == o2.itemTimepointId) o2Score.value++;
-          if (o1.itemArmIdGrp1 > 0 && o1.itemArmIdGrp1 == o2.itemArmIdGrp1) o2Score.value++;
-          if (o1.itemArmIdGrp2 > 0 && o1.itemArmIdGrp2 == o2.itemArmIdGrp2) o2Score.value++;
-
-          if (o2Score.value > 0) scoredMatches.push(o2Score);
-        }
-        let CurrentMaxScore: number = 6;
-        while (CurrentMaxScore >= 1) {
-          const matchesAtThisScore = scoredMatches.filter(f => f.value == CurrentMaxScore);
-          if (matchesAtThisScore.length == 1) {
-            //yay! we found a match!
-            let resLine = [o1.outcomeId, matchesAtThisScore[0].key.outcomeId];
-            usedIds1.push(o1.outcomeId);
-            usedIds2.push(matchesAtThisScore[0].key.outcomeId);
-            Outcomes2 = Outcomes2.filter(f => f.outcomeId != matchesAtThisScore[0].key.outcomeId); //remove the matched outcome
-            result.push(resLine);
-            CurrentMaxScore = -1;
-          } else if (matchesAtThisScore.length > 1) {
-            //too many matches, we're giving up for this outcome
-            CurrentMaxScore = -1;
-          }
-          else {
-            //lower the matching score and see if we find a unique match...
-            CurrentMaxScore--;
-          }
+        let bestMatchId = this.BestMatchOverOneToManyOutcomes(o1, o2s);
+        if (bestMatchId > 0) {
+          let resLine = [o1.outcomeId, bestMatchId];
+          //usedIds1.push(o1.outcomeId);
+          //usedIds2.push(bestMatchId);
+          Outcomes2 = Outcomes2.filter(f => f.outcomeId != bestMatchId);
+          result.push(resLine);
         }
       }
     }
     return result;
   }
-  
+
   private MatchOutcomeInTriplets(Outcomes1: Outcome[], Outcomes2: Outcome[], Outcomes3: Outcome[], result: any[]): any[] {
+    console.log('MatchOutcomeInTriplets!!!!!');
     for (const o1 of Outcomes1) {
       o1.SetCalculatedValues();
       const o2s = Outcomes2.filter(f => f.es == o1.es && f.sees == o1.sees);
       const o3s = Outcomes3.filter(f => f.es == o1.es && f.sees == o1.sees);
+      //dealing with cases from the easiest to the hardest
       if (o2s.length == 1 && o3s.length == 1) {
         let resLine = [o1.outcomeId, o2s[0].outcomeId, o3s[0].outcomeId];
+        //Outcomes1 = Outcomes1.filter(f => f.outcomeId != o1.outcomeId);
+        Outcomes2 = Outcomes2.filter(f => f.outcomeId != o2s[0].outcomeId);
+        Outcomes3 = Outcomes3.filter(f => f.outcomeId != o3s[0].outcomeId);
         result.push(resLine);
+      } else if (o2s.length == 1 && o3s.length == 0) {
+        let resLine = [o1.outcomeId, o2s[0].outcomeId, -1];
+        Outcomes2 = Outcomes2.filter(f => f.outcomeId != o2s[0].outcomeId);
+        result.push(resLine);
+      } else if (o2s.length == 0 && o3s.length == 1) {
+        let resLine = [o1.outcomeId, -1, o3s[0].outcomeId];
+        Outcomes3 = Outcomes3.filter(f => f.outcomeId != o3s[0].outcomeId);
+        result.push(resLine);
+      }
+      else if (o2s.length > 1 && o3s.length < 2) {
+        //need to pick one from o2s, but no ambiguity re o3s
+        const bestMatch = this.BestMatchOverOneToManyOutcomes(o1, o2s);
+        if (bestMatch > 0) {
+          if (o3s.length == 1) {
+            let resLine = [o1.outcomeId, bestMatch, o3s[0].outcomeId];
+            Outcomes2 = Outcomes2.filter(f => f.outcomeId != bestMatch);
+            Outcomes3 = Outcomes3.filter(f => f.outcomeId != o3s[0].outcomeId);
+            result.push(resLine);
+          } else {
+            let resLine = [o1.outcomeId, bestMatch, -1];
+            Outcomes2 = Outcomes2.filter(f => f.outcomeId != bestMatch);
+            result.push(resLine);
+          }
+        } else {
+          if (o3s.length == 1) {
+            let resLine = [o1.outcomeId, -1, o3s[0].outcomeId];
+            Outcomes3 = Outcomes3.filter(f => f.outcomeId != o3s[0].outcomeId);
+            result.push(resLine);
+          }
+        }
+      }
+      else if (o3s.length > 1 && o2s.length < 2) {
+        //need to pick one from o3s, but no ambiguity re o2s
+        const bestMatch = this.BestMatchOverOneToManyOutcomes(o1, o3s);
+        if (bestMatch > 0) {
+          if (o2s.length == 1) {
+            let resLine = [o1.outcomeId, o2s[0].outcomeId, bestMatch];
+            Outcomes2 = Outcomes2.filter(f => f.outcomeId != o2s[0].outcomeId);
+            Outcomes3 = Outcomes3.filter(f => f.outcomeId != bestMatch);
+            result.push(resLine);
+          } else {
+            let resLine = [o1.outcomeId, -1, bestMatch];
+            Outcomes3 = Outcomes3.filter(f => f.outcomeId != bestMatch);
+            result.push(resLine);
+          }
+        } else {
+          if (o2s.length == 1) {
+            let resLine = [o1.outcomeId, o2s[0].outcomeId, -1];
+            Outcomes3 = Outcomes3.filter(f => f.outcomeId != o3s[0].outcomeId);
+            result.push(resLine);
+          }
+        }
+      }
+      else if (o2s.length > 1 && o3s.length > 1) {
+        //meh, far too many possible matches!!
+        const bestMatch2s = this.BestMatchOverOneToManyOutcomes(o1, o2s);
+        const bestMatch3s = this.BestMatchOverOneToManyOutcomes(o1, o3s);
+        if (bestMatch2s > 0 || bestMatch3s > 0) {
+          //we do have something...
+          let resLine = [o1.outcomeId, bestMatch2s, bestMatch3s];
+          Outcomes2 = Outcomes2.filter(f => f.outcomeId != bestMatch2s);
+          Outcomes3 = Outcomes3.filter(f => f.outcomeId != bestMatch3s);
+          result.push(resLine);
+        }
       }
     }
     return result;
   }
 
+  private BestMatchOverOneToManyOutcomes(o1: Outcome, o2s: Outcome[]): number {
+    let scoredMatches: OutcomeSimilaritiesKeyValue[] = [];
+    for (const o2 of o2s) {
+      let o2Score = new OutcomeSimilaritiesKeyValue(o2, 0);
+      if (o1.interventionText !== '' && o1.interventionText == o2.interventionText) o2Score.value++;
+      if (o1.outcomeText !== '' && o1.outcomeText == o2.outcomeText) o2Score.value++;
+      if (o1.controlText !== '' && o1.controlText == o2.controlText) o2Score.value++;
+      if (o1.itemTimepointId > 0 && o1.itemTimepointId == o2.itemTimepointId) o2Score.value++;
+      if (o1.itemArmIdGrp1 > 0 && o1.itemArmIdGrp1 == o2.itemArmIdGrp1) o2Score.value++;
+      if (o1.itemArmIdGrp2 > 0 && o1.itemArmIdGrp2 == o2.itemArmIdGrp2) o2Score.value++;
+
+      if (o2Score.value > 0) scoredMatches.push(o2Score);
+    }
+    let CurrentMaxScore: number = 6;
+    while (CurrentMaxScore >= 1) {
+      const matchesAtThisScore = scoredMatches.filter(f => f.value == CurrentMaxScore);
+      if (matchesAtThisScore.length == 1) {
+        return matchesAtThisScore[0].key.outcomeId;
+      } else if (matchesAtThisScore.length > 1) {
+        //too many matches, what can we do?
+        if (CurrentMaxScore >= 4) {
+          //outcomes are similar enough, we'll take the 1st as a possible match - better than giving up entirely?
+          return matchesAtThisScore[0].key.outcomeId;
+        }
+        //otherwise we do give up
+        return -1;
+      }
+      else {
+        //lower the matching score and see if we find a unique match...
+        CurrentMaxScore--;
+      }
+    }
+    return -1;
+  }
   public GetUnmatchedOutcomes(Outcomes: Outcome[], matchedIds: any[], position: number): Outcome[] {
     let res = Outcomes;
     for (let row of matchedIds ) {

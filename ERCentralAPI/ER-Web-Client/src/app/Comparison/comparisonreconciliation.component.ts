@@ -364,14 +364,15 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
     }
     let MatchedToDo: Outcome[] = [];
     for (const matched of this.allItems[this.selectedRow].MatchedOutcomes) {
-      let ToAdd = this.allItems[this.selectedRow].OutcomesReviewer1.find(f => f.outcomeId === (matched[0] as Outcome).outcomeId);
+      let ToAdd = this.allItems[this.selectedRow].OutcomesReviewer1.find(f => matched[0] && f.outcomeId === (matched[0] as Outcome).outcomeId);
       if (ToAdd) MatchedToDo.push(ToAdd);
-      ToAdd = this.allItems[this.selectedRow].OutcomesReviewer2.find(f => f.outcomeId === (matched[1] as Outcome).outcomeId);
+      ToAdd = this.allItems[this.selectedRow].OutcomesReviewer2.find(f => matched[1] && f.outcomeId === (matched[1] as Outcome).outcomeId);
       if (ToAdd) MatchedToDo.push(ToAdd);
       if (this.allItems[this.selectedRow].OutcomesReviewer3.length > 0 && matched[2]) {
-        ToAdd = this.allItems[this.selectedRow].OutcomesReviewer3.find(f => f.outcomeId === (matched[2] as Outcome).outcomeId);
+        ToAdd = this.allItems[this.selectedRow].OutcomesReviewer3.find(f => matched[2] && f.outcomeId === (matched[2] as Outcome).outcomeId);
         if (ToAdd) MatchedToDo.push(ToAdd);
       }
+      console.log("SetMatchedOutcomesHTML", MatchedToDo);
       res += this.ItemCodingService.GetOutcomeTableForComparison(MatchedToDo, this.CurrentComparison.contactName1, this.CurrentComparison.contactName2, this.CurrentComparison.contactName3) + "<br />";
       MatchedToDo = [];
     }

@@ -442,27 +442,27 @@ export class ReconcilingItem {
   public SetMatchedOutcomes(Ids: any[]) {
     this._MatchedOutcomes = [];
     if (Ids.length == 0) return;
-    let IsThreeWay: boolean = false;
-    if (Ids[0][2] == undefined) IsThreeWay = true;
+    let IsThreeWay: boolean = true;
+    if (Ids[0][2] == undefined) IsThreeWay = false;
 
     for (const OutcIds of Ids) {
-      let NewLine: Outcome[] = [];
+      let NewLine: (Outcome|undefined)[] = [];
       let o1 = this._OutcomesReviewer1.find(f => f.outcomeId == OutcIds[0]);
       let o2 = this._OutcomesReviewer2.find(f => f.outcomeId == OutcIds[1]);
       if (IsThreeWay) {
-        let o3 = this._OutcomesReviewer2.find(f => f.outcomeId == OutcIds[1]);
-        if (o1 && o2 && o3) {
+        let o3 = this._OutcomesReviewer3.find(f => f.outcomeId == OutcIds[2]);
+        //if (o1 && o2 && o3) {
           NewLine.push(o1);
           NewLine.push(o2);
           NewLine.push(o3);
           this._MatchedOutcomes.push(NewLine);
-        }
+        //}
       } else {
-        if (o1 && o2 ) {
+        //if (o1 && o2 ) {
           NewLine.push(o1);
           NewLine.push(o2);
           this._MatchedOutcomes.push(NewLine);
-        }
+        //}
       }
     }
   }
