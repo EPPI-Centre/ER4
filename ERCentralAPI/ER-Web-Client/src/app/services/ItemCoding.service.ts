@@ -853,6 +853,16 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
         }
       }
     }
+    if (Outcomes2.length > 0 && Outcomes3.length > 0) {
+      //we matched Outcomes1 against the other two, but we still have unmatched outcomes in the latter two, so we'll try matching them pairwise
+      let PairwiseResult: any[] = [];
+      this.MatchOutcomeInPairs(Outcomes2, Outcomes3, PairwiseResult);
+      for (const pwline of PairwiseResult) {
+        let resLine = [-1, pwline[0], pwline[1]];
+        //no need to filter Outcomes2, Outcomes3 as we're done using them
+        result.push(resLine);
+      }
+    }
     return result;
   }
 

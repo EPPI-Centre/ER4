@@ -1,5 +1,5 @@
 <div class="row mx-1 px-0 bg-white">
-  <div class="border rounded border-success text-success px-2 py-0 my-1 mx-auto">
+  <div class="border rounded border-success text-success px-2 py-0 mt-1 mb-auto mx-auto">
     <div class="row mx-0 px-0">
       <div class="mx-1 my-1">Browse Disagreements:</div>
       <button (click)="FirstDisagreement()" [disabled]="FindingDisagreements || Disagreements.length == 0"
@@ -35,11 +35,13 @@
       </div>
     </ng-template>
   </div>
-  <div class="mr-1 my-auto">
-    <div>Show PDF Coding? <input type="checkbox" [(ngModel)]="LoadPDFCoding" /></div>
-    <div>Don't show Outcomes <input type="radio" name="showOutcomesRB" value="none" [(ngModel)]="ShowOutcomes" /></div>
-    <div>Show per-reviewer Outcomes <input type="radio" name="showOutcomesRB" value="allOutcomes" [(ngModel)]="ShowOutcomes" /></div>
-    <div>Attempt to match Ouctomes <input type="radio" name="showOutcomesRB" value="matchedOutcomes" [(ngModel)]="ShowOutcomes" /></div>
+  <div class="mr-1 my-auto small pl-1">
+    <div class="d-flex mt-1">Show PDF Coding? <input type="checkbox" class="m-1" [(ngModel)]="LoadPDFCoding" /></div>
+    <div class="rounded border border-success mx-1 mb-1 px-1">
+      <div class="d-flex">Don't show Outcomes <input type="radio" name="showOutcomesRB" class="m-1" value="none" [(ngModel)]="ShowOutcomes" /></div>
+      <div class="d-flex">Show per-reviewer Outcomes <input type="radio" name="showOutcomesRB" class="m-1" value="allOutcomes" [(ngModel)]="ShowOutcomes" /></div>
+      <div class="d-flex">Attempt to match Ouctomes <input type="radio" name="showOutcomesRB" class="m-1" value="matchedOutcomes" [(ngModel)]="ShowOutcomes" /></div>
+    </div>
   </div>
 </div>
 <div class="mx-1 px-0 bg-light" *ngIf="nodes && nodes.length > 0 ">
@@ -348,7 +350,25 @@
 
   <div *ngIf="ShowOutcomes == 'matchedOutcomes' && ReconcilingItem && ReconcilingItem.MatchedOutcomes.length > 0"
        class="mx-0 px-1 border-success border-top mb-1" style="max-height:40vh;overflow-y:auto;">
-
+    <div class="row mx-0 px-1 d-flex">
+      <div class="my-auto font-weight-bold mr-1">Matched Outcomes</div>
+      <button (click)="SaveMatchedOutcomes()" [disabled]="MatchedOutcomesHTML.length == 0 && UnmatchedOutcomesHTML.length == 0"
+              title="Save as Html (Supports opening in Word)"
+              type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+        <span class="k-icon k-i-save"></span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary py-0 mx-1 my-auto" (click)="ShowMatchedOutcomesHelp = !ShowMatchedOutcomesHelp">
+        <span style="font-weight: bold; color: blue;">?</span>
+      </button>
+    </div>
+    <div *ngIf="ShowMatchedOutcomesHelp" class="mx-auto my-1 px-2 py-1 alert alert-info">
+      <p class="mb-0 small">People may extract the same outcome measure in many different ways, thus matching between version extracted by different reviewers
+      has to be done in a <strong>best effort</strong> way.<br />
+      EPPI Reviewer thus attempts to match outcomes in a way that minimises false positives (might be more confusing than helpful).
+      To this aim, outcomes will never match if they have different type, effect size or standard error.<br />
+      The other elements considered in finding matches are: the "Ouctome", "Intervention" and "Comparison" codes seleted, as well as Arms and Timepoints.
+      </p>
+    </div>
     <div [innerHTML]="MatchedOutcomesHTML"></div>
     <div [innerHTML]="UnmatchedOutcomesHTML"></div>
 
@@ -356,9 +376,17 @@
 
   <div *ngIf="ShowOutcomes == 'allOutcomes' && ReconcilingItem && (ReconcilingItem.OutcomesReviewer1.length > 0 || ReconcilingItem.OutcomesReviewer2.length > 0 || ReconcilingItem.OutcomesReviewer3.length > 0)"
        class="row mx-0 px-1 border-success border-top border-bottom mb-1" style="max-height:40vh;overflow-y:auto;">
-    <div class="border-bottom border-info col-12" *ngIf="ReconcilingItem && ReconcilingItem.OutcomesReviewer1.length > 0">
-      ALL Outcomes for {{CurrentComparison.contactName1}} <br />
-      <div  [innerHTML]="OutcomeHTMLtable(ReconcilingItem.OutcomesReviewer1)"></div>
+    
+    <div class="border-bottom border-info col-12" *ngIf="ReconcilingItem">
+      Outcomes for {{CurrentComparison.contactName1}}
+      <button (click)="SavePerReviewerOutcomes()"
+        [disabled]="ReconcilingItem.OutcomesReviewer1.length == 0 && ReconcilingItem.OutcomesReviewer2.length == 0 && ReconcilingItem.OutcomesReviewer3.length"
+        title="Save as Html (Supports opening in Word)"
+        type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+      <span class="k-icon k-i-save"></span>
+      </button>
+      <br />
+      <div [innerHTML]="OutcomeHTMLtable(ReconcilingItem.OutcomesReviewer1)"></div>
     </div>
     <div class="border-bottom border-info col-12" *ngIf="ReconcilingItem && ReconcilingItem.OutcomesReviewer2.length > 0">
       Outcomes for {{CurrentComparison.contactName2}} <br />

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter, Inject } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 import { Outcome } from '../services/outcomes.service';
@@ -9,6 +9,7 @@ import { ItemCodingService, ItemAttPDFCodingCrit } from '../services/ItemCoding.
 import { ItemDocsService, ItemDocument } from '../services/itemdocs.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';
+import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 
 @Component({
   selector: 'ReconcilingCodesetTree',
@@ -37,7 +38,8 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
     private ReviewerIdentityServ: ReviewerIdentityService,
     private ReviewSetsService: ReviewSetsService,
     private ItemCodingService: ItemCodingService,
-    private ItemDocsService: ItemDocsService
+    private ItemDocsService: ItemDocsService,
+    @Inject('BASE_URL') private _baseUrl: string
   ) { }
 
   @ViewChild('SingleCodeSetTree1') treeComponent1!: TreeViewComponent;
@@ -69,6 +71,8 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
     this._MatchedOutcomesHTML = val;
   }
   public get MatchedOutcomesHTML(): string { return this._MatchedOutcomesHTML; }
+  public ShowMatchedOutcomesHelp: boolean = false;
+
 
   private _UnmatchedOutcomesHTML: string = "";
   @Input() public set UnmatchedOutcomesHTML(val: string) {
@@ -446,7 +450,40 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
   OutcomeHTMLtable(data: Outcome[]): string {
     return this.ItemCodingService.OutcomesTable(data, false);
   }
-  
+  SaveMatchedOutcomes() {
+    if (this.ReconcilingItem) {
+      let title = "Matched Outcomes for Item: " + this.ReconcilingItem.Item.shortTitle + " - (Id: " + this.ReconcilingItem.Item.itemId + ")";
+      let HTML = "<p><strong>" + title + "</strong></p>"
+        + "<div>" + this.MatchedOutcomesHTML + "</div><div>" + this.UnmatchedOutcomesHTML + "</div>";
+      const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(HTML, this._baseUrl, title));
+      saveAs(dataURI, "Matched Outcomes (Id " + this.ReconcilingItem.Item.itemId + ").html");
+    }
+  }
+
+  SavePerReviewerOutcomes() {
+    if (this.ReconcilingItem) {
+      let title = "Per-reviewer Outcomes for Item: " + this.ReconcilingItem.Item.shortTitle + " - (Id: " + this.ReconcilingItem.Item.itemId + ")";
+      let HTML = "<p><strong>" + title + "</strong></p>";
+      if (this.CurrentComparison.contactName3 != "") {
+        HTML += "Reviewers in this comparison are: " + this.CurrentComparison.contactName1 + ", "
+          + this.CurrentComparison.contactName2 + " and " + this.CurrentComparison.contactName3 + ".<br /><br />";
+        HTML += "Outcomes for <strong>" + this.CurrentComparison.contactName1 + "</strong> <br />"
+          + "<div>" + this.OutcomeHTMLtable(this.ReconcilingItem.OutcomesReviewer1)
+          + "</div><br /> Outcomes for <strong>" + this.CurrentComparison.contactName2 + "</strong> <br />"
+          + "<div>" + this.OutcomeHTMLtable(this.ReconcilingItem.OutcomesReviewer2)
+          + "</div><br /> Outcomes for <strong>" + this.CurrentComparison.contactName3 + "</strong> <br />"
+          + "<div>" + this.OutcomeHTMLtable(this.ReconcilingItem.OutcomesReviewer3) + "</div>";
+      } else {
+        HTML += "Outcomes for <strong>" + this.CurrentComparison.contactName1 + "</strong> <br />"
+          + "<div>" + this.OutcomeHTMLtable(this.ReconcilingItem.OutcomesReviewer1)
+          + "</div><br /> Outcomes for <strong>" + this.CurrentComparison.contactName2 + "</strong> <br />"
+          + "<div>" + this.OutcomeHTMLtable(this.ReconcilingItem.OutcomesReviewer2) + "</div>";
+      }
+      const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(HTML, this._baseUrl, title));
+      saveAs(dataURI, "Per-reviewer Outcomes (Id " + this.ReconcilingItem.Item.itemId + ").html");
+    }
+  }
+
   public DisagreementPosition(): number {
     if (this.SelectedNode !== null) {
       const curr = this.SelectedNode;
