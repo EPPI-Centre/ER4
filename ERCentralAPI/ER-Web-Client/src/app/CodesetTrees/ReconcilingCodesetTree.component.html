@@ -348,7 +348,7 @@
     </div>
   </div>
 
-  <div *ngIf="ShowOutcomes == 'matchedOutcomes' && ReconcilingItem && ReconcilingItem.MatchedOutcomes.length > 0"
+  <div *ngIf="ShowOutcomes == 'matchedOutcomes' && ReconcilingItem && ReconcilingItem.HasOutcomes"
        class="mx-0 px-1 border-success border-top mb-1" style="max-height:40vh;overflow-y:auto;">
     <div class="row mx-0 px-1 d-flex">
       <div class="my-auto font-weight-bold mr-1">Matched Outcomes</div>
@@ -374,15 +374,15 @@
 
   </div>
 
-  <div *ngIf="ShowOutcomes == 'allOutcomes' && ReconcilingItem && (ReconcilingItem.OutcomesReviewer1.length > 0 || ReconcilingItem.OutcomesReviewer2.length > 0 || ReconcilingItem.OutcomesReviewer3.length > 0)"
+  <div *ngIf="ShowOutcomes == 'allOutcomes' && ReconcilingItem && ReconcilingItem.HasOutcomes"
        class="row mx-0 px-1 border-success border-top border-bottom mb-1" style="max-height:40vh;overflow-y:auto;">
     
     <div class="border-bottom border-info col-12" *ngIf="ReconcilingItem">
       Outcomes for {{CurrentComparison.contactName1}}
       <button (click)="SavePerReviewerOutcomes()"
-        [disabled]="ReconcilingItem.OutcomesReviewer1.length == 0 && ReconcilingItem.OutcomesReviewer2.length == 0 && ReconcilingItem.OutcomesReviewer3.length"
-        title="Save as Html (Supports opening in Word)"
-        type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+        [disabled]="!ReconcilingItem.HasOutcomes"
+        title="Save Outcomes table..." type="button"
+        class="btn btn-sm btn-outline-primary py-0 px-1 my-1 ml-auto" style="position: absolute; right:12px;">
       <span class="k-icon k-i-save"></span>
       </button>
       <br />

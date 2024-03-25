@@ -178,8 +178,8 @@
                             {{recon.CodesReviewer1[jj-1].Name}}
                           </button>
                           <!--<span [hidden]="!hidemearms[jj]"
-                          *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
-                          class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">-->
+                      *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
+                      class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">-->
                           <div *ngIf="hidemearms[jj] && recon.CodesReviewer1[jj-1].InfoBox != ''"
                                class="col-md-12 small mt-1 p-1 bg-white border border-dark ">
                             <b>[Info Box]</b>{{recon.CodesReviewer1[jj-1].InfoBox}}
@@ -338,7 +338,62 @@
         </div>
 
       </div>
-      <paginatorComp></paginatorComp>
+      <div class="m-0 p-0 d-flex">
+        <paginatorComp class="col-9"></paginatorComp>
+        <div class="col-3 d-flex justify-content-end">
+          <div *ngIf="IsServiceBusy() && LoadingMsg != ''" class="my-auto"><div class="alert-warning small px-1 rounded my-auto">{{LoadingMsg}}</div></div>
+          <button (click)="ShowSaveReportOptions = !ShowSaveReportOptions"
+                  title="Open Save Report options"
+                  type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+            Reconciliation Report...
+          </button>
+        </div>
+      </div>
+      <div *ngIf="ShowSaveReportOptions">
+        <div class="d-flex justify-content-center">
+          <div class="co p-1 mx-0 mt-2 row bg-white rounded">
+            <div class="col-auto ml-auto mr-0 px-0">
+              <div class="d-flex">Show short title: <input type="checkbox" class="m-1" [(ngModel)]="showShortTitle" /></div>
+              <div class="d-flex">Show full title: <input type="checkbox" class="m-1" [(ngModel)]="showFullTitle" /></div>
+              <div class="d-flex">Show abstract: <input type="checkbox" class="m-1" [(ngModel)]="showAbstract" /></div>
+              <div class="d-flex">Show full code path:  <input type="checkbox" class="m-1" [(ngModel)]="showFullPath" /></div>
+              <div class="d-flex">Show additional text (info box): <input type="checkbox" class="m-1" [(ngModel)]="showInfoBox" /></div>
+              
+            </div>
+            <div class="col-auto mr-auto my-auto">
+              <div class="rounded  ml-0 px-1 border border-info">
+                <div class="d-flex">Don't show Outcomes <input type="radio" name="showOutcomesRB" class="m-1" value="none" [(ngModel)]="showOutcomes" /></div>
+                <div class="d-flex">Show per-reviewer Outcomes <input type="radio" name="showOutcomesRB" class="m-1" value="allOutcomes" [(ngModel)]="showOutcomes" /></div>
+                <div class="d-flex">Attempt to match Ouctomes <input type="radio" name="showOutcomesRB" class="m-1" value="matchedOutcomes" [(ngModel)]="showOutcomes" /></div>
+              </div>
+              <div class="d-flex justify-content-center small p-1">
+                <div class="alert-info rounded mx-auto small p-1">PDF coding is not available for this report type</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 row my-1">
+          <div class="col-auto mx-auto">
+            <button (click)="BuildReconcileReport()"
+                    title="Get Reconciliation Report"
+                    type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+              Get Reconcile Report
+            </button>
+            <button (click)="ShowSaveReportOptions = false;"
+                    title="Close Reconcile Report Options"
+                    type="button" class="btn btn-sm btn-outline-dark py-0 px-1 my-auto mx-1">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="showReconcileReportHTML" class="col-12 p-1 m-1 border border-primary rounded">
+        <ng-container *ngTemplateOutlet="miniToolbar"></ng-container>
+        <div [innerHTML]="this.ReconcileReportHTML" class="border-primary border-top border-bottom p-1 my-1" style="max-height:50vh; overflow:auto;"></div>
+        <ng-container *ngTemplateOutlet="miniToolbar"></ng-container>
+      </div>
+    
+
       <div *ngIf="panelItem" class="col-12 row p-0 m-0 border-top border-success">
         <span class="col-6 row p-0 mx-0 " style="max-height: 30vh; overflow-y: auto;">
           <span class="row col-12 border-top ml-0 pl-0">
@@ -404,3 +459,27 @@
   </div>
   <statusbar class="mt-1"></statusbar>
 </div>
+<ng-template #miniToolbar>
+  <div class="row mx-1">
+    <button (click)="SaveReconciliationReport()"
+            title="Save Reconciliation Report"
+            type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+      Save report<span class="k-icon k-i-save ml-1" style="top:-2px;"></span>
+    </button>
+    <button (click)="showReconcileReportHTML = false;"
+            title="Close Reconcile Report"
+            type="button" class="btn btn-sm btn-outline-dark py-0 px-1 my-auto mx-1">
+      Close
+    </button>
+    <button *ngIf="!ShowSaveReportOptions" (click)="ShowSaveReportOptions = !ShowSaveReportOptions"
+            title="Show Report options"
+            type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+      Show Report options...
+    </button>
+    <button *ngIf="ShowSaveReportOptions" (click)="ShowSaveReportOptions = !ShowSaveReportOptions"
+            title="Hide Report options"
+            type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+      Hide Report options...
+    </button>
+  </div>
+</ng-template>
