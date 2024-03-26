@@ -393,7 +393,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
                 ToAdd = this.allItems[index].OutcomesReviewer3.find(f => matched[2] && f.outcomeId === (matched[2] as Outcome).outcomeId);
                 if (ToAdd) MatchedToDo.push(ToAdd);
             }
-            console.log("SetMatchedOutcomesHTML", MatchedToDo);
+            //console.log("SetMatchedOutcomesHTML", MatchedToDo);
             res += this.ItemCodingService.GetOutcomeTableForComparison(MatchedToDo, this.CurrentComparison.contactName1, this.CurrentComparison.contactName2, this.CurrentComparison.contactName3) + "<br />";
             MatchedToDo = [];
         }
