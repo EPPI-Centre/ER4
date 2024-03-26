@@ -1171,7 +1171,16 @@ export class Outcome implements iOutcome {
     }
 
   }
-  outcomeId: number = 0;
+  private _outcomeId: number = 0;
+  public get outcomeId(): number {
+    return this._outcomeId;
+  }
+  public set outcomeId(val: number) {
+    this._outcomeId = val;
+    for (let Occ of this.outcomeCodes.outcomeItemAttributesList) {
+      Occ.outcomeId = val;
+    }
+  }
   itemSetId: number = 0;
   public outcomeTypeName: string = "Continuous: Ns, means and SD";
   //public get outcomeTypeName(): string {
