@@ -362,11 +362,12 @@
       </button>
     </div>
     <div *ngIf="ShowMatchedOutcomesHelp" class="mx-auto my-1 px-2 py-1 alert alert-info">
-      <p class="mb-0 small">People may extract the same outcome measure in many different ways, thus matching between version extracted by different reviewers
-      has to be done in a <strong>best effort</strong> way.<br />
-      EPPI Reviewer thus attempts to match outcomes in a way that minimises false positives (might be more confusing than helpful).
-      To this aim, outcomes will never match if they have different type, effect size or standard error.<br />
-      The other elements considered in finding matches are: the "Ouctome", "Intervention" and "Comparison" codes seleted, as well as Arms and Timepoints.
+      <p class="mb-0 small">
+        People may extract the same outcome measure in many different ways thus trying to group outcomes for comparison can only be done in
+        a <strong>best effort</strong> way.<br>
+        EPPI Reviewer attempts to match outcomes in a way that minimises false positives so outcomes must have similar
+        Outcome types (Type) AND Effect Size (ES) AND/OR Standard Error (SE) to be placed in a comparison.<br>
+        The other elements considered in finding matches are: the "Outcome", "Intervention" and "Comparison" codes seleted, as well as Arms and Timepoints.<br>
       </p>
     </div>
     <div [innerHTML]="MatchedOutcomesHTML"></div>
