@@ -475,28 +475,38 @@
             <asp:Label ID="lblInstructionsLinkCreate" runat="server" />
             <asp:Label ID="lblResultLinkCreate" runat="server" Visible="false" style="font-weight: 700" ForeColor="#FF3300"/>
             <p>
+                <asp:HyperLink runat="server" ID="linkReturnOld"  NavigateUrl="~/Login.aspx" Text="Return" /> 
+            </p>
+        </asp:Panel>
+
+        <asp:Panel ID="pnlResetPassword" runat="server" Visible="False">
+            <asp:Table ID="tableResetPassword" runat="server">
+                <asp:TableRow runat="server" style="font-weight: 700; color:#FFFFFF;">
+                    <asp:TableCell ID="TableCell1" runat="server" style="background-image: url('Images/Web2strip3.gif'); ">
+                        <asp:Label ID="TableCell1Text" runat="server" />
+                    </asp:TableCell><asp:TableCell ID="TableCell2" runat="server" >&nbsp;&nbsp;</asp:TableCell><asp:TableCell ID="TableCell4" runat="server" RowSpan="2">
+                        <asp:Button ID="btForgottenPasswordLinkCreate" runat="server" Text="Reset Password" onclick="btForgottenPasswordLinkCreate_Click"  />
+                    </asp:TableCell></asp:TableRow><asp:TableRow runat="server">
+                    <asp:TableCell ID="TableCell3" runat="server" >
+                        <asp:TextBox ID="tbxEmailLinkCreateNew" runat="server" CssClass="textbox"></asp:TextBox>
+                    </asp:TableCell></asp:TableRow></asp:Table><br /><asp:Label ID="lblInstructionsLinkCreateNew1" runat="server" />
+                <asp:LinkButton runat="server" ID="lbChangeToUsername" onclick="lbChangeToUserName_Click" Text="here" >
+                </asp:LinkButton><asp:LinkButton runat="server" ID="lbChangeToEmail" onclick="lnkbtForgottenpw_Click" Text="here" >
+                    </asp:LinkButton><asp:Label ID="lblInstructionsLinkCreateNew2" runat="server" />
+                <asp:Label ID="lblInstructionsLinkCreateNew3" runat="server" /> 
+            <asp:Label ID="lblResultLinkCreate1" runat="server" Visible="false" style="font-weight: 700" ForeColor="#FF3300"/>
+            <p>
                 <asp:HyperLink runat="server" ID="linkReturn"  NavigateUrl="~/Login.aspx" Text="Return" /> 
             </p>
         </asp:Panel>
+
         <asp:Panel ID="pnlAccountCreated" runat="server" Visible="False">
-            <p>Thank you <asp:Label runat="server" ID="lblCreatedFullName"></asp:Label>,</p>
-            <p>You have created a new EPPI-Reviewer account.
-            </p>
-            <p>    The username is:<b> <asp:Label ID="lblCreatedUsername" runat="server"></asp:Label>
-                </b><br />
-            
-                The account email is: <b>
-                <asp:Label ID="lblCreatedEmail" runat="server"></asp:Label>
-                </b>
-            </p>
-            <p>A <strong>Verify and activate account</strong> email has been sent to you. In order to use 
+            <p>Thank you <asp:Label runat="server" ID="lblCreatedFullName"></asp:Label>,</p><p>You have created a new EPPI-Reviewer account. </p><p>    The username is:<b> <asp:Label ID="lblCreatedUsername" runat="server"></asp:Label></b><br />The account email is: <b><asp:Label ID="lblCreatedEmail" runat="server"></asp:Label></b></p><p>A <strong>Verify and activate account</strong> email has been sent to you. In order to use 
                 your account you <b>must activate it</b> by clicking the link included in the 
                 email (<span class="style11">please check your inbox or your SPAM folders if you 
-                cannot find the email</span>). <br />
-                This link will only remain available for a limited amount of time. Once the link 
+                cannot find the email</span>). <br />This link will only remain available for a limited amount of time. Once the link 
                 expires, you can use the &quot;Need to activate your account?&quot; link in the Account 
-                Manager logon page.<br /> 
-            <asp:Label ID="lblErrorCreatingExampleReview" runat="server" Visible="false" style="font-weight: 700" ForeColor="#FF3300"/>
+                Manager logon page.<br /> <asp:Label ID="lblErrorCreatingExampleReview" runat="server" Visible="false" style="font-weight: 700" ForeColor="#FF3300"/>
             </p>
         </asp:Panel>
         
