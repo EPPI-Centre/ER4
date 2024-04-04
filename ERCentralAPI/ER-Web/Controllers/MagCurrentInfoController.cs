@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
-using System.Linq;
-using Microsoft.Azure.Management.DataFactory.Models;
 
 namespace ERxWebClient2.Controllers
 {

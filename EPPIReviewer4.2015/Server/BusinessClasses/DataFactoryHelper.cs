@@ -3,7 +3,6 @@ using BusinessLibrary.Security;
 using Microsoft.Azure.DataLake.Store;
 using Microsoft.Azure.Management.DataFactory;
 using Microsoft.Azure.Management.DataLake.Analytics;
-using Microsoft.Azure.Management.DataLake.Analytics.Models;
 using Microsoft.Azure.Management.DataLake.Store;
 using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Rest;
