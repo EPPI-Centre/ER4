@@ -150,7 +150,8 @@ namespace BusinessLibrary.BusinessClasses
                 _message = "Short or non-existent title and abstract";
                 return false;
             }
-            int wordCount = i.Abstract.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+            char[] chars = { ' ' };
+            int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
             if (wordCount > 3500)
             {
                 _message = "Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";

@@ -210,7 +210,8 @@ export class OutcomesService extends BusyAwareService {
 
     //console.log('outcome codes are: ' + JSON.stringify(currentOutcome.outcomeCodes));
     this._BusyMethods.push("UpdateOutcome");
-    
+    //let iOut: iOutcome = currentOutcome as iOutcome;
+    //iOut.outcomeId = currentOutcome.outcomeId;
     return lastValueFrom(this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/UpdateOutcome', currentOutcome)
       ).then(
         (result) => {
@@ -470,6 +471,34 @@ export class Outcome implements iOutcome {
       this.ciLower = iO.ciLower;
       this.nRows = iO.nRows;
     }
+  }
+
+  private static ListOfGetKeys: iNamesOfGetKeys[] = [
+    { getMethodName: 'outcomeId', privateFieldname: '_outcomeId' }
+    , { getMethodName: 'outcomeTypeId', privateFieldname: '_outcomeTypeId' }//
+    //, { getMethodName: 'anotherGetMethodName', privateFieldname: '_anotherBackingFieldNameForThisGetMethod' }
+  ];
+
+
+  ///this is used to customise what gets JSON-stringified
+  //see: https://javascript.info/json#custom-tojson
+  public toJSON(): any {
+    //console.log("got into the ad-hoc serialiser1", this._outcomeId);
+    let obj: any = {};//the version of 'this' wich will be used to stringify
+    let keys = Object.keys(this);//this will include all properties and no method names, including private properties
+     
+    for (let key of keys) {
+      let i = Outcome.ListOfGetKeys.findIndex(f => f.privateFieldname == key);
+      if (i == -1) {//nothing special to do, we can return this value normally
+        obj[key] = this[key as keyof Outcome];
+      }
+      else {//it's in the list of things we want to change, specifically, we don't want the private backing field in the restulting JSON
+        //but we want the JSON to have a property with the name as in the get-method we implemented.
+        //we substitute the key name as it is in this object with the name of the get method and get the value from the backing field
+        obj[Outcome.ListOfGetKeys[i].getMethodName] = this[Outcome.ListOfGetKeys[i].privateFieldname as keyof Outcome];       
+      }
+    }
+    return obj;
   }
 
   public SetCalculatedValues() {
@@ -1173,9 +1202,11 @@ export class Outcome implements iOutcome {
   }
   private _outcomeId: number = 0;
   public get outcomeId(): number {
+    //console.log("Getting outcomeId", this._outcomeId);
     return this._outcomeId;
   }
   public set outcomeId(val: number) {
+    //console.log("setting outcomeId", this._outcomeId);
     this._outcomeId = val;
     for (let Occ of this.outcomeCodes.outcomeItemAttributesList) {
       Occ.outcomeId = val;
@@ -1191,16 +1222,18 @@ export class Outcome implements iOutcome {
 
   //	this.OutcomeTypeName = val;
   //}
-  public outcomeTypeId: number = 1;
-  //public get outcomeTypeId(): number {
 
-  //	//this.SetCalculatedValues();
-  //	return this.OutcomeTypeId;
-  //}
-  //public set outcomeTypeId(val: number) {
-  //	this.OutcomeTypeId = val;
-  //	this.SetCalculatedValues();
-  //}
+  //public outcomeTypeId: number = 1;
+  private _outcomeTypeId: number = 1;
+  public get outcomeTypeId(): number {
+
+  	//this.SetCalculatedValues();
+    return this._outcomeTypeId;
+  }
+  public set outcomeTypeId(val: number) {
+    this._outcomeTypeId = val;
+  	this.SetCalculatedValues();
+  }
 
   itemAttributeIdIntervention: number = 0;
   itemAttributeIdControl: number = 0;
@@ -1466,6 +1499,10 @@ export class Outcome implements iOutcome {
   public set data14Desc(val: string) {
     this.Data14Desc = val;
   }
+}
+interface iNamesOfGetKeys {
+  getMethodName: string;
+  privateFieldname: string;
 }
 export class OutcomeItemAttributesList {
   outcomeItemAttributesList: OutcomeItemAttribute[] = [];
