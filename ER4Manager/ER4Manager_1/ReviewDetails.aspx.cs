@@ -114,6 +114,9 @@ public partial class ReviewDetails : System.Web.UI.Page
                             if (idr["MAG_ENABLED"].ToString() == "1")
                                 cbEnableMag.Checked = true;
 
+                            if (idr["OPEN_AI_ENABLED"].ToString() == "True")
+                                cbEnableOpenAI.Checked = true;
+
                             if (idr["ARCHIE_ID"].ToString() == "prospective_______")
                             {
                                 cbPotential.Checked = true;
@@ -1000,6 +1003,17 @@ public partial class ReviewDetails : System.Web.UI.Page
 
         bool isAdmDB = true;
         Utils.ExecuteSP(isAdmDB, Server, "st_EnableMag",
+                lblReviewID.Text, setting);
+    }
+
+    protected void cbEnableOpenAI_CheckedChanged(object sender, EventArgs e)
+    {
+        bool setting = false;
+        if (cbEnableOpenAI.Checked)
+            setting = true;
+
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_EnableOpenAI",
                 lblReviewID.Text, setting);
     }
     protected void cbPotential_CheckedChanged(object sender, EventArgs e)

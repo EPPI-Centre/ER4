@@ -594,11 +594,26 @@ public partial class Login : System.Web.UI.Page
         {
             pnlAccountCreated.Visible = true;
         }
+        else if (pnlResetPassword == Showing)
+        {
+            pnlResetPassword.Visible = true;
+        }
     }
     protected void lnkbtForgottenpw_Click(object sender, EventArgs e)
     {
         //1. get the user to fill the email or uname fields,
-        ShowJustThisPanel(pnlLinkCreator);
+        ShowJustThisPanel(pnlResetPassword);
+        TableCell1Text.Text = "Email";
+        lbChangeToUsername.Visible = true;
+        lbChangeToEmail.Visible = false;
+        lblInstructionsLinkCreateNew1.Text = "Please enter your user account <b>Email</b> to generate a Reset-Password email." + 
+            "<br>If you cannot remember your account email, click";
+        lblInstructionsLinkCreateNew2.Text = " to enter your username.<br><br>";
+        lblInstructionsLinkCreateNew3.Text = "If you cannot remember your email or username please contact <b>eppisupport@ucl.ac.uk</b>";
+        
+        /*
+         * this was the original version
+        ShowJustThisPanel(pnlLinkCreator);     
         tc00.Visible = true;
         tc01.Visible = true;
         tc10.Visible = true;
@@ -613,7 +628,19 @@ public partial class Login : System.Web.UI.Page
         lblInstructionsLinkCreate.Text = "Please fill in either the Username, Email, or both fields to generate a Reset-Password email.";
         lblInstructionsLinkCreate.Visible = true;
         lblResultLinkCreate.Visible = false;
-        
+        */
+
+    }
+
+    protected void lbChangeToUserName_Click(object sender, EventArgs e)
+    {
+        TableCell1Text.Text = "Username";
+        lbChangeToUsername.Visible = false;
+        lbChangeToEmail.Visible = true;
+        lblInstructionsLinkCreateNew1.Text = "Please enter your <b>Username</b> to generate a Reset-Password email." +
+            "<br>If you cannot remember your username, click";
+        lblInstructionsLinkCreateNew2.Text = " to enter your user account email.<br><br>";
+        lblInstructionsLinkCreateNew3.Text = "If you cannot remember your email or username please contact <b>eppisupport@ucl.ac.uk</b>";
     }
     protected void lnkbtForgottenUname_Click(object sender, EventArgs e)
     {
@@ -659,7 +686,29 @@ public partial class Login : System.Web.UI.Page
         //3. create the link via st_CheckLinkCreate, send email
         //4. and show a suitable msg telling the user to check their email, do NOT say if this worked!!
     }
-    
+
+    protected void btForgottenPasswordLinkCreate_Click(object sender, EventArgs e)
+    {
+        // some intermediate prep before calling the existing routine
+        if (tbxEmailLinkCreateNew.Text.Trim() == "")
+        {
+            // do nothing
+        }
+        else {
+            if (tbxEmailLinkCreateNew.Text.Contains("@")) {
+                // we are working with the email
+                tbxEmailLinkCreate.Text = tbxEmailLinkCreateNew.Text;
+                tbxUnameLinkCreate.Text = "";
+            }
+            else {
+                // we are working with the username
+                tbxEmailLinkCreate.Text = "";
+                tbxUnameLinkCreate.Text = tbxEmailLinkCreateNew.Text;
+            }
+            btForgottenPwLinkCreate_Click(sender, e);
+        }
+    }
+
     protected void btForgottenPwLinkCreate_Click(object sender, EventArgs e)
     {
         //2. check if account details are OK, if they are
@@ -724,11 +773,12 @@ public partial class Login : System.Web.UI.Page
             Utils.ForgottenPmail("EPPISupport@ucl.ac.uk", ContName, "", CID.ToString(), BaseUrl, "NOT SENT! <BR> Could not find the requested account, USERNAME = '" + tbxUnameLinkCreate.Text + "', EMAIL = " + tbxEmailLinkCreate.Text + "<BR>");
         }
         //4. show a suitable msg telling the user to check their email, do NOT say if this worked!!
-        
+
         //lblResultLinkCreate.Text = "Please check your email (and your SPAM filter). If your account details were valid you should receive a 'Reset Password' message shortly. This message will contain a unique link that will remain valid for 10 minutes from now.";
-        lblResultLinkCreate.Text = "Please check your email. If your account details were valid you should receive a " + 
-            "'Reset Password' message shortly. This message will contain a unique link that will remain valid for " + 
-            "10 minutes (from now). If you do not receive the email you may need to check your spam filter." ;
+        lblResultLinkCreate.Text = "Please check your email.<br>If the email or username details that you entered were valid you should receive a " +
+            "'Reset Password' message shortly.<br>This message will contain a unique link that will remain valid for " +
+            "10 minutes (from now).<br>If you do not receive the email you may need to check your spam filter.<br><br>" +
+            "Please contact eppisupport@ucl.ac.uk if you have any problems logging on";
         tc00.Visible = false;
         tc01.Visible = false;
         tc10.Visible = false;
@@ -743,6 +793,21 @@ public partial class Login : System.Web.UI.Page
         btForgottenPwLinkCreate.Visible = false;
         btForgottenUnameEmailCreate.Visible = false;
         btForgottenToActivateLinkCreate.Visible = false;
+
+        // this for the updated password reset layout
+        lblResultLinkCreate1.Text = lblResultLinkCreate.Text;  
+        lblResultLinkCreate1.Visible = true;
+        lblInstructionsLinkCreateNew1.Visible = false;
+        lblInstructionsLinkCreateNew2.Visible = false;
+        lblInstructionsLinkCreateNew3.Visible = false;
+        tbxEmailLinkCreateNew.Visible = false;
+        TableCell1.Visible = false;
+        TableCell1Text.Visible = false;
+        TableCell2.Visible = false;
+        TableCell3.Visible = false;
+        TableCell4.Visible = false;
+        lbChangeToUsername.Visible = false;
+        lbChangeToEmail.Visible = false;
     }
     protected void btForgottenUnameEmailCreate_Click(object sender, EventArgs e)
     {
