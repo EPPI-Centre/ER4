@@ -214,16 +214,18 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
         this._OutcomesService.currentOutcome.itemSetId = this.CurrentItemSet.itemSetId;
         //console.log('Just before creating outcome we have: ', this._OutcomesService.currentOutcome.outcomeCodes);
         Result = await this._OutcomesService.Createoutcome(this._OutcomesService.currentOutcome);
-        if (Result == false) {//didn't work!!
+        if (Result == false) {//didn't work!! We do nothing (unsaved outcome remains visible)
         } else if (Result != true) {//true case doesn't happen
           this._OutcomesService.currentOutcome = Result;
           this._OutcomesService.UnchangedOutcome = new Outcome(Result);
           this.CurrentItemSet.OutcomeList.push(Result);
+          this.ShowOutcomesList = true;
         }
       } else {
         //console.log(JSON.stringify(this._OutcomesService.currentOutcome));
         Result = await this._OutcomesService.Updateoutcome(this._OutcomesService.currentOutcome);
-        if (Result == false) {//didn't work!!
+        if (Result == false) {//didn't work!! We do nothing (unsaved outcome remains visible)
+
         } else if (Result != true) {//true case doesn't happen
           let key = this.CurrentItemSet.OutcomeList.findIndex(f => f.outcomeId == this._OutcomesService.currentOutcome.outcomeId);
           if (key != -1) {
@@ -231,10 +233,10 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
             this._OutcomesService.UnchangedOutcome = new Outcome(Result);
             this.CurrentItemSet.OutcomeList.splice(key, 1, Result);
           }
+          this.ShowOutcomesList = true;
         }
       }
-    } 
-    this.ShowOutcomesList = true;
+    }
   }
   
   //public IsThisArmSelected(armId: number, slotNumber: number): boolean {
