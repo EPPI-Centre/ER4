@@ -114,11 +114,6 @@ namespace EppiReviewer4
 
         private void DoOpenAI(object sender, RoutedEventArgs e)
         {
-            if (SelectedAbstract == null || SelectedAbstract == "")
-            {
-                RadWindow.Alert("No abstract present");
-                return;
-            }
             ReviewSet rs = dialogRobotsComboSelectCodeSet.SelectedItem as ReviewSet;
             if (rs != null)
             {
