@@ -695,7 +695,8 @@ public partial class Login : System.Web.UI.Page
             // do nothing
         }
         else {
-            if (tbxEmailLinkCreateNew.Text.Contains("@")) {
+            //if (tbxEmailLinkCreateNew.Text.Contains("@")){
+            if (lbChangeToUsername.Visible == true) {
                 // we are working with the email
                 tbxEmailLinkCreate.Text = tbxEmailLinkCreateNew.Text;
                 tbxUnameLinkCreate.Text = "";
