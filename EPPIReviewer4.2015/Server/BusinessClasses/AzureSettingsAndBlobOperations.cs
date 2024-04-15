@@ -159,6 +159,7 @@ namespace BusinessLibrary.BusinessClasses
         public static string covidLongCovidPipelineName { get { return AzureContReviewSettings["covidLongCovidPipelineName"]; } }
         public static string progressPlusPipelineName { get { return AzureContReviewSettings["progressPlusPipelineName"]; } }
         public static string pubMedStudyTypesPipelineName { get { return AzureContReviewSettings["pubMedStudyTypesPipelineName"]; } }
+        public static string pubMedStudyDesignsPipelineName { get { return AzureContReviewSettings["pubMedStudyDesignsPipelineName"]; } }
         public static string pipelineName { get { return AzureContReviewSettings["pipelineName"]; } }
 
         
