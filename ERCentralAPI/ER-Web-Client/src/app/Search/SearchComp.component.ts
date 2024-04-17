@@ -507,7 +507,7 @@ export class SearchComp implements OnInit, OnDestroy {
       //alert('custom models');
       return true;
     }
-    else if (this.modelNum < 7 && this.modelNum != 0) {
+    else if ((this.modelNum < 7 || this.modelNum == 9) && this.modelNum != 0) {
       if (this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute') {
         return true;
       } else if (this.ApplySource && this.selected != null) {
@@ -650,6 +650,9 @@ export class SearchComp implements OnInit, OnDestroy {
       } else if (this.modelNum == 6) {
         this.modelTitle = 'Long COVID binary model';
         this.ModelId = -6;
+      } else if (this.modelNum == 9) {
+        this.modelTitle = 'PubMed study designs';
+        this.ModelId = -9;
       } else {
         //return;
       }
