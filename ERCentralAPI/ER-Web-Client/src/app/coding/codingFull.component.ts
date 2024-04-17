@@ -170,7 +170,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     else if (!this.reviewInfoService.ReviewInfo.openAIEnabled) return false;
     else {
       let node = this.ReviewSetsService.selectedNode;
-      if (node != null && node.nodeType == 'ReviewSet' && node.subTypeName == "Standard") return true;
+      if (node != null && node.nodeType == 'ReviewSet' && (node.subTypeName == "Standard" || node.subTypeName == "Screening")) return true;
       else return false;
     }
   }

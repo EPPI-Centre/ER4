@@ -109,3 +109,22 @@ If IndexProperty(Object_Id('[dbo].[TABLE_NAME]'), 'INDEX_NAME', 'IndexID') Is Nu
 	INCLUDE([INCLUDE_FIELD],[INCLUDE_FIELD]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
   end
 GO
+--ALTERNATIVE(/BETTER?) APPROACH To indexes:
+declare @chk int = (SELECT = count(*)
+		FROM sys.indexes 
+		WHERE name='INDEX_NAME' AND object_id = OBJECT_ID('[dbo].[TB_SOMETABLE]'))
+If @chk = 1 
+BEGIN
+	DROP INDEX [INDEX_NAME] ON [dbo].[TB_SOMETABLE]
+END
+
+
+--Check if a field is nullable
+--it is possible that the change will be blocked by SQL if there are indexes/constraints in place for the column in question!
+declare @chk int = (SELECT count(*)
+	FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'TB_SOMETABLE' and COLUMN_NAME = 'SOME_COLUMN' and IS_NULLABLE = 'NO')
+IF @chk = 1 
+BEGIN
+	ALTER TABLE TB_SOMETABLE ALTER COLUMN SOME_COLUMN NVARCHAR(50) NULL
+END
+GO

@@ -80,7 +80,17 @@ export class ConfirmationDialogService implements OnDestroy {
 			type: { style: "error", icon: true },
 			closable: true
 		});
-	}
+  }
+  public showWarningMessageInStrip(notifyMsg: string) {
+
+    this.notificationService.show({
+      content: notifyMsg,
+      animation: { type: 'slide', duration: 400 },
+      position: { horizontal: 'center', vertical: 'top' },
+      type: { style: "warning", icon: true },
+      closable: true
+    });
+  }
 	ngOnDestroy() {
 
 	}

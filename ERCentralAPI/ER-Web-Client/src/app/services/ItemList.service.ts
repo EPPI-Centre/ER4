@@ -936,6 +936,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
       tmp = au.trim();
       if (tmp != "") res += "A2  - " + tmp + newLine;
     }
+    res += "ST  - " + it.shortTitle + newLine;
     //new on April 2023: one Keyword per "KW" tag, not all in one big field!
     res += "KW  - eppi-reviewer" + newLine;
     if (it.keywords) {

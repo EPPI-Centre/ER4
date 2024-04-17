@@ -36,11 +36,7 @@ namespace BusinessLibrary.BusinessClasses
     public class RobotOpenAICommand : CommandBase<RobotOpenAICommand>
     {
 
-#if SILVERLIGHT
-    public RobotOpenAICommand(){}
-#else
         public RobotOpenAICommand() { }
-#endif
         private int _reviewSetId;
         private Int64 _itemDocumentId;
         private Int64 _itemId;
@@ -56,6 +52,7 @@ namespace BusinessLibrary.BusinessClasses
             _reviewSetId = reviewSetId;
             _itemId = itemId;
             _itemDocumentId = itemDocumentId;
+            _message = "";
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -148,15 +145,16 @@ namespace BusinessLibrary.BusinessClasses
                 _message = "Null item";
                 return false;
             }
-            if (i.Abstract.Length < 50)
+            if (i.Abstract.Trim().Length + i.Title.Trim().Length < 50)
             {
-                _message = "Short or non-existent abstract";
+                _message = "Short or non-existent title and abstract";
                 return false;
             }
-            int wordCount = i.Abstract.Split(' ').Length;
+            char[] chars = { ' ' };
+            int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
             if (wordCount > 3500)
             {
-                _message = "Maximum word count is currently 3500 words. This abstract is " + wordCount.ToString() + " words long.";
+                _message = "Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
                 return false;
             }
             
@@ -188,10 +186,30 @@ namespace BusinessLibrary.BusinessClasses
 
 
             // *** Create the prompt for the LLM
+
+            bool hastitle = true;
+            bool hasabstract = true;
+            if (i.Title.Trim().Length <= 1) { hastitle = false; }
+            if (i.Abstract.Trim().Length <= 1) { hasabstract = false; }
+            string userprompt = "";
+            string sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+            if (hasabstract && hastitle) 
+            {
+                sysprompt = "You extract data from the title and text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                userprompt = "Title: " + i.Title + "\nText: " + i.Abstract;
+            }
+            else if (hastitle == true && hasabstract == false)
+            {
+                userprompt = "Text: " + i.Title;
+            }
+            else if (hastitle == false && hasabstract == true)
+            {
+                userprompt = "Text: " + i.Abstract;
+            }
             List<OpenAIChatClass> messages = new List<OpenAIChatClass>
             {
-                new OpenAIChatClass { role = "system", content = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}"}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
-                new OpenAIChatClass { role = "user", content = "Text: " + i.Abstract},
+                new OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
+                new OpenAIChatClass { role = "user", content = userprompt},
             };
 
 

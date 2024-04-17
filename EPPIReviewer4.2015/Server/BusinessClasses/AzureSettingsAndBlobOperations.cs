@@ -139,6 +139,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         public static string MagMatchItemsMaxThreadCount { get { return AppSettings["MagMatchItemsMaxThreadCount"]; } }
+        public static string MagMatchTimeoutInMinutes { get { return AppSettings["MagMatchTimeoutInMinutes"]; } }
         public static string AccountManagerURL { get { return AppSettings["AccountManagerURL"]; } }
         public static string AddHostNamePrefixToBlobs { get { return AppSettings["AddHostNamePrefixToBlobs"]; } }
         public static string SMTP { get { return AppSettings["SMTP"]; } }

@@ -30,7 +30,7 @@ namespace ERxWebClient2.Controllers
 
                     GetMatches = dp.Execute(GetMatches);
 
-                    return Ok(GetMatches.currentStatus);
+                    return Ok(GetMatches);
                 }
                 else return Forbid();
 

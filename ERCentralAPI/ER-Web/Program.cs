@@ -74,10 +74,8 @@ try
         };
         options.SaveToken = true;
     });
-    //builder.Services.AddAuthorization(opt =>
-    //{
-    //    opt.
-    //});
+    builder.Services.AddHostedService<GracefulShutdownGuardianService>();
+
     var app = builder.Build();
     var SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
     DataConnection.DataConnectionConfigure(SqlHelper);
@@ -160,38 +158,69 @@ public partial class Program
     //this is naughty, but it's the best I could think of, given the DI absence in old versions of CSLA
     public static Serilog.ILogger? Logger { get { return _Logger; } }
 
+    public static bool AppIsShuttingDown = false;
+
+}
+internal class GracefulShutdownGuardianService : IHostedService, IDisposable
+{
+    //private Timer _timer;
+    private readonly int ID = new Random().Next();
+    private readonly Microsoft.Extensions.Hosting.IHostApplicationLifetime _appLifetime;
+    private readonly Serilog.ILogger Logger;
+
+    public GracefulShutdownGuardianService(Microsoft.Extensions.Hosting.IHostApplicationLifetime appLifetime, Serilog.ILogger logger)
+    {
+        _appLifetime = appLifetime;
+        Logger = logger;
+    }
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is starting, with ID: " + ID);
+        Logger.Information("GracefulShutdownGuardianService is starting, with ID: " + ID);
+        //Logger.Information("CT ID: " + cancellationToken.GetHashCode().ToString());
+        _appLifetime.ApplicationStarted.Register(OnStarted);
+        _appLifetime.ApplicationStopping.Register(OnStopping);
+        _appLifetime.ApplicationStopped.Register(OnStopped);
+        //_timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+        Task.Run(() =>
+        {
+            Thread.Sleep(30000);
+            Program.AppIsShuttingDown = false;
+        });
+        return Task.CompletedTask;
+    }
+    //private void DoWork(object? state)
+    //{
+    //    Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is working, with ID: " + ID);
+    //    Logger.Information(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is working, with ID: " + ID);
+    //}
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        Program.AppIsShuttingDown = true;
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is stopping, with ID: " + ID);
+        //Logger.Information("CT ID: " + cancellationToken.GetHashCode().ToString() + " please make sense! " + cancellationToken.IsCancellationRequested.ToString());
+        Logger.Information("GracefulShutdownGuardianService is stopping, with ID: " + ID);
+        //_timer?.Change(Timeout.Infinite, 0);
+        return Task.CompletedTask;
+    }
+    public void Dispose()
+    {
+        //_timer?.Dispose();
+    }
+    private void OnStarted()
+    {
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStarted(), with ID: " + ID);
+        Logger.Information("GracefulShutdownGuardianService OnStarted(), with ID: " + ID);
+    }
+    private void OnStopping()
+    {
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStopping(), with ID: " + ID);
+        Logger.Information("GracefulShutdownGuardianService OnStopping(), with ID: " + ID);
+    }
+    private void OnStopped()
+    {
+        //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStopped(), with ID: " + ID);
+        Logger.Information("GracefulShutdownGuardianService OnStopped(), with ID: " + ID);
+    }
 }
 
-//namespace BusinessLibrary.Data
-//{
-//    public static class DataConnection
-//    {
-//        private static string _ConnectionString = "";
-//        private static string _AdmConnectionString = "";
-//        public static void SetConnectionString(string val)
-//        {
-//            _ConnectionString = val;
-//        }
-//        public static void SetAdmConnectionString(string val)
-//        {
-//            _AdmConnectionString = val;
-//        }
-//        public static string ConnectionString
-//        {
-//            get
-//            {
-//                return _ConnectionString;
-//            }
-//        }
-
-//        public static string AdmConnectionString
-//        {
-//            get
-//            {
-//                return _AdmConnectionString;
-//            }
-//        }
-
-
-//    }
-//}

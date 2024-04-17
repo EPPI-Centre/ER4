@@ -65,8 +65,8 @@
 
 			<div *ngIf="ShowHighlights" class="row col-12" (textSelect)="renderRectangles($event)"><h4 [innerHTML]="HTitle"></h4></div>
 			<div *ngIf="!ShowHighlights" class="row col-12"  (textSelect)="renderRectangles($event)"><h4>{{item.title}}</h4></div>
-			<div *ngIf="ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
-			<div *ngIf="!ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div [innerHTML]="brAbstract"></div></div>
+			<div *ngIf="ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract" style="max-height: 65vh; overflow: auto; white-space: pre-line;"></div></div>
+			<div *ngIf="!ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div style="max-height: 65vh; overflow: auto; white-space: pre-line;">{{brAbstract}}</div></div>
 			
 			<div class="row w-100 p-0 m-0 border-bottom   ">
 				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>

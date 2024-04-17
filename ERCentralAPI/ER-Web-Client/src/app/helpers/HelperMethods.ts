@@ -168,7 +168,7 @@ export class Helpers {
       + "<style type='text/css'> table {border-collapse: collapse;} .border {border: 1px solid #dee2e6!important;} .border-dark { border-color: #343a40!important;}"
       + " body { font-family: Roboto, Arial, sans-serif; font-size: 14px;} .alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb;}"
       + " .small, small { font-size: .875em; font-weight: 400;} .text-info { color: #17a2b8!important; } code { color: #e01a76;}"
-      + " .text-success { color: #28a745!important;} .font-weight-bold { font-weight: 700!important;}"
+      + " .text-success { color: #28a745!important;} .font-weight-bold { font-weight: 700!important;} .light-yellow-bg { background-color: #fff3cd; }"
       + " .ItemsTable th, .ItemsTable td {border: 1px solid #dee2e6!important; border-color: #343a40!important;} .m-2 { margin: 0.5rem!important;}";
       //+ "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css' integrity='sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N' crossorigin='anonymous'>";
     if (addExcelStyleHack) res += " br { mso-data-placement: same-cell;} </style>";
@@ -300,6 +300,28 @@ export class Helpers {
         return url.href;
       } else return "";
     }
+  }
+
+
+  //METHOD to ensure a given string does not contain bits that have special regex meanings
+  //used when we need to dynamically create regexes from strings at runtime
+  public static cleanSpecialRegexChars(input: string): string {
+    //need to replace these: [\^$.|?*+(){}
+    let result = input.replace(/\\/g, "\\\\");
+    result = result.replace(/\[/g, "\\[");
+    result = result.replace(/\^/g, "\\^");
+    result = result.replace(/\$/g, "\\$");
+    result = result.replace(/\./g, "\\.");
+    result = result.replace(/\|/g, "\\|");
+    result = result.replace(/\?/g, "\\?");
+    result = result.replace(/\*/g, "\\*");
+    result = result.replace(/\+/g, "\\+");
+    result = result.replace(/\(/g, "\\(");
+    result = result.replace(/\)/g, "\\)");
+    result = result.replace(/\{/g, "\\{");
+    result = result.replace(/\}/g, "\\}");
+    //console.log(input, result);
+    return result;
   }
 }
 export interface SubstituteString {

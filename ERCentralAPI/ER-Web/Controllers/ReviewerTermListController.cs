@@ -43,19 +43,22 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser4Writing();
-				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
-				DataPortal<TrainingReviewerTerm> dp = new DataPortal<TrainingReviewerTerm>();
-				TrainingReviewerTerm cmd = new TrainingReviewerTerm
-				{
-					Included = data.included,
-					Term = data.term,
-					ReviewerTerm = data.term
-				};
-				cmd = dp.Execute(cmd);
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
+					DataPortal<TrainingReviewerTerm> dp = new DataPortal<TrainingReviewerTerm>();
+					TrainingReviewerTerm cmd = new TrainingReviewerTerm
+					{
+						Included = data.included,
+						Term = data.term,
+						ReviewerTerm = data.term
+					};
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd);
-			}
+					return Ok(cmd);
+				}
+                else return Forbid();
+            }
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Error with creating TrainingReviewerTerm");
@@ -68,18 +71,21 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser4Writing();
-				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
-				DataPortal<TrainingReviewerTermList> dp = new DataPortal<TrainingReviewerTermList>();
-				TrainingReviewerTermList result = dp.Fetch();
-				TrainingReviewerTerm cmd = new TrainingReviewerTerm();
-				cmd = result.FirstOrDefault(x => x.TrainingReviewerTermId == Convert.ToInt32(termId.Value));
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
+					DataPortal<TrainingReviewerTermList> dp = new DataPortal<TrainingReviewerTermList>();
+					TrainingReviewerTermList result = dp.Fetch();
+					TrainingReviewerTerm cmd = new TrainingReviewerTerm();
+					cmd = result.FirstOrDefault(x => x.TrainingReviewerTermId == Convert.ToInt32(termId.Value));
 
-				cmd.Delete();
-				cmd = cmd.Save();
+					cmd.Delete();
+					cmd = cmd.Save();
 
-				return Ok(termId.Value);
-			}
+					return Ok(termId.Value);
+				}
+                else return Forbid();
+            }
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Error with deleting TrainingReviewerTerm");
@@ -93,19 +99,22 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser4Writing();
-				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
-				DataPortal<TrainingReviewerTermList> dp = new DataPortal<TrainingReviewerTermList>();
-				TrainingReviewerTermList result = dp.Fetch();
-				TrainingReviewerTerm cmd = new TrainingReviewerTerm();
-				cmd = result.FirstOrDefault(x => x.TrainingReviewerTermId == data.trainingReviewerTermId);
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
+					DataPortal<TrainingReviewerTermList> dp = new DataPortal<TrainingReviewerTermList>();
+					TrainingReviewerTermList result = dp.Fetch();
+					TrainingReviewerTerm cmd = new TrainingReviewerTerm();
+					cmd = result.FirstOrDefault(x => x.TrainingReviewerTermId == data.trainingReviewerTermId);
 
-				cmd.ReviewerTerm = data.reviewerTerm;
-				cmd.Included = data.included;
-				cmd = cmd.Save();
+					cmd.ReviewerTerm = data.reviewerTerm;
+					cmd.Included = data.included;
+					cmd = cmd.Save();
 
-				return Ok(cmd);
-			}
+					return Ok(cmd);
+				}
+                else return Forbid();
+            }
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Error with updating TrainingReviewerTerm");

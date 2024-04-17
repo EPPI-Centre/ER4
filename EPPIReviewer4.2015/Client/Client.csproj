@@ -169,6 +169,9 @@
     <Compile Include="..\..\ERCentralAPI\ER-Web\Models\FeedbackAndClientErrorList.cs">
       <Link>BusinessClasses\FeedbackAndClientErrorList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\AbstractClasses\LongLastingFireAndForgetCommand.cs">
+      <Link>BusinessClasses\AbstractClasses\LongLastingFireAndForgetCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs">
       <Link>BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs</Link>
     </Compile>

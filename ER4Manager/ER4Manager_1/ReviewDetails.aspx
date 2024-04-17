@@ -271,8 +271,11 @@ function openReviewerList(ID) {
                     </td>
                     <td style="background-color: #FFFFCC" colspan="4">
                         <asp:CheckBox ID="cbEnableMag" runat="server" AutoPostBack="True" 
-                            oncheckedchanged="cbEnableMag_CheckedChanged" Text="ENABLE MAG" />
-                        </td>
+                            oncheckedchanged="cbEnableMag_CheckedChanged" Text="ENABLE OpenAlex" />
+                        <br />
+                        <asp:CheckBox ID="cbEnableOpenAI" runat="server" AutoPostBack="True" 
+                            oncheckedchanged="cbEnableOpenAI_CheckedChanged" Text="ENABLE OpenAI" />
+                    </td>
                 </tr>
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">

@@ -89,8 +89,17 @@ namespace ERxWebClient2.Controllers
                             DataPortal<OutcomeItemAttributesCommand> dpCmd = new DataPortal<OutcomeItemAttributesCommand>();
                             OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(
                                 outcomeId, attributes);
-
                             command = dpCmd.Execute(command);
+
+                            //edit: march 2024. If we did save OutcomeItemAttributes, we need to send them back to the client!!
+							//so we re-fetch the outcome from the whole list, just like we do in "update" method
+                            SingleCriteria<OutcomeItemList, Int64> criteria = new SingleCriteria<OutcomeItemList, Int64>(itemSetId);
+                            DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
+                            OutcomeItemList result2 = dp.Fetch(criteria);
+                            Outcome? savedOutcome = result2.FirstOrDefault(x => x.OutcomeId == outcomeId);
+							if (savedOutcome != null) { 
+								result = savedOutcome;
+							}
                         }
 					}
 

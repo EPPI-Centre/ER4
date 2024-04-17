@@ -208,13 +208,27 @@ namespace EppiReviewer4
                         LBListPreviouslyMatchedRecords.Visibility = Visibility.Visible;
                         LBListPreviouslyMatchedRecords.IsEnabled = true;
                     }
+                    if (mrmic2.MatchingTaskIsRunning)
+                    {
+                        ToggleMatchingEnabledState(false);
+                    }
+                    else
+                    {
+                        ToggleMatchingEnabledState(true);
+                    }
                 }
             };
             busyIndicatorMatches.IsBusy = true;
             BusyImportingRecords.IsRunning = true;
             dp2.BeginExecute(mrmic);
         }
-
+        private void ToggleMatchingEnabledState(bool MakeEnabled)
+        {
+            if (MakeEnabled == false && lbRefreshCounts.Visibility == Visibility.Collapsed)
+                lbRefreshCounts.Visibility = Visibility.Visible;
+            LBMatchAllIncluded.IsEnabled = MakeEnabled;
+            LBAutomatchItemsWithThisCode.IsEnabled = MakeEnabled;
+        }
         // ********************************* SEARCH PAGE *********************************
 
         private void ShowSearchPage()
@@ -1837,9 +1851,15 @@ namespace EppiReviewer4
                     else
                     {
                         MagMatchItemsToPapersCommand res = e2.Object as MagMatchItemsToPapersCommand;
-                        RadWindow.Alert("Records submitted for matching. This can take a while...");
+                        if (res.currentStatus == "") RadWindow.Alert("Records submitted for matching. This can take a while...");
+                        else
+                        {
+                            RadWindow.Alert(res.currentStatus);
+                            ToggleMatchingEnabledState(true);
+                        }
                     }
                 };
+                ToggleMatchingEnabledState(false);
                 lbRefreshCounts.Visibility = Visibility.Visible;
                 dp.BeginExecute(GetMatches);
             }

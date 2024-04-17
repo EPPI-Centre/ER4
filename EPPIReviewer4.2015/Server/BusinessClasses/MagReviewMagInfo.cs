@@ -41,6 +41,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _NNotMatchedIncluded;
         private int _NNotMatchedExcluded;
         private int _NPreviouslyMatched;
+        private bool _MatchingTaskIsRunning;
 
         public int ReviewId
         {
@@ -85,6 +86,11 @@ namespace BusinessLibrary.BusinessClasses
             get { return _NPreviouslyMatched; }
         }
 
+        public bool MatchingTaskIsRunning
+        {
+            get { return _MatchingTaskIsRunning; }
+        } 
+
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
@@ -98,6 +104,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_NNotMatchedIncluded", _NNotMatchedIncluded);
             info.AddValue("_NNotMatchedExcluded", _NNotMatchedExcluded);
             info.AddValue("_NPreviouslyMatched", _NPreviouslyMatched);
+            info.AddValue("_MatchingTaskIsRunning", _MatchingTaskIsRunning);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -111,6 +118,7 @@ namespace BusinessLibrary.BusinessClasses
             _NNotMatchedIncluded = info.GetValue<int>("_NNotMatchedIncluded");
             _NNotMatchedExcluded = info.GetValue<int>("_NNotMatchedExcluded");
             _NPreviouslyMatched = info.GetValue<int>("_NPreviouslyMatched");
+            _MatchingTaskIsRunning = info.GetValue<bool>("_MatchingTaskIsRunning");
         }
 
        
@@ -157,6 +165,26 @@ namespace BusinessLibrary.BusinessClasses
                     _NNotMatchedIncluded = Convert.ToInt32(command.Parameters["@NNotMatchedIncluded"].Value);
                     _NNotMatchedExcluded = Convert.ToInt32(command.Parameters["@NNotMatchedExcluded"].Value);
                     _NPreviouslyMatched = Convert.ToInt32(command.Parameters["@NPreviouslyMatched"].Value);
+                }
+
+                using (SqlCommand command = new SqlCommand("st_MagMatchingCheckOngoingLog", connection))
+                {
+                    int MagMatchTimeoutInMinutes;
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add("@revID", System.Data.SqlDbType.Int);
+                    command.Parameters["@revID"].Value = ri.ReviewId;
+
+                    if (int.TryParse(AzureSettings.MagMatchTimeoutInMinutes, out MagMatchTimeoutInMinutes))
+                        command.Parameters.Add(new SqlParameter("@customTimeoutInMinutes", MagMatchTimeoutInMinutes));
+
+                    command.Parameters.Add("@RETURN_VALUE", System.Data.SqlDbType.Int);
+                    command.Parameters["@RETURN_VALUE"].Direction = System.Data.ParameterDirection.ReturnValue;
+                    command.ExecuteNonQuery();
+                    if (command.Parameters["@RETURN_VALUE"].Value.ToString() == "-1")
+                    {
+                        this._MatchingTaskIsRunning = true;
+                    }
+                    else this._MatchingTaskIsRunning = false;
                 }
                 connection.Close();
             }
