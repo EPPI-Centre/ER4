@@ -151,7 +151,7 @@ namespace BusinessLibrary.BusinessClasses
     public class ItemList : DynamicBindingListBase<Item>, System.ComponentModel.IPagedCollectionView, INotifyPropertyChanged
     {
 
-#region Implementing IPagedCollectionView
+        #region Implementing IPagedCollectionView
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String info)
         {
@@ -244,7 +244,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        private int _pageSize ;//= 700;
+        private int _pageSize;//= 700;
         [Newtonsoft.Json.JsonProperty]
         public int PageSize
         {
@@ -285,7 +285,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private bool _isPageChanging;
-        
+
         public bool IsPageChanging
         {
             get { return _isPageChanging; }
@@ -298,7 +298,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-#endregion
+        #endregion
 
         public bool HasSavedHandler = false;
 
@@ -334,7 +334,7 @@ namespace BusinessLibrary.BusinessClasses
         public string ListIds()
         {
             string returnList = "";
-            foreach(Item currentItem in this)
+            foreach (Item currentItem in this)
             {
                 if (returnList == "")
                 {
@@ -406,6 +406,10 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         using (SqlCommand command = SpecifyListCommand(connection, criteria, ri))
                         {
+                            if (retryCount > 0 && AzureSettings.ItemListTimeoutHandling.ToLower() == "typespecific" && command.CommandTimeout < 150) 
+                            {//we are still trying once more, so we'll add 30s to the timeout period.
+                                command.CommandTimeout += 30;
+                            }
                             command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
                             command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
                             command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
@@ -443,6 +447,10 @@ namespace BusinessLibrary.BusinessClasses
                         Dictionary<long, string> WOcodes = new Dictionary<long, string>();
                         using (SqlCommand command = SpecifyListCommand(connection, criteria, ri))
                         {
+                            if (retryCount > 0 && AzureSettings.ItemListTimeoutHandling.ToLower() == "typespecific" && command.CommandTimeout < 150)
+                            {//we are still trying once more, so we'll add 30s to the timeout period.
+                                command.CommandTimeout += 30;
+                            }
                             using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                             {
                                 while (reader.Read())
@@ -487,13 +495,13 @@ namespace BusinessLibrary.BusinessClasses
                         //sort them by short-tile/ID.
                         items.Sort();
                         //take just the wanted page
-                        
+
                         _totalItemCount = items.Count;
                         _pageSize = criteria.PageSize;
                         //int len = Math.Min(100, items.Count);
                         _pageIndex = Math.Min(PageCount, criteria.PageNumber);
-                        
-                        if (_pageIndex == PageCount -1)
+
+                        if (_pageIndex == PageCount - 1)
                         {//last page
                             items = items.GetRange(_pageIndex * PageSize, _totalItemCount - (_pageIndex * PageSize));
                         }
@@ -537,31 +545,63 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
+                    
                 }
                 catch (Exception e)
                 {
-                    if (retryCount < 1 && e.Message.ToLower().Contains("timeout"))
-                    {
-                        retryCount++;
-                        string sql = "select i.item_id, IS_INCLUDED, IS_DELETED from tb_item i inner join TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @rid";
-                        using (SqlCommand commandEx = new SqlCommand(sql, connection))
+                    //12 Apr 2024 - we now have two possible strategies to handle timeout exceptions:
+                    //1: Old system, gets SQL to load in memory item_id, IS_INCLUDED, IS_DELETED from TB_ITEM_REVIEW for this review, with 4 minutes of timeout
+                    //1: which can mean the itemList may take up to 5m to load or fail. Moreover, if the DB is slow for some unrelated reason, this strategy
+                    //1: makes SQL do extra work - try to get the list, fail, try reading TB_ITEM_REVIEW, try to get the list again.
+                    //1: This work may be useful for the default list (all included items) and some other lists, but not all lists, 
+                    //1: making this extra work entirely useless, at least sometimes.
+                    //1: thus, this old system might in some cases be ACTIVELY harmful, adding extra work to an already overworked database.
+                    //2: Alternatively, we use the new "typespecific" approach which gives 2m30s only to the default list to load (standard 30s to all other list types)
+                    //2: then, if a timeout occurs, tries again after adding 30s to the timeout (but not if the timeout is already 150s or more, so not to the default list).
+                    //2: as a result, the default list will timeout after a max of:
+                    //2: Default list - 2x150s = 300s = 5 minutes, as for old method 1. All other lists: 90s.
+                    //2: Additionally, we log details about what happened, so to make it possible to discover whether approach 1 or 2 work well/better than the other
+                    //2: And we pick the method based on a value in the Config file, allowing us to switch from one to the other while in production.
+                    //2: Thus, if we'll find that method 1 works best, but becomes a problem while some other problem is occurring, we can TEMPORARILY switch to method 2 on command.
+                    //FINALLY: method 2 is inherently extensible, meaning we could alter the default and/or 2nd try timeout in a list-type specific manner, if we'll find it's useful
+                    if (AzureSettings.ItemListTimeoutHandling.ToLower() != "typespecific")
+                    {//METHOD 1 as we did since moving to Azure
+                        if (retryCount < 1 && e.Message.ToLower().Contains("timeout"))
                         {
-                            commandEx.Parameters.Add(new SqlParameter("@rid", System.Data.SqlDbType.Int));
-                            commandEx.Parameters["@rid"].Value = ri.ReviewId;
-                            commandEx.CommandTimeout = 240;
-                            commandEx.ExecuteReader();
-                            this.DataPortal_Fetch(criteria);
+                            retryCount++;
+                            ErrorLogSink("Handled Exception in ItemList - Not Type-Specific Mode." + Environment.NewLine + "  List type: " + criteria.ListType + Environment.NewLine
+                                + "  Exception Message: " + e.Message + Environment.NewLine);
+                            string sql = "select i.item_id, IS_INCLUDED, IS_DELETED from tb_item i inner join TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @rid";
+                            using (SqlCommand commandEx = new SqlCommand(sql, connection))
+                            {
+                                commandEx.Parameters.Add(new SqlParameter("@rid", System.Data.SqlDbType.Int));
+                                commandEx.Parameters["@rid"].Value = ri.ReviewId;
+                                commandEx.CommandTimeout = 240;
+                                commandEx.ExecuteReader();
+                                this.DataPortal_Fetch(criteria);
+                            }
                         }
+                        else
+                            //in case we already tried the workaround above, avoid an endless loop and return original problem to client
+                            throw; //see:https://learn.microsoft.com/en-gb/dotnet/fundamentals/code-analysis/quality-rules/ca2200
                     }
-                    else 
-                        //in case we already tried the workaround above, avoid an endless loop and return original problem to client
-                        throw e;
+                    else
+                    {//METHOD 2 "type specific" introduced in April 2024
+                        if (retryCount < 1 && e.Message.ToLower().Contains("timeout"))
+                        {
+                            retryCount++;
+                            ErrorLogSink("Handled Exception in ItemList. Type-Specific Mode." + Environment.NewLine + "  List type: " + criteria.ListType + Environment.NewLine
+                                + "   Exception Message: " + e.Message + Environment.NewLine);
+                            this.DataPortal_Fetch(criteria);//1st timeout, we're trying again, and we'll be adding 30s to the command timeout
+                        }
+                        else throw;
+                    }
                 }
                 connection.Close();
             }
             RaiseListChangedEvents = true;
         }
-        
+
         private SqlCommand SpecifyListCommand(SqlConnection connection, SelectionCriteria criteria, ReviewerIdentity ri)
         {
             SqlCommand command = null;
@@ -575,6 +615,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SHOW_DELETED", criteria.ShowDeleted));
                     command.Parameters.Add(new SqlParameter("@SOURCE_ID", criteria.SourceId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_ID_LIST", criteria.AttributeSetIdList));
+                    if (AzureSettings.ItemListTimeoutHandling.ToLower() == "typespecific" //we only change the timeout as per below in one specific case
+                        && criteria.OnlyIncluded == true && criteria.ShowDeleted == false && criteria.SourceId == 0 && criteria.AttributeSetIdList == "")
+                    {//this is the default list loaded upon opening a review (all included items)
+                        //for very large reviews, SQL might need longer time to collect the list of included ItemIds when the relevant data isn't in memory already
+                        command.CommandTimeout = 150;//2m30s - should be enough, tested on a review with 500K+ includes and 1M++ items in total, a cold execute took 1m:18s on 12 Apr 2024
+                    }
                     break;
 
                 case "ItemListWithoutAttributes":
@@ -829,6 +875,17 @@ namespace BusinessLibrary.BusinessClasses
                     break;
             }
             return command;
+        }
+
+        protected void ErrorLogSink(string Message)
+        {
+#if CSLA_NETCORE && !WEBDB
+            try
+            {
+                if (Program.Logger != null) Program.Logger.Error(Message);
+            }
+            catch { }
+#endif
         }
 #endif
     }
