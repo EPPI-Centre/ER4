@@ -1,0 +1,442 @@
+﻿<!-- DHSC Item Details -->
+@model WebDatabasesMVC.Controllers.ItemSelCritMVC;
+@using WebDatabasesMVC.ViewModels;
+@using BusinessLibrary.BusinessClasses;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+@using System.Linq;
+@using System.Security.Claims;
+
+
+
+<script>
+
+    let visualHTML = "";
+
+    $(document).ready(function () {
+
+        
+
+        $("#smallPhoneButton").hide();
+        if ($(window).outerWidth() <= 325) {
+            $("#smallPhoneButton").show();
+        }
+
+        GetDocumentAndCodingData();
+    });
+
+    function GetDocumentAndCodingData() {
+        // I don't think I have a call to get the details for just one item so I have to get them all.
+        // This can't be right but for now this will work...
+
+        // also a bit of a kludge...
+        var attributeIdFilter = @Model.itemIds;
+
+        $.post("../ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: '' }
+            , function (data, result) { itemData(data, result); }
+        );
+    }
+
+
+    async function itemData(data, result) {
+        if (result == "success") {
+            var documentData = data;
+            console.log("documentData", documentData, result);
+
+            // I know the itemId so get the coding data.
+            await $.post("../Coding/FetchItemCodingJSON"
+                , { ItemId: @Model.itemID }
+                , function (data, result) { buildCard(data, result, documentData) }
+            );
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+    }
+
+
+
+    function buildCard(codingData, result, documentData) {
+        if (result == "success") {
+            console.log("codingData", codingData, result);
+            let visualHTML = "";
+
+
+            var itemNumber = 0;
+            // I have all of the items so I need to find the right one.
+            for (i = 0; i < documentData.items.totalItemCount; i++) {
+                if (documentData.items.items[i].itemId == @Model.itemID) {
+                    itemNumber = i;
+                    i = documentData.items.length;
+                }
+            }
+
+
+            var costValue = "?";
+            var evidenceQualityValue = "?";
+            var reviewSizeValue = "?";
+            var outcomes1Value = "?";
+            var outcomes1ImpactValue = "?";
+            var outcomes2Value = "?";
+            var outcomes2ImpactValue = "?";
+            var outcomes3Value = "?";
+            var outcomes3ImpactValue = "?";
+            var Intervention_theme_type = "?";
+            var what_is_it = "?";
+            var is_it_effective = "?";
+            var how_secure_is_it = "?";
+            var how_to_implement = "?";
+            var how_much_does_it_cost = "?";
+
+
+            // the itemAttributesList entries are in the order the codes are assigned so we need to loop through all of them to
+            // be sure we look at all of them
+
+            for (var k = 0; k < codingData.itemSetList[0].itemAttributesList.length; k++) {
+                switch (codingData.itemSetList[0].itemAttributesList[k].attributeId) {
+
+                    // Cost
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
+                        costValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
+                        costValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
+                        costValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
+                        costValue = "4";
+                        break;
+
+                    // Evidence quality
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
+                        evidenceQualityValue = "0";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
+                        evidenceQualityValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
+                        evidenceQualityValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
+                        evidenceQualityValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
+                        evidenceQualityValue = "4";
+                        break;
+
+                    // Review size
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[0].attributeId:
+                        reviewSizeValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[1].attributeId:
+                        reviewSizeValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[2].attributeId:
+                        reviewSizeValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[3].attributeId:
+                        reviewSizeValue = "4";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[4].attributeId:
+                        reviewSizeValue = "5";
+                        break;
+
+                    // Outcomes 1
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[0].attributeId:
+                        outcomes1Value = "Mental health";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[1].attributeId:
+                        outcomes1Value = "Violence";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[2].attributeId:
+                        outcomes1Value = "Knowledge / attitudes";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[3].attributeId:
+                        outcomes1Value = "Indentification of violence";
+                        break;
+
+                    // Impact 1
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[0].attributeId:
+                        outcomes1ImpactValue = "None";
+                        impact1Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[1].attributeId:
+                        outcomes1ImpactValue = "Moderate";
+                        impact1Number = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[2].attributeId:
+                        outcomes1ImpactValue = "High";
+                        impact1Number = "3";
+                        break;
+
+                    // Outcomes 2
+                    case codingData.reviewSets[0].attributes.attributesList[5].attributes.attributesList[0].attributeId:
+                        outcomes2Value = "Violence";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[5].attributes.attributesList[1].attributeId:
+                        outcomes2Value = "Child behaviour";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[5].attributes.attributesList[2].attributeId:
+                        outcomes2Value = "Mental health";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[5].attributes.attributesList[3].attributeId:
+                        outcomes2Value = "Health service utilisation";
+                        break;
+
+                    // Impact 2
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[0].attributeId:
+                        outcomes2ImpactValue = "None";
+                        impact2Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[1].attributeId:
+                        outcomes2ImpactValue = "Moderate";
+                        impact2Number = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[2].attributeId:
+                        outcomes2ImpactValue = "High";
+                        impact2Number = "3";
+                        break;
+
+                    // Outcomes 3
+                    case codingData.reviewSets[0].attributes.attributesList[7].attributes.attributesList[0].attributeId:
+                        outcomes3Value = "Health service utilisation";
+                        break;
+
+                    // Impact 3
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[0].attributeId:
+                        outcomes3ImpactValue = "None";
+                        impact3Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[1].attributeId:
+                        outcomes3ImpactValue = "Moderate";
+                        impact3Number = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[2].attributeId:
+                        outcomes3ImpactValue = "High";
+                        impact3Number = "3";
+                        break;
+
+                    // themes
+                    case codingData.reviewSets[0].attributes.attributesList[11].attributes.attributesList[0].attributeId:
+                        Intervention_theme_type = "Interventions for victims";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[11].attributes.attributesList[1].attributeId:
+                        Intervention_theme_type = "Interventions for broader impacts of violence";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[11].attributes.attributesList[2].attributeId:
+                        Intervention_theme_type = "Interventions for perpetrators";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[11].attributes.attributesList[3].attributeId:
+                        Intervention_theme_type = "Organisational interventions";
+                        break;
+
+                    default:
+                        break;
+
+                }
+            }
+
+            for (var k = 0; k < codingData.itemSetList[1].itemAttributesList.length; k++) {
+                switch (codingData.itemSetList[1].itemAttributesList[k].attributeId) {
+
+                    // what_is_it
+                    case codingData.reviewSets[1].attributes.attributesList[0].attributeId:
+                        what_is_it = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                     // is_it_effective
+                    case codingData.reviewSets[1].attributes.attributesList[1].attributeId:
+                        is_it_effective = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                    // how_secure_is_it
+                    case codingData.reviewSets[1].attributes.attributesList[2].attributeId:
+                        how_secure_is_it = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                    // how_to_implement
+                    case codingData.reviewSets[1].attributes.attributesList[3].attributeId:
+                        how_to_implement = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                    // how_much_does_it_cost
+                    case codingData.reviewSets[1].attributes.attributesList[4].attributeId:
+                        how_much_does_it_cost = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+
+            var studyTitle = documentData.items.items[itemNumber].title;
+            var studyAbstract = documentData.items.items[itemNumber].abstract;
+
+            // the title area
+            visualHTML += "<br>";
+            visualHTML += "<br>";
+            visualHTML += "<table>";
+            visualHTML += "<tr>";
+            visualHTML += "<td style='border-bottom: solid; border-width: 1px; padding: 10px 0px 10px 0px;'>";
+            visualHTML += "<p><h1><b>" + studyTitle  + "</b></h1></p>"
+            visualHTML += "<p><h3>" + studyAbstract + "</h3></p>"
+            visualHTML += "</td>";
+            visualHTML += "</tr>";
+            visualHTML += "</table>";
+
+            visualHTML += "<br>";
+
+            // the data card
+            visualHTML += "<div class='card' >";
+            visualHTML += "<div class='card-body' style='background-color: #f8cbc7;'> ";
+
+            visualHTML += "<table style='width: 100%'>";
+            visualHTML += "<tr>";
+            
+            visualHTML += "<td width='50%' style='border-right: solid; border-width: 1px; padding: 0px 15px 0px 0px;'>";
+            if (outcomes1Value != "?") {
+                visualHTML += "Estimated impact on <b>" + outcomes1Value + "</b><br>";
+                visualHTML += "<b>" + outcomes1ImpactValue + "</b>";
+                visualHTML += "<br><hr><br>";
+            }
+            if (outcomes2Value != "?") {
+                visualHTML += "Estimated impact on <b>" + outcomes2Value + "</b><br>";
+                visualHTML += "<b>" + outcomes2ImpactValue + "</b>";
+                visualHTML += "<br><hr><br>";
+            }
+            if (outcomes3Value != "?") {
+                visualHTML += "Estimated impact on <b>" + outcomes3Value + "</b><br>";
+                visualHTML += "<b>" + outcomes3ImpactValue + "</b>";
+               
+            }
+            visualHTML += "</td>";
+
+            visualHTML += "<td width='50%' style='padding: 0px 0px 0px 15px;'>";
+            visualHTML += "Evidence quality<br>";
+            visualHTML += "<b>" + evidenceQualityValue + "</b>";
+            visualHTML += "<br><hr><br>";
+            visualHTML += "Cost<br>";
+            visualHTML += "<b>" + costValue + "</b>";
+            visualHTML += "<br><hr><br>";
+            visualHTML += "<span id='what_is_it'>Themes</span><br>";
+            visualHTML += "<b>" + Intervention_theme_type + "</b>";
+            visualHTML += "</td>";
+
+            visualHTML += "</tr>";
+            visualHTML += "</table>";
+
+            visualHTML += "</div>";
+            visualHTML += "</div>";
+
+
+            // the details below the card
+
+            //visualHTML += "<div id='what_is_it'><div>"
+            visualHTML += "<p><h3 id='is_it_effective'><b>What is it?</b></h3></p>";
+            visualHTML += "<p>" + what_is_it + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 id='how_secure_is_it'><b>Is it effective?</b></h3></p>";
+            visualHTML += "<p>" + is_it_effective + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 id='how_to_implement'><b>How secure is the evidence?</b></h3></p>";
+            visualHTML += "<p>" + how_secure_is_it + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 id='how_much_does_it_cost'><b>How can you implement it well?</b></h3></p>";
+            visualHTML += "<p>" + how_to_implement + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 ><b>How much does it cost?</b></h3></p>";
+            visualHTML += "<p>" + how_much_does_it_cost + "</p>";
+            visualHTML += "<br>";
+
+
+            let resultsDiv = $("#visualsDHSCDiv");
+            resultsDiv.html(visualHTML);
+
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+
+    }
+
+
+
+
+</script>
+
+
+@{
+    Layout = "~/Views/Shared/_DHSCLayout.cshtml";
+}
+
+
+<!-- Side bar coding tools area -->
+<div class="sidebar sidebar-style-2">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+
+            <ul class="nav nav-primary">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+
+                    <div style="padding-left:10px">
+                        <!-- this button should be invisible if the screen is > 325px wide -->
+                        <button id="smallPhoneButton" class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse"
+                                data-target="collapse" aria-expanded="false" aria-label="Toggle navigation" style="padding-left:0px">
+                            <span class="navbar-toggler-icon">
+                                <i class="icon-menu"></i>
+                            </span>
+                        </button>
+
+                        <!--Filtering controls-->
+                        <table width="100%">
+                            <tr>
+                                <td style='border-bottom: solid; border-width: 1px border-color: black; padding: 10px 10px 10px 10px;'>
+                                    <br /><br /><br />
+                                </td>
+                            </tr>
+                        </table>
+                        <a href="#what_is_it" style="color: #343a40"><h4>What is it?</h4></a><hr />
+                        <a href="#is_it_effective" style="color: #343a40"><h4>Is it effective?</h4></a><hr />
+                        <a href="#how_secure_is_it" style="color: #343a40"><h4>How secure is the evidence?</h4></a><hr />
+                        <a href="#how_to_implement" style="color: #343a40"><h4>How can you implement it well?</h4></a><hr />
+                        <a href="#how_much_does_it_cost" style="color: #343a40"><h4>How much does it cost?</h4></a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="main-panel">
+    <div class="content">
+
+
+
+        <!-- Everything below header -->
+        <div class="page-inner px-2 mt--5">
+            <div class="row mx-0 mt--2">
+                <div class="col-12">
+
+                    <div id="visualsDHSCDiv"></div>
+
+
+                </div>
+
+
+                <div class="col-auto col-lg">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

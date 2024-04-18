@@ -1,0 +1,840 @@
+﻿<!-- DHSC Home -->
+@model WebDbWithRevInfo;
+@using WebDatabasesMVC.ViewModels;
+@using Microsoft.AspNetCore.Html;
+@using System.IO;
+@using System.Security.Claims;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+
+@{
+    Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    string imgPath1 = "";
+    string imgPath2 = "";
+    bool smallPhone = false;
+
+    //string imgMapPath1 = "";
+    if (WebDbIDclaim != null)
+    {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.jpg")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
+        //if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.jpg")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.jpg");
+        //else if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.png")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.png");
+    }
+}
+
+
+<style>
+    .fieldlist {
+        margin: 0 0 -1em;
+        padding: 0;
+        color: black;
+    }
+
+    .fieldlist li {
+        list-style: none;
+        padding-bottom: 1em;
+        color:black;
+      
+    }
+
+</style>
+
+
+<script>
+
+    // declare some global variables
+    var visualHTML = "";
+    var globalCounter = 0;
+    var attributeIdFilter = 0;
+    var costMin = 1;
+    var costMax = 4;
+    var evidenceMin = 0;
+    var evidenceMax = 4;
+
+    $(document).ready(function () {
+        const descrPanel = $("#WebDBDescription");
+        if (descrPanel && descrPanel.height() > 300) {
+            //ExpandDescription ReduceDescription
+            $("#ExpandDescription").show();
+            $("#ReduceDescription").hide();
+            $("#HideDescriptionDiv").show();
+            $("#ShowDescriptionDiv").hide();
+            descrPanel.css("max-height", "250px");
+        } else {
+            $("#ExpandDescription").hide();
+            $("#ReduceDescription").hide();
+        }
+
+        // reset variables on document load
+        visualHTML = "";
+        globalCounter = 0;
+        costMin = 1;
+        costMax = 4;
+        evidenceMin = 0;
+        evidenceMax = 4;
+
+
+
+
+        $("#smallPhoneButton").hide();
+        if ($(window).outerWidth() <= 325) {
+            $("#smallPhoneButton").show();
+        }
+
+        GetDocumentAndCodingData();
+
+        BuildFilters();
+    });
+
+    function GoToDHSCItemDetails(ItemId) {
+
+        let pars = { itemID: ItemId, itemIds: attributeIdFilter };
+        postwith("../ItemList/DHSCItemDetails", pars);
+
+    };
+
+
+    function BuildFilters() {
+
+        $("#costSlider").kendoRangeSlider({
+            change: costRangeSliderOnChange,
+            slide: costRangeSliderOnSlide,
+            min: 1,
+            max: 4,
+            smallStep: 1,
+            largeStep: 1
+        });
+
+
+        $("#evidenceSlider").kendoRangeSlider({
+            change: evidenceRangeSliderOnChange,
+            slide: evidenceRangeSliderOnSlide,
+            min: 0,
+            max: 4,
+            smallStep: 1,
+            largeStep: 1
+        });
+
+    }
+
+    function costRangeSliderOnSlide(e) {
+        console.log("Slide :: new slide values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        costMin = e.value.toString().substring(0,pos);
+        costMax = e.value.toString().substring(pos+1);
+
+        visualHTML = "";
+        globalCounter = 0;
+
+        $.post("../ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: 'test' }
+            , function (data, result) { itemData(data, result); }
+        );
+    }
+
+    function costRangeSliderOnChange(e) {
+        console.log("Change :: new values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        costMin = e.value.toString().substring(0, pos);
+        costMax = e.value.toString().substring(pos+1);
+
+        visualHTML = "";
+        globalCounter = 0;
+
+        $.post("../ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: 'test' }
+            , function (data, result) { itemData(data, result); }
+        );
+    }
+
+    function evidenceRangeSliderOnSlide(e) {
+        console.log("Slide :: new slide values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        evidenceMin = e.value.toString().substring(0, pos);
+        evidenceMax = e.value.toString().substring(pos+1);
+
+        visualHTML = "";
+        globalCounter = 0;
+
+        $.post("../ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: 'test' }
+            , function (data, result) { itemData(data, result); }
+        );
+    }
+
+    function evidenceRangeSliderOnChange(e) {
+        console.log("Change :: new values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        evidenceMin = e.value.toString().substring(0, pos);
+        evidenceMax = e.value.toString().substring(pos+1);
+
+        visualHTML = "";
+        globalCounter = 0;
+
+        $.post("../ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: 'test' }
+            , function (data, result) { itemData(data, result); }
+        );
+    }
+
+    function filterToggle(divName) {
+        var x = document.getElementById(divName);
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+
+    function ToggleDescrPanelSize() {
+        const descrPanel = $("#WebDBDescription");
+        if (descrPanel) {
+            if (descrPanel.css("max-height") == "250px") {
+                descrPanel.css("max-height", "");
+            }
+            else {
+                descrPanel.css("max-height", "250px");
+            }
+            $("#ExpandDescription").toggle();
+            $("#ReduceDescription").toggle();
+        }
+    }
+
+    function HideShowDescriptionDiv() {
+        const descrPanel = $("#WebDBDescription");
+        const descrShowHideIcon = $("#ShowHideDescriptionDivIcon");
+        if (descrPanel) {
+            descrPanel.css("max-height", "250px");
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
+                $("#ExpandDescription").show();
+                $("#ReduceDescription").hide();
+                $("#WebDBDescriptionBody").show();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-minus";
+            }
+            else {
+                $("#ExpandDescription").hide();
+                $("#ReduceDescription").hide();
+                $("#WebDBDescriptionBody").hide();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
+            }
+        }
+    }
+
+
+    function HideShowPublicationDiv() {
+        if ("#publicationDiv") {
+            if (HideShowPublicationDivIcon.className == "fa fa-plus") {
+                $("#publicationDiv").show();
+                HideShowPublicationDivIcon.className = "fa fa-minus";
+                $("#publicationDiv").css("max-height", "1000px");
+                $("#YearFreq").show();
+                $("#YearFreqTable").show();
+                if (YearFreqTable.disabled == false) {
+                    $("#BarByYearChartVisible").show();
+                }
+            }
+            else {
+                $("#publicationDiv").hide();
+                HideShowPublicationDivIcon.className = "fa fa-plus";
+                $("#publicationDiv").css("max-height", "0px");
+                $("#YearFreq").hide();
+                $("#YearFreqTable").hide();
+                $("#BarByYearChartVisible").hide();
+            }
+        }
+    }
+
+
+    function GetDocumentAndCodingData() {      
+        @{
+            var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
+        };
+        var ListData = @jdata;
+        console.log("webDbData", ListData);
+        attributeIdFilter = ListData.webDb.attributeIdFilter;
+        
+        $.post("../ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: 'test' }
+            , function (data, result) { itemData(data, result); }
+        );      
+    }
+
+
+    async function itemData(data, result) {
+        if (result == "success") {
+            var documentData = data;
+            console.log("documentData", documentData, result);
+         
+            for (var i = 0; i < documentData.items.totalItemCount; i++) {
+                await $.post("../Coding/FetchItemCodingJSON"
+                    , { ItemId: documentData.items.items[i].itemId }
+                    , function (data, result) { buildCard(data, result, documentData, i) }
+                );
+            }
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+    }
+
+
+    function buildCard(codingData, result, documentData, i) {
+        if (result == "success") {
+            console.log("codingData", codingData, result);         
+
+            var studyTitle = documentData.items.items[i].title;
+            var studyAbstract = documentData.items.items[i].abstract;
+            var itemId = documentData.items.items[i].itemId;
+
+            var costValue = "?";
+            var evidenceQualityValue = "?";
+            var reviewSizeValue = "?";
+            var outcomes1Value = "?";
+            var outcomes1ImpactValue = "?";
+            var outcomes2Value = "?";
+            var outcomes2ImpactValue = "?";
+            var outcomes3Value = "?";
+            var outcomes3ImpactValue = "?";
+            var impact1Number = "?";
+            var impact2Number = "?";
+            var impact3Number = "?";
+            
+            // the itemAttributesList entries are in the order the codes are assigned so we need to loop through all of them to
+            // be sure we look at all of them
+
+            for (var k = 0; k < codingData.itemSetList[0].itemAttributesList.length; k++) {
+                switch (codingData.itemSetList[0].itemAttributesList[k].attributeId) {
+
+                    // Cost
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
+                        costValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
+                        costValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
+                        costValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
+                        costValue = "4";
+                        break;
+
+                    // Evidence quality
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
+                        evidenceQualityValue = "0";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
+                        evidenceQualityValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
+                        evidenceQualityValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
+                        evidenceQualityValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
+                        evidenceQualityValue = "4";
+                        break;
+
+                    // Review size
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[0].attributeId:
+                        reviewSizeValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[1].attributeId:
+                        reviewSizeValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[2].attributeId:
+                        reviewSizeValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[3].attributeId:
+                        reviewSizeValue = "4";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[4].attributeId:
+                        reviewSizeValue = "5";
+                        break;
+                    
+                     // Outcomes 1
+                     case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[0].attributeId:
+                         outcomes1Value = "Mental health";
+                         break;
+                     case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[1].attributeId:
+                         outcomes1Value = "Violence";
+                         break;
+                     case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[2].attributeId:
+                         outcomes1Value = "Knowledge / attitudes";
+                         break;
+                     case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[3].attributeId:
+                         outcomes1Value = "Indentification of violence";
+                         break;
+
+                    // Impact 1
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[0].attributeId:
+                        outcomes1ImpactValue = "No";
+                        impact1Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[1].attributeId:
+                        outcomes1ImpactValue = "Moderate";
+                        impact1Number = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[2].attributeId:
+                        outcomes1ImpactValue = "High";
+                        impact1Number = "3";
+                        break;
+
+                    // Outcomes 2
+                    case codingData.reviewSets[0].attributes.attributesList[5].attributes.attributesList[0].attributeId:
+                        outcomes2Value = "Violence";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[5].attributes.attributesList[1].attributeId:
+                        outcomes2Value = "Child behaviour";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[5].attributes.attributesList[2].attributeId:
+                        outcomes2Value = "Mental health";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[5].attributes.attributesList[3].attributeId:
+                        outcomes2Value = "Health service utilisation";
+                        break;
+
+                    // Impact 2
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[0].attributeId:
+                        outcomes2ImpactValue = "No";
+                        impact2Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[1].attributeId:
+                        outcomes2ImpactValue = "Moderate";
+                        impact2Number = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[2].attributeId:
+                        outcomes2ImpactValue = "High";
+                        impact2Number = "3";
+                        break;
+
+                    // Outcomes 3
+                    case codingData.reviewSets[0].attributes.attributesList[7].attributes.attributesList[0].attributeId:
+                        outcomes3Value = "Health service utilisation";
+                        break;
+
+                    // Impact 3
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[0].attributeId:
+                        outcomes3ImpactValue = "No";
+                        impact3Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[1].attributeId:
+                        outcomes3ImpactValue = "Moderate";
+                        impact3Number = "2";
+                        break;k
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[2].attributeId:
+                        outcomes3ImpactValue = "High";
+                        impact3Number = "3";
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            
+            
+
+            // for filtering I can check the values to see if the card should be created...
+            if (((costValue >= costMin) && (costValue <= costMax)) &&
+                ((evidenceQualityValue >= evidenceMin) && (evidenceQualityValue <= evidenceMax))) 
+            {
+
+                visualHTML += "<div class='card' >";
+                visualHTML += "<div class='card-header' style='background-color: #f8cbc7;'>";
+                visualHTML += "<table width='100%'>";
+                visualHTML += "<tr>";
+                visualHTML += "<td width='40%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                visualHTML += "<b>" + studyTitle + "</b>";
+                visualHTML += "<br>";
+                visualHTML += studyAbstract;
+                //visualHTML += "<br>itemId: " + itemId;
+                visualHTML += "</td>";
+
+
+                visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                visualHTML += "<h5><b>Cost</b></h5><br>"
+                visualHTML += costValue;
+                //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[0].attributeId + ")";
+                visualHTML += "</td>";
+
+                visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                visualHTML += "<h5><b>Evidence quality</b></h5><br>"
+                visualHTML += evidenceQualityValue;
+                //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[1].attributeId + ")";
+                visualHTML += "</td>";
+
+                visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;'>";
+                visualHTML += "<h5><b>Review size</b></h5><br>"
+                visualHTML += reviewSizeValue;
+                //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[2].attributeId + ")";
+                visualHTML += "</td>";
+                visualHTML += "</tr>";
+                visualHTML += "</table>";
+                visualHTML += "</div>";
+
+                if ((outcomes1Value != "?") || (outcomes2Value != "?") || (outcomes2Value != "?")) {
+                    // we have outcome values so add them to the card
+                    visualHTML += "<div class='card-body' style='background-color: #fbe2e0;'>";
+                    visualHTML += "<table width='100%'>";
+                    visualHTML += "<tr>";
+                    visualHTML += "<td colspan='4' style='border-bottom: solid; border-width: 1px; padding: 0px 0px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                    visualHTML += "Other outcomes";
+                    visualHTML += "</td>";
+                    visualHTML += "</tr>";
+
+                    if (outcomes1Value != "?") {
+                        visualHTML += "<tr>";
+                        visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                        visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
+                        visualHTML += "</td>";
+                        visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px;'>";
+                        visualHTML += impact1Number;
+                        visualHTML += "</td>";
+                        visualHTML += "</tr>";
+                    }
+                    if (outcomes2Value != "?") {
+                        visualHTML += "<tr>";
+                        visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                        visualHTML += "<b>" + outcomes2ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes2Value + "</b>";
+                        visualHTML += "</td>";
+                        visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                        visualHTML += impact2Number;
+                        visualHTML += "</td>";
+                        visualHTML += "</tr>";
+                    }
+                    if (outcomes3Value != "?") {
+                        visualHTML += "<tr>";
+                        visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToDHSCItemDetails(" + itemId + ")''>";
+                        visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes3Value + "</b>";
+                        visualHTML += "</td>";
+                        visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                        visualHTML += impact3Number;
+                        visualHTML += "</td>";
+                        visualHTML += "</tr>";
+                    }
+                    visualHTML += "</table>";
+                    visualHTML += "</div>";
+                }
+                
+                visualHTML += "</div>";
+            }
+            globalCounter += 1;
+            if (globalCounter == documentData.items.totalItemCount) {
+                let resultsDiv = $("#visualsDHSCDiv");
+                resultsDiv.html(visualHTML);  
+                globalCounter = 0;
+            }
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+    }
+
+
+
+
+
+</script>
+
+@{
+    Layout = "~/Views/Shared/_DHSCLayout.cshtml";
+}
+
+
+<!-- Side bar coding tools area -->
+<div class="sidebar sidebar-style-2">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+
+            <ul class="nav nav-primary">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+
+                    <div style="padding-left:10px">
+                        <!-- this button should be invisible if the screen is > 325px wide -->
+                        <button id="smallPhoneButton" class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse"
+                                data-target="collapse" aria-expanded="false" aria-label="Toggle navigation" style="padding-left:0px">
+                            <span class="navbar-toggler-icon">
+                                <i class="icon-menu"></i>
+                            </span>
+                        </button>
+
+                        <!--Filtering controls-->
+                        <table width="95%">
+                            <tr>
+                                <td style="border-bottom: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 10px;">
+                                    <h3 class ="text-body pb-2"><b>Filter by:</b></h3>
+                                </td> 
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 0px 10px 0px 10px;">   
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td style="padding: 10px 10px 10px 15px;">
+                                    <label><b>COST</b></label><br />
+                                    <div id="costSlider" class="humidity">
+                                        <input />
+                                        <input />
+                                    </div>
+                                </td>
+                            </tr>
+
+                            
+
+                            <tr>
+                                <td style="padding: 10px 10px 10px 15px;">
+                                    <label><b>EVIDENCE</b></label><br />
+                                    <div id="evidenceSlider" class="humidity">
+                                        <input />
+                                        <input />
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 10px 10px 10px 10px;">
+                                <br />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 0px 10px;">
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 0px 10px 10px 10px;">
+                                    <h5 class="text-body pb-2">Advanced filters</h5>
+                                </td>
+                            </tr>
+
+                        </table>
+                    
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('themesFilterDiv')">
+                            <table width="100%"><tr>
+                                    <td width="80%"><h5><b>THEMES</b></h5></td>
+                                <td width="20%">
+                                    <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                    <path fill="#000" d="M0 0l5 5 5-5H0z"></path></svg>
+                                </td>
+                            </tr></table>
+                        </div>                        
+                        <div id="themesFilterDiv" style="width: 95%; display:none">
+                            <table width="100%"><tr>
+                                <td style="padding: 0px 0px 0px 10px;" ">
+                                    <ul class="fieldlist">
+                                        <li>
+                                            <input type="checkbox" id="eq1"/>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="eq2" />
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr></table>
+                            <br />
+                        </div>
+
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('outcomesFilterDiv')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <h5><b>OUTCOMES</b></h5></td>
+                                    <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                            <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                        </svg> 
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="outcomesFilterDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;" ">
+                                        <ul class="fieldlist">
+                                            <li>
+                                                <input type="checkbox" id="eq1" />
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="eq2" />
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('preventionFilterDiv')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <h5><b>PREVENTION TYPES</b></h5>
+                                    </td>
+                                    <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                            <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                        </svg>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="preventionFilterDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;" ">
+                                        <ul class="fieldlist">
+                                            <li>
+                                                <input type="checkbox" id="eq1">
+                                                <label>abcd</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="eq2" />
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="main-panel">
+    <div class="content">
+
+        <!-- header area -->
+        <div class="panel-header bg-primary-gradient">
+            <div class="page-inner py-5">
+                <div class="row">
+                    <div class="col-8 col-md-7 px-1">
+                        <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
+                        <h5 class="text-white op-7 mb-2">@Model.WebDb.Subtitle</h5>
+                    </div>
+                    <div class="col-auto col-md-5 px-1 row mx-0">
+                        @if (@imgPath1 != "")
+                        {
+                            if (Model.WebDb.HeaderImage1Url == "")
+                            {
+                                <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 ml-auto" />
+                            }
+                            else if (Model.WebDb.HeaderImage1Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage1Url.ToLower().StartsWith("https://"))
+                            {
+                                <a href="@(new HtmlString(Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
+                                    <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 " />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
+                                    <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2" />
+                                </a>
+                            }
+                        }
+                        @if (@imgPath2 != "")
+                        {
+                            if (Model.WebDb.HeaderImage2Url == "")
+                            {
+                                <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 ml-auto" />
+                            }
+                            else if (Model.WebDb.HeaderImage2Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage2Url.ToLower().StartsWith("https://"))
+                            {
+                                <a href="@(new HtmlString(Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
+                                    <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 " />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
+                                    <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2" />
+                                </a>
+                            }
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Everything below header -->
+        <div class="page-inner px-2 mt--5">
+            <div class="row mx-0 mt--2">
+                <div class="col-12">
+
+                    <!-- Description card -->
+                    <div class="card ">
+                        <div class="card-header">
+                            <table width="100%">
+                                <tr>
+                                    <td>
+                                        <div class="card-title">Introduction</div>
+                                    </td>
+                                    <td style="text-align:right;padding-top:5px">
+                                        <div id="ExpandDescription" class="btn btn-primary btn-sm btn-round"
+                                             onclick="ToggleDescrPanelSize()">
+                                            <div class="flaticon-down-arrow-1">
+                                                &nbsp;&nbsp;View more&nbsp;
+                                            </div>
+                                        </div>
+                                        <div id="ReduceDescription" class="btn btn-primary btn-sm btn-round"
+                                             onclick="ToggleDescrPanelSize()">
+                                            <div class="flaticon-up-arrow-1">
+                                                &nbsp;&nbsp;View less&nbsp;
+                                            </div>
+                                        </div>
+                                        <div id="ShowHideDescriptionDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowDescriptionDiv()">
+                                            <div id="ShowHideDescriptionDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </div>
+                        <div class="card-body" id="WebDBDescriptionBody" tooltip="">
+                            <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
+                                @(new HtmlString(Model.WebDb.WebDBDescription))
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="visualsDHSCDiv"></div>
+
+
+                </div>
+
+
+                <div class="col-auto col-lg">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+

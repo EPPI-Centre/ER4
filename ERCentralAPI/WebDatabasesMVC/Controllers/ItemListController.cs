@@ -535,7 +535,25 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
+
+        [HttpPost]
+        public IActionResult DHSCItemDetails(ItemSelCritMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    return View("DHSCItemDetails", crit);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemDetails");
+                return StatusCode(500, e.Message);
+            }
+        }
+
 
     }
     public class SelCritMVC
