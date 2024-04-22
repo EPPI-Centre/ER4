@@ -95,12 +95,51 @@
         cbPreventionTypes = "";
 
 
-
-
         $("#smallPhoneButton").hide();
         if ($(window).outerWidth() <= 325) {
             $("#smallPhoneButton").show();
         }
+
+
+        if (sessionStorage.getItem("ColourThemeSet") == "Yes") {
+            var colourTheme = sessionStorage.getItem("ColourTheme")
+
+            switch (colourTheme) {
+
+                case '1': // blueish Tints of #68b4f2
+                    topColour = "#a4d2f7";
+                    botColour = "#d1e8fb";
+                    offIcons = "#68b4f2";
+                    break;
+
+                case '2': // reddish like YEF
+                    topColour = "#f8cbc7";
+                    botColour = "#fbe2e0";
+                    offIcons = "#f0847b";
+                    break;
+
+                case '3': // greenish Tints of #57bc40
+                    topColour = "#9ad68c";
+                    botColour = "#cceac5";
+                    offIcons = "#57bc40";
+                    break;
+
+                case '4': // orangish Tints of #ffb558
+                    topColour = "#ffd29a";
+                    botColour = "#ffe8cc";
+                    offIcons = "#ffb558";
+                    break;
+
+                case '5': // purplish Tints of #7770d3
+                    topColour = "#ada9e4";
+                    botColour = "#d6d4f1";
+                    offIcons = "#7770d3";
+                    break;
+
+                default:
+                    break;
+            }
+        } 
 
         GetDocumentAndCodingData();
 
@@ -126,31 +165,31 @@
     function changeColour(value) {
         switch (value) {
 
-            case 1: // blueish Tints of #68b4f2
+            case '1': 
                 topColour = "#a4d2f7";
                 botColour = "#d1e8fb";
                 offIcons = "#68b4f2"; 
                 break;
 
-            case 2: // reddish
+            case '2': 
                 topColour = "#f8cbc7";
                 botColour = "#fbe2e0";
                 offIcons = "#f0847b";
                 break;
 
-            case 3: // greenish Tints of #57bc40
+            case '3': 
                 topColour = "#9ad68c";
                 botColour = "#cceac5";
                 offIcons = "#57bc40";
                 break;
 
-            case 4: // orangish Tints of #ffb558
+            case '4': 
                 topColour = "#ffd29a";
                 botColour = "#ffe8cc";
                 offIcons = "#ffb558";
                 break;
 
-            case 5: // purplish Tints of #7770d3
+            case '5': 
                 topColour = "#ada9e4";
                 botColour = "#d6d4f1";
                 offIcons = "#7770d3";
@@ -159,6 +198,9 @@
             default:
                 break;           
         }
+
+        sessionStorage.setItem("ColourThemeSet", "Yes");
+        sessionStorage.setItem("ColourTheme", value);
 
         visualHTML = "";
         globalCounter = 0;
@@ -806,19 +848,19 @@
                         <table width="100%">
                             <tr>
                                 <td style="padding: 0px 0px 0px 0px;">
-                                    <button type="button" id="blue" class="btn btn-icon btn-xs btn-round" style="background-color:#a4d2f7" onclick="changeColour(1)" > </button>
+                                    <button type="button" id="blue" class="btn btn-icon btn-xs btn-round" style="background-color:#a4d2f7" onclick="changeColour('1')" > </button>
                                 </td>
                                 <td style="padding: 0px 0px 0px 0px;">
-                                    <button type="button" id="red" class="btn btn-icon btn-xs btn-round" style="background-color:#f8cbc7" onclick="changeColour(2)"> </button>
+                                    <button type="button" id="red" class="btn btn-icon btn-xs btn-round" style="background-color:#f8cbc7" onclick="changeColour('2')"> </button>
                                 </td>
                                 <td style="padding: 0px 0px 0px 0px;">
-                                    <button type="button" id="green" class="btn btn-icon btn-xs btn-round" style="background-color:#9ad68c" onclick="changeColour(3)"> </button>
+                                    <button type="button" id="green" class="btn btn-icon btn-xs btn-round" style="background-color:#9ad68c" onclick="changeColour('3')"> </button>
                                 </td>
                                 <td style="padding: 0px 0px 0px 0px;">
-                                    <button type="button" id="orange" class="btn btn-icon btn-xs btn-round" style="background-color:#ffd29a" onclick="changeColour(4)"> </button>
+                                    <button type="button" id="orange" class="btn btn-icon btn-xs btn-round" style="background-color:#ffd29a" onclick="changeColour('4')"> </button>
                                 </td>
                                 <td style="padding: 0px 0px 0px 0px;">
-                                    <button type="button" id="purple" class="btn btn-icon btn-xs btn-round" style="background-color:#ada9e4" onclick="changeColour(5)"> </button>
+                                    <button type="button" id="purple" class="btn btn-icon btn-xs btn-round" style="background-color:#ada9e4" onclick="changeColour('5')"> </button>
                                 </td>
                             </tr>
                         </table>

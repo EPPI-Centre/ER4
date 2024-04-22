@@ -12,6 +12,8 @@
 <script>
 
     let visualHTML = "";
+    var cardColour = "#a4d2f7";
+    var offIcons = "#68b4f2";
 
     $(document).ready(function () {
 
@@ -21,6 +23,43 @@
         if ($(window).outerWidth() <= 325) {
             $("#smallPhoneButton").show();
         }
+
+
+        if (sessionStorage.getItem("ColourThemeSet") == "Yes") {
+            var colourTheme = sessionStorage.getItem("ColourTheme")
+
+            switch (colourTheme) {
+
+                case '1': // blueish Tints of #68b4f2
+                    cardColour = "#a4d2f7";
+                    offIcons = "#68b4f2";
+                    break;
+
+                case '2': // reddish like YEF
+                    cardColour = "#f8cbc7";
+                    offIcons = "#f0847b";
+                    break;
+
+                case '3': // greenish Tints of #57bc40
+                    cardColour = "#9ad68c";
+                    offIcons = "#57bc40";
+                    break;
+
+                case '4': // orangish Tints of #ffb558
+                    cardColour = "#ffd29a";
+                    offIcons = "#ffb558";
+                    break;
+
+                case '5': // purplish Tints of #7770d3
+                    cardColour = "#ada9e4";
+                    offIcons = "#7770d3";
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
 
         GetDocumentAndCodingData();
     });
@@ -101,15 +140,15 @@
                     // Cost
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
                         costValue = "1";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
                         costValue = "2";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
                         costValue = "3";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
                         costValue = "4";
@@ -119,19 +158,19 @@
                     // Evidence quality
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
                         evidenceQualityValue = "0";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
                         evidenceQualityValue = "1";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
                         evidenceQualityValue = "2";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
                         evidenceQualityValue = "3";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
                         evidenceQualityValue = "4";
@@ -299,7 +338,7 @@
 
             // the data card
             visualHTML += "<div class='card' >";
-            visualHTML += "<div class='card-body' style='background-color: #f8cbc7;'> ";
+            visualHTML += "<div class='card-body' style='background-color: " + cardColour + "; '> ";
 
             visualHTML += "<table style='width: 100%'>";
             visualHTML += "<tr>";
