@@ -74,7 +74,9 @@
 
 
             var costValue = "?";
+            var costIcon = "";
             var evidenceQualityValue = "?";
+            var evidenceQualityIcon = "";
             var reviewSizeValue = "?";
             var outcomes1Value = "?";
             var outcomes1ImpactValue = "?";
@@ -99,32 +101,41 @@
                     // Cost
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
                         costValue = "1";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
                         costValue = "2";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
                         costValue = "3";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:#f0847b'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
                         costValue = "4";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>";
                         break;
 
                     // Evidence quality
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
                         evidenceQualityValue = "0";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
                         evidenceQualityValue = "1";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
                         evidenceQualityValue = "2";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
                         evidenceQualityValue = "3";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:#f0847b'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
                         evidenceQualityValue = "4";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>";
                         break;
 
                     // Review size
@@ -313,10 +324,10 @@
 
             visualHTML += "<td width='50%' style='padding: 0px 0px 0px 15px;'>";
             visualHTML += "Evidence quality<br>";
-            visualHTML += "<b>" + evidenceQualityValue + "</b>";
+            visualHTML += "<b>" + evidenceQualityIcon + "</b>";
             visualHTML += "<br><hr><br>";
             visualHTML += "Cost<br>";
-            visualHTML += "<b>" + costValue + "</b>";
+            visualHTML += "<b>" + costIcon + "</b>";
             visualHTML += "<br><hr><br>";
             visualHTML += "<span id='what_is_it'>Themes</span><br>";
             visualHTML += "<b>" + Intervention_theme_type + "</b>";
