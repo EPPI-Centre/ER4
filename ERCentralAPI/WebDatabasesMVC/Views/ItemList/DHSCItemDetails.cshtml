@@ -346,8 +346,16 @@
             visualHTML += "<td width='50%' style='border-right: solid; border-width: 1px; padding: 0px 15px 0px 0px;'>";
             if (outcomes1Value != "?") {
                 visualHTML += "Estimated impact on <b>" + outcomes1Value + "</b><br>";
-                visualHTML += "<b>" + outcomes1ImpactValue + "</b>";
-                visualHTML += "<br><hr><br>";
+                if (outcomes1ImpactValue == "?") {
+                    visualHTML += "<b>Unknown</b>";
+                    visualHTML += "<br><hr><br>";
+                } else {
+                    visualHTML += "<b>" + outcomes1ImpactValue + "</b>";
+                    visualHTML += "<br><hr><br>";
+                }
+            }
+            else {
+                visualHTML += "No outcome impacts";
             }
             if (outcomes2Value != "?") {
                 visualHTML += "Estimated impact on <b>" + outcomes2Value + "</b><br>";

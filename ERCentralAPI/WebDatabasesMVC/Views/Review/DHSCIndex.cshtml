@@ -68,6 +68,7 @@
     var topColour = "#a4d2f7";
     var botColour = "#d1e8fb";
     var offIcons = "#68b4f2";
+    var headerSectionColour = "background: linear-gradient(to right, #0099ff 0%, #3366cc 100%);";
 
 
     $(document).ready(function () {
@@ -113,6 +114,7 @@
 
         if (sessionStorage.getItem("ColourThemeSet") == "Yes") {
             var colourTheme = sessionStorage.getItem("ColourTheme")
+            var element = document.getElementById("headerDiv");
 
             switch (colourTheme) {
 
@@ -120,35 +122,41 @@
                     topColour = "#a4d2f7";
                     botColour = "#d1e8fb";
                     offIcons = "#68b4f2";
+                    headerSectionColour = "linear-gradient(to right, #0099ff 0%, #3366cc 100%)";
                     break;
 
                 case '2': // reddish like YEF
                     topColour = "#f8cbc7";
                     botColour = "#fbe2e0";
                     offIcons = "#f0847b";
+                    headerSectionColour = "linear-gradient(to right, #ff6666 0%, #ff0000 100%)";
                     break;
 
                 case '3': // greenish Tints of #57bc40
                     topColour = "#9ad68c";
                     botColour = "#cceac5";
                     offIcons = "#57bc40";
+                    headerSectionColour = "linear-gradient(to right, #33cc33 0%, #009900 100%)";
                     break;
 
                 case '4': // orangish Tints of #ffb558
                     topColour = "#ffd29a";
                     botColour = "#ffe8cc";
                     offIcons = "#ffb558";
+                    headerSectionColour = "linear-gradient(to right, #ffcc00 0%, #ff9900 100%)";
                     break;
 
                 case '5': // purplish Tints of #7770d3
                     topColour = "#ada9e4";
                     botColour = "#d6d4f1";
                     offIcons = "#7770d3";
+                    headerSectionColour = "linear-gradient(to right, #9966ff 0%, #6600ff 100%)";
                     break;
 
                 default:
                     break;
             }
+            element.style["background"] = headerSectionColour;
         } 
 
         GetDocumentAndCodingData();
@@ -173,42 +181,49 @@
     }
 
     function changeColour(value) {
+        var element = document.getElementById("headerDiv");
         switch (value) {
 
-            case '1': 
+            case '1': // blueish Tints of #68b4f2
                 topColour = "#a4d2f7";
                 botColour = "#d1e8fb";
-                offIcons = "#68b4f2"; 
+                offIcons = "#68b4f2";
+                headerSectionColour = "linear-gradient(to right, #0099ff 0%, #3366cc 100%)";
                 break;
 
-            case '2': 
+            case '2': // reddish like YEF
                 topColour = "#f8cbc7";
                 botColour = "#fbe2e0";
                 offIcons = "#f0847b";
+                headerSectionColour = "linear-gradient(to right, #ff6666 0%, #ff0000 100%)";
                 break;
 
-            case '3': 
+            case '3': // greenish Tints of #57bc40
                 topColour = "#9ad68c";
                 botColour = "#cceac5";
                 offIcons = "#57bc40";
+                headerSectionColour = "linear-gradient(to right, #33cc33 0%, #009900 100%)";
                 break;
 
-            case '4': 
+            case '4': // orangish Tints of #ffb558
                 topColour = "#ffd29a";
                 botColour = "#ffe8cc";
                 offIcons = "#ffb558";
+                headerSectionColour = "linear-gradient(to right, #ffcc00 0%, #ff9900 100%)";
                 break;
 
-            case '5': 
+            case '5': // purplish Tints of #7770d3
                 topColour = "#ada9e4";
                 botColour = "#d6d4f1";
                 offIcons = "#7770d3";
+                headerSectionColour = "linear-gradient(to right, #9966ff 0%, #6600ff 100%)";
                 break;
 
             default:
                 break;           
         }
 
+        element.style["background"] = headerSectionColour;
         sessionStorage.setItem("ColourThemeSet", "Yes");
         sessionStorage.setItem("ColourTheme", value);
 
@@ -757,7 +772,12 @@
 
                             visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;'>";
                             visualHTML += "<h5><b>Review size</b></h5><br>"
-                            visualHTML += reviewSizeIcon;
+                            if (reviewSizeValue == "?") {
+                                visualHTML += "Unknown";
+                            }
+                            else {
+                                visualHTML += reviewSizeIcon;
+                            }
                             //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[2].attributeId + ")";
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
@@ -777,10 +797,20 @@
                                 if (outcomes1Value != "?") {
                                     visualHTML += "<tr>";
                                     visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
-                                    visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
+                                    if (outcomes1ImpactValue == "?") {
+                                        visualHTML += "<b>Unknown</b> estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
+                                    }
+                                    else {
+                                        visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
+                                    }
                                     visualHTML += "</td>";
                                     visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px;'>";
-                                    visualHTML += impact1Icon;
+                                    if (outcomes1ImpactValue == "?") {
+                                        visualHTML += "<i class='fas fa-lg fa-minus'></i>";
+                                    }
+                                    else {
+                                        visualHTML += impact1Icon;
+                                    }
                                     visualHTML += "</td>";
                                     visualHTML += "</tr>";
                                 }
@@ -1098,7 +1128,8 @@
     <div class="content">
 
         <!-- header area -->
-        <div class="panel-header bg-primary-gradient">
+        <!--//<div class="panel-header bg-primary-gradient">-->
+        <div id="headerDiv" class="panel-header" style="background: linear-gradient(to left, #0066cc 0%, #3399ff 100%);">
             <div class="page-inner py-5">
                 <div class="row">
                     <div class="col-8 col-md-7 px-1">
