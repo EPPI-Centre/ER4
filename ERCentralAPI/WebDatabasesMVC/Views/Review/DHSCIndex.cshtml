@@ -51,17 +51,18 @@
     var visualHTML = "";
     var globalCounter = 0;
     var attributeIdFilter = 0;
+
+    // slider settings
     var costMin = 1;
     var costMax = 4;
     var evidenceMin = 0;
     var evidenceMax = 4;
+
+    // checkbox settings
     var cbOutcomes = "";
     var cbInterventions = "";
     var cbPreventionTypes = "";
-    // YEF colours
-    var topColour = "#f8cbc7";
-    var botColour = "#fbe2e0";
-    var offIcons = "#f0847b";
+
 
     // default colours blueish tints of #68b4f2
     var topColour = "#a4d2f7";
@@ -71,17 +72,26 @@
 
     $(document).ready(function () {
         const descrPanel = $("#WebDBDescription");
-        if (descrPanel && descrPanel.height() > 300) {
-            //ExpandDescription ReduceDescription
-            $("#ExpandDescription").show();
-            $("#ReduceDescription").hide();
-            $("#HideDescriptionDiv").show();
-            $("#ShowDescriptionDiv").hide();
-            descrPanel.css("max-height", "250px");
-        } else {
+        if (sessionStorage.getItem("HideShowDescription") == "Yes") {
             $("#ExpandDescription").hide();
             $("#ReduceDescription").hide();
+            $("#WebDBDescriptionBody").hide();
+            $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
         }
+        else {
+            if (descrPanel && descrPanel.height() > 300) {
+                //ExpandDescription ReduceDescription
+                $("#ExpandDescription").show();
+                $("#ReduceDescription").hide();
+                $("#HideDescriptionDiv").show();
+                $("#ShowDescriptionDiv").hide();
+                descrPanel.css("max-height", "250px");
+            } else {
+                $("#ExpandDescription").hide();
+                $("#ReduceDescription").hide();
+            }
+        }
+
 
         // reset variables on document load
         visualHTML = "";
@@ -143,7 +153,7 @@
 
         GetDocumentAndCodingData();
 
-        BuildFilters();
+        BuildSliderFilters();
     });
 
     function GoToDHSCItemDetails(ItemId) {
@@ -212,7 +222,7 @@
     }
 
 
-    function BuildFilters() {
+    function BuildSliderFilters() {
 
         $("#costSlider").kendoRangeSlider({
             change: costRangeSliderOnChange,
@@ -386,12 +396,14 @@
                 $("#ReduceDescription").hide();
                 $("#WebDBDescriptionBody").show();
                 $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-minus";
+                sessionStorage.setItem("HideShowDescription", "No");
             }
             else {
                 $("#ExpandDescription").hide();
                 $("#ReduceDescription").hide();
                 $("#WebDBDescriptionBody").hide();
                 $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
+                sessionStorage.setItem("HideShowDescription", "Yes");
             }
         }
     }
