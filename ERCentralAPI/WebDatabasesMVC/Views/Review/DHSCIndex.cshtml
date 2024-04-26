@@ -63,6 +63,7 @@
     var cbInterventions = "";
     var cbPreventionTypes = "";
 
+    var searchFor = "";
 
     // default colours blueish tints of #68b4f2
     var topColour = "#a4d2f7";
@@ -104,6 +105,7 @@
         cbOutcomes = "";
         cbInterventions = "";
         cbPreventionTypes = "";
+        searchFor = "";
 
 
         $("#smallPhoneButton").hide();
@@ -180,6 +182,34 @@
         }
     }
 
+
+    function searchRecords(searchString) 
+    {
+        console.log("search", searchString.value);
+        searchFor = searchString.value;
+
+        // on a search we want to clear all of the filters
+        // as the search is on everything.
+
+        costMin = 1;
+        costMax = 4;
+        evidenceMin = 0;
+        evidenceMax = 4;
+        cbOutcomes = "";
+        cbInterventions = "";
+        cbPreventionTypes = "";
+
+        visualHTML = "";
+        globalCounter = 0;
+
+        $.post("../ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: 'test' }
+            , function (data, result) { itemData(data, result); }
+        );
+
+
+    }
+
     function changeColour(value) {
         var element = document.getElementById("headerDiv");
         switch (value) {
@@ -227,6 +257,9 @@
         sessionStorage.setItem("ColourThemeSet", "Yes");
         sessionStorage.setItem("ColourTheme", value);
 
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
         visualHTML = "";
         globalCounter = 0;
 
@@ -266,6 +299,9 @@
         costMin = e.value.toString().substring(0,pos);
         costMax = e.value.toString().substring(pos+1);
 
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
         visualHTML = "";
         globalCounter = 0;
 
@@ -281,6 +317,9 @@
         costMin = e.value.toString().substring(0, pos);
         costMax = e.value.toString().substring(pos+1);
 
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
         visualHTML = "";
         globalCounter = 0;
 
@@ -296,6 +335,9 @@
         evidenceMin = e.value.toString().substring(0, pos);
         evidenceMax = e.value.toString().substring(pos+1);
 
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
         visualHTML = "";
         globalCounter = 0;
 
@@ -311,6 +353,9 @@
         evidenceMin = e.value.toString().substring(0, pos);
         evidenceMax = e.value.toString().substring(pos+1);
 
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
         visualHTML = "";
         globalCounter = 0;
 
@@ -339,6 +384,9 @@
         }
         console.log("cbOutcomes", cbOutcomes);
 
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
         visualHTML = "";
         globalCounter = 0;
 
@@ -358,6 +406,9 @@
         }
         console.log("cbInterventions", cbInterventions);
 
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
         visualHTML = "";
         globalCounter = 0;
 
@@ -378,6 +429,9 @@
 
         console.log("cbPreventionTypes", cbPreventionTypes);
 
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
         visualHTML = "";
         globalCounter = 0;
 
@@ -481,8 +535,10 @@
     }
 
 
-    function buildCard(codingData, result, documentData, i) {
-        if (result == "success") {
+    function buildCard(codingData, result, documentData, i) 
+    {
+        if (result == "success") 
+        {
             console.log("codingData", codingData, result);         
 
             var studyTitle = documentData.items.items[i].title;
@@ -517,8 +573,10 @@
             // the itemAttributesList entries are in the order the codes are assigned so we need to loop through all of them to
             // be sure we look at all of them
 
-            for (var k = 0; k < codingData.itemSetList[0].itemAttributesList.length; k++) {
-                switch (codingData.itemSetList[0].itemAttributesList[k].attributeId) {
+            for (var k = 0; k < codingData.itemSetList[0].itemAttributesList.length; k++) 
+            {
+                switch (codingData.itemSetList[0].itemAttributesList[k].attributeId) 
+                {
 
                     // Cost
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
@@ -725,130 +783,243 @@
                 }
             }
 
-
-
-            // for slider filtering I can check the values to see if they reside within the selected ranges and ignore that which isn't...
-            if (((costValue >= costMin) && (costValue <= costMax)) &&
-                ((evidenceQualityValue >= evidenceMin) && (evidenceQualityValue <= evidenceMax)))
+            if (searchFor == "")
             {
-                // for checkbox filtering the selected items are included unless nothing is selected which mean everthing is included....
-                // start with interventions...
-                if ((cbInterventions.includes(interventionValue)) || (cbInterventions == ""))
-                {                 
-                    // there can be up to 3 multiple outcomes in the data for one item so check each one
-                    let outcomeNumberArray = outcomeNumber.split('');
-                    if ((cbOutcomes.includes(outcomeNumberArray[0])) || (cbOutcomes.includes(outcomeNumberArray[1])) ||
-                        (cbOutcomes.includes(outcomeNumberArray[2])) || (cbOutcomes == "")) 
+                // for slider filtering I can check the values to see if they reside within the selected ranges and ignore that which isn't...
+                if (((costValue >= costMin) && (costValue <= costMax)) &&
+                    ((evidenceQualityValue >= evidenceMin) && (evidenceQualityValue <= evidenceMax))) 
+                {
+                    // for checkbox filtering the selected items are included unless nothing is selected which mean everthing is included....
+                    // start with interventions...
+                    if ((cbInterventions.includes(interventionValue)) || (cbInterventions == "")) 
                     {
-                        // looking at prevention types (violence 1 & 2)
-                        // there can be up to 2 violence types in the data for one items
-                        let violenceNumberArray = violenceNumber.split('');
-                        if ((cbPreventionTypes.includes(violenceNumberArray[0])) || (cbPreventionTypes.includes(violenceNumberArray[1])) || (cbPreventionTypes == "")) 
+                        // there can be up to 3 multiple outcomes in the data for one item so check each one
+                        let outcomeNumberArray = outcomeNumber.split('');
+                        if ((cbOutcomes.includes(outcomeNumberArray[0])) || (cbOutcomes.includes(outcomeNumberArray[1])) ||
+                            (cbOutcomes.includes(outcomeNumberArray[2])) || (cbOutcomes == "")) 
                         {
+                            // looking at prevention types (violence 1 & 2)
+                            // there can be up to 2 violence types in the data for one items
+                            let violenceNumberArray = violenceNumber.split('');
+                            if ((cbPreventionTypes.includes(violenceNumberArray[0])) || (cbPreventionTypes.includes(violenceNumberArray[1])) || (cbPreventionTypes == "")) 
+                            {
 
-                            visualHTML += "<div class='card' >";
-                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
-                            visualHTML += "<table width='100%'>";
-                            visualHTML += "<tr>";
-                            visualHTML += "<td width='40%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
-                            visualHTML += "<b>" + studyTitle + "</b>";
-                            visualHTML += "<br>";
-                            visualHTML += studyAbstract;
-                            //visualHTML += "<br>itemId: " + itemId;
-                            visualHTML += "</td>";
-
-
-                            visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
-                            visualHTML += "<h5><b>Cost</b></h5><br>"
-                            visualHTML += costIcon;
-                            //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[0].attributeId + ")";
-                            visualHTML += "</td>";
-
-                            visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
-                            visualHTML += "<h5><b>Evidence quality</b></h5><br>"
-                            visualHTML += evidenceQualityIcon;
-                            //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[1].attributeId + ")";
-                            visualHTML += "</td>";
-
-                            visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;'>";
-                            visualHTML += "<h5><b>Review size</b></h5><br>"
-                            if (reviewSizeValue == "?") {
-                                visualHTML += "Unknown";
-                            }
-                            else {
-                                visualHTML += reviewSizeIcon;
-                            }
-                            //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[2].attributeId + ")";
-                            visualHTML += "</td>";
-                            visualHTML += "</tr>";
-                            visualHTML += "</table>";
-                            visualHTML += "</div>";
-
-                            if ((outcomes1Value != "?") || (outcomes2Value != "?") || (outcomes2Value != "?")) {
-                                // we have outcome values so add them to the card
-                                visualHTML += "<div class='card-body' style='background-color: " + botColour + "'>";
+                                visualHTML += "<div class='card' >";
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
                                 visualHTML += "<table width='100%'>";
                                 visualHTML += "<tr>";
-                                visualHTML += "<td colspan='4' style='border-bottom: solid; border-width: 1px; padding: 0px 0px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
-                                visualHTML += "Other outcomes";
+                                visualHTML += "<td width='40%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                visualHTML += studyAbstract;
+                                //visualHTML += "<br>itemId: " + itemId;
+                                visualHTML += "</td>";
+
+
+                                visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Cost</b></h5><br>"
+                                visualHTML += costIcon;
+                                //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[0].attributeId + ")";
+                                visualHTML += "</td>";
+
+                                visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Evidence quality</b></h5><br>"
+                                visualHTML += evidenceQualityIcon;
+                                //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[1].attributeId + ")";
+                                visualHTML += "</td>";
+
+                                visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;'>";
+                                visualHTML += "<h5><b>Review size</b></h5><br>"
+                                if (reviewSizeValue == "?") {
+                                    visualHTML += "Unknown";
+                                }
+                                else {
+                                    visualHTML += reviewSizeIcon;
+                                }
+                                //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[2].attributeId + ")";
                                 visualHTML += "</td>";
                                 visualHTML += "</tr>";
-
-                                if (outcomes1Value != "?") {
-                                    visualHTML += "<tr>";
-                                    visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
-                                    if (outcomes1ImpactValue == "?") {
-                                        visualHTML += "<b>Unknown</b> estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
-                                    }
-                                    else {
-                                        visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
-                                    }
-                                    visualHTML += "</td>";
-                                    visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px;'>";
-                                    if (outcomes1ImpactValue == "?") {
-                                        visualHTML += "<i class='fas fa-lg fa-minus'></i>";
-                                    }
-                                    else {
-                                        visualHTML += impact1Icon;
-                                    }
-                                    visualHTML += "</td>";
-                                    visualHTML += "</tr>";
-                                }
-                                if (outcomes2Value != "?") {
-                                    visualHTML += "<tr>";
-                                    visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
-                                    visualHTML += "<b>" + outcomes2ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes2Value + "</b>";
-                                    visualHTML += "</td>";
-                                    visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
-                                    visualHTML += impact2Icon;
-                                    visualHTML += "</td>";
-                                    visualHTML += "</tr>";
-                                }
-                                if (outcomes3Value != "?") {
-                                    visualHTML += "<tr>";
-                                    visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToDHSCItemDetails(" + itemId + ")''>";
-                                    visualHTML += "<b>" + outcomes3ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes3Value + "</b>";
-                                    visualHTML += "</td>";
-                                    visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
-                                    visualHTML += impact3Icon;
-                                    visualHTML += "</td>";
-                                    visualHTML += "</tr>";
-                                }
                                 visualHTML += "</table>";
                                 visualHTML += "</div>";
-                            }
 
-                            visualHTML += "</div>";
+                                if ((outcomes1Value != "?") || (outcomes2Value != "?") || (outcomes2Value != "?")) 
+                                {
+                                    // we have outcome values so add them to the card
+                                    visualHTML += "<div class='card-body' style='background-color: " + botColour + "'>";
+                                    visualHTML += "<table width='100%'>";
+                                    visualHTML += "<tr>";
+                                    visualHTML += "<td colspan='4' style='border-bottom: solid; border-width: 1px; padding: 0px 0px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                    visualHTML += "Other outcomes";
+                                    visualHTML += "</td>";
+                                    visualHTML += "</tr>";
+
+                                    if (outcomes1Value != "?") {
+                                        visualHTML += "<tr>";
+                                        visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                        if (outcomes1ImpactValue == "?") {
+                                            visualHTML += "<b>Unknown</b> estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
+                                        }
+                                        else {
+                                            visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
+                                        }
+                                        visualHTML += "</td>";
+                                        visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px;'>";
+                                        if (outcomes1ImpactValue == "?") {
+                                            visualHTML += "<i class='fas fa-lg fa-minus'></i>";
+                                        }
+                                        else {
+                                            visualHTML += impact1Icon;
+                                        }
+                                        visualHTML += "</td>";
+                                        visualHTML += "</tr>";
+                                    }
+                                    if (outcomes2Value != "?") {
+                                        visualHTML += "<tr>";
+                                        visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                        visualHTML += "<b>" + outcomes2ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes2Value + "</b>";
+                                        visualHTML += "</td>";
+                                        visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                                        visualHTML += impact2Icon;
+                                        visualHTML += "</td>";
+                                        visualHTML += "</tr>";
+                                    }
+                                    if (outcomes3Value != "?") {
+                                        visualHTML += "<tr>";
+                                        visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToDHSCItemDetails(" + itemId + ")''>";
+                                        visualHTML += "<b>" + outcomes3ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes3Value + "</b>";
+                                        visualHTML += "</td>";
+                                        visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                                        visualHTML += impact3Icon;
+                                        visualHTML += "</td>";
+                                        visualHTML += "</tr>";
+                                    }
+                                    visualHTML += "</table>";
+                                    visualHTML += "</div>";
+                                }
+
+                                visualHTML += "</div>";
+                            }
                         }
                     }
+                }
+                globalCounter += 1;
+                if (globalCounter == documentData.items.totalItemCount) {
+                    let resultsDiv = $("#visualsDHSCDiv");
+                    resultsDiv.html(visualHTML);
+                    globalCounter = 0;
+                }
+            }
+            else 
+            {
+                // there are search terms so see if the container should be created
+                // str.toLowerCase().includes(substr.toLowerCase())
+                if ((studyTitle.toLowerCase().includes(searchFor.toLowerCase())) || (studyAbstract.toLowerCase().includes(searchFor.toLowerCase()))) 
+                {
+                    visualHTML += "<div class='card' >";
+                    visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+                    visualHTML += "<table width='100%'>";
+                    visualHTML += "<tr>";
+                    visualHTML += "<td width='40%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                    visualHTML += "<b>" + studyTitle + "</b>";
+                    visualHTML += "<br>";
+                    visualHTML += studyAbstract;
+                    //visualHTML += "<br>itemId: " + itemId;
+                    visualHTML += "</td>";
+
+
+                    visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                    visualHTML += "<h5><b>Cost</b></h5><br>"
+                    visualHTML += costIcon;
+                    //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[0].attributeId + ")";
+                    visualHTML += "</td>";
+
+                    visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                    visualHTML += "<h5><b>Evidence quality</b></h5><br>"
+                    visualHTML += evidenceQualityIcon;
+                    //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[1].attributeId + ")";
+                    visualHTML += "</td>";
+
+                    visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;'>";
+                    visualHTML += "<h5><b>Review size</b></h5><br>"
+                    if (reviewSizeValue == "?") {
+                        visualHTML += "Unknown";
+                    }
+                    else {
+                        visualHTML += reviewSizeIcon;
+                    }
+                    //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[2].attributeId + ")";
+                    visualHTML += "</td>";
+                    visualHTML += "</tr>";
+                    visualHTML += "</table>";
+                    visualHTML += "</div>";
+
+                    if ((outcomes1Value != "?") || (outcomes2Value != "?") || (outcomes2Value != "?")) {
+                        // we have outcome values so add them to the card
+                        visualHTML += "<div class='card-body' style='background-color: " + botColour + "'>";
+                        visualHTML += "<table width='100%'>";
+                        visualHTML += "<tr>";
+                        visualHTML += "<td colspan='4' style='border-bottom: solid; border-width: 1px; padding: 0px 0px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                        visualHTML += "Other outcomes";
+                        visualHTML += "</td>";
+                        visualHTML += "</tr>";
+
+                        if (outcomes1Value != "?") {
+                            visualHTML += "<tr>";
+                            visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                            if (outcomes1ImpactValue == "?") {
+                                visualHTML += "<b>Unknown</b> estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
+                            }
+                            else {
+                                visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
+                            }
+                            visualHTML += "</td>";
+                            visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px;'>";
+                            if (outcomes1ImpactValue == "?") {
+                                visualHTML += "<i class='fas fa-lg fa-minus'></i>";
+                            }
+                            else {
+                                visualHTML += impact1Icon;
+                            }
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+                        }
+                        if (outcomes2Value != "?") {
+                            visualHTML += "<tr>";
+                            visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                            visualHTML += "<b>" + outcomes2ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes2Value + "</b>";
+                            visualHTML += "</td>";
+                            visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                            visualHTML += impact2Icon;
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+                        }
+                        if (outcomes3Value != "?") {
+                            visualHTML += "<tr>";
+                            visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToDHSCItemDetails(" + itemId + ")''>";
+                            visualHTML += "<b>" + outcomes3ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes3Value + "</b>";
+                            visualHTML += "</td>";
+                            visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                            visualHTML += impact3Icon;
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+                        }
+                        visualHTML += "</table>";
+                        visualHTML += "</div>";
+                    }
+
+                    visualHTML += "</div>";
+
+                   
                 }
             }
             globalCounter += 1;
             if (globalCounter == documentData.items.totalItemCount) {
                 let resultsDiv = $("#visualsDHSCDiv");
-                resultsDiv.html(visualHTML);  
+                resultsDiv.html(visualHTML);
                 globalCounter = 0;
+                searchFor = "";
             }
+
         }
         else {
             console.log("error", "unable to get data");
@@ -886,7 +1057,7 @@
                             </span>
                         </button>
 
-                        <!--Filtering controls-->
+                        
                         <table width="100%">
                             <tr>
                                 <td style="padding: 0px 0px 0px 0px;">
@@ -906,26 +1077,27 @@
                                 </td>
                             </tr>
                         </table>
-                        
 
 
                         <div class="text-body pb-2" style="width: 95%">
                             <table width="100%">
                                 <tr>
-                                    <td style="vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 3px; padding: 10px 10px 15px 10px;">
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-prepend border rounded my-auto ">
-                                                    <button type="submit" id="searchButton" class="btn btn-search pr-1 py-2 px-2" disabled>
-                                                        <span style="color:#0b52ad"><i class="fa fa-search search-icon"></i></span>
+                                    <td style="vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 3px; padding: 10px 10px 15px 10px; width:95%">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend border rounded my-auto">
+                                                    <button type="button" id="searchButton" onclick="searchRecords(SearchString)" class="btn btn-search pr-1 py-2 px-2" disabled>
+                                                        <span style="color:#0b52ad"><i class="fas fa-search search-icon"></i></span>
                                                     </button>
                                                 </div>
+                                                <input type="text" placeholder="Search records..." onkeyup="enableSearch()" style="background-color:white" class="form-control" maxlength="4000" name="SearchString" id="SearchString">
                                             </div>
-                                            <input type="text" placeholder="Search records..." onkeyup="enableSearch()" style="background-color:white" class="form-control" maxlength="4000" name="SearchString" id="SearchString" />
                                         </div>
                                     </td>
                                 </tr>
                             </table>
+
+                            <!--Filtering controls-->
 
                             <table width="100%">
                                 <tr>
