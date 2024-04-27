@@ -273,8 +273,8 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         incomingList.SearchStr = ms.MagSearchText;
                         bool doSearch = false;
-                        if (ms.MagSearchText.IndexOf(".") == -1)
-                        {
+                        if ((ms.MagSearchText.IndexOf("display_name.search:") == -1) && (ms.MagSearchText.IndexOf("concepts.id:") == -1) && (ms.MagSearchText.IndexOf("openalex_id:") == -1))
+                            {
                             doSearch = true; // i.e. title/abstract search where we 'search' rather than 'filter'
                         }
                         List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(ms.MagSearchText, doSearch);
