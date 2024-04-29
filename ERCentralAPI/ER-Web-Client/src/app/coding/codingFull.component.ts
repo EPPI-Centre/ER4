@@ -167,7 +167,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
   public get CanRunOpenAIrobot(): boolean {
     if (!this.HasWriteRights) return false;
-    else if (!this.reviewInfoService.ReviewInfo.openAIEnabled) return false;
+    else if (!this.reviewInfoService.ReviewInfo.canUseRobots) return false;
     else {
       let node = this.ReviewSetsService.selectedNode;
       if (node != null && node.nodeType == 'ReviewSet' && (node.subTypeName == "Standard" || node.subTypeName == "Screening")) return true;

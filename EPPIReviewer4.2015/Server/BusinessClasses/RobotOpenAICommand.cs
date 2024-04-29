@@ -15,6 +15,10 @@ using System.Threading.Tasks;
 using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using static Csla.Security.MembershipIdentity;
+using static DeployR.RJob;
+
+
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
@@ -41,18 +45,31 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _itemDocumentId;
         private Int64 _itemId;
         private string _message;
+        private bool _isLastInBatch = true;
+        private int _jobId = 0;
+        private int _robotContactId = 0;
 
         public string ReturnMessage
         {
             get { return _message; }
         }
-
+        public int RobotContactId { get { return _robotContactId; } }
         public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId)
         {
             _reviewSetId = reviewSetId;
             _itemId = itemId;
             _itemDocumentId = itemDocumentId;
             _message = "";
+        }
+        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId)
+        {
+            _reviewSetId = reviewSetId;
+            _itemId = itemId;
+            _itemDocumentId = itemDocumentId;
+            _message = "";
+            _isLastInBatch = isLastInBatch;
+            _jobId = JobId;
+            _robotContactId = robotContactId;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -62,6 +79,9 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_itemId", _itemId);
             info.AddValue("_itemDocumentId", _itemDocumentId);
             info.AddValue("_message", _message);
+            info.AddValue("_isLastInBatch", _isLastInBatch);
+            info.AddValue("_jobId", _jobId);
+            info.AddValue("_robotContactId", _robotContactId);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
@@ -69,15 +89,90 @@ namespace BusinessLibrary.BusinessClasses
             _itemId = info.GetValue<Int64>("_itemId");
             _itemDocumentId = info.GetValue<Int64>("_itemDocumentId");
             _message = info.GetValue<string>("_message");
+            _isLastInBatch = info.GetValue<bool>("_isLastInBatch");
+            _jobId = info.GetValue<int>("_jobId");
+            _robotContactId = info.GetValue<int>("_robotContactId"); 
         }
 
 
 #if !SILVERLIGHT
 
+        private int _inputTokens = 0;
+        private int _outputTokens = 0;
+        private Int64 _Item_set_id = 0;
+        private int errors = 0;
+
         protected override void DataPortal_Execute()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            bool result = Task.Run(() => DoRobot(ri.ReviewId, ri.UserId)).GetAwaiter().GetResult();
+            ReviewInfo rInfo = DataPortal.Fetch<ReviewInfo>();
+            if (!rInfo.CanUseRobots)
+            {
+                _message = "Failed: GPT4 is disabled or there is no credit.";
+                return;
+            }
+            else
+            {
+                if (_jobId == 0)
+                {//we need to create a record for this in TB_ROBOT_API_CALL_LOG - it's a single call doing one item!
+                    CreditForRobots CfR = rInfo.CreditForRobotsList.First(f => f.AmountRemaining > 0.0001);
+                    int creditPurchaseId = 0;
+                    if (CfR == null && rInfo.OpenAIEnabled == false)
+                    {
+                        _message = "Failed: did not find suitable credit to use.";
+                        return;
+                    }
+                    else if (CfR != null)
+                    {
+                        creditPurchaseId = CfR.CreditPurchaseId;
+                    }
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_CreateRobotApiCallLog", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
+                            command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                            command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
+                            command.Parameters["@result"].Size = 50;
+                            command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
+                            command.Parameters.Add(new SqlParameter("@JobId", SqlDbType.Int));
+                            command.Parameters["@JobId"].Direction = System.Data.ParameterDirection.Output;
+                            command.Parameters.Add(new SqlParameter("@RobotContactId", SqlDbType.Int));
+                            command.Parameters["@RobotContactId"].Direction = System.Data.ParameterDirection.Output;
+                            command.ExecuteNonQuery();
+                            if (command.Parameters["@result"].Value.ToString() != "Success")
+                            {
+                                _message = "Failure: " + command.Parameters["@result"].Value.ToString();
+                                return;
+                            }
+                            _jobId = (int)command.Parameters["@JobId"].Value;
+                            _robotContactId = (int)command.Parameters["@RobotContactId"].Value;
+                        }
+                    }
+                }
+                bool result = Task.Run(() => DoRobot(ri.ReviewId, _robotContactId)).GetAwaiter().GetResult();
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                        command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Finished" : "Running"));
+                        command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                        command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
+                        command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
         }
 
         private class OpenAIChatClass
@@ -126,12 +221,11 @@ namespace BusinessLibrary.BusinessClasses
             }
             return null;
         }
-
         private async Task<bool> DoRobot(int ReviewId, int UserId)
         {
             bool result = true;
 
-            int errors = 0;
+            
 
             string endpoint = AzureSettings.RobotOpenAIEndpoint;
             string key = AzureSettings.RobotOpenAIKey2;
@@ -255,6 +349,8 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
+                _inputTokens = generatedText.usage.prompt_tokens;
+                _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
                 _message = "Completed without errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
             }
             catch
@@ -280,6 +376,30 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
+
+                if (_Item_set_id == 0)
+                {//this condition evaluates to TRUE only the first time we try saving a code, after which _Item_set_id will have a value > 0
+                    //we do the special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
+                    using (SqlCommand command = new SqlCommand("st_ItemSetPrepareForRobot", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_CONTACT_ID", ContactId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
+                        command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
+                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+                        Int64 Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
+                        if (Item_set_id < 1)
+                        {//can't save this code, st_ItemSetPrepareForRobot failed
+                            errors++;
+                            return;
+                        }
+                        _Item_set_id = Item_set_id;
+                    }
+                }
+
                 using (SqlCommand command = new SqlCommand("st_ItemAttributeInsert", connection)) 
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -290,6 +410,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", (object)DBNull.Value));
+                    command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _Item_set_id)); //special param only for robots
                     command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
                     command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
