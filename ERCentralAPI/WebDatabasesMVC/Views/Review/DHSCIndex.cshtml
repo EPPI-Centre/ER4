@@ -47,6 +47,8 @@
 
 <script>
 
+    var documentData;
+
     // declare some global variables
     var visualHTML = "";
     var globalCounter = 0;
@@ -202,10 +204,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
 
 
     }
@@ -263,10 +267,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
     }
 
 
@@ -305,10 +311,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
     }
 
     function costRangeSliderOnChange(e) {
@@ -323,10 +331,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
     }
 
     function evidenceRangeSliderOnSlide(e) {
@@ -341,10 +351,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
     }
 
     function evidenceRangeSliderOnChange(e) {
@@ -359,10 +371,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
     }
 
     function filterToggle(divName) {
@@ -390,10 +404,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
     }
 
     function cbInterventionsChange(cbName, value) {
@@ -412,10 +428,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
     }
 
     function cbPreventionTypesChange(cbName, value) {
@@ -435,10 +453,12 @@
         visualHTML = "";
         globalCounter = 0;
 
-        $.post("../ItemList/GetFreqListJSon"
-            , { attId: attributeIdFilter, attName: 'test' }
-            , function (data, result) { itemData(data, result); }
-        );
+        itemData(documentData, "success");
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
     }
 
     function ToggleDescrPanelSize() {
@@ -509,7 +529,7 @@
         var ListData = @jdata;
         console.log("webDbData", ListData);
         attributeIdFilter = ListData.webDb.attributeIdFilter;
-        
+
         $.post("../ItemList/GetFreqListJSon"
             , { attId: attributeIdFilter, attName: 'test' }
             , function (data, result) { itemData(data, result); }
@@ -519,7 +539,7 @@
 
     async function itemData(data, result) {
         if (result == "success") {
-            var documentData = data;
+            documentData = data;
             console.log("documentData", documentData, result);
          
             for (var i = 0; i < documentData.items.totalItemCount; i++) {
