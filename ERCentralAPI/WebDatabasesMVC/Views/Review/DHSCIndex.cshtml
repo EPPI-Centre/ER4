@@ -42,6 +42,11 @@
       
     }
 
+    .disabledFilterDiv {
+        pointer-events: none;
+        opacity: 0.4;
+    }
+
 </style>
 
 
@@ -72,6 +77,8 @@
     var botColour = "#d1e8fb";
     var offIcons = "#68b4f2";
     var headerSectionColour = "background: linear-gradient(to right, #0099ff 0%, #3366cc 100%);";
+
+    var costslider;
 
 
     $(document).ready(function () {
@@ -166,6 +173,9 @@
         GetDocumentAndCodingData();
 
         BuildSliderFilters();
+
+        //costslider = $("#costSlider").data("kendoSlider");
+        //costslider.enable(false);
     });
 
     function GoToDHSCItemDetails(ItemId) {
@@ -280,7 +290,7 @@
 
         $("#costSlider").kendoRangeSlider({
             change: costRangeSliderOnChange,
-            slide: costRangeSliderOnSlide,
+            //slide: costRangeSliderOnSlide,
             min: 1,
             max: 4,
             smallStep: 1,
@@ -290,7 +300,7 @@
 
         $("#evidenceSlider").kendoRangeSlider({
             change: evidenceRangeSliderOnChange,
-            slide: evidenceRangeSliderOnSlide,
+            //slide: evidenceRangeSliderOnSlide,
             min: 0,
             max: 4,
             smallStep: 1,
@@ -311,6 +321,10 @@
         visualHTML = "";
         globalCounter = 0;
 
+        // disable slider div      
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        
         itemData(documentData, "success");
 
         //$.post("../ItemList/GetFreqListJSon"
@@ -330,6 +344,18 @@
         searchFor = "";
         visualHTML = "";
         globalCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("themesFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+        var element3 = document.getElementById("preventionFilterDiv");
+        element3.classList.add("disabledFilterDiv");
+
 
         itemData(documentData, "success");
 
@@ -351,6 +377,10 @@
         visualHTML = "";
         globalCounter = 0;
 
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+
         itemData(documentData, "success");
 
         //$.post("../ItemList/GetFreqListJSon"
@@ -370,6 +400,17 @@
         searchFor = "";
         visualHTML = "";
         globalCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("themesFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+        var element3 = document.getElementById("preventionFilterDiv");
+        element3.classList.add("disabledFilterDiv");
 
         itemData(documentData, "success");
 
@@ -404,6 +445,18 @@
         visualHTML = "";
         globalCounter = 0;
 
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("themesFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+        var element3 = document.getElementById("preventionFilterDiv");
+        element3.classList.add("disabledFilterDiv");
+        
+
         itemData(documentData, "success");
 
         //$.post("../ItemList/GetFreqListJSon"
@@ -428,6 +481,17 @@
         visualHTML = "";
         globalCounter = 0;
 
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("themesFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+        var element3 = document.getElementById("preventionFilterDiv");
+        element3.classList.add("disabledFilterDiv");
+        
         itemData(documentData, "success");
 
         //$.post("../ItemList/GetFreqListJSon"
@@ -453,6 +517,17 @@
         visualHTML = "";
         globalCounter = 0;
 
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("themesFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+        var element3 = document.getElementById("preventionFilterDiv");
+        element3.classList.add("disabledFilterDiv");
+        
         itemData(documentData, "success");
 
         //$.post("../ItemList/GetFreqListJSon"
@@ -541,7 +616,8 @@
         if (result == "success") {
             documentData = data;
             console.log("documentData", documentData, result);
-         
+
+
             for (var i = 0; i < documentData.items.totalItemCount; i++) {
                 await $.post("../Coding/FetchItemCodingJSON"
                     , { ItemId: documentData.items.items[i].itemId }
@@ -923,13 +999,27 @@
                     }
                 }
                 globalCounter += 1;
-                if (globalCounter == documentData.items.totalItemCount) {
+                if (globalCounter == documentData.items.totalItemCount) 
+                {
                     let resultsDiv = $("#visualsDHSCDiv");
                     resultsDiv.html(visualHTML);
                     globalCounter = 0;
+
+                    // enable controls
+                    var element = document.getElementById("filterDiv");
+                    element.classList.remove("disabledFilterDiv");
+                    // disable checkbox div
+                    var element1 = document.getElementById("outcomesFilterDiv");
+                    element1.classList.remove("disabledFilterDiv");
+                    var element2 = document.getElementById("themesFilterDiv");
+                    element2.classList.remove("disabledFilterDiv");
+                    var element3 = document.getElementById("preventionFilterDiv");
+                    element3.classList.remove("disabledFilterDiv");
                 }
             }
-            else 
+            
+            
+            if (searchFor != "") 
             {
                 // there are search terms so see if the container should be created
                 // str.toLowerCase().includes(substr.toLowerCase())
@@ -1029,15 +1119,16 @@
 
                     visualHTML += "</div>";
 
-                   
+
                 }
-            }
-            globalCounter += 1;
-            if (globalCounter == documentData.items.totalItemCount) {
-                let resultsDiv = $("#visualsDHSCDiv");
-                resultsDiv.html(visualHTML);
-                globalCounter = 0;
-                searchFor = "";
+
+                globalCounter += 1;
+                if (globalCounter == documentData.items.totalItemCount) {
+                    let resultsDiv = $("#visualsDHSCDiv");
+                    resultsDiv.html(visualHTML);
+                    globalCounter = 0;
+                    searchFor = "";
+                }
             }
 
         }
@@ -1099,7 +1190,7 @@
                         </table>
 
 
-                        <div class="text-body pb-2" style="width: 95%">
+                        <div id="filterDiv" class="text-body pb-2" style="width: 95%">
                             <table width="100%">
                                 <tr>
                                     <td style="vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 3px; padding: 10px 10px 15px 10px; width:95%">
