@@ -361,6 +361,8 @@
     <Compile Include="BusinessClasses\ComparisonScreeningCompleteCommand.cs" />
     <Compile Include="BusinessClasses\ComparisonStatsCommand.cs" />
     <Compile Include="BusinessClasses\Contact.cs" />
+    <Compile Include="BusinessClasses\CreditForRobots.cs" />
+    <Compile Include="BusinessClasses\CreditForRobotsList.cs" />
     <Compile Include="BusinessClasses\DataFactoryHelper.cs" />
     <Compile Include="BusinessClasses\GetLatestUpdateMsgCommand.cs" />
     <Compile Include="BusinessClasses\ImportURLsCommand.cs" />

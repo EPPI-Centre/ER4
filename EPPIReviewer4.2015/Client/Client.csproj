@@ -265,6 +265,12 @@
     <Compile Include="..\Server\BusinessClasses\Contact.cs">
       <Link>BusinessClasses\Contact.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\CreditForRobots.cs">
+      <Link>BusinessClasses\CreditForRobots.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\CreditForRobotsList.cs">
+      <Link>BusinessClasses\CreditForRobotsList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\Cryptography.cs">
       <Link>BusinessClasses\Cryptography.cs</Link>
     </Compile>

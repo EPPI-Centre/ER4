@@ -15,9 +15,6 @@ using System.Threading.Tasks;
 using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
-using static Csla.Security.MembershipIdentity;
-using static DeployR.RJob;
-
 
 
 #if !SILVERLIGHT
