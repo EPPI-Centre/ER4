@@ -136,7 +136,7 @@ namespace WebDatabasesMVC.Controllers
         }
         [HttpGet]
         //[ValidateAntiForgeryToken]
-        public IActionResult Open([FromQuery] string WebDBid, string MapiD)
+        public IActionResult Open([FromQuery] string WebDBid, string MapiD, string VisName)
         {
             try
             {
@@ -160,21 +160,35 @@ namespace WebDatabasesMVC.Controllers
                                 // log to TB_WEBDB_LOG
                                 ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login", "Open access", WebDbId, Revid);
 
-
-                                if (MapiD != null)
+                                if (VisName != null)
                                 {
-                                    if (int.TryParse(MapiD, out int MapID))
+                                    // take us to the visualisation based on name
+                                    if (VisName != "")
                                     {
-                                        return Redirect("~/Frequencies/GetMapByQueryId?MapId=" + MapID);
+                                        return Redirect("~/Review/IndexWithName?VisName=" + VisName);
+                                    }
+                                    else
+                                    {
+                                        return BadRequest();
+                                    }
+                                }
+                                else
+                                {
+                                    if (MapiD != null)
+                                    {
+                                        if (int.TryParse(MapiD, out int MapID))
+                                        {
+                                            return Redirect("~/Frequencies/GetMapByQueryId?MapId=" + MapID);
+                                        }
+                                        else
+                                        {
+                                            return Redirect("~/Review/Index");
+                                        }
                                     }
                                     else
                                     {
                                         return Redirect("~/Review/Index");
                                     }
-                                }
-                                else
-                                {
-                                    return Redirect("~/Review/Index");
                                 }
                             }
                             else

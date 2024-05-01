@@ -88,6 +88,36 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        public IActionResult IndexWithName(string VisName)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    if (WebDbId < 1) return BadRequest();
+                    WebDbWithRevInfo res = ReviewIndexDataGet(false);
+
+                    if (res.WebDb == null || res.RevInfo == null || res.WebDb.WebDBId < 1 || res.RevInfo.ReviewId < 1) return BadRequest();
+                    if (VisName == null) return BadRequest();
+                    //return View(res);
+
+                    // we could have a list of valid ViewNames to check against (there is only one at this time)
+                    if (VisName == "DHSC")
+                    {
+                        string ViewName = VisName + "Index";
+                        return View(ViewName, res);
+                    }
+                    else return Unauthorized();
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in Review Index");
+                return StatusCode(500, e.Message);
+            }
+        }
+
         private WebDbWithRevInfo ReviewIndexDataGet(bool IsJson)
         {
             WebDbWithRevInfo res = new WebDbWithRevInfo();
