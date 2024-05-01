@@ -1,0 +1,222 @@
+﻿@using System.IO;
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Html;
+
+@{
+    string imgPath3 = "";
+    string imgUrl3 = "";
+    Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    if (WebDbIDclaim != null)
+    {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.jpg")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.png")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.png");
+        if (imgPath3 != "")
+        {
+            Claim LogoUrlCl = User.FindFirst("LogoURL");
+            if (LogoUrlCl != null) imgUrl3 = LogoUrlCl.Value;
+        }
+    }
+    string path = Context.Request.Scheme + "://" + Context.Request.Host.ToString() + Context.Request.PathBase + "/";// + Url.Content("~/"); //should give us the root of the app!
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--<title>@ViewBag.WebDbName</title>-->
+    <title>EPPI-Vis</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/Kendo/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/Kendo/kendo.all.min.js"></script>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+
+    <!-- Fonts and icons -->
+    <script src="~/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+        WebFont.load({
+            google: { "families": ["Lato:300,400,700,900"] },
+            custom: { "families": ["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css'] },
+            active: function () {
+                sessionStorage.fonts = true;
+            }
+        });
+
+        function GoToHome() {
+            //console.log(code);
+
+            let pars = {
+                filterAttributeId: 123
+                , description: 456
+                , onlyIncluded: 'True'
+                , listType: "WebDbWithThisCode"
+            };
+            var VisName = "DHSC";
+            postwith("../Review/ListFromCrit2", pars);
+            //postwith(pathRoot + "Review/ListFromCrit2", pars);
+        }
+
+
+
+
+
+        function GoToHome2() {
+            var VisName = "DHSC";
+            postwith("../Review/IndexWithName", VisName);
+        };
+
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/atlantis.css">
+
+    <!-- CSS Just for demo purpose, don't include it in your project -->
+    <link rel="stylesheet" href="~/assets/css/demo.css">
+</head>
+<body>
+
+
+    <div class="wrapper h-100">
+        <div class="main-header" data-background-color="blue">
+            <!-- Logo Header -->
+            <div class="logo-header" data-background-color="blue">
+                @if (imgPath3 == "")
+                {
+                    <div class="logo">
+                        <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="max-width:80px; max-height: 55px; object-fit: cover;">
+                    </div>
+                }
+                else
+                {
+                    if (imgUrl3 != "")
+                    {
+                        <a href="@(new HtmlString(imgUrl3))" class="logo" target="_blank" title="Open this Organisation Webpage">
+                            <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="logo">
+                            <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                        </div>
+                    }
+
+                }
+
+
+                <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon">
+                        <i class="icon-menu"></i>
+                    </span>
+                </button>
+                <button class="topbar-toggler more"><i class="icon-options-vertical"></i></button>
+                <div class="nav-toggle">
+                    <button class="btn btn-toggle toggle-sidebar">
+                        <i class="icon-menu"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- End Logo Header -->
+            <!-- Navbar Header -->
+            <nav class="navbar navbar-header navbar-expand-lg" data-background-color="blue2">
+
+                <div class="container-fluid">
+
+                    <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+                        <li>
+                            <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/IndexWithName?VisName=DHSC">Home</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-sm btn-info btn-round" asp-controller="Login" asp-action="Logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- End Navbar -->
+        </div>
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @RenderBody()
+
+
+    <!-- End Custom template -->
+    <div class="row w-100 border-left-0 mx-0 py-0 px-1 small alert-secondary" style="position:fixed; z-index:2003; bottom:0px;">
+        <div class="mx-auto mt-1 mb-0"><a href="https://eppi.ioe.ac.uk/EPPI-Vis/Login/Index" target="_blank">EPPI Vis</a> is developed and maintained by the <a href="https://eppi.ioe.ac.uk" target="_blank">EPPI-Centre</a>. The data shown is retrieved in real time from the <a href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">EPPI-Reviewer</a> database.</div>
+        <div class="ml-auto my-auto">
+            <a href="https://eppi.ioe.ac.uk" target="_blank">
+                <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="margin-top: 2px; max-width: 40px; max-height: 55px; object-fit: cover;">
+            </a>
+        </div>
+    </div>
+
+    <!--   Core JS Files   -->
+    <!--<script src="~/assets/js/core/jquery.3.2.1.min.js"></script>-->
+    <script src="~/assets/js/core/popper.min.js"></script>
+    <script src="~/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery UI -->
+    <script src="~/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="~/assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="~/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+
+    <!-- Chart JS -->
+    <script src="~/assets/js/plugin/chart.js/chart.min.js"></script>
+
+    <!-- jQuery Sparkline -->
+    <script src="~/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+    <!-- Chart Circle -->
+    <script src="~/assets/js/plugin/chart-circle/circles.min.js"></script>
+
+    <!-- Datatables -->
+    <script src="~/assets/js/plugin/datatables/datatables.min.js"></script>
+
+    <!-- Bootstrap Notify -->
+    <script src="~/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <!-- jQuery Vector Maps -->
+    <script src="~/assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+    <!-- Sweet Alert -->
+    <script src="~/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+    <!-- Atlantis JS -->
+    <script src="~/assets/js/atlantis.min.js"></script>
+
+    <!-- fonts -->
+    <script src="~/assets/fonts/fontawesome/fa-regular-400.svg"></script>
+
+</body>
+</html>
+
