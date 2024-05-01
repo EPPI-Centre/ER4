@@ -112,7 +112,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (_jobId == 0)
                 {//we need to create a record for this in TB_ROBOT_API_CALL_LOG - it's a single call doing one item!
-                    CreditForRobots CfR = rInfo.CreditForRobotsList.First(f => f.AmountRemaining > 0.0001);
+                    CreditForRobots CfR = rInfo.CreditForRobotsList.FirstOrDefault(f => f.AmountRemaining > 0.0001);
                     int creditPurchaseId = 0;
                     if (CfR == null && rInfo.OpenAIEnabled == false)
                     {
