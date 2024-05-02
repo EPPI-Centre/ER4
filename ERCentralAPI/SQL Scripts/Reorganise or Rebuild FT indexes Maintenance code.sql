@@ -43,6 +43,7 @@ declare @ToDo table (COMMAND varchar(4000), TableName varchar(4000), isRebuild b
 --MAIN DECISIONS LOOP repeating for each line in @indexesSettings -------------------------------------------------------------------------
 WHILE @done < @RowsToProcess AND @done < 200
 BEGIN
+	set @toDoCase = 0;
 	SELECT @catalog_name = catalog_name, @ReorganiseLowerThresholdPercentage = ReorganiseLowerThresholdPercentage, @RebuildLowerThresholdPercentage = RebuildLowerThresholdPercentage
 			, @ReorganiseLowerThresholdFragmentsCount = ReorganiseLowerThresholdFragmentsCount, @RebuildLowerThresholdFragmentsCount = RebuildLowerThresholdFragmentsCount
 		FROM (select top 1 * from @indexesSettings where done = 0) as a;
