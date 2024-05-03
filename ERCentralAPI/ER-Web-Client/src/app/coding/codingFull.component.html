@@ -31,11 +31,20 @@
               <button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
                       title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
                       [disabled]="!HasWriteRights" (click)="HotKeysOn=!HotKeysOn"></button>
-              <button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1" 
+              <kendo-splitbutton *ngIf="CanRunOpenAIrobot" class="ml-1" [icon]="'gears'" (buttonClick)="RunRobotOpenAICommand()"
+                                         [data]="RobotDDData" [disabled]="!HasWriteRights"
+                                         title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
+                                         style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
+              <!--<button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1"
                       title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
-                      [disabled]="!HasWriteRights" (click)="RunRobotOpenAICommand()"></button>
+                      [disabled]="!HasWriteRights" (click)="RunRobotOpenAICommand()"></button>-->
             </div>
-            
+            <div *ngIf="ShowRobotOptions" class="p-1 bg-light rounded">
+              <div class="row mx-1"><RobotSettings></RobotSettings></div>
+              <div class="row mx-1 border-top">
+                <button type="button" class="btn btn-outline-dark btn-sm px-1 py-0 mt-1" (click)="ShowRobotOptions = false">Close</button>
+              </div>
+            </div>
             <div class="col-12 bg-light" *ngIf="EditCodesPanel =='CreateNewCode'">
               <div class="col-12 small row px-0 py-1 m-0">
                 Add child to:
@@ -155,4 +164,30 @@
         </div>
         <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
     </div>
+</div>
+
+
+<div *ngIf="showManualModal">
+  <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="CloseManualModal()"></div>
+  <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
+    <div role="document" class="modal-dialog p-2" style="z-index:1001; background-color: white; pointer-events: auto;">
+      <div class="modal-header alert-danger">
+        <H4 class="modal-title">Warning</H4>
+      </div>
+      <div class="modal-body">
+        <div class="row d-inline-block alert-info rounded p-1">
+          You are asking the Robot to code an item which already has <strong>Completed Coding</strong>, saved under <strong>someone else's name</strong>.<br />
+          By default, when this happens, the Robot-Coding will be added in the robot's name and added as "Uncompleted".<br />
+          As a consequence, the coding created will be visible in the Coding Record and in comparisons, but would be <strong>otherwise hidden</strong>.<br />
+          You can change this and ask the robot to <strong>add its coding</strong> to the <strong>pre-existing coding</strong> instead
+          by un-ticking the "<span class="text-monospace">Always add coding in the Robot's name</span>" option, below.<br />
+        </div>
+        <div class="row mt-1 border-bottom border-top"><RobotSettings></RobotSettings></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="CloseManualModal()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
+        <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()">&nbsp;OK&nbsp;</button>
+      </div>
+    </div>
+  </div>
 </div>

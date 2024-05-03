@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using static Csla.Security.MembershipIdentity;
+
 
 
 #if !SILVERLIGHT
@@ -41,24 +43,28 @@ namespace BusinessLibrary.BusinessClasses
         private int _reviewSetId;
         private Int64 _itemDocumentId;
         private Int64 _itemId;
-        private string _message;
+        private string _message = "";
         private bool _isLastInBatch = true;
         private int _jobId = 0;
         private int _robotContactId = 0;
+        private bool _onlyCodeInTheRobotName = true;
+        private bool _lockTheCoding = true;
 
         public string ReturnMessage
         {
             get { return _message; }
         }
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId)
+        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true)
         {
             _reviewSetId = reviewSetId;
             _itemId = itemId;
             _itemDocumentId = itemDocumentId;
             _message = "";
+            _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
+            _lockTheCoding = lockTheCoding;
         }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId)
+        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true)
         {
             _reviewSetId = reviewSetId;
             _itemId = itemId;
@@ -67,6 +73,8 @@ namespace BusinessLibrary.BusinessClasses
             _isLastInBatch = isLastInBatch;
             _jobId = JobId;
             _robotContactId = robotContactId;
+            _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
+            _lockTheCoding = lockTheCoding;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -79,6 +87,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_isLastInBatch", _isLastInBatch);
             info.AddValue("_jobId", _jobId);
             info.AddValue("_robotContactId", _robotContactId);
+            info.AddValue("_onlyCodeInTheRobotName", _onlyCodeInTheRobotName);
+            info.AddValue("_lockTheCoding", _lockTheCoding);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
@@ -88,7 +98,9 @@ namespace BusinessLibrary.BusinessClasses
             _message = info.GetValue<string>("_message");
             _isLastInBatch = info.GetValue<bool>("_isLastInBatch");
             _jobId = info.GetValue<int>("_jobId");
-            _robotContactId = info.GetValue<int>("_robotContactId"); 
+            _robotContactId = info.GetValue<int>("_robotContactId");
+            _onlyCodeInTheRobotName = info.GetValue<bool>("_onlyCodeInTheRobotName");
+            _lockTheCoding = info.GetValue<bool>("_lockTheCoding");
         }
 
 
@@ -97,6 +109,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _inputTokens = 0;
         private int _outputTokens = 0;
         private Int64 _Item_set_id = 0;
+        private bool _CodingIsFinal = false;
         private int errors = 0;
 
         protected override void DataPortal_Execute()
@@ -345,6 +358,24 @@ namespace BusinessLibrary.BusinessClasses
                             break;
                         }
                     }
+                    
+                }
+                if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true)
+                {//_Item_set_id > 0 => there is coding to lock/unlock
+                 //_onlyCodeInTheRobotName == false && _lockTheCoding == true => we did not call st_ItemSetPrepareForRobot so we may need to lock the coding still
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        string sql = "UPDATE TB_ITEM_SET set IS_LOCKED = @IS_LOCKED where ITEM_SET_ID = @ITEM_SET_ID";
+                        using (SqlCommand commandEx = new SqlCommand(sql, connection))
+                        {
+                            commandEx.Parameters.Add(new SqlParameter("@IS_LOCKED", System.Data.SqlDbType.Bit));
+                            commandEx.Parameters["@IS_LOCKED"].Value = _lockTheCoding;
+                            commandEx.Parameters.Add(new SqlParameter("@ITEM_SET_ID", System.Data.SqlDbType.BigInt));
+                            commandEx.Parameters["@ITEM_SET_ID"].Value = _Item_set_id;
+                            commandEx.ExecuteNonQuery();
+                        }
+                    }
                 }
                 _inputTokens = generatedText.usage.prompt_tokens;
                 _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
@@ -374,7 +405,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 connection.Open();
 
-                if (_Item_set_id == 0)
+                if (_Item_set_id == 0 && _onlyCodeInTheRobotName == true)
                 {//this condition evaluates to TRUE only the first time we try saving a code, after which _Item_set_id will have a value > 0
                     //we do the special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
                     using (SqlCommand command = new SqlCommand("st_ItemSetPrepareForRobot", connection))
@@ -384,8 +415,11 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@ROBOT_CONTACT_ID", ContactId));
                         command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
                         command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
+                        command.Parameters.Add(new SqlParameter("@IS_LOCKED", _lockTheCoding));
                         command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
-                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output; 
+                        //command.Parameters.Add(new SqlParameter("@IS_CODING_FINAL", false));
+                        //command.Parameters["@IS_CODING_FINAL"].Direction = System.Data.ParameterDirection.Output; 
                         command.ExecuteNonQuery();
                         Int64 Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
                         if (Item_set_id < 1)
@@ -393,6 +427,7 @@ namespace BusinessLibrary.BusinessClasses
                             errors++;
                             return;
                         }
+                        //_CodingIsFinal = (bool)command.Parameters["@IS_CODING_FINAL"].Value;
                         _Item_set_id = Item_set_id;
                     }
                 }
@@ -407,12 +442,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", (object)DBNull.Value));
-                    command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _Item_set_id)); //special param only for robots
+                    if (_onlyCodeInTheRobotName == true) command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _Item_set_id)); //special param only for robots
                     command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
                     command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
                     command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
+                    if (_Item_set_id < 1) _Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
                 }
                 connection.Close();
             }
