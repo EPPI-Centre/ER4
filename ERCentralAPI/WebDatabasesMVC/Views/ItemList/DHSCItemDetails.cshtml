@@ -152,6 +152,7 @@
             var how_secure_is_it = "?";
             var how_to_implement = "?";
             var how_much_does_it_cost = "?";
+            var report_link = "?";
 
 
             // the itemAttributesList entries are in the order the codes are assigned so we need to loop through all of them to
@@ -349,6 +350,10 @@
                     case codingData.reviewSets[1].attributes.attributesList[4].attributeId:
                         how_much_does_it_cost = codingData.itemSetList[1].itemAttributesList[k].additionalText;
                         break;
+                    // how_much_does_it_cost
+                    case codingData.reviewSets[1].attributes.attributesList[5].attributeId:
+                        report_link = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
 
                     default:
                         break;
@@ -365,8 +370,10 @@
             visualHTML += "<table>";
             visualHTML += "<tr>";
             visualHTML += "<td style='border-bottom: solid; border-width: 1px; padding: 10px 0px 10px 0px;'>";
-            visualHTML += "<p><h1><b>" + studyTitle  + "</b></h1></p>"
-            visualHTML += "<p><h3>" + studyAbstract + "</h3></p>"
+            visualHTML += "<p><h1><b>" + studyTitle + "</b></h1></p>";
+            visualHTML += "<p><h3>" + studyAbstract + "</h3></p>";
+            visualHTML += "<a href=" + report_link + " target='_blank'><button class='btn btn-sm btn-info btn-round'>Full report</button></a>";
+            //visualHTML += "<p><h3>" + report_link + "</h3></p>";
             visualHTML += "</td>";
             visualHTML += "</tr>";
             visualHTML += "</table>";
