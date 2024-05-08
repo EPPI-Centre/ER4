@@ -49,10 +49,12 @@ public class RobotOpenAICommandJson
     public int reviewSetId;
     public Int64  itemDocumentId;
     public Int64  itemId;
+    public bool onlyCodeInTheRobotName { get; set; }
+    public bool lockTheCoding { get; set; }
     public string returnMessage = "";
     public RobotOpenAICommand GetRobotOpenAICommand()
     {
-        RobotOpenAICommand res = new RobotOpenAICommand(reviewSetId, itemId, itemDocumentId);
+        RobotOpenAICommand res = new RobotOpenAICommand(reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding);
         return res;
     }
 }

@@ -18,7 +18,12 @@ export class RobotsService extends BusyAwareService {
     ) {
       super(configService);
     }
-	
+
+  public RobotSetting: iRobotSettings = {
+    onlyCodeInTheRobotName: true,
+    lockTheCoding: true,
+    rememberTheseChoices: false
+  };
 
   public RunRobotOpenAICommand(cmd: iRobotOpenAICommand): Promise<iRobotOpenAICommand> {
 
@@ -46,5 +51,13 @@ export interface iRobotOpenAICommand {
   reviewSetId: number;
   itemDocumentId: number;
   itemId: number;
+  onlyCodeInTheRobotName: boolean;
+  lockTheCoding: boolean;
   returnMessage: string;
-} 
+}
+
+export interface iRobotSettings {
+  onlyCodeInTheRobotName: boolean;
+  lockTheCoding: boolean;
+  rememberTheseChoices: boolean;
+}

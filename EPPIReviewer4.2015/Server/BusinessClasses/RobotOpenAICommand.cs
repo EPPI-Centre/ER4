@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using static Csla.Security.MembershipIdentity;
+
 
 
 #if !SILVERLIGHT
@@ -41,24 +43,28 @@ namespace BusinessLibrary.BusinessClasses
         private int _reviewSetId;
         private Int64 _itemDocumentId;
         private Int64 _itemId;
-        private string _message;
+        private string _message = "";
         private bool _isLastInBatch = true;
         private int _jobId = 0;
         private int _robotContactId = 0;
+        private bool _onlyCodeInTheRobotName = true;
+        private bool _lockTheCoding = true;
 
         public string ReturnMessage
         {
             get { return _message; }
         }
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId)
+        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true)
         {
             _reviewSetId = reviewSetId;
             _itemId = itemId;
             _itemDocumentId = itemDocumentId;
             _message = "";
+            _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
+            _lockTheCoding = lockTheCoding;
         }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId)
+        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true)
         {
             _reviewSetId = reviewSetId;
             _itemId = itemId;
@@ -67,6 +73,8 @@ namespace BusinessLibrary.BusinessClasses
             _isLastInBatch = isLastInBatch;
             _jobId = JobId;
             _robotContactId = robotContactId;
+            _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
+            _lockTheCoding = lockTheCoding;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -79,6 +87,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_isLastInBatch", _isLastInBatch);
             info.AddValue("_jobId", _jobId);
             info.AddValue("_robotContactId", _robotContactId);
+            info.AddValue("_onlyCodeInTheRobotName", _onlyCodeInTheRobotName);
+            info.AddValue("_lockTheCoding", _lockTheCoding);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
@@ -88,7 +98,9 @@ namespace BusinessLibrary.BusinessClasses
             _message = info.GetValue<string>("_message");
             _isLastInBatch = info.GetValue<bool>("_isLastInBatch");
             _jobId = info.GetValue<int>("_jobId");
-            _robotContactId = info.GetValue<int>("_robotContactId"); 
+            _robotContactId = info.GetValue<int>("_robotContactId");
+            _onlyCodeInTheRobotName = info.GetValue<bool>("_onlyCodeInTheRobotName");
+            _lockTheCoding = info.GetValue<bool>("_lockTheCoding");
         }
 
 
@@ -97,6 +109,8 @@ namespace BusinessLibrary.BusinessClasses
         private int _inputTokens = 0;
         private int _outputTokens = 0;
         private Int64 _Item_set_id = 0;
+        private bool _CodingIsFinal = false;
+        private bool hasSavedSomeCodes = false;
         private int errors = 0;
 
         protected override void DataPortal_Execute()
@@ -135,6 +149,10 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
                             command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
                             command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                            command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
+                            command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
+                            //@FORCE_CODING_IN_ROBOT_NAME bit,
+                            //@LOCK_CODING bit,
                             command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
                             command.Parameters["@result"].Size = 50;
                             command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
@@ -153,15 +171,64 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                bool result = Task.Run(() => DoRobot(ri.ReviewId, _robotContactId)).GetAwaiter().GetResult();
+                //we have a jobID so now we can (and want) to catch and log exceptions
+                try
+                {
+                    bool result = Task.Run(() => DoRobot(ri.ReviewId, _robotContactId)).GetAwaiter().GetResult();
+                    if (errors > 0)
+                    {
+                        _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
+                        //TODO: also check if we need to delete a newly created (but empty) record in TB_ITEM_SET
+                        if (hasSavedSomeCodes)
+                        {
+                            //not yet implemented!
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _message = "Failure. " + Environment.NewLine + e.Message;
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        try
+                        {
+                            using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                            {//this is to update the token numbers, and thus the cost, if we can
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@JobId", _jobId));
+                                command.Parameters.Add(new SqlParameter("@STATUS", "Failed"));
+                                command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                                command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
+                                command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        finally
+                        {
+                            using (SqlCommand command = new SqlCommand("st_CreateRobotApiCallError", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@JobId", _jobId));
+                                command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", e.Message));
+                                command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
+                                command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                                command.Parameters.Add(new SqlParameter("@IS_FAILURE", 1));
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    return;
+                }
+                
+                //no point trying to log exceptions happening when we're only updating the call log, likely to fail too!
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
                     using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                        command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                        command.Parameters.Add(new SqlParameter("@JobId", _jobId));
                         command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Finished" : "Running"));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
                         command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
@@ -220,9 +287,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         private async Task<bool> DoRobot(int ReviewId, int UserId)
         {
-            bool result = true;
-
-            
+            bool result = true;            
 
             string endpoint = AzureSettings.RobotOpenAIEndpoint;
             string key = AzureSettings.RobotOpenAIKey2;
@@ -261,7 +326,7 @@ namespace BusinessLibrary.BusinessClasses
 
             string prompt = "";
             foreach (AttributeSet subSet in rs.Attributes)
-            {
+            { //maybe add code to check if we have 2 codes with the same prompt, which would break the "saving results" phase, somewhat (only the first will be coded)
                 string newPrompt = getPrompts("", subSet);
                 if (newPrompt != "")
                 {
@@ -271,7 +336,7 @@ namespace BusinessLibrary.BusinessClasses
 
             if (prompt == "")
             {
-                _message = "No valid prompts in codeset";
+                _message = "Error: No valid prompts in codeset";
                 return false;
             }
 
@@ -317,48 +382,56 @@ namespace BusinessLibrary.BusinessClasses
             var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p};
             var json = JsonConvert.SerializeObject(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            try
+            
+            var response = await client.PostAsync(endpoint, content);
+            if (response.IsSuccessStatusCode == false)
             {
-                var response = await client.PostAsync(endpoint, content);
-                if (response.IsSuccessStatusCode == false)
-                {
-                    _message = "Error: " + response.ReasonPhrase;
-                    result = false;
-                    return result;
-                }
-                var responseString = await response.Content.ReadAsStringAsync();
-                var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
-                var responses = generatedText.choices[0].message.content;
-                var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
+                _message = "Error: " + response.ReasonPhrase;
+                result = false;
+                return result;
+            }
+            var responseString = await response.Content.ReadAsStringAsync();
+            var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
+            var responses = generatedText.choices[0].message.content;
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
 
 
-                // *** Go through each of the responses, find the right code, and save results
-                foreach (var kv in dict)
+            // *** Go through each of the responses, find the right code, and save results
+            foreach (var kv in dict)
+            {
+                AttributeSet matched = null;
+                foreach (AttributeSet subSet in rs.Attributes)
                 {
-                    AttributeSet matched = null;
-                    foreach (AttributeSet subSet in rs.Attributes)
+                    matched = getAttributeFromPromptKey(kv.Key, subSet);
+                    if (matched != null)
                     {
-                        matched = getAttributeFromPromptKey(kv.Key, subSet);
-                        if (matched != null)
-                        {
-                            SaveAttribute(matched, _itemId, kv.Value, ReviewId, UserId);
-                            break;
-                        }
+                        SaveAttribute(matched, _itemId, kv.Value, ReviewId, UserId);
+                        break;
                     }
                 }
-                _inputTokens = generatedText.usage.prompt_tokens;
-                _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
-                _message = "Completed without errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
+                    
             }
-            catch
-            {
-                _message = "Sorry there was an error";
+            if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true)
+            {//_Item_set_id > 0 => there is coding to lock/unlock
+                //_onlyCodeInTheRobotName == false && _lockTheCoding == true => we did not call st_ItemSetPrepareForRobot so we may need to lock the coding still
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    string sql = "UPDATE TB_ITEM_SET set IS_LOCKED = @IS_LOCKED where ITEM_SET_ID = @ITEM_SET_ID";
+                    using (SqlCommand commandEx = new SqlCommand(sql, connection))
+                    {
+                        commandEx.Parameters.Add(new SqlParameter("@IS_LOCKED", System.Data.SqlDbType.Bit));
+                        commandEx.Parameters["@IS_LOCKED"].Value = _lockTheCoding;
+                        commandEx.Parameters.Add(new SqlParameter("@ITEM_SET_ID", System.Data.SqlDbType.BigInt));
+                        commandEx.Parameters["@ITEM_SET_ID"].Value = _Item_set_id;
+                        commandEx.ExecuteNonQuery();
+                    }
+                }
             }
-            
-            if (errors > 0)
-            {
-                _message = "Completed with " + errors.ToString() + " errors";
-            }
+            _inputTokens = generatedText.usage.prompt_tokens;
+            _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            _message = "Completed without errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
+           
             return result;
         }
 
@@ -373,8 +446,7 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-
-                if (_Item_set_id == 0)
+                if (_Item_set_id == 0 && _onlyCodeInTheRobotName == true)
                 {//this condition evaluates to TRUE only the first time we try saving a code, after which _Item_set_id will have a value > 0
                     //we do the special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
                     using (SqlCommand command = new SqlCommand("st_ItemSetPrepareForRobot", connection))
@@ -384,35 +456,60 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@ROBOT_CONTACT_ID", ContactId));
                         command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
                         command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
+                        command.Parameters.Add(new SqlParameter("@IS_LOCKED", _lockTheCoding));
                         command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
-                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output; 
+                        //command.Parameters.Add(new SqlParameter("@IS_CODING_FINAL", false));
+                        //command.Parameters["@IS_CODING_FINAL"].Direction = System.Data.ParameterDirection.Output; 
                         command.ExecuteNonQuery();
                         Int64 Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
                         if (Item_set_id < 1)
                         {//can't save this code, st_ItemSetPrepareForRobot failed
-                            errors++;
-                            return;
+                            throw new Exception("Could not create the coding record for the Robot");
                         }
+                        //_CodingIsFinal = (bool)command.Parameters["@IS_CODING_FINAL"].Value;
                         _Item_set_id = Item_set_id;
                     }
                 }
-
-                using (SqlCommand command = new SqlCommand("st_ItemAttributeInsert", connection)) 
+                try
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
-                    command.Parameters.Add(new SqlParameter("@ADDITIONAL_TEXT", info));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", aSet.AttributeId));
-                    command.Parameters.Add(new SqlParameter("@SET_ID", aSet.SetId));
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", (object)DBNull.Value));
-                    command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _Item_set_id)); //special param only for robots
-                    command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
-                    command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
-                    command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
-                    command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
+
+                    using (SqlCommand command = new SqlCommand("st_ItemAttributeInsert", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                        command.Parameters.Add(new SqlParameter("@ADDITIONAL_TEXT", info));
+                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", aSet.AttributeId));
+                        command.Parameters.Add(new SqlParameter("@SET_ID", aSet.SetId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", (object)DBNull.Value));
+                        if (_onlyCodeInTheRobotName == true) command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _Item_set_id)); //special param only for robots
+                        command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
+                        command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
+                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+                        if (_Item_set_id < 1) _Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
+                        if (hasSavedSomeCodes == false)
+                        {
+                            if ((Int64)command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value > 0) hasSavedSomeCodes = true;
+                        }
+                    }
+                } 
+                catch (Exception e)
+                {
+                    errors++;
+                    using (SqlCommand command = new SqlCommand("st_CreateRobotApiCallError", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@JobId", _jobId));
+                        command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", e.Message));
+                        command.Parameters.Add(new SqlParameter("@STACK_TRACE", "Not-halting exception:" + Environment.NewLine + e.StackTrace));
+                        command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                        command.Parameters.Add(new SqlParameter("@IS_FAILURE", 0));
+                        command.ExecuteNonQuery();
+                    }
                 }
                 connection.Close();
             }
