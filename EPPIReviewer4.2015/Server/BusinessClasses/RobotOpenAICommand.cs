@@ -151,8 +151,6 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
                             command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
                             command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
-                            //@FORCE_CODING_IN_ROBOT_NAME bit,
-                            //@LOCK_CODING bit,
                             command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
                             command.Parameters["@result"].Size = 50;
                             command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
@@ -163,7 +161,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.ExecuteNonQuery();
                             if (command.Parameters["@result"].Value.ToString() != "Success")
                             {
-                                _message = "Failure: " + command.Parameters["@result"].Value.ToString();
+                                _message = "Failure. " + command.Parameters["@result"].Value.ToString();
                                 return;
                             }
                             _jobId = (int)command.Parameters["@JobId"].Value;
@@ -179,9 +177,20 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
                         //TODO: also check if we need to delete a newly created (but empty) record in TB_ITEM_SET
-                        if (hasSavedSomeCodes)
+                        if (hasSavedSomeCodes == false && _Item_set_id > 0)
                         {
                             //not yet implemented!
+                            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                            {
+                                connection.Open();
+                                using (SqlCommand command = new SqlCommand("st_ItemSetDeleteIfEmpty", connection))
+                                {
+                                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                                    command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
+                                    command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _Item_set_id));
+                                    command.ExecuteNonQuery();
+                                }
+                            }
                         }
                     }
                 }
@@ -190,33 +199,22 @@ namespace BusinessLibrary.BusinessClasses
                     _message = "Failure. " + Environment.NewLine + e.Message;
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
+                        string SavedMsg = e.Message;
+                        if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
                         connection.Open();
-                        try
-                        {
-                            using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
-                            {//this is to update the token numbers, and thus the cost, if we can
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@JobId", _jobId));
-                                command.Parameters.Add(new SqlParameter("@STATUS", "Failed"));
-                                command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
-                                command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
-                                command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
-                                command.ExecuteNonQuery();
-                            }
+                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                        {//this is to update the token numbers, and thus the cost, if we can
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID ", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                            command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                            command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
+                            command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                            command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                            command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
+                            command.ExecuteNonQuery();
                         }
-                        finally
-                        {
-                            using (SqlCommand command = new SqlCommand("st_CreateRobotApiCallError", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@JobId", _jobId));
-                                command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", e.Message));
-                                command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
-                                command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
-                                command.Parameters.Add(new SqlParameter("@IS_FAILURE", 1));
-                                command.ExecuteNonQuery();
-                            }
-                        }
+                        
                     }
                     return;
                 }
@@ -228,7 +226,8 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@JobId", _jobId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
                         command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Finished" : "Running"));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
                         command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
@@ -448,7 +447,7 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 if (_Item_set_id == 0 && _onlyCodeInTheRobotName == true)
                 {//this condition evaluates to TRUE only the first time we try saving a code, after which _Item_set_id will have a value > 0
-                    //we do the special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
+                    //we do this special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
                     using (SqlCommand command = new SqlCommand("st_ItemSetPrepareForRobot", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
