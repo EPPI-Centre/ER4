@@ -106,31 +106,31 @@ BEGIN
 END
 GO
 
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_CreditHistoryByPurchase]    Script Date: 25/04/2024 13:38:32 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE or ALTER PROCEDURE st_CreateRobotApiCallError 
-(
-	@JobId int
-	,@ERROR_MESSAGE varchar(200)
-	,@STACK_TRACE varchar(max) = null
-	,@CURRENT_ITEM_ID bigint
-	,@IS_FAILURE bit
-)
-AS
-BEGIN
-	Insert into TB_ROBOT_API_CALL_ERROR_LOG (ROBOT_API_CALL_ID, [ERROR_MESSAGE], STACK_TRACE, ITEM_ID)
-		values (@JobId, @ERROR_MESSAGE, @STACK_TRACE, @CURRENT_ITEM_ID)
-	IF @IS_FAILURE = 1
-	begin
-		Update TB_ROBOT_API_CALL_LOG set SUCCESS = 0, STATUS = 'Failed' where ROBOT_API_CALL_ID = @JobId
-	END
-END
-GO
+--USE [Reviewer]
+--GO
+--/****** Object:  StoredProcedure [dbo].[st_CreditHistoryByPurchase]    Script Date: 25/04/2024 13:38:32 ******/
+--SET ANSI_NULLS ON
+--GO
+--SET QUOTED_IDENTIFIER ON
+--GO
+--CREATE or ALTER PROCEDURE st_CreateRobotApiCallError 
+--(
+--	@JobId int
+--	,@ERROR_MESSAGE varchar(200)
+--	,@STACK_TRACE varchar(max) = null
+--	,@CURRENT_ITEM_ID bigint
+--	,@IS_FAILURE bit
+--)
+--AS
+--BEGIN
+--	Insert into TB_ROBOT_API_CALL_ERROR_LOG (ROBOT_API_CALL_ID, [ERROR_MESSAGE], STACK_TRACE, ITEM_ID)
+--		values (@JobId, @ERROR_MESSAGE, @STACK_TRACE, @CURRENT_ITEM_ID)
+--	IF @IS_FAILURE = 1
+--	begin
+--		Update TB_ROBOT_API_CALL_LOG set SUCCESS = 0, STATUS = 'Failed' where ROBOT_API_CALL_ID = @JobId
+--	END
+--END
+--GO
 
 CREATE or ALTER PROCEDURE st_ItemSetDeleteIfEmpty 
 (

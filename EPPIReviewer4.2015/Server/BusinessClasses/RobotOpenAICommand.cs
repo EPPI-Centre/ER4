@@ -179,18 +179,7 @@ namespace BusinessLibrary.BusinessClasses
                         //TODO: also check if we need to delete a newly created (but empty) record in TB_ITEM_SET
                         if (hasSavedSomeCodes == false && _Item_set_id > 0)
                         {
-                            //not yet implemented!
-                            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                            {
-                                connection.Open();
-                                using (SqlCommand command = new SqlCommand("st_ItemSetDeleteIfEmpty", connection))
-                                {
-                                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                                    command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
-                                    command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _Item_set_id));
-                                    command.ExecuteNonQuery();
-                                }
-                            }
+                            DeleteItemSetIfEmpty();
                         }
                     }
                 }
@@ -204,6 +193,7 @@ namespace BusinessLibrary.BusinessClasses
                         connection.Open();
                         using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
                         {//this is to update the token numbers, and thus the cost, if we can
+                            command.CommandType = System.Data.CommandType.StoredProcedure; 
                             command.Parameters.Add(new SqlParameter("@REVIEW_ID ", ri.ReviewId));
                             command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
                             command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
@@ -214,12 +204,13 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
                             command.ExecuteNonQuery();
                         }
-                        
+                    }
+                    if (hasSavedSomeCodes == false && _Item_set_id > 0)
+                    {
+                        DeleteItemSetIfEmpty();
                     }
                     return;
                 }
-                
-                //no point trying to log exceptions happening when we're only updating the call log, likely to fail too!
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
@@ -361,6 +352,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 userprompt = "Text: " + i.Abstract;
             }
+            //userprompt += userprompt + Environment.NewLine + userprompt + Environment.NewLine + userprompt + Environment.NewLine + userprompt + Environment.NewLine + userprompt;
             List<OpenAIChatClass> messages = new List<OpenAIChatClass>
             {
                 new OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
@@ -499,14 +491,19 @@ namespace BusinessLibrary.BusinessClasses
                 catch (Exception e)
                 {
                     errors++;
-                    using (SqlCommand command = new SqlCommand("st_CreateRobotApiCallError", connection))
-                    {
+                    using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                    {//this is to update the token numbers, and thus the cost, if we can
+                        string SavedMsg = e.Message;
+                        if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@JobId", _jobId));
-                        command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", e.Message));
-                        command.Parameters.Add(new SqlParameter("@STACK_TRACE", "Not-halting exception:" + Environment.NewLine + e.StackTrace));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID ", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                        command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
-                        command.Parameters.Add(new SqlParameter("@IS_FAILURE", 0));
+                        command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
+                        command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                        command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                        command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
                         command.ExecuteNonQuery();
                     }
                 }
@@ -514,6 +511,20 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private void DeleteItemSetIfEmpty()
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ItemSetDeleteIfEmpty", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _Item_set_id));
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
         private string GetDoc(Int64 DocumentId, int ReviewId)
         {
             string ret = null;
