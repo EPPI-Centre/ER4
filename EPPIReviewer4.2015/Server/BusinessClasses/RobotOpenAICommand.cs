@@ -16,6 +16,8 @@ using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using static Csla.Security.MembershipIdentity;
+using System.Diagnostics;
+
 
 
 
@@ -49,10 +51,20 @@ namespace BusinessLibrary.BusinessClasses
         private int _robotContactId = 0;
         private bool _onlyCodeInTheRobotName = true;
         private bool _lockTheCoding = true;
+        private bool _Succeded = false;
+        private int errors = 0;
 
         public string ReturnMessage
         {
             get { return _message; }
+        }
+        public bool Succeded
+        {
+            get { return _Succeded; }
+        }
+        public int NonFatalErrors
+        {
+            get { return errors; }
         }
         public int RobotContactId { get { return _robotContactId; } }
         public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true)
@@ -89,6 +101,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_robotContactId", _robotContactId);
             info.AddValue("_onlyCodeInTheRobotName", _onlyCodeInTheRobotName);
             info.AddValue("_lockTheCoding", _lockTheCoding);
+            info.AddValue("_Succeded", _Succeded);
+            info.AddValue("errors", errors);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
@@ -101,6 +115,8 @@ namespace BusinessLibrary.BusinessClasses
             _robotContactId = info.GetValue<int>("_robotContactId");
             _onlyCodeInTheRobotName = info.GetValue<bool>("_onlyCodeInTheRobotName");
             _lockTheCoding = info.GetValue<bool>("_lockTheCoding");
+            _Succeded = info.GetValue<bool>("_Succeded");
+            errors = info.GetValue<int>("errors");
         }
 
 
@@ -109,9 +125,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _inputTokens = 0;
         private int _outputTokens = 0;
         private Int64 _Item_set_id = 0;
-        private bool _CodingIsFinal = false;
         private bool hasSavedSomeCodes = false;
-        private int errors = 0;
 
         protected override void DataPortal_Execute()
         {
@@ -119,7 +133,7 @@ namespace BusinessLibrary.BusinessClasses
             ReviewInfo rInfo = DataPortal.Fetch<ReviewInfo>();
             if (!rInfo.CanUseRobots)
             {
-                _message = "Failed: GPT4 is disabled or there is no credit.";
+                _message = "Error: GPT4 is disabled or there is no credit.";
                 return;
             }
             else
@@ -130,7 +144,7 @@ namespace BusinessLibrary.BusinessClasses
                     int creditPurchaseId = 0;
                     if (CfR == null && rInfo.OpenAIEnabled == false)
                     {
-                        _message = "Failed: did not find suitable credit to use.";
+                        _message = "Error: did not find suitable credit to use.";
                         return;
                     }
                     else if (CfR != null)
@@ -161,7 +175,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.ExecuteNonQuery();
                             if (command.Parameters["@result"].Value.ToString() != "Success")
                             {
-                                _message = "Failure. " + command.Parameters["@result"].Value.ToString();
+                                _message = "Error. " + command.Parameters["@result"].Value.ToString();
                                 return;
                             }
                             _jobId = (int)command.Parameters["@JobId"].Value;
@@ -172,11 +186,10 @@ namespace BusinessLibrary.BusinessClasses
                 //we have a jobID so now we can (and want) to catch and log exceptions
                 try
                 {
-                    bool result = Task.Run(() => DoRobot(ri.ReviewId, _robotContactId)).GetAwaiter().GetResult();
+                    _Succeded = Task.Run(() => DoRobot(ri.ReviewId, _robotContactId)).GetAwaiter().GetResult();
                     if (errors > 0)
                     {
                         _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
-                        //TODO: also check if we need to delete a newly created (but empty) record in TB_ITEM_SET
                         if (hasSavedSomeCodes == false && _Item_set_id > 0)
                         {
                             DeleteItemSetIfEmpty();
@@ -185,7 +198,9 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 catch (Exception e)
                 {
-                    _message = "Failure. " + Environment.NewLine + e.Message;
+
+                    _Succeded = false;
+                    _message = "Error. " + Environment.NewLine + e.Message;
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         string SavedMsg = e.Message;
@@ -216,10 +231,17 @@ namespace BusinessLibrary.BusinessClasses
                     connection.Open();
                     using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
                     {
+                        string status;
+                        if (_isLastInBatch == false) status = "Running";
+                        else
+                        {
+                            if (_Succeded == false) status = "Failed";
+                            else status = "Finished";
+                        }
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                         command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
-                        command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Finished" : "Running"));
+                        command.Parameters.Add(new SqlParameter("@STATUS", status));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
                         command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
                         command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
@@ -288,19 +310,19 @@ namespace BusinessLibrary.BusinessClasses
             Item i = Item.GetItemById(_itemId, ReviewId);
             if (i == null)
             {
-                _message = "Null item";
+                _message = "Error: Null item";
                 return false;
             }
             if (i.Abstract.Trim().Length + i.Title.Trim().Length < 50)
             {
-                _message = "Short or non-existent title and abstract";
+                _message = "Error: Short or non-existent title and abstract";
                 return false;
             }
             char[] chars = { ' ' };
             int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
             if (wordCount > 3500)
             {
-                _message = "Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
+                _message = "Error: Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
                 return false;
             }
             
@@ -373,7 +395,11 @@ namespace BusinessLibrary.BusinessClasses
             var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p};
             var json = JsonConvert.SerializeObject(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            
+            //for (int ii = 0; ii < 10; ii++)
+            //{
+            //    if (ii == 9) { var response0 = await client.PostAsync(endpoint, content); }
+            //    else { var response0 = client.PostAsync(endpoint, content); }
+            //}
             var response = await client.PostAsync(endpoint, content);
             if (response.IsSuccessStatusCode == false)
             {
@@ -383,6 +409,8 @@ namespace BusinessLibrary.BusinessClasses
             }
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
+            _inputTokens = generatedText.usage.prompt_tokens;
+            _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             var responses = generatedText.choices[0].message.content;
             var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
 
@@ -400,7 +428,6 @@ namespace BusinessLibrary.BusinessClasses
                         break;
                     }
                 }
-                    
             }
             if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true)
             {//_Item_set_id > 0 => there is coding to lock/unlock
@@ -419,9 +446,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
             }
-            _inputTokens = generatedText.usage.prompt_tokens;
-            _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
-            _message = "Completed without errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
+            _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
            
             return result;
         }
@@ -492,16 +517,16 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     errors++;
                     using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
-                    {//this is to update the token numbers, and thus the cost, if we can
+                    {//this should NOT update the token numbers, and thus the cost, as it will be done later
                         string SavedMsg = e.Message;
                         if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID ", ReviewId));
                         command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
-                        command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
+                        command.Parameters.Add(new SqlParameter("@STATUS", "Running"));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
-                        command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
-                        command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                        command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
+                        command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
                         command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
                         command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
                         command.ExecuteNonQuery();
