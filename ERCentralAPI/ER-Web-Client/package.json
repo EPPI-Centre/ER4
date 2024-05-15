@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --hmr",
+    "start": "ng serve --hmr --host ssru38.ioe.ac.uk --ssl",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
