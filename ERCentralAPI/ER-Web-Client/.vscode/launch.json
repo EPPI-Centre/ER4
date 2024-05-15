@@ -9,6 +9,13 @@
       "webRoot": "${workspaceFolder}"
     },
     {
+      "type": "chrome",
+      "request": "launch",
+      "name": "SSRU38 (Chrome)",
+      "url": "https://ssru38.ioe.ac.uk:4200",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
       "type": "edge",
       "request": "launch",
       "name": "localhost (Edge)",
