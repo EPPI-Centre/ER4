@@ -1,0 +1,25 @@
+<div class="px-0 mx-1 my-0 rounded border border-primary p-1 bg-light">
+  <div class="container px-1">
+    <div class="d-flex">
+      <div class="font-weight-bold mx-auto">Batch job for "OpenAI GPT4" robot</div>
+    </div>
+    <div class="row alert-info rounded p-1 mx-0">
+      <div class="col-auto rounded px-1 bg-white mt-1 mr-1">
+        Selected Items Count =
+        <span class="px-1"
+              [ngClass]="{'alert-warning' : SelectedItemsCount == 0 || SelectedItemsCount > 1000, 'alert-success font-weight-bold': SelectedItemsCount > 0 && SelectedItemsCount <= 1000 }">
+          {{SelectedItemsCount}}
+        </span>
+      </div>
+      <div class="col-auto rounded px-1 bg-white mt-1">
+        Coding tool: <strong>{{SelectedNodeName}}</strong>
+      </div>
+    </div>
+    <button class="btn btn-sm btn-outline-secondary" (click)="ShowSettings = !ShowSettings">Settings...</button>
+    <button class="btn btn-sm btn-outline-danger" (click)="SubmitBatch()" [disabled]="!CanSubmitBatch">Submit</button>
+    <div *ngIf="ShowSettings">
+      <RobotSettings></RobotSettings>
+    </div>
+  </div>
+</div>
+

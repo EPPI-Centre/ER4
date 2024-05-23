@@ -19,7 +19,7 @@ namespace ERxWebClient2.Controllers
     public class RobotsController : CSLAController
     {
         
-        public RobotsController(ILogger<FrequenciesController> logger) : base(logger)
+        public RobotsController(ILogger<RobotsController> logger) : base(logger)
         { }
 
         [HttpPost("[action]")]
@@ -39,7 +39,40 @@ namespace ERxWebClient2.Controllers
             }
 
 		}
-               
+        [HttpPost("[action]")]
+        public IActionResult EnqueueRobotOpenAIBatch([FromBody] RobotOpenAiQueueBatchJobCommandJson data)
+        {
+
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                else
+                {
+                    ReviewInfo rinfo = DataPortal.Fetch<ReviewInfo>();
+                    if (rinfo == null) return Unauthorized();
+                    if (rinfo.CanUseRobots == false)
+                    {
+                        data.returnMessage = "Error. Could not find credit available to spend on the OpenAI Robot.";
+                        return Ok(data);
+                    }
+                    int CreditId = 0;
+                    if (rinfo.CreditForRobotsList.Count > 0)
+                    {
+                        CreditId = rinfo.CreditForRobotsList[0].CreditPurchaseId;
+                    }
+                    RobotOpenAiQueueBatchJobCommand res = new RobotOpenAiQueueBatchJobCommand(data.criteria, CreditId, data.reviewSetId, data.onlyCodeInTheRobotName, data.lockTheCoding);
+                    res = DataPortal.Execute(res);
+                    data.returnMessage = res.Result;
+                    return Ok(res);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "RunRobotOpenAICommand error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
     }
 }
 
@@ -47,8 +80,8 @@ namespace ERxWebClient2.Controllers
 public class RobotOpenAICommandJson
 {
     public int reviewSetId;
-    public Int64  itemDocumentId;
-    public Int64  itemId;
+    public Int64 itemDocumentId;
+    public Int64 itemId;
     public bool onlyCodeInTheRobotName { get; set; }
     public bool lockTheCoding { get; set; }
     public string returnMessage = "";
@@ -57,5 +90,16 @@ public class RobotOpenAICommandJson
         RobotOpenAICommand res = new RobotOpenAICommand(reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding);
         return res;
     }
+}
+
+public class RobotOpenAiQueueBatchJobCommandJson
+{
+    public int reviewSetId;
+    public Int64 itemDocumentId;
+    public string criteria { get; set; } = "";
+    public bool onlyCodeInTheRobotName { get; set; }
+    public bool lockTheCoding { get; set; }
+    public string returnMessage = "";
+    
 }
 

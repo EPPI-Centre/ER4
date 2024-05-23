@@ -46,11 +46,43 @@ export class RobotsService extends BusyAwareService {
         return cmd;
       });
   }
+  public EnqueueRobotOpenAIBatchCommand(cmd: iRobotOpenAiQueueBatchJobCommand): Promise<boolean> {
+
+    this._BusyMethods.push("EnqueueRobotOpenAIBatchCommand");
+    return lastValueFrom(this._httpC.post<iRobotOpenAiQueueBatchJobCommand>(this._baseUrl + 'api/Robots/EnqueueRobotOpenAIBatch', cmd))
+      .then((res) => {
+        this.RemoveBusy("EnqueueRobotOpenAIBatchCommand");
+        if (res.returnMessage.includes("Error")) {
+          this.modalService.GenericErrorMessage("The batch submission failed with message: " + res.returnMessage);
+          return false;
+        }
+        return true;
+      },
+        (err) => {
+          this.RemoveBusy("EnqueueRobotOpenAIBatchCommand");
+          this.modalService.GenericError(err);
+          cmd.returnMessage = "Error";
+          return false;
+        })
+      .catch((err) => {
+        this.RemoveBusy("EnqueueRobotOpenAIBatchCommand");
+        this.modalService.GenericError(err);
+        cmd.returnMessage = "Error";
+        return false;
+      });
+  }
 }
 export interface iRobotOpenAICommand {
   reviewSetId: number;
   itemDocumentId: number;
   itemId: number;
+  onlyCodeInTheRobotName: boolean;
+  lockTheCoding: boolean;
+  returnMessage: string;
+}
+export interface iRobotOpenAiQueueBatchJobCommand {
+  reviewSetId: number;
+  criteria: string;
   onlyCodeInTheRobotName: boolean;
   lockTheCoding: boolean;
   returnMessage: string;

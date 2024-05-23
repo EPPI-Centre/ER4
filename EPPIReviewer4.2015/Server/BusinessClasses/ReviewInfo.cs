@@ -302,6 +302,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<CreditForRobotsList> CreditForRobotsListProperty = RegisterProperty<CreditForRobotsList>(new PropertyInfo<CreditForRobotsList>("CreditForRobotsList", "CreditForRobotsList", new CreditForRobotsList()));
+        [Newtonsoft.Json.JsonIgnore]
         public CreditForRobotsList CreditForRobotsList
         {
             get
@@ -313,16 +314,23 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(CreditForRobotsListProperty, value);
             }
         }
+        public bool HasCreditForRobots
+        {
+            get
+            {
+                foreach (CreditForRobots CfR in CreditForRobotsList)
+                {
+                    if (CfR.AmountRemaining >= 0.01) return true;
+                }
+                return false;
+            }
+        }
         public bool CanUseRobots
         {
             get
             {
                 if (OpenAIEnabled) return true;
-                foreach (CreditForRobots CfR in CreditForRobotsList)
-                {
-                    if (CfR.AmountRemaining > 0.0001) return true;
-                }
-                return false;
+                return HasCreditForRobots;
             }
         }
 #endif
@@ -419,14 +427,23 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch()
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            Internal_Fetch(ri.ReviewId, ri.UserId);            
+        }
+        protected void DataPortal_Fetch(SingleCriteria<ReviewInfo, int> criteria)
+        {
+            Internal_Fetch(criteria.Value, 0);
+        }
+        private void Internal_Fetch(int ReviewId, int ContactId)
+        {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 using (SqlCommand command = new SqlCommand("st_ReviewInfo", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())
@@ -457,37 +474,40 @@ namespace BusinessLibrary.BusinessClasses
                         }
 #if !WEBDB
                         reader.NextResult();
-                        
+
                         LoadProperty(CreditForRobotsListProperty, DataPortal.FetchChild<CreditForRobotsList>(reader));
-                        
+
 #endif
                     }
                 }
-                //new bit (Apr 2017): see if there is a screening list that will actually work
-                using (SqlCommand command = new SqlCommand("st_TrainingNextItem", connection))
+                if (ContactId > 0)
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@TRAINING_CODE_SET_ID", ScreeningCodeSetId));
-                    command.Parameters.Add(new SqlParameter("@SIMULATE", 1));
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    //(Apr 2017): see if there is a screening list that will actually work
+                    using (SqlCommand command = new SqlCommand("st_TrainingNextItem", connection))
                     {
-                        if (reader.Read())
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                        command.Parameters.Add(new SqlParameter("@TRAINING_CODE_SET_ID", ScreeningCodeSetId));
+                        command.Parameters.Add(new SqlParameter("@SIMULATE", 1));
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
-                            LoadProperty<bool>(ScreeningListIsGoodProperty,  true);
-                        }
-                        else
-                        {
-                            LoadProperty<bool>(ScreeningListIsGoodProperty, false);
+                            if (reader.Read())
+                            {
+                                LoadProperty<bool>(ScreeningListIsGoodProperty, true);
+                            }
+                            else
+                            {
+                                LoadProperty<bool>(ScreeningListIsGoodProperty, false);
+                            }
                         }
                     }
                 }
                 connection.Close();
             }
         }
-
 #endif
 
     }
+    
 }

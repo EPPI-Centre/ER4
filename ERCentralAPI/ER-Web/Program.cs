@@ -6,12 +6,14 @@ using System.Text;
 using Serilog;
 using Microsoft.AspNetCore.StaticFiles;
 using ERxWebClient2.Zotero;
+using BusinessLibrary.BusinessClasses;
 
 try
 {
     //Apparently this gets automatically "swapped out" when we call UseSerilog(...)
     Log.Logger = new LoggerConfiguration().CreateBootstrapLogger();
     var builder = WebApplication.CreateBuilder(args);
+    builder.WebHost.UseShutdownTimeout(TimeSpan.FromSeconds(45));
 #if DEBUG
     //we allow CORS from localhost *only* when debugging
     var clientURL = builder.Configuration["AppSettings:clientURL"];
@@ -74,7 +76,17 @@ try
         };
         options.SaveToken = true;
     });
-    builder.Services.AddHostedService<GracefulShutdownGuardianService>();
+
+    builder.Services
+        .Configure<HostOptions>(
+            (options) =>
+            {
+                //Service Behavior in case of exceptions - defautls to StopHost
+                options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+                //Host will try to wait 30 seconds before stopping the service. 
+                //options.ShutdownTimeout = TimeSpan.FromSeconds(45);
+            })
+        .AddHostedService<GracefulShutdownGuardianService>().AddHostedService<RobotOpenAiHostedService>();
 
     var app = builder.Build();
     var SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
@@ -117,7 +129,7 @@ try
 
     Csla.SmartDate.SetDefaultFormatString("dd/MM/yyyy");
 
-
+    //StartRobots();
     app.Run();
 }
 catch (Exception e)
@@ -159,6 +171,8 @@ public partial class Program
     public static Serilog.ILogger? Logger { get { return _Logger; } }
 
     public static bool AppIsShuttingDown = false;
+
+    
 
 }
 internal class GracefulShutdownGuardianService : IHostedService, IDisposable

@@ -229,3 +229,4 @@ FakesAssemblies/
 /ERCentralAPI/ERxWebClient2/wwwroot/dist
 /ERCentralAPI/ERxWebClient2/Properties
 /ERCentralAPI/WebDatabasesMVC/appsettings.Development.json
+/ERCentralAPI/SQL Scripts/OpenAI SG-JT private.txt

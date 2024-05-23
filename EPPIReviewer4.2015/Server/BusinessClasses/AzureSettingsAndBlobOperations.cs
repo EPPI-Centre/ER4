@@ -210,12 +210,21 @@ namespace BusinessLibrary.BusinessClasses
         //robots:
         public static string RobotReviewerEndpoint { get { return RobotSettings["RobotReviewerEndpoint"]; } }
         public static string RobotHBCPEndpoint { get { return RobotSettings["RobotHBCPEndpoint"]; } }
+
         public static string RobotOpenAIEndpoint { get { return RobotSettings["RobotOpenAIEndpoint"]; } }
         public static string RobotOpenAIKey2 { get { return RobotSettings["RobotOpenAIKey2"]; } }
+
+        public static string RobotOpenAIBatchEndpoint { get { return RobotSettings["RobotOpenAIBatchEndpoint"]; } }
+        public static string RobotOpenAIBatchKey { get { return RobotSettings["RobotOpenAIBatchKey"]; } }
+        
         public static string RobotOpenAITemperature { get { return RobotSettings["RobotOpenAITemperature"]; } }
         public static string RobotOpenAITopP { get { return RobotSettings["RobotOpenAITopP"]; } }
         public static string RobotOpenAIFrequencyPenalty { get { return RobotSettings["RobotOpenAIFrequencyPenalty"]; } }
         public static string RobotOpenAIPresencePenalty { get { return RobotSettings["RobotOpenAIPresencePenalty"]; } }
+        public static string RobotOpenAIRequestsPerMinute { get { return RobotSettings["RobotOpenAIRequestsPerMinute"]; } }
+        public static string RobotOpenAIDirectEndpoint { get { return RobotSettings["RobotOpenAIDirectEndpoint"]; } }
+        
+
     }
     public class BlobOperations
     {

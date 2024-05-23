@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
-using static Csla.Security.MembershipIdentity;
-using System.Diagnostics;
+
+
 
 
 
@@ -46,8 +46,13 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _itemDocumentId;
         private Int64 _itemId;
         private string _message = "";
+        private string _UserPrivateOpenAIKey = "";//will be filled in automatically if/when it's present in ReviewInfo
+        private string _ExplicitEndpoint = "";
+        private string _ExplicitEndpointKey = "";
         private bool _isLastInBatch = true;
         private int _jobId = 0;
+        private int _reviewId = 0;
+        private int _jobOwnerId = 0;
         private int _robotContactId = 0;
         private bool _onlyCodeInTheRobotName = true;
         private bool _lockTheCoding = true;
@@ -76,7 +81,9 @@ namespace BusinessLibrary.BusinessClasses
             _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
             _lockTheCoding = lockTheCoding;
         }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true)
+        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
+            int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true,
+            string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
         {
             _reviewSetId = reviewSetId;
             _itemId = itemId;
@@ -87,6 +94,10 @@ namespace BusinessLibrary.BusinessClasses
             _robotContactId = robotContactId;
             _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
             _lockTheCoding = lockTheCoding;
+            _reviewId = reviewId;
+            _jobOwnerId = JobOwnerId;
+            _ExplicitEndpoint = ExplicitEndpoint;
+            _ExplicitEndpointKey = ExplicitEndpointKey;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -96,8 +107,13 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_itemId", _itemId);
             info.AddValue("_itemDocumentId", _itemDocumentId);
             info.AddValue("_message", _message);
+            info.AddValue("_UserPrivateOpenAIKey", _UserPrivateOpenAIKey);
+            info.AddValue("_ExplicitEndpoint", _ExplicitEndpoint);
+            info.AddValue("_ExplicitEndpointKey", _ExplicitEndpointKey);
             info.AddValue("_isLastInBatch", _isLastInBatch);
             info.AddValue("_jobId", _jobId);
+            info.AddValue("_reviewId", _reviewId);
+            info.AddValue("_jobOwnerId", _jobOwnerId);
             info.AddValue("_robotContactId", _robotContactId);
             info.AddValue("_onlyCodeInTheRobotName", _onlyCodeInTheRobotName);
             info.AddValue("_lockTheCoding", _lockTheCoding);
@@ -110,8 +126,13 @@ namespace BusinessLibrary.BusinessClasses
             _itemId = info.GetValue<Int64>("_itemId");
             _itemDocumentId = info.GetValue<Int64>("_itemDocumentId");
             _message = info.GetValue<string>("_message");
+            _UserPrivateOpenAIKey = info.GetValue<string>("_UserPrivateOpenAIKey");
+            _ExplicitEndpoint = info.GetValue<string>("_ExplicitEndpoint");
+            _ExplicitEndpointKey = info.GetValue<string>("_ExplicitEndpointKey");
             _isLastInBatch = info.GetValue<bool>("_isLastInBatch");
             _jobId = info.GetValue<int>("_jobId");
+            _reviewId = info.GetValue<int>("_reviewId");
+            _jobOwnerId = info.GetValue<int>("_jobOwnerId");
             _robotContactId = info.GetValue<int>("_robotContactId");
             _onlyCodeInTheRobotName = info.GetValue<bool>("_onlyCodeInTheRobotName");
             _lockTheCoding = info.GetValue<bool>("_lockTheCoding");
@@ -129,8 +150,22 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            ReviewInfo rInfo = DataPortal.Fetch<ReviewInfo>();
+            ReviewInfo rInfo;
+            if (Csla.ApplicationContext.User != null && Csla.ApplicationContext.User.Identity != null && Csla.ApplicationContext.User.Identity.IsAuthenticated == true)
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                _reviewId = ri.ReviewId;
+                _jobOwnerId = ri.UserId;
+                rInfo = DataPortal.Fetch<ReviewInfo>();
+            }
+            else if (_reviewId > 0)
+            {
+                rInfo = DataPortal.Fetch<ReviewInfo>(new SingleCriteria<ReviewInfo, int>(_reviewId));
+            }
+            else
+            {
+                throw new System.Security.Authentication.AuthenticationException("RobotOpenAICommand attempted to execute for unknown Review and/or user.");
+            }
             if (!rInfo.CanUseRobots)
             {
                 _message = "Error: GPT4 is disabled or there is no credit.";
@@ -140,7 +175,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (_jobId == 0)
                 {//we need to create a record for this in TB_ROBOT_API_CALL_LOG - it's a single call doing one item!
-                    CreditForRobots CfR = rInfo.CreditForRobotsList.FirstOrDefault(f => f.AmountRemaining > 0.0001);
+                    CreditForRobots CfR = rInfo.CreditForRobotsList.FirstOrDefault(f => f.AmountRemaining >= 0.01);
                     int creditPurchaseId = 0;
                     if (CfR == null && rInfo.OpenAIEnabled == false)
                     {
@@ -154,10 +189,11 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         connection.Open();
-                        using (SqlCommand command = new SqlCommand("st_CreateRobotApiCallLog", connection))
+                        using (SqlCommand command = new SqlCommand("st_RobotApiCallLogCreate", connection))
                         {
                             command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
+                            command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
                             command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
                             command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
                             command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
@@ -186,7 +222,7 @@ namespace BusinessLibrary.BusinessClasses
                 //we have a jobID so now we can (and want) to catch and log exceptions
                 try
                 {
-                    _Succeded = Task.Run(() => DoRobot(ri.ReviewId, _robotContactId)).GetAwaiter().GetResult();
+                    _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();
                     if (errors > 0)
                     {
                         _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
@@ -209,7 +245,7 @@ namespace BusinessLibrary.BusinessClasses
                         using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
                         {//this is to update the token numbers, and thus the cost, if we can
                             command.CommandType = System.Data.CommandType.StoredProcedure; 
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID ", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
                             command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
                             command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
                             command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
@@ -239,7 +275,7 @@ namespace BusinessLibrary.BusinessClasses
                             else status = "Finished";
                         }
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
                         command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
                         command.Parameters.Add(new SqlParameter("@STATUS", status));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
@@ -299,10 +335,27 @@ namespace BusinessLibrary.BusinessClasses
         }
         private async Task<bool> DoRobot(int ReviewId, int UserId)
         {
-            bool result = true;            
+            bool result = true;
+            //
+            string endpoint;
+            string key;
+            if (_UserPrivateOpenAIKey != "")
+            {
+                //TEMPORARY (May 2024): use RobotOpenAIDirectEndpoint when we have an ad-hoc OpenAIKey for it
+                endpoint = AzureSettings.RobotOpenAIDirectEndpoint;
+                key = _UserPrivateOpenAIKey;
 
-            string endpoint = AzureSettings.RobotOpenAIEndpoint;
-            string key = AzureSettings.RobotOpenAIKey2;
+            }
+            else if (_ExplicitEndpoint != "" && _ExplicitEndpointKey != "")
+            {
+                endpoint = _ExplicitEndpoint;
+                key = _ExplicitEndpointKey;
+            }
+            else
+            {
+                endpoint = AzureSettings.RobotOpenAIEndpoint;
+                key = AzureSettings.RobotOpenAIKey2;
+            }
             //string document = GetDoc(_itemDocumentId, ReviewId);  // when we re-enable this, we need to check the stored proc (below) will return the text
 
 
@@ -391,9 +444,24 @@ namespace BusinessLibrary.BusinessClasses
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("api-key", $"{key}");
-            var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p};
-            var json = JsonConvert.SerializeObject(requestBody);
+            string json;
+            if (_UserPrivateOpenAIKey == "")
+            {
+                client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
+                json = JsonConvert.SerializeObject(requestBody);
+            }
+            else
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", key);
+                string model = "gpt-4-0613";
+                // gpt-4o, gpt-4-turbo, or gpt-3.5-turbo can use the response_format: "json_object" option, not "gpt-4-0613" at this time
+                //string type = "json_object";
+                //var response_format = new { type };
+                //var requestBody = new { model, response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                json = JsonConvert.SerializeObject(requestBody);
+            }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             //for (int ii = 0; ii < 10; ii++)
             //{
@@ -509,7 +577,9 @@ namespace BusinessLibrary.BusinessClasses
                         if (_Item_set_id < 1) _Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
                         if (hasSavedSomeCodes == false)
                         {
-                            if ((Int64)command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value > 0) hasSavedSomeCodes = true;
+                            if (
+                                command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value != System.DBNull.Value
+                                && (Int64)command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value > 0) hasSavedSomeCodes = true;
                         }
                     }
                 } 
