@@ -94,13 +94,14 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
                     command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@RESULT", ""));
+                    command.Parameters.Add(new SqlParameter("@RESULT", System.Data.SqlDbType.VarChar));
+                    command.Parameters["@RESULT"].Size = 100;
                     command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", System.Data.SqlDbType.Int));
                     command.Parameters["@ROBOT_API_CALL_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
 
-                    if (command.Parameters["@RESULT"].Value.ToString() == "")
+                    if (command.Parameters["@RESULT"].Value.ToString() == "Success")
                     {
                         _result = "Success.";
                         _jobId = (int)command.Parameters["@ROBOT_API_CALL_ID"].Value;

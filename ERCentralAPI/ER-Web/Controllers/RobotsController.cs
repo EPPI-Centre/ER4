@@ -63,7 +63,7 @@ namespace ERxWebClient2.Controllers
                     RobotOpenAiQueueBatchJobCommand res = new RobotOpenAiQueueBatchJobCommand(data.criteria, CreditId, data.reviewSetId, data.onlyCodeInTheRobotName, data.lockTheCoding);
                     res = DataPortal.Execute(res);
                     data.returnMessage = res.Result;
-                    return Ok(res);
+                    return Ok(data);
                 }
             }
             catch (Exception e)

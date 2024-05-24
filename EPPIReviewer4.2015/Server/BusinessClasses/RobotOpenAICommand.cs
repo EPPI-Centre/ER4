@@ -303,6 +303,9 @@ namespace BusinessLibrary.BusinessClasses
             if (possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':')) // checking it's in the right format
             {
                 possiblePrompt = possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}",""); // once out of Alpha we could make this more complete
+                int firstIndexOfColumn = possiblePrompt.IndexOf(":");
+                if (firstIndexOfColumn == -1) { return currentPrompt; }
+                possiblePrompt = "\"" + possiblePrompt.Insert(firstIndexOfColumn, "\"");
                 currentPrompt += possiblePrompt + ",\n";
                 return currentPrompt;
             }
@@ -448,7 +451,10 @@ namespace BusinessLibrary.BusinessClasses
             if (_UserPrivateOpenAIKey == "")
             {
                 client.DefaultRequestHeaders.Add("api-key", $"{key}");
-                var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
+                string type = "json_object";
+                var response_format = new { type };
+                var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
                 json = JsonConvert.SerializeObject(requestBody);
             }
             else
