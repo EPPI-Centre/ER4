@@ -30,7 +30,6 @@ namespace BusinessLibrary.BusinessClasses
         private List<Task<String>> ApiKeyTasks = new List<Task<String>>();
         private CancellationTokenSource TokenSource = new CancellationTokenSource();
         private Task<string>? CreditWorker = null;
-        private int CreditWorkerTaskCount = 1;
         private int ApiKeyTaskCount = 0;
         //private CancellationToken token = new CancellationTokenSource(5 * 60 * 1000).Token;
         public RobotOpenAiHostedService(ILogger<RobotOpenAiHostedService> logger)
@@ -88,6 +87,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     CreditWorker = Task<String>.Factory.StartNew((TaskCriteria) => DoWork(res, cancellationToken), res);
                 }
+                //if (CreditWorker == null) throw new InvalidOperationException("fake for testing");
             }
             catch (Exception e)
             {
@@ -99,6 +99,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             try
             {
+                //if (CreditWorker != null) throw new InvalidOperationException("fake for testing");
                 LogInfo("Starting Batch " + RT.RobotApiCallId.ToString());
                 RobotOpenAICommand cmd = new RobotOpenAICommand();
                 int DefaultDelayInMs = 10000;

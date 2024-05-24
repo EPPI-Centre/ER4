@@ -13,6 +13,9 @@ try
     //Apparently this gets automatically "swapped out" when we call UseSerilog(...)
     Log.Logger = new LoggerConfiguration().CreateBootstrapLogger();
     var builder = WebApplication.CreateBuilder(args);
+
+    //ensure our long-running IHostedServices have enough time to shutdown - most BOs will have a 30s timeout for SQL calls, so we set it to more than that
+    //it's unclear whether by default the ShutdownTimeout is 5 seconds or 90s!!
     builder.WebHost.UseShutdownTimeout(TimeSpan.FromSeconds(45));
 #if DEBUG
     //we allow CORS from localhost *only* when debugging
