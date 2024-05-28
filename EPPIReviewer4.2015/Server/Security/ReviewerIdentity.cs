@@ -745,6 +745,7 @@ namespace BusinessLibrary.Security
                 command2.Parameters.Add(new SqlParameter("@userId", UserId));
                 command2.Parameters.Add(new SqlParameter("@reviewId", criteria.ReviewId));
                 command2.Parameters.Add(new SqlParameter("@IsArchieUser", true));
+                command2.Parameters.Add(new SqlParameter("@Client", criteria.LoginMode == "ERWebArchie" ? "ERweb" : "ER4"));
                 command2.Parameters.Add("@GUI", System.Data.SqlDbType.UniqueIdentifier);
                 command2.Parameters["@GUI"].Direction = System.Data.ParameterDirection.Output;
                 command2.CommandTimeout = 60;

@@ -588,12 +588,12 @@ export class ReviewerIdentityService implements OnDestroy {
         //redirectUri = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";//temporary!!!!!!!
         if (this._baseUrl.indexOf("://eppi.ioe.ac.uk") != -1) {
             //this is the production environment, go there
-            url = "https://login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
+            url = "https://login.cochrane.org/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
             //redirectUri = redirectUri.toLowerCase();//necessary because we don't know the case of _baseUrl when actual users are accessing it, but Cochrane system is likely to be case sensitive.
         }
         else {
             //go to test env
-            url = "https://test-login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
+            url = "https://test-login.cochrane.org/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
         }
         url += redirectUri + "&scope=document person&state=";
         var state = '';
