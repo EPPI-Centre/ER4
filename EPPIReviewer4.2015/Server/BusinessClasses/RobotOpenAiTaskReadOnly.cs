@@ -237,7 +237,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private void Child_Fetch(SafeDataReader reader)
-        {
+        { //look into CreditForRobotList to see how to change this so that it uses to parameters, where the 2nd is used to make sure we don't fill in values that the current user shouldn't see
             LoadProperty<int>(RobotApiCallIdProperty, reader.GetInt32("ROBOT_API_CALL_ID"));  
             LoadProperty<int>(CreditPurchaseIdProperty, reader.GetInt32("CREDIT_PURCHASE_ID"));
             LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));

@@ -302,7 +302,7 @@ namespace BusinessLibrary.BusinessClasses
             string possiblePrompt = aSet.AttributeSetDescription;
             if (possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':')) // checking it's in the right format
             {
-                possiblePrompt = possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}",""); // once out of Alpha we could make this more complete
+                possiblePrompt = possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}","").Replace("\"", ""); // once out of Alpha we could make this more complete
                 int firstIndexOfColumn = possiblePrompt.IndexOf(":");
                 if (firstIndexOfColumn == -1) { return currentPrompt; }
                 possiblePrompt = "\"" + possiblePrompt.Insert(firstIndexOfColumn, "\"");
