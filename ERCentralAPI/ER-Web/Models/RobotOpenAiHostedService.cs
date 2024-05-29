@@ -52,6 +52,15 @@ namespace BusinessLibrary.BusinessClasses
         }
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_RobotApiCallLogMarkOldJobsAsFailed", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.ExecuteNonQuery();
+                }
+            }
             await Task.Delay(1000);
             CancellationToken InternalToken = TokenSource.Token;
             while (!cancellationToken.IsCancellationRequested && !InternalToken.IsCancellationRequested)

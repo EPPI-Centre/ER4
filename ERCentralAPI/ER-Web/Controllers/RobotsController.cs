@@ -21,6 +21,23 @@ namespace ERxWebClient2.Controllers
         
         public RobotsController(ILogger<RobotsController> logger) : base(logger)
         { }
+        [HttpGet("[action]")]
+        public IActionResult GetCurrentJobsQueue()
+        {
+
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                RobotOpenAiTaskReadOnlyList res = DataPortal.Fetch<RobotOpenAiTaskReadOnlyList>();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetCurrentJobsQueue error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
 
         [HttpPost("[action]")]
         public IActionResult RunRobotOpenAICommand([FromBody] RobotOpenAICommandJson data)

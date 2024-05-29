@@ -25,6 +25,26 @@ export class RobotsService extends BusyAwareService {
     rememberTheseChoices: false
   };
 
+  public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
+
+  public GetCurrentQueue(): Promise<void> {
+    this.CurrentQueue = [];
+    this._BusyMethods.push("GetCurrentQueue");
+    return lastValueFrom(this._httpC.get<iRobotOpenAiTaskReadOnly[]>(this._baseUrl + 'api/Robots/GetCurrentJobsQueue'))
+      .then((res) => {
+        this.CurrentQueue = res;
+        this.RemoveBusy("GetCurrentQueue");
+      },
+        (err) => {
+          this.RemoveBusy("GetCurrentQueue");
+          this.modalService.GenericError(err);
+        })
+      .catch((err) => {
+        this.RemoveBusy("GetCurrentQueue");
+        this.modalService.GenericError(err);
+      });
+  }
+
   public RunRobotOpenAICommand(cmd: iRobotOpenAICommand): Promise<iRobotOpenAICommand> {
 
     this._BusyMethods.push("RunRobotOpenAICommand");
@@ -92,4 +112,25 @@ export interface iRobotSettings {
   onlyCodeInTheRobotName: boolean;
   lockTheCoding: boolean;
   rememberTheseChoices: boolean;
+}
+export interface iRobotOpenAiTaskReadOnly {
+  robotApiCallId: number;
+  creditPurchaseId: number;
+  reviewId: number;
+  robotId: number;
+  jobOwnerId: number;
+  reviewSetId: number;
+  rawCriteria: string;
+  itemIDsList: number[];
+  status: string;
+  currentItemId: number;
+  created: string;
+  updated: string;
+  success: boolean;
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
+  onlyCodeInTheRobotName: boolean;
+  lockTheCoding: boolean;
+  robotContactId: number;
 }

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
-import { iRobotOpenAiQueueBatchJobCommand, iRobotSettings, RobotsService } from '../services/Robots.service';
+import { iRobotOpenAiQueueBatchJobCommand, iRobotOpenAiTaskReadOnly, iRobotSettings, RobotsService } from '../services/Robots.service';
 import { Item, ItemListService } from '../services/ItemList.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { ReviewSet, ReviewSetsService } from '../services/ReviewSets.service';
@@ -32,8 +32,14 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
 
   //@Output() onCloseClick = new EventEmitter();
   public ShowSettings: boolean = false;
-  ngOnInit() {
+  public ShowQueue: boolean = true;
+  public DetailsJobId: number = -1;
 
+  ngOnInit() {
+    this.robotsService.GetCurrentQueue().then(() => {
+      if (this.robotsService.CurrentQueue.length > 0) this.ShowQueue = true;
+      else this.ShowQueue = false;
+    });
   }
   HasWriteRights(): boolean {
     return this._reviewerIdentityServ.HasWriteRights;
@@ -42,6 +48,11 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   public get RobotSettings(): iRobotSettings {
     return this.robotsService.RobotSetting;
   }
+
+  public get CurrentQueue(): iRobotOpenAiTaskReadOnly[] {
+    return this.robotsService.CurrentQueue;
+  }
+
   public get SelectedItems(): Item[] {
     return this.itemListService.SelectedItems;
   }
@@ -64,6 +75,34 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       else return false;
     }
   }
+
+  public get DetailedJob(): iRobotOpenAiTaskReadOnly | undefined {
+    if (this.DetailsJobId > 0) {
+      const index = this.robotsService.CurrentQueue.findIndex(f => f.robotApiCallId == this.DetailsJobId);
+      if (index == -1) this.DetailsJobId = -1;
+      else if (this.robotsService.CurrentQueue[index].reviewId > 0) {
+        return this.robotsService.CurrentQueue[index];
+      }
+    }
+    return undefined;
+  }
+
+  public JobDescription(Job: iRobotOpenAiTaskReadOnly): string {
+    if (Job.status == 'Running') {
+      let index = Job.itemIDsList.findIndex(f => f == Job.currentItemId) + 1;
+      return "On Item " + index.toString() + " of " + Job.itemIDsList.length.toString();
+    }
+    else return 'Queued';
+  }
+  public ShowJobDetails(robotApiCallId: number) {
+    const index = this.robotsService.CurrentQueue.findIndex(f => f.robotApiCallId == robotApiCallId);
+    if (index == -1) this.DetailsJobId = -1;
+    else this.DetailsJobId = robotApiCallId;
+  }
+  public RefreshQueue() {
+    this.robotsService.GetCurrentQueue();
+  }
+
   public SubmitBatch() {
     if (!this.CanSubmitBatch) return;
     const encoded = Helpers.htmlEncode(this.reviewSetsService.selectedNode  ? this.reviewSetsService.selectedNode.name : "[undefined]");

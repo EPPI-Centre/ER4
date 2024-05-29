@@ -226,7 +226,7 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             if (reader.Read())
                             {
-                                Child_Fetch(reader);
+                                Child_Fetch(reader, false);
                             }
                         }
                     }
@@ -236,8 +236,17 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
-        private void Child_Fetch(SafeDataReader reader)
-        { //look into CreditForRobotList to see how to change this so that it uses to parameters, where the 2nd is used to make sure we don't fill in values that the current user shouldn't see
+        private void Child_Fetch(SafeDataReader reader, bool isPrivate, int ReviewId = 0, int ContactId = 0 )
+        {
+            if (isPrivate)
+            {
+                if (reader.GetInt32("REVIEW_ID") == ReviewId || reader.GetInt32("CONTACT_ID") == ContactId) Child_FetchAllDetails(reader);
+                else Child_FetchFilteredDetails(reader);
+            }
+            else Child_FetchAllDetails(reader);
+        }
+        private void Child_FetchAllDetails(SafeDataReader reader)
+        { 
             LoadProperty<int>(RobotApiCallIdProperty, reader.GetInt32("ROBOT_API_CALL_ID"));  
             LoadProperty<int>(CreditPurchaseIdProperty, reader.GetInt32("CREDIT_PURCHASE_ID"));
             LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
@@ -268,6 +277,47 @@ namespace BusinessLibrary.BusinessClasses
                     if (long.TryParse(s, out ItemId)) ItemIDsList.Add(ItemId);
                 }
             }
+        }
+        private void Child_FetchFilteredDetails(SafeDataReader reader)
+        {//mask out all the details: this job does not belong to the current review or user, so we keep the private parts private
+            //todo: a mark as failed SP!
+            LoadProperty<int>(RobotApiCallIdProperty, reader.GetInt32("ROBOT_API_CALL_ID"));
+            LoadProperty<int>(CreditPurchaseIdProperty, -1);
+            LoadProperty<int>(ReviewIdProperty, -1);
+            LoadProperty<int>(RobotIdProperty, reader.GetInt32("ROBOT_ID"));
+            LoadProperty<int>(ReviewSetIdProperty, -1);
+            LoadProperty<string>(RawCriteriaProperty, reader.GetString("CRITERIA"));
+            LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
+            LoadProperty<long>(CurrentItemIdProperty, reader.GetInt64("CURRENT_ITEM_ID"));
+            LoadProperty<DateTime>(CreatedProperty, reader.GetSmartDate("DATE_CREATED"));
+            LoadProperty<DateTime>(UpdatedProperty, reader.GetSmartDate("DATE_UPDATED"));
+            LoadProperty<bool>(SuccessProperty, reader.GetBoolean("SUCCESS"));
+            LoadProperty<int>(InputTokensProperty, -1);
+            LoadProperty<int>(OutputTokensProperty, -1);
+            LoadProperty<double>(CostProperty, -1);
+            LoadProperty<bool>(OnlyCodeInTheRobotNameProperty, true);
+            LoadProperty<bool>(LockTheCodingProperty, true);
+            LoadProperty<int>(RobotContactIdProperty, reader.GetInt32("ROBOT_CONTACT_ID"));
+            LoadProperty<int>(JobOwnerIdProperty, -1);
+
+            LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
+            if (RawCriteria.StartsWith("ItemIds: "))
+            {
+                string toSplit = RawCriteria.Substring(8);
+                string[] IdsString = toSplit.Split(',');
+                foreach (string s in IdsString)
+                {
+                    long ItemId;
+                    if (long.TryParse(s, out ItemId))
+                    {
+                        if (CurrentItemId == ItemId) ItemIDsList.Add(-1);
+                        else ItemIDsList.Add(0);
+                    }
+                }
+                LoadProperty<string>(RawCriteriaProperty, ItemIDsList.Count.ToString() + " items");
+                
+            }
+            if (CurrentItemId > 0) LoadProperty<long>(CurrentItemIdProperty, -1);
         }
 
 

@@ -36,48 +36,32 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                //using (SqlCommand command = new SqlCommand("st_SourceFromReview_ID", connection))
-                //{
-                    
-                //    command.CommandType = System.Data.CommandType.StoredProcedure;
-                //    command.Parameters.Add(new SqlParameter("@revID", ri.ReviewId));
-                //    //command.CommandTimeout = 100;
-                //    //Sources = new MobileList<string>();
-                //    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                //    {
-                //        while (reader.Read())
-                //        {
-                //            Sources.Add(ReadOnlySource.GetReadOnlySource(reader));
-                //        }
-                //        reader.NextResult();
-                //        if (reader.Read())
-                //        {//second reader gives us the source ID of a "currently being deleted" source (if any)
-                //            int DeletingThisSouceId = reader.GetInt32("SOURCE_ID");
-                //            int index = Sources.FindIndex(f => f.Source_ID == DeletingThisSouceId);
-                //            if (index > -1)
-                //            {
-                //                Sources[index].MarkAsBeingDeleted();
-                //                LoadProperty(SomeSourceIsBeingDeletedProperty, true);
-
-                //                //supplying 0 as the SourceId makes the command "check" is a source deletion needs to be resumed.
-                //                SourceDeleteForeverCommand sdfc = new SourceDeleteForeverCommand(0);
-                //                DataPortal<SourceDeleteForeverCommand> dp2 = new DataPortal<SourceDeleteForeverCommand>();
-                //                sdfc = dp2.Execute(sdfc);//fire and forget, this will check and possibly resume deletion, but doesn't wait for the deletion to end.
-                //            } 
-                //            else
-                //            {
-                //                LoadProperty(SomeSourceIsBeingDeletedProperty, false);
-                //            }
-                //        }
-                //        //LoadProperty(Sourceless_ItemsProperty, reader.GetInt32("Total_Items"));
-                //    }
-                //}
-                //connection.Close();
+                using (SqlCommand command = new SqlCommand("st_RobotApiTopQueuedJobs", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        Child_Fetch(reader, ri);
+                    }
+                }
             }
             IsReadOnly = true;
             RaiseListChangedEvents = true;
         }
-
+        private void Child_Fetch(SafeDataReader reader, ReviewerIdentity ri)
+        {
+            int rid = ri.ReviewId;
+            int cid = ri.UserId;
+            RaiseListChangedEvents = false;
+            IsReadOnly = false;
+            while (reader.Read())
+            {
+                Add(DataPortal.FetchChild<RobotOpenAiTaskReadOnly>(reader, true, rid, cid));
+            }
+            IsReadOnly = true;
+            RaiseListChangedEvents = true;
+        }
 #endif
     }
 }
