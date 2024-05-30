@@ -21,6 +21,7 @@ export class RobotSettings implements OnInit, OnDestroy {
   ) { }
 
   //@Output() onCloseClick = new EventEmitter();
+  @Input() Context: string = "";
   public isExpanded: boolean = false;
   ngOnInit() {
 
