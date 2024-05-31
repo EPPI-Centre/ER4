@@ -44,7 +44,6 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy {
   @Input() tabSelected: string = '';
   @Input() MaxHeight: number = 800;
   @ViewChild('tree') treeComponent!: TreeViewComponent;
-  public showManualModal: boolean = false;
   subRedrawTree: Subscription | null = null;
   public smallTree: string = '';
 

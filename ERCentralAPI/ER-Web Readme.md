@@ -85,3 +85,45 @@ To be entirely "free" to change both ends and have minimal delays, you can also 
 For the Angular side, unless you need to add new modules or npm packages, the "Hot Module Replacement" mechanism should work, allowing to update the client automatically when you save a file change.
 
 
+## Cochrane authentication instructions
+
+The purpose of this set of instructions is to illustrate the configuration changes which allow to run the Angular client while using a specific URL, known to Cochrane, as (see below) the `Callback URL` needs to be exact and known to both parties, it also needs to be of the `https` kind, making things annoyingly difficult.
+
+This is complex, as there are a number of requirements to fulfil.
+
+First and foremost, only known 3rd parties are authorised to plug in the Cochrane oAuth system, which means that the dev environment needs to impersonate ssru38.ioe.ac.uk in the eyes of the Cochrane counterpart, so to be seen as an "authorised client".
+
+Thus, you need to do a number of changes, in order to make this impersonation thing to happen. You may need a (self signed) certificate for `ssru38.ioe.ac.uk` and to make it available to the Angular on dev server. How this is done it's unclear to me, as I've done too many trial and error attempts, making it hard to figure what actually works.
+
+You also need to add this line to the `C:\Windows\System32\drivers\etc\hosts` file:
+`127.0.0.1  ssru38.ioe.ac.uk`. This tells Windows that `ssru38.ioe.ac.uk` has the "localhost" IP address...
+
+Then, you need to tell the Angular (dev) webserver to serve the angular app over https, which is done in `[...]\ERCentralAPI\ER-Web-Client\package.json` via this line:
+`"start": "ng serve --hmr ",` becomes `"ng serve --hmr --host ssru38.ioe.ac.uk --ssl",`, I reckon that what this does is quite self-explanatory (`ng serve` on its own will serve `localhost:4200`, we change the hostname and ask to use ssl too). [**This change is NOT integrated in the regular code-base.**]
+
+We also need to tell VS what browser and URL to open when launching the Client project, which is done by editing this file `[...]\ERCentralAPI\ER-Web-Client\.vscode\launch.json`, adding one element like this:
+
+```
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "SSRU38 (Chrome)",
+      "url": "https://ssru38.ioe.ac.uk:4200",
+      "webRoot": "${workspaceFolder}"
+    },
+```
+
+This creates a new "startup" submenu entry for `Configure Startup Project` dialog in VS, which now has the new option `SSRU38 (Chrome)` - you'll need to pick this one for things to work nicely with Cochrane authentication in dev. [**This change** (meaning the entry in `launch.json`) **is integrated in the regular code-base.**]
+
+However, serving the non-default URL breaks the Cross-origin resource sharing (CORS) permissions in the API project (when running in dev conditions), so we need to change `[...]\ERCentralAPI\ER-Web\appsettings.Development.json`, editing the line `"clientURL": "http://localhost:4200"` to `"clientURL": "https://ssru38.ioe.ac.uk:4200"` - this tells the API project that it's OK to respond to requests originating from "https://ssru38.ioe.ac.uk:4200" even if the API sits on a separate DNS address (`https://localhost:44344`).[**This change is NOT integrated in the regular code-base.**]
+
+
+We then need to tell the ER6 API what the "known to both parties" **callback URL** is, we do this by editing `appsettings.json`, changing this line `"CochraneOAuthRedirectUri": "https://ssru38.ioe.ac.uk/ERx/ArchieCallBack"` to `"CochraneOAuthRedirectUri": "https://ssru38.ioe.ac.uk:4200/ArchieCallBack"`.[**This change is integrated in the regular code-base.** And of course, appsettings.json is different **in production**.]
+
+Importantly, the "callback" URL needs to be known and authorised on the Cochrane end (and is case sensitive, ugh!). At the time of writing, the following urls are authorised in the Cochrane TEST environment:
+
+- `https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx` this one is used by ER4 in dev. 
+- `https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx` is the live/production one for ER4, and I'm not sure why it's present here.
+- `https://ssru38.ioe.ac.uk/ERx/ArchieCallBack` is what we used before "separating" Angular and API projects. Might be useful sometime in the future.
+- `https://ssru38.ioe.ac.uk:4200/ArchieCallBack` is the present one for ER6 in dev.
+

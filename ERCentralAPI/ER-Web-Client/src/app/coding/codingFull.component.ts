@@ -137,6 +137,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
   public itemSet?: ItemSet;
   public itemId = new Subject<number>();
   public ShowOutComes: boolean = false;
+  public ShowRobotOptions: boolean = false;
+  public showManualModal: boolean = false;
   public get leftPanel(): string {
     //console.log("leftPanel", this.ReviewerTermsService._ShowHideTermsList, this.ShowingOutComes);
     if (this.ReviewerTermsService._ShowHideTermsList) {
@@ -165,9 +167,21 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     else return this._outcomeService.currentOutcomeHasChanges;
   }
 
+  
+  CloseManualModal() {
+    this.showManualModal = false;
+  }
+  public RobotDDData: Array<any> = [
+    {
+      text: 'GPT4 coding options...',
+      click:  () => {
+        this.ShowRobotOptions = true;
+      }
+    }
+  ];
   public get CanRunOpenAIrobot(): boolean {
     if (!this.HasWriteRights) return false;
-    else if (!this.reviewInfoService.ReviewInfo.openAIEnabled) return false;
+    else if (!this.reviewInfoService.ReviewInfo.canUseRobots) return false;
     else {
       let node = this.ReviewSetsService.selectedNode;
       if (node != null && node.nodeType == 'ReviewSet' && (node.subTypeName == "Standard" || node.subTypeName == "Screening")) return true;
@@ -722,7 +736,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     else { console.log('Ouch'); }
   }
 
-  public async RunRobotOpenAICommand() {
+  public RunRobotOpenAICommand() {
      
     if (!this.CanRunOpenAIrobot) {
       this.notificationService.show({
@@ -748,20 +762,46 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     //  }
     //}
     //checks passed, we can try this.
+    const itemSet = this.ItemCodingService.FindItemSetByItemSetId(RSnode.ItemSetId);
+    if (RSnode.codingComplete && itemSet != null && itemSet.contactName != "OpenAI GPT4"
+      && this.robotsService.RobotSetting.rememberTheseChoices == false
+    ) {
+      this.showManualModal = true;
+      return;
+    }
+    this.ActuallyRunRobotOpenAICommand(RSnode);    
+  }
+
+  AcceptOptionsAndRunRobot() {
+    this.CloseManualModal();
+    const RSnode = this.ReviewSetsService.selectedNode as ReviewSet;
+    if (!RSnode || !RSnode) return;
+    else this.ActuallyRunRobotOpenAICommand(RSnode);
+  }
+
+  private async ActuallyRunRobotOpenAICommand(RSnode: ReviewSet) {
     let cmd: iRobotOpenAICommand = {
       reviewSetId: RSnode.reviewSetId,
       itemDocumentId: 0,
       itemId: this.itemID,
+      onlyCodeInTheRobotName: this.robotsService.RobotSetting.onlyCodeInTheRobotName,
+      lockTheCoding: this.robotsService.RobotSetting.lockTheCoding, 
       returnMessage: ""
-    }
+    };
     let res = await this.robotsService.RunRobotOpenAICommand(cmd);
     if (res.returnMessage != "Error") {
       //no need to handle errors here - we do that in the service as usual
-      this.confirmationDialogService.ShowInformationalModal(res.returnMessage, "GPT4 result");
+      //this.confirmationDialogService..ShowInformationalModal(res.returnMessage, "GPT4 result");
+      this.notificationService.show({
+        content: "GPT4 result: " + res.returnMessage,
+        position: { horizontal: 'center', vertical: 'top' },
+        animation: { type: 'fade', duration: 500 },
+        type: { style: 'success', icon: true },
+        hideAfter: 4500
+      });
       this.GetItemCoding();
     }
   }
-
 
   SelectTab(i: number) {
     if (!this.tabstrip) return;

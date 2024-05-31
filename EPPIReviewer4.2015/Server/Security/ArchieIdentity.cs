@@ -172,7 +172,7 @@ namespace BusinessLibrary.Security
             _code = code;
             _status = status;
             //string dest = AccountBaseAddress + "oauth2/token";
-            string dest = oAuthBaseAddress + "auth/realms/cochrane/protocol/openid-connect/token";
+            string dest = oAuthBaseAddress + "realms/cochrane/protocol/openid-connect/token";
             string json = "";
             Dictionary<string, object> dict;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
@@ -634,7 +634,7 @@ namespace BusinessLibrary.Security
             //call the refresh API
             //if success, return true and save new Token to DB
             //string dest = AccountBaseAddress + "oauth2/token";
-            string dest = oAuthBaseAddress + "auth/realms/cochrane/protocol/openid-connect/token";
+            string dest = oAuthBaseAddress + "realms/cochrane/protocol/openid-connect/token";
 
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
             WebClient webc = new WebClient();

@@ -1,0 +1,98 @@
+<div class="px-0 mx-1 my-0 rounded border border-primary p-1 bg-light">
+  <div class="container px-1">
+    <div class="d-flex">
+      <div class="font-weight-bold mx-auto">Batch job for "OpenAI GPT4" robot</div>
+    </div>
+    <div class="row alert-info rounded p-1 mx-0">
+      <div class="col-auto rounded px-1 bg-white mt-1 mr-1">
+        Selected Items Count =
+        <span class="px-1"
+              [ngClass]="{'alert-warning' : SelectedItemsCount == 0 || SelectedItemsCount > 1000, 'alert-success font-weight-bold': SelectedItemsCount > 0 && SelectedItemsCount <= 1000 }">
+          {{SelectedItemsCount}}
+        </span>
+      </div>
+      <div class="col-auto rounded px-1 bg-white mt-1">
+        Coding tool: <strong>{{SelectedNodeName}}</strong>
+      </div>
+    </div>
+    <div class="row mt-1 mx-0 px-0">
+      <button class="btn btn-sm btn-outline-secondary mr-1 my-auto py-0" (click)="ShowSettings = !ShowSettings">Settings...</button>
+      <button class="btn btn-sm btn-outline-secondary mr-1 my-auto py-0" (click)="ShowQueue = !ShowQueue">Jobs Queue</button>
+      <button class="btn btn-sm btn-outline-danger my-auto py-0 font-weight-bold" (click)="SubmitBatch()" [disabled]="!CanSubmitBatch">Submit</button>
+    </div>
+    <div *ngIf="ShowSettings">
+      <RobotSettings></RobotSettings>
+    </div>
+    <div *ngIf="ShowQueue" style="max-height:40vh; overflow:auto;" class="m-1 rounded border border-info">
+      <div class="row mx-0 px-1">
+        <button class="btn btn-sm btn-outline-secondary py-0 mr-1 my-auto" (click)="ShowQueue = false">Hide Queue</button>
+        <button kendoButton [icon]="'refresh'" class="my-1 ml-1 mr-1" title="Refresh Queue" (click)="RefreshQueue()"></button>
+        <div class="my-auto font-weight-bold">Jobs Queued:</div>
+      </div>
+      <table class="table-sm table-bordered small w-100">
+        <thead>
+          <tr><th>ID</th><th>Size</th><th>State</th><th>Progress</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let Job of CurrentQueue" [ngClass]="{'alert-primary' : Job.reviewId > 0}">
+            <td>{{Job.robotApiCallId}}</td>
+            <td>{{Job.itemIDsList.length}}</td>
+            <td>{{Job.status}}</td>
+            <td>{{JobDescription(Job)}}</td>
+            <td>
+              <button *ngIf="Job.reviewId > 0" class="btn btn-sm btn-outline-secondary mr-1 py-0 small" (click)="ShowJobDetails(Job.robotApiCallId)">Details</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="DetailsJobId > 0 && DetailedJob">
+        <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="DetailsJobId = -1">Hide Details</button>
+        <div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Id:</div><div class="col-7">{{DetailedJob.robotApiCallId}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Credit Id:</div><div class="col-7">{{DetailedJob.creditPurchaseId}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Owner Id:</div><div class="col-7">{{DetailedJob.jobOwnerId}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Review Id:</div><div class="col-7">{{DetailedJob.reviewId}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Size:</div><div class="col-7">{{DetailedJob.itemIDsList.length}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Status:</div><div class="col-7">{{DetailedJob.status}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Current ItemId:</div><div class="col-7">{{DetailedJob.currentItemId}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Input Tokens</div><div class="col-7">{{DetailedJob.inputTokens}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Output Tokens</div><div class="col-7">{{DetailedJob.outputTokens}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-5">Cost:</div><div class="col-7">{{DetailedJob.cost}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-9">Always add coding in the Robot's name:</div><div class="col-3">{{DetailedJob.onlyCodeInTheRobotName}}</div>
+        </div><div class="row mx-0 px-1 border-bottom">
+          <div class="col-9">Always lock the coding produced by the Robot:</div><div class="col-3">{{DetailedJob.lockTheCoding}}</div>
+        </div>
+      </div>
+      <!--robotApiCallId: number;
+  creditPurchaseId: number;
+  reviewId: number;
+  robotId: number;
+  jobOwnerId: number;
+  reviewSetId: number;
+  rawCriteria: string;
+  itemIDsList: number[];
+  status: string;
+  currentItemId: number;
+  created: string;
+  updated: string;
+  success: boolean;
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
+  onlyCodeInTheRobotName: boolean;
+  lockTheCoding: boolean;
+  robotContactId: number;-->
+    </div>
+  </div>
+</div>
+

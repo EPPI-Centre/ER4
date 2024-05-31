@@ -812,8 +812,14 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         internal static ReviewSet GetReviewSet(int criteria)
-        {//used on server side to copy codesets (source)
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+        {//used on server side to copy codesets (source) and to fetch ReviewSet data for robot-coding
+            bool HasWriteRights = false;
+            if (Csla.ApplicationContext.User != null)//it can be null when we're resuming/starting RobotTasks, which do need Review SETS
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                int rid = ri.ReviewId;
+                HasWriteRights = ri.HasWriteRights();
+            }
             ReviewSet returnValue = new ReviewSet();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {//build the root
@@ -835,7 +841,7 @@ namespace BusinessLibrary.BusinessClasses
                             returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
                             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
                             returnValue.LoadProperty<bool>(AllowCodingEditsProperty, reader.GetBoolean("ALLOW_CODING_EDITS"));
-                            returnValue.LoadProperty<bool>(UserCanEditProperty, (ApplicationContext.User.Identity as ReviewerIdentity).HasWriteRights());
+                            returnValue.LoadProperty<bool>(UserCanEditProperty, HasWriteRights);
                             returnValue.LoadProperty<bool>(CodingIsFinalProperty, reader.GetBoolean("CODING_IS_FINAL"));
                             returnValue.LoadProperty<int>(SetTypeIdProperty, reader.GetInt32("SET_TYPE_ID"));
                             returnValue.LoadProperty<int>(SetOrderProperty, reader.GetInt32("SET_ORDER"));
