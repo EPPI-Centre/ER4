@@ -378,7 +378,7 @@ export class MAGSearchComponent implements OnInit {
       default:
         return;
     }
-    if (this.DateLimitSelection > 0 && this.WordsInSelection != '1') {
+    if (this.DateLimitSelection > 0 && this.WordsInSelection != '5') {
       switch (this.DateLimitSelection) {
         case 1:
           newSearch.date1 = formatDate(this.valueKendoDatepicker3, "yyyy-MM-dd", 'en-GB');

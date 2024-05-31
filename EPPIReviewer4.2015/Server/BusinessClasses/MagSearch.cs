@@ -643,7 +643,8 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (SearchText.StartsWith("¬Title and abstract:"))
                 {
-                    TitleAndAbstract = true;
+                    //TitleAndAbstract = true;
+                    MagSearchText = "default.search:" + MagSearchText;
                     //MagSearchText = MagSearchText;
                 }
                 if (SearchText.StartsWith("¬Topic:"))
