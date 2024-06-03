@@ -51,7 +51,7 @@ export class RobotsService extends BusyAwareService {
     return lastValueFrom(this._httpC.post<iRobotOpenAICommand>(this._baseUrl + 'api/Robots/RunRobotOpenAICommand', cmd))
       .then((res) => {
         this.RemoveBusy("RunRobotOpenAICommand");
-        if (res.returnMessage.toLowerCase().indexOf('error') != -1) {
+        if (res.returnMessage.toLowerCase().indexOf('error') == 0) {
           this.modalService.GenericErrorMessage(res.returnMessage);
           res.returnMessage = "Error";
         }
