@@ -636,7 +636,7 @@ namespace BusinessLibrary.BusinessClasses
                 MagMakesHelpers.OaPaperFilterResult resp = null;
                 if (SearchText.StartsWith("¬Title:"))
                 {
-                    if (MagSearchText.IndexOf("display_name.search:") == -1) // i.e. for a rerun the search is already fully described
+                    if (!MagSearchText.StartsWith("display_name.search:")) // i.e. for a rerun the search is already fully described
                     {
                         MagSearchText = "display_name.search:" + MagSearchText;
                     }
@@ -644,7 +644,10 @@ namespace BusinessLibrary.BusinessClasses
                 if (SearchText.StartsWith("¬Title and abstract:"))
                 {
                     //TitleAndAbstract = true;
-                    MagSearchText = "default.search:" + MagSearchText;
+                    if (!MagSearchText.StartsWith("default.search:"))
+                    {
+                        MagSearchText = "default.search:" + MagSearchText;
+                    }
                     //MagSearchText = MagSearchText;
                 }
                 if (SearchText.StartsWith("¬Topic:"))
