@@ -275,18 +275,18 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult ImportMagRelatedPapers([FromBody] MVCMagRelatedPapersRun magRun)
+        public IActionResult ImportMagRelatedPapers([FromBody] MVCMagItemPaperInsertCommand cmd)
         {
             try
             {
                 if (SetCSLAUser4Writing())
                 {
-                    int num_in_run = magRun.nPapers;
-                    if (num_in_run > 20000) return StatusCode(500, "Import is too big: 20,000 hits or more");
+                    //int num_in_run = magRun.nPapers;
+                    //if (num_in_run > 20000) return StatusCode(500, "Import is too big: 20,000 hits or more");
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
 
-                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId,
-                        0, "", 0, 0, 0, 0, "", "", "", "", "", "", "");
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", cmd.magRelatedRunId,
+                        0, "", 0, 0, 0, 0, cmd.filterJournal, cmd.filterDOI, cmd.filterURL, cmd.filterTitle, "", "", "");
 
                     command = dp2.Execute(command);
 
@@ -512,6 +512,7 @@ namespace ERxWebClient2.Controllers
     public class MVCMagItemPaperInsertCommand
     {
         public int magAutoUpdateRunId { get; set; }
+        public int magRelatedRunId { get; set; } = 0;
         public string orderBy { get; set; }
         public double autoUpdateScore { get; set; }
         public double studyTypeClassifierScore { get; set; }

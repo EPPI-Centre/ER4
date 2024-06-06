@@ -301,41 +301,45 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
                     this.RemoveBusy("MagRelatedPapersRunCreate");
                 });
     }
-    ImportMagRelatedRunPapers(magRelatedRun: MagRelatedPapersRun) {
+  ImportMagRelatedRunPapers(cmd: MagItemPaperInsertCommand, magRelatedRun: MagRelatedPapersRun): Promise<void> {
 
         let notificationMsg: string = '';
         this._BusyMethods.push("ImportMagRelatedRunPapers");
-        this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedPapers',
-            magRelatedRun)
-            .subscribe(result => {
+    return lastValueFrom(this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedPapers',
+      cmd)).then(
+        result => {
+          this.RemoveBusy("ImportMagRelatedRunPapers");
+          if (result.nImported != null) {
+            if (result.nImported == magRelatedRun.nPapers) {
 
-                this.RemoveBusy("ImportMagRelatedRunPapers");
-                if (result.nImported != null) {
-                    if (result.nImported == magRelatedRun.nPapers) {
+              notificationMsg += "Imported " + result.nImported + " out of " +
+                magRelatedRun.nPapers + " items.";
 
-                        notificationMsg += "Imported " + result.nImported + " out of " +
-                            magRelatedRun.nPapers + " items";
-
-                    } else if (result.nImported != 0) {
-
-                        notificationMsg += "Some of these items were already in your review.\n\nImported " +
-                            result.nImported + " out of " + magRelatedRun.nPapers +
-                            " new items";
-                    }
-                    else {
-                        notificationMsg += "All of these records were already in your review.";
-                    }
-                    this.notificationService.showMAGRunMessage(notificationMsg);
-                }
-
-            },
-                error => {
-                    this.RemoveBusy("ImportMagRelatedRunPapers");
-                    this.modalService.GenericError(error);
-                },
-                () => {
-                    this.RemoveBusy("ImportMagRelatedRunPapers");
-                });
+            } else if (result.nImported != 0) {
+              if (cmd.filterDOI == "" && cmd.filterJournal == "" && cmd.filterTitle == "" && cmd.filterURL == "") {
+                notificationMsg += "Some of these items were already in your review.\n\nImported " +
+                  result.nImported + " out of " + magRelatedRun.nPapers +
+                  " new items.";
+              }
+              else {
+                notificationMsg += "Some of these items were already in your review, or were filtered out.\n\nImported " +
+                  result.nImported + " out of " + magRelatedRun.nPapers +
+                  " new items.";
+              }
+            }
+            else {
+              notificationMsg += "All of these records were already in your review.";
+            }
+            this.notificationService.showMAGRunMessage(notificationMsg);
+          }
+        },
+        error => {
+          this.RemoveBusy("ImportMagRelatedRunPapers");
+          this.modalService.GenericError(error);
+        }).catch(caught => {
+          this.RemoveBusy("ImportMagRelatedRunPapers");
+          this.modalService.GenericError(caught);
+        });
     }
     UpdateMagRelatedRun(magRelatedRun: MagRelatedPapersRun) {
 

@@ -210,70 +210,95 @@
 <div *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
     <div class="container col-12">
         <div class="card">
-            <div class="card-body">
-                <div class="row mx-1">
-                    <div class="card-title h4 mb-0">Related Paper Searches</div>
-                    <button class="btn btn-sm btn-outline-success mx-1 my-0 pb-1 px-1 " (click)="Refresh()">
-                      <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
-                    </button>
-                </div>
-                <div class="col-12 alert-secondary p-2 m-2 card">
-                    <div class="table-responsive" style="width:100%;max-height:65vh; overflow:auto;">
-                        <table class="table align-middle table-striped" >
-                            <thead>
-                                <tr>
-                                    <th>Description</th>
-                                    <th>Mode</th>
-                                    <th>Date from</th>
-                                    <th>Date run</th>
-                                    <th>All included</th>
-                                    <th>With this code</th>
-                                    <!--<th>Re-run</th>-->
-                                    <th>Status</th>
-                                    <!--<th></th>-->
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody style="width:100%">
-                                <tr class="" *ngFor="let item of _basicMAGService.MagRelatedPapersRunList">
-                                    <!--
-                                    <td class="p-0" style="vertical-align:middle">
-                                        <button md-tooltip='ReRun the same Search' (click)="UpdateAutoReRun(item)" class="btn btn-secondary btn-sm text-white align-content-center" style="min-width:60px;">
-                                            {{item.autoReRun}}
-                                        </button>
-                                    </td>
-                                        -->
-                                    <td style="vertical-align:middle">{{item.userDescription}}</td>
-                                    <td style="vertical-align:middle">{{item.mode}}</td>
-                                    <td style="vertical-align:middle">{{FormatDate(item.dateFrom)}}</td>
-                                    <td style="vertical-align:middle">{{FormatDate(item.dateRun)}}</td>
-                                    <td style="vertical-align:middle">
-                                        <input [disabled]="true" class="m-1" type="checkbox" [(ngModel)]="item.allIncluded" />
-                                    </td>
-                                    <td style="vertical-align:middle">{{item.attributeName}}</td>
-                                    <td style="vertical-align:middle">{{item.status}}</td>
-
-                                    <td class="px-1 py-0 small" style="vertical-align:middle">
-                                        {{item.userStatus == '' ? 'N/A' : item.userStatus }}
-                                    </td>
-                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun(item)" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center"><span class="k-icon k-i-trash"></span></button></td>
-                                    <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
-                                    <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.nPapers}}</div></td>
-
-
-
-                                    <!--<td style="vertical-align:middle">{{item.filtered}}</td>-->
-                                </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-
-
-                </div>
+          <div class="card-body">
+            <div class="row mx-1">
+              <div class="card-title h4 mb-0">Related Paper Searches</div>
+              <button class="btn btn-sm btn-outline-success mx-1 my-0 pb-1 px-1 " (click)="Refresh()">
+                <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary mx-1 my-0 pb-1 px-1 small" (click)="ShowHideFilters()">
+                {{ShowFilterTxt}}
+              </button>
             </div>
+            <div class="row mx-0 px-0">
+              <div class=" alert-secondary p-2 my-1 mx-0 card row" [ngClass]="{'col-8': ShowFilters, 'col-12': !ShowFilters}">
+                <div class="table-responsive" style="width:100%;max-height:65vh; overflow:auto;">
+                  <table class="table align-middle table-striped">
+                    <thead>
+                      <tr>
+                        <th>Description</th>
+                        <th>Mode</th>
+                        <th>Date from</th>
+                        <th>Date run</th>
+                        <th>All included</th>
+                        <th>With this code</th>
+                        <!--<th>Re-run</th>-->
+                        <th>Status</th>
+                        <!--<th></th>-->
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody style="width:100%">
+                      <tr class="" *ngFor="let item of _basicMAGService.MagRelatedPapersRunList">
+                        <!--
+            <td class="p-0" style="vertical-align:middle">
+                <button md-tooltip='ReRun the same Search' (click)="UpdateAutoReRun(item)" class="btn btn-secondary btn-sm text-white align-content-center" style="min-width:60px;">
+                    {{item.autoReRun}}
+                </button>
+            </td>
+                -->
+                        <td style="vertical-align:middle">{{item.userDescription}}</td>
+                        <td style="vertical-align:middle">{{item.mode}}</td>
+                        <td style="vertical-align:middle">{{FormatDate(item.dateFrom)}}</td>
+                        <td style="vertical-align:middle">{{FormatDate(item.dateRun)}}</td>
+                        <td style="vertical-align:middle">
+                          <input [disabled]="true" class="m-1" type="checkbox" [(ngModel)]="item.allIncluded" />
+                        </td>
+                        <td style="vertical-align:middle">{{item.attributeName}}</td>
+                        <td style="vertical-align:middle">{{item.status}}</td>
+
+                        <td class="px-1 py-0 small" style="vertical-align:middle">
+                          {{item.userStatus == '' ? 'N/A' : item.userStatus }}
+                        </td>
+                        <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun(item)" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center"><span class="k-icon k-i-trash"></span></button></td>
+                        <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
+                        <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.nPapers}}</div></td>
+
+
+
+                        <!--<td style="vertical-align:middle">{{item.filtered}}</td>-->
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div *ngIf="ShowFilters" class="col-4 px-1 mx-0 ">
+                <div class="row mx-0 px-0 my-1 ">
+                  <div class="d-inline mx-3 rounded alert-info border border-info my-1 p-1 small">
+                    When importing, you can also <strong>filter out</strong> any reference that contains the following strings (comma-separated):
+                  </div>
+                </div>
+                <div class="row mx-0 px-0 mb-1 border-bottom ">
+                  <div class="col small">Filter (out) from journal field: </div>
+                  <input type="text" [(ngModel)]="FilterOutJournal" class="my-auto ml-1 col-auto px-1" size="60" />
+                </div>
+                <div class="row mx-0 px-0 mb-1 border-bottom ">
+                  <div class="col small">Filter (out) from URL field: </div>
+                  <input type="text" [(ngModel)]="FilterOutURL" class="my-auto ml-1 col-auto px-1" size="60" />
+                </div>
+                <div class="row mx-0 px-0 mb-1 border-bottom ">
+                  <div class="col small">Filter (out) from DOI field: </div>
+                  <input type="text" [(ngModel)]="FilterOutDOI" class="my-auto ml-1 col-auto px-1" size="60" />
+                </div>
+                <div class="row mx-0 px-0 mb-1 border-bottom ">
+                  <div class="col small">Filter (out) from title field: </div>
+                  <input type="text" [(ngModel)]="FilterOutTitle" class="my-auto ml-1 col-auto px-1" size="60" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
     </div>
 </div>
