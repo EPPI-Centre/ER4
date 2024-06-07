@@ -111,7 +111,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       + "The coding tool to use is: <br />"
       + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
       + encoded + "</strong></div>"
-      + "<span class='small'>The job will be queued on a 1st-come, 1st-served basis and might take a long time to start and/or run.</span>";
+      + "<span class='small'>The job will be queued on a 1st-come, 1st-served basis and might take a while to start and/or run.</span>";
     this.confirmationDialogService.confirm("Submit Robot-Coding batch?", msg, false, "", "Submit", "Cancel", "sm").then((confirm: any) => {
       if (confirm) {
         this.ActuallySubmitBach();

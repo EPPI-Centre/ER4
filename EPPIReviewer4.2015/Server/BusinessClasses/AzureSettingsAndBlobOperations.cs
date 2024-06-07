@@ -154,6 +154,8 @@ namespace BusinessLibrary.BusinessClasses
             } 
         }
 
+        public static string DeployRUser { get { return AppSettings["DeployRUser"]; } }
+        public static string DeployRPassword { get { return AppSettings["DeployRPassword"]; } }
 
         public static string tenantID { get { return AzureContReviewSettings["tenantID"]; } }
         public static string appClientId { get { return AzureContReviewSettings["appClientId"]; } }

@@ -138,7 +138,7 @@ namespace BusinessLibrary.BusinessClasses
 
             RClient rClient = RClientFactory.createClient(GetRServerAddress());
             
-            RAuthentication authToken = new RBasicAuthentication("***REMOVED***", "***REMOVED***");
+            RAuthentication authToken = new RBasicAuthentication(AzureSettings.DeployRUser, AzureSettings.DeployRPassword);
             RUser rUser = rClient.login(authToken);
 
             List<Double?> numVect = new List<Double?>();
