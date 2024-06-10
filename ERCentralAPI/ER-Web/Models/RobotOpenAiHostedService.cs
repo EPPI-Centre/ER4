@@ -156,7 +156,26 @@ namespace BusinessLibrary.BusinessClasses
                         LogInfo("(-)Decrementing CurrentDelayInMs before Item = " + RT.ItemIDsList[done].ToString());
                         CurrentDelayInMs = CurrentDelayInMs - delayIncrement;
                     }
-                    if (CurrentDelayInMs > ApiLatency) Thread.Sleep(CurrentDelayInMs - ApiLatency);//wait to respect the "requests per second" limit, if/when necessary
+                    if (CurrentDelayInMs > ApiLatency)
+                    {
+                        //wait to respect the "requests per second" limit, if/when necessary
+                        //see: http://classport.blogspot.com/2014/05/cancellationtoken-and-threadsleep.html
+                        //we can't use Thread.Sleep(ms) because it would ignore the cancellation token and wait the alloted time "no matter what".
+                        if (ct.WaitHandle.WaitOne(CurrentDelayInMs - ApiLatency))
+                        {
+                            //cancellation was requested, so we break the loop, before doing any work.
+                            //This is to avoid the risk of running out of time for marking the job as "paused"
+                            break;
+                        }
+                        //wait to respect the "requests per second" limit, if/when necessary
+                    }
+                    if (ct.IsCancellationRequested) 
+                    {
+                        //this clause is unlikely to ever get executed, I'm including it as "extra safety"
+                        //if cancellation was requested during the "WaitOne" above, we should have "broken te loop" already
+                        //we check one more time because it's v. important to mark all interrupted jobs as paused...
+                        break; 
+                    } 
                     cmd = new RobotOpenAICommand(RT.ReviewSetId, RT.ItemIDsList[done], 0, RT.ItemIDsList.Count == done + 1 ? true : false,
                             RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
                             RT.OnlyCodeInTheRobotName, RT.LockTheCoding,
@@ -167,7 +186,6 @@ namespace BusinessLibrary.BusinessClasses
                     ApiLatency = (int)((DateTime.Now.Ticks - start.Ticks) / 10000) - 50; //how long the cmd execution took, in Ms, minus 50ms to stay safe...
                     if (cmd.ReturnMessage == "Error: Too Many Requests")
                     {
-
                         LogInfo("(+)Incrementing CurrentDelayInMs at Item = " + RT.ItemIDsList[done].ToString());
                         CurrentDelayInMs += delayIncrement;
                         DelayedCallsWithoutError = 0;
@@ -182,7 +200,10 @@ namespace BusinessLibrary.BusinessClasses
                         done++;
                     }
                 }
-                if (ct.IsCancellationRequested && done - 1 < todo)
+                //Last item processed has index "done-1" while "done" is the true val of how many items have been done
+                //So we mark as "Paused" only works where cancellation is happening before having processed the last item
+                //If the last item has been processed (done == todo) job has been marked as "Finished" by RobotOpenAICommand and we don't need to do anything
+                if (ct.IsCancellationRequested && done < todo)
                 {
                     long ItemId = (done - 1 == 0) ? 0 : RT.ItemIDsList[done - 1];//the last ID that was actually done
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
