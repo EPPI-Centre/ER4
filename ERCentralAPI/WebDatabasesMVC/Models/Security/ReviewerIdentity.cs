@@ -141,7 +141,7 @@ namespace BusinessLibrary.Security
         {
             LoadProperty(LoginModeProperty, "WebDb");
             LoadProperty<int>(UserIdProperty, 0);
-            IsAuthenticated = true;//we set it here, but might reverse if something down the line fails
+            IsAuthenticated = false;//will reverse if things work OK
             Name = "";
             //build the RI object quickly based on the data we got from the JWT, WITHOUT passing through the DB.
             //this is used when an MVC controller will rely on a CSLA BO that needs a fully formed RI object.

@@ -22,7 +22,7 @@ using WebDatabasesMVC.ViewModels;
 
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize]
+    
     public class ReviewController : CSLAController
     {
         private static string _HeaderImagesFolder;
@@ -46,20 +46,25 @@ namespace WebDatabasesMVC.Controllers
         }
 
 
-        public IActionResult Index()
+        public IActionResult Index(int? Id)
         {
             try
             {
                 if (SetCSLAUser())
                 {
                     if (WebDbId < 1) return BadRequest();
+                    if (Id != null && Id != WebDbId) return Redirect("~/Login/Open?WebDBid=" + Id.ToString());
                     WebDbWithRevInfo res = ReviewIndexDataGet(false);
 
                     if (res.WebDb == null || res.RevInfo == null || res.WebDb.WebDBId < 1 || res.RevInfo.ReviewId < 1) return BadRequest();
 
                     return View(res);
                 }
-                else return Unauthorized();
+                else
+                {
+                    if (Id == null) return Unauthorized();
+                    else return Redirect("~/Login/Open?WebDBid=" + Id.ToString());
+                }
             } 
             catch (Exception e)
             {
@@ -67,6 +72,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [Authorize]
         public IActionResult IndexJSON()
         {
             try
@@ -137,6 +143,7 @@ namespace WebDatabasesMVC.Controllers
             res = new WebDbWithRevInfo() { WebDb = me, RevInfo = rinfo };
             return res;
         }
+        [Authorize]
         public IActionResult YearHistogramJSON()
         {
             try
@@ -155,6 +162,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [Authorize]
         public IActionResult MapsListJSON()
         {
             try

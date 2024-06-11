@@ -41,7 +41,7 @@ namespace ERxWebClient2.Controllers
 #if WEBDB
                 SetViewBag();
 #endif
-                return true;//we might want to do more checks!
+                return ri.IsAuthenticated;//we might want to do more checks!
             }
             catch (Exception e)
             {//to be logged!
@@ -56,7 +56,7 @@ namespace ERxWebClient2.Controllers
 			{
 				ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
 				int ReviewID = ri.ReviewId;//this ensures current ticket is valid (goes to DB to check!)
-				if (ri.HasWriteRights())
+				if (ri.IsAuthenticated && ri.HasWriteRights())
 				{//all is well, ticket is valid and user has write access
 					ReviewerPrincipal principal = new ReviewerPrincipal(ri);
 					Csla.ApplicationContext.User = principal;
@@ -82,11 +82,12 @@ namespace ERxWebClient2.Controllers
                     Claim DBidC = claims.Find(f => f.Type == "WebDbID");
                     try
                     {
+                        if (DBidC == null) return -1;
                         return int.Parse(DBidC.Value);
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError("Error parsing the WebDBId value from the logon cookie", e);
+                        _logger.LogError(e, "Error parsing the WebDBId value from the logon cookie");
                         return -1;
                     }
                 }
@@ -108,7 +109,7 @@ namespace ERxWebClient2.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("Error getting ReviewerIdentity or ReviewId therein.", e);
+                    _logger.LogError(e ,"Error getting ReviewerIdentity or ReviewId therein.");
                     return -1;
                 }
             }

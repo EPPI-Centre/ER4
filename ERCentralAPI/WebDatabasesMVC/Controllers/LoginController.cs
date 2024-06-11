@@ -55,6 +55,7 @@ namespace WebDatabasesMVC.Controllers
                 ViewBag.Id = Id;
                 ViewBag.Username = Username;
             }
+            else ViewBag.Id = null;
             return View();
         }
         
@@ -102,11 +103,22 @@ namespace WebDatabasesMVC.Controllers
                                 SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
                                 //SetImages(WebDbId, reader);
 
-                                // log to TB_WEBDB_LOG
-                                ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
-                                    , SP == "st_WebDBgetClosedAccess" ? "Closed access" : "Open access"
-                                    , WebDbId, Revid);
-                                return Redirect("~/Review/Index");
+                                if (SP == "st_WebDBgetClosedAccess")
+                                {
+                                    // log to TB_WEBDB_LOG
+                                    ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
+                                        , "Closed access"
+                                        , WebDbId, Revid);
+                                    return Redirect("~/Review/Index");
+                                }
+                                else
+                                {
+                                    // log to TB_WEBDB_LOG
+                                    ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
+                                        , "Open access"
+                                        , WebDbId, Revid);
+                                    return Redirect("~/Review/Index/" + WebDbId.ToString());
+                                }
                             } 
                             else
                             {
@@ -182,12 +194,12 @@ namespace WebDatabasesMVC.Controllers
                                         }
                                         else
                                         {
-                                            return Redirect("~/Review/Index");
+                                            return Redirect("~/Review/Index/" + WebDbId.ToString());
                                         }
                                     }
                                     else
                                     {
-                                        return Redirect("~/Review/Index");
+                                        return Redirect("~/Review/Index/" + WebDbId.ToString());
                                     }
                                 }
                             }
@@ -198,7 +210,7 @@ namespace WebDatabasesMVC.Controllers
                         }
                         else
                         {
-                            return BadRequest();
+                            return Unauthorized();
                         }
 
                     }
