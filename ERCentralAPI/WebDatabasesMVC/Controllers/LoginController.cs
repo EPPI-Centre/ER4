@@ -100,11 +100,11 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
                                 //SetImages(WebDbId, reader);
 
                                 if (SP == "st_WebDBgetClosedAccess")
                                 {
+                                    SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader, true);
                                     // log to TB_WEBDB_LOG
                                     ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
                                         , "Closed access"
@@ -113,6 +113,7 @@ namespace WebDatabasesMVC.Controllers
                                 }
                                 else
                                 {
+                                    SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
                                     // log to TB_WEBDB_LOG
                                     ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
                                         , "Open access"
@@ -231,7 +232,7 @@ namespace WebDatabasesMVC.Controllers
         {
             return Forbid();
         }
-        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, string HiddenFields, SqlDataReader reader)
+        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, string HiddenFields, SqlDataReader reader, bool isPasswordProtected = false)
         {
             var userClaims = new List<Claim>()
             {
@@ -240,6 +241,7 @@ namespace WebDatabasesMVC.Controllers
                 new Claim("reviewId", revId.ToString()),
                 new Claim("WebDbID", WebDbID.ToString()),
                 new Claim("HiddenFields", HiddenFields),
+                new Claim("IsPasswordProtected", isPasswordProtected.ToString()),
                 //new Claim("ItemsCode", itemsCode.ToString()) //we don't need to store this in the Cookie: the SPs for WebDBs should retrieve it from the DB
             };
             var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");

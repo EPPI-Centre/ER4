@@ -7,7 +7,13 @@
     string imgPath3 = "";
     string imgUrl3 = "";
     int WebDbID = 0;
-    Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    Claim WebDbIDclaim = User.FindFirst("WebDbID"); 
+    Claim IsPasswordProtectedC = User.FindFirst("IsPasswordProtected");
+    bool IsPasswordProtected = false;
+    if (IsPasswordProtectedC != null && IsPasswordProtectedC.Value == "True")
+    {
+        IsPasswordProtected = true;
+    }
     if (WebDbIDclaim != null)
     {
         int.TryParse(WebDbIDclaim.Value, out WebDbID);
@@ -214,7 +220,14 @@
                         </li>-->
 
                         <li>
-                            <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/Index/@(WebDbID.ToString())">Home</a>
+                            @if (IsPasswordProtected)
+                            {
+                                <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/Index">Home</a>
+                            } 
+                            else
+                            {
+                                <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/Index/@(WebDbID.ToString())">Home</a>
+                            }
                             <a class="btn btn-sm btn-white btn-border btn-round mr-2" id="AppRootlink" href="~/" style="display:none;">.</a>
                         </li>
                         <li>
