@@ -148,35 +148,43 @@ namespace BusinessLibrary.Security
             //as a result, the Ticket will be checked against the DB if and where RI.ReviewId is retreived, as in ER4.
             //thus, it's OK to avoid checking on the DB at this stage.
             Roles = new MobileList<string>();
+            bool hasReviewId = false;
+            bool hasWebDbID = false;
+            bool isWebDbReader = false;
             foreach (System.Security.Claims.Claim claim in criteria.ClaimsP.Claims)
             {
                 switch (claim.Type)
                 {
                     case System.Security.Claims.ClaimTypes.Role:
                         Roles.Add(claim.Value);
+                        if (claim.Value == "WebDbReader") isWebDbReader = true;
                         break;
                     case "reviewId":
                         int tmp;
-                        if (int.TryParse(claim.Value, out tmp)) LoadProperty<int>(ReviewIdProperty, tmp);
+                        if (int.TryParse(claim.Value, out tmp))
+                        {
+                            LoadProperty<int>(ReviewIdProperty, tmp);
+                            hasReviewId = true;
+                        }
                         break;
-                    case "userId":
+                    case "WebDbID":
                         int tmp2;
-                        if (int.TryParse(claim.Value, out tmp2)) LoadProperty<int>(UserIdProperty, tmp2);
+                        if (int.TryParse(claim.Value, out tmp2)) hasWebDbID = true;
                         break;
-                    case "name":
+                    case System.Security.Claims.ClaimTypes.Name:
                         LoadProperty<string>(NameProperty, claim.Value);
                         break;
-                    case "reviewTicket":
-                        LoadProperty<string>(TicketProperty, claim.Value);
-                        break;
-                    case "isSiteAdmin":
-                        LoadProperty<bool>(IsSiteAdminProperty, (claim.Value.ToLower() == "true"));
-                        break;
+                    //case "WebDbID":
+                    //    LoadProperty<string>(TicketProperty, claim.Value);
+                    //    break;
+                    //case "isSiteAdmin":
+                    //    LoadProperty<bool>(IsSiteAdminProperty, (claim.Value.ToLower() == "true"));
+                    //    break;
                     default:
                         break;
                 }
             }
-            if (Roles.Count > 0)
+            if (Roles.Count > 0 && hasReviewId && hasWebDbID && isWebDbReader)
             {//ticket could be parsed/decrypted and it contained roles: user is for real
                 this.IsAuthenticated = true;
             }
