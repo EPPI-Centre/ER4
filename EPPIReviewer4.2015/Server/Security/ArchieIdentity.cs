@@ -478,11 +478,6 @@ namespace BusinessLibrary.Security
                                         break;
                                     }
                                     else result = "no userId for this person!";
-                                    //"user": {
-                                    //   "userId": "z1607150942450721585638601392868",
-                                    //    "userName": "rasmus.moustgaard@gmail.com",
-                                    //    "link": "https://test-archie.cochrane.org/rest/users/z1607150942450721585638601392868"
-                                    //  },
 #endif
                                 }
                                 else

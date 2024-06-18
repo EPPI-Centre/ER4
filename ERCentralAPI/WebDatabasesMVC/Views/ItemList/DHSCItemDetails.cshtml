@@ -8,6 +8,29 @@
 @using System.Security.Claims;
 
 
+<style>
+    #myBtn {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 30px;
+        z-index: 99;
+        font-size: 18px;
+        border: none;
+        outline: none;
+        background-color: red;
+        color: white;
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 4px;
+    }
+
+    #myBtn:hover {
+        background-color: #555;
+    }
+</style>
+
+
 
 <script>
 
@@ -129,6 +152,7 @@
             var how_secure_is_it = "?";
             var how_to_implement = "?";
             var how_much_does_it_cost = "?";
+            var report_link = "?";
 
 
             // the itemAttributesList entries are in the order the codes are assigned so we need to loop through all of them to
@@ -140,37 +164,39 @@
                     // Cost
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
                         costValue = "1";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
                         costValue = "2";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
                         costValue = "3";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
-                        costValue = "4";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>";
+                        costValue = "0";
+                        //costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>";
+                        costIcon = "<b>N/A</b>";
                         break;
 
                     // Evidence quality
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
                         evidenceQualityValue = "0";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        //evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        evidenceQualityIcon = "<b>Not rated</b>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
                         evidenceQualityValue = "1";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
                         evidenceQualityValue = "2";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
                         evidenceQualityValue = "3";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
                         evidenceQualityValue = "4";
@@ -211,13 +237,17 @@
                     // Impact 1
                     case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[0].attributeId:
                         outcomes1ImpactValue = "None";
-                        impact1Number = "1";
+                        impact1Number = "0";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[1].attributeId:
+                        outcomes1ImpactValue = "Low";
+                        impact1Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[2].attributeId:
                         outcomes1ImpactValue = "Moderate";
                         impact1Number = "2";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[2].attributeId:
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[3].attributeId:
                         outcomes1ImpactValue = "High";
                         impact1Number = "3";
                         break;
@@ -239,13 +269,17 @@
                     // Impact 2
                     case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[0].attributeId:
                         outcomes2ImpactValue = "None";
-                        impact2Number = "1";
+                        impact2Number = "0";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[1].attributeId:
+                        outcomes2ImpactValue = "Low";
+                        impact2Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[2].attributeId:
                         outcomes2ImpactValue = "Moderate";
                         impact2Number = "2";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[2].attributeId:
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[3].attributeId:
                         outcomes2ImpactValue = "High";
                         impact2Number = "3";
                         break;
@@ -258,13 +292,17 @@
                     // Impact 3
                     case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[0].attributeId:
                         outcomes3ImpactValue = "None";
-                        impact3Number = "1";
+                        impact3Number = "0";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[1].attributeId:
+                        outcomes3ImpactValue = "Low";
+                        impact3Number = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[2].attributeId:
                         outcomes3ImpactValue = "Moderate";
                         impact3Number = "2";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[2].attributeId:
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[3].attributeId:
                         outcomes3ImpactValue = "High";
                         impact3Number = "3";
                         break;
@@ -312,6 +350,10 @@
                     case codingData.reviewSets[1].attributes.attributesList[4].attributeId:
                         how_much_does_it_cost = codingData.itemSetList[1].itemAttributesList[k].additionalText;
                         break;
+                    // how_much_does_it_cost
+                    case codingData.reviewSets[1].attributes.attributesList[5].attributeId:
+                        report_link = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
 
                     default:
                         break;
@@ -328,8 +370,10 @@
             visualHTML += "<table>";
             visualHTML += "<tr>";
             visualHTML += "<td style='border-bottom: solid; border-width: 1px; padding: 10px 0px 10px 0px;'>";
-            visualHTML += "<p><h1><b>" + studyTitle  + "</b></h1></p>"
-            visualHTML += "<p><h3>" + studyAbstract + "</h3></p>"
+            visualHTML += "<p><h1><b>" + studyTitle + "</b></h1></p>";
+            visualHTML += "<p><h3>" + studyAbstract + "</h3></p>";
+            visualHTML += "<a href=" + report_link + " target='_blank'><button class='btn btn-sm btn-info btn-round'>Full report</button></a>";
+            //visualHTML += "<p><h3>" + report_link + "</h3></p>";
             visualHTML += "</td>";
             visualHTML += "</tr>";
             visualHTML += "</table>";
@@ -391,19 +435,19 @@
 
             //visualHTML += "<div id='what_is_it'><div>"
             visualHTML += "<p><h3 id='is_it_effective'><b>What is it?</b></h3></p>";
-            visualHTML += "<p>" + what_is_it + "</p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + what_is_it + "</p>";
             visualHTML += "<br>";
             visualHTML += "<p><h3 id='how_secure_is_it'><b>Is it effective?</b></h3></p>";
-            visualHTML += "<p>" + is_it_effective + "</p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + is_it_effective + "</p>";
             visualHTML += "<br>";
             visualHTML += "<p><h3 id='how_to_implement'><b>How secure is the evidence?</b></h3></p>";
-            visualHTML += "<p>" + how_secure_is_it + "</p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + how_secure_is_it + "</p>";
             visualHTML += "<br>";
             visualHTML += "<p><h3 id='how_much_does_it_cost'><b>How can you implement it well?</b></h3></p>";
-            visualHTML += "<p>" + how_to_implement + "</p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + how_to_implement + "</p>";
             visualHTML += "<br>";
             visualHTML += "<p><h3 ><b>How much does it cost?</b></h3></p>";
-            visualHTML += "<p>" + how_much_does_it_cost + "</p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + how_much_does_it_cost + "</p>";
             visualHTML += "<br>";
 
 
@@ -416,6 +460,11 @@
         }
 
     }
+
+
+
+
+
 
 
 
@@ -463,11 +512,12 @@
                         <a href="#how_much_does_it_cost" style="color: #343a40"><h4>How much does it cost?</h4></a>
                     </div>
                 </li>
-                <li class="nav-item">
+                <!--<li class="nav-item">
                     <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
-                </li>
-            </ul>
+                </li>-->
 
+            </ul>
+                <button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
         </div>
     </div>
 </div>
@@ -498,3 +548,26 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    // Get the button
+    let mybutton = document.getElementById("myBtn");
+
+    // When the user scrolls down 20px from the top of the document, show the button
+    window.onscroll = function () { scrollFunction() };
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+
+    // When the user clicks on the button, scroll to the top of the document
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+</script>

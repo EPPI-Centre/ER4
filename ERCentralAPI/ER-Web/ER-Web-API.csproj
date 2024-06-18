@@ -77,6 +77,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonScreeningCompleteCommand.cs" Link="Models\ComparisonScreeningCompleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonStatsCommand.cs" Link="Models\ComparisonStatsCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Contact.cs" Link="Models\Contact.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\CreditForRobots.cs" Link="Models\CreditForRobots.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\CreditForRobotsList.cs" Link="Models\CreditForRobotsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\DataFactoryHelper.cs" Link="Models\DataFactoryHelper.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\GetLatestUpdateMsgCommand.cs" Link="Models\GetLatestUpdateMsgCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ImportItems.cs" Link="Models\ImportItems.cs" />
@@ -233,6 +235,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsReviewerList.cs" Link="Models\ReviewStatisticsReviewerList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsReviewerList2.cs" Link="Models\ReviewStatisticsReviewerList2.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\RobotOpenAICommand.cs" Link="Models\RobotOpenAICommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\RobotOpenAiTaskReadOnly.cs" Link="Models\RobotOpenAiTaskReadOnly.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\RobotOpenAiTaskReadOnlyList.cs" Link="Models\RobotOpenAiTaskReadOnlyList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Search.cs" Link="Models\Search.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchClassifierScoresCommand.cs" Link="Models\SearchClassifierScoresCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchCodesCommand.cs" Link="Models\SearchCodesCommand.cs" />

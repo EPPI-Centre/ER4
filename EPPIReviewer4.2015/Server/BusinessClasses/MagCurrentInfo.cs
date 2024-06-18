@@ -540,4 +540,4 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
     }
-    }
+}

@@ -24,8 +24,6 @@ export class WebDbCcodesetTreeComponent implements OnInit, OnDestroy {
   @Input() CanChangeSelectedCode: boolean = true;
 
 
-  public showManualModal: boolean = false;
-
   subRedrawTree: Subscription | null = null;
 
   public smallTree: string = '';

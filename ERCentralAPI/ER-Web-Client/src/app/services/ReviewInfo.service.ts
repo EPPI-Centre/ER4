@@ -145,6 +145,8 @@ export class ReviewInfo {
       this.bL_CC_TX = iRnfo.bL_CC_TX;
       this.magEnabled = iRnfo.magEnabled;
       this.openAIEnabled = iRnfo.openAIEnabled;
+      this.canUseRobots = iRnfo.canUseRobots;
+      this.hasCreditForRobots = iRnfo.hasCreditForRobots;
     }
   }
   public Clone(): ReviewInfo {
@@ -169,6 +171,8 @@ export class ReviewInfo {
     res.bL_CC_TX = this.bL_CC_TX;
     res.magEnabled = this.magEnabled;
     res.openAIEnabled = this.openAIEnabled;
+    res.canUseRobots = this.canUseRobots;
+    res.hasCreditForRobots = this.hasCreditForRobots;
     return res;
   }
   reviewId: number = 0;
@@ -191,6 +195,8 @@ export class ReviewInfo {
   bL_CC_TX: string = "";
   magEnabled: number = 0;
   openAIEnabled: boolean = false;
+  canUseRobots: boolean = false;
+  hasCreditForRobots: boolean = false;
 }
 export interface iReviewInfo {
   reviewId: number;
@@ -213,6 +219,8 @@ export interface iReviewInfo {
   bL_CC_TX: string;
   magEnabled: number;
   openAIEnabled: boolean;
+  canUseRobots: boolean;
+  hasCreditForRobots: boolean;
 }
 export class Contact {
 

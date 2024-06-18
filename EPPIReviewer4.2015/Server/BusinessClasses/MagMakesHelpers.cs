@@ -516,7 +516,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     results.Add(respJson);
                 }
-                if (respJson.meta != null && respJson.meta.next_cursor != null && respJson.meta.next_cursor != "")
+                if (respJson != null && respJson.meta != null && respJson.meta.next_cursor != null && respJson.meta.next_cursor != "")
                 {
                     cursor = respJson.meta.next_cursor;
                 }

@@ -147,7 +147,15 @@ namespace BusinessLibrary.BusinessClasses
         public static string SMTPAuthentic { get { return AppSettings["SMTPAuthentic"]; } }
         public static string mailFrom { get { return AppSettings["mailFrom"]; } }
         public static string Lingo3Gendpoint { get { return AppSettings["Lingo3Gendpoint"]; } }
+        public static string ItemListTimeoutHandling { 
+            get {
+                var val = AppSettings["ItemListTimeoutHandling"];
+                return val == null ? "" : val ; 
+            } 
+        }
 
+        public static string DeployRUser { get { return AppSettings["DeployRUser"]; } }
+        public static string DeployRPassword { get { return AppSettings["DeployRPassword"]; } }
 
         public static string tenantID { get { return AzureContReviewSettings["tenantID"]; } }
         public static string appClientId { get { return AzureContReviewSettings["appClientId"]; } }
@@ -159,6 +167,7 @@ namespace BusinessLibrary.BusinessClasses
         public static string covidLongCovidPipelineName { get { return AzureContReviewSettings["covidLongCovidPipelineName"]; } }
         public static string progressPlusPipelineName { get { return AzureContReviewSettings["progressPlusPipelineName"]; } }
         public static string pubMedStudyTypesPipelineName { get { return AzureContReviewSettings["pubMedStudyTypesPipelineName"]; } }
+        public static string pubMedStudyDesignsPipelineName { get { return AzureContReviewSettings["pubMedStudyDesignsPipelineName"]; } }
         public static string pipelineName { get { return AzureContReviewSettings["pipelineName"]; } }
 
         
@@ -203,12 +212,21 @@ namespace BusinessLibrary.BusinessClasses
         //robots:
         public static string RobotReviewerEndpoint { get { return RobotSettings["RobotReviewerEndpoint"]; } }
         public static string RobotHBCPEndpoint { get { return RobotSettings["RobotHBCPEndpoint"]; } }
+
         public static string RobotOpenAIEndpoint { get { return RobotSettings["RobotOpenAIEndpoint"]; } }
         public static string RobotOpenAIKey2 { get { return RobotSettings["RobotOpenAIKey2"]; } }
+
+        public static string RobotOpenAIBatchEndpoint { get { return RobotSettings["RobotOpenAIBatchEndpoint"]; } }
+        public static string RobotOpenAIBatchKey { get { return RobotSettings["RobotOpenAIBatchKey"]; } }
+        
         public static string RobotOpenAITemperature { get { return RobotSettings["RobotOpenAITemperature"]; } }
         public static string RobotOpenAITopP { get { return RobotSettings["RobotOpenAITopP"]; } }
         public static string RobotOpenAIFrequencyPenalty { get { return RobotSettings["RobotOpenAIFrequencyPenalty"]; } }
         public static string RobotOpenAIPresencePenalty { get { return RobotSettings["RobotOpenAIPresencePenalty"]; } }
+        public static string RobotOpenAIRequestsPerMinute { get { return RobotSettings["RobotOpenAIRequestsPerMinute"]; } }
+        public static string RobotOpenAIDirectEndpoint { get { return RobotSettings["RobotOpenAIDirectEndpoint"]; } }
+        
+
     }
     public class BlobOperations
     {

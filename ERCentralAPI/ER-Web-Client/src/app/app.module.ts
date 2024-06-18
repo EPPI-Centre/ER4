@@ -138,6 +138,8 @@ import { MAmoderatorsComp } from './MetaAnalysis/MAmoderators.component';
 import { MAaddOutcomesColumnComp } from './MetaAnalysis/MAaddOutcomesColumn.component';
 import { MetaAnalysisRunComp } from './MetaAnalysis/MetaAnalysisRun.component';
 import { MetaAnalysisRunNetworkComp } from './MetaAnalysis/MetaAnalysisRunNetwork.component'
+import { RobotSettings } from './Robots/robotSettings.component';
+import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 
 
 
@@ -273,7 +275,9 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     MAmoderatorsComp,
     MAaddOutcomesColumnComp,
     MetaAnalysisRunComp,
-    MetaAnalysisRunNetworkComp
+    MetaAnalysisRunNetworkComp,
+    RobotSettings,
+    RobotBatchJobs
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

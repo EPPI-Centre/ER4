@@ -503,7 +503,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 //end of 27/09/2021 addition
 
-                if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8) // the covid19,  progress-plus using the BERT model, pubmed study types, new Azure ML environment and SQL database. This will become default over time.
+                if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8 || modelId == -9) // the covid19,  progress-plus using the BERT model, pubmed study types, pubmed study designs (public), new Azure ML environment and SQL database. This will become default over time.
                 {
 					System.Threading.Tasks.Task.Run(() => DoNewMethod(modelId, ApplyToAttributeId, ri.ReviewId, ri.UserId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
@@ -1170,6 +1170,7 @@ namespace BusinessLibrary.BusinessClasses
             string covidLongCovidPipelineName = AzureSettings.covidLongCovidPipelineName;
             string progressPlusPipelineName = AzureSettings.progressPlusPipelineName;
             string pubMedStudyTypesPipelineName = AzureSettings.pubMedStudyTypesPipelineName;
+			string pubMedStudyDesignsPipelineName = AzureSettings.pubMedStudyDesignsPipelineName;
 
             string ClassifierPipelineName = "";
             string SearchTitle = "";
@@ -1193,6 +1194,11 @@ namespace BusinessLibrary.BusinessClasses
                 ClassifierPipelineName = pubMedStudyTypesPipelineName;
                 SearchTitle = "PubMed study type model: ";
             }
+			if (modelId == -9)
+			{
+				ClassifierPipelineName = pubMedStudyDesignsPipelineName;
+				SearchTitle = "PubMed study designs model: ";
+			}
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);

@@ -52,16 +52,19 @@
 
 <script>
 
-    var documentData;
+
 
     // declare some global variables
+    var documentData;
+    var SavedCodingData = [];
+
     var visualHTML = "";
     var globalCounter = 0;
     var attributeIdFilter = 0;
 
     // slider settings
-    var costMin = 1;
-    var costMax = 4;
+    var costMin = 0;
+    var costMax = 3;
     var evidenceMin = 0;
     var evidenceMax = 4;
 
@@ -107,8 +110,8 @@
         // reset variables on document load
         visualHTML = "";
         globalCounter = 0;
-        costMin = 1;
-        costMax = 4;
+        costMin = 0;
+        costMax = 3;
         evidenceMin = 0;
         evidenceMax = 4;
         cbOutcomes = "";
@@ -132,7 +135,7 @@
                 case '1': // blueish Tints of #68b4f2
                     topColour = "#a4d2f7";
                     botColour = "#d1e8fb";
-                    offIcons = "#68b4f2";
+                    offIcons = "#68b4f2";                                  
                     headerSectionColour = "linear-gradient(to right, #0099ff 0%, #3366cc 100%)";
                     break;
 
@@ -203,8 +206,8 @@
         // on a search we want to clear all of the filters
         // as the search is on everything.
 
-        costMin = 1;
-        costMax = 4;
+        costMin = 0;
+        costMax = 3;
         evidenceMin = 0;
         evidenceMax = 4;
         cbOutcomes = "";
@@ -214,7 +217,8 @@
         visualHTML = "";
         globalCounter = 0;
 
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -277,7 +281,8 @@
         visualHTML = "";
         globalCounter = 0;
 
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -291,8 +296,8 @@
         $("#costSlider").kendoRangeSlider({
             change: costRangeSliderOnChange,
             //slide: costRangeSliderOnSlide,
-            min: 1,
-            max: 4,
+            min: 0,
+            max: 3,
             smallStep: 1,
             largeStep: 1
         });
@@ -325,7 +330,8 @@
         var element = document.getElementById("filterDiv");
         element.classList.add("disabledFilterDiv");
         
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -357,7 +363,8 @@
         element3.classList.add("disabledFilterDiv");
 
 
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -381,7 +388,8 @@
         var element = document.getElementById("filterDiv");
         element.classList.add("disabledFilterDiv");
 
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -412,7 +420,8 @@
         var element3 = document.getElementById("preventionFilterDiv");
         element3.classList.add("disabledFilterDiv");
 
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -457,7 +466,8 @@
         element3.classList.add("disabledFilterDiv");
         
 
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -492,7 +502,8 @@
         var element3 = document.getElementById("preventionFilterDiv");
         element3.classList.add("disabledFilterDiv");
         
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -528,7 +539,8 @@
         var element3 = document.getElementById("preventionFilterDiv");
         element3.classList.add("disabledFilterDiv");
         
-        itemData(documentData, "success");
+        //itemData(documentData, "success");
+        updateByFilter();
 
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
@@ -621,7 +633,9 @@
             for (var i = 0; i < documentData.items.totalItemCount; i++) {
                 await $.post("../Coding/FetchItemCodingJSON"
                     , { ItemId: documentData.items.items[i].itemId }
-                    , function (data, result) { buildCard(data, result, documentData, i) }
+                    , function (data, result) {                      
+                        buildArrayOfCodingData(data, result, i);
+                    }
                 );
             }
         }
@@ -630,9 +644,23 @@
         }
     }
 
+    function buildArrayOfCodingData(codingData, result, i) {
+        if (result == "success") {
+            SavedCodingData.push(codingData);
+            //var jat = $("#justATest");
+            //if (jat) jat.html("Coding data count:" + SavedCodingData.length.toString());
+            buildCard(SavedCodingData[i], result, i);
+        }
+    }
 
-    function buildCard(codingData, result, documentData, i) 
-    {
+    function updateByFilter() {
+        for (var i = 0; i < documentData.items.totalItemCount; i++) {
+            buildCard(SavedCodingData[i], "success", i);
+        }
+    }
+
+
+    function buildCard(codingData, result, i) {
         if (result == "success") 
         {
             console.log("codingData", codingData, result);         
@@ -677,41 +705,45 @@
                     // Cost
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
                         costValue = "1";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign' title='< £500\r\nper participant'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' title='< £500\r\nper participant' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' title='< £500\r\nper participant' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
                         costValue = "2";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign' title='£500 - £1000\r\nper participant'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' title='£500 - £1000\r\nper participant'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' title='£500 - £1000\r\nper participant' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
                         costValue = "3";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' style='color:" + offIcons + "'></i>";
+                        costIcon = "<i class='fas fa-lg fa-pound-sign' title='> £1000\r\nper participant'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' title='> £1000\r\nper participant'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign' title='> £1000\r\nper participant'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
-                        costValue = "4";
-                        costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>";
+                        costValue = "0";
+                        //costIcon = "<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-pound-sign'></i>";
+                        costIcon = "<b>N/A</b>";
                         break;
 
                     // Evidence quality
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
                         evidenceQualityValue = "0";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        //evidenceQualityIcon = "<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' style='color:" + offIcons + "'></i>";
+                        //evidenceQualityIcon = "<i class='far fa-lg fa-dot-circle' title='Not rated'></i>";
+                        //evidenceQualityIcon = "<i class='fas fa-lg fa-not-equal' style='color:" + offIcons + "'></i>";
+                        evidenceQualityIcon = "<b>Not rated</b>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
                         evidenceQualityValue = "1";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 1'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' title='Evidence Quality: 1' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' title='Evidence Quality: 1' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' title='Evidence Quality: 1' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
                         evidenceQualityValue = "2";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 2'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 2'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' title='Evidence Quality: 2' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' title='Evidence Quality: 2' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
                         evidenceQualityValue = "3";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 3'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 3'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 3'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-minus' title='Evidence Quality: 3' style='color:" + offIcons + "'></i>";
                         break;
                     case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
                         evidenceQualityValue = "4";
-                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus'></i>";
+                        evidenceQualityIcon = "<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 4'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 4'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 4'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-search-plus' title='Evidence Quality: 4'></i>";
                         break;
 
                     // Review size
@@ -757,15 +789,21 @@
                     // Impact 1
                     case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[0].attributeId:
                         outcomes1ImpactValue = "No";
+                        impact1Number = "0";
+                        //impact1Icon = "<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
+                        impact1Icon = "<i class='fas fa-lg fa-times'></i>";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[1].attributeId:
+                        outcomes1ImpactValue = "Low";
                         impact1Number = "1";
                         impact1Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[1].attributeId:
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[2].attributeId:
                         outcomes1ImpactValue = "Moderate";
                         impact1Number = "2";
                         impact1Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[2].attributeId:
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[3].attributeId:
                         outcomes1ImpactValue = "High";
                         impact1Number = "3";
                         impact1Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>";
@@ -792,15 +830,21 @@
                     // Impact 2
                     case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[0].attributeId:
                         outcomes2ImpactValue = "No";
+                        impact2Number = "0";
+                        //impact2Icon = "<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
+                        impact2Icon = "<i class='fas fa-lg fa-times'></i>";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[1].attributeId:
+                        outcomes2ImpactValue = "Low";
                         impact2Number = "1";
                         impact2Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[1].attributeId:
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[2].attributeId:
                         outcomes2ImpactValue = "Moderate";
                         impact2Number = "2";
                         impact2Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[2].attributeId:
+                    case codingData.reviewSets[0].attributes.attributesList[6].attributes.attributesList[3].attributeId:
                         outcomes2ImpactValue = "High";
                         impact2Number = "3";
                         impact2Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>";
@@ -815,18 +859,24 @@
                     // Impact 3
                     case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[0].attributeId:
                         outcomes3ImpactValue = "No";
+                        impact3Number = "0";
+                        //impact3Icon = "<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
+                        impact3Icon = "<i class='fas fa-lg fa-times'></i>";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[1].attributeId:
+                        outcomes3ImpactValue = "Low";
                         impact3Number = "1";
                         impact3Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[1].attributeId:
-                        outcomes3ImpactValue = "Moderate";
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[2].attributeId:
+                        outcomes1ImpactValue = "Moderate";
                         impact3Number = "2";
                         impact3Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check' style='color:" + offIcons + "'></i>";
                         break;
-                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[2].attributeId:
-                        outcomes3ImpactValue = "High";
+                    case codingData.reviewSets[0].attributes.attributesList[8].attributes.attributesList[3].attributeId:
+                        outcomes1ImpactValue = "High";
                         impact3Number = "3";
-                        impact3Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>";
+                        impact3Icon = "<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;<i class='fas fa-lg fa-check'></i>&nbsp;&nbsp;";
                         break;
 
 
@@ -927,7 +977,7 @@
                                 visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;'>";
                                 visualHTML += "<h5><b>Review size</b></h5><br>"
                                 if (reviewSizeValue == "?") {
-                                    visualHTML += "Unknown";
+                                    visualHTML += "<b>N/A</b>";
                                 }
                                 else {
                                     visualHTML += reviewSizeIcon;
@@ -959,7 +1009,7 @@
                                             visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
                                         }
                                         visualHTML += "</td>";
-                                        visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px;'>";
+                                        visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px; text-align: right;'>";
                                         if (outcomes1ImpactValue == "?") {
                                             visualHTML += "<i class='fas fa-lg fa-minus'></i>";
                                         }
@@ -974,7 +1024,7 @@
                                         visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
                                         visualHTML += "<b>" + outcomes2ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes2Value + "</b>";
                                         visualHTML += "</td>";
-                                        visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                                        visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; text-align: right;'>";
                                         visualHTML += impact2Icon;
                                         visualHTML += "</td>";
                                         visualHTML += "</tr>";
@@ -984,7 +1034,7 @@
                                         visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToDHSCItemDetails(" + itemId + ")''>";
                                         visualHTML += "<b>" + outcomes3ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes3Value + "</b>";
                                         visualHTML += "</td>";
-                                        visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                                        visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; text-align: right;'>";
                                         visualHTML += impact3Icon;
                                         visualHTML += "</td>";
                                         visualHTML += "</tr>";
@@ -1052,7 +1102,7 @@
                     visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;'>";
                     visualHTML += "<h5><b>Review size</b></h5><br>"
                     if (reviewSizeValue == "?") {
-                        visualHTML += "Unknown";
+                        visualHTML += "<b>N/A</b>";
                     }
                     else {
                         visualHTML += reviewSizeIcon;
@@ -1083,7 +1133,7 @@
                                 visualHTML += "<b>" + outcomes1ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
                             }
                             visualHTML += "</td>";
-                            visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px;'>";
+                            visualHTML += "<td colspan='1' style='padding: 10px 5px 5px 5px; text-align: right;'>";
                             if (outcomes1ImpactValue == "?") {
                                 visualHTML += "<i class='fas fa-lg fa-minus'></i>";
                             }
@@ -1098,7 +1148,7 @@
                             visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
                             visualHTML += "<b>" + outcomes2ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes2Value + "</b>";
                             visualHTML += "</td>";
-                            visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                            visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; text-align: right;'>";
                             visualHTML += impact2Icon;
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
@@ -1108,7 +1158,7 @@
                             visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToDHSCItemDetails(" + itemId + ")''>";
                             visualHTML += "<b>" + outcomes3ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes3Value + "</b>";
                             visualHTML += "</td>";
-                            visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px;'>";
+                            visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; text-align: right;'>";
                             visualHTML += impact3Icon;
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
@@ -1230,7 +1280,7 @@
                             
                                 <tr>
                                     <td style="padding: 10px 10px 10px 15px;">
-                                        <label><b>COST</b></label><br />
+                                        <label><b>COST per participant</b></label><br />
                                         <div id="costSlider" class="humidity">
                                             <input />
                                             <input />
@@ -1238,11 +1288,9 @@
                                     </td>
                                 </tr>
 
-                            
-
                                 <tr>
                                     <td style="padding: 10px 10px 10px 15px;">
-                                        <label><b>EVIDENCE</b></label><br />
+                                        <label><b>EVIDENCE QUALITY</b></label><br />
                                         <div id="evidenceSlider" class="humidity">
                                             <input />
                                             <input />
@@ -1376,19 +1424,19 @@
                                         <ul class="fieldlist">
                                             <li>
                                                 <input type="checkbox" id="cbIPV" onclick="cbPreventionTypesChange('cbIPV', '1')" />
-                                                <label>&nbsp;&nbsp;&nbsp;IPV</label>
+                                                <label>&nbsp;&nbsp;&nbsp;Intimate partner violence</label>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbCSA" onclick="cbPreventionTypesChange('cbCSA', '2')" />
-                                                <label>&nbsp;&nbsp;&nbsp;CSA</label>
+                                                <label>&nbsp;&nbsp;&nbsp;Child sexual abuse</label>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbSV" onclick="cbPreventionTypesChange('cbSV', '3')" />
-                                                <label>&nbsp;&nbsp;&nbsp;SV</label>
+                                                <label>&nbsp;&nbsp;&nbsp;Sexual violence</label>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbHT" onclick="cbPreventionTypesChange('cbHT', '4')" />
-                                                <label>&nbsp;&nbsp;&nbsp;HT</label>
+                                                <label>&nbsp;&nbsp;&nbsp;Human trafficking</label>
                                             </li>
                                         </ul>
                                     </td>
@@ -1508,7 +1556,7 @@
                         </div>
                     </div>
 
-
+                    <!--<div id="justATest"></div>-->
                     <div id="visualsDHSCDiv"></div>
 
 

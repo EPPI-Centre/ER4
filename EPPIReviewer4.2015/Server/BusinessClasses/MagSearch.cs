@@ -617,6 +617,11 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
+            if (!SearchText.StartsWith("¬"))
+            {
+                SearchText = "¬" + SearchText; // JT added 27/04/2024 to fix bug on re-running searches. The logic below assumes this is present (as it is for new searches), but it's then removed before saving.
+            }
+
             if (SearchText.IndexOf("¬COMBINE SEARCHES") > -1)
             {
                 CombineSearches();
@@ -631,14 +636,18 @@ namespace BusinessLibrary.BusinessClasses
                 MagMakesHelpers.OaPaperFilterResult resp = null;
                 if (SearchText.StartsWith("¬Title:"))
                 {
-                    if (MagSearchText.IndexOf("display_name.search:") == -1) // i.e. for a rerun the search is already fully described
+                    if (!MagSearchText.StartsWith("display_name.search:")) // i.e. for a rerun the search is already fully described
                     {
                         MagSearchText = "display_name.search:" + MagSearchText;
                     }
                 }
                 if (SearchText.StartsWith("¬Title and abstract:"))
                 {
-                    TitleAndAbstract = true;
+                    //TitleAndAbstract = true;
+                    if (!MagSearchText.StartsWith("default.search:"))
+                    {
+                        MagSearchText = "default.search:" + MagSearchText;
+                    }
                     //MagSearchText = MagSearchText;
                 }
                 if (SearchText.StartsWith("¬Topic:"))
@@ -826,8 +835,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             List<string> results = new List<string>();
             bool doSearch = false;
-            if (theSearch.MagSearchText.IndexOf(".") == -1)
-            {
+            if ((theSearch.MagSearchText.IndexOf("display_name.search:") == -1) && (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1))
+                {
                 doSearch = true; // i.e. title/abstract search where we 'search' rather than 'filter'
             }
             List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(theSearch.MagSearchText, doSearch);
