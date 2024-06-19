@@ -142,6 +142,8 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
             type: { style: "info", icon: true },
             closable: true
           });
+          this.robotsService.GetCurrentQueue();
+          this.ShowQueue = true;
         }
       }
 
