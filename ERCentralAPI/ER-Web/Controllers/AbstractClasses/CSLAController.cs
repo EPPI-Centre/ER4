@@ -174,6 +174,52 @@ namespace ERxWebClient2.Controllers
                 throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
             }
             ItemList4Json res = new ItemList4Json(DataPortal.Fetch<ItemList>(crit));
+
+            Claim HiddenFieldsClaim = User.FindFirst("HiddenFields");
+            List<string> HiddenFields = new List<string>();
+            if (HiddenFieldsClaim != null) HiddenFields = HiddenFieldsClaim.Value.ToString().Split(",").ToList();
+            foreach (Item itm in res.Items)
+            {
+                foreach (string fieldToHide in HiddenFields)
+                {
+                    switch (fieldToHide)
+                    {
+                        case "Abstract": itm.Abstract = ""; break;
+                        case "ItemStatus": itm.ItemStatus = ""; break;
+                        // OldItemID field is read-only but does get RIS exported. Need a way to deal with this!
+                        // Prefix a non-intrusive indicator (¬) to itm.Availability to indicate it is hidden
+                        case "OldItemID": itm.Availability = "¬" + itm.Availability; break; 
+                        case "ParentAuthors": itm.ParentAuthors = ""; break;
+                        case "StandardNumber": itm.StandardNumber = ""; break;
+                        case "Pages": itm.Pages = ""; break;
+                        case "Volume": itm.Volume = ""; break;
+                        case "Issue": itm.Issue  = ""; break;
+                        case "URL": itm.URL = ""; break;
+                        case "DOI": itm.DOI = ""; break;
+                        case "Availability":
+                            if (itm.Availability != "¬") {
+                                // was OldItemID hidden? If not, clear itm.Availability
+                                itm.Availability = "";
+                            }
+                            break;
+                        case "Edition": itm.Edition = "";break;
+                        case "Publisher": itm.Publisher = ""; break;
+
+                        case "Month": itm.Month = "00"; break;
+                        case "City": itm.City = ""; break;
+                        case "Country": itm.Country = ""; break;
+                        case "Institution": itm.Institution = ""; break;
+                        case "Comments": itm.Comments = ""; break;
+                        case "Keywords": itm.Keywords = ""; break;
+                        case "DateCreated": itm.DateCreated = null; break;
+                        case "DateEdited": itm.DateEdited = null; break;
+                        //case "Source": itm.  = ""; break; // not part of 'itm'. Need to hide somewhere else (assuming we need to hide it at all)
+                        //case "Duplicates": itm.  = ""; break; // not part of 'itm'. Need to hide somewhere else (assuming we need to hide it at all)
+                        default: break;
+
+                    }
+                }
+            }
             return new ItemListWithCriteria { items = res, criteria = new WebDatabasesMVC.Controllers.SelCritMVC(crit) };
         }
 
