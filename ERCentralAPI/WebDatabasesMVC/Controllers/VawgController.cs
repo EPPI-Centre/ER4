@@ -6,23 +6,35 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using BusinessLibrary.BusinessClasses;
+using Csla;
 using EPPIDataServices.Helpers;
+using ERxWebClient2.Controllers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using WebDatabasesMVC;
-
-
+using WebDatabasesMVC.ViewModels;
 
 namespace WebDatabasesMVC.Controllers
 {
-    //[Route("Login")]
-    //[Route("Login/Login")]
-    public class LoginController : Microsoft.AspNetCore.Mvc.Controller
+    [Authorize(AuthenticationSchemes = "VawgAuthentication") ]
+    public class VawgController : CSLAController
     {
+
+        private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly IConfiguration Configuration;
+
+        public VawgController(ILogger<FairController> logger, IWebHostEnvironment hostEnvironment, IConfiguration configuration) : base(logger)
+        {
+            webHostEnvironment = hostEnvironment;
+            Configuration = configuration;
+        }
         private static string _HeaderImagesFolder;
         private string HeaderImagesFolder
         {
@@ -36,126 +48,64 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
-        private readonly IWebHostEnvironment webHostEnvironment;
-
-        private readonly ILogger _logger;
-
-        public LoginController(ILogger<LoginController> logger, IWebHostEnvironment hostEnvironment)
-        {
-            _logger = logger;
-            webHostEnvironment = hostEnvironment;
-        }
-
-
-        [HttpGet]
-        public IActionResult Index([FromQuery] int? Id, string? Username)
-        {
-            if (Id != null && Username != null)
-            {
-                ViewBag.Id = Id;
-                ViewBag.Username = Username;
-            }
-            else ViewBag.Id = null;
-            return View();
-        }
-        
-        public IActionResult Logout()
-        {
-            Signout();
-            return Redirect("~/Login/Index");
-        }
-        private async void Signout()
-        {
-            await HttpContext.SignOutAsync("FairAuthentication");
-            await HttpContext.SignOutAsync("CookieAuthentication");
-            await HttpContext.SignOutAsync("VawgAuthentication");
-            await HttpContext.SignOutAsync();
-        }
-
-        // POST: Login/Create
-        [HttpPost]
-        //[ValidateAntiForgeryToken]
-        public IActionResult DoLogin([FromForm] string username, [FromForm] string id, [FromForm] string password)
+        public IActionResult Index()
         {
             try
             {
-                if (int.TryParse(id, out int WebDbId))
+                if (SetCSLAUser())
                 {
-                    Signout();
-                    string SP = "st_WebDBgetOpenAccess";
-                    List<SqlParameter> pars = new List<SqlParameter>();
-                    pars.Add(new SqlParameter("@WebDBid", WebDbId));
-                    if (username != null && username != "" && password != null &&  password != "")
-                    {
-                        SP = "st_WebDBgetClosedAccess";
-                        pars.Add(new SqlParameter("@userName", username));
-                        pars.Add(new SqlParameter("@Password", password));
-                    }
+                    if (WebDbId < 1) return BadRequest();
+                    WebDbWithRevInfo res = ReviewIndexDataGet();
 
+                    if (res.WebDb == null || res.RevInfo == null || res.WebDb.WebDBId < 1 || res.RevInfo.ReviewId < 1) return BadRequest();
 
-
-                    using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.ER4DB, SP, pars.ToArray())) 
-                    {
-                        
-                        if (reader.Read()) {
-                            if (int.TryParse(reader["REVIEW_ID"].ToString(), out int Revid))
-                            {
-                                long AttId = -1;
-                                if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                //SetImages(WebDbId, reader);
-
-                                if (SP == "st_WebDBgetClosedAccess")
-                                {
-                                    SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader, true);
-                                    // log to TB_WEBDB_LOG
-                                    ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
-                                        , "Closed access"
-                                        , WebDbId, Revid);
-                                    return Redirect("~/Review/Index");
-                                }
-                                else
-                                {
-                                    SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
-                                    // log to TB_WEBDB_LOG
-                                    ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
-                                        , "Open access"
-                                        , WebDbId, Revid);
-                                    return Redirect("~/Review/Index/" + WebDbId.ToString());
-                                }
-                            } 
-                            else
-                            {
-                                //return BadRequest();
-                                return Redirect("~/Login/Logout");
-                            }
-                        }
-                        else
-                        {
-                            //return BadRequest("test");
-                            return Redirect("~/Login/Logout");
-                        }
-                        
-                    }
+                    return View(res);
                 }
-                //else return BadRequest();
-                else return Redirect("~/Login/Logout");
-
+                else return Unauthorized();
             }
             catch (Exception e)
             {
-
-                _logger.LogError(e, "logging on");
-                //Program.Logger.LogException(e, "logging on");
-                return Redirect("~/Login/Index");
+                _logger.LogError(e, "Error in FAIR Index");
+                return StatusCode(500, e.Message);
             }
         }
-        [HttpGet]
-        //[ValidateAntiForgeryToken]
-        public IActionResult Open([FromQuery] string WebDBid, string MapiD)
+        public IActionResult IndexJSON()
         {
             try
             {
-                if (int.TryParse(WebDBid, out int WebDbId))
+                if (SetCSLAUser())
+                {
+                    if (WebDbId < 1) return BadRequest();
+                    WebDbWithRevInfo res = ReviewIndexDataGet();
+
+                    if (res.WebDb == null || res.RevInfo == null || res.WebDb.WebDBId < 1 || res.RevInfo.ReviewId < 1) return BadRequest();
+
+                    return Json(res);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in FAIR Index");
+                return StatusCode(500, e.Message);
+            }
+        }
+        private WebDbWithRevInfo ReviewIndexDataGet()
+        {
+            WebDbWithRevInfo res = new WebDbWithRevInfo();
+            WebDB me = DataPortal.Fetch<WebDB>(new SingleCriteria<int>(WebDbId));
+            if (me == null || me.WebDBId != WebDbId) return res;
+            ReviewInfo rinfo = DataPortal.Fetch<ReviewInfo>();
+            res = new WebDbWithRevInfo() { WebDb = me, RevInfo = rinfo };
+            return res;
+        }
+
+        [AllowAnonymous]
+        public IActionResult Login([FromQuery] string? ReturnUrl)
+        {
+            try
+            {
+                int WebDbId = Configuration.GetValue<int>("AppSettings:VawgProjectId");
                 {
                     Signout();
                     string SP = "st_WebDBgetOpenAccess";
@@ -169,25 +119,18 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
                                 //SetImages(WebDbId, reader);
 
                                 // log to TB_WEBDB_LOG
                                 ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login", "Open access", WebDbId, Revid);
-                                if (MapiD != null)
+                                if (ReturnUrl != null && ReturnUrl != "" && !ReturnUrl.Contains("ListFromCrit"))
                                 {
-                                    if (int.TryParse(MapiD, out int MapID))
-                                    {
-                                        return Redirect("~/Frequencies/GetMapByQueryId?MapId=" + MapID);
-                                    }
-                                    else
-                                    {
-                                        return Redirect("~/Review/Index/" + WebDbId.ToString());
-                                    }
+                                    return Redirect(ReturnUrl);
                                 }
                                 else
                                 {
-                                    return Redirect("~/Review/Index/" + WebDbId.ToString());
+                                    return Redirect("~/Vawg");
                                 }
                             }
                             else
@@ -197,28 +140,23 @@ namespace WebDatabasesMVC.Controllers
                         }
                         else
                         {
-                            return Unauthorized();
+                            return BadRequest();
                         }
 
                     }
                 }
-                else return BadRequest();
-
             }
             catch (Exception e)
             {
 
-                _logger.LogError(e, "logging on");
+                _logger.LogError(e, "logging on FAIR");
                 //Program.Logger.LogException(e, "logging on");
-                return Redirect("~/Login/Index");
+                return Redirect("~/Fair");
             }
         }
 
-        Microsoft.AspNetCore.Mvc.ActionResult DoFail()
-        {
-            return Forbid();
-        }
-        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, string HiddenFields, SqlDataReader reader, bool isPasswordProtected = false)
+        
+        private async void SetUser(string Name, int WebDbID, int revId, long itemsCode, SqlDataReader reader)
         {
             var userClaims = new List<Claim>()
             {
@@ -226,14 +164,19 @@ namespace WebDatabasesMVC.Controllers
                 new Claim(ClaimTypes.Name, Name),
                 new Claim("reviewId", revId.ToString()),
                 new Claim("WebDbID", WebDbID.ToString()),
-                new Claim("HiddenFields", HiddenFields),
-                new Claim("IsPasswordProtected", isPasswordProtected.ToString()),
                 //new Claim("ItemsCode", itemsCode.ToString()) //we don't need to store this in the Cookie: the SPs for WebDBs should retrieve it from the DB
             };
-            var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");
+            var innerIdentity = new ClaimsIdentity(userClaims, "VawgAuthentication");
             var userPrincipal = new ClaimsPrincipal(new[] { innerIdentity });
             SetImages(WebDbID, reader, innerIdentity);
-            HttpContext.SignInAsync(userPrincipal);
+            await HttpContext.SignInAsync("VawgAuthentication", userPrincipal);
+        }
+        private async void Signout()
+        {
+            await HttpContext.SignOutAsync("FairAuthentication");
+            await HttpContext.SignOutAsync("CookieAuthentication");
+            await HttpContext.SignOutAsync("VawgAuthentication");
+            await HttpContext.SignOutAsync();
         }
         private void SetImages(int WebDbID, SqlDataReader reader, ClaimsIdentity innerIdentity)
         {
@@ -254,7 +197,7 @@ namespace WebDatabasesMVC.Controllers
                     {
                         byte[] image = (byte[])reader["HEADER_IMAGE_1"];
                         stream.Write(image, 0, image.Length);
-                        
+
                     }
                 }
             }
@@ -336,7 +279,7 @@ namespace WebDatabasesMVC.Controllers
                         stream.Write(image, 0, image.Length);
                     }
                 }
-                if (reader["HEADER_IMAGE_3_URL"] != DBNull.Value  )
+                if (reader["HEADER_IMAGE_3_URL"] != DBNull.Value)
                 {
                     string url = reader.GetString("HEADER_IMAGE_3_URL");
                     if (url != "" && (url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://")))

@@ -50,30 +50,6 @@
                 sessionStorage.fonts = true;
             }
         });
-
-        function GoToHome() {
-            //console.log(code);
-
-            let pars = {
-                filterAttributeId: 123
-                , description: 456
-                , onlyIncluded: 'True'
-                , listType: "WebDbWithThisCode"
-            };
-            var VisName = "DHSC";
-            postwith("../Review/ListFromCrit2", pars);
-            //postwith(pathRoot + "Review/ListFromCrit2", pars);
-        }
-
-
-
-
-
-        function GoToHome2() {
-            var VisName = "DHSC";
-            postwith("../Review/IndexWithName", VisName);
-        };
-
     </script>
 
     <!-- CSS Files -->
@@ -134,7 +110,7 @@
 
                     <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
                         <li>
-                            <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/IndexWithName?VisName=DHSC">Home</a>
+                            <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/vawg">Home</a>
                         </li>
                         <li>
                             <a class="btn btn-sm btn-info btn-round" asp-controller="Login" asp-action="Logout">Logout</a>

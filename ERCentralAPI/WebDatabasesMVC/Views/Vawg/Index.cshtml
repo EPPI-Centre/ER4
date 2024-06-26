@@ -181,10 +181,10 @@
         //costslider.enable(false);
     });
 
-    function GoToDHSCItemDetails(ItemId) {
+    function GoToVawgItemDetails(ItemId) {
 
         let pars = { itemID: ItemId, itemIds: attributeIdFilter };
-        postwith("../ItemList/DHSCItemDetails", pars);
+        postwith("../ItemList/VawgItemDetails", pars);
 
     };
 
@@ -954,7 +954,7 @@
                                 visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
                                 visualHTML += "<table width='100%'>";
                                 visualHTML += "<tr>";
-                                visualHTML += "<td width='40%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                visualHTML += "<td width='40%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                                 visualHTML += "<b>" + studyTitle + "</b>";
                                 visualHTML += "<br>";
                                 visualHTML += studyAbstract;
@@ -962,19 +962,19 @@
                                 visualHTML += "</td>";
 
 
-                                visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                                 visualHTML += "<h5><b>Cost</b></h5><br>"
                                 visualHTML += costIcon;
                                 //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[0].attributeId + ")";
                                 visualHTML += "</td>";
 
-                                visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                                 visualHTML += "<h5><b>Evidence quality</b></h5><br>"
                                 visualHTML += evidenceQualityIcon;
                                 //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[1].attributeId + ")";
                                 visualHTML += "</td>";
 
-                                visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                visualHTML += "<td width='20%' style='padding: 0px 0px 0px 5px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                                 visualHTML += "<h5><b>Review size</b></h5><br>"
                                 if (reviewSizeValue == "?") {
                                     visualHTML += "<b>Not rated</b>";
@@ -994,14 +994,14 @@
                                     visualHTML += "<div class='card-body' style='background-color: " + botColour + "'>";
                                     visualHTML += "<table width='100%'>";
                                     visualHTML += "<tr>";
-                                    visualHTML += "<td colspan='4' style='border-bottom: solid; border-width: 1px; padding: 0px 0px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                    visualHTML += "<td colspan='4' style='border-bottom: solid; border-width: 1px; padding: 0px 0px 0px 0px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                                     visualHTML += "Other outcomes";
                                     visualHTML += "</td>";
                                     visualHTML += "</tr>";
 
                                     if (outcomes1Value != "?") {
                                         visualHTML += "<tr>";
-                                        visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                        visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                                         if (outcomes1ImpactValue == "?") {
                                             visualHTML += "<b>Unknown</b> estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
                                         }
@@ -1021,7 +1021,7 @@
                                     }
                                     if (outcomes2Value != "?") {
                                         visualHTML += "<tr>";
-                                        visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                                        visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                                         visualHTML += "<b>" + outcomes2ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes2Value + "</b>";
                                         visualHTML += "</td>";
                                         visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; text-align: right;'>";
@@ -1031,7 +1031,7 @@
                                     }
                                     if (outcomes3Value != "?") {
                                         visualHTML += "<tr>";
-                                        visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToDHSCItemDetails(" + itemId + ")''>";
+                                        visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToVawgItemDetails(" + itemId + ")''>";
                                         visualHTML += "<b>" + outcomes3ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes3Value + "</b>";
                                         visualHTML += "</td>";
                                         visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; text-align: right;'>";
@@ -1079,7 +1079,7 @@
                     visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
                     visualHTML += "<table width='100%'>";
                     visualHTML += "<tr>";
-                    visualHTML += "<td width='40%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                    visualHTML += "<td width='40%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                     visualHTML += "<b>" + studyTitle + "</b>";
                     visualHTML += "<br>";
                     visualHTML += studyAbstract;
@@ -1087,13 +1087,13 @@
                     visualHTML += "</td>";
 
 
-                    visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                    visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                     visualHTML += "<h5><b>Cost</b></h5><br>"
                     visualHTML += costIcon;
                     //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[0].attributeId + ")";
                     visualHTML += "</td>";
 
-                    visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                    visualHTML += "<td width='20%' style='border-right: solid; border-width: 1px; padding: 0px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                     visualHTML += "<h5><b>Evidence quality</b></h5><br>"
                     visualHTML += evidenceQualityIcon;
                     //visualHTML += "<br>(attributeId: " + codingData.itemSetList[0].itemAttributesList[1].attributeId + ")";
@@ -1118,14 +1118,14 @@
                         visualHTML += "<div class='card-body' style='background-color: " + botColour + "'>";
                         visualHTML += "<table width='100%'>";
                         visualHTML += "<tr>";
-                        visualHTML += "<td colspan='4' style='border-bottom: solid; border-width: 1px; padding: 0px 0px 0px 0px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                        visualHTML += "<td colspan='4' style='border-bottom: solid; border-width: 1px; padding: 0px 0px 0px 0px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                         visualHTML += "Other outcomes";
                         visualHTML += "</td>";
                         visualHTML += "</tr>";
 
                         if (outcomes1Value != "?") {
                             visualHTML += "<tr>";
-                            visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                            visualHTML += "<td colspan='3' style='padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                             if (outcomes1ImpactValue == "?") {
                                 visualHTML += "<b>Unknown</b> estimated impact on / reduction in " + "<b>" + outcomes1Value + "</b>";
                             }
@@ -1145,7 +1145,7 @@
                         }
                         if (outcomes2Value != "?") {
                             visualHTML += "<tr>";
-                            visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToDHSCItemDetails(" + itemId + ")'>";
+                            visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer;' onclick='javascript:GoToVawgItemDetails(" + itemId + ")'>";
                             visualHTML += "<b>" + outcomes2ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes2Value + "</b>";
                             visualHTML += "</td>";
                             visualHTML += "<td colspan='1'style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; text-align: right;'>";
@@ -1155,7 +1155,7 @@
                         }
                         if (outcomes3Value != "?") {
                             visualHTML += "<tr>";
-                            visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToDHSCItemDetails(" + itemId + ")''>";
+                            visualHTML += "<td colspan='3' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; cursor: pointer; onclick='javascript:GoToVawgItemDetails(" + itemId + ")''>";
                             visualHTML += "<b>" + outcomes3ImpactValue + "</b>" + " estimated impact on / reduction in " + "<b>" + outcomes3Value + "</b>";
                             visualHTML += "</td>";
                             visualHTML += "<td colspan='1' style='border-top: dotted; border-width: 1px; padding: 10px 5px 5px 5px; text-align: right;'>";
@@ -1194,7 +1194,7 @@
 </script>
 
 @{
-    Layout = "~/Views/Shared/_DHSCLayout.cshtml";
+    Layout = "~/Views/Shared/_VawgLayout.cshtml";
 }
 
 
@@ -1266,7 +1266,7 @@
                                         <h3 class="text-body pb-2"><b>Filter by:</b></h3>
                                     </td>
                                     <td style="width: 50%; vertical-align:top; text-align:right; border-bottom: solid; border-color: black;  border-width: 1px; padding: 13px 10px 5px 10px;">
-                                        <a class="btn btn-primary btn-sm btn-border" href="~/Review/IndexWithName?VisName=DHSC">Clear all</a>
+                                        <a class="btn btn-primary btn-sm btn-border" href="~/Vawg">Clear all</a>
                                     </td>
                                 </tr>
                             </table>

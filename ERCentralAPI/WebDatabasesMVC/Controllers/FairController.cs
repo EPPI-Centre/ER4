@@ -286,6 +286,8 @@ namespace WebDatabasesMVC.Controllers
         private async void Signout()
         {
             await HttpContext.SignOutAsync("FairAuthentication");
+            await HttpContext.SignOutAsync("CookieAuthentication");
+            await HttpContext.SignOutAsync("VawgAuthentication");
             await HttpContext.SignOutAsync();
         }
         private void SetImages(int WebDbID, SqlDataReader reader, ClaimsIdentity innerIdentity)
