@@ -186,9 +186,8 @@ namespace ERxWebClient2.Controllers
                     {
                         case "Abstract": itm.Abstract = ""; break;
                         case "ItemStatus": itm.ItemStatus = ""; break;
-                        // OldItemID field is read-only but does get RIS exported. Need a way to deal with this!
-                        // Prefix a non-intrusive indicator (¬) to itm.Availability to indicate it is hidden
-                        case "OldItemID": itm.Availability = "¬" + itm.Availability; break; 
+                        // OldItemID field is read-only but does get RIS exported. So we added DeleteOldItemId() to the Item class, where we can bypass Readonly restrictions
+                        case "OldItemID": itm.DeleteOldItemId(); break; 
                         case "ParentAuthors": itm.ParentAuthors = ""; break;
                         case "StandardNumber": itm.StandardNumber = ""; break;
                         case "Pages": itm.Pages = ""; break;

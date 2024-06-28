@@ -1721,11 +1721,17 @@ namespace BusinessLibrary.BusinessClasses
                 else return false;
             }
         }
+        // *********************** END TOSHORTSEARCHTEXT **********************
+
+        public void DeleteOldItemId()
+        {
+            LoadProperty<string>(OldItemIdProperty, "");
+        }
 #endif
 
     }
-	
-	public interface IItem 
+
+    public interface IItem 
 	{
         Item Save();
         void ApplyEditToItem();

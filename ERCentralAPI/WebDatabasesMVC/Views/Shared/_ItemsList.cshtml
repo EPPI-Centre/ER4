@@ -372,11 +372,6 @@
 
         ];
 
-        if (it.availability.startsWith("¬")) {
-            // we want to hide oldItemId
-            it.oldItemId = "";
-            it.availability = it.availability.substring(1);
-        }
 
 
         const newLine = '\r\n';
@@ -436,7 +431,7 @@
 
         //console.log("Item to ris, got here!", it);
         res +=
-            'KW  - eppi-reviewer' +
+            'KW  - EPPI Reviewer' +
             newLine +
             (it.keywords && it.keywords.length > 2
                 ? it.keywords.trim() + newLine
@@ -511,7 +506,6 @@
             newLine;
         if (it.url.length > 0) res += 'UR  - ' + it.url + newLine;
         if (it.availability.length > 0) {
-            if (it.availability == "¬")
             res += 'AV  - ' + it.availability + newLine;
         }
         if (it.publisher.length > 0) res += 'PB  - ' + it.publisher + newLine;
