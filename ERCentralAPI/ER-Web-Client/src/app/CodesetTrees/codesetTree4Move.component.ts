@@ -70,7 +70,7 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
       if (!data.CanMoveBranchInHere) {
         console.log("Current node can't accept branch to be moved...");
       }
-      this.SelectedCodeDescription = data.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+      this.SelectedCodeDescription = data.description;
     }
   }
   public get CanMoveBranchHere(): boolean {

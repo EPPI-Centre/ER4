@@ -37,8 +37,25 @@
                     </kendo-toolbar>
                 </div>
             </div>
-			<div *ngIf="CurrentNode">
-				&nbsp;&nbsp;&nbsp; Current code (or set) Name: <strong>{{CurrentNode.name}}</strong><br />
+			<div *ngIf="CurrentNode" class="ml-2">
+        <div class="row mx-0 px-0">
+          <div class="mr-1 px-0">Current code (or set) Name:</div>
+          <div class="col-auto px-0 font-weight-bold">{{CurrentNode.name}}</div>
+        </div>
+        <div *ngIf="ActivityPanelName == ''">
+          <div class="row mx-0 px-0">
+            <div class="mr-1 my-auto col-auto px-0">Description: </div>
+            <div *ngIf="CurrentNode.description != ''" class="col-auto alert-info px-2 py-0 rounded" style="white-space:pre-line;">
+              {{CurrentNode.description}}
+            </div>
+          </div>
+          <div *ngIf="CurrentNode.nodeType == 'ReviewSet'" class="row mx-0 px-0">
+            <div class="mr-1">Coding tool type: <strong>{{CurrentNode.subTypeName}}</strong></div>
+          </div>
+          <div *ngIf="CurrentNode.nodeType == 'SetAttribute'" class="row mx-0 px-0">
+            <div class="mr-1">Code type: <strong>{{CurrentNode.subTypeName}}</strong></div>
+          </div>
+        </div>
 			</div>
             <div *ngIf="ActivityPanelName == 'AddCodeSet'" class="container card card-body bg-light">
                 <form class="row" #NewCodesetFrom="ngForm" (ngSubmit)="onSubmit()">

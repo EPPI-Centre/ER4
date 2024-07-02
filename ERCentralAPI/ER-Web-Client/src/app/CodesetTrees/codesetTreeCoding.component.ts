@@ -228,7 +228,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     if (node) {
       this.ReviewSetsService.selectedNode = node;
       this.SelectedNodeData = node;
-      this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+      this.SelectedCodeDescription = node.description;
       this.FetchPDFHighlights();
     }
   }

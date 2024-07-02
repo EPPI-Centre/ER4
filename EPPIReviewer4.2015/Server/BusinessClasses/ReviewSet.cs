@@ -700,6 +700,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
                     LoadProperty(ReviewSetIdProperty, command.Parameters["@NEW_REVIEW_SET_ID"].Value);
                     LoadProperty(SetIdProperty, command.Parameters["@NEW_SET_ID"].Value);
+                    LoadProperty(UserCanEditProperty, ReadProperty(AllowCodingEditsProperty));
                 }
                 connection.Close();
             }
