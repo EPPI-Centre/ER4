@@ -186,7 +186,6 @@ namespace ERxWebClient2.Controllers
                     {
                         case "Abstract": itm.Abstract = ""; break;
                         case "ItemStatus": itm.ItemStatus = ""; break;
-                        // OldItemID field is read-only but does get RIS exported. So we added DeleteOldItemId() to the Item class, where we can bypass Readonly restrictions
                         case "OldItemID": itm.DeleteOldItemId(); break; 
                         case "ParentAuthors": itm.ParentAuthors = ""; break;
                         case "StandardNumber": itm.StandardNumber = ""; break;
@@ -195,15 +194,9 @@ namespace ERxWebClient2.Controllers
                         case "Issue": itm.Issue  = ""; break;
                         case "URL": itm.URL = ""; break;
                         case "DOI": itm.DOI = ""; break;
-                        case "Availability":
-                            if (itm.Availability != "¬") {
-                                // was OldItemID hidden? If not, clear itm.Availability
-                                itm.Availability = "";
-                            }
-                            break;
+                        case "Availability": itm.Availability = ""; break;
                         case "Edition": itm.Edition = "";break;
                         case "Publisher": itm.Publisher = ""; break;
-
                         case "Month": itm.Month = "00"; break;
                         case "City": itm.City = ""; break;
                         case "Country": itm.Country = ""; break;
