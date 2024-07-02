@@ -184,7 +184,7 @@
     function GoToVawgItemDetails(ItemId) {
 
         let pars = { itemID: ItemId, itemIds: attributeIdFilter };
-        postwith("../ItemList/VawgItemDetails", pars);
+        postwith(pathRoot + "ItemList/VawgItemDetails", pars);
 
     };
 
@@ -617,7 +617,7 @@
         console.log("webDbData", ListData);
         attributeIdFilter = ListData.webDb.attributeIdFilter;
 
-        $.post("../ItemList/GetFreqListJSon"
+        $.post(pathRoot + "ItemList/GetFreqListJSon"
             , { attId: attributeIdFilter, attName: 'test' }
             , function (data, result) { itemData(data, result); }
         );      
@@ -631,7 +631,7 @@
 
 
             for (var i = 0; i < documentData.items.totalItemCount; i++) {
-                await $.post("../Coding/FetchItemCodingJSON"
+                await $.post(pathRoot + "Coding/FetchItemCodingJSON"
                     , { ItemId: documentData.items.items[i].itemId }
                     , function (data, result) {                      
                         buildArrayOfCodingData(data, result, i);
