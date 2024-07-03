@@ -220,11 +220,16 @@
         //itemData(documentData, "success");
         updateByFilter();
 
+
+        // move the sliders back to the starting positions
         var costSlider = $("#costSlider").getKendoRangeSlider();
         costSlider.value([costMin, costMax]);
         var evidenceSlider = $("#evidenceSlider").getKendoRangeSlider();
         evidenceSlider.value([evidenceMin, evidenceMax]);
 
+        // uncheck all of the check boxes.
+        uncheckAllCheckboxes();
+        
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
         //    , function (data, result) { itemData(data, result); }
@@ -232,6 +237,41 @@
 
 
     }
+
+
+    function uncheckAllCheckboxes() {
+        var element = document.getElementById("cbInterventionsForVictims");
+        element.checked = false;
+        element = document.getElementById("cbForBroaderImpactsOfViolence");
+        element.checked = false;
+        element = document.getElementById("cbInterventionsForPerpetrators");
+        element.checked = false;
+        element = document.getElementById("cbOrganisationalInterventions");
+        element.checked = false;
+        element = document.getElementById("cbMentalHealth");
+        element.checked = false;
+        element = document.getElementById("cbViolence");
+        element.checked = false;
+        element = document.getElementById("cdKnowledgeAttidutes");
+        element.checked = false;
+        element = document.getElementById("cdIdentificationOfViolence");
+        element.checked = false;
+        element = document.getElementById("cbChildBehaviour");
+        element.checked = false;
+        element = document.getElementById("cbHealthServiceUtilisation");
+        element.checked = false;
+        element = document.getElementById("cbIPV");
+        element.checked = false;
+        element = document.getElementById("cbCSA");
+        element.checked = false;
+        element = document.getElementById("cbSV");
+        element.checked = false;
+        element = document.getElementById("cbHT");
+        element.checked = false;        
+    }
+
+
+
 
     function changeColour(value) {
         var element = document.getElementById("headerDiv");
