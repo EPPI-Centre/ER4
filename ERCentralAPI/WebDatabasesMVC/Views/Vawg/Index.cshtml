@@ -220,6 +220,11 @@
         //itemData(documentData, "success");
         updateByFilter();
 
+        var costSlider = $("#costSlider").getKendoRangeSlider();
+        costSlider.value([costMin, costMax]);
+        var evidenceSlider = $("#evidenceSlider").getKendoRangeSlider();
+        evidenceSlider.value([evidenceMin, evidenceMax]);
+
         //$.post("../ItemList/GetFreqListJSon"
         //    , { attId: attributeIdFilter, attName: 'test' }
         //    , function (data, result) { itemData(data, result); }
