@@ -13,14 +13,15 @@
             </div>
         </div>
         <div class="form-group col-12">
-            <label for="source_NameCollaborate">Code Name*</label>
-            <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
-                   [(ngModel)]="NewCode.attribute_name" name="attribute_name"
-                   #name="ngModel">
-            <span [hidden]="IsNewCodeNameValid()"
-                  class="alert alert-danger small p-1">
-                Name is required
-            </span>
+          <label for="source_NameCollaborate">Code Name*</label>
+          <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
+                 [(ngModel)]="NewCode.attribute_name" name="attribute_name"
+                 #name="ngModel">
+          <span *ngIf="!IsNewCodeNameValid() && NewCodeFromCollaborate.dirty"
+                class="alert alert-danger small p-1">
+            Name is required
+          </span>
+          {{IsNewCodeNameValid()}} {{NewCodeFromCollaborate.dirty == true}}
         </div>
         <div class="form-group col-12 mt-2">
             <label for="newSetDescriptionCollaborate">Description (optional)</label>
@@ -59,7 +60,7 @@
         <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
                [(ngModel)]="NewCode.attribute_name" name="attribute_name"
                #name="ngModel">
-        <span [hidden]="IsNewCodeNameValid()"
+        <span *ngIf="!IsNewCodeNameValid() && NewCodeFromCollaborate.dirty"
               class="alert alert-danger small p-1">
             Name is required
         </span>

@@ -40,7 +40,8 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     else this._reviewSetsService.LastSelectedCodeTypeId = typeId;
   }
   IsNewCodeNameValid() {
-    return true;
+    if (this._NewCode.attribute_name.trim() != "") return true;
+    else return false;
     //if (this.PanelName == 'NewCodeSection') {
     //	if (this._NewCode.attribute_name.trim() != "") return true;
     //	else return false;
