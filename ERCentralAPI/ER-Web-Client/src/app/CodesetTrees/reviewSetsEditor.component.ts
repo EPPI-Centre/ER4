@@ -394,7 +394,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         if (IsSet) Id = (this.ReviewSetsService.selectedNode as ReviewSet).set_id;
         else Id = (this.ReviewSetsService.selectedNode as SetAttribute).attribute_id;
         this.ReviewSetsService.selectedNode = null;
-        await this.ReviewSetsService.GetReviewSets(false)
+        await this.ReviewSetsService.GetReviewSets(false);
         console.log("trying to reselect: ", Id);
         if (IsSet) this.ReviewSetsService.selectedNode = this.ReviewSetsService.FindSetById(Id);
         else this.ReviewSetsService.selectedNode = this.ReviewSetsService.FindAttributeById(Id);

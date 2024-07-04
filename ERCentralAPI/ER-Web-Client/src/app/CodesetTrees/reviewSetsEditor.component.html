@@ -38,7 +38,7 @@
           </div>
         </div>
 
-        <div *ngIf="CurrentNode" class="ml-2">
+        <div *ngIf="CurrentNode && ActivityPanelName != 'AddCodeSet'" class="ml-2">
           <div class="row mx-0 px-0">
             <div class="mr-1 px-0">Current code (or set) Name:</div>
             <div class="col-auto px-0 font-weight-bold">{{CurrentNode.name}}</div>
