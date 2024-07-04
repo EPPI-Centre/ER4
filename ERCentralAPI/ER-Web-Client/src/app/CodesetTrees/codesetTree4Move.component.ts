@@ -33,10 +33,7 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   ngAfterViewInit() {
-    if (!this.treeComponent) console.log("viewchild didn't work...");
-    if (this.treeComponent && this.nodes && this.nodes.length > 0) {
-       this.treeComponent.expandNode(this.nodes[0], '0');// setExpandedNode(node, true);
-    }
+    
   }
 
   //@ViewChild("treeview", { static: true })
@@ -55,6 +52,12 @@ export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {
       const res: singleNode4move[] = [];
       res.push(new ReviewSet4Move(this.SelectedCodeset, this.SelectedNode));
       this._SelectedCodeset4move = res;
+      setTimeout(() => {
+        if (!this.treeComponent) console.log("viewchild didn't work...");
+        if (this.treeComponent && this.nodes && this.nodes.length > 0) {
+          this.treeComponent.expandNode(this.nodes[0], '0');// setExpandedNode(node, true);
+        }
+      }, 90);
     }
     return this._SelectedCodeset4move;
   }

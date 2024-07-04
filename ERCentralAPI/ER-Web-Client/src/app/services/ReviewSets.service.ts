@@ -135,24 +135,29 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     }
     return false;
   }
-  GetReviewSets(refreshStats: boolean = true): ReviewSet[] {
+  GetReviewSets(refreshStats: boolean = true): Promise<boolean> {
     //console.log("GetReviewSets");
     this._BusyMethods.push("GetReviewSets");
-    this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
+    return lastValueFrom(this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview')).then(
       data => {
+        this.RemoveBusy("GetReviewSets");
         this.ReviewSets = ReviewSetsService.digestJSONarray(data);
         //this._IsBusy = false;
         if (refreshStats) this.GetReviewStatsEmit.emit();
+        return true;
       },
       error => {
+        this.RemoveBusy("GetReviewSets");
         console.log("Error in GetReviewSets:", error);
         this.modalService.SendBackHomeWithError(error);
         this.Clear();
-        this.RemoveBusy("GetReviewSets");
-      },
-      () => { this.RemoveBusy("GetReviewSets"); }
+        return false;
+      }).catch(
+        () => {
+          this.RemoveBusy("GetReviewSets");
+          return false;
+        }
     );
-    return this.ReviewSets;
   }
 
   subOpeningReview: Subscription | null = null;

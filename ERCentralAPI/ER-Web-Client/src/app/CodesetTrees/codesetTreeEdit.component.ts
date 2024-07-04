@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Input, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, Input, OnDestroy, ViewChild, AfterViewInit, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -36,6 +36,7 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewIni
   }
   @Input() CanChangeSelectedCode: boolean = true;
   @Input() CanWriteAndServicesIdle: boolean = false;
+  @Output() PleaseShowTheMoveCodePanel = new EventEmitter();
   faCaretDown = faCaretDown;
   faCaretUp = faCaretUp;
   faAngleDoubleDown = faAngleDoubleDown;
@@ -180,32 +181,8 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewIni
     //}
   }
 
-  private _ActivityPanelNameFromCodesetTreeEdit: string = "";
-  public get ActivityPanelName() {
-    return this._ActivityPanelNameFromCodesetTreeEdit;
-  }
-  public ChangeActivityPanelName() {
-    this._ActivityPanelNameFromCodesetTreeEdit = "";
-  }
-
   MoveCode(node: singleNode) {
-    this.ReviewSetsService.selectedNode = node;
-    this._ActivityPanelNameFromCodesetTreeEdit = 'EditCode';
-
-    //this.ReviewSets.
-    // this is on editcode.component. how do I call it?
-    //this.treeEditorComponent
-    //this.EditCodeComp.ShowPanel = 'MoveCode';
-    //this.EditCodeComp.ErrorMessage4CodeMove = '';
-
-
-
-
-
-
-    //await this.ReviewSetsEditingService.MoveCode(node);
-    //and notify the tree:
-    //this.RefreshLocalTree();
+    this.PleaseShowTheMoveCodePanel.emit();
   }
 
   NodeSelected(event: TreeItem) {
