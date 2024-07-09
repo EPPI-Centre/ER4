@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EPPIDataServices.Helpers;
 using Newtonsoft.Json;
+using Microsoft.Azure.Management.ResourceManager.Models;
 
 namespace ERxWebClient2.Controllers
 {
@@ -84,18 +85,18 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    TrainingRunCommand command = new TrainingRunCommand();
+                    TrainingRunCommandV2 command = new TrainingRunCommandV2();
                     ReviewInfo revInfo = DataPortal.Fetch<ReviewInfo>();
                     command.RevInfo = revInfo;
                     command.TriggeringItemId = crit.Value;
-                    DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
+                    DataPortal<TrainingRunCommandV2> dp = new DataPortal<TrainingRunCommandV2>();
                     //Task<TrainingRunCommand> doIt = new Task<TrainingRunCommand>(() => dp.Execute(command), );
                     //doIt.Start();
-                    TrainingRunCommand result = dp.Execute(command);
-                    System.Threading.Thread.Sleep(15*1000);
-                    ReviewInfo rInfo = DataPortal.Fetch<ReviewInfo>();
-                    result.RevInfo = rInfo;
-                    //return Ok(result);
+                    TrainingRunCommandV2 result = dp.Execute(command);
+                    if (result.ReportBack == "Starting...")
+                    {
+                        result.RevInfo.ScreeningModelRunning = true;
+                    }
                     return Ok(result);
                 }
                 else return Forbid();
