@@ -144,7 +144,7 @@ namespace BusinessLibrary.BusinessClasses
             string resourceGroup = AzureSettings.resourceGroup;
             string dataFactoryName = AzureSettings.dataFactoryName;
 
-            UpdateReviewJobLog(ReviewJobId, ReviewId, "Starting DF", "ReviewJobId: " + ReviewJobId.ToString());
+            UpdateReviewJobLog(ReviewJobId, ReviewId, "Starting DF", "");
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
@@ -164,7 +164,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (AppIsShuttingDown)
                 {
-                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, false);
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, true, false);
                     return false;
                 }
 
@@ -187,14 +187,20 @@ namespace BusinessLibrary.BusinessClasses
                 }
 
                 Thread.Sleep(5 * 1000);
+                if (AppIsShuttingDown)//checking again, because we just paused 5s or more!
+                {
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, true, false);
+                    return false;
+                }
                 try
                 {
                     PipelineRun pr = client.PipelineRuns.Get(resourceGroup, dataFactoryName, runResponse.RunId); //Microsoft.Rest.Azure.CloudException if token has expired
                     if (pr != null)
                     {
+                        runStatus = pr.Status;
                         if (DateTime.Now > NextLogUpdateTime)
                         {
-                            runStatus = pr.Status;
+                            
                             UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + runResponse.RunId);
                             NextLogUpdateTime = DateTime.Now.AddMinutes(1);//keep updating the log every 1 minute
                         }
@@ -202,7 +208,7 @@ namespace BusinessLibrary.BusinessClasses
                     else
                     {
                         UpdateReviewJobLog(ReviewJobId, ReviewId, "Error getting DF client", "DF RunId: " + runResponse.RunId
-                            + Environment.NewLine + "Pipeline: " + pipelineName);
+                            + Environment.NewLine + "Pipeline: " + pipelineName, true, false);
                         return false;
                     }
                 }
@@ -211,16 +217,38 @@ namespace BusinessLibrary.BusinessClasses
                     if (e != null)
                     {
                         errorCount++;
-                        UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
-                            + Environment.NewLine + "Pipeline: " + pipelineName, errorCount <= 100 ? true : false);
+                        bool ShouldGiveUp = (errorCount >= 100);
+                        if (ShouldGiveUp)
+                        {
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
+                                + Environment.NewLine + "Pipeline: " + pipelineName, true, false);
+                        }
+                        else
+                        {
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
+                                + Environment.NewLine + "Pipeline: " + pipelineName);
+                        }
                         LogExceptionToFile(e, ReviewId, ReviewJobId);
-                        if (errorCount > 99) return false;
+                        if (ShouldGiveUp) return false;
                     }
                 }
             }
             return true;
         }
-        public static void UpdateReviewJobLog(int LogId, int ReviewID, string Status, string Message, bool Success = true)
+
+        /// <summary>
+        /// Updates a record in tb_REVIEW_JOB.
+        /// </summary>
+        /// <param name="LogId">The ID in tb_REVIEW_JOB</param>
+        /// <param name="ReviewID"></param>
+        /// <param name="Status">String describing where execution is</param>
+        /// <param name="Message">After returning the DataFactory part, please leave empty, so to not overwrite the DF RunId, which may be needed if something went wrong </param>
+        /// <param name="SetSuccess">False by default, to avoid setting the "SUCCESS" field (below) to "not null", before the task is finished... 
+        /// We want to set this field to TRUE OR FALSE only when we know which one it is. 
+        /// We detect "currently running" tasks by looking for NULL in this field.
+        /// </param>
+        /// <param name="SuccessValue">In the table, this value should be NULL if we're not finished. TRUE if we finished and it worked, FALSE if it failed/got interrupted</param>
+        public static void UpdateReviewJobLog(int LogId, int ReviewID, string Status, string Message, bool SetSuccess = false, bool SuccessValue = true)
         {
             if (LogId > 0)
             {
@@ -236,7 +264,8 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@REVIEW_JOB_ID", LogId));
                             command.Parameters.Add(new SqlParameter("@CurrentState", Status));
                             command.Parameters.Add(new SqlParameter("@JobMessage", Message));
-                            command.Parameters.Add(new SqlParameter("@Success", Success));
+                            if (SetSuccess) command.Parameters.Add(new SqlParameter("@Success", SuccessValue));
+                            else command.Parameters.Add(new SqlParameter("@Success", System.DBNull.Value));
                             command.ExecuteNonQuery();
                         }
                     }
@@ -247,7 +276,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-        private static void LogExceptionToFile(Exception ex, int ReviewID, int LogId)
+        public static void LogExceptionToFile(Exception ex, int ReviewID, int LogId)
         {
 #if CSLA_NETCORE
             if (Program.Logger != null && (Program.Logger as ILogger) != null)

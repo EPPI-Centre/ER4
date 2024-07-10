@@ -171,7 +171,6 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add("@revID", System.Data.SqlDbType.Int);
                     command.Parameters["@revID"].Value = ReviewID;
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@LogNewJob", true));
                     command.Parameters.Add(new SqlParameter("@NewJobId", System.Data.SqlDbType.Int));
                     command.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NewTrainingId", System.Data.SqlDbType.Int));
@@ -180,22 +179,22 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters["@RETURN_VALUE"].Direction = System.Data.ParameterDirection.ReturnValue;
                     command.ExecuteNonQuery();
                     string retVal = command.Parameters["@RETURN_VALUE"].Value.ToString();
-                    if (retVal == "-2")
+                    if (retVal == "-1")
                     {
                         this.ReportBack = "Already Running";
                     }
-                    else if (retVal == "1" || retVal == "-3")
+                    else if (retVal == "1" )
                     {//either all good, or prev. attempt failed and we try again
                         ReportBack = "Starting...";
                         NewJobId = (int)command.Parameters["@NewJobId"].Value;
                         _currentTrainingId = (int)command.Parameters["@NewTrainingId"].Value; 
-                        System.Threading.Tasks.Task.Run(() => DoBuildAndScore(ReviewID, ri.UserId, NewJobId));
+                        Task.Run(() => DoBuildAndScore(ReviewID, ri.UserId, NewJobId));
                     }
-                    else if (command.Parameters["@RETURN_VALUE"].Value.ToString() == "-4")
-                    {//we'll see if this happens frequently: 10 attempts in a row failed!
-                        throw new DataPortalException("Multiple previous PS training attempts failed!" + Environment.NewLine
+                    else //we assume this will never happen, SP must have returned -4!
+                    {
+                        throw new DataPortalException("Unable to check if Training is running!" + Environment.NewLine
                             + "This indicates there is a problem with this review." + Environment.NewLine
-                            + "Please contact EPPI-Reviewer Support Staff.", this);
+                            + "Please contact EPPI Reviewer Support.", this);
                     }
                 }
             }
@@ -296,102 +295,104 @@ namespace BusinessLibrary.BusinessClasses
             var res = DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId);
 
             File.Delete(LocalFileName);
-
-            MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile);
-
-            DataTable dt = new DataTable("Scores");
-            dt.Columns.Add("SCORE");
-            dt.Columns.Add("ITEM_ID");
-            dt.Columns.Add("REVIEW_ID");
-
-            using (StreamReader tsvReader = new StreamReader(ms))
+            if (res == true)
             {
-                //csvReader.SetDelimiters(new string[] { "," });
-                //csvReader.HasFieldsEnclosedInQuotes = false;
-                string line;
-                var throwaway = tsvReader.ReadLine();//headers line!!
-                while ((line = tsvReader.ReadLine()) != null)
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Downloading Results", "");
+                try
                 {
-                    string[] data = line.Split('\t');
-                    if (data.Length == 3 && data[0].Length > 0 && data[2].Length > 0)
-                    {
-                        if (data[2] == "1")
-                        {
-                            data[2] = "0.999999";
-                        }
-                        else if (data[2] == "0")
-                        {
-                            data[2] = "0.000001";
-                        }
-                        else if (data[2].Length > 2 && data[2].Contains("E"))
-                        {
-                            double dbl = 0;
-                            double.TryParse(data[2], out dbl);
-                            //if (dbl == 0.0) throw new Exception("Gotcha!");
-                            data[2] = dbl.ToString("F10");
-                        }
-                        dt.Rows.Add(data[2], data[0], ReviewId);
-                    }
-                }
-            }
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
-                {
-                    sbc.DestinationTableName = "TB_SCREENING_ML_TEMP";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("SCORE", "SCORE");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
-                    sbc.BatchSize = 1000;
-                    sbc.WriteToServer(dt);
-                }
-                using (SqlCommand command = new SqlCommand("st_ScreeningCreateMLList", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", UserId));
-                    command.Parameters.Add(new SqlParameter("@WHAT_ATTRIBUTE_ID", RevInfo.ScreeningWhatAttributeId));
-                    command.Parameters.Add(new SqlParameter("@SCREENING_MODE", RevInfo.ScreeningMode));
-                    command.Parameters.Add(new SqlParameter("@CODE_SET_ID", RevInfo.ScreeningCodeSetId));
-                    command.Parameters.Add(new SqlParameter("@TRAINING_ID", _currentTrainingId));
-                    command.CommandTimeout = 145;
-                    if (dt.Rows.Count > 30000)
-                    {//adjust timeout for large reviews: we don't care if this is slow, as it's a costly operation anyway.
-                        int adjuster = dt.Rows.Count - 29999;
-                        command.CommandTimeout = command.CommandTimeout + (int)Math.Round(((double)adjuster / 1000));
-                    }
-#if !CSLA_NETCORE
-                    command.ExecuteNonQuery();
-#else
-                    //IN MVC project, this runs Asynchronously, thus outside the original try block. Might crash the whole server-side if not caught...
-                    try
-                    {
-                        command.ExecuteNonQuery();
+                    MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile);
 
-                        //code used to trigger an excemption almost always, used to test if logging from a CSLA object can work...
-                        //naturally this code should never be active in production!!
-                        //Random r = new Random();
-                        //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
-                    }
-                    catch (Exception e)
+                    DataTable dt = new DataTable("Scores");
+                    dt.Columns.Add("SCORE");
+                    dt.Columns.Add("ITEM_ID");
+                    dt.Columns.Add("REVIEW_ID");
+
+                    using (StreamReader tsvReader = new StreamReader(ms))
                     {
-                        if (Program.Logger != null) Program.Logger.Error(e, "List creation in TrainingRunCommand failed", command.Parameters);
+                        //csvReader.SetDelimiters(new string[] { "," });
+                        //csvReader.HasFieldsEnclosedInQuotes = false;
+                        string line;
+                        var throwaway = tsvReader.ReadLine();//headers line!!
+                        while ((line = tsvReader.ReadLine()) != null)
+                        {
+                            string[] data = line.Split('\t');
+                            if (data.Length == 3 && data[0].Length > 0 && data[2].Length > 0)
+                            {
+                                if (data[2] == "1")
+                                {
+                                    data[2] = "0.999999";
+                                }
+                                else if (data[2] == "0")
+                                {
+                                    data[2] = "0.000001";
+                                }
+                                else if (data[2].Length > 2 && data[2].Contains("E"))
+                                {
+                                    double dbl = 0;
+                                    double.TryParse(data[2], out dbl);
+                                    //if (dbl == 0.0) throw new Exception("Gotcha!");
+                                    data[2] = dbl.ToString("F10");
+                                }
+                                dt.Rows.Add(data[2], data[0], ReviewId);
+                            }
+                        }
                     }
-#endif
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Saving Results", "");
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                        {
+                            sbc.DestinationTableName = "TB_SCREENING_ML_TEMP";
+                            sbc.ColumnMappings.Clear();
+                            sbc.ColumnMappings.Add("SCORE", "SCORE");
+                            sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
+                            sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
+                            sbc.BatchSize = 1000;
+                            sbc.WriteToServer(dt);
+                        }
+                        using (SqlCommand command = new SqlCommand("st_ScreeningCreateMLList", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                            command.Parameters.Add(new SqlParameter("@CONTACT_ID", UserId));
+                            command.Parameters.Add(new SqlParameter("@WHAT_ATTRIBUTE_ID", RevInfo.ScreeningWhatAttributeId));
+                            command.Parameters.Add(new SqlParameter("@SCREENING_MODE", RevInfo.ScreeningMode));
+                            command.Parameters.Add(new SqlParameter("@CODE_SET_ID", RevInfo.ScreeningCodeSetId));
+                            command.Parameters.Add(new SqlParameter("@TRAINING_ID", _currentTrainingId));
+                            command.CommandTimeout = 145;
+                            if (dt.Rows.Count > 30000)
+                            {//adjust timeout for large reviews: we don't care if this is slow, as it's a costly operation anyway.
+                                int adjuster = dt.Rows.Count - 29999;
+                                command.CommandTimeout = command.CommandTimeout + (int)Math.Round(((double)adjuster / 1000));
+                            }
+                            command.ExecuteNonQuery();
+
+                            //code used to trigger an excemption almost always, used to test if logging from a CSLA object can work...
+                            //naturally this code should never be active in production!!
+                            //Random r = new Random();
+                            //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
+
+                        }
+                        connection.Close();
+                    }
                 }
-                connection.Close();
+                catch (Exception ex)
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", true, false);
+                    DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId);
+                }
             }
 
 
             BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data",  RemoteFileName);
-            BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+            if (!AppIsShuttingDown) BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
             //BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", VecFile);
             //BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ClfFile);
-            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "");
+            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", true, true);
             
         }
+
         private static string CleanText(Csla.Data.SafeDataReader reader, string field)
         {
             string text = reader.GetString(field);
