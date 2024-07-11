@@ -242,7 +242,7 @@ function openReviewerList(ID) {
                         Checked out by (ID)&nbsp;&nbsp;</td>
                     <td style="width: 30%; background-color: #E3EAF0">
                         
-&nbsp;<asp:TextBox ID="tbArchieCD" runat="server"></asp:TextBox>
+&nbsp;                  <asp:TextBox ID="tbArchieCD" runat="server"></asp:TextBox>
 &nbsp;&nbsp;&nbsp; <asp:LinkButton ID="lbSave0" runat="server" onclick="lbSave0_Click" 
                             ToolTip="Save the value in the textbox">Save</asp:LinkButton>
                         <br />
@@ -250,7 +250,7 @@ function openReviewerList(ID) {
                             oncheckedchanged="cbIsCheckedOutHere_CheckedChanged" Text="Is checked out here" 
                             ToolTip="(auto save)" AutoPostBack="True" />
                         <br />
-                        <asp:TextBox ID="tbCheckedOutBy" runat="server"></asp:TextBox>
+&nbsp;                        <asp:TextBox ID="tbCheckedOutBy" runat="server"></asp:TextBox>
 &nbsp;&nbsp;&nbsp; <asp:LinkButton ID="lbSave1" runat="server" onclick="lbSave1_Click" 
                             ToolTip="Save the value in the textbox">Save</asp:LinkButton>
                     </td>
@@ -258,10 +258,9 @@ function openReviewerList(ID) {
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">
                         Priority screening</td>
-                    <td style="background-color: #FFFFCC" colspan="3">
+                    <td style="background-color: #FFFFCC" colspan="2">
                         <asp:CheckBox ID="cbShowScreening" runat="server" AutoPostBack="True" 
-                            oncheckedchanged="cbShowScreening_CheckedChanged" Text="SHOW_SCREENING" />
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            oncheckedchanged="cbShowScreening_CheckedChanged" Text="SHOW_SCREENING" /><br />
                         <asp:CheckBox ID="cbAllowReviewerTerms" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbAllowReviewerTerms_CheckedChanged" 
                             Text="ALLOW_REVIEWER_TERMS" /><br />
@@ -269,12 +268,30 @@ function openReviewerList(ID) {
                             oncheckedchanged="cbAllowClusteredSearch_CheckedChanged" 
                             Text="ALLOW_CLUSTERED_SEARCH" />
                     </td>
-                    <td style="background-color: #FFFFCC" colspan="4">
-                        <asp:CheckBox ID="cbEnableMag" runat="server" AutoPostBack="True" 
-                            oncheckedchanged="cbEnableMag_CheckedChanged" Text="ENABLE OpenAlex" />
+                    <td style="width: 20%; background-color: #B6C6D6">
+                        More AI tech<br /><br />
+                        Enter a Purchase ID to give this review OpenAI access
+                        (Enter 0 to clear)
+                    </td>
+                    <td style="background-color: #FFFFCC" colspan="3">
+                  <asp:CheckBox ID="cbEnableMag" runat="server" AutoPostBack="True" 
+                            oncheckedchanged="cbEnableMag_CheckedChanged" Text="ENABLE OpenAlex" /><br />
+                      <asp:CheckBox ID="cbEnableOpenAI" runat="server" AutoPostBack="True" 
+                            oncheckedchanged="cbEnableOpenAI_CheckedChanged" Text="ENABLE OpenAI" /><br />
+                    OpenAI Credit ID: 
+                       <b><asp:Label ID="lblCreditPurchaseID" runat="server" Text="N/A"></asp:Label></b>
+                       <asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="false" Width="75px"></asp:TextBox>
+&nbsp;                 <asp:LinkButton ID="lbSavePurchaseCreditID" runat="server" onclick="lbSavePurchaseCreditID_Click" 
+                            ToolTip="Save the value in the textbox">Edit</asp:LinkButton><br />
+
+                    <asp:Panel ID="pnlCreditDetails" runat="server" Visible="false">
+                    Remaining: £
+                        <b><asp:Label ID="lblCreditPurchaseValue" runat="server" Text="N/A"></asp:Label></b>
                         <br />
-                        <asp:CheckBox ID="cbEnableOpenAI" runat="server" AutoPostBack="True" 
-                            oncheckedchanged="cbEnableOpenAI_CheckedChanged" Text="ENABLE OpenAI" />
+                    Purchaser: 
+                        <b><asp:Label ID="lblCreditPurchaserName" runat="server" Text="N/A"></asp:Label>&nbsp;
+                            <asp:Label ID="lblCreditPurchaserID" runat="server" Text="N/A"></asp:Label></b>
+                    </asp:Panel>
                     </td>
                 </tr>
                 <tr>

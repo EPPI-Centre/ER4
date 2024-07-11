@@ -169,10 +169,28 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="1" style="background-color: #B6C6D6; width: 25%; height: 27px;">EPPI Notes:<br />
+                <td style="background-color: #B6C6D6; width: 25%; height: 27px;">EPPI Notes:<br />
                     Only visible to EPPI admins</td>
-                <td colspan="3" style="width: 75%; background-color: #FFFFCC; height: 27px;">
+                <td style="width: 25%; background-color: #FFFFCC; height: 27px;">
                     <asp:TextBox ID="tbEPPINotes" runat="server" TextMode="MultiLine" Width="95%"></asp:TextBox>
+                </td>
+                <td style="background-color: #B6C6D6; width: 25%; height: 27px;">OpenAI:<br />
+                    Enter a Purchase ID to give this Site License OpenAI access<br />(Enter 0 to clear)</td>
+                <td style="width: 25%; background-color: #FFFFCC; height: 27px;">
+                                        OpenAI Credit ID: 
+                       <b><asp:Label ID="lblCreditPurchaseID" runat="server" Text="N/A"></asp:Label></b>
+                       <asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="false" Width="50px"></asp:TextBox>
+&nbsp;                 <asp:LinkButton ID="lbSavePurchaseCreditID" runat="server" onclick="lbSavePurchaseCreditID_Click" 
+                            ToolTip="Save the value in the textbox">Edit</asp:LinkButton><br />
+
+                    <asp:Panel ID="pnlCreditDetails" runat="server" Visible="false">
+                    Remaining: £
+                        <b><asp:Label ID="lblCreditPurchaseValue" runat="server" Text="N/A"></asp:Label></b>
+                        <br />
+                    Purchaser: 
+                        <b><asp:Label ID="lblCreditPurchaserName" runat="server" Text="N/A"></asp:Label>&nbsp;
+                            <asp:Label ID="lblCreditPurchaserID" runat="server" Text="N/A"></asp:Label></b>
+                    </asp:Panel>
                 </td>
             </tr>
 

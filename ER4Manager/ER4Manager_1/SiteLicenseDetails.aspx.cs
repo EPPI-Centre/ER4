@@ -390,6 +390,8 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                 //pnlLicenseDetails.Visible = true;
 
             }
+
+            getOpenAIDetails();
         }
     }
 
@@ -510,9 +512,109 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
         }
     }
 
+    protected void lbSavePurchaseCreditID_Click(object sender, EventArgs e)
+    {
+        if (lbSavePurchaseCreditID.Text == "Edit")
+        {
+            lblCreditPurchaseID.Visible = false;
+            tbCreditPurchaseID.Visible = true;
+            lbSavePurchaseCreditID.Text = "Save";
+        }
+        else
+        {
+            // we are saving....
+            if (Utils.IsNumeric(tbCreditPurchaseID.Text))
+            {
+                if (tbCreditPurchaseID.Text == "0")
+                {
+                    // actually, -1 is my clearing indicator but I though it was
+                    // easier for us to enter a 0
+                    tbCreditPurchaseID.Text = "-1";
+                }
+                bool isAdmDB = true;
+                SqlParameter[] paramList = new SqlParameter[8];
+                paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseID.Text.Trim());
+                paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, 0);
+                paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
+                paramList[3] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
+                paramList[4] = new SqlParameter("@CREDIT_PURCHASE_ID_FOUND", SqlDbType.Int, 8, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
+                paramList[5] = new SqlParameter("@PURCHASER_CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
+                paramList[6] = new SqlParameter("@PURCHASER_CONTACT_NAME", SqlDbType.NVarChar, 255, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
+                paramList[7] = new SqlParameter("@REMAINING", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
 
+                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_GetSetCreditPurchaseIDForOpenAI", paramList);
 
+                if (paramList[3].Value.ToString() == "SUCCESS")
+                {
+                    getOpenAIDetails();
+                    lblCreditPurchaseID.Visible = true;
+                    tbCreditPurchaseID.Visible = false;
+                    tbCreditPurchaseID.Text = "";
+                    lbSavePurchaseCreditID.Text = "Edit";
+                }
+                else
+                {
+                    // if you are replacing a valid ID with an invalid ID
+                    // the data in the database stays unchanged.
+                    // but you still get a message that it is invalid.
 
+                    lblCreditPurchaseID.Visible = true;
+                    tbCreditPurchaseID.Visible = false;
+                    lblCreditPurchaseID.Text = "Invalid ID";
+                    lbSavePurchaseCreditID.Text = "Edit";
+                }
+            }
+        }
+    }
+
+    private void getOpenAIDetails()
+    {
+        bool isAdmDB = true;
+        SqlParameter[] paramList = new SqlParameter[8];
+        paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+            true, 0, 0, null, DataRowVersion.Default, 0);
+        paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+            true, 0, 0, null, DataRowVersion.Default, 0);
+        paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+            true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
+        paramList[3] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+            true, 0, 0, null, DataRowVersion.Default, "");
+        paramList[4] = new SqlParameter("@CREDIT_PURCHASE_ID_FOUND", SqlDbType.Int, 8, ParameterDirection.Output,
+            true, 0, 0, null, DataRowVersion.Default, "");
+        paramList[5] = new SqlParameter("@PURCHASER_CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Output,
+            true, 0, 0, null, DataRowVersion.Default, "");
+        paramList[6] = new SqlParameter("@PURCHASER_CONTACT_NAME", SqlDbType.NVarChar, 255, ParameterDirection.Output,
+            true, 0, 0, null, DataRowVersion.Default, "");
+        paramList[7] = new SqlParameter("@REMAINING", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+            true, 0, 0, null, DataRowVersion.Default, "");
+
+        Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_GetSetCreditPurchaseIDForOpenAI", paramList);
+
+        if (paramList[3].Value.ToString() == "SUCCESS")
+        {
+            if (paramList[4].Value.ToString() == "")
+            {
+                lblCreditPurchaseID.Text = "N/A";
+                pnlCreditDetails.Visible = false;
+            }
+            else
+            {
+                lblCreditPurchaseID.Text = paramList[4].Value.ToString();
+                pnlCreditDetails.Visible = true;
+            }
+            lblCreditPurchaseValue.Text = paramList[7].Value.ToString();
+            lblCreditPurchaserName.Text = paramList[6].Value.ToString();
+            lblCreditPurchaserID.Text = "(" + paramList[5].Value.ToString() + ")";
+        }
+    }
 
     protected void cmdPlaceDate_Click(object sender, EventArgs e)
     {
