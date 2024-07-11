@@ -263,6 +263,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingReviewerTerm.cs" Link="Models\TrainingReviewerTerm.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingReviewerTermList.cs" Link="Models\TrainingReviewerTermList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingRunCommand.cs" Link="Models\TrainingRunCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingRunCommandV2.cs" Link="Models\TrainingRunCommandV2.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteria.cs" Link="Models\TrainingScreeningCriteria.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteriaList.cs" Link="Models\TrainingScreeningCriteriaList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs" Link="Models\TrainingScreeningCriteriaListDeleteAllCommand.cs" />

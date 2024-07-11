@@ -18,6 +18,8 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 #if !CSLA_NETCORE
 using Microsoft.Rest.Azure.Authentication;
+#else
+using EPPIDataServices.Helpers;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -25,15 +27,20 @@ namespace BusinessLibrary.BusinessClasses
     class DataFactoryHelper
     {
 
-        //public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
-        //    CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    //var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
-        //    throw new NotImplementedException();
-        //    //return false;
-        //}
+        private static Boolean AppIsShuttingDown
+        {
+            get
+            {
+#if CSLA_NETCORE
+                try { return Program.AppIsShuttingDown; }
+                catch { return false; }
+#else
+                return false;
+#endif
+            }
+        }
 
-public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
+        public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
             CancellationToken cancellationToken = default(CancellationToken))
         {
 
@@ -127,7 +134,157 @@ public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string,
             }
             return true;
         }
+        public bool RunDataFactoryProcessV2(string pipelineName, Dictionary<string, object> parameters, int ReviewId, int ReviewJobId)
+        {
 
+            string tenantID = AzureSettings.tenantID;
+            string appClientId = AzureSettings.appClientId;
+            string appClientSecret = AzureSettings.appClientSecret;
+            string subscriptionId = AzureSettings.subscriptionId;
+            string resourceGroup = AzureSettings.resourceGroup;
+            string dataFactoryName = AzureSettings.dataFactoryName;
 
+            UpdateReviewJobLog(ReviewJobId, ReviewId, "Starting DF", "");
+
+            var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
+            ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
+            AuthenticationResult result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
+            ServiceClientCredentials cred = new TokenCredentials(result.AccessToken);
+            var client = new DataFactoryManagementClient(cred)
+            {
+                SubscriptionId = subscriptionId
+            };
+
+            CreateRunResponse runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters).Result.Body;
+
+            string runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, runResponse.RunId).Result.Status;
+            int count = 0; int errorCount = 0;
+            DateTime NextLogUpdateTime = DateTime.Now; //means that we do update the log immediately the 1st time
+            while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
+            {
+                if (AppIsShuttingDown)
+                {
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, true, false);
+                    return false;
+                }
+
+                if (DateTime.Now.ToUniversalTime().AddMinutes(5) > result.ExpiresOn) // the token expires after an hour
+                {
+                    count++;
+                    string accessToken = result.AccessToken;
+                    result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
+                    cred = new TokenCredentials(result.AccessToken);
+                    client = new DataFactoryManagementClient(cred)
+                    {
+                        SubscriptionId = subscriptionId
+                    };
+                    //Ask James what this is for!!
+                    //if (accessToken == result.AccessToken && doLogging == true)
+                    //{
+
+                    //    MagLog.UpdateLogEntry("Access token not renewed (" + count.ToString() + ")", pipelineName, MagLogId);
+                    //}
+                }
+
+                Thread.Sleep(5 * 1000);
+                if (AppIsShuttingDown)//checking again, because we just paused 5s or more!
+                {
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, true, false);
+                    return false;
+                }
+                try
+                {
+                    PipelineRun pr = client.PipelineRuns.Get(resourceGroup, dataFactoryName, runResponse.RunId); //Microsoft.Rest.Azure.CloudException if token has expired
+                    if (pr != null)
+                    {
+                        runStatus = pr.Status;
+                        if (DateTime.Now > NextLogUpdateTime)
+                        {
+                            
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + runResponse.RunId);
+                            NextLogUpdateTime = DateTime.Now.AddMinutes(1);//keep updating the log every 1 minute
+                        }
+                    }
+                    else
+                    {
+                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Error getting DF client", "DF RunId: " + runResponse.RunId
+                            + Environment.NewLine + "Pipeline: " + pipelineName, true, false);
+                        return false;
+                    }
+                }
+                catch (Microsoft.Rest.Azure.CloudException e)
+                {
+                    if (e != null)
+                    {
+                        errorCount++;
+                        bool ShouldGiveUp = (errorCount >= 100);
+                        if (ShouldGiveUp)
+                        {
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
+                                + Environment.NewLine + "Pipeline: " + pipelineName, true, false);
+                        }
+                        else
+                        {
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
+                                + Environment.NewLine + "Pipeline: " + pipelineName);
+                        }
+                        LogExceptionToFile(e, ReviewId, ReviewJobId);
+                        if (ShouldGiveUp) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Updates a record in tb_REVIEW_JOB.
+        /// </summary>
+        /// <param name="LogId">The ID in tb_REVIEW_JOB</param>
+        /// <param name="ReviewID"></param>
+        /// <param name="Status">String describing where execution is</param>
+        /// <param name="Message">After returning the DataFactory part, please leave empty, so to not overwrite the DF RunId, which may be needed if something went wrong </param>
+        /// <param name="SetSuccess">False by default, to avoid setting the "SUCCESS" field (below) to "not null", before the task is finished... 
+        /// We want to set this field to TRUE OR FALSE only when we know which one it is. 
+        /// We detect "currently running" tasks by looking for NULL in this field.
+        /// </param>
+        /// <param name="SuccessValue">In the table, this value should be NULL if we're not finished. TRUE if we finished and it worked, FALSE if it failed/got interrupted</param>
+        public static void UpdateReviewJobLog(int LogId, int ReviewID, string Status, string Message, bool SetSuccess = false, bool SuccessValue = true)
+        {
+            if (LogId > 0)
+            {
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_LogReviewJobUpdate", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@ReviewId", ReviewID));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_JOB_ID", LogId));
+                            command.Parameters.Add(new SqlParameter("@CurrentState", Status));
+                            command.Parameters.Add(new SqlParameter("@JobMessage", Message));
+                            if (SetSuccess) command.Parameters.Add(new SqlParameter("@Success", SuccessValue));
+                            else command.Parameters.Add(new SqlParameter("@Success", System.DBNull.Value));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogExceptionToFile(ex, ReviewID, LogId);
+                }
+            }
+        }
+        public static void LogExceptionToFile(Exception ex, int ReviewID, int LogId)
+        {
+#if CSLA_NETCORE
+            if (Program.Logger != null && (Program.Logger as ILogger) != null)
+            {
+                (Program.Logger as ILogger).LogException(ex, "UpdateReviewJobLog in TrainingRunCommandV2 has an error. ReviewId:"
+                        + ReviewID + "ReviewJobId:" + LogId);
+            }
+#endif
+        }
     }
 }
