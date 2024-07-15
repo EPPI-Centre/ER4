@@ -93,8 +93,8 @@ namespace ERxWebClient2.Controllers
                     //Task<TrainingRunCommand> doIt = new Task<TrainingRunCommand>(() => dp.Execute(command), );
                     //doIt.Start();
                     TrainingRunCommandV2 result = dp.Execute(command);
-                    if (result.ReportBack == "Starting...")
-                    {
+                    if (result.ReportBack == "Starting..." || result.ReportBack == "Already Running")
+                    {//little trick to save us the need to re-fetch review Info object
                         result.RevInfo.ScreeningModelRunning = true;
                     }
                     return Ok(result);

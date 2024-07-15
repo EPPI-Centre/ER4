@@ -12,6 +12,8 @@ using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
 using Newtonsoft.Json;
+using DeployR;
+
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
@@ -128,6 +130,7 @@ namespace BusinessLibrary.BusinessClasses
             if (RevInfo.ScreeningMode == "Random") // || RevInfo.ScreeningWhatAttributeId > 0)
             {
                 CreateNonMLLIst(ri.ReviewId, ri.UserId);
+                ReportBack = "Done (Random List)";
                 return;
             }
             if (ri.ReviewId == 21823) return;
@@ -158,8 +161,9 @@ namespace BusinessLibrary.BusinessClasses
                 // if we don't have enough data, we default to creating a non-ML list
                 if (n_includes < 6 || n_excludes < 6)
                 {
-                    RevInfo.ScreeningMode = "Random";
+                    //RevInfo.ScreeningMode = "Random";
                     CreateNonMLLIst(ri.ReviewId, ri.UserId);
+                    ReportBack = "Done (Random List)";
                     return;
                 }
 
@@ -182,6 +186,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (retVal == "-1")
                     {
                         this.ReportBack = "Already Running";
+                        return;
                     }
                     else if (retVal == "1" )
                     {//either all good, or prev. attempt failed and we try again
@@ -222,84 +227,119 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private void DoBuildAndScore(int ReviewId, int UserId, int LogId)
+        private async void DoBuildAndScore(int ReviewId, int UserId, int LogId)
         {
+            string RemoteFileName = "";
+            string LocalFileName = "";
+            bool DataFactoryRes = false;
+            string ScoresFile = "";
+            try
+            {
 #if (!CSLA_NETCORE)
             string LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + UserId.ToString() + ".tsv";
 #else
-            string LocalFileName = "";
-            if (Directory.Exists(@"\UserTempUploads"))
-            {
-                LocalFileName = @".\UserTempUploads" + @"\" + UserId.ToString() + ".tsv";
-            }
-            else
-            {
-                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(@"\UserTempUploads");
-                LocalFileName = tmpDir.FullName + @"\" + UserId.ToString() + ".tsv";
-            }
-#endif
-            string RemoteFileName = "priority_screening/" + NameBase + "ReviewId" + RevInfo.ReviewId + ".tsv";
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))
+                LocalFileName = "";
+                if (Directory.Exists(@"\UserTempUploads"))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    //NEW: we are setting DB flag to true as we are actually indexing right now! 
-                    //Flag can only be re-flipped by users, when they want to. In the future might be flipped when importing new items or editing existing ones...
-                    //NEW July 2024: indexing flag is irrelevant now, we send all the data across for "build and score".
-                    command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", true));
-                    command.CommandTimeout = 600;
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    LocalFileName = @".\UserTempUploads" + @"\" + UserId.ToString() + ".tsv";
+                }
+                else
+                {
+                    DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(@"\UserTempUploads");
+                    LocalFileName = tmpDir.FullName + @"\" + UserId.ToString() + ".tsv";
+                }
+#endif
+                RemoteFileName = "priority_screening/" + NameBase + "ReviewId" + RevInfo.ReviewId + ".tsv";
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed setting up files", "", "TrainingRunCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "TrainingRunCommandV2");
+                return;
+            }
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))
                     {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        //NEW: we are setting DB flag to true as we are actually indexing right now! 
+                        //Flag can only be re-flipped by users, when they want to. In the future might be flipped when importing new items or editing existing ones...
 
-                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
+                        command.CommandTimeout = 600;
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
-                            file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
-                            while (reader.Read())
+
+                            using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
                             {
-                                file.WriteLine(reader["item_id"].ToString() + "\t" +
-                                    CleanText(reader, "title") + "\t" +
-                                    CleanText(reader, "abstract") + "\t" +
-                                    CleanText(reader, "INCLUDED"));
+                                file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+                                while (reader.Read())
+                                {
+                                    file.WriteLine(reader["item_id"].ToString() + "\t" +
+                                        CleanText(reader, "title") + "\t" +
+                                        CleanText(reader, "abstract") + "\t" +
+                                        CleanText(reader, "INCLUDED"));
+                                }
                             }
                         }
                     }
+                    connection.Close();
                 }
-                connection.Close();
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "", "TrainingRunCommandV2");
+                using (var fileStream = System.IO.File.OpenRead(LocalFileName))
+                {
+                    BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data", RemoteFileName, fileStream);
+                }
             }
-            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "");
-            using (var fileStream = System.IO.File.OpenRead(LocalFileName))
+            catch (Exception ex)
             {
-                BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data",  RemoteFileName, fileStream);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to get/upload data", "", "TrainingRunCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "TrainingRunCommandV2");
+                return;
+            }
+            try
+            {
+                DataFactoryHelper DFH = new DataFactoryHelper();
+                string BatchGuid = Guid.NewGuid().ToString();
+                ScoresFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Scores.tsv";
+                //string VecFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Vectors.tsv";
+                //string ClfFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Clf.tsv";
+                Dictionary<string, object> parameters = new Dictionary<string, object>
+                {
+                    {"BatchGuid", BatchGuid},
+                    {"do_build_and_score_log_reg", true },
+                    {"DataFile", RemoteFileName },
+                    {"EPPIReviewerApiRunId", "0"},
+                    {"do_build_log_reg", false},
+                    {"do_score_log_reg", false},
+                    {"ScoresFile", ScoresFile},
+                    //{"VecFile", VecFile},
+                    //{"ClfFile", ClfFile}
+                };
+                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2");
+
+                File.Delete(LocalFileName);
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to run DF", "", "TrainingRunCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "TrainingRunCommandV2");
+                return;
             }
 
-            DataFactoryHelper DFH = new DataFactoryHelper();
-            string BatchGuid = Guid.NewGuid().ToString();
-            string ScoresFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Scores.tsv";
-            //string VecFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Vectors.tsv";
-            //string ClfFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Clf.tsv";
-            Dictionary<string, object> parameters = new Dictionary<string, object>
+            if (DataFactoryRes == true)
             {
-                {"BatchGuid", BatchGuid},
-                {"do_build_and_score_log_reg", true },
-                {"DataFile", RemoteFileName },
-                {"EPPIReviewerApiRunId", "0"},
-                {"do_build_log_reg", false},
-                {"do_score_log_reg", false},
-                {"ScoresFile", ScoresFile},
-                //{"VecFile", VecFile},
-                //{"ClfFile", ClfFile}
-            };
-            var res = DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId);
-
-            File.Delete(LocalFileName);
-            if (res == true)
-            {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Downloading Results", "");
                 try
                 {
+                    if (AppIsShuttingDown)
+                    {
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled at/during download", "", "TrainingRunCommandV2", true, false);
+                        return;
+                    }
+                    else DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Downloading Results", "", "TrainingRunCommandV2");
                     MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile);
 
                     DataTable dt = new DataTable("Scores");
@@ -337,7 +377,12 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
-                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Saving Results", "");
+                    if (AppIsShuttingDown)
+                    {
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled at/during download", "", "TrainingRunCommandV2", true, false); 
+                        return;
+                    }
+                    else DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Saving Results", "", "TrainingRunCommandV2");
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         connection.Open();
@@ -368,7 +413,7 @@ namespace BusinessLibrary.BusinessClasses
                             }
                             command.ExecuteNonQuery();
 
-                            //code used to trigger an excemption almost always, used to test if logging from a CSLA object can work...
+                            //code used to trigger an excemption almost always, used to test if logging does work...
                             //naturally this code should never be active in production!!
                             //Random r = new Random();
                             //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
@@ -376,20 +421,21 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         connection.Close();
                     }
+                    BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
                 }
                 catch (Exception ex)
                 {
-                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", true, false);
-                    DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId);
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", "TrainingRunCommandV2", true, false);
+                    DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "TrainingRunCommandV2");
                 }
             }
 
 
             BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data",  RemoteFileName);
-            if (!AppIsShuttingDown) BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+            if (DataFactoryRes == false && !AppIsShuttingDown) BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
             //BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", VecFile);
             //BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ClfFile);
-            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", true, true);
+            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "TrainingRunCommandV2", true, true);
             
         }
 
@@ -429,11 +475,6 @@ namespace BusinessLibrary.BusinessClasses
 
         
 
-        private async void UpdateAzureIncludeExcludeData(int ReviewID)
-        {
-            
-        }
-
         private async void DoSimulation(int ReviewID, int UserId)
         {
             
@@ -444,41 +485,7 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
-        public enum BatchScoreStatusCode
-        {
-            NotStarted,
-            Running,
-            Failed,
-            Cancelled,
-            Finished
-        }
-
-        public class BatchScoreStatus
-        {
-            // Status code for the batch scoring job
-            public BatchScoreStatusCode StatusCode { get; set; }
-
-            // Locations for the potential multiple batch scoring outputs
-            //public IDictionary<string, AzureBlobDataReference> Results { get; set; }
-
-            // Error details, if any
-            public string Details { get; set; }
-        }
-
-        public class BatchExecutionRequest
-        {
-
-            //public IDictionary<string, AzureBlobDataReference> Inputs { get; set; }
-            public IDictionary<string, string> GlobalParameters { get; set; }
-
-            // Locations for the potential multiple batch scoring outputs
-            //public IDictionary<string, AzureBlobDataReference> Outputs { get; set; }
-        }
-
-        static async Task WriteFailedResponse(HttpResponseMessage response)
-        {
-            
-        }
+ 
         static string blobConnection = AzureSettings.blobConnection;
         static string BaseUrlBuildAndScore = AzureSettings.BaseUrlBuildAndScore;
         static string apiKeyBuildAndScore = AzureSettings.apiKeyBuildAndScore;
@@ -499,14 +506,6 @@ namespace BusinessLibrary.BusinessClasses
                 else return "";
             }
         }
-
-        const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
-
-        //static async Task InvokeBatchExecutionService(ReviewInfo revInfo, string ApiCall)
-        //{
-            
-        //}
-
 #endif
     }
 }

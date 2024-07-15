@@ -46,6 +46,31 @@ namespace EPPIDataServices.Helpers
             logger.LogError("END" + Environment.NewLine);
         }
 
+        public static void LogException(this Serilog.ILogger logger, Exception ex, string message = "")
+        {
+            if (message != "") logger.Error(message);
+            if (ex.Message != null && ex.Message != "")
+                logger.Error("MSG: " + ex.Message);
+            if (ex.StackTrace != null && ex.StackTrace != "")
+                logger.Error("STACK TRC:" + ex.StackTrace);
+            if (ex.InnerException != null)
+            {
+                logger.Error("Inner Exception(s): ");
+                Exception ie = ex.InnerException;
+                int i = 0;
+                while (ie != null && i < 10)
+                {
+                    i++;
+                    if (ie.Message != null && ie.Message != "")
+                        logger.Error("MSG(" + i.ToString() + "): " + ie.Message);
+                    if (ie.StackTrace != null && ie.StackTrace != "")
+                        logger.Error("STACK TRC(" + i.ToString() + "):" + ie.StackTrace);
+                    ie = ie.InnerException;
+                }
+            }
+            logger.Error("END" + Environment.NewLine);
+        }
+
         static LoggerExtensions()
         {
             _SQLActionFailed = LoggerMessage.Define<string, string>(

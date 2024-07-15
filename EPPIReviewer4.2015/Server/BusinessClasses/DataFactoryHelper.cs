@@ -134,8 +134,11 @@ namespace BusinessLibrary.BusinessClasses
             }
             return true;
         }
-        public bool RunDataFactoryProcessV2(string pipelineName, Dictionary<string, object> parameters, int ReviewId, int ReviewJobId)
+        public async Task<bool> RunDataFactoryProcessV2(string pipelineName, Dictionary<string, object> parameters, int ReviewId, int ReviewJobId, string Origin)
         {
+            //Random r = new Random();
+            //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
+
 
             string tenantID = AzureSettings.tenantID;
             string appClientId = AzureSettings.appClientId;
@@ -144,7 +147,7 @@ namespace BusinessLibrary.BusinessClasses
             string resourceGroup = AzureSettings.resourceGroup;
             string dataFactoryName = AzureSettings.dataFactoryName;
 
-            UpdateReviewJobLog(ReviewJobId, ReviewId, "Starting DF", "");
+            UpdateReviewJobLog(ReviewJobId, ReviewId, "Starting DF", "", Origin);
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
@@ -154,8 +157,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 SubscriptionId = subscriptionId
             };
-
-            CreateRunResponse runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters).Result.Body;
+            var run = await client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters);
+            CreateRunResponse runResponse = run.Body;// client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters).Result.Body;
 
             string runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, runResponse.RunId).Result.Status;
             int count = 0; int errorCount = 0;
@@ -164,7 +167,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (AppIsShuttingDown)
                 {
-                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, true, false);
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, Origin, true, false);
                     return false;
                 }
 
@@ -178,18 +181,12 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         SubscriptionId = subscriptionId
                     };
-                    //Ask James what this is for!!
-                    //if (accessToken == result.AccessToken && doLogging == true)
-                    //{
-
-                    //    MagLog.UpdateLogEntry("Access token not renewed (" + count.ToString() + ")", pipelineName, MagLogId);
-                    //}
                 }
 
                 Thread.Sleep(5 * 1000);
                 if (AppIsShuttingDown)//checking again, because we just paused 5s or more!
                 {
-                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, true, false);
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, Origin, true, false);
                     return false;
                 }
                 try
@@ -201,14 +198,14 @@ namespace BusinessLibrary.BusinessClasses
                         if (DateTime.Now > NextLogUpdateTime)
                         {
                             
-                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + runResponse.RunId);
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + runResponse.RunId, Origin);
                             NextLogUpdateTime = DateTime.Now.AddMinutes(1);//keep updating the log every 1 minute
                         }
                     }
                     else
                     {
                         UpdateReviewJobLog(ReviewJobId, ReviewId, "Error getting DF client", "DF RunId: " + runResponse.RunId
-                            + Environment.NewLine + "Pipeline: " + pipelineName, true, false);
+                            + Environment.NewLine + "Pipeline: " + pipelineName, Origin, true, false);
                         return false;
                     }
                 }
@@ -221,14 +218,14 @@ namespace BusinessLibrary.BusinessClasses
                         if (ShouldGiveUp)
                         {
                             UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
-                                + Environment.NewLine + "Pipeline: " + pipelineName, true, false);
+                                + Environment.NewLine + "Pipeline: " + pipelineName, Origin, true, false);
                         }
                         else
                         {
                             UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
-                                + Environment.NewLine + "Pipeline: " + pipelineName);
+                                + Environment.NewLine + "Pipeline: " + pipelineName, Origin);
                         }
-                        LogExceptionToFile(e, ReviewId, ReviewJobId);
+                        LogExceptionToFile(e, ReviewId, ReviewJobId, Origin);
                         if (ShouldGiveUp) return false;
                     }
                 }
@@ -248,7 +245,8 @@ namespace BusinessLibrary.BusinessClasses
         /// We detect "currently running" tasks by looking for NULL in this field.
         /// </param>
         /// <param name="SuccessValue">In the table, this value should be NULL if we're not finished. TRUE if we finished and it worked, FALSE if it failed/got interrupted</param>
-        public static void UpdateReviewJobLog(int LogId, int ReviewID, string Status, string Message, bool SetSuccess = false, bool SuccessValue = true)
+        public static void UpdateReviewJobLog(int LogId, int ReviewID, string Status, string Message,
+            string Origin, bool SetSuccess = false, bool SuccessValue = true)
         {
             if (LogId > 0)
             {
@@ -272,16 +270,16 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 catch (Exception ex)
                 {
-                    LogExceptionToFile(ex, ReviewID, LogId);
+                    LogExceptionToFile(ex, ReviewID, LogId , "Datafactory UpdateReviewJobLog, from " + Origin);
                 }
             }
         }
-        public static void LogExceptionToFile(Exception ex, int ReviewID, int LogId)
+        public static void LogExceptionToFile(Exception ex, int ReviewID, int LogId, string Origin)
         {
 #if CSLA_NETCORE
-            if (Program.Logger != null && (Program.Logger as ILogger) != null)
+            if (Program.Logger != null && (Program.Logger as Serilog.ILogger) != null)
             {
-                (Program.Logger as ILogger).LogException(ex, "UpdateReviewJobLog in TrainingRunCommandV2 has an error. ReviewId:"
+                (Program.Logger as Serilog.ILogger).LogException(ex, Origin + " has an error. ReviewId:"
                         + ReviewID + "ReviewJobId:" + LogId);
             }
 #endif

@@ -215,7 +215,7 @@ namespace ERxWebClient2.Controllers
 			public int screeningNPeople { get; set; }
 			public bool screeningAutoExclude { get; set; }
 			public bool screeningModelRunning { get; set; }
-			public bool screeningIndexed { get; set; }
+			//public bool screeningIndexed { get; set; }
 			public bool screeningListIsGood { get; set; }
 			public string bL_ACCOUNT_CODE { get; set; }
 			public string bL_AUTH_CODE { get; set; }
@@ -236,7 +236,7 @@ namespace ERxWebClient2.Controllers
 				result.ReviewName = this.reviewName;
 				result.ScreeningAutoExclude = this.screeningAutoExclude;
 				result.ScreeningCodeSetId = this.screeningCodeSetId;
-				result.ScreeningIndexed = this.screeningIndexed;
+				//result.ScreeningIndexed = this.screeningIndexed;
 				result.ScreeningListIsGood = this.screeningListIsGood;
 				result.ScreeningMode = this.screeningMode;
 				result.ScreeningModelRunning = this.screeningModelRunning;

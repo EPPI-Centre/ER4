@@ -517,7 +517,7 @@ namespace IntegrationTests.Fixtures
             def.reviewName = Res.ReviewName;
             def.screeningAutoExclude = Res.ScreeningAutoExclude;
             def.screeningCodeSetId = Res.ScreeningCodeSetId;
-            def.screeningIndexed = Res.ScreeningIndexed;
+            //def.screeningIndexed = Res.ScreeningIndexed;
             def.screeningListIsGood = Res.ScreeningListIsGood;
             def.screeningMode = Res.ScreeningMode;
             def.screeningMode = Res.ScreeningMode;
