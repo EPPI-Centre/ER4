@@ -40,45 +40,78 @@
 
 
     $(document).ready(function () {
-        $("#treeView").kendoTreeView({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: getBasePath() + "ReviewSetList/FetchJSON",
-                        dataType: "json"
+
+        var YearsFreqCardVisible = "0";
+        var CodingToolsVisible = "1";    // also makes the frequency card visible 
+        var FilterSectionVisible = "0";
+        var CrossTabCardVisible = "0";
+        var PreBuiltMapCardVisible = "0";
+
+
+        if (CodingToolsVisible == "1") {
+            $("#treeView").kendoTreeView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: getBasePath() + "ReviewSetList/FetchJSON",
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        parse: function (response) {
+                            dataItem = null;
+                            var nodes = [];
+                            for (var i = 0; i < response.length; i++) {
+                                var nodes2 = [];
+                                var nd = new kendo.data.Node({ text: response[i].setName });
+                                nd.id = response[i].setId;
+                                nd.isCodeset = true;
+                                nd.setId = nd.id;
+                                for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
+                                    nd.append(Buildnode(response[i].attributes.attributesList[ii]));
+                                }
+                                nd.expanded = true;
+                                nd.items = nodes2;
+                                //nd.hasChildren = () => {
+                                //        return this.items.length > 0;
+                                //    };
+                                nodes.push(nd);
+                            }
+
+                            return nodes;
+                        }
                     }
                 },
-                schema: {
-                    parse: function (response) {
-                        dataItem = null;
-                        var nodes = [];
-                        for (var i = 0; i < response.length; i++) {
-                            var nodes2 = [];
-                            var nd = new kendo.data.Node({ text: response[i].setName });
-                            nd.id = response[i].setId;
-                            nd.isCodeset = true;
-                            nd.setId = nd.id;
-                            for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
-                                nd.append(Buildnode(response[i].attributes.attributesList[ii]));
-                            }
-                            nd.expanded = true;
-                            nd.items = nodes2;
-                            //nd.hasChildren = () => {
-                            //        return this.items.length > 0;
-                            //    };
-                            nodes.push(nd);
-                        }
-                        GetYearsFreqs();//getting the years chart after the codes...
-                        setTimeout(function () {
-                            GetMaps();
-                        }, 150); //don't like multiple requests to be fired all at once!
-                        return nodes;
-                    }
-                }
-            },
-            select: TreeViewSelection
-        });
-        treeviewData = $("#treeView").data("kendoTreeView");
+                select: TreeViewSelection
+            });
+            treeviewData = $("#treeView").data("kendoTreeView");
+            $("#CodingToolsSection").show();
+            $("#FreqCard").show();
+        }
+
+        if (YearsFreqCardVisible == "1") {
+            GetYearsFreqs();//getting the years chart after the codes...
+            $("#YearsFreqCard").show();
+        }
+
+        if (FilterSectionVisible == "1") {
+            $("#FilterSection").show();
+        }
+        
+        
+        if (CrossTabCardVisible == "1") {
+            $("#CrossTabCard").show();
+        }
+
+
+        if (PreBuiltMapCardVisible == "1") {
+            setTimeout(function () {
+                GetMaps();
+            }, 150); //don't like multiple requests to be fired all at once!
+            $("#PreBuiltMapCard").show();
+            
+        }
+
         const descrPanel = $("#WebDBDescription");
         //console.log("descrPanel:", descrPanel, descrPanel.height());
         if (descrPanel && descrPanel.height() > 300) {
@@ -1162,22 +1195,13 @@
 <!-- Side bar coding tools area -->
 <div class="sidebar sidebar-style-2">
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
-        <div class="sidebar-content">
-
-            
-
-
-
-
+        <div class="sidebar-content" id="CodingToolsSection" style="display:none;">
 
             <ul class="nav nav-primary">
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
-
-
-
 
                     <div style="padding-left:10px">
                         <!-- this button should be invisible if the screen is > 325px wide --> 
@@ -1195,10 +1219,298 @@
                 </li>
                 <li class="nav-item">
                     <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
+                    </li>
+
+            </ul>
+        </div>
+
+        <div class="sidebar-content" id="FilterSection" style="display:none;">
+            <ul class="nav nav-primary">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+
+                    <div id="filterDiv" class="text-body pb-2" style="width: 95%">
+                        <table width="100%">
+                            <tr>
+                                <td style="vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 3px; padding: 10px 10px 15px 10px; width:95%">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend border rounded my-auto">
+                                                <button type="button" id="searchButton" onclick="searchRecords(SearchString)" class="btn btn-search pr-1 py-2 px-2" disabled>
+                                                    <span style="color:#0b52ad"><i class="fas fa-search search-icon"></i></span>
+                                                </button>
+                                            </div>
+                                            <input type="text" placeholder="Search records..." onkeyup="enableSearch()" style="background-color:white" class="form-control" maxlength="4000" name="SearchString" id="SearchString">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!--Filtering controls-->
+                    <div id="filterDiv2" class="text-body pb-2" style="width: 95%">
+                        <table width="100%">
+                            <tr>
+                                <td style="width: 50%; vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 1px; padding: 13px 10px 5px 10px;">
+                                    <h3 class="text-body pb-2"><b>Filter by:</b></h3>
+                                </td>
+                                <td style="width: 50%; vertical-align:top; text-align:right; border-bottom: solid; border-color: black;  border-width: 1px; padding: 13px 10px 5px 10px;">
+                                    <a class="btn btn-primary btn-sm btn-border" href="~/Vawg">Clear all</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="filterDiv3" class="text-body pb-2" style="width: 95%">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 0px 10px 0px 10px;">
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 10px 10px 10px 15px;">
+                                    <label><b>COST per participant</b></label>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button type="button" id="costLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('costHelpDiv')"> </button><br />
+                                    <div id="costSlider" class="humidity">
+                                        <input />
+                                        <input />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="costHelpDiv" style="width: 95%; display:none">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 0px 0px 0px 10px;">
+                                    <label>
+                                        <b>Cost per participant</b><br />
+                                        &nbsp;&nbsp;&nbsp;0:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not reported<br />
+                                        &nbsp;&nbsp;&nbsp;1:&nbsp;<&nbsp;£500<br />
+                                            &nbsp;&nbsp;&nbsp;2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;£500 - £1000<br />
+                                            &nbsp;&nbsp;&nbsp;3:&nbsp;>&nbsp;£1000<br />
+                                    </label>
+                                </td>
+                            </tr>
+                        </table>
+                        <br />
+                    </div>
+                    <div id="filterDiv4" class="text-body pb-2" style="width: 95%">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 10px 10px 10px 15px;">
+                                    <label><b>EVIDENCE QUALITY</b></label>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button type="button" id="evidenceLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('qualityHelpDiv')"></button><br />
+                                    <div id="evidenceSlider" class="humidity">
+                                        <input />
+                                        <input />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="qualityHelpDiv" style="width: 95%; display:none">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 0px 0px 0px 10px;">
+                                    <label>
+                                        <b>Evidence quality</b><br />
+                                        &nbsp;&nbsp;&nbsp;0:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not rated<br />
+                                        &nbsp;&nbsp;&nbsp;1:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Critically low<br />
+                                        &nbsp;&nbsp;&nbsp;2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Low<br />
+                                        &nbsp;&nbsp;&nbsp;3:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moderate<br />
+                                        &nbsp;&nbsp;&nbsp;4:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High<br />
+                                    </label>
+                                </td>
+                            </tr>
+                        </table>
+                        <br />
+                    </div>
+                    <div id="filterDiv5" class="text-body pb-2" style="width: 95%">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 5px 10px 5px 10px;">
+                                    <br />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 0px 10px;">
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="padding: 0px 10px 0px 10px;">
+                                    <label class="pb-2"><b>Advanced filters</b></label>
+                                    <!--<h5 class="text-body pb-2"><b>Advanced filters</b></h5>-->
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button type="button" id="costLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('advancedFilterHelpDiv')"></button><br />
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                    <div id="advancedFilterHelpDiv" style="width: 95%; display:none">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 0px 0px 0px 10px;">
+                                    <label>
+                                        You can select topics to help identify relevant studies.<br />
+                                        Selections <b>within</b> a section use<br />
+                                        the <b>OR</b> operator.<br />
+                                        Selections <b>across</b> sections use <br />
+                                        the <b>AND</b> operator.<br />
+                                    </label>
+                                </td>
+                            </tr>
+                        </table>
+                        <br />
+                    </div>
+
+
+                    <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('themesFilterDiv')">
+                        <table width="100%">
+                            <tr>
+                                <td width="80%"><h5><b>INTERVENTIONS</b></h5></td>
+                                <td width="20%">
+                                    <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                        <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                    </svg>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="themesFilterDiv" style="width: 95%; display:none">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 0px 0px 0px 10px;">
+                                    <ul class="fieldlist">
+                                        <li>
+                                            <input type="checkbox" id="cbInterventionsForVictims" onclick="cbInterventionsChange('cbInterventionsForVictims', '1')" />
+                                            <label>&nbsp;&nbsp;&nbsp;for victims</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbForBroaderImpactsOfViolence" onclick="cbInterventionsChange('cbForBroaderImpactsOfViolence', '2')" />
+                                            <label>&nbsp;&nbsp;&nbsp;for broader impacts of violence</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbInterventionsForPerpetrators" onclick="cbInterventionsChange('cbInterventionsForPerpetrators', '3')" />
+                                            <label>&nbsp;&nbsp;&nbsp;for perpetrators</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbOrganisationalInterventions" onclick="cbInterventionsChange('cbOrganisationalInterventions', '4')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Organisational</label>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+                        <br />
+                    </div>
+
+                    <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('outcomesFilterDiv')">
+                        <table width="100%">
+                            <tr>
+                                <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                    <h5><b>OUTCOMES</b></h5>
+                                </td>
+                                <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                    <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                        <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                    </svg>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="outcomesFilterDiv" style="width: 95%; display:none">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 0px 0px 0px 10px;">
+                                    <ul class="fieldlist">
+                                        <li>
+                                            <input type="checkbox" id="cbMentalHealth" onclick="cbOutcomesChange('cbMentalHealth', '1')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Mental health</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbViolence" onclick="cbOutcomesChange('cbViolence', '2')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Violence</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cdKnowledgeAttidutes" onclick="cbOutcomesChange('cdKnowledgeAttidutes', '3')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Knowledge / attitudes</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cdIdentificationOfViolence" onclick="cbOutcomesChange('cdIdentificationOfViolence', '4')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Identification of violence</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbChildBehaviour" onclick="cbOutcomesChange('cbChildBehaviour', '5')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Child behaviour</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbHealthServiceUtilisation" onclick="cbOutcomesChange('cbHealthServiceUtilisation', '6')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Health service utilisation</label>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+                        <br />
+                    </div>
+
+                    <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('preventionFilterDiv')">
+                        <table width="100%">
+                            <tr>
+                                <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                    <h5><b>PREVENTION TYPES</b></h5>
+                                    <!-- also called violence 1 & 2 -->
+                                </td>
+                                <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                    <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                        <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                    </svg>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="preventionFilterDiv" style="width: 95%; display:none">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 0px 0px 0px 10px;">
+                                    <ul class="fieldlist">
+                                        <li>
+                                            <input type="checkbox" id="cbIPV" onclick="cbPreventionTypesChange('cbIPV', '1')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Intimate partner violence</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbCSA" onclick="cbPreventionTypesChange('cbCSA', '2')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Child sexual abuse</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbSV" onclick="cbPreventionTypesChange('cbSV', '3')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Sexual violence</label>
+                                        </li>
+                                        <li>
+                                            <input type="checkbox" id="cbHT" onclick="cbPreventionTypesChange('cbHT', '4')" />
+                                            <label>&nbsp;&nbsp;&nbsp;Human trafficking</label>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+                        <br />
+                    </div>
+
                 </li>
+
             </ul>
 
         </div>
+
     </div>
 </div>
 
@@ -1304,7 +1616,7 @@
                     </div>
 
                     <!-- Pre-built maps card -->
-                    <div class="card" id="MapsCard" style="display:none;">
+                    <div class="card" id="PreBuiltMapCard" style="display:none;">
                         <div class="card-header card-title">
                             <table width="100%">
                                 <tr>
@@ -1326,7 +1638,7 @@
 
 
                     <!-- Frequency card -->
-                    <div class="card ">
+                    <div class="card" id="FreqCard" style="display:none;">
 
                         <div class="card-header">
                             <input type="hidden" value="0" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
@@ -1436,7 +1748,7 @@
                 <div class="col-auto col-lg">
 
                     <!-- Publication date frequency card -->
-                    <div class="card">
+                    <div class="card" id="YearsFreqCard" style="display:none;">
                         <div class="card-header">
                             <table width="100%">
                                 <tr>
@@ -1494,7 +1806,7 @@
                     </div>
 
                     <!-- Crosstab and Map card -->
-                    <div class="card ">
+                    <div class="card" id="CrossTabCard" style="display:none;">                        
                         <div class="card-header">
                             <table width="100%">
                                 <tr>
