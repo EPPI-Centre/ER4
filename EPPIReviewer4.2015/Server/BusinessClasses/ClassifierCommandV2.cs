@@ -148,6 +148,7 @@ namespace BusinessLibrary.BusinessClasses
 		string LocalFileName = "";
 		string VecFile = "";
 		string ClfFile = "";
+		string ScoresFile = "";
         private void DoTrainClassifier(bool applyToo)
 		{
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -452,12 +453,12 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
 #if (!CSLA_NETCORE)
 
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+                LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #else
                 // same as comment above for same line
                 //SG Edit:
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                string LocalFileName = tmpDir.FullName + "\\ReviewID" + ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";				
+                LocalFileName = tmpDir.FullName + "\\ReviewID" + ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";				
 #endif
                 //[SG]: new 27/09/2021: find out the reviewId for this model, as it might be from a different review
                 //added bonus, ensures the current user has access to this model, I guess.
@@ -616,6 +617,7 @@ namespace BusinessLibrary.BusinessClasses
             string BatchGuid = Guid.NewGuid().ToString();
             VecFile = RemoteFolder + "Vectors.tsv";
             ClfFile = RemoteFolder + "Clf.tsv";
+			ScoresFile = RemoteFolder + "ScoresForReview" + ReviewId + ".tsv";
             Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
                     {"do_build_and_score_log_reg", false },
@@ -623,24 +625,32 @@ namespace BusinessLibrary.BusinessClasses
                     {"EPPIReviewerApiRunId", BatchGuid},
                     {"do_build_log_reg", false},
                     {"do_score_log_reg", true},
-                    //{"ScoresFile", ScoresFile},
+                    {"ScoresFile", ScoresFile},
                     {"VecFile", VecFile},
                     {"ClfFile", ClfFile}
                 };
 			try
 			{
-				DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2");
+				DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "ClassifierCommandV2");
 
 			}
-			catch (Exception e)
-			{ }
+			catch (Exception ex)
+			{
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to run DF", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                return;
+            }
 			try
 			{
-				DataTable Scores = DownloadResults("attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
+				DataTable Scores = DownloadResults("eppi-reviewer-data", ScoresFile);
 				LoadResultsIntoDatabase(Scores, ContactId);
 			}
-            catch (Exception e)
-            { }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                return;
+            }
             //string DataFile = @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv";
             //string ModelFile = @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, ModelReviewId.ToString()) + ".csv";
             //string ResultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv";
@@ -685,7 +695,7 @@ namespace BusinessLibrary.BusinessClasses
 
 			using (TextFieldParser csvReader = new TextFieldParser(ms))
 			{
-				csvReader.SetDelimiters(new string[] { "," });
+				csvReader.SetDelimiters(new string[] { "\t" });
 				csvReader.HasFieldsEnclosedInQuotes = false;
 				while (!csvReader.EndOfData)
 				{
@@ -723,51 +733,30 @@ namespace BusinessLibrary.BusinessClasses
 			}
 
 #else
-
-
-			using (TextReader tr = new StreamReader(ms))
-			{
-				var csv = new CsvReader(tr);			
-				while (csv.Read())
+            using (StreamReader tsvReader = new StreamReader(ms))
+            {
+                //csvReader.SetDelimiters(new string[] { "," });
+                //csvReader.HasFieldsEnclosedInQuotes = false;
+                string line = tsvReader.ReadLine();//headers line!!
+				while ((line = tsvReader.ReadLine()) != null)
 				{
-
-					var SCORE = csv.GetField(0);
-					var ITEM_ID = csv.GetField(1);
-					var REVIEW_ID = csv.GetField(2);
-
-					if (SCORE == "1")
-					{
-						SCORE = "0.999999";
-					}
-					else if (SCORE == "0")
-					{
-						SCORE = "0.000001";
-					}
-					else if (SCORE.Length > 2 && SCORE.Contains("E"))
-					{
-						double dbl = 0;
-						double.TryParse(SCORE, out dbl);
-
-						SCORE = dbl.ToString("F10");
-					}
-
-					DataRow row = dt.NewRow();
-					row["SCORE"]= SCORE;
-					row["ITEM_ID"] = ITEM_ID;
-					row["REVIEW_ID"] = REVIEW_ID;
-					dt.Rows.Add(row);
-
-				}
-			}
+                    string[] data = line.Split('\t');
+                    DataRow row = dt.NewRow();
+                    row["SCORE"] = GetSafeValue(data[4]); 
+                    row["ITEM_ID"] = GetSafeValue(data[0]);
+                    row["REVIEW_ID"] = RevInfo.ReviewId;
+                    dt.Rows.Add(row);
+                }
+            }
 #endif
-
-                return dt;
+			return dt;
 		}
 
 		private void LoadResultsIntoDatabase(DataTable dt, int ContactId)
 		{
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
+				connection.Open();
 				using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
 				{
 					sbc.DestinationTableName = "TB_CLASSIFIER_ITEM_TEMP";

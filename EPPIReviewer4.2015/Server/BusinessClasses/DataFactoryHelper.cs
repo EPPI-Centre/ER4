@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+
 #if !CSLA_NETCORE
 using Microsoft.Rest.Azure.Authentication;
 #else
@@ -138,7 +139,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             //Random r = new Random();
             //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
-
+            
+            int count = 0; int errorCount = 0;
 
             string tenantID = AzureSettings.tenantID;
             string appClientId = AzureSettings.appClientId;
@@ -157,11 +159,40 @@ namespace BusinessLibrary.BusinessClasses
             {
                 SubscriptionId = subscriptionId
             };
-            var run = await client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters);
+            Microsoft.Rest.Azure.AzureOperationResponse<CreateRunResponse> run = new Microsoft.Rest.Azure.AzureOperationResponse<CreateRunResponse>();
+            try
+            {
+                run = await client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters);
+            }
+            catch (Exception ex)
+            {
+                bool recovered = false;
+                errorCount++;
+                LogExceptionToFile(ex, ReviewId, ReviewJobId, Origin);
+                while (recovered == false && errorCount < 10)
+                {
+                    Thread.Sleep(15 * 1000);
+                    try
+                    {
+                        run = await client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters);
+                        recovered = true;
+                    }
+                    catch (Exception ex2)
+                    {
+                        LogExceptionToFile(ex2, ReviewId, ReviewJobId, Origin);
+                        errorCount++;
+                    }
+                }
+                if (recovered == false)
+                {
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error(s) (details in logfile)", "Pipeline: " + pipelineName, Origin, true, false);
+                    return false;
+                }
+            }
             CreateRunResponse runResponse = run.Body;// client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters).Result.Body;
 
             string runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, runResponse.RunId).Result.Status;
-            int count = 0; int errorCount = 0;
+            
             DateTime NextLogUpdateTime = DateTime.Now; //means that we do update the log immediately the 1st time
             while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
             {
@@ -234,8 +265,10 @@ namespace BusinessLibrary.BusinessClasses
                     else throw;
                 }
             }
+            if (runStatus == "Failed") return false;
             return true;
         }
+
 
         /// <summary>
         /// Updates a record in tb_REVIEW_JOB.
