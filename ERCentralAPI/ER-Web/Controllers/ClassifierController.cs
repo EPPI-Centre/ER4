@@ -52,9 +52,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-					ClassifierCommand cmd = new ClassifierCommand(
+					ClassifierCommandV2 cmd = new ClassifierCommandV2(
 							MVCcmd._title
 							, MVCcmd._attributeIdOn
 							, MVCcmd._attributeIdNotOn
@@ -64,7 +62,7 @@ namespace ERxWebClient2.Controllers
 						);
 					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
-					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+					DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
 
 					cmd = dp.Execute(cmd);
 					
@@ -93,9 +91,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-					ClassifierCommand cmd = new ClassifierCommand(
+					ClassifierCommandV2 cmd = new ClassifierCommandV2(
 							MVCcmd._title
 							, -1
 							, -1
@@ -106,7 +102,7 @@ namespace ERxWebClient2.Controllers
 
 					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
-					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+					DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
 
 					cmd =  dp.Execute(cmd);
 

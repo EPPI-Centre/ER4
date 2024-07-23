@@ -151,8 +151,8 @@ namespace BusinessLibrary.BusinessClasses
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
-            AuthenticationResult result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
-            ServiceClientCredentials cred = new TokenCredentials(result.AccessToken);
+            AuthenticationResult AccessTokenResult = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
+            ServiceClientCredentials cred = new TokenCredentials(AccessTokenResult.AccessToken);
             var client = new DataFactoryManagementClient(cred)
             {
                 SubscriptionId = subscriptionId
@@ -171,12 +171,12 @@ namespace BusinessLibrary.BusinessClasses
                     return false;
                 }
 
-                if (DateTime.Now.ToUniversalTime().AddMinutes(5) > result.ExpiresOn) // the token expires after an hour
+                if (DateTime.Now.ToUniversalTime().AddMinutes(5) > AccessTokenResult.ExpiresOn) // the token expires after an hour
                 {
                     count++;
-                    string accessToken = result.AccessToken;
-                    result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
-                    cred = new TokenCredentials(result.AccessToken);
+                    string accessToken = AccessTokenResult.AccessToken;
+                    AccessTokenResult = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
+                    cred = new TokenCredentials(AccessTokenResult.AccessToken);
                     client = new DataFactoryManagementClient(cred)
                     {
                         SubscriptionId = subscriptionId
@@ -209,9 +209,12 @@ namespace BusinessLibrary.BusinessClasses
                         return false;
                     }
                 }
-                catch (Microsoft.Rest.Azure.CloudException e)
+                catch (Exception e)
                 {
-                    if (e != null)
+                    if (e != null &&
+                        (e is Microsoft.Rest.Azure.CloudException
+                        || e is HttpRequestException
+                        ))
                     {
                         errorCount++;
                         bool ShouldGiveUp = (errorCount >= 100);
@@ -228,6 +231,7 @@ namespace BusinessLibrary.BusinessClasses
                         LogExceptionToFile(e, ReviewId, ReviewJobId, Origin);
                         if (ShouldGiveUp) return false;
                     }
+                    else throw;
                 }
             }
             return true;
@@ -280,9 +284,20 @@ namespace BusinessLibrary.BusinessClasses
             if (Program.Logger != null && (Program.Logger as Serilog.ILogger) != null)
             {
                 (Program.Logger as Serilog.ILogger).LogException(ex, Origin + " has an error. ReviewId:"
-                        + ReviewID + "ReviewJobId:" + LogId);
+                        + ReviewID + " ReviewJobId:" + LogId);
             }
 #endif
+        }
+        public static string NameBase
+        {//used to generate different files on the cloud, based on where this is running, as it could be any dev/test machine as well as the live one (EPI3).
+            get
+            {
+                if (AzureSettings.AddHostNamePrefixToBlobs.ToLower() != "false")
+                {
+                    return Environment.MachineName;
+                }
+                else return "";
+            }
         }
     }
 }

@@ -36,6 +36,10 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using System.Data;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Server.Kestrel.Internal.System.Buffers;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+
+
 
 
 
@@ -138,41 +142,52 @@ namespace BusinessLibrary.BusinessClasses
 			}
 			else
 			{
-				DoApplyClassifier(_classifierId, _attributeIdClassifyTo);
+				DoApplyClassifier(_classifierId);
 			}
 		}
-
-		private async void DoTrainClassifier(bool applyToo)
+		string LocalFileName = "";
+		string VecFile = "";
+		string ClfFile = "";
+        private void DoTrainClassifier(bool applyToo)
 		{
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				int newModelId = 0;
-				connection.Open();
+				int NewJobId = 0;
+				int ReviewId = ri.ReviewId;
+                List<Int64> ItemIds = new List<Int64>();
+                int positiveClassCount = 0;
+                int negativeClasscount = 0;
+
+                connection.Open();
 
                 if (_classifierId == -1) // building a new classifier
                 {
-                    using (SqlCommand command = new SqlCommand("st_ClassifierSaveModel", connection))
-                    {
+                    using (SqlCommand command = new SqlCommand("st_ClassifierSaveModel", connection))//Also checks if some classifier build job is already running
+                    {//we do the check and job creation in a single SP as we need the operation to be "all or nothing"
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                         command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title + " (in progress...)"));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
                         command.Parameters.Add(new SqlParameter("@NEW_MODEL_ID", 0));
                         command.Parameters["@NEW_MODEL_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters.Add(new SqlParameter("@NewJobId", System.Data.SqlDbType.Int));
+                        command.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                         command.ExecuteNonQuery();
                         newModelId = Convert.ToInt32(command.Parameters["@NEW_MODEL_ID"].Value);
-                    }
-                    if (newModelId == 0) // i.e. another train session is running / it's not been the specified length of time between running training yet
-                    {
-                        _returnMessage = "Already running";
-                        return;
-                    }
-                    else
-                    {
-                        _returnMessage = "";
+						if (newModelId == 0) // i.e. another train session is running / it's not been the specified length of time between running training yet
+						{
+							_returnMessage = "Already running";
+							return;
+						}
+						else
+						{
+							_returnMessage = "Starting...";
+							NewJobId = (int)command.Parameters["@NewJobId"].Value;
+						}
                     }
                 }
                 else
@@ -180,37 +195,91 @@ namespace BusinessLibrary.BusinessClasses
                     _returnMessage = "";
                     newModelId = _classifierId; // we're rebuilding an existing classifier
 
-                    using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModelTitle", connection))
-                    {
+                    using (SqlCommand command2 = new SqlCommand("st_ClassifierCanRunCheckAndMarkAsStarting", connection))
+                    {//this SP also checks if a build (or Apply) job is running and creates the new job record if not
                         command2.CommandType = System.Data.CommandType.StoredProcedure;
 
                         command2.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
-                        command2.Parameters.Add(new SqlParameter("@TITLE", _title + " (rebuilding...)"));
+                        command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                        command2.Parameters.Add(new SqlParameter("@TITLE", _title.Contains(" (rebuilding...)") ? _title : _title + " (rebuilding...)"));
+                        command2.Parameters.Add(new SqlParameter("@IsApply", 0));
+                        command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
+                        command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                         command2.ExecuteNonQuery();
+                        NewJobId = Convert.ToInt32(command2.Parameters["@NewJobId"].Value);
+						if (NewJobId == 0)
+						{
+							_returnMessage = "Already running";
+							return;
+						}
+						else
+						{
+							_returnMessage = "Starting...";
+						}
+					}
+                }
+#if (!CSLA_NETCORE)
+				LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId.ToString() +
+                    modelId.ToString() + "ContactId" + ri.UserId.ToString() + ".csv";
+#else
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                LocalFileName = tmpDir.FullName + "\\ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+#endif
+                using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
+                        {
+                            file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+                            while (reader.Read())
+                            {
+								if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+								{
+                                    ItemIds.Add(reader.GetInt64("ITEM_ID"));
+                                    file.WriteLine(reader["item_id"].ToString() + "\t" +
+										CleanText(reader, "title") + "\t" +
+										CleanText(reader, "abstract") + "\t" +
+										CleanText(reader, "LABEL"));
+                                    if (reader["LABEL"].ToString() == "1")
+                                        positiveClassCount++;
+                                    else
+                                        negativeClasscount++;
+                                }
+                            }
+                        }
                     }
                 }
-				int ModelId = await UploadDataAndBuildModelAsync(newModelId);
-
-				if (_returnMessage == "Insufficient data")
-				{
+                if (positiveClassCount < 6 || negativeClasscount < 6)
+                {
+                    _returnMessage = "Insufficient data";
 					using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
 					{
 						command.CommandType = System.Data.CommandType.StoredProcedure;
-						command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
+						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
 						command.Parameters.Add(new SqlParameter("@MODEL_ID", newModelId));
 						command.ExecuteNonQuery();
 					}
+                    File.Delete(LocalFileName);
+                    return;
 				}
+                connection.Close();
+                Task.Run(() => UploadDataAndBuildModelAsync(ReviewId, NewJobId, newModelId));
+                
 
                 //if (applyToo == true)
                 //{
                 //    DoApplyClassifier(ModelId);
                 //}
-                connection.Close();
 			}
 		}
 		
-		private static string CleanText(Csla.Data.SafeDataReader reader, string field)
+		public static string CleanText(Csla.Data.SafeDataReader reader, string field)
 		{
 			string text = reader.GetString(field);
 
@@ -244,187 +313,121 @@ namespace BusinessLibrary.BusinessClasses
 			//return text.Split(" @$/#.-:&*+=[]?!(){},''\">_<;%\\".ToCharArray());
 		}
 
-		private async Task<int> UploadDataAndBuildModelAsync(int modelId)
+		private async void UploadDataAndBuildModelAsync(int ReviewId, int LogId, int modelId)
 		{
-			ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-			//StringBuilder data = new StringBuilder();
-			//data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"" + Environment.NewLine);
-			List<Int64> ItemIds = new List<Int64>();
-			int positiveClassCount = 0;
-			int negativeClasscount = 0;
-
-			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+			string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + modelId + "/";
+            string RemoteFileName = RemoteFolder + "DataForBuilding.tsv";
+            bool DataFactoryRes = false;
+			try 
 			{
-				connection.Open();
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "", "TrainingRunCommandV2");
+                using (var fileStream = System.IO.File.OpenRead(LocalFileName))
+                {
+                    BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data", RemoteFileName, fileStream);
+                }
+            }
+			catch (Exception ex)
+			{
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to upload data", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                return;
+            }
+            try
+            {
+                DataFactoryHelper DFH = new DataFactoryHelper();
+                string BatchGuid = Guid.NewGuid().ToString();
+                VecFile = RemoteFolder + "Vectors.tsv";
+                ClfFile = RemoteFolder + "Clf.tsv";
+                Dictionary<string, object> parameters = new Dictionary<string, object>
+                {
+                    {"do_build_and_score_log_reg", false },
+                    {"DataFile", RemoteFileName },
+                    {"EPPIReviewerApiRunId", BatchGuid},
+                    {"do_build_log_reg", true},
+                    {"do_score_log_reg", false},
+                    //{"ScoresFile", ScoresFile},
+                    {"VecFile", VecFile},
+                    {"ClfFile", ClfFile}
+                };
+                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2");
 
-#if (!CSLA_NETCORE)
+                File.Delete(LocalFileName);
 
-				string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId.ToString() +
-                    modelId.ToString() + "ContactId" + ri.UserId.ToString() + ".csv";
-#else
-                // This may need to be changed for production
-                // 19-12-2018 Sergio mentions this file will not
-                // be necessary come the use of sql machine learning
-                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                string fileName = tmpDir.FullName + "/ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
-				//SG Edit. WAS:
-				//string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
-#endif
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to (re)build classifier", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                return;
+            }
+			if (DataFactoryRes == true)
+			{
 				try
 				{
-					using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
+					double accuracy = 0;
+					double precision = 0;
+					double recall = 0;
+					double auc = 0;
+					MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", RemoteFolder + "stats.tsv");
+					using (StreamReader tsvReader = new StreamReader(ms))
 					{
-						command.CommandType = System.Data.CommandType.StoredProcedure;
-						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-						command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
-						command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
-						using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+						//csvReader.SetDelimiters(new string[] { "," });
+						//csvReader.HasFieldsEnclosedInQuotes = false;
+						string line = tsvReader.ReadLine();//headers line!!
+						line = tsvReader.ReadLine();//data line!!
+						if (line != null)
 						{
-							using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
-							{
-								file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"");
-								while (reader.Read())
-								{
-									if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
-									{
-										ItemIds.Add(reader.GetInt64("ITEM_ID"));
-										file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
-											"\"" + reader["LABEL"].ToString() + "\"," +
-											"\"" + CleanText(reader, "title") + "\"," +
-											"\"" + CleanText(reader, "abstract") + "\"," +
-											"\"" + CleanText(reader, "keywords") + "\"");
-										//data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
-										//    "\"" + reader["LABEL"].ToString() + "\"," +
-										//    "\"" + CleanText(reader, "TITLE") + "\"," +
-										//    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
-										//    "\"" + CleanText(reader, "KEYWORDS") + "\"" + Environment.NewLine);
+							string[] data = line.Split('\t');
+							accuracy = GetSafeValue(data[0]);
+							precision = GetSafeValue(data[1]);
+							recall = GetSafeValue(data[2]);
+							auc = GetSafeValue(data[3]);
+						}
+					}
+					using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+					{
+						connection.Open();
+						using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModel", connection))
+						{
+							command2.CommandType = System.Data.CommandType.StoredProcedure;
 
-										if (reader["LABEL"].ToString() == "1")
-											positiveClassCount++;
-										else
-											negativeClasscount++;
-									}
-								}
+							command2.Parameters.Add(new SqlParameter("@MODEL_ID", modelId));
+							command2.Parameters.Add(new SqlParameter("@TITLE", _title));
+							command2.Parameters.AddWithValue("@ACCURACY", accuracy);
+							command2.Parameters.AddWithValue("@AUC", auc);
+							command2.Parameters.AddWithValue("@PRECISION", precision);
+							command2.Parameters.AddWithValue("@RECALL", recall);
+							command2.Parameters.Add(new SqlParameter("@CHECK_MODEL_ID_EXISTS", 0));
+							command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Direction = System.Data.ParameterDirection.Output;
+							command2.ExecuteNonQuery();
+							if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
+							{
+								DeleteModelAsync();
 							}
 						}
+						connection.Close();
 					}
-				} 
-				catch(Exception ex)
-                {
-					_returnMessage = "Error at ClassifierGetTrainingData:" + ex.Message;
-					return 0;
-				}
-
-				if (positiveClassCount < 2 || negativeClasscount < 2)
-				{
-					_returnMessage = "Error, Insufficient data";
-					return 0;
-				}
-				// upload data to blob
-				using (var fileStream = System.IO.File.OpenRead(fileName))
-				{
-					BlobOperations.UploadStream(
-						blobConnection, "attributemodeldata", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString() + ".csv"
-						, fileStream);
-				}
-
-				File.Delete(fileName);
-
-				_returnMessage = "Successful upload of data";
-
-				await InvokeBatchExecutionService(RevInfo.ReviewId.ToString(), "BuildModel", modelId, "", "", "", "");
-				// er4ml isharedkey =true
-
-				double accuracy = 0;
-				double auc = 0;
-				double precision = 0;
-				double recall = 0;
-				try
-				{
-					MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
-					modelId.ToString() + "Stats.csv");
-
-#if (!CSLA_NETCORE)
-
-					using (TextFieldParser csvReader = new TextFieldParser(ms))
-					{
-						csvReader.SetDelimiters(new string[] { "," });
-						csvReader.HasFieldsEnclosedInQuotes = false;
-						while (!csvReader.EndOfData)
-						{
-							string[] data1 = csvReader.ReadFields(); // headers
-							data1 = csvReader.ReadFields(); // now we get the data
-							accuracy = GetSafeValue(data1[0]);
-							auc = GetSafeValue(data1[1]);
-							precision = GetSafeValue(data1[2]);
-							recall = GetSafeValue(data1[3]);
-						}
-					}
-#else
-
-					using (TextReader tr = new StreamReader(ms))
-					{
-						//not implemented yet
-						var csv = new CsvReader(tr);
-						csv.Read();
-						csv.ReadHeader();
-						while (csv.Read())
-						{
-							var record = csv.GetRecord<SVMModel>();
-							accuracy = GetSafeValue(record.accuracy.ToString());
-							auc = GetSafeValue(record.auc.ToString());
-							precision = GetSafeValue(record.precision.ToString());
-							recall = GetSafeValue(record.recall.ToString());
-						}
-
-
-						//var records = csv.GetRecords(anonymousTypeDefinition);
-					}
-	
-#endif
-
-				}
-				catch(Exception e)
-				{
-					_returnMessage = "Error, BuildFailed";
-					_title += " (failed)";
-					accuracy = -0.99;
-					auc = -0.99;
-					precision = -0.99;
-					recall = -0.99;
-				}
-
-				using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModel", connection))
-				{
-					command2.CommandType = System.Data.CommandType.StoredProcedure;
 					
-					command2.Parameters.Add(new SqlParameter("@MODEL_ID", modelId));
-					command2.Parameters.Add(new SqlParameter("@TITLE", _title));
-					command2.Parameters.AddWithValue("@ACCURACY", accuracy);
-					command2.Parameters.AddWithValue("@AUC", auc);
-					command2.Parameters.AddWithValue("@PRECISION",  precision);
-					command2.Parameters.AddWithValue("@RECALL",  recall);
-					command2.Parameters.Add(new SqlParameter("@CHECK_MODEL_ID_EXISTS", 0));
-					command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Direction = System.Data.ParameterDirection.Output;
-					command2.ExecuteNonQuery();
-					if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
-					{
-						DeleteModelAsync();
-					}
+					//BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", "user_models/stats.tsv");
+					DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
 				}
-				connection.Close();
+				catch (Exception ex)
+				{
+					DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to download data", "", "ClassifierCommandV2", true, false);
+					DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+				}
+				BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
 			}
-			return modelId;
-		}
+        }
 
 		private double GetSafeValue(string data)
 		{
 
-			if (data == "1")
+			if (data == "1" || data == "1.0")
 			{
 				data = "0.999999";
 			}
-			else if (data == "0")
+			else if (data == "0" || data == "1.0")
 			{
 				data = "0.000001";
 			}
@@ -438,17 +441,15 @@ namespace BusinessLibrary.BusinessClasses
 			return Convert.ToDouble(data);
 		}
 
-        private async void DoApplyClassifier(int modelId, Int64 ApplyToAttributeId)
+        private void DoApplyClassifier(int modelId)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+			int ReviewId = ri.ReviewId;
+			int ContactId = ri.UserId;
+			int NewJobId = 0;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                //StringBuilder data = new StringBuilder();
-                //data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"" + Environment.NewLine);
-                List<Int64> ItemIds = new List<Int64>();
-
-
 #if (!CSLA_NETCORE)
 
                 string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
@@ -456,8 +457,7 @@ namespace BusinessLibrary.BusinessClasses
                 // same as comment above for same line
                 //SG Edit:
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                string fileName = tmpDir.FullName + "/ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
-				//string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+                string LocalFileName = tmpDir.FullName + "\\ReviewID" + ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";				
 #endif
                 //[SG]: new 27/09/2021: find out the reviewId for this model, as it might be from a different review
                 //added bonus, ensures the current user has access to this model, I guess.
@@ -500,109 +500,179 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 //end of 27/09/2021 addition
 
-                if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8 || modelId == -9) // the covid19,  progress-plus using the BERT model, pubmed study types, pubmed study designs (public), new Azure ML environment and SQL database. This will become default over time.
-                {
-					System.Threading.Tasks.Task.Run(() => DoNewMethod(modelId, ApplyToAttributeId, ri.ReviewId, ri.UserId));
-                    _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
-                    return;
-                }
-                else
-                {
-					try
-					{
-						using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
-						{
-							command.CommandType = System.Data.CommandType.StoredProcedure;
-							command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-							command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
-							command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
-							using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-							{
-								using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
-								{
-									file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
-									while (reader.Read())
-									{
-										if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
-										{
-											ItemIds.Add(reader.GetInt64("ITEM_ID"));
-											file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
-												"\"" + reader["LABEL"].ToString() + "\"," +
-												"\"" + CleanText(reader, "title") + "\"," +
-												"\"" + CleanText(reader, "abstract") + "\"," +
-												"\"" + CleanText(reader, "keywords") + "\"," + "\"" + RevInfo.ReviewId.ToString() + "\"");
 
-											//data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
-											//    "\"" + reader["LABEL"].ToString() + "\"," +
-											//    "\"" + CleanText(reader, "TITLE") + "\"," +
-											//    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
-											//    "\"" + CleanText(reader, "KEYWORDS") + "\"," + "\"" + ri.ReviewId.ToString() + "\"" + Environment.NewLine);
-										}
-									}
-								}
-							command.Cancel();
-							}
-						}
-					} 
-					catch(Exception ex)
+                using (SqlCommand command2 = new SqlCommand("st_ClassifierCanRunCheckAndMarkAsStarting", connection))
+                {//this SP also checks if a Apply (or build) job is running and creates the new job record if not
+                    command2.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    command2.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
+                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ModelReviewId));
+                    command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command2.Parameters.Add(new SqlParameter("@IsApply", 1));
+                    command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
+                    command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
+                    command2.ExecuteNonQuery();
+                    NewJobId = Convert.ToInt32(command2.Parameters["@NewJobId"].Value);
+                    if (NewJobId == 0)
                     {
-						_returnMessage = "Error at ClassifierGetClassificationData:" + ex.Message;
-						return;
-					}
-
-					// upload data to blob
-					try
-					{
-						using (var fileStream = System.IO.File.OpenRead(fileName))
-						{
-							BlobOperations.UploadStream(blobConnection,
-								"attributemodeldata",
-								TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv"
-								, fileStream);
-						}
-						File.Delete(fileName);
-					}
-					catch (Exception ex)
-					{
-						_returnMessage = "Error at OploadDataToClassify:" + ex.Message;
-						return;
-					}
-					_returnMessage = "Successful upload of data";
-
-                    string DataFile = @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv";
-                    string ModelFile = @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, ModelReviewId.ToString()) + ".csv";
-                    string ResultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv";
-                    string ResultsFile2 = "";
-                    if (modelId == -4)
-                    {
-                        ResultsFile1 = "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv";
-                        ResultsFile2 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv";
-                    }
-                    await InvokeBatchExecutionService(RevInfo.ReviewId.ToString(), "ScoreModel", modelId, DataFile, ModelFile, ResultsFile1, ResultsFile2);
-
-                    if (modelId == -4) // new RCT model = two searches to create, one for the RCTs, one for the non-RCTs
-                    {
-                        // load RCTs
-                        DataTable RCTs = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
-                        _title = "Cochrane RCT Classifier: may be RCTs";
-                        LoadResultsIntoDatabase(RCTs, connection, ri);
-
-                        // load non-RCTs
-                        DataTable nRCTs = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
-                        _title = "Cochrane RCT Classifier: unlikely to be RCTs";
-                        LoadResultsIntoDatabase(nRCTs, connection, ri);
+                        _returnMessage = "Already running";
+                        return;
                     }
                     else
                     {
-                        DataTable Scores = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
-                        LoadResultsIntoDatabase(Scores, connection, ri);
+                        _returnMessage = "Starting...";
                     }
-                    connection.Close();
+                }
+
+                if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8 || modelId == -9) // the covid19,  progress-plus using the BERT model, pubmed study types, pubmed study designs (public), new Azure ML environment and SQL database. This will become default over time.
+                {
+                    //DoNewMethod uses the static DataFactoryHelper.RunDataFactoryProcess(...) method, relies on AzureSQL to ship data
+                    Task.Run(() => DoNewMethod(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId));
+                    _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
+                    return;
+                }
+				else if (modelId == -4 || modelId == -3 || modelId == -2 || modelId == -1)
+				{//older pre-built classifiers RCT, Cochrane RCT, Economic Evaluation, Systematic Review
+
+				}
+                else
+                {//has to be a positive model ID, so a custom built one
+                    Task.Run(() => UploadDataAndScoreCustomModelAsync(ReviewId, NewJobId, modelId, ContactId));
                 }
             } // end if check for using covid categories / BERT models / SQL database
         }
+		private async void UploadDataAndScoreCustomModelAsync(int ReviewId, int LogId, int modelId, int ContactId)
+		{
+            List<Int64> ItemIds = new List<Int64>();
+            try
+            {
+				using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+				{
+					connection.Open();
+					using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
+					{
+						command.CommandType = System.Data.CommandType.StoredProcedure;
+						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+						command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", _attributeIdClassifyTo));
+						command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
+						using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+						{
+							using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
+							{
+								file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+								while (reader.Read())
+								{
+									if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+									{
+										ItemIds.Add(reader.GetInt64("ITEM_ID"));
+										file.WriteLine(reader["item_id"].ToString() + "\t" +
+											CleanText(reader, "title") + "\t" +
+											CleanText(reader, "abstract") + "\t" +
+											"99");
+										//file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
+										//	"\"" + reader["LABEL"].ToString() + "\"," +
+										//	"\"" + CleanText(reader, "title") + "\"," +
+										//	"\"" + CleanText(reader, "abstract") + "\"," +
+										//	"\"" + CleanText(reader, "keywords") + "\"," + "\"" + RevInfo.ReviewId.ToString() + "\"");
+									}
+								}
+							}
+							command.Cancel();
+						}
+					}
+				}
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to get data to score", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                return;
+            }
 
-		private  DataTable DownloadResults( string container, string filename)
+            string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + modelId + "/";
+            string RemoteFileName = RemoteFolder + "ReviewId" + ReviewId + "DataForScoring.tsv";
+            bool DataFactoryRes = false;
+            // upload data to blob
+            try
+            {
+                using (var fileStream = System.IO.File.OpenRead(LocalFileName))
+                {
+                    BlobOperations.UploadStream(blobConnection,
+                        "eppi-reviewer-data"
+                        , RemoteFileName
+                        , fileStream);
+                }
+                File.Delete(LocalFileName);
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to uplodad data to score", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2"); 
+				return;
+            }
+           
+
+            DataFactoryHelper DFH = new DataFactoryHelper();
+            string BatchGuid = Guid.NewGuid().ToString();
+            VecFile = RemoteFolder + "Vectors.tsv";
+            ClfFile = RemoteFolder + "Clf.tsv";
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+                {
+                    {"do_build_and_score_log_reg", false },
+                    {"DataFile", RemoteFileName },
+                    {"EPPIReviewerApiRunId", BatchGuid},
+                    {"do_build_log_reg", false},
+                    {"do_score_log_reg", true},
+                    //{"ScoresFile", ScoresFile},
+                    {"VecFile", VecFile},
+                    {"ClfFile", ClfFile}
+                };
+			try
+			{
+				DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2");
+
+			}
+			catch (Exception e)
+			{ }
+			try
+			{
+				DataTable Scores = DownloadResults("attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
+				LoadResultsIntoDatabase(Scores, ContactId);
+			}
+            catch (Exception e)
+            { }
+            //string DataFile = @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv";
+            //string ModelFile = @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, ModelReviewId.ToString()) + ".csv";
+            //string ResultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv";
+            //string ResultsFile2 = "";
+            //if (modelId == -4)
+            //{
+            //    ResultsFile1 = "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv";
+            //    ResultsFile2 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv";
+            //}
+            //await InvokeBatchExecutionService(RevInfo.ReviewId.ToString(), "ScoreModel", modelId, DataFile, ModelFile, ResultsFile1, ResultsFile2);
+
+            //if (modelId == -4) // new RCT model = two searches to create, one for the RCTs, one for the non-RCTs
+            //{
+            //    // load RCTs
+            //    DataTable RCTs = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
+            //    _title = "Cochrane RCT Classifier: may be RCTs";
+            //    LoadResultsIntoDatabase(RCTs, connection, ri);
+
+            //    // load non-RCTs
+            //    DataTable nRCTs = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
+            //    _title = "Cochrane RCT Classifier: unlikely to be RCTs";
+            //    LoadResultsIntoDatabase(nRCTs, connection, ri);
+            //}
+            //else
+            //{
+            //    DataTable Scores = DownloadResults( "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
+            //    LoadResultsIntoDatabase(Scores, connection, ri);
+            //}
+            //connection.Close();
+        }
+
+        private  DataTable DownloadResults( string container, string filename)
 		{
 			MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, container, filename);
 
@@ -694,33 +764,36 @@ namespace BusinessLibrary.BusinessClasses
                 return dt;
 		}
 
-		private void LoadResultsIntoDatabase(DataTable dt, SqlConnection connection, ReviewerIdentity ri)
+		private void LoadResultsIntoDatabase(DataTable dt, int ContactId)
 		{
-			using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
-				sbc.DestinationTableName = "TB_CLASSIFIER_ITEM_TEMP";
-				sbc.ColumnMappings.Clear();
-				sbc.ColumnMappings.Add("SCORE", "SCORE");
-				sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-				sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
-				sbc.BatchSize = 1000;
-				sbc.WriteToServer(dt);
-			}
+				using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+				{
+					sbc.DestinationTableName = "TB_CLASSIFIER_ITEM_TEMP";
+					sbc.ColumnMappings.Clear();
+					sbc.ColumnMappings.Add("SCORE", "SCORE");
+					sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
+					sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
+					sbc.BatchSize = 1000;
+					sbc.WriteToServer(dt);
+				}
 
-			// Create a new search to 'hold' the results
-			//int searchId = 0;
-			using (SqlCommand command = new SqlCommand("st_ClassifierCreateSearchList", connection))
-			{
-				command.CommandType = System.Data.CommandType.StoredProcedure;
-				command.CommandTimeout = 300;
-				command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
-				command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-				command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", "Items classified according to model: " + _title));
-				command.Parameters.Add(new SqlParameter("@HITS_NO", dt.Rows.Count));
-				command.Parameters.Add(new SqlParameter("@NEW_SEARCH_ID", 0));
-				command.Parameters["@NEW_SEARCH_ID"].Direction = System.Data.ParameterDirection.Output;
-				command.ExecuteNonQuery();
-				//searchId = Convert.ToInt32(command.Parameters["@NEW_SEARCH_ID"].Value); not sure we need this any more
+				// Create a new search to 'hold' the results
+				//int searchId = 0;
+				using (SqlCommand command = new SqlCommand("st_ClassifierCreateSearchList", connection))
+				{
+					command.CommandType = System.Data.CommandType.StoredProcedure;
+					command.CommandTimeout = 300;
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
+					command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+					command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", "Items classified according to model: " + _title));
+					command.Parameters.Add(new SqlParameter("@HITS_NO", dt.Rows.Count));
+					command.Parameters.Add(new SqlParameter("@NEW_SEARCH_ID", 0));
+					command.Parameters["@NEW_SEARCH_ID"].Direction = System.Data.ParameterDirection.Output;
+					command.ExecuteNonQuery();
+					//searchId = Convert.ToInt32(command.Parameters["@NEW_SEARCH_ID"].Value); not sure we need this any more
+				}
 			}
 		}
 
@@ -1235,7 +1308,7 @@ namespace BusinessLibrary.BusinessClasses
 }
 
 
-public class SVMModel
+public class SVMModel2
 {
 	public double accuracy { get; set; }
 	public double auc { get; set; }

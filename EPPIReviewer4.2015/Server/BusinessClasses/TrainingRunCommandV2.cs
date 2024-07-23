@@ -239,17 +239,10 @@ namespace BusinessLibrary.BusinessClasses
             string LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + UserId.ToString() + ".tsv";
 #else
                 LocalFileName = "";
-                if (Directory.Exists(@"\UserTempUploads"))
-                {
-                    LocalFileName = @".\UserTempUploads" + @"\" + UserId.ToString() + ".tsv";
-                }
-                else
-                {
-                    DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(@"\UserTempUploads");
-                    LocalFileName = tmpDir.FullName + @"\" + UserId.ToString() + ".tsv";
-                }
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                LocalFileName = tmpDir.FullName + @"\" + "PS-ReviewId" + RevInfo.ReviewId + UserId.ToString() + ".tsv";
 #endif
-                RemoteFileName = "priority_screening/" + NameBase + "ReviewId" + RevInfo.ReviewId + ".tsv";
+                RemoteFileName = "priority_screening/" + DataFactoryHelper.NameBase + "ReviewId" + RevInfo.ReviewId + ".tsv";
             }
             catch (Exception ex)
             {
@@ -279,9 +272,9 @@ namespace BusinessLibrary.BusinessClasses
                                 while (reader.Read())
                                 {
                                     file.WriteLine(reader["item_id"].ToString() + "\t" +
-                                        CleanText(reader, "title") + "\t" +
-                                        CleanText(reader, "abstract") + "\t" +
-                                        CleanText(reader, "INCLUDED"));
+                                        ClassifierCommandV2.CleanText(reader, "title") + "\t" +
+                                        ClassifierCommandV2.CleanText(reader, "abstract") + "\t" +
+                                        ClassifierCommandV2.CleanText(reader, "INCLUDED"));
                                 }
                             }
                         }
@@ -304,15 +297,14 @@ namespace BusinessLibrary.BusinessClasses
             {
                 DataFactoryHelper DFH = new DataFactoryHelper();
                 string BatchGuid = Guid.NewGuid().ToString();
-                ScoresFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Scores.tsv";
+                ScoresFile = "priority_screening/" + DataFactoryHelper.NameBase + ReviewId.ToString() + "Scores.tsv";
                 //string VecFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Vectors.tsv";
                 //string ClfFile = "priority_screening/" + NameBase + ReviewId.ToString() + "Clf.tsv";
                 Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
-                    {"BatchGuid", BatchGuid},
                     {"do_build_and_score_log_reg", true },
                     {"DataFile", RemoteFileName },
-                    {"EPPIReviewerApiRunId", "0"},
+                    {"EPPIReviewerApiRunId", BatchGuid},
                     {"do_build_log_reg", false},
                     {"do_score_log_reg", false},
                     {"ScoresFile", ScoresFile},
@@ -439,39 +431,7 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
-        private static string CleanText(Csla.Data.SafeDataReader reader, string field)
-        {
-            string text = reader.GetString(field);
-
-            // Strip all HTML.
-            text = Regex.Replace(text, "<[^<>]+>", "");
-
-            // Strip numbers.
-            //text = Regex.Replace(text, "[0-9]+", "number");
-
-            // Strip urls.
-            text = Regex.Replace(text, @"(http|https)://[^\s]*", "httpaddr");
-
-            // Strip email addresses.
-            text = Regex.Replace(text, @"[^\s]+@[^\s]+", "emailaddr");
-
-            // Strip dollar sign.
-            text = Regex.Replace(text, "[$]+", "dollar");
-
-            // Strip usernames.
-            text = Regex.Replace(text, @"@[^\s]+", "username");
-
-            // Strip annoying punctuation
-            text = text.Replace("'", " ").Replace("\"", " ").Replace(",", " ");
-
-            // Strip newlines
-            text = text.Replace(Environment.NewLine, " ").Replace("\n\r", " ").Replace("\n", " ").Replace("\r", " ");
-
-            return text;
-
-            // Tokenize and also get rid of any punctuation
-            //return text.Split(" @$/#.-:&*+=[]?!(){},''\">_<;%\\".ToCharArray());
-        }
+        
 
         
 
@@ -495,17 +455,7 @@ namespace BusinessLibrary.BusinessClasses
         static string apiKeySimulation5 = AzureSettings.apiKeySimulation5;
         const string TempPath = @"UserTempUploads/ReviewId";
 
-        public static string NameBase
-        {//used to generate different files on the cloud, based on where this is running, as it could be any dev/test machine as well as the live one (EPI3).
-            get
-            {
-                if (AzureSettings.AddHostNamePrefixToBlobs.ToLower() != "false")
-                {
-                    return Environment.MachineName;
-                }
-                else return "";
-            }
-        }
+        
 #endif
     }
 }
