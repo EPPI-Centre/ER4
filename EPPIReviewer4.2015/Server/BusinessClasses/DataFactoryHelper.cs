@@ -265,7 +265,7 @@ namespace BusinessLibrary.BusinessClasses
                     else throw;
                 }
             }
-            if (runStatus == "Failed") return false;
+            if (runStatus != "Succeeded") return false;
             return true;
         }
 

@@ -38,6 +38,8 @@ using System.Data;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Server.Kestrel.Internal.System.Buffers;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
+
 
 
 
@@ -204,7 +206,7 @@ namespace BusinessLibrary.BusinessClasses
                         command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                         command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                         command2.Parameters.Add(new SqlParameter("@TITLE", _title.Contains(" (rebuilding...)") ? _title : _title + " (rebuilding...)"));
-                        command2.Parameters.Add(new SqlParameter("@IsApply", 0));
+                        command2.Parameters.Add(new SqlParameter("@IsApply", false));
                         command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
                         command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                         command2.ExecuteNonQuery();
@@ -267,6 +269,7 @@ namespace BusinessLibrary.BusinessClasses
 						command.ExecuteNonQuery();
 					}
                     File.Delete(LocalFileName);
+                    DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
                     return;
 				}
                 connection.Close();
@@ -280,40 +283,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 		
-		public static string CleanText(Csla.Data.SafeDataReader reader, string field)
-		{
-			string text = reader.GetString(field);
-
-			// Strip all HTML.
-			text = Regex.Replace(text, "<[^<>]+>", "");
-
-			// Strip numbers.
-			//text = Regex.Replace(text, "[0-9]+", "number");
-
-			// Strip urls.
-			text = Regex.Replace(text, @"(http|https)://[^\s]*", "httpaddr");
-
-			// Strip email addresses.
-			text = Regex.Replace(text, @"[^\s]+@[^\s]+", "emailaddr");
-
-			// Strip dollar sign.
-			text = Regex.Replace(text, "[$]+", "dollar");
-
-			// Strip usernames.
-			text = Regex.Replace(text, @"@[^\s]+", "username");
-
-			// Strip annoying punctuation
-			text = text.Replace("'", " ").Replace("\"", " ").Replace(",", " ");
-
-			// Strip newlines
-			text = text.Replace(Environment.NewLine, " ").Replace("\n\r", " ").Replace("\n", " ").Replace("\r", " ");
-
-			return text;
-
-			// Tokenize and also get rid of any punctuation
-			//return text.Split(" @$/#.-:&*+=[]?!(){},''\">_<;%\\".ToCharArray());
-		}
-
+		
 		private async void UploadDataAndBuildModelAsync(int ReviewId, int LogId, int modelId)
 		{
 			string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + modelId + "/";
@@ -326,9 +296,19 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data", RemoteFileName, fileStream);
                 }
+                File.Delete(LocalFileName);
             }
 			catch (Exception ex)
 			{
+				if (File.Exists(LocalFileName))
+				{
+					try
+					{
+						File.Delete(LocalFileName);
+					}
+					catch { }
+				}
+                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to upload data", "", "ClassifierCommandV2", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return;
@@ -351,12 +331,10 @@ namespace BusinessLibrary.BusinessClasses
                     {"ClfFile", ClfFile}
                 };
                 DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2");
-
-                File.Delete(LocalFileName);
-
             }
             catch (Exception ex)
             {
+                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to (re)build classifier", "", "ClassifierCommandV2", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return;
@@ -409,7 +387,6 @@ namespace BusinessLibrary.BusinessClasses
 						connection.Close();
 					}
 					
-					//BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", "user_models/stats.tsv");
 					DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
 				}
 				catch (Exception ex)
@@ -417,30 +394,11 @@ namespace BusinessLibrary.BusinessClasses
 					DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to download data", "", "ClassifierCommandV2", true, false);
 					DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
 				}
-				BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
 			}
+			BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
         }
 
-		private double GetSafeValue(string data)
-		{
-
-			if (data == "1" || data == "1.0")
-			{
-				data = "0.999999";
-			}
-			else if (data == "0" || data == "1.0")
-			{
-				data = "0.000001";
-			}
-			else if (data.Length > 2 && data.Contains("E"))
-			{
-				double dbl = 0;
-				double.TryParse(data, out dbl);
-				//if (dbl == 0.0) throw new Exception("Gotcha!");
-				data = dbl.ToString("F10");
-			}
-			return Convert.ToDouble(data);
-		}
+		
 
         private void DoApplyClassifier(int modelId)
         {
@@ -509,7 +467,7 @@ namespace BusinessLibrary.BusinessClasses
                     command2.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
                     command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ModelReviewId));
                     command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command2.Parameters.Add(new SqlParameter("@IsApply", 1));
+                    command2.Parameters.Add(new SqlParameter("@IsApply", true));
                     command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
                     command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                     command2.ExecuteNonQuery();
@@ -640,17 +598,27 @@ namespace BusinessLibrary.BusinessClasses
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return;
             }
+			DataTable Scores = new DataTable();
 			try
 			{
-				DataTable Scores = DownloadResults("eppi-reviewer-data", ScoresFile);
-				LoadResultsIntoDatabase(Scores, ContactId);
-			}
+				if (DataFactoryRes == true)
+				{
+					Scores = DownloadResults("eppi-reviewer-data", ScoresFile);
+					LoadResultsIntoDatabase(Scores, ContactId);
+				}
+                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
+                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
+            }
             catch (Exception ex)
             {
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", "ClassifierCommandV2", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return;
             }
+
+
+
             //string DataFile = @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv";
             //string ModelFile = @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, ModelReviewId.ToString()) + ".csv";
             //string ResultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv";
@@ -687,7 +655,7 @@ namespace BusinessLibrary.BusinessClasses
 			MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, container, filename);
 
 			DataTable dt = new DataTable("Scores");
-			dt.Columns.Add("SCORE");
+			dt.Columns.Add("SCORE", System.Type.GetType("System.Decimal"));
 			dt.Columns.Add("ITEM_ID");
 			dt.Columns.Add("REVIEW_ID");
 
@@ -740,12 +708,8 @@ namespace BusinessLibrary.BusinessClasses
                 string line = tsvReader.ReadLine();//headers line!!
 				while ((line = tsvReader.ReadLine()) != null)
 				{
-                    string[] data = line.Split('\t');
-                    DataRow row = dt.NewRow();
-                    row["SCORE"] = GetSafeValue(data[4]); 
-                    row["ITEM_ID"] = GetSafeValue(data[0]);
-                    row["REVIEW_ID"] = RevInfo.ReviewId;
-                    dt.Rows.Add(row);
+                    string[] data = line.Split('\t'); 
+					dt.Rows.Add(GetSafeValue(data[4]), long.Parse(data[0]), RevInfo.ReviewId);
                 }
             }
 #endif
@@ -815,7 +779,65 @@ namespace BusinessLibrary.BusinessClasses
 
 		}
 
-		public static string ModelIdForScoring(int modId)
+        private double GetSafeValue(string data)
+        {
+
+            if (data == "1" || data == "1.0")
+            {
+                data = "0.99999999";
+            }
+            else if (data == "0" || data == "1.0")
+            {
+                data = "0.00000001";
+            }
+            //else if (data.Length > 2 && data.Contains("E"))
+            //{
+            //	double dbl = 0;
+            //	double.TryParse(data, out dbl);
+            //	//if (dbl == 0.0) throw new Exception("Gotcha!");
+            //	if (dbl < 0.000001) dbl = 0.000001;
+
+            //             data = dbl.ToString("F10");
+            //}
+            return Convert.ToDouble(data);
+        }
+
+        public static string CleanText(Csla.Data.SafeDataReader reader, string field)
+        {
+            string text = reader.GetString(field);
+
+            // Strip all HTML.
+            text = Regex.Replace(text, "<[^<>]+>", "");
+
+            // Strip numbers.
+            //text = Regex.Replace(text, "[0-9]+", "number");
+
+            // Strip urls.
+            text = Regex.Replace(text, @"(http|https)://[^\s]*", "httpaddr");
+
+            // Strip email addresses.
+            text = Regex.Replace(text, @"[^\s]+@[^\s]+", "emailaddr");
+
+            // Strip dollar sign.
+            text = Regex.Replace(text, "[$]+", "dollar");
+
+            // Strip usernames.
+            text = Regex.Replace(text, @"@[^\s]+", "username");
+
+            // Strip annoying punctuation
+            text = text.Replace("'", " ").Replace("\"", " ").Replace(",", " ");
+
+            // Strip newlines
+            text = text.Replace(Environment.NewLine, " ").Replace("\n\r", " ").Replace("\n", " ").Replace("\r", " ");
+
+            return text;
+
+            // Tokenize and also get rid of any punctuation
+            //return text.Split(" @$/#.-:&*+=[]?!(){},''\">_<;%\\".ToCharArray());
+        }
+
+
+        public static string ModelIdForScoring(int modId)
 		{
 			string retval = "RCT";
 			if (modId > 0)
