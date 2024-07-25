@@ -127,10 +127,10 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult DeleteModel([FromBody] MVCClassifierCommand _model)
 		{
-			ClassifierCommand command = new ClassifierCommand();
+			ClassifierCommandV2 command = new ClassifierCommandV2();
 			try
 			{
-			    command = new ClassifierCommand(
+			    command = new ClassifierCommandV2(
 					       "DeleteThisModel~~",
 					       -1,
 					       -1,
@@ -139,7 +139,7 @@ namespace ERxWebClient2.Controllers
 					       -1);
 				if (SetCSLAUser4Writing()) 
 				{
-                    DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+                    DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
                     command.RevInfo = _model.revInfo.ToCSLAReviewInfo();
                     command = dp.Execute(command);
                     return Ok(command);

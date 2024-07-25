@@ -135,12 +135,12 @@ namespace BusinessLibrary.BusinessClasses
 		{
 			if (_title == "DeleteThisModel~~")
 			{
-				DeleteModelAsync();
+				DeleteModel();
 				return;
 			}
 			if (_attributeIdOn + _attributeIdNotOn != -2)
 			{
-				DoTrainClassifier(false);
+				DoTrainClassifier();
 			}
 			else
 			{
@@ -151,7 +151,7 @@ namespace BusinessLibrary.BusinessClasses
 		string VecFile = "";
 		string ClfFile = "";
 		string ScoresFile = "";
-        private void DoTrainClassifier(bool applyToo)
+        private void DoTrainClassifier()
 		{
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
@@ -258,16 +258,29 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                if (positiveClassCount < 6 || negativeClasscount < 6)
+                if (positiveClassCount < 7 || negativeClasscount < 7)//at lease 6 examples in each class
                 {
                     _returnMessage = "Insufficient data";
-					using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
+					if (_classifierId == -1) //building a new classifier, there is not enough data, so we're not saving it
 					{
-						command.CommandType = System.Data.CommandType.StoredProcedure;
-						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-						command.Parameters.Add(new SqlParameter("@MODEL_ID", newModelId));
-						command.ExecuteNonQuery();
+						using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
+						{
+							command.CommandType = System.Data.CommandType.StoredProcedure;
+							command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+							command.Parameters.Add(new SqlParameter("@MODEL_ID", newModelId));
+							command.ExecuteNonQuery();
+						}
 					}
+					else
+					{//update: we were rebuilding it, re-set the model name
+                        using (SqlCommand command = new SqlCommand("st_ClassifierUpdateModelTitle", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@MODEL_ID", newModelId));
+                            command.Parameters.Add(new SqlParameter("@TITLE", _title));
+                            command.ExecuteNonQuery();
+                        }
+                    }
                     File.Delete(LocalFileName);
                     DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
                     return;
@@ -286,7 +299,12 @@ namespace BusinessLibrary.BusinessClasses
 		
 		private async void UploadDataAndBuildModelAsync(int ReviewId, int LogId, int modelId)
 		{
-			string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + modelId + "/";
+            if (AppIsShuttingDown)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "TrainingRunCommandV2", true, false);
+                return;
+            }
+            string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + modelId + "/";
             string RemoteFileName = RemoteFolder + "DataForBuilding.tsv";
             bool DataFactoryRes = false;
 			try 
@@ -300,6 +318,7 @@ namespace BusinessLibrary.BusinessClasses
             }
 			catch (Exception ex)
 			{
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
 				if (File.Exists(LocalFileName))
 				{
 					try
@@ -310,7 +329,11 @@ namespace BusinessLibrary.BusinessClasses
 				}
                 BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to upload data", "", "ClassifierCommandV2", true, false);
-                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                return;
+            }
+            if (AppIsShuttingDown)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after upload", "", "TrainingRunCommandV2", true, false);
                 return;
             }
             try
@@ -334,12 +357,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception ex)
             {
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to (re)build classifier", "", "ClassifierCommandV2", true, false);
-                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return;
             }
-			if (DataFactoryRes == true)
+            //no check for AppIsShuttingDown: these happen inside RunDataFactoryProcessV2
+			//what happens after this is fast, so no need for checking from here on
+            if (DataFactoryRes == true)
 			{
 				try
 				{
@@ -379,10 +404,10 @@ namespace BusinessLibrary.BusinessClasses
 							command2.Parameters.Add(new SqlParameter("@CHECK_MODEL_ID_EXISTS", 0));
 							command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Direction = System.Data.ParameterDirection.Output;
 							command2.ExecuteNonQuery();
-							if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
-							{
-								DeleteModelAsync();
-							}
+							//if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
+							//{
+							//	DeleteModelAsync();
+							//}
 						}
 						connection.Close();
 					}
@@ -391,8 +416,8 @@ namespace BusinessLibrary.BusinessClasses
 				}
 				catch (Exception ex)
 				{
-					DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to download data", "", "ClassifierCommandV2", true, false);
 					DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+					DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to download data", "", "ClassifierCommandV2", true, false);
 				}
 			}
 			BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
@@ -547,7 +572,11 @@ namespace BusinessLibrary.BusinessClasses
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return;
             }
-
+            if (AppIsShuttingDown)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "ClassifierCommandV2", true, false);
+                return;
+            }
             string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + modelId + "/";
             string RemoteFileName = RemoteFolder + "ReviewId" + ReviewId + "DataForScoring.tsv";
             bool DataFactoryRes = false;
@@ -750,7 +779,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 
-		private void DeleteModelAsync()
+		private void DeleteModel()
 		{
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
@@ -765,16 +794,20 @@ namespace BusinessLibrary.BusinessClasses
 				}
 				connection.Close();
 			}
-
-			// now remove the blob from Azure. the fact that it's always tied to the reviewId means that people can't delete the public classifiers (RCT / DARE)
 			try
 			{
-				BlobOperations.DeleteIfExists(blobConnection, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + ".csv");
-				BlobOperations.DeleteIfExists(blobConnection, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + "Stats.csv");
-			}
-			catch
+                string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + _classifierId + "/";
+				List<BlobInHierarchy> list = BlobOperations.Blobfilenames(blobConnection, "eppi-reviewer-data", RemoteFolder);
+				foreach(var toDel in list)
+				{
+					Console.WriteLine("Will delete " + toDel.BlobName);
+                    BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", toDel.BlobName);
+                }
+            }
+			catch (Exception ex) 
 			{
-				_returnMessage = "Error deleting. Blobs possibly not found.";
+                DataFactoryHelper.LogExceptionToFile(ex, RevInfo.ReviewId, _classifierId, "Delete custom model");
+                _returnMessage = "Error deleting models files from Azure storage.";
 			}
 
 		}

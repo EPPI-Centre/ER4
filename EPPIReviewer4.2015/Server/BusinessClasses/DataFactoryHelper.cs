@@ -228,7 +228,6 @@ namespace BusinessLibrary.BusinessClasses
                         runStatus = pr.Status;
                         if (DateTime.Now > NextLogUpdateTime)
                         {
-                            
                             UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + runResponse.RunId, Origin);
                             NextLogUpdateTime = DateTime.Now.AddMinutes(1);//keep updating the log every 1 minute
                         }
