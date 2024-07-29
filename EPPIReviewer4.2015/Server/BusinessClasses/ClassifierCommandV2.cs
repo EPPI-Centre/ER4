@@ -204,6 +204,7 @@ namespace BusinessLibrary.BusinessClasses
 
                         command2.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
                         command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", ReviewId));
                         command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                         command2.Parameters.Add(new SqlParameter("@TITLE", _title.Contains(" (rebuilding...)") ? _title : _title + " (rebuilding...)"));
                         command2.Parameters.Add(new SqlParameter("@IsApply", false));
@@ -445,7 +446,7 @@ namespace BusinessLibrary.BusinessClasses
 #endif
                 //[SG]: new 27/09/2021: find out the reviewId for this model, as it might be from a different review
                 //added bonus, ensures the current user has access to this model, I guess.
-                int ModelReviewId = -1; //will be used later on so this addition includes later refs to this object.
+                int ModelReviewId = -1; //will be used later
                 if (modelId > 0) //no need to check for the general pre-built models which are less than zero...
                 {
 					try
@@ -491,6 +492,7 @@ namespace BusinessLibrary.BusinessClasses
 
                     command2.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
                     command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", ModelReviewId));
                     command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command2.Parameters.Add(new SqlParameter("@IsApply", true));
                     command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
@@ -511,7 +513,7 @@ namespace BusinessLibrary.BusinessClasses
                 if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8 || modelId == -9) // the covid19,  progress-plus using the BERT model, pubmed study types, pubmed study designs (public), new Azure ML environment and SQL database. This will become default over time.
                 {
                     //DoNewMethod uses the static DataFactoryHelper.RunDataFactoryProcess(...) method, relies on AzureSQL to ship data
-                    Task.Run(() => DoNewMethod(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId));
+                    Task.Run(() => DoNewMethod(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
                     return;
                 }
@@ -1256,7 +1258,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 
-        private async Task DoNewMethod(int modelId, Int64 ApplyToAttributeId, int ReviewId, int ContactId)
+        private async Task DoNewMethod(int modelId, Int64 ApplyToAttributeId, int ReviewId, int ContactId, int LogId)
         {
             // Much simpler approach: 1) write data to Azure SQL; 2) trigger the DataFactory pipeline; 3) download scores from Azure SQL and insert into Reviewer DB
 
@@ -1370,6 +1372,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
                 }
             }
+            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
         }
 
 #endif
