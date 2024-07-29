@@ -264,7 +264,12 @@ namespace BusinessLibrary.BusinessClasses
                     else throw;
                 }
             }
-            if (runStatus != "Succeeded") return false;
+            if (runStatus != "Succeeded")
+            {
+                UpdateReviewJobLog(ReviewJobId, ReviewId, "DF failed with status: " + runStatus, "DF RunId: " + runResponse.RunId
+                                + Environment.NewLine + "Pipeline: " + pipelineName, Origin, true, false);
+                return false;
+            }
             return true;
         }
 

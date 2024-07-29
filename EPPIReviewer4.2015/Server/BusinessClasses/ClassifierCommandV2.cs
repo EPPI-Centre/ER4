@@ -441,7 +441,7 @@ namespace BusinessLibrary.BusinessClasses
                 // same as comment above for same line
                 //SG Edit:
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                LocalFileName = tmpDir.FullName + "\\ReviewID" + ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";				
+                LocalFileName = tmpDir.FullName + "\\ReviewID" + ReviewId + "ContactId" + ri.UserId.ToString() + ".tsv";				
 #endif
                 //[SG]: new 27/09/2021: find out the reviewId for this model, as it might be from a different review
                 //added bonus, ensures the current user has access to this model, I guess.
@@ -490,7 +490,7 @@ namespace BusinessLibrary.BusinessClasses
                     command2.CommandType = System.Data.CommandType.StoredProcedure;
 
                     command2.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
-                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ModelReviewId));
+                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command2.Parameters.Add(new SqlParameter("@IsApply", true));
                     command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
@@ -616,7 +616,13 @@ namespace BusinessLibrary.BusinessClasses
                     {"VecFile", VecFile},
                     {"ClfFile", ClfFile}
                 };
-			try
+
+            if (AppIsShuttingDown)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after upload", "", "ClassifierCommandV2", true, false);
+                return;
+            }
+            try
 			{
 				DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "ClassifierCommandV2");
 
@@ -628,24 +634,43 @@ namespace BusinessLibrary.BusinessClasses
                 return;
             }
 			DataTable Scores = new DataTable();
+            if (AppIsShuttingDown)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF", "", "ClassifierCommandV2", true, false);
+                return;
+            }
+            if (DataFactoryRes == true)
+            {
+                try
+                {
+
+                    Scores = DownloadResults("eppi-reviewer-data", ScoresFile);
+                    if (AppIsShuttingDown)
+                    {
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF2", "", "ClassifierCommandV2", true, false);
+                        return;
+                    }
+                    LoadResultsIntoDatabase(Scores, ContactId);
+                }
+                catch (Exception ex)
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", "ClassifierCommandV2", true, false);
+                    DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                    return;
+                }
+            }
 			try
 			{
-				if (DataFactoryRes == true)
-				{
-					Scores = DownloadResults("eppi-reviewer-data", ScoresFile);
-					LoadResultsIntoDatabase(Scores, ContactId);
-				}
-                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
-                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
-            }
+				BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
+				BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+				DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
+			}
             catch (Exception ex)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed deleting remote files", "", "ClassifierCommandV2", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return;
             }
-
 
 
             //string DataFile = @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv";
