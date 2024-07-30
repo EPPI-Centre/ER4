@@ -87,7 +87,7 @@ try
                 //Service Behavior in case of exceptions - defautls to StopHost
                 options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
                 //Host will try to wait 30 seconds before stopping the service. 
-                //options.ShutdownTimeout = TimeSpan.FromSeconds(45);
+                options.ShutdownTimeout = TimeSpan.FromSeconds(30);
             })
         .AddHostedService<GracefulShutdownGuardianService>().AddHostedService<RobotOpenAiHostedService>();
 
@@ -173,9 +173,15 @@ public partial class Program
     //this is naughty, but it's the best I could think of, given the DI absence in old versions of CSLA
     public static Serilog.ILogger? Logger { get { return _Logger; } }
 
-    public static bool AppIsShuttingDown = false;
+    public static bool AppIsShuttingDown { 
+        get { return Program.TokenSource.Token.IsCancellationRequested; }
+    }
 
-    
+    public static CancellationTokenSource TokenSource { 
+        get;
+        private set; 
+    } = new CancellationTokenSource();
+
 
 }
 internal class GracefulShutdownGuardianService : IHostedService, IDisposable
@@ -199,11 +205,11 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
         _appLifetime.ApplicationStopping.Register(OnStopping);
         _appLifetime.ApplicationStopped.Register(OnStopped);
         //_timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
-        Task.Run(() =>
-        {
-            Thread.Sleep(30000);
-            Program.AppIsShuttingDown = false;
-        });
+        //Task.Run(() =>
+        //{
+        //    Thread.Sleep(30000);
+        //    Program.AppIsShuttingDown = false;
+        //});
         return Task.CompletedTask;
     }
     //private void DoWork(object? state)
@@ -213,10 +219,12 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
     //}
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        Program.AppIsShuttingDown = true;
+        Program.TokenSource.Cancel();
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is stopping, with ID: " + ID);
         //Logger.Information("CT ID: " + cancellationToken.GetHashCode().ToString() + " please make sense! " + cancellationToken.IsCancellationRequested.ToString());
         Logger.Information("GracefulShutdownGuardianService is stopping, with ID: " + ID);
+        //Thread.Sleep(1 * 1000);//always give 1s to other threads to stop
+        //Logger.Information("GracefulShutdownGuardianService is stopping and is done waiting");
         //_timer?.Change(Timeout.Infinite, 0);
         return Task.CompletedTask;
     }

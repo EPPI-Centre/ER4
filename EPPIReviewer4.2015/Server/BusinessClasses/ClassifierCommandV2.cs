@@ -354,7 +354,7 @@ namespace BusinessLibrary.BusinessClasses
                     {"VecFile", VecFile},
                     {"ClfFile", ClfFile}
                 };
-                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2");
+                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2", this.CancelToken);
             }
             catch (Exception ex)
             {
@@ -626,7 +626,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             try
 			{
-				DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "ClassifierCommandV2");
+				DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "ClassifierCommandV2", this.CancelToken);
 
 			}
 			catch (Exception ex)
@@ -636,11 +636,6 @@ namespace BusinessLibrary.BusinessClasses
                 return;
             }
 			DataTable Scores = new DataTable();
-            if (AppIsShuttingDown)
-            {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF", "", "ClassifierCommandV2", true, false);
-                return;
-            }
             if (DataFactoryRes == true)
             {
                 try
@@ -649,7 +644,7 @@ namespace BusinessLibrary.BusinessClasses
                     Scores = DownloadResults("eppi-reviewer-data", ScoresFile);
                     if (AppIsShuttingDown)
                     {
-                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF2", "", "ClassifierCommandV2", true, false);
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF", "", "ClassifierCommandV2", true, false);
                         return;
                     }
                     LoadResultsIntoDatabase(Scores, ContactId);
@@ -665,7 +660,7 @@ namespace BusinessLibrary.BusinessClasses
 			{
 				BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
 				BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
-				DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
+				if (DataFactoryRes == true) DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
 			}
             catch (Exception ex)
             {

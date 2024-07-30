@@ -311,7 +311,7 @@ namespace BusinessLibrary.BusinessClasses
                     //{"VecFile", VecFile},
                     //{"ClfFile", ClfFile}
                 };
-                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2");
+                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2", this.CancelToken);
 
                 File.Delete(LocalFileName);
             }

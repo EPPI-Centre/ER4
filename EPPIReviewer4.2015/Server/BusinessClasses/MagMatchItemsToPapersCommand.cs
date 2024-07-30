@@ -119,7 +119,7 @@ namespace BusinessLibrary.BusinessClasses
 
 #if CSLA_NETCORE
                     //see AppIsShuttingDown property to see how we're making graceful shutdown possible in both ER4 and ER6
-                    System.Threading.Tasks.Task.Run(() => doMatchItems(ri.ReviewId, MagLogId, Convert.ToInt32(AzureSettings.MagMatchItemsMaxThreadCount)));
+                    System.Threading.Tasks.Task.Run(() => doMatchItems(ri.ReviewId, MagLogId, Convert.ToInt32(AzureSettings.MagMatchItemsMaxThreadCount), this.CancelToken));
 #else
                     //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
                     HostingEnvironment.QueueBackgroundWorkItem(cancellationToken =>

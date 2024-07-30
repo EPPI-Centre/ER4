@@ -135,7 +135,10 @@ namespace BusinessLibrary.BusinessClasses
             }
             return true;
         }
-        public async Task<bool> RunDataFactoryProcessV2(string pipelineName, Dictionary<string, object> parameters, int ReviewId, int ReviewJobId, string Origin)
+        public async Task<bool> RunDataFactoryProcessV2(string pipelineName, 
+            Dictionary<string, object> parameters, 
+            int ReviewId, int ReviewJobId, string Origin,
+            CancellationToken CT)
         {
             //Random r = new Random();
             //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
@@ -171,9 +174,20 @@ namespace BusinessLibrary.BusinessClasses
                 LogExceptionToFile(ex, ReviewId, ReviewJobId, Origin);
                 while (recovered == false && errorCount < 10)
                 {
-                    Thread.Sleep(15 * 1000);
                     try
                     {
+                        try
+                        {
+                            await Task.Delay(15000, CT);//15 seconds: we don't know why this happens!!
+                        }
+                        catch
+                        {
+                            if (AppIsShuttingDown || CT.IsCancellationRequested)//if CT requests a cancellation during the Delay, we get a 
+                            {
+                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "No DF RunId yet", Origin, true, false);
+                                return false;
+                            }
+                        }
                         run = await client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters);
                         recovered = true;
                     }
@@ -196,7 +210,7 @@ namespace BusinessLibrary.BusinessClasses
             DateTime NextLogUpdateTime = DateTime.Now; //means that we do update the log immediately the 1st time
             while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
             {
-                if (AppIsShuttingDown)
+                if (AppIsShuttingDown || CT.IsCancellationRequested)
                 {
                     UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, Origin, true, false);
                     return false;
@@ -213,13 +227,20 @@ namespace BusinessLibrary.BusinessClasses
                         SubscriptionId = subscriptionId
                     };
                 }
-
-                Thread.Sleep(5 * 1000);
-                if (AppIsShuttingDown)//checking again, because we just paused 5s or more!
+                try
                 {
-                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, Origin, true, false);
-                    return false;
+                    await Task.Delay(5000, CT);
                 }
+                catch 
+                {
+                    if (AppIsShuttingDown || CT.IsCancellationRequested)//checking again, because we just paused 500ms or more!
+                    {
+                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, Origin, true, false);
+                        return false;
+                    }
+                }
+                
+               
                 try
                 {
                     PipelineRun pr = client.PipelineRuns.Get(resourceGroup, dataFactoryName, runResponse.RunId); //Microsoft.Rest.Azure.CloudException if token has expired
@@ -243,7 +264,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (e != null &&
                         (e is Microsoft.Rest.Azure.CloudException
-                        || e is HttpRequestException
+                        || e is System.Net.Http.HttpRequestException
                         ))
                     {
                         errorCount++;
