@@ -510,20 +510,26 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
 
-                if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8 || modelId == -9) // the covid19,  progress-plus using the BERT model, pubmed study types, pubmed study designs (public), new Azure ML environment and SQL database. This will become default over time.
-                {
+                if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8 || modelId == -9)
+                {// the covid19,  progress-plus using the BERT model, pubmed study types, pubmed study designs (public), via AzureSQL database.
                     //DoNewMethod uses the static DataFactoryHelper.RunDataFactoryProcess(...) method, relies on AzureSQL to ship data
-                    Task.Run(() => DoNewMethod(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
+                    //Task.Run(() => DoNewMethod(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
+
+                    Task.Run(() => DoApplyPreBuiltClassifiers(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
                     return;
                 }
 				else if (modelId == -4 || modelId == -3 || modelId == -2 || modelId == -1)
-				{//older pre-built classifiers RCT, Cochrane RCT, Economic Evaluation, Systematic Review
-
-				}
+                {//older pre-built classifiers RCT (-1), Cochrane RCT(-4), Economic Evaluation (-3), Systematic Review (-2), via AzureSQL database.
+                    Task.Run(() => DoApplyPreBuiltClassifiers(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
+                    _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
+                    return;
+                }
                 else
                 {//has to be a positive model ID, so a custom built one
                     Task.Run(() => UploadDataAndScoreCustomModelAsync(ReviewId, NewJobId, modelId, ContactId));
+                    _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
+                    return;
                 }
             } // end if check for using covid categories / BERT models / SQL database
         }
@@ -699,6 +705,133 @@ namespace BusinessLibrary.BusinessClasses
             //    LoadResultsIntoDatabase(Scores, connection, ri);
             //}
             //connection.Close();
+        }
+        /// <summary>
+        /// Uses AzureSQL instance to ship data to and from the ML workspace
+        /// </summary>
+        /// <param name="modelId"></param>
+        /// <param name="ApplyToAttributeId"></param>
+        /// <param name="ReviewId"></param>
+        /// <param name="ContactId"></param>
+        /// <param name="LogId"></param>
+        /// <returns></returns>
+        private async Task DoApplyPreBuiltClassifiers(int modelId, Int64 ApplyToAttributeId, int ReviewId, int ContactId, int LogId)
+        {
+            string BatchGuid = Guid.NewGuid().ToString();
+            int rowcount = 0;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationDataToSQL", connection))
+                {
+                    command.CommandTimeout = 6000; // 10 minutes - if there are tens of thousands of items it can take a while
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID_LIST", ""));
+                    command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
+                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
+                    command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
+                    command.Parameters.Add(new SqlParameter("@MachineName", TrainingRunCommand.NameBase));
+                    command.Parameters.Add(new SqlParameter("@ROWCOUNT", 0));
+                    command.Parameters["@ROWCOUNT"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    rowcount = Convert.ToInt32(command.Parameters["@ROWCOUNT"].Value);
+                }
+            }
+            if (rowcount == 0)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed: no data to score", "", "ClassifierCommandV2", true, false);
+                return;
+            }
+            string tenantID = AzureSettings.tenantID;
+            string appClientId = AzureSettings.appClientId;
+            string appClientSecret = AzureSettings.appClientSecret;
+            string subscriptionId = AzureSettings.subscriptionId;
+            string resourceGroup = AzureSettings.resourceGroup;
+            string dataFactoryName = AzureSettings.dataFactoryName;
+
+            string covidClassifierPipelineName = AzureSettings.covidClassifierPipelineName;
+            string covidLongCovidPipelineName = AzureSettings.covidLongCovidPipelineName;
+            string progressPlusPipelineName = AzureSettings.progressPlusPipelineName;
+            string pubMedStudyTypesPipelineName = AzureSettings.pubMedStudyTypesPipelineName;
+            string pubMedStudyDesignsPipelineName = AzureSettings.pubMedStudyDesignsPipelineName;
+
+            string ClassifierPipelineName = "";
+            string SearchTitle = "";
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            switch (modelId)
+            {
+                case -1:
+                    ClassifierPipelineName = "EPPI-Reviewer_API";
+                    SearchTitle = "Items classified according to model: " + _title;
+                    parameters.Add("EPPIReviewerApiRunId", BatchGuid);
+                    parameters.Add("do_original_rct_classifier", true);
+                    break;
+                case -2:
+                    ClassifierPipelineName = "EPPI-Reviewer_API";
+                    SearchTitle = "Items classified according to model: " + _title;
+                    parameters.Add("EPPIReviewerApiRunId", BatchGuid);
+                    parameters.Add("do_systematic_reviews_classifier", true);
+                    break;
+                case -3:
+                    ClassifierPipelineName = "EPPI-Reviewer_API";
+                    SearchTitle = "Items classified according to model: " + _title;
+                    parameters.Add("EPPIReviewerApiRunId", BatchGuid);
+                    parameters.Add("do_economic_eval_classifier", true);
+                    break;
+                case -4:
+                    ClassifierPipelineName = "EPPI-Reviewer_API";
+                    SearchTitle = "Items classified according to model: " + _title;
+                    parameters.Add("EPPIReviewerApiRunId", BatchGuid);
+                    parameters.Add("do_cochrane_rct_classifier", true);
+                    break;
+                case -5:
+                    ClassifierPipelineName = covidClassifierPipelineName;
+                    SearchTitle = "COVID-19 map category: ";
+                    parameters.Add("BatchGuid", BatchGuid);
+                    break;
+                case -6:
+                    ClassifierPipelineName = covidLongCovidPipelineName;
+                    SearchTitle = "Long COVID model: ";
+                    parameters.Add("BatchGuid", BatchGuid);
+                    break;
+                case -7:
+                    ClassifierPipelineName = progressPlusPipelineName;
+                    SearchTitle = "PROGRESS-Plus model: ";
+                    parameters.Add("BatchGuid", BatchGuid);
+                    break;
+                case -8:
+                    ClassifierPipelineName = pubMedStudyTypesPipelineName;
+                    SearchTitle = "PubMed study type model: ";
+                    parameters.Add("BatchGuid", BatchGuid);
+                    break;
+                case -9:
+                    ClassifierPipelineName = pubMedStudyDesignsPipelineName;
+                    SearchTitle = "PubMed study designs model: ";
+                    parameters.Add("BatchGuid", BatchGuid);
+                    break;
+                default:
+                    return;
+            }
+            bool DataFactoryRes = false;
+            DataFactoryHelper DFH = new DataFactoryHelper();
+            DataFactoryRes = await DFH.RunDataFactoryProcessV2(ClassifierPipelineName, parameters, ReviewId, LogId, "ClassifierCommandV2", this.CancelToken);
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ClassifierInsertSearchAndScores", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandTimeout = 300; // 5 mins to be safe. I've seen queries with large numbers of searches / items take about 30 seconds, which times out live
+                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                    command.Parameters.Add(new SqlParameter("@SearchTitle", SearchTitle));
+                    command.ExecuteNonQuery();
+                }
+            }
+            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
         }
 
         private  DataTable DownloadResults( string container, string filename)
@@ -987,38 +1120,9 @@ namespace BusinessLibrary.BusinessClasses
 			Finished
 		}
 
-		public class BatchScoreStatus
-		{
-			// Status code for the batch scoring job
-			public BatchScoreStatusCode StatusCode { get; set; }
+		
 
-			// Locations for the potential multiple batch scoring outputs
-			//public IDictionary<string, AzureBlobDataReference> Results { get; set; }
-
-			// Error details, if any
-			public string Details { get; set; }
-		}
-
-		public class BatchExecutionRequest
-		{
-
-			//public IDictionary<string, AzureBlobDataReference> Inputs { get; set; }
-			public IDictionary<string, string> GlobalParameters { get; set; }
-
-			// Locations for the potential multiple batch scoring outputs
-			//public IDictionary<string, AzureBlobDataReference> Outputs { get; set; }
-		}
-
-		static async Task WriteFailedResponse(HttpResponseMessage response)
-		{
-			Console.WriteLine(string.Format("The request failed with status code: {0}", response.StatusCode));
-
-			// Print the headers - they include the requert ID and the timestamp, which are useful for debugging the failure
-			Console.WriteLine(response.Headers.ToString());
-
-			string responseContent = await response.Content.ReadAsStringAsync();
-			Console.WriteLine(responseContent);
-		}
+		
 
 		static string blobConnection = AzureSettings.blobConnection;
 		static string BaseUrlScoreModel = AzureSettings.BaseUrlScoreModel;
@@ -1031,227 +1135,7 @@ namespace BusinessLibrary.BusinessClasses
 
 		const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
 
-		public static async Task InvokeBatchExecutionService(string ReviewId, string ApiCall, int modelId, string DataFile, 
-            string ModelFile, string ResultsFile1, string ResultsFile2, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			using (HttpClient client = new HttpClient())
-			{
-				BatchExecutionRequest request;
-				string apiKey;
-				string BaseUrl;
-
-				Dictionary<string, string> GlobalParameters = new Dictionary<string, string>();
-
-				// set parameters etc for the appropriate call (currently not using the vectorise - pending ability to save / load the vectors!!)
-				if (ApiCall == "BuildModel")
-				{
-					apiKey = apiKeyBuildModel;
-					BaseUrl = BaseUrlBuildModel;
-					request = new BatchExecutionRequest()
-					{
-						GlobalParameters = new Dictionary<string, string>()
-						{
-							{ "DataFile", "attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + ReviewId + "ModelId" + modelId.ToString() + ".csv" },
-							{ "ModelFile", "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + ReviewId + "ModelId" + modelId.ToString() + ".csv" },
-							{ "StatsFile", "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + ReviewId + "ModelId" + modelId.ToString() + "Stats.csv" },
-						}
-					};
-				}
-				else
-				{
-					if (modelId == -4)
-					{
-						apiKey = apiKeyScoreNewRCTModel;
-						BaseUrl = BaseUrlScoreNewRCTModel;
-						request = new BatchExecutionRequest()
-						{
-							GlobalParameters = new Dictionary<string, string>()
-							{
-								{ "DataFile", DataFile },
-								{ "RCTResultsFile", ResultsFile1 },
-								{ "NonRCTResultsFile", ResultsFile2 },
-							}
-						};
-					}
-					else
-					{
-						apiKey = apiKeyScoreModel;
-						BaseUrl = BaseUrlScoreModel;
-						request = new BatchExecutionRequest()
-						{
-							GlobalParameters = new Dictionary<string, string>()
-							{
-								{ "DataFile", DataFile },
-								{ "ModelFile", ModelFile },
-								{ "ResultsFile", ResultsFile1 },
-							}
-						};
-					}
-				}
-				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-
-				// submit the job
-#if (!CSLA_NETCORE)
-                var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
-#else
-				Task<HttpResponseMessage> task = client.PostAsync(BaseUrl + "?api-version=2.0",
-					new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
-					);
-				while (!task.IsCompleted) Thread.Sleep(100);
-				var response = task.Result;
-#endif
-
-				if (!response.IsSuccessStatusCode)
-				{
-					await WriteFailedResponse(response);
-					return;
-				}
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return;//not much to do here, we don't log in here...
-                }
-
-#if (!CSLA_NETCORE)
-                string jobId = await response.Content.ReadAsAsync<string>();
-                response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
-#else
-				string jobId = await response.Content.ReadAsStringAsync();
-				jobId = jobId.Trim('"');
-				task = client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
-				while (!task.IsCompleted) Thread.Sleep(100);
-				response = task.Result;
-				//response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
-#endif
-
-				// start the job
-				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
-				if (!response.IsSuccessStatusCode)
-				{
-					await WriteFailedResponse(response);
-					return;
-				}
-
-				string jobLocation = BaseUrl + "/" + jobId + "?api-version=2.0";
-				Stopwatch watch = Stopwatch.StartNew();
-				bool done = false;
-				while (!done)
-				{
-#if (!CSLA_NETCORE)
-                    response = await client.GetAsync(jobLocation);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        await WriteFailedResponse(response);
-                        return;
-                    }
-
-                    BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
-#else
-					task = client.GetAsync(jobLocation);
-					while (!task.IsCompleted) Thread.Sleep(100);
-					response = task.Result;
-					if (!response.IsSuccessStatusCode)
-					{
-						await WriteFailedResponse(response);
-						return;
-					}
-					BatchScoreStatus status = JsonConvert.DeserializeObject<BatchScoreStatus>(await response.Content.ReadAsStringAsync());
-#endif
-
-					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds || cancellationToken.IsCancellationRequested)
-					{
-						done = true;
-						await client.DeleteAsync(jobLocation);
-                    }
-					switch (status.StatusCode)
-					{
-						case BatchScoreStatusCode.NotStarted:
-							break;
-						case BatchScoreStatusCode.Running:
-							break;
-						case BatchScoreStatusCode.Failed:
-							done = true;
-							break;
-						case BatchScoreStatusCode.Cancelled:
-							done = true;
-							break;
-						case BatchScoreStatusCode.Finished:
-							done = true;
-							break;
-					}
-
-					if (!done)
-					{
-						Thread.Sleep(1000); // Wait one second
-					}
-				}
-//#else
-
-
-
-//				var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
-
-//				if (!response.IsSuccessStatusCode)
-//				{
-//					await WriteFailedResponse(response);
-//					return;
-//				}
-
-//				string jobId = await response.Content.ReadAsAsync<string>();
-
-//				// start the job
-//				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
-//				if (!response.IsSuccessStatusCode)
-//				{
-//					await WriteFailedResponse(response);
-//					return;
-//				}
-
-//				string jobLocation = BaseUrl + "/" + jobId + "?api-version=2.0";
-//				Stopwatch watch = Stopwatch.StartNew();
-//				bool done = false;
-//				while (!done)
-//				{
-//					response = await client.GetAsync(jobLocation);
-//					if (!response.IsSuccessStatusCode)
-//					{
-//						await WriteFailedResponse(response);
-//						return;
-//					}
-
-//					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
-//					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
-//					{
-//						done = true;
-//						await client.DeleteAsync(jobLocation);
-//					}
-//					switch (status.StatusCode)
-//					{
-//						case BatchScoreStatusCode.NotStarted:
-//							break;
-//						case BatchScoreStatusCode.Running:
-//							break;
-//						case BatchScoreStatusCode.Failed:
-//							done = true;
-//							break;
-//						case BatchScoreStatusCode.Cancelled:
-//							done = true;
-//							break;
-//						case BatchScoreStatusCode.Finished:
-//							done = true;
-//							break;
-//					}
-
-//					if (!done)
-//					{
-//						Thread.Sleep(1000); // Wait one second
-//					}
-//				}
-
-//#endif
-
-
-			}
-		}
+		
 
         private async Task DoNewMethod(int modelId, Int64 ApplyToAttributeId, int ReviewId, int ContactId, int LogId)
         {
