@@ -228,7 +228,7 @@ namespace BusinessLibrary.BusinessClasses
                     modelId.ToString() + "ContactId" + ri.UserId.ToString() + ".csv";
 #else
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                LocalFileName = tmpDir.FullName + "\\ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+                LocalFileName = tmpDir.FullName + "\\ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".tsv";
 #endif
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
                 {
@@ -719,29 +719,43 @@ namespace BusinessLibrary.BusinessClasses
         {
             string BatchGuid = Guid.NewGuid().ToString();
             int rowcount = 0;
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationDataToSQL", connection))
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandTimeout = 6000; // 10 minutes - if there are tens of thousands of items it can take a while
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID_LIST", ""));
-                    command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
-                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
-                    command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
-                    command.Parameters.Add(new SqlParameter("@MachineName", TrainingRunCommand.NameBase));
-                    command.Parameters.Add(new SqlParameter("@ROWCOUNT", 0));
-                    command.Parameters["@ROWCOUNT"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    rowcount = Convert.ToInt32(command.Parameters["@ROWCOUNT"].Value);
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationDataToSQL", connection))
+                    {
+                        command.CommandTimeout = 6000; // 10 minutes - if there are tens of thousands of items it can take a while
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID_LIST", ""));
+                        command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
+                        command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
+                        command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
+                        command.Parameters.Add(new SqlParameter("@MachineName", TrainingRunCommand.NameBase));
+                        command.Parameters.Add(new SqlParameter("@ROWCOUNT", 0));
+                        command.Parameters["@ROWCOUNT"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+                        rowcount = Convert.ToInt32(command.Parameters["@ROWCOUNT"].Value);
+                    }
+                }
+                if (rowcount == 0)
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed: no data to score", "", "ClassifierCommandV2", true, false);
+                    return;
                 }
             }
-            if (rowcount == 0)
+            catch (Exception ex) 
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed: no data to score", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to get data to score", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                return;
+            }
+            if (AppIsShuttingDown)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after uploading data", "", "ClassifierCommandV2", true, false);
                 return;
             }
             string tenantID = AzureSettings.tenantID;
@@ -816,22 +830,41 @@ namespace BusinessLibrary.BusinessClasses
             }
             bool DataFactoryRes = false;
             DataFactoryHelper DFH = new DataFactoryHelper();
-            DataFactoryRes = await DFH.RunDataFactoryProcessV2(ClassifierPipelineName, parameters, ReviewId, LogId, "ClassifierCommandV2", this.CancelToken);
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ClassifierInsertSearchAndScores", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.CommandTimeout = 300; // 5 mins to be safe. I've seen queries with large numbers of searches / items take about 30 seconds, which times out live
-                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
-                    command.Parameters.Add(new SqlParameter("@SearchTitle", SearchTitle));
-                    command.ExecuteNonQuery();
-                }
+                DataFactoryRes = await DFH.RunDataFactoryProcessV2(ClassifierPipelineName, parameters, ReviewId, LogId, "ClassifierCommandV2", this.CancelToken);
             }
-            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed during DF", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+            }
+            if (DataFactoryRes)
+            {
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_ClassifierInsertSearchAndScores", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.CommandTimeout = 300; // 5 mins to be safe. I've seen queries with large numbers of searches / items take about 30 seconds, which times out live
+                            command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                            command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                            command.Parameters.Add(new SqlParameter("@SearchTitle", SearchTitle));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
+                }
+                catch (Exception ex)
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", "ClassifierCommandV2", true, false);
+                    DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                }
+            } 
         }
 
         private  DataTable DownloadResults( string container, string filename)

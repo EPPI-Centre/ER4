@@ -240,7 +240,7 @@ namespace BusinessLibrary.BusinessClasses
 #else
                 LocalFileName = "";
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                LocalFileName = tmpDir.FullName + @"\" + "PS-ReviewId" + RevInfo.ReviewId + UserId.ToString() + ".tsv";
+                LocalFileName = tmpDir.FullName + @"\" + "PS-ReviewId" + RevInfo.ReviewId + "ContactId" + UserId.ToString() + ".tsv";
 #endif
                 RemoteFileName = "priority_screening/" + DataFactoryHelper.NameBase + "ReviewId" + RevInfo.ReviewId + ".tsv";
             }
@@ -281,10 +281,20 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     connection.Close();
                 }
+                if (AppIsShuttingDown)
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "TrainingRunCommandV2", true, false);
+                    return;
+                }
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "", "TrainingRunCommandV2");
                 using (var fileStream = System.IO.File.OpenRead(LocalFileName))
                 {
                     BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data", RemoteFileName, fileStream);
+                }
+                if (AppIsShuttingDown)
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after upload", "", "TrainingRunCommandV2", true, false);
+                    return;
                 }
             }
             catch (Exception ex)
