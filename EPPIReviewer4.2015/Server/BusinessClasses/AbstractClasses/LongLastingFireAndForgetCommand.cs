@@ -48,7 +48,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else return default(CancellationToken);
 #else
-                return  default(CancellationToken);
+                return  default(System.Threading.CancellationToken);
 #endif
             }
         }
