@@ -268,21 +268,21 @@ namespace EppiReviewer4
        }
         private void UpdateReviewInfo()
         {
-            //NEw Add Sept 2017: mark the review as in need of indexing, if required.
-            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            if (provider == null || provider.Data == null) return;
-            ReviewInfo RevInfo = provider.Data as ReviewInfo;
-            if (RevInfo == null) return;
-            if (RevInfo.ShowScreening && RevInfo.ScreeningCodeSetId > 0)
-            {
-                RevInfo.Saved += (o, e2) =>
-                {
-                    provider.Refresh();
-                };
-                RevInfo.ScreeningIndexed = false;
-                RevInfo.ApplyEdit();
-                RevInfo.BeginSave(true);
-            }
+            ////NEw Add Sept 2017: mark the review as in need of indexing, if required.
+            //CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            //if (provider == null || provider.Data == null) return;
+            //ReviewInfo RevInfo = provider.Data as ReviewInfo;
+            //if (RevInfo == null) return;
+            //if (RevInfo.ShowScreening && RevInfo.ScreeningCodeSetId > 0)
+            //{
+            //    RevInfo.Saved += (o, e2) =>
+            //    {
+            //        provider.Refresh();
+            //    };
+            //    RevInfo.ScreeningIndexed = false;
+            //    RevInfo.ApplyEdit();
+            //    RevInfo.BeginSave(true);
+            //}
         }
         void SetResultMessage(string Msg)
        {

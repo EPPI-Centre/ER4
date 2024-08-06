@@ -196,9 +196,9 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
 /EPPIReviewer4.2015/WcfHostPortal/UserTempUploads/ContactId1214.csv
 /ERCentralAPI/Cert Requests Test and Alpha
-/ERCentralAPI/Klasifiki/LogFiles/PubmedImportLog-28-06-2018.txt
 /ERCentralAPI/ERxWebClient2/LogFiles
 /EPPIReviewer4.2015/WcfHostPortal/UserTempUploads/Sim221.csv
 /EPPIReviewer4.2015/WcfHostPortal/UserTempUploads/Sim220.csv
@@ -207,16 +207,12 @@ FakesAssemblies/
 /EPPIReviewer4.2015/WcfHostPortal/UserTempUploads/Sim217.csv
 /EPPIReviewer4.2015/WcfHostPortal/UserTempUploads/Sim216.csv
 /ExportPDFs/Data for re-extraction/Reviews to deal with.xlsx
-/ERCentralAPI/WebDatabasesMVC/LogFiles/WebDatabasesMVC-17-09-2020.txt
-/ERCentralAPI/WebDatabasesMVC/LogFiles/WebDatabasesMVC-16-09-2020.txt
+/ERCentralAPI/WebDatabasesMVC/LogFiles
 /ERCentralAPI/ERxWebClient2/wwwroot/Images/DistributeWork.gif
-/ERCentralAPI/WebDatabasesMVC/LogFiles/WebDatabasesMVC-09-09-2020.txt
 /ERCentralAPI/ERxWebClient2/UserTempUploads/Cont5.csv
 /ERCentralAPI/ERxWebClient2/UserTempUploads/Cont61.csv
 /ERCentralAPI/WebDatabasesMVC/wwwroot/Fair/FAIRImages
 /ERCentralAPI/WebDatabasesMVC/wwwroot/Fair.zip
-/ERCentralAPI/WebDatabasesMVC/appsettings.Development.json
-/ERCentralAPI/ER-Web/LogFiles
 /ERCentralAPI/ER-Web-Client/.angular/cache/13.3.7
 /ERCentralAPI/ER-Web-Client/dist/er-web-client
 /ERCentralAPI/ERxWebClient2.backup
@@ -230,3 +226,5 @@ FakesAssemblies/
 /ERCentralAPI/ERxWebClient2/Properties
 /ERCentralAPI/WebDatabasesMVC/appsettings.Development.json
 /ERCentralAPI/SQL Scripts/OpenAI SG-JT private.txt
+/EPPIReviewer4.2015/WcfHostPortal/Web.secrets.config
+/ERCentralAPI/ER-Web/appsettings.Development.json

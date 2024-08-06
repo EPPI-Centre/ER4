@@ -5319,15 +5319,15 @@ on the right of the main screen");
                                      + Environment.NewLine + "Please Save or Cancel your changes.");
                 return;
             }
-            if (ri.ScreeningIndexed == true)
-            {
-                dialogCodingControl.BindScreening();
-                windowCoding.ShowDialog();
-            }
-            else
-            {
-                RadWindow.Alert("Please create the list of items to screen first");
-            }
+            //if (ri.ScreeningIndexed == true)
+            //{
+            dialogCodingControl.BindScreening();
+            windowCoding.ShowDialog();
+            //}
+            //else
+            //{
+            //    RadWindow.Alert("Please create the list of items to screen first");
+            //}
         }
         private void cmdProcessReviewerterms_Click(object sender, RoutedEventArgs e)
         {
@@ -6132,7 +6132,7 @@ on the right of the main screen");
                 codesSelectControlScreening.IsEnabled = false;
                 ComboReconcilliationMode.IsEnabled = false;
                 cbScreeningAutoExclude.IsEnabled = false;
-                cbScreeningFullIndex.IsEnabled = false;
+                //cbScreeningFullIndex.IsEnabled = false;
                 return;
             }
 
@@ -6150,7 +6150,7 @@ on the right of the main screen");
                     ComboReconcilliationMode.SelectedIndex = 0;
                     ComboReconcilliationMode.IsEnabled = false;
                     cbScreeningAutoExclude.IsEnabled = UserCanEditSettings;
-                    cbScreeningFullIndex.IsEnabled = HasWriteRights;
+                    //cbScreeningFullIndex.IsEnabled = HasWriteRights;
                 }
                 else // COMPARISON coding
                 {
@@ -6160,7 +6160,7 @@ on the right of the main screen");
                     UpDownNScreening.IsEnabled = UserCanEditSettings;
                     ComboReconcilliationMode.IsEnabled = UserCanEditSettings;
                     cbScreeningAutoExclude.IsEnabled = UserCanEditSettings;
-                    cbScreeningFullIndex.IsEnabled = HasWriteRights;
+                    //cbScreeningFullIndex.IsEnabled = HasWriteRights;
                 }
             }
 
