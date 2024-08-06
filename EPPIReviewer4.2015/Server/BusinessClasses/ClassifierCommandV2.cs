@@ -1,49 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using System.Text;
+﻿
 using Csla;
-using Csla.Security;
-using Csla.Core;
-using Csla.Serialization;
-using Csla.Silverlight;
-//using Csla.Validation;
-using System.ComponentModel;
-using Csla.DataPortalClient;
 
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
-//using SVM;
-using System.IO;
-using System.Xml;
-
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Diagnostics;
-using CsvHelper;
-
-using System.Threading;
-using System.Configuration;
 using Microsoft.Azure.Management.DataFactory;
-using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using System.Data;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Server.Kestrel.Internal.System.Buffers;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
-
-
-
-
-
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
@@ -297,7 +264,6 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 		
-		
 		private async void UploadDataAndBuildModelAsync(int ReviewId, int LogId, int modelId)
 		{
             if (AppIsShuttingDown)
@@ -424,8 +390,6 @@ namespace BusinessLibrary.BusinessClasses
 			BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
         }
 
-		
-
         private void DoApplyClassifier(int modelId)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -515,13 +479,13 @@ namespace BusinessLibrary.BusinessClasses
                     //DoNewMethod uses the static DataFactoryHelper.RunDataFactoryProcess(...) method, relies on AzureSQL to ship data
                     //Task.Run(() => DoNewMethod(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
 
-                    Task.Run(() => DoApplyPreBuiltClassifiers(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
+                    Task.Run(() => ApplyPreBuiltClassifiersAsync(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
                     return;
                 }
 				else if (modelId == -4 || modelId == -3 || modelId == -2 || modelId == -1)
                 {//older pre-built classifiers RCT (-1), Cochrane RCT(-4), Economic Evaluation (-3), Systematic Review (-2), via AzureSQL database.
-                    Task.Run(() => DoApplyPreBuiltClassifiers(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
+                    Task.Run(() => ApplyPreBuiltClassifiersAsync(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
                     return;
                 }
@@ -715,7 +679,7 @@ namespace BusinessLibrary.BusinessClasses
         /// <param name="ContactId"></param>
         /// <param name="LogId"></param>
         /// <returns></returns>
-        private async Task DoApplyPreBuiltClassifiers(int modelId, Int64 ApplyToAttributeId, int ReviewId, int ContactId, int LogId)
+        private async Task ApplyPreBuiltClassifiersAsync(int modelId, Int64 ApplyToAttributeId, int ReviewId, int ContactId, int LogId)
         {
             string BatchGuid = Guid.NewGuid().ToString();
             int rowcount = 0;
@@ -839,7 +803,7 @@ namespace BusinessLibrary.BusinessClasses
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed during DF", "", "ClassifierCommandV2", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
             }
-            if (DataFactoryRes)
+            if (DataFactoryRes == true)
             {
                 try
                 {
@@ -1058,234 +1022,16 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        public static string ModelIdForScoring(int modId)
-		{
-			string retval = "RCT";
-			if (modId > 0)
-			{
-				retval = modId.ToString();
-			}
-			else
-			if (modId == -2)
-			{
-				retval = "DARE";
-			}
-			else
-				if (modId == -3)
-			{
-				retval = "NHSEED";
-			}
-			else
-				if (modId == -4)
-			{
-				retval = "NewRCTModel";
-			}
-            else
-                if (modId == -5)
-            {
-                retval = "CovidCategories";
-            }
-            else
-                if (modId == -6)
-            {
-                retval = "LongCovid";
-            }
-            else
-                if (modId == -7)
-            {
-                retval = "PROGRESSPlus";
-            }
-            else
-                if (modId == -8)
-            {
-                retval = "PubMedStudyTypes";
-            }
-
-            return retval;
-		}
-		public static string ReviewIdForScoring(int modId, string reviewId)
-		{
-			string retval = "RCTModel";
-			if (modId > 0)
-			{
-				retval = "ReviewId" + reviewId + "ModelId" + modId.ToString();
-			}
-			else
-			if (modId == -2)
-			{
-				retval = "DAREModel";
-			}
-			else
-				if (modId == -3)
-			{
-				retval = "NHSEEDModel";
-			}
-            else // though the rest are using the new workflow, so don't need filenames
-                if (modId == -5)
-            {
-                retval = "CovidCategoriesModel";
-            }
-            else
-                if (modId == -6)
-            {
-                retval = "LongCovidModel";
-            }
-            else
-                if (modId == -7)
-            {
-                retval = "PROGRESSPlus";
-            }
-            else
-                if (modId == -8)
-            {
-                retval = "PubMedStudyTypes";
-            }
-
-            return retval;
-		}
-
-		public enum BatchScoreStatusCode
-		{
-			NotStarted,
-			Running,
-			Failed,
-			Cancelled,
-			Finished
-		}
-
-		
-
-		
-
 		static string blobConnection = AzureSettings.blobConnection;
-		static string BaseUrlScoreModel = AzureSettings.BaseUrlScoreModel;
-		static string apiKeyScoreModel = AzureSettings.apiKeyScoreModel;
-		static string BaseUrlBuildModel = AzureSettings.BaseUrlBuildModel;
-		static string apiKeyBuildModel = AzureSettings.apiKeyBuildModel;
-		static string BaseUrlScoreNewRCTModel = AzureSettings.BaseUrlScoreNewRCTModel;
-		static string apiKeyScoreNewRCTModel = AzureSettings.apiKeyScoreNewRCTModel;// Cochrane RCT Classifier v.2 (ensemble) blob storage
+
+        //vals we can remove from config files? (Aug 2024)
+		//static string BaseUrlScoreModel = AzureSettings.BaseUrlScoreModel;
+		//static string apiKeyScoreModel = AzureSettings.apiKeyScoreModel;
+		//static string BaseUrlBuildModel = AzureSettings.BaseUrlBuildModel;
+		//static string apiKeyBuildModel = AzureSettings.apiKeyBuildModel;
+		//static string BaseUrlScoreNewRCTModel = AzureSettings.BaseUrlScoreNewRCTModel;
+		//static string apiKeyScoreNewRCTModel = AzureSettings.apiKeyScoreNewRCTModel;// Cochrane RCT Classifier v.2 (ensemble) blob storage
 		const string TempPath = @"UserTempUploads/ContactId";
-
-		const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
-
-		
-
-        private async Task DoNewMethod(int modelId, Int64 ApplyToAttributeId, int ReviewId, int ContactId, int LogId)
-        {
-            // Much simpler approach: 1) write data to Azure SQL; 2) trigger the DataFactory pipeline; 3) download scores from Azure SQL and insert into Reviewer DB
-
-            string BatchGuid = Guid.NewGuid().ToString();
-            //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            //int userId = ri.UserId;
-            //int reviewId = ri.ReviewId;
-            int rowcount = 0;
-
-            // 1) write the data to the Azure SQL database
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationDataToSQL", connection))
-                {
-                    command.CommandTimeout = 6000; // 10 minutes - if there are tens of thousands of items it can take a while
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID_LIST", ""));
-                    command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
-                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
-                    command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
-                    command.Parameters.Add(new SqlParameter("@MachineName", TrainingRunCommand.NameBase));
-                    command.Parameters.Add(new SqlParameter("@ROWCOUNT", 0));
-                    command.Parameters["@ROWCOUNT"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    rowcount = Convert.ToInt32(command.Parameters["@ROWCOUNT"].Value);
-                }
-            }
-            if (rowcount == 0)
-            {
-                _returnMessage = "Error, Zero rows to score!";
-                return;
-            }
-
-
-
-
-            // 2) trigger the data factory run (which in turn calls the Azure ML pipeline)
-
-            string tenantID = AzureSettings.tenantID;
-            string appClientId = AzureSettings.appClientId;
-            string appClientSecret = AzureSettings.appClientSecret;
-            string subscriptionId = AzureSettings.subscriptionId;
-            string resourceGroup = AzureSettings.resourceGroup;
-            string dataFactoryName = AzureSettings.dataFactoryName;
-
-            string covidClassifierPipelineName = AzureSettings.covidClassifierPipelineName;
-            string covidLongCovidPipelineName = AzureSettings.covidLongCovidPipelineName;
-            string progressPlusPipelineName = AzureSettings.progressPlusPipelineName;
-            string pubMedStudyTypesPipelineName = AzureSettings.pubMedStudyTypesPipelineName;
-			string pubMedStudyDesignsPipelineName = AzureSettings.pubMedStudyDesignsPipelineName;
-
-            string ClassifierPipelineName = "";
-            string SearchTitle = "";
-            if (modelId == -5)
-            {
-                ClassifierPipelineName = covidClassifierPipelineName;
-                SearchTitle = "COVID-19 map category: ";
-            }
-            if (modelId == -6)
-            {
-                ClassifierPipelineName = covidLongCovidPipelineName;
-                SearchTitle = "Long COVID model: ";
-            }
-            if (modelId == -7)
-            {
-                ClassifierPipelineName = progressPlusPipelineName;
-                SearchTitle = "PROGRESS-Plus model: ";
-            }
-            if (modelId == -8)
-            {
-                ClassifierPipelineName = pubMedStudyTypesPipelineName;
-                SearchTitle = "PubMed study type model: ";
-            }
-			if (modelId == -9)
-			{
-				ClassifierPipelineName = pubMedStudyDesignsPipelineName;
-				SearchTitle = "PubMed study designs model: ";
-			}
-
-            var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
-            ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
-            AuthenticationResult result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
-            ServiceClientCredentials cred = new TokenCredentials(result.AccessToken);
-            var client = new DataFactoryManagementClient(cred)
-            {
-                SubscriptionId = subscriptionId
-            };
-            Dictionary<string, object> parameters = new Dictionary<string, object>
-            {
-                {"BatchGuid", BatchGuid}
-            };
-			CancellationTokenSource source = new CancellationTokenSource();
-			CancellationToken token = source.Token;
-			DataFactoryHelper.RunDataFactoryProcess(ClassifierPipelineName, parameters, true, ContactId, token);
-
-            // 3) download the scores and insert them into the Reviewer database. This stored proc also cleans up the data in the Azure SQL database (i.e. deletes rows associated with this BatchGuid)
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ClassifierInsertSearchAndScores", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.CommandTimeout = 300; // 5 mins to be safe. I've seen queries with large numbers of searches / items take about 30 seconds, which times out live
-                    command.Parameters.Add(new SqlParameter("@BatchGuid", BatchGuid));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
-                    command.Parameters.Add(new SqlParameter("@SearchTitle", SearchTitle));
-                    command.ExecuteNonQuery();
-                }
-            }
-            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
-        }
 
 #endif
 	}
