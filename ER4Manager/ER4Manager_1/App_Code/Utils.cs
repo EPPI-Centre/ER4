@@ -353,13 +353,31 @@ public class Utils
             else return "https://eppi.ioe.ac.uk/eppi-vis/";
         }
     }
+    private static string SMTPUser
+    {
+        get
+        {
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["SMTPUser"];
+            if (tmp != null) return tmp;
+            else return "";
+        }
+    }
+    public static string SMTPAuthentic
+    {
+        get
+        {
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["SMTPAuthentic"];
+            if (tmp != null) return tmp;
+            else return "";
+        }
+    }
     private static SmtpClient smtpClient()
     {
         //from https://docs.microsoft.com/en-us/answers/questions/400152/authentication-failed-because-the-remote-party-has.html
         ServicePointManager.SecurityProtocol = (SecurityProtocolType)48 | (SecurityProtocolType)192 | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
-        SmtpClient smtp = new SmtpClient(SMTP);//sergio.graziosi+1@gmail.com
+        SmtpClient smtp = new SmtpClient(SMTP);
         smtp.UseDefaultCredentials = false;
-        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("***REMOVED***", "***REMOVED***");
+        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential(SMTPUser, SMTPAuthentic);
         smtp.Credentials = SMTPUserInfo;
         smtp.EnableSsl = true; smtp.Port = 587;
         return smtp;
