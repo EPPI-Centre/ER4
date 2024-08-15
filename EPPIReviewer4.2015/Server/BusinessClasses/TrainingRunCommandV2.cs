@@ -336,6 +336,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 try
                 {
+                    //we delete the "input" data file here because RunDataFactoryProcessV2 can be interrupted in IIS, while ML job is starting
+                    //in case of an app pool recycle. Thus, we don't want to delete the remote file when the ML job might still need it!
+                    //we expect to "pick up" the results when the job resumes... And we'll delete this file here, in the resumed run.
+                    BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
                     if (AppIsShuttingDown)
                     {
                         DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled at/during download", "", "TrainingRunCommandV2", true, false);
@@ -429,15 +433,14 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", "TrainingRunCommandV2", true, false);
                     DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "TrainingRunCommandV2");
+                    return;
                 }
             }
-
-
-            BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data",  RemoteFileName);
-            if (DataFactoryRes == false && !AppIsShuttingDown) BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
-            //BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", VecFile);
-            //BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ClfFile);
-            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "TrainingRunCommandV2", true, true);
+            if (DataFactoryRes == false && !AppIsShuttingDown)
+            {
+                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+            }
+            else if (DataFactoryRes == true) DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "TrainingRunCommandV2", true, true);
             
         }
 
