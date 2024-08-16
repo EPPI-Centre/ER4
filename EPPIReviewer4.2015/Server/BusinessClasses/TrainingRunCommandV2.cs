@@ -289,7 +289,7 @@ namespace BusinessLibrary.BusinessClasses
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "", "TrainingRunCommandV2");
                 using (var fileStream = System.IO.File.OpenRead(LocalFileName))
                 {
-                    BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data", RemoteFileName, fileStream);
+                    BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data", RemoteFileName, fileStream); //, CancelToken);
                 }
                 if (AppIsShuttingDown)
                 {
