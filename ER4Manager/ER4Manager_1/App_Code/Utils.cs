@@ -327,6 +327,15 @@ public class Utils
             //return "";
         }
     }
+    public static string UCLWPMsharedS
+    {
+        get
+        {
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["UCLWPMsharedS"];
+            if (tmp != null) return tmp;
+            else return "";
+        }
+    }
     public static string SMTP
     {
         get
@@ -353,13 +362,31 @@ public class Utils
             else return "https://eppi.ioe.ac.uk/eppi-vis/";
         }
     }
+    public static string SMTPUser
+    {
+        get
+        {
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["SMTPUser"];
+            if (tmp != null) return tmp;
+            else return "";
+        }
+    }
+    public static string SMTPAuthentic
+    {
+        get
+        {
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["SMTPAuthentic"];
+            if (tmp != null) return tmp;
+            else return "";
+        }
+    }
     private static SmtpClient smtpClient()
     {
         //from https://docs.microsoft.com/en-us/answers/questions/400152/authentication-failed-because-the-remote-party-has.html
         ServicePointManager.SecurityProtocol = (SecurityProtocolType)48 | (SecurityProtocolType)192 | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
         SmtpClient smtp = new SmtpClient(SMTP);//sergio.graziosi+1@gmail.com
         smtp.UseDefaultCredentials = false;
-        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("***REMOVED***", "***REMOVED***");
+        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential(SMTPUser, SMTPAuthentic);
         smtp.Credentials = SMTPUserInfo;
         smtp.EnableSsl = true; smtp.Port = 587;
         return smtp;
@@ -371,25 +398,13 @@ public class Utils
             return "EPPISupport@ucl.ac.uk";
         }
     }
-    
-    public static string getMD5Hash(string input)
-    {
-
-        System.Security.Cryptography.MD5CryptoServiceProvider CryptoService;
-        CryptoService = new System.Security.Cryptography.MD5CryptoServiceProvider();
-        string sharedS = "***REMOVED***";//***REMOVED***
-        byte[] InputBytes = System.Text.Encoding.Default.GetBytes(input + sharedS);
-        InputBytes = CryptoService.ComputeHash(InputBytes);
-        string s1 = BitConverter.ToString(InputBytes).Replace("-", ""), s2 = BitConverter.ToString(InputBytes);
-        return BitConverter.ToString(InputBytes).Replace("-", "").ToLower();
-    }
 
     public static string getMD5HashUCL(string input)
     {
 
         System.Security.Cryptography.MD5CryptoServiceProvider CryptoService;
         CryptoService = new System.Security.Cryptography.MD5CryptoServiceProvider();
-        string sharedS = "***REMOVED***";
+        string sharedS = UCLWPMsharedS;
         byte[] InputBytes = System.Text.Encoding.Default.GetBytes(input + sharedS);
         InputBytes = CryptoService.ComputeHash(InputBytes);
         string s1 = BitConverter.ToString(InputBytes).Replace("-", ""), s2 = BitConverter.ToString(InputBytes);
@@ -1045,8 +1060,8 @@ public class Utils
         //domain name is changed
         SmtpClient smtp = new SmtpClient(SMTP);
         // next line had inst in the credentials. It doesn't appear to be necessary. (JB 14092011)
-        //System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential(@"inst\EPPIsupport", "***REMOVED***");
-        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("EPPIsupport@ioe.ac.uk", "***REMOVED***");
+        //System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential(@"inst\EPPIsupport", "xyz");
+        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("EPPIsupport@ioe.ac.uk", "xyz");
         smtp.UseDefaultCredentials = false;
         smtp.Credentials = SMTPUserInfo;
         try
@@ -1551,7 +1566,7 @@ public class Utils
         msg.Body += "<br><br>";
 
         SmtpClient smtp = new SmtpClient(SMTP);
-        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("EPPIsupport@ioe.ac.uk", "***REMOVED***");
+        System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("EPPIsupport@ioe.ac.uk", "xyz");
         smtp.UseDefaultCredentials = false;
         smtp.Credentials = SMTPUserInfo;
         try
