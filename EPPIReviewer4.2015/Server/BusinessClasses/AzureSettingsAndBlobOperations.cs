@@ -147,6 +147,7 @@ namespace BusinessLibrary.BusinessClasses
         public static string SMTPAuthentic { get { return AppSettings["SMTPAuthentic"]; } }
         public static string mailFrom { get { return AppSettings["mailFrom"]; } }
         public static string Lingo3Gendpoint { get { return AppSettings["Lingo3Gendpoint"]; } }
+        public static string RServerAddress { get { return AppSettings["RServerAddress"]; } }
         public static string ItemListTimeoutHandling { 
             get {
                 var val = AppSettings["ItemListTimeoutHandling"];

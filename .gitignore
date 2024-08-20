@@ -230,3 +230,6 @@ FakesAssemblies/
 /ERCentralAPI/ERxWebClient2/Properties
 /ERCentralAPI/WebDatabasesMVC/appsettings.Development.json
 /ERCentralAPI/SQL Scripts/OpenAI SG-JT private.txt
+/ERCentralAPI/ER-Web/appsettings.Development.json
+/ER4Manager/ER4Manager_1/Web.secrets.config
+/EPPIReviewer4.2015/WcfHostPortal/Web.secrets.config

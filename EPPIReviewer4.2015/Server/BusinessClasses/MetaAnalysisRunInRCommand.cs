@@ -121,14 +121,9 @@ namespace BusinessLibrary.BusinessClasses
 
         protected string GetRServerAddress()
         {
-            if (Dns.GetHostName() == "ssru_Elephant")
-            {
-                return "http://R-EPI2.cloudapp.net/deployr"; 
-            }
-            else
-            {
-                return "http://r-epi-private:7400/deployr";
-            }
+            string tmp = AzureSettings.RServerAddress;
+            if (tmp != null) return tmp;
+            else return "";
         }
 
         protected override void DataPortal_Execute()
