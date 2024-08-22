@@ -898,6 +898,9 @@
     <Compile Include="..\Server\BusinessClasses\TrainingRunCommand.cs">
       <Link>BusinessClasses\TrainingRunCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingRunCommandV2.cs">
+      <Link>BusinessClasses\TrainingRunCommandV2.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\TrainingScreeningCriteria.cs">
       <Link>BusinessClasses\TrainingScreeningCriteria.cs</Link>
     </Compile>

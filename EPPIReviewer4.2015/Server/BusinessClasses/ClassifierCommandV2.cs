@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using Csla;
 
 
@@ -14,6 +14,9 @@ using System.Data;
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.IO;
 #else
 using System.Net.Http.Json;
 #endif
@@ -191,8 +194,8 @@ namespace BusinessLibrary.BusinessClasses
 					}
                 }
 #if (!CSLA_NETCORE)
-				LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId.ToString() +
-                    modelId.ToString() + "ContactId" + ri.UserId.ToString() + ".csv";
+				LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath 
+                    + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".tsv";
 #else
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
                 LocalFileName = tmpDir.FullName + "\\ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".tsv";
@@ -1031,7 +1034,7 @@ namespace BusinessLibrary.BusinessClasses
 		//static string apiKeyBuildModel = AzureSettings.apiKeyBuildModel;
 		//static string BaseUrlScoreNewRCTModel = AzureSettings.BaseUrlScoreNewRCTModel;
 		//static string apiKeyScoreNewRCTModel = AzureSettings.apiKeyScoreNewRCTModel;// Cochrane RCT Classifier v.2 (ensemble) blob storage
-		const string TempPath = @"UserTempUploads/ContactId";
+		const string TempPath = @"UserTempUploads\";
 
 #endif
 	}

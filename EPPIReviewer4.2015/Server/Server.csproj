@@ -348,6 +348,7 @@
     <Compile Include="BusinessClasses\BulkCompleteUncompleteCommand.cs" />
     <Compile Include="BusinessClasses\CheckTicketExpirationCommand.cs" />
     <Compile Include="BusinessClasses\ClassifierCommand.cs" />
+    <Compile Include="BusinessClasses\ClassifierCommandV2.cs" />
     <Compile Include="BusinessClasses\ClassifierContactModel.cs" />
     <Compile Include="BusinessClasses\ClassifierContactModelList.cs" />
     <Compile Include="BusinessClasses\ClassifierCreateCodesCommand.cs" />
@@ -592,6 +593,7 @@
     <Compile Include="BusinessClasses\TrainingProcessText.cs" />
     <Compile Include="BusinessClasses\TrainingReviewerTermList.cs" />
     <Compile Include="BusinessClasses\TrainingRunCommand.cs" />
+    <Compile Include="BusinessClasses\TrainingRunCommandV2.cs" />
     <Compile Include="BusinessClasses\TrainingScreeningCriteria.cs" />
     <Compile Include="BusinessClasses\TrainingScreeningCriteriaList.cs" />
     <Compile Include="BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs" />

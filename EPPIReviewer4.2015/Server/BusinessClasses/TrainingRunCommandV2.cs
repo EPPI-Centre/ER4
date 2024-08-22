@@ -12,7 +12,7 @@ using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
 using Newtonsoft.Json;
-using DeployR;
+//using DeployR;
 
 
 #if !SILVERLIGHT
@@ -236,7 +236,7 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
 #if (!CSLA_NETCORE)
-            string LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + UserId.ToString() + ".tsv";
+                LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "PS-ReviewId" + RevInfo.ReviewId + "ContactId" + UserId.ToString() + ".tsv";
 #else
                 LocalFileName = "";
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
@@ -466,9 +466,9 @@ namespace BusinessLibrary.BusinessClasses
         static string apiKeyVectorise = AzureSettings.apiKeyVectorise;
         static string BaseUrlSimulation5 = AzureSettings.BaseUrlSimulation5;
         static string apiKeySimulation5 = AzureSettings.apiKeySimulation5;
-        const string TempPath = @"UserTempUploads/ReviewId";
+        const string TempPath = @"UserTempUploads\";
 
-        
+
 #endif
     }
 }

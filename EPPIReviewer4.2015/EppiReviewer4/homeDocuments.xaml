@@ -1222,9 +1222,9 @@
                                             <Image Width="16" Height="16" Source="Icons/view-refresh-7.png" ToolTipService.ToolTip="Refresh screening options status" />
                                     </Button>
                                     <StackPanel Grid.Column="0" Grid.Row="10" Orientation="Horizontal">
-                                        <Button x:Name="cmdScreeningRunSimulation" Content="Run simulation" Margin="12,5,2,5" Width="90" Click="cmdScreeningRunSimulation_Click"></Button>
-                                        <Button x:Name="cmdScreeningSimulationSave" Content="Download results" Margin="2,5,2,5" Width="100" Click="cmdScreeningSimulationSave_Click"></Button>
-                                        <Button x:Name="cmdScreeningSimulationResults" Content="Save results" Margin="2,5,2,5" Visibility="Collapsed" Width="80" Click="cmdScreeningSimulationResults_Click"></Button>
+                                        <Button x:Name="cmdScreeningRunSimulation" Content="Run simulation" IsEnabled="false" Margin="12,5,2,5" Width="90" Click="cmdScreeningRunSimulation_Click"></Button>
+                                        <Button x:Name="cmdScreeningSimulationSave" Content="Download results" IsEnabled="false" Margin="2,5,2,5" Width="100" Click="cmdScreeningSimulationSave_Click"></Button>
+                                        <Button x:Name="cmdScreeningSimulationResults" Content="Save results" IsEnabled="false" Margin="2,5,2,5" Visibility="Collapsed" Width="80" Click="cmdScreeningSimulationResults_Click"></Button>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="11" HorizontalAlignment="Left">
                                         <Button x:Name="cmdScreeningSaveReviewOptions"   Margin="8,3,4,3" HorizontalAlignment="Stretch"
