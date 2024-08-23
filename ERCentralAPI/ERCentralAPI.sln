@@ -6,7 +6,8 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BFF9400-FE9B-47B3-9FDA-BB40CD18E5EB}"
 	ProjectSection(SolutionItems) = preProject
 		Dlls\EPPIiFilter.dll = Dlls\EPPIiFilter.dll
-		ER-Web Readme.md = ER-Web Readme.md
+		ERCentralAPI-README.md = ERCentralAPI-README.md
+		ER6-README.md = ER6-README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLScripts", "SQLScripts", "{72D8A03E-A086-4C56-944C-3D84567226AA}"
@@ -21,7 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLScripts", "SQLScripts", 
 		SQL Scripts\ReviewerAdmin All SPs.sql = SQL Scripts\ReviewerAdmin All SPs.sql
 		SQL Scripts\ReviewerAdminGenerateScript.sql = SQL Scripts\ReviewerAdminGenerateScript.sql
 		SQL Scripts\ReviewerGenerateScript.sql = SQL Scripts\ReviewerGenerateScript.sql
-		SQL Scripts\Setup NOTES.md = SQL Scripts\Setup NOTES.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQL Changes Manager", "SQL Changes Manager\SQL Changes Manager.csproj", "{B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E}"
@@ -40,8 +40,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "Integra
 		{B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E} = {B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E}
 		{EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8} = {EA7D26B7-C6C3-42D9-A2A4-5EF588066EF8}
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutcomesGridSettingsConverter", "OutcomesGridSettingsConverter\OutcomesGridSettingsConverter.csproj", "{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,18 +117,6 @@ Global
 		{F68FCCD2-9866-464E-B1C1-8D1D8953D753}.Release|x64.Build.0 = Release|Any CPU
 		{F68FCCD2-9866-464E-B1C1-8D1D8953D753}.Release|x86.ActiveCfg = Release|Any CPU
 		{F68FCCD2-9866-464E-B1C1-8D1D8953D753}.Release|x86.Build.0 = Release|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|x64.Build.0 = Debug|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Debug|x86.Build.0 = Debug|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|x64.ActiveCfg = Release|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|x64.Build.0 = Release|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|x86.ActiveCfg = Release|Any CPU
-		{F1FCA6B4-204F-4C35-8DD9-EF02560AF003}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
