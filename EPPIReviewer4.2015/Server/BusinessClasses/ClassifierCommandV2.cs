@@ -310,8 +310,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 DataFactoryHelper DFH = new DataFactoryHelper();
                 string BatchGuid = Guid.NewGuid().ToString();
-                VecFile = RemoteFolder + "Vectors.tsv";
-                ClfFile = RemoteFolder + "Clf.tsv";
+                VecFile = RemoteFolder + "Vectors.pkl";
+                ClfFile = RemoteFolder + "Clf.pkl";
                 Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
                     {"do_build_and_score_log_reg", false },
@@ -577,8 +577,8 @@ namespace BusinessLibrary.BusinessClasses
 
             DataFactoryHelper DFH = new DataFactoryHelper();
             string BatchGuid = Guid.NewGuid().ToString();
-            VecFile = RemoteFolder + "Vectors.tsv";
-            ClfFile = RemoteFolder + "Clf.tsv";
+            VecFile = RemoteFolder + "Vectors.pkl";
+            ClfFile = RemoteFolder + "Clf.pkl";
 			ScoresFile = RemoteFolder + "ScoresForReview" + ReviewId + ".tsv";
             Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
