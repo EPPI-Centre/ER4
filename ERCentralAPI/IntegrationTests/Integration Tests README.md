@@ -51,7 +51,7 @@ But we might also have a test _for_ importing items (T2). Which may import them,
 
 So perhaps we should control the order in which tests are run, [which we can](https://learn.microsoft.com/en-us/dotnet/core/testing/order-unit-tests?pivots=xunit), but it does not feel very "sustainable". From another point of view, it feels like our "single purpose" tests should leave the DB "as they found it" and thus cleanup after themselves. This however would mean that we'll have a lot of redundant code, where enpoints are hit one time to "test them" and many other times to "cleanup" after a single-purpose test. And also this feels wrong: takes more time to write the tests, and makes test execution slower.
 
-The 1st attempt to resolve the porblems above is based on "review stories" and suggests that when we have lots of data dependencies (a given endpoint can't be tested without loading data and then using it first) it does not make much sense to try testing it in isolation. Would make the tests extra-slow (lots of data-preparation steps) and give little added value. Thus, please see the section about review stories below.
+The 1st attempt to resolve the problems above is based on "review stories" and suggests that when we have lots of data dependencies (a given endpoint can't be tested without loading data and then using it first) it does not make much sense to try testing it in isolation. Would make the tests extra-slow (lots of data-preparation steps) and give little added value. Thus, please see the section about review stories below.
 
 ## Review Story Tests vs "atomic" tests
 
@@ -60,13 +60,14 @@ A typical good test tests one thing, and one thing only. This means that when it
 The EPPI-Reviewer Web API includes many endpoints that cannot even do anything _unless_ plenty of data-prerequisites are fulfilled. Given that we can't and don't want to mock data dependencies, writing isolated tests that test one and only one endpoint can't be our main focus. We want coverage, and thus we want to hit as many endpoints as we can, but not necessarily hit them in isolation. As long as our tests will give us sufficient clues about what's not working, we don't need to try following a "quasi unit tests" pattern.
 
 What we can do is to produce "stories" instead. Where data is imported, created, manipulated, exported, as you'd expect for real-world reviews. 
-This is a neat plan, that comes with requirements:
+
+This is a "sufficiently clean" plan (I hope!), which however comes with requirements:
 
 1. We want to have short, readable tests. Thus "stories" need to be readable from their main method, if possible.
 1. We therefore want to separate the API-communication code into separate methods
 1. We also want these separate methods to be reusable, because of course, within a given story, or across stories, we might need to hit the same API endpoint many times.
 
-This is achieved by the pattern shown in `\Story Tests\MiniDedupStory.cs`. This files contains one test (`[Fact]`), but includes also:
+This is achieved by the pattern shown in `\Story Tests\MiniDedupStory.cs`. This file contains one test (`[Fact]`), but includes also:
 
 ```
 namespace IntegrationTests.Fixtures
@@ -81,9 +82,9 @@ namespace IntegrationTests.Fixtures
     }
 }
 ```
-What the code above does is define APITalkMethod1, APITalkMethod2 for the class `IntegrationTest`, which all tests inherit from. Thus, APITalkMethod1, 2, etc... become available to ALL TESTS, but are defined where they were first needed, which has the advantage of making them visible from at least the tests that "needed" such methods for the first time.
+What the code above does is define APITalkMethod1, APITalkMethod2 for the class `IntegrationTest`, which all tests inherit from. Thus, APITalkMethod1, 2, etc... become available to ALL TESTS, but are defined where they were first needed, which has the advantage of making their source code directly visible from at least the tests that "needed" such methods for the first time.
 
-Thus, when writing a different story, or even a new "atomic test", the code to hit a given endpoint will already be present and usable. When writing a new test, we'll need check if code to hit a given endpoint already exists, which can be done via a `find all (current project)` for the API endpoint url, such as `api/Duplicates/FetchGroupDetails`.
+Thus, when writing a different story, or even a new "atomic test", the code to hit a given endpoint will already be present and usable. When writing a new test, we'll need to check if code to hit a given endpoint already exists, which can be done via a `find all (current project)` for the API endpoint url, such as `api/Duplicates/FetchGroupDetails`.
 
 Moreover, when we write _any kind_ of test (atomic or story-like) we **want to always create such "APITalkMethods" as members of the `IntegrationTest` abstract class**. This is because by doing so, we automatically make these methods available for future tests and stories.
 

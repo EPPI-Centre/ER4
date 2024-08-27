@@ -41,11 +41,13 @@ Each project comes with its individual ReadMe file, thus, the purpose of this se
 - The `EPPIReviewer4.2015` folder contains the source code for ER4. This includes a vast amount of code that is used in ER6 and in EPPI Visualiser.
 - The `ER4Manager` folder contains the source code for the Account Manager and is self-contained (no shared code).
 - The `ERCentralAPI` folder contains the source code for:
- - `ER-Web-API` which is the server-side API that drives ER6.
- - `ER-Web-Client`: the Angular client of ER6.
- - `IntegrationTests`: (very basic/limited) integration tests for ER6.
- - `SQL Changes Manager`: a project used to manage changes to the structure and functionalities of the underlying databases.
- - `EPPI Visualiser`: which is in the folder called `WebDatabasesMVC` and which shares common code with EPPI Reviewer proper (both versions).
+    - `ER-Web-API` which is the server-side API that drives ER6.
+    - `ER-Web-Client`: the Angular client of ER6.
+    - `IntegrationTests`: (very basic/limited) integration tests for ER6.
+    - `SQL Changes Manager`: a project used to manage changes to the structure and functionalities of the underlying databases.
+    - `EPPI Visualiser`: which is in the folder called `WebDatabasesMVC` and which shares common code with EPPI Reviewer proper (both versions).
+- `ExportPDFs`: a small command line utility to export PDFs/binaries from a given review.
+
  
 ## Getting started and dependencies
 Starting to make sense of a vast code-base is always difficult, and in this case it can be extremely confusing, both because of the number of dependencies that our code-base has accumulated over many years, and because of the complexity that comes from sharing code that uses outdated tech (DotNet 3.5, Silverlight and a compatible version of CSLA).
@@ -60,6 +62,8 @@ EPPI Reviewer depends on the existence of two separate MS SQL Databases: `Review
 As a consequence, to get up and running, it's necessary to:
  
 1. Create the 2 Databases. This can be done using the scripts that the `IntegrationTests` project uses for this same purpose. We recommend looking into the `\ERCentralAPI\IntegrationTests\Fixtures\DataBaseFixtures.cs` file to see how the `*.sql` files included in the `IntegrationTests` project are used.
+    1. Please see the `Integration Tests README.md` for details on the sequence of "high level" steps used for automatic database creation.
+    1. The constructor of `TransientDatabase` class contains the exact sequence of SQL script execution used to create the DBs.
 2. Run the `SQL Changes Manager` project to "apply" changes.
  
 Please note that the `IntegrationTests` project is designed to work within "development" environments (where the two "for development" main databases already exist, and should NOT be altered when running tests) and "Test" environments (where the databases do not pre-exist), which means that the tests project includes logic to temporarily rename databases and handle failures (within reason).
@@ -68,15 +72,15 @@ The scripts in the `IntegrationTests` project are the ones **Recommended** to ge
  
 Once the two Databases exist, contain some data (also done via scripts that can be found in the `IntegrationTests` project) and are up to date (in the sense of their data-structures/functionalities) it is possible to attempt to run EPPI Reviewer 6 (or 4). Please refer to specific readme files to learn how.
 
-On the other hand, whenever new code is pulled into your local repository, you will NOT need to re-create the databases. You should "just" run the `SQL Changes Manager` project, to ensure the databases structures and functionalities are matching the rest of the code correctly.
+On the other hand, after doing the above the 1st time, whenever new code is pulled into your local repository, you will NOT need to re-create the databases. You should "just" run the `SQL Changes Manager` project, to ensure the databases structures and functionalities are matching the rest of the code correctly.
 
-## License, Contributions, and all those details
+## License, Contributions and related details
 
 
-The source code included in this repository is covered by the [FSL-1.1-MIT license](LICENSE.md). In a nutshell, this means that this software is NOT Open Source in a strict sense, EPPI Reviewer is thus a "Source Available" software, although with significant additional permissions. People can:
+The source code included in this repository is covered by the [FSL-1.1-MIT license](LICENSE.md). In a nutshell, this means that **this software is NOT Open Source in a strict sense**, EPPI Reviewer is thus a "Source Available" software, although with significant additional permissions. People can:
 
 - View, download, clone, fork this repository.
-- Modify it for their own purposes, as long as their purpose is NOT to create a for-profit software that is a direct competitor to EPPI Reviewer.
+- Modify it for their own purposes, **as long as their purpose is NOT to create a for-profit software that is a direct competitor to EPPI Reviewer**.
 - Do anything you like with the source code, when it's at least 2 years old - whereby the simple MIT license applies.
 
 Not being quite Open Source, this repository is not Open to external contributions. There are two reasons for this, the first one being sufficient: we are a very small team and do not have the resources necessary to manage external contributions. The second reason is that we are not in the habit of asking for free work in return of "gratitude" and/or nothing substantial.

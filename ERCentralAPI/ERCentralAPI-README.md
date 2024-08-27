@@ -25,6 +25,6 @@ In the case of EPPI Visualiser (`WebDatabasesMVC`), the authentication/authorisa
 
 ## Other files/folders
 
-The `Dlls` folder contains a single file called `EPPIiFilter.dll` on which both ER4 and ER-Web-API depend. This file is used when uploading PDFs and allows ER to load and use (if one is installed) a PDF-Filter that extracts simple text from PDFs (this text is mostly used in the search functions of ER).
+The `Dlls` folder contains a single file called `EPPIiFilter.dll` on which both ER4 and ER-Web-API depend. This file is used when uploading PDFs and allows ER to load and use (if one is installed in the Operative System) a PDF-Filter that extracts simple text from PDFs (this text is mostly used in the search functions of ER).
 
 The `SQLScripts` folder contains mostly outdated scripts which were used at different points in ER's complicated history. The one file which is still of use is `ConditionalCheckTemplates.sql` which developers consult to write the numbered "SQl changes" files consumed by the `SQL Changes Manager` utility. These files need to "re-runnable" without producing errors, which in turn is done by "conditional checks", for which we maintain a library of examples in in this file.
