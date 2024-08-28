@@ -132,6 +132,7 @@ namespace BusinessLibrary.BusinessClasses
                 List<Int64> ItemIds = new List<Int64>();
                 int positiveClassCount = 0;
                 int negativeClasscount = 0;
+                int sampleSize = 0;
 
                 connection.Open();
 
@@ -215,6 +216,7 @@ namespace BusinessLibrary.BusinessClasses
                             {
 								if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
 								{
+                                    sampleSize++;
                                     ItemIds.Add(reader.GetInt64("ITEM_ID"));
                                     file.WriteLine(reader["item_id"].ToString() + "\t" +
 										CleanText(reader, "title") + "\t" +
@@ -229,7 +231,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                if (positiveClassCount < 7 || negativeClasscount < 7)//at lease 6 examples in each class
+                if (positiveClassCount < 7 || negativeClasscount < 7 || sampleSize < 20)//at least 7 examples in each class and at least 20 records in total
                 {
                     _returnMessage = "Insufficient data";
 					if (_classifierId == -1) //building a new classifier, there is not enough data, so we're not saving it
@@ -274,8 +276,11 @@ namespace BusinessLibrary.BusinessClasses
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "TrainingRunCommandV2", true, false);
                 return;
             }
-            string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + modelId + "/";
-            string RemoteFileName = RemoteFolder + "DataForBuilding.tsv";
+
+            string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ModelId" + modelId;
+            string RemoteFolder = "user_models/" + FolderAndFileName + "/";
+            string RemoteFileName = RemoteFolder + FolderAndFileName + "DataForBuilding.tsv";
+            
             bool DataFactoryRes = false;
 			try 
 			{
@@ -328,7 +333,7 @@ namespace BusinessLibrary.BusinessClasses
             catch (Exception ex)
             {
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
-                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
+                //BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to (re)build classifier", "", "ClassifierCommandV2", true, false);
                 return;
             }
@@ -390,7 +395,7 @@ namespace BusinessLibrary.BusinessClasses
 					DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to download data", "", "ClassifierCommandV2", true, false);
 				}
 			}
-			BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
+			//BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
         }
 
         private void DoApplyClassifier(int modelId)
@@ -494,13 +499,13 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else
                 {//has to be a positive model ID, so a custom built one
-                    Task.Run(() => UploadDataAndScoreCustomModelAsync(ReviewId, NewJobId, modelId, ContactId));
+                    Task.Run(() => UploadDataAndScoreCustomModelAsync(ReviewId, NewJobId, modelId, ContactId, ModelReviewId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
                     return;
                 }
             } // end if check for using covid categories / BERT models / SQL database
         }
-		private async void UploadDataAndScoreCustomModelAsync(int ReviewId, int LogId, int modelId, int ContactId)
+		private async void UploadDataAndScoreCustomModelAsync(int ReviewId, int LogId, int modelId, int ContactId, int ModelReviewId)
 		{
             List<Int64> ItemIds = new List<Int64>();
             try
@@ -552,8 +557,10 @@ namespace BusinessLibrary.BusinessClasses
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "ClassifierCommandV2", true, false);
                 return;
             }
-            string RemoteFolder = "user_models/" + DataFactoryHelper.NameBase + "ModelId" + modelId + "/";
-            string RemoteFileName = RemoteFolder + "ReviewId" + ReviewId + "DataForScoring.tsv";
+
+            string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ModelReviewId.ToString() +"ModelId" + modelId;
+            string RemoteFolder = "user_models/" + FolderAndFileName + "/";
+            string RemoteFileName = RemoteFolder + FolderAndFileName + "DataForScoring.tsv";
             bool DataFactoryRes = false;
             // upload data to blob
             try
