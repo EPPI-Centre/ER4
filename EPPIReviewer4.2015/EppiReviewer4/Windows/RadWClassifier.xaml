@@ -113,7 +113,7 @@
         <TextBlock Grid.Row="4" Grid.Column="1" Margin="3,3,3,3" Text="Name for your model" VerticalAlignment="Center"></TextBlock>
         <TextBox Grid.Row="4" Grid.Column="2" Margin="3,3,3,3" x:Name="tbModelTitle" Text="Edit title" VerticalAlignment="Center"></TextBox>
         <TextBlock x:Name="textUploadingDataBuild" Grid.Column="1" Grid.Row="6" Text="Uploading data. Please wait..." Grid.ColumnSpan="2" Visibility="Collapsed"></TextBlock>
-        <Button x:Name="cmdBuildModel" ToolTipService.ToolTip="Build new model" Grid.Row="6" Grid.Column="2" Click="cmdBuildModel_Click" Margin="26,4,10,6">
+        <Button x:Name="cmdBuildModel" IsEnabled="False" ToolTipService.ToolTip="Build new model (disabled: please use EPPI Reviewer 6)" Grid.Row="6" Grid.Column="2" Click="cmdBuildModel_Click" Margin="26,4,10,6">
             <StackPanel Orientation="Horizontal">
                 <Image Width="16" Height="16" Source="../Icons/run-build-configure.png"/>
                 <TextBlock Text="Build model" Margin="5,0,5,0"/>
@@ -122,6 +122,12 @@
         <TextBlock Grid.Row="7" Grid.Column="1" Margin="5,5,5,5" 
                    Text="(Go straight to stage 2 if you are applying one of the 'pre-built' models.)" TextWrapping="Wrap"
                    Grid.ColumnSpan="2" Grid.RowSpan="2" VerticalAlignment="Top"></TextBlock>
+        <Border Grid.Row="8" Grid.Column="1" Margin="5,5,5,5" Background="LightYellow" BorderBrush="Red" BorderThickness="2"
+                   Grid.ColumnSpan="2" Grid.RowSpan="5" VerticalAlignment="Top">
+            <TextBlock FontSize="14.667" Margin="4" FontWeight="Bold" TextWrapping="Wrap">
+                Machine Learning Models are disabled in EPPI Reviewer 4 (from V.4.15.4.0). Please use EPPI Reviewer 6.
+            </TextBlock>
+        </Border>
 
         <telerik:RadGridView x:Name="GridViewClassifierModels" Grid.Row="2" Grid.Column="4" Grid.RowSpan="6" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,1,0"
