@@ -5,9 +5,17 @@
 @{
     string imgPath3 = "";
     string imgUrl3 = "";
+    int WebDbID = 0;
     Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    Claim IsPasswordProtectedC = User.FindFirst("IsPasswordProtected");
+    bool IsPasswordProtected = false;
+    if (IsPasswordProtectedC != null && IsPasswordProtectedC.Value == "True")
+    {
+        IsPasswordProtected = true;
+    }
     if (WebDbIDclaim != null)
     {
+        int.TryParse(WebDbIDclaim.Value, out WebDbID);
         var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
         string absolutePath = service.WebRootPath + "\\HeaderImages\\";
         if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.jpg")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.jpg");
@@ -47,7 +55,7 @@
                 var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
                 var webDbId = $('#webDbIdCrit').val();
                 //alert("GoToItems" + attributeIdXAxis + " : " + setIdXAxis);
-                postwith("../ItemList/GetFreqListNoneOfTheAbove",
+                postwith(getBasePath() + "ItemList/GetFreqListNoneOfTheAbove",
                     {
                         attributeIdXAxis: attributeIdXAxis
                         , setId: setIdXAxis
@@ -56,7 +64,7 @@
                         , attName: AttName.replaceAll('&#39;', '\'')
                     });
             } else {
-                postwith("../ItemList/GetFreqList", { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') });
+                postwith(getBasePath() + "ItemList/GetFreqList", { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') });
             }
         };
 
@@ -66,7 +74,7 @@
             let crit = CurrentItemsCriteria;
             crit.itemID = itemId;
             crit.itemIds = ItemsIds;
-            postwith("../ItemList/ItemDetails", crit);
+            postwith(getBasePath() + "ItemList/ItemDetails", crit);
         }
 
         function enableSearch() {
@@ -198,7 +206,15 @@
                         </li>-->
 
                         <li>
-                            <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/Index">Home</a>
+                            @if (IsPasswordProtected)
+                            {
+                                <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/Index">Home</a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/Index/@(WebDbID.ToString())">Home</a>
+                            }
+                            <a class="btn btn-sm btn-white btn-border btn-round mr-2" id="AppRootlink" href="~/" style="display:none;">.</a>
                         </li>
                         <li>
                             <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/ItemList/Index">All records</a>

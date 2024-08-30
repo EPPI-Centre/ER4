@@ -37,6 +37,21 @@ namespace BusinessLibrary.BusinessClasses
 #endif
             }
         }
+        protected System.Threading.CancellationToken CancelToken
+        { 
+            get 
+            {
+#if CSLA_NETCORE
+                if (Program.TokenSource != null)
+                {
+                    return Program.TokenSource.Token;
+                }
+                else return default(CancellationToken);
+#else
+                return  default(System.Threading.CancellationToken);
+#endif
+            }
+        }
         protected void ErrorLogSink(string Message)
         {
 #if CSLA_NETCORE

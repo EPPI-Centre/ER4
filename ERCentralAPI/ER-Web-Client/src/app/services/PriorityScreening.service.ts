@@ -61,11 +61,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   private subtrainingList: Subscription | null = null;
   public Fetch() {
     this._BusyMethods.push("Fetch");
-    if (this.subtrainingList) {
-      this.subtrainingList.unsubscribe();
-      this.subtrainingList = null;
-    }
-    this.subtrainingList = this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList').subscribe(tL => {
+    
+    lastValueFrom( this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList')).then(tL => {
       this._TrainingList = tL;
       this.RemoveBusy("Fetch");
       //this.Save();
@@ -74,7 +71,6 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       this.modalService.SendBackHomeWithError(error);
     }
     );
-    return this.subtrainingList;
   }
   private DelayedFetch(waitSeconds: number) {
 
@@ -206,21 +202,27 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     }
     //let totalscreened = this._TrainingList
   }
-  public RunNewTrainingCommand(screeningItem: TrainingNextItem | null, delayedFetch: boolean = true) {
+  public RunNewTrainingCommand(screeningItem: TrainingNextItem | null, delayedFetch: boolean = true): Promise<String|boolean> {
     this._BusyMethods.push("RunNewTrainingCommand");
     const body = JSON.stringify(screeningItem == null ? { Value: 0 } : { Value: screeningItem.itemId });
-    return this._httpC.post<iReviewTrainingRunCommand>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand', body).subscribe(tL => {
+    return lastValueFrom( this._httpC.post<iReviewTrainingRunCommand>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand', body)).then(tL => {
       //this.DelayedFetch(1 * 6);//seconds to wait...
       this.ReviewInfoService.ReviewInfo = new ReviewInfo(tL.revInfo);
       //console.log("Received RevInfo:", tL.revInfo);
-      if (delayedFetch) this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
+      if (delayedFetch) this.DelayedFetch(20 * 60);//seconds to wait... 20m, a decent guess of how long the retraining will take.
       //key is that user will get the next item from the current list (server side) even before receiving the "training" record via this current mechanism.
       this.RemoveBusy("RunNewTrainingCommand");
+      return tL.reportBack;
     }, error => {
       this.RemoveBusy("RunNewTrainingCommand");
-      this.modalService.SendBackHomeWithError(error);
+      this.modalService.GenericError(error);
+      return false;
     }
-    );
+    ).catch(caught => {
+      this.RemoveBusy("RunNewTrainingCommand");
+      this.modalService.GenericError(caught);
+      return false;
+    });
   }
 
   public HasPreviousItem(): boolean {

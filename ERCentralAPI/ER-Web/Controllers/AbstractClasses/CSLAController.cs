@@ -41,7 +41,7 @@ namespace ERxWebClient2.Controllers
 #if WEBDB
                 SetViewBag();
 #endif
-                return true;//we might want to do more checks!
+                return ri.IsAuthenticated;//we might want to do more checks!
             }
             catch (Exception e)
             {//to be logged!
@@ -56,7 +56,7 @@ namespace ERxWebClient2.Controllers
 			{
 				ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
 				int ReviewID = ri.ReviewId;//this ensures current ticket is valid (goes to DB to check!)
-				if (ri.HasWriteRights())
+				if (ri.IsAuthenticated && ri.HasWriteRights())
 				{//all is well, ticket is valid and user has write access
 					ReviewerPrincipal principal = new ReviewerPrincipal(ri);
 					Csla.ApplicationContext.User = principal;
@@ -82,11 +82,12 @@ namespace ERxWebClient2.Controllers
                     Claim DBidC = claims.Find(f => f.Type == "WebDbID");
                     try
                     {
+                        if (DBidC == null) return -1;
                         return int.Parse(DBidC.Value);
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError("Error parsing the WebDBId value from the logon cookie", e);
+                        _logger.LogError(e, "Error parsing the WebDBId value from the logon cookie");
                         return -1;
                     }
                 }
@@ -108,7 +109,7 @@ namespace ERxWebClient2.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("Error getting ReviewerIdentity or ReviewId therein.", e);
+                    _logger.LogError(e ,"Error getting ReviewerIdentity or ReviewId therein.");
                     return -1;
                 }
             }
@@ -173,6 +174,44 @@ namespace ERxWebClient2.Controllers
                 throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
             }
             ItemList4Json res = new ItemList4Json(DataPortal.Fetch<ItemList>(crit));
+
+            Claim HiddenFieldsClaim = User.FindFirst("HiddenFields");
+            List<string> HiddenFields = new List<string>();
+            if (HiddenFieldsClaim != null) HiddenFields = HiddenFieldsClaim.Value.ToString().Split(",").ToList();
+            foreach (Item itm in res.Items)
+            {
+                foreach (string fieldToHide in HiddenFields)
+                {
+                    switch (fieldToHide)
+                    {
+                        case "Abstract": itm.Abstract = ""; break;
+                        case "ItemStatus": itm.ItemStatus = ""; break;
+                        case "OldItemID": itm.DeleteOldItemId(); break; 
+                        case "ParentAuthors": itm.ParentAuthors = ""; break;
+                        case "StandardNumber": itm.StandardNumber = ""; break;
+                        case "Pages": itm.Pages = ""; break;
+                        case "Volume": itm.Volume = ""; break;
+                        case "Issue": itm.Issue  = ""; break;
+                        case "URL": itm.URL = ""; break;
+                        case "DOI": itm.DOI = ""; break;
+                        case "Availability": itm.Availability = ""; break;
+                        case "Edition": itm.Edition = "";break;
+                        case "Publisher": itm.Publisher = ""; break;
+                        case "Month": itm.Month = "00"; break;
+                        case "City": itm.City = ""; break;
+                        case "Country": itm.Country = ""; break;
+                        case "Institution": itm.Institution = ""; break;
+                        case "Comments": itm.Comments = ""; break;
+                        case "Keywords": itm.Keywords = ""; break;
+                        case "DateCreated": itm.DateCreated = null; break;
+                        case "DateEdited": itm.DateEdited = null; break;
+                        //case "Source": itm.  = ""; break; // not part of 'itm'. Need to hide somewhere else (assuming we need to hide it at all)
+                        //case "Duplicates": itm.  = ""; break; // not part of 'itm'. Need to hide somewhere else (assuming we need to hide it at all)
+                        default: break;
+
+                    }
+                }
+            }
             return new ItemListWithCriteria { items = res, criteria = new WebDatabasesMVC.Controllers.SelCritMVC(crit) };
         }
 

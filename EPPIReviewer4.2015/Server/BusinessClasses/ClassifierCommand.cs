@@ -1234,7 +1234,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-				}
+	}
 }
 
 

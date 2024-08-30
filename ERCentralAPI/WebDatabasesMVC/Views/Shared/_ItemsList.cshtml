@@ -371,6 +371,9 @@
             'Dec',
 
         ];
+
+
+
         const newLine = '\r\n';
         let res = 'TY  - ';
         let tmp = '';
@@ -428,7 +431,7 @@
 
         //console.log("Item to ris, got here!", it);
         res +=
-            'KW  - eppi-reviewer4' +
+            'KW  - EPPI Reviewer' +
             newLine +
             (it.keywords && it.keywords.length > 2
                 ? it.keywords.trim() + newLine
@@ -502,7 +505,9 @@
             (it.country.length > 0 ? ' ' + it.country : '') +
             newLine;
         if (it.url.length > 0) res += 'UR  - ' + it.url + newLine;
-        if (it.availability.length > 0) res += 'AV  - ' + it.availability + newLine;
+        if (it.availability.length > 0) {
+            res += 'AV  - ' + it.availability + newLine;
+        }
         if (it.publisher.length > 0) res += 'PB  - ' + it.publisher + newLine;
         if (it.standardNumber.length > 0)
             res += 'SN  - ' + it.standardNumber + newLine;

@@ -72,78 +72,78 @@ namespace EppiReviewer4
 
         private void cmdBuildModel_Click(object sender, RoutedEventArgs e)
         {
-            if (codesSelectControlTrainOn.selectedAttributes != null && codesSelectControlTrainNotOn.selectedAttributes != null)
-            {
-                if (MessageBox.Show("Are you sure you want to build this model?", "Are you sure?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                {
-                    if (codesSelectControlTrainOn.SelectedAttributeSet().AttributeId == codesSelectControlTrainNotOn.SelectedAttributeSet().AttributeId)
-                    {
-                        RadWindow.Alert("Ahem. You do need to select different codes...");
-                        return;
-                    }
-                    CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-                    ReviewInfo RevInfo = provider.Data as ReviewInfo;
+            //if (codesSelectControlTrainOn.selectedAttributes != null && codesSelectControlTrainNotOn.selectedAttributes != null)
+            //{
+            //    if (MessageBox.Show("Are you sure you want to build this model?", "Are you sure?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            //    {
+            //        if (codesSelectControlTrainOn.SelectedAttributeSet().AttributeId == codesSelectControlTrainNotOn.SelectedAttributeSet().AttributeId)
+            //        {
+            //            RadWindow.Alert("Ahem. You do need to select different codes...");
+            //            return;
+            //        }
+            //        CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            //        ReviewInfo RevInfo = provider.Data as ReviewInfo;
 
-                    DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
-                    ClassifierCommand command = new ClassifierCommand(
-                        tbModelTitle.Text,
-                        codesSelectControlTrainOn.SelectedAttributeSet().AttributeId,
-                        codesSelectControlTrainNotOn.SelectedAttributeSet().AttributeId, 0, -1, -1);
-                    dp.ExecuteCompleted += (o, e2) =>
-                    {
-                        //BusyLoading.IsRunning = false;
-                        textUploadingDataBuild.Visibility = Visibility.Collapsed;
-                        cmdBuildModel.IsEnabled = true;
-                        //cmdLearnAndApplyModel.IsEnabled = true;
-                        cmdApplyModel.IsEnabled = true;
-                        if (e2.Error != null)
-                        {
-                            RadWindow.Alert(e2.Error.Message);
-                        }
-                        else
-                        {
-                            if ((e2.Object as ClassifierCommand).ReturnMessage == "Already running")
-                            {
-                                RadWindow.Alert("You have a classification task in progress." +
-                                    Environment.NewLine + " Please wait until it has completed before starting another.");
-                            }
-                            else
-                                if ((e2.Object as ClassifierCommand).ReturnMessage == "Insufficient data")
-                            {
-                                RadWindow.Alert("Sorry, insufficient data for training." + Environment.NewLine +
-                                    "Please ensure you have at least 5 items for the classifier" + Environment.NewLine +
-                                    "to 'learn' from. (For good performance, many more.)");
-                            }
-                            else
-                            if ((e2.Object as ClassifierCommand).ReturnMessage == "BuildFailed")
-                            {
-                                RadWindow.Alert("Sorry, building the model failed." + Environment.NewLine +
-                                    "This is probably because your data set is too small." +
-                                    "If possible, try again with more data.");
-                            }
-                            else
-                            {
-                                RadWindow.Alert("Your data have been successfully uploaded to the server." + Environment.NewLine +
-                                "Building models can take a long time, so you can continue to work" + Environment.NewLine +
-                                "on other things, refreshing the list of models from time to time");
-                            }
-                            /*
-                            RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
-                            CslaDataProvider provider2 = this.Resources["ClassifierModelListData"] as CslaDataProvider;
-                            if (provider2 != null)
-                                provider2.Refresh();
-                            */
-                        }
-                    };
-                    //BusyLoading.IsRunning = true;
-                    textUploadingDataBuild.Visibility = Visibility.Visible;
-                    cmdBuildModel.IsEnabled = false;
-                    cmdApplyModel.IsEnabled = false;
-                    //cmdLearnAndApplyModel.IsEnabled = false;
-                    command.RevInfo = RevInfo;
-                    dp.BeginExecute(command);
-                }
-            }
+            //        DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+            //        ClassifierCommand command = new ClassifierCommand(
+            //            tbModelTitle.Text,
+            //            codesSelectControlTrainOn.SelectedAttributeSet().AttributeId,
+            //            codesSelectControlTrainNotOn.SelectedAttributeSet().AttributeId, 0, -1, -1);
+            //        dp.ExecuteCompleted += (o, e2) =>
+            //        {
+            //            //BusyLoading.IsRunning = false;
+            //            textUploadingDataBuild.Visibility = Visibility.Collapsed;
+            //            cmdBuildModel.IsEnabled = true;
+            //            //cmdLearnAndApplyModel.IsEnabled = true;
+            //            cmdApplyModel.IsEnabled = true;
+            //            if (e2.Error != null)
+            //            {
+            //                RadWindow.Alert(e2.Error.Message);
+            //            }
+            //            else
+            //            {
+            //                if ((e2.Object as ClassifierCommand).ReturnMessage == "Already running")
+            //                {
+            //                    RadWindow.Alert("You have a classification task in progress." +
+            //                        Environment.NewLine + " Please wait until it has completed before starting another.");
+            //                }
+            //                else
+            //                    if ((e2.Object as ClassifierCommand).ReturnMessage == "Insufficient data")
+            //                {
+            //                    RadWindow.Alert("Sorry, insufficient data for training." + Environment.NewLine +
+            //                        "Please ensure you have at least 5 items for the classifier" + Environment.NewLine +
+            //                        "to 'learn' from. (For good performance, many more.)");
+            //                }
+            //                else
+            //                if ((e2.Object as ClassifierCommand).ReturnMessage == "BuildFailed")
+            //                {
+            //                    RadWindow.Alert("Sorry, building the model failed." + Environment.NewLine +
+            //                        "This is probably because your data set is too small." +
+            //                        "If possible, try again with more data.");
+            //                }
+            //                else
+            //                {
+            //                    RadWindow.Alert("Your data have been successfully uploaded to the server." + Environment.NewLine +
+            //                    "Building models can take a long time, so you can continue to work" + Environment.NewLine +
+            //                    "on other things, refreshing the list of models from time to time");
+            //                }
+            //                /*
+            //                RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
+            //                CslaDataProvider provider2 = this.Resources["ClassifierModelListData"] as CslaDataProvider;
+            //                if (provider2 != null)
+            //                    provider2.Refresh();
+            //                */
+            //            }
+            //        };
+            //        //BusyLoading.IsRunning = true;
+            //        textUploadingDataBuild.Visibility = Visibility.Visible;
+            //        cmdBuildModel.IsEnabled = false;
+            //        cmdApplyModel.IsEnabled = false;
+            //        //cmdLearnAndApplyModel.IsEnabled = false;
+            //        command.RevInfo = RevInfo;
+            //        dp.BeginExecute(command);
+            //    }
+            //}
         }
 
         private void ClassifierModelsData_DataChanged(object sender, EventArgs e)
@@ -157,147 +157,147 @@ namespace EppiReviewer4
 
         private void cmdApplyModel_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider1 = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            ReviewInfo RevInfo = provider1.Data as ReviewInfo;
-            string modelTitle = "RCT";
-            Int32 ModelId = -1; // the RCT model as default
-            if (rbApplyDAREModel.IsChecked == true)
-            {
-                modelTitle = "Systematic review";
-                ModelId = -2;
-            }
-            if (rbApplyNHSEEDModel.IsChecked == true)
-            {
-                modelTitle = "Economic evaluation";
-                ModelId = -3;
-            }
-            if (rbApplyNewRCTModel.IsChecked == true)
-            {
-                modelTitle = "New Cochrane RCT classifier model";
-                ModelId = -4;
-            }
-            if (rbApplyCovidCategoriesModel.IsChecked == true)
-            {
-                modelTitle = "COVID-19 map categories";
-                ModelId = -5;
-            }
-            if (rbApplyLongCovidModel.IsChecked == true)
-            {
-                modelTitle = "Long COVID model";
-                ModelId = -6;
-            }
-            if (rbApplyProgressPlusModel.IsChecked == true)
-            {
-                modelTitle = "PROGRESS-Plus model";
-                ModelId = -7;
-            }
-            if (rbApplyPubMedStudyTypesModel.IsChecked == true)
-            {
-                modelTitle = "PubMed study types model";
-                ModelId = -8;
-            }
-            Int64 AttributeId = -1; // the attributeID we might be limiting the application of model to. -1 == apply to whole review
-            int SourceId = -2;//source_id == -1 means "sourceless items"
+            //CslaDataProvider provider1 = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            //ReviewInfo RevInfo = provider1.Data as ReviewInfo;
+            //string modelTitle = "RCT";
+            //Int32 ModelId = -1; // the RCT model as default
+            //if (rbApplyDAREModel.IsChecked == true)
+            //{
+            //    modelTitle = "Systematic review";
+            //    ModelId = -2;
+            //}
+            //if (rbApplyNHSEEDModel.IsChecked == true)
+            //{
+            //    modelTitle = "Economic evaluation";
+            //    ModelId = -3;
+            //}
+            //if (rbApplyNewRCTModel.IsChecked == true)
+            //{
+            //    modelTitle = "New Cochrane RCT classifier model";
+            //    ModelId = -4;
+            //}
+            //if (rbApplyCovidCategoriesModel.IsChecked == true)
+            //{
+            //    modelTitle = "COVID-19 map categories";
+            //    ModelId = -5;
+            //}
+            //if (rbApplyLongCovidModel.IsChecked == true)
+            //{
+            //    modelTitle = "Long COVID model";
+            //    ModelId = -6;
+            //}
+            //if (rbApplyProgressPlusModel.IsChecked == true)
+            //{
+            //    modelTitle = "PROGRESS-Plus model";
+            //    ModelId = -7;
+            //}
+            //if (rbApplyPubMedStudyTypesModel.IsChecked == true)
+            //{
+            //    modelTitle = "PubMed study types model";
+            //    ModelId = -8;
+            //}
+            //Int64 AttributeId = -1; // the attributeID we might be limiting the application of model to. -1 == apply to whole review
+            //int SourceId = -2;//source_id == -1 means "sourceless items"
 
-            if (rbApplySelectedModel.IsChecked == true)
-            {
-                CslaDataProvider provider = ((CslaDataProvider)this.Resources["ClassifierModelListData"]);
-                if (provider != null && GridViewClassifierModels.SelectedItem != null)
-                {
-                    modelTitle = (GridViewClassifierModels.SelectedItem as ClassifierModel).ModelTitle;
-                    ModelId = (GridViewClassifierModels.SelectedItem as ClassifierModel).ModelId;
-                }
-                else
-                {
-                    RadWindow.Alert("Please select a model first.");
-                    return;
-                }
-                ClassifierModel selectedModel = GridViewClassifierModels.SelectedItem as ClassifierModel;
-                if (selectedModel.Precision * selectedModel.Recall == 0)
-                {
-                    RadWindow.Alert("Sorry, this model cannot be applied." + Environment.NewLine +
-                        "It has either not finished building yet," + Environment.NewLine +
-                        "or cannot distinguish between your selected codes.");
-                    return;
-                }
-                if (selectedModel.Precision < 0)
-                {
-                    RadWindow.Alert("Sorry, this model cannot be applied as it failed" + Environment.NewLine +
-                        "to build properly. (It is here for information only and" + Environment.NewLine +
-                        "can be deleted.)");
-                    return;
-                }
-            }
+            //if (rbApplySelectedModel.IsChecked == true)
+            //{
+            //    CslaDataProvider provider = ((CslaDataProvider)this.Resources["ClassifierModelListData"]);
+            //    if (provider != null && GridViewClassifierModels.SelectedItem != null)
+            //    {
+            //        modelTitle = (GridViewClassifierModels.SelectedItem as ClassifierModel).ModelTitle;
+            //        ModelId = (GridViewClassifierModels.SelectedItem as ClassifierModel).ModelId;
+            //    }
+            //    else
+            //    {
+            //        RadWindow.Alert("Please select a model first.");
+            //        return;
+            //    }
+            //    ClassifierModel selectedModel = GridViewClassifierModels.SelectedItem as ClassifierModel;
+            //    if (selectedModel.Precision * selectedModel.Recall == 0)
+            //    {
+            //        RadWindow.Alert("Sorry, this model cannot be applied." + Environment.NewLine +
+            //            "It has either not finished building yet," + Environment.NewLine +
+            //            "or cannot distinguish between your selected codes.");
+            //        return;
+            //    }
+            //    if (selectedModel.Precision < 0)
+            //    {
+            //        RadWindow.Alert("Sorry, this model cannot be applied as it failed" + Environment.NewLine +
+            //            "to build properly. (It is here for information only and" + Environment.NewLine +
+            //            "can be deleted.)");
+            //        return;
+            //    }
+            //}
 
-            if (rbApplyToSelected.IsChecked == true)
-            {
-                if (codesSelectControlClassifyTo.SelectedAttributeSet() != null)
-                {
-                    AttributeId = codesSelectControlClassifyTo.SelectedAttributeSet().AttributeId;
-                }
-                else
-                {
-                    RadWindow.Alert("Please select code to limit model to first.");
-                    return;
-                }
-            }
+            //if (rbApplyToSelected.IsChecked == true)
+            //{
+            //    if (codesSelectControlClassifyTo.SelectedAttributeSet() != null)
+            //    {
+            //        AttributeId = codesSelectControlClassifyTo.SelectedAttributeSet().AttributeId;
+            //    }
+            //    else
+            //    {
+            //        RadWindow.Alert("Please select code to limit model to first.");
+            //        return;
+            //    }
+            //}
 
-            if (rbApplyToSource.IsChecked == true)
-            {
-                if (comboSources.SelectedIndex > -1)
-                {
-                    SourceId = (comboSources.SelectedItem as ReadOnlySource).Source_ID;
-                }
-                else
-                {
-                    RadWindow.Alert("Please select a source first.");
-                    return;
-                }
-            }
+            //if (rbApplyToSource.IsChecked == true)
+            //{
+            //    if (comboSources.SelectedIndex > -1)
+            //    {
+            //        SourceId = (comboSources.SelectedItem as ReadOnlySource).Source_ID;
+            //    }
+            //    else
+            //    {
+            //        RadWindow.Alert("Please select a source first.");
+            //        return;
+            //    }
+            //}
 
-            if (MessageBox.Show("Are you sure you want to apply the selected model?", "Are you sure?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-            {
-                DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
-                ClassifierCommand command = new ClassifierCommand(
-                    modelTitle,
-                    -1,
-                    -1,
-                    AttributeId,
-                    ModelId,
-                    SourceId);
-                dp.ExecuteCompleted += (o, e2) =>
-                {
-                    //BusyLoading.IsRunning = false;
-                    textUploadingDataApply.Visibility = Visibility.Collapsed;
-                    cmdBuildModel.IsEnabled = true;
-                    //cmdLearnAndApplyModel.IsEnabled = true;
-                    cmdApplyModel.IsEnabled = true;
-                    if (e2.Error != null)
-                    {
-                        RadWindow.Alert(e2.Error.Message);
-                    }
-                    else
-                    {
-                        RadWindow.Alert("Your data have been uploaded for classification successfully." + Environment.NewLine +
-                            "As the classification can take some time," + Environment.NewLine +
-                            "please refresh the list of search results periodially.");
-                        // no point in refreshing the search, as the command returns before it's been updated
-                        //RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
-                        //RadWindow.Alert("Check the latest search for your results");
-                        //CslaDataProvider provider2 = App.Current.Resources["SearchesData"] as CslaDataProvider;
-                        //provider2.FactoryParameters.Clear();
-                        //provider2.FactoryMethod = "GetSearchList";
-                        //provider2.Refresh();
-                    }
-                };
-                //BusyLoading.IsRunning = true;
-                textUploadingDataApply.Visibility = Visibility.Visible;
-                cmdBuildModel.IsEnabled = false;
-                cmdApplyModel.IsEnabled = false;
-                //cmdLearnAndApplyModel.IsEnabled = false;
-                command.RevInfo = RevInfo;
-                dp.BeginExecute(command);
-            }
+            //if (MessageBox.Show("Are you sure you want to apply the selected model?", "Are you sure?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            //{
+            //    DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+            //    ClassifierCommand command = new ClassifierCommand(
+            //        modelTitle,
+            //        -1,
+            //        -1,
+            //        AttributeId,
+            //        ModelId,
+            //        SourceId);
+            //    dp.ExecuteCompleted += (o, e2) =>
+            //    {
+            //        //BusyLoading.IsRunning = false;
+            //        textUploadingDataApply.Visibility = Visibility.Collapsed;
+            //        cmdBuildModel.IsEnabled = true;
+            //        //cmdLearnAndApplyModel.IsEnabled = true;
+            //        cmdApplyModel.IsEnabled = true;
+            //        if (e2.Error != null)
+            //        {
+            //            RadWindow.Alert(e2.Error.Message);
+            //        }
+            //        else
+            //        {
+            //            RadWindow.Alert("Your data have been uploaded for classification successfully." + Environment.NewLine +
+            //                "As the classification can take some time," + Environment.NewLine +
+            //                "please refresh the list of search results periodially.");
+            //            // no point in refreshing the search, as the command returns before it's been updated
+            //            //RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
+            //            //RadWindow.Alert("Check the latest search for your results");
+            //            //CslaDataProvider provider2 = App.Current.Resources["SearchesData"] as CslaDataProvider;
+            //            //provider2.FactoryParameters.Clear();
+            //            //provider2.FactoryMethod = "GetSearchList";
+            //            //provider2.Refresh();
+            //        }
+            //    };
+            //    //BusyLoading.IsRunning = true;
+            //    textUploadingDataApply.Visibility = Visibility.Visible;
+            //    cmdBuildModel.IsEnabled = false;
+            //    cmdApplyModel.IsEnabled = false;
+            //    //cmdLearnAndApplyModel.IsEnabled = false;
+            //    command.RevInfo = RevInfo;
+            //    dp.BeginExecute(command);
+            //}
         }
 
         // Decided not to support build and apply for the time being.
@@ -399,46 +399,46 @@ namespace EppiReviewer4
 
         private void cmdDeleteModel_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to delete the selected model?", "Are you sure?", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-            {
-                return;
-            }
-            CslaDataProvider provider1 = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            ReviewInfo RevInfo = provider1.Data as ReviewInfo;
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ClassifierModelListData"]);
-            if (provider != null && GridViewClassifierModels.SelectedItem != null)
-            {
-                DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
-                ClassifierCommand command = new ClassifierCommand(
-                    "DeleteThisModel~~",
-                    -1,
-                    -1,
-                    -1,
-                    (GridViewClassifierModels.SelectedItem as ClassifierModel).ModelId,
-                    -1);
-                dp.ExecuteCompleted += (o, e2) =>
-                {
-                    cmdBuildModel.IsEnabled = true;
-                    cmdApplyModel.IsEnabled = true;
-                    if (e2.Error != null)
-                    {
-                        RadWindow.Alert(e2.Error.Message);
-                    }
-                    else
-                    {
-                        RadWindow.Alert("Model deleted");
-                    }
-                    provider.Refresh();
-                };
-                cmdBuildModel.IsEnabled = false;
-                cmdApplyModel.IsEnabled = false;
-                command.RevInfo = RevInfo;
-                dp.BeginExecute(command);
-            }
-            else
-            {
-                RadWindow.Alert("Please select a model to delete first");
-            }
+            //if (MessageBox.Show("Are you sure you want to delete the selected model?", "Are you sure?", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+            //{
+            //    return;
+            //}
+            //CslaDataProvider provider1 = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            //ReviewInfo RevInfo = provider1.Data as ReviewInfo;
+            //CslaDataProvider provider = ((CslaDataProvider)this.Resources["ClassifierModelListData"]);
+            //if (provider != null && GridViewClassifierModels.SelectedItem != null)
+            //{
+            //    DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+            //    ClassifierCommand command = new ClassifierCommand(
+            //        "DeleteThisModel~~",
+            //        -1,
+            //        -1,
+            //        -1,
+            //        (GridViewClassifierModels.SelectedItem as ClassifierModel).ModelId,
+            //        -1);
+            //    dp.ExecuteCompleted += (o, e2) =>
+            //    {
+            //        cmdBuildModel.IsEnabled = true;
+            //        cmdApplyModel.IsEnabled = true;
+            //        if (e2.Error != null)
+            //        {
+            //            RadWindow.Alert(e2.Error.Message);
+            //        }
+            //        else
+            //        {
+            //            RadWindow.Alert("Model deleted");
+            //        }
+            //        provider.Refresh();
+            //    };
+            //    cmdBuildModel.IsEnabled = false;
+            //    cmdApplyModel.IsEnabled = false;
+            //    command.RevInfo = RevInfo;
+            //    dp.BeginExecute(command);
+            //}
+            //else
+            //{
+            //    RadWindow.Alert("Please select a model to delete first");
+            //}
 
         }
 
@@ -447,7 +447,7 @@ namespace EppiReviewer4
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ClassifierModelListData"]);
             if (provider != null && GridViewClassifierModels.SelectedItem != null)
             {
-                cmdDeleteModel.IsEnabled = true;
+                //cmdDeleteModel.IsEnabled = true;
             }
             else
             {
@@ -494,8 +494,8 @@ namespace EppiReviewer4
 
         private void HyperlinkButton_Click(object sender, RoutedEventArgs e)
         {
-            CurrentSelectedClassifierModel = (sender as HyperlinkButton).DataContext as ClassifierModel;
-            RadWindow.Confirm("Are you sure you want to rebuild this classifier?", this.DoRebuildClassifier);
+            //CurrentSelectedClassifierModel = (sender as HyperlinkButton).DataContext as ClassifierModel;
+            //RadWindow.Confirm("Are you sure you want to rebuild this classifier?", this.DoRebuildClassifier);
         }
 
         ClassifierModel CurrentSelectedClassifierModel;
@@ -514,70 +514,70 @@ namespace EppiReviewer4
 
         private void BuildClassifier(string modelTitle, Int64 TrainOn, Int64 TrainNotOn, int modelId)
         {
-            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            ReviewInfo RevInfo = provider.Data as ReviewInfo;
+            //CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            //ReviewInfo RevInfo = provider.Data as ReviewInfo;
 
-            DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
-            ClassifierCommand command = new ClassifierCommand(
-                modelTitle,
-                TrainOn,
-                TrainNotOn,
-                0,
-                modelId,
-                -1);
-            dp.ExecuteCompleted += (o, e2) =>
-            {
-                        //BusyLoading.IsRunning = false;
-                        textUploadingDataBuild.Visibility = Visibility.Collapsed;
-                cmdBuildModel.IsEnabled = true;
-                        //cmdLearnAndApplyModel.IsEnabled = true;
-                        cmdApplyModel.IsEnabled = true;
-                if (e2.Error != null)
-                {
-                    RadWindow.Alert(e2.Error.Message);
-                }
-                else
-                {
-                    if ((e2.Object as ClassifierCommand).ReturnMessage == "Already running")
-                    {
-                        RadWindow.Alert("You have a classification task in progress." +
-                            Environment.NewLine + " Please wait until it has completed before starting another.");
-                    }
-                    else
-                        if ((e2.Object as ClassifierCommand).ReturnMessage == "Insufficient data")
-                    {
-                        RadWindow.Alert("Sorry, insufficient data for training." + Environment.NewLine +
-                            "Please ensure you have at least 5 items for the classifier" + Environment.NewLine +
-                            "to 'learn' from. (For good performance, many more.)");
-                    }
-                    else
-                    if ((e2.Object as ClassifierCommand).ReturnMessage == "BuildFailed")
-                    {
-                        RadWindow.Alert("Sorry, building the model failed." + Environment.NewLine +
-                            "This is probably because your data set is too small." +
-                            "If possible, try again with more data.");
-                    }
-                    else
-                    {
-                        RadWindow.Alert("Your data have been successfully uploaded to the server." + Environment.NewLine +
-                        "Building models can take a long time, so you can continue to work" + Environment.NewLine +
-                        "on other things, refreshing the list of models from time to time");
-                    }
-                            /*
-                            RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
-                            CslaDataProvider provider2 = this.Resources["ClassifierModelListData"] as CslaDataProvider;
-                            if (provider2 != null)
-                                provider2.Refresh();
-                            */
-                }
-            };
-            //BusyLoading.IsRunning = true;
-            textUploadingDataBuild.Visibility = Visibility.Visible;
-            cmdBuildModel.IsEnabled = false;
-            cmdApplyModel.IsEnabled = false;
-            //cmdLearnAndApplyModel.IsEnabled = false;
-            command.RevInfo = RevInfo;
-            dp.BeginExecute(command);
+            //DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+            //ClassifierCommand command = new ClassifierCommand(
+            //    modelTitle,
+            //    TrainOn,
+            //    TrainNotOn,
+            //    0,
+            //    modelId,
+            //    -1);
+            //dp.ExecuteCompleted += (o, e2) =>
+            //{
+            //            //BusyLoading.IsRunning = false;
+            //            textUploadingDataBuild.Visibility = Visibility.Collapsed;
+            //    cmdBuildModel.IsEnabled = true;
+            //            //cmdLearnAndApplyModel.IsEnabled = true;
+            //            cmdApplyModel.IsEnabled = true;
+            //    if (e2.Error != null)
+            //    {
+            //        RadWindow.Alert(e2.Error.Message);
+            //    }
+            //    else
+            //    {
+            //        if ((e2.Object as ClassifierCommand).ReturnMessage == "Already running")
+            //        {
+            //            RadWindow.Alert("You have a classification task in progress." +
+            //                Environment.NewLine + " Please wait until it has completed before starting another.");
+            //        }
+            //        else
+            //            if ((e2.Object as ClassifierCommand).ReturnMessage == "Insufficient data")
+            //        {
+            //            RadWindow.Alert("Sorry, insufficient data for training." + Environment.NewLine +
+            //                "Please ensure you have at least 5 items for the classifier" + Environment.NewLine +
+            //                "to 'learn' from. (For good performance, many more.)");
+            //        }
+            //        else
+            //        if ((e2.Object as ClassifierCommand).ReturnMessage == "BuildFailed")
+            //        {
+            //            RadWindow.Alert("Sorry, building the model failed." + Environment.NewLine +
+            //                "This is probably because your data set is too small." +
+            //                "If possible, try again with more data.");
+            //        }
+            //        else
+            //        {
+            //            RadWindow.Alert("Your data have been successfully uploaded to the server." + Environment.NewLine +
+            //            "Building models can take a long time, so you can continue to work" + Environment.NewLine +
+            //            "on other things, refreshing the list of models from time to time");
+            //        }
+            //                /*
+            //                RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
+            //                CslaDataProvider provider2 = this.Resources["ClassifierModelListData"] as CslaDataProvider;
+            //                if (provider2 != null)
+            //                    provider2.Refresh();
+            //                */
+            //    }
+            //};
+            ////BusyLoading.IsRunning = true;
+            //textUploadingDataBuild.Visibility = Visibility.Visible;
+            //cmdBuildModel.IsEnabled = false;
+            //cmdApplyModel.IsEnabled = false;
+            ////cmdLearnAndApplyModel.IsEnabled = false;
+            //command.RevInfo = RevInfo;
+            //dp.BeginExecute(command);
         }
 
     }

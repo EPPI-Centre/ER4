@@ -446,7 +446,7 @@ namespace ERxWebClient2.Controllers
             result.ReviewName = this.reviewName;
             result.ScreeningAutoExclude = this.screeningAutoExclude;
             result.ScreeningCodeSetId = this.screeningCodeSetId;
-            result.ScreeningIndexed = this.screeningIndexed;
+            //result.ScreeningIndexed = this.screeningIndexed;
             result.ScreeningListIsGood = this.screeningListIsGood;
             result.ScreeningMode = this.screeningMode;
             result.ScreeningModelRunning = this.screeningModelRunning;

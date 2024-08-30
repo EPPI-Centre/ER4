@@ -46,7 +46,7 @@ export class codesetTree4CopyComponent implements OnInit, OnDestroy {
 
   NodeSelected(event: TreeItem) {
     const node: singleNode = event.dataItem;
-        this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+    this.SelectedCodeDescription = node.description;
 	}
 
     ngOnDestroy() {

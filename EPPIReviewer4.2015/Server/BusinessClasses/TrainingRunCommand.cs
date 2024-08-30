@@ -213,14 +213,15 @@ namespace BusinessLibrary.BusinessClasses
                 //justIndexed = task.Result;
 
                 //LINE below in MVC/CORE env makes the controller send the response without waiting... We're OK with this, for now.
-                justIndexed = UploadDataToAzureBlob(ReviewID, ri.UserId, RevInfo.ScreeningIndexed); 
+                justIndexed = UploadDataToAzureBlob(ReviewID, ri.UserId, true);// RevInfo.ScreeningIndexed); 
                 //CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
                 //CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 //CloudBlobContainer container = blobClient.GetContainerReference("uploads");
                 //CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Vectors.csv");
 
 
-                if (RevInfo.ScreeningIndexed == false || justIndexed || !BlobOperations.ThisBlobExist(blobConnection, "uploads", NameBase + "ReviewId" + RevInfo.ReviewId + "Vectors.csv"))
+                if (//RevInfo.ScreeningIndexed == false || 
+                    justIndexed || !BlobOperations.ThisBlobExist(blobConnection, "uploads", NameBase + "ReviewId" + RevInfo.ReviewId + "Vectors.csv"))
                 {//vectorise if:
                     //(currently user-set) flag forcing (re)indexing is set to FALSE ( = need to create index)
                     //OR we just built the index anyway (make sure vectors are up to date)
@@ -389,7 +390,7 @@ namespace BusinessLibrary.BusinessClasses
                 //next time the training runs, it will re-index.
                 if (MLreturnedEmptyLines)
                 {
-                    RevInfo.ScreeningIndexed = false;
+                    //RevInfo.ScreeningIndexed = false;
                     RevInfo.ApplyEdit();
                     RevInfo.BeginSave(true);
                 }
@@ -626,12 +627,12 @@ namespace BusinessLibrary.BusinessClasses
 
             // Simple: upload data if needed
             bool justIndexed = false;
-            if (RevInfo.ScreeningIndexed == false)
-            {
-                UploadDataToAzureBlob(ReviewID, UserId, false); // ScreeningIndexed == false because we're not vectorising (line below)
-                //await InvokeBatchExecutionService(RevInfo, "Vectorise"); commented out - don't need to Vectorise
-                justIndexed = true;
-            }
+            //if (RevInfo.ScreeningIndexed == false)
+            //{
+            //    UploadDataToAzureBlob(ReviewID, UserId, false); // ScreeningIndexed == false because we're not vectorising (line below)
+            //    //await InvokeBatchExecutionService(RevInfo, "Vectorise"); commented out - don't need to Vectorise
+            //    justIndexed = true;
+            //}
 
             // Make sure we have include / exclude data written
             if (justIndexed == false) // no need to update if we've only just written the data, as indexing also creates initial include/ exclude data file

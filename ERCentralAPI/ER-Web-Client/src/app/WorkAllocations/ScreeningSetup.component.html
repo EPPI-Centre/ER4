@@ -172,7 +172,7 @@
                     
                 </div>
             </div>
-            <div class="row my-1 mx-0 " [ngClass]="{'DisabledStep' : !CanChangeAutoExcludeAndIndexing}">
+            <!--<div class="row my-1 mx-0 " [ngClass]="{'DisabledStep' : !CanChangeAutoExcludeAndIndexing}">
                 <div class="col-8">
                     <ng-container *ngTemplateOutlet="TemplateIndexing"></ng-container>
                 </div>
@@ -183,7 +183,7 @@
                     but you can manually force the indexing to happen (once) via this setting. 
                     If you are setting up screening for the first time, please ensure that the indexing will happen (default).
                 </div>
-            </div>
+            </div>-->
             <div class="row justify-content-center mx-0">
                 <div class="col-8 row align-content-end justify-content-center mx-0">
                     <div>
@@ -247,7 +247,7 @@
 
                         </div>
                         <div class="col-12 row p-0 mx-0 my-1 ">
-                            <div class="d-block rounded alert-light border-light m-1 px-1">Review is indexed: <strong>{{revInfo.screeningIndexed ? "Yes" : "No"}}</strong></div>
+                            <!--<div class="d-block rounded alert-light border-light m-1 px-1">Review is indexed: <strong>{{revInfo.screeningIndexed ? "Yes" : "No"}}</strong></div>-->
                             <div class="d-block rounded alert-light border-light m-1 px-1">Screening List is present: <strong>{{revInfo.screeningListIsGood ? "Yes" : "No"}}</strong></div>
                             <div class="d-block rounded alert-light border-light m-1 px-1">Training is running: <strong>{{revInfo.screeningModelRunning ? "Yes" : "No"}}</strong></div>
                         </div>
@@ -294,7 +294,7 @@
 
                             <ng-container *ngTemplateOutlet="TemplateAutoExclude"></ng-container>
 
-                            <ng-container *ngTemplateOutlet="TemplateIndexing"></ng-container>
+                            <!--<ng-container *ngTemplateOutlet="TemplateIndexing"></ng-container>-->
 
                             <div class="row m-0 p-0">
                                 <div class="m-2 p-1 rounded border border-info">
@@ -726,7 +726,7 @@
         </div>
     </ng-template>
     
-    <ng-template #TemplateIndexing>
+    <!--<ng-template #TemplateIndexing>
         <div class="row border-top border-info m-0 p-0">
             <div class="col-4 p-0 mt-1">
                 <span *ngIf="CurrentStep==3">3.3 </span>Indexing:
@@ -756,7 +756,7 @@
                 </div>
             </div>
         </div>
-    </ng-template>
+    </ng-template>-->
 </div>
 
 

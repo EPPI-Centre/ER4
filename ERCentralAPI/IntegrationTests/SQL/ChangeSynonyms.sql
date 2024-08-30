@@ -213,10 +213,23 @@ CREATE SYNONYM sTB_WEBDB FOR tempTestReviewer.dbo.TB_WEBDB;
 IF EXISTS(SELECT * FROM sys.synonyms where name = 'sfn_IsAttributeInTree')
  DROP SYNONYM sfn_IsAttributeInTree;
 
-CREATE SYNONYM sfn_IsAttributeInTree FOR Reviewer.dbo.fn_IsAttributeInTree;
+CREATE SYNONYM sfn_IsAttributeInTree FOR tempTestReviewer.dbo.fn_IsAttributeInTree;
 
+IF EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_REVIEW_ROLE')
+ DROP SYNONYM sTB_REVIEW_ROLE;
 
- GO
+CREATE SYNONYM sTB_REVIEW_ROLE FOR tempTestReviewer.dbo.TB_REVIEW_ROLE;
+
+IF EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_ROBOT_ACCOUNT')
+ DROP SYNONYM sTB_ROBOT_ACCOUNT;
+CREATE SYNONYM sTB_ROBOT_ACCOUNT FOR tempTestReviewer.dbo.TB_ROBOT_ACCOUNT;
+
+IF EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_ROBOT_API_CALL_LOG')
+ DROP SYNONYM sTB_ROBOT_API_CALL_LOG;
+CREATE SYNONYM sTB_ROBOT_API_CALL_LOG FOR tempTestReviewer.dbo.TB_ROBOT_API_CALL_LOG;
+
+GO
+
  USE [tempTestReviewer]
  GO
  
@@ -248,5 +261,21 @@ IF EXISTS(SELECT * FROM sys.synonyms where name = 'sst_LogonTicket_Insert')
  DROP SYNONYM sst_LogonTicket_Insert;
 
 CREATE SYNONYM sst_LogonTicket_Insert FOR tempTestReviewerAdmin.dbo.st_LogonTicket_Insert;
+
+IF EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_FOR_SALE')
+ DROP SYNONYM sTB_FOR_SALE;
+CREATE SYNONYM sTB_FOR_SALE FOR tempTestReviewerAdmin.dbo.TB_FOR_SALE;
+
+IF EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_CREDIT_FOR_ROBOTS')
+ DROP SYNONYM sTB_CREDIT_FOR_ROBOTS;
+CREATE SYNONYM sTB_CREDIT_FOR_ROBOTS FOR tempTestReviewerAdmin.dbo.TB_CREDIT_FOR_ROBOTS;
+
+IF EXISTS(SELECT * FROM sys.synonyms where name = 'sTB_CREDIT_PURCHASE')
+ DROP SYNONYM sTB_CREDIT_PURCHASE;
+CREATE SYNONYM sTB_CREDIT_PURCHASE FOR tempTestReviewerAdmin.dbo.TB_CREDIT_PURCHASE;
+
+IF EXISTS(SELECT * FROM sys.synonyms where name = 'sfn_CreditRemainingDetails')
+ DROP SYNONYM sfn_CreditRemainingDetails;
+CREATE SYNONYM sfn_CreditRemainingDetails FOR tempTestReviewerAdmin.dbo.fn_CreditRemainingDetails;
 
 GO

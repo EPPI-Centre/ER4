@@ -5,22 +5,22 @@
             <div class="form-group">
                 <label for="Codeset_TypeCollaborate">Code Type*</label>
                 <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
-                        [disabled]="!CurrentCodeCanHaveChildren">
-                    <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == AllowedChildTypesOfSelectedNode[0].key">
+                        [disabled]="!CurrentCodeCanHaveChildren" (change)="ChangeLastSelectedCodeType($event)">
+                    <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
                         {{type.value}}
                     </option>
                 </select>
             </div>
         </div>
         <div class="form-group col-12">
-            <label for="source_NameCollaborate">Code Name*</label>
-            <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
-                   [(ngModel)]="NewCode.attribute_name" name="attribute_name"
-                   #name="ngModel">
-            <span [hidden]="IsNewCodeNameValid()"
-                  class="alert alert-danger small p-1">
-                Name is required
-            </span>
+          <label for="source_NameCollaborate">Code Name*</label>
+          <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
+                 [(ngModel)]="NewCode.attribute_name" name="attribute_name"
+                 #name="ngModel">
+          <span *ngIf="!IsNewCodeNameValid() && NewCodeFromCollaborate.dirty"
+                class="alert alert-danger small p-1">
+            Name is required
+          </span>
         </div>
         <div class="form-group col-12 mt-2">
             <label for="newSetDescriptionCollaborate">Description (optional)</label>
@@ -46,9 +46,9 @@
     <div class="col-12">
         <div class="form-group mb-1">
             <div>Code Type*</div>
-            <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate"
+            <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate" (change)="ChangeLastSelectedCodeType($event)"
                     [disabled]="!CurrentCodeCanHaveChildren">
-                <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == AllowedChildTypesOfSelectedNode[0].key">
+                <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
                     {{type.value}}
                 </option>
             </select>
@@ -59,7 +59,7 @@
         <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
                [(ngModel)]="NewCode.attribute_name" name="attribute_name"
                #name="ngModel">
-        <span [hidden]="IsNewCodeNameValid()"
+        <span *ngIf="!IsNewCodeNameValid() && NewCodeFromCollaborate.dirty"
               class="alert alert-danger small p-1">
             Name is required
         </span>

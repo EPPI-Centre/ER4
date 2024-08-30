@@ -35,7 +35,12 @@ namespace WebDatabasesMVC
                 {
                     config.Cookie.Name = "WebDbErLoginCookieF";
                     config.LoginPath = "/Fair/Login";
-                }); ;
+                })
+                .AddCookie("VawgAuthentication", config =>
+                {
+                    config.Cookie.Name = "WebDbErLoginCookieVawg";
+                    config.LoginPath = "/Vawg/Login";
+                });
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
             {//this is needed to allow serialising CSLA child objects:
                 //they all have a "Parent" field which creates a reference loop.

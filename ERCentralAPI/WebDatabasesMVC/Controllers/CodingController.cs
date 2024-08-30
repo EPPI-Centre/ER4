@@ -19,7 +19,7 @@ using WebDatabasesMVC;
 
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize(AuthenticationSchemes = "CookieAuthentication,FairAuthentication")]
+    [Authorize(AuthenticationSchemes = "CookieAuthentication,FairAuthentication,VawgAuthentication")]
     public class CodingController : CSLAController
     {
         

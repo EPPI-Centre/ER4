@@ -233,6 +233,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <Content Include="RadUploadHandler.ashx" />
+    <None Include="Web.secrets.config" />
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />

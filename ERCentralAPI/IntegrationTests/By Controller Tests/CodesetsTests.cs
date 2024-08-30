@@ -104,11 +104,11 @@ namespace IntegrationTests.By_Controller_Tests
 
             // edit the coding tool name
             ReviewSetUpdateCommandJSON rsc = new ReviewSetUpdateCommandJSON();
-            rsc.SetId = setId;
-            rsc.SetName = "test 1111";
-            rsc.ReviewSetId = reviewSetId;
-            rsc.AllowCodingEdits = (bool)CSRes[0]["allowCodingEdits"];
-            rsc.SetTypeId = 5;
+            rsc.setId = setId;
+            rsc.setName = "test 1111";
+            rsc.reviewSetId = reviewSetId;
+            rsc.allowCodingEdits = (bool)CSRes[0]["allowCodingEdits"];
+            rsc.setTypeId = 5;
             rsc.setDescription = "";
 
             CSRes = await UpdateCodeset(rsc);
@@ -298,14 +298,14 @@ namespace IntegrationTests.Fixtures
         {
             ReviewSetUpdateCommandJSON newCT = new ReviewSetUpdateCommandJSON();
             // settings for a new screening tool
-            newCT.SetId = -1;
-            newCT.ReviewSetId = -1;
-            newCT.SetName = setName;
+            newCT.setId = -1;
+            newCT.reviewSetId = -1;
+            newCT.setName = setName;
             newCT.setOrder = 0;
             newCT.setDescription = "";
-            newCT.CodingIsFinal = codingIsFinal;
-            newCT.AllowCodingEdits = allowCodingEdits;
-            newCT.SetTypeId = setTypeId; 
+            newCT.codingIsFinal = codingIsFinal;
+            newCT.allowCodingEdits = allowCodingEdits;
+            newCT.setTypeId = setTypeId; 
             newCT.usersCanEditURLs = false;
 
 

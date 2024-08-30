@@ -78,15 +78,15 @@ export class ReviewSetsEditingService extends BusyAwareService {
     public async SaveReviewSet(rs: ReviewSet) {
         this._BusyMethods.push("SaveReviewSet");
         let rsC: ReviewSetUpdateCommand = {
-            ReviewSetId: rs.reviewSetId,
-            SetId: rs.set_id,
-            AllowCodingEdits: rs.allowEditingCodeset,
-            CodingIsFinal: rs.codingIsFinal,
-            SetName: rs.set_name,
+            reviewSetId: rs.reviewSetId,
+            setId: rs.set_id,
+            allowCodingEdits: rs.allowEditingCodeset,
+            codingIsFinal: rs.codingIsFinal,
+            setName: rs.set_name,
             setOrder: rs.order,
             setDescription: rs.description,
             usersCanEditURLs: rs.userCanEditURLs,
-            SetTypeId: rs.setType ? rs.setType.setTypeId : -1
+            setTypeId: rs.setType ? rs.setType.setTypeId : -1
         }
         //console.log("saving reviewSet via command", rs, rsC);
         this._httpC.post<ReviewSetUpdateCommand>(this._baseUrl + 'api/Codeset/SaveReviewSet', rsC).subscribe(
@@ -105,15 +105,15 @@ export class ReviewSetsEditingService extends BusyAwareService {
         this._BusyMethods.push("SaveNewReviewSet");
         let ErrMsg = "Something went wrong: it appears that the Coding Tool was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
         let rsC: ReviewSetUpdateCommand = {
-            ReviewSetId: rs.reviewSetId,
-            SetId: rs.set_id,
-            AllowCodingEdits: rs.allowEditingCodeset,
-            CodingIsFinal: rs.codingIsFinal,
-            SetName: rs.set_name,
+            reviewSetId: rs.reviewSetId,
+            setId: rs.set_id,
+            allowCodingEdits: rs.allowEditingCodeset,
+            codingIsFinal: rs.codingIsFinal,
+            setName: rs.set_name,
             setOrder: rs.order,
             setDescription: rs.description,
             usersCanEditURLs: rs.userCanEditURLs,
-            SetTypeId: rs.setType ? rs.setType.setTypeId : -1
+            setTypeId: rs.setType ? rs.setType.setTypeId : -1
         }
         //console.log("saving reviewSet via command", rs, rsC);
       return lastValueFrom(this._httpC.post<iReviewSet>(this._baseUrl + 'api/Codeset/ReviewSetCreate', rsC))
@@ -1526,14 +1526,14 @@ export class ReviewSetsEditingService extends BusyAwareService {
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
 {
-    ReviewSetId: number;
-    SetId: number;
-    AllowCodingEdits: boolean;
-    CodingIsFinal: boolean;
-    SetName: string;
+    reviewSetId: number;
+    setId: number;
+    allowCodingEdits: boolean;
+    codingIsFinal: boolean;
+    setName: string;
     setOrder: number;
     setDescription: string;
-    SetTypeId: number;
+    setTypeId: number;
     usersCanEditURLs: boolean;
 }
 

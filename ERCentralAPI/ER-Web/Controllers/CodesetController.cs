@@ -61,11 +61,11 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ReviewSetUpdateCommand cmd = new ReviewSetUpdateCommand(data.ReviewSetId
-                        , data.SetId
-                        , data.AllowCodingEdits
-                        , data.CodingIsFinal
-                        , data.SetName
+                    ReviewSetUpdateCommand cmd = new ReviewSetUpdateCommand(data.reviewSetId
+                        , data.setId
+                        , data.allowCodingEdits
+                        , data.codingIsFinal
+                        , data.setName
                         , data.setOrder
                         , data.setDescription
                         , data.usersCanEditURLs);//i.e. no way to make sets accept URLs for codes in ERx, until we implement this...
@@ -134,19 +134,19 @@ namespace ERxWebClient2.Controllers
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     ReviewSet newCodeSet = new ReviewSet();
                     newCodeSet.Attributes = new AttributeSetList();
-                    newCodeSet.CodingIsFinal = data.CodingIsFinal;
+                    newCodeSet.CodingIsFinal = data.codingIsFinal;
                     newCodeSet.AllowCodingEdits = true;
                     newCodeSet.ReviewId = ri.ReviewId;
                     newCodeSet.SetOrder = data.setOrder;
-                    newCodeSet.SetName = data.SetName;
-                    newCodeSet.SetTypeId = data.SetTypeId;
+                    newCodeSet.SetName = data.setName;
+                    newCodeSet.SetTypeId = data.setTypeId;
                     newCodeSet.SetDescription = data.setDescription;
                     DataPortal<ReadOnlySetTypeList> dp = new DataPortal<ReadOnlySetTypeList>();
                     ReadOnlySetTypeList res = dp.Fetch();
                     ReadOnlySetType rost = new ReadOnlySetType();
                     foreach (ReadOnlySetType rst in res)
                     {
-                        if (rst.SetTypeId == data.SetTypeId)
+                        if (rst.SetTypeId == data.setTypeId)
                         {
                             rost = rst;
                             break;
@@ -432,14 +432,14 @@ namespace ERxWebClient2.Controllers
 
     public class ReviewSetUpdateCommandJSON
     {
-        public int SetId;
-        public int ReviewSetId;
-        public string SetName;
+        public int setId;
+        public int reviewSetId;
+        public string setName = "";
         public int setOrder;
-        public string setDescription;
-        public bool CodingIsFinal;//normal or comparison mode
-        public bool AllowCodingEdits; //AllowCodingEdits can edit this codeset...
-        public int SetTypeId;
+        public string setDescription = "";
+        public bool codingIsFinal;//normal or comparison mode
+        public bool allowCodingEdits; //AllowCodingEdits can edit this codeset...
+        public int setTypeId;
         public bool usersCanEditURLs;
     }
     public class AttributeMoveCommandJSON

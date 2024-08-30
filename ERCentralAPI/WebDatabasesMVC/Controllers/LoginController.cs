@@ -55,6 +55,7 @@ namespace WebDatabasesMVC.Controllers
                 ViewBag.Id = Id;
                 ViewBag.Username = Username;
             }
+            else ViewBag.Id = null;
             return View();
         }
         
@@ -66,6 +67,8 @@ namespace WebDatabasesMVC.Controllers
         private async void Signout()
         {
             await HttpContext.SignOutAsync("FairAuthentication");
+            await HttpContext.SignOutAsync("CookieAuthentication");
+            await HttpContext.SignOutAsync("VawgAuthentication");
             await HttpContext.SignOutAsync();
         }
 
@@ -99,14 +102,26 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
                                 //SetImages(WebDbId, reader);
 
-                                // log to TB_WEBDB_LOG
-                                ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
-                                    , SP == "st_WebDBgetClosedAccess" ? "Closed access" : "Open access"
-                                    , WebDbId, Revid);
-                                return Redirect("~/Review/Index");
+                                if (SP == "st_WebDBgetClosedAccess")
+                                {
+                                    SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader, true);
+                                    // log to TB_WEBDB_LOG
+                                    ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
+                                        , "Closed access"
+                                        , WebDbId, Revid);
+                                    return Redirect("~/Review/Index");
+                                }
+                                else
+                                {
+                                    SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader["HIDDEN_FIELDS"].ToString(), reader);
+                                    // log to TB_WEBDB_LOG
+                                    ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login"
+                                        , "Open access"
+                                        , WebDbId, Revid);
+                                    return Redirect("~/Review/Index/" + WebDbId.ToString());
+                                }
                             } 
                             else
                             {
@@ -136,7 +151,7 @@ namespace WebDatabasesMVC.Controllers
         }
         [HttpGet]
         //[ValidateAntiForgeryToken]
-        public IActionResult Open([FromQuery] string WebDBid, string MapiD, string VisName)
+        public IActionResult Open([FromQuery] string WebDBid, string MapiD)
         {
             try
             {
@@ -159,36 +174,20 @@ namespace WebDatabasesMVC.Controllers
 
                                 // log to TB_WEBDB_LOG
                                 ERxWebClient2.Controllers.CSLAController.logActivityStatic("Login", "Open access", WebDbId, Revid);
-
-                                if (VisName != null)
+                                if (MapiD != null)
                                 {
-                                    // take us to the visualisation based on name
-                                    if (VisName != "")
+                                    if (int.TryParse(MapiD, out int MapID))
                                     {
-                                        return Redirect("~/Review/IndexWithName?VisName=" + VisName);
+                                        return Redirect("~/Frequencies/GetMapByQueryId?MapId=" + MapID);
                                     }
                                     else
                                     {
-                                        return BadRequest();
+                                        return Redirect("~/Review/Index/" + WebDbId.ToString());
                                     }
                                 }
                                 else
                                 {
-                                    if (MapiD != null)
-                                    {
-                                        if (int.TryParse(MapiD, out int MapID))
-                                        {
-                                            return Redirect("~/Frequencies/GetMapByQueryId?MapId=" + MapID);
-                                        }
-                                        else
-                                        {
-                                            return Redirect("~/Review/Index");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        return Redirect("~/Review/Index");
-                                    }
+                                    return Redirect("~/Review/Index/" + WebDbId.ToString());
                                 }
                             }
                             else
@@ -198,7 +197,7 @@ namespace WebDatabasesMVC.Controllers
                         }
                         else
                         {
-                            return BadRequest();
+                            return Unauthorized();
                         }
 
                     }
@@ -219,7 +218,7 @@ namespace WebDatabasesMVC.Controllers
         {
             return Forbid();
         }
-        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, string HiddenFields, SqlDataReader reader)
+        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, string HiddenFields, SqlDataReader reader, bool isPasswordProtected = false)
         {
             var userClaims = new List<Claim>()
             {
@@ -228,6 +227,7 @@ namespace WebDatabasesMVC.Controllers
                 new Claim("reviewId", revId.ToString()),
                 new Claim("WebDbID", WebDbID.ToString()),
                 new Claim("HiddenFields", HiddenFields),
+                new Claim("IsPasswordProtected", isPasswordProtected.ToString()),
                 //new Claim("ItemsCode", itemsCode.ToString()) //we don't need to store this in the Cookie: the SPs for WebDBs should retrieve it from the DB
             };
             var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");

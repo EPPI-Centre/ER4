@@ -1195,6 +1195,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
     this._Criteria = new Criteria();
     this._currentItem = new Item();
     this._IsInScreeningMode = null;
+    this._itemListOptions = new ItemListOptions();
     this.ListDescription = "";
     this._CurrentItemAdditionalData = null;
   }

@@ -135,7 +135,7 @@ export class ReviewInfo {
       this.screeningNPeople = iRnfo.screeningNPeople;
       this.screeningAutoExclude = iRnfo.screeningAutoExclude;
       this.screeningModelRunning = iRnfo.screeningModelRunning;
-      this.screeningIndexed = iRnfo.screeningIndexed;
+      //this.screeningIndexed = iRnfo.screeningIndexed;
       this.screeningListIsGood = iRnfo.screeningListIsGood;
       this.bL_ACCOUNT_CODE = iRnfo.bL_ACCOUNT_CODE;
       this.bL_AUTH_CODE = iRnfo.bL_AUTH_CODE;
@@ -161,7 +161,7 @@ export class ReviewInfo {
     res.screeningNPeople = this.screeningNPeople;
     res.screeningAutoExclude = this.screeningAutoExclude;
     res.screeningModelRunning = this.screeningModelRunning;
-    res.screeningIndexed = this.screeningIndexed;
+    //res.screeningIndexed = this.screeningIndexed;
     res.screeningListIsGood = this.screeningListIsGood;
     res.bL_ACCOUNT_CODE = this.bL_ACCOUNT_CODE;
     res.bL_AUTH_CODE = this.bL_AUTH_CODE;
@@ -185,7 +185,7 @@ export class ReviewInfo {
   screeningNPeople: number = 0;
   screeningAutoExclude: boolean = false;
   screeningModelRunning: boolean = false;
-  screeningIndexed: boolean = false;
+  //screeningIndexed: boolean = false;
   screeningListIsGood: boolean = false;
   bL_ACCOUNT_CODE: string = "";
   bL_AUTH_CODE: string = "";
@@ -209,7 +209,7 @@ export interface iReviewInfo {
   screeningNPeople: number;
   screeningAutoExclude: boolean;
   screeningModelRunning: boolean;
-  screeningIndexed: boolean;
+  //screeningIndexed: boolean;
   screeningListIsGood: boolean;
   bL_ACCOUNT_CODE: string;
   bL_AUTH_CODE: string;

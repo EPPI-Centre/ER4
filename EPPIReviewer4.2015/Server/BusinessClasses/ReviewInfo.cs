@@ -166,18 +166,18 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningModelRunningProperty, value);
             }
         }
-        public static readonly  PropertyInfo<bool> ScreeningIndexedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningIndexed", "ScreeningIndexed Id", false));
-        public bool ScreeningIndexed
-        {
-            get
-            {
-                return GetProperty(ScreeningIndexedProperty);
-            }
-            set
-            {
-                SetProperty(ScreeningIndexedProperty, value);
-            }
-        }
+        //public static readonly  PropertyInfo<bool> ScreeningIndexedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningIndexed", "ScreeningIndexed Id", false));
+        //public bool ScreeningIndexed
+        //{
+        //    get
+        //    {
+        //        return GetProperty(ScreeningIndexedProperty);
+        //    }
+        //    set
+        //    {
+        //        SetProperty(ScreeningIndexedProperty, value);
+        //    }
+        //}
         public static readonly  PropertyInfo<bool> ScreeningListIsGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningListIsGood", "ScreeningListIsGood", false));
         public bool ScreeningListIsGood
         {
@@ -398,8 +398,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SCREENING_WHAT_ATTRIBUTE_ID", ReadProperty(ScreeningWhatAttributeIdProperty)));
                     command.Parameters.Add(new SqlParameter("@SCREENING_N_PEOPLE", ReadProperty(ScreeningNPeopleProperty)));
                     command.Parameters.Add(new SqlParameter("@SCREENING_AUTO_EXCLUDE", ReadProperty(ScreeningAutoExcludeProperty)));
-                    command.Parameters.Add(new SqlParameter("@SCREENING_MODEL_RUNNING", ReadProperty(ScreeningModelRunningProperty)));
-                    command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", ReadProperty(ScreeningIndexedProperty)));
+                    //command.Parameters.Add(new SqlParameter("@SCREENING_MODEL_RUNNING", ReadProperty(ScreeningModelRunningProperty)));
+                    //command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", ReadProperty(ScreeningIndexedProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_ENABLED", ReadProperty(MagEnabledProperty)));
                     command.Parameters.Add(new SqlParameter("@SHOW_SCREENING", ReadProperty(ShowScreeningProperty)));
                     command.ExecuteNonQuery();
@@ -457,8 +457,8 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int64>(ScreeningWhatAttributeIdProperty, reader.GetInt64("SCREENING_WHAT_ATTRIBUTE_ID"));
                             LoadProperty<int>(ScreeningNPeopleProperty, reader.GetInt32("SCREENING_N_PEOPLE"));
                             LoadProperty<bool>(ScreeningAutoExcludeProperty, reader.GetBoolean("SCREENING_AUTO_EXCLUDE"));
-                            LoadProperty<bool>(ScreeningModelRunningProperty, reader.GetBoolean("SCREENING_MODEL_RUNNING"));
-                            LoadProperty<bool>(ScreeningIndexedProperty, reader.GetBoolean("SCREENING_INDEXED"));
+                            LoadProperty<bool>(ScreeningModelRunningProperty, reader.GetBoolean("SCREENING_MODEL_RUNNING_V2"));
+                            //LoadProperty<bool>(ScreeningIndexedProperty, reader.GetBoolean("SCREENING_INDEXED"));
                             //LoadProperty<string>(ScreeningDataFileProperty, reader.GetString("SCREENING_DATA_FILE"));
 
                             LoadProperty<string>(BL_ACCOUNT_CODEProperty, reader.GetString("BL_ACCOUNT_CODE"));

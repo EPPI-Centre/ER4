@@ -44,7 +44,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "../ReviewSetList/FetchJSON",
+                        url: getBasePath() + "ReviewSetList/FetchJSON",
                         dataType: "json"
                     }
                 },
@@ -268,9 +268,9 @@
         }
         //console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
         if (dataItem.isCodeset == true) {
-            postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, parentName: dataItem.text, included: true });
+            postwith(getBasePath() + "Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, parentName: dataItem.text, included: true });
         }
-        else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, parentName: dataItem.text, included: true });
+        else postwith(getBasePath() + "Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, parentName: dataItem.text, included: true });
     }
     function GetFreqs() {
         //console.log("CurrentNodeGoToFreq");
@@ -297,7 +297,7 @@
         $("#FreqSpinner").show();
 
         if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+            $.post(getBasePath() + "Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
                 , function (data, result) {
                     $("#FreqSpinner").hide();
                     if (result == "success") {
@@ -309,7 +309,7 @@
                 }).fail((response) => handleFreqsError(response));
         }
         else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+            $.post(getBasePath() + "Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
                 , function (data, result) {
                     $("#FreqSpinner").hide();
                     if (result == "success") {
@@ -391,7 +391,7 @@
         $("#FrequenciesResult").text("Frequencies: " + dataItem.text);
         $("#FreqSpinner").show();
         if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+            $.post(getBasePath() + "Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
                 , function (data, result) {
                     $("#FreqSpinner").hide();
                     if (result == "success") {
@@ -401,7 +401,7 @@
                 })
         }
         else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+            $.post(getBasePath() + "Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
                 , function (data, result) {
                     $("#FreqSpinner").hide();
                     if (result == "success") {
@@ -435,7 +435,7 @@
         $("#FrequenciesResult").text("Frequencies: " + dataItem.text);
         $("#FreqSpinner").show();
         if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+            $.post(getBasePath() + "Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
                 , function (data, result) {
                     $("#FreqSpinner").hide();
                     if (result == "success") {
@@ -445,7 +445,7 @@
                 });
         }
         else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+            $.post(getBasePath() + "Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
                 , function (data, result) {
                     $("#FreqSpinner").hide();
                     if (result == "success") {
@@ -714,7 +714,7 @@
         }
         if (isSelfXtab == true) {
             if (dataItem.isCodeset == true) {
-                postwith("../Frequencies/GetCrosstab", {
+                postwith(getBasePath() + "Frequencies/GetCrosstab", {
                     attIdx: 0
                     , setIdx: dataItem.setId
                     //, nameXaxis: "test x axis"
@@ -725,7 +725,7 @@
                     , graphic: "table"
                 });
             }
-            else postwith("../Frequencies/GetCrosstab", {
+            else postwith(getBasePath() + "Frequencies/GetCrosstab", {
                 attIdx: dataItem.id
                 , setIdx: dataItem.setId
                 , attIdy: dataItem.id
@@ -758,7 +758,7 @@
                 pars.attIdx = dataItemMapXaxis.id;
                 pars.setIdx = dataItemMapXaxis.setId;
             }
-            postwith("../Frequencies/GetCrosstab", pars);
+            postwith(getBasePath() + "Frequencies/GetCrosstab", pars);
         }
     }
 
@@ -862,7 +862,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "../Review/YearHistogramJSON",
+                        url: getBasePath() + "Review/YearHistogramJSON",
                         dataType: "json"
                     }
                 }
@@ -907,7 +907,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "../Review/YearHistogramJSON",
+                        url: getBasePath() + "Review/YearHistogramJSON",
                         dataType: "json"
                     }
                 }
@@ -921,7 +921,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "../Review/YearHistogramJSON",
+                        url: getBasePath() + "Review/YearHistogramJSON",
                         dataType: "json"
                     }
                 },
@@ -958,7 +958,7 @@
 
     function GoToYearList(year) {
         //if (year == "Unknown") year = "'    ' OR '0   '";
-        postwith("../ItemList/GetListSearchResults", {
+        postwith(getBasePath() + "ItemList/GetListSearchResults", {
             SearchString: year
             , SearchWhat: "PubYear"
             , included: "true"
@@ -967,7 +967,7 @@
 
     function GoToYearListTable(year) {
         year = year.replaceAll('↖', '"').replaceAll("↗", "'");
-        postwith("../ItemList/GetListSearchResults", {
+        postwith(getBasePath() + "ItemList/GetListSearchResults", {
             SearchString: year
             , SearchWhat: "PubYear"
             , included: "true"
@@ -976,7 +976,7 @@
 
     function GoToYearListPie(year) {
         //if (year == "Unknown") year = "'    ' OR '0   '";
-        postwith("../ItemList/GetListSearchResults", {
+        postwith(getBasePath() + "ItemList/GetListSearchResults", {
             SearchString: year
             , SearchWhat: "PubYear"
             , included: "true"
@@ -1028,7 +1028,7 @@
             pars.segmentsParent = dataItemMapSegments.id;
             pars.setIdSegments = dataItemMapSegments.setId;
         }
-        postwith("../Frequencies/GetMap", pars);
+        postwith(getBasePath() + "Frequencies/GetMap", pars);
         //postwith("../Frequencies/GetAjaxMap", pars);
 
     }
@@ -1086,7 +1086,7 @@
 
     function GetMaps() {
         $("#MapsSpinner").show();
-        $.get("../Review/MapsListJSON", ""
+        $.get(getBasePath() + "Review/MapsListJSON", ""
             , function (data, result) {
                 $("#MapsSpinner").hide();
                 if (result == "success") {
@@ -1138,7 +1138,7 @@
     }
     function GetMap(mapId) {
         console.log("Will go to map:" + mapId);
-        postwith("../Frequencies/GetMapById", { mapId: mapId });
+        postwith(getBasePath() + "Frequencies/GetMapById", { mapId: mapId });
     }
 </script>
 

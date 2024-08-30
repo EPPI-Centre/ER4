@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
+
 
 
 
@@ -525,45 +527,53 @@ namespace BusinessLibrary.BusinessClasses
             return result;
         }
 
+        private static readonly Regex BooleanPromptRx = new Regex(@": ?boolean ?\/\/");
         private void SaveAttribute(AttributeSet aSet, Int64 ItemId, string info, int ReviewId, int ContactId)
         {
-            // i.e. it's a Boolean type field, or the attribute wasn't found and we don't want the box 'ticked'
-            if (info == "False" || info == "false")
-            {
+            
+            string LowerCaseInfo = info.ToLower();
+            string desc = aSet.AttributeSetDescription.ToLower();
+            if (LowerCaseInfo == "false")
+            {// i.e. it's a Boolean type field, or the attribute wasn't found and we don't want the box 'ticked'
                 return;
+            }
+            if ((LowerCaseInfo == "true") && RobotOpenAICommand.BooleanPromptRx.IsMatch(desc))
+            { 
+                //we Will NOT put anything in the infobox if the prompt is genuinely a boolean one
+                //no need to tick the checkbox and then say "true" in the infobox
+                info = "";
             }
 
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                if (_Item_set_id == 0 && _onlyCodeInTheRobotName == true)
-                {//this condition evaluates to TRUE only the first time we try saving a code, after which _Item_set_id will have a value > 0
-                    //we do this special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
-                    using (SqlCommand command = new SqlCommand("st_ItemSetPrepareForRobot", connection))
-                    {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                        command.Parameters.Add(new SqlParameter("@ROBOT_CONTACT_ID", ContactId));
-                        command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
-                        command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
-                        command.Parameters.Add(new SqlParameter("@IS_LOCKED", _lockTheCoding));
-                        command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
-                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output; 
-                        //command.Parameters.Add(new SqlParameter("@IS_CODING_FINAL", false));
-                        //command.Parameters["@IS_CODING_FINAL"].Direction = System.Data.ParameterDirection.Output; 
-                        command.ExecuteNonQuery();
-                        Int64 Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
-                        if (Item_set_id < 1)
-                        {//can't save this code, st_ItemSetPrepareForRobot failed
-                            throw new Exception("Could not create the coding record for the Robot");
+                    if (_Item_set_id == 0 && _onlyCodeInTheRobotName == true)
+                    {//this condition evaluates to TRUE only the first time we try saving a code, after which _Item_set_id will have a value > 0
+                        //we do this special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
+                        using (SqlCommand command = new SqlCommand("st_ItemSetPrepareForRobot", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_CONTACT_ID", ContactId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
+                            command.Parameters.Add(new SqlParameter("@IS_LOCKED", _lockTheCoding));
+                            command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
+                            command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output; 
+                            //command.Parameters.Add(new SqlParameter("@IS_CODING_FINAL", false));
+                            //command.Parameters["@IS_CODING_FINAL"].Direction = System.Data.ParameterDirection.Output; 
+                            command.ExecuteNonQuery();
+                            Int64 Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
+                            if (Item_set_id < 1)
+                            {//can't save this code, st_ItemSetPrepareForRobot failed
+                                throw new Exception("Could not create the coding record for the Robot");
+                            }
+                            //_CodingIsFinal = (bool)command.Parameters["@IS_CODING_FINAL"].Value;
+                            _Item_set_id = Item_set_id;
                         }
-                        //_CodingIsFinal = (bool)command.Parameters["@IS_CODING_FINAL"].Value;
-                        _Item_set_id = Item_set_id;
-                    }
                 }
                 try
                 {
-
                     using (SqlCommand command = new SqlCommand("st_ItemAttributeInsert", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;

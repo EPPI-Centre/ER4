@@ -192,6 +192,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [Authorize(AuthenticationSchemes = "VawgAuthentication")]
+        [Authorize(AuthenticationSchemes = "CookieAuthentication")]
         public IActionResult GetFreqListJSon([FromForm] long attId, string attName)
         {
             return InternalGetFreqListJSon(attId, attName);
@@ -535,15 +537,15 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
+        [Authorize(AuthenticationSchemes = "VawgAuthentication")]
         [HttpPost]
-        public IActionResult DHSCItemDetails(ItemSelCritMVC crit)
+        public IActionResult VawgItemDetails(ItemSelCritMVC crit)
         {
             try
             {
                 if (SetCSLAUser())
                 {
-                    return View("DHSCItemDetails", crit);
+                    return View("VawgItemDetails", crit);
                 }
                 else return Unauthorized();
             }

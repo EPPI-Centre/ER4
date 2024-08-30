@@ -52,9 +52,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-					ClassifierCommand cmd = new ClassifierCommand(
+					ClassifierCommandV2 cmd = new ClassifierCommandV2(
 							MVCcmd._title
 							, MVCcmd._attributeIdOn
 							, MVCcmd._attributeIdNotOn
@@ -64,7 +62,7 @@ namespace ERxWebClient2.Controllers
 						);
 					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
-					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+					DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
 
 					cmd = dp.Execute(cmd);
 					
@@ -93,9 +91,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-					ClassifierCommand cmd = new ClassifierCommand(
+					ClassifierCommandV2 cmd = new ClassifierCommandV2(
 							MVCcmd._title
 							, -1
 							, -1
@@ -106,7 +102,7 @@ namespace ERxWebClient2.Controllers
 
 					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
-					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+					DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
 
 					cmd =  dp.Execute(cmd);
 
@@ -131,10 +127,10 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult DeleteModel([FromBody] MVCClassifierCommand _model)
 		{
-			ClassifierCommand command = new ClassifierCommand();
+			ClassifierCommandV2 command = new ClassifierCommandV2();
 			try
 			{
-			    command = new ClassifierCommand(
+			    command = new ClassifierCommandV2(
 					       "DeleteThisModel~~",
 					       -1,
 					       -1,
@@ -143,7 +139,7 @@ namespace ERxWebClient2.Controllers
 					       -1);
 				if (SetCSLAUser4Writing()) 
 				{
-                    DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+                    DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
                     command.RevInfo = _model.revInfo.ToCSLAReviewInfo();
                     command = dp.Execute(command);
                     return Ok(command);
@@ -215,7 +211,7 @@ namespace ERxWebClient2.Controllers
 			public int screeningNPeople { get; set; }
 			public bool screeningAutoExclude { get; set; }
 			public bool screeningModelRunning { get; set; }
-			public bool screeningIndexed { get; set; }
+			//public bool screeningIndexed { get; set; }
 			public bool screeningListIsGood { get; set; }
 			public string bL_ACCOUNT_CODE { get; set; }
 			public string bL_AUTH_CODE { get; set; }
@@ -236,7 +232,7 @@ namespace ERxWebClient2.Controllers
 				result.ReviewName = this.reviewName;
 				result.ScreeningAutoExclude = this.screeningAutoExclude;
 				result.ScreeningCodeSetId = this.screeningCodeSetId;
-				result.ScreeningIndexed = this.screeningIndexed;
+				//result.ScreeningIndexed = this.screeningIndexed;
 				result.ScreeningListIsGood = this.screeningListIsGood;
 				result.ScreeningMode = this.screeningMode;
 				result.ScreeningModelRunning = this.screeningModelRunning;

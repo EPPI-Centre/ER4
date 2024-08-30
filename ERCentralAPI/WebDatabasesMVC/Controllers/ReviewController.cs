@@ -22,7 +22,7 @@ using WebDatabasesMVC.ViewModels;
 
 namespace WebDatabasesMVC.Controllers
 {
-    [Authorize]
+    
     public class ReviewController : CSLAController
     {
         private static string _HeaderImagesFolder;
@@ -46,20 +46,25 @@ namespace WebDatabasesMVC.Controllers
         }
 
 
-        public IActionResult Index()
+        public IActionResult Index(int? Id)
         {
             try
             {
                 if (SetCSLAUser())
                 {
                     if (WebDbId < 1) return BadRequest();
+                    if (Id != null && Id != WebDbId) return Redirect("~/Login/Open?WebDBid=" + Id.ToString());
                     WebDbWithRevInfo res = ReviewIndexDataGet(false);
 
                     if (res.WebDb == null || res.RevInfo == null || res.WebDb.WebDBId < 1 || res.RevInfo.ReviewId < 1) return BadRequest();
 
                     return View(res);
                 }
-                else return Unauthorized();
+                else
+                {
+                    if (Id == null) return Unauthorized();
+                    else return Redirect("~/Login/Open?WebDBid=" + Id.ToString());
+                }
             } 
             catch (Exception e)
             {
@@ -67,6 +72,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [Authorize]
         public IActionResult IndexJSON()
         {
             try
@@ -88,35 +94,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        public IActionResult IndexWithName(string VisName)
-        {
-            try
-            {
-                if (SetCSLAUser())
-                {
-                    if (WebDbId < 1) return BadRequest();
-                    WebDbWithRevInfo res = ReviewIndexDataGet(false);
-
-                    if (res.WebDb == null || res.RevInfo == null || res.WebDb.WebDBId < 1 || res.RevInfo.ReviewId < 1) return BadRequest();
-                    if (VisName == null) return BadRequest();
-                    //return View(res);
-
-                    // we could have a list of valid ViewNames to check against (there is only one at this time)
-                    if (VisName == "DHSC")
-                    {
-                        string ViewName = VisName + "Index";
-                        return View(ViewName, res);
-                    }
-                    else return Unauthorized();
-                }
-                else return Unauthorized();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error in Review Index");
-                return StatusCode(500, e.Message);
-            }
-        }
+        
 
         private WebDbWithRevInfo ReviewIndexDataGet(bool IsJson)
         {
@@ -137,6 +115,7 @@ namespace WebDatabasesMVC.Controllers
             res = new WebDbWithRevInfo() { WebDb = me, RevInfo = rinfo };
             return res;
         }
+        [Authorize]
         public IActionResult YearHistogramJSON()
         {
             try
@@ -155,6 +134,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [Authorize]
         public IActionResult MapsListJSON()
         {
             try

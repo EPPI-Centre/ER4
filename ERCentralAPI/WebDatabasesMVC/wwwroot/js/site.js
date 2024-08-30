@@ -51,3 +51,8 @@ function showAjaxError(response) {
     // there may be other errors that require custom messages...
     return res;
 };
+function getBasePath() {
+    const el = document.getElementById("AppRootlink");
+    if (el) return el.href;
+    else return "../";  
+};

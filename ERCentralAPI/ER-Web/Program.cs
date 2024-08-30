@@ -7,6 +7,7 @@ using Serilog;
 using Microsoft.AspNetCore.StaticFiles;
 using ERxWebClient2.Zotero;
 using BusinessLibrary.BusinessClasses;
+using System.Data.SqlClient;
 
 try
 {
@@ -87,7 +88,7 @@ try
                 //Service Behavior in case of exceptions - defautls to StopHost
                 options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
                 //Host will try to wait 30 seconds before stopping the service. 
-                //options.ShutdownTimeout = TimeSpan.FromSeconds(45);
+                options.ShutdownTimeout = TimeSpan.FromSeconds(30);
             })
         .AddHostedService<GracefulShutdownGuardianService>().AddHostedService<RobotOpenAiHostedService>();
 
@@ -173,9 +174,15 @@ public partial class Program
     //this is naughty, but it's the best I could think of, given the DI absence in old versions of CSLA
     public static Serilog.ILogger? Logger { get { return _Logger; } }
 
-    public static bool AppIsShuttingDown = false;
+    public static bool AppIsShuttingDown { 
+        get { return Program.TokenSource.Token.IsCancellationRequested; }
+    }
 
-    
+    public static CancellationTokenSource TokenSource { 
+        get;
+        private set; 
+    } = new CancellationTokenSource();
+
 
 }
 internal class GracefulShutdownGuardianService : IHostedService, IDisposable
@@ -199,11 +206,11 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
         _appLifetime.ApplicationStopping.Register(OnStopping);
         _appLifetime.ApplicationStopped.Register(OnStopped);
         //_timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
-        Task.Run(() =>
-        {
-            Thread.Sleep(30000);
-            Program.AppIsShuttingDown = false;
-        });
+        //Task.Run(() =>
+        //{
+        //    Thread.Sleep(30000);
+        //    Program.AppIsShuttingDown = false;
+        //});
         return Task.CompletedTask;
     }
     //private void DoWork(object? state)
@@ -213,12 +220,62 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
     //}
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        Program.AppIsShuttingDown = true;
+        Program.TokenSource.Cancel();
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is stopping, with ID: " + ID);
         //Logger.Information("CT ID: " + cancellationToken.GetHashCode().ToString() + " please make sense! " + cancellationToken.IsCancellationRequested.ToString());
         Logger.Information("GracefulShutdownGuardianService is stopping, with ID: " + ID);
+        bool checkResult = CheckForRunningReviewJobs();
+        if (checkResult) Logger.Information("GracefulShutdownGuardianService is stopping and has checked for running jobs");
+        else Logger.Information("GracefulShutdownGuardianService is stopping after FAILING to check for running jobs");
         //_timer?.Change(Timeout.Infinite, 0);
         return Task.CompletedTask;
+    }
+    private bool CheckForRunningReviewJobs()
+    {
+        Logger.Information("GracefulShutdownGuardianService is Checking ForRunningReviewJobs");
+        bool ActiveJobsExist = true;
+        DateTime GiveUpTime = DateTime.Now.AddSeconds(28);
+        string HowFarBack = "'" + GiveUpTime.AddMinutes(-15).ToString("yyyy-MM-dd HH:mm:ss") + "'";
+        try 
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                string SQLcmd = "SELECT * from TB_REVIEW_JOB where SUCCESS is null AND END_TIME > " + HowFarBack;
+                while (ActiveJobsExist == true)
+                {
+                    using (SqlCommand command = new SqlCommand(SQLcmd, connection))
+                    {
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            if (!reader.Read())
+                            {
+                                ActiveJobsExist = false;
+                                Logger.Information("GracefulShutdownGuardianService found that no job is running - graceful shutdown is OK");
+                                return true;
+                            }
+                            else
+                            {
+                                Logger.Information("GracefulShutdownGuardianService found that some job is running - DELAYING shutdown");
+                                Thread.Sleep(500); 
+                                if (DateTime.Now >= GiveUpTime)
+                                {
+                                    Logger.Error("GracefulShutdownGuardianService ran out of time - running jobs will be KILLED");
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        
+        }
+        catch (Exception ex) 
+        {
+            Logger.Error(ex, "GracefulShutdownGuardianService error in CheckForRunningReviewJobs");
+            return false;
+        }
+        return true;
     }
     public void Dispose()
     {
