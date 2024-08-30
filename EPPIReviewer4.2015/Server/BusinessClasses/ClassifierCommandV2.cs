@@ -1019,8 +1019,8 @@ namespace BusinessLibrary.BusinessClasses
             // Strip usernames.
             text = Regex.Replace(text, @"@[^\s]+", "username");
 
-            // Strip annoying punctuation
-            text = text.Replace("'", " ").Replace("\"", " ").Replace(",", " ");
+            // Strip annoying punctuation and tabs
+            text = text.Replace("'", " ").Replace("\"", " ").Replace(",", " ").Replace("\t", " ");
 
             // Strip newlines
             text = text.Replace(Environment.NewLine, " ").Replace("\n\r", " ").Replace("\n", " ").Replace("\r", " ");
