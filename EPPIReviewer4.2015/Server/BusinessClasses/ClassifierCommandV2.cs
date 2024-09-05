@@ -484,9 +484,6 @@ namespace BusinessLibrary.BusinessClasses
 
                 if (modelId == -5 || modelId == -6 || modelId == -7 || modelId == -8 || modelId == -9)
                 {// the covid19,  progress-plus using the BERT model, pubmed study types, pubmed study designs (public), via AzureSQL database.
-                    //DoNewMethod uses the static DataFactoryHelper.RunDataFactoryProcess(...) method, relies on AzureSQL to ship data
-                    //Task.Run(() => DoNewMethod(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
-
                     Task.Run(() => ApplyPreBuiltClassifiersAsync(modelId, _attributeIdClassifyTo, ReviewId, ri.UserId, NewJobId));
                     _returnMessage = "The data will be submitted and scored. Please monitor the list of search results for output.";
                     return;
