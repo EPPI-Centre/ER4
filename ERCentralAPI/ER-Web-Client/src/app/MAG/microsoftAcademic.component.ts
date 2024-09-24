@@ -4,7 +4,7 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { Subscription } from 'rxjs';
-import { Item } from '../services/ItemList.service';
+import { Item, ItemListService } from '../services/ItemList.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGBrowserHistory } from './MAGBrowserHistory.component';
@@ -26,6 +26,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         public _magAdvancedService: MAGAdvancedService,
         private _ItemCodingService: ItemCodingService,
         public _notificationService: NotificationService,
+        public ItemListService: ItemListService,
         public ConfirmationDialogService: ConfirmationDialogService
     ) { }
 
@@ -36,6 +37,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     public magPaperRefId: number = 0;
     public currentMagPaperLinkItem: MagPaper = new MagPaper();
     public foundMagPaper: boolean = false;
+    public showAbstract: boolean = false;
     public FoundPaper: MagPaper = new MagPaper();
     ngOnInit() {
 
@@ -98,6 +100,17 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
           if ((this.item.doi == "") && (paper.doi != null)) {
             this.item.doi = paper.doi;
           }
+          // abstract
+          if ((this.item.abstract == "") && (paper.abstract != null)) {
+            this.item.abstract = paper.abstract;
+          }
+
+          // save the changes to item
+          if (this.item) {
+            this.ItemListService.UpdateItem(this.item);
+          }
+
+
         }
       }     
     }
@@ -110,6 +123,40 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
             return false;
         }
 
+  }
+
+  public ShowHideAbstract() {
+
+    if (this.showAbstract == true) {
+      this.showAbstract = false;
+    } else {
+      this.showAbstract = true;
+    }
+  }
+
+  public GetButtonText(): string {
+    if (this.showAbstract == true) {
+      return "Hide abstract";
+    } else {
+      return "Show abstract";
+    }
+    
+  }
+
+
+  public canShowAbstract(): boolean {
+
+    if (this.showAbstract == true) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
+  public ChangeToPercent(score: number): string {
+    var percent = Math.round(score * 100).toString();
+    return percent + "%";
   }
 
 

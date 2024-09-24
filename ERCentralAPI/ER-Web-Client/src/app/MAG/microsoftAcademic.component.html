@@ -1,49 +1,61 @@
 <div class="card p-1 m-1 alert-light" style="min-width: 750px">
-  <div class="col-12 row">
-    <h5 class="font-weight-bold btn btn-link col-6 pull-left" (click)="FindNewMAGMatches()">
-      Look up this record in OpenAlex
-    </h5>
-    <h5 class="font-weight-bold btn btn-link col-6 pull-right" (click)="ClearMAGMatches()">
-      Clear OpenAlex matches from this record
-    </h5>
-  </div>
 
+  <table width="100%">
+    <tr>
+      <td style="width:50%;padding:0px">
+        <span class="font-weight-bold btn btn-sm btn-link pull-left p-0" (click)="FindNewMAGMatches()">
+          Look up this record in OpenAlex
+        </span>
+      </td>
+      <td style="width:50%;padding:0px">
+        <span class="font-weight-bold btn btn-sm btn-link pull-right p-0" (click)="ClearMAGMatches()">
+          Clear OpenAlex matches from this record
+        </span>
+      </td>
+    </tr>
+  </table>
 
+  <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
   <!--<h5 *ngIf="item"><b>{{item.quickCitation}}</b></h5>-->
   <br />
 
   <div *ngIf="item">
-    <table class="table table-bordered table-responsive-md table-striped text-left small alert-light">
+    <table width="100%" style="font-family:Arial;color:#424242" class="table table-bordered table-responsive-md table-striped text-left large alert-light p-1">
 
       <tr class="alert-info ">
-        <td class="font-weight-bold">Author(s): </td>
-        <td colspan="7" class="bg-white">{{item.authors}}</td>
+        <td style="width:12%;padding:5px" colspan="1" class="">Title: </td>
+        <td style="width:88%;padding:5px" colspan="7" class="bg-white">{{item.title}}</td>
       </tr>
       <tr class="alert-info ">
-        <td class="font-weight-bold">Title: </td>
-        <td colspan="7" class="bg-white">{{item.title}}</td>
+        <td style="width:12%;padding:5px" colspan="1" class="">Author(s): </td>
+        <td style="width:88%;padding:5px" colspan="7" class="bg-white">{{item.authors}}</td>
       </tr>
       <tr class="alert-info ">
-        <td class="font-weight-bold">Year: </td>
-        <td class="bg-white">{{item.year}}</td>
-        <td class="font-weight-bold">Journal: </td>
-        <td colspan="5" class="bg-white">{{item.parentTitle}}</td>
+        <td style="width:12%;padding:5px" colspan="1" class="">Year: </td>
+        <td style="width:12%;padding:5px" colspan="1" class="bg-white">{{item.year}}</td>
+        <td style="width:12%;padding:5px" colspan="1" class="">Journal: </td>
+        <td style="width:64%;padding:5px" colspan="5" class="bg-white">{{item.parentTitle}}</td>
       </tr>
       <tr class="alert-info ">
-        <td class="font-weight-bold">Item ID:</td>
-        <td class="bg-white">
-          {{item.itemId}}
-        </td>
-        <td class="font-weight-bold">Volume:</td>
-        <td class="bg-white">{{item.volume}}</td>
-        <td class="font-weight-bold">Issue:</td>
-        <td class="bg-white">{{item.issue}}</td>
-        <td class="font-weight-bold">Pages: </td>
-        <td class="bg-white">{{item.pages}}</td>
+        <td style="width:12%;padding:5px" class="">Item ID:</td>
+        <td style="width:12%;padding:5px" class="bg-white">{{item.itemId}}</td>
+        <td style="width:12%;padding:5px" class="">Volume:</td>
+        <td style="width:12%;padding:5px" class="bg-white">{{item.volume}}</td>
+        <td style="width:12%;padding:5px" class="">Issue:</td>
+        <td style="width:12%;padding:5px" class="bg-white">{{item.issue}}</td>
+        <td style="width:12%;padding:5px" class="">Pages: </td>
+        <td style="width:16%;padding:5px" class="bg-white">{{item.pages}}</td>
       </tr>
       <tr class="alert-info ">
-        <td class="font-weight-bold">DOI: </td>
-        <td colspan="7">{{item.doi}}</td>
+        <td style="width:12%;padding:5px" colspan="1" class="">DOI: </td>
+        <td style="width:72%;padding:5px" colspan="6" class="bg-white">{{item.doi}}</td>
+        <td style="width:16%;padding:5px" colspan="1" class="">
+          <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="ShowHideAbstract()" style="width:100px;height:23px;">
+            {{GetButtonText()}}
+          </button></td>
+      </tr>
+      <tr *ngIf="showAbstract">
+        <td style="width:100%;padding:5px" colspan="8" class="bg-white">{{item.abstract}}</td>
       </tr>
       <tr>
         <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
@@ -52,61 +64,55 @@
   </div>
 
 
-
-  <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
-  <div class="card col-12 alert-light border-dark" style="overflow:auto;"
-       *ngIf="_magAdvancedService.MagReferencesPaperList != null && _magAdvancedService.MagReferencesPaperList.papers.length > 0 ">
-    <br />
+  <div *ngIf="_magAdvancedService.MagReferencesPaperList != null && _magAdvancedService.MagReferencesPaperList.papers.length > 0 ">
 
     <b>Matches with OpenAlex records</b>
 
-    <table class="table table-bordered table-responsive-md table-striped text-left small alert-light">
+    <table width="100%" style="font-family:Arial;color:#424242;overflow-y:scroll;max-height:400px;display:block;" class="table table-bordered table-responsive-md table-striped text-left large alert-light p-0">
       <tbody>
 
         <ng-container *ngFor="let magPaper of _magAdvancedService.MagReferencesPaperList.papers">
-
           <tr class="bg-white">
-            <td class="font-weight-bold alert-info">Author(s): </td>
-            <td colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">{{magPaper.authors}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Title: </td>
+            <td style="width:88%;padding:5px" colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, magPaper.paperTitle)}">{{magPaper.paperTitle}}</td>
           </tr>
           <tr class="bg-white">
-            <td class="font-weight-bold alert-info">Title: </td>
-            <td colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, magPaper.paperTitle)}">{{magPaper.paperTitle}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Author(s): </td>
+            <td style="width:88%;padding:5px" colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">{{magPaper.authors}}</td>
           </tr>
           <tr class="bg-white">
-            <td class="font-weight-bold alert-info">Year: </td>
-            <td [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.year.toString().trim() != item.year}">{{magPaper.year}}</td>
-            <td class="font-weight-bold alert-info">Journal: </td>
-            <td colspan="5" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.parentTitle, magPaper.journal)}">{{magPaper.journal}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Year: </td>
+            <td style="width:12%;padding:5px" colspan="1" [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.year.toString().trim() != item.year}">{{magPaper.year}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Journal: </td>
+            <td style="width:64%;padding:5px" colspan="5" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.parentTitle, magPaper.journal)}">{{magPaper.journal}}</td>
           </tr>
           <tr class="bg-white">
-            <td class="font-weight-bold alert-info">OA ID:</td>
-            <td class="bg-white">{{magPaper.paperId}}</td>
-            <td class="font-weight-bold alert-info">Volume:</td>
-            <td [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, magPaper.volume)}">{{magPaper.volume}}</td>
-            <td class="font-weight-bold alert-info" bg-light>Issue:</td>
-            <td [ngClass]="{'alert-danger font-weight-bold' : item && areTheFieldsDifferent(item.issue, magPaper.issue)}">{{magPaper.issue}}</td>
-            <td class="font-weight-bold alert-info" bg-light>Pages: </td>
-            <td [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, magPaper.firstPage, magPaper.lastPage)}">{{GetPages(magPaper)}}</td>
+            <td style="width:12%;padding:5px" class="alert-secondary">OA ID:</td>
+            <td style="width:12%;padding:5px" class="bg-white">{{magPaper.paperId}}</td>
+            <td style="width:12%;padding:5px" class="alert-secondary">Volume:</td>
+            <td style="width:12%;padding:5px" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, magPaper.volume)}">{{magPaper.volume}}</td>
+            <td style="width:12%;padding:5px" class="alert-secondary" bg-light>Issue:</td>
+            <td style="width:12%;padding:5px" [ngClass]="{'alert-danger font-weight-bold' : item && areTheFieldsDifferent(item.issue, magPaper.issue)}">{{magPaper.issue}}</td>
+            <td style="width:12%;padding:5px" class="alert-secondary" bg-light>Pages: </td>
+            <td style="width:16%;padding:5px" [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, magPaper.firstPage, magPaper.lastPage)}">{{GetPages(magPaper)}}</td>
+          </tr>
+          <tr class="bg-white">
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">DOI: </td>
+            <td style="width:60%;padding:5px" colspan="5" class="bg-white">{{magPaper.doi}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Score: </td>
+            <td style="width:16%;padding:5px" colspan="1" class="alert alert-success" [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.autoMatchScore < 0.8}">{{ChangeToPercent(magPaper.autoMatchScore)}}</td>
+          </tr>
+          <tr *ngIf="showAbstract">
+            <td style="width:100%;padding:5px" colspan="8" class="bg-white">{{magPaper.abstract}}</td>
+          </tr>
+          <tr>
+            <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
           </tr>
           <tr>
 
-            <td colspan="1">
-              Score:
-            </td>
-            <td colspan="3">
-              <div class="col-12 ">
-                {{magPaper.autoMatchScore}}
-              </div>
-            </td>
-            <td colspan="1">
-              <div class="col-12 ">
-                Status:<br />
-                CurrentMagPaper: {{magPaper.manualTrueMatch}}
-              </div>
-            </td>
-
-            <td colspan="3">
+            <td style="width:12%;padding:5px" colspan="1">Status: </td>
+            <td style="width:24%;padding:5px" colspan="2">CurrentMagPaper: {{magPaper.manualTrueMatch}}</td>
+            <td style="width:64%;padding:5px" colspan="5">
               <div class="col-12">
 
                 Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaper(true, magPaper.paperId)"
@@ -165,34 +171,37 @@
 
   <div *ngIf="foundMagPaper">
 
-    <table class="table table-bordered table-responsive-md table-striped text-left small alert-light">
+    <table width="100%" style="font-family:Arial;color:#424242;" class="table table-bordered table-responsive-md table-striped text-left large alert-light p-0">
       <tbody>
 
         <ng-container *ngFor="let magPaper of _magAdvancedService.MagReferencesPaperList.papers">
 
           <tr class="bg-white">
-            <td class="font-weight-bold alert-info">Author(s): </td>
-            <td colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && FoundPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">{{FoundPaper.authors}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Title: </td>
+            <td style="width:88%;padding:5px" colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, FoundPaper.paperTitle)}">{{FoundPaper.paperTitle}}</td>
           </tr>
           <tr class="bg-white">
-            <td class="font-weight-bold alert-info">Title: </td>
-            <td colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, FoundPaper.paperTitle)}">{{FoundPaper.paperTitle}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Author(s): </td>
+            <td style="width:88%;padding:5px" colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && FoundPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">{{FoundPaper.authors}}</td>
           </tr>
           <tr class="bg-white">
-            <td class="font-weight-bold alert-info">Year: </td>
-            <td [ngClass]="{'font-weight-bold alert-danger' : item && FoundPaper.year.toString().trim() != item.year}">{{FoundPaper.year}}</td>
-            <td class="font-weight-bold alert-info">Journal: </td>
-            <td colspan="5" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.parentTitle, FoundPaper.journal)}">{{FoundPaper.journal}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Year: </td>
+            <td style="width:12%;padding:5px" colspan="1" [ngClass]="{'font-weight-bold alert-danger' : item && FoundPaper.year.toString().trim() != item.year}">{{FoundPaper.year}}</td>
+            <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Journal: </td>
+            <td style="width:64%;padding:5px" colspan="5" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.parentTitle, FoundPaper.journal)}">{{FoundPaper.journal}}</td>
           </tr>
           <tr class="bg-white">
-            <td class="font-weight-bold alert-info">OA ID:</td>
-            <td class="bg-white">{{FoundPaper.paperId}}</td>
-            <td class="font-weight-bold alert-info">Volume:</td>
-            <td [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, FoundPaper.volume)}">{{FoundPaper.volume}}</td>
-            <td class="font-weight-bold alert-info" bg-light>Issue:</td>
-            <td [ngClass]="{'alert-danger font-weight-bold' : item && areTheFieldsDifferent(item.issue, FoundPaper.issue)}">{{FoundPaper.issue}}</td>
-            <td class="font-weight-bold alert-info" bg-light>Pages: </td>
-            <td [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, FoundPaper.firstPage, FoundPaper.lastPage)}">{{FoundPaper.firstPage}}-{{FoundPaper.lastPage}}</td>
+            <td style="width:12%;padding:5px" class="alert-secondary">OA ID:</td>
+            <td style="width:12%;padding:5px" class="bg-white">{{magPaper.paperId}}</td>
+            <td style="width:12%;padding:5px" class="alert-secondary">Volume:</td>
+            <td style="width:12%;padding:5px" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, FoundPaper.volume)}">{{FoundPaper.volume}}</td>
+            <td style="width:12%;padding:5px" class="alert-secondary" bg-light>Issue:</td>
+            <td style="width:12%;padding:5px" [ngClass]="{'alert-danger font-weight-bold' : item && areTheFieldsDifferent(item.issue, FoundPaper.issue)}">{{FoundPaper.issue}}</td>
+            <td style="width:12%;padding:5px" class="alert-secondary" bg-light>Pages: </td>
+            <td style="width:16%;padding:5px" [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, FoundPaper.firstPage, FoundPaper.lastPage)}">{{GetPages(FoundPaper)}}</td>
+          </tr>
+          <tr *ngIf="showAbstract">
+            <td style="width:100%;padding:5px" colspan="8" class="bg-white">{{FoundPaper.abstract}}</td>
           </tr>
           <tr>
 
