@@ -97,8 +97,9 @@
             <td style="width:16%;padding:5px" [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, magPaper.firstPage, magPaper.lastPage)}">{{GetPages(magPaper)}}</td>
           </tr>
           <tr class="bg-white">
+            
             <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">DOI: </td>
-            <td style="width:60%;padding:5px" colspan="5" class="bg-white">{{magPaper.doi}}</td>
+            <td style="width:60%;padding:5px" colspan="5" [ngClass]="{'font-weight-bold alert-danger' : item && areDOIFieldsDifferent(item.doi, magPaper.doi)}">{{magPaper.doi}}</td>
             <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Score: </td>
             <td style="width:16%;padding:5px" colspan="1" class="alert alert-success" [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.autoMatchScore < 0.8}">{{ChangeToPercent(magPaper.autoMatchScore)}}</td>
           </tr>

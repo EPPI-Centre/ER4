@@ -195,7 +195,26 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     else {
       return true;
     }
+  }
 
+  public areDOIFieldsDifferent(itemField: string, magField: null | string): boolean {
+    // we want only look at the doi text and ignore any http info
+    if (magField == null)
+      magField = "";
+
+    // remove any http stuff
+    itemField = itemField.replace(/http:\/\/|https:\/\//g, '');
+    magField = magField.replace(/http:\/\/|https:\/\//g, '');
+
+    // remove any doi.org stuff
+    itemField = itemField.replace(/doi.org\//g, '');
+    magField = magField.replace(/doi.org\//g, '');
+
+    if (magField.toLowerCase().trim() == itemField.toLowerCase().trim())
+      return false;
+    else {
+      return true;
+    }
   }
 
   public areTheTitlesDifferent(itemField: string, magField: null | string): boolean {
