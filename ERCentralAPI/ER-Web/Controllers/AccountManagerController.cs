@@ -84,7 +84,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
                     Review res = new Review(data.Value);
                     res = res.Save(); 
@@ -94,7 +94,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Contact data portal error");
+                _logger.LogException(e, "UpdateReviewName error");
                 return StatusCode(500, e.Message);
             }
         }
@@ -168,11 +168,7 @@ namespace ERxWebClient2.Controllers
         //    }
         //}
 
-        private bool UserIsAdmin()
-        {
-            ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
-            return ri.Roles.Contains("AdminUser");
-        }
+        
 
 
     }

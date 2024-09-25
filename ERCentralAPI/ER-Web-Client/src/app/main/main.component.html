@@ -1,42 +1,94 @@
 <div class="container-fluid MainBg" resizable>
-    <HeaderComponent PageTitle="EPPI-Reviewer Coding" Context="(codingui)main"></HeaderComponent>
-    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
-    <div class="row flex-row-reverse">
-        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-7 py-2">
-            <div class="card card-body bg-light">
-                <ItemListComp Context="CodingOnly" [ShowItemsTable]="true" resizable r-directions="['right']" r-flex="true"></ItemListComp>
-            </div>
-        </div>
-        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-5 py-2">
-            <div class="card bg-light mt-2 ">
-                <div class="card-body">
-                    <h3 class="card-title">Work Allocation List</h3>
-                    <p class="card-text">
-                        <WorkAllocationContactListComp (criteriaChange)='LoadWorkAllocList($event)'
-                                                       Context="CodingOnly"
-                                                       resizable r-directions="['right']" r-flex="true">
-                        </WorkAllocationContactListComp>
-                    </p>
-                </div>
-            </div>
-            <div class="card card-body ReviewsBg  mt-2 ">
-                <div>
-                    <button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
-                            [attr.aria-expanded]="!isReviewPanelCollapsed">
-                        My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
-                    </button>
-                </div>
-                <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
-                                 style="max-height: 520px;"></readonlyreviews>
+  <HeaderComponent PageTitle="EPPI-Reviewer Coding" Context="(codingui)main"></HeaderComponent>
+  <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
+  <div class="row flex-sm-row-reverse">
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-7 p-1">
+      <div class="card card-body bg-light p-1">
+        <ItemListComp Context="CodingOnly" [ShowItemsTable]="true" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+      </div>
 
-            </div>
-            <div class="card card-body bg-light mt-2">
-                {{MyAccountMessage}}
-                <br />
-                {{MyReviewMessage}}
-            </div>
-
-        </div>
-        <statusbar class="col-sm-12 card-body" resizable></statusbar>
     </div>
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-5 p-1">
+      <div class="card bg-light p-1">
+        <div class="card-body">
+          <h3 class="card-title">Work Allocation List</h3>
+          <p class="card-text">
+            <WorkAllocationContactListComp (criteriaChange)='LoadWorkAllocList($event)'
+                                           Context="CodingOnly"
+                                           resizable r-directions="['right']" r-flex="true">
+            </WorkAllocationContactListComp>
+          </p>
+        </div>
+      </div>
+      <div class="card card-body ReviewsBg  mt-2 ">
+        <div>
+          <button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
+                  [attr.aria-expanded]="!isReviewPanelCollapsed">
+            My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+          </button>
+        </div>
+        <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
+                         style="max-height: 520px;"></readonlyreviews>
+
+      </div>
+      <div class="card card-body bg-light mt-2">
+        {{MyAccountMessage}}
+        <br />
+        {{MyReviewMessage}}
+      </div>
+      <div *ngIf="CanShowComparisons" class="col-12 px-0 mt-1 align-content-end">
+        <button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1"
+                (click)="ShowComparisons = !ShowComparisons">
+          {{ShowComparisonsText}}
+        </button>
+      </div>
+    </div>
+
+  </div>
+  <div *ngIf="CanShowComparisons" class="mt-0 w-100 border-top">
+    
+    <div class="col-12 px-0" *ngIf="ShowComparisons">
+      <div class="w-100" style="max-height:30vh;overflow:auto;">
+        <table class='card-body table table-striped bg-light'>
+          <thead>
+            <tr class="small">
+              <th class="pl-1" (click)="ChangeSort('setName')" style="cursor:pointer;">Codes applied from this set&nbsp;<span [innerHTML]="sortSymbol('setName')"></span></th>
+              <th class="pl-1" (click)="ChangeSort('contactName1')" style="cursor:pointer;">Reviewer 1&nbsp;<span [innerHTML]="sortSymbol('contactName1')"></span></th>
+              <th class="pl-1" (click)="ChangeSort('contactName2')" style="cursor:pointer;">Reviewer 2&nbsp;<span [innerHTML]="sortSymbol('contactName2')"></span></th>
+              <th class="pl-1" (click)="ChangeSort('contactName3')" style="cursor:pointer;">(Reviewer 3)&nbsp;<span [innerHTML]="sortSymbol('contactName3')"></span></th>
+              <th class="pl-1" (click)="ChangeSort('attributeName')" style="cursor:pointer;">(Only with this code)&nbsp;<span [innerHTML]="sortSymbol('attributeName')"></span></th>
+              <th class="pl-1" (click)="ChangeSort('comparisonId')" style="cursor:pointer;">Date&nbsp;<span [innerHTML]="sortSymbol('comparisonId')"></span></th>
+              <th class="pl-1">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container class="small" *ngFor="let item of MyComparisons; let i = index">
+              <tr>
+                <td class="p-1">{{ item.setName }}</td>
+                <td class="p-1">{{ item.contactName1 }}</td>
+                <td class="p-1">{{ item.contactName2 }}</td>
+                <td class="p-1">{{ item.contactName3 }}</td>
+                <td class="p-1">{{ item.attributeName}}</td>
+                <td class="py-1 px-0 small">{{ FormatDate0(item.comparisonDate) }}</td>
+                <!--<td class="p-1"><button class="btn btn-outline-success w-100 py-0" (click)="getPanelRunQuickReport(item.comparisonId);">&nbsp; Run &nbsp;</button></td>-->
+                <td class="p-1"><button class="btn btn-outline-info w-100 py-0" (click)="getStatistics(item.comparisonId);">&nbsp; View &nbsp;</button></td>
+                <!--<td class="p-1"><button class="btn btn-outline-danger w-100 py-0" (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>-->
+              </tr>
+              <tr>
+                <td colspan="9" class="p-0 py-1">
+                  <ComparisonStatsComp #ComparisonStatsCompList
+                                       *ngIf="PanelName == 'getStats' + item.comparisonId && currentComparison.comparisonId == item.comparisonId"
+                                       [rowSelected]="item.comparisonId"
+                                       [isCodingOnly]=true
+                                       (setListSubType)="setCompListType($event)">
+                  </ComparisonStatsComp>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <statusbar class="col-sm-12 card-body" resizable></statusbar>
 </div>

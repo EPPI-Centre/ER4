@@ -70,6 +70,11 @@ namespace ERxWebClient2.Controllers
                 return false;
 			}
 		}
+        protected bool UserIsAdmin()
+        {
+            ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+            return ri.Roles.Contains("AdminUser");
+        }
 #if WEBDB
         protected int WebDbId
         {

@@ -147,6 +147,7 @@ export class ReviewInfo {
       this.openAIEnabled = iRnfo.openAIEnabled;
       this.canUseRobots = iRnfo.canUseRobots;
       this.hasCreditForRobots = iRnfo.hasCreditForRobots;
+      this.comparisonsInCodingOnly = iRnfo.comparisonsInCodingOnly;
     }
   }
   public Clone(): ReviewInfo {
@@ -173,6 +174,7 @@ export class ReviewInfo {
     res.openAIEnabled = this.openAIEnabled;
     res.canUseRobots = this.canUseRobots;
     res.hasCreditForRobots = this.hasCreditForRobots;
+    res.comparisonsInCodingOnly = this.comparisonsInCodingOnly;
     return res;
   }
   reviewId: number = 0;
@@ -197,6 +199,7 @@ export class ReviewInfo {
   openAIEnabled: boolean = false;
   canUseRobots: boolean = false;
   hasCreditForRobots: boolean = false;
+  comparisonsInCodingOnly: boolean = false;
 }
 export interface iReviewInfo {
   reviewId: number;
@@ -221,6 +224,7 @@ export interface iReviewInfo {
   openAIEnabled: boolean;
   canUseRobots: boolean;
   hasCreditForRobots: boolean;
+  comparisonsInCodingOnly: boolean;
 }
 export class Contact {
 

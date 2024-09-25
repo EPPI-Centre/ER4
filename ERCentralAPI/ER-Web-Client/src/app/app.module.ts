@@ -331,6 +331,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'EditItem', component: editItemDetailsComp },
       { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
       { path: 'Reconciliation', component: ComparisonReconciliationComp },
+      { path: 'ReconciliationCO', component: ComparisonReconciliationComp },
       { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
       { path: 'intropage', component: intropageComponent },
       { path: 'Duplicates', component: DuplicatesComponent },
