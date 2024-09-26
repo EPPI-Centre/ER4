@@ -64,7 +64,10 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     else return "Show Comparisons";
   }
   public get CanShowComparisons(): boolean {
-    return this.ReviewInfoService.ReviewInfo.comparisonsInCodingOnly;
+    if (this.ReviewInfoService.ReviewInfo.comparisonsInCodingOnly) {
+      if (this.MyComparisons.length > 0) return true;
+    }
+    return false;
   }
   public get ReviewPanelTogglingSymbol(): string {
     if (this.isReviewPanelCollapsed) return '&uarr;';
@@ -79,14 +82,15 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
       && this.comparisonsService.Comparisons.findIndex(f => f.comparisonId) > -1 //current comparison is in the current list
     ) {
       //we're returning from looking at a comparison, so we'll re-open the comparison stats we already had expanded
-      this.PanelName = 'getStats' + this.comparisonsService.currentComparison.comparisonId.toString();
+      setTimeout(() => { this.PanelName = 'getStats' + this.comparisonsService.currentComparison.comparisonId.toString(); }, 50);
     }
 
   }
   public get IsServiceBusy(): boolean {
     return (this.ReviewInfoService.IsBusy ||
       this.ReviewSetsService.IsBusy ||
-      this.ItemListService.IsBusy);
+      this.ItemListService.IsBusy ||
+      this.comparisonsService.IsBusy);
   }
   toggleReviewPanel() {
     this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
