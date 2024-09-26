@@ -136,9 +136,9 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
   public GetButtonText(): string {
     if (this.showAbstract == true) {
-      return "Hide abstract";
+      return "Hide abstract(s)";
     } else {
-      return "Show abstract";
+      return "Show abstract(s)";
     }
     
   }

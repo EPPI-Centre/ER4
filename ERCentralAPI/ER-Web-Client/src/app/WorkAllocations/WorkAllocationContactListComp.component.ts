@@ -114,12 +114,18 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
       && this.ItemListService.ListCriteria
       && !this.ItemListService.ListCriteria.listType.startsWith('GetItemWorkAllocation')
       && this.Context !== "CodingOnly"
-    ) {
-
+    ) {//current list is not a work allocation: don't reload it (applies to main interface)
       return;
-    }//current list is not a work allocation: don't reload it (applies to main interface)
+    }
+    if (this.ItemListService
+      && this.ItemListService.ListCriteria
+      && this.ItemListService.ListCriteria.listType.startsWith('Comparison')
+      && this.Context == "CodingOnly"
+    ) {//we have been looking at comparisons within the coding-only UI, so we keep the list as is.
+      return;
+    }
 
-    //see last condition  [&& this.Context !== "CodingOnly] if there is no list and we ARE in coding only,
+    //see last conditions [&& this.Context !== "CodingOnly] if there is no list and we ARE in coding only,
     //we'll get one...
     for (let workAll of this._workAllocationListService.ContactWorkAllocations) {
       if (workAll.totalRemaining > 0) {

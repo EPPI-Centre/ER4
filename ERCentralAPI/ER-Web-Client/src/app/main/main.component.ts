@@ -50,12 +50,15 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
   @ViewChild('ComparisonStatsCompList') ComparisonStatsComp!: ComparisonStatsComp;
   private InstanceId: number = Math.random();
-  private killTrigger: Subject<void> = new Subject();
-  public countDown: any | undefined;
-  public count: number = 60;
+
   public isReviewPanelCollapsed = false;
   public PanelName: string = '';
-  public ShowComparisons: boolean = false;
+  public get ShowComparisons(): boolean {
+    return this.comparisonsService.CodingOnlyHasComparisonsExpanded;
+  }
+  public set ShowComparisons(val: boolean) {
+    this.comparisonsService.CodingOnlyHasComparisonsExpanded = val;
+  }
   public get ShowComparisonsText(): string {
     if (this.ShowComparisons) return "Hide Comparisons";
     else return "Show Comparisons";
@@ -68,7 +71,16 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     else return '&darr;';
   }
   ngAfterViewInit() {
-
+    const Cid = this.ReviewerIdentityServ.reviewerIdentity.userId;
+    if (this.ShowComparisons && this.comparisonsService.currentComparison.comparisonId > 0
+      && (Cid == this.comparisonsService.currentComparison.contactId1
+        || Cid == this.comparisonsService.currentComparison.contactId2
+        || Cid == this.comparisonsService.currentComparison.contactId3)//to current user belongs to currentComparison 
+      && this.comparisonsService.Comparisons.findIndex(f => f.comparisonId) > -1 //current comparison is in the current list
+    ) {
+      //we're returning from looking at a comparison, so we'll re-open the comparison stats we already had expanded
+      this.PanelName = 'getStats' + this.comparisonsService.currentComparison.comparisonId.toString();
+    }
 
   }
   public get IsServiceBusy(): boolean {
