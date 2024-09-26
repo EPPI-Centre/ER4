@@ -45,6 +45,8 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
             () => {
                 this._magAdvancedService.MagReferencesPaperList.papers = [];
                 this.FetchMAGMatches();
+                this.foundMagPaper = false;
+                this.magPaperId = 0;
             }
         );
     }

@@ -177,8 +177,6 @@
     <table width="100%" style="font-family:Arial;color:#424242;" class="table table-bordered table-responsive-md table-striped text-left large alert-light p-0">
       <tbody>
 
-        <ng-container *ngFor="let magPaper of _magAdvancedService.MagReferencesPaperList.papers">
-
           <tr class="bg-white">
             <td style="width:12%;padding:5px" colspan="1" class="alert-secondary">Title: </td>
             <td style="width:88%;padding:5px" colspan="7" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, FoundPaper.paperTitle)}">{{FoundPaper.paperTitle}}</td>
@@ -195,7 +193,7 @@
           </tr>
           <tr class="bg-white">
             <td style="width:12%;padding:5px" class="alert-secondary">OA ID:</td>
-            <td style="width:12%;padding:5px" class="bg-white">{{magPaper.paperId}}</td>
+            <td style="width:12%;padding:5px" class="bg-white">{{FoundPaper.paperId}}</td>
             <td style="width:12%;padding:5px" class="alert-secondary">Volume:</td>
             <td style="width:12%;padding:5px" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, FoundPaper.volume)}">{{FoundPaper.volume}}</td>
             <td style="width:12%;padding:5px" class="alert-secondary" bg-light>Issue:</td>
@@ -241,19 +239,19 @@
               <table>
                 <tr>
                   <td style="padding:0px">
-                    <div class="btn btn-sm btn-link text-left" (click)="GetMagPaperRef(magPaper.paperId)">
+                    <div class="btn btn-sm btn-link text-left" (click)="GetMagPaperRef(FoundPaper.paperId)">
                       <span style="font-size:small">View in OpenAlex Browser</span>
                     </div>
                   </td>
                   <td style="padding:0px">
                     <div class="btn btn-sm btn-link pull-right">
-                      <a href="https://openalex.org/works/W{{magPaper.paperId}}" target="_blank">
+                      <a href="https://openalex.org/works/W{{FoundPaper.paperId}}" target="_blank">
                         <span style="font-size:small">View on the internet</span>
                       </a>
                     </div>
                   </td>
                   <td style="padding:0px">
-                    <div class="btn btn-sm btn-link text-left" (click)="enrichItemRecord(magPaper.paperId)">
+                    <div class="btn btn-sm btn-link text-left" (click)="enrichItemRecord(FoundPaper.paperId)">
                       <span style="font-size:small">Enrich record with OpenAlex data</span>
                     </div>
                   </td>
@@ -264,7 +262,7 @@
           <tr>
             <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
           </tr>
-        </ng-container>
+
       </tbody>
     </table>
 
