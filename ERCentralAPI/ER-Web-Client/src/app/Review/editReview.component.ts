@@ -53,6 +53,9 @@ export class EditReviewComponent implements OnInit, OnDestroy {
       return false;
     }
   }
+  public get IsServiceBusy(): boolean {
+    return (this.ReviewInfoService.IsBusy || this._reviewService.IsBusy );
+  }
   Expand() {
     this.isExpanded = true;
     this.EditingRevInfo = this.ReviewInfoService.ReviewInfo.Clone();
@@ -62,28 +65,26 @@ export class EditReviewComponent implements OnInit, OnDestroy {
     this.EditingRevInfo = new ReviewInfo();
     this.isExpanded = false;
   }
-  public get CanSaveReviewOptions() {
-    if (!this.CanWrite()) return false;
-    if (this.EditingRevInfo.reviewName.trim() == '') return false;
-    const rinfo = this.ReviewInfoService.ReviewInfo;
-    if (this.EditingRevInfo.comparisonsInCodingOnly != rinfo.comparisonsInCodingOnly
-      || this.EditingRevInfo.showScreening != rinfo.showScreening
-    ) {
-      return true;
-    }
-    else return false;
-  }
 
-  async SaveReviewOptions() {
-    if (this.CanSaveReviewOptions) {
+  public async comparisonsInCodingOnlyClick() {
+    if (this.CanWrite()) {
+      this.EditingRevInfo.comparisonsInCodingOnly = !this.EditingRevInfo.comparisonsInCodingOnly;
       let result = await this.ReviewInfoService.Update(this.EditingRevInfo);
       if (result == true) {
-        // close div and put up a message saying the review was updated 
-        this.isExpanded = false;
         this.showAccountUpdatedNotification();
       }
     }
   }
+  public async showScreeningClick() {
+    if (this.CanWrite()) {
+      this.EditingRevInfo.showScreening = !this.EditingRevInfo.showScreening;
+      let result = await this.ReviewInfoService.Update(this.EditingRevInfo);
+      if (result == true) {
+        this.showAccountUpdatedNotification();
+      }
+    }
+  }
+  
   public get CanSaveReviewName(): boolean {
     if (this.CanWrite()) {
       const rn = this.EditingReviewName.trim();
@@ -115,15 +116,6 @@ export class EditReviewComponent implements OnInit, OnDestroy {
   }
 
 
-  
-  onFullSubmit(revId: number) {
-    //this.readonlyreviewsService.Fetch();
-    this.CloseEditReview();
-    this._reviewerIdentityServ.LoginToFullReview(revId);
-  }
-  BackToMain() {
-    this.router.navigate(['Main']);
-  }
   ngOnDestroy() {
 
   }
