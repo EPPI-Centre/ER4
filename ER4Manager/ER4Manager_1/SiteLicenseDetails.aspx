@@ -169,29 +169,54 @@
                 </td>
             </tr>
             <tr>
-                <td style="background-color: #B6C6D6; width: 25%; height: 27px;">EPPI Notes:<br />
-                    Only visible to EPPI admins</td>
-                <td style="width: 25%; background-color: #FFFFCC; height: 27px;">
-                    <asp:TextBox ID="tbEPPINotes" runat="server" TextMode="MultiLine" Width="95%"></asp:TextBox>
+                <td style="background-color: #B6C6D6; width: 25%; height: 27px;">EPPI Notes<br /> (Only visible to EPPI admns)<br />
+                    <asp:TextBox ID="tbEPPINotes" runat="server" TextMode="MultiLine" Width="95%" Rows="2"></asp:TextBox>
                 </td>
-                <td style="background-color: #B6C6D6; width: 25%; height: 27px;">OpenAI:<br />
-                    Enter a Purchase ID to give this Site License OpenAI access<br />(Enter 0 to clear)</td>
-                <td style="width: 25%; background-color: #FFFFCC; height: 27px;">
-                                        OpenAI Credit ID: 
-                       <b><asp:Label ID="lblCreditPurchaseID" runat="server" Text="N/A"></asp:Label></b>
-                       <asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="false" Width="50px"></asp:TextBox>
+                <td style="width: 25%; background-color: #FFFFCC; height: 27px;vertical-align:top">
+                    OpenAI:<br />
+                    Enter a Purchase ID to give this Site License OpenAI access<br />
+                                    <asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="true" Width="100px"></asp:TextBox>
 &nbsp;                 <asp:LinkButton ID="lbSavePurchaseCreditID" runat="server" onclick="lbSavePurchaseCreditID_Click" 
-                            ToolTip="Save the value in the textbox">Edit</asp:LinkButton><br />
-
-                    <asp:Panel ID="pnlCreditDetails" runat="server" Visible="false">
-                    Remaining: £
-                        <b><asp:Label ID="lblCreditPurchaseValue" runat="server" Text="N/A"></asp:Label></b>
-                        <br />
-                    Purchaser: 
-                        <b><asp:Label ID="lblCreditPurchaserName" runat="server" Text="N/A"></asp:Label>&nbsp;
-                            <asp:Label ID="lblCreditPurchaserID" runat="server" Text="N/A"></asp:Label></b>
-                    </asp:Panel>
+                            ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
+                        <b><asp:Label ID="lblInvalidID" runat="server" Text="Invalid ID" Visible="false"></asp:Label></b>                               
                 </td>
+                <td style="background-color: #FFFFCC; height: 27px;vertical-align:top" colspan="2">
+                       OpenAI Credit<br />
+<asp:GridView ID="gvCreditForRobots" runat="server" Width="100%" onrowdatabound="gvCreditForRobots_RowDataBound"
+    onrowcommand="gvCreditForRobots_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
+    DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
+    <Columns>
+        <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
+        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+            HorizontalAlign="Left" />
+        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+        </asp:BoundField>
+        <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
+        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+            HorizontalAlign="Left" />
+        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+        </asp:BoundField>
+        <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
+        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+            HorizontalAlign="Left" />
+        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+        </asp:BoundField>
+        <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
+        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+            HorizontalAlign="Left" />
+        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+        </asp:BoundField>
+        <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" 
+            Text="Remove">
+        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+            HorizontalAlign="Left"/>
+        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+        </asp:ButtonField>                         
+    </Columns>
+</asp:GridView>
+
+                </td>
+
             </tr>
 
             <tr>
