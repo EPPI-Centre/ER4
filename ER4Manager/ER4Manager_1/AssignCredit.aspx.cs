@@ -183,30 +183,34 @@ public partial class AssignCredit : System.Web.UI.Page
                 {
                     newrow = dt.NewRow();
                     expiryDate = idr1["expiry_date"].ToString();
-                    expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+                    if (expiryDate != "")
+                    {
+                        expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+                        dayExpires = Convert.ToDateTime(idr1["EXPIRY_DATE"].ToString());
+                        if (dayExpires < today)
+                        {
+                            newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + "  Expired";
+                            //newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
+                        }
+                        else
+                        {
+                            newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
+                            //newrow["EXPIRY_DATE"] = expiryDate;
+                        }
+
+                        if (idr1["site_lic_id"].ToString() != "")
+                        {
+                            newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + " in Site License #" +
+                                idr1["site_lic_id"].ToString();
+                            //newrow["EXPIRY_DATE"] = expiryDate + " in Site License #" +
+                            //    idr1["site_lic_id"].ToString();
+                        }
+                    }
 
                     newrow["CONTACT_ID"] = idr1["CONTACT_ID"].ToString();
                     newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString();
-                    dayExpires = Convert.ToDateTime(idr1["EXPIRY_DATE"].ToString());
-                    if (dayExpires < today)
-                    {
-                        newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + "  Expired";
-                        //newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
-                    }
-                    else
-                    {
-                        newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
-                        //newrow["EXPIRY_DATE"] = expiryDate;
-                    }
-
-
-                    if (idr1["site_lic_id"].ToString() != "")
-                    {
-                        newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + " in Site License #" +
-                            idr1["site_lic_id"].ToString();
-                        //newrow["EXPIRY_DATE"] = expiryDate + " in Site License #" +
-                        //    idr1["site_lic_id"].ToString();
-                    }
+                    
+                    
                     newrow["EMAIL"] = idr1["EMAIL"].ToString();
 
                     if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
