@@ -494,7 +494,13 @@ namespace ExportPDFs
         {
             DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
             string LogFilename = logDir.FullName + @"\" + "ExportPDFs-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-            if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+            if (!System.IO.File.Exists(LogFilename))
+            {
+                using (FileStream fs = System.IO.File.Create(LogFilename))
+                {
+                    fs.Close();
+                }
+            }
             return LogFilename;
         }
         private static void ConfigureServices(IServiceCollection services)
