@@ -881,7 +881,8 @@ public partial class ReviewDetails : System.Web.UI.Page
         {
             case "REMOVE":
                 isAdmDB = true;
-                Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID);
+                Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID,
+                    Utils.GetSessionString("Contact_ID"), lblReviewID.Text, 0);
                 getOpenAIDetails();
                 break;
 
@@ -1235,20 +1236,22 @@ public partial class ReviewDetails : System.Web.UI.Page
         {
 
             bool isAdmDB = true;
-            SqlParameter[] paramList = new SqlParameter[4];
+            SqlParameter[] paramList = new SqlParameter[5];
             paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
                 true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseID.Text.Trim());
             paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
                 true, 0, 0, null, DataRowVersion.Default, lblReviewID.Text);
             paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
                 true, 0, 0, null, DataRowVersion.Default, 0);
-            paramList[3] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
                 true, 0, 0, null, DataRowVersion.Default, "");
 
 
             Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAI", paramList);
 
-            if (paramList[3].Value.ToString() == "SUCCESS")
+            if (paramList[4].Value.ToString() == "SUCCESS")
             {
                 getOpenAIDetails();
                 lblInvalidID.Visible = false;
