@@ -176,6 +176,7 @@
             , function (data, result) {
                 if (spinnerItems) spinnerItems.hide();
                 BuildItems(data, result);
+                document.getElementById('listDiv').scrollIntoView({behavior: 'smooth'});
             }
         );
 
@@ -343,9 +344,9 @@
                         let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
                         let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
                         let descript = HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
-                        //console.log("des", descript);
+                        //console.log("des", descript);                   
                         res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
-                        res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
+                        res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";                        
                     }
                 }
                 res += "</td>";
@@ -662,7 +663,7 @@
                 </div>
             </div>
         </div>
-
+        <div id="listDiv"></div>
         <div class="card">
 
             <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
@@ -672,8 +673,7 @@
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
-            </div>
-
+            </div>            
             @await Html.PartialAsync("_ItemsList")
         </div>
     </div>
