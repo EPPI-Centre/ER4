@@ -657,6 +657,7 @@
                 , function (data, result) {
                     if (spinnerItems) spinnerItems.hide();
                     BuildItems(data, result);
+                    document.getElementById('listDiv').scrollIntoView({ behavior: 'smooth' });
                 }
             );
         } else {
@@ -666,6 +667,7 @@
                 , function (data, result) {
                     if (spinnerItems) spinnerItems.hide();
                     BuildItems(data, result);
+                    document.getElementById('listDiv').scrollIntoView({ behavior: 'smooth' });
                 }
             );
         }
@@ -798,7 +800,7 @@
                         </div>
                     </div>
                 </div>
-
+                <div id="listDiv"></div>
                 <div class="card">
                     <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
                         <div class="col-auto p-1">Loading...</div>

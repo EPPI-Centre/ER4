@@ -376,93 +376,43 @@ public partial class ReviewDetails : System.Web.UI.Page
 
     private void getOpenAIDetails()
     {
+
+        string contact_name = "";
+        string contact_id = "";
+        
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
+        
+        dt.Columns.Add(new DataColumn("CREDIT_FOR_ROBOTS_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASER", typeof(string)));
+        dt.Columns.Add(new DataColumn("REMAINING", typeof(string)));
+
         bool isAdmDB = true;
-        SqlParameter[] paramList = new SqlParameter[8];
-        paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
-            true, 0, 0, null, DataRowVersion.Default, 0);
-        paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
-            true, 0, 0, null, DataRowVersion.Default, lblReviewID.Text);
-        paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
-            true, 0, 0, null, DataRowVersion.Default, 0);
-        paramList[3] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
-            true, 0, 0, null, DataRowVersion.Default, "");
-        paramList[4] = new SqlParameter("@CREDIT_PURCHASE_ID_FOUND", SqlDbType.Int, 8, ParameterDirection.Output,
-            true, 0, 0, null, DataRowVersion.Default, "");
-        paramList[5] = new SqlParameter("@PURCHASER_CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Output,
-            true, 0, 0, null, DataRowVersion.Default, "");
-        paramList[6] = new SqlParameter("@PURCHASER_CONTACT_NAME", SqlDbType.NVarChar, 255, ParameterDirection.Output,
-            true, 0, 0, null, DataRowVersion.Default, "");
-        paramList[7] = new SqlParameter("@REMAINING", SqlDbType.NVarChar, 100, ParameterDirection.Output,
-            true, 0, 0, null, DataRowVersion.Default, "");
-
-        Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_GetSetCreditPurchaseIDForOpenAI", paramList);
-
-        if (paramList[3].Value.ToString() == "SUCCESS")
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
+            lblReviewID.Text, "0");
+        while (idr.Read())
         {
-            if (paramList[4].Value.ToString() == "")
-            {
-                lblCreditPurchaseID.Text = "N/A";
-                pnlCreditDetails.Visible = false;
-            }
-            else
-            {
-                lblCreditPurchaseID.Text = paramList[4].Value.ToString();              
-                pnlCreditDetails.Visible = true;
-            }
-            lblCreditPurchaseValue.Text = paramList[7].Value.ToString();
-            lblCreditPurchaserName.Text = paramList[6].Value.ToString();
-            lblCreditPurchaserID.Text = "(" + paramList[5].Value.ToString() + ")";
+            newrow = dt.NewRow();
+            newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
+            newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
+
+            contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
+            contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
+            newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
+
+            newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
+            dt.Rows.Add(newrow);
         }
+        idr.Close();
+
+        gvCreditForRobots.DataSource = dt;
+        gvCreditForRobots.DataBind();
+
     }
 
 
-        /*
-        protected void dgContacts_ItemCommand(object source, DataGridCommandEventArgs e)
-        {
-            string SQL = "";
-            switch (e.CommandName)
-            {
-                case "Select":
-                    Server.Transfer("ContactDetails.aspx?ID=" + e.Item.Cells[0].Text);
-                    break;
-
-                case "REMOVE":
-                    string reviewContactID = "";
-                    bool isAdmDB = false;
-                    SQL = "select * from TB_REVIEW_CONTACT where CONTACT_ID = '" + e.Item.Cells[0].Text +
-                    "' and REVIEW_ID = '" + lblReviewID.Text + "'";
-                    SqlDataReader sdr = Utils.ReturnReader(SQL, isAdmDB);
-                    if (sdr.Read())
-                    {
-                        reviewContactID = sdr["REVIEW_CONTACT_ID"].ToString();
-                    }
-                    sdr.Close();
-                    SQL = "delete from TB_CONTACT_REVIEW_ROLE where REVIEW_CONTACT_ID = '" + reviewContactID +
-                       "' and ROLE_NAME = 'RegularUser'";
-                    Utils.ExecuteQuery(SQL, isAdmDB);
-                    SQL = "delete from TB_REVIEW_CONTACT where CONTACT_ID = '" + e.Item.Cells[0].Text +
-                        "' and REVIEW_ID = '" + lblReviewID.Text + "'";  
-                    Utils.ExecuteQuery(SQL, isAdmDB);       
-                    Server.Transfer("ReviewDetails.aspx?ID=" + Request.QueryString["ID"].ToString()); 
-                    break;
-                default:
-                    break;
-            }
-        }
-        */
-
-        /*
-        protected void dgContacts_ItemDataBound(object sender, DataGridItemEventArgs e)
-        {
-            if ((e.Item.ItemType == ListItemType.Item) || (e.Item.ItemType == ListItemType.AlternatingItem))
-            {
-                LinkButton lb = (LinkButton)(e.Item.Cells[5].Controls[0]);
-                lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this user from this review?') == false) return false;");
-            }
-        }
-        */
-
-        protected void cmdSave_Click(object sender, EventArgs e)
+    protected void cmdSave_Click(object sender, EventArgs e)
     {
         lblMissingFields.Visible = false;
         lblMissingFields.Text = "Please fill in all of the fields *";
@@ -922,6 +872,25 @@ public partial class ReviewDetails : System.Web.UI.Page
         }
     }
 
+    protected void gvCreditForRobots_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        bool isAdmDB = true;
+        int index = Convert.ToInt32(e.CommandArgument);
+        string creditForRobotsID = (string)gvCreditForRobots.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                isAdmDB = true;
+                Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID,
+                    Utils.GetSessionString("Contact_ID"), lblReviewID.Text, 0);
+                getOpenAIDetails();
+                break;
+
+            default:
+                break;
+        }
+    }
+
 
     protected void ddlRole_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -965,6 +934,16 @@ public partial class ReviewDetails : System.Web.UI.Page
             lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this user from this review?') == false) return false;");
         }
     }
+
+    protected void gvCreditForRobots_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton lb = (LinkButton)(e.Row.Cells[4].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this CreditID from this review?') == false) return false;");
+        }
+    }
+
     protected void cmdNullExpiry_Click(object sender, EventArgs e)
     {
         tbExpiryDate.Text = null;
@@ -981,6 +960,22 @@ public partial class ReviewDetails : System.Web.UI.Page
         {
             lbExtensionHistory.Text = "View";
             gvExtensionHistory.Visible = false;
+        }
+    }
+
+    protected void lbBritishLibrary_Click(object sender, EventArgs e)
+    {
+        if (lbBritishLibrary.Text == "View")
+        {
+            lbBritishLibrary.Text = "Hide";
+            pnlBL1.Visible = true;
+            pnlBL2.Visible = true;
+        }
+        else
+        {
+            lbBritishLibrary.Text = "View";
+            pnlBL1.Visible = false;
+            pnlBL2.Visible = false;
         }
     }
 
@@ -1237,64 +1232,35 @@ public partial class ReviewDetails : System.Web.UI.Page
 
     protected void lbSavePurchaseCreditID_Click(object sender, EventArgs e)
     {
-        if (lbSavePurchaseCreditID.Text == "Edit")
+        if ((tbCreditPurchaseID.Text.Trim() != "") && (Utils.IsNumeric(tbCreditPurchaseID.Text) == true))
         {
-            lblCreditPurchaseID.Visible = false;
-            tbCreditPurchaseID.Visible = true;
-            lbSavePurchaseCreditID.Text = "Save";
-        }
-        else
-        {
-            // we are saving....
-            if (Utils.IsNumeric(tbCreditPurchaseID.Text))
+
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseID.Text.Trim());
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblReviewID.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAI", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
             {
-                if (tbCreditPurchaseID.Text == "0")
-                {
-                    // actually, -1 is my clearing indicator but I though it was
-                    // easier for us to enter a 0
-                    tbCreditPurchaseID.Text = "-1";
-                }               
-                bool isAdmDB = true;
-                SqlParameter[] paramList = new SqlParameter[8];
-                paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
-                    true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseID.Text.Trim());
-                paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
-                    true, 0, 0, null, DataRowVersion.Default, lblReviewID.Text);
-                paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
-                    true, 0, 0, null, DataRowVersion.Default, 0);
-                paramList[3] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
-                    true, 0, 0, null, DataRowVersion.Default, "");
-                paramList[4] = new SqlParameter("@CREDIT_PURCHASE_ID_FOUND", SqlDbType.Int, 8, ParameterDirection.Output,
-                    true, 0, 0, null, DataRowVersion.Default, "");
-                paramList[5] = new SqlParameter("@PURCHASER_CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Output,
-                    true, 0, 0, null, DataRowVersion.Default, "");
-                paramList[6] = new SqlParameter("@PURCHASER_CONTACT_NAME", SqlDbType.NVarChar, 255, ParameterDirection.Output,
-                    true, 0, 0, null, DataRowVersion.Default, "");
-                paramList[7] = new SqlParameter("@REMAINING", SqlDbType.NVarChar, 100, ParameterDirection.Output,
-                    true, 0, 0, null, DataRowVersion.Default, "");
-
-                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_GetSetCreditPurchaseIDForOpenAI", paramList);
-
-                if (paramList[3].Value.ToString() == "SUCCESS")
-                {
-                    getOpenAIDetails();
-                    lblCreditPurchaseID.Visible = true;
-                    tbCreditPurchaseID.Visible = false;
-                    tbCreditPurchaseID.Text = "";
-                    lbSavePurchaseCreditID.Text = "Edit";
-                }
-                else
-                {
-                    // if you are replacing a valid ID with an invalid ID
-                    // the data in the database stays unchanged.
-                    // but you still get a message that it is invalid.
-                    
-                    lblCreditPurchaseID.Visible = true;
-                    tbCreditPurchaseID.Visible = false;
-                    lblCreditPurchaseID.Text = "Invalid ID";
-                    lbSavePurchaseCreditID.Text = "Edit";
-                }
-            }            
+                getOpenAIDetails();
+                lblInvalidID.Visible = false;
+                tbCreditPurchaseID.Text = "";
+            }
+            else
+            {
+                lblInvalidID.Visible = true;
+            }
         }
     }
 }
