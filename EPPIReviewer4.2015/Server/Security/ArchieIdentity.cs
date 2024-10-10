@@ -20,6 +20,8 @@ using BusinessLibrary.Security;
 using System.Net;
 using System.IO;
 using System.Xml.Linq;
+using BusinessLibrary.BusinessClasses;
+
 #endif
 #if CSLA_NETCORE
 using Microsoft.Extensions.Configuration;
@@ -833,136 +835,50 @@ namespace BusinessLibrary.Security
         {
             get
             {
-#if (!CSLA_NETCORE)
-                return System.Configuration.ConfigurationManager.AppSettings["CochraneArchieBaseAddress"];
-#else
-                if (RootConfig == null) BuildConfig();
-                var CochraneArchieBaseAddress = RootConfig.GetValue<string>("AppSettings:CochraneArchieBaseAddress");
-                if (CochraneArchieBaseAddress == null || CochraneArchieBaseAddress == "") throw new Exception("No CochraneArchieBaseAddress!");
-                return CochraneArchieBaseAddress;
-#endif
-                //string host = Environment.MachineName.ToLower();
-                //if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-                //{//use live address: this is the real published ER4
-                //    return "https://archie.cochrane.org/";
-                //}
-                //if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
-                //{//use live address: this is the real published ER4
-                //    return "https://archie.cochrane.org/";
-                //}
-                //else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                //    //changes are to be made here depending on what test we're doing
-                //    return "https://test-archie.cochrane.org/";
-                //}
-                //else
-                //{//not a live publish, use test archie
-                //    return "https://test-archie.cochrane.org/";
-                //}
+                string res = AzureSettings.CochraneAPIBaseAddress;
+                if (res == null || res == "")
+                {
+                    throw new Exception("No Cochrane API base address!");
+                }
+                return res;
             }
         }
 
-        //private string AccountBaseAddress
-        //{
-        //    get
-        //    {
-        //        string host = Environment.MachineName.ToLower();
-        //        if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-        //        {//use live address: this is the real published ER4
-        //            return "https://account.cochrane.org/";
-        //        }
-        //        if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
-        //        {//use live address: this is the real published ER4
-        //            return "https://account.cochrane.org/";
-        //        }
-        //        else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-        //        {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-        //            //changes are to be made here depending on what test we're doing
-        //            return "https://test-account.cochrane.org/";
-        //        }
-        //        else
-        //        {//not a live publish, use test archie
-        //            return "https://test-account.cochrane.org/";
-        //        }
-        //    }
-        //}
+        
         private static string oAuthBaseAddress
         {
             get
             {
-#if (!CSLA_NETCORE)
-                return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthBaseUrl"];
-#else
-                if (RootConfig == null) BuildConfig();
-                var CochraneoAuthBaseAddress = RootConfig.GetValue<string>("AppSettings:CochraneoAuthBaseAddress");
-                if (CochraneoAuthBaseAddress == null || CochraneoAuthBaseAddress == "") throw new Exception("No CochraneoAuthBaseAddress!");
-                return CochraneoAuthBaseAddress;
-                //string host = Environment.MachineName.ToLower();
-                //if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-                //{//use live address: this is the real published ER4
-                //    return "https://login.cochrane.org/";
-                //}
-                //else
-                //{//not a live publish, use test archie 
-                //    return "https://test-login.cochrane.org/";
-                //}
-
-#endif
+                string res = AzureSettings.CochraneoAuthBaseAddress;
+                if (res == null || res == "")
+                {
+                    throw new Exception("No Cochrane oAuth base address!");
+                }
+                return res;
             }
         }
         private static string CochraneOAuthSS
         {
             get
             {
-#if (!CSLA_NETCORE)
-                return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthSS"];
-#else
-                if (RootConfig == null) BuildConfig();
-                var connectionString = RootConfig.GetValue<string>("AppSettings:CochraneOAuthSS");
-                if (connectionString == null || connectionString == "") throw new Exception("No client secret!");
-                return connectionString;
-#endif
+                string res = AzureSettings.CochraneOAuthSS;
+                if (res == null || res == "") 
+                {
+                    throw new Exception("No Cochrane client secret!");
+                }
+                return res;
             }
         }
         private string Redirect
         {
             get
             {
-#if (!CSLA_NETCORE)
-                string host = Environment.MachineName.ToLower();
-
-                string redirect = "";
-                redirect = System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthRedirectUri"];
-                //if (host == "eppi.ioe.ac.uk" || host == "epi2" || host == "epi2.ioe.ac.uk")
-                //{//use live address: this is the real published ER4
-                //    redirect = "https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx";
-                //}
-                //else if (host == "http://epi3.westeurope.cloudapp.azure.com" || host == "epi3")
-                //{//not clear, when azure environment goes live, this should point to eppi.ioe.ac.uk, before that, for testing it might be worth pointing to epi3.westeurope.cloudapp.azure.com
-                //    redirect = "https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx";
-                //}
-                //else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                //    //changes are to be made here depending on what test we're doing
-                //    redirect = "https://bk-epi.ioe.ac.uk/testing/er4/ArchieCallBack.aspx";
-                //}
-                //else if (host == "eppi-management")
-                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                //    //changes are to be made here depending on what test we're doing
-                //    redirect = "https://eppi-management/WcfHostPortal/ArchieCallBack.aspx";
-                //}
-                //else
-                //{//not a live publish, use test archie
-                //    //this won't work if used on a machine that isn't mine!!!!
-                //    //!!!needs to be changed for ER4.
-                //    redirect = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";
-                //}
-                return redirect;
-#else
-                if (RootConfig == null) BuildConfig();
-                var CochraneOAuthRedirectUri = RootConfig.GetValue<string>("AppSettings:CochraneOAuthRedirectUri");
-                return CochraneOAuthRedirectUri;
-#endif
+                string res = AzureSettings.CochraneOAuthRedirectUri;
+                if (res == null || res == "") 
+                {
+                    throw new Exception("No redirect URL value!");
+                }
+                return res;
             }
         }
 
