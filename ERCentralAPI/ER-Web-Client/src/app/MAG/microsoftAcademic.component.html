@@ -54,12 +54,11 @@
             {{GetButtonText()}}
           </button></td>
       </tr>
-      <tr *ngIf="showAbstract">
-        <td style="width:100%;padding:3px" colspan="8" class="bg-white">{{item.abstract}}</td>
-      </tr>
-      <tr>
-        <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
-      </tr>
+      <ng-container *ngIf="showAbstract">
+        <tr>
+          <td style="width:100%;padding:3px" colspan="8" class="bg-white">{{item.abstract}}</td>
+        </tr>
+      </ng-container>
     </table>
   </div>
 
@@ -83,7 +82,7 @@
               <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Author(s): </td>
               <td style="width:88%;padding:3px" colspan="7">
                 <span style="padding: 3px 4px;"
-                       [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">
+                      [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">
                   {{magPaper.authors}}
                 </span>
               </td>
@@ -127,11 +126,16 @@
                 {{ChangeToPercent(magPaper.autoMatchScore)}}
               </td>
             </tr>
-            <tr *ngIf="showAbstract">
-              <td style="width:100%;padding:3px" colspan="8" class="bg-white">{{magPaper.abstract}}</td>
-            </tr>
+            <ng-container *ngIf="showAbstract">
+              <tr>
+                <td style="width:100%;padding:3px" colspan="8" class="bg-white">{{magPaper.abstract}}</td>
+              </tr>
+              <tr>
+                <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
+              </tr>
+            </ng-container>
             <tr>
-              <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
+              <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
             </tr>
             <tr>
               <td style="width:12%;padding:3px" colspan="1">Status: </td>
@@ -176,12 +180,12 @@
               </td>
             </tr>
             <tr>
-              <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
+              <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
             </tr>
           </ng-container>
         </tbody>
       </table>
-    </div>
+</div>
     <br />
   </div>
 
@@ -189,120 +193,121 @@
     <strong>Manually searched OpenAlex paper</strong>
     <table width="100%" style="font-family:Arial;color:#424242;" class="table table-bordered table-responsive-md table-striped text-left large alert-light p-0">
       <tbody>
-          <tr class="bg-white">
-            <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Title: </td>
-            <td style="width:88%;padding:3px" colspan="7" >
-              <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, FoundPaper.paperTitle)}">
-                {{FoundPaper.paperTitle}}
-              </span>
-            </td>
-          </tr>
-          <tr class="bg-white">
-            <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Author(s): </td>
-            <td style="width:88%;padding:3px" colspan="7">
-              <span style="padding: 3px 4px;"  [ngClass]="{'font-weight-bold alert-danger' : item && FoundPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">
-                {{FoundPaper.authors}}
-              </span>
-            </td>
-          </tr>
-          <tr class="bg-white">
-            <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Year: </td>
-            <td style="width:12%;padding:3px" colspan="1">
-              <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && FoundPaper.year.toString().trim() != item.year}">
-                {{FoundPaper.year}}
-              </span>
-            </td>
-            <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Journal: </td>
-            <td style="width:64%;padding:3px" colspan="5">
-              <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.parentTitle, FoundPaper.journal)}">
-                {{FoundPaper.journal}}
-              </span>
-            </td>
-          </tr>
-          <tr class="bg-white">
-            <td style="width:12%;padding:3px" class="alert-secondary">OA ID:</td>
-            <td style="width:12%;padding:3px" class="bg-white">{{FoundPaper.paperId}}</td>
-            <td style="width:12%;padding:3px" class="alert-secondary">Volume:</td>
-            <td style="width:12%;padding:3px">
-              <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, FoundPaper.volume)}">
-                {{FoundPaper.volume}}
-              </span>
-            </td>
-            <td style="width:12%;padding:3px" class="alert-secondary" bg-light>Issue:</td>
-            <td style="width:12%;padding:3px">
-              <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areTheFieldsDifferent(item.issue, FoundPaper.issue)}">
-                {{FoundPaper.issue}}
-              </span>
-            </td>
-            <td style="width:12%;padding:3px" class="alert-secondary" bg-light>Pages: </td>
-            <td style="width:16%;padding:3px">
-              <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, FoundPaper.firstPage, FoundPaper.lastPage)}">
-                {{GetPages(FoundPaper)}}
-              </span>
-            </td>
-          </tr>
-          <tr *ngIf="showAbstract">
+        <tr class="bg-white">
+          <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Title: </td>
+          <td style="width:88%;padding:3px" colspan="7">
+            <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, FoundPaper.paperTitle)}">
+              {{FoundPaper.paperTitle}}
+            </span>
+          </td>
+        </tr>
+        <tr class="bg-white">
+          <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Author(s): </td>
+          <td style="width:88%;padding:3px" colspan="7">
+            <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && FoundPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">
+              {{FoundPaper.authors}}
+            </span>
+          </td>
+        </tr>
+        <tr class="bg-white">
+          <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Year: </td>
+          <td style="width:12%;padding:3px" colspan="1">
+            <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && FoundPaper.year.toString().trim() != item.year}">
+              {{FoundPaper.year}}
+            </span>
+          </td>
+          <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Journal: </td>
+          <td style="width:64%;padding:3px" colspan="5">
+            <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.parentTitle, FoundPaper.journal)}">
+              {{FoundPaper.journal}}
+            </span>
+          </td>
+        </tr>
+        <tr class="bg-white">
+          <td style="width:12%;padding:3px" class="alert-secondary">OA ID:</td>
+          <td style="width:12%;padding:3px" class="bg-white">{{FoundPaper.paperId}}</td>
+          <td style="width:12%;padding:3px" class="alert-secondary">Volume:</td>
+          <td style="width:12%;padding:3px">
+            <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, FoundPaper.volume)}">
+              {{FoundPaper.volume}}
+            </span>
+          </td>
+          <td style="width:12%;padding:3px" class="alert-secondary" bg-light>Issue:</td>
+          <td style="width:12%;padding:3px">
+            <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areTheFieldsDifferent(item.issue, FoundPaper.issue)}">
+              {{FoundPaper.issue}}
+            </span>
+          </td>
+          <td style="width:12%;padding:3px" class="alert-secondary" bg-light>Pages: </td>
+          <td style="width:16%;padding:3px">
+            <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, FoundPaper.firstPage, FoundPaper.lastPage)}">
+              {{GetPages(FoundPaper)}}
+            </span>
+          </td>
+        </tr>
+        <tr class="bg-white">
+          <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">DOI: </td>
+          <td style="width:60%;padding:3px" colspan="5">
+            <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areDOIFieldsDifferent(item.doi, FoundPaper.doi)}">{{FoundPaper.doi}}</span>
+          </td>
+          <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Score: </td>
+          <td style="width:16%;padding:3px" colspan="1" class="alert alert-secondary">
+            N/A
+          </td>
+        </tr>
+        <ng-container *ngIf="showAbstract">
+          <tr>
             <td style="width:100%;padding:3px" colspan="8" class="bg-white">{{FoundPaper.abstract}}</td>
           </tr>
           <tr>
-
-            <td colspan="1">
-              Score:
-            </td>
-            <td colspan="3">
-              <div class="col-12 ">
-                0
-              </div>
-            </td>
-            <td colspan="1">
-              <div class="col-12 ">
-                Status:  -
-              </div>
-            </td>
-
-            <td colspan="3">
-              <div class="col-12">
-
-                Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaperFound(true)"
-                                                    type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
-                                                    [(ngModel)]="FoundPaper.manualTrueMatch" class="ml-3">
-              </div>
-              <div class="col-12 ">
-                Incorrect Match: <input (click)="UpdateMagPaperFound(false)"
-                                        type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
-                                        [(ngModel)]="FoundPaper.manualFalseMatch" class="ml-3">
-              </div>
-            </td>
+            <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
           </tr>
-          <tr>
-            <td colspan="8">
-              <table>
-                <tr>
-                  <td style="padding:0px">
-                    <div class="btn btn-sm btn-link text-left" (click)="GetMagPaperRef(FoundPaper.paperId)">
-                      <span style="font-size:small">View in OpenAlex Browser</span>
-                    </div>
-                  </td>
-                  <td style="padding:0px">
-                    <div class="btn btn-sm btn-link pull-right">
-                      <a href="https://openalex.org/works/W{{FoundPaper.paperId}}" target="_blank">
-                        <span style="font-size:small">View on the internet</span>
-                      </a>
-                    </div>
-                  </td>
-                  <td style="padding:0px">
-                    <div class="btn btn-sm btn-link text-left" (click)="enrichItemRecord(FoundPaper.paperId)">
-                      <span style="font-size:small">Enrich record with OpenAlex data</span>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
-          </tr>
+        </ng-container>
+        <tr>
+          <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
+        </tr>
+        <tr>
+          <td colspan="1"></td>
+          <td colspan="2"></td>
+          <td colspan="5">
+            <div class="col-12">
 
+              Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaperFound(true)"
+                                                  type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
+                                                  [(ngModel)]="FoundPaper.manualTrueMatch" class="ml-3">
+            </div>
+            <div class="col-12 ">
+              Incorrect Match: <input (click)="UpdateMagPaperFound(false)"
+                                      type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
+                                      [(ngModel)]="FoundPaper.manualFalseMatch" class="ml-3">
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="8">
+            <table>
+              <tr>
+                <td style="padding:0px">
+                  <div class="btn btn-sm btn-link text-left" (click)="GetMagPaperRef(FoundPaper.paperId)">
+                    <span style="font-size:small">View in OpenAlex Browser</span>
+                  </div>
+                </td>
+                <td style="padding:0px">
+                  <div class="btn btn-sm btn-link pull-right">
+                    <a href="https://openalex.org/works/W{{FoundPaper.paperId}}" target="_blank">
+                      <span style="font-size:small">View on the internet</span>
+                    </a>
+                  </div>
+                </td>
+                <td style="padding:0px">
+                  <div class="btn btn-sm btn-link text-left" (click)="enrichItemRecord(FoundPaper.paperId)">
+                    <span style="font-size:small">Enrich record with OpenAlex data</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
       </tbody>
     </table>
 
