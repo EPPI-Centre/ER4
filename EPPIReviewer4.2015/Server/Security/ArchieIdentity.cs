@@ -21,13 +21,11 @@ using System.Net;
 using System.IO;
 using System.Xml.Linq;
 using BusinessLibrary.BusinessClasses;
-
-#endif
-#if CSLA_NETCORE
-using Microsoft.Extensions.Configuration;
-#endif
-
 using Newtonsoft.Json;
+
+#endif
+
+
 
 
 namespace BusinessLibrary.Security
@@ -39,30 +37,6 @@ namespace BusinessLibrary.Security
     {
         public ArchieIdentity()
         { }
-
-        private static void BuildConfig()
-        {
-#if CSLA_NETCORE
-            Microsoft.Extensions.Configuration.IConfigurationBuilder builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder();
-            builder.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"));
-
-            RootConfig = builder.Build();
-#endif
-        }
-
-#if (!CSLA_NETCORE && !SILVERLIGHT)
-        System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
-#elif (CSLA_NETCORE && !SILVERLIGHT)
-        private static class ser
-        {
-            public static object DeserializeObject(string json)
-            {
-                var res = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-                return res;
-            }
-        }
-        private static IConfigurationRoot RootConfig; 
-#endif
 
         public static readonly PropertyInfo<string> ArchieIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieID", "ArchieID"));
         public string ArchieID
@@ -134,6 +108,20 @@ namespace BusinessLibrary.Security
         }
 
 #if !SILVERLIGHT
+
+        private static class ser
+        {
+            public static object DeserializeObjectToDictionary(string json)
+            {
+                var res = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                return res;
+            }
+            public static object DeserializeObject(string json)
+            {
+                var res = JsonConvert.DeserializeObject(json);
+                return res;
+            }
+        }
         //string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + "k45m19g80")).Trim();
         string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + CochraneOAuthSS)).Trim();
         internal static ArchieIdentity GetArchieIdentity(string code, string status)
@@ -224,7 +212,7 @@ namespace BusinessLibrary.Security
                         webc.Dispose();
                     }
                 }
-                dict = (Dictionary<string, object>)ser.DeserializeObject(json);
+                dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
                 if (dict.ContainsKey("access_token"))
                 {
                     Token = dict["access_token"].ToString();
@@ -334,67 +322,8 @@ namespace BusinessLibrary.Security
 
                         VerifyUserRoles();
                         if (IsAuthenticated) SaveTokens();
-                        //old CODE using TokenInfo, we now get info about the person instead (to check for membership)
-                        //WebClient ValidateWC = new WebClient();
-                        //ValidateWC.Headers[HttpRequestHeader.Authorization] = "Bearer " + authInfo;
-                        //nvcoll.Clear();
-                        //nvcoll.Add("access_token", Token);
-                        ////no need to get details?
-                        ////nvcoll.Add("detailed", "true");
-                        //dest = BaseAddress + "/oauth2/tokeninfo";
-                        //try
-                        //{
-                        //    byte[] responseArray = ValidateWC.UploadValues(dest, "POST", nvcoll);
-                        //    json = Encoding.ASCII.GetString(responseArray);
-                        //    ValidateWC.Dispose();
-                        //}
-                        //catch (WebException we)
-                        //{//if request is unsuccessful, we get an error inside the WebException
-                        //    WebResponse wr = we.Response;
-                        //    using (var reader = new StreamReader(wr.GetResponseStream()))
-                        //    {
-                        //        json = reader.ReadToEnd();
-                        //    }
-                        //}
-                        //dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-                        //if (dict.ContainsKey("error"))
-                        //{
-                        //    //Error = "Token Failed Validation: " + dict["error"].ToString();
-                        //    Token = "";//we just remove the token, reasons will be set below
-                        //    ValidUntil = DateTime.Now.AddDays(-1);
-                        //    //if (dict.ContainsKey("error_description"))
-                        //    //{
-                        //    //    ErrorReason = dict["error_description"].ToString();
-                        //    //}
-                        //}
-                        //else
-                        //{
-                        //    if (!dict.ContainsKey("user_name"))
-                        //    {//something is wrong, the tokeninfo call did not yeild the expected results
-                        //        Token = "";//we just remove the token, reasons will be set below
-                        //        ValidUntil = DateTime.Now.AddDays(-1);
-                        //    }
-                        //}
+                        
                     }
-
-                    //actually, none of the below should happen:
-                    //if Token is not present, this Ai is not authenticated, but the presence of ArchieID and Refresh token tell Ri that it's worth checking for an active ticket,
-                    //if an active ticket is there (and the user is trying to load a review), we can still trust this client.
-
-                    ////now we know if the token is fresh (younger than 60 minutes)
-                    //if ((Token == null || Token == "") && RefreshToken != null && RefreshToken.Length == 64
-                    //            && ArchieID != null && ArchieID != "")
-                    //{//not well! Token was expired, user may need to re-authenticate via UI, but we still want RI to get access to the ArchieID
-                    //    //when this is happening because the user is logging on a review with Code&State, we leave the refresh token in place to allow fetching a valid Ri 
-                    //    //object if and only if the current ticket is valid
-                    //    //RefreshToken = "";
-                    //    Token = "";
-                    //    //Error = "No Fresh Archie Token";
-                    //    //ErrorReason = "Saved token was expired";
-                    //    //ArchieID = "";
-                    //    //we don't wipe ArchieID because:
-                    //    //OK, archie Token is expired, but user might be changing review, so we can still trust him/her in case there is associated valid LogonTicket
-                    //}
                 }
             }
         }
@@ -408,7 +337,7 @@ namespace BusinessLibrary.Security
                 //But fisrt, check if it has some supervised role, otherwise it is a self-generated Cochrane account (open to anyone)
                 //in which case access should be denied.
 
-                string dest = BaseAddress + "rest/people/me";
+                string dest = AzureSettings.CochraneArchieBaseAddress + "rest/people/me";
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
                 HttpWebResponse response = null;
                 request.Method = "GET";
@@ -432,7 +361,7 @@ namespace BusinessLibrary.Security
                     }
                 }
                 //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
-                dict = (Dictionary<string, object>)ser.DeserializeObject(json);
+                dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
                 if (dict.ContainsKey("error"))
                 {
                     Error = "Token Failed Validation: " + dict["error"].ToString();
@@ -446,14 +375,8 @@ namespace BusinessLibrary.Security
                     string result = "";
                     if (dict.ContainsKey("groupRoles"))
                     {
-#if (CSLA_NETCORE)
                         Newtonsoft.Json.Linq.JArray meR = dict["groupRoles"] as Newtonsoft.Json.Linq.JArray;
-                        object[] roles = dict["groupRoles"] as object[];
                         foreach(Newtonsoft.Json.Linq.JToken role in meR)
-#else
-                        object[] roles = dict["groupRoles"] as object[];
-                        foreach (Dictionary<string, object> role in roles)
-#endif
                         {
                             if (role["name"].ToString().ToLower() != "possible contributor"
                                 && role["name"].ToString().ToLower() != "mailing list"
@@ -461,7 +384,7 @@ namespace BusinessLibrary.Security
                             {
                                 if (dict.ContainsKey("user"))
                                 {
-#if (CSLA_NETCORE)
+
                                     var userD = dict["user"]  as Newtonsoft.Json.Linq.JToken; 
                                     if (userD != null && userD["userId"] != null)
                                     {
@@ -470,17 +393,6 @@ namespace BusinessLibrary.Security
                                         break;
                                     }
                                     else result = "no userId for this person!";
-#else
-                                     Dictionary<string, object> userD = dict["user"] as Dictionary<string, object>;
-
-                                    if (userD.ContainsKey("userId"))
-                                    {
-                                        ArchieID = userD["userId"].ToString();
-                                        result = "OK";
-                                        break;
-                                    }
-                                    else result = "no userId for this person!";
-#endif
                                 }
                                 else
                                 {
@@ -675,7 +587,7 @@ namespace BusinessLibrary.Security
                     }
                 }
             }
-            dict = (Dictionary<string, object>)ser.DeserializeObject(json);
+            dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
             if (dict.ContainsKey("access_token"))
             {
                 Token = dict["access_token"].ToString();
@@ -887,14 +799,7 @@ namespace BusinessLibrary.Security
             if (!IsAuthenticated) return null;
             string dest = BaseAddress + PartialEndpoint;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
-            //WebClient webc = new WebClient();
-            //webc.Headers[HttpRequestHeader.Authorization] = "Bearer " + accessToken ;
-            //webc.Headers[HttpRequestHeader.ContentType] = "application/xml";
-            //foreach (KeyValuePair<string, string> KVP in parameters)
-            //{
-            //    nvcoll.Add(KVP.Key , KVP.Value);
-            //}
+            
             if (parameters != null && parameters.Count > 0)
             {
                 dest += "?";
@@ -916,12 +821,6 @@ namespace BusinessLibrary.Security
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
 
-
-
-            //// Write data
-            //Stream postStream = request.GetRequestStream();
-            //postStream.Write(byteArray, 0, byteArray.Length);
-            //postStream.Close();
 
             // Send Request & Get Response
             string json = "";
@@ -947,25 +846,73 @@ namespace BusinessLibrary.Security
                 }
             }
 
-
-            //try
-            //{
-            //    byte[] responseArray = webc.UploadValues(dest, "GET", nvcoll);
-            //    json = Encoding.ASCII.GetString(responseArray);
-            //}
-            //catch (WebException we)
-            //{//if request is unsuccessful, we get an error inside the WebException
-            //    WebResponse wr = we.Response;
-            //    using (var reader = new StreamReader(wr.GetResponseStream()))
-            //    {
-            //        json = reader.ReadToEnd();
-            //    }
-            //}
-            //Dictionary<string, object> dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-            //return dict;
             return XDocument.Parse(json);
         }
+        public object GetJson(string PartialEndpoint, List<KeyValuePair<string, string>> parameters, string ElementNameInResponse = "")
+        {
+            if (!IsAuthenticated) return null;
+            string dest = BaseAddress + PartialEndpoint;
+            System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
+            
+            if (parameters != null && parameters.Count > 0)
+            {
+                dest += "?";
+            }
+            bool First = true;
+            foreach (KeyValuePair<string, string> KVP in parameters)
+            {
+                if (!First)
+                {
+                    dest += "&";
 
+                }
+                else
+                {
+                    First = false;
+                }
+                dest += KVP.Key + "=" + KVP.Value;
+            }
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
+
+            // Send Request & Get Response
+            string json = "";
+            HttpWebResponse response = null;
+            request.Method = "GET";
+            request.MediaType = "application/json";
+            request.Headers.Add("Authorization", "Bearer " + Token);
+
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    json = reader.ReadToEnd();
+                }
+            }
+            catch (WebException we)
+            {
+                WebResponse wr = we.Response;
+                using (var reader = new StreamReader(wr.GetResponseStream()))
+                {
+                    json = reader.ReadToEnd();
+                }
+            }
+
+            
+            Dictionary<string, object> dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+            if (dict != null && dict["Reviews"] != null)
+            {
+                object toParse = dict["Reviews"];
+                if (toParse != null)
+                {
+                    var res = ser.DeserializeObject(toParse.ToString());
+                    return res;
+                }
+            }
+            return dict;
+            //return XDocument.Parse(json);
+        }
         public XDocument CheckOutReview(string ArchieReviewID)
         {
             if (!IsAuthenticated) return null;
@@ -1045,5 +992,5 @@ namespace BusinessLibrary.Security
         }
 #endif
 
-            }
-        }
+    }
+}

@@ -162,6 +162,7 @@ namespace BusinessLibrary.BusinessClasses
         public static string CochraneOAuthRedirectUri { get { return AppSettings["CochraneOAuthRedirectUri"]; } }
         public static string CochraneAPIBaseAddress { get { return AppSettings["CochraneAPIBaseAddress"]; } }
         public static string CochraneoAuthBaseAddress { get { return AppSettings["CochraneoAuthBaseAddress"]; } }
+        public static string CochraneArchieBaseAddress { get { return AppSettings["CochraneArchieBaseAddress"]; } }
 
 
 

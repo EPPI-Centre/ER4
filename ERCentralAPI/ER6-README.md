@@ -127,7 +127,7 @@ Importantly, the "callback" URL needs to be known and authorised on the Cochrane
 - `https://ssru38.ioe.ac.uk/ERx/ArchieCallBack` is what we used before "separating" Angular and API projects. Might be useful sometime in the future.
 - `https://ssru38.ioe.ac.uk:4200/ArchieCallBack` is the present one for ER6 in dev.
 
-## Summary of Config changes to make to make oAuth with Cochrane work:
+## Summary of Config changes to make oAuth with Cochrane work:
 1. change "launch" profile for the **Client** so to make it start the `SSRU38 (chrome)` debug target.
 1. In `[API root]\appsettings.Development.json` change the `clientURL` to `https://ssru38.ioe.ac.uk:4200`.
 1. in `\ER-Web-Client\package.json` change the `start` value to `ng serve --hmr --host ssru38.ioe.ac.uk --ssl`
