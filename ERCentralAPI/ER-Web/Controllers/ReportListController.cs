@@ -295,7 +295,23 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
-	}
+        [HttpPost("[action]")]
+        public IActionResult FetchReportAllCodingData([FromBody] SingleIntCriteria setId)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                ReportAllCodingCommand cmd = new ReportAllCodingCommand(setId.Value, false);
+                cmd = DataPortal.Execute<ReportAllCodingCommand>(cmd);
+                return Ok(cmd);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error with FetchReportAllCodingData", setId.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
+    }
 
 	public class ReportJSON
 	{

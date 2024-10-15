@@ -158,7 +158,33 @@ export class ConfigurableReportService extends BusyAwareService {
 			}
 		);
     }
+  FetchAllCodingReportDataBySet(setId: number): Promise<iReportAllCodingCommand | boolean> {
 
+    let body = JSON.stringify({ Value: setId });
+    this._BusyMethods.push("FetchReportAllCodingData");
+    return lastValueFrom(this._httpC.post<iReportAllCodingCommand>(this._baseUrl + 'api/ReportList/FetchReportAllCodingData',
+      body
+    )).then(
+      (result) => {
+        this.RemoveBusy("FetchReportAllCodingData");
+        //console.log("FetchStandardReport got:", result);
+        return result;
+
+      }, error => {
+        console.log('error in FetchAllCodingReportBySet error:', error);
+        this.RemoveBusy("FetchReportAllCodingData");
+        this.modalService.GenericError(error);
+        return false;
+      }
+    ).catch(
+      (error) => {
+        console.log('error in FetchAllCodingReportBySet catch:', error);
+        this.modalService.GenericError(error);
+        this.RemoveBusy("FetchReportAllCodingData");
+        return false;
+      }
+    );
+  }
 	CreateReport(rep: iConfigurableReport): Promise<iConfigurableReport | null> {
 		this._BusyMethods.push("CreateReport");
 
@@ -368,4 +394,39 @@ export class CommonReportFields {
 	orderByChoice: string = 'Short title';
 	itemsChoice: string = 'All selected items';
 
+}
+
+export interface iReportAllCodingCommand {
+  attributes: iMiniAtt[];
+  items: iMiniItem[];
+}
+export interface iMiniAtt {
+  attId: number;
+  attName: string;
+  fullPath: string;
+  isInReport: boolean;
+}
+export interface iMiniCoding {
+  itemAttId: number;
+  contactName: string;
+  armName: string;
+  isComplete: boolean;
+  infoBox: string;
+}
+export interface iMiniPDFatt {
+  docName: string;
+  page: number;
+  text: string;
+}
+export interface iMiniItem {
+  itemId: number;
+  title: string;
+  shortTitle: string;
+  state: string;
+  codingsList: iCodingByAttribute[];
+  outcomes: any[];
+}
+export interface iCodingByAttribute {
+  key: iMiniAtt;
+  value: iMiniCoding[];
 }
