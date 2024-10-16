@@ -183,6 +183,9 @@ public partial class AssignCredit : System.Web.UI.Page
                 {
                     newrow = dt.NewRow();
                     expiryDate = idr1["expiry_date"].ToString();
+
+                    expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+                    /*
                     if (expiryDate != "")
                     {
                         expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
@@ -206,7 +209,7 @@ public partial class AssignCredit : System.Web.UI.Page
                             //    idr1["site_lic_id"].ToString();
                         }
                     }
-
+                    */
                     newrow["CONTACT_ID"] = idr1["CONTACT_ID"].ToString();
                     newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString();
                     
