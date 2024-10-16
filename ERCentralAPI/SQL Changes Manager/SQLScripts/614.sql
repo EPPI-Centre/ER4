@@ -49,7 +49,7 @@ SET NOCOUNT ON
 	
 SET NOCOUNT OFF
 
-
+GO
 
 ------------------------------------------
 
@@ -142,6 +142,7 @@ end
 
 	
 SET NOCOUNT OFF
+GO
 
 
 

@@ -158,6 +158,14 @@ namespace BusinessLibrary.BusinessClasses
         public static string DeployRUser { get { return AppSettings["DeployRUser"]; } }
         public static string DeployRPassword { get { return AppSettings["DeployRPassword"]; } }
 
+        public static string CochraneOAuthSS { get { return AppSettings["CochraneOAuthSS"]; } }
+        public static string CochraneOAuthRedirectUri { get { return AppSettings["CochraneOAuthRedirectUri"]; } }
+        public static string CochraneAPIBaseAddress { get { return AppSettings["CochraneAPIBaseAddress"]; } }
+        public static string CochraneoAuthBaseAddress { get { return AppSettings["CochraneoAuthBaseAddress"]; } }
+        public static string CochraneArchieBaseAddress { get { return AppSettings["CochraneArchieBaseAddress"]; } }
+
+
+
         public static string tenantID { get { return AzureContReviewSettings["tenantID"]; } }
         public static string appClientId { get { return AzureContReviewSettings["appClientId"]; } }
         public static string appClientSecret { get { return AzureContReviewSettings["appClientSecret"]; } }

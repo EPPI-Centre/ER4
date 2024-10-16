@@ -270,6 +270,16 @@
                 type="button" class="btn btn-sm btn-outline-primary  ml-1 mr-1 py-0 my-1">
           <span class="k-icon k-i-save"></span>
         </button>
+        <button (click)="GetAndSaveJsonCodingReport(item)"
+                title="Save as Json (for data analysis)"
+                type="button" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">
+          <span class="k-icon k-i-save"></span>Json
+        </button>
+        <button (click)="GetAndSaveXLSCodingReport(item)"
+                title="Save as Excel"
+                type="button" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">
+          XLS
+        </button>
       </div>
     </div>
   </ng-template>

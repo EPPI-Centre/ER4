@@ -7,14 +7,16 @@ using Csla.Security;
 using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
+
 //using Csla.Validation;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using Csla.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -93,20 +95,36 @@ namespace BusinessLibrary.BusinessClasses
             //this is probably the only case: we have an ri, but no review/ticket, so we skip that check 
             if (_archieIdentity.IsAuthenticated)
             {
-                Dictionary<string, string> pars = new Dictionary<string, string>();
-                pars.Add("myRole", "Author");
-                pars.Add("published", "false");
-                XDocument reviews = _archieIdentity.GetXMLQuery("rest/reviews", pars);
-                foreach (XElement el in reviews.Elements().Elements("review"))
+                List<KeyValuePair<string, string>> pars =  new List<KeyValuePair<string, string>>();
+                pars.Add(new KeyValuePair<string, string>("q", "status:ACTIVE"));
+                pars.Add(new KeyValuePair<string, string>("q", "cochraneReview:true"));
+                pars.Add(new KeyValuePair<string, string>("myReviews", "true"));
+                Newtonsoft.Json.Linq.JArray reviews = (Newtonsoft.Json.Linq.JArray)_archieIdentity.GetJson("reviews", pars);
+                
+                if (reviews == null || reviews.Count == 0) 
                 {
-                    Add(ReadOnlyArchieReview.GetReadOnlyReview(el , _archieIdentity));
+                    RaiseListChangedEvents = true;
+                    IsReadOnly = true;
+                    return;
                 }
-                //one more thing: if the user is authenticated, but no reviews are coming from archie, we need to place an empty review 
-                //this will allow the list to report that user does not need to autheticate in Archie.
-                if (this.Count == 0)
+                foreach(JToken Jreview in reviews)
                 {
-                    Add(ReadOnlyArchieReview.GetReadOnlyReview(_archieIdentity));
+                    Add(ReadOnlyArchieReview.GetReadOnlyReview(Jreview, _archieIdentity));
                 }
+
+                RaiseListChangedEvents = true;
+                IsReadOnly = true;
+
+                //foreach (XElement el in reviews.Elements().Elements("review"))
+                //{
+                //    Add(ReadOnlyArchieReview.GetReadOnlyReview(el , _archieIdentity));
+                //}
+                ////one more thing: if the user is authenticated, but no reviews are coming from archie, we need to place an empty review 
+                ////this will allow the list to report that user does not need to autheticate in Archie.
+                //if (this.Count == 0)
+                //{
+                //    Add(ReadOnlyArchieReview.GetReadOnlyReview(_archieIdentity));
+                //}
             }
             
         }

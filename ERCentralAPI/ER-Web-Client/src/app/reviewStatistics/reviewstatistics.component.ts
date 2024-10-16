@@ -5,14 +5,16 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Criteria, ItemList } from '../services/ItemList.service';
 import { ItemListService } from '../services/ItemList.service'
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand, ReviewStatisticsCodeSet2, iReviewStatisticsReviewer2 } from '../services/codesetstatistics.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand, ReviewStatisticsCodeSet2, iReviewStatisticsReviewer2, iReviewStatisticsCodeSet2 } from '../services/codesetstatistics.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { saveAs } from '@progress/kendo-file-saver';
-import { ConfigurableReportService } from '../services/configurablereport.service';
+import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
+import { ConfigurableReportService, iReportAllCodingCommand } from '../services/configurablereport.service';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { Helpers } from '../helpers/HelperMethods';
+import { Workbook, WorkbookSheetColumn, WorkbookSheetRow, WorkbookSheetRowCell, WorkbookSheet } from "@progress/kendo-ooxml";
 
 
 @Component({
@@ -511,44 +513,146 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   }
 
 
-  public async GetAndSaveCodingReport(setStats: StatsCompletion) {
+  public async GetAndSaveCodingReport(setStats: ReviewStatisticsCodeSet2) {
     console.log("Asking for the report");
     let stringReport = await this.configurablereportServ.FetchAllCodingReportBySet(setStats.setId);
     if (stringReport != 'error') {
-      console.log("Got the report");
+      //console.log("Got the report");
       this.SaveAsHtml(stringReport, setStats.setName);
+    }
+  }
+  public async GetAndSaveJsonCodingReport(setStats: ReviewStatisticsCodeSet2) {
+    console.log("Asking for the report");
+    let jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
+    if (jsonVal != false) {
+      //console.log("Got the report");
+      this.SaveAsJson(JSON.stringify(jsonVal), setStats.setName);
     }
   }
   private saving: boolean = false;
   public SaveAsHtml(reportHTML: string, CodesetName: string) {
     if (reportHTML.length < 1) return;
     this.saving = true;
-    //console.log("Encoding the report, length:", reportHTML.length);
-    //let dataURI: string = "";
-    //if (reportHTML.length < 1000000) dataURI = "data:text/plain;base64," + encodeBase64(reportHTML);
-    //else {
-    //	let remaining = reportHTML.length;
-    //	let i: number = 0; const ChunkLength = 999999;
-    //	dataURI = "data:text/plain;base64,";
-    //	while (remaining > 0 && i < 10000) {
-    //		const end = remaining < ChunkLength ? reportHTML.length : (i + 1) * ChunkLength;  //((i + 1) * ChunkLength > reportHTML.length)
-    //		const tmp = reportHTML.substring(i * ChunkLength, end);
-    //		dataURI += encodeBase64(tmp);
-    //		console.log("Datauri l:", dataURI.length, i);
-    //		i++;
-    //		remaining = reportHTML.length - end;
-    //	}
-    //	console.log("in chunks", dataURI);
-    //	console.log("in one", "data:text/plain;base64," + encodeBase64(reportHTML));
-    //      }
-    //console.log("Saving the report");
-
-    //saveAs(dataURI, CodesetName + " full coding report.html");
     const b = new Blob([reportHTML], { type: 'text/html' });
     saveAs(b, CodesetName + " full coding report.html");
     this.saving = false;
   }
+  private SaveAsJson(JsonReport: string, CodesetName: string) {
+    //console.log("Save as Json, codesets: " + this.ItemCodingService.jsonReport.CodeSets.length + "; refs: " + this.ItemCodingService.jsonReport.References.length);
+    if (!JsonReport) {
+      console.log("Save as Json. Return (not jsonreport)");
+      return;
+    }
+    this.saving = true;
+    console.log("Save as Json. Encoding");
+    const dataURI = "data:text/plain;base64," + encodeBase64(JsonReport);
+    const blob = Helpers.dataURItoBlob(dataURI);
+    console.log("Savign json report...");//, dataURI)
+    saveAs(blob, "All coding for " + CodesetName + ".json");
+    this.saving = false;
+  }
+  public async GetAndSaveXLSCodingReport(setStats: ReviewStatisticsCodeSet2) {
+    console.log("Asking for the report");
+    let jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
+    if (jsonVal != false) {
+      this.ProduceXLSreport(jsonVal as iReportAllCodingCommand, setStats);
+    }
+  }
+  private ProduceXLSreport(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2) {
+    const workbook = new Workbook({
+      sheets: <WorkbookSheet[]>[{
+        name: "Codes",
+        columns: <WorkbookSheetColumn[]> [],
+        rows: []
+      }, {
+          name: "InfoBox",
+          columns: <WorkbookSheetColumn[]>[],
+          rows: []
+        }, {
+          name: "PDF coding",
+          columns: <WorkbookSheetColumn[]>[],
+          rows: []
+        }]
+    });
 
+    const ReviewerStats = setStats.reviewerStatistics;// as iReviewStatisticsCodeSet2[];
+    const NamesCells: WorkbookSheetRowCell[] = [];
+    const ReviewerNames: string[] = [];
+    for (let p of ReviewerStats) {
+      NamesCells.push({ value: p.contactName });
+      ReviewerNames.push(p.contactName);
+    }
+    let sheets = workbook.options.sheets;
+    if (!sheets) return;
+    let sheet1 = sheets[0];
+    if (!sheet1) return;
+    sheet1.rows?.push(this.BuildFirstRow(jsonData, setStats));
+    sheet1.rows?.push(this.BuildSecondRow(jsonData, setStats));
+    sheet1.rows?.push(this.BuildThirdRow(jsonData, setStats, NamesCells));
+    for (let i = 0; i < jsonData.items.length; i++) {
+      sheet1.rows?.push(
+        this.BuildDataRow(0, jsonData, setStats, i, ReviewerNames)
+      );
+    }
+    workbook.toDataURL().then((dataUrl) => {
+      saveAs(dataUrl, "Test.xlsx");
+    });
+  }
+  private BuildFirstRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2): WorkbookSheetRow {
+    const cell1: WorkbookSheetRowCell = { value: "ITEM_ID" };
+    const cell2: WorkbookSheetRowCell = { value: "Short Title" };
+    const cell3: WorkbookSheetRowCell = { value: "Full title", wrap: true };
+    const cell4: WorkbookSheetRowCell = { value: "I/E/D/S flag" };
+    const res: WorkbookSheetRow = { cells: [cell1, cell2, cell3, cell4] };
+    const NofReviewer = setStats.reviewerStatistics.length;
+    for (let code of jsonData.attributes) {
+      res.cells?.push({ value: code.attName, colSpan: NofReviewer });
+    }
+    return res;
+  }
+  private BuildSecondRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2): WorkbookSheetRow {
+    const cell1: WorkbookSheetRowCell = { value: "Full code path", colSpan: 4, textAlign: "right" };
+    const res: WorkbookSheetRow = { cells: [cell1] };
+    const NofReviewer = setStats.reviewerStatistics.length;
+    for (let code of jsonData.attributes) {
+      res.cells?.push({ value: code.fullPath, colSpan: NofReviewer });
+    }
+    return res;
+  }
+  private BuildThirdRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, NamesCells: WorkbookSheetRowCell[]): WorkbookSheetRow {
+    const cell1: WorkbookSheetRowCell = { value: "Full code path", colSpan: 4, textAlign: "right" };
+    const res: WorkbookSheetRow = { cells: [cell1] };
+    
+    for (let code of jsonData.attributes) {
+      res.cells?.push(...NamesCells);//spread operator! https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+    }
+    return res;
+  }
+  private BuildDataRow(SheetNumber: number, jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, ReviewerNames: string[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [] };
+    const item = jsonData.items[index];
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.shortTitle });
+    res.cells?.push({ value: item.state });
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let rId of ReviewerNames) {
+          const CodingFound = CodesFound.value.find(f => f.contactName == rId);
+          if (CodingFound) res.cells?.push({ value: 1 });
+          else res.cells?.push({ value: 0 });
+        }
+      }
+      else {
+        for (let rId of ReviewerNames) {
+          res.cells?.push({ value: 0 });
+        }
+      }
+    }
+    return res;
+  }
 
   ngOnDestroy() {
     //if (this.subOpeningReview) {

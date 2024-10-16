@@ -16,6 +16,7 @@ using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -201,6 +202,54 @@ namespace BusinessLibrary.BusinessClasses
             }
             return res;
         }
+        public static ReadOnlyArchieReview GetReadOnlyReview(JToken element, ArchieIdentity identity)
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            ReadOnlyArchieReview res = new ReadOnlyArchieReview();
+            res.LoadProperty(ReviewNameProperty, element["title"].ToString());
+            res.Identity = identity;
+            res.LoadProperty(ArchieReviewCDProperty, element["cdNumber"].ToString());
+            res.LoadProperty(checkedOutInArchieProperty, false);
+            res.LoadProperty(ArchieReviewIdProperty, element["reviewId"].ToString());
+            res.LoadProperty(StageProperty, element["stage"].ToString());
+            res.LoadProperty(StatusProperty, element["status"].ToString());
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ArchieReviewFindFromArchieID", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@A_ID", res.ArchieReviewId));
+                    command.Parameters.Add(new SqlParameter("@CID", ri.UserId));
+
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            int rid = reader.GetInt32("Review_ID");
+                            string nm = reader.GetString("REVIEW_NAME");
+                            res.LoadProperty<int>(ReviewIdProperty, rid);
+                            res.LoadProperty<string>(ReviewNameProperty, nm);
+                            res.LoadProperty<string>(ContactReviewRolesProperty, reader.GetString("ROLES"));
+                            //res.LoadProperty<string>(ReviewOwnerProperty, reader.GetString("OWNER"));
+                            res.LoadProperty<DateTime>(LastAccessProperty, reader.GetDateTime("LAST_ACCESS"));
+
+                            res.LoadProperty(isCheckedOutHereProperty, reader.GetBoolean("IS_CHECKEDOUT_HERE"));
+                            res.LoadProperty(isLocalProperty, true);
+                            res.LoadProperty(UserIsInReviewProperty, reader.GetInt32("CONTACT_IS_IN_REVIEW") == 1);
+                        }
+                        else
+                        {
+                            res.LoadProperty(isCheckedOutHereProperty, false);
+                            res.LoadProperty(isLocalProperty, false);
+                        }
+                    }
+                }
+            }
+            return res;
+        }
+
+
         public static ReadOnlyArchieReview GetReadOnlyReview(ArchieIdentity identity)
         {
             ReadOnlyArchieReview res = new ReadOnlyArchieReview();
