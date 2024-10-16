@@ -291,7 +291,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error with FetchReportAllCoding", setId.Value);
+				_logger.LogError(e, "Error with FetchReportAllCoding (setId={0})", setId.Value);
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -307,7 +307,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error with FetchReportAllCodingData", setId.Value);
+                _logger.LogError(e, "Error with FetchReportAllCodingData (setId={0})", setId.Value);
                 return StatusCode(500, e.Message);
             }
         }

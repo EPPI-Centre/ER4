@@ -11,8 +11,10 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using Csla.Data;
 
-#if!SILVERLIGHT
+
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
@@ -105,12 +107,12 @@ namespace BusinessLibrary.BusinessClasses
                             CurrAtt.IsInReport = true;
                             if (tmpItem.Codings.ContainsKey(CurrAtt))
                             {//we'll add the coding for this attribute to this item
-                                tmpItem.Codings[CurrAtt].Add(new MiniCoding(reader.GetInt64("ITEM_ATTRIBUTE_ID"), reader.GetString("ContactName"), reader.GetBoolean("Completed"), reader.GetString("ADDITIONAL_TEXT"), reader.GetString("ARM_NAME")));
+                                tmpItem.Codings[CurrAtt].Add(new MiniCoding(reader));
                             }
                             else
                             {// add new element in the dictionary, we don't have coding for this attribute in the current item...
                                 List<MiniCoding> vals = new List<MiniCoding>();
-                                vals.Add(new MiniCoding(reader.GetInt64("ITEM_ATTRIBUTE_ID"), reader.GetString("ContactName"), reader.GetBoolean("Completed"), reader.GetString("ADDITIONAL_TEXT"), reader.GetString("ARM_NAME")));
+                                vals.Add(new MiniCoding(reader));
                                 tmpItem.Codings.Add(CurrAtt, vals);
                             }
                         }
@@ -335,16 +337,18 @@ namespace BusinessLibrary.BusinessClasses
         {
             public long ItemAttId;
             public string ContactName;
+            public int ContactId;
             public string ArmName;
             public bool IsComplete;
             public string InfoBox;
-            public MiniCoding(long itemAttId, string contact, bool isComplete, string infoBox, string armName) 
+            public MiniCoding(SafeDataReader reader) 
             {
-                ItemAttId = itemAttId;
-                ContactName = contact;
-                IsComplete = isComplete;
-                InfoBox = infoBox;
-                ArmName = armName;
+                ItemAttId = reader.GetInt64("ITEM_ATTRIBUTE_ID");
+                ContactName = reader.GetString("ContactName"); 
+                ContactId = reader.GetInt32("ContactId");
+                IsComplete = reader.GetBoolean("Completed");
+                InfoBox = reader.GetString("ADDITIONAL_TEXT");
+                ArmName = reader.GetString("ARM_NAME");
                 PDF = new List<MiniPDFatt>();
             }
             public List<MiniPDFatt> PDF;//key is the ItemAttribute

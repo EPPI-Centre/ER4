@@ -409,9 +409,11 @@ export interface iMiniAtt {
 export interface iMiniCoding {
   itemAttId: number;
   contactName: string;
+  contactId: number;
   armName: string;
   isComplete: boolean;
   infoBox: string;
+  pdf: iMiniPDFatt[];
 }
 export interface iMiniPDFatt {
   docName: string;
