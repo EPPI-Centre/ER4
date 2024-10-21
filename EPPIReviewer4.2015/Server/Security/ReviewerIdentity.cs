@@ -314,7 +314,7 @@ namespace BusinessLibrary.Security
                     connection.Close();
                 }
             }
-            //!!!NOTE: this hasn't been proved to work in MVC world.
+            
             else if (criteria.ArchieState != "" 
                 && criteria.ArchieState != null
                 && criteria.ArchieCode != "" 
