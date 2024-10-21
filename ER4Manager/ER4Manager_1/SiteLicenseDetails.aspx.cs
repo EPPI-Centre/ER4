@@ -539,6 +539,10 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                 getOpenAIDetails();
                 lblInvalidID.Visible = false;
                 tbCreditPurchaseID.Text = "";
+                if (lbLicenseHistory.Text == "Hide")
+                {
+                    buildLicenseLogGrid();
+                }
             }
             else
             {
@@ -705,6 +709,10 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                 Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID,
                     Utils.GetSessionString("Contact_ID"), 0, lblSiteLicID.Text);
                 getOpenAIDetails();
+                if (lbLicenseHistory.Text == "Hide")
+                {
+                    buildLicenseLogGrid();
+                }
                 break;
 
             default:
