@@ -1,13 +1,15 @@
-<div class="w-100 h-100 pt-1">
+<div class="w-100 h-100 pt-1" style="min-height:140px;">
     <img class="float-right mx-2 mt-1" src="assets/EPPI-Reviewer logo v1.png" />
     <div *ngIf="Phase=='Start'" class="h-100  mx-1">
         Authenticating... please wait.
         <br /><button class="btn btn-outline-info" (click)="BackHome();">Back</button>
     </div>
-    <div *ngIf="Phase=='Error'" class="h-100 mx-1">
-        Our apologies, an error occurred:<br />
-        Error = {{Error}}
-        <br /><button class="btn btn-outline-info" (click)="BackHome();">Back</button>
+    <div *ngIf="Phase=='Error'" class="h-100 mx-1 row px-1">
+      <div class="col-12 mx-0 font-weight-bold">Our apologies, an error occurred:<br /></div>
+      <div class="col-12 mx-0 row" >
+        <div class="col-auto align-self-center px-1">Error = </div><div class="col alert-warning px-2 rounded" style="white-space: pre-line;" [innerHTML]="Error">
+      </div>
+      </div><button class="btn btn-outline-info px-2 rounded" (click)="BackHome();">Back</button>
     </div>
     <div *ngIf="Phase=='LinkOrCreateAccount'" class="h-100 rounded bg-light mx-1 p-1">
         <h2 class="text-primary ml-3">Welcome to EPPI-Reviewer</h2>

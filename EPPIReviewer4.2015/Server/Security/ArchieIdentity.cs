@@ -32,7 +32,7 @@ namespace BusinessLibrary.Security
 {
 
     [Serializable]
-    
+
     public class ArchieIdentity : BusinessBase<ArchieIdentity>
     {
         public ArchieIdentity()
@@ -237,49 +237,7 @@ namespace BusinessLibrary.Security
                 {
                     ErrorReason = dict["error_description"].ToString();
                 }
-                if (Error == "")
-                    //legacy code, used when all Cochrane accounts had legitimate access to ER4. We now use a != API call to learn who the user is and if it has access.
-                    //{
-                    //    //all data from first round trip to Archie is filled in, now, if user is authenticated, we need to find out who this person is
-                    //    WebClient ValidateWC = new WebClient();
-                    //    ValidateWC.Headers[HttpRequestHeader.Authorization] = "Bearer " + authInfo;
-                    //    nvcoll.Clear();
-                    //    nvcoll.Add("access_token", Token);
-                    //    nvcoll.Add("detailed", "true");
-                    //    dest = BaseAddress + "/oauth2/tokeninfo";
-                    //    try
-                    //    {
-                    //        byte[] responseArray = ValidateWC.UploadValues(dest, "POST", nvcoll);
-                    //        json = Encoding.ASCII.GetString(responseArray);
-                    //        ValidateWC.Dispose();
-                    //    }
-                    //    catch (WebException we)
-                    //    {//if request is unsuccessful, we get an error inside the WebException
-                    //        WebResponse wr = we.Response;
-                    //        using (var reader = new StreamReader(wr.GetResponseStream()))
-                    //        {
-                    //            json = reader.ReadToEnd();
-                    //        }
-                    //    }
-                    //    dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-                    //    if (dict.ContainsKey("error"))
-                    //    {
-                    //        Error = "Token Failed Validation: " + dict["error"].ToString();
-                    //        if (dict.ContainsKey("error_description"))
-                    //        {
-                    //            ErrorReason = dict["error_description"].ToString();
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        if (dict.ContainsKey("user_id"))
-                    //        {
-                    //            ArchieID = dict["user_id"].ToString();
-                    //            SaveTokens();
-                    //        }
-                    //    }
-                    //}
-                    VerifyUserRoles();
+                if (Error == "") VerifyUserRoles();
                 if (IsAuthenticated) SaveTokens();
             }
             else
@@ -322,28 +280,30 @@ namespace BusinessLibrary.Security
 
                         VerifyUserRoles();
                         if (IsAuthenticated) SaveTokens();
-                        
+
                     }
                 }
             }
         }
 
-        
+
         private void VerifyUserRoles()
         {
             {
-                //all data from first round trip to Archie is filled in, 
-                //now, if user is authenticated, we need to find out who this person is.
-                //But fisrt, check if it has some supervised role, otherwise it is a self-generated Cochrane account (open to anyone)
-                //in which case access should be denied.
-
-                string dest = AzureSettings.CochraneArchieBaseAddress + "rest/people/me";
+                //all data from first round trip to Cochrane (oAuth) is filled in, 
+                //now, if user is authenticated, we need to check if user has some supervised role, otherwise it is a self-generated Cochrane account (open to anyone)
+                //in which case access should be denied. 
+                // IsAuthenticated property will return false if we wipe out the token and refresh token values...
+                
+                string dest = AzureSettings.CochraneAccountBaseAddress + "api/me";
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
                 HttpWebResponse response = null;
                 request.Method = "GET";
-                request.MediaType = "application/xml";
+                request.MediaType = "application/json";
                 request.Headers.Add("Authorization", "Bearer " + Token);
-                string json = ""; Dictionary<string, object> dict;
+                string result = "";//used internally to decide what to do
+                string json = ""; 
+                Dictionary<string, object> dict;
                 try
                 {
                     response = (HttpWebResponse)request.GetResponse();
@@ -354,73 +314,140 @@ namespace BusinessLibrary.Security
                 }
                 catch (WebException we)
                 {//if request is unsuccessful, we get an error inside the WebException
-                    WebResponse wr = we.Response;
-                    using (var reader = new StreamReader(wr.GetResponseStream()))
+                    bool handled = false;
+                    if (we.Message == "The remote server returned an error: (401).")
                     {
-                        json = reader.ReadToEnd();
+                        handled = true;
+                        result = "Authentication failed";
                     }
-                }
-                //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
-                dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
-                if (dict.ContainsKey("error"))
-                {
-                    Error = "Token Failed Validation: " + dict["error"].ToString();
-                    if (dict.ContainsKey("error_description"))
+                    else if (we.Response != null)
                     {
-                        ErrorReason = dict["error_description"].ToString();
-                    }
-                }
-                else
-                {
-                    string result = "";
-                    if (dict.ContainsKey("groupRoles"))
-                    {
-                        Newtonsoft.Json.Linq.JArray meR = dict["groupRoles"] as Newtonsoft.Json.Linq.JArray;
-                        foreach(Newtonsoft.Json.Linq.JToken role in meR)
+                        WebResponse wr = we.Response;
+                        using (var reader = new StreamReader(wr.GetResponseStream()))
                         {
-                            if (role["name"].ToString().ToLower() != "possible contributor"
-                                && role["name"].ToString().ToLower() != "mailing list"
-                                && role["name"].ToString().ToLower() != "other")
+                            if (reader != null)
                             {
-                                if (dict.ContainsKey("user"))
+                                json = reader.ReadToEnd();
+                                if (json != "")
                                 {
-
-                                    var userD = dict["user"]  as Newtonsoft.Json.Linq.JToken; 
-                                    if (userD != null && userD["userId"] != null)
+                                    dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+                                    if (dict != null && dict.ContainsKey("error"))
                                     {
-                                        ArchieID = userD["userId"].ToString();
-                                        result = "OK";
-                                        break;
+                                        handled = true;
+                                        result = "Error, already handled";
+                                        Error = "Token Failed Validation: " + dict["error"].ToString();
+                                        if (dict.ContainsKey("error_description"))
+                                        {
+                                            ErrorReason = dict["error_description"].ToString();
+                                        }
                                     }
-                                    else result = "no userId for this person!";
-                                }
-                                else
-                                {
-                                    result = "no user Info returned!";
-                                    break;
                                 }
                             }
                         }
                     }
-                    if (result != "OK")
+                    if (handled == false)
                     {
-                        Token = "";
-                        RefreshToken = "";
-                        ValidUntil = DateTime.Now.AddMonths(-1);
-                        if (result == "")
-                        {
-                            Error = "Access denied, not an Author";
-                            ErrorReason = "No suitable groupRoles found";
-                        }
-                        else
-                        {
-                            Error = "Access denied, can't verify";
-                            ErrorReason = "The call to rest/people/me returned data, but " + result;
-                        }
-
+                        result = we.Message;
                     }
-
                 }
+
+                CochraneAccount ca = JsonConvert.DeserializeObject<CochraneAccount>(json);
+                
+
+                //check for error in the response
+
+                //check for user details, does it have the isCochraneAuthor value set to true?
+                if (ca == null && result == "") result = "Did not receive Cochrane Account details";
+                else if (ca != null && ca.isCochraneAuthor == true)
+                {
+                    result = "OK";
+                    ArchieID = ca.cochraneId;
+                }
+                else result = "Not a Cochrane Author";
+
+                if (result != "OK")
+                {
+                    Token = "";
+                    RefreshToken = "";
+                    ValidUntil = DateTime.Now.AddMonths(-1);
+                    if (result == "Not a Cochrane Author")
+                    {
+                        Error = "Access denied";
+                        ErrorReason = "Not a Cochrane Author";
+                    }
+                    else if (result != "Error, already handled")
+                    {
+                        Error = "Access denied, can't verify";
+                        ErrorReason = "The call to rest/people/me returned data, but " + result;
+                    }
+                    else
+                    {
+                        Error = "User verfication failed unexpectedly";
+                        ErrorReason = result;
+                    }
+                }
+                //old code use for Archie, which is dead/dying as of Oct 2024
+                ////System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
+                //dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+                //if (dict.ContainsKey("error"))
+                //{
+                //    Error = "Token Failed Validation: " + dict["error"].ToString();
+                //    if (dict.ContainsKey("error_description"))
+                //    {
+                //        ErrorReason = dict["error_description"].ToString();
+                //    }
+                //}
+                //else
+                //{
+                //    string result = "";
+                //    if (dict.ContainsKey("groupRoles"))
+                //    {
+                //        Newtonsoft.Json.Linq.JArray meR = dict["groupRoles"] as Newtonsoft.Json.Linq.JArray;
+                //        foreach (Newtonsoft.Json.Linq.JToken role in meR)
+                //        {
+                //            if (role["name"].ToString().ToLower() != "possible contributor"
+                //                && role["name"].ToString().ToLower() != "mailing list"
+                //                && role["name"].ToString().ToLower() != "other")
+                //            {
+                //                if (dict.ContainsKey("user"))
+                //                {
+
+                //                    var userD = dict["user"] as Newtonsoft.Json.Linq.JToken;
+                //                    if (userD != null && userD["userId"] != null)
+                //                    {
+                //                        ArchieID = userD["userId"].ToString();
+                //                        result = "OK";
+                //                        break;
+                //                    }
+                //                    else result = "no userId for this person!";
+                //                }
+                //                else
+                //                {
+                //                    result = "no user Info returned!";
+                //                    break;
+                //                }
+                //            }
+                //        }
+                //    }
+                //    if (result != "OK")
+                //    {
+                //        Token = "";
+                //        RefreshToken = "";
+                //        ValidUntil = DateTime.Now.AddMonths(-1);
+                //        if (result == "")
+                //        {
+                //            Error = "Access denied, not an Author";
+                //            ErrorReason = "No suitable groupRoles found";
+                //        }
+                //        else
+                //        {
+                //            Error = "Access denied, can't verify";
+                //            ErrorReason = "The call to rest/people/me returned data, but " + result;
+                //        }
+
+                //    }
+
+                //}
             }
         }
         private ArchieIdentity(string code, string status, int ContactID)
@@ -642,7 +669,7 @@ namespace BusinessLibrary.Security
             //    && ArchieID != null && ArchieID != "")
             if (Token != null && Token.Length >= 30 && RefreshToken != null && RefreshToken.Length >= 30
                 && ArchieID != null && ArchieID != "")
-                {//we can do something
+            {//we can do something
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
@@ -742,7 +769,7 @@ namespace BusinessLibrary.Security
             get { return _ValidUntil; }
             private set { _ValidUntil = value; }
         }
-        
+
         private string BaseAddress
         {
             get
@@ -756,7 +783,7 @@ namespace BusinessLibrary.Security
             }
         }
 
-        
+
         private static string oAuthBaseAddress
         {
             get
@@ -774,7 +801,7 @@ namespace BusinessLibrary.Security
             get
             {
                 string res = AzureSettings.CochraneOAuthSS;
-                if (res == null || res == "") 
+                if (res == null || res == "")
                 {
                     throw new Exception("No Cochrane client secret!");
                 }
@@ -786,7 +813,7 @@ namespace BusinessLibrary.Security
             get
             {
                 string res = AzureSettings.CochraneOAuthRedirectUri;
-                if (res == null || res == "") 
+                if (res == null || res == "")
                 {
                     throw new Exception("No redirect URL value!");
                 }
@@ -799,7 +826,7 @@ namespace BusinessLibrary.Security
             if (!IsAuthenticated) return null;
             string dest = BaseAddress + PartialEndpoint;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            
+
             if (parameters != null && parameters.Count > 0)
             {
                 dest += "?";
@@ -853,7 +880,7 @@ namespace BusinessLibrary.Security
             if (!IsAuthenticated) return null;
             string dest = BaseAddress + PartialEndpoint;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            
+
             if (parameters != null && parameters.Count > 0)
             {
                 dest += "?";
@@ -899,7 +926,7 @@ namespace BusinessLibrary.Security
                 }
             }
 
-            
+
             Dictionary<string, object> dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
             if (dict != null && dict["Reviews"] != null)
             {
@@ -989,6 +1016,20 @@ namespace BusinessLibrary.Security
             }
             res = "Done";
             return res;
+        }
+
+        private class CochraneAccount
+        {
+            public string cochraneId { get; set; } = "";
+            public string prefix { get; set; } = "";
+            public string firstName { get; set; } = "";
+            public string middleInitial { get; set; } = "";
+            public string lastName { get; set; } = "";
+            public string suffix { get; set; } = "";
+            public string country { get; set; } = "";
+            public string membershipStatus { get; set; } = "";
+            public bool isCochraneAuthor { get; set; } = false;
+            public bool isCochraneCore { get; set; } = false;
         }
 #endif
 

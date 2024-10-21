@@ -254,7 +254,8 @@ export class ReviewerIdentityService implements OnDestroy {
                 fakeResult.name = '{ERROR: In API Call}';
                 if (error && error.status) {
                     if (error.status && error.status == 403) {
-                        fakeResult.ticket = "Login Failed";
+                      if (error.error == "") fakeResult.ticket = "Login Failed";
+                      else fakeResult.ticket = "Login Failed. " + error.error;
                     }
                     else {
                         fakeResult.ticket = "Unexpected error" + (error.status ? " (" + error.status + ")" : "")

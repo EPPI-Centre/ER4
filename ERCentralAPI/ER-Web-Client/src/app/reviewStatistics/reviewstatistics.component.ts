@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Criteria, ItemList } from '../services/ItemList.service';
-import { ItemListService } from '../services/ItemList.service'
+import { ItemListService, StringKeyValue } from '../services/ItemList.service';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand, ReviewStatisticsCodeSet2, iReviewStatisticsReviewer2, iReviewStatisticsCodeSet2 } from '../services/codesetstatistics.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -14,7 +14,10 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { ConfigurableReportService, iReportAllCodingCommand } from '../services/configurablereport.service';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Helpers } from '../helpers/HelperMethods';
-import { Workbook, WorkbookSheetColumn, WorkbookSheetRow, WorkbookSheetRowCell, WorkbookSheet } from "@progress/kendo-ooxml";
+import {
+  Workbook, WorkbookSheetColumn, WorkbookSheetRow, WorkbookSheetRowCell, WorkbookSheet
+  , WorkbookSheetRowCellBorderBottom, WorkbookSheetRowCellBorderLeft, WorkbookSheetRowCellBorderRight, WorkbookSheetRowCellBorderTop
+} from "@progress/kendo-ooxml";
 
 
 @Component({
@@ -555,72 +558,130 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     console.log("Asking for the report");
     let jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
     if (jsonVal != false) {
+      this.saving = true;
       this.ProduceXLSreport(jsonVal as iReportAllCodingCommand, setStats);
+      //this.saving = false;
     }
   }
   private ProduceXLSreport(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2) {
     const workbook = new Workbook({
       sheets: <WorkbookSheet[]>[{
-        name: "Codes",
+        name: "Codes (whole study)",
         columns: <WorkbookSheetColumn[]> [],
         rows: []
       }, {
-          name: "InfoBox",
-          columns: <WorkbookSheetColumn[]>[],
-          rows: []
+        name: "InfoBox (whole study)",
+        columns: <WorkbookSheetColumn[]>[],
+        rows: []
         }, {
-          name: "PDF coding",
-          columns: <WorkbookSheetColumn[]>[],
-          rows: []
+        name: "PDF coding (whole study)",
+        columns: <WorkbookSheetColumn[]>[],
+        rows: []
         }]
     });
 
     const ReviewerStats = setStats.reviewerStatistics;// as iReviewStatisticsCodeSet2[];
     const NamesCells: WorkbookSheetRowCell[] = [];
-    const ReviewerNames: string[] = [];
+    const Reviewers: StringKeyValue[] = [];
     for (let p of ReviewerStats) {
-      NamesCells.push({ value: p.contactName });
-      ReviewerNames.push(p.contactName);
+      NamesCells.push({ value: p.contactName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+      Reviewers.push(new StringKeyValue(p.contactId.toString(), p.contactName));
     }
     let sheets = workbook.options.sheets;
     if (!sheets) return;
     let sheet1 = sheets[0];
-    if (!sheet1) return;
-    sheet1.rows?.push(this.BuildFirstRow(jsonData, setStats));
-    sheet1.rows?.push(this.BuildSecondRow(jsonData, setStats));
-    sheet1.rows?.push(this.BuildThirdRow(jsonData, setStats, NamesCells));
+    let sheet2 = sheets[1];
+    let sheet3 = sheets[2];
+
+    const sheet3ColCount = 4 + (NamesCells.length * jsonData.attributes.length);
+    
+    for (let i = 0; i < sheet3ColCount; i++) {
+      const AutoColumn: WorkbookSheetColumn = { autoWidth: false, width : 70};
+      sheet3.columns?.push(AutoColumn);
+    }
+
+    let tmpRow = this.BuildFirstRow(jsonData, setStats);
+    sheet1.rows?.push(tmpRow);
+    sheet2.rows?.push(tmpRow);
+    sheet3.rows?.push(tmpRow);
+
+    tmpRow = this.BuildSecondRow(jsonData, setStats);
+    sheet1.rows?.push(tmpRow);
+    sheet2.rows?.push(tmpRow);
+    sheet3.rows?.push(tmpRow);
+
+    tmpRow = this.BuildThirdRow(jsonData, setStats, NamesCells);
+    sheet1.rows?.push(tmpRow);
+    sheet2.rows?.push(tmpRow);
+    sheet3.rows?.push(tmpRow);
+
+    sheet1.frozenColumns = 3;
+    sheet1.frozenRows = 3;
+    sheet2.frozenColumns = 3;
+    sheet2.frozenRows = 3;
+    sheet3.frozenColumns = 3;
+    sheet3.frozenRows = 3;
+
     for (let i = 0; i < jsonData.items.length; i++) {
       sheet1.rows?.push(
-        this.BuildDataRow(0, jsonData, setStats, i, ReviewerNames)
+        this.BuildWholeStudyDataRow( jsonData, setStats, i, Reviewers)
+      );
+      sheet2.rows?.push(
+        this.BuildWholeStudyInfoBoxRow(jsonData, setStats, i, Reviewers)
+      );
+      sheet3.rows?.push(
+        this.BuildWholeStudyPDFRow(jsonData, setStats, i, Reviewers)
       );
     }
+    if (workbook && workbook.options && workbook.options.sheets && workbook.options.sheets[2] && workbook.options.sheets[2].columns) {
+      for (let i = 3; i < workbook.options.sheets[2].columns.length; i++) {
+        if (workbook
+          && workbook.options
+          && workbook.options.sheets
+          && workbook.options.sheets[2]
+          && workbook.options.sheets[2].rows
+          && workbook.options.sheets[2].rows[2]
+          && workbook.options.sheets[2].rows[2].cells
+          && workbook.options.sheets[2].rows[2].cells[i])
+          if (workbook.options.sheets[2].rows[2].cells[i].value != undefined) {
+            const val = workbook.options.sheets[2].rows[2].cells[i].value;
+            if (val) workbook.options.sheets[2].columns[i].width = val.toString().length * 8.2;
+          }
+      }
+    }
     workbook.toDataURL().then((dataUrl) => {
-      saveAs(dataUrl, "Test.xlsx");
+      saveAs(dataUrl, "All coding for " + setStats.setName + ".xlsx");
+      this.saving = false;
     });
   }
+  private readonly borderBottom: WorkbookSheetRowCellBorderBottom = { size :1};
+  private readonly borderLeft: WorkbookSheetRowCellBorderLeft = { size: 1 };
+  private readonly borderTop: WorkbookSheetRowCellBorderTop = { size: 1 };
+  private readonly borderRight: WorkbookSheetRowCellBorderRight = { size: 1 };
+
   private BuildFirstRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2): WorkbookSheetRow {
-    const cell1: WorkbookSheetRowCell = { value: "ITEM_ID" };
-    const cell2: WorkbookSheetRowCell = { value: "Short Title" };
-    const cell3: WorkbookSheetRowCell = { value: "Full title", wrap: true };
-    const cell4: WorkbookSheetRowCell = { value: "I/E/D/S flag" };
+    const cell1: WorkbookSheetRowCell = { value: "ITEM_ID", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell2: WorkbookSheetRowCell = { value: "Short Title", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell3: WorkbookSheetRowCell = { value: "Full title", wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell4: WorkbookSheetRowCell = { value: "I/E/D/S flag", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const res: WorkbookSheetRow = { cells: [cell1, cell2, cell3, cell4] };
     const NofReviewer = setStats.reviewerStatistics.length;
     for (let code of jsonData.attributes) {
-      res.cells?.push({ value: code.attName, colSpan: NofReviewer });
+      res.cells?.push({ value: code.attName, colSpan: NofReviewer, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
     }
     return res;
   }
   private BuildSecondRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2): WorkbookSheetRow {
-    const cell1: WorkbookSheetRowCell = { value: "Full code path", colSpan: 4, textAlign: "right" };
+    const cell1: WorkbookSheetRowCell = { value: "Full code path", colSpan: 4, textAlign: "right", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const res: WorkbookSheetRow = { cells: [cell1] };
     const NofReviewer = setStats.reviewerStatistics.length;
     for (let code of jsonData.attributes) {
-      res.cells?.push({ value: code.fullPath, colSpan: NofReviewer });
+      res.cells?.push({ value: code.fullPath, colSpan: NofReviewer, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
     }
     return res;
   }
   private BuildThirdRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, NamesCells: WorkbookSheetRowCell[]): WorkbookSheetRow {
-    const cell1: WorkbookSheetRowCell = { value: "Full code path", colSpan: 4, textAlign: "right" };
+    const cell1: WorkbookSheetRowCell = { value: "Full code path", colSpan: 4, textAlign: "right", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const res: WorkbookSheetRow = { cells: [cell1] };
     
     for (let code of jsonData.attributes) {
@@ -628,29 +689,102 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     }
     return res;
   }
-  private BuildDataRow(SheetNumber: number, jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, ReviewerNames: string[]): WorkbookSheetRow {
+  private BuildWholeStudyDataRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
     const res: WorkbookSheetRow = { cells: [] };
     const item = jsonData.items[index];
     res.cells?.push({ value: item.itemId });
-    res.cells?.push({ value: item.title });
     res.cells?.push({ value: item.shortTitle });
+    res.cells?.push({ value: item.title });
     res.cells?.push({ value: item.state });
 
     for (let code of jsonData.attributes) {
       const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
       if (CodesFound) {
-        for (let rId of ReviewerNames) {
-          const CodingFound = CodesFound.value.find(f => f.contactName == rId);
-          if (CodingFound) res.cells?.push({ value: 1 });
+        for (let rId of reviewers) {
+          const CodingFound = CodesFound.value.find(f => f.contactId.toString() == rId.key);
+          if (CodingFound && CodingFound.armName == "") {
+            if (CodingFound.isComplete) res.cells?.push({ value: 1, background: "#ddffdd" });
+            else res.cells?.push({ value: 1, background: "#dddddd" });
+          }
           else res.cells?.push({ value: 0 });
         }
       }
       else {
-        for (let rId of ReviewerNames) {
+        for (let rId of reviewers) {
           res.cells?.push({ value: 0 });
         }
       }
     }
+    return res;
+  }
+  private BuildWholeStudyInfoBoxRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [] };
+    const item = jsonData.items[index];
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let rId of reviewers) {
+          const CodingFound = CodesFound.value.find(f => f.contactId.toString() == rId.key);
+          if (CodingFound && CodingFound.armName == "") {
+            if (CodingFound.isComplete) res.cells?.push({ value: CodingFound.infoBox, background: "#ddffdd" });
+            else res.cells?.push({ value: CodingFound.infoBox, background: "#dddddd" });
+          }
+          else res.cells?.push({ value: "" });
+        }
+      }
+      else {
+        for (let rId of reviewers) {
+          res.cells?.push({ value: "" });
+        }
+      }
+    }
+    return res;
+  }
+  public readonly rx: RegExp = /<br \/>/g;
+  public readonly rx2: RegExp = /\r\n|\r|\n/g;
+  private BuildWholeStudyPDFRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [], height:22 };
+    const item = jsonData.items[index];
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+    let maxLines: number = 0; let cellLines = 0
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (const rId of reviewers) {
+          cellLines = 0;
+          const CodingFound = CodesFound.value.find(f => f.contactId.toString() == rId.key);
+          if (CodingFound && CodingFound.armName == ""
+            && CodingFound.pdf && CodingFound.pdf.length > 0) {
+            let cellString = "";
+            for (const p of CodingFound.pdf) {
+              cellString += "[" + p.docName + ", pg: " + p.page + "] " + p.text.replace(this.rx, "\r\n");
+              if (cellString != "") cellString += "\r\n------\r\n"; 
+            }
+            if (cellString.endsWith("\r\n------\r\n")) cellString = cellString.substring(0, cellString.length - 12);
+            if (CodingFound.isComplete) res.cells?.push({ value: cellString, wrap: true, background: "#ddffdd" });
+            else res.cells?.push({ value: cellString, wrap: true, background: "#dddddd" });
+              
+            cellLines = cellString.split(this.rx2).length;
+            if (cellLines > maxLines) maxLines = cellLines;
+          }
+          else res.cells?.push({ value: "" });
+        }
+      }
+      else {
+        for (const rId of reviewers) {
+          res.cells?.push({ value: "" });
+        }
+      }
+    }
+    if (maxLines > 0 && res.height) res.height = (res.height + 8) * maxLines;
     return res;
   }
 
