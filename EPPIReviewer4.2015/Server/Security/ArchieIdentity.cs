@@ -315,7 +315,7 @@ namespace BusinessLibrary.Security
                 catch (WebException we)
                 {//if request is unsuccessful, we get an error inside the WebException
                     bool handled = false;
-                    if (we.Message == "The remote server returned an error: (401).")
+                    if (we.Message == "The remote server returned an error: (401) .")
                     {
                         handled = true;
                         result = "Authentication failed";
@@ -335,11 +335,16 @@ namespace BusinessLibrary.Security
                                     {
                                         handled = true;
                                         result = "Error, already handled";
-                                        Error = "Token Failed Validation: " + dict["error"].ToString();
+                                        Error = "VerifyUserRoles Failed: " + dict["error"].ToString();
                                         if (dict.ContainsKey("error_description"))
                                         {
                                             ErrorReason = dict["error_description"].ToString();
                                         }
+                                        if (dict.ContainsKey("status"))
+                                        {
+                                            Error += " (" + dict["status"].ToString() + ")";
+                                        }
+                                        
                                     }
                                 }
                             }
@@ -347,21 +352,30 @@ namespace BusinessLibrary.Security
                     }
                     if (handled == false)
                     {
-                        result = we.Message;
+                        result = "error";
+                        if (we.Message != "") Error = we.Message;
+                        else result = Error = "Unknown Error";
                     }
                 }
 
-                CochraneAccount ca = JsonConvert.DeserializeObject<CochraneAccount>(json);
-                
+                CochraneAccount ca = new CochraneAccount();
+                if (result == "")//we put a val here only on error
+                {
+                    ca = JsonConvert.DeserializeObject<CochraneAccount>(json);
+                }
 
                 //check for error in the response
 
                 //check for user details, does it have the isCochraneAuthor value set to true?
-                if (ca == null && result == "") result = "Did not receive Cochrane Account details";
-                else if (ca != null && ca.isCochraneAuthor == true)
+                if (ca.cochraneId == "" && result == "") result = "Did not receive Cochrane Account details";
+                else if (ca != null)
                 {
-                    result = "OK";
-                    ArchieID = ca.cochraneId;
+                    if (ca.isCochraneAuthor == true)
+                    {
+                        result = "OK";
+                        ArchieID = ca.cochraneId;
+                    }
+                    else result = "Not a Cochrane Author";
                 }
                 else result = "Not a Cochrane Author";
 
