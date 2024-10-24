@@ -114,19 +114,14 @@ namespace BusinessLibrary.BusinessClasses
 
                 RaiseListChangedEvents = true;
                 IsReadOnly = true;
-
-                //foreach (XElement el in reviews.Elements().Elements("review"))
-                //{
-                //    Add(ReadOnlyArchieReview.GetReadOnlyReview(el , _archieIdentity));
-                //}
-                ////one more thing: if the user is authenticated, but no reviews are coming from archie, we need to place an empty review 
-                ////this will allow the list to report that user does not need to autheticate in Archie.
-                //if (this.Count == 0)
-                //{
-                //    Add(ReadOnlyArchieReview.GetReadOnlyReview(_archieIdentity));
-                //}
+                //one more thing: if the user is authenticated, but no reviews are coming from archie, we need to place an empty review 
+                //this will allow the list to report that user does not need to autheticate in Archie.
+                if (this.Count == 0)
+                {
+                    Add(ReadOnlyArchieReview.GetReadOnlyReview(_archieIdentity));
+                }
             }
-            
+
         }
         private void DataPortal_Fetch(ReadOnlyArchieReviewListCriteria criteria)
         {//this is used when both the Archie tokens for this user are expired, user re-authenticates on client, sends code and status back

@@ -37,13 +37,13 @@ export class ArchieCallBackComponent implements OnInit {
             //this is an error managed on the API call handler, condition above is the signal for it
             console.log("Back into LoginViaArchieReq callback:", 2, res.name, res.ticket);
 
-            if (res.ticket == "Login Failed. Error: Access denied\r\nNot a Cochrane Author") {
+            if (res.ticket == "Login Failed. Error: Access denied.\r\nNot a Cochrane Author.") {
               this.Error = "Authentication failed.\r\n"
                 + "<strong>Your Cochrane account does not qualify for EPPI Reviewer licensing.</strong> \r\n"
                 + "To gain access to EPPI Reviewer you need to be recognised as a \"Cochrane Author\".\r\n"
             } else {
-              this.Error = "Authentication failed with an error. " + res.name.substr(1, res.name.length - 2) + ". Error details are: " + res.ticket;
-              this.Error += " Please try again. If the error persists, please contact EPPISupport@ucl.ac.uk.";
+              this.Error = "Authentication failed with an error. " + res.name.substr(1, res.name.length - 2) + ".<br /> Error details are: " + res.ticket;
+              this.Error += "<br />Please try again. If the error persists, please contact EPPISupport@ucl.ac.uk.";
             }
             this.Phase = "Error";
           }
