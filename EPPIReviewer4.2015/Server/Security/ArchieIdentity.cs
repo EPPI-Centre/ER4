@@ -113,13 +113,27 @@ namespace BusinessLibrary.Security
         {
             public static object DeserializeObjectToDictionary(string json)
             {
-                var res = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-                return res;
+                try
+                {
+                    var res = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                    return res;
+                }
+                catch
+                {
+                    return null;
+                }
             }
             public static object DeserializeObject(string json)
             {
-                var res = JsonConvert.DeserializeObject(json);
-                return res;
+                try
+                {
+                    var res = JsonConvert.DeserializeObject(json);
+                    return res;
+                }
+                catch
+                {
+                    return null;
+                }
             }
         }
         //string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + "k45m19g80")).Trim();
@@ -213,6 +227,11 @@ namespace BusinessLibrary.Security
                     }
                 }
                 dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+                if (dict == null)
+                {
+                    MarkAuthenticationFailed("Access denied, could not obtain Access tokens.", "The request failed with an unexpected error.");
+                    return;
+                }
                 if (dict.ContainsKey("access_token"))
                 {
                     Token = dict["access_token"].ToString();
@@ -314,14 +333,15 @@ namespace BusinessLibrary.Security
                 }
                 catch (WebException we)
                 {//if request is unsuccessful, we get an error inside the WebException
-                    bool handled = false;
-                    if (we.Message == "The remote server returned an error: (401).")
+                    if (we.Message.StartsWith("The remote server returned an error: (401)"))
                     {
-                        handled = true;
-                        result = "Authentication failed";
+                        MarkAuthenticationFailed("Access denied, could not verify user roles", "The request to verify roles was not authorised.");                        
+                        return;
                     }
                     else if (we.Response != null)
                     {
+                        string error = "Access denied, could not verify user roles.";
+                        string errDescr = "";
                         WebResponse wr = we.Response;
                         using (var reader = new StreamReader(wr.GetResponseStream()))
                         {
@@ -333,59 +353,41 @@ namespace BusinessLibrary.Security
                                     dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
                                     if (dict != null && dict.ContainsKey("error"))
                                     {
-                                        handled = true;
-                                        result = "Error, already handled";
-                                        Error = "Token Failed Validation: " + dict["error"].ToString();
-                                        if (dict.ContainsKey("error_description"))
+                                        errDescr = dict["error"].ToString();
+                                        if (dict.ContainsKey("status"))
                                         {
-                                            ErrorReason = dict["error_description"].ToString();
+                                            errDescr += " (" + dict["status"].ToString() + ")";
                                         }
+                                        MarkAuthenticationFailed(error, errDescr);
+                                        return;
                                     }
                                 }
                             }
                         }
                     }
-                    if (handled == false)
-                    {
-                        result = we.Message;
-                    }
+                    MarkAuthenticationFailed("Access denied, could not verify user roles.", "The request to verify roles failed unexpectedly.");
+                    return;
                 }
-
-                CochraneAccount ca = JsonConvert.DeserializeObject<CochraneAccount>(json);
+                //if we've reached this point, we should have a CochraneAccount serialised in the response contents
+                CochraneAccount ca = new CochraneAccount();
+                ca = JsonConvert.DeserializeObject<CochraneAccount>(json);
                 
-
-                //check for error in the response
-
+                if (ca == null || ca.cochraneId == "") 
+                {
+                    MarkAuthenticationFailed("Access denied, could not verify user roles.", "Did not receive a valid Cochrane User for verification.");
+                    return;
+                }
                 //check for user details, does it have the isCochraneAuthor value set to true?
-                if (ca == null && result == "") result = "Did not receive Cochrane Account details";
-                else if (ca != null && ca.isCochraneAuthor == true)
+                if (ca.isCochraneAuthor == true)
                 {
-                    result = "OK";
                     ArchieID = ca.cochraneId;
+                    return;
                 }
-                else result = "Not a Cochrane Author";
-
-                if (result != "OK")
+                else
                 {
-                    Token = "";
-                    RefreshToken = "";
-                    ValidUntil = DateTime.Now.AddMonths(-1);
-                    if (result == "Not a Cochrane Author")
-                    {
-                        Error = "Access denied";
-                        ErrorReason = "Not a Cochrane Author";
-                    }
-                    else if (result != "Error, already handled")
-                    {
-                        Error = "Access denied, can't verify";
-                        ErrorReason = "The call to rest/people/me returned data, but " + result;
-                    }
-                    else
-                    {
-                        Error = "User verfication failed unexpectedly";
-                        ErrorReason = result;
-                    }
+                    MarkAuthenticationFailed("Access denied.", "Not a Cochrane Author.");
                 }
+
                 //old code use for Archie, which is dead/dying as of Oct 2024
                 ////System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
                 //dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
@@ -449,6 +451,13 @@ namespace BusinessLibrary.Security
 
                 //}
             }
+        }
+        private void MarkAuthenticationFailed(string error, string errorReason)
+        {
+            Token = "";
+            RefreshToken = "";
+            Error = error;
+            ErrorReason = errorReason;
         }
         private ArchieIdentity(string code, string status, int ContactID)
         {//this is used to create the identity using values in TB_UNASSIGNED_ARCHIE_KEYS
@@ -615,6 +624,10 @@ namespace BusinessLibrary.Security
                 }
             }
             dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+            if (dict == null)
+            {
+                MarkAuthenticationFailed("Access denied, failed to refresh access token.", "The request failed with an unexpected error.");
+            }
             if (dict.ContainsKey("access_token"))
             {
                 Token = dict["access_token"].ToString();
@@ -820,7 +833,12 @@ namespace BusinessLibrary.Security
                 return res;
             }
         }
-
+        /// <summary>
+        /// DEPRECATED - Archie used to provide answers in XML, but Archie is dead (dying as of Oct 2024), and the new API provides answers in JSON
+        /// </summary>
+        /// <param name="PartialEndpoint"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public XDocument GetXMLQuery(string PartialEndpoint, Dictionary<string, string> parameters)
         {
             if (!IsAuthenticated) return null;
@@ -875,7 +893,7 @@ namespace BusinessLibrary.Security
 
             return XDocument.Parse(json);
         }
-        public object GetJson(string PartialEndpoint, List<KeyValuePair<string, string>> parameters, string ElementNameInResponse = "")
+        public object GetJson(string PartialEndpoint, List<KeyValuePair<string, string>> parameters)
         {
             if (!IsAuthenticated) return null;
             string dest = BaseAddress + PartialEndpoint;

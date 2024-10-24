@@ -37,12 +37,14 @@ export class ConfigurableReportService extends BusyAwareService {
 	}
 	public get ReportCollectionOutcomes(): iConfigurableReport[] | null {
 		return this._ReportList.filter(x => x.reportType == 'Answer');
-	}  
-	public FetchReports() {
+  }
 
+  public reportAllCodingCommandOptions: ReportAllCodingCommandOptions = new ReportAllCodingCommandOptions();
+
+	public FetchReports() {
 		this._BusyMethods.push("FetchReports");
-		this._httpC.get<iConfigurableReport[]>(this._baseUrl + 'api/ReportList/FetchReports')
-			.subscribe(result => {
+    lastValueFrom(this._httpC.get<iConfigurableReport[]>(this._baseUrl + 'api/ReportList/FetchReports')).then
+			(result => {
 
 				this._ReportList = result;
 				this.RemoveBusy("FetchReports");
@@ -50,7 +52,6 @@ export class ConfigurableReportService extends BusyAwareService {
 				this.RemoveBusy("FetchReports");
 				this.modalService.GenericErrorMessage(error);
 			}
-
 		);
 	}
 	FetchStandardReport(args: ReportStandard): Promise<string> {
@@ -431,4 +432,68 @@ export interface iMiniItem {
 export interface iCodingByAttribute {
   key: iMiniAtt;
   value: iMiniCoding[];
+}
+export class ReportAllCodingCommandOptions {
+  private _labelForCompletedCoding: string = "1";
+  private _labelForIncompleteCoding: string = "0";
+  private _labelForNoCoding: string = "";
+  private _saveLabelsAsNumbers: boolean = true;
+  public get labelForCompletedCoding(): string {
+    if (this.UseOnlyColourCodingForCompletion) {
+      return "1";
+    }
+    else return this._labelForCompletedCoding;
+  }
+  public set labelForCompletedCoding(val: string) {
+    this._labelForCompletedCoding = val;
+  }
+  public get labelForIncompleteCoding(): string {
+    if (this.UseOnlyColourCodingForCompletion) {
+      return "1";
+    }
+    else return this._labelForIncompleteCoding;
+  }
+  public set labelForIncompleteCoding(val: string) {
+    this._labelForIncompleteCoding = val;
+  }
+  public get labelForNoCoding(): string {
+    if (this.UseOnlyColourCodingForCompletion) {
+      return "0";
+    }
+    else return this._labelForNoCoding;
+  }
+  public set labelForNoCoding(val: string) {
+    this._labelForNoCoding = val;
+  }
+  public get DisableLabels(): boolean {
+    if (this.UseOnlyColourCodingForCompletion) return true;
+    else return false;
+  }
+  public get saveLabelsAsNumbers(): boolean {
+    if (this.LabelsAreNumbers) {
+      return this._saveLabelsAsNumbers;
+    }
+    else return false;
+  }
+  public set saveLabelsAsNumbers(val: boolean) {
+    this._saveLabelsAsNumbers = val;
+  }
+  public get LabelsAreNumbers(): boolean {
+    //console.log(this.isNumeric(this.labelForCompletedCoding), this.isNumeric(this.labelForIncompleteCoding), this.isNumeric(this.labelForNoCoding));
+    if (!this.isNumeric(this.labelForCompletedCoding) && this.labelForCompletedCoding != "") return false;
+    if (!this.isNumeric(this.labelForIncompleteCoding) && this.labelForIncompleteCoding != "") return false;
+    if (!this.isNumeric(this.labelForNoCoding) && this.labelForNoCoding != "") return false;
+    return true;
+  }
+  private isNumeric(str: string) {
+    //adapted from https://stackoverflow.com/a/175787
+    if (typeof str != "string") return false // we only process strings!  
+    return !isNaN(+str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+      !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+  }
+  public linesSeparator: string = "------";
+  UseOnlyColourCodingForCompletion: boolean = true;
+  showFullTitle: boolean = false;
+  includeArms: boolean = true;
+  includeOutcomes: boolean = false;
 }

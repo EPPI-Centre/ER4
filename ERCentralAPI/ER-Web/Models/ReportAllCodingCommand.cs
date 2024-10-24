@@ -168,11 +168,11 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+            Attributes = Attributes.FindAll(f => f.IsInReport == true);
             if (_buildReport) BuildReport();
         }
         private void BuildReport()
         {
-            Attributes = Attributes.FindAll(f => f.IsInReport == true);
             _result = "<HTML><head><title>Full Comparison Report</title>";
             string commonstyle = @"<style>
                                     br { mso-data-placement: same-cell;}  

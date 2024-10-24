@@ -66,7 +66,7 @@ namespace EppiReviewer4
                             txtArchieMsg.Text = "Invalid login. Please try again.";
                             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                             //txtArchieMsg.Text = ri.Ticket;
-                            if (ri.Ticket != null && (ri.Ticket.IndexOf("Error: Access denied, not an Author") == 0 || ri.Ticket.IndexOf("Error: Access denied, can't verify") == 0))
+                            if (ri.Ticket != null && (ri.Ticket.IndexOf("Not a Cochrane Author.") > -1))
                             {//specific error, stuff worked user did authenticate, but user isn't a Cochrane author, so we will explain why this is happening
                                 StackPanel sp = new StackPanel();
                                 sp.Orientation = Orientation.Vertical;
