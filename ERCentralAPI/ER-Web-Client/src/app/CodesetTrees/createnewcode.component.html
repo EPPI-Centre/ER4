@@ -69,7 +69,7 @@
       <input *ngIf="!commaSeparatedEntry" type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
              [(ngModel)]="NewCode.attribute_name" name="attribute_name">
       <input *ngIf="commaSeparatedEntry" type="text" class="form-control" id="AttNames" [disabled]="!CurrentCodeCanHaveChildren"
-             [(ngModel)]="NewCode.attribute_name" name="attribute_names" placeholder="Enter comma separated code names" >
+             [(ngModel)]="NewCode.attribute_name" name="attribute_names" placeholder="Enter comma separated codes" >
       <span *ngIf="!IsNewCodeNameValid() && NewCodeFromCollaborate.dirty"
             class="alert alert-danger small p-1">
         Name is required
