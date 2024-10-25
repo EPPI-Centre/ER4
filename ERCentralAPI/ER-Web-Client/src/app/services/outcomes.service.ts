@@ -31,7 +31,17 @@ export class OutcomesService extends BusyAwareService {
   public ReviewSetOutcomeList: ReviewSetDropDownResult[] = [];
   public ReviewSetControlList: ReviewSetDropDownResult[] = [];
   public ReviewSetInterventionList: ReviewSetDropDownResult[] = [];
-  
+
+  public readonly OutcomeTypeList: OutcomeType[] = [
+    { "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
+    { "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
+    { "outcomeTypeId": 2, "outcomeTypeName": "Binary: 2 x 2 table" },
+    { "outcomeTypeId": 3, "outcomeTypeName": "Continuous: N, Mean, and SE" },
+    { "outcomeTypeId": 4, "outcomeTypeName": "Continuous: N, Mean, and CI" },
+    { "outcomeTypeId": 5, "outcomeTypeName": "Continuous: N, t- or p-value" },
+    { "outcomeTypeId": 6, "outcomeTypeName": "Diagnostic test: 2 x 2 table" },
+    { "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
+  ];
   public get currentOutcomeHasChanges(): boolean {
     const curr = this.currentOutcome;
     const un = this.UnchangedOutcome;

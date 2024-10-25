@@ -5,6 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { EventEmitterService } from './EventEmitter.service';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
+import { iOutcome } from './outcomes.service';
 
 @Injectable({
     providedIn: 'root',
@@ -427,11 +428,20 @@ export interface iMiniItem {
   shortTitle: string;
   state: string;
   codingsList: iCodingByAttribute[];
-  outcomes: any[];
+  outcomesLists: iMaxiOutcomeKvp[];
 }
 export interface iCodingByAttribute {
   key: iMiniAtt;
   value: iMiniCoding[];
+}
+export interface iMaxiOutcomeKvp {
+  key: number;
+  value: iMaxiOutcome[];
+}
+export interface iMaxiOutcome {
+  isComplete: boolean;
+  contactName: string;
+  outcome: iOutcome;
 }
 export class ReportAllCodingCommandOptions {
   private _labelForCompletedCoding: string = "1";

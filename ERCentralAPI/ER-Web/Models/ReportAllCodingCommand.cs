@@ -383,12 +383,21 @@ namespace BusinessLibrary.BusinessClasses
             public string State;
             [NonSerialized()]
             public Dictionary<MiniAtt, List<MiniCoding>> Codings;
+
+            [NonSerialized()]
             public Dictionary<int, List<MaxiOutcome>> Outcomes; //int is the contact ID
             public List<KeyValuePair<MiniAtt, List<MiniCoding>>> CodingsList 
             {
                 get
                 {
                     return this.Codings.ToList();
+                }
+            }
+            public List<KeyValuePair<int, List<MaxiOutcome>>> OutcomesLists
+            {
+                get
+                {
+                    return this.Outcomes.ToList();
                 }
             }
         }

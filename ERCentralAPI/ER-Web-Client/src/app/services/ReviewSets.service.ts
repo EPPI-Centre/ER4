@@ -649,7 +649,7 @@ export class ReviewSet implements singleNode {
   public get NumberOfChildren(): number {
     let countSoFar: number = 0;
     for (const A of this.attributes) {
-      console.log("In set", countSoFar, A.name, A.attribute_id, A.parent_attribute_id);
+      //console.log("In set", countSoFar, A.name, A.attribute_id, A.parent_attribute_id);
       countSoFar++;
       countSoFar = A.NumberOfChildren(countSoFar);
     }
@@ -712,7 +712,7 @@ export class SetAttribute implements singleNode {
   extType: string = "";
   public NumberOfChildren(countSoFar: number = 0): number {
     for (const A of this.attributes) {
-      console.log("In att", countSoFar, A.name, A.attribute_id, A.parent_attribute_id);
+      //console.log("In att", countSoFar, A.name, A.attribute_id, A.parent_attribute_id);
       countSoFar++;
       countSoFar = A.NumberOfChildren(countSoFar);
     }

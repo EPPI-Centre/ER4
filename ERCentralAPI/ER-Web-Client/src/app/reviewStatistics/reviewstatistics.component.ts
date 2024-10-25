@@ -18,6 +18,7 @@ import {
   Workbook, WorkbookSheetColumn, WorkbookSheetRow, WorkbookSheetRowCell, WorkbookSheet
   , WorkbookSheetRowCellBorderBottom, WorkbookSheetRowCellBorderLeft, WorkbookSheetRowCellBorderRight, WorkbookSheetRowCellBorderTop
 } from "@progress/kendo-ooxml";
+import { OutcomesService } from '../services/outcomes.service';
 
 
 @Component({
@@ -37,6 +38,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     private confirmationDialogService: ConfirmationDialogService,
     private _reviewInfoService: ReviewInfoService,
     private _notificationService: NotificationService,
+    private _OutcomesService: OutcomesService,
     private configurablereportServ: ConfigurableReportService
   ) {
 
@@ -693,13 +695,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     let sheet4: WorkbookSheet = {};
     let sheet5: WorkbookSheet = {};
     let sheet6: WorkbookSheet = {};
+    let outcomesSheet: WorkbookSheet = {};
 
     if (this.AllCodingReportOptions.includeArms) {
       sheet4 = sheets[3];
       sheet5 = sheets[4];
       sheet6 = sheets[5];
     }
-
     const sheet3ColCount = 4 + (NamesCells.length * jsonData.attributes.length);
     
     for (let i = 0; i < sheet3ColCount; i++) {
@@ -778,6 +780,12 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         sheet4.rows?.push(
           this.BuildArmsDataRow(jsonData, setStats, i, Reviewers)
         );
+        sheet5.rows?.push(
+          this.BuildArmsInfoBoxDataRow(jsonData, setStats, i, Reviewers)
+        );
+        sheet6.rows?.push(
+          this.BuildArmsPDFDataRow(jsonData, setStats, i, Reviewers)
+        ); 
       }
     }
     if (workbook && workbook.options && workbook.options.sheets && workbook.options.sheets[2] && workbook.options.sheets[2].columns) {
@@ -795,6 +803,12 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
             if (val) workbook.options.sheets[2].columns[i].width = val.toString().length * 8.2;
           }
       }
+    }
+    if (this.AllCodingReportOptions.includeOutcomes) {
+      outcomesSheet = sheets[sheets.length - 1];
+      outcomesSheet.frozenRows = 1;
+      outcomesSheet.frozenColumns = 3;
+      this.BuildOutcomesSheet(jsonData, outcomesSheet);
     }
     workbook.toDataURL().then((dataUrl) => {
       saveAs(dataUrl, "All coding for " + setStats.setName + ".xlsx");
@@ -832,7 +846,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   private BuildThirdRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, NamesCells: WorkbookSheetRowCell[]): WorkbookSheetRow {
     let cSpan: number = 3;
     if (this.AllCodingReportOptions.showFullTitle) cSpan = 4;
-    const cell1: WorkbookSheetRowCell = { value: "Full code path", colSpan: cSpan, textAlign: "right", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell1: WorkbookSheetRowCell = { value: "Reviewers:", colSpan: cSpan, textAlign: "right", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const res: WorkbookSheetRow = { cells: [cell1] };
     
     for (let code of jsonData.attributes) {
@@ -1047,10 +1061,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
             let CellContent: string = "";
             let BgString: string = "";
             if (CodingFound[0].isComplete) {
-              CellContent += CompCodingVal + LinesSep;
+              if (CompCodingVal != "") CellContent += CompCodingVal + LinesSep;
               BgString = "#d0ffd0";
             } else {
-              CellContent += IncompCodingVal + LinesSep;
+              if (IncompCodingVal != "") CellContent += IncompCodingVal + LinesSep;
               BgString = "#dddddd";
             }
 
@@ -1068,7 +1082,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
             })
           }
           else res.cells?.push({
-            value: NoCodingVal
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
             , borderLeft: (i == 0 ? { size: 1 } : undefined)
             , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
           });
@@ -1078,7 +1092,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         for (let i = 0; i < reviewers.length; i++) {
           let rId = reviewers[i];
           res.cells?.push({
-            value: NoCodingVal
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
             , borderLeft: (i == 0 ? { size: 1 } : undefined)
             , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
           });
@@ -1089,6 +1103,265 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     return res;
   }
 
+  private BuildArmsInfoBoxDataRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [], height: 22 };
+    const item = jsonData.items[index];
+    const LinesSep = "\r\n" + this.AllCodingReportOptions.linesSeparator + "\r\n";
+    let CompCodingVal: string | number = this.AllCodingReportOptions.labelForCompletedCoding;
+    let IncompCodingVal: string | number = this.AllCodingReportOptions.labelForIncompleteCoding;
+    let NoCodingVal: string | number = this.AllCodingReportOptions.labelForNoCoding;
+    if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+      CompCodingVal = ""; IncompCodingVal = "";
+    }
+    else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
+      CompCodingVal = +CompCodingVal;
+      IncompCodingVal = +IncompCodingVal;
+      NoCodingVal = +NoCodingVal;
+    }
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+
+    let maxLines: number = 0; let cellLines = 0;
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          cellLines = 0;
+          const CodingFound = CodesFound.value.filter(f => f.contactId.toString() == rId.key && f.armName != "" && f.infoBox.trim() != "");
+          if (CodingFound && CodingFound.length > 0) {
+            let CellContent: string = "";
+            let BgString: string = "";
+            if (CodingFound[0].isComplete) {
+              if (CompCodingVal != "") CellContent += CompCodingVal + LinesSep;
+              BgString = "#d0ffd0";
+            } else {
+              if (IncompCodingVal != "") CellContent += IncompCodingVal + LinesSep;
+              BgString = "#dddddd";
+            }
+
+            for (const ArmCoding of CodingFound) {
+              CellContent += ArmCoding.armName + ":\r\n" + ArmCoding.infoBox + LinesSep;
+            }
+
+            cellLines = CellContent.split(this.rx2).length;
+            if (CellContent.endsWith(LinesSep)) CellContent = CellContent.substring(0, CellContent.length - LinesSep.length);
+            if (cellLines > maxLines) maxLines = cellLines;
+            res.cells?.push({
+              value: CellContent, background: BgString, wrap: true
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            })
+          }
+          else res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+      else {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+    }
+    if (maxLines > 0 && res.height) res.height = (res.height) * maxLines;
+    return res;
+  }
+  private BuildArmsPDFDataRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [], height: 22 };
+    const item = jsonData.items[index];
+    const LinesSep = "\r\n" + this.AllCodingReportOptions.linesSeparator + "\r\n";
+    let CompCodingVal: string | number = this.AllCodingReportOptions.labelForCompletedCoding;
+    let IncompCodingVal: string | number = this.AllCodingReportOptions.labelForIncompleteCoding;
+    let NoCodingVal: string | number = this.AllCodingReportOptions.labelForNoCoding;
+    if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+      CompCodingVal = ""; IncompCodingVal = "";
+    }
+    else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
+      CompCodingVal = +CompCodingVal;
+      IncompCodingVal = +IncompCodingVal;
+      NoCodingVal = +NoCodingVal;
+    }
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+
+    let maxLines: number = 0; let cellLines = 0;
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          cellLines = 0;
+          const CodingFound = CodesFound.value.filter(f => f.contactId.toString() == rId.key && f.armName != "");
+          if (CodingFound && CodingFound.length > 0) {
+            let CellContent: string = "";
+            let perPdfContent: string = "";
+            let BgString: string = "";
+            if (CodingFound[0].isComplete) {
+              if (CompCodingVal != "") CellContent += CompCodingVal + LinesSep;
+              BgString = "#d0ffd0";
+            } else {
+              if (IncompCodingVal != "") CellContent += IncompCodingVal + LinesSep;
+              BgString = "#dddddd";
+            }
+            for (const ArmCoding of CodingFound) {
+              if (ArmCoding && ArmCoding.pdf && ArmCoding.pdf.length > 0) {
+                perPdfContent = "";
+                perPdfContent += "Arm name: " + ArmCoding.armName + "\r\n";
+                for (const p of ArmCoding.pdf) {
+                  perPdfContent += "[" + p.docName + ", pg: " + p.page + "] " + p.text.replace(this.rx, "\r\n");
+                  if (perPdfContent != "") perPdfContent += LinesSep;
+                }
+                if (perPdfContent != "") CellContent += perPdfContent;
+              }
+            }
+
+            cellLines = CellContent.split(this.rx2).length;
+            if (CellContent.endsWith(LinesSep)) CellContent = CellContent.substring(0, CellContent.length - LinesSep.length);
+            if (cellLines > maxLines) maxLines = cellLines;
+            res.cells?.push({
+              value: CellContent, background: BgString, wrap: true
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            });
+          }
+          else res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+      else {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+    }
+    if (maxLines > 0 && res.height) res.height = (res.height) * maxLines;
+    return res;
+  }
+
+  private BuildOutcomesSheet(jsonData: iReportAllCodingCommand, sheet: WorkbookSheet) {
+    const ItemsWithOutcomes = jsonData.items.filter(f => f.outcomesLists.length > 0);
+    if (ItemsWithOutcomes.length == 0) return;
+
+    //we have data to show, so we do...
+    const cell1: WorkbookSheetRowCell = { value: "ITEM_ID", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell2: WorkbookSheetRowCell = { value: "Short Title", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell3: WorkbookSheetRowCell = { value: "Reviewer", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell4: WorkbookSheetRowCell = { value: "IsCompleted", wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell5: WorkbookSheetRowCell = { value: "Full title", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const headers: WorkbookSheetRow = { cells: [cell1, cell2, cell3, cell4] };
+    if (this.AllCodingReportOptions.showFullTitle) headers.cells?.push(cell5);
+    
+    headers.cells?.push({ value: "I/E/D/S flag", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    
+    headers.cells?.push({ value: "Outcome title", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Outcome description", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Timepoint", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Outcome", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Intervention", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Comparison", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Arm 1", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Arm 2", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Outcome type", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 1", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 2", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 3", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 4", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 5", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 6", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 7", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 8", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 9", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 10", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 11", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 12", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 13", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 14", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "ES", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "SE", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Outcome Codes", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    sheet.rows?.push(headers);
+    
+    for (const item of ItemsWithOutcomes) {
+      for (const PerUserOutcome of item.outcomesLists) {
+        for (const val of PerUserOutcome.value) {
+          const row: WorkbookSheetRow = { cells: [], height: 22 };
+          row.cells?.push({ value: item.itemId, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: item.shortTitle, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.contactName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.isComplete, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          if (this.AllCodingReportOptions.showFullTitle) row.cells?.push({ value: item.title, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+
+          row.cells?.push({ value: item.state, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+
+          row.cells?.push({ value: val.outcome.title, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.outcomeDescription, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.timepointDisplayValue, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.outcomeText, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.interventionText, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.controlText, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.grp1ArmName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.grp2ArmName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+
+          const oType = this._OutcomesService.OutcomeTypeList.find(f => f.outcomeTypeId == val.outcome.outcomeTypeId);
+          if (oType) {
+            row.cells?.push({ value: oType.outcomeTypeName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          } else {//shouldn't happen, but for safety reasons, we add a cell anyway
+            row.cells?.push({ value: "undefined", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          }
+
+          row.cells?.push({ value: val.outcome.data1, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data2, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data3, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data4, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data5, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data6, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data7, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data8, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data9, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data10, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data11, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data12, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data13, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data14, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.es, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.sees, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          let cellVal: string = "";
+          for (const oCode of val.outcome.outcomeCodes.outcomeItemAttributesList) {
+            cellVal += oCode.attributeName + "\r\n";
+          }
+          if (cellVal != "") cellVal = cellVal.substring(0, cellVal.length - 2);
+          const cellLines = cellVal.split(this.rx2).length;
+          if (row.height) row.height = (row.height + 4) * cellLines;
+          row.cells?.push({ value: cellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          sheet.rows?.push(row);
+
+        }
+
+      }
+    }
+  }
 
   ngOnDestroy() {
     //if (this.subOpeningReview) {
