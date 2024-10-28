@@ -1107,17 +1107,20 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     const res: WorkbookSheetRow = { cells: [], height: 22 };
     const item = jsonData.items[index];
     const LinesSep = "\r\n" + this.AllCodingReportOptions.linesSeparator + "\r\n";
-    let CompCodingVal: string | number = this.AllCodingReportOptions.labelForCompletedCoding;
-    let IncompCodingVal: string | number = this.AllCodingReportOptions.labelForIncompleteCoding;
-    let NoCodingVal: string | number = this.AllCodingReportOptions.labelForNoCoding;
-    if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
-      CompCodingVal = ""; IncompCodingVal = "";
-    }
-    else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
-      CompCodingVal = +CompCodingVal;
-      IncompCodingVal = +IncompCodingVal;
-      NoCodingVal = +NoCodingVal;
-    }
+
+    //behaviour: don't put labelFor[Completed/Incomplete/No]Coding in this sheet!
+    //if we want to change it, then change/uncomment the following few lines
+    let CompCodingVal: string | number = ""; //this.AllCodingReportOptions.labelForCompletedCoding;
+    let IncompCodingVal: string | number = ""; //this.AllCodingReportOptions.labelForIncompleteCoding;
+    let NoCodingVal: string | number = "";// this.AllCodingReportOptions.labelForNoCoding;
+    //if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+    //  CompCodingVal = ""; IncompCodingVal = "";
+    //}
+    //else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
+    //  CompCodingVal = +CompCodingVal;
+    //  IncompCodingVal = +IncompCodingVal;
+    //  NoCodingVal = +NoCodingVal;
+    //}
     res.cells?.push({ value: item.itemId });
     res.cells?.push({ value: item.shortTitle });
     if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
@@ -1131,7 +1134,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         for (let i = 0; i < reviewers.length; i++) {
           let rId = reviewers[i];
           cellLines = 0;
-          const CodingFound = CodesFound.value.filter(f => f.contactId.toString() == rId.key && f.armName != "" && f.infoBox.trim() != "");
+          const CodingFound = CodesFound.value.filter(f => f.contactId.toString() == rId.key && f.armName != "");
           if (CodingFound && CodingFound.length > 0) {
             let CellContent: string = "";
             let BgString: string = "";
@@ -1144,7 +1147,9 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
             }
 
             for (const ArmCoding of CodingFound) {
-              CellContent += ArmCoding.armName + ":\r\n" + ArmCoding.infoBox + LinesSep;
+              if (ArmCoding.infoBox.trim() != "") {
+                CellContent += ArmCoding.armName + ":\r\n" + ArmCoding.infoBox + LinesSep;
+              }
             }
 
             cellLines = CellContent.split(this.rx2).length;
@@ -1181,17 +1186,20 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     const res: WorkbookSheetRow = { cells: [], height: 22 };
     const item = jsonData.items[index];
     const LinesSep = "\r\n" + this.AllCodingReportOptions.linesSeparator + "\r\n";
-    let CompCodingVal: string | number = this.AllCodingReportOptions.labelForCompletedCoding;
-    let IncompCodingVal: string | number = this.AllCodingReportOptions.labelForIncompleteCoding;
-    let NoCodingVal: string | number = this.AllCodingReportOptions.labelForNoCoding;
-    if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
-      CompCodingVal = ""; IncompCodingVal = "";
-    }
-    else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
-      CompCodingVal = +CompCodingVal;
-      IncompCodingVal = +IncompCodingVal;
-      NoCodingVal = +NoCodingVal;
-    }
+
+    //behaviour: don't put labelFor[Completed/Incomplete/No]Coding in this sheet!
+    //if we want to change it, then change/uncomment the following few lines
+    let CompCodingVal: string | number = ""; //this.AllCodingReportOptions.labelForCompletedCoding;
+    let IncompCodingVal: string | number = ""; //this.AllCodingReportOptions.labelForIncompleteCoding;
+    let NoCodingVal: string | number = "";// this.AllCodingReportOptions.labelForNoCoding;
+    //if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+    //  CompCodingVal = ""; IncompCodingVal = "";
+    //}
+    //else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
+    //  CompCodingVal = +CompCodingVal;
+    //  IncompCodingVal = +IncompCodingVal;
+    //  NoCodingVal = +NoCodingVal;
+    //}
     res.cells?.push({ value: item.itemId });
     res.cells?.push({ value: item.shortTitle });
     if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
