@@ -351,7 +351,17 @@ namespace BusinessLibrary.Security
                                 if (json != "")
                                 {
                                     dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
-                                    if (dict != null && dict.ContainsKey("error"))
+                                    if (dict != null && dict.ContainsKey("detail"))
+                                    {
+                                        errDescr = dict["detail"].ToString();
+                                        if (dict.ContainsKey("status"))
+                                        {
+                                            errDescr += " (" + dict["status"].ToString() + ")";
+                                        }
+                                        MarkAuthenticationFailed(error, errDescr);
+                                        return;
+                                    }
+                                    else if (dict != null && dict.ContainsKey("error"))
                                     {
                                         errDescr = dict["error"].ToString();
                                         if (dict.ContainsKey("status"))
