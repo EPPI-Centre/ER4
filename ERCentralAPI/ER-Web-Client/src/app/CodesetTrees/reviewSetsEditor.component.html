@@ -50,11 +50,13 @@
                 {{CurrentNode.description}}
               </div>
             </div>
-            <div *ngIf="CurrentNode.nodeType == 'ReviewSet'" class="row mx-0 px-0">
-              <div class="mr-1">Coding tool type: <strong>{{CurrentNode.subTypeName}}</strong></div>
+            <div *ngIf="CurrentNode.nodeType == 'ReviewSet'" class=" mx-0 px-0">
+              <div class="mr-1 col-auto px-0">Coding tool type: <strong>{{CurrentNode.subTypeName}}</strong></div>
+              <div class="mr-1 col-auto px-0">Tool Id: <code class="alert-dark p-1">{{CurrentNodeId}}</code></div>
             </div>
-            <div *ngIf="CurrentNode.nodeType == 'SetAttribute'" class="row mx-0 px-0">
-              <div class="mr-1">Code type: <strong>{{CurrentNode.subTypeName}}</strong></div>
+            <div *ngIf="CurrentNode.nodeType == 'SetAttribute'" class="mx-0 px-0">
+              <div class="mr-1 col-auto px-0">Code type: <strong>{{CurrentNode.subTypeName}}</strong></div>
+              <div class="mr-1 col-auto px-0">Code Id: <code class="alert-dark p-1">{{CurrentNodeId}}</code></div>
             </div>
           </div>
         </div>

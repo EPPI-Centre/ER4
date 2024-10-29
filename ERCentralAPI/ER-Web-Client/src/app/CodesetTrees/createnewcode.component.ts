@@ -118,7 +118,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
       this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
       this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
-      console.log('got in here', this._NewCode.attribute_type);
+      //console.log('got in here', this._NewCode.attribute_type);
     }
     else {
       this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
@@ -136,6 +136,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     arrayOfCodeNames = listOfCodeNames.split(",");
 
     for (let i = 0; i < arrayOfCodeNames.length; i++) {
+      if (arrayOfCodeNames[i].trim() == "") continue;
       this.newCodeSetup();
       this._NewCode.attribute_name = arrayOfCodeNames[i].trim();
       console.log("will create:", this._NewCode, this.CodeTypeSelect);
