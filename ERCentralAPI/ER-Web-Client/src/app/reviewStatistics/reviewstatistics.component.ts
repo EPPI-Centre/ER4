@@ -5,7 +5,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Criteria, ItemList } from '../services/ItemList.service';
 import { ItemListService, StringKeyValue } from '../services/ItemList.service';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand, ReviewStatisticsCodeSet2, iReviewStatisticsReviewer2, iReviewStatisticsCodeSet2 } from '../services/codesetstatistics.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand, ReviewStatisticsCodeSet2, iReviewStatisticsReviewer2, iReviewStatisticsCodeSet2, iBulkDeleteCodingCommand } from '../services/codesetstatistics.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -19,6 +19,8 @@ import {
   , WorkbookSheetRowCellBorderBottom, WorkbookSheetRowCellBorderLeft, WorkbookSheetRowCellBorderRight, WorkbookSheetRowCellBorderTop
 } from "@progress/kendo-ooxml";
 import { OutcomesService } from '../services/outcomes.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -39,7 +41,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     private _reviewInfoService: ReviewInfoService,
     private _notificationService: NotificationService,
     private _OutcomesService: OutcomesService,
-    private configurablereportServ: ConfigurableReportService
+    private configurablereportServ: ConfigurableReportService,
+    private eventEmitterService: EventEmitterService
   ) {
 
   }
@@ -50,6 +53,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   //faSpin = faSpin;
   @ViewChild('CodeStudiesTreeOne') CodeStudiesTreeOne!: codesetSelectorComponent;
   @Output() tabSelectEvent = new EventEmitter();
+
+  subOpeningReview: Subscription | null = null;
 
   public stats: ReviewStatisticsCountsCommand | null = null;
   public countDown: any | undefined;
@@ -69,23 +74,30 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   public PanelName: string = '';
   public complete: string = '';
   public selectedReviewer1: Contact = new Contact();
-  //public ImportOrNewDDData: Array<any> = [{
-  //	text: 'New Reference',
-  //	click: () => {
-  //		this.NewReference();
-  //	}
-  //}];
-
-  //dtOptions: DataTables.Settings = {};
-  //dtTrigger: Subject<any> = new Subject();
-
+  public selectedReviewer4BulkDelete: iReviewStatisticsReviewer2 | null = null;
+  public BulkDeleteCodingCommand: iBulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+  private GetNewBulkDeleteCodingCommand(): iBulkDeleteCodingCommand {
+    return {
+      setId: 0,
+      reviewerId: 0,
+      isPreview: true,
+      totalItemsAffected: 0,
+      completedCodingToBeDeleted: 0,
+      incompletedCodingToBeDeleted: 0,
+      hiddenIncompletedCodingToBeDeleted: 0
+    };
+  }
   public get Contacts(): Contact[] {
 
     return this._reviewInfoService.Contacts;
   }
   public get CodeSets(): ReviewSet[] {
-
+    //actually, only those that may have incomplete coding...
     return this.reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
+  }
+  public get AllCodeSets(): ReviewSet[] {
+
+    return this.reviewSetsService.ReviewSets;
   }
   public get IsServiceBusy(): boolean {
     return this.codesetStatsServ.IsBusy;
@@ -150,7 +162,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
     console.log('inititating stats');
 
-    //this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
+    this.subOpeningReview = this.eventEmitterService.OpeningNewReview.subscribe(() => this.Clear());
     //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
 
     //	() => {
@@ -182,6 +194,15 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
       this.ImportCodesetClick();
     }
   }];
+
+  public get CodersForCodingToolToDelete(): iReviewStatisticsReviewer2[] {
+    if (this.selectedCodeSet.set_id < 1) return [];
+    const toolStats = this.codesetStatsServ.CodingProgressStats.find(f => f.setId == this.selectedCodeSet.set_id);
+    if (!toolStats) return [];
+    return  toolStats.reviewerStatistics;
+  }
+
+
   ShowDetailsForSetId(SetId: number) {
     if (this.DetailsForSetId == SetId) this.DetailsForSetId = 0;
     else this.DetailsForSetId = SetId;
@@ -190,18 +211,16 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     //this.reviewSetsService.GetReviewStatsEmit.emit();
     this.codesetStatsServ.GetReviewStatisticsCountsCommand(true, true);
   }
-  Reload() {
-    this.Clear();
-  }
+  
   GetStats() {
     //console.log('getting stats...');
     //this.codesetStatsServ.GetReviewStatisticsCountsCommand();
     //this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
   }
   Clear() {
-    this.ItemListService.SaveItems(new ItemList(), new Criteria());
-    this.reviewSetsService.Clear();
-
+    this.PanelName = "";
+    this.showAllCodingReportOptions = false;
+    this.ClearBulkFields();
   }
   EditCodeSets() {
     this.router.navigate(['EditCodeSets']);
@@ -281,16 +300,16 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         '<br />' +
         '<br />Please check the (full) manual if you are unsure about the implications.' +
         '<br /><b>' + tmpComplete + '</b> ' + tmpStrItemVisible, false, '', undefined, undefined, 'lg')
-        .then(
-          (confirmed: any) => {
+        .then((confirmed: any)  => {
             console.log('User confirmed:');
             if (confirmed) {
-
-              this.codesetStatsServ.SendToItemBulkCompleteCommand(
+              this.saving = true;
+              this.codesetStatsServ.SendToItemBulkCompleteCommand(//stats are refreshed here, overriding review-size check.
                 setId,
                 contactId,
-                completeOrNot);//stats are refreshed here, overriding review-size check.
-
+                completeOrNot).then(
+                  () => { this.saving = false; }).catch(
+                    () => { this.saving = false; });
             } else {
               //alert('did not confirm');
             }
@@ -325,7 +344,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     this.PreviewMsg = "Please click \"Preview\" to continue.";
 
     if (this.selectedCodeSet.name == '') {
-      this.PreviewMsg = "Please select the codeset to be " + compORuncomp + ".";
+      this.PreviewMsg = "Please select the coding tool to be " + compORuncomp + ".";
       //console.log(msg);
       return false;
     }
@@ -364,7 +383,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     let apiResult: Promise<BulkCompleteUncompleteCommand> | any;
 
     if (this.isBulkCompleting) {
-
+      this.saving = true;
       apiResult = this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
         attId,
         this.isBulkCompleting.toString(),
@@ -373,6 +392,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         reviewerId
       ).then(
         () => {
+          this.saving = false;
           this._notificationService.show({
             content: 'finished the bulk complete',
             animation: { type: 'slide', duration: 400 },
@@ -381,10 +401,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
             closable: true
           });
         }
-      );
+      ).catch(() => { this.saving = false; });
     }
     else {
-
+      this.saving = true;
       apiResult = this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
         attId,
         this.isBulkCompleting.toString(),
@@ -392,6 +412,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         'false'
       ).then(
         () => {
+          this.saving = false;
           this._notificationService.show({
             content: 'finished the bulk uncomplete',
             animation: { type: 'slide', duration: 400 },
@@ -400,7 +421,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
             closable: true
           });
         }
-      );
+      ).catch(() => { this.saving = false; });
     }
     this.ClearBulkFields();
     this.changePanel('');
@@ -447,7 +468,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         setId,
         'true',
         reviewerId
-
       ).then(
 
         (result: BulkCompleteUncompleteCommand) => {
@@ -493,46 +513,162 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     return this.canBulkComplete;
   }
 
+  //used only for bulk-complete/bulk un-complete
   changePanel(completeOrNot: string) {
+    //desired behaviour: close if completeOrNot is empty, open complete/un-complete panel depending on on true/false val of completeOrNot
+    //we also want to ClearBulkFields();
 
-    this.isBulkCompleting = true;
-
-    if (this.PanelName == '') {
-
-      this.PanelName = 'BulkCompleteSection';
-
-    } else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Complete') {
-
-      this.PanelName = '';
-
-    } else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Uncomplete') {
-
-      this.PanelName = 'BulkCompleteSection';
-
-    } else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Complete') {
-
-      this.PanelName = 'BulkCompleteSection';
-
-    } else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Uncomplete') {
-
-      this.PanelName = '';
-    }
-    else {
-
-      this.PanelName = '';
-    }
-    if (completeOrNot == 'true') {
-
-      this.complete = 'Complete';
-
-    } else {
-
-      this.complete = 'Uncomplete';
-    }
     this.ClearBulkFields();
+
+    if (completeOrNot == "") {
+      this.PanelName = "";
+      return;
+    }
+    else if (completeOrNot == 'true') {
+      //we should show the "bulk complete" panel, unless it's already shown, in which case we close it
+      if (this.PanelName == "BulkCompleteSection" && this.complete == "Complete") {
+        this.PanelName = "";
+        return;
+      }
+      this.PanelName = 'BulkCompleteSection';
+      this.complete = 'Complete';
+    }
+    else if (completeOrNot == 'false') {
+      //we should show the "bulk un-complete" panel, unless it's already shown, in which case we close it
+      if (this.PanelName == "BulkCompleteSection" && this.complete == "Uncomplete") {
+        this.PanelName = "";
+        return;
+      }
+      this.PanelName = 'BulkCompleteSection';
+      this.complete = 'Uncomplete';
+
+    }
+    //if (this.PanelName == '') {
+    //  this.PanelName = 'BulkCompleteSection';
+    //} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Complete') {
+    //  this.PanelName = '';
+    //} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Uncomplete') {
+    //  this.PanelName = 'BulkCompleteSection';
+    //} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Complete') {
+    //  this.PanelName = 'BulkCompleteSection';
+    //} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Uncomplete') {
+    //  this.PanelName = '';
+    //}
+    //else {
+    //  this.PanelName = '';
+    //}
+    //if (completeOrNot == 'true') {
+    //  this.complete = 'Complete';
+    //} else {
+    //  this.complete = 'Uncomplete';
+    //}
+    //this.ClearBulkFields();
   }
 
+  public OpenBulkDeletePanel() {
+    if (this.PanelName == 'BulkDeleteSection') {
+      this.CloseBulkDeletePanel();
+      return;
+    }
+    this.ClearBulkFields();
+    this.PanelName = 'BulkDeleteSection';
+  }
+  public CloseBulkDeletePanel() {
+    this.ClearBulkFields();
+    this.PanelName = '';
+  }
+  public get CanPreviewBulkDelete(): boolean {
+    if (this.selectedCodeSet.set_id < 1) {
+      
+      this.PreviewMsg = "Please select the coding tool from which to delete the coding.";
+      return false;
+    }
+    else if (this.selectedReviewer4BulkDelete == null
+      || this.selectedReviewer4BulkDelete.contactId == undefined || this.selectedReviewer4BulkDelete.contactId < 1) {
+      
+      this.PreviewMsg = "Please select whose coding to delete.";
+      return false;
+    }
+    this.PreviewMsg = "";
+    
+    return true;
+  }
+  DropdownDeleteChangeCodingToolSelection() {
+    this.selectedReviewer4BulkDelete = null;
+    this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+    this.showMessage = false;
+  }
+  DropdownDeleteChangeReviewerSelection() {
+    this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+    this.showMessage = false;
+  }
 
+  public async PreviewDelete() {
+    this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+    if (!this.CanPreviewBulkDelete
+      || this.selectedCodeSet.set_id < 1
+      || this.selectedReviewer4BulkDelete == null || this.selectedReviewer4BulkDelete.contactId < 1) return;
+    let cmd = this.BulkDeleteCodingCommand;
+    cmd.isPreview = true;
+    cmd.setId = this.selectedCodeSet.set_id;
+    cmd.reviewerId = this.selectedReviewer4BulkDelete.contactId;
+    const cmdRes = await this.codesetStatsServ.ExecuteBulkDeleteCodingCommand(cmd);
+
+    if (cmdRes != false && cmdRes != true) {
+      this.showMessage = true;
+      this.BulkDeleteCodingCommand = cmdRes;
+    }
+  }
+
+  public ConfirmDeleteCoding() {
+    if (!this.HasAdminRights
+      || !this.HasWriteRights
+      || !this.selectedReviewer4BulkDelete
+      || this.selectedCodeSet.set_id < 1
+      || this.BulkDeleteCodingCommand.totalItemsAffected < 1) return;
+    let Msg = "<strong>Warning!</strong> You are about to delete coding in bulk. <br/>";
+    Msg += "If you proceed, the coding done by <strong>" + this.selectedReviewer4BulkDelete.contactName + "</strong> on the \"<strong>" + this.selectedCodeSet.set_name + "</strong>\" tool will be deleted. <br />";
+    Msg += "A total of <strong>" + this.BulkDeleteCodingCommand.totalItemsAffected + "</strong> items will be affected. <br />"
+    Msg += "<div class='row m-1 p-0'> <strong class='alert-danger p-1 rounded mx-auto'><span class='k-icon k-i-warning'></span>This cannot be undone!<span class='k-icon k-i-warning'></span></strong></div>";
+    let ConfirmText = "";
+    const rnd = Math.random();
+    if (rnd < 0.33333) ConfirmText = "OK proceed";
+    else if (rnd < 0.66667) ConfirmText = "I understand";
+    else ConfirmText = "I agree";
+    Msg += "To proceed, please type '" + ConfirmText + "' in the box below.";
+    this.confirmationDialogService.confirm("Bulk delete coding?", Msg, true, ConfirmText, "Delete All!", "Cancel")
+      .then((res: any) => {
+        if (res == true) {
+          this.DoDeleteCoding();
+        }
+      }).catch(() => { });
+
+  }
+  private async DoDeleteCoding() {
+    if (!this.HasAdminRights
+      || !this.HasWriteRights
+      || !this.selectedReviewer4BulkDelete
+      || this.selectedCodeSet.set_id < 1
+      || this.BulkDeleteCodingCommand.totalItemsAffected < 1) return;
+    this.BulkDeleteCodingCommand.isPreview = false;
+    this.saving = true;
+    const cmdRes = await this.codesetStatsServ.ExecuteBulkDeleteCodingCommand(this.BulkDeleteCodingCommand);
+    this.saving = false;
+    if (cmdRes != false && cmdRes != true) {
+      this.ClearBulkFields();
+      this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+      this.PanelName = '';
+      this._notificationService.show({
+        content: "Coding from " + cmdRes.totalItemsAffected + " items has been deleted",
+        animation: { type: 'slide', duration: 400 },
+        position: { horizontal: 'center', vertical: 'top' },
+        type: { style: "info", icon: true },
+        hideAfter: 5000
+      });
+    } else {
+      this.BulkDeleteCodingCommand.isPreview = true;
+    }
+  }
   public async GetAndSaveCodingReport(setStats: ReviewStatisticsCodeSet2) {
     console.log("Asking for the report");
     let stringReport = await this.configurablereportServ.FetchAllCodingReportBySet(setStats.setId);
@@ -1372,8 +1508,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    //if (this.subOpeningReview) {
-    //	this.subOpeningReview.unsubscribe();
-    //}
+    if (this.subOpeningReview) {
+    	this.subOpeningReview.unsubscribe();
+    }
   }
 }

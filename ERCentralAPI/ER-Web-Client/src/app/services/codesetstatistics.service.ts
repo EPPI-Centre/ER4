@@ -52,8 +52,10 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
 
   public GetReviewStatisticsCountsCommand(DoAlsoDetailedStats: boolean = false, ForceDetailedStats: boolean = false) {
     this._BusyMethods.push("GetReviewStatisticsCountsCommand");
-    this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand').subscribe(
+    lastValueFrom(this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand')
+    ).then(
       data => {
+        this.RemoveBusy("GetReviewStatisticsCountsCommand");
         this._ReviewStats = data;
         //let's check how many items and coding tools we have...
         const TotItems = data.itemsIncluded + data.itemsExcluded;
@@ -98,11 +100,9 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
       (error) => {
         this.modalService.GenericError(error);
         this.RemoveBusy("GetReviewStatisticsCountsCommand");
-      },
-      () => {
+      }).catch(() => {
         this.RemoveBusy("GetReviewStatisticsCountsCommand");
-      }
-    );
+      });
   }
   public GetAllReviewSetsCodingCounts() {
     this.SkippedFullStats = false;
@@ -134,137 +134,15 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
   }
 
 
-  //public GetReviewSetsCodingCounts(completed: boolean) {
-  //  this.SkippedFullStats = false;
-  //  this._BusyMethods.push("GetReviewSetsCodingCounts");
-  //  let body = JSON.stringify({ Value: completed });
-  //  this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
-  //    body).subscribe(
-
-  //      result => {
-
-  //        this.CompletedCodesets = result;
-  //        this.GetReviewSetsIncompleteCodingCounts(false);
-
-  //      }, error => {
-  //        this.modalService.SendBackHomeWithError(error);
-  //        this.RemoveBusy("GetReviewSetsCodingCounts");
-  //      }
-  //      , () => {
-  //        this.RemoveBusy("GetReviewSetsCodingCounts");
-  //      }
-
-  //    );
-
-  //}
-  //public GetReviewSetsIncompleteCodingCounts(completed: boolean) {
-  //  this._BusyMethods.push("GetReviewSetsIncompleteCodingCounts");
-  //  let body = JSON.stringify({ Value: completed });
-  //  this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
-  //    body).subscribe(result => {
-
-  //      this.IncompleteCodesets = result;
-  //      //console.log('incomplete sets' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)) + '\n');
-  //      //this.SaveIncompleteSets();
-  //      //this.GetIncompleteSetsEmit.emit(result);
-  //      this.formateSets();
-  //      //console.log(this._tmpCodesets);
-  //      this.RemoveBusy("GetReviewSetsIncompleteCodingCounts");
-
-  //    }, error => {
-  //      this.RemoveBusy("GetReviewSetsIncompleteCodingCounts");
-  //      this.modalService.SendBackHomeWithError(error);
-  //    }, () => {
-  //      this.RemoveBusy("GetReviewSetsIncompleteCodingCounts");
-  //    }
-  //    );
-
-
-  //}
-
-  //formateSets(): any {
-  //  this.tmpCodesets = [];
-  //  let ind: number = 0;
-  //  for (var i = 0; i < this.reviewSetsService.ReviewSets.length; i++) {
-
-  //    //console.log(this.reviewSetsService.ReviewSets[i].set_name + '\n');
-
-
-  //    var tempSetName = this.reviewSetsService.ReviewSets[i].set_name;
-  //    var tempSetId = this.reviewSetsService.ReviewSets[i].set_id;
-  //    let index1: number = this.CompletedCodesets.findIndex(x => x.setId == tempSetId);
-  //    let index2: number = this.IncompleteCodesets.findIndex(x => x.setId == tempSetId);
-  //    let tmpSet = new StatsCompletion();
-  //    tmpSet.codingIsFinal = this.reviewSetsService.ReviewSets[i].codingIsFinal;
-  //    tmpSet.order = this.reviewSetsService.ReviewSets[i].order;
-  //    tmpSet.subTypeName = this.reviewSetsService.ReviewSets[i].subTypeName;
-  //    tmpSet.setName = tempSetName;
-  //    tmpSet.setId = tempSetId;
-  //    if (index1 != -1 && index2 != -1) {
-
-  //      ind += 1;
-  //      let tmp: ReviewStatisticsCodeSet | undefined = this.CompletedCodesets.find(x => x.setId == tempSetId);
-  //      if (tmp) {
-  //        //console.log("found this:", tmp, tmp.reviewerStatistics);
-  //        tmpSet.countCompleted = tmp.numItems;
-  //        tmpSet.CompletedByReviewer = tmpSet.CompletedByReviewer.concat(tmp.reviewerStatistics);
-  //        let tmpI: ReviewStatisticsCodeSet | undefined = this.IncompleteCodesets.find(x => x.setId == tempSetId);
-  //        if (tmpI) {
-  //          tmpSet.IncompleteByReviewer = tmpSet.IncompleteByReviewer.concat(tmpI.reviewerStatistics);
-  //          tmpSet.countIncomplete = tmpI.numItems;
-  //          this.tmpCodesets.push(tmpSet);
-  //          continue;
-  //        }
-  //      }
-
-  //    }
-  //    if (index1 != -1) {
-
-  //      ind += 1;
-  //      let tmp: ReviewStatisticsCodeSet | undefined = this.CompletedCodesets.find(x => x.setId == tempSetId);
-
-  //      if (tmp) {
-  //        tmpSet.CompletedByReviewer = tmpSet.CompletedByReviewer.concat(tmp.reviewerStatistics);
-  //        tmpSet.countCompleted = tmp.numItems;
-  //        tmpSet.countIncomplete = 0;
-  //        this.tmpCodesets.push(tmpSet);
-  //        continue;
-  //      }
-
-  //    }
-  //    if (index2 != -1) {
-
-  //      ind += 1;
-  //      //console.log('single find in incomplete');
-  //      let tmpI: ReviewStatisticsCodeSet | undefined = this.IncompleteCodesets.find(x => x.setId == tempSetId);
-
-  //      if (tmpI) {
-  //        tmpSet.IncompleteByReviewer = tmpSet.IncompleteByReviewer.concat(tmpI.reviewerStatistics);
-  //        tmpSet.countCompleted = 0;
-  //        tmpSet.countIncomplete = tmpI.numItems;
-  //        this.tmpCodesets.push(tmpSet);
-  //        continue;
-  //      }
-
-  //    }
-  //    tmpSet.countCompleted = 0;
-  //    tmpSet.countIncomplete = 0;
-  //    this.tmpCodesets.push(tmpSet);
-
-  //  }
-  //  this.tmpCodesets.sort(function (a, b) { return a.order - b.order });
-  //  //this.SaveFormattedSets();
-  //}
-
-  SendToItemBulkCompleteCommand(setID: number, contactID: number, completeOrNot: string): void {
+  SendToItemBulkCompleteCommand(setID: number, contactID: number, completeOrNot: string): Promise<void> {
 
     this._BusyMethods.push("SendToItemBulkCompleteCommand");
     let MVCcmd: ItemSetBulkCompleteCommand = new ItemSetBulkCompleteCommand();
     MVCcmd.setID = setID;
     MVCcmd.contactID = contactID;
     MVCcmd.completeOrNot = completeOrNot;
-    this._http.post<ItemSetBulkCompleteCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteItemSetBulkCompleteCommand',
-      MVCcmd).subscribe(() => {
+    return lastValueFrom(this._http.post<ItemSetBulkCompleteCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteItemSetBulkCompleteCommand',
+      MVCcmd)).then(() => {
 
         this.GetAllReviewSetsCodingCounts();//refresh coding counts - we just changed completion states is bulk, so we'd better!
         this.RemoveBusy("SendToItemBulkCompleteCommand");
@@ -272,10 +150,9 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
       }, error => {
         this.RemoveBusy("SendToItemBulkCompleteCommand");
         this.modalService.SendBackHomeWithError(error);
-      }, () => {
+      }).catch(() => {
         this.RemoveBusy("SendToItemBulkCompleteCommand");
-      }
-      );
+      });
   }
   SendItemsToBulkCompleteOrNotCommand(attributeId: number, isCompleting: string,
     setId: number, isPreview: string, reviewerId?: number): Promise<BulkCompleteUncompleteCommand> {
@@ -302,6 +179,30 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
           return error;
         }
       );
+  }
+
+  ExecuteBulkDeleteCodingCommand(command: iBulkDeleteCodingCommand): Promise<iBulkDeleteCodingCommand | boolean> {
+
+    this._BusyMethods.push("ExecuteBulkDeleteCodingCommand");
+    
+    return lastValueFrom(this._http.post<iBulkDeleteCodingCommand>(this._baseUrl + 'api/ReviewStatistics/BulkDeleteCodingCommand',
+      command)).then(
+        (result) => {
+          if (command.isPreview == false) {
+            this.GetAllReviewSetsCodingCounts();//refresh coding counts - we just deleted coding in bulk, so we'd better!
+          }
+          this.RemoveBusy("ExecuteBulkDeleteCodingCommand");
+          return result;
+
+        }, error => {
+          this.RemoveBusy("ExecuteBulkDeleteCodingCommand");
+          this.modalService.GenericError(error);
+          return false;
+      }).catch(err => {
+        this.RemoveBusy("ExecuteBulkDeleteCodingCommand");
+        this.modalService.GenericError(err);
+        return false;
+      });
   }
 
   public Clear() {
@@ -460,4 +361,13 @@ export class StatsByReviewer {
   SetId: number = 0;
   CompletedCount: number = 0;
   IncompleteCount: number = 0;
+}
+export interface iBulkDeleteCodingCommand {
+  setId: number;
+  reviewerId: number;
+  isPreview: boolean;
+  totalItemsAffected: number;
+  completedCodingToBeDeleted: number;
+  incompletedCodingToBeDeleted: number;
+  hiddenIncompletedCodingToBeDeleted: number;
 }

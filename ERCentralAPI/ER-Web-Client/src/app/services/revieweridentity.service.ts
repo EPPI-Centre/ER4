@@ -30,7 +30,7 @@ export class ReviewerIdentityService implements OnDestroy {
     }
   private get _baseUrl() { return this.configService.baseUrl; }
     private ID: number = Math.random();
-    @Output() OpeningNewReview = new EventEmitter<void>();
+    
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
     public exLgtCheck: LogonTicketCheck = new LogonTicketCheck("", "");
     public modalMsg: string = '';

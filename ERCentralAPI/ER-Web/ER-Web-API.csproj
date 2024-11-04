@@ -60,6 +60,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AuthorsHandling.cs" Link="Models\AuthorsHandling.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AzureSettingsAndBlobOperations.cs" Link="Models\AzureSettingsAndBlobOperations.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\BulkCompleteUncompleteCommand.cs" Link="Models\BulkCompleteUncompleteCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\BulkDeleteCodingCommand.cs" Link="Models\BulkDeleteCodingCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\CheckTicketExpirationCommand.cs" Link="Models\CheckTicketExpirationCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierCommand.cs" Link="Models\ClassifierCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierCommandV2.cs" Link="Models\ClassifierCommandV2.cs" />
