@@ -146,6 +146,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     if (this._showAllCodingReportOptions) return "Close Excel Options";
     else return "More...";
   }
+
   ngOnInit() {
 
     console.log('inititating stats');
@@ -162,6 +163,16 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     //	|| (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
     //) this.Reload();
   }
+
+  public colourOnly(): boolean {
+    if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   public ImportOrNewDDData: Array<any> = [{
     text: 'New Reference',
     click: () => {

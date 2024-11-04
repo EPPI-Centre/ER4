@@ -281,13 +281,16 @@
         <div class="border-bottom border-info col-12 mx-0 px-0 bg-light">
           <div class="col-12 px-0 mx-0">
             <div class="row mx-1 border-bottom">
-              <div class="col-9 px-0 mx-0">Only use Colour-Coding to distinguish complete/incomplete coding:</div>
+              <div class="col-9 px-0 mx-0">Use the default labels to distinguish coding/no coding:</div>
               <div class="col-3 px-0 mx-0"><input [(ngModel)]="AllCodingReportOptions.UseOnlyColourCodingForCompletion" type="checkbox" /></div>
-            </div>
-            <div class="row mx-1 border-bottom">
               <div class="col-12 px-0 mx-0">
-                Labels used in the main spreadsheet, to indicate coding status (out of 3 possibilities).
-                When using only "Colour Coding", the labels are fixed: "1" for any coding (completed or incomplete) and "0" for no coding.
+                Labels: <b>1</b> for any coding (completed or incomplete), <b>0</b> for no coding, <b>Green</b> cell for completed/agreed coding.
+              </div>
+            </div>
+            <div class="row mx-1 border-bottom"   [ngStyle]="{'opacity': colourOnly() ? '0.5' : '1' }">
+              <div class="col-12 px-0 mx-0">
+                You can customise the labels to indicate coding status (<b>Completed</b>, <b>Incomplete</b> and <b>No Coding</b>).<br />
+                Completed/Agreed coding is still visually indicated by a <b>Green</b> cell.
               </div>
               <div class="col-12 row px-0 mx-0">
                 <div class="col-4 px-0">
@@ -308,7 +311,7 @@
               </div>
             </div>
             <div *ngIf="AllCodingReportOptions.LabelsAreNumbers" class="row mx-1 border-bottom">
-              <div class="col-9 px-0 mx-0">Save labels as numbers (not strings):</div>
+              <div class="col-9 px-0 mx-0">Save labels as numbers (not strings) for machine readability:</div>
               <div class="col-3 px-0 mx-0"><input [(ngModel)]="AllCodingReportOptions.saveLabelsAsNumbers" type="checkbox" /></div>
             </div>
             <div class="row mx-1 border-bottom">
