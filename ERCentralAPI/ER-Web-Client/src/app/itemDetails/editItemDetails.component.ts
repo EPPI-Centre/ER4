@@ -142,7 +142,8 @@ export class editItemDetailsComp implements OnInit, OnDestroy {
     private GetItem() {
         if (this.itemString == "0") {
             this.item = new Item();
-            this.OriginalItem = new Item();
+          this.OriginalItem = new Item();
+          this.ItemDocsService.Clear();
         }
         else if (this.itemString == "FromPrioritySc") {
             if (this.priorityScreeningService.CurrentItem.itemId < 1) this.GoBack();
