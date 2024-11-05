@@ -1142,7 +1142,7 @@ public partial class Summary : System.Web.UI.Page
             int toTransfer;
             if (!int.TryParse(tbAmountToTransfer.Text, out toTransfer))
             {
-                lblTransferCreditPurchaseResult.Text = "Transfer amount is not valid - please enter an integer number";
+                lblTransferCreditPurchaseResult.Text = "Transfer amount is not valid - please enter a non-decimal amount";
                 lblTransferCreditPurchaseResult.Visible = true;
                 return;
             }
