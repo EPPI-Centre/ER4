@@ -1139,13 +1139,20 @@ public partial class Summary : System.Web.UI.Page
         if ((ddlSourcePurchaseID.SelectedIndex != 0) && (ddlDestinationPurchaseID.SelectedIndex != 0) &&
             (Utils.IsNumeric(tbAmountToTransfer.Text)))
         {
+            int toTransfer;
+            if (!int.TryParse(tbAmountToTransfer.Text, out toTransfer))
+            {
+                lblTransferCreditPurchaseResult.Text = "Transfer amount is not valid - please enter an integer number";
+                lblTransferCreditPurchaseResult.Visible = true;
+                return;
+            }
             // if the amount > 0
-            if (int.Parse(tbAmountToTransfer.Text) > 0)
+            if (toTransfer > 0)
             {           
                 // something is selected in each control
                 if (ddlSourcePurchaseID.SelectedIndex != ddlDestinationPurchaseID.SelectedIndex)
                 {
-                    if (int.Parse(tbAmountToTransfer.Text) <= int.Parse(ddlSourcePurchaseID.SelectedItem.Value))
+                    if (toTransfer <= int.Parse(ddlSourcePurchaseID.SelectedItem.Value))
                     {
                         // there is enough in source to handle the transfer request
                         // so create the transfer details for TB_EXPIRY_EDIT_LOG

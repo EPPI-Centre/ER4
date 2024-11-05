@@ -167,7 +167,8 @@
                 <asp:Button ID="cmdTransferCreditPurchase" runat="server" CssClass="button" OnClick="cmdTransferCreditPurchase_Click" Text="Transfer" />
                 &nbsp;&nbsp;
                 <asp:LinkButton ID="lbCancelTransfer" runat="server" OnClick="lbCancelTransfer_Click">Cancel</asp:LinkButton>
-                &nbsp;&nbsp;<asp:Label ID="lblTransferCreditPurchaseResult" runat="server" Text="There was an error" Font-Bold="True" Visible="false"></asp:Label>
+                &nbsp;&nbsp;
+                <asp:Label ID="lblTransferCreditPurchaseResult" runat="server" style="padding: 2px; margin:1px; display:inline-block;" Text="There was an error" Font-Bold="True" Visible="false" BackColor="#FFCC99" BorderColor="Red"></asp:Label>
                 <br /><br />
             </asp:Panel>
 
