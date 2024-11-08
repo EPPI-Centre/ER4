@@ -395,7 +395,33 @@ namespace BusinessLibrary.Security
                 }
                 else
                 {
-                    MarkAuthenticationFailed("Access denied.", "Not a Cochrane Author.");
+                    //user was authenticated in Cochrane, tokens retrieved, all that works.
+                    //but: user does not have the isCochraneAuthor flag set to true. There are 2 possible reasons for this:
+                    //1. it's a new user, who just can't get the Cochrane link/licensing as they aren't a cochrane author
+                    //OR
+                    //2. it's an existing user, who has now lost their CochraneAuthor status (as of Nov 2024, this can happen)
+                    //So we check for this possibility and return two different errors depending on what we find.
+                    //In this case, we also unlink the ER account to the now disempowered Cochrane account.
+                    bool isSiteAdmin; string contactName;
+                    int CID = 0;
+                    try
+                    {
+                        ArchieID = ca.cochraneId;
+                        CID = getContactID(out isSiteAdmin, out contactName);
+                    }
+                    finally
+                    {//making extra sure we wipe the ArchieID, as we shouldn't use it!
+                        ArchieID = "";
+                    }
+                    if (CID == 0)
+                    {//easy case: new user and not a cochrane author
+                        MarkAuthenticationFailed("Access denied.", "Not a Cochrane Author.");
+                    }
+                    else
+                    {//more to do, we need to unlink this ER account from their not-licensed-anymore Cochrane account.                        
+                        UnlinkERaccountFromCochraneAccount(CID, ca.cochraneId);
+                        MarkAuthenticationFailed("Access denied.", "This account is no longer a Cochrane Author.");
+                    }
                 }
 
                 //old code use for Archie, which is dead/dying as of Oct 2024
@@ -757,6 +783,20 @@ namespace BusinessLibrary.Security
                             return 0;
                         }
                     }
+                }
+            }
+        }
+        private void UnlinkERaccountFromCochraneAccount(int ContactId, string InvalidCochraneId)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ArchieUnlinkAccount", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ARCHIE_ID", InvalidCochraneId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                    command.ExecuteNonQuery();
                 }
             }
         }
