@@ -40,8 +40,18 @@ export class ArchieCallBackComponent implements OnInit {
             if (res.ticket == "Login Failed. Error: Access denied.\r\nNot a Cochrane Author.") {
               this.Error = "Authentication failed.\r\n"
                 + "<strong>Your Cochrane account does not qualify for EPPI Reviewer licensing.</strong> \r\n"
-                + "To gain access to EPPI Reviewer you need to be recognised as a \"Cochrane Author\".\r\n"
-            } else {
+                + "To gain access to EPPI Reviewer you need to be recognised as a \"Cochrane Author\".\r\n";
+            }
+            else if (res.ticket == "Login Failed. Error: Access denied.\r\nThis account is no longer a Cochrane Author.") {
+              this.Error = "Authentication failed.\r\n"
+                + "<strong>Your Cochrane account no longer qualifies for EPPI Reviewer licensing.</strong> \r\n"
+                + "This is because according to Cochrane systems you’re not a Cochrane author anymore.\r\n"
+                + "For this reason, <strong>your EPPI Reviewer account is no longer linked to your Cochrane account</strong>.\r\n"
+                + "Please contact support@cochrane.org if you believe this is incorrect.\r\n"
+                + "If your status as a Cochrane Author will be reinstated, you will need to re-link your EPPI Reviewer account to it.\r\n"
+                + "Otherwise, you can still use your existing EPPI Reviewer account normally (might require to purchase a subscription).\r\n"
+            }
+            else {
               this.Error = "Authentication failed with an error. " + res.name.substr(1, res.name.length - 2) + ".<br /> Error details are: " + res.ticket;
               this.Error += "<br />Please try again. If the error persists, please contact EPPISupport@ucl.ac.uk.";
             }
