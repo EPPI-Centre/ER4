@@ -152,7 +152,26 @@
 
 
         <asp:Panel ID="pnlCreditPurchases" runat="server" Visible="True">
-            <b>Your credit purchases</b>
+            <b>Your credit purchases&nbsp;&nbsp;&nbsp; -&nbsp;&nbsp;&nbsp; If needed, you can 
+                <asp:LinkButton ID="lbMoveCredit" runat="server" OnClick="lbMoveCredit_Click">transfer</asp:LinkButton> credit between purchases.</b>
+
+            <asp:Panel ID="pnlMoveCredit" runat="server" BackColor="#E2E9EF" BorderStyle="Solid" BorderWidth="1px" Visible="False">               
+                Enter the amount to transfer, select the source and destination purchase ID and click Transfer.<br />
+                Transfer (£)&nbsp;<asp:TextBox ID="tbAmountToTransfer" runat="server" CssClass="textbox" Width="40px"></asp:TextBox>
+                from <asp:DropDownList ID="ddlSourcePurchaseID" runat="server" AutoPostBack="False"
+                    DataTextField="PURCHASE_ID_SOURCE" DataValueField="PURCHASE_ID_SOURCE_REMAINING" Width="100px">
+                </asp:DropDownList>
+                to <asp:DropDownList ID="ddlDestinationPurchaseID" runat="server" AutoPostBack="False"
+                    DataTextField="PURCHASE_ID_DESTINATION" DataValueField="PURCHASE_ID_DESTINATION_REMAINING" Width="110px">
+                </asp:DropDownList>&nbsp;&nbsp;&nbsp;
+                <asp:Button ID="cmdTransferCreditPurchase" runat="server" CssClass="button" OnClick="cmdTransferCreditPurchase_Click" Text="Transfer" />
+                &nbsp;&nbsp;
+                <asp:LinkButton ID="lbCancelTransfer" runat="server" OnClick="lbCancelTransfer_Click">Cancel</asp:LinkButton>
+                &nbsp;&nbsp;
+                <asp:Label ID="lblTransferCreditPurchaseResult" runat="server" style="padding: 2px; margin:1px; display:inline-block;" Text="There was an error" Font-Bold="True" Visible="false" BackColor="#FFCC99" BorderColor="Red"></asp:Label>
+                <br /><br />
+            </asp:Panel>
+
             <asp:GridView ID="gvCreditPurchases" runat="server" CssClass="grviewFixedWidth"
                 AutoGenerateColumns="False" DataKeyNames="CREDIT_PURCHASE_ID"
                 OnRowCommand="gvCreditPurchases_RowCommand" OnRowEditing="gvCreditPurchases_RowEditing"
@@ -184,10 +203,10 @@
             <asp:Panel ID="pnlHistory" runat="server" 
                  BackColor="#E2E9EF" Visible="false" BorderStyle="Solid" BorderWidth="1px" BorderColor="#CCCCCC">
                 <b>Extension history for credit purchase #</b>
-                <asp:Label ID="lblCreditPruchaseID" runat="server" Text="N/A" Font-Bold="True"></asp:Label>
+                <asp:Label ID="lblCreditPurchaseID" runat="server" Text="N/A" Font-Bold="True"></asp:Label>
                 &nbsp;&nbsp;
                 <asp:LinkButton ID="lbHideHistory" runat="server" OnClick="lbHideHistory_Click">(hide)</asp:LinkButton>
-                <asp:GridView ID="gvCreditHistroy" runat="server" CssClass="grviewFixedWidth"
+                <asp:GridView ID="gvCreditHistory" runat="server" CssClass="grviewFixedWidth"
                 AutoGenerateColumns="False" DataKeyNames="CREDIT_EXTENSION_ID"               
                 Width="800px" EnableModelValidation="True">
                 <Columns>

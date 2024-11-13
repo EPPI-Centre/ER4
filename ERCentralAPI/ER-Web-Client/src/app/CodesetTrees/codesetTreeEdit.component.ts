@@ -182,7 +182,8 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   MoveCode(node: singleNode) {
-    this.PleaseShowTheMoveCodePanel.emit();
+    this.ReviewSetsService.selectedNode = node;
+    this.PleaseShowTheMoveCodePanel.emit();   
   }
 
   NodeSelected(event: TreeItem) {

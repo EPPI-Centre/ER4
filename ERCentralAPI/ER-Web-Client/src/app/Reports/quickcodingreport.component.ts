@@ -279,7 +279,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     }
 
     public SaveAsJson() {
-        console.log("Save as Json, codesets: " + this.ItemCodingService.jsonReport.CodeSets.length + "; refs: " + this.ItemCodingService.jsonReport.References.length);
+        //console.log("Save as Json, codesets: " + this.ItemCodingService.jsonReport.CodeSets.length + "; refs: " + this.ItemCodingService.jsonReport.References.length);
         if (!this.JsonReport) {
             console.log("Save as Json. Return (not jsonreport)");
             return;
@@ -292,30 +292,11 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         }
         console.log("Save as Json. Encoding");
         const dataURI = "data:text/plain;base64," + encodeBase64(this.JsonReportContent);
-        const blob = this.dataURItoBlob(dataURI);
+        const blob = Helpers.dataURItoBlob(dataURI);
         console.log("Savign json report...");//, dataURI)
         saveAs(blob, "Report.json");
     }
-    private dataURItoBlob(dataURI: string): Blob {
-        // convert base64/URLEncoded data component to raw binary data held in a string
-        var byteString;
-        if (dataURI.split(',')[0].indexOf('base64') >= 0)
-            byteString = atob(dataURI.split(',')[1]);
-        else
-            byteString = unescape(dataURI.split(',')[1]);
-
-        // separate out the mime component
-        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-        // write the bytes of the string to a typed array
-        var ia = new Uint8Array(byteString.length);
-        for (var i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-        }
-
-        let res = new Blob([ia], { type: mimeString });
-        return res;
-    }
+    
     private AddSaveMe(): string {
         //see: https://stackoverflow.com/questions/29702758/html-button-to-save-div-content-using-javascript#answer-29702870
         let rep = "<script>function download(){";

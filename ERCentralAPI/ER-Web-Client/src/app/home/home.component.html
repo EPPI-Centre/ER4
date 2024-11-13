@@ -86,18 +86,18 @@
   <div class="row mx-1 mt-2 mb-2 d-flex justify-content-center bg-white border-top border-bottom border-primary">
     <div class="p-1">
       <img src="assets/Images/cochrane_logo.png" width="30" height="30" class="mr-1" alt="Cochrane logo" />
-      <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane/Campbell Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
+      <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
       <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info...</button>
     </div>
     <div *ngIf="showCochraneHelp" class="col-11 justify-center border border-info rounded alert-info mb-1">
       <p class="mb-1">
-        This link allows <b>Cochrane and Campbell Authors</b> to log into EPPI-Reviewer with their Cochrane Account details.<br />
+        This link allows <b>Cochrane Authors</b> to log into EPPI-Reviewer with their Cochrane Account details.<br />
         Within EPPI-Reviewer, Cochrane Authors are automatically licensed to:
       </p>
       <ol class="small">
-        <li>Work on Cochrane reviews (access control is controlled by review authorship state as defined in Archie).</li>
+        <li>Work on Cochrane reviews (access control is controlled by review authorship state as defined in RevMan).</li>
         <li>Work on private (not shared) reviews.</li>
-        <li>Work on "Prospective" Cochrane reviews (preliminary work, before registering a review in Archie). To gain access to this option please get in touch with EPPI-Support. </li>
+        <li>Work on "Prospective" Cochrane reviews (preliminary work, before it is formally given the Cochrane Review status). To gain access to this option please get in touch with EPPI-Support. </li>
       </ol>
       <p>
         More details, including guidance, are <a href="https://community.cochrane.org/help/tools-and-software/eppi-reviewer" target="_blank">here</a>.

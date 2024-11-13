@@ -136,19 +136,55 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+        [HttpPost("[action]")]
+        public IActionResult BulkDeleteCodingCommand([FromBody] MVCBulkDeleteCodingCommand MVCcmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri.Roles.Contains("AdminUser"))
+                    {
+                        BulkDeleteCodingCommand cmd = new BulkDeleteCodingCommand(MVCcmd.setId, MVCcmd.reviewerId, MVCcmd.isPreview);
+                        DataPortal<BulkDeleteCodingCommand> dp = new DataPortal<BulkDeleteCodingCommand>();
+                        cmd = dp.Execute(cmd);
+                        return Ok(cmd);
+                    }
+                    else return Forbid();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Dataportal Error for BulkDeleteCodingCommand.");
+                return StatusCode(500, e.Message);
+            }
+        }
 
-		public class MVCBulkCompleteUncompleteCommand
-		{
+        public class MVCBulkCompleteUncompleteCommand
+        {
 
-			public Int64 attributeId { get; set; }
-			public bool isCompleting { get; set; }
-			public int setId { get; set; }
-			public int reviewerId { get; set; }
-			public bool isPreview { get; set; }
+            public Int64 attributeId { get; set; }
+            public bool isCompleting { get; set; }
+            public int setId { get; set; }
+            public int reviewerId { get; set; }
+            public bool isPreview { get; set; }
 
-		}
+        }
+        public class MVCBulkDeleteCodingCommand
+        {
+            public int setId { get; set; }
+            public int reviewerId { get; set; }
+            public bool isPreview { get; set; }
+            public int totalItemsAffected { get; set; }
+            public int completedCodingToBeDeleted { get; set; }
+            public int incompletedCodingToBeDeleted { get; set; }
+            public int hiddenIncompletedCodingToBeDeleted { get; set; }
 
-		public class MVCItemSetBulkCompleteCommand
+        }
+
+        public class MVCItemSetBulkCompleteCommand
 		{
 
 			public bool completeOrNot { get; set; }

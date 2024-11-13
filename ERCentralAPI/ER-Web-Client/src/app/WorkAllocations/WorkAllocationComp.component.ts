@@ -958,7 +958,6 @@ export class WorkAllocationComp implements OnInit {
 
   setCompListType($event: any) {
     this.ComparisonStatsComp.ListSubType = $event;
-
   }
 }
 

@@ -110,7 +110,7 @@ If IndexProperty(Object_Id('[dbo].[TABLE_NAME]'), 'INDEX_NAME', 'IndexID') Is Nu
   end
 GO
 --ALTERNATIVE(/BETTER?) APPROACH To indexes:
-declare @chk int = (SELECT = count(*)
+declare @chk int = (SELECT count(*)
 		FROM sys.indexes 
 		WHERE name='INDEX_NAME' AND object_id = OBJECT_ID('[dbo].[TB_SOMETABLE]'))
 If @chk = 1 
@@ -128,3 +128,33 @@ BEGIN
 	ALTER TABLE TB_SOMETABLE ALTER COLUMN SOME_COLUMN NVARCHAR(50) NULL
 END
 GO
+
+--when FK constraints were created without giving them an explicit name, they get a random name, which will change in different environments
+--this is a problem for changes scripts, as they can't alter constraints easily without knowing their name
+--One solution is to delete all FK constraints for the affected table and then recreate them
+--The snippet below uses a while to cycle through all FK constraints in the table and drop them.
+--AFTER that, you need to re-create all of them!
+declare @chk int
+declare @safety int = 0
+declare @indexName varchar(255) = ''
+declare @command nvarchar(max) = ''
+select @chk = count(*) from sys.foreign_keys AS fk
+INNER JOIN sys.tables AS ct
+  ON fk.parent_object_id = ct.[object_id] and ct.name = 'TB_ROBOT_API_CALL_LOG'
+--select @chk 
+
+WHile @chk > 0 and @safety < 15
+BEGIN
+	set @safety = @safety +1;
+
+	set @indexName = (select top 1 fk.name from sys.foreign_keys AS fk
+		INNER JOIN sys.tables AS ct
+		ON fk.parent_object_id = ct.[object_id] and ct.name = 'TB_SOMETABLE')
+	print 'dropping ' + @indexName;
+	set @command = 'ALTER TABLE TB_SOMETABLE DROP CONSTRAINT ' + QUOTENAME(@indexname)
+	EXEC sp_executesql @command
+	select @chk = count(*) from sys.foreign_keys AS fk
+		INNER JOIN sys.tables AS ct
+		ON fk.parent_object_id = ct.[object_id] and ct.name = 'TB_SOMETABLE'
+END
+GO --You NEED to recreate all foreing keys explicitly, now!

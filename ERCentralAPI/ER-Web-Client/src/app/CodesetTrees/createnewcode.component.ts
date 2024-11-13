@@ -28,6 +28,15 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
   @Output() emitterCancel = new EventEmitter();
   @Input() IsSmall: boolean = false;
 
+  public commaSeparatedEntry: boolean = false;
+
+  public commaSeparatedEntryClicked(event: Event) {
+    if (this.commaSeparatedEntry == true)
+      this.commaSeparatedEntry = false;
+    else
+      this.commaSeparatedEntry = true;
+  }
+
   public get AllowedChildTypes(): kvAllowedAttributeType[] {
     return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
   }
@@ -85,12 +94,13 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
   public get AllowedChildTypesOfSelectedNode() {
     return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
   }
-  CreateNewCode() {
 
+
+    newCodeSetup() {
     if (this.CurrentNode) {
 
       this._NewCode.order = this.CurrentNode.attributes.length;
-
+      //////////////////////////////////////////// put in new method
       if (this.CurrentNode.nodeType == "ReviewSet") {
         this._NewCode.set_id = (this.CurrentNode as ReviewSet).set_id;
         this._NewCode.parent_attribute_id = 0;
@@ -108,14 +118,69 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
       this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
       this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
-      console.log('got in here', this._NewCode.attribute_type);
+      //console.log('got in here', this._NewCode.attribute_type);
     }
     else {
       this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
       this._NewCode.attribute_type = "Not selectable(no checkbox)";
     }
+  }
 
+  async CreateNewCodes() {
+
+    var listOfCodeNames = this._NewCode.attribute_name;
+    //remove any trailing ','
+    listOfCodeNames = listOfCodeNames.replace(/,\s*$/, "");
+
+    var arrayOfCodeNames = new Array();
+    arrayOfCodeNames = listOfCodeNames.split(",");
+
+    for (let i = 0; i < arrayOfCodeNames.length; i++) {
+      if (arrayOfCodeNames[i].trim() == "") continue;
+      this.newCodeSetup();
+      this._NewCode.attribute_name = arrayOfCodeNames[i].trim();
+      console.log("will create:", this._NewCode, this.CodeTypeSelect);
+
+      await this._reviewSetsEditingService.SaveNewAttribute(this._NewCode)
+        .then(
+          success => {
+            if (success && this.CurrentNode) {
+              this.CurrentNode.attributes.push(success);
+              console.log('this is the current node: ', this.CurrentNode);
+            }
+            this._NewCode = new SetAttribute();
+            this.CancelActivity(true);
+          },
+          error => {
+            this.CancelActivity();
+            console.log("error saving new code:", error, this._NewCode);
+          })
+        .catch(
+          error => {
+            console.log("error(catch) saving new code:", error, this._NewCode);
+            this.CancelActivity();
+          }
+        );
+
+    }
+
+
+      /*////////////////////////////////
+
+      result: SetAttribute | null = await this._reviewSetsEditingService.SaveNewAttribute(newCode[i]);
+      if (result) continue;
+      else { show some error, stop cycling }Code
+
+      ////////////////*/
+
+  }
+
+
+
+  CreateNewCode() {
+    this.newCodeSetup();
     console.log("will create:", this._NewCode, this.CodeTypeSelect);
+
     this._reviewSetsEditingService.SaveNewAttribute(this._NewCode)
       .then(
         success => {
@@ -144,6 +209,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
         }
       );
   }
+
   CancelActivity(refreshTree?: boolean) {
     if (this._NewCode) {
       this._NewCode = new SetAttribute();

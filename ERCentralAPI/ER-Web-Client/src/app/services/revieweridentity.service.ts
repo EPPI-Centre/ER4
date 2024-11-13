@@ -30,7 +30,7 @@ export class ReviewerIdentityService implements OnDestroy {
     }
   private get _baseUrl() { return this.configService.baseUrl; }
     private ID: number = Math.random();
-    @Output() OpeningNewReview = new EventEmitter<void>();
+    
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
     public exLgtCheck: LogonTicketCheck = new LogonTicketCheck("", "");
     public modalMsg: string = '';
@@ -254,7 +254,8 @@ export class ReviewerIdentityService implements OnDestroy {
                 fakeResult.name = '{ERROR: In API Call}';
                 if (error && error.status) {
                     if (error.status && error.status == 403) {
-                        fakeResult.ticket = "Login Failed";
+                      if (error.error == "") fakeResult.ticket = "Login Failed";
+                      else fakeResult.ticket = "Login Failed. " + error.error;
                     }
                     else {
                         fakeResult.ticket = "Unexpected error" + (error.status ? " (" + error.status + ")" : "")

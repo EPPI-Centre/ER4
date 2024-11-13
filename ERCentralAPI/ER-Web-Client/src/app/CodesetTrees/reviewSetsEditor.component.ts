@@ -97,6 +97,15 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     if (!this.ReviewSetsService.selectedNode) return null;
     else return this.ReviewSetsService.selectedNode;
   }
+  public get CurrentNodeId(): number | null {
+    if (!this.CurrentNode) return null;
+    else if (this.CurrentNode.nodeType == 'ReviewSet') {
+      return (this.CurrentNode as ReviewSet).set_id;
+    } else if (this.CurrentNode.nodeType == 'SetAttribute') {
+      return (this.CurrentNode as SetAttribute).attribute_id;
+    }
+    return null;
+  }
   public get CurrentNodeAsReviewSet(): ReviewSet | null {
     return this.ReviewSetsService.selectedNode as ReviewSet;
   }

@@ -31,16 +31,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() item: Item | undefined;
   // Correction for unit of analysis error
   public ShowCFUOAEBool: boolean = false;
-  public OutcomeTypeList: OutcomeType[] = [
-    { "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
-    { "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
-    { "outcomeTypeId": 2, "outcomeTypeName": "Binary: 2 x 2 table" },
-    { "outcomeTypeId": 3, "outcomeTypeName": "Continuous: N, Mean, and SE" },
-    { "outcomeTypeId": 4, "outcomeTypeName": "Continuous: N, Mean, and CI" },
-    { "outcomeTypeId": 5, "outcomeTypeName": "Continuous: N, t- or p-value" },
-    { "outcomeTypeId": 6, "outcomeTypeName": "Diagnostic test: 2 x 2 table" },
-    { "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
-  ];
+  public get OutcomeTypeList(): OutcomeType[] {
+    return this._OutcomesService.OutcomeTypeList;
+  }
 
   public get currentOutcomeHasChanges(): boolean {
     return this._OutcomesService.currentOutcomeHasChanges;

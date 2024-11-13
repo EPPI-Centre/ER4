@@ -127,3 +127,24 @@ Importantly, the "callback" URL needs to be known and authorised on the Cochrane
 - `https://ssru38.ioe.ac.uk/ERx/ArchieCallBack` is what we used before "separating" Angular and API projects. Might be useful sometime in the future.
 - `https://ssru38.ioe.ac.uk:4200/ArchieCallBack` is the present one for ER6 in dev.
 
+## Summary of Config changes to make oAuth with Cochrane work:
+1. change "launch" profile for the **Client** so to make it start the `SSRU38 (chrome)` debug target.
+1. In `[API root]\appsettings.Development.json` change the `clientURL` to `https://ssru38.ioe.ac.uk:4200`.
+1. in `\ER-Web-Client\package.json` change the `start` value to `ng serve --hmr --host ssru38.ioe.ac.uk --ssl`
+1. [Optional] if you need to change the target environment (from `test-` to `training-`):
+    1. Change `Appsettings.json` values for: `CochraneoAuthBaseAddress`, `CochraneAPIBaseAddress`
+    1. Change `appsettings.Development.json` value for: `CochraneOAuthSS`
+    1. In the client, change `revieweridentity.service.ts`. In the `GoToArchie()` method, the hardoced URL for the test environment needs to be updated.
+1. [If necessary] get a fresh start, including:
+    1. Stop debugging
+    1. Close the `ng serve` Command window, as it's likely serving the wrong URL (`http://localhost:4200` instead of `https://ssru38.ioe.ac.uk:4200`)
+    1. Start debugging
+
+Upon finishing the work, make sure you do not commit changes files that would break other dev environment and ensure ER will run normally:
+
+- `package.json` - this needs to go back to the old value of `ng serve --hmr`
+- Pick the regular debug environment for the client startup properties
+- Possibly undo changes to `appsettings.json` (and `appsettings.developer.json`, which Git ignores anyway!). No secret should be in the former, regular values for the normal test environemnt should be left in both files.
+- Check changes in `revieweridentity.service.ts` so to ensure it points to `https://test-login.cochrane.org`
+
+

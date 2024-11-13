@@ -20,47 +20,23 @@ using BusinessLibrary.Security;
 using System.Net;
 using System.IO;
 using System.Xml.Linq;
-#endif
-#if CSLA_NETCORE
-using Microsoft.Extensions.Configuration;
+using BusinessLibrary.BusinessClasses;
+using Newtonsoft.Json;
+
 #endif
 
-using Newtonsoft.Json;
+
 
 
 namespace BusinessLibrary.Security
 {
 
     [Serializable]
-    
+
     public class ArchieIdentity : BusinessBase<ArchieIdentity>
     {
         public ArchieIdentity()
         { }
-
-        private static void BuildConfig()
-        {
-#if CSLA_NETCORE
-            Microsoft.Extensions.Configuration.IConfigurationBuilder builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder();
-            builder.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"));
-
-            RootConfig = builder.Build();
-#endif
-        }
-
-#if (!CSLA_NETCORE && !SILVERLIGHT)
-        System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
-#elif (CSLA_NETCORE && !SILVERLIGHT)
-        private static class ser
-        {
-            public static object DeserializeObject(string json)
-            {
-                var res = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-                return res;
-            }
-        }
-        private static IConfigurationRoot RootConfig; 
-#endif
 
         public static readonly PropertyInfo<string> ArchieIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieID", "ArchieID"));
         public string ArchieID
@@ -132,6 +108,34 @@ namespace BusinessLibrary.Security
         }
 
 #if !SILVERLIGHT
+
+        private static class ser
+        {
+            public static object DeserializeObjectToDictionary(string json)
+            {
+                try
+                {
+                    var res = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                    return res;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            public static object DeserializeObject(string json)
+            {
+                try
+                {
+                    var res = JsonConvert.DeserializeObject(json);
+                    return res;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
         //string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + "k45m19g80")).Trim();
         string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + CochraneOAuthSS)).Trim();
         internal static ArchieIdentity GetArchieIdentity(string code, string status)
@@ -222,7 +226,12 @@ namespace BusinessLibrary.Security
                         webc.Dispose();
                     }
                 }
-                dict = (Dictionary<string, object>)ser.DeserializeObject(json);
+                dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+                if (dict == null)
+                {
+                    MarkAuthenticationFailed("Access denied, could not obtain Access tokens.", "The request failed with an unexpected error.");
+                    return;
+                }
                 if (dict.ContainsKey("access_token"))
                 {
                     Token = dict["access_token"].ToString();
@@ -247,49 +256,7 @@ namespace BusinessLibrary.Security
                 {
                     ErrorReason = dict["error_description"].ToString();
                 }
-                if (Error == "")
-                    //legacy code, used when all Cochrane accounts had legitimate access to ER4. We now use a != API call to learn who the user is and if it has access.
-                    //{
-                    //    //all data from first round trip to Archie is filled in, now, if user is authenticated, we need to find out who this person is
-                    //    WebClient ValidateWC = new WebClient();
-                    //    ValidateWC.Headers[HttpRequestHeader.Authorization] = "Bearer " + authInfo;
-                    //    nvcoll.Clear();
-                    //    nvcoll.Add("access_token", Token);
-                    //    nvcoll.Add("detailed", "true");
-                    //    dest = BaseAddress + "/oauth2/tokeninfo";
-                    //    try
-                    //    {
-                    //        byte[] responseArray = ValidateWC.UploadValues(dest, "POST", nvcoll);
-                    //        json = Encoding.ASCII.GetString(responseArray);
-                    //        ValidateWC.Dispose();
-                    //    }
-                    //    catch (WebException we)
-                    //    {//if request is unsuccessful, we get an error inside the WebException
-                    //        WebResponse wr = we.Response;
-                    //        using (var reader = new StreamReader(wr.GetResponseStream()))
-                    //        {
-                    //            json = reader.ReadToEnd();
-                    //        }
-                    //    }
-                    //    dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-                    //    if (dict.ContainsKey("error"))
-                    //    {
-                    //        Error = "Token Failed Validation: " + dict["error"].ToString();
-                    //        if (dict.ContainsKey("error_description"))
-                    //        {
-                    //            ErrorReason = dict["error_description"].ToString();
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        if (dict.ContainsKey("user_id"))
-                    //        {
-                    //            ArchieID = dict["user_id"].ToString();
-                    //            SaveTokens();
-                    //        }
-                    //    }
-                    //}
-                    VerifyUserRoles();
+                if (Error == "") VerifyUserRoles();
                 if (IsAuthenticated) SaveTokens();
             }
             else
@@ -332,87 +299,30 @@ namespace BusinessLibrary.Security
 
                         VerifyUserRoles();
                         if (IsAuthenticated) SaveTokens();
-                        //old CODE using TokenInfo, we now get info about the person instead (to check for membership)
-                        //WebClient ValidateWC = new WebClient();
-                        //ValidateWC.Headers[HttpRequestHeader.Authorization] = "Bearer " + authInfo;
-                        //nvcoll.Clear();
-                        //nvcoll.Add("access_token", Token);
-                        ////no need to get details?
-                        ////nvcoll.Add("detailed", "true");
-                        //dest = BaseAddress + "/oauth2/tokeninfo";
-                        //try
-                        //{
-                        //    byte[] responseArray = ValidateWC.UploadValues(dest, "POST", nvcoll);
-                        //    json = Encoding.ASCII.GetString(responseArray);
-                        //    ValidateWC.Dispose();
-                        //}
-                        //catch (WebException we)
-                        //{//if request is unsuccessful, we get an error inside the WebException
-                        //    WebResponse wr = we.Response;
-                        //    using (var reader = new StreamReader(wr.GetResponseStream()))
-                        //    {
-                        //        json = reader.ReadToEnd();
-                        //    }
-                        //}
-                        //dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-                        //if (dict.ContainsKey("error"))
-                        //{
-                        //    //Error = "Token Failed Validation: " + dict["error"].ToString();
-                        //    Token = "";//we just remove the token, reasons will be set below
-                        //    ValidUntil = DateTime.Now.AddDays(-1);
-                        //    //if (dict.ContainsKey("error_description"))
-                        //    //{
-                        //    //    ErrorReason = dict["error_description"].ToString();
-                        //    //}
-                        //}
-                        //else
-                        //{
-                        //    if (!dict.ContainsKey("user_name"))
-                        //    {//something is wrong, the tokeninfo call did not yeild the expected results
-                        //        Token = "";//we just remove the token, reasons will be set below
-                        //        ValidUntil = DateTime.Now.AddDays(-1);
-                        //    }
-                        //}
+
                     }
-
-                    //actually, none of the below should happen:
-                    //if Token is not present, this Ai is not authenticated, but the presence of ArchieID and Refresh token tell Ri that it's worth checking for an active ticket,
-                    //if an active ticket is there (and the user is trying to load a review), we can still trust this client.
-
-                    ////now we know if the token is fresh (younger than 60 minutes)
-                    //if ((Token == null || Token == "") && RefreshToken != null && RefreshToken.Length == 64
-                    //            && ArchieID != null && ArchieID != "")
-                    //{//not well! Token was expired, user may need to re-authenticate via UI, but we still want RI to get access to the ArchieID
-                    //    //when this is happening because the user is logging on a review with Code&State, we leave the refresh token in place to allow fetching a valid Ri 
-                    //    //object if and only if the current ticket is valid
-                    //    //RefreshToken = "";
-                    //    Token = "";
-                    //    //Error = "No Fresh Archie Token";
-                    //    //ErrorReason = "Saved token was expired";
-                    //    //ArchieID = "";
-                    //    //we don't wipe ArchieID because:
-                    //    //OK, archie Token is expired, but user might be changing review, so we can still trust him/her in case there is associated valid LogonTicket
-                    //}
                 }
             }
         }
 
-        
+
         private void VerifyUserRoles()
         {
             {
-                //all data from first round trip to Archie is filled in, 
-                //now, if user is authenticated, we need to find out who this person is.
-                //But fisrt, check if it has some supervised role, otherwise it is a self-generated Cochrane account (open to anyone)
-                //in which case access should be denied.
-
-                string dest = BaseAddress + "rest/people/me";
+                //all data from first round trip to Cochrane (oAuth) is filled in, 
+                //now, if user is authenticated, we need to check if user has some supervised role, otherwise it is a self-generated Cochrane account (open to anyone)
+                //in which case access should be denied. 
+                // IsAuthenticated property will return false if we wipe out the token and refresh token values...
+                
+                string dest = AzureSettings.CochraneAccountBaseAddress + "api/me";
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
                 HttpWebResponse response = null;
                 request.Method = "GET";
-                request.MediaType = "application/xml";
+                request.MediaType = "application/json";
                 request.Headers.Add("Authorization", "Bearer " + Token);
-                string json = ""; Dictionary<string, object> dict;
+                string result = "";//used internally to decide what to do
+                string json = ""; 
+                Dictionary<string, object> dict;
                 try
                 {
                     response = (HttpWebResponse)request.GetResponse();
@@ -423,91 +333,167 @@ namespace BusinessLibrary.Security
                 }
                 catch (WebException we)
                 {//if request is unsuccessful, we get an error inside the WebException
-                    WebResponse wr = we.Response;
-                    using (var reader = new StreamReader(wr.GetResponseStream()))
+                    if (we.Message.StartsWith("The remote server returned an error: (401)"))
                     {
-                        json = reader.ReadToEnd();
+                        MarkAuthenticationFailed("Access denied, could not verify user roles", "The request to verify roles was not authorised.");                        
+                        return;
                     }
-                }
-                //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
-                dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-                if (dict.ContainsKey("error"))
-                {
-                    Error = "Token Failed Validation: " + dict["error"].ToString();
-                    if (dict.ContainsKey("error_description"))
+                    else if (we.Response != null)
                     {
-                        ErrorReason = dict["error_description"].ToString();
-                    }
-                }
-                else
-                {
-                    string result = "";
-                    if (dict.ContainsKey("groupRoles"))
-                    {
-#if (CSLA_NETCORE)
-                        Newtonsoft.Json.Linq.JArray meR = dict["groupRoles"] as Newtonsoft.Json.Linq.JArray;
-                        object[] roles = dict["groupRoles"] as object[];
-                        foreach(Newtonsoft.Json.Linq.JToken role in meR)
-#else
-                        object[] roles = dict["groupRoles"] as object[];
-                        foreach (Dictionary<string, object> role in roles)
-#endif
+                        string error = "Access denied, could not verify user roles.";
+                        string errDescr = "";
+                        WebResponse wr = we.Response;
+                        using (var reader = new StreamReader(wr.GetResponseStream()))
                         {
-                            if (role["name"].ToString().ToLower() != "possible contributor"
-                                && role["name"].ToString().ToLower() != "mailing list"
-                                && role["name"].ToString().ToLower() != "other")
+                            if (reader != null)
                             {
-                                if (dict.ContainsKey("user"))
+                                json = reader.ReadToEnd();
+                                if (json != "")
                                 {
-#if (CSLA_NETCORE)
-                                    var userD = dict["user"]  as Newtonsoft.Json.Linq.JToken; 
-                                    if (userD != null && userD["userId"] != null)
+                                    dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+                                    if (dict != null && dict.ContainsKey("detail"))
                                     {
-                                        ArchieID = userD["userId"].ToString();
-                                        result = "OK";
-                                        break;
+                                        errDescr = dict["detail"].ToString();
+                                        if (dict.ContainsKey("status"))
+                                        {
+                                            errDescr += " (" + dict["status"].ToString() + ")";
+                                        }
+                                        MarkAuthenticationFailed(error, errDescr);
+                                        return;
                                     }
-                                    else result = "no userId for this person!";
-#else
-                                     Dictionary<string, object> userD = dict["user"] as Dictionary<string, object>;
-
-                                    if (userD.ContainsKey("userId"))
+                                    else if (dict != null && dict.ContainsKey("error"))
                                     {
-                                        ArchieID = userD["userId"].ToString();
-                                        result = "OK";
-                                        break;
+                                        errDescr = dict["error"].ToString();
+                                        if (dict.ContainsKey("status"))
+                                        {
+                                            errDescr += " (" + dict["status"].ToString() + ")";
+                                        }
+                                        MarkAuthenticationFailed(error, errDescr);
+                                        return;
                                     }
-                                    else result = "no userId for this person!";
-#endif
-                                }
-                                else
-                                {
-                                    result = "no user Info returned!";
-                                    break;
                                 }
                             }
                         }
                     }
-                    if (result != "OK")
-                    {
-                        Token = "";
-                        RefreshToken = "";
-                        ValidUntil = DateTime.Now.AddMonths(-1);
-                        if (result == "")
-                        {
-                            Error = "Access denied, not an Author";
-                            ErrorReason = "No suitable groupRoles found";
-                        }
-                        else
-                        {
-                            Error = "Access denied, can't verify";
-                            ErrorReason = "The call to rest/people/me returned data, but " + result;
-                        }
-
-                    }
-
+                    MarkAuthenticationFailed("Access denied, could not verify user roles.", "The request to verify roles failed unexpectedly.");
+                    return;
                 }
+                //if we've reached this point, we should have a CochraneAccount serialised in the response contents
+                CochraneAccount ca = new CochraneAccount();
+                ca = JsonConvert.DeserializeObject<CochraneAccount>(json);
+                
+                if (ca == null || ca.cochraneId == "") 
+                {
+                    MarkAuthenticationFailed("Access denied, could not verify user roles.", "Did not receive a valid Cochrane User for verification.");
+                    return;
+                }
+                //check for user details, does it have the isCochraneAuthor value set to true?
+                if (ca.isCochraneAuthor == true)
+                {
+                    ArchieID = ca.cochraneId;
+                    return;
+                }
+                else
+                {
+                    //user was authenticated in Cochrane, tokens retrieved, all that works.
+                    //but: user does not have the isCochraneAuthor flag set to true. There are 2 possible reasons for this:
+                    //1. it's a new user, who just can't get the Cochrane link/licensing as they aren't a cochrane author
+                    //OR
+                    //2. it's an existing user, who has now lost their CochraneAuthor status (as of Nov 2024, this can happen)
+                    //So we check for this possibility and return two different errors depending on what we find.
+                    //In this case, we also unlink the ER account to the now disempowered Cochrane account.
+                    bool isSiteAdmin; string contactName;
+                    int CID = 0;
+                    try
+                    {
+                        ArchieID = ca.cochraneId;
+                        CID = getContactID(out isSiteAdmin, out contactName);
+                    }
+                    finally
+                    {//making extra sure we wipe the ArchieID, as we shouldn't use it!
+                        ArchieID = "";
+                    }
+                    if (CID == 0)
+                    {//easy case: new user and not a cochrane author
+                        MarkAuthenticationFailed("Access denied.", "Not a Cochrane Author.");
+                    }
+                    else
+                    {//more to do, we need to unlink this ER account from their not-licensed-anymore Cochrane account.                        
+                        UnlinkERaccountFromCochraneAccount(CID, ca.cochraneId);
+                        MarkAuthenticationFailed("Access denied.", "This account is no longer a Cochrane Author.");
+                    }
+                }
+
+                //old code use for Archie, which is dead/dying as of Oct 2024
+                ////System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
+                //dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+                //if (dict.ContainsKey("error"))
+                //{
+                //    Error = "Token Failed Validation: " + dict["error"].ToString();
+                //    if (dict.ContainsKey("error_description"))
+                //    {
+                //        ErrorReason = dict["error_description"].ToString();
+                //    }
+                //}
+                //else
+                //{
+                //    string result = "";
+                //    if (dict.ContainsKey("groupRoles"))
+                //    {
+                //        Newtonsoft.Json.Linq.JArray meR = dict["groupRoles"] as Newtonsoft.Json.Linq.JArray;
+                //        foreach (Newtonsoft.Json.Linq.JToken role in meR)
+                //        {
+                //            if (role["name"].ToString().ToLower() != "possible contributor"
+                //                && role["name"].ToString().ToLower() != "mailing list"
+                //                && role["name"].ToString().ToLower() != "other")
+                //            {
+                //                if (dict.ContainsKey("user"))
+                //                {
+
+                //                    var userD = dict["user"] as Newtonsoft.Json.Linq.JToken;
+                //                    if (userD != null && userD["userId"] != null)
+                //                    {
+                //                        ArchieID = userD["userId"].ToString();
+                //                        result = "OK";
+                //                        break;
+                //                    }
+                //                    else result = "no userId for this person!";
+                //                }
+                //                else
+                //                {
+                //                    result = "no user Info returned!";
+                //                    break;
+                //                }
+                //            }
+                //        }
+                //    }
+                //    if (result != "OK")
+                //    {
+                //        Token = "";
+                //        RefreshToken = "";
+                //        ValidUntil = DateTime.Now.AddMonths(-1);
+                //        if (result == "")
+                //        {
+                //            Error = "Access denied, not an Author";
+                //            ErrorReason = "No suitable groupRoles found";
+                //        }
+                //        else
+                //        {
+                //            Error = "Access denied, can't verify";
+                //            ErrorReason = "The call to rest/people/me returned data, but " + result;
+                //        }
+
+                //    }
+
+                //}
             }
+        }
+        private void MarkAuthenticationFailed(string error, string errorReason)
+        {
+            Token = "";
+            RefreshToken = "";
+            Error = error;
+            ErrorReason = errorReason;
         }
         private ArchieIdentity(string code, string status, int ContactID)
         {//this is used to create the identity using values in TB_UNASSIGNED_ARCHIE_KEYS
@@ -673,7 +659,11 @@ namespace BusinessLibrary.Security
                     }
                 }
             }
-            dict = (Dictionary<string, object>)ser.DeserializeObject(json);
+            dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+            if (dict == null)
+            {
+                MarkAuthenticationFailed("Access denied, failed to refresh access token.", "The request failed with an unexpected error.");
+            }
             if (dict.ContainsKey("access_token"))
             {
                 Token = dict["access_token"].ToString();
@@ -728,7 +718,7 @@ namespace BusinessLibrary.Security
             //    && ArchieID != null && ArchieID != "")
             if (Token != null && Token.Length >= 30 && RefreshToken != null && RefreshToken.Length >= 30
                 && ArchieID != null && ArchieID != "")
-                {//we can do something
+            {//we can do something
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
@@ -796,6 +786,20 @@ namespace BusinessLibrary.Security
                 }
             }
         }
+        private void UnlinkERaccountFromCochraneAccount(int ContactId, string InvalidCochraneId)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ArchieUnlinkAccount", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ARCHIE_ID", InvalidCochraneId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
         private string _Token, _RefreshToken, _code, _status;
         private DateTime _ValidUntil;
         [JsonIgnore]
@@ -828,157 +832,69 @@ namespace BusinessLibrary.Security
             get { return _ValidUntil; }
             private set { _ValidUntil = value; }
         }
-        
+
         private string BaseAddress
         {
             get
             {
-#if (!CSLA_NETCORE)
-                return System.Configuration.ConfigurationManager.AppSettings["CochraneArchieBaseAddress"];
-#else
-                if (RootConfig == null) BuildConfig();
-                var CochraneArchieBaseAddress = RootConfig.GetValue<string>("AppSettings:CochraneArchieBaseAddress");
-                if (CochraneArchieBaseAddress == null || CochraneArchieBaseAddress == "") throw new Exception("No CochraneArchieBaseAddress!");
-                return CochraneArchieBaseAddress;
-#endif
-                //string host = Environment.MachineName.ToLower();
-                //if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-                //{//use live address: this is the real published ER4
-                //    return "https://archie.cochrane.org/";
-                //}
-                //if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
-                //{//use live address: this is the real published ER4
-                //    return "https://archie.cochrane.org/";
-                //}
-                //else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                //    //changes are to be made here depending on what test we're doing
-                //    return "https://test-archie.cochrane.org/";
-                //}
-                //else
-                //{//not a live publish, use test archie
-                //    return "https://test-archie.cochrane.org/";
-                //}
+                string res = AzureSettings.CochraneAPIBaseAddress;
+                if (res == null || res == "")
+                {
+                    throw new Exception("No Cochrane API base address!");
+                }
+                return res;
             }
         }
 
-        //private string AccountBaseAddress
-        //{
-        //    get
-        //    {
-        //        string host = Environment.MachineName.ToLower();
-        //        if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-        //        {//use live address: this is the real published ER4
-        //            return "https://account.cochrane.org/";
-        //        }
-        //        if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
-        //        {//use live address: this is the real published ER4
-        //            return "https://account.cochrane.org/";
-        //        }
-        //        else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-        //        {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-        //            //changes are to be made here depending on what test we're doing
-        //            return "https://test-account.cochrane.org/";
-        //        }
-        //        else
-        //        {//not a live publish, use test archie
-        //            return "https://test-account.cochrane.org/";
-        //        }
-        //    }
-        //}
+
         private static string oAuthBaseAddress
         {
             get
             {
-#if (!CSLA_NETCORE)
-                return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthBaseUrl"];
-#else
-                if (RootConfig == null) BuildConfig();
-                var CochraneoAuthBaseAddress = RootConfig.GetValue<string>("AppSettings:CochraneoAuthBaseAddress");
-                if (CochraneoAuthBaseAddress == null || CochraneoAuthBaseAddress == "") throw new Exception("No CochraneoAuthBaseAddress!");
-                return CochraneoAuthBaseAddress;
-                //string host = Environment.MachineName.ToLower();
-                //if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-                //{//use live address: this is the real published ER4
-                //    return "https://login.cochrane.org/";
-                //}
-                //else
-                //{//not a live publish, use test archie 
-                //    return "https://test-login.cochrane.org/";
-                //}
-
-#endif
+                string res = AzureSettings.CochraneoAuthBaseAddress;
+                if (res == null || res == "")
+                {
+                    throw new Exception("No Cochrane oAuth base address!");
+                }
+                return res;
             }
         }
         private static string CochraneOAuthSS
         {
             get
             {
-#if (!CSLA_NETCORE)
-                return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthSS"];
-#else
-                if (RootConfig == null) BuildConfig();
-                var connectionString = RootConfig.GetValue<string>("AppSettings:CochraneOAuthSS");
-                if (connectionString == null || connectionString == "") throw new Exception("No client secret!");
-                return connectionString;
-#endif
+                string res = AzureSettings.CochraneOAuthSS;
+                if (res == null || res == "")
+                {
+                    throw new Exception("No Cochrane client secret!");
+                }
+                return res;
             }
         }
         private string Redirect
         {
             get
             {
-#if (!CSLA_NETCORE)
-                string host = Environment.MachineName.ToLower();
-
-                string redirect = "";
-                redirect = System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthRedirectUri"];
-                //if (host == "eppi.ioe.ac.uk" || host == "epi2" || host == "epi2.ioe.ac.uk")
-                //{//use live address: this is the real published ER4
-                //    redirect = "https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx";
-                //}
-                //else if (host == "http://epi3.westeurope.cloudapp.azure.com" || host == "epi3")
-                //{//not clear, when azure environment goes live, this should point to eppi.ioe.ac.uk, before that, for testing it might be worth pointing to epi3.westeurope.cloudapp.azure.com
-                //    redirect = "https://eppi.ioe.ac.uk/eppireviewer4/ArchieCallBack.aspx";
-                //}
-                //else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                //    //changes are to be made here depending on what test we're doing
-                //    redirect = "https://bk-epi.ioe.ac.uk/testing/er4/ArchieCallBack.aspx";
-                //}
-                //else if (host == "eppi-management")
-                //{//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                //    //changes are to be made here depending on what test we're doing
-                //    redirect = "https://eppi-management/WcfHostPortal/ArchieCallBack.aspx";
-                //}
-                //else
-                //{//not a live publish, use test archie
-                //    //this won't work if used on a machine that isn't mine!!!!
-                //    //!!!needs to be changed for ER4.
-                //    redirect = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";
-                //}
-                return redirect;
-#else
-                if (RootConfig == null) BuildConfig();
-                var CochraneOAuthRedirectUri = RootConfig.GetValue<string>("AppSettings:CochraneOAuthRedirectUri");
-                return CochraneOAuthRedirectUri;
-#endif
+                string res = AzureSettings.CochraneOAuthRedirectUri;
+                if (res == null || res == "")
+                {
+                    throw new Exception("No redirect URL value!");
+                }
+                return res;
             }
         }
-
+        /// <summary>
+        /// DEPRECATED - Archie used to provide answers in XML, but Archie is dead (dying as of Oct 2024), and the new API provides answers in JSON
+        /// </summary>
+        /// <param name="PartialEndpoint"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public XDocument GetXMLQuery(string PartialEndpoint, Dictionary<string, string> parameters)
         {
             if (!IsAuthenticated) return null;
             string dest = BaseAddress + PartialEndpoint;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
-            //WebClient webc = new WebClient();
-            //webc.Headers[HttpRequestHeader.Authorization] = "Bearer " + accessToken ;
-            //webc.Headers[HttpRequestHeader.ContentType] = "application/xml";
-            //foreach (KeyValuePair<string, string> KVP in parameters)
-            //{
-            //    nvcoll.Add(KVP.Key , KVP.Value);
-            //}
+
             if (parameters != null && parameters.Count > 0)
             {
                 dest += "?";
@@ -1000,12 +916,6 @@ namespace BusinessLibrary.Security
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
 
-
-
-            //// Write data
-            //Stream postStream = request.GetRequestStream();
-            //postStream.Write(byteArray, 0, byteArray.Length);
-            //postStream.Close();
 
             // Send Request & Get Response
             string json = "";
@@ -1031,25 +941,73 @@ namespace BusinessLibrary.Security
                 }
             }
 
-
-            //try
-            //{
-            //    byte[] responseArray = webc.UploadValues(dest, "GET", nvcoll);
-            //    json = Encoding.ASCII.GetString(responseArray);
-            //}
-            //catch (WebException we)
-            //{//if request is unsuccessful, we get an error inside the WebException
-            //    WebResponse wr = we.Response;
-            //    using (var reader = new StreamReader(wr.GetResponseStream()))
-            //    {
-            //        json = reader.ReadToEnd();
-            //    }
-            //}
-            //Dictionary<string, object> dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-            //return dict;
             return XDocument.Parse(json);
         }
+        public object GetJson(string PartialEndpoint, List<KeyValuePair<string, string>> parameters)
+        {
+            if (!IsAuthenticated) return null;
+            string dest = BaseAddress + PartialEndpoint;
+            System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
 
+            if (parameters != null && parameters.Count > 0)
+            {
+                dest += "?";
+            }
+            bool First = true;
+            foreach (KeyValuePair<string, string> KVP in parameters)
+            {
+                if (!First)
+                {
+                    dest += "&";
+
+                }
+                else
+                {
+                    First = false;
+                }
+                dest += KVP.Key + "=" + KVP.Value;
+            }
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
+
+            // Send Request & Get Response
+            string json = "";
+            HttpWebResponse response = null;
+            request.Method = "GET";
+            request.MediaType = "application/json";
+            request.Headers.Add("Authorization", "Bearer " + Token);
+
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    json = reader.ReadToEnd();
+                }
+            }
+            catch (WebException we)
+            {
+                WebResponse wr = we.Response;
+                using (var reader = new StreamReader(wr.GetResponseStream()))
+                {
+                    json = reader.ReadToEnd();
+                }
+            }
+
+
+            Dictionary<string, object> dict = (Dictionary<string, object>)ser.DeserializeObjectToDictionary(json);
+            if (dict != null && dict["Reviews"] != null)
+            {
+                object toParse = dict["Reviews"];
+                if (toParse != null)
+                {
+                    var res = ser.DeserializeObject(toParse.ToString());
+                    return res;
+                }
+            }
+            return dict;
+            //return XDocument.Parse(json);
+        }
         public XDocument CheckOutReview(string ArchieReviewID)
         {
             if (!IsAuthenticated) return null;
@@ -1127,7 +1085,21 @@ namespace BusinessLibrary.Security
             res = "Done";
             return res;
         }
+
+        private class CochraneAccount
+        {
+            public string cochraneId { get; set; } = "";
+            public string prefix { get; set; } = "";
+            public string firstName { get; set; } = "";
+            public string middleInitial { get; set; } = "";
+            public string lastName { get; set; } = "";
+            public string suffix { get; set; } = "";
+            public string country { get; set; } = "";
+            public string membershipStatus { get; set; } = "";
+            public bool isCochraneAuthor { get; set; } = false;
+            public bool isCochraneCore { get; set; } = false;
+        }
 #endif
 
-            }
-        }
+    }
+}

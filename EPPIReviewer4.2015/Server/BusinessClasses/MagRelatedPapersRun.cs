@@ -452,24 +452,24 @@ namespace BusinessLibrary.BusinessClasses
                                     addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
                                     
                                 }
-                                results = DoDateFilter(results);
+                                //results = DoDateFilter(results);
                                 break;
                             case "Bibliography":
                                 foreach (string s in pm.referenced_works)
                                 {
                                     addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
                                 }
-                                results = DoDateFilter(results);
+                                //results = DoDateFilter(results);
                                 break;
                             case "Cited by":
-                                getCitedWorks(pm.id, results);
+                                getCitedWorks(pm.id, results);//filters by date therein
                                 break;
                             case "BiCitation":
                                 foreach (string s in pm.referenced_works)
                                 {
                                     addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
                                 }
-                                results = DoDateFilter(results);
+                                //results = DoDateFilter(results);
                                 getCitedWorks(pm.id, results);
                                 break;
                             case "Bi-Citation AND Recommendations":
@@ -481,15 +481,15 @@ namespace BusinessLibrary.BusinessClasses
                                 {
                                     addUniqueToList(results, s.Replace("https://openalex.org/W", ""));
                                 }
-                                results = DoDateFilter(results);
+                                //results = DoDateFilter(results);
                                 getCitedWorks(pm.id, results);
                                 break;
                         }
                     }
                 }
-                
 
-            
+                results = DoDateFilter(results);
+
                 // 3. save the IDs in the database
                 DataTable dt = new DataTable("Ids");
                 dt.Columns.Add("MAG_RELATED_PAPERS_ID");

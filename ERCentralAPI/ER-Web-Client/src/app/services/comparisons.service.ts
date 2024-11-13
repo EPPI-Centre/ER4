@@ -68,6 +68,9 @@ export class ComparisonsService extends BusyAwareService implements OnDestroy {
     this._Comparisons = orderBy(this._Comparisons, this.sort);
   }
 
+  public CodingOnlyHasComparisonsExpanded: boolean = false;
+  
+
   public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number, chosenParent: any): Promise<any> {
 
     this._BusyMethods.push("FetchComparisonReport");
