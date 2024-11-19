@@ -20,6 +20,7 @@ using BusinessLibrary.Security;
 using Microsoft.Azure.Search.Models;
 using System.Reflection;
 using EPPIDataServices.Helpers;
+using System.Security.Cryptography;
 
 
 namespace BusinessLibrary.BusinessClasses
@@ -52,14 +53,21 @@ namespace BusinessLibrary.BusinessClasses
         }
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_RobotApiCallLogMarkOldJobsAsFailed", connection))
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.ExecuteNonQuery();
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_RobotApiCallLogMarkOldJobsAsFailed", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "RobotOpenAiHostedService Error, at marking failed jobs");
             }
             await Task.Delay(1000);
             CancellationToken InternalToken = TokenSource.Token;
@@ -80,8 +88,15 @@ namespace BusinessLibrary.BusinessClasses
                 catch (Exception e)
                 {
                     Logger.LogException(e, "RobotOpenAiHostedService main loop error");
-                }          
-                await Task.Delay(30000, InternalToken);
+                }
+                try
+                {
+                    await Task.Delay(30000, InternalToken);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogException(e, "RobotOpenAiHostedService main loop error in Task.Delay");
+                }
             }
             Task.WaitAll(ApiKeyTasks.ToArray());
             if (CreditWorker != null) CreditWorker.Wait();
@@ -94,7 +109,14 @@ namespace BusinessLibrary.BusinessClasses
                 RobotOpenAiTaskReadOnly res = DataPortal.Fetch<RobotOpenAiTaskReadOnly>(RobotOpenAiTaskCriteria.NewNextCreditTaskCriteria());
                 if (res != null && res.RobotApiCallId > 0)
                 {
-                    CreditWorker = Task<String>.Factory.StartNew((TaskCriteria) => DoWork(res, cancellationToken), res);
+                    if (res.UseFullTextDocument == false)
+                    {
+                        CreditWorker = Task<String>.Factory.StartNew((TaskCriteria) => DoGPTWork(res, cancellationToken, new List<MarkdownItemsPdfCommand.MiniPdfDoc>()), res);
+                    }
+                    else
+                    {
+                        CreditWorker = Task<String>.Factory.StartNew((TaskCriteria) => DoPDFWork(res, cancellationToken), res);
+                    }
                 }
                 //if (CreditWorker == null) throw new InvalidOperationException("fake for testing");
             }
@@ -103,8 +125,162 @@ namespace BusinessLibrary.BusinessClasses
                 Logger.LogException(e, "RobotOpenAiHostedService FetchAndStartNextCreditJob error");
             }
         }
+        private string DoPDFWork(RobotOpenAiTaskReadOnly RT, CancellationToken ct) 
+        {
+            int ChildJobId = 0;
+            //first detect the case where we're restarting a cancelled job and the cancellation happened while DataFactory was marking down PDFs - in this case
+            //we don't want to start from scratch, but merely figure out when the parsing is done and then continue
+            if (RT.Status == "Paused" && RT.CurrentItemId == 0)
+            {
+                //MarkdownItemsPdfCommand might have been interrupted during DataFactory, we need to dig some more
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_LogReviewJobGetLatestMarkdownJob", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@ReviewId", RT.ReviewId));
+                            using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                            {
+                                if (reader.Read())
+                                {
+                                    string currentState = reader.GetString("CURRENT_STATE");
+                                    int success = reader.GetInt32("SUCCESS");
+                                    string JobMessage = reader.GetString("JOB_MESSAGE");
+                                    if (currentState == "Cancelled"
+                                        && success == 0 && JobMessage.StartsWith("DF RunId: "))
+                                    {//ok, we have everything we need...
+                                        ChildJobId = reader.GetInt32("REVIEW_JOB_ID");
+                                    }
 
-        private string DoWork(RobotOpenAiTaskReadOnly RT, CancellationToken ct)
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
+            //start MarkdownItemsPdfCommand, returns a reviewJobId upon itself doing a fire-and-forget thing
+            //monitor fire and forget record in tb_Review_Job, when it's finished we can just move on!
+            //finally, we start doing the GPT coding thing!
+            
+            MarkdownItemsPdfCommand markdownItemsPdfCommand = new MarkdownItemsPdfCommand(RT.ReviewId, RT.JobOwnerId, RT.RawCriteria.Substring(8), RT.RobotApiCallId, ChildJobId);
+
+            try
+            {
+                markdownItemsPdfCommand = DataPortal.Execute(markdownItemsPdfCommand);
+            }
+            catch (Exception e)
+            {
+                //Logger.LogException(e, "RobotOpenAiHostedService DoPDFWork error in Task.Delay");
+                if (markdownItemsPdfCommand.JobId > 0)
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(markdownItemsPdfCommand.JobId, RT.ReviewId, "Failed at sync step", "", "MarkdownItemsPdfCommand (in RobotOpenAiHostedService)", true, false);
+                }
+                LogRobotJobException(RT, "RobotOpenAiHostedService DoPDFWork error in markdownItemsPdfCommand execution", true, e);
+                return "Error";
+            }
+
+            while (!markdownItemsPdfCommand.Result.StartsWith("Cancelled")
+                    && !markdownItemsPdfCommand.Result.StartsWith("Failed")
+                    && !markdownItemsPdfCommand.Result.StartsWith("Done")
+                    && !markdownItemsPdfCommand.Result.StartsWith("Already Running"))
+            {
+                if (ct.WaitHandle.WaitOne(3000))//waits 3s or less, if cancellation is requested, in which case, returns true
+                {
+                    //cancellation was requested, so we stop
+                    break;
+                }                
+            }
+            if (markdownItemsPdfCommand.Result.StartsWith("Cancelled") || ct.IsCancellationRequested)
+            {//mark the robot job as "paused": we'll start again as the AppPool resumes
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", RT.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
+                            command.Parameters.Add(new SqlParameter("@STATUS", "Paused"));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
+                            command.Parameters["@CURRENT_ITEM_ID"].Value = 0;
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    if (markdownItemsPdfCommand.JobId > 0)
+                    {
+                        DataFactoryHelper.UpdateReviewJobLog(markdownItemsPdfCommand.JobId, RT.ReviewId, "Cancelled", "", "MarkdownItemsPdfCommand", true, false);
+                    }
+                } 
+                catch (Exception ex)
+                {
+                    Logger.LogException(ex, "Failed to mark jobs as paused/cancelled");
+                }
+                return "Cancelled";
+            }
+            else if (markdownItemsPdfCommand.Result.StartsWith("Failed"))
+            {
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", RT.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
+                            command.Parameters.Add(new SqlParameter("@STATUS", "Failed"));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
+                            command.Parameters["@CURRENT_ITEM_ID"].Value = 0;
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogException(ex, "Failed to mark GPT(pdf) job as failed");
+                }
+                Logger.LogError("markdownItemsPdfCommand for robot Job " + RT.RobotApiCallId + " failed, with message: " + markdownItemsPdfCommand.Result);
+                return "Failed";
+            }
+            else if (markdownItemsPdfCommand.Result.StartsWith("Already Running"))
+            {//ouch!! This should NEVER happen!
+                //not obvious what to do... We'll mark this robot job as failed and hope the user will try again and that it will work, eventually.
+                try
+                {//we deliberately throw an exception to use LogRobotJobException(...)
+                    throw new Exception("markdownItemsPdfCommand for robot Job " + RT.RobotApiCallId + " is ALREADY RUNNING! (Shouldn't happen!)");
+                }
+                catch (Exception ex)
+                {
+                    LogRobotJobException(RT, "markdownItemsPdfCommand for robot Job " + RT.RobotApiCallId + " is ALREADY RUNNING! (Shouldn't happen!)", true, ex);
+                }
+                return "Failed";
+            }
+            //if we're here, markdownItemsPdfCommand.Result must be "Done"!
+            return DoGPTWork(RT, ct, markdownItemsPdfCommand.DocsToProcess);
+        }
+
+
+
+        /// <summary>
+        /// Given a "RobotOpenAiTask" record call GPT on a per item (listed therein) basis
+        /// and proceed until the end, or until Cancellation is requested.
+        /// This method meticolously reports progress, so that it can be resumed when cancelled.
+        /// It will also slow-down when GPT calls fails with "too many requests" error-type.
+        /// </summary>
+        /// <param name="RT"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        private string DoGPTWork(RobotOpenAiTaskReadOnly RT, CancellationToken ct, List<MarkdownItemsPdfCommand.MiniPdfDoc> Pdfs)
         {
             try
             {
@@ -175,10 +351,20 @@ namespace BusinessLibrary.BusinessClasses
                         //if cancellation was requested during the "WaitOne" above, we should have "broken te loop" already
                         //we check one more time because it's v. important to mark all interrupted jobs as paused...
                         break; 
-                    } 
+                    }
+                    string doclist = "";
+                    if (RT.UseFullTextDocument)
+                    {
+                        List<MarkdownItemsPdfCommand.MiniPdfDoc> PDFsForThisItem = Pdfs.FindAll(f => { return f.ItemId == RT.ItemIDsList[done]; });
+                        foreach (MarkdownItemsPdfCommand.MiniPdfDoc doc in PDFsForThisItem)
+                        {
+                            doclist += doc.MarkDownFileName + ",";
+                        }
+                        doclist = doclist.Substring(0, doclist.Length - 1);
+                    }
                     cmd = new RobotOpenAICommand(RT.ReviewSetId, RT.ItemIDsList[done], 0, RT.ItemIDsList.Count == done + 1 ? true : false,
                             RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
-                            RT.OnlyCodeInTheRobotName, RT.LockTheCoding,
+                            RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist,
                             AzureSettings.RobotOpenAIBatchEndpoint, AzureSettings.RobotOpenAIBatchKey);
                     LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
                     start = DateTime.Now;
@@ -229,11 +415,34 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception e)
             {
-                Logger.LogException(e, "RobotOpenAiHostedService DoWork error");
+                LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error", true, e);
                 return "Error";
             }
         }
-
+        private void LogRobotJobException(RobotOpenAiTaskReadOnly RT, string headline, bool IsFatal, Exception e)
+        {
+            Logger.LogException(e, headline);
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                string SavedMsg = e.Message;
+                if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                {//this is to update the token numbers, and thus the cost, if we can
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID ", RT.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
+                    command.Parameters.Add(new SqlParameter("@STATUS", IsFatal ? "Failed" : "Running"));
+                    command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
+                    command.Parameters["@CURRENT_ITEM_ID"].Value = 0;
+                    command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
+                    command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
+                    command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                    command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
         private void LogInfo(string message)
         {
             Debug.WriteLine(message);

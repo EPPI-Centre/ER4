@@ -130,6 +130,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       criteria: crit,
       onlyCodeInTheRobotName: this.RobotSettings.onlyCodeInTheRobotName,
       lockTheCoding: this.RobotSettings.lockTheCoding,
+      useFullTextDocument: this.RobotSettings.useFullTextDocument,
       returnMessage: ""
     };
     this.robotsService.EnqueueRobotOpenAIBatchCommand(data).then(

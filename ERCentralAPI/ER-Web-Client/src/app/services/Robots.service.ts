@@ -22,6 +22,7 @@ export class RobotsService extends BusyAwareService {
   public RobotSetting: iRobotSettings = {
     onlyCodeInTheRobotName: true,
     lockTheCoding: true,
+    useFullTextDocument: false,
     rememberTheseChoices: false
   };
 
@@ -102,6 +103,7 @@ export interface iRobotOpenAICommand {
   itemId: number;
   onlyCodeInTheRobotName: boolean;
   lockTheCoding: boolean;
+  useFullTextDocument: boolean;
   returnMessage: string;
 }
 export interface iRobotOpenAiQueueBatchJobCommand {
@@ -109,12 +111,14 @@ export interface iRobotOpenAiQueueBatchJobCommand {
   criteria: string;
   onlyCodeInTheRobotName: boolean;
   lockTheCoding: boolean;
+  useFullTextDocument: boolean;
   returnMessage: string;
 }
 
 export interface iRobotSettings {
   onlyCodeInTheRobotName: boolean;
   lockTheCoding: boolean;
+  useFullTextDocument: boolean;
   rememberTheseChoices: boolean;
 }
 export interface iRobotOpenAiTaskReadOnly {
@@ -136,5 +140,6 @@ export interface iRobotOpenAiTaskReadOnly {
   cost: number;
   onlyCodeInTheRobotName: boolean;
   lockTheCoding: boolean;
+  useFullTextDocument: boolean;
   robotContactId: number;
 }

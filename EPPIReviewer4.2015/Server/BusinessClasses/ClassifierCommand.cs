@@ -367,7 +367,6 @@ namespace BusinessLibrary.BusinessClasses
 
 					using (TextReader tr = new StreamReader(ms))
 					{
-						//not implemented yet
 						var csv = new CsvReader(tr);
 						csv.Read();
 						csv.ReadHeader();

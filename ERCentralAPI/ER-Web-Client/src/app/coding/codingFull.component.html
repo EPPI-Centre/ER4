@@ -40,7 +40,7 @@
                       [disabled]="!HasWriteRights" (click)="RunRobotOpenAICommand()"></button>-->
             </div>
             <div *ngIf="ShowRobotOptions" class="p-1 bg-light rounded">
-              <div class="row mx-1"><RobotSettings></RobotSettings></div>
+              <div class="row mx-1"><RobotSettings Context="Coding"></RobotSettings></div>
               <div class="row mx-1 border-top">
                 <button type="button" class="btn btn-outline-dark btn-sm px-1 py-0 mt-1" (click)="ShowRobotOptions = false">Close</button>
               </div>
