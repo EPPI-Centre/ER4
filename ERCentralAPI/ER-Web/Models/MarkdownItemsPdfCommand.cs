@@ -232,6 +232,7 @@ namespace BusinessLibrary.BusinessClasses
             //get all doc IDs
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
+                connection.Open();
                 try
                 {
                     using (SqlCommand command = new SqlCommand("st_GetItemDocumentIdsFromItemIds", connection))
@@ -280,7 +281,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             string blobConnection = AzureSettings.blobConnection;
             string containerName = "eppi-reviewer-data";
-            string FileNamePrefix = "eppi-rag-pdfs/ReviewId" + ReviewId + "/";
+            string FileNamePrefix = "eppi-rag-pdfs/" + DataFactoryHelper.NameBase + "ReviewId" + ReviewId + "/";
             
             int count = 0;
             try
@@ -449,7 +450,7 @@ namespace BusinessLibrary.BusinessClasses
             //so we have to find out 1st
             string blobConnection = AzureSettings.blobConnection;
             string containerName = "eppi-reviewer-data";
-            string FileNamePrefix = "eppi-rag-pdfs/ReviewId" + ReviewId + "/";
+            string FileNamePrefix = "eppi-rag-pdfs/" + DataFactoryHelper.NameBase + "ReviewId" + ReviewId + "/";
             List<BlobInHierarchy> allFiles = BlobOperations.Blobfilenames(blobConnection, containerName, FileNamePrefix);
             foreach(BlobInHierarchy file in allFiles)
             {

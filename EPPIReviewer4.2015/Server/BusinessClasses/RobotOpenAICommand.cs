@@ -688,7 +688,7 @@ namespace BusinessLibrary.BusinessClasses
         private string GetDoc(string filename, int ReviewId)
         {            
             string containerName = "eppi-reviewer-data";
-            string FileNamePrefix = "eppi-rag-pdfs/ReviewId" + ReviewId + "/";
+            string FileNamePrefix = "eppi-rag-pdfs/" + DataFactoryHelper.NameBase + "ReviewId" + ReviewId + "/";
             MemoryStream stream = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, containerName, FileNamePrefix + filename);
             string ret = Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
             return ret;

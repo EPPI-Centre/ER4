@@ -162,11 +162,12 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 catch (Exception e)
                 {
-
+                    LogRobotJobException(RT, "RobotOpenAiHostedService DoPDFWork error in resuming markdownItemsPdfCommand execution", true, e);
+                    return "Error";
                 }
             }
             //start MarkdownItemsPdfCommand, returns a reviewJobId upon itself doing a fire-and-forget thing
-            //monitor fire and forget record in tb_Review_Job, when it's finished we can just move on!
+            //monitor fire and forget progress, which we can do because we have a ref to the command object, when it's finished we can just move on!
             //finally, we start doing the GPT coding thing!
             
             MarkdownItemsPdfCommand markdownItemsPdfCommand = new MarkdownItemsPdfCommand(RT.ReviewId, RT.JobOwnerId, RT.RawCriteria.Substring(8), RT.RobotApiCallId, ChildJobId);
@@ -185,7 +186,7 @@ namespace BusinessLibrary.BusinessClasses
                 LogRobotJobException(RT, "RobotOpenAiHostedService DoPDFWork error in markdownItemsPdfCommand execution", true, e);
                 return "Error";
             }
-
+            //markdownItemsPdfCommand is now running its own fire-and-forget method, but reports how it's going via the Result property
             while (!markdownItemsPdfCommand.Result.StartsWith("Cancelled")
                     && !markdownItemsPdfCommand.Result.StartsWith("Failed")
                     && !markdownItemsPdfCommand.Result.StartsWith("Done")
