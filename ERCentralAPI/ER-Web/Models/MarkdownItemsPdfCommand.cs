@@ -240,6 +240,8 @@ namespace BusinessLibrary.BusinessClasses
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@ReviewId", _reviewId));
                         command.Parameters.Add(new SqlParameter("@ItemIds", _ItemIdsString));
+                        command.Parameters.Add(new SqlParameter("@AlsoFetchFromLinkedItems", SqlDbType.Bit));
+                        command.Parameters["@AlsoFetchFromLinkedItems"].Value = 0;//we ignore linked items/docs, for now
                         using (SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
                             while (reader.Read())

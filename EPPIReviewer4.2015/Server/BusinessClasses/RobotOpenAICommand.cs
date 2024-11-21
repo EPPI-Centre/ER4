@@ -16,6 +16,8 @@ using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
+using NLog.Targets.Wrappers;
+
 
 
 
@@ -234,7 +236,7 @@ namespace BusinessLibrary.BusinessClasses
                 //we have a jobID so now we can (and want) to catch and log exceptions
                 try
                 {
-                    _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();
+                    _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();//this runs synchronously, hence the catch will work
                     if (errors > 0)
                     {
                         _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
@@ -459,10 +461,18 @@ namespace BusinessLibrary.BusinessClasses
             {
                 string AllText = "";
                 string[] Filenames = _DocsList.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                foreach(string Filename in Filenames)
+                List<string> DocsContent = new List<string>();
+
+                foreach (string Filename in Filenames)
                 {
-                    AllText += GetDoc(Filename, _reviewId);
-                    if (Filename != Filenames[Filenames.Length - 1])
+                    DocsContent.Add(GetDoc(Filename, _reviewId));
+                }
+                //we order the docs by length of the markdown, longer on top!
+                DocsContent.Sort((x, y) => y.Length.CompareTo(x.Length));
+                foreach (string FileContent in DocsContent)
+                {
+                    AllText += FileContent;
+                    if (FileContent != DocsContent[DocsContent.Count - 1])
                     {
                         AllText += Environment.NewLine + "-----------------------" + Environment.NewLine + Environment.NewLine;
                     }
@@ -472,15 +482,29 @@ namespace BusinessLibrary.BusinessClasses
                     _message = "Error: no PDF text to process";
                     return false;
                 }
-                sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                sysprompt = "You extract data from the markdown text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
                 userprompt = AllText;
+               
             }
             else
             {
                 _message = "Error: no PDFs to process";
                 return false;
             }
-            
+
+            //we add lenght checks here and simply truncate the userprompt if things are too long.
+            int limit = 556522; //128000 * 0.23 we calculated this using 2 tests that had 100K tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
+            if (sysprompt.Length + userprompt.Length > limit)
+            {//call is likely to fail because it's too long - we truncate the userprompt and hope for the best!
+                if (sysprompt.Length > limit)
+                {//oh my, the prompts themselves are too many. Deliberately rise an exception which produces the highest level of visibility: gets saved in TB_ROBOT_API_CALL_ERROR_LOG
+                    //we will eventually show errors collected there to users!
+                    throw new Exception("There are too many prompts, leaving no room for the data to classify!");
+
+                }
+                int cutoff = sysprompt.Length + userprompt.Length - limit;
+                userprompt = userprompt.Substring(0, userprompt.Length - cutoff);//this will work, having checked if sysprompt is too long in itself!
+            }
             List<OpenAIChatClass> messages = new List<OpenAIChatClass>
             {
                 new OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },

@@ -181,7 +181,7 @@ namespace BusinessLibrary.BusinessClasses
                 //Logger.LogException(e, "RobotOpenAiHostedService DoPDFWork error in Task.Delay");
                 if (markdownItemsPdfCommand.JobId > 0)
                 {
-                    DataFactoryHelper.UpdateReviewJobLog(markdownItemsPdfCommand.JobId, RT.ReviewId, "Failed at sync step", "", "MarkdownItemsPdfCommand (in RobotOpenAiHostedService)", true, false);
+                    DataFactoryHelper.UpdateReviewJobLog(markdownItemsPdfCommand.JobId, RT.ReviewId, "Failed during the synchronous execution phase", "", "MarkdownItemsPdfCommand (in RobotOpenAiHostedService)", true, false);
                 }
                 LogRobotJobException(RT, "RobotOpenAiHostedService DoPDFWork error in markdownItemsPdfCommand execution", true, e);
                 return "Error";
@@ -192,7 +192,7 @@ namespace BusinessLibrary.BusinessClasses
                     && !markdownItemsPdfCommand.Result.StartsWith("Done")
                     && !markdownItemsPdfCommand.Result.StartsWith("Already Running"))
             {
-                if (ct.WaitHandle.WaitOne(3000))//waits 3s or less, if cancellation is requested, in which case, returns true
+                if (ct.WaitHandle.WaitOne(5000))//waits 5s or less, if cancellation is requested, in which case, returns true
                 {
                     //cancellation was requested, so we stop
                     break;
