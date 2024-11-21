@@ -66,6 +66,26 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
                 );
         }
     }
+
+  public UpdateHelpContent(message: OnlineHelpContent) {
+
+      this._BusyMethods.push("UpdateHelpContent");
+
+    this._http.post<OnlineHelpContent>(this._baseUrl + 'api/Help/UpdateHelpcontent', message)
+        .subscribe(result => {
+          //console.log("gethelp:", body, result);
+          //we could check if this worked, by looking at the messageId in result...
+          this.RemoveBusy("UpdateHelpContent");
+        },
+          (error) => {
+            console.log("UpdateHelpContent error:", error);
+            this.RemoveBusy("UpdateHelpContent");
+            this.modalService.GenericError(error);
+          }
+        );
+    }
+
+
     public CreateFeedbackMessage(message: FeedbackAndClientError4Create) {
 
         this._BusyMethods.push("CreateFeedbackMessage");
@@ -103,9 +123,13 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
     }
 }
 export interface OnlineHelpContent{
-    onlineHelpContentId: number;
     context: string;
     helpHTML: string;
+}
+
+export class OnlineHelpContent1 {
+  public context: string = "";
+  public helpHTML: string = "";
 }
 
 export class FeedbackAndClientError4Create {
@@ -121,3 +145,5 @@ export class FeedbackAndClientError extends FeedbackAndClientError4Create {
     public dateCreated: string = "";
     public reviewId: number = 0;
 }
+
+
