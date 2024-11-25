@@ -16,7 +16,6 @@ using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
-using NLog.Targets.Wrappers;
 
 
 
@@ -460,7 +459,7 @@ namespace BusinessLibrary.BusinessClasses
             else if (_DocsList != "")
             {
                 string AllText = "";
-                string[] Filenames = _DocsList.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                string[] Filenames = _DocsList.Split(new[] { ','}, StringSplitOptions.RemoveEmptyEntries);
                 List<string> DocsContent = new List<string>();
 
                 foreach (string Filename in Filenames)
