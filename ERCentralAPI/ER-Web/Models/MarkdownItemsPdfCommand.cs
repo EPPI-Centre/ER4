@@ -39,7 +39,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _ownerId = 0;
         private string _DFjobId = "";
         public List<MiniPdfDoc> DocsToProcess = new List<MiniPdfDoc>();
-        private List<MiniPdfDoc> DocsToUpload = new List<MiniPdfDoc>();
+        public List<MiniPdfDoc> DocsToUpload = new List<MiniPdfDoc>();
 
 
         public int JobId
@@ -129,7 +129,7 @@ namespace BusinessLibrary.BusinessClasses
             //check if app is shutting down
             //start RunDataFactoryProcessV2 (returns a bool)
             //do we need to update the job record??
-            if (_reviewId == 0)
+            if (_reviewId == 0 && Csla.ApplicationContext.User.Identity != null)
             {//precaution, we go and get it from the reviewer identity, in case this object will start getting called "directly"!
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 _reviewId = ri.ReviewId;
@@ -378,10 +378,16 @@ namespace BusinessLibrary.BusinessClasses
                     string BatchGuid = Guid.NewGuid().ToString();
                     Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
-                    {"do_parse_pdf", true },
+                        //pipeline_job_container_name='eppi-rag-pipeline',
+                        //pipeline_job_pdf_files_path = 'pdf_files', doc_folder
+                        //pipeline_job_parsed_pdf_path = 'parsed_pdfs',
+                    { "do_parse_pdf", true },
+                    {"doc_container", containerName },
                     {"doc_folder", FileNamePrefix.Substring(0, FileNamePrefix.Length - 1) },
                     {"doc_output_folder", FileNamePrefix.Substring(0, FileNamePrefix.Length - 1) },
                     {"EPPIReviewerApiRunId", BatchGuid}
+                    //{"doc_folder", FileNamePrefix.Substring(0, FileNamePrefix.Length - 1) },
+                    //{"doc_output_folder", FileNamePrefix.Substring(0, FileNamePrefix.Length - 1) },
                 };
                     DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, _jobId, "MarkdownItemsPdfCommand", this.CancelToken);
                 }
@@ -393,13 +399,10 @@ namespace BusinessLibrary.BusinessClasses
                     return;
                 }
             }
-            if (DataFactoryRes == false)
-            {
-                if (AppIsShuttingDown || CancelToken.IsCancellationRequested)
-                {
-                    _result = "Cancelled";
-                    return;
-                }
+            if (DataFactoryRes == false && (AppIsShuttingDown || CancelToken.IsCancellationRequested))
+            {//first check: did it fail because it was cancelled? If so, we'll stop before deleting the PDFs in blob storage (they might be needed!)
+                _result = "Cancelled";
+                return;
             }
             try
             {
@@ -427,6 +430,12 @@ namespace BusinessLibrary.BusinessClasses
             {
                 DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Failed during cleanup", ex.Message, "MarkdownItemsPdfCommand", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, _jobId, "MarkdownItemsPdfCommand");
+                _result = "Failed";
+                return;
+            }
+            if (DataFactoryRes == false)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(JobId, ReviewId, "Failed during DF", "", "MarkdownItemsPdfCommand", true, false);
                 _result = "Failed";
                 return;
             }

@@ -493,7 +493,7 @@ namespace BusinessLibrary.BusinessClasses
             }
 
             //we add lenght checks here and simply truncate the userprompt if things are too long.
-            int limit = 556522; //128000 * 0.23 we calculated this using 2 tests that had 100K tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
+            int limit = 556522; //128000 / 0.23 we calculated this using 2 tests that had 100K++ tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
             if (sysprompt.Length + userprompt.Length > limit)
             {//call is likely to fail because it's too long - we truncate the userprompt and hope for the best!
                 if (sysprompt.Length > limit)
@@ -502,8 +502,8 @@ namespace BusinessLibrary.BusinessClasses
                     throw new Exception("There are too many prompts, leaving no room for the data to classify!");
 
                 }
-                int cutoff = sysprompt.Length + userprompt.Length - limit;
-                userprompt = userprompt.Substring(0, userprompt.Length - cutoff);//this will work, having checked if sysprompt is too long in itself!
+                int excess = sysprompt.Length + userprompt.Length - limit;
+                userprompt = userprompt.Substring(0, userprompt.Length - excess);//this will work, having checked if sysprompt is too long in itself!
             }
             List<OpenAIChatClass> messages = new List<OpenAIChatClass>
             {

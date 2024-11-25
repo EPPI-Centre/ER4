@@ -231,6 +231,21 @@ namespace BusinessLibrary.BusinessClasses
             {
                 try
                 {
+                    //Parsing of PDFs failed, we'll put it the stack trace the list of ItemIds for which PDFs were being parsed
+                    string FakeStackTrace = "Attempting to parse PDFs For these ItemIds:" + Environment.NewLine;
+                    List<Int64> UniqueIds = new List<Int64>();
+                    foreach(MarkdownItemsPdfCommand.MiniPdfDoc doc in markdownItemsPdfCommand.DocsToUpload)
+                    {
+                        if (!UniqueIds.Contains(doc.ItemId)) UniqueIds.Add(doc.ItemId);
+                    }
+                    foreach (Int64 id in UniqueIds)
+                    {
+                        FakeStackTrace += id + ",";
+                    }
+                    if (FakeStackTrace.EndsWith(","))
+                    {
+                        FakeStackTrace = FakeStackTrace.TrimEnd(',');
+                    }
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         connection.Open();
@@ -241,7 +256,9 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
                             command.Parameters.Add(new SqlParameter("@STATUS", "Failed"));
                             command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
-                            command.Parameters["@CURRENT_ITEM_ID"].Value = 0;
+                            command.Parameters["@CURRENT_ITEM_ID"].Value = 0;//
+                            command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", "Parsing PDFs failed"));
+                            command.Parameters.Add(new SqlParameter("@STACK_TRACE", FakeStackTrace));
                             command.ExecuteNonQuery();
                         }
                     }
