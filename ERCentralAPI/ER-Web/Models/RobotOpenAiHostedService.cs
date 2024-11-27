@@ -20,7 +20,6 @@ using BusinessLibrary.Security;
 using Microsoft.Azure.Search.Models;
 using System.Reflection;
 using EPPIDataServices.Helpers;
-using System.Security.Cryptography;
 
 
 namespace BusinessLibrary.BusinessClasses
@@ -149,7 +148,7 @@ namespace BusinessLibrary.BusinessClasses
                                     string currentState = reader.GetString("CURRENT_STATE");
                                     int success = reader.GetInt32("SUCCESS");
                                     string JobMessage = reader.GetString("JOB_MESSAGE");
-                                    if (currentState == "Cancelled"
+                                    if (currentState.StartsWith("Cancelled")
                                         && success == 0 && JobMessage.StartsWith("DF RunId: "))
                                     {//ok, we have everything we need...
                                         ChildJobId = reader.GetInt32("REVIEW_JOB_ID");
@@ -440,25 +439,32 @@ namespace BusinessLibrary.BusinessClasses
         private void LogRobotJobException(RobotOpenAiTaskReadOnly RT, string headline, bool IsFatal, Exception e)
         {
             Logger.LogException(e, headline);
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                string SavedMsg = e.Message;
-                if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
-                {//this is to update the token numbers, and thus the cost, if we can
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID ", RT.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
-                    command.Parameters.Add(new SqlParameter("@STATUS", IsFatal ? "Failed" : "Running"));
-                    command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
-                    command.Parameters["@CURRENT_ITEM_ID"].Value = 0;
-                    command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
-                    command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
-                    command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
-                    command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
-                    command.ExecuteNonQuery();
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    string SavedMsg = e.Message;
+                    if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                    {//this is to update the token numbers, and thus the cost, if we can
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID ", RT.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
+                        command.Parameters.Add(new SqlParameter("@STATUS", IsFatal ? "Failed" : "Running"));
+                        command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
+                        command.Parameters["@CURRENT_ITEM_ID"].Value = 0;
+                        command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
+                        command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
+                        command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                        command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
+                        command.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex) 
+            {
+                Logger.LogException(ex, "Failed to log a ROBOT JOB EXCEPTION!!");
             }
         }
         private void LogInfo(string message)

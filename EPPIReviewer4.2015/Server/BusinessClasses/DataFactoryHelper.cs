@@ -247,9 +247,49 @@ namespace BusinessLibrary.BusinessClasses
             string dataFactoryName = AzureSettings.dataFactoryName;
             string subscriptionId = AzureSettings.subscriptionId;
             int count = 0;
-            string runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, DFrunId).Result.Status;
-
-            DateTime NextLogUpdateTime = DateTime.Now; //means that we do update the log immediately the 1st time
+            string runStatus = "";
+            try
+            {
+                runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, DFrunId).Result.Status;
+            }
+            catch (Exception ex)
+            {
+                bool recovered = false;
+                errorCount++;
+                LogExceptionToFile(ex, ReviewId, ReviewJobId, Origin);
+                while (recovered == false && errorCount < 10)
+                {
+                    try
+                    {
+                        try
+                        {
+                            await Task.Delay(15000, CT);//15 seconds: we don't know why this happens!!
+                        }
+                        catch
+                        {
+                            if (AppIsShuttingDown || CT.IsCancellationRequested)//if CT requests a cancellation during the Delay, we get a 
+                            {
+                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "", Origin, true, false);
+                                return false;
+                            }
+                        }
+                        runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, DFrunId).Result.Status;
+                        recovered = true;
+                    }
+                    catch (Exception ex2)
+                    {
+                        LogExceptionToFile(ex2, ReviewId, ReviewJobId, Origin);
+                        errorCount++;
+                    }
+                }
+                if (recovered == false)
+                {
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error(s) (details in logfile)", "Pipeline: " + pipelineName, Origin, true, false);
+                    return false;
+                }
+            }
+            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + DFrunId, Origin);
+            DateTime NextLogUpdateTime = DateTime.Now.AddMinutes(1); //next update of the log table in one minute
             while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
             {
                 if (AppIsShuttingDown || CT.IsCancellationRequested)
@@ -257,7 +297,9 @@ namespace BusinessLibrary.BusinessClasses
                     UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false);
                     return false;
                 }
-
+                //Mini block to cause exceptions on purpose, so to check error handling works, should be commented out!
+                //Random r = new Random();
+                //if (r.Next() > 0.66) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
                 if (DateTime.Now.ToUniversalTime().AddMinutes(5) > AccessTokenResult.ExpiresOn) // the token expires after an hour
                 {
                     count++;

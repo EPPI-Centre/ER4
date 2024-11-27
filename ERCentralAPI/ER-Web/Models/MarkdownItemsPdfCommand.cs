@@ -185,7 +185,7 @@ namespace BusinessLibrary.BusinessClasses
                                 + "Please contact EPPI Reviewer Support.", this);
                         }
                     }
-                    StartFullProcessing();
+                    StartFullProcessing(false);
                 }
                 else //jobId is known, implying we're resuming it
                 {
@@ -216,7 +216,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         //call the resume fire and forget method
                         _result = "Starting...";
-                        MonitorRunningDFJobUntilFinishes(_reviewId);
+                        StartFullProcessing(true);
                     }
                     else
                     {
@@ -226,50 +226,52 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-        private void StartFullProcessing() 
+        private void StartFullProcessing(bool isResuming) 
         {
             //if we're here, it's because we're starting a new job.
             //get all doc IDs
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                try
+                using (SqlCommand command = new SqlCommand("st_GetItemDocumentIdsFromItemIds", connection))
                 {
-                    using (SqlCommand command = new SqlCommand("st_GetItemDocumentIdsFromItemIds", connection))
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ReviewId", _reviewId));
+                    command.Parameters.Add(new SqlParameter("@ItemIds", _ItemIdsString));
+                    command.Parameters.Add(new SqlParameter("@AlsoFetchFromLinkedItems", SqlDbType.Bit));
+                    command.Parameters["@AlsoFetchFromLinkedItems"].Value = 0;//we ignore linked items/docs, for now
+                    using (SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@ReviewId", _reviewId));
-                        command.Parameters.Add(new SqlParameter("@ItemIds", _ItemIdsString));
-                        command.Parameters.Add(new SqlParameter("@AlsoFetchFromLinkedItems", SqlDbType.Bit));
-                        command.Parameters["@AlsoFetchFromLinkedItems"].Value = 0;//we ignore linked items/docs, for now
-                        using (SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            if (reader.GetString("DOCUMENT_EXTENSION") == ".pdf")
                             {
-                                if (reader.GetString("DOCUMENT_EXTENSION") == ".pdf")
-                                {
-                                    MiniPdfDoc toAdd = new MiniPdfDoc(reader);
-                                    if (!DocsToProcess.Contains(toAdd)) DocsToProcess.Add(toAdd);
-                                }
+                                MiniPdfDoc toAdd = new MiniPdfDoc(reader);
+                                if (!DocsToProcess.Contains(toAdd)) DocsToProcess.Add(toAdd);
                             }
                         }
                     }
-                } 
-                catch (Exception ex)
-                {
-                    string msg = ex.Message + Environment.NewLine;
-                    msg += ex.StackTrace;
-                    ErrorLogSink(msg);
-                    if (msg.Length > 4000) msg = msg.Substring(0, 3999);
-                    DataFactoryHelper.UpdateReviewJobLog(JobId, _reviewId, "Failed at GetItemDocuments step", msg, "MarkdownItemsPdfCommand", true, false);
-                    _result = "Failed";
-                    return;
                 }
+
                 if (DocsToProcess.Count > 0)
                 {
                     _result = "Starting...";
                     //call full fire and forget method
-                    Task.Run(() => ProcessFullList(_reviewId));
+                    if (isResuming == false)
+                    {
+                        Task.Run(() => ProcessFullList(_reviewId));
+                    }
+                    else
+                    {
+                        //we're resuming and don't know what docs we uploaded in this run (some might have been marked down already)
+                        //so we lie and claim that we uploaded ALL docs to process, which isn't always true
+                        //but we can't know for sure, so we claim all docs were uploaded.
+                        //Effect is that CleanupUploadedPdfs(...) will attempt to delete ALL the docs we might have uploaded, ensuring cleanup does happen.
+                        DocsToUpload = new List<MiniPdfDoc>();
+                        foreach (MiniPdfDoc doc in DocsToProcess) DocsToUpload.Add(doc);
+
+                        Task.Run(() => MonitorRunningDFJobUntilFinishes(_reviewId));
+                    }
                     return;
                 }
                 else
@@ -406,25 +408,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             try
             {
-                count = 0;
-                foreach(MiniPdfDoc doc in DocsToUpload)
-                {
-                    BlobOperations.DeleteIfExists(blobConnection, containerName, FileNamePrefix + doc.FileName);
-                    if (count == 50)
-                    {
-                        count = 0;
-                        if (AppIsShuttingDown)
-                        {
-                            DataFactoryHelper.UpdateReviewJobLog(JobId, ReviewId, "Cancelled during cleanup", "", "MarkdownItemsPdfCommand", true, false);
-                            _result = "Cancelled";
-                            return;
-                        }
-                        else
-                        {
-                            DataFactoryHelper.UpdateReviewJobLog(JobId, ReviewId, "Cleanup", "", "MarkdownItemsPdfCommand", false);
-                        }
-                    }
-                }
+                CleanupUploadedPdfs(blobConnection, containerName, FileNamePrefix, ReviewId);
             }
             catch (Exception ex)
             {
@@ -446,32 +430,70 @@ namespace BusinessLibrary.BusinessClasses
         private async void MonitorRunningDFJobUntilFinishes(int ReviewId)
         {
             bool DataFactoryRes = false;
-            DataFactoryHelper DFH = new DataFactoryHelper();
-            DataFactoryRes = await DFH.ResumeDataFactoryProcessV2("EPPI-Reviewer_API", _DFjobId, ReviewId, _jobId, "", this.CancelToken);
-            if (DataFactoryRes == false)
+            try
             {
-                if (AppIsShuttingDown || CancelToken.IsCancellationRequested)
-                {
-                    _result = "Cancelled";
+                
+                DataFactoryHelper DFH = new DataFactoryHelper();
+                DataFactoryRes = await DFH.ResumeDataFactoryProcessV2("EPPI-Reviewer_API", _DFjobId, ReviewId, _jobId, "", this.CancelToken);
+                if (DataFactoryRes == false)
+                {//no need to log: DFH does that already
+                    if (AppIsShuttingDown || CancelToken.IsCancellationRequested)
+                    {
+                        _result = "Cancelled";
+                        return;
+                    }
+                    else
+                    {
+                        _result = "Failed";
+                        return;
+                    }
                 }
-                else _result = "Failed";
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Failed at resuming/monitoring DF job", ex.Message, "MarkdownItemsPdfCommand", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, _jobId, "MarkdownItemsPdfCommand");
+                _result = "Failed";
                 return;
             }
-            //we need to cleanup PDFs from the cloud, but we don't know what they are, since we've just "resumed", without doing any prep work
-            //so we have to find out 1st
-            string blobConnection = AzureSettings.blobConnection;
-            string containerName = "eppi-reviewer-data";
-            string FileNamePrefix = "eppi-rag-pdfs/" + DataFactoryHelper.NameBase + "ReviewId" + ReviewId + "/";
-            List<BlobInHierarchy> allFiles = BlobOperations.Blobfilenames(blobConnection, containerName, FileNamePrefix);
-            foreach(BlobInHierarchy file in allFiles)
+            try
             {
-                if(file.IsFile && file.BlobName.EndsWith(".pdf"))
-                {
-                    BlobOperations.DeleteIfExists(blobConnection, containerName, file.BlobName);
-                }
+                string blobConnection = AzureSettings.blobConnection;
+                string containerName = "eppi-reviewer-data";
+                string FileNamePrefix = "eppi-rag-pdfs/" + DataFactoryHelper.NameBase + "ReviewId" + ReviewId + "/";
+                CleanupUploadedPdfs(blobConnection, containerName, FileNamePrefix, ReviewId);
+            }
+            catch (Exception ex)
+            {
+                //we mark the review_job as failed as it did fail somehow, although the main task (marking down) has worked (if we got here!)
+                DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Error at cleanup after resuming", ex.Message, "MarkdownItemsPdfCommand", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, _jobId, "MarkdownItemsPdfCommand");
+                //we don't return, as the main task was done and the parent job can go ahead
             }
             DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Ended", "", "MarkdownItemsPdfCommand", true, true);
-            _result = "Done";
+            _result = "Done";               
+        }
+        private void CleanupUploadedPdfs(string blobConnection, string containerName, string FileNamePrefix, int ReviewId)
+        {
+            int count = 0;
+            foreach (MiniPdfDoc doc in DocsToUpload)
+            {
+                BlobOperations.DeleteIfExists(blobConnection, containerName, FileNamePrefix + doc.FileName);
+                if (count == 50)
+                {
+                    count = 0;
+                    if (AppIsShuttingDown)
+                    {
+                        DataFactoryHelper.UpdateReviewJobLog(JobId, ReviewId, "Cancelled during cleanup", "", "MarkdownItemsPdfCommand", true, false);
+                        _result = "Cancelled";
+                        return;
+                    }
+                    else
+                    {
+                        DataFactoryHelper.UpdateReviewJobLog(JobId, ReviewId, "Cleanup", "", "MarkdownItemsPdfCommand", false);
+                    }
+                }
+            }
         }
         public class MiniPdfDoc
         {
