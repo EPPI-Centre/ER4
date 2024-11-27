@@ -124,6 +124,19 @@ namespace BusinessLibrary.BusinessClasses
                 Logger.LogException(e, "RobotOpenAiHostedService FetchAndStartNextCreditJob error");
             }
         }
+
+        /// <summary>
+        /// Given a "RobotOpenAiTask" record trigger the preliminary MarkdownItemsPdfCommand child job.
+        /// The child job ensures that there is a MarkDown version of all PDFs we'll need to use for GPT coding.
+        /// This method meticolously reports progress, so that it can be resumed when cancelled.
+        /// Resuming starts from scratch if job was interrupted in preparation/cleanup phases, 
+        /// otherwise, if it was interrupted after starting the DataFactory job that does the PDF parsing, it will 
+        /// resume by checking the DF job until it finishes or fails.
+        /// PDFs in ER are read-only, so they get parsed only once and from them on their MarkDown version is re-used.
+        /// </summary>
+        /// <param name="RT"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         private string DoPDFWork(RobotOpenAiTaskReadOnly RT, CancellationToken ct) 
         {
             int ChildJobId = 0;
@@ -392,6 +405,10 @@ namespace BusinessLibrary.BusinessClasses
                         LogInfo("(+)Incrementing CurrentDelayInMs at Item = " + RT.ItemIDsList[done].ToString());
                         CurrentDelayInMs += delayIncrement;
                         DelayedCallsWithoutError = 0;
+                    }
+                    else if (cmd.ReturnMessage == "Cancelled")
+                    {
+                        LogInfo("(+++)Cancel request accepted while running RobotOpenAICommand");
                     }
                     else
                     {

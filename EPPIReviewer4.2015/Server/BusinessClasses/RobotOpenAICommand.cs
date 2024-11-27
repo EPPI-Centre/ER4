@@ -41,7 +41,7 @@ using System.Web;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class RobotOpenAICommand : CommandBase<RobotOpenAICommand>
+    public class RobotOpenAICommand : LongLastingFireAndForgetCommand<RobotOpenAICommand>
     {
 
         public RobotOpenAICommand() { }
@@ -235,6 +235,11 @@ namespace BusinessLibrary.BusinessClasses
                 //we have a jobID so now we can (and want) to catch and log exceptions
                 try
                 {
+                    if (AppIsShuttingDown)
+                    {
+                        MarkAsPaused();
+                        return;
+                    }
                     _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();//this runs synchronously, hence the catch will work
                     if (errors > 0)
                     {
@@ -242,6 +247,11 @@ namespace BusinessLibrary.BusinessClasses
                         if (hasSavedSomeCodes == false && _Item_set_id > 0)
                         {
                             DeleteItemSetIfEmpty();
+                        }
+                        if (AppIsShuttingDown)
+                        {
+                            MarkAsPaused();
+                            return;
                         }
                     }
                 }
@@ -273,6 +283,11 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         DeleteItemSetIfEmpty();
                     }
+                    return;
+                }
+                if (AppIsShuttingDown && _Succeded == false)
+                {
+                    MarkAsPaused();
                     return;
                 }
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -490,7 +505,11 @@ namespace BusinessLibrary.BusinessClasses
                 _message = "Error: no PDFs to process";
                 return false;
             }
-
+            if (AppIsShuttingDown)
+            {
+                ErrorLogSink("Cancelling RobotOpenAICommand after preparing most of the prompts.");
+                return false;
+            }
             //we add lenght checks here and simply truncate the userprompt if things are too long.
             int limit = 556522; //128000 / 0.23 we calculated this using 2 tests that had 100K++ tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
             if (sysprompt.Length + userprompt.Length > limit)
@@ -542,18 +561,36 @@ namespace BusinessLibrary.BusinessClasses
                 json = JsonConvert.SerializeObject(requestBody);
             }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            ////code to test what happens if we send too many requests
             //for (int ii = 0; ii < 10; ii++)
             //{
             //    if (ii == 9) { var response0 = await client.PostAsync(endpoint, content); }
             //    else { var response0 = client.PostAsync(endpoint, content); }
             //}
-            var response = await client.PostAsync(endpoint, content);
+            HttpResponseMessage response = null;
+            try
+            {
+                response = await client.PostAsync(endpoint, content, CancelToken);
+            }
+            catch (OperationCanceledException e)
+            {
+                ErrorLogSink("Cancelling RobotOpenAICommand while awaiting for the OpenAI API to answer.");
+                return false; //we'll detect the cancellation request elsewhere
+            }
             if (response.IsSuccessStatusCode == false)
             {
                 _message = "Error: " + response.ReasonPhrase;
                 result = false;
                 return result;
             }
+
+            if (AppIsShuttingDown)//last time we check, if we need to cancel while we're saving results, it's best to have a go and try to save all results, not just some!
+            {
+                ErrorLogSink("Cancelling RobotOpenAICommand after getting the OpenAI API answer.");
+                return false;//ditto, code calling this will notice the app-cancellation request
+            }
+
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
             _inputTokens = generatedText.usage.prompt_tokens;
@@ -717,7 +754,26 @@ namespace BusinessLibrary.BusinessClasses
             return ret;
         }
 
-
+        private void MarkAsPaused()
+        {
+            _Succeded = false;
+            _message = "Cancelled";
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                {//this is to update the token numbers, and thus the cost, if we can
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
+                    command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                    command.Parameters.Add(new SqlParameter("@STATUS", "Paused"));
+                    command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                    command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
+                    command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
 
         public class OpenAIResult
         {
