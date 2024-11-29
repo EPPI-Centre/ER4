@@ -230,55 +230,65 @@ namespace BusinessLibrary.BusinessClasses
         {
             //if we're here, it's because we're starting a new job.
             //get all doc IDs
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_GetItemDocumentIdsFromItemIds", connection))
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ReviewId", _reviewId));
-                    command.Parameters.Add(new SqlParameter("@ItemIds", _ItemIdsString));
-                    command.Parameters.Add(new SqlParameter("@AlsoFetchFromLinkedItems", SqlDbType.Bit));
-                    command.Parameters["@AlsoFetchFromLinkedItems"].Value = 0;//we ignore linked items/docs, for now
-                    using (SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_GetItemDocumentIdsFromItemIds", connection))
                     {
-                        while (reader.Read())
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@ReviewId", _reviewId));
+                        command.Parameters.Add(new SqlParameter("@ItemIds", _ItemIdsString));
+                        command.Parameters.Add(new SqlParameter("@AlsoFetchFromLinkedItems", SqlDbType.Bit));
+                        command.Parameters["@AlsoFetchFromLinkedItems"].Value = 0;//we ignore linked items/docs, for now
+                        using (SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
-                            if (reader.GetString("DOCUMENT_EXTENSION") == ".pdf")
+                            while (reader.Read())
                             {
-                                MiniPdfDoc toAdd = new MiniPdfDoc(reader);
-                                if (!DocsToProcess.Contains(toAdd)) DocsToProcess.Add(toAdd);
+                                if (reader.GetString("DOCUMENT_EXTENSION") == ".pdf")
+                                {
+                                    MiniPdfDoc toAdd = new MiniPdfDoc(reader);
+                                    if (!DocsToProcess.Contains(toAdd)) DocsToProcess.Add(toAdd);
+                                }
                             }
                         }
                     }
                 }
+            }
+            catch
+            {
+                //we need to update tb_REVIEW_JOB here, as the calling code in RobotOpenAiHostedService can't receive the JobId if we 
+                DataFactoryHelper.UpdateReviewJobLog(JobId, _reviewId, "Failed to get list of PDFs", "", "MarkdownItemsPdfCommand", true, false);
+                _result = "Failed";
+                throw;
+            }
 
-                if (DocsToProcess.Count > 0)
+            if (DocsToProcess.Count > 0)
+            {
+                _result = "Starting...";
+                //call full fire and forget method
+                if (isResuming == false)
                 {
-                    _result = "Starting...";
-                    //call full fire and forget method
-                    if (isResuming == false)
-                    {
-                        Task.Run(() => ProcessFullList(_reviewId));
-                    }
-                    else
-                    {
-                        //we're resuming and don't know what docs we uploaded in this run (some might have been marked down already)
-                        //so we lie and claim that we uploaded ALL docs to process, which isn't always true
-                        //but we can't know for sure, so we claim all docs were uploaded.
-                        //Effect is that CleanupUploadedPdfs(...) will attempt to delete ALL the docs we might have uploaded, ensuring cleanup does happen.
-                        DocsToUpload = new List<MiniPdfDoc>();
-                        foreach (MiniPdfDoc doc in DocsToProcess) DocsToUpload.Add(doc);
-
-                        Task.Run(() => MonitorRunningDFJobUntilFinishes(_reviewId));
-                    }
-                    return;
+                    Task.Run(() => ProcessFullList(_reviewId));
                 }
                 else
                 {
-                    _result = "Finished";
-                    return;
+                    //we're resuming and don't know what docs we uploaded in this run (some might have been marked down already)
+                    //so we lie and claim that we uploaded ALL docs to process, which isn't always true
+                    //but we can't know for sure, so we claim all docs were uploaded.
+                    //Effect is that CleanupUploadedPdfs(...) will attempt to delete ALL the docs we might have uploaded, ensuring cleanup does happen.
+                    DocsToUpload = new List<MiniPdfDoc>();
+                    foreach (MiniPdfDoc doc in DocsToProcess) DocsToUpload.Add(doc);
+
+                    Task.Run(() => MonitorRunningDFJobUntilFinishes(_reviewId));
                 }
+                return;
+            }
+            else
+            {
+                _result = "Finished";
+                return;
             }
         }
         private async void ProcessFullList(int ReviewId)
@@ -423,8 +433,11 @@ namespace BusinessLibrary.BusinessClasses
                 _result = "Failed";
                 return;
             }
-            DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Ended", "", "MarkdownItemsPdfCommand", true, true);
-            _result = "Done";
+            if (_result != "Cancelled") //this can happen if we stopped during CleanupUploadedPdfs(...)
+            { 
+                DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Ended", "", "MarkdownItemsPdfCommand", true, true);
+                _result = "Done";
+            }
         }
 
         private async void MonitorRunningDFJobUntilFinishes(int ReviewId)
