@@ -42,6 +42,11 @@ namespace BusinessLibrary.BusinessClasses
             Task.Run(()=>ExecuteAsync(cancellationToken));
             return Task.CompletedTask;
         }
+        /// <summary>
+        /// Will delay shutting down until all tasks have returned a value - thus, we need all tasks to be good at stopping gracefully
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public override Task StopAsync(CancellationToken cancellationToken)
         {
             LogInfo("RobotOpenAiHostedService is stopping.");
@@ -50,6 +55,12 @@ namespace BusinessLibrary.BusinessClasses
             if (CreditWorker != null) CreditWorker.Wait();
             return Task.CompletedTask;
         }
+        /// <summary>
+        /// Main entry point: runs once and checks every 30s for batches to run, while checking cancellationToken for requests 
+        /// for requests to shut down.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             try
@@ -92,15 +103,18 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     await Task.Delay(30000, InternalToken);
                 }
-                catch (Exception e)
+                catch
                 {
-                    Logger.LogException(e, "RobotOpenAiHostedService main loop error in Task.Delay");
+                    Logger.LogInformation("RobotOpenAiHostedService main loop halting in Task.Delay");
                 }
             }
             Task.WaitAll(ApiKeyTasks.ToArray());
             if (CreditWorker != null) CreditWorker.Wait();
         }
-
+        /// <summary>
+        /// Runs every 30s unless there are enough running jobs already.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
         private void FetchAndStartNextCreditJob(CancellationToken cancellationToken)
         {
             try
@@ -453,6 +467,14 @@ namespace BusinessLibrary.BusinessClasses
                 return "Error";
             }
         }
+        /// <summary>
+        /// Marks RT (robot task) record in TB_ROBOT_API_CALL_LOG as failed and the current Item_id as 0 (i.e. none)
+        /// Saves primary exception details in TB_ROBOT_API_CALL_ERROR_LOG and all exception details to logfile
+        /// </summary>
+        /// <param name="RT"></param>
+        /// <param name="headline"></param>
+        /// <param name="IsFatal"></param>
+        /// <param name="e"></param>
         private void LogRobotJobException(RobotOpenAiTaskReadOnly RT, string headline, bool IsFatal, Exception e)
         {
             Logger.LogException(e, headline);
@@ -484,6 +506,11 @@ namespace BusinessLibrary.BusinessClasses
                 Logger.LogException(ex, "Failed to log a ROBOT JOB EXCEPTION!!");
             }
         }
+        /// <summary>
+        /// Logs to file and debug console, "Information" messages.
+        /// Thus, will NOT log to file unless Appsettings.Serilog.MinimumLevel is "Information" or lower level of gravity.
+        /// </summary>
+        /// <param name="message"></param>
         private void LogInfo(string message)
         {
             Debug.WriteLine(message);
