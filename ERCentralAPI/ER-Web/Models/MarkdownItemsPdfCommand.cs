@@ -424,7 +424,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Failed during cleanup", ex.Message, "MarkdownItemsPdfCommand", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, _jobId, "MarkdownItemsPdfCommand");
-                _result = "Failed";
+                _result = "Done";
                 return;
             }
             if (DataFactoryRes == false)
@@ -481,7 +481,9 @@ namespace BusinessLibrary.BusinessClasses
                 //we mark the review_job as failed as it did fail somehow, although the main task (marking down) has worked (if we got here!)
                 DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Error at cleanup after resuming", ex.Message, "MarkdownItemsPdfCommand", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, _jobId, "MarkdownItemsPdfCommand");
-                //we don't return, as the main task was done and the parent job can go ahead
+                //we let RobotOpenAiHostedService believe a
+                _result = "Done";
+                return;
             }
             DataFactoryHelper.UpdateReviewJobLog(_jobId, ReviewId, "Ended", "", "MarkdownItemsPdfCommand", true, true);
             _result = "Done";               
