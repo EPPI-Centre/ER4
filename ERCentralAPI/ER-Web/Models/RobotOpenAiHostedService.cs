@@ -358,10 +358,10 @@ namespace BusinessLibrary.BusinessClasses
                     else
                     {
                         int index = RT.ItemIDsList.IndexOf(RT.CurrentItemId);
-                        if (index >= 0 && index + 1 < RT.ItemIDsList.Count)
+                        if (index >= 0 && index < RT.ItemIDsList.Count)
                         {
                             todo = RT.ItemIDsList.Count;
-                            done = index + 1;
+                            done = index;
                         }
                     }
                 }
