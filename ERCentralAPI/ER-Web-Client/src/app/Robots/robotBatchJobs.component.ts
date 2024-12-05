@@ -113,7 +113,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
         + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
         + encoded + "</strong></div>"
         + "<div class='my-1 px-1 alert-warning'>The job will submit <strong>full-text documents</strong> to GPT. This means that:"
-        + "<ol><li>Job starts by parsing PDFs, which can take minutes (per document)</li>"
+        + "<ol><li>The PDFs will be parsed for processing, which can take minutes (per document)</li>"
         + "<li>Cost per item is higher (possibly about <strong>£1 per document</strong>)</li>"
         + "<li>Process is much slower, as each item might take more than one minute to process</li></ol>"
         + "Are you <strong>sure</strong> you want to proceed?"
