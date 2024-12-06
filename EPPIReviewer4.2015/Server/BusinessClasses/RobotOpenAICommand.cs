@@ -23,6 +23,7 @@ using System.Text.RegularExpressions;
 
 
 
+
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -40,7 +41,7 @@ using System.Web;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class RobotOpenAICommand : CommandBase<RobotOpenAICommand>
+    public class RobotOpenAICommand : LongLastingFireAndForgetCommand<RobotOpenAICommand>
     {
 
         public RobotOpenAICommand() { }
@@ -58,6 +59,8 @@ namespace BusinessLibrary.BusinessClasses
         private int _robotContactId = 0;
         private bool _onlyCodeInTheRobotName = true;
         private bool _lockTheCoding = true;
+        private bool _useFullTextDocument = false;
+        private string _DocsList = "";
         private bool _Succeded = false;
         private int errors = 0;
 
@@ -74,7 +77,7 @@ namespace BusinessLibrary.BusinessClasses
             get { return errors; }
         }
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true)
+        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
         {
             _reviewSetId = reviewSetId;
             _itemId = itemId;
@@ -82,9 +85,10 @@ namespace BusinessLibrary.BusinessClasses
             _message = "";
             _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
             _lockTheCoding = lockTheCoding;
+            _useFullTextDocument = useFullTextDocument;
         }
         public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
-            int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true,
+            int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
             string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
         {
             _reviewSetId = reviewSetId;
@@ -100,6 +104,8 @@ namespace BusinessLibrary.BusinessClasses
             _jobOwnerId = JobOwnerId;
             _ExplicitEndpoint = ExplicitEndpoint;
             _ExplicitEndpointKey = ExplicitEndpointKey;
+            _useFullTextDocument = useFullTextDocument;
+            _DocsList = docsList;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -120,6 +126,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_onlyCodeInTheRobotName", _onlyCodeInTheRobotName);
             info.AddValue("_lockTheCoding", _lockTheCoding);
             info.AddValue("_Succeded", _Succeded);
+            info.AddValue("_useFullTextDocument", _useFullTextDocument); 
+            info.AddValue("_DocsList", _DocsList);
             info.AddValue("errors", errors);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -139,6 +147,8 @@ namespace BusinessLibrary.BusinessClasses
             _onlyCodeInTheRobotName = info.GetValue<bool>("_onlyCodeInTheRobotName");
             _lockTheCoding = info.GetValue<bool>("_lockTheCoding");
             _Succeded = info.GetValue<bool>("_Succeded");
+            _useFullTextDocument = info.GetValue<bool>("_useFullTextDocument");
+            _DocsList = info.GetValue<string>("_DocsList");
             errors = info.GetValue<int>("errors");
         }
 
@@ -203,6 +213,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
                             command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
                             command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
+                            command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument));
                             command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
                             command.Parameters["@result"].Size = 50;
                             command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
@@ -224,13 +235,23 @@ namespace BusinessLibrary.BusinessClasses
                 //we have a jobID so now we can (and want) to catch and log exceptions
                 try
                 {
-                    _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();
+                    if (AppIsShuttingDown)
+                    {
+                        MarkAsPaused();
+                        return;
+                    }
+                    _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();//this runs synchronously, hence the catch will work
                     if (errors > 0)
                     {
                         _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
                         if (hasSavedSomeCodes == false && _Item_set_id > 0)
                         {
                             DeleteItemSetIfEmpty();
+                        }
+                        if (AppIsShuttingDown)
+                        {
+                            MarkAsPaused();
+                            return;
                         }
                     }
                 }
@@ -262,6 +283,11 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         DeleteItemSetIfEmpty();
                     }
+                    return;
+                }
+                if (AppIsShuttingDown && _Succeded == false)
+                {
+                    MarkAsPaused();
                     return;
                 }
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -362,28 +388,29 @@ namespace BusinessLibrary.BusinessClasses
                 key = AzureSettings.RobotOpenAIKey2;
             }
             //string document = GetDoc(_itemDocumentId, ReviewId);  // when we re-enable this, we need to check the stored proc (below) will return the text
-
-
-            // *** Get item and check that it has an abstract
-            Item i = Item.GetItemById(_itemId, ReviewId);
-            if (i == null)
+            Item i = null;
+            if (_useFullTextDocument == false)
             {
-                _message = "Error: Null item";
-                return false;
+                // *** Get item and check that it has an abstract
+                i = Item.GetItemById(_itemId, ReviewId);
+                if (i == null)
+                {
+                    _message = "Error: Null item";
+                    return false;
+                }
+                if (i.Abstract.Trim().Length + i.Title.Trim().Length < 50)
+                {
+                    _message = "Error: Short or non-existent title and abstract";
+                    return false;
+                }
+                char[] chars = { ' ' };
+                int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
+                if (wordCount > 3500)
+                {
+                    _message = "Error: Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
+                    return false;
+                }
             }
-            if (i.Abstract.Trim().Length + i.Title.Trim().Length < 50)
-            {
-                _message = "Error: Short or non-existent title and abstract";
-                return false;
-            }
-            char[] chars = { ' ' };
-            int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
-            if (wordCount > 3500)
-            {
-                _message = "Error: Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
-                return false;
-            }
-            
 
             // *** Get the codeset, build the list of prompts, and return if no valid prompts are present
             ReviewSet rs = null;
@@ -410,29 +437,92 @@ namespace BusinessLibrary.BusinessClasses
                 return false;
             }
 
+            string userprompt = "";
+            string sysprompt = "";
 
             // *** Create the prompt for the LLM
+            if (_useFullTextDocument == false)
+            {
+                if (i != null)
+                {
+                    bool hastitle = true;
+                    bool hasabstract = true;
+                    if (i.Title.Trim().Length <= 1) { hastitle = false; }
+                    if (i.Abstract.Trim().Length <= 1) { hasabstract = false; }
+                    userprompt = "";
+                    sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                    if (hasabstract && hastitle)
+                    {
+                        sysprompt = "You extract data from the title and text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                        userprompt = "Title: " + i.Title + "\nText: " + i.Abstract;
+                    }
+                    else if (hastitle == true && hasabstract == false)
+                    {
+                        userprompt = "Text: " + i.Title;
+                    }
+                    else if (hastitle == false && hasabstract == true)
+                    {
+                        userprompt = "Text: " + i.Abstract;
+                    }
+                }
+                else
+                {
+                    _message = "Error: Null item";
+                    return false;
+                }
+            }
+            else if (_DocsList != "")
+            {
+                string AllText = "";
+                string[] Filenames = _DocsList.Split(new[] { ','}, StringSplitOptions.RemoveEmptyEntries);
+                List<string> DocsContent = new List<string>();
 
-            bool hastitle = true;
-            bool hasabstract = true;
-            if (i.Title.Trim().Length <= 1) { hastitle = false; }
-            if (i.Abstract.Trim().Length <= 1) { hasabstract = false; }
-            string userprompt = "";
-            string sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
-            if (hasabstract && hastitle) 
-            {
-                sysprompt = "You extract data from the title and text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
-                userprompt = "Title: " + i.Title + "\nText: " + i.Abstract;
+                foreach (string Filename in Filenames)
+                {
+                    DocsContent.Add(GetDoc(Filename, _reviewId));
+                }
+                //we order the docs by length of the markdown, longer on top!
+                DocsContent.Sort((x, y) => y.Length.CompareTo(x.Length));
+                foreach (string FileContent in DocsContent)
+                {
+                    AllText += FileContent;
+                    if (FileContent != DocsContent[DocsContent.Count - 1])
+                    {
+                        AllText += Environment.NewLine + "-----------------------" + Environment.NewLine + Environment.NewLine;
+                    }
+                }
+                if (AllText == "")
+                {
+                    _message = "Error: no PDF text to process";
+                    return false;
+                }
+                sysprompt = "You extract data from the markdown text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                userprompt = AllText;
+               
             }
-            else if (hastitle == true && hasabstract == false)
+            else
             {
-                userprompt = "Text: " + i.Title;
+                _message = "Error: no PDFs to process";
+                return false;
             }
-            else if (hastitle == false && hasabstract == true)
+            if (AppIsShuttingDown)
             {
-                userprompt = "Text: " + i.Abstract;
+                ErrorLogSink("Cancelling RobotOpenAICommand after preparing most of the prompts.");
+                return false;
             }
-            //userprompt += userprompt + Environment.NewLine + userprompt + Environment.NewLine + userprompt + Environment.NewLine + userprompt + Environment.NewLine + userprompt;
+            //we add lenght checks here and simply truncate the userprompt if things are too long.
+            int limit = 556522; //128000 / 0.23 we calculated this using 2 tests that had 100K++ tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
+            if (sysprompt.Length + userprompt.Length > limit)
+            {//call is likely to fail because it's too long - we truncate the userprompt and hope for the best!
+                if (sysprompt.Length > limit)
+                {//oh my, the prompts themselves are too many. Deliberately rise an exception which produces the highest level of visibility: gets saved in TB_ROBOT_API_CALL_ERROR_LOG
+                    //we will eventually show errors collected there to users!
+                    throw new Exception("There are too many prompts, leaving no room for the data to classify!");
+
+                }
+                int excess = sysprompt.Length + userprompt.Length - limit;
+                userprompt = userprompt.Substring(0, userprompt.Length - excess);//this will work, having checked if sysprompt is too long in itself!
+            }
             List<OpenAIChatClass> messages = new List<OpenAIChatClass>
             {
                 new OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
@@ -471,18 +561,36 @@ namespace BusinessLibrary.BusinessClasses
                 json = JsonConvert.SerializeObject(requestBody);
             }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            ////code to test what happens if we send too many requests
             //for (int ii = 0; ii < 10; ii++)
             //{
             //    if (ii == 9) { var response0 = await client.PostAsync(endpoint, content); }
             //    else { var response0 = client.PostAsync(endpoint, content); }
             //}
-            var response = await client.PostAsync(endpoint, content);
+            HttpResponseMessage response = null;
+            try
+            {
+                response = await client.PostAsync(endpoint, content, CancelToken);
+            }
+            catch (OperationCanceledException e)
+            {
+                ErrorLogSink("Cancelling RobotOpenAICommand while awaiting for the OpenAI API to answer.");
+                return false; //we'll detect the cancellation request elsewhere
+            }
             if (response.IsSuccessStatusCode == false)
             {
                 _message = "Error: " + response.ReasonPhrase;
                 result = false;
                 return result;
             }
+
+            if (AppIsShuttingDown)//last time we check, if we need to cancel while we're saving results, it's best to have a go and try to save all results, not just some!
+            {
+                ErrorLogSink("Cancelling RobotOpenAICommand after getting the OpenAI API answer.");
+                return false;//ditto, code calling this will notice the app-cancellation request
+            }
+
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
             _inputTokens = generatedText.usage.prompt_tokens;
@@ -636,29 +744,36 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-        private string GetDoc(Int64 DocumentId, int ReviewId)
-        {
-            string ret = null;
-            using (SqlConnection conn = new SqlConnection(BusinessLibrary.Data.DataConnection.ConnectionString))
-            {
-                conn.Open();
-                using (SqlCommand command = new SqlCommand("st_ItemDocumentText", conn)) // N.B. this needs to be changed to return the text
-                {
-                    command.Parameters.Add(new SqlParameter("@DOC_ID", DocumentId));
-                    command.Parameters.Add(new SqlParameter("@REV_ID", ReviewId));
-                    command.CommandType = CommandType.StoredProcedure;
-                    SafeDataReader dr = new SafeDataReader(command.ExecuteReader());
-                    if (dr.Read())
-                    {
-                        ret = dr.GetString("DOCUMENT_TEXT");
-                    }
-                    conn.Close();
-                }
-            }
+        private string blobConnection = AzureSettings.blobConnection;
+        private string GetDoc(string filename, int ReviewId)
+        {            
+            string containerName = "eppi-reviewer-data";
+            string FileNamePrefix = "eppi-rag-pdfs/" + DataFactoryHelper.NameBase + "ReviewId" + ReviewId + "/";
+            MemoryStream stream = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, containerName, FileNamePrefix + filename);
+            string ret = Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
             return ret;
         }
 
-
+        private void MarkAsPaused()
+        {
+            _Succeded = false;
+            _message = "Cancelled";
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                {//this is to update the token numbers, and thus the cost, if we can
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
+                    command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                    command.Parameters.Add(new SqlParameter("@STATUS", "Paused"));
+                    command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                    command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
+                    command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
 
         public class OpenAIResult
         {

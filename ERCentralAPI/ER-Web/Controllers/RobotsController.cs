@@ -77,7 +77,7 @@ namespace ERxWebClient2.Controllers
                     {
                         CreditId = rinfo.CreditForRobotsList[0].CreditPurchaseId;
                     }
-                    RobotOpenAiQueueBatchJobCommand res = new RobotOpenAiQueueBatchJobCommand(data.criteria, CreditId, data.reviewSetId, data.onlyCodeInTheRobotName, data.lockTheCoding);
+                    RobotOpenAiQueueBatchJobCommand res = new RobotOpenAiQueueBatchJobCommand(data.criteria, CreditId, data.reviewSetId, data.onlyCodeInTheRobotName, data.lockTheCoding, data.useFullTextDocument);
                     res = DataPortal.Execute(res);
                     data.returnMessage = res.Result;
                     return Ok(data);
@@ -101,10 +101,11 @@ public class RobotOpenAICommandJson
     public Int64 itemId;
     public bool onlyCodeInTheRobotName { get; set; }
     public bool lockTheCoding { get; set; }
+    public bool useFullTextDocument { get; set; }
     public string returnMessage = "";
     public RobotOpenAICommand GetRobotOpenAICommand()
     {
-        RobotOpenAICommand res = new RobotOpenAICommand(reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding);
+        RobotOpenAICommand res = new RobotOpenAICommand(reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
         return res;
     }
 }
@@ -116,6 +117,7 @@ public class RobotOpenAiQueueBatchJobCommandJson
     public string criteria { get; set; } = "";
     public bool onlyCodeInTheRobotName { get; set; }
     public bool lockTheCoding { get; set; }
+    public bool useFullTextDocument { get; set; }
     public string returnMessage = "";
     
 }

@@ -195,7 +195,14 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(RobotContactIdProperty);
             }
         }
-        
+        public static readonly PropertyInfo<bool> UseFullTextDocumentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UseFullTextDocument", "UseFullTextDocument"));
+        public bool UseFullTextDocument
+        {
+            get
+            {
+                return GetProperty(UseFullTextDocumentProperty);
+            }
+        }
 
 
 
@@ -265,6 +272,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<bool>(LockTheCodingProperty, reader.GetBoolean("LOCK_CODING"));
             LoadProperty<int>(RobotContactIdProperty, reader.GetInt32("ROBOT_CONTACT_ID"));
             LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
+            LoadProperty<bool>(UseFullTextDocumentProperty, reader.GetBoolean("USE_PDFS")); 
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
             if (RawCriteria.StartsWith("ItemIds: "))

@@ -21,7 +21,7 @@
       <button class="btn btn-sm btn-outline-danger my-auto py-0 font-weight-bold" (click)="SubmitBatch()" [disabled]="!CanSubmitBatch">Submit</button>
     </div>
     <div *ngIf="ShowSettings">
-      <RobotSettings></RobotSettings>
+      <RobotSettings Context="Batch"></RobotSettings>
     </div>
     <div *ngIf="ShowQueue" style="max-height:40vh; overflow:auto;" class="m-1 rounded border border-info">
       <div class="row mx-0 px-1">
