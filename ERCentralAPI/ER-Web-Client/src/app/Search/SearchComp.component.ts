@@ -170,11 +170,24 @@ export class SearchComp implements OnInit, OnDestroy {
     }
   }
 
-  async BuildModelf(title: any) {
+  async CheckScreening() {
 
     if (this.DD1 != null && this.DD2 != null) {
 
-      //await this._classifierService.CreateAsync(title.model, this.DD1, this.DD2, -1);
+      let res = await this.classifierService.CheckScreening("CheckScreening", this.DD1, this.DD2);
+
+      if (res != false) {//we get "false" if an error happened...
+        if (res == "Successful upload of data" || res == "The data will be submitted and scored. Please monitor the list of search results for output.") {
+          this.notificationService.show({
+            content: 'Job Submitted. Results will appear as search results (please refresh them in a few minutes)',
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true,
+            hideAfter: 3000
+          });
+        }
+      }
     }
 
   }
@@ -679,7 +692,23 @@ export class SearchComp implements OnInit, OnDestroy {
                 }
             )
             .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
-    }
+  }
+
+  public openConfirmationDialogCheckScreening() {
+    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to check screening with these codes ?', false, '')
+      .then(
+        (confirmed: any) => {
+          console.log('User confirmed:', confirmed);
+          if (confirmed) {
+            this.CheckScreening();
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+  }
 
     hasError(searchText: string) {
 

@@ -401,11 +401,10 @@
             </div>
           </div>
         </div>
-        <div class="col-12 col-md-3 ">
-          <button type="button" class="btn btn-primary mb-1"
-                  [disabled]="!CanCheckScreening"
-                  (click)="callCheckScreening()">
-            Run screening check
+        <div class="col-12 mt-2 mb-2 justify-content-center">
+          <button (click)="openConfirmationDialogCheckScreening()" [disabled]="!CanCheckScreening()"
+                  type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
+            Check screening <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
           </button>
         </div>
       </div>
