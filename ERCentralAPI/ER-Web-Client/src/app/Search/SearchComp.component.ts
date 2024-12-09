@@ -160,21 +160,11 @@ export class SearchComp implements OnInit, OnDestroy {
     return false;
   }
 
-  callCheckScreening() {
-
-    if (this.CanWrite()) {
-
-
-
-
-    }
-  }
-
   async CheckScreening() {
 
     if (this.DD1 != null && this.DD2 != null) {
 
-      let res = await this.classifierService.CheckScreening("CheckScreening", this.DD1, this.DD2);
+      let res = await this.classifierService.CheckScreening("¬¬CheckScreening", this.DD1, this.DD2);
 
       if (res != false) {//we get "false" if an error happened...
         if (res == "Successful upload of data" || res == "The data will be submitted and scored. Please monitor the list of search results for output.") {
@@ -432,6 +422,8 @@ export class SearchComp implements OnInit, OnDestroy {
 
   OpenCheckScreening() {
     this.CheckScreeningSection = !this.CheckScreeningSection;
+    this.ModelSection = false;
+    this.NewSearchSection = false;
   }
 
     CanCreateClassifierCodes(): boolean {
