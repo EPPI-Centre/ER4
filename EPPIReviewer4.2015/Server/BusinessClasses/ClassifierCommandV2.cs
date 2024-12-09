@@ -108,7 +108,7 @@ namespace BusinessLibrary.BusinessClasses
                 DeleteModel();
                 return;
             }
-            if (_title.Contains("CheckScreening"))
+            if (_title.Contains("¬¬CheckScreening"))
             {
                 DoApplyCheckScreening();
                 return;
@@ -1104,7 +1104,7 @@ namespace BusinessLibrary.BusinessClasses
                     sbc.WriteToServer(dt);
                 }
                 string SearchTitle = "Items classified according to model: " + _title;
-                if (_title.Contains("CheckScreening"))
+                if (_title.Contains("¬¬CheckScreening"))
                 {
                     SearchTitle = "Screening check results ordered with those mostly likely relevant at the top";
                 }
