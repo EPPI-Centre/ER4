@@ -524,7 +524,7 @@ namespace BusinessLibrary.BusinessClasses
                 string[] filters = filter.ToLower().Split(',');
                 foreach (string s in filters)
                 {
-                    if (field.Contains(s))
+                    if (field.Contains(s.Trim()))
                     {
                         return false;
                     }

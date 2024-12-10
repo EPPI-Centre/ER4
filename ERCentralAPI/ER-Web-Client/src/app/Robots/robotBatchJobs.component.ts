@@ -34,6 +34,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   public ShowSettings: boolean = false;
   public ShowQueue: boolean = true;
   public DetailsJobId: number = -1;
+  @Output() PleaseCloseMe = new EventEmitter();
 
   ngOnInit() {
     this.robotsService.GetCurrentQueue().then(() => {
@@ -75,7 +76,21 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       else return false;
     }
   }
-
+  public JobCSSclass(Job: iRobotOpenAiTaskReadOnly): string {
+    let res:string = "";
+    if (this._reviewerIdentityServ.reviewerIdentity.isSiteAdmin) {
+      if (Job.reviewId == this._reviewerIdentityServ.reviewerIdentity.reviewId
+        || Job.jobOwnerId == this._reviewerIdentityServ.reviewerIdentity.userId) res = "alert-primary";
+      else res = "";
+    } else {
+      if (Job.reviewId > 0) res = "alert-primary";
+      else res = "";
+    }
+    if (Job.robotApiCallId == this.DetailsJobId) {
+      res += (res == "" ? "" : " ") + "font-weight-bold";
+    }
+    return res;
+  }
   public get DetailedJob(): iRobotOpenAiTaskReadOnly | undefined {
     if (this.DetailsJobId > 0) {
       const index = this.robotsService.CurrentQueue.findIndex(f => f.robotApiCallId == this.DetailsJobId);
@@ -94,7 +109,11 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
     }
     else return 'Queued';
   }
-  public ShowJobDetails(robotApiCallId: number) {
+  public JobDetails(robotApiCallId: number) {
+    if (this.DetailsJobId == robotApiCallId) {
+      this.DetailsJobId = -1;
+      return;
+    }
     const index = this.robotsService.CurrentQueue.findIndex(f => f.robotApiCallId == robotApiCallId);
     if (index == -1) this.DetailsJobId = -1;
     else this.DetailsJobId = robotApiCallId;
@@ -157,7 +176,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "info", icon: true },
-            closable: true
+            hideAfter: 4000
           });
           this.robotsService.GetCurrentQueue();
           this.ShowQueue = true;
@@ -165,6 +184,9 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       }
 
     );
+  }
+  Close() {
+    this.PleaseCloseMe.emit();
   }
   ngOnDestroy() {
 

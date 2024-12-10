@@ -268,10 +268,10 @@
             <!--<kendo-icon name="print"></kendo-icon>-->
           </button>
           <button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1"
-                  title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
-                  [disabled]="!HasWriteRights || !HasSelectedItems" (click)="ShowRobotBatchJobs = !ShowRobotBatchJobs"></button>
+                  title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool" 
+                  [disabled]="!HasWriteRights" (click)="ShowRobotBatchJobs = !ShowRobotBatchJobs"></button>
         </div>
-        <RobotBatchJobs *ngIf="CanRunOpenAIrobot && ShowRobotBatchJobs"></RobotBatchJobs>
+        <RobotBatchJobs *ngIf="CanRunOpenAIrobot && ShowRobotBatchJobs" (PleaseCloseMe)="ShowRobotBatchJobs = false"></RobotBatchJobs>
         <div *ngIf="ShowPrintCodeset" class="m-1 rounded border border-success">
           <div class="col-12 m-0 p-0 row">
             &nbsp;Print coding tool?

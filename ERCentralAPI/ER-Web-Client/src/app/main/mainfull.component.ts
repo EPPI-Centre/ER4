@@ -607,14 +607,18 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   }
   ];
   public get CanRunOpenAIrobot(): boolean {
+    //let res: boolean = true;
     if (!this.HasWriteRights) return false;
-    else if (!this.ShowItemsTable) return false;
+    else if (!this.ShowItemsTable) return false;//return immediately, so that if the panel was open, it will re-open when user comes back to references tab
     else if (!this.reviewInfoService.ReviewInfo.hasCreditForRobots) return false;
     else {
       let node = this.reviewSetsService.selectedNode;
       if (node != null && node.nodeType == 'ReviewSet' && (node.subTypeName == "Standard" || node.subTypeName == "Screening")) return true;
       else return false;
     }
+    //if we're here, the result is 'false'
+    //this.ShowRobotBatchJobs = false;//we close the robots panel, otherwise it keeps reappearing!!
+    //return res;
   }
 
 
