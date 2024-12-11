@@ -30,7 +30,7 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
         if (this.clearSub != null) this.clearSub.unsubscribe();
     }
     private clearSub: Subscription | null = null;
-    private _CurrentHTMLHelp: string = ""
+    private _CurrentHTMLHelp: string = "";
     public get CurrentHTMLHelp(): string {
         if (this.IsBusy) return "";
         else return this._CurrentHTMLHelp;
@@ -67,14 +67,12 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
         }
     }
 
-  public UpdateHelpContent(message: OnlineHelpContent) {
+  public UpdateHelpContent(message: OnlineHelpContent1) {
 
-      this._BusyMethods.push("UpdateHelpContent");
+    this._BusyMethods.push("UpdateHelpContent");
 
     this._http.post<OnlineHelpContent>(this._baseUrl + 'api/Help/UpdateHelpcontent', message)
         .subscribe(result => {
-          //console.log("gethelp:", body, result);
-          //we could check if this worked, by looking at the messageId in result...
           this.RemoveBusy("UpdateHelpContent");
         },
           (error) => {

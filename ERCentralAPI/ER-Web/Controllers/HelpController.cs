@@ -41,7 +41,7 @@ namespace ERxWebClient2.Controllers
 			}
 			
 		}
-        /*
+        
         [HttpPost("[action]")]
         public IActionResult UpdateHelpcontent([FromBody] HelpContentJSON crit)
         {
@@ -49,7 +49,7 @@ namespace ERxWebClient2.Controllers
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
-                HelpContentJSON res = FeedbackAndClientError.CreateFeedbackAndClientError(crit.context, crit.helpContent);
+                OnlineHelpContent res = OnlineHelpContent.UpdateHelpContent(crit.context, crit.helpHTML);
                 res = res.Save();
                 return Ok(res);
             }
@@ -60,7 +60,7 @@ namespace ERxWebClient2.Controllers
             }
 
         }
-        */
+        
         [HttpPost("[action]")]
         public IActionResult CreateFeedbackMessage([FromBody] FeedbackAndClientErrorJSON crit)
         {
@@ -107,11 +107,11 @@ namespace ERxWebClient2.Controllers
         public string message;
     }
 
-    /*
+    
     public class HelpContentJSON
     {
         public string context;
-        public string helpContent;
+        public string helpHTML;
     }
-    */
+    
 }

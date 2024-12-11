@@ -6,7 +6,7 @@
   </button>
   <kendo-tabstrip #tabstrip [keepTabContent]="true"
                   (tabSelect)="onTabSelect($event)">
-    <kendo-tabstrip-tab [selected]="true" [title]="'Feedback'">
+    <kendo-tabstrip-tab [selected]="true" [title]="'Main'">
       <ng-template kendoTabContent>
 
 
@@ -62,6 +62,30 @@
           FeedbackMessageList is empty
         </div>
 
+        <br />
+        Open Review:
+        <div class="col-12">
+          <div class="form-group border border-dark rounded row m-0 p-1">
+            <label class="control-label mt-2 mx-1">U:</label>
+            <div class="mr-2">
+              <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
+            </div>
+            <label class="control-label mt-2 mr-1">P:</label>
+            <div class="mr-2">
+              <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
+            </div>
+            <label class=" control-label mt-2 mr-1">R:</label>
+            <div class="mr-2">
+              <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
+            </div>
+            <button class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
+            <!--<div *ngIf="LoggedStatus != ''">{{LoggedStatus}}</div>-->
+          </div>
+
+        </div>
+
+
+
       </ng-template>
     </kendo-tabstrip-tab>
 
@@ -115,15 +139,17 @@
           </div>
           <div [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
                class="m-0 p-1"
-               [innerHTML]='CurrentContextHelp'></div>
+               [innerHTML]=GetText()>
+          </div>
         </div>
-          <button *ngIf="CurrentContextHelp.length > 0" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()"><span>{{ShowEdit ? 'Cancel' : 'Edit'}}</span></button>
-          <button *ngIf="ShowEdit" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Preview()">Preview</button>
-          <button *ngIf="ShowEdit" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Save()">Save</button>
+
+        <button *ngIf="CurrentContextHelp.length > 0" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()"><span>{{ShowEdit ? 'Cancel' : 'Edit'}}</span></button>
+        <button *ngIf="ShowEdit" [disabled]="!CanSaveHelp()" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Save()">Save</button>
 
 
         <div *ngIf="ShowEdit" class="rounded col w-100">
-          <ckeditor [(ngModel)]="model.editorData" allowedContent="true" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js">
+          <ckeditor [(ngModel)]="model.editorData" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"
+                    [config]="{extraAllowedContent:'div(*);p(*)'}" (change)="onDataChange($event)">
           </ckeditor>
 
         </div>
@@ -135,26 +161,7 @@
 
 
   </kendo-tabstrip>
-    Open Review:
-    <div class="col-12">
-      <div class="form-group border border-dark rounded row m-0 p-1">
-        <label class="control-label mt-2 mx-1">U:</label>
-        <div class="mr-2">
-          <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
-        </div>
-        <label class="control-label mt-2 mr-1">P:</label>
-        <div class="mr-2">
-          <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
-        </div>
-        <label class=" control-label mt-2 mr-1">R:</label>
-        <div class="mr-2">
-          <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
-        </div>
-        <button class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
-        <!--<div *ngIf="LoggedStatus != ''">{{LoggedStatus}}</div>-->
-      </div>
-     
-    </div>
+    
     
 </div>
 

@@ -9,6 +9,7 @@ import { SortDescriptor, process, CompositeFilterDescriptor, State } from '@prog
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
+import { CKEditor4 } from 'ckeditor4-angular/ckeditor';
 
 
 @Component({
@@ -39,20 +40,15 @@ export class SiteAdminComponent implements OnInit {
     }
     public Uname: string = "";
     public Pw: string = "";
-  public revId: string = "";
-  public LogTypeSelection: number = 0;
+    public revId: string = "";
+    public LogTypeSelection: number = 0;
 
 
-  private _ActivePanel: string = "Help";
-  public ActivePanel: string = "Help";
-
-
-
+    private _ActivePanel: string = "Help";
+    public ActivePanel: string = "Help";
 
 
 
-    //public HelpAndFeebackContext: string = "main\\reviewhome";
-    //public LoggedStatus: string = "";
     subOpeningReview: Subscription | null = null;
     public get FeedbackMessageList(): FeedbackAndClientError[] {
         return this.OnlineHelpService.FeedbackMessageList;
@@ -69,10 +65,6 @@ export class SiteAdminComponent implements OnInit {
     }
     public get DataSource(): GridDataResult {
         return process(this.OnlineHelpService.FeedbackMessageList, this.state);
-        //return {
-        //    data: orderBy(this.OnlineHelpService.FeedbackMessageList.slice(this.skip, this.skip + this.pageSize), this.sort),
-        //    total: this.OnlineHelpService.FeedbackMessageList.length,
-        //};
     }
     public state: State = {
         skip: 0,
@@ -86,21 +78,16 @@ export class SiteAdminComponent implements OnInit {
     
     ShowDBSettingById(event: Event) {
       let helpId = parseInt((event.target as HTMLOptionElement).value);
-      //console.log("Changing DB (id): ", dbId);
       this.OnlineHelpService.FetchHelpContent(helpId.toString());
     }
     
     public get IsSiteAdmin(): boolean {
-        //console.log("Is it?", this.ReviewerIdentityServ.reviewerIdentity
-        //    , this.ReviewerIdentityServ.reviewerIdentity.userId > 0
-        //    , this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
-        //    , this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin);
-        if (this.ReviewerIdentityServ
-            && this.ReviewerIdentityServ.reviewerIdentity
-            && this.ReviewerIdentityServ.reviewerIdentity.userId > 0
-            && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
-            && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
-        else return false;
+      if (this.ReviewerIdentityServ
+          && this.ReviewerIdentityServ.reviewerIdentity
+          && this.ReviewerIdentityServ.reviewerIdentity.userId > 0
+          && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
+          && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
+      else return false;
     }
     public get CanOpenRev(): boolean {
         if (this.Uname.trim().length < 2) return false;
@@ -125,6 +112,21 @@ export class SiteAdminComponent implements OnInit {
     else return false;
   }
 
+
+/////////////////////////////////////////////////////////////////////////
+
+  public TmpCurrentContextHelp: string = "";
+  public OrigCurrentContextHelp: string = "";
+  public enableSave: boolean = false;
+
+
+  CanSaveHelp() {
+    if (this.enableSave) {
+      return true;
+    } else return false;
+  }
+
+
   public get CurrentContextHelp(): string {
     //console.log("CurrentContextHelp", this.OnlineHelpService.CurrentHTMLHelp);
     if (this.OnlineHelpService.IsBusy) return "";
@@ -133,34 +135,18 @@ export class SiteAdminComponent implements OnInit {
     }
   }
 
-  UpdateHelp() {
-    let help: OnlineHelpContent1 = new OnlineHelpContent1();
-    help.context = this.context;
-    help.helpHTML = "";// this.UserFeedback;
-    //this.OnlineHelpService.UpdateHelpContent(help);
-  }
-  /*
-  public CloneHelpforEdit(toClone: OnlineHelpContent): OnlineHelpContent {
-    let res = {
-      onlineHelpContentId: toClone.onlineHelpContentId,
-      context: this.context,
-      helpHTML: toClone.helpHTML
-    }
-    return res;
-  }
-  */
 
   public model = {
-    //editorData: this.CurrentContextHelp,
     editorData: "",
   };
 
-  //public EditingHelp: OnlineHelpContent | null = null;
+
   public helpContent: string | null = null;
   public ContextSelection: number = 0;
   public context = "";
-  //public test = "";
   public editingHelp = "";
+
+
   public RetrieveHelp() {
     switch (this.ContextSelection) {
       case 1: this.context = "(codingui)itemdetails"; break;
@@ -197,36 +183,77 @@ export class SiteAdminComponent implements OnInit {
       default: this.context = "0";
     }
     this.showEdit = false;
+    this.enableSave = false;
+    this.TmpCurrentContextHelp = "";
     if (this.context != "0") {
       this.OnlineHelpService.FetchHelpContent(this.context);
       if (this.CurrentContextHelp == null) {
-        // no data so close the view area?
+        // there is no data
         this.OnlineHelpService.FetchHelpContent("");
       }
     }
     else {
+      // user selected '0' again so no data
       this.OnlineHelpService.FetchHelpContent("");
     }
-
   }
+
+
+  public onDataChange(event: CKEditor4.EventInfo) {
+    var test = event.editor.getData();
+    //this.TmpCurrentContextHelp = this.model.editorData;
+    this.TmpCurrentContextHelp = event.editor.getData();
+    if (this.OrigCurrentContextHelp == event.editor.getData()) {
+      // things are unchanged from origninal...
+      this.enableSave = false;
+    }
+    else {
+      // things are different...
+      this.enableSave = true;
+    }
+  }
+
 
   Edit() {
     if (this.showEdit == true) {
+      // this is a 'cancel'
       this.showEdit = false;
+      this.TmpCurrentContextHelp = "";
+      this.OrigCurrentContextHelp = "";
+      this.showEdit = false;
+      this.OnlineHelpService.FetchHelpContent(this.context);
     }
     else {
-      this.showEdit = true;
+      // this is an 'edit'
+      this.enableSave = false;
+      this.showEdit = true;     
+      this.OrigCurrentContextHelp = this.CurrentContextHelp;
       this.model.editorData = this.CurrentContextHelp;
+      this.TmpCurrentContextHelp = this.model.editorData;
+
     }    
   }
 
-  Preview() {
-    var test = this.model.editorData;
+
+  public GetText(): string {
+    if (this.showEdit == true) {
+      return this.model.editorData;
+    }
+    else {
+      return this.CurrentContextHelp;
+    }      
   }
 
 
   Save() {
-    // update the database with the edited help
+    let help: OnlineHelpContent1 = new OnlineHelpContent1();
+    help.context = this.context;
+    help.helpHTML = this.model.editorData;
+    this.OnlineHelpService.UpdateHelpContent(help);
+    this.showEdit = false;
+    this.TmpCurrentContextHelp = "";
+    //this.OrigCurrentContextHelp = "";
+    //this.OnlineHelpService.FetchHelpContent(this.context);
   }
 
 
@@ -235,30 +262,13 @@ export class SiteAdminComponent implements OnInit {
     return this.showEdit;
   }
 
-    //public  CheckLoggedStatus() {
-    //    if (this.ReviewerIdentityServ.reviewerIdentity && this.ReviewerIdentityServ.reviewerIdentity.reviewId != 0) {
-    //        this.LoggedStatus =  "Rid=" + this.ReviewerIdentityServ.reviewerIdentity.reviewId + " " + this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated;
-    //    }
-    //    else this.LoggedStatus = "Nope: " + this.ReviewerIdentityServ.reviewerIdentity.reviewId;
-    //}
-    //protected pageChange({ skip, take }: PageChangeEvent): void {
-    //    this.skip = skip;
-    //    this.pageSize = take;
-    //    this.DataSource;
-    //}//
-    //protected filterChange($event: CompositeFilterDescriptor) {
-    //    console.log($event);
-    //    this.filter = $event;
-    //}
-    //public sortChange(sort: SortDescriptor[]): void {
-    //    this.sort = sort;
-    //    this.DataSource;
-    //}
-    BackToMain() {
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  BackToMain() {
         this.router.navigate(['Main']);
     }
     ngOnDestroy() {
-    }
+  }
 
 
   onTabSelect(e: SelectEvent) {
