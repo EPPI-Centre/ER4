@@ -20,6 +20,7 @@ using BusinessLibrary.Security;
 using Microsoft.Azure.Search.Models;
 using System.Reflection;
 using EPPIDataServices.Helpers;
+using System.Data;
 
 
 namespace BusinessLibrary.BusinessClasses
@@ -344,6 +345,34 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
                 //if (CreditWorker != null) throw new InvalidOperationException("fake for testing");
+
+                //added Dec 2024 to ensure multiple jobs update their state promptly
+                //we start by marking the job as running, so to be sure it won't be picked up again
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                        {
+                            string status = "Running";
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", RT.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
+                            command.Parameters.Add(new SqlParameter("@STATUS", status));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", SqlDbType.BigInt));
+                            command.Parameters["@CURRENT_ITEM_ID"].Value = RT.CurrentItemId;
+                            command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
+                            command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogException(ex, "Failed to mark job as running");
+                }
+
                 LogInfo("Starting Batch " + RT.RobotApiCallId.ToString());
                 RobotOpenAICommand cmd = new RobotOpenAICommand();
                 int DefaultDelayInMs = 10000;
