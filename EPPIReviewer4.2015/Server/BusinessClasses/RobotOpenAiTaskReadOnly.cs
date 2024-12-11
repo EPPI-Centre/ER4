@@ -195,7 +195,14 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(RobotContactIdProperty);
             }
         }
-        
+        public static readonly PropertyInfo<bool> UseFullTextDocumentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UseFullTextDocument", "UseFullTextDocument"));
+        public bool UseFullTextDocument
+        {
+            get
+            {
+                return GetProperty(UseFullTextDocumentProperty);
+            }
+        }
 
 
 
@@ -215,21 +222,68 @@ namespace BusinessLibrary.BusinessClasses
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             if (criteria.NextCreditTask)
             {
+                List<RobotOpenAiTaskReadOnly> JobsToConsider = new List<RobotOpenAiTaskReadOnly>();
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_RobotApiJobFetchNextCreditTaksByRobotName", connection))
+                    using (SqlCommand command = new SqlCommand("st_RobotApiJobFetchNextCreditTasksByRobotName", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
-                            if (reader.Read())
+                            while (reader.Read())
                             {
-                                Child_Fetch(reader, false);
+                                RobotOpenAiTaskReadOnly job = new RobotOpenAiTaskReadOnly();
+                                job.Child_Fetch(reader, false);
+                                JobsToConsider.Add(job);
+                            }
+                        }
+                        //JobsToConsider contains running jobs and queued jobs, task is to pick up the one job we want to run next
+                        //Criteria: if there are jobs running, pick up one from different reviews, otherwise the older
+                        //So, we'll filter our list and see what remains...
+                        int ChosenJobId = 0;
+                        List<RobotOpenAiTaskReadOnly> RunningJobs = JobsToConsider.FindAll(f => f.Status == "Running");
+                        List<RobotOpenAiTaskReadOnly> QueuedJobs = JobsToConsider.FindAll(f => f.Status != "Running");
+                        List<RobotOpenAiTaskReadOnly> QueuedJobsTmp = QueuedJobs;
+                        if (RunningJobs.Count == 0 && QueuedJobs.Count > 0)
+                        {//easy case, just pick the 1st!
+                            ChosenJobId = QueuedJobs[0].RobotApiCallId;
+                        }
+                        else if (RunningJobs.Count > 0 && QueuedJobs.Count > 0)
+                        {
+                            foreach (RobotOpenAiTaskReadOnly RunningJob in RunningJobs)
+                            {
+                                QueuedJobsTmp = QueuedJobsTmp.FindAll(f => f.ReviewId != RunningJob.ReviewId);
+                            }
+                            if (QueuedJobsTmp.Count > 0)
+                            {
+                                ChosenJobId = QueuedJobsTmp[0].RobotApiCallId;
+                            }
+                        }
+                        if (ChosenJobId == 0 && QueuedJobs.Count > 0)
+                        {//we didn't find any job from a review for which a job isn't running already, so we'll just pick the oldest queued job...
+                            ChosenJobId = QueuedJobs[0].RobotApiCallId;
+                        }
+                        if (ChosenJobId > 0)
+                        {
+                            //we run the same SP again, but this time, we know what RobotApiCallId to use
+                            using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                            {
+                                int LineJobId = 0;
+                                while (reader.Read())
+                                {
+                                    LineJobId = reader.GetInt32("ROBOT_API_CALL_ID");
+                                    if (ChosenJobId == LineJobId)
+                                    {
+                                        Child_Fetch(reader, false);
+                                    }
+                                    
+                                }
                             }
                         }
                     }
+                    
                     connection.Close();
                 }
             }
@@ -265,6 +319,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<bool>(LockTheCodingProperty, reader.GetBoolean("LOCK_CODING"));
             LoadProperty<int>(RobotContactIdProperty, reader.GetInt32("ROBOT_CONTACT_ID"));
             LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
+            LoadProperty<bool>(UseFullTextDocumentProperty, reader.GetBoolean("USE_PDFS")); 
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
             if (RawCriteria.StartsWith("ItemIds: "))

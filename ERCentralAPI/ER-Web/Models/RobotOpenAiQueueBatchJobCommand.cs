@@ -30,6 +30,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _reviewSetId;
         private bool _onlyCodeInTheRobotName;
         private bool _lockTheCoding;
+        private bool _useFullTextDocument;
         private string _result = "";
         private int _jobId = 0;
 
@@ -43,13 +44,14 @@ namespace BusinessLibrary.BusinessClasses
             get { return _result; }
         }
 
-        public RobotOpenAiQueueBatchJobCommand(string criteria, int creditPurchaseId, int reviewSetId, bool onlyCodeInTheRobotName, bool lockTheCoding)
+        public RobotOpenAiQueueBatchJobCommand(string criteria, int creditPurchaseId, int reviewSetId, bool onlyCodeInTheRobotName, bool lockTheCoding, bool useFullTextDocument)
         {
             _criteria = criteria;
             _creditPurchaseId = creditPurchaseId;
             _reviewSetId = reviewSetId;
             _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
             _lockTheCoding = lockTheCoding;
+            _useFullTextDocument = useFullTextDocument;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -60,6 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_reviewSetId", _reviewSetId);
             info.AddValue("_onlyCodeInTheRobotName", _onlyCodeInTheRobotName);
             info.AddValue("_lockTheCoding", _lockTheCoding);
+            info.AddValue("_useFullTextDocument", _useFullTextDocument); 
             info.AddValue("_jobId", _jobId);
             info.AddValue("_result", _result);
         }
@@ -70,6 +73,7 @@ namespace BusinessLibrary.BusinessClasses
             _reviewSetId = info.GetValue<int>("_reviewSetId");
             _onlyCodeInTheRobotName = info.GetValue<bool>("_onlyCodeInTheRobotName");
             _lockTheCoding = info.GetValue<bool>("_lockTheCoding");
+            _useFullTextDocument = info.GetValue<bool>("_useFullTextDocument"); 
             _jobId = info.GetValue<int>("_jobId");
             _result = info.GetValue<string>("_result");
         }
@@ -93,6 +97,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
                     command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
                     command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
+                    command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument)); 
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@RESULT", System.Data.SqlDbType.VarChar));
                     command.Parameters["@RESULT"].Size = 100;

@@ -16,6 +16,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using DeployR;
+
 
 #if !CSLA_NETCORE
 using Microsoft.Rest.Azure.Authentication;
@@ -143,7 +145,7 @@ namespace BusinessLibrary.BusinessClasses
             //Random r = new Random();
             //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
             
-            int count = 0; int errorCount = 0;
+            int errorCount = 0;
 
             string tenantID = AzureSettings.tenantID;
             string appClientId = AzureSettings.appClientId;
@@ -204,18 +206,100 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             CreateRunResponse runResponse = run.Body;// client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters).Result.Body;
+            return await MonitorRunningJob(client, runResponse.RunId, AccessTokenResult, cc, context, cred, pipelineName, errorCount, ReviewId, ReviewJobId, Origin, CT);
+        }
 
-            string runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, runResponse.RunId).Result.Status;
-            
-            DateTime NextLogUpdateTime = DateTime.Now; //means that we do update the log immediately the 1st time
+        public async Task<bool> ResumeDataFactoryProcessV2(string pipelineName,
+            string DFRunId,
+            int ReviewId, int ReviewJobId, string Origin,
+            CancellationToken CT)
+        {
+            //Random r = new Random();
+            //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
+
+            int errorCount = 0;
+
+            string tenantID = AzureSettings.tenantID;
+            string appClientId = AzureSettings.appClientId;
+            string appClientSecret = AzureSettings.appClientSecret;
+            string subscriptionId = AzureSettings.subscriptionId;
+            string resourceGroup = AzureSettings.resourceGroup;
+            string dataFactoryName = AzureSettings.dataFactoryName;
+
+            UpdateReviewJobLog(ReviewJobId, ReviewId, "Starting DF", "", Origin);
+
+            var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
+            ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
+            AuthenticationResult AccessTokenResult = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
+            ServiceClientCredentials cred = new TokenCredentials(AccessTokenResult.AccessToken);
+            var client = new DataFactoryManagementClient(cred)
+            {
+                SubscriptionId = subscriptionId
+            };
+            return await MonitorRunningJob(client, DFRunId, AccessTokenResult, cc, context, cred, pipelineName, errorCount, ReviewId, ReviewJobId, Origin, CT);
+        }
+
+        private async Task<bool> MonitorRunningJob(DataFactoryManagementClient client, string DFrunId, AuthenticationResult AccessTokenResult, ClientCredential cc
+            , AuthenticationContext context, ServiceClientCredentials cred, string pipelineName, int errorCount
+            , int ReviewId, int ReviewJobId, string Origin, CancellationToken CT)
+        {
+            string resourceGroup = AzureSettings.resourceGroup;
+            string dataFactoryName = AzureSettings.dataFactoryName;
+            string subscriptionId = AzureSettings.subscriptionId;
+            int count = 0;
+            string runStatus = "";
+            try
+            {
+                runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, DFrunId).Result.Status;
+            }
+            catch (Exception ex)
+            {
+                bool recovered = false;
+                errorCount++;
+                LogExceptionToFile(ex, ReviewId, ReviewJobId, Origin);
+                while (recovered == false && errorCount < 10)
+                {
+                    try
+                    {
+                        try
+                        {
+                            await Task.Delay(15000, CT);//15 seconds: we don't know why this happens!!
+                        }
+                        catch
+                        {
+                            if (AppIsShuttingDown || CT.IsCancellationRequested)//if CT requests a cancellation during the Delay, we get a 
+                            {
+                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "", Origin, true, false);
+                                return false;
+                            }
+                        }
+                        runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, DFrunId).Result.Status;
+                        recovered = true;
+                    }
+                    catch (Exception ex2)
+                    {
+                        LogExceptionToFile(ex2, ReviewId, ReviewJobId, Origin);
+                        errorCount++;
+                    }
+                }
+                if (recovered == false)
+                {
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error(s) (details in logfile)", "Pipeline: " + pipelineName, Origin, true, false);
+                    return false;
+                }
+            }
+            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + DFrunId, Origin);
+            DateTime NextLogUpdateTime = DateTime.Now.AddMinutes(1); //next update of the log table in one minute
             while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
             {
                 if (AppIsShuttingDown || CT.IsCancellationRequested)
                 {
-                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, Origin, true, false);
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false);
                     return false;
                 }
-
+                //Mini block to cause exceptions on purpose, so to check error handling works, should be commented out!
+                //Random r = new Random();
+                //if (r.Next() > 0.66) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
                 if (DateTime.Now.ToUniversalTime().AddMinutes(5) > AccessTokenResult.ExpiresOn) // the token expires after an hour
                 {
                     count++;
@@ -231,31 +315,31 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     await Task.Delay(5000, CT);
                 }
-                catch 
+                catch
                 {
                     if (AppIsShuttingDown || CT.IsCancellationRequested)//checking again, because we just paused 500ms or more!
                     {
-                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + runResponse.RunId, Origin, true, false);
+                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false);
                         return false;
                     }
                 }
-                
-               
+
+
                 try
                 {
-                    PipelineRun pr = client.PipelineRuns.Get(resourceGroup, dataFactoryName, runResponse.RunId); //Microsoft.Rest.Azure.CloudException if token has expired
+                    PipelineRun pr = client.PipelineRuns.Get(resourceGroup, dataFactoryName, DFrunId); //Microsoft.Rest.Azure.CloudException if token has expired
                     if (pr != null)
                     {
                         runStatus = pr.Status;
                         if (DateTime.Now > NextLogUpdateTime)
                         {
-                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + runResponse.RunId, Origin);
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF Status: " + runStatus, "DF RunId: " + DFrunId, Origin);
                             NextLogUpdateTime = DateTime.Now.AddMinutes(1);//keep updating the log every 1 minute
                         }
                     }
                     else
                     {
-                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Error getting DF client", "DF RunId: " + runResponse.RunId
+                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Error getting DF client", "DF RunId: " + DFrunId
                             + Environment.NewLine + "Pipeline: " + pipelineName, Origin, true, false);
                         return false;
                     }
@@ -271,12 +355,12 @@ namespace BusinessLibrary.BusinessClasses
                         bool ShouldGiveUp = (errorCount >= 100);
                         if (ShouldGiveUp)
                         {
-                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + DFrunId
                                 + Environment.NewLine + "Pipeline: " + pipelineName, Origin, true, false);
                         }
                         else
                         {
-                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + runResponse.RunId
+                            UpdateReviewJobLog(ReviewJobId, ReviewId, "DF cloud error (details in logfile)", "DF RunId: " + DFrunId
                                 + Environment.NewLine + "Pipeline: " + pipelineName, Origin);
                         }
                         LogExceptionToFile(e, ReviewId, ReviewJobId, Origin);
@@ -287,13 +371,12 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (runStatus != "Succeeded")
             {
-                UpdateReviewJobLog(ReviewJobId, ReviewId, "DF failed with status: " + runStatus, "DF RunId: " + runResponse.RunId
+                UpdateReviewJobLog(ReviewJobId, ReviewId, "DF failed with status: " + runStatus, "DF RunId: " + DFrunId
                                 + Environment.NewLine + "Pipeline: " + pipelineName, Origin, true, false);
                 return false;
             }
             return true;
         }
-
 
         /// <summary>
         /// Updates a record in tb_REVIEW_JOB.

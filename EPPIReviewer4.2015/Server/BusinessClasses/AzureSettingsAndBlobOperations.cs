@@ -234,7 +234,24 @@ namespace BusinessLibrary.BusinessClasses
         public static string RobotOpenAIPresencePenalty { get { return RobotSettings["RobotOpenAIPresencePenalty"]; } }
         public static string RobotOpenAIRequestsPerMinute { get { return RobotSettings["RobotOpenAIRequestsPerMinute"]; } }
         public static string RobotOpenAIDirectEndpoint { get { return RobotSettings["RobotOpenAIDirectEndpoint"]; } }
-        
+        public static int RobotOpenAIQueueParallelism 
+        { 
+            get 
+            { 
+                string tmp = RobotSettings["RobotOpenAIQueueParallelism"];
+                if (tmp == null || tmp == "") return 0;
+                else
+                {
+                    int res;
+                    if (int.TryParse(tmp, out res))
+                    {
+                        if (res > 0) return res;
+                        else return 0;
+                    }
+                    return 0;
+                }
+            } 
+        }
 
     }
     public class BlobOperations

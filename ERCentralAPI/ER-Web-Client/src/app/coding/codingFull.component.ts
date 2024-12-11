@@ -785,7 +785,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       itemDocumentId: 0,
       itemId: this.itemID,
       onlyCodeInTheRobotName: this.robotsService.RobotSetting.onlyCodeInTheRobotName,
-      lockTheCoding: this.robotsService.RobotSetting.lockTheCoding, 
+      lockTheCoding: this.robotsService.RobotSetting.lockTheCoding,
+      useFullTextDocument: false,
       returnMessage: ""
     };
     let res = await this.robotsService.RunRobotOpenAICommand(cmd);

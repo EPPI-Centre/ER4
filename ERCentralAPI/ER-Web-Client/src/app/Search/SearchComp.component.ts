@@ -41,7 +41,8 @@ export class SearchComp implements OnInit, OnDestroy {
         private _sourcesService: SourcesService,
         private confirmationDialogService: ConfirmationDialogService,
         private _reviewInfoService: ReviewInfoService,
-        public _reviewerIdentityServ: ReviewerIdentityService,
+      public _reviewerIdentityServ: ReviewerIdentityService,
+      private _eventEmitterService: EventEmitterService,
     ) {
 
   }
@@ -86,6 +87,7 @@ export class SearchComp implements OnInit, OnDestroy {
     public SourceId = 0;
     public selected?: ReadOnlySource;
     public NewSearchSection: boolean = false;
+    public CheckScreeningSection: boolean = false;
     public ModelSection: boolean = false;
     public ShowVisualiseSection: boolean = false;
     public modelResultsSection: boolean = false;
@@ -109,7 +111,78 @@ export class SearchComp implements OnInit, OnDestroy {
     public CurrentSearchNameEditing: boolean = false;
     public searchN: string = '';
     public searchId: string = 'N/A';
-    public popUpTitle: string = '';
+  public popUpTitle: string = '';
+
+  /******************** James added this bit copying and pasting from elsewhere. ***************/
+
+  public get nodeSelected(): singleNode | null | undefined {
+    return this._eventEmitterService.nodeSelected;//SG note: not sure this is a good idea, how is this better than this.reviewSetsService.selectedNode?
+  }
+  SetAttrOn(node: singleNode | null | undefined) {
+    //alert(JSON.stringify(node));
+    if (node != null && node.nodeType == "SetAttribute") {
+      let a = node as SetAttribute;
+      this.selectedModelDropDown1 = node.name;
+      this.DD1 = a.attribute_id;
+    }
+
+  }
+  SetAttrNotOn(node: singleNode | null | undefined) {
+    //alert(JSON.stringify(node));
+    if (node != null && node != undefined && node.nodeType == "SetAttribute") {
+      let a = node as SetAttribute;
+      this.selectedModelDropDown2 = node.name;
+      this.DD2 = a.attribute_id;
+    }
+  }
+  public isCollapsedCheckScreening: boolean = false;
+  public isCollapsed2CheckScreening: boolean = false;
+  public selectedModelDropDown1: string = '';
+  public selectedModelDropDown2: string = '';
+  public DD1: number = 0;
+  public DD2: number = 0;
+
+  CloseBMDropDown1() {
+
+    this.isCollapsedCheckScreening = false;
+  }
+  CloseBMDropDown2() {
+
+    this.isCollapsed2CheckScreening = false;
+  }
+
+  CanCheckScreening() {
+
+    if (this.selectedModelDropDown1 && this.selectedModelDropDown2
+      && (this.selectedModelDropDown1 != this.selectedModelDropDown2)) {
+      return true;
+    }
+    return false;
+  }
+
+  async CheckScreening() {
+
+    if (this.DD1 != null && this.DD2 != null) {
+
+      let res = await this.classifierService.CheckScreening("¬¬CheckScreening", this.DD1, this.DD2);
+
+      if (res != false) {//we get "false" if an error happened...
+        if (res == "Successful upload of data" || res == "The data will be submitted and scored. Please monitor the list of search results for output.") {
+          this.notificationService.show({
+            content: 'Job Submitted. Results will appear as search results (please refresh them in a few minutes)',
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true,
+            hideAfter: 3000
+          });
+        }
+      }
+    }
+
+  }
+
+  /************************* end section from James *********************/
 
   public get ClassifierServiceIsBusy(): boolean {
     return this.classifierService.IsBusy;
@@ -310,7 +383,8 @@ export class SearchComp implements OnInit, OnDestroy {
         this.ModelSection = false;
         this.modelResultsSection = false;
         this.radioButtonApplyModelSection = false;
-        this.ShowVisualiseSection = false;
+      this.ShowVisualiseSection = false;
+      this.CheckScreeningSection = false;
         this._searchService.cmdSearches._searchWhat = "";
         this._searchService.cmdSearches._sourceIds = "";
         this._searchService.cmdSearches._title = "";
@@ -337,13 +411,20 @@ export class SearchComp implements OnInit, OnDestroy {
 
         this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityServ.reviewerIdentity.userId);
         this._reviewSetsService.selectedNode = null;
-        this.NewSearchSection = false;
+      this.NewSearchSection = false;
+      this.CheckScreeningSection = false;
         this.ModelSection = !this.ModelSection;
         this.modelResultsSection = false;
         this.modelResultsAllReviewSection = false;
         this.radioButtonApplyModelSection = true;
         this.ShowVisualiseSection = false;
-    }
+  }
+
+  OpenCheckScreening() {
+    this.CheckScreeningSection = !this.CheckScreeningSection;
+    this.ModelSection = false;
+    this.NewSearchSection = false;
+  }
 
     CanCreateClassifierCodes(): boolean {
         // logic for enabling visualise button
@@ -418,7 +499,8 @@ export class SearchComp implements OnInit, OnDestroy {
         //alert('SelectedNode is: ' + this._reviewSetsService.selectedNode);
         this.modelNum = num;
         this.NewSearchSection = false;
-        this.modelResultsSection = false;
+      this.modelResultsSection = false;
+      this.CheckScreeningSection = false;
         //alert('Model Number is: ' + this.modelNum);
 
     }
@@ -602,7 +684,23 @@ export class SearchComp implements OnInit, OnDestroy {
                 }
             )
             .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
-    }
+  }
+
+  public openConfirmationDialogCheckScreening() {
+    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to check screening with these codes ?', false, '')
+      .then(
+        (confirmed: any) => {
+          console.log('User confirmed:', confirmed);
+          if (confirmed) {
+            this.CheckScreening();
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+  }
 
     hasError(searchText: string) {
 
@@ -1258,7 +1356,8 @@ export class SearchComp implements OnInit, OnDestroy {
         this.NewSearchSection = false;
         this.ModelSection = false;
         this.visualiseTitle = search.title;
-        this.visualiseSearchId = search.searchId;
+      this.visualiseSearchId = search.searchId;
+      this.CheckScreeningSection = false;
         //console.log(JSON.stringify(search));
         this._reviewSetsEditingServ.CreateVisualiseData(search.searchId);
         this.PleaseOpenTheCodes.emit();
@@ -1378,7 +1477,8 @@ export class SearchComp implements OnInit, OnDestroy {
         this.searchText = '';
         this.selectedSearchTextDropDown = '';
         this.searchTextModel = '';
-        this.NewSearchSection = false;
+      this.NewSearchSection = false;
+      this.CheckScreeningSection = false;
         this.modelResultsSection = false;
         this.SearchForPersonModel = false;
         this.selected = undefined;

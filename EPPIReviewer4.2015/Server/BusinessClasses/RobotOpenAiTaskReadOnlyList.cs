@@ -33,6 +33,9 @@ namespace BusinessLibrary.BusinessClasses
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
             IsReadOnly = false;
+            int rid = ri.ReviewId;
+            int cid = ri.UserId;
+            bool IsSiteAdmin = ri.IsSiteAdmin;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -42,22 +45,20 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        Child_Fetch(reader, ri);
+                        Child_Fetch(reader, rid, cid, IsSiteAdmin);
                     }
                 }
             }
             IsReadOnly = true;
             RaiseListChangedEvents = true;
         }
-        private void Child_Fetch(SafeDataReader reader, ReviewerIdentity ri)
+        private void Child_Fetch(SafeDataReader reader, int rid, int cid, bool IsSiteAdmin)
         {
-            int rid = ri.ReviewId;
-            int cid = ri.UserId;
             RaiseListChangedEvents = false;
             IsReadOnly = false;
             while (reader.Read())
             {
-                Add(DataPortal.FetchChild<RobotOpenAiTaskReadOnly>(reader, true, rid, cid));
+                Add(DataPortal.FetchChild<RobotOpenAiTaskReadOnly>(reader, !IsSiteAdmin, rid, cid));
             }
             IsReadOnly = true;
             RaiseListChangedEvents = true;
