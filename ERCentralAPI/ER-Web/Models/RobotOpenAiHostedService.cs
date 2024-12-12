@@ -426,13 +426,17 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     if (CreditWorkers.Count != ActiveThreads)
                     {//recalculate how long is our DefaultDelayInMs and change CurrentDelayInMs accordingly
-                        ActiveThreads = CreditWorkers.Count;
                         int OldDefaultDelay = DefaultDelayInMs;
-                        DefaultDelayInMs = (int)((1000 * 60 / RobotOpenAIRequestsPerMinute) * ActiveThreads);
-                        if ((CurrentDelayInMs > DefaultDelayInMs && DelayedCallsWithoutError >= 10) //we're allowed to decreate the delay, enough calls without error have been made
+                        DefaultDelayInMs = (int)((1000 * 60 / RobotOpenAIRequestsPerMinute) * CreditWorkers.Count);
+                        if ((CurrentDelayInMs > DefaultDelayInMs && DelayedCallsWithoutError >= 10) //we're allowed to decrease the delay, enough calls without error have been made
                             || CurrentDelayInMs < DefaultDelayInMs)//OR we're increasing the delay, which is allowed at any time
                         {
+                            ActiveThreads = CreditWorkers.Count;
                             CurrentDelayInMs = DefaultDelayInMs;
+                        }
+                        else if (CurrentDelayInMs > DefaultDelayInMs && DelayedCallsWithoutError < 10)
+                        {
+                            DefaultDelayInMs = OldDefaultDelay;//making "CreditWorkers.Count != ActiveThreads" evaluate to true again for the next item, until we'll have processed 10 items without error
                         }
                     }
                     if (CurrentDelayInMs > ApiLatency)
@@ -485,11 +489,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     else
                     {
-                        if (CurrentDelayInMs > DefaultDelayInMs + delayIncrement)
-                        {
-                            LogInfo("[DelayedCallsWithoutError Incrementing at Item] = " + RT.ItemIDsList[done].ToString());
-                            DelayedCallsWithoutError++;
-                        }
+                        DelayedCallsWithoutError++;
                         done++;
                     }
                 }
