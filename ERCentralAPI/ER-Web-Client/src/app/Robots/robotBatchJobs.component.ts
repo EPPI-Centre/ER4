@@ -105,7 +105,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   public JobDescription(Job: iRobotOpenAiTaskReadOnly): string {
     if (Job.status == 'Running') {
       let index = Job.itemIDsList.findIndex(f => f == Job.currentItemId) + 1;
-      return "On Item " + index.toString() + " of " + Job.itemIDsList.length.toString();
+      return "Done Item " + index.toString() + " of " + Job.itemIDsList.length.toString();
     }
     else return 'Queued';
   }

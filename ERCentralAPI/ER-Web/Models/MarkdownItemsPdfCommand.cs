@@ -162,7 +162,10 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add("@revID", System.Data.SqlDbType.Int);
                         command.Parameters["@revID"].Value = _reviewId;
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _ownerId));
-                        command.Parameters.Add(new SqlParameter("@NewJobId", System.Data.SqlDbType.Int));
+                        //since we have a multi-workers queue for GPT batches, we need to allow concurrent "parse PDFs" jobs, even within the same review,
+                        //hence: the @AllowConcurrent parameter is set to 1
+                        command.Parameters.Add(new SqlParameter("@AllowConcurrent", 1));
+                        command.Parameters.Add(new SqlParameter("@NewJobId", System.Data.SqlDbType.Int)); 
                         command.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                         command.Parameters.Add("@RETURN_VALUE", System.Data.SqlDbType.Int);
                         command.Parameters["@RETURN_VALUE"].Direction = System.Data.ParameterDirection.ReturnValue;
