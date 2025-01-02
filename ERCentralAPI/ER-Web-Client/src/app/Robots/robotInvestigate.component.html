@@ -1,0 +1,56 @@
+<div class="form-group border border-dark rounded row m-0 p-1">
+  <h5 class="m-1 p-1 font-weight-bold col-12">Query and settings</h5>
+  <div class="col-12">
+    <input id="queryForRobot" name="queryForRobot" [(ngModel)]="queryInputForRobot" class="form-control col-12 mb-1">
+  </div>
+  <div class="col-12">
+    Sample size: <kendo-numerictextbox [(ngModel)]="sampleSize"
+                                     [min]="1" [format]="'n0'"
+                                     [max]="selectedRobotInvestigateTextOption !== 'title' ? 300 : 150"
+                                     [autoCorrect]="true"
+                                     class="border border-dark rounded"
+                                     style="width: 110px;"></kendo-numerictextbox>
+  </div>
+  <div class="row col-12 col-sm-12 col-md-12 col-lg-12 pt-3">
+    Use items with this code
+    <div ngbDropdown class="d-inline-block col-6 col-sm-6 col-md-4">
+      <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsedRobotInvestigate = !isCollapsedRobotInvestigate;
+                isCollapsedRobotInvestigate2=false" [attr.aria-expanded]="!isCollapsedRobotInvestigate" aria-controls="collapseCodeTree">
+        {{selectedAttributeDropDown1}}&nbsp;
+      </button>
+      <div (click)="SetAttr1(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsedRobotInvestigate">
+        <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <label class="radio-multi-line-label"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="title">Titles and abstracts</label>
+    <label class="radio-multi-line-label"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="info">'Info' boxes</label>
+    <label class="radio-multi-line-label"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="highlighted">Highlighted text from documents</label>
+  </div>
+
+  <div class="row col-12 col-sm-12 col-md-12 col-lg-12 pt-3" *ngIf="selectedRobotInvestigateTextOption !== 'title'">
+    Which code is the info box / highlighted text using?
+    <div ngbDropdown class="d-inline-block col-6 col-sm-6 col-md-4">
+      <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedRobotInvestigate2 = !isCollapsedRobotInvestigate2;
+                isCollapsedRobotInvestigate=false" [attr.aria-expanded]="!isCollapsedRobotInvestigate2" aria-controls="collapseCodeTree2">
+        {{selectedAttributeDropDown2}}&nbsp;
+      </button>
+      <div (click)="SetAttr2(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedRobotInvestigate2">
+        <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 pt-3">
+    <button class="btn btn-outline-danger m-0 p-0 px-1 " [disabled]="CanRunRobotInvestigate" (click)="RunRobotInvestigateCommand()">
+      <span *ngIf="!busyInvestigating">Submit query</span> <span *ngIf="busyInvestigating">Investigating...</span>
+      <span *ngIf="busyInvestigating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    </button>
+  </div>
+</div>
+<div class="form-group border border-dark rounded m-0 p-1 mb-1 col-12">
+  <h5 class="m-1 p-1 font-weight-bold col-12">Results</h5>
+  <div cdkScrollable style="height: 400px; overflow: auto;" class="m-1 p-1" [innerHTML]="resultTextFromRobot"></div>
+</div>

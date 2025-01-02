@@ -140,6 +140,7 @@ import { MetaAnalysisRunComp } from './MetaAnalysis/MetaAnalysisRun.component';
 import { MetaAnalysisRunNetworkComp } from './MetaAnalysis/MetaAnalysisRunNetwork.component'
 import { RobotSettings } from './Robots/robotSettings.component';
 import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
+import { RobotInvestigate } from './Robots/robotInvestigate.component';
 
 
 
@@ -277,7 +278,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     MetaAnalysisRunComp,
     MetaAnalysisRunNetworkComp,
     RobotSettings,
-    RobotBatchJobs
+    RobotBatchJobs,
+    RobotInvestigate
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

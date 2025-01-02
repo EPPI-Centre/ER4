@@ -26,6 +26,17 @@ export class RobotsService extends BusyAwareService {
     rememberTheseChoices: false
   };
 
+  public RobotInvestigate: iRobotInvestigate = {
+    queryForRobot: "",
+    getTextFrom: "",
+    itemsWithThisAttribute: 0,
+    textFromThisAttribute: 0,
+    sampleSize: 20,
+    returnMessage: "",
+    returnResultText: "",
+    returnItemIdList: ""
+  };
+
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
 
   public GetCurrentQueue(): Promise<void> {
@@ -71,6 +82,32 @@ export class RobotsService extends BusyAwareService {
         return cmd;
       });
   }
+
+  public RunRobotInvestigateCommand(cmd: iRobotInvestigate): Promise<iRobotInvestigate> {
+    this._BusyMethods.push("RunRobotOpenAICommand");
+    return lastValueFrom(this._httpC.post<iRobotInvestigate>(this._baseUrl + 'api/Robots/RunRobotInvestigateCommand', cmd))
+      .then((res) => {
+        this.RemoveBusy("RunRobotOpenAICommand");
+        if (res.returnMessage.toLowerCase().indexOf('error') == 0) {
+          this.modalService.GenericErrorMessage(res.returnMessage);
+          res.returnMessage = "Error";
+        }
+        return res;
+      },
+        (err) => {
+          this.RemoveBusy("RunRobotOpenAICommand");
+          this.modalService.GenericError(err);
+          cmd.returnMessage = "Error";
+          return cmd;
+        })
+      .catch((err) => {
+        this.RemoveBusy("RunRobotOpenAICommand");
+        this.modalService.GenericError(err);
+        cmd.returnMessage = "Error";
+        return cmd;
+      });
+  }
+
   public EnqueueRobotOpenAIBatchCommand(cmd: iRobotOpenAiQueueBatchJobCommand): Promise<boolean> {
 
     this._BusyMethods.push("EnqueueRobotOpenAIBatchCommand");
@@ -120,6 +157,16 @@ export interface iRobotSettings {
   lockTheCoding: boolean;
   useFullTextDocument: boolean;
   rememberTheseChoices: boolean;
+}
+export interface iRobotInvestigate {
+  queryForRobot: string;
+  getTextFrom: string;
+  itemsWithThisAttribute: number;
+  textFromThisAttribute: number;
+  sampleSize: number;
+  returnMessage: string;
+  returnResultText: string;
+  returnItemIdList: string;
 }
 export interface iRobotOpenAiTaskReadOnly {
   robotApiCallId: number;
