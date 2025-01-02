@@ -498,7 +498,7 @@ namespace BusinessLibrary.BusinessClasses
                 //If the last item has been processed (done == todo) job has been marked as "Finished" by RobotOpenAICommand and we don't need to do anything
                 if (ct.IsCancellationRequested && done < todo)
                 {
-                    long ItemId = (done - 1 == 0) ? 0 : RT.ItemIDsList[done - 1];//the last ID that was actually done
+                    long ItemId = (done - 1 <= 0) ? 0 : RT.ItemIDsList[done - 1];//the last ID that was actually done
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         connection.Open();
