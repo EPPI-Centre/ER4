@@ -14,3 +14,11 @@ code {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+
+.radio-multi-line-label {
+  display: block;
+  margin-bottom: 10px;
+}
+.radio-multi-line-label input {
+  margin-right: 10px;
+}

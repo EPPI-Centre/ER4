@@ -37,6 +37,7 @@ import { SetupConfigurableReports } from '../Reports/SetupConfigurableReports.co
 import { FreqXtabMapsComp } from '../Frequencies/FreqXtabMaps.component';
 import { ClassifierService } from '../services/classifier.service';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
+import { RobotInvestigate } from '../Robots/robotInvestigate.component';
 import { trimEnd } from 'lodash';
 
 
@@ -109,6 +110,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
   @ViewChild(SetupConfigurableReports) private SetupConfigurableReports!: SetupConfigurableReports;
   @ViewChild('EditReviewComp') EditReviewComp!: EditReviewComponent;
+  @ViewChild('RobotInvestigate') RobotInvestigate!: RobotInvestigate;
   //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
   public DropdownSelectedCodeAllocate: singleNode | null = null;
@@ -619,6 +621,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //if we're here, the result is 'false'
     //this.ShowRobotBatchJobs = false;//we close the robots panel, otherwise it keeps reappearing!!
     //return res;
+  }
+  public get DisableRobotInvestigate(): boolean {
+    if (!this.HasWriteRights) return true;
+    else if (!this.reviewInfoService.ReviewInfo.hasCreditForRobots) return true;
+    else return false;
   }
 
 

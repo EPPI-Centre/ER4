@@ -28,9 +28,9 @@
                           Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
                         </button>
                         <!--<button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
-                                >
-                          Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
-                        </button>-->
+                      >
+                Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
+              </button>-->
                       </div>
                       <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                        style="max-height: 520px;"></readonlyreviews>
@@ -218,6 +218,11 @@
                                     (AllocationClicked)="GoToItemList()"
                                     (criteriaChange)='LoadWorkAllocList($event)'
                                     class="bg-light"></WorkAllocationComp>
+              </ng-template>
+            </kendo-tabstrip-tab>
+            <kendo-tabstrip-tab [title]="'Investigate'" [disabled]="DisableRobotInvestigate">
+              <ng-template kendoTabContent>
+                <RobotInvestigate #RobotInvestigate class="bg-light"></RobotInvestigate>
               </ng-template>
             </kendo-tabstrip-tab>
           </kendo-tabstrip>
