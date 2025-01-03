@@ -183,7 +183,7 @@ namespace BusinessLibrary.BusinessClasses
                         command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", ReviewId));
                         command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                         command2.Parameters.Add(new SqlParameter("@TITLE", _title.Contains(" (rebuilding...)") ? _title : _title + " (rebuilding...)"));
-                        command2.Parameters.Add(new SqlParameter("@IsApply", false));
+                        command2.Parameters.Add(new SqlParameter("@JobType", "Build"));
                         command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
                         command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                         command2.ExecuteNonQuery();
@@ -471,7 +471,7 @@ namespace BusinessLibrary.BusinessClasses
                     command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", ModelReviewId));
                     command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command2.Parameters.Add(new SqlParameter("@IsApply", true));
+                    command2.Parameters.Add(new SqlParameter("@JobType", "Apply")); //"Apply", "Build" or "ChckS" (for "Check Screening")
                     command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
                     command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                     command2.ExecuteNonQuery();
@@ -699,8 +699,32 @@ namespace BusinessLibrary.BusinessClasses
 
                 connection.Open();
 
-                // ************************************ SOMWHERE HERE I NEED TO GET A NewJobId ***************************************
-                // ************************************ Can't see a generic "get jobid" stored proc? *********************************
+                // ************************************ Check if job of this kind is running, and GET A NewJobId if not, fail otherwise***************************************
+                using (SqlCommand command2 = new SqlCommand("st_ClassifierCanRunCheckAndMarkAsStarting", connection))
+                {//this SP also checks if a Apply (or build) job is running and creates the new job record if not
+                    command2.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    command2.Parameters.Add(new SqlParameter("@MODEL_ID", SqlDbType.Int ));
+                    command2.Parameters["@MODEL_ID"].Value = 0;
+                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", SqlDbType.Int));
+                    command2.Parameters["@REVIEW_ID_OF_MODEL"].Value = 0;
+                    command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command2.Parameters.Add(new SqlParameter("@JobType", "ChckS")); //"Apply", "Build" or "ChckS" (for "Check Screening")
+                    command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
+                    command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
+                    command2.ExecuteNonQuery();
+                    NewJobId = Convert.ToInt32(command2.Parameters["@NewJobId"].Value);
+                    if (NewJobId == 0)
+                    {
+                        _returnMessage = "Already running";
+                        return;
+                    }
+                    else
+                    {
+                        _returnMessage = "Starting...";
+                    }
+                }
 
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
                 LocalFileName = tmpDir.FullName + "\\ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + "_" + thisGuid.ToString() + ".tsv";
@@ -739,10 +763,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     _returnMessage = "Insufficient data";
                     File.Delete(LocalFileName);
-                    // **************************************** NEED TO UPDATE THE JOB ONCE i HAVE A JOB ID ****************************
-                    // ********************************************************************************************************************
-
-                    //DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
+                    DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
                     return;
                 }
                 connection.Close();
@@ -754,9 +775,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             if (AppIsShuttingDown)
             {
-                // ********************************************** NEED TO DO THIS ONCE i HAVE A LOG ID *************************
-
-                // DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "TrainingRunCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "ClassifierCommandV2", true, false);
                 return;
             }
             string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ContactId" + ContactId.ToString() + "_" + thisGuid.ToString();
@@ -767,8 +786,7 @@ namespace BusinessLibrary.BusinessClasses
             bool DataFactoryRes = false;
             try
             {
-                // ************************************************** NEED LOG ID *********************************************
-                // DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "", "TrainingRunCommandV2");
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "", "ClassifierCommandV2");
 
                 using (var fileStream = System.IO.File.OpenRead(LocalFileName))
                 {
@@ -778,8 +796,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception ex)
             {
-                // ****************************************** NB LODID **********************************************
-                // DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 if (File.Exists(LocalFileName))
                 {
                     try
@@ -789,14 +806,12 @@ namespace BusinessLibrary.BusinessClasses
                     catch { }
                 }
                 BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName);
-                // ******************************************************************* MORE FOR LOGID ***********************************
-                // DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to upload data", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to upload data", ex.Message, "ClassifierCommandV2", true, false);
                 return;
             }
             if (AppIsShuttingDown)
             {
-                // ************************************************* LOG ID **********************************************************
-                //DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after upload", "", "TrainingRunCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after upload", "", "ClassifierCommandV2", true, false);
                 return;
             }
             try
@@ -809,20 +824,16 @@ namespace BusinessLibrary.BusinessClasses
                     {"EPPIReviewerApiRunId", thisGuid.ToString()},
                     {"ScoresFile", ScoresFile},
                 };
-                // ******************************************** LOG ID N.B. IT'S ZERO AT THE MOMENT!  **************************************************
-                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "TrainingRunCommandV2", this.CancelToken);
+                
+                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "ClassifierCommandV2", this.CancelToken);
             }
             catch (Exception ex)
             {
-                // ******************************************** LOG ID ********************************************************
-                //DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 //BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", RemoteFileName); -- this was already commented out?
-                // ******************************************** log id **********************************************************
-                //DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to (re)build classifier", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to (re)build classifier", "", "ClassifierCommandV2", true, false);
                 return;
             }
-            //no check for AppIsShuttingDown: these happen inside RunDataFactoryProcessV2
-            //what happens after this is fast, so no need for checking from here on
 
             DataTable Scores = new DataTable();
             if (DataFactoryRes == true)
@@ -841,7 +852,6 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 catch (Exception ex)
                 {
-                    // ****************************************************** log id **************************************************
                     DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed after DF", "", "ClassifierCommandV2", true, false);
                     DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                     return;
