@@ -141,6 +141,7 @@ import { MetaAnalysisRunNetworkComp } from './MetaAnalysis/MetaAnalysisRunNetwor
 import { RobotSettings } from './Robots/robotSettings.component';
 import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 import { RobotInvestigate } from './Robots/robotInvestigate.component';
+import { CheckScreening } from './Search/CheckScreening.component';
 
 
 
@@ -279,7 +280,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     MetaAnalysisRunNetworkComp,
     RobotSettings,
     RobotBatchJobs,
-    RobotInvestigate
+    RobotInvestigate,
+    CheckScreening
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

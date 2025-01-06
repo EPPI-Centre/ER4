@@ -1,0 +1,34 @@
+<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+  <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+    <!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</label>-->
+    <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right  ">Look for records that look like ones with this code</div>
+    <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-5 col-md-5 col-lg-4">
+      <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsedCheckScreening = !isCollapsedCheckScreening; isCollapsed2CheckScreening=false" [attr.aria-expanded]="!isCollapsedCheckScreening" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
+      <div (click)="SetAttrOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsedCheckScreening">
+        <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]=false></codesetSelector>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+    <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right">Among the ones coded with this code</div>
+    <div ngbDropdown class="d-inline-block mx-0 my-auto px-1 col-12 col-sm-5 col-md-5 col-lg-4">
+      <button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2CheckScreening = !isCollapsed2CheckScreening; isCollapsedCheckScreening=false" [attr.aria-expanded]="!isCollapsed2CheckScreening" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
+      <div (click)="SetAttrNotOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2CheckScreening">
+        <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
+      </div>
+    </div>
+    <div *ngIf="SameCodesAreSelected" class="my-auto row mx-0 px-1 col-12 col-md-2 col-lg-3 ng-star-inserted">
+      <div class="d-inline-block alert-danger rounded m-1 mx-md-auto p-1">Need to select two different codes!</div>
+    </div>
+  </div>
+  <div class="col-12 mt-2 mb-2 justify-content-center">
+    <button (click)="openConfirmationDialogCheckScreening()" [disabled]="!CanCheckScreening()"
+            type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
+      Check screening <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
+    </button>
+    <button (click)="Close()" type="button" class="btn btn-outline-dark ml-1" >
+      Cancel
+    </button>
+  </div>
+</div>
+

@@ -273,7 +273,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
         return false;
       }
     ).catch(caught =>  {
-      this.RemoveBusy("AppCheckScreeningly");
+      this.RemoveBusy("CheckScreening");
       this.modalService.GenericError(caught);
       return false;
     });
