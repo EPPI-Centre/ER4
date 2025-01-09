@@ -155,6 +155,14 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
           map((x: any) => {
             if (x && x.APIBaseUrl) config.baseUrl = x.APIBaseUrl + "/";
             else config.baseUrl = fallback;
+            if (x) {
+              if (x.EnableGPTInvestigateGlobally != undefined && x.EnableGPTInvestigateGlobally == true) {
+                config.EnableGPTInvestigateGlobally = true;
+              }
+              else if (x.GPTinvestigateEnabledAccounts) {
+                config.GPTinvestigateEnabledAccounts = x.GPTinvestigateEnabledAccounts;
+              }
+            } 
             resolve(true);
           }),
           catchError((x: { status: number }, caught: Observable<void>) => {
@@ -342,7 +350,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'SiteAdmin', component: SiteAdminComponent },
       { path: 'WebDBs', component: WebDBsComponent },
       { path: 'Zotero', component: ZoteroManagerComponent },
-      { path: 'MetaAnalysis', component: MetaAnalysisComp },
+      { path: 'MetaAnalysis', component: MetaAnalysisComp }, 
+      { path: 'Investigate', component: RobotInvestigate },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,

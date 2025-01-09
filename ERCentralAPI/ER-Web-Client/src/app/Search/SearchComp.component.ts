@@ -297,7 +297,11 @@ export class SearchComp implements OnInit, OnDestroy {
       total: this.classifierService.ClassifierContactAllModelList.length,
     };
   }
-
+  public get CanShowRobotInvestigate(): boolean {
+    if (!this.HasWriteRights) return false;
+    else if (this._reviewInfoService.ReviewInfo.hasCreditForRobots && this.ReviewerIdentityServ.UserCanGPTinvestigate) return true;
+    else return false;
+  }
   CombineSearches() {
     alert("Not implemented!");
   }
@@ -1252,6 +1256,9 @@ export class SearchComp implements OnInit, OnDestroy {
 
   BuildModel() {
     this.router.navigate(['BuildModel']);
+  }
+  GoToInvestigate() {
+    if (this.CanShowRobotInvestigate) this.router.navigate(['Investigate']);
   }
 
   public sortCustomModel: SortDescriptor[] = [{
