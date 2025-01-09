@@ -32,6 +32,22 @@ export class RobotInvestigate implements OnInit, OnDestroy {
     private _notificationService: NotificationService,
   ) { }
 
+  @Input() Context: string = "";
+  ngOnInit() {
+    this._reviewSetsService.selectedNode = null;
+    //this block allows to reload the page from scratch AND ensure the current user has all the rights they need
+    //it's especially useful in dev
+    if (this._reviewInfoService.ReviewInfo.reviewId == 0) {
+      this._reviewInfoService.Fetch().then(() => { this.CheckUserRights(); });
+    }
+    else this.CheckUserRights();
+    if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(true);
+  }
+  private CheckUserRights() {
+    if (!this._reviewerIdentityServ.UserCanGPTinvestigate || !this._reviewInfoService.ReviewInfo.hasCreditForRobots) {
+      this.router.navigate(['home']);
+    }
+  }
   public isCollapsedRobotInvestigate: boolean = false;
   public isCollapsedRobotInvestigate2: boolean = false;
   public selectedRobotInvestigateTextOption: string = "title";
@@ -84,12 +100,11 @@ export class RobotInvestigate implements OnInit, OnDestroy {
     if (this.busyInvestigating) return true;
     else return false;
   }
-
-  @Input() Context: string = "";
-  public isExpanded: boolean = false;
-  ngOnInit() {
-    this._reviewSetsService.selectedNode = null;
+  public get WhatToSubmitPartialText(): string {
+    if (this.selectedRobotInvestigateTextOption == "info") return "info box";
+    else return "highlighted text";
   }
+
   CanWrite(): boolean {
     return this._reviewerIdentityServ.HasWriteRights;
   }
@@ -152,6 +167,8 @@ export class RobotInvestigate implements OnInit, OnDestroy {
     }
     this.busyInvestigating = false;
   }
-
+  BackToMain() {
+    this.router.navigate(['Main']);
+  }
 }
 

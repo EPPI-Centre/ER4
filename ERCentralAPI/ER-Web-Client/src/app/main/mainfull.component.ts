@@ -622,11 +622,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //this.ShowRobotBatchJobs = false;//we close the robots panel, otherwise it keeps reappearing!!
     //return res;
   }
-  public get DisableRobotInvestigate(): boolean {
-    if (!this.HasWriteRights) return true;
-    else if (!this.reviewInfoService.ReviewInfo.hasCreditForRobots) return true;
-    else return false;
-  }
+
 
 
   public get HasSelectedItems(): boolean {

@@ -42,6 +42,7 @@
       <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Check Screening'" (click)="OpenCheckScreening()" [disabled]="!HasWriteRights" [selected]="CheckScreeningSection"></kendo-toolbar-button>
+      <kendo-toolbar-button *ngIf="CanShowRobotInvestigate" [text]="'Investigate'" (click)="GoToInvestigate()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
     </kendo-toolbar>
   </div>
   <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
