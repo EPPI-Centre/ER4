@@ -252,6 +252,10 @@ export class SiteAdminComponent implements OnInit {
     this.OnlineHelpService.UpdateHelpContent(help);
     this.showEdit = false;
     this.TmpCurrentContextHelp = "";
+
+    this.OnlineHelpService.FetchHelpContent("");
+    this.ContextSelection = 0;
+
     //this.OrigCurrentContextHelp = "";
     //this.OnlineHelpService.FetchHelpContent(this.context);
   }
