@@ -41,6 +41,26 @@ namespace ERxWebClient2.Controllers
 			}
 			
 		}
+        
+        [HttpPost("[action]")]
+        public IActionResult UpdateHelpcontent([FromBody] HelpContentJSON crit)
+        {
+
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                OnlineHelpContent res = OnlineHelpContent.UpdateHelpContent(crit.context, crit.helpHTML);
+                res = res.Save();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CreateFeedbackMessage data portal error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+        
         [HttpPost("[action]")]
         public IActionResult CreateFeedbackMessage([FromBody] FeedbackAndClientErrorJSON crit)
         {
@@ -87,5 +107,11 @@ namespace ERxWebClient2.Controllers
         public string message;
     }
 
-
+    
+    public class HelpContentJSON
+    {
+        public string context;
+        public string helpHTML;
+    }
+    
 }

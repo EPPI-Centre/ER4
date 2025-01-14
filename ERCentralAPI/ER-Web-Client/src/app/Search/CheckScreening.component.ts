@@ -129,7 +129,7 @@ export class CheckScreening implements OnInit, OnDestroy {
       if (res != false) { //we get "false" if an error happened...
         if (res == "Starting...") {
           this.notificationService.show({
-            content: 'Job Submitted. Results will appear as search results (please refresh them in 5-10 minutes)',
+            content: 'Screening check started. Results will appear as search results when finished (click Refresh List periodically)',
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "info", icon: true },
@@ -139,7 +139,7 @@ export class CheckScreening implements OnInit, OnDestroy {
         }
         else if (res == "Already running") {
           this.notificationService.show({
-            content: 'Job did not start: there is already one job of this type running for this review',
+            content: 'Screening check could not be run. A check is already running for this review',
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "error", icon: true },
@@ -147,12 +147,12 @@ export class CheckScreening implements OnInit, OnDestroy {
           });
         }
         else if (res == "Insufficient data") {
-          let msg: string = "Job <strong>did not start</strong>: not enough data.<br />"
+          let msg: string = "Screening check <strong>did not start</strong>: not enough data.<br />"
             + "Requirements are: <ol>"
             + "<li>At least 7 items need to belong to the 'Records like these' code</li>"
             + "<li>At least 10 items need to belong to the 'Among the ones...' code</li>"
             + "<li>At least 20 items need to be used in total</li>"
-            + "<li>[Items present in both categories (if any) participate in the 'Records like these' list only.]</li></ol>";
+            + "<li>Note: items with both codes will be counted in the 'Records like these' list only</li></ol>";
           this.modalService.GenericErrorMessage(msg);
         }
       }

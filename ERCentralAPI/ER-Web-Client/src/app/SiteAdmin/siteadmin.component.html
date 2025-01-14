@@ -1,33 +1,40 @@
 <HeaderComponent *ngIf="IsSiteAdmin" PageTitle="Site Admin"></HeaderComponent>
 <div *ngIf="IsSiteAdmin" class="bg-light">
-    
-    <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
-        Close/back
-    </button>
-    <p class="font-weight-bold">Feedback (and error) messages:</p>
-    <div *ngIf="FeedbackMessageList.length > 0">
 
-        <kendo-grid [data]="DataSource" [height]="490"
-                    [sort]="state.sort"
-                    [sortable]="{
+  <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+    Close/back
+  </button>
+  <kendo-tabstrip #tabstrip [keepTabContent]="true"
+                  (tabSelect)="onTabSelect($event)">
+    <kendo-tabstrip-tab [selected]="true" [title]="'Main'">
+      <ng-template kendoTabContent>
+
+
+
+        <p class="font-weight-bold">Feedback (and error) messages:</p>
+        <div *ngIf="FeedbackMessageList.length > 0">
+
+          <kendo-grid [data]="DataSource" [height]="490"
+                      [sort]="state.sort"
+                      [sortable]="{
                     allowUnsort: false,
                     mode: 'single'
                     }"
-                    [pageSize]="state.take"
-                    [skip]="state.skip"
-                    [pageable]="{
+                      [pageSize]="state.take"
+                      [skip]="state.skip"
+                      [pageable]="{
                     info: true,
                     type: 'input',
                     pageSizes: true,
                     previousNext: true
                     }"
-                    filterable="menu"
-                    (dataStateChange)="dataStateChange($event)">
+                      filterable="menu"
+                      (dataStateChange)="dataStateChange($event)">
             <ng-template kendoPagerTemplate let-totalPages="totalPages" let-currentPage="currentPage">
-                <kendo-pager-prev-buttons></kendo-pager-prev-buttons>
-                <kendo-pager-info></kendo-pager-info>
-                <kendo-pager-next-buttons></kendo-pager-next-buttons>
-                <kendo-pager-page-sizes [pageSizes]="[5, 10, 25, 50, 100]"></kendo-pager-page-sizes>
+              <kendo-pager-prev-buttons></kendo-pager-prev-buttons>
+              <kendo-pager-info></kendo-pager-info>
+              <kendo-pager-next-buttons></kendo-pager-next-buttons>
+              <kendo-pager-page-sizes [pageSizes]="[5, 10, 25, 50, 100]"></kendo-pager-page-sizes>
             </ng-template>
             <kendo-grid-column field="dateCreated" headerClass="small" class="small" [width]="2" title="Date">
             </kendo-grid-column>
@@ -38,10 +45,10 @@
             <kendo-grid-column field="contactName" headerClass="small" class="small" [width]="2" title="User">
             </kendo-grid-column>
             <kendo-grid-column field="contactEmail" headerClass="small" class="small" [width]="2" title="Email">
-                <ng-template kendoGridCellTemplate let-dataItem>
-                    <a href="mailto:{{dataItem.contactEmail}}?BCC=EPPISupport@ucl.ac.uk&subject=EPPI-Reviewer Feedback&body=Your Feedback: {{dataItem.message}} "
-                       style="color:#007bff; text-decoration:underline;">{{dataItem.contactEmail}}</a>
-                </ng-template>
+              <ng-template kendoGridCellTemplate let-dataItem>
+                <a href="mailto:{{dataItem.contactEmail}}?BCC=EPPISupport@ucl.ac.uk&subject=EPPI-Reviewer Feedback&body=Your Feedback: {{dataItem.message}} "
+                   style="color:#007bff; text-decoration:underline;">{{dataItem.contactEmail}}</a>
+              </ng-template>
             </kendo-grid-column>
             <kendo-grid-column field="contactId" headerClass="small" [width]="2" title="Cont.ID">
             </kendo-grid-column>
@@ -49,30 +56,113 @@
             </kendo-grid-column>
             <kendo-grid-column field="isError" headerClass="small" [width]="2" title="IsError">
             </kendo-grid-column>
-        </kendo-grid>
-    </div>
-    <div *ngIf="FeedbackMessageList.length == 0">
-        FeedbackMessageList is empty
-    </div>
-    Open Review:
-    <div class="col-12">
-        <div class="form-group border border-dark rounded row m-0 p-1">
+          </kendo-grid>
+        </div>
+        <div *ngIf="FeedbackMessageList.length == 0">
+          FeedbackMessageList is empty
+        </div>
+
+        <br />
+        Open Review:
+        <div class="col-12">
+          <div class="form-group border border-dark rounded row m-0 p-1">
             <label class="control-label mt-2 mx-1">U:</label>
             <div class="mr-2">
-                <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
+              <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
             </div>
             <label class="control-label mt-2 mr-1">P:</label>
             <div class="mr-2">
-                <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
+              <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
             </div>
             <label class=" control-label mt-2 mr-1">R:</label>
             <div class="mr-2">
-                <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
+              <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
             </div>
             <button class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
             <!--<div *ngIf="LoggedStatus != ''">{{LoggedStatus}}</div>-->
+          </div>
+
         </div>
-    </div>
+
+
+
+      </ng-template>
+    </kendo-tabstrip-tab>
+
+    <kendo-tabstrip-tab [selected]="false" [title]="'Help'">
+      <ng-template kendoTabContent>
+
+        <div ngbDropdown>
+          <select class="col-12 form-control mb-1" name="ContextSelection" [(ngModel)]="ContextSelection" (change)="RetrieveHelp()">
+            <option [ngValue]="0" [selected]="ContextSelection == 0">Select help context</option>
+            <option [ngValue]="1">(codingui)itemdetails</option>
+            <option [ngValue]="2">(codingui)itemdetails\pdf</option>
+            <option [ngValue]="3">(codingui)main</option>
+            <option [ngValue]="4">buildmodel</option>
+            <option [ngValue]="5">duplicates</option>
+            <option [ngValue]="6">editcodesets</option>
+            <option [ngValue]="7">editref</option>
+            <option [ngValue]="8">importcodesets</option>
+            <option [ngValue]="9">intropage</option>
+            <option [ngValue]="10">itemdetails</option>
+            <option [ngValue]="11">itemdetails\arms</option>
+            <option [ngValue]="12">itemdetails\codingrecord</option>
+            <option [ngValue]="13">itemdetails\pdf</option>
+            <option [ngValue]="14">main\collaborate</option>
+            <option [ngValue]="15">main\crosstabs</option>
+            <option [ngValue]="16">main\frequencies</option>
+            <option [ngValue]="17">main\references</option>
+            <option [ngValue]="18">main\reports</option>
+            <option [ngValue]="19">main\reviewhome</option>
+            <option [ngValue]="20">main\search</option>
+            <option [ngValue]="21">metaanalysis</option>
+            <option [ngValue]="22">metaanalysis\run</option>
+            <option [ngValue]="23">metaanalysis\runnetwork</option>
+            <option [ngValue]="24">reconciliation</option>
+            <option [ngValue]="25">reconciliation\treesview</option>
+            <option [ngValue]="26">sources\file</option>
+            <option [ngValue]="27">sources\managesources</option>
+            <option [ngValue]="28">sources\pubmed</option>
+            <option [ngValue]="29">webdbs</option>
+            <option [ngValue]="30">ZoteroSetup</option>
+            <option [ngValue]="31">ZoteroSync</option>
+          </select>
+        </div>
+
+        <div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
+             class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+          <div *ngIf="ActivePanel=='Help'&& IsServiceBusy">Loading help...</div>
+          <div *ngIf="ActivePanel=='Help' && CurrentContextHelp.length == 0"
+               class="m-0 p-1">
+            Apologies, there currently is no help for this page/activity.<br />
+            Please check this help page later: we are adding new Help content regularly.
+          </div>
+          <div [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
+               class="m-0 p-1"
+               [innerHTML]=GetText()>
+          </div>
+        </div>
+
+        <button *ngIf="CurrentContextHelp.length > 0" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()"><span>{{ShowEdit ? 'Cancel' : 'Edit'}}</span></button>
+        <button *ngIf="ShowEdit" [disabled]="!CanSaveHelp()" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Save()">Save</button>
+
+
+        <div *ngIf="ShowEdit" class="rounded col w-100">
+          <ckeditor [(ngModel)]="model.editorData" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"
+                    [config]="{extraAllowedContent:'div(*);p(*)'}" (change)="onDataChange($event)">
+          </ckeditor>
+
+        </div>
+
+        <!--<HeaderComponent [Context]="2" PageTitle=""></HeaderComponent>-->
+
+      </ng-template>
+    </kendo-tabstrip-tab>
+
+
+  </kendo-tabstrip>
+    
+    
 </div>
 
 

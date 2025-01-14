@@ -1,6 +1,7 @@
 ﻿using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using Csla;
+using Csla.Data;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -13,7 +14,19 @@ namespace BusinessLibrary.BusinessClasses
     public class OnlineHelpContent : Csla.BusinessBase<OnlineHelpContent>
     {
         public OnlineHelpContent() { }
-        
+
+        public static OnlineHelpContent UpdateHelpContent(string Context, string HelpContent)
+        {
+            OnlineHelpContent res = new OnlineHelpContent(Context, HelpContent);
+            return res;
+        }
+
+        private OnlineHelpContent(string context, string helpContent)
+        {
+            SetProperty(ContextProperty, context);
+            SetProperty(HelpHTMLProperty, helpContent);
+        }
+
         public static readonly PropertyInfo<int> OnlineHelpContentIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OnlineHelpContentId", "OnlineHelpContentId"));
         public int OnlineHelpContentId
         {
@@ -88,10 +101,34 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Close();
             }
         }
-        //protected override void DataPortal_Insert()
-        //{
 
-        //}
+        protected override void DataPortal_Update()
+        {
+            UpdateOrInsert();
+        }
+
+
+        private void UpdateOrInsert()
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_OnlineHelpCreateOrEdit", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@CONTEXT", ReadProperty(ContextProperty)));
+                    command.Parameters.Add(new SqlParameter("@HELP_HTML", ReadProperty(HelpHTMLProperty)));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+        }
+
+
+        protected override void DataPortal_Insert()
+        {
+            UpdateOrInsert();
+        }
         //protected override void DataPortal_Update()
         //{
 
@@ -105,6 +142,8 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
     }
+
+
 
     [Serializable()]
     public class OnlineHelpCriteria : CriteriaBase<CredentialsCriteria>
