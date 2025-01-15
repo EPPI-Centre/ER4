@@ -18,6 +18,7 @@ using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 using static Csla.Security.MembershipIdentity;
 
+
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -29,7 +30,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
-
+using Markdig;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -461,18 +462,19 @@ namespace BusinessLibrary.BusinessClasses
             }
 
             var responseString = await response.Content.ReadAsStringAsync();
-            var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
+            var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<RobotOpenAICommand.OpenAIResult>(responseString);
             _inputTokens = generatedText.usage.prompt_tokens;
             _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
-            var responses = generatedText.choices[0].message.content;
+            MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+            var responses = Markdown.ToHtml(generatedText.choices[0].message.content, pipeline);
             //var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
 
             _returnMessage = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
             _returnResultText = responses.ToString();
-            if (!_returnResultText.Contains("<TABLE") || !_returnResultText.Contains("<table"))
-            {
-                _returnResultText = _returnResultText.Replace(Environment.NewLine, "<br/>").Replace("\n", "<br/>");
-            }
+            //if (!_returnResultText.Contains("<TABLE") || !_returnResultText.Contains("<table"))
+            //{
+            //    _returnResultText = _returnResultText.Replace(Environment.NewLine, "<br/>").Replace("\n", "<br/>");
+            //}
             return result;
         }
 
@@ -563,77 +565,6 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-
-        public class OpenAIResult
-        {
-            public string id { get; set; }
-            public string _object { get; set; }
-            public int created { get; set; }
-            public string model { get; set; }
-            public Prompt_Filter_Results[] prompt_filter_results { get; set; }
-            public Choice[] choices { get; set; }
-            public Usage usage { get; set; }
-        }
-
-        public class Usage
-        {
-            public int prompt_tokens { get; set; }
-            public int completion_tokens { get; set; }
-            public int total_tokens { get; set; }
-        }
-
-        public class Prompt_Filter_Results
-        {
-            public int prompt_index { get; set; }
-            public Content_Filter_Results content_filter_results { get; set; }
-        }
-
-        public class Content_Filter_Results
-        {
-            public Hate hate { get; set; }
-            public Self_Harm self_harm { get; set; }
-            public Sexual sexual { get; set; }
-            public Violence violence { get; set; }
-        }
-
-        public class Hate
-        {
-            public bool filtered { get; set; }
-            public string severity { get; set; }
-        }
-
-        public class Self_Harm
-        {
-            public bool filtered { get; set; }
-            public string severity { get; set; }
-        }
-
-        public class Sexual
-        {
-            public bool filtered { get; set; }
-            public string severity { get; set; }
-        }
-
-        public class Violence
-        {
-            public bool filtered { get; set; }
-            public string severity { get; set; }
-        }
-
-        public class Choice
-        {
-            public int index { get; set; }
-            public string finish_reason { get; set; }
-            public Message message { get; set; }
-            public Content_Filter_Results content_filter_results { get; set; }
-        }
-
-        public class Message
-        {
-            public string role { get; set; }
-            public string content { get; set; }
-        }
-
 
 #endif
 

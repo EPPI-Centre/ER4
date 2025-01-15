@@ -24,6 +24,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Azure.Storage.Common" Version="12.18.1" />
+    <PackageReference Include="Markdig.Signed" Version="0.40.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.5" />
     <PackageReference Include="CSLA-ASPNETCORE-MVC" Version="4.7.200" />
