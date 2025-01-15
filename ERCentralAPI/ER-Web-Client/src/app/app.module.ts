@@ -150,7 +150,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
   return (): Promise<boolean> => {
     return new Promise<boolean>((resolve: (a: boolean) => void): void => {
       let fallback = 'https://eppi.ioe.ac.uk/ER-Web-API/';
-      http.get('./assets/APIUrl.txt')
+      http.get('./assets/ClientConfig.txt')
         .pipe(
           map((x: any) => {
             if (x && x.APIBaseUrl) config.baseUrl = x.APIBaseUrl + "/";
