@@ -10,6 +10,8 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { iRobotInvestigate, RobotsService } from '../services/Robots.service';
+import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -42,6 +44,7 @@ export class RobotInvestigate implements OnInit, OnDestroy {
     }
     else this.CheckUserRights();
     if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(true);
+    if (this.ResultsFromRobot.length > 0) this.CurrentIndexInResults = this.ResultsFromRobot.length - 1;
   }
   private CheckUserRights() {
     if (!this._reviewerIdentityServ.UserCanGPTinvestigate || !this._reviewInfoService.ReviewInfo.hasCreditForRobots) {
@@ -55,8 +58,7 @@ export class RobotInvestigate implements OnInit, OnDestroy {
   public DD2: number = 0;
   public selectedAttributeDropDown1: string = '';
   public selectedAttributeDropDown2: string = '';
-  public queryInputForRobot: string = 'Enter query here...';
-  public resultTextFromRobot: string = "No results yet";
+  public queryInputForRobot: string = '';
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
   public busyInvestigating: boolean = false;
@@ -77,6 +79,43 @@ export class RobotInvestigate implements OnInit, OnDestroy {
 
   CanOnlySelectRoots() {
     return true;
+  }
+
+  public get ResultsFromRobot(): iRobotInvestigate[] {
+    return this._robotsService.RobotInvestigateResults;
+  }
+  public CurrentIndexInResults: number = -1;
+  public get CurrentResult(): iRobotInvestigate | null {
+    if (this.CurrentIndexInResults == -1) return null;
+    else {
+      const res = this.ResultsFromRobot[this.CurrentIndexInResults];
+      if (res) return res;
+      else return null;
+    }
+  }
+  public get CanGoToPrevious(): boolean {
+    if (this.ResultsFromRobot.length == 0) return false;
+    if (this.CurrentIndexInResults == 0) return false;
+    return true;
+  }
+  public get CanGoToNext(): boolean {
+    if (this.ResultsFromRobot.length == 0) return false;
+    if (this.CurrentIndexInResults >= this.ResultsFromRobot.length - 1) return false;
+    return true;
+  }
+  public TextFromAttributeId(AttId: number): string {
+    return this._robotsService.TextFromAttributeId(AttId);
+  }
+  public TextFromInvestigateTextOption(OptionVal: string): string {
+    return this._robotsService.TextFromInvestigateTextOption(OptionVal);
+  }
+
+  SaveCurrentResult() {
+    if (!this.CurrentResult) return;
+    const repHTML = this._robotsService.InvestigateReportHTML(this.CurrentResult);
+    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(repHTML, this._baseUrl, "Investigate (with GPT) report"));
+    //console.log("Savign report:", dataURI)
+    saveAs(dataURI, "Investigate (with GPT) report.html");
   }
 
   public get nodeSelected(): singleNode | null | undefined {
@@ -109,10 +148,7 @@ export class RobotInvestigate implements OnInit, OnDestroy {
     return this._reviewerIdentityServ.HasWriteRights;
   }
 
-  public get RobotInvestigate(): iRobotInvestigate {
-    return this._robotsService.RobotInvestigate;
-  }
-
+ 
   ngOnDestroy() {
 
   }
@@ -163,7 +199,7 @@ export class RobotInvestigate implements OnInit, OnDestroy {
         type: { style: 'success', icon: true },
         hideAfter: 4500
       });
-      this.resultTextFromRobot = "<p><h4>Query: <i>" + this.queryInputForRobot + "</i></h4></p><p> " + res.returnResultText + "</p>";
+      this.CurrentIndexInResults = this._robotsService.RobotInvestigateResults.length - 1;
     }
     this.busyInvestigating = false;
   }

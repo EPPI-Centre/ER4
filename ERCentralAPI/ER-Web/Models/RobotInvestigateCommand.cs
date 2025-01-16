@@ -40,14 +40,14 @@ namespace BusinessLibrary.BusinessClasses
     {
 
         public RobotInvestigateCommand() { }
-        public string _queryForRobot = "";
-        public string _getTextFrom = "";
-        public Int64 _itemsWithThisAttribute;
-        public Int64 _textFromThisAttribute;
-        public int _sampleSize = 50;
-        public string _returnMessage = "";
-        public string _returnResultText = "";
-        public string _returnItemIdList = "";
+        private string _queryForRobot = "";
+        private string _getTextFrom = "";
+        private Int64 _itemsWithThisAttribute;
+        private Int64 _textFromThisAttribute;
+        private int _sampleSize = 50;
+        private string _returnMessage = "";
+        private string _returnResultText = "";
+        private string _returnItemIdList = "";
 
         private string _UserPrivateOpenAIKey = "";//will be filled in automatically if/when it's present in ReviewInfo
         private string _ExplicitEndpoint = "";
@@ -68,6 +68,23 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return _returnMessage; }
         }
+        public string queryForRobot
+        {
+            get { return _queryForRobot; }
+        }
+        public string getTextFrom
+        {
+            get { return _getTextFrom; }
+        }
+        public long textFromThisAttribute
+        {
+            get { return _textFromThisAttribute; }
+        }
+        public int sampleSize
+        {
+            get { return _sampleSize; }
+        }
+        
         public string returnResultText
         {
             get { return _returnResultText; }

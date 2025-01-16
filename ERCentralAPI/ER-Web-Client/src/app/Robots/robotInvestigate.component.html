@@ -1,12 +1,12 @@
 <HeaderComponent PageTitle="Build Model" Context="buildmodel"></HeaderComponent>
 <div class="p-1 m-0  ">
-  <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
+  <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()" style="z-index:10;">
     Close/back
   </button>
   <div class="border border-dark rounded mt-0 mx-0 mb-1 p-1 bg-light">
     <h5 class="m-1 p-1 font-weight-bold col-12">Query and settings</h5>
     <div class="col-12">
-      <textarea id="queryForRobot" type="" name="queryForRobot" [(ngModel)]="queryInputForRobot" class="form-control col-12 mb-1"
+      <textarea id="queryForRobot" type="" name="queryForRobot" [(ngModel)]="queryInputForRobot" placeholder="Enter query here..." class="form-control col-12 mb-1"
                 rows="2" wrap="soft"></textarea>
     </div>
     <div class="col-12">
@@ -32,12 +32,12 @@
 
     <div class="col-12 row mx-0 px-0 border-bottom">
       <div class="col-3 px-0 my-auto ">
-        Use the following to build the prompts:
+        Use the following text(s) to build the prompts:
       </div>
       <div class="col-auto my-1 ml-2 rounded border border-info bg-whilte">
-        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="title">Titles and abstracts</label>
-        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="info">'Info' boxes</label>
-        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="highlighted">Highlighted text from documents</label>
+        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="title">{{TextFromInvestigateTextOption("title")}}</label>
+        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="info">{{TextFromInvestigateTextOption("info")}}</label>
+        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="highlighted">{{TextFromInvestigateTextOption("highlighted")}}</label>
       </div>
     </div>
 
@@ -61,9 +61,48 @@
       </button>
     </div>
   </div>
-  <div class="border border-primary rounded m-0 p-1 mb-1 col-12 bg-light">
-    <h5 class="m-1 p-1 font-weight-bold col-12">Results</h5>
-    <div style="max-height: 40vh; overflow: auto;" class="m-1 p-1" [innerHTML]="resultTextFromRobot"></div>
+  <div class="border border-primary rounded m-0 p-1 mb-1 col-12 bg-light ">
+    <div class="row px-1 mx-0">
+      <div class="mx-auto row">
+        <button class="btn btn-sm btn-outline-success mx-1" [disabled]="!CanGoToPrevious" (click)="CurrentIndexInResults = 0">|<</button>
+        <button class="btn btn-sm btn-outline-success mx-1" [disabled]="!CanGoToPrevious" (click)="CurrentIndexInResults = CurrentIndexInResults - 1"><</button>
+        <div class="my-auto mx-1">Showing result {{CurrentIndexInResults + 1}} of {{ResultsFromRobot.length}}</div>
+        <button class="btn btn-sm btn-outline-success mx-1" [disabled]="!CanGoToNext" (click)="CurrentIndexInResults = CurrentIndexInResults + 1">></button>
+        <button class="btn btn-sm btn-outline-success mx-1" [disabled]="!CanGoToNext" (click)="CurrentIndexInResults = ResultsFromRobot.length - 1">>|</button>
+        <button (click)="SaveCurrentResult()" [disabled]="!CurrentResult"
+                title="Save as Html (Supports opening in Word)"
+                type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+          <span class="k-icon k-i-save"></span>
+        </button>
+      </div>
+    </div>
+    <div *ngIf="CurrentResult" style="max-height: 40vh; overflow: auto;">
+      <div class="row mx-1 px-1">
+        <div class="font-weight-bold col-auto my-auto px-0">Query:</div>
+        <div class="rounded border border-info small px-1 bg-white col-auto">{{CurrentResult.queryForRobot}}</div>
+      </div>
+      <div class="row mx-1 px-1">
+        <div class="font-weight-bold my-auto">Item IDs used:</div>
+        <div class="rounded border border-info small px-1 bg-white col-auto">{{CurrentResult.returnItemIdList}}</div>
+      </div>
+      <div class="row mx-1 px-1">
+        <div class="col-auto mx-1 px-1 row">
+          <div class="font-weight-bold my-auto">Grab text from:</div>
+          <div class="rounded border border-info small px-1 bg-white">{{TextFromInvestigateTextOption(CurrentResult.getTextFrom)}}</div>
+        </div>
+        <div *ngIf="CurrentResult.getTextFrom != 'title'" class="col-auto mx-1 px-1 row">
+          <div class="font-weight-bold my-auto">Using this code:</div>
+          <div class="rounded border border-info small px-1 bg-white">{{TextFromAttributeId(CurrentResult.textFromThisAttribute)}}</div>
+        </div>
+        <div class="col-auto mx-1 px-1 row">
+          <div class="font-weight-bold my-auto">Sample Size:</div>
+          <div class="rounded border border-info small px-1 bg-white">{{CurrentResult.sampleSize}}</div>
+        </div>
+      </div>
+      <div class="m-1 p-1 font-weight-bold col-12">Results</div>
+      <div class="m-1 p-1 rounded border border-primary bg-white" [innerHTML]="CurrentResult.returnResultText"></div>
+    </div>
+    <div *ngIf="!CurrentResult">No results yet</div>
   </div>
 </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" ></statusbar>

@@ -1,24 +1,29 @@
-import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ConfigService } from './config.service';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Subscription } from 'rxjs';
+import { EventEmitterService } from './EventEmitter.service';
+import { ReviewSetsService } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class RobotsService extends BusyAwareService {
+export class RobotsService extends BusyAwareService implements OnDestroy {
 	   
     constructor(
         private _httpC: HttpClient,
-        private modalService: ModalService,
+      private modalService: ModalService,
+      private _reviewSetsService: ReviewSetsService,
+      private EventEmitterService: EventEmitterService,
       configService: ConfigService
     ) {
       super(configService);
-    }
-
+      this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+  }
+  private clearSub: Subscription | null = null;
   public RobotSetting: iRobotSettings = {
     onlyCodeInTheRobotName: true,
     lockTheCoding: true,
@@ -26,16 +31,7 @@ export class RobotsService extends BusyAwareService {
     rememberTheseChoices: false
   };
 
-  public RobotInvestigate: iRobotInvestigate = {
-    queryForRobot: "",
-    getTextFrom: "",
-    itemsWithThisAttribute: 0,
-    textFromThisAttribute: 0,
-    sampleSize: 20,
-    returnMessage: "",
-    returnResultText: "",
-    returnItemIdList: ""
-  };
+  public RobotInvestigateResults: iRobotInvestigate[] = [];
 
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
 
@@ -91,6 +87,8 @@ export class RobotsService extends BusyAwareService {
         if (res.returnMessage.toLowerCase().indexOf('error') == 0) {
           this.modalService.GenericErrorMessage(res.returnMessage);
           res.returnMessage = "Error";
+        } else {
+          this.RobotInvestigateResults.push(res);
         }
         return res;
       },
@@ -132,6 +130,45 @@ export class RobotsService extends BusyAwareService {
         cmd.returnMessage = "Error";
         return false;
       });
+  }
+  public TextFromAttributeId(AttId: number): string {
+    const res = this._reviewSetsService.FindAttributeById(AttId);
+    if (res) {
+      return res.attribute_name + " (ID: " + AttId.toString() + ")";
+    }
+    return "N/A";
+  }
+  public TextFromInvestigateTextOption(OptionVal: string): string {
+    if (OptionVal == "title") return "Title and Abstract";
+    else if (OptionVal == "info") return "'Info' boxes";
+    else if (OptionVal == "highlighted") return "Highlighted text from documents";
+    else return "N/A";
+  }
+  public InvestigateReportHTML(InvComm: iRobotInvestigate) :string {
+    let res = "<H2>Investigate (using GPT) Report</H2>";
+    res += "\r\n" + "<TABLE class='ItemsTable'><tr><th>Query:</th><td colspan='5'>" + InvComm.queryForRobot + "</td></tr>";
+    res += "\r\n" + "<tr><th>Item IDs used:</th><td colspan='5'>" + InvComm.returnItemIdList + "</td></tr>";
+    if (InvComm.getTextFrom != 'title') {
+      res += "\r\n" + "<tr><td colspan='2'><strong>Grab text from: </strong>" + this.TextFromInvestigateTextOption(InvComm.getTextFrom) + "</td>";
+      res += "\r\n" + "<td colspan='2'><strong>Using this code: </strong>" + this.TextFromAttributeId(InvComm.textFromThisAttribute) + "</td>";
+      res += "\r\n" + "<td colspan='2'><strong>Sample Size: </strong>" + InvComm.sampleSize + "</td></tr></TABLE>";
+    }
+    else {
+      res += "\r\n" + "<tr><td colspan='3'><strong>Grab text from: </strong>" + this.TextFromInvestigateTextOption(InvComm.getTextFrom) + "</td>";
+      res += "\r\n" + "<td colspan='3'><strong>Sample Size: </strong>" + InvComm.sampleSize + "</td></tr></TABLE>\r\n";
+    }
+    res += "<H4>Result:</H4>"
+    res += "<div style='border:1px solid black; margin:5px; padding:5px;'>" + InvComm.returnResultText + "</div>";
+    return res;
+  }
+  public Clear() {
+    this.CurrentQueue = [];
+    this.RobotInvestigateResults = [];
+  }
+  ngOnDestroy() {
+    this.Clear();
+    //console.log("Destroy RobotsService");
+    if (this.clearSub != null) this.clearSub.unsubscribe();
   }
 }
 export interface iRobotOpenAICommand {
