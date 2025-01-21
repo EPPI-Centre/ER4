@@ -1,4 +1,4 @@
-<HeaderComponent PageTitle="Build Model" Context="buildmodel"></HeaderComponent>
+<HeaderComponent PageTitle="Investigate (via GPT)" Context="investigate"></HeaderComponent>
 <div class="p-1 m-0  ">
   <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()" style="z-index:10;">
     Close/back
@@ -30,7 +30,7 @@
       </div>
     </div>
 
-    <div class="col-12 row mx-0 px-0 border-bottom">
+    <div class="col-12 row mx-0 border-bottom">
       <div class="col-3 px-0 my-auto ">
         Use the following text(s) to build the prompts:
       </div>
@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div class="row col-12 pt-3 mx-0" *ngIf="selectedRobotInvestigateTextOption !== 'title'">
+    <div class="row col-12 mt-1 mx-0" *ngIf="selectedRobotInvestigateTextOption !== 'title'">
       <div class="my-auto col-3 px-0">Which code is the {{WhatToSubmitPartialText}} using?</div>
       <div ngbDropdown class="d-inline-block col-6 col-sm-6 col-md-4 px-1">
         <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedRobotInvestigate2 = !isCollapsedRobotInvestigate2;
@@ -54,8 +54,8 @@
       </div>
     </div>
 
-    <div class="col-12 pt-3">
-      <button class="btn btn-outline-danger m-0 p-0 px-1 " [disabled]="CanRunRobotInvestigate" (click)="RunRobotInvestigateCommand()">
+    <div class="col-12 mt-1">
+      <button class="btn btn-outline-danger m-0 p-0 px-1 " [disabled]="CannotRunRobotInvestigate" (click)="RunRobotInvestigateCommand()">
         <span *ngIf="!busyInvestigating">Submit query</span> <span *ngIf="busyInvestigating">Investigating...</span>
         <span *ngIf="busyInvestigating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       </button>
@@ -79,24 +79,24 @@
     <div *ngIf="CurrentResult" style="max-height: 40vh; overflow: auto;">
       <div class="row mx-1 px-1">
         <div class="font-weight-bold col-auto my-auto px-0">Query:</div>
-        <div class="rounded border border-info small px-1 bg-white col-auto">{{CurrentResult.queryForRobot}}</div>
+        <div class="rounded border border-info small px-1 bg-white col-auto mb-1">{{CurrentResult.queryForRobot}}</div>
       </div>
       <div class="row mx-1 px-1">
         <div class="font-weight-bold my-auto">Item IDs used:</div>
-        <div class="rounded border border-info small px-1 bg-white col-auto">{{CurrentResult.returnItemIdList}}</div>
+        <div class="rounded border border-info small px-1 bg-white col-auto mb-1">{{CurrentResult.returnItemIdList}}</div>
       </div>
       <div class="row mx-1 px-1">
-        <div class="col-auto mx-1 px-1 row">
+        <div class="col-auto row">
           <div class="font-weight-bold my-auto">Grab text from:</div>
-          <div class="rounded border border-info small px-1 bg-white">{{TextFromInvestigateTextOption(CurrentResult.getTextFrom)}}</div>
+          <div class="rounded border border-info small px-1 bg-white mb-1">{{TextFromInvestigateTextOption(CurrentResult.getTextFrom)}}</div>
         </div>
         <div *ngIf="CurrentResult.getTextFrom != 'title'" class="col-auto mx-1 px-1 row">
           <div class="font-weight-bold my-auto">Using this code:</div>
-          <div class="rounded border border-info small px-1 bg-white">{{TextFromAttributeId(CurrentResult.textFromThisAttribute)}}</div>
+          <div class="rounded border border-info small px-1 bg-white mb-1">{{TextFromAttributeId(CurrentResult.textFromThisAttribute)}}</div>
         </div>
         <div class="col-auto mx-1 px-1 row">
           <div class="font-weight-bold my-auto">Sample Size:</div>
-          <div class="rounded border border-info small px-1 bg-white">{{CurrentResult.sampleSize}}</div>
+          <div class="rounded border border-info small px-1 bg-white mb-1">{{CurrentResult.sampleSize}}</div>
         </div>
       </div>
       <div class="m-1 p-1 font-weight-bold col-12">Results</div>

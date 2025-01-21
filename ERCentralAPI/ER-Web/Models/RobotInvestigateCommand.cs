@@ -16,7 +16,8 @@ using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
-using static Csla.Security.MembershipIdentity;
+
+
 
 
 #if !SILVERLIGHT
@@ -52,17 +53,11 @@ namespace BusinessLibrary.BusinessClasses
         private string _UserPrivateOpenAIKey = "";//will be filled in automatically if/when it's present in ReviewInfo
         private string _ExplicitEndpoint = "";
         private string _ExplicitEndpointKey = "";
-        private bool _isLastInBatch = true;
         private int _jobId = 0;
         private int _reviewId = 0;
         private int _jobOwnerId = 0;
         private int _robotContactId = 0;
-        private bool _onlyCodeInTheRobotName = true;
-        private bool _lockTheCoding = true;
-        private bool _useFullTextDocument = false;
-        private string _DocsList = "";
         private bool _Succeded = false;
-        private int errors = 0;
 
         public string ReturnMessage
         {
@@ -97,10 +92,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return _Succeded; }
         }
-        public int NonFatalErrors
-        {
-            get { return errors; }
-        }
+        
         public int RobotContactId { get { return _robotContactId; } }
         public RobotInvestigateCommand(string queryForRobot, string getTextFrom, Int64 itemsWithThisAttribute, Int64 textFromThisAttribute, int sampleSize)
         {
@@ -112,30 +104,7 @@ namespace BusinessLibrary.BusinessClasses
             _returnMessage = "";
             _returnResultText = "";
         }
-        public RobotInvestigateCommand(string queryForRobot, string getTextFrom, Int64 itemsWithThisAttribute, Int64 textFromThisAttribute, int sampleSize,
-            bool isLastInBatch, int JobId, int robotContactId, int reviewId,
-            int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
-            string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
-        {
-            _queryForRobot = queryForRobot;
-            _getTextFrom = getTextFrom;
-            _itemsWithThisAttribute = itemsWithThisAttribute;
-            _textFromThisAttribute = textFromThisAttribute;
-            _sampleSize = sampleSize;
-            _returnMessage = "";
-            _returnResultText = "";
-            _isLastInBatch = isLastInBatch;
-            _jobId = JobId;
-            _robotContactId = robotContactId;
-            _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
-            _lockTheCoding = lockTheCoding;
-            _reviewId = reviewId;
-            _jobOwnerId = JobOwnerId;
-            _ExplicitEndpoint = ExplicitEndpoint;
-            _ExplicitEndpointKey = ExplicitEndpointKey;
-            _useFullTextDocument = useFullTextDocument;
-            _DocsList = docsList;
-        }
+        
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
@@ -151,17 +120,11 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_UserPrivateOpenAIKey", _UserPrivateOpenAIKey);
             info.AddValue("_ExplicitEndpoint", _ExplicitEndpoint);
             info.AddValue("_ExplicitEndpointKey", _ExplicitEndpointKey);
-            info.AddValue("_isLastInBatch", _isLastInBatch);
             info.AddValue("_jobId", _jobId);
             info.AddValue("_reviewId", _reviewId);
             info.AddValue("_jobOwnerId", _jobOwnerId);
             info.AddValue("_robotContactId", _robotContactId);
-            info.AddValue("_onlyCodeInTheRobotName", _onlyCodeInTheRobotName);
-            info.AddValue("_lockTheCoding", _lockTheCoding);
             info.AddValue("_Succeded", _Succeded);
-            info.AddValue("_useFullTextDocument", _useFullTextDocument);
-            info.AddValue("_DocsList", _DocsList);
-            info.AddValue("errors", errors);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
@@ -176,17 +139,11 @@ namespace BusinessLibrary.BusinessClasses
             _UserPrivateOpenAIKey = info.GetValue<string>("_UserPrivateOpenAIKey");
             _ExplicitEndpoint = info.GetValue<string>("_ExplicitEndpoint");
             _ExplicitEndpointKey = info.GetValue<string>("_ExplicitEndpointKey");
-            _isLastInBatch = info.GetValue<bool>("_isLastInBatch");
             _jobId = info.GetValue<int>("_jobId");
             _reviewId = info.GetValue<int>("_reviewId");
             _jobOwnerId = info.GetValue<int>("_jobOwnerId");
             _robotContactId = info.GetValue<int>("_robotContactId");
-            _onlyCodeInTheRobotName = info.GetValue<bool>("_onlyCodeInTheRobotName");
-            _lockTheCoding = info.GetValue<bool>("_lockTheCoding");
             _Succeded = info.GetValue<bool>("_Succeded");
-            _useFullTextDocument = info.GetValue<bool>("_useFullTextDocument");
-            _DocsList = info.GetValue<string>("_DocsList");
-            errors = info.GetValue<int>("errors");
         }
 
 
@@ -194,7 +151,6 @@ namespace BusinessLibrary.BusinessClasses
 
         private int _inputTokens = 0;
         private int _outputTokens = 0;
-        private Int64 _Item_set_id = 0;
         private bool hasSavedSomeCodes = false;
 
         protected override void DataPortal_Execute()
@@ -246,11 +202,11 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
                             command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
                             command.Parameters.Add(new SqlParameter("@CRITERIA", "Robot investigate single query"));
-                            command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _Item_set_id)); // just using this for an int64 value of 0
-                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _Item_set_id)); // just using _Item_set_id for an int64 value of 0
-                            command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
-                            command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
-                            command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", (object)0));  //see https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlparameter.-ctor?view=net-9.0-pp&redirectedfrom=MSDN#system-data-sqlclient-sqlparameter-ctor(system-string-system-object)
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", (object)0)); 
+                            command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", false));
+                            command.Parameters.Add(new SqlParameter("@LOCK_CODING", false));
+                            command.Parameters.Add(new SqlParameter("@USE_PDFS", false));
                             command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
                             command.Parameters["@result"].Size = 50;
                             command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
@@ -274,29 +230,18 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (AppIsShuttingDown)
                     {
-                        MarkAsPaused();
+                        MarkAsCancelled();
                         return;
                     }
                     _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();//this runs synchronously, hence the catch will work
-                    if (errors > 0)
-                    {
-                        _returnMessage += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
-                        if (hasSavedSomeCodes == false && _Item_set_id > 0)
-                        {
-                            //DeleteItemSetIfEmpty();
-                        }
-                        if (AppIsShuttingDown)
-                        {
-                            MarkAsPaused();
-                            return;
-                        }
-                    }
                 }
                 catch (Exception e)
                 {
 
                     _Succeded = false;
                     _returnMessage = "Error. " + Environment.NewLine + e.Message;
+                    ErrorLogSink(e.Message);
+                    if (e.StackTrace != null) ErrorLogSink(e.StackTrace);
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         string SavedMsg = e.Message;
@@ -307,8 +252,8 @@ namespace BusinessLibrary.BusinessClasses
                             command.CommandType = System.Data.CommandType.StoredProcedure;
                             command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
                             command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
-                            command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
-                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", 0));
+                            command.Parameters.Add(new SqlParameter("@STATUS",  "Failed"));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", (object)0));
                             command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
                             command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
                             command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
@@ -316,15 +261,12 @@ namespace BusinessLibrary.BusinessClasses
                             command.ExecuteNonQuery();
                         }
                     }
-                    if (hasSavedSomeCodes == false && _Item_set_id > 0)
-                    {
-                        //DeleteItemSetIfEmpty();
-                    }
+                    
                     return;
                 }
                 if (AppIsShuttingDown && _Succeded == false)
                 {
-                    MarkAsPaused();
+                    MarkAsCancelled();
                     return;
                 }
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -333,17 +275,13 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
                     {
                         string status;
-                        if (_isLastInBatch == false) status = "Running";
-                        else
-                        {
-                            if (_Succeded == false) status = "Failed";
-                            else status = "Finished";
-                        }
+                        if (_Succeded == false) status = "Failed";
+                        else status = "Finished";
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
                         command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
                         command.Parameters.Add(new SqlParameter("@STATUS", status));
-                        command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _Item_set_id)); // using _Item_set_id for an int64 value of 0
+                        command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", (object)0)); // using _Item_set_id for an int64 value of 0
                         command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
                         command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
                         command.ExecuteNonQuery();
@@ -352,11 +290,6 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private class OpenAIChatClass
-        {
-            public string role { get; set; }
-            public string content { get; set; }
-        }
 
 
         private async Task<bool> DoRobot(int ReviewId, int UserId)
@@ -390,7 +323,10 @@ namespace BusinessLibrary.BusinessClasses
             // if no text return error to say so
 
             string userprompt = getUserPrompt(ReviewId);
-            
+            if (AppIsShuttingDown)//getting the user prompt might have taken considerable time, so we check if in the meantime ER6 is trying to recycle its app pool
+            {
+                return false;//we'll mark as cancelled in the parent method
+            }
             if (userprompt == "")
             {
                 _returnMessage = "Error: No text retrieved from items";
@@ -411,10 +347,10 @@ namespace BusinessLibrary.BusinessClasses
                 int excess = sysprompt.Length + userprompt.Length - limit;
                 userprompt = userprompt.Substring(0, userprompt.Length - excess);//this will work, having checked if sysprompt is too long in itself!
             }
-            List<OpenAIChatClass> messages = new List<OpenAIChatClass>
+            List<RobotOpenAICommand.OpenAIChatClass> messages = new List<RobotOpenAICommand.OpenAIChatClass>
             {
-                new OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
-                new OpenAIChatClass { role = "user", content = userprompt},
+                new RobotOpenAICommand.OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
+                new RobotOpenAICommand.OpenAIChatClass { role = "user", content = userprompt},
             };
 
             // *** additional params (modifiable in web.config)
@@ -472,11 +408,6 @@ namespace BusinessLibrary.BusinessClasses
                 return result;
             }
 
-            if (AppIsShuttingDown)//last time we check, if we need to cancel while we're saving results, it's best to have a go and try to save all results, not just some!
-            {
-                ErrorLogSink("Cancelling RobotOpenAICommand after getting the OpenAI API answer.");
-                return false;//ditto, code calling this will notice the app-cancellation request
-            }
 
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<RobotOpenAICommand.OpenAIResult>(responseString);
@@ -486,7 +417,7 @@ namespace BusinessLibrary.BusinessClasses
             var responses = Markdown.ToHtml(generatedText.choices[0].message.content, pipeline);
             //var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
 
-            _returnMessage = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
+            _returnMessage = "Completed " + "without errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
             _returnResultText = responses.ToString();
             //if (!_returnResultText.Contains("<TABLE") || !_returnResultText.Contains("<table"))
             //{
@@ -553,19 +484,12 @@ namespace BusinessLibrary.BusinessClasses
         private static readonly Regex BooleanPromptRx = new Regex(@": ?boolean ?\/\/");
 
         private string blobConnection = AzureSettings.blobConnection;
-        private string GetDoc(string filename, int ReviewId)
-        {
-            string containerName = "eppi-reviewer-data";
-            string FileNamePrefix = "eppi-rag-pdfs/" + DataFactoryHelper.NameBase + "ReviewId" + ReviewId + "/";
-            MemoryStream stream = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, containerName, FileNamePrefix + filename);
-            string ret = Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
-            return ret;
-        }
+        
 
-        private void MarkAsPaused()
+        private void MarkAsCancelled()
         {
             _Succeded = false;
-            _returnMessage = "Cancelled";
+            _returnMessage = "Error: cancelled (app is restarting, please try again)";
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -574,10 +498,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
                     command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
-                    command.Parameters.Add(new SqlParameter("@STATUS", "Paused"));
-                    command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", 0));
+                    command.Parameters.Add(new SqlParameter("@STATUS", "Failed"));
+                    command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", (object)0));
                     command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
                     command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                    command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", "App restarting while job was running"));
+                    command.Parameters.Add(new SqlParameter("@STACK_TRACE", "N/A"));
                     command.ExecuteNonQuery();
                 }
             }

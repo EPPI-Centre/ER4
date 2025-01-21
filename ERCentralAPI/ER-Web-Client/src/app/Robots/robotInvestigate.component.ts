@@ -156,13 +156,13 @@ export class RobotInvestigate implements OnInit, OnDestroy {
 
   }
 
-  public get CanRunRobotInvestigate(): boolean { // this feels a bit backwards, as it returns TRUE to disable the control
+  public get CannotRunRobotInvestigate(): boolean { // this feels a bit backwards, as it returns TRUE to disable the control
     if (!this.HasWriteRights) return true;
-    if (!this._reviewInfoService.ReviewInfo.canUseRobots) return true;
-    if (this.selectedAttributeDropDown1 && this.queryInputForRobot != '' &&
-      this.queryInputForRobot != 'Enter query here...' && this.busyInvestigating == false && this.selectedRobotInvestigateTextOption == 'title') return false;
-    if (this.selectedAttributeDropDown1 && this.queryInputForRobot != '' &&
-      this.queryInputForRobot != 'Enter query here...' && this.busyInvestigating == false && this.selectedRobotInvestigateTextOption != 'title' && this.selectedAttributeDropDown2) return false;
+    else if (!this._reviewInfoService.ReviewInfo.canUseRobots) return true;
+    else if (this.selectedAttributeDropDown1 && this.queryInputForRobot.trim().length > 15 && this.busyInvestigating == false) {
+      if (this.selectedRobotInvestigateTextOption == 'title') return false;
+      else if (this.selectedRobotInvestigateTextOption != 'title' && this.selectedAttributeDropDown2) return false;
+    }
     return true;
   }
 
