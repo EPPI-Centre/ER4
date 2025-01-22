@@ -159,7 +159,14 @@
       </ng-template>
     </kendo-tabstrip-tab>
 
-
+    <kendo-tabstrip-tab [title]="'UploadJSONReport'">
+      <ng-template kendoTabContent>
+        DANGER: import JSON coding report into the current review - import will start as soon as you select a file!!<br />
+        <input type="file" #file style="display: none" (change)="onFilesAdded()"
+               accept=".json" />
+        <button type="button" class="btn btn-primary m-1" (click)="addFile()">Select File</button>
+      </ng-template>
+    </kendo-tabstrip-tab>
   </kendo-tabstrip>
     
     

@@ -10,6 +10,9 @@ import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { CKEditor4 } from 'ckeditor4-angular/ckeditor';
+import { ModalService } from '../services/modal.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { SourcesService, iJSONreport4upolad } from '../services/sources.service';
 
 
 @Component({
@@ -28,7 +31,10 @@ export class SiteAdminComponent implements OnInit {
         private OnlineHelpService: OnlineHelpService,
         @Inject('BASE_URL') private _baseUrl: string,
         public ReviewerIdentityServ: ReviewerIdentityService,
-        public eventEmitters: EventEmitterService
+      public eventEmitters: EventEmitterService,
+      private modalService: ModalService,
+      public _notificationService: NotificationService,
+      private sourcesService: SourcesService
   ) { }
 
 
@@ -36,7 +42,8 @@ export class SiteAdminComponent implements OnInit {
     ngOnInit() {
         this.subOpeningReview = this.eventEmitters.OpeningNewReview.subscribe(() => this.BackToMain());
         if (!this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.router.navigate(['home']);
-        else this.OnlineHelpService.GetFeedbackMessageList();
+      else this.OnlineHelpService.GetFeedbackMessageList();
+      this.reader.onload = (e) => this.fileRead(e);
     }
     public Uname: string = "";
     public Pw: string = "";
@@ -286,10 +293,64 @@ export class SiteAdminComponent implements OnInit {
 
     }
   }
+  @ViewChild('file') file: any;
+  private currentFileName: string = "";
 
+  addFile() {
+    //console.log('oo');
+    this.file.nativeElement.click();
+  }
+  private reader = new FileReader();
+  onFilesAdded() {
+    const files: { [key: string]: File } = this.file.nativeElement.files;
+    const file: File = files[0];
+    console.log("onFilesAdded", file.size, file.name);
+    if (file) {
+      //if (file.size > 31457280 && 1 !== 1) {
+      if (file.size > 52428800) {
+        //console.log("onFilesAdded", file.size, file.name);
+        this.modalService.GenericErrorMessage("Sorry, the <strong>maximum</strong> file size is <strong>50MB</strong>. Please select a smaller file.");
+      }
+      else {
+        this.currentFileName = file.name;
+        //reader.onload = function (e) {
+        //    if (reader.result) {
+        //        fileContent = reader.result as string;
+        //        console.log(fileContent.length);
+        //    }
+        //}
+        this.reader.readAsText(file);
+      }
+    }
+  }
 
-
-
+  private fileRead(e: ProgressEvent) {
+    if (this.reader.result) {
+      const fileContent: string = this.reader.result as string;
+      //console.log("fileRead: " + fileContent.length);
+      let filename = "";
+      if (this.currentFileName) filename = this.currentFileName.trim();
+      else return;
+      let importCommand: iJSONreport4upolad = {
+        content: fileContent,
+        importWhat: "",
+        fileName: filename
+      }
+      this.sourcesService.ImportJsonReport(importCommand).then(
+        (result) => {
+          if (result) {
+            this._notificationService.show({
+              content: "Imported! Please go back, refresh Items and Coding tools to check.",
+              animation: { type: 'slide', duration: 400 },
+              position: { horizontal: 'center', vertical: 'top' },
+              type: { style: "warning", icon: true },
+              hideAfter: 10000
+            })
+          }
+        }
+      );
+    }
+  }
 }
 
 

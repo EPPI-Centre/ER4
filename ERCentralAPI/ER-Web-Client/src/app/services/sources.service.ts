@@ -628,8 +628,26 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     this._NumberSourcesInReport = -1;
   }
 
-
-
+  public ImportJsonReport(data: iJSONreport4upolad) : Promise<boolean> {
+    this._BusyMethods.push("ImportJsonReport");
+    this._LastUploadOrUpdateStatus = "Uploading";//probably redundant, we only use this value when API call is finished.
+    console.log('Upload Source started');
+    let body = JSON.stringify(data);
+    return lastValueFrom(this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/ImportJsonReport',
+      body)).then(result => {
+        
+        this.RemoveBusy("ImportJsonReport");
+        return true;
+      }, error => {
+        this.modalService.GenericError(error);
+        this.RemoveBusy("ImportJsonReport");
+        return false;
+      }).catch ((caught) => {
+        this.modalService.GenericError(caught);
+        this.RemoveBusy("ImportJsonReport");
+        return false;
+      });
+  }
 }
 export interface Source {
   source_ID: number;
@@ -716,4 +734,10 @@ export interface PMincomingItems {
   sourceDB: string;
   dateOfSerach: string;
   dateOfImport: string;
+}
+
+export interface iJSONreport4upolad {
+  content: string;
+  importWhat: string;
+  fileName: string;
 }
