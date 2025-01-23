@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { CKEditor4 } from 'ckeditor4-angular/ckeditor';
+import { SourcesService } from '../services/sources.service';
 
 
 @Component({
@@ -28,6 +29,8 @@ export class SiteAdminComponent implements OnInit {
         private OnlineHelpService: OnlineHelpService,
         @Inject('BASE_URL') private _baseUrl: string,
         public ReviewerIdentityServ: ReviewerIdentityService,
+        private _sourcesService: SourcesService,
+        private _onlineHelpService: OnlineHelpService,
         public eventEmitters: EventEmitterService
   ) { }
 
@@ -47,6 +50,24 @@ export class SiteAdminComponent implements OnInit {
     private _ActivePanel: string = "Help";
     public ActivePanel: string = "Help";
 
+    /*public selected?: ReadOnlySource;
+    public get ReviewSources(): ReadOnlySource[] {
+      return this._sourcesService.ReviewSources;
+    }
+    DisplayFriendlySourceNames(sourceItem: ReadOnlySource): string {
+      return sourceItem.source_Name;
+    }*/
+
+    public selected?: ReadOnlyHelpPage;
+    public selectedContext: string = "Select help context";
+    public get HelpPages(): ReadOnlyHelpPage[] {
+      return this._onlineHelpService.HelpPages;
+  }
+
+    DisplayFriendlyHelpPageNames(helpPageItem: ReadOnlyHelpPage): string {
+      this.selectedContext  = helpPageItem.context_Name;
+      return helpPageItem.context_Name;
+    }
 
 
     subOpeningReview: Subscription | null = null;
@@ -199,6 +220,60 @@ export class SiteAdminComponent implements OnInit {
   }
 
 
+
+
+  public RetrieveHelpNew(event: Event) {
+
+    if (event.target != null) {
+      //var test = event.target.selectedIndex;
+    }
+
+    /*
+    if (this.selectedContext == "Select help context") {
+      this.OnlineHelpService.FetchHelpContent("");
+    }
+    else {
+      this.OnlineHelpService.FetchHelpContent(this.selectedContext);
+    }*/
+
+    /*
+    SetReconciliationMode(event: Event) {
+      let mode = (event.target as HTMLOptionElement).value;
+      //console.log("SetReconciliationMode", mode);
+      this.revInfo.screeningReconcilliation = mode;
+    }
+    */
+
+    let selection = (event.target as HTMLOptionElement).value;
+    //var test = this.selectedHelpPage;
+    var test2 = this.selected;
+
+    let context1: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.context_Name.toString());
+
+    let id: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.helpPage_ID.toString());
+    let context: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.context_Name.toString());
+    if (id.length == 1) {
+      if (id[0] == "0") {
+        this.OnlineHelpService.FetchHelpContent("");
+      }
+      else {
+        this.context = context[0];
+        this.OnlineHelpService.FetchHelpContent(this.context);
+      }
+    }
+    
+    /*
+    if (ids.length == 0) {
+      return false;//nothing to do, can't search on sources without a selected source...
+    }
+    else (ids.length == 1) {
+      NameSt = "Source search, Id:" + ids[0] + " - ";
+    }
+    */
+  }
+
+
+
   public onDataChange(event: CKEditor4.EventInfo) {
     var test = event.editor.getData();
     //this.TmpCurrentContextHelp = this.model.editorData;
@@ -281,6 +356,8 @@ export class SiteAdminComponent implements OnInit {
       //this.OnlineHelpService.FetchHelpContentList();
       this.OnlineHelpService.FetchHelpContent("0");
       this.ContextSelection = 0;
+      this._sourcesService.FetchSources();
+      this.OnlineHelpService.FetchHelpPageList();
     }
     else {
 
@@ -292,7 +369,19 @@ export class SiteAdminComponent implements OnInit {
 
 }
 
+export interface ReadOnlySource {
+  source_ID: number;
+  source_Name: string;
+  total_Items: number;
+  deleted_Items: number;
+  duplicates: number;
+  isDeleted: boolean;
+}
 
+export interface ReadOnlyHelpPage {
+  helpPage_ID: number;
+  context_Name: string;
+}
 
 
 

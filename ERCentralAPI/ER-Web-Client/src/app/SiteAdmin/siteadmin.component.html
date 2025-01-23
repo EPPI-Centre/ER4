@@ -129,6 +129,24 @@
           </select>
         </div>
 
+        <!--<div>
+          <select class="btn btn-outline-primary mt-3" id="dropdownBasicSources"
+                  [(ngModel)]="selected"> 
+            <option [value]="item.source_ID" *ngFor="let item of ReviewSources">
+              {{DisplayFriendlySourceNames(item)}}
+            </option>
+          </select>
+        </div>-->
+
+        <div>
+          <select class="btn btn-outline-primary mt-3" id="dropdownBasicHelpPages"
+                  [(ngModel)]="selected" (change)="RetrieveHelpNew($event)">
+            <option [ngValue]="item" *ngFor="let item of HelpPages">
+              {{DisplayFriendlyHelpPageNames(item)}}
+            </option>
+          </select>
+        </div>
+
         <div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
              class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
           <div *ngIf="ActivePanel=='Help'&& IsServiceBusy">Loading help...</div>
