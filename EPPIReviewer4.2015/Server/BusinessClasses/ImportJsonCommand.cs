@@ -672,13 +672,16 @@ namespace BusinessLibrary.BusinessClasses
 
         private void SaveOutcome(Outcome o, int ReviewId, int ContactId, Int64 ItemId)
         {
-            // If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
-            if (ReviewSets.Count != 1)
-            {
-                return;
-            }
+            //commented out: we try something a bit better below
+            //// If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
+            //if (ReviewSets.Count != 1)
+            //{
+            //    return;
+            //}
 
-            ReviewSet rs = ReviewSets[0];
+            //this can still be wrong, when we have multiple "Standard" tools imported: we could end up trying to add outcomes to the wrong tool.
+            ReviewSet rs = ReviewSets.FirstOrDefault(f=>f.SetTypeId == 3);
+            if (rs == null) return;
             Int64 NewOutcomeId = 0;
             Int64 ItemSetId = 0;
             if (rs != null)

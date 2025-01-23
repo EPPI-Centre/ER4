@@ -13,6 +13,7 @@ import { CKEditor4 } from 'ckeditor4-angular/ckeditor';
 import { ModalService } from '../services/modal.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { SourcesService, iJSONreport4upolad } from '../services/sources.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 
 
 @Component({
@@ -34,7 +35,8 @@ export class SiteAdminComponent implements OnInit {
       public eventEmitters: EventEmitterService,
       private modalService: ModalService,
       public _notificationService: NotificationService,
-      private sourcesService: SourcesService
+      private sourcesService: SourcesService,
+      private reviewInfo: ReviewInfoService
   ) { }
 
 
@@ -43,7 +45,7 @@ export class SiteAdminComponent implements OnInit {
         this.subOpeningReview = this.eventEmitters.OpeningNewReview.subscribe(() => this.BackToMain());
         if (!this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.router.navigate(['home']);
       else this.OnlineHelpService.GetFeedbackMessageList();
-      this.reader.onload = (e) => this.fileRead(e);
+      this.reader.onload = (e) => this.fileRead();
     }
     public Uname: string = "";
     public Pw: string = "";
@@ -293,12 +295,37 @@ export class SiteAdminComponent implements OnInit {
 
     }
   }
+
+
   @ViewChild('file') file: any;
   private currentFileName: string = "";
+  public importCommand: iJSONreport4upolad = this.EmptyImportCommand;
+  public ItemsCount4Import: number = 0;
+  public CodingTools4Import: string[] = [];
+  public get canImport(): boolean {
+    if (this.importCommand.content == "") return false;
+    if (this.importCommand.fileName == "") return false;
+    return true;
+  }
+  public get CurrentReviewName(): string {
+    return this.reviewInfo.ReviewInfo.reviewName;
+  }
 
+  public ClearJSONCache() {
+    this.ItemsCount4Import = 0;
+    this.CodingTools4Import = [];
+    this.importCommand = this.EmptyImportCommand;
+  }
+  private get EmptyImportCommand(): iJSONreport4upolad {
+    return {
+      content: "",
+      fileName: "",
+      importWhat: ""
+    }; 
+  }
   addFile() {
     //console.log('oo');
-    this.file.nativeElement.click();
+    if (this.file) this.file.nativeElement.click();
   }
   private reader = new FileReader();
   onFilesAdded() {
@@ -320,36 +347,56 @@ export class SiteAdminComponent implements OnInit {
         //    }
         //}
         this.reader.readAsText(file);
+        this.fileRead();
       }
     }
   }
 
-  private fileRead(e: ProgressEvent) {
+  private fileRead() {
+    this.ClearJSONCache();
     if (this.reader.result) {
       const fileContent: string = this.reader.result as string;
       //console.log("fileRead: " + fileContent.length);
       let filename = "";
       if (this.currentFileName) filename = this.currentFileName.trim();
-      else return;
-      let importCommand: iJSONreport4upolad = {
+      else {
+        return;
+      }
+      this.importCommand = {
         content: fileContent,
         importWhat: "",
         fileName: filename
-      }
-      this.sourcesService.ImportJsonReport(importCommand).then(
-        (result) => {
-          if (result) {
-            this._notificationService.show({
-              content: "Imported! Please go back, refresh Items and Coding tools to check.",
-              animation: { type: 'slide', duration: 400 },
-              position: { horizontal: 'center', vertical: 'top' },
-              type: { style: "warning", icon: true },
-              hideAfter: 10000
-            })
+      };
+      const parsed = JSON.parse(fileContent);
+      if (parsed) {
+        if (parsed.CodeSets && parsed.CodeSets.length > 0) {
+          for (let Cset of parsed.CodeSets) {
+            if (Cset && Cset.SetName) {
+              this.CodingTools4Import.push(Cset.SetName);
+            }
           }
         }
-      );
+        if (parsed.References && parsed.References.length > 0) {
+          this.ItemsCount4Import = parsed.References.length;
+        }
+      }
     }
+  }
+  public doImport() {
+    if (!this.canImport) return;
+    this.sourcesService.ImportJsonReport(this.importCommand).then(
+      (result) => {
+        if (result) {
+          this._notificationService.show({
+            content: "Imported! Please go back, refresh Items and Coding tools to check.",
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "warning", icon: true },
+            hideAfter: 10000
+          })
+        }
+      }
+    );
   }
 }
 
