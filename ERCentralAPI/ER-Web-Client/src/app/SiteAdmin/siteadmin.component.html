@@ -192,7 +192,10 @@
               </div>
             </div>
             <div class="row mx-0">
-              <button type="button" class="btn btn-danger m-1" (click)="doImport()">Import!</button>
+              <button type="button" class="btn btn-danger m-1" (click)="ImportJson()" [disabled]="busyImporting">
+                Import!
+                <span *ngIf="busyImporting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </button>
               <button type="button" class="btn btn-outline-success m-1" (click)="ClearJSONCache()">Clear</button>
             </div>
           </div>

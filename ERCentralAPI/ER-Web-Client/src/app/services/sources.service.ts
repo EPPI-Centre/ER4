@@ -633,9 +633,13 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     this._LastUploadOrUpdateStatus = "Uploading";//probably redundant, we only use this value when API call is finished.
     console.log('Upload Source started');
     let body = JSON.stringify(data);
-    return lastValueFrom(this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/ImportJsonReport',
+    return lastValueFrom(this._httpC.post<iJSONreport4upolad>(this._baseUrl + 'api/Sources/ImportJsonReport',
       body)).then(result => {
-        
+        if (result.returnMessage.toLowerCase().indexOf("error") != -1) {
+          this.RemoveBusy("ImportJsonReport");
+          this.modalService.GenericErrorMessage(result.returnMessage);
+          return false;
+        }        
         this.RemoveBusy("ImportJsonReport");
         return true;
       }, error => {
@@ -740,4 +744,5 @@ export interface iJSONreport4upolad {
   content: string;
   importWhat: string;
   fileName: string;
+  returnMessage: string;
 }

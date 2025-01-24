@@ -14,6 +14,7 @@ import { ModalService } from '../services/modal.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { SourcesService, iJSONreport4upolad } from '../services/sources.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -36,7 +37,8 @@ export class SiteAdminComponent implements OnInit {
       private modalService: ModalService,
       public _notificationService: NotificationService,
       private sourcesService: SourcesService,
-      private reviewInfo: ReviewInfoService
+      private confirmationDialogService: ConfirmationDialogService,
+      private reviewInfoService: ReviewInfoService
   ) { }
 
 
@@ -302,13 +304,18 @@ export class SiteAdminComponent implements OnInit {
   public importCommand: iJSONreport4upolad = this.EmptyImportCommand;
   public ItemsCount4Import: number = 0;
   public CodingTools4Import: string[] = [];
+
+  public get busyImporting(): boolean {
+    return this.sourcesService.IsBusy;
+  }
   public get canImport(): boolean {
     if (this.importCommand.content == "") return false;
     if (this.importCommand.fileName == "") return false;
+    if (this.CodingTools4Import.length == 0 && this.ItemsCount4Import == 0) return false;
     return true;
   }
   public get CurrentReviewName(): string {
-    return this.reviewInfo.ReviewInfo.reviewName;
+    return this.reviewInfoService.ReviewInfo.reviewName;
   }
 
   public ClearJSONCache() {
@@ -320,7 +327,8 @@ export class SiteAdminComponent implements OnInit {
     return {
       content: "",
       fileName: "",
-      importWhat: ""
+      importWhat: "",
+      returnMessage: "",
     }; 
   }
   addFile() {
@@ -347,13 +355,13 @@ export class SiteAdminComponent implements OnInit {
         //    }
         //}
         this.reader.readAsText(file);
-        this.fileRead();
       }
     }
   }
 
   private fileRead() {
     this.ClearJSONCache();
+    //console.log("File read 1st check:", this.reader.result);
     if (this.reader.result) {
       const fileContent: string = this.reader.result as string;
       //console.log("fileRead: " + fileContent.length);
@@ -365,7 +373,8 @@ export class SiteAdminComponent implements OnInit {
       this.importCommand = {
         content: fileContent,
         importWhat: "",
-        fileName: filename
+        fileName: filename,
+        returnMessage: ""
       };
       const parsed = JSON.parse(fileContent);
       if (parsed) {
@@ -382,18 +391,36 @@ export class SiteAdminComponent implements OnInit {
       }
     }
   }
-  public doImport() {
+
+  public ImportJson() {
+    if (!this.canImport) return;
+    this.confirmationDialogService.confirm("Import JSON Report?"
+      , "Are you sure you want to import this (<strong>"
+      + this.importCommand.fileName + "</strong>) JSON report?<br>"
+      + "Data will be imported in this reivew:<br>"
+      + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+      + this.CurrentReviewName + "</strong></div>"
+      , false, '')
+      .then((confirm: any) => {
+        if (confirm) {
+          this.doImport();
+        }
+      });
+  }
+
+  private doImport() {
     if (!this.canImport) return;
     this.sourcesService.ImportJsonReport(this.importCommand).then(
       (result) => {
         if (result) {
           this._notificationService.show({
-            content: "Imported! Please go back, refresh Items and Coding tools to check.",
+            content: "Imported! Please refresh Coding tools and Stats (in this order) to check.",
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "warning", icon: true },
             hideAfter: 10000
-          })
+          });
+          this.ClearJSONCache();
         }
       }
     );
