@@ -22,6 +22,26 @@ namespace ERxWebClient2.Controllers
         public HelpController(ILogger<ReviewController> logger) : base(logger)
         { }
 
+        [HttpGet("[action]")]
+        public IActionResult GetHelpPageList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                DataPortal<ReadOnlyHelpPageList> dp = new DataPortal<ReadOnlyHelpPageList>();
+                ReadOnlyHelpPageList result = dp.Fetch();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetHelpPages data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+
         [HttpPost("[action]")]
 		public IActionResult FetchHelpContent([FromBody] SingleStringCriteria crit)
 		{
