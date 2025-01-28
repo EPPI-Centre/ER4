@@ -24,6 +24,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Azure.Storage.Common" Version="12.18.1" />
+    <PackageReference Include="Markdig.Signed" Version="0.40.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.5" />
     <PackageReference Include="CSLA-ASPNETCORE-MVC" Version="4.7.200" />
@@ -84,6 +85,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\DataFactoryHelper.cs" Link="Models\DataFactoryHelper.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\GetLatestUpdateMsgCommand.cs" Link="Models\GetLatestUpdateMsgCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ImportItems.cs" Link="Models\ImportItems.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ImportJsonCommand.cs" Link="Models\ImportJsonCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Item.cs" Link="Models\Item.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArm.cs" Link="Models\ItemArm.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArmDeleteWarningCommand.cs" Link="Models\ItemArmDeleteWarningCommand.cs" />

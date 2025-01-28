@@ -1769,8 +1769,10 @@ class SetType4ER4Json {
   constructor(type: iSetType) {
     this.SetTypeDescription = type.setTypeDescription;
     this.SetTypeName = type.setTypeName;
+    this.SetTypeId = type.setTypeId;
   }
   SetTypeName: string;
+  SetTypeId: number;
   SetTypeDescription: string;
 }
 class AttributesList4ER4Json {
@@ -1789,6 +1791,7 @@ class SetAttribute4ER4Json {
     this.AttributeId = att.attribute_id;
     this.AttributeSetDescription = att.attribute_set_desc;
     this.AttributeType = att.attribute_type;
+    this.AttributeTypeId = att.attribute_type_id;
     this.AttributeName = att.attribute_name;
     this.ExtURL = att.extURL;
     this.ExtType = att.extType;
@@ -1799,6 +1802,7 @@ class SetAttribute4ER4Json {
   AttributeId: number;
   AttributeSetDescription: string;
   AttributeType: string;
+  AttributeTypeId: number;
   AttributeName: string;
   AttributeDescription: string = "";
   ExtURL: string = "";

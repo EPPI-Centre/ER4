@@ -38,7 +38,7 @@ import { FreqXtabMapsComp } from '../Frequencies/FreqXtabMaps.component';
 import { ClassifierService } from '../services/classifier.service';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 import { RobotInvestigate } from '../Robots/robotInvestigate.component';
-import { trimEnd } from 'lodash';
+import {  RobotsService } from '../services/Robots.service';
 
 
 @Component({
@@ -92,6 +92,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     private configurablereportServ: ConfigurableReportService,
     @Inject('BASE_URL') private _baseUrl: string,
     private excelService: ExcelService,
+    private robotsService: RobotsService,
     private reviewInfoService: ReviewInfoService,
     private classifierService: ClassifierService,
     private ArmTimepointLinkListService: ArmTimepointLinkListService
@@ -1222,7 +1223,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     this.SourcesService.Clear();
     this.workAllocationListService.Clear();
     this.DuplicatesService.Clear();
-    this.configurablereportServ.Clear(); FreqXtabMapsComp
+    this.configurablereportServ.Clear();
+    this.robotsService.Clear();
     if (this.FreqComponent) this.FreqComponent.Clear();
     if (this.FreqXtabMapsComp) this.FreqXtabMapsComp.Clear();
     if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();

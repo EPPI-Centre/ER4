@@ -10,7 +10,11 @@ import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { CKEditor4 } from 'ckeditor4-angular/ckeditor';
-import { SourcesService } from '../services/sources.service';
+import { ModalService } from '../services/modal.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { SourcesService, iJSONreport4upolad } from '../services/sources.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -29,9 +33,14 @@ export class SiteAdminComponent implements OnInit {
         private OnlineHelpService: OnlineHelpService,
         @Inject('BASE_URL') private _baseUrl: string,
         public ReviewerIdentityServ: ReviewerIdentityService,
-        private _sourcesService: SourcesService,
-        private _onlineHelpService: OnlineHelpService,
-        public eventEmitters: EventEmitterService
+      public eventEmitters: EventEmitterService,
+      private modalService: ModalService,
+      public _notificationService: NotificationService,
+      private sourcesService: SourcesService,
+      private confirmationDialogService: ConfirmationDialogService,
+      private reviewInfoService: ReviewInfoService,
+
+        private _onlineHelpService: OnlineHelpService
   ) { }
 
 
@@ -39,7 +48,8 @@ export class SiteAdminComponent implements OnInit {
     ngOnInit() {
         this.subOpeningReview = this.eventEmitters.OpeningNewReview.subscribe(() => this.BackToMain());
         if (!this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.router.navigate(['home']);
-        else this.OnlineHelpService.GetFeedbackMessageList();
+      else this.OnlineHelpService.GetFeedbackMessageList();
+      this.reader.onload = (e) => this.fileRead();
     }
     public Uname: string = "";
     public Pw: string = "";
@@ -356,7 +366,7 @@ export class SiteAdminComponent implements OnInit {
       //this.OnlineHelpService.FetchHelpContentList();
       this.OnlineHelpService.FetchHelpContent("0");
       this.ContextSelection = 0;
-      this._sourcesService.FetchSources();
+      this.sourcesService.FetchSources();
       this.OnlineHelpService.FetchHelpPageList();
     }
     else {
@@ -365,8 +375,132 @@ export class SiteAdminComponent implements OnInit {
   }
 
 
+  @ViewChild('file') file: any;
+  private currentFileName: string = "";
+  public importCommand: iJSONreport4upolad = this.EmptyImportCommand;
+  public ItemsCount4Import: number = 0;
+  public CodingTools4Import: string[] = [];
 
+  public get busyImporting(): boolean {
+    return this.sourcesService.IsBusy;
+  }
+  public get canImport(): boolean {
+    if (this.importCommand.content == "") return false;
+    if (this.importCommand.fileName == "") return false;
+    if (this.CodingTools4Import.length == 0 && this.ItemsCount4Import == 0) return false;
+    return true;
+  }
+  public get CurrentReviewName(): string {
+    return this.reviewInfoService.ReviewInfo.reviewName;
+  }
 
+  public ClearJSONCache() {
+    this.ItemsCount4Import = 0;
+    this.CodingTools4Import = [];
+    this.importCommand = this.EmptyImportCommand;
+  }
+  private get EmptyImportCommand(): iJSONreport4upolad {
+    return {
+      content: "",
+      fileName: "",
+      importWhat: "",
+      returnMessage: "",
+    }; 
+  }
+  addFile() {
+    //console.log('oo');
+    if (this.file) this.file.nativeElement.click();
+  }
+  private reader = new FileReader();
+  onFilesAdded() {
+    const files: { [key: string]: File } = this.file.nativeElement.files;
+    const file: File = files[0];
+    console.log("onFilesAdded", file.size, file.name);
+    if (file) {
+      //if (file.size > 31457280 && 1 !== 1) {
+      if (file.size > 52428800) {
+        //console.log("onFilesAdded", file.size, file.name);
+        this.modalService.GenericErrorMessage("Sorry, the <strong>maximum</strong> file size is <strong>50MB</strong>. Please select a smaller file.");
+      }
+      else {
+        this.currentFileName = file.name;
+        //reader.onload = function (e) {
+        //    if (reader.result) {
+        //        fileContent = reader.result as string;
+        //        console.log(fileContent.length);
+        //    }
+        //}
+        this.reader.readAsText(file);
+      }
+    }
+  }
+
+  private fileRead() {
+    this.ClearJSONCache();
+    //console.log("File read 1st check:", this.reader.result);
+    if (this.reader.result) {
+      const fileContent: string = this.reader.result as string;
+      //console.log("fileRead: " + fileContent.length);
+      let filename = "";
+      if (this.currentFileName) filename = this.currentFileName.trim();
+      else {
+        return;
+      }
+      this.importCommand = {
+        content: fileContent,
+        importWhat: "",
+        fileName: filename,
+        returnMessage: ""
+      };
+      const parsed = JSON.parse(fileContent);
+      if (parsed) {
+        if (parsed.CodeSets && parsed.CodeSets.length > 0) {
+          for (let Cset of parsed.CodeSets) {
+            if (Cset && Cset.SetName) {
+              this.CodingTools4Import.push(Cset.SetName);
+            }
+          }
+        }
+        if (parsed.References && parsed.References.length > 0) {
+          this.ItemsCount4Import = parsed.References.length;
+        }
+      }
+    }
+  }
+
+  public ImportJson() {
+    if (!this.canImport) return;
+    this.confirmationDialogService.confirm("Import JSON Report?"
+      , "Are you sure you want to import this (<strong>"
+      + this.importCommand.fileName + "</strong>) JSON report?<br>"
+      + "Data will be imported in this reivew:<br>"
+      + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+      + this.CurrentReviewName + "</strong></div>"
+      , false, '')
+      .then((confirm: any) => {
+        if (confirm) {
+          this.doImport();
+        }
+      });
+  }
+
+  private doImport() {
+    if (!this.canImport) return;
+    this.sourcesService.ImportJsonReport(this.importCommand).then(
+      (result) => {
+        if (result) {
+          this._notificationService.show({
+            content: "Imported! Please refresh Coding tools and Stats (in this order) to check.",
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "warning", icon: true },
+            hideAfter: 10000
+          });
+          this.ClearJSONCache();
+        }
+      }
+    );
+  }
 }
 
 export interface ReadOnlySource {

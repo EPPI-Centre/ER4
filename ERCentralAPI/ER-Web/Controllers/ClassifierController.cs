@@ -211,7 +211,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "A ClassifierCommand issue");
+                _logger.LogException(e, "A ClassifierCommand issue in CheckScreening");
                 return StatusCode(500, e.Message);
             }
 
