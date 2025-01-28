@@ -504,6 +504,6 @@ export class ReportAllCodingCommandOptions {
   public linesSeparator: string = "------";
   UseOnlyColourCodingForCompletion: boolean = true;
   showFullTitle: boolean = false;
-  includeArms: boolean = true;
+  includeArms: boolean = false;
   includeOutcomes: boolean = false;
 }

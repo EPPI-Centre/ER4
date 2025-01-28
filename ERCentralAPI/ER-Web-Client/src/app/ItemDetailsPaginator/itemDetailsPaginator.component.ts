@@ -63,6 +63,11 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
     if (this.PriorityScreeningService.CurrentItemIndex > 0) return true;
     return false;
   }
+
+  public get PreviouslyScreenedCount(): number {
+    return this.PriorityScreeningService.ScreenedItemIds.length;
+  }
+
   public CanMoveToNextInScreening(): boolean {
 
     let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>

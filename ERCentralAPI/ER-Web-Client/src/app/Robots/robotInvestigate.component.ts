@@ -24,11 +24,9 @@ import { Helpers } from '../helpers/HelperMethods';
 export class RobotInvestigate implements OnInit, OnDestroy {
   constructor(private router: Router,
     @Inject('BASE_URL') private _baseUrl: string,
-    private _reviewService: ReviewService,
     private _reviewerIdentityServ: ReviewerIdentityService,
     private _reviewInfoService: ReviewInfoService,
     private _robotsService: RobotsService,
-    private modalService: ModalService,
     private _reviewSetsService: ReviewSetsService,
     private _eventEmitterService: EventEmitterService,
     private _notificationService: NotificationService,
