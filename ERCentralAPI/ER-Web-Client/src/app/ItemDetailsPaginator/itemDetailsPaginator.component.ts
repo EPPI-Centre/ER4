@@ -65,7 +65,20 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
 
   public get PreviouslyScreenedCount(): number {
-    return this.PriorityScreeningService.ScreenedItemIds.length;
+    if (this.PriorityScreeningService.CurrentItem && this.PriorityScreeningService.CurrentItem.itemId == this.PriorityScreeningService.ScreenedItemIds[this.PriorityScreeningService.ScreenedItemIds.length - 1]) {
+      //we're in the last item of the queue, is it coded? if so, we should count it.
+      if (this.CanMoveToNextInScreening()) {
+        //it's coded
+        return this.PriorityScreeningService.ScreenedItemIds.length + 1;
+      } else {
+        return this.PriorityScreeningService.ScreenedItemIds.length;
+      }
+    }
+    else {
+      //we're somewhere in the queue of already screened items, we can just report how many items are in the list
+      return this.PriorityScreeningService.ScreenedItemIds.length;
+    }
+    
   }
 
   public CanMoveToNextInScreening(): boolean {

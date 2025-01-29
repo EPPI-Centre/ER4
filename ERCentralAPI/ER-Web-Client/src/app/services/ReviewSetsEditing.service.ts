@@ -1261,7 +1261,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
 					(error) => {
             console.log("CreateVisualiseCodeSet", error);
             this.RemoveBusy("CreateVisualiseCodeSet");
-						this.modalService.GenericErrorMessage(error);
+            this.modalService.GenericError(error);
 						return command;
 					}
 		);

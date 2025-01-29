@@ -31,12 +31,15 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     super(configService);
     //console.log("On create PriorityScreeningService");
     this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+    this.clearSub2 = this.EventEmitterService.OpeningNewReview.subscribe(() => { this.Clear(); });
   }
   ngOnDestroy() {
     console.log("Destroy search service");
     if (this.clearSub != null) this.clearSub.unsubscribe();
+    if (this.clearSub2 != null) this.clearSub2.unsubscribe();
   }
   private clearSub: Subscription | null = null;
+  private clearSub2: Subscription | null = null;
 
   @Output() gotList = new EventEmitter();
   @Output() gotItem = new EventEmitter();
