@@ -222,7 +222,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
       "This will create a new <strong>copy</strong> of the coding tool:<br>"
       + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
       + source.set_name + "</strong></div>"
-      + "To avoid confustion, please edit name and description of the copied Tool as soon as possible.",
+      + "To avoid confusion, please <strong>edit name and description</strong> of the copied Tool as soon as possible.",
       false, "").then(
         (res: any) => {
           if (res == true) {

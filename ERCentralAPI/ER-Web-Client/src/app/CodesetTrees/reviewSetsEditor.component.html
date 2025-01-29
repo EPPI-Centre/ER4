@@ -192,7 +192,7 @@
                       [disabled]="!CanEditSelectedNode">
                 <span class="k-icon k-i-trash"></span> Delete Coding Tool...
               </button>
-              <button class="btn btn-outline-warning ml-3" (click)="CopyCodesetClicked()" type="button">
+              <button class="btn btn-outline-warning ml-3" (click)="CopyCodesetClicked()" type="button" [disabled]="!HasWriteRights">
                 <span class="k-icon k-i-copy"></span> Create a copy
               </button>
             </div>
