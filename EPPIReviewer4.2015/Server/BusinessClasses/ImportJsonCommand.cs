@@ -123,12 +123,17 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception e)
             {
-                _message = "deserialize error";
+                _message = "Error: deserialize failed";
                 return;
             }
             if (_ImportWhat.Contains("codesets"))
             {
-                if (ReviewSets == null) this.ReviewSets = new ReviewSetsList();
+                if (ReviewSets == null)
+                {
+                    DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
+                    this.ReviewSets = dp.Fetch();//this allows to import more items, AFTER having imported the coding tools in a previous import
+                    if (ReviewSets == null) this.ReviewSets = new ReviewSetsList();
+                }
                 AddCodeSets(ro, ri.ReviewId, ri.UserId);
             }
             if (_ImportWhat.Contains("items"))
@@ -169,8 +174,8 @@ namespace BusinessLibrary.BusinessClasses
                         _message = "Could not create code set";
                         return;
                     }
+                    this.ReviewSets.Add(rs);
                 }
-                this.ReviewSets.Add(rs);
                 if (rs != null && CurrentCodeSet.Attributes != null)
                 {
                     int c = 0;
@@ -239,9 +244,9 @@ namespace BusinessLibrary.BusinessClasses
         private AttributeSet FindAttributeByAttributeId(Attributeslist alist, ReviewSet rs)
         {
             AttributeSet aset = null;
-            if (CodeSetUsingOriginalId == false) // using the field OriginalSetId
+            if (CodeSetUsingOriginalId == true) // using the field OriginalSetId
             {
-                aset = rs.GetAttributeSetFromOriginalAttributeId(alist.OriginalAttributeID);
+                aset = rs.GetAttributeSetFromOriginalAttributeId(alist.AttributeId);
             }
             else
             {
@@ -268,7 +273,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", true));
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", 0));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", cs.SetDescription));
-                    command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", cs.OriginalSetId));
+                    command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", cs.SetId));
 
                     SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
@@ -672,13 +677,16 @@ namespace BusinessLibrary.BusinessClasses
 
         private void SaveOutcome(Outcome o, int ReviewId, int ContactId, Int64 ItemId)
         {
-            // If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
-            if (ReviewSets.Count != 1)
-            {
-                return;
-            }
+            //commented out: we try something a bit better below
+            //// If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
+            //if (ReviewSets.Count != 1)
+            //{
+            //    return;
+            //}
 
-            ReviewSet rs = ReviewSets[0];
+            //this can still be wrong, when we have multiple "Standard" tools imported: we could end up trying to add outcomes to the wrong tool.
+            ReviewSet rs = ReviewSets.FirstOrDefault(f=>f.SetTypeId == 3);
+            if (rs == null) return;
             Int64 NewOutcomeId = 0;
             Int64 ItemSetId = 0;
             if (rs != null)

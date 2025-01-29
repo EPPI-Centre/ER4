@@ -790,7 +790,16 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       returnMessage: ""
     };
     let res = await this.robotsService.RunRobotOpenAICommand(cmd);
-    if (res.returnMessage != "Error") {
+    if (res.returnMessage.indexOf("Completed with errors") > -1) {
+      this.notificationService.show({
+        content: "GPT4 result: " + res.returnMessage,
+        position: { horizontal: 'center', vertical: 'top' },
+        animation: { type: 'fade', duration: 500 },
+        type: { style: 'error', icon: true },
+        closable: true
+      });
+    }
+    else {
       //no need to handle errors here - we do that in the service as usual
       //this.confirmationDialogService..ShowInformationalModal(res.returnMessage, "GPT4 result");
       this.notificationService.show({

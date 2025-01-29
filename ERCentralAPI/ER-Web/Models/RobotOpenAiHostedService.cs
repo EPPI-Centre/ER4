@@ -467,7 +467,7 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             doclist += doc.MarkDownFileName + ",";
                         }
-                        doclist = doclist.Substring(0, doclist.Length - 1);
+                        if (doclist.EndsWith(",")) doclist = doclist.Substring(0, doclist.Length - 1);
                     }
                     cmd = new RobotOpenAICommand(RT.ReviewSetId, RT.ItemIDsList[done], 0, RT.ItemIDsList.Count == done + 1 ? true : false,
                             RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,

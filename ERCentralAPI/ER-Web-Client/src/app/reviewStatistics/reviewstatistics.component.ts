@@ -827,10 +827,12 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
       sheets: <WorkbookSheet[]>SheetsToAdd
     });
 
-    const ReviewerStats = setStats.reviewerStatistics;
     const NamesCells: WorkbookSheetRowCell[] = [];
     const Reviewers: StringKeyValue[] = [];
-    for (let p of ReviewerStats) {
+
+    //sort by contactId so that reports will always show reviewers in the same order - useful when iterating and comparing reports
+    let SortedReviewerStats = setStats.reviewerStatistics.sort((a, b) => a.contactId - b.contactId);
+    for (let p of SortedReviewerStats) {
       NamesCells.push({ value: p.contactName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
       Reviewers.push(new StringKeyValue(p.contactId.toString(), p.contactName));
     }

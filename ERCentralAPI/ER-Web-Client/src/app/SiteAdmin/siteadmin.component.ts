@@ -13,6 +13,8 @@ import { CKEditor4 } from 'ckeditor4-angular/ckeditor';
 import { ModalService } from '../services/modal.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { SourcesService, iJSONreport4upolad } from '../services/sources.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -34,7 +36,11 @@ export class SiteAdminComponent implements OnInit {
       public eventEmitters: EventEmitterService,
       private modalService: ModalService,
       public _notificationService: NotificationService,
-      private sourcesService: SourcesService
+      private sourcesService: SourcesService,
+      private confirmationDialogService: ConfirmationDialogService,
+      private reviewInfoService: ReviewInfoService,
+
+        private _onlineHelpService: OnlineHelpService
   ) { }
 
 
@@ -43,7 +49,7 @@ export class SiteAdminComponent implements OnInit {
         this.subOpeningReview = this.eventEmitters.OpeningNewReview.subscribe(() => this.BackToMain());
         if (!this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.router.navigate(['home']);
       else this.OnlineHelpService.GetFeedbackMessageList();
-      this.reader.onload = (e) => this.fileRead(e);
+      this.reader.onload = (e) => this.fileRead();
     }
     public Uname: string = "";
     public Pw: string = "";
@@ -54,6 +60,24 @@ export class SiteAdminComponent implements OnInit {
     private _ActivePanel: string = "Help";
     public ActivePanel: string = "Help";
 
+    /*public selected?: ReadOnlySource;
+    public get ReviewSources(): ReadOnlySource[] {
+      return this._sourcesService.ReviewSources;
+    }
+    DisplayFriendlySourceNames(sourceItem: ReadOnlySource): string {
+      return sourceItem.source_Name;
+    }*/
+
+    public selected?: ReadOnlyHelpPage;
+    public selectedContext: string = "Select help context";
+    public get HelpPages(): ReadOnlyHelpPage[] {
+      return this._onlineHelpService.HelpPages;
+  }
+
+    DisplayFriendlyHelpPageNames(helpPageItem: ReadOnlyHelpPage): string {
+      this.selectedContext  = helpPageItem.context_Name;
+      return helpPageItem.context_Name;
+    }
 
 
     subOpeningReview: Subscription | null = null;
@@ -206,6 +230,60 @@ export class SiteAdminComponent implements OnInit {
   }
 
 
+
+
+  public RetrieveHelpNew(event: Event) {
+
+    if (event.target != null) {
+      //var test = event.target.selectedIndex;
+    }
+
+    /*
+    if (this.selectedContext == "Select help context") {
+      this.OnlineHelpService.FetchHelpContent("");
+    }
+    else {
+      this.OnlineHelpService.FetchHelpContent(this.selectedContext);
+    }*/
+
+    /*
+    SetReconciliationMode(event: Event) {
+      let mode = (event.target as HTMLOptionElement).value;
+      //console.log("SetReconciliationMode", mode);
+      this.revInfo.screeningReconcilliation = mode;
+    }
+    */
+
+    let selection = (event.target as HTMLOptionElement).value;
+    //var test = this.selectedHelpPage;
+    var test2 = this.selected;
+
+    let context1: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.context_Name.toString());
+
+    let id: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.helpPage_ID.toString());
+    let context: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.context_Name.toString());
+    if (id.length == 1) {
+      if (id[0] == "0") {
+        this.OnlineHelpService.FetchHelpContent("");
+      }
+      else {
+        this.context = context[0];
+        this.OnlineHelpService.FetchHelpContent(this.context);
+      }
+    }
+    
+    /*
+    if (ids.length == 0) {
+      return false;//nothing to do, can't search on sources without a selected source...
+    }
+    else (ids.length == 1) {
+      NameSt = "Source search, Id:" + ids[0] + " - ";
+    }
+    */
+  }
+
+
+
   public onDataChange(event: CKEditor4.EventInfo) {
     var test = event.editor.getData();
     //this.TmpCurrentContextHelp = this.model.editorData;
@@ -288,17 +366,50 @@ export class SiteAdminComponent implements OnInit {
       //this.OnlineHelpService.FetchHelpContentList();
       this.OnlineHelpService.FetchHelpContent("0");
       this.ContextSelection = 0;
+      this.sourcesService.FetchSources();
+      this.OnlineHelpService.FetchHelpPageList();
     }
     else {
 
     }
   }
+
+
   @ViewChild('file') file: any;
   private currentFileName: string = "";
+  public importCommand: iJSONreport4upolad = this.EmptyImportCommand;
+  public ItemsCount4Import: number = 0;
+  public CodingTools4Import: string[] = [];
 
+  public get busyImporting(): boolean {
+    return this.sourcesService.IsBusy;
+  }
+  public get canImport(): boolean {
+    if (this.importCommand.content == "") return false;
+    if (this.importCommand.fileName == "") return false;
+    if (this.CodingTools4Import.length == 0 && this.ItemsCount4Import == 0) return false;
+    return true;
+  }
+  public get CurrentReviewName(): string {
+    return this.reviewInfoService.ReviewInfo.reviewName;
+  }
+
+  public ClearJSONCache() {
+    this.ItemsCount4Import = 0;
+    this.CodingTools4Import = [];
+    this.importCommand = this.EmptyImportCommand;
+  }
+  private get EmptyImportCommand(): iJSONreport4upolad {
+    return {
+      content: "",
+      fileName: "",
+      importWhat: "",
+      returnMessage: "",
+    }; 
+  }
   addFile() {
     //console.log('oo');
-    this.file.nativeElement.click();
+    if (this.file) this.file.nativeElement.click();
   }
   private reader = new FileReader();
   onFilesAdded() {
@@ -324,36 +435,87 @@ export class SiteAdminComponent implements OnInit {
     }
   }
 
-  private fileRead(e: ProgressEvent) {
+  private fileRead() {
+    this.ClearJSONCache();
+    //console.log("File read 1st check:", this.reader.result);
     if (this.reader.result) {
       const fileContent: string = this.reader.result as string;
       //console.log("fileRead: " + fileContent.length);
       let filename = "";
       if (this.currentFileName) filename = this.currentFileName.trim();
-      else return;
-      let importCommand: iJSONreport4upolad = {
+      else {
+        return;
+      }
+      this.importCommand = {
         content: fileContent,
         importWhat: "",
-        fileName: filename
-      }
-      this.sourcesService.ImportJsonReport(importCommand).then(
-        (result) => {
-          if (result) {
-            this._notificationService.show({
-              content: "Imported! Please go back, refresh Items and Coding tools to check.",
-              animation: { type: 'slide', duration: 400 },
-              position: { horizontal: 'center', vertical: 'top' },
-              type: { style: "warning", icon: true },
-              hideAfter: 10000
-            })
+        fileName: filename,
+        returnMessage: ""
+      };
+      const parsed = JSON.parse(fileContent);
+      if (parsed) {
+        if (parsed.CodeSets && parsed.CodeSets.length > 0) {
+          for (let Cset of parsed.CodeSets) {
+            if (Cset && Cset.SetName) {
+              this.CodingTools4Import.push(Cset.SetName);
+            }
           }
         }
-      );
+        if (parsed.References && parsed.References.length > 0) {
+          this.ItemsCount4Import = parsed.References.length;
+        }
+      }
     }
+  }
+
+  public ImportJson() {
+    if (!this.canImport) return;
+    this.confirmationDialogService.confirm("Import JSON Report?"
+      , "Are you sure you want to import this (<strong>"
+      + this.importCommand.fileName + "</strong>) JSON report?<br>"
+      + "Data will be imported in this reivew:<br>"
+      + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+      + this.CurrentReviewName + "</strong></div>"
+      , false, '')
+      .then((confirm: any) => {
+        if (confirm) {
+          this.doImport();
+        }
+      });
+  }
+
+  private doImport() {
+    if (!this.canImport) return;
+    this.sourcesService.ImportJsonReport(this.importCommand).then(
+      (result) => {
+        if (result) {
+          this._notificationService.show({
+            content: "Imported! Please refresh Coding tools and Stats (in this order) to check.",
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "warning", icon: true },
+            hideAfter: 10000
+          });
+          this.ClearJSONCache();
+        }
+      }
+    );
   }
 }
 
+export interface ReadOnlySource {
+  source_ID: number;
+  source_Name: string;
+  total_Items: number;
+  deleted_Items: number;
+  duplicates: number;
+  isDeleted: boolean;
+}
 
+export interface ReadOnlyHelpPage {
+  helpPage_ID: number;
+  context_Name: string;
+}
 
 
 
