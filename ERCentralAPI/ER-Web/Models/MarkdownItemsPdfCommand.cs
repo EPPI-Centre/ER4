@@ -290,7 +290,8 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                _result = "Finished";
+                DataFactoryHelper.UpdateReviewJobLog(_jobId, _reviewId, "Ended", "No PDFs in batch", "MarkdownItemsPdfCommand", true, true);
+                _result = "Done";
                 return;
             }
         }
