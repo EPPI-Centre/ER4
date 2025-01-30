@@ -421,7 +421,7 @@ export class WorkAllocationComp implements OnInit {
     }
   }
   public RandomlyAssign() {
-
+    //console.log("WA RandomlyAssign click:", this.PanelName, this.CodingToolTree, this.DestAttSet);
     if (this.PanelName == 'RandomlyAssignSection') {
       this.PanelName = '';
     } else {
@@ -459,7 +459,7 @@ export class WorkAllocationComp implements OnInit {
     this.DropDownBasicCodingTool = new ReviewSet();
     this.selectedMemberDropDown = new Contact();
     this.PanelName = '';
-    //alert('Called Clear: ' + this.DropdownSelectedCodingTool);
+    //console.log('WA - Called Clear: ' + this.DropdownSelectedCodingTool);
 
   }
   public NewWorkAllocation() {
@@ -472,11 +472,7 @@ export class WorkAllocationComp implements OnInit {
   public CloseAssignSection() {
     this.PanelName = '';
   }
-  public CloseRandomlyAssignSection() {
 
-    this.RandomlyAssign();
-
-  }
   public CanAssign() {
     //console.log(this.numericRandomCreate, this.numericRandomSample);
     if (this.numericRandomCreate == null || this.numericRandomSample == null) return false;
