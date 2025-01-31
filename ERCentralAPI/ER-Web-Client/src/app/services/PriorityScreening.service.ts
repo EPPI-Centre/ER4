@@ -46,6 +46,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   public ScreenedItemIds: number[] = [];
   public CurrentItem: Item = new Item();
   public CurrentItemIndex: number = 0;
+  public LastItemInTheQueueIsDone: boolean = false;
+
   private _CurrentItemAdditionalData: iAdditionalItemDetails | null = null;
   public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
     if (!this.CurrentItem || !this._CurrentItemAdditionalData) return null;
@@ -130,6 +132,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
           this.CurrentItemIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
           
           this.CheckRunTraining(success);
+          this.LastItemInTheQueueIsDone = false;
           this.gotItem.emit();
         },
         error => {

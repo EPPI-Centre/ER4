@@ -670,12 +670,31 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
       if (cmd.saveType == "Insert" || cmd.saveType == "Update") {
         this.ItemCodingService.ApplyInsertOrUpdateItemAttribute(cmdResult, itemSet);
+
+        if (this.IsScreening && cmd.saveType == "Insert" && this.PriorityScreeningService.CurrentItemIndex == this.PriorityScreeningService.ScreenedItemIds.length - 1) {
+          //snippet to tell the PS service that the last item in the list of screening items has been coded.
+          //this is used to count "items screened in this session" accurately
+          let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>
+            cset.setId == this.reviewInfoService.ReviewInfo.screeningCodeSetId
+            && (cset.contactId == this.ReviewerIdentityServ.reviewerIdentity.userId || cset.isCompleted));
+          if (ItemSetIndex > -1) {
+            this.PriorityScreeningService.LastItemInTheQueueIsDone = true;
+          }
+        }
         //if (cmd.saveType == "Insert") this.ItemCodingService.FetchItemAttPDFCoding;
       }
       else if (cmd.saveType == "Delete") {
         this.ItemCodingService.ApplyDeleteItemAttribute(itemSet, itemAtt);
-        //if (itemSet) console.log(itemSet.itemAttributesList.length);
-        //if (itemAtt) console.log(itemAtt.attributeId);
+        if (this.IsScreening && this.PriorityScreeningService.CurrentItemIndex == this.PriorityScreeningService.ScreenedItemIds.length - 1) {
+          //snippet to tell the PS service that the last item in the list of screening items has NOT been coded.
+          //this is used to count "items screened in this session" accurately
+          let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>
+            cset.setId == this.reviewInfoService.ReviewInfo.screeningCodeSetId
+            && (cset.contactId == this.ReviewerIdentityServ.reviewerIdentity.userId || cset.isCompleted));
+          if (ItemSetIndex == -1) {
+            this.PriorityScreeningService.LastItemInTheQueueIsDone = false;
+          }
+        }
       }
 
       this.SetCoding();

@@ -65,20 +65,30 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
 
   public get PreviouslyScreenedCount(): number {
-    if (this.PriorityScreeningService.CurrentItem && this.PriorityScreeningService.CurrentItem.itemId == this.PriorityScreeningService.ScreenedItemIds[this.PriorityScreeningService.ScreenedItemIds.length - 1]) {
-      //we're in the last item of the queue, is it coded? if so, we should count it.
-      if (this.CanMoveToNextInScreening()) {
-        //it's coded
-        return this.PriorityScreeningService.ScreenedItemIds.length + 1;
-      } else {
-        return this.PriorityScreeningService.ScreenedItemIds.length;
-      }
+    let res: number = 0;
+
+
+    //if we can't go to next, it's because the current item isn't screened, so we shouldn't count it.
+    //but when we are already in the last items of the list of "seen items", then this is accounted for by LastItemInTheQueueIsDone already
+    //instead, when we're somewhere inside the queue, we need to account for both things!
+    let WeAreInTheLastItem = this.PriorityScreeningService.ScreenedItemIds[this.PriorityScreeningService.ScreenedItemIds.length - 1] == this.PriorityScreeningService.CurrentItem.itemId;
+
+    //console.log("PreviouslyScreenedCount", this.PriorityScreeningService.ScreenedItemIds
+    //  , this.PriorityScreeningService.LastItemInTheQueueIsDone
+    //  , WeAreInTheLastItem
+    //  , this.PriorityScreeningService.CurrentItem.itemId);
+
+    if (this.PriorityScreeningService.LastItemInTheQueueIsDone) {
+      
+      res = this.PriorityScreeningService.ScreenedItemIds.length;
+      if (!WeAreInTheLastItem && !this.CanMoveToNextInScreening()) res--;
     }
     else {
-      //we're somewhere in the queue of already screened items, we can just report how many items are in the list
-      return this.PriorityScreeningService.ScreenedItemIds.length;
+      res = this.PriorityScreeningService.ScreenedItemIds.length - 1;
+      if (!WeAreInTheLastItem && !this.CanMoveToNextInScreening()) res--;
     }
     
+    return res;
   }
 
   public CanMoveToNextInScreening(): boolean {
