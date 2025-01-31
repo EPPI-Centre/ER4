@@ -45,8 +45,8 @@
 
 	<ul *ngIf="IsScreening" class="pagination justify-content-start">
 		<li>
-			<button [ngClass]="{disabled:!HasPreviousScreening()}"
-					[disabled]="!HasPreviousScreening()"
+			<button [ngClass]="{disabled:!CanGoToPreviousScreening()}"
+					[disabled]="!CanGoToPreviousScreening()"
 					class="page-link" (click)="prevScreeningItem()">
 				Previously Screened 
 			</button>

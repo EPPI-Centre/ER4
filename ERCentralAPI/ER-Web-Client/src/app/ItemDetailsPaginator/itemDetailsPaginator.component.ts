@@ -58,9 +58,15 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
 
 
-  public HasPreviousScreening(): boolean {
+  public CanGoToPreviousScreening(): boolean {
 
-    if (this.PriorityScreeningService.CurrentItemIndex > 0) return true;
+    if (this.PriorityScreeningService.CurrentItemIndex > 0) {
+      if (this.PriorityScreeningService.CurrentItemIndex == this.PriorityScreeningService.ScreenedItemIds.length - 1) return true;//last item
+      else {
+        //we're inside the queue, and thus we're not allowed to leave this item if it doesn't have a code from the screening tool
+        return this.CanMoveToNextInScreening();
+      }
+    }
     return false;
   }
 
