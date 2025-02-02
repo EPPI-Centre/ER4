@@ -208,6 +208,27 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        // ************************************ Below here is priority screening simulation study *******************************
+        [HttpGet("[action]")]
+        public IActionResult FetchPriorityScreeningSimulationList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                DataPortal<PriorityScreeningSimulationList> dp = new DataPortal<PriorityScreeningSimulationList>();
+                PriorityScreeningSimulationList result = dp.Fetch();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error with the dataportal priority screening simulation list logic");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        // ******************************* end priority screening simulation study ********************************************
+
     }
     public class TrainingScreeningCriteriaMVC
     {

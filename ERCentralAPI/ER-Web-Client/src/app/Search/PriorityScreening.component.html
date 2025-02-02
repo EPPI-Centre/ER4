@@ -1,0 +1,82 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+        <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+          <!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</label>-->
+          <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right  ">Simulate looking for records with this code</div>
+          <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-5 col-md-5 col-lg-4">
+            <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsedPriorityScreening = !isCollapsedPriorityScreening; isCollapsed2PriorityScreening=false" [attr.aria-expanded]="!isCollapsedPriorityScreening" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
+            <div (click)="SetAttrOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsedPriorityScreening">
+              <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]=false></codesetSelector>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+          <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right">Distinguish from the ones with this code</div>
+          <div ngbDropdown class="d-inline-block mx-0 my-auto px-1 col-12 col-sm-5 col-md-5 col-lg-4">
+            <button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2PriorityScreening = !isCollapsed2PriorityScreening; isCollapsedPriorityScreening=false" [attr.aria-expanded]="!isCollapsed2PriorityScreening" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
+            <div (click)="SetAttrNotOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2PriorityScreening">
+              <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
+            </div>
+          </div>
+          <div *ngIf="SameCodesAreSelected" class="my-auto row mx-0 px-1 col-12 col-md-2 col-lg-3 ng-star-inserted">
+            <div class="d-inline-block alert-danger rounded m-1 mx-md-auto p-1">Need to select two different codes!</div>
+          </div>
+        </div>
+        <div class="col-12 mt-2 mb-2 justify-content-center">
+          <button (click)="openConfirmationDialogPriorityScreening()" [disabled]="!CanPriorityScreening()"
+                  type="button" class="btn btn-success" style="min-width:162px;max-width:300px;">
+            Run priority screening simulation <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
+          </button>
+          <button (click)="Close()" type="button" class="btn btn-outline-dark ml-1">
+            Cancel
+          </button>
+        </div>
+    </div>
+  </div>
+    <div class="col-md-6">
+      <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+        <div><b>Completed simulation runs</b></div>
+        <div><button class="btn btn-warning btn-sm text-white align-content-center" title="Refresh list" (click)="refreshPriorityScreeningSimulationList()"></button></div>
+        <div>
+          <table class="table  table-sm table-striped">
+            <thead>
+              <tr>
+                <th class="" width="6" style="min-width:50px">Name</th>
+                <th class="" width="5" style="min-width:50px">Download</th>
+                <th class="" width="5">Delete</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let item of PriorityScreeningSimulationList" class="small">
+                
+                <td class="">{{item.Name}}</td>
+                <td class=" p-0" style="vertical-align:middle;text-align:center">
+                  <button class="btn btn-link btn-sm font-weight-bold"></button>
+                </td>
+                <td class="" style="min-width:65px;text-align:center">
+                  <button  title="Download"
+                          class="btn btn-primary btn-sm text-white align-content-center">
+                    <span class="k-icon k-i-download"></span>
+                  </button>
+                  
+                </td>
+                <td class="" style="min-width:65px;text-align:center">
+                  <button  class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Delete">
+                    <span class="k-icon k-i-play-sm"></span>
+                  </button>
+                  </td>
+                  <!--<td class="small" style="min-width:40px;text-align:center">
+  </td>-->
+
+</tr>
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>

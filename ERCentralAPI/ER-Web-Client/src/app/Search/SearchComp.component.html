@@ -42,6 +42,7 @@
       <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Check Screening'" (click)="OpenCheckScreening()" [disabled]="!HasWriteRights" [selected]="CheckScreeningSection"></kendo-toolbar-button>
+      <kendo-toolbar-button [text]="'Priority screening simulation'" (click)="OpenPriorityScreening()" [disabled]="!HasWriteRights" [selected]="PriorityScreeningSection"></kendo-toolbar-button>
       <kendo-toolbar-button *ngIf="CanShowRobotInvestigate" [text]="'Investigate'" (click)="GoToInvestigate()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
     </kendo-toolbar>
   </div>
@@ -386,6 +387,10 @@
 
   <div id="CheckScreeningSection" *ngIf="CheckScreeningSection" class="col-12 p-0 mb-1">
     <CheckScreening (PleaseCloseMe)="OpenCheckScreening()"></CheckScreening>
+  </div>
+
+  <div id="PriorityScreeningSection" *ngIf="PriorityScreeningSection" class="col-12 p-0 mb-1">
+    <PriorityScreening (PleaseCloseMe)="OpenPriorityScreening()"></PriorityScreening>
   </div>
 
   <div id="visualiseSection" *ngIf="ShowVisualiseSection" class="container-fluid bg-light p-1 m-1">

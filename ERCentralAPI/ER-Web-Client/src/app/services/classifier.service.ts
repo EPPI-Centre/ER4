@@ -35,7 +35,16 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		console.log("Destroy MAGRelatedRunsService");
 		if (this.clearSub != null) this.clearSub.unsubscribe();
 	}
-	private clearSub: Subscription | null = null;
+  private clearSub: Subscription | null = null;
+
+  private _PriorityScreeningSimulationList: PriorityScreeningSimulation[] = [];
+  public get PriorityScreeningSimulationList(): PriorityScreeningSimulation[] {
+    return this._PriorityScreeningSimulationList;
+  }
+  public set PriorityScreeningSimulationList(priorityScreeningSimulationList: PriorityScreeningSimulation[]) {
+    this._PriorityScreeningSimulationList = priorityScreeningSimulationList;
+  }
+
 	private _CurrentUserId4ClassifierContactModelList: number = 0;
 	private _ClassifierContactModelList: ClassifierModel[] = [];
 	public get ClassifierContactAllModelList(): ClassifierModel[] {
@@ -279,6 +288,60 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     });
   }
 
+  PriorityScreening(title: string, attrOn: number, attrNotOn: number): Promise<string | boolean> {
+    let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+
+    MVCcmd._title = title;
+    MVCcmd._attributeIdOn = attrOn;
+    MVCcmd._attributeIdNotOn = attrNotOn;
+    MVCcmd._attributeIdClassifyTo = -1;
+    MVCcmd._classifierId = -1;
+    MVCcmd._sourceId = -1;
+    MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+
+    this._BusyMethods.push("PriorityScreening");
+
+    //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/PriorityScreening'
+      , MVCcmd
+    )).then(result => {
+      //console.log(result);
+      this.RemoveBusy("PriorityScreening");
+      return result.returnMessage;
+    },
+      error => {
+        this.modalService.GenericError(error);
+        this.RemoveBusy("PriorityScreening");
+        return false;
+      }
+    ).catch(caught => {
+      this.RemoveBusy("PriorityScreening");
+      this.modalService.GenericError(caught);
+      return false;
+    });
+  }
+
+  public FetchPriorityScreeningSimulationList() {
+    this._BusyMethods.push("FetchPriorityScreeningSimulationList");
+    this._httpC.get<PriorityScreeningSimulation[]>(this._baseUrl + 'api/PriorirtyScreeningController/FetchPriorityScreeningSimulationList')
+      .subscribe(result => {
+        this.RemoveBusy("FetchPriorityScreeningSimulationList");
+        if (result != null) {
+          this.PriorityScreeningSimulationList = result;
+
+          console.log('this.PriorityScreeningSimulationList', this.PriorityScreeningSimulationList);
+        }
+      },
+        error => {
+          this.RemoveBusy("FetchPriorityScreeningSimulationList");
+          this.modalService.GenericError(error);
+        },
+        () => {
+          this.RemoveBusy("FetchPriorityScreeningSimulationList");
+        });
+  }
+
 
 	public async UpdateModelName(modelName: string, modelNumber: string): Promise<boolean> {
 		this._BusyMethods.push("UpdateModelName");
@@ -377,4 +440,8 @@ export class ClassifierCommandDeprecated {
 export interface ModelNameUpdate {
 	ModelId: string;
 	ModelName: string;
+}
+
+export class PriorityScreeningSimulation {
+  public Name: string = '';
 }

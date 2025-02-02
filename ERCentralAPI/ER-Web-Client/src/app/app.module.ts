@@ -142,6 +142,7 @@ import { RobotSettings } from './Robots/robotSettings.component';
 import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 import { RobotInvestigate } from './Robots/robotInvestigate.component';
 import { CheckScreening } from './Search/CheckScreening.component';
+import { PriorityScreening } from './Search/PriorityScreening.component';
 
 
 
@@ -289,7 +290,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     RobotSettings,
     RobotBatchJobs,
     RobotInvestigate,
-    CheckScreening
+    CheckScreening,
+    PriorityScreening
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
