@@ -34,6 +34,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   public RobotInvestigateResults: iRobotInvestigate[] = [];
 
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
+  public PastJobs: iRobotOpenAiTaskReadOnly[] = [];
 
   public GetCurrentQueue(): Promise<void> {
     this.CurrentQueue = [];
@@ -49,6 +50,23 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
         })
       .catch((err) => {
         this.RemoveBusy("GetCurrentQueue");
+        this.modalService.GenericError(err);
+      });
+  }
+  public GetPastJobs(): Promise<void> {
+    this.PastJobs = [];
+    this._BusyMethods.push("GetPastJobs");
+    return lastValueFrom(this._httpC.get<iRobotOpenAiTaskReadOnly[]>(this._baseUrl + 'api/Robots/GetPastJobs'))
+      .then((res) => {
+        this.PastJobs = res;
+        this.RemoveBusy("GetPastJobs");
+      },
+        (err) => {
+          this.RemoveBusy("GetPastJobs");
+          this.modalService.GenericError(err);
+        })
+      .catch((err) => {
+        this.RemoveBusy("GetPastJobs");
         this.modalService.GenericError(err);
       });
   }
@@ -163,6 +181,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   }
   public Clear() {
     this.CurrentQueue = [];
+    this.PastJobs = [];
     this.RobotInvestigateResults = [];
   }
   ngOnDestroy() {
@@ -226,4 +245,10 @@ export interface iRobotOpenAiTaskReadOnly {
   lockTheCoding: boolean;
   useFullTextDocument: boolean;
   robotContactId: number;
+  errors: iRobotOpenAiTaskError[];
+}
+export interface iRobotOpenAiTaskError {
+  affectedItemId: number;
+  errorMessage: string;
+  stackTrace: string;
 }

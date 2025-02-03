@@ -757,11 +757,13 @@ namespace BusinessLibrary.BusinessClasses
                                 {
                                     if (attributes == "")
                                     {
-                                        attributes = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId).AttributeId.ToString();
+                                        AttributeSet tmp = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId);
+                                        if (tmp != null) attributes = tmp.AttributeId.ToString();
                                     }
                                     else
                                     {
-                                        attributes += "," + rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId).AttributeId.ToString();
+                                        AttributeSet tmp = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId);
+                                        if (tmp != null) attributes += "," + tmp.AttributeId.ToString();
                                     }
                                 }
                                 using (SqlCommand command = new SqlCommand("st_OutcomeItemAttributesSave", connection))

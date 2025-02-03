@@ -39,7 +39,24 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        [HttpGet("[action]")]
+        public IActionResult GetPastJobs()
+        {
 
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                RobotOpenAiTaskCriteria crit = RobotOpenAiTaskCriteria.NewPastJobsCriteria();
+                RobotOpenAiTaskReadOnlyList res = DataPortal.Fetch<RobotOpenAiTaskReadOnlyList>(crit);
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetPastJobs error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
         [HttpPost("[action]")]
         public IActionResult RunRobotOpenAICommand([FromBody] RobotOpenAICommandJson data)
         {

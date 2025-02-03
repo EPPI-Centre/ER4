@@ -1,0 +1,188 @@
+<HeaderComponent PageTitle="Jobs Record" Context="robotjobs"></HeaderComponent>
+<div class="px-0 mx-1 my-0 w-100 bg-light" style="min-height:30vh">
+  <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()" style="z-index:10;">
+    Close/back
+  </button>
+  <div class="col-10 col-sm-12">
+    <span *ngIf="!IsSiteAdmin">This list includes past jobs from the current review, plus jobs triggered by you in any review.</span>
+    <span *ngIf="IsSiteAdmin">This list includes all past jobs.</span>
+    <br />
+    You can use the "+" (plus) button for any row to view all details about a given job. When errors occurred, if possible, the error details will mention the affected ItemId.
+  </div>
+
+  <div class="m-1 p-1 border border-primary rounded">
+    <kendo-grid *ngIf="PastJobs && PastJobs.length > 0" id="RobotJobsGrid"
+                [data]="DataSourceJobs"
+                [rowClass]="rowCallback"
+                [sortable]="{
+              allowUnsort: true,
+              mode: 'single'
+              }"
+                [selectable]="true"
+                [sort]="state.sort"
+                [pageSize]="state.take"
+                [skip]="state.skip"
+                [pageable]="{
+                    buttonCount: 10,
+                    info: false,
+                    type: 'numeric',
+                    pageSizes: false,
+                    previousNext: true
+                }"
+                filterable="menu"
+                (dataStateChange)="dataStateChange($event)"
+                style="max-height: 75vh; height: 75vh;"
+                class="mt-1">
+
+
+      <kendo-grid-column field="robotApiCallId" title="Id" [width]="60" class="px-1 py-0 m-1">
+      </kendo-grid-column>
+
+      <kendo-grid-column field="reviewId" title="ReviewId" [width]="70" class="px-1 py-0 m-1">
+      </kendo-grid-column>
+      <kendo-grid-column field="status" title="Result" [width]="70" class="px-1 py-0 m-1">
+      </kendo-grid-column>
+      <kendo-grid-column field="cost" title="Cost(£)" [width]="70" class="px-1 py-0 m-1">
+      </kendo-grid-column>
+      <kendo-grid-column field="created" title="Date" [width]="140" class="px-1 py-0 m-1">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          {{FormatDate(dataItem.created)}}
+        </ng-template>
+      </kendo-grid-column>
+      <kendo-grid-column field="created" title="Duration" [width]="90" class="px-1 py-0 m-1">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          {{JobDuration(dataItem)}}
+        </ng-template>
+      </kendo-grid-column>
+      <kendo-grid-column field="jobOwnerId" title="Owner Id" [width]="90" class="px-1 py-0 m-1">
+      </kendo-grid-column>
+      <kendo-grid-column field="rawCriteria" title="Job Type" [width]="100" [sortable]="false" class="px-1 py-0 m-1">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          {{JobType(dataItem)}}
+        </ng-template>
+      </kendo-grid-column>
+      <kendo-grid-column field="rawCriteria" title="Items count" [width]="80" class="px-1 py-0 m-1">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          {{ItemsCount(dataItem)}}
+        </ng-template>
+      </kendo-grid-column>
+      <ng-template kendoGridDetailTemplate let-dataItem>
+        <section *ngIf="dataItem.robotApiCallId">
+          <div class="m-1 p-1 alert-primary">
+            <div class="row m-0 p-0">
+              <div class="col row p-1 m-1 border border-info rounded bg-white bg-white">
+                <div class="font-weight-bold">Id:</div>
+                <div class="mx-1 px-1">{{dataItem.robotApiCallId}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Credit Id:</div>
+                <div class="mx-1 px-1">{{dataItem.creditPurchaseId}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Review Id:</div>
+                <div class="mx-1 px-1">{{dataItem.reviewId}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Owner Id:</div>
+                <div class="mx-1 px-1">{{dataItem.jobOwnerId}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Status: </div>
+                <div class="mx-1 px-1">{{dataItem.status}}</div>
+              </div>
+            </div>
+            <div class="row m-0 p-0 ">
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Last Item Processed: </div>
+                <div class="mx-1 px-1">{{dataItem.currentItemId}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Start Date: </div>
+                <div class="mx-1 px-1">{{FormatDate(dataItem.created)}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">End Date: </div>
+                <div class="mx-1 px-1">{{FormatDate(dataItem.updated)}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Duration: </div>
+                <div class="mx-1 px-1">{{JobDuration(dataItem)}}</div>
+              </div>
+            </div>
+            <div class="row m-0 p-0 ">
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Cost: </div>
+                <div class="mx-1 px-1">£{{dataItem.cost}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Input Tokens: </div>
+                <div class="mx-1 px-1">{{dataItem.inputTokens}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Output Tokens: </div>
+                <div class="mx-1 px-1">{{dataItem.outputTokens}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">"Success" flag: </div>
+                <div class="mx-1 px-1">{{dataItem.success}}</div>
+              </div>
+            </div>
+            <div class="row m-0 p-0 ">
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Always add coding in the Robot's name:</div>
+                <div class="mx-1 px-1">{{dataItem.onlyCodeInTheRobotName}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Always lock the coding:</div>
+                <div class="mx-1 px-1">{{dataItem.lockTheCoding}}</div>
+              </div>
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Use full text documents:</div>
+                <div class="mx-1 px-1">{{dataItem.useFullTextDocument}}</div>
+              </div>
+            </div>
+            <div class="row m-0 p-0 ">
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Item IDs:</div>
+                <div class="mx-1 px-1">{{dataItem.itemIDsList.join(', ')}}</div>
+              </div>
+            </div>
+            <div *ngIf="dataItem.errors && dataItem.errors.length > 0" class="row m-0 p-0  border border-danger rounded alert-danger" style="max-height:20vh; overflow:auto">
+              <div class="row p-1 m-0  col-12">
+                <div class="font-weight-bold">Logged error details:</div>
+              </div>
+              <div *ngFor="let err of dataItem.errors" class="row p-1 m-0 rounded col-12 bg-white">
+                <div class="row m-0 p-0 border-bottom border-dark bg-white col-12">
+                  <div class="col-auto m-0 row">
+                    <div class="font-weight-bold">Message:</div>
+                    <div class="mx-1 px-1">{{err.errorMessage}}</div>
+                  </div>
+                  <div class="col mx-1 row">
+                    <div class="font-weight-bold">Affected ItemId:</div>
+                    <div class="mx-1 px-1">{{err.affectedItemId}}</div>
+                  </div>
+                </div>
+                <div class="row m-0 p-0 border-bottom border-dark col-12">
+                  <div class="w-100">
+                    <div class="font-weight-bold">Stack Trace:</div>
+                    <div class="mx-1 px-1" style="white-space: pre-line;">{{err.stackTrace}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </ng-template>
+
+      <ng-template kendoPagerTemplate let-totalPages="totalPages" let-totalN="total" let-skipo="skip" let-pageSizep="pageSize">
+        <kendo-pager-prev-buttons *ngIf="totalPages > 1"></kendo-pager-prev-buttons>
+        <kendo-pager-numeric-buttons *ngIf="totalPages > 1" [buttonCount]="10"></kendo-pager-numeric-buttons>
+        <kendo-pager-next-buttons *ngIf="totalPages > 1"></kendo-pager-next-buttons>
+        <div *ngIf="totalPages == 1" class="m-0 p-0 small k-pager-info">[{{totalN}} Jobs]</div>
+        <div *ngIf="totalPages > 1" class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
+        <kendo-pager-page-sizes [pageSizes]="pageSizes"></kendo-pager-page-sizes>
+      </ng-template>
+    </kendo-grid>
+  </div>
+</div>
+<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>

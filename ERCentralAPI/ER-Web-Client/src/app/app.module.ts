@@ -142,6 +142,7 @@ import { RobotSettings } from './Robots/robotSettings.component';
 import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 import { RobotInvestigate } from './Robots/robotInvestigate.component';
 import { CheckScreening } from './Search/CheckScreening.component';
+import { RobotJobs } from './Robots/robotJobs.component';
 
 
 
@@ -289,7 +290,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     RobotSettings,
     RobotBatchJobs,
     RobotInvestigate,
-    CheckScreening
+    CheckScreening,
+    RobotJobs
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -350,8 +352,9 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'SiteAdmin', component: SiteAdminComponent },
       { path: 'WebDBs', component: WebDBsComponent },
       { path: 'Zotero', component: ZoteroManagerComponent },
-      { path: 'MetaAnalysis', component: MetaAnalysisComp }, 
+      { path: 'MetaAnalysis', component: MetaAnalysisComp },
       { path: 'Investigate', component: RobotInvestigate },
+      { path: 'RobotJobs', component: RobotJobs },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,

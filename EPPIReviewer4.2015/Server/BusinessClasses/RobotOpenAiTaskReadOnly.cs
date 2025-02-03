@@ -204,7 +204,14 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-
+        public static readonly PropertyInfo<MobileList<RobotOpenAiTaskError>> ErrorsProperty = RegisterProperty<MobileList<RobotOpenAiTaskError>>(new PropertyInfo<MobileList<RobotOpenAiTaskError>>("Errors", "Errors"));
+        public MobileList<RobotOpenAiTaskError> Errors
+        {
+            get
+            {
+                return GetProperty(ErrorsProperty);
+            }
+        }
 
         //protected override void AddAuthorizationRules()
         //{
@@ -219,6 +226,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(RobotOpenAiTaskCriteria criteria)
         {
+            LoadProperty(ErrorsProperty, new MobileList<RobotOpenAiTaskError>());
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             if (criteria.NextCreditTask)
             {
@@ -292,6 +300,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private void Child_Fetch(SafeDataReader reader, bool isPrivate, int ReviewId = 0, int ContactId = 0 )
         {
+            LoadProperty(ErrorsProperty, new MobileList<RobotOpenAiTaskError>());
             if (isPrivate)
             {
                 if (reader.GetInt32("REVIEW_ID") == ReviewId || reader.GetInt32("CONTACT_ID") == ContactId) Child_FetchAllDetails(reader);
@@ -378,10 +387,51 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
     }
+    
+    [Serializable]
+    public class RobotOpenAiTaskError : ReadOnlyBase<RobotOpenAiTaskError>
+    {
+        public static readonly PropertyInfo<long> AffectedItemIdProperty = RegisterProperty<long>(new PropertyInfo<long>("AffectedItemId", "AffectedItemId"));
+        public long AffectedItemId
+        {
+            get
+            {
+                return GetProperty(AffectedItemIdProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ErrorMessageProperty = RegisterProperty<string>(new PropertyInfo<string>("ErrorMessage", "ErrorMessage"));
+        public string ErrorMessage
+        {
+            get
+            {
+                return GetProperty(ErrorMessageProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<string> StackTraceProperty = RegisterProperty<string>(new PropertyInfo<string>("StackTrace", "StackTrace"));
+        public string StackTrace
+        {
+            get
+            {
+                return GetProperty(StackTraceProperty);
+            }
+        }
+        public static RobotOpenAiTaskError Child_FetchError(SafeDataReader reader)
+        {
+            RobotOpenAiTaskError res = new RobotOpenAiTaskError();
+            res.LoadProperty(AffectedItemIdProperty, reader.GetInt64("ITEM_ID"));
+            res.LoadProperty(ErrorMessageProperty, reader.GetString("ERROR_MESSAGE"));
+            res.LoadProperty(StackTraceProperty, reader.GetString("STACK_TRACE"));
+            return res;
+        }
+    }
+    
     [Serializable]
     public class RobotOpenAiTaskCriteria : CriteriaBase<RobotOpenAiTaskCriteria>
     {
         public bool NextCreditTask { get; private set; } = true;
+        public bool PastJobs { get; private set; } = false;
         public int JobId { get; private set; } = 0;
         public RobotOpenAiTaskCriteria() { }
         public static RobotOpenAiTaskCriteria NewNextCreditTaskCriteria()
@@ -396,6 +446,13 @@ namespace BusinessLibrary.BusinessClasses
             RobotOpenAiTaskCriteria res = new RobotOpenAiTaskCriteria();
             res.NextCreditTask = false;
             res.JobId = JobId;
+            return res;
+        }
+        public static RobotOpenAiTaskCriteria NewPastJobsCriteria()
+        {
+            RobotOpenAiTaskCriteria res = new RobotOpenAiTaskCriteria();
+            res.NextCreditTask = false;
+            res.PastJobs = true;
             return res;
         }
     }
