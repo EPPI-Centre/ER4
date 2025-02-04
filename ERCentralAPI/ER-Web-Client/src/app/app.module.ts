@@ -354,7 +354,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'Zotero', component: ZoteroManagerComponent },
       { path: 'MetaAnalysis', component: MetaAnalysisComp },
       { path: 'Investigate', component: RobotInvestigate },
-      { path: 'RobotJobs', component: RobotJobs },
+      { path: 'JobsRecord', component: RobotJobs },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,
