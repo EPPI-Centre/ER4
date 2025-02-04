@@ -1,16 +1,30 @@
 <HeaderComponent PageTitle="Jobs Record" Context="robotjobs"></HeaderComponent>
 <div class="px-0 mx-1 my-0 w-100 bg-light" style="min-height:30vh">
-  <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()" style="z-index:10;">
-    Close/back
-  </button>
-  <div class="col-10 col-sm-12">
-    <span *ngIf="!IsSiteAdmin">This list includes past jobs from the current review, plus jobs triggered by you in any review.</span>
-    <span *ngIf="IsSiteAdmin">This list includes all past jobs.</span>
-    <br />
-    You can use the "+" (plus) button for any row to view all details about a given job. When errors occurred, if possible, the error details will mention the affected ItemId.
+  <div class="row mx-0 px-0">
+    <div class="col px-1">
+      <span *ngIf="!IsSiteAdmin">This list includes past jobs from the current review, plus jobs triggered by you in any review.</span>
+      <span *ngIf="IsSiteAdmin">This list includes all past jobs.</span>
+      <br />
+      You can use the "+" (plus) button for any row to view all details about a given job. When errors occurred, if possible, the error details will mention the affected ItemId.
+    </div>
+
+    <div class="mx-0 px-0 align-self-stretch col-auto" style="min-width: 110px; max-width: 110px;">
+      <button class="page-link rounded pt-1 pb-1 mb-auto mt-0 float-right" (click)="BackToMain()" style="z-index:10;">
+        Close/back
+      </button>
+      
+      <div style="height: 100%; display: flex; ">
+        <div style="display: flex; flex-direction: row-reverse; min-width: 110px; max-width: 110px; ">
+          <button class="btn btn-sm btn-outline-success mx-1 align-self-end mt-auto mb-1 py-0 px-1 float-right" (click)="Refresh()">
+            <span class="k-icon k-i-refresh-sm text-success" style="font-weight:bold"></span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="m-1 p-1 border border-primary rounded">
+  <div class="mx-1 my-0 p-1 border border-primary rounded">
+    <div *ngIf="!PastJobs || PastJobs.length == 0" class="alert alert-info p-1 m-1">Loading...</div>
     <kendo-grid *ngIf="PastJobs && PastJobs.length > 0" id="RobotJobsGrid"
                 [data]="DataSourceJobs"
                 [rowClass]="rowCallback"
