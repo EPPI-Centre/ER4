@@ -60,13 +60,6 @@ export class SiteAdminComponent implements OnInit {
     private _ActivePanel: string = "Help";
     public ActivePanel: string = "Help";
 
-    /*public selected?: ReadOnlySource;
-    public get ReviewSources(): ReadOnlySource[] {
-      return this._sourcesService.ReviewSources;
-    }
-    DisplayFriendlySourceNames(sourceItem: ReadOnlySource): string {
-      return sourceItem.source_Name;
-    }*/
 
     public selected?: ReadOnlyHelpPage;
     public selectedContext: string = "Select help context";
@@ -178,108 +171,20 @@ export class SiteAdminComponent implements OnInit {
   public editingHelp = "";
 
 
-  public RetrieveHelp() {
-    switch (this.ContextSelection) {
-      case 1: this.context = "(codingui)itemdetails"; break;
-      case 2: this.context = "(codingui)itemdetails\pdf"; break;
-      case 3: this.context = "(codingui)main"; break;
-      case 4: this.context = "buildmodel"; break;
-      case 5: this.context = "duplicates"; break;
-      case 6: this.context = "editcodesets"; break;
-      case 7: this.context = "editref"; break;
-      case 8: this.context = "importcodesets"; break;
-      case 9: this.context = "intropage"; break;
-      case 10: this.context = "itemdetails"; break;
-      case 11: this.context = "itemdetails\arms"; break;
-      case 12: this.context = "itemdetails\codingrecord"; break;
-      case 13: this.context = "itemdetails\pdf"; break;
-      case 14: this.context = "main\collaborate"; break;
-      case 15: this.context = "main\crosstabs"; break;
-      case 16: this.context = "main\frequencies"; break;
-      case 17: this.context = "main\references"; break;
-      case 18: this.context = "main\reports"; break;
-      case 19: this.context = "main\reviewhome"; break;
-      case 20: this.context = "main\search"; break;
-      case 21: this.context = "metaanalysis"; break;
-      case 22: this.context = "metaanalysis\run"; break;
-      case 23: this.context = "metaanalysis\runnetwork"; break;
-      case 24: this.context = "reconciliation"; break;
-      case 25: this.context = "reconciliation\treesview"; break;
-      case 26: this.context = "sources\file"; break;
-      case 27: this.context = "sources\managesources"; break;
-      case 28: this.context = "sources\pubmed"; break;
-      case 29: this.context = "webdbs"; break;
-      case 30: this.context = "ZoteroSetup"; break;
-      case 31: this.context = "ZoteroSync"; break;
-      default: this.context = "0";
-    }
-    this.showEdit = false;
-    this.enableSave = false;
-    this.TmpCurrentContextHelp = "";
-    if (this.context != "0") {
-      this.OnlineHelpService.FetchHelpContent(this.context);
-      if (this.CurrentContextHelp == null) {
-        // there is no data
-        this.OnlineHelpService.FetchHelpContent("");
-      }
-    }
-    else {
-      // user selected '0' again so no data
-      this.OnlineHelpService.FetchHelpContent("");
-    }
-  }
-
-
-
-
   public RetrieveHelpNew(event: Event) {
-
-    if (event.target != null) {
-      //var test = event.target.selectedIndex;
-    }
-
-    /*
-    if (this.selectedContext == "Select help context") {
-      this.OnlineHelpService.FetchHelpContent("");
-    }
-    else {
-      this.OnlineHelpService.FetchHelpContent(this.selectedContext);
-    }*/
-
-    /*
-    SetReconciliationMode(event: Event) {
-      let mode = (event.target as HTMLOptionElement).value;
-      //console.log("SetReconciliationMode", mode);
-      this.revInfo.screeningReconcilliation = mode;
-    }
-    */
-
-    let selection = (event.target as HTMLOptionElement).value;
-    //var test = this.selectedHelpPage;
-    var test2 = this.selected;
-
-    let context1: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.context_Name.toString());
-
-    let id: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.helpPage_ID.toString());
-    let context: string[] = this._onlineHelpService.HelpPages.filter(x => x.isSelected == true).map<string>(y => y.context_Name.toString());
-    if (id.length == 1) {
-      if (id[0] == "0") {
-        this.OnlineHelpService.FetchHelpContent("");
+    if (this.selected != null) {
+      if (this.selected.context_Name != "Select help context") {
+        this.OnlineHelpService.FetchHelpContent(this.selected.context_Name);
+        if (this.CurrentContextHelp == null) {
+          // there is no data
+          this.OnlineHelpService.FetchHelpContent("");
+        }
       }
       else {
-        this.context = context[0];
-        this.OnlineHelpService.FetchHelpContent(this.context);
+        // user selected '0' again so no data
+        this.OnlineHelpService.FetchHelpContent("");
       }
     }
-    
-    /*
-    if (ids.length == 0) {
-      return false;//nothing to do, can't search on sources without a selected source...
-    }
-    else (ids.length == 1) {
-      NameSt = "Source search, Id:" + ids[0] + " - ";
-    }
-    */
   }
 
 
@@ -306,7 +211,10 @@ export class SiteAdminComponent implements OnInit {
       this.TmpCurrentContextHelp = "";
       this.OrigCurrentContextHelp = "";
       this.showEdit = false;
-      this.OnlineHelpService.FetchHelpContent(this.context);
+
+      this.OnlineHelpService.FetchHelpContent("0");
+      this.ContextSelection = 0;
+      this.OnlineHelpService.FetchHelpPageList();
     }
     else {
       // this is an 'edit'
@@ -331,15 +239,18 @@ export class SiteAdminComponent implements OnInit {
 
 
   Save() {
-    let help: OnlineHelpContent1 = new OnlineHelpContent1();
-    help.context = this.context;
-    help.helpHTML = this.model.editorData;
-    this.OnlineHelpService.UpdateHelpContent(help);
-    this.showEdit = false;
-    this.TmpCurrentContextHelp = "";
+    if (this.selected != null) {
+      let help: OnlineHelpContent1 = new OnlineHelpContent1();
+      help.context = this.selected.context_Name;
+      help.helpHTML = this.model.editorData;
+      this.OnlineHelpService.UpdateHelpContent(help);
+      this.showEdit = false;
+      this.TmpCurrentContextHelp = "";
 
-    this.OnlineHelpService.FetchHelpContent("");
-    this.ContextSelection = 0;
+      // reload the list for now
+      this.ContextSelection = 0;
+      this.OnlineHelpService.FetchHelpPageList();
+    }
 
     //this.OrigCurrentContextHelp = "";
     //this.OnlineHelpService.FetchHelpContent(this.context);
