@@ -14,7 +14,7 @@
       </button>
       
       <div style="height: 100%; display: flex; ">
-        <div style="display: flex; flex-direction: row-reverse; min-width: 110px; max-width: 110px; ">
+        <div style="display: flex; flex-direction: row-reverse; min-width: 110px; max-width: 110px; min-height: 58px; ">
           <button class="btn btn-sm btn-outline-success mx-1 align-self-end mt-auto mb-1 py-0 px-1 float-right" (click)="Refresh()">
             <span class="k-icon k-i-refresh-sm text-success" style="font-weight:bold"></span>
           </button>
@@ -26,16 +26,15 @@
   <div class="mx-1 my-0 p-1 border border-primary rounded">
     <div *ngIf="!PastJobs || PastJobs.length == 0" class="alert alert-info p-1 m-1">Loading...</div>
     <kendo-grid *ngIf="PastJobs && PastJobs.length > 0" id="RobotJobsGrid"
-                [data]="DataSourceJobs"
+                [kendoGridBinding]="Jobs"
                 [rowClass]="rowCallback"
                 [sortable]="{
               allowUnsort: true,
               mode: 'single'
               }"
                 [selectable]="true"
-                [sort]="state.sort"
-                [pageSize]="state.take"
-                [skip]="state.skip"
+                [pageSize]="50"
+                
                 [pageable]="{
                     buttonCount: 10,
                     info: false,
@@ -58,24 +57,24 @@
       </kendo-grid-column>
       <kendo-grid-column field="cost" title="Cost(£)" [width]="70" class="px-1 py-0 m-1">
       </kendo-grid-column>
-      <kendo-grid-column field="created" title="Date" [width]="140" class="px-1 py-0 m-1">
+      <kendo-grid-column field="created" title="Date" [width]="140" class="px-1 py-0 m-1" [filterable]="false">
         <ng-template kendoGridCellTemplate let-dataItem>
           {{FormatDate(dataItem.created)}}
         </ng-template>
       </kendo-grid-column>
-      <kendo-grid-column field="created" title="Duration" [width]="90" class="px-1 py-0 m-1">
+      <kendo-grid-column title="Duration" [width]="90" class="px-1 py-0 m-1">
         <ng-template kendoGridCellTemplate let-dataItem>
           {{JobDuration(dataItem)}}
         </ng-template>
       </kendo-grid-column>
       <kendo-grid-column field="jobOwner" title="Owner" [width]="90" class="px-1 py-0 m-1">
       </kendo-grid-column>
-      <kendo-grid-column field="rawCriteria" title="Job Type" [width]="100" [sortable]="false" class="px-1 py-0 m-1">
+      <kendo-grid-column title="Job Type" [width]="100" [sortable]="false" class="px-1 py-0 m-1">
         <ng-template kendoGridCellTemplate let-dataItem>
           {{JobType(dataItem)}}
         </ng-template>
       </kendo-grid-column>
-      <kendo-grid-column field="rawCriteria" title="Items count" [width]="80" class="px-1 py-0 m-1">
+      <kendo-grid-column title="Items count" [width]="80" class="px-1 py-0 m-1">
         <ng-template kendoGridCellTemplate let-dataItem>
           {{ItemsCount(dataItem)}}
         </ng-template>
