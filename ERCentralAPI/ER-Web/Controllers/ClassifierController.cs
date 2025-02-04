@@ -181,7 +181,6 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult CheckScreening([FromBody] MVCClassifierCommand MVCcmd)
         {
-
             try
             {
                 if (SetCSLAUser4Writing())
@@ -212,6 +211,43 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "A ClassifierCommand issue in CheckScreening");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult RunPriorityScreeningSimulation([FromBody] MVCClassifierCommand MVCcmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ClassifierCommandV2 cmd = new ClassifierCommandV2(
+                            MVCcmd._title
+                            , MVCcmd._attributeIdOn
+                            , MVCcmd._attributeIdNotOn
+                            , -1
+                            , -1
+                            , -1
+                        );
+                    cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
+
+                    DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
+
+                    cmd = dp.Execute(cmd);
+
+                    return Ok(cmd);
+
+                }
+                else
+                {
+                    return Forbid();
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "A ClassifierCommand issue in priority screening simulation");
                 return StatusCode(500, e.Message);
             }
 

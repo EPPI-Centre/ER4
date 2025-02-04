@@ -9,6 +9,61 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { ChartComponent } from '@progress/kendo-angular-charts';
+
+function nextMultipleOfTen(num: number): number {
+  return Math.ceil(num / 10) * 10;
+}
+function roundToTwoDecimalPlaces(num: number): number {
+  return parseFloat(num.toFixed(2));
+}
+function mean(arr: number[]): number {
+  const sum = arr.reduce((a, b) => a + b, 0);
+  return sum / arr.length;
+}
+function median(arr: number[]): number {
+  // Sort the array in ascending order
+  arr.sort((a, b) => a - b);
+
+  const mid = Math.floor(arr.length / 2);
+
+  if (arr.length % 2 === 0) {
+    // If the array length is even, return the average of the two middle elements
+    return (arr[mid - 1] + arr[mid]) / 2;
+  } else {
+    // If the array length is odd, return the middle element
+    return arr[mid];
+  }
+}
+function standardDeviation(arr: number[]): number {
+  const avg = mean(arr);
+  const squareDiffs = arr.map(value => {
+    const diff = value - avg;
+    return diff * diff;
+  });
+  const avgSquareDiff = mean(squareDiffs);
+  return Math.sqrt(avgSquareDiff);
+}
+function calculateConfidence(stdev: number, n: number): number {
+  // Z-score for 95% confidence level
+  const z = 1.96; 
+
+  // Standard error
+  const standardError = stdev / Math.sqrt(n);
+
+  // Confidence interval
+  const confidenceInterval = z * standardError;
+
+  return confidenceInterval;
+}
+interface simulationStats {
+  simulation: number;
+  nIncludes: number;
+  nScreened: number;
+  nScreenedAt100: number | null;
+  workloadReduction: number;
+  workloadReductionPercent: number;
+}
 
 @Component({
   selector: 'PriorityScreening',
@@ -45,8 +100,151 @@ export class PriorityScreening implements OnInit, OnDestroy {
     return this.classifierService.PriorityScreeningSimulationList;
   }
 
+  public get PriorityScreeningSimulationText(): string | null
+  {
+    return this.classifierService.PriorityScreeningSimulationResults;
+  }
+
   refreshPriorityScreeningSimulationList() {
     this.classifierService.FetchPriorityScreeningSimulationList();
+  }
+  
+  simulationDataContainer: [number, number][][] = [];
+  simulationDataItemCount: number = 0;
+  simulationDataIncludedItemsCount: number = 0;
+  statistics: simulationStats[] = [];
+  summaryStatisticsAgg: string = "";
+  workloadReductionStats: string = "";
+  workloadReductionPercentStats: string = "";
+
+  showSimulation(simulation: PriorityScreeningSimulation) {
+    this.classifierService.FetchPriorityScreeningSimulation(simulation.simulationName);
+    const dataframe = this.PriorityScreeningSimulationText;
+
+    if (this.PriorityScreeningSimulationText != null) {
+
+      // clear out previous runs
+      this.simulationDataContainer = [];
+      this.statistics = [];
+      this.summaryStatisticsAgg = "";
+      this.workloadReductionStats = "";
+      this.workloadReductionPercentStats = "";
+
+      // Split the TSV string into rows
+      const rows = this.PriorityScreeningSimulationText.split('\n');
+
+      // Extract the headers
+      const headers = rows[0].split('\t');
+      headers[0] = "index";
+
+      // Transform the rows
+      const transformedArray = rows.slice(1).map(row => {
+        const values = row.split('\t');
+        const obj: any = {};
+        headers.forEach((header, index) => {
+          const num = Number(values[index]);
+          if (!isNaN(num)) {
+            obj[header] = num;
+          }
+        });
+        if (Object.keys(obj).length === headers.length) {
+          return obj;
+        }
+      }).filter(row => row !== undefined);
+
+      // Extract the index and first simulation columns
+      const indices = transformedArray.map(row => row.index);
+      const values = transformedArray.map(row => row.CumulativeIncl1);
+
+      // Get the maximum index and included item count
+      this.simulationDataItemCount = nextMultipleOfTen(Math.max(...indices));
+      this.simulationDataIncludedItemsCount = nextMultipleOfTen(Math.max(...values));
+
+      // lastly, set the data
+      let simCount = (headers.length - 1) / 2;
+      for (let c = 0; c < simCount; c++) {
+        this.simulationDataContainer.push(transformedArray.map(row => [Number(row.index), Number(row["CumulativeIncl" + String(c+1)])]));
+      }
+
+      // now calculate the statistics
+      let nScreenedArray = [];
+      let workloadReductionArray = [];
+      let workloadReductionPercentArray = [];
+      
+      for (let c = 0; c < simCount; c++) {
+        const simulationData = transformedArray.map(row => [Number(row.index), Number(row["CumulativeIncl" + String(c + 1)])]);
+
+        // Find max index and value
+        const indices = simulationData.map(row => row[0]);
+        const values = simulationData.map(row => row[1]);
+
+        const maxIndex = Math.max(...indices);
+        const maxValue = Math.max(...values);
+
+        // Find the index when the value first reaches maximum
+        const firstMaxIndex = simulationData.find(row => row[1] === maxValue)?.[0] ?? 0;
+        let workloadReduction = maxIndex - firstMaxIndex;
+        let workloadReductionPercent = roundToTwoDecimalPlaces(100 - (firstMaxIndex / maxIndex * 100))
+
+        nScreenedArray.push(firstMaxIndex);
+        workloadReductionArray.push(workloadReduction);
+        workloadReductionPercentArray.push(workloadReductionPercent);
+
+        this.statistics.push({
+          simulation: c,
+          nIncludes: maxValue,
+          nScreened: maxIndex,
+          nScreenedAt100: firstMaxIndex,
+          workloadReduction: workloadReduction,
+          workloadReductionPercent: workloadReductionPercent
+        });
+      }
+      let meanNScreened = roundToTwoDecimalPlaces(mean(nScreenedArray));
+      let stdev = roundToTwoDecimalPlaces(standardDeviation(nScreenedArray));
+      let conf = roundToTwoDecimalPlaces(calculateConfidence(stdev, simCount));
+      let ciLower = meanNScreened - conf;
+      let ciUpper = meanNScreened + conf;
+      this.summaryStatisticsAgg = "Mean number to screen to achieve 100% recall: " + meanNScreened + " (" + ciLower + ", " + ciUpper + ")";
+      this.workloadReductionStats = "Mean simulated workload reduction: " + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - meanNScreened)) +
+        " (" + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - ciUpper)) + ", " + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - ciLower)) + ")";
+      this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(roundToTwoDecimalPlaces(100-(meanNScreened / this.simulationDataItemCount*100))) +
+        "% (" + String(roundToTwoDecimalPlaces(100 - (ciUpper / this.simulationDataItemCount * 100))) + ", " + String(roundToTwoDecimalPlaces(100 -
+          (ciLower / this.simulationDataItemCount * 100))) + ")";
+    }
+  }
+
+  downloadData() {
+    if (this.PriorityScreeningSimulationText != null) {
+      const blob = new Blob([this.PriorityScreeningSimulationText], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'simulationStudyData.tsv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+
+  public confirmDeleteSimulation(simulation: PriorityScreeningSimulation) {
+    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this priority screening simulation ?', false, '')
+      .then(
+        (confirmed: any) => {
+          console.log('User confirmed:', confirmed);
+          if (confirmed) {
+            this.deletePriorityScreeningSimulation(simulation);
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => { });
+  }
+
+  deletePriorityScreeningSimulation(simulation: PriorityScreeningSimulation) {
+    this.classifierService.DeletePriorityScreeningSimulation(simulation.simulationName);
   }
 
 
@@ -132,7 +330,7 @@ export class PriorityScreening implements OnInit, OnDestroy {
 
     if (this.DD1 != null && this.DD2 != null) {
 
-      let res = await this.classifierService.PriorityScreening("¬¬PriorityScreening", this.DD1, this.DD2);
+      let res = await this.classifierService.RunPriorityScreeningSimulation("¬¬PriorityScreening", this.DD1, this.DD2);
 
       if (res != false) { //we get "false" if an error happened...
         if (res == "Starting...") {
@@ -147,7 +345,7 @@ export class PriorityScreening implements OnInit, OnDestroy {
         }
         else if (res == "Already running") {
           this.notificationService.show({
-            content: 'Priority screening simulation could not be run. Priority screening is already running for this review',
+            content: 'Priority screening simulation could not be run. A priority screening simulation is already running for this review',
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "error", icon: true },

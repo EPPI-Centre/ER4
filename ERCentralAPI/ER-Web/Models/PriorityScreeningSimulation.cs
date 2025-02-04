@@ -9,12 +9,16 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using System.IO;
+using static Csla.Security.MembershipIdentity;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
 using BusinessLibrary.Security;
+using Azure.Storage.Blobs;
+using BusinessLibrary.BusinessClasses;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -31,12 +35,24 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
 
-        public static readonly PropertyInfo<string> SimulationNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SimulationName", "SimulationName"));
-        public string SimulationName
+        public static readonly PropertyInfo<string> SimulationNameProperty = RegisterProperty<string>(new PropertyInfo<string>("simulationName", "simulationName"));
+        public string simulationName
         {
             get
             {
                 return GetProperty(SimulationNameProperty);
+            }
+        }
+        public static readonly PropertyInfo<string> BlobProperty = RegisterProperty<string>(new PropertyInfo<string>("blob", "blob"));
+        public string blob
+        {
+            get
+            {
+                return GetProperty(BlobProperty);
+            }
+            set
+            {
+                SetProperty(BlobProperty, value);
             }
         }
 
@@ -65,6 +81,18 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
+        protected void DataPortal_Fetch(SingleCriteria<PriorityScreeningSimulation, string> criteria) // used to return a specific Paper
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+            string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString();
+            string RemoteFolder = "priority_screening_simulation/" + FolderAndFileName + "/";
+            string ScoresFile = RemoteFolder + criteria.Value;
+
+            string blobConnection = AzureSettings.blobConnection;
+            MemoryStream downloadedBlob = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile);
+            this.blob = Encoding.UTF8.GetString(downloadedBlob.GetBuffer(), 0, (int)downloadedBlob.Length);
+        }
         protected override void DataPortal_Insert()
         {
             /*
@@ -97,6 +125,21 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_DeleteSelf()
         {
 
+        }
+
+        protected void DataPortal_Delete(SingleCriteria<PriorityScreeningSimulation, string> criteria)
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+            string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString();
+            string RemoteFolder = "priority_screening_simulation/" + FolderAndFileName + "/";
+            string ScoresFile = RemoteFolder + criteria.Value;
+
+            string blobConnection = AzureSettings.blobConnection;
+            if (BlobOperations.ThisBlobExist(blobConnection, "eppi-reviewer-data", ScoresFile))
+            {
+                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+            }
         }
 
         internal static PriorityScreeningSimulation GetPriorityScreeningSimulation(string simulationName)

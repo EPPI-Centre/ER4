@@ -227,6 +227,46 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [HttpPost("[action]")]
+        public IActionResult FetchPriorityScreeningSimulation([FromBody] string crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                SingleCriteria<PriorityScreeningSimulation, string> criteria =
+                    new SingleCriteria<PriorityScreeningSimulation, string>(crit);
+
+                DataPortal<PriorityScreeningSimulation> dp = new DataPortal<PriorityScreeningSimulation>();
+                PriorityScreeningSimulation result = dp.Fetch(criteria);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error with the dataportal priority screening simulation logic");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DeletePriorityScreeningSimulation([FromBody] string crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                SingleCriteria<PriorityScreeningSimulation, string> criteria =
+                    new SingleCriteria<PriorityScreeningSimulation, string>(crit);
+
+                DataPortal<PriorityScreeningSimulation> dp = new DataPortal<PriorityScreeningSimulation>();
+                dp.Delete(criteria);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error with the dataportal priority screening simulation logic");
+                return StatusCode(500, e.Message);
+            }
+        }
+
         // ******************************* end priority screening simulation study ********************************************
 
     }

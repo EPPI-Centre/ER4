@@ -8,6 +8,10 @@ using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
 using Azure.Storage.Sas;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using static Csla.Security.MembershipIdentity;
+
+
 
 //using Csla.Validation;
 
@@ -29,7 +33,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             DataPortal<PriorityScreeningSimulationList> dp = new DataPortal<PriorityScreeningSimulationList>();
             dp.FetchCompleted += handler;
-            dp.BeginFetch(new SingleCriteria<PriorityScreeningSimulationList, string>(SimulationName));
+            dp.BeginFetch();
         }
 
 
@@ -43,15 +47,19 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
        
 #else
-        protected void DataPortal_Fetch(SingleCriteria<PriorityScreeningSimulationList, string> criteria)
+        protected void DataPortal_Fetch()
         {
             RaiseListChangedEvents = false;
-            string blobConnection = AzureSettings.blobConnection;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            List<BlobInHierarchy> myblobs = BlobOperations.Blobfilenames(blobConnection, "eppi-reviewer-data", "/test-pdf-parsed-pdfs");
+
+            string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString();
+            string RemoteFolder = "priority_screening_simulation/" + FolderAndFileName + "/";
+
+            string blobConnection = AzureSettings.blobConnection;
+            List<BlobInHierarchy> myblobs = BlobOperations.Blobfilenames(blobConnection, "eppi-reviewer-data", RemoteFolder);
             foreach (BlobInHierarchy b in myblobs)
             {
-                Add(PriorityScreeningSimulation.GetPriorityScreeningSimulation(b.BlobName));
+                Add(PriorityScreeningSimulation.GetPriorityScreeningSimulation(b.BlobName.Replace(RemoteFolder, "")));
             }
             RaiseListChangedEvents = true;
         }

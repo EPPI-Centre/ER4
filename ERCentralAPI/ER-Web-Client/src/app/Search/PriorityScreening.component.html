@@ -33,50 +33,113 @@
             Cancel
           </button>
         </div>
+      </div>
     </div>
-  </div>
     <div class="col-md-6">
       <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
         <div><b>Completed simulation runs</b></div>
-        <div><button class="btn btn-warning btn-sm text-white align-content-center" title="Refresh list" (click)="refreshPriorityScreeningSimulationList()"></button></div>
         <div>
-          <table class="table  table-sm table-striped">
+          <button title="Refresh list" (click)="refreshPriorityScreeningSimulationList()" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+            Refresh list  <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+          </button>
+        </div>
+        <div>
+          <table class="table table-sm table-striped">
             <thead>
               <tr>
-                <th class="" width="6" style="min-width:50px">Name</th>
-                <th class="" width="5" style="min-width:50px">Download</th>
-                <th class="" width="5">Delete</th>
+                <th class="" width="10" style="min-width:50px">Name</th>
+                <th class="" width="2"></th>
               </tr>
             </thead>
 
             <tbody>
-              <tr *ngFor="let item of PriorityScreeningSimulationList" class="small">
+              <tr *ngFor="let item of PriorityScreeningSimulationList">
+
+                <td class="">
+                  <button (click)="showSimulation(item)" class="btn btn-link">{{item.simulationName}}</button>
+                </td>
                 
-                <td class="">{{item.Name}}</td>
-                <td class=" p-0" style="vertical-align:middle;text-align:center">
-                  <button class="btn btn-link btn-sm font-weight-bold"></button>
-                </td>
                 <td class="" style="min-width:65px;text-align:center">
-                  <button  title="Download"
-                          class="btn btn-primary btn-sm text-white align-content-center">
-                    <span class="k-icon k-i-download"></span>
-                  </button>
-                  
+                  <div class="p-0 "
+                       style="border: 1px solid white; border-radius: 3px; float: right; cursor: pointer; position: relative; top: 15%; margin-left: 2px;"
+                       title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
+                    <span class="k-icon k-i-trash alert-danger" size="small" style="position: relative; top:-2px;"></span>
+                  </div>
                 </td>
-                <td class="" style="min-width:65px;text-align:center">
-                  <button  class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Delete">
-                    <span class="k-icon k-i-play-sm"></span>
-                  </button>
-                  </td>
-                  <!--<td class="small" style="min-width:40px;text-align:center">
-  </td>-->
-
-</tr>
+              </tr>
             </tbody>
-
           </table>
         </div>
-      </div>
+
       </div>
     </div>
   </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+        <div>
+          <figure class="figure col-12">
+            <kendo-chart #VisualiseChart
+                         *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">
+              <kendo-chart-series>
+                <kendo-chart-series-item *ngFor="let series of simulationDataContainer"
+                                         type="scatterLine"
+                                         [data]="series"
+                                         [markers]="{ visible: false }"
+                                         [tooltip]="{ visible: true }">
+                </kendo-chart-series-item>
+              </kendo-chart-series>
+              <kendo-chart-x-axis>
+                <kendo-chart-x-axis-item [title]="{ text: 'Number of items screened' }"
+                                         [max]="simulationDataItemCount">
+                </kendo-chart-x-axis-item>
+              </kendo-chart-x-axis>
+              <kendo-chart-y-axis>
+                <kendo-chart-y-axis-item [title]="{ text: 'Cumulative number of includes found' }" [max]="simulationDataIncludedItemsCount">
+                </kendo-chart-y-axis-item>
+              </kendo-chart-y-axis>
+            </kendo-chart>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+        <div><b>Statistics</b></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Simulation</th>
+              <th>N included</th>
+              <th>N screened</th>
+              <th>N screened@100</th>
+              <th>Simulated workload reduction</th>
+              <th>Workload reduction %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let statistic of statistics">
+              <td>{{ statistic.simulation }}</td>
+              <td>{{ statistic.nIncludes }}</td>
+              <td>{{ statistic.nScreened }}</td>
+              <td>{{ statistic.nScreenedAt100 }}</td>
+              <td>{{ statistic.workloadReduction }}</td>
+              <td>{{ statistic.workloadReductionPercent }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div>
+          <br />
+          <div>{{ summaryStatisticsAgg }}</div>
+          <div>{{ workloadReductionStats }}</div>
+          <div>{{ workloadReductionPercentStats }}</div>
+        </div>
+        <div>
+          <button title="Download data" (click)="downloadData()" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+            Download data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

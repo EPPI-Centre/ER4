@@ -45,6 +45,16 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     this._PriorityScreeningSimulationList = priorityScreeningSimulationList;
   }
 
+  private _PriorityScreeningSimulation: PriorityScreeningSimulation | null = null;
+  public get PriorityScreeningSimulation(): PriorityScreeningSimulation | null {
+    return this._PriorityScreeningSimulation;
+  }
+  public set PriorityScreeningSimulation(priorityScreeningSimulation: PriorityScreeningSimulation | null) {
+    this._PriorityScreeningSimulation = priorityScreeningSimulation;
+  }
+
+  public PriorityScreeningSimulationResults: string | null = null;
+
 	private _CurrentUserId4ClassifierContactModelList: number = 0;
 	private _ClassifierContactModelList: ClassifierModel[] = [];
 	public get ClassifierContactAllModelList(): ClassifierModel[] {
@@ -288,7 +298,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     });
   }
 
-  PriorityScreening(title: string, attrOn: number, attrNotOn: number): Promise<string | boolean> {
+  RunPriorityScreeningSimulation(title: string, attrOn: number, attrNotOn: number): Promise<string | boolean> {
     let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 
     MVCcmd._title = title;
@@ -299,24 +309,24 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     MVCcmd._sourceId = -1;
     MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
 
-    this._BusyMethods.push("PriorityScreening");
+    this._BusyMethods.push("RunPriorityScreeningSimulation");
 
     //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
-    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/PriorityScreening'
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/RunPriorityScreeningSimulation'
       , MVCcmd
     )).then(result => {
       //console.log(result);
-      this.RemoveBusy("PriorityScreening");
+      this.RemoveBusy("RunPriorityScreeningSimulation");
       return result.returnMessage;
     },
       error => {
         this.modalService.GenericError(error);
-        this.RemoveBusy("PriorityScreening");
+        this.RemoveBusy("RunPriorityScreeningSimulation");
         return false;
       }
     ).catch(caught => {
-      this.RemoveBusy("PriorityScreening");
+      this.RemoveBusy("RunPriorityScreeningSimulation");
       this.modalService.GenericError(caught);
       return false;
     });
@@ -324,7 +334,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
   public FetchPriorityScreeningSimulationList() {
     this._BusyMethods.push("FetchPriorityScreeningSimulationList");
-    this._httpC.get<PriorityScreeningSimulation[]>(this._baseUrl + 'api/PriorirtyScreeningController/FetchPriorityScreeningSimulationList')
+    this._httpC.get<PriorityScreeningSimulation[]>(this._baseUrl + 'api/PriorirtyScreening/FetchPriorityScreeningSimulationList')
       .subscribe(result => {
         this.RemoveBusy("FetchPriorityScreeningSimulationList");
         if (result != null) {
@@ -340,6 +350,45 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
         () => {
           this.RemoveBusy("FetchPriorityScreeningSimulationList");
         });
+  }
+
+  public FetchPriorityScreeningSimulation(simulationName: string) {
+    this._BusyMethods.push("FetchPriorityScreeningSimulation");
+    let body = JSON.stringify(simulationName);
+    return lastValueFrom(this._httpC.post<PriorityScreeningSimulation>(this._baseUrl + 'api/PriorirtyScreening/FetchPriorityScreeningSimulation',
+      body))
+      .then(
+        (result) => {
+          this.RemoveBusy("FetchPriorityScreeningSimulation");
+          this.PriorityScreeningSimulationResults = result.blob;
+
+          return true;
+        }, error => {
+          this.modalService.GenericError(error);
+          //this.modalService.GenericErrorMessage("There was an error getting the priority screening simulation. Please contact eppisupport@ucl.ac.uk");
+          this.RemoveBusy("FetchPriorityScreeningSimulation");
+          return false;
+        }
+      );
+  }
+
+  public DeletePriorityScreeningSimulation(simulationName: string) {
+    this._BusyMethods.push("DeletePriorityScreeningSimulation");
+    let body = JSON.stringify(simulationName);
+    return lastValueFrom(this._httpC.post<PriorityScreeningSimulation>(this._baseUrl + 'api/PriorirtyScreening/DeletePriorityScreeningSimulation',
+      body))
+      .then(
+        (result) => {
+          this.RemoveBusy("DeletePriorityScreeningSimulation");
+          this.FetchPriorityScreeningSimulationList();
+          return true;
+        }, error => {
+          this.modalService.GenericError(error);
+          //this.modalService.GenericErrorMessage("There was an error getting the priority screening simulation. Please contact eppisupport@ucl.ac.uk");
+          this.RemoveBusy("DeletePriorityScreeningSimulation");
+          return false;
+        }
+      );
   }
 
 
@@ -443,5 +492,6 @@ export interface ModelNameUpdate {
 }
 
 export class PriorityScreeningSimulation {
-  public Name: string = '';
+  public simulationName: string = '';
+  public blob: string = '';
 }
