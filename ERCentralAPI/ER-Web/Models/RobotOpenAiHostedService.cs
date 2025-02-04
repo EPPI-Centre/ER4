@@ -487,6 +487,12 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         LogInfo("(+++)Cancel request accepted while running RobotOpenAICommand");
                     }
+                    else if (cmd.ReturnMessage == "Error: No valid prompts in codeset")
+                    {
+                        Exception e = new Exception("Coding tool supplied contains no valid prompts");
+                        LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no prompts", true, e);
+                        break;
+                    }
                     else
                     {
                         DelayedCallsWithoutError++;

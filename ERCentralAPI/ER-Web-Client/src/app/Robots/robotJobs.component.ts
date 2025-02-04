@@ -34,6 +34,9 @@ export class RobotJobs implements OnInit, OnDestroy {
   public get DataSourceJobs(): GridDataResult {
     return process(this.robotsService.PastJobs, this.state);
   }
+  public get Jobs(): iRobotOpenAiTaskReadOnly[] {
+    return this.robotsService.PastJobs;
+  }
   public pageSizes: number[] = [10, 20, 50, 100, 200, 500];
   public state: State = {
     skip: 0,
