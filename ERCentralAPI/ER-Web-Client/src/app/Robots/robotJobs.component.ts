@@ -65,7 +65,7 @@ export class RobotJobs implements OnInit, OnDestroy {
     if (row.success == false
       || row.status.indexOf("Failed") == 0
     ) {
-      console.log("error row", row.success, row.status.indexOf("Failed"));
+      //console.log("error row", row.success, row.status.indexOf("Failed"));
       return { GPTJobsErrorRow: true };
     }
     else return { };

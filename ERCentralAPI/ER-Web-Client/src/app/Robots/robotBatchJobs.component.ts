@@ -122,7 +122,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
     this.robotsService.GetCurrentQueue();
   }
   public GoToPastJobs() {
-    this.router.navigate(['RobotJobs']);
+    this.router.navigate(['JobsRecord']);
   }
 
   public SubmitBatch() {

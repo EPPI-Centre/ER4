@@ -87,7 +87,7 @@ export class EditReviewComponent implements OnInit, OnDestroy {
     return this.ReviewInfoService.ReviewInfo.canUseRobots;
   }
   public GoToPastJobs() {
-    this.router.navigate(['RobotJobs']);
+    this.router.navigate(['JobsRecord']);
   }
   public get CanSaveReviewName(): boolean {
     if (this.CanWrite()) {

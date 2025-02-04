@@ -230,6 +230,7 @@ export interface iRobotOpenAiTaskReadOnly {
   reviewId: number;
   robotId: number;
   jobOwnerId: number;
+  jobOwner: string;
   reviewSetId: number;
   rawCriteria: string;
   itemIDsList: number[];

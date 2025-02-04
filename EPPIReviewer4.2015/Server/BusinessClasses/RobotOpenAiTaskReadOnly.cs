@@ -212,6 +212,15 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ErrorsProperty);
             }
         }
+        public static readonly PropertyInfo<string> JobOwnerProperty = RegisterProperty<string>(new PropertyInfo<string>("JobOwner", "JobOwner"));
+        public string JobOwner
+        {
+            get
+            {
+                return GetProperty(JobOwnerProperty);
+            }
+        }
+
 
         //protected override void AddAuthorizationRules()
         //{
@@ -329,6 +338,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<int>(RobotContactIdProperty, reader.GetInt32("ROBOT_CONTACT_ID"));
             LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
             LoadProperty<bool>(UseFullTextDocumentProperty, reader.GetBoolean("USE_PDFS")); 
+            LoadProperty<string>(JobOwnerProperty, reader.GetString("CONTACT_NAME"));
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
             if (RawCriteria.StartsWith("ItemIds: "))
@@ -363,6 +373,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<bool>(LockTheCodingProperty, true);
             LoadProperty<int>(RobotContactIdProperty, reader.GetInt32("ROBOT_CONTACT_ID"));
             LoadProperty<int>(JobOwnerIdProperty, -1);
+            LoadProperty<string>(JobOwnerProperty, "N/A");
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
             if (RawCriteria.StartsWith("ItemIds: "))
