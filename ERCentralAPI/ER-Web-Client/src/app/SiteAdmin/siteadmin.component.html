@@ -92,52 +92,6 @@
     <kendo-tabstrip-tab [selected]="false" [title]="'Help'">
       <ng-template kendoTabContent>
 
-        <div ngbDropdown>
-          <select class="col-12 form-control mb-1" name="ContextSelection" [(ngModel)]="ContextSelection" (change)="RetrieveHelp()">
-            <option [ngValue]="0" [selected]="ContextSelection == 0">Select help context</option>
-            <option [ngValue]="1">(codingui)itemdetails</option>
-            <option [ngValue]="2">(codingui)itemdetails\pdf</option>
-            <option [ngValue]="3">(codingui)main</option>
-            <option [ngValue]="4">buildmodel</option>
-            <option [ngValue]="5">duplicates</option>
-            <option [ngValue]="6">editcodesets</option>
-            <option [ngValue]="7">editref</option>
-            <option [ngValue]="8">importcodesets</option>
-            <option [ngValue]="9">intropage</option>
-            <option [ngValue]="10">itemdetails</option>
-            <option [ngValue]="11">itemdetails\arms</option>
-            <option [ngValue]="12">itemdetails\codingrecord</option>
-            <option [ngValue]="13">itemdetails\pdf</option>
-            <option [ngValue]="14">main\collaborate</option>
-            <option [ngValue]="15">main\crosstabs</option>
-            <option [ngValue]="16">main\frequencies</option>
-            <option [ngValue]="17">main\references</option>
-            <option [ngValue]="18">main\reports</option>
-            <option [ngValue]="19">main\reviewhome</option>
-            <option [ngValue]="20">main\search</option>
-            <option [ngValue]="21">metaanalysis</option>
-            <option [ngValue]="22">metaanalysis\run</option>
-            <option [ngValue]="23">metaanalysis\runnetwork</option>
-            <option [ngValue]="24">reconciliation</option>
-            <option [ngValue]="25">reconciliation\treesview</option>
-            <option [ngValue]="26">sources\file</option>
-            <option [ngValue]="27">sources\managesources</option>
-            <option [ngValue]="28">sources\pubmed</option>
-            <option [ngValue]="29">webdbs</option>
-            <option [ngValue]="30">ZoteroSetup</option>
-            <option [ngValue]="31">ZoteroSync</option>
-          </select>
-        </div>
-
-        <!--<div>
-          <select class="btn btn-outline-primary mt-3" id="dropdownBasicSources"
-                  [(ngModel)]="selected"> 
-            <option [value]="item.source_ID" *ngFor="let item of ReviewSources">
-              {{DisplayFriendlySourceNames(item)}}
-            </option>
-          </select>
-        </div>-->
-
         <div>
           <select class="btn btn-outline-primary mt-3" id="dropdownBasicHelpPages"
                   [(ngModel)]="selected" (change)="RetrieveHelpNew($event)">
