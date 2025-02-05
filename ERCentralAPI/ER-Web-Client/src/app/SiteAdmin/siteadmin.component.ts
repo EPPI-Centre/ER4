@@ -173,17 +173,17 @@ export class SiteAdminComponent implements OnInit {
 
   public RetrieveHelpNew(event: Event) {
     if (this.selected != null) {
-      if (this.selected.context_Name != "Select help context") {
-        this.OnlineHelpService.FetchHelpContent(this.selected.context_Name);
-        if (this.CurrentContextHelp == null) {
-          // there is no data
-          this.OnlineHelpService.FetchHelpContent("");
+        if (this.selected.context_Name != "Select help context") {
+          this.OnlineHelpService.FetchHelpContent(this.selected.context_Name);
+          if (this.CurrentContextHelp == null) {
+            // there is no data
+            this.OnlineHelpService.FetchHelpContent("");
+          }
         }
-      }
-      else {
-        // user selected '0' again so no data
-        this.OnlineHelpService.FetchHelpContent("");
-      }
+        else {
+          // user selected '0' again so no data
+          this.OnlineHelpService.FetchHelpContent("");
+        }    
     }
   }
 
@@ -223,6 +223,7 @@ export class SiteAdminComponent implements OnInit {
       this.OrigCurrentContextHelp = this.CurrentContextHelp;
       this.model.editorData = this.CurrentContextHelp;
       this.TmpCurrentContextHelp = this.model.editorData;
+      
 
     }    
   }

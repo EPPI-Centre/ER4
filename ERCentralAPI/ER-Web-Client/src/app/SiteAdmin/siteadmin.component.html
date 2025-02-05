@@ -91,15 +91,27 @@
 
     <kendo-tabstrip-tab [selected]="false" [title]="'Help'">
       <ng-template kendoTabContent>
-
+        
         <div>
-          <select class="btn btn-outline-primary mt-3" id="dropdownBasicHelpPages"
-                  [(ngModel)]="selected" (change)="RetrieveHelpNew($event)">
-            <option [ngValue]="item" *ngFor="let item of HelpPages">
-              {{DisplayFriendlyHelpPageNames(item)}}
-            </option>
-          </select>
+          <table>
+            <tr>
+              <td style="vertical-align:top">
+                <select class="btn btn-outline-primary mt-3" id="dropdownBasicHelpPages"
+                        [(ngModel)]="selected" (change)="RetrieveHelpNew($event)">
+                  <option [ngValue]="item" *ngFor="let item of HelpPages">
+                    {{DisplayFriendlyHelpPageNames(item)}}
+                  </option>
+                </select>
+              </td>
+              <td style="vertical-align:top;padding-top:15px">
+                &nbsp;&nbsp;&nbsp;Select the help page from the dropdown then click <b>Edit</b>. Text can be edited in the WYSIWYG editor.<br />
+                &nbsp;&nbsp;&nbsp;The editor does not recognise most bootstrap classes but they can be edited manually under <b>Source</b>.<br />
+                &nbsp;&nbsp;&nbsp;New images must be manually uploaded to the server (for now).
+              </td>
+            </tr>
+          </table>
         </div>
+        
 
         <div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
              class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
