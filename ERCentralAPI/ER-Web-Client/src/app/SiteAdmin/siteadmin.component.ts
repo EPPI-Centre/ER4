@@ -166,7 +166,7 @@ export class SiteAdminComponent implements OnInit {
 
 
   public helpContent: string | null = null;
-  public ContextSelection: number = 0;
+  //public ContextSelection: number = 0;
   public context = "";
   public editingHelp = "";
 
@@ -212,9 +212,9 @@ export class SiteAdminComponent implements OnInit {
       this.OrigCurrentContextHelp = "";
       this.showEdit = false;
 
-      this.OnlineHelpService.FetchHelpContent("0");
-      this.ContextSelection = 0;
-      this.OnlineHelpService.FetchHelpPageList();
+      //this.OnlineHelpService.FetchHelpContent("0");
+      //this.ContextSelection = 0;
+      //this.OnlineHelpService.FetchHelpPageList();
     }
     else {
       // this is an 'edit'
@@ -245,15 +245,17 @@ export class SiteAdminComponent implements OnInit {
       help.helpHTML = this.model.editorData;
       this.OnlineHelpService.UpdateHelpContent(help);
       this.showEdit = false;
-      this.TmpCurrentContextHelp = "";
 
-      // reload the list for now
-      this.ContextSelection = 0;
+      // reset the dropdown
       this.OnlineHelpService.FetchHelpPageList();
-    }
+      this.OnlineHelpService.FetchHelpContent("");
 
-    //this.OrigCurrentContextHelp = "";
-    //this.OnlineHelpService.FetchHelpContent(this.context);
+      // don't reset the dropdown
+      //this.OnlineHelpService.FetchHelpPageList();
+      //this.OnlineHelpService.FetchHelpContent(this.selected.context_Name);
+
+
+    }
   }
 
 
@@ -276,7 +278,7 @@ export class SiteAdminComponent implements OnInit {
     if (e.title == 'Help') {
       //this.OnlineHelpService.FetchHelpContentList();
       this.OnlineHelpService.FetchHelpContent("0");
-      this.ContextSelection = 0;
+      //this.ContextSelection = 0;
       this.sourcesService.FetchSources();
       this.OnlineHelpService.FetchHelpPageList();
     }
