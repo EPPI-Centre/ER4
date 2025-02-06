@@ -22,15 +22,20 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
     ) {
       super(configService);
       this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+      this.subOpeningReview = this.EventEmitterService.OpeningNewReview.subscribe(() => this.Clear());
   }
   private clearSub: Subscription | null = null;
-  public RobotSetting: iRobotSettings = {
-    onlyCodeInTheRobotName: true,
-    lockTheCoding: true,
-    useFullTextDocument: false,
-    rememberTheseChoices: false
-  };
-
+  private subOpeningReview: Subscription | null = null;
+  public RobotSetting: iRobotSettings = this.DefaultRobotSetting;
+  private get DefaultRobotSetting(): iRobotSettings {
+    return {
+      onlyCodeInTheRobotName: true,
+      lockTheCoding: true,
+      useFullTextDocument: false,
+      rememberTheseChoices: false
+    };
+  }
+  public ShowSettingsInBatchPanel: boolean = true;
   public RobotInvestigateResults: iRobotInvestigate[] = [];
 
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
@@ -183,11 +188,15 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
     this.CurrentQueue = [];
     this.PastJobs = [];
     this.RobotInvestigateResults = [];
+    this.RobotSetting = this.DefaultRobotSetting;
+    this.ShowSettingsInBatchPanel = true;
   }
   ngOnDestroy() {
     this.Clear();
     //console.log("Destroy RobotsService");
     if (this.clearSub != null) this.clearSub.unsubscribe();
+    if (this.subOpeningReview != null) this.subOpeningReview.unsubscribe();
+    
   }
 }
 export interface iRobotOpenAICommand {
