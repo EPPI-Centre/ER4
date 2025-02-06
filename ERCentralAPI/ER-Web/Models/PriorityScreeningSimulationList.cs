@@ -59,7 +59,10 @@ namespace BusinessLibrary.BusinessClasses
             List<BlobInHierarchy> myblobs = BlobOperations.Blobfilenames(blobConnection, "eppi-reviewer-data", RemoteFolder);
             foreach (BlobInHierarchy b in myblobs)
             {
-                Add(PriorityScreeningSimulation.GetPriorityScreeningSimulation(b.BlobName.Replace(RemoteFolder, "")));
+                if (!b.BlobName.Contains("PriorityScreeningSimulationData_")) // i.e. we only want results files, not the data
+                {
+                    Add(PriorityScreeningSimulation.GetPriorityScreeningSimulation(b.BlobName.Replace(RemoteFolder, "")));
+                }
             }
             RaiseListChangedEvents = true;
         }

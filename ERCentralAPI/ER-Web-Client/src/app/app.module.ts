@@ -142,7 +142,7 @@ import { RobotSettings } from './Robots/robotSettings.component';
 import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 import { RobotInvestigate } from './Robots/robotInvestigate.component';
 import { CheckScreening } from './Search/CheckScreening.component';
-import { PriorityScreening } from './Search/PriorityScreening.component';
+import { PriorityScreeningSim } from './Search/PriorityScreeningSim.component';
 
 
 
@@ -291,7 +291,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     RobotBatchJobs,
     RobotInvestigate,
     CheckScreening,
-    PriorityScreening
+    PriorityScreeningSim
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -354,6 +354,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'Zotero', component: ZoteroManagerComponent },
       { path: 'MetaAnalysis', component: MetaAnalysisComp }, 
       { path: 'Investigate', component: RobotInvestigate },
+      { path: 'PriorityScreeningSim', component: PriorityScreeningSim },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,

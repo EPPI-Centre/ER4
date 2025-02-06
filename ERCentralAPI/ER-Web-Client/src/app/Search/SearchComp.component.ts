@@ -87,7 +87,7 @@ export class SearchComp implements OnInit, OnDestroy {
   public selected?: ReadOnlySource;
   public NewSearchSection: boolean = false;
   public CheckScreeningSection: boolean = false;
-  public PriorityScreeningSection: boolean = false;
+  //public PriorityScreeningSection: boolean = false;
   public ModelSection: boolean = false;
   public ShowVisualiseSection: boolean = false;
   public modelResultsSection: boolean = false;
@@ -318,7 +318,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.radioButtonApplyModelSection = false;
     this.ShowVisualiseSection = false;
     this.CheckScreeningSection = false;
-    this.PriorityScreeningSection = false;
+    //this.PriorityScreeningSection = false;
     this._searchService.cmdSearches._searchWhat = "";
     this._searchService.cmdSearches._sourceIds = "";
     this._searchService.cmdSearches._title = "";
@@ -347,7 +347,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this._reviewSetsService.selectedNode = null;
     this.NewSearchSection = false;
     this.CheckScreeningSection = false;
-    this.PriorityScreeningSection = false;
+    //this.PriorityScreeningSection = false;
     this.ModelSection = !this.ModelSection;
     this.modelResultsSection = false;
     this.modelResultsAllReviewSection = false;
@@ -359,12 +359,11 @@ export class SearchComp implements OnInit, OnDestroy {
     this.CheckScreeningSection = !this.CheckScreeningSection;
     this.ModelSection = false;
     this.NewSearchSection = false;
+    //this.PriorityScreeningSection = false;
   }
 
   OpenPriorityScreening() {
-    this.PriorityScreeningSection = !this.PriorityScreeningSection;
-    this.ModelSection = false;
-    this.NewSearchSection = false;
+    this.router.navigate(['PriorityScreeningSim']);
   }
 
   CanCreateClassifierCodes(): boolean {
@@ -442,7 +441,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.NewSearchSection = false;
     this.modelResultsSection = false;
     this.CheckScreeningSection = false;
-    this.PriorityScreeningSection = false;
+    //this.PriorityScreeningSection = false;
     //alert('Model Number is: ' + this.modelNum);
 
   }
@@ -1289,7 +1288,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.visualiseTitle = search.title;
     this.visualiseSearchId = search.searchId;
     this.CheckScreeningSection = false;
-    this.PriorityScreeningSection = false;
+    //this.PriorityScreeningSection = false;
     //console.log(JSON.stringify(search));
     this._reviewSetsEditingServ.CreateVisualiseData(search.searchId);
     this.PleaseOpenTheCodes.emit();
@@ -1411,7 +1410,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.searchTextModel = '';
     this.NewSearchSection = false;
     this.CheckScreeningSection = false;
-    this.PriorityScreeningSection = false;
+    //this.PriorityScreeningSection = false;
     this.modelResultsSection = false;
     this.SearchForPersonModel = false;
     this.selected = undefined;

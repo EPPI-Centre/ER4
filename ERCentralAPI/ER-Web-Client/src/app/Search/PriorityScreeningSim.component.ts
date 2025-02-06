@@ -15,7 +15,7 @@ function nextMultipleOfTen(num: number): number {
   return Math.ceil(num / 10) * 10;
 }
 function roundToTwoDecimalPlaces(num: number): number {
-  return parseFloat(num.toFixed(2));
+  return parseFloat(num.toPrecision(2));
 }
 function mean(arr: number[]): number {
   const sum = arr.reduce((a, b) => a + b, 0);
@@ -66,12 +66,12 @@ interface simulationStats {
 }
 
 @Component({
-  selector: 'PriorityScreening',
-  templateUrl: './PriorityScreening.component.html',
+  selector: 'PriorityScreeningSim',
+  templateUrl: './PriorityScreeningSim.component.html',
   providers: []
 })
 
-export class PriorityScreening implements OnInit, OnDestroy {
+export class PriorityScreeningSim implements OnInit, OnDestroy {
   constructor(private router: Router,
     @Inject('BASE_URL') private _baseUrl: string,
     private classifierService: ClassifierService,
@@ -84,7 +84,7 @@ export class PriorityScreening implements OnInit, OnDestroy {
 
   @Output() PleaseCloseMe = new EventEmitter();
   ngOnInit() {
-
+    this.refreshPriorityScreeningSimulationList();
   }
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
@@ -117,8 +117,16 @@ export class PriorityScreening implements OnInit, OnDestroy {
   workloadReductionStats: string = "";
   workloadReductionPercentStats: string = "";
 
-  showSimulation(simulation: PriorityScreeningSimulation) {
-    this.classifierService.FetchPriorityScreeningSimulation(simulation.simulationName);
+  async showSimulation(simulation: PriorityScreeningSimulation) {
+    const res = await this.classifierService.FetchPriorityScreeningSimulation(simulation.simulationName);
+    if (res == true)
+    {
+      this.processSimulation();
+    }
+  }
+
+  processSimulation()
+  {
     const dataframe = this.PriorityScreeningSimulationText;
 
     if (this.PriorityScreeningSimulationText != null) {
@@ -163,14 +171,14 @@ export class PriorityScreening implements OnInit, OnDestroy {
       // lastly, set the data
       let simCount = (headers.length - 1) / 2;
       for (let c = 0; c < simCount; c++) {
-        this.simulationDataContainer.push(transformedArray.map(row => [Number(row.index), Number(row["CumulativeIncl" + String(c+1)])]));
+        this.simulationDataContainer.push(transformedArray.map(row => [Number(row.index), Number(row["CumulativeIncl" + String(c + 1)])]));
       }
 
       // now calculate the statistics
       let nScreenedArray = [];
       let workloadReductionArray = [];
       let workloadReductionPercentArray = [];
-      
+
       for (let c = 0; c < simCount; c++) {
         const simulationData = transformedArray.map(row => [Number(row.index), Number(row["CumulativeIncl" + String(c + 1)])]);
 
@@ -207,7 +215,7 @@ export class PriorityScreening implements OnInit, OnDestroy {
       this.summaryStatisticsAgg = "Mean number to screen to achieve 100% recall: " + meanNScreened + " (" + ciLower + ", " + ciUpper + ")";
       this.workloadReductionStats = "Mean simulated workload reduction: " + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - meanNScreened)) +
         " (" + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - ciUpper)) + ", " + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - ciLower)) + ")";
-      this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(roundToTwoDecimalPlaces(100-(meanNScreened / this.simulationDataItemCount*100))) +
+      this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(roundToTwoDecimalPlaces(100 - (meanNScreened / this.simulationDataItemCount * 100))) +
         "% (" + String(roundToTwoDecimalPlaces(100 - (ciUpper / this.simulationDataItemCount * 100))) + ", " + String(roundToTwoDecimalPlaces(100 -
           (ciLower / this.simulationDataItemCount * 100))) + ")";
     }
@@ -219,7 +227,7 @@ export class PriorityScreening implements OnInit, OnDestroy {
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', 'simulationStudyData.tsv');
+      link.setAttribute('download', 'simulationStudyResults.tsv');
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
@@ -335,13 +343,13 @@ export class PriorityScreening implements OnInit, OnDestroy {
       if (res != false) { //we get "false" if an error happened...
         if (res == "Starting...") {
           this.notificationService.show({
-            content: 'Priority screening simulation started. Results will appear below when finished (click Refresh periodically)',
+            content: 'Priority screening simulation started. Results will appear below when finished (click refresh list periodically)',
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "info", icon: true },
             hideAfter: 5000
           });
-          this.Close();
+          //this.Close();-- I think for this one we'll keep the window open, as you might want to look at other results
         }
         else if (res == "Already running") {
           this.notificationService.show({
@@ -372,5 +380,9 @@ export class PriorityScreening implements OnInit, OnDestroy {
 
   ngOnDestroy() {
 
+  }
+
+  BackToMain() {
+    this.router.navigate(['Main']);
   }
 }

@@ -36,7 +36,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public ClassifierCommandV2() { }
         // variables for training the classifier
-        private string _title;
+        private string _title = "";
         private Int64 _attributeIdOn;
         private Int64 _attributeIdNotOn;
         private Int64 _attributeIdClassifyTo;
@@ -45,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
         // variables for applying the classifier
         private int _classifierId = -1;
 
-        private string _returnMessage;
+        private string _returnMessage = "";
 
         public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId)
         {

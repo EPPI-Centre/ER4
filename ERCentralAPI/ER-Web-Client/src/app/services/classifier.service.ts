@@ -352,7 +352,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
         });
   }
 
-  public FetchPriorityScreeningSimulation(simulationName: string) {
+  public FetchPriorityScreeningSimulation(simulationName: string): Promise<boolean> {
     this._BusyMethods.push("FetchPriorityScreeningSimulation");
     let body = JSON.stringify(simulationName);
     return lastValueFrom(this._httpC.post<PriorityScreeningSimulation>(this._baseUrl + 'api/PriorirtyScreening/FetchPriorityScreeningSimulation',
