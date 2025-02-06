@@ -203,7 +203,7 @@
     <None Update="SQLScripts\640.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SQLScripts\642.sql">
+    <None Update="SQLScripts\JT_temp_.sql">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>642.Designer.cs</LastGenOutput>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
