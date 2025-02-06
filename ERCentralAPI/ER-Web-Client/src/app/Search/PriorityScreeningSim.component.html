@@ -1,8 +1,5 @@
 <HeaderComponent PageTitle="Priority screening simulations" Context="priority screening simulations"></HeaderComponent>
-<div class="p-1 m-0  ">
-  <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()" style="z-index:10;">
-    Close/back
-  </button>
+
   <div class="border border-dark rounded mt-0 mx-0 mb-1 p-1 bg-light">
       <div class="row">
         <div class="col-md-6">
@@ -39,42 +36,46 @@
         </div>
         <div class="col-md-6">
           <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-            <div><b>Completed simulation runs</b></div>
-            <div>
-              <button title="Refresh list" (click)="refreshPriorityScreeningSimulationList()" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2">
-                Refresh list  <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+            <div class="p-1 m-0  ">
+              <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()" style="z-index:10;">
+                Close/back
               </button>
+              <div><b>Completed simulation runs</b></div>
+              <div>
+                <button title="Refresh list" (click)="refreshPriorityScreeningSimulationList()" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+                  Refresh list  <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+                </button>
+              </div>
+              <div>
+                <table class="table table-sm table-striped">
+                  <thead>
+                    <tr>
+                      <th class="" width="10" style="min-width:50px">Name</th>
+                      <th class="" width="2"></th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr *ngFor="let item of PriorityScreeningSimulationList">
+
+                      <td class="">
+                        <button (click)="showSimulation(item)" class="btn btn-link">{{item.simulationName}}</button>
+                      </td>
+
+                      <td class="" style="min-width:65px;text-align:center">
+                        <div class="p-0 "
+                             style="border: 1px solid white; border-radius: 3px; float: right; cursor: pointer; position: relative; top: 15%; margin-left: 2px;"
+                             title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
+                          <span class="k-icon k-i-trash alert-danger" size="small" style="position: relative; top:-2px;"></span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              </div>
             </div>
-            <div>
-              <table class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th class="" width="10" style="min-width:50px">Name</th>
-                    <th class="" width="2"></th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr *ngFor="let item of PriorityScreeningSimulationList">
-
-                    <td class="">
-                      <button (click)="showSimulation(item)" class="btn btn-link">{{item.simulationName}}</button>
-                    </td>
-
-                    <td class="" style="min-width:65px;text-align:center">
-                      <div class="p-0 "
-                           style="border: 1px solid white; border-radius: 3px; float: right; cursor: pointer; position: relative; top: 15%; margin-left: 2px;"
-                           title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
-                        <span class="k-icon k-i-trash alert-danger" size="small" style="position: relative; top:-2px;"></span>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
           </div>
-        </div>
       </div>
       <div class="row">
         <div class="col-md-6">
@@ -145,5 +146,4 @@
         </div>
       </div>
     </div>
-  </div>
   <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>
