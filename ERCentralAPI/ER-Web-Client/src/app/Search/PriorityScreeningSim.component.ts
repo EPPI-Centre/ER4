@@ -116,6 +116,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   summaryStatisticsAgg: string = "";
   workloadReductionStats: string = "";
   workloadReductionPercentStats: string = "";
+  public recallLevel: number = 100;
 
   async showSimulation(simulation: PriorityScreeningSimulation) {
     const res = await this.classifierService.FetchPriorityScreeningSimulation(simulation.simulationName);
@@ -190,7 +191,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         const maxValue = Math.max(...values);
 
         // Find the index when the value first reaches maximum
-        const firstMaxIndex = simulationData.find(row => row[1] === maxValue)?.[0] ?? 0;
+        const firstMaxIndex = simulationData.find(row => row[1] === Math.ceil(maxValue * this.recallLevel / 100))?.[0] ?? 0;
         let workloadReduction = maxIndex - firstMaxIndex;
         let workloadReductionPercent = roundToTwoDecimalPlaces(100 - (firstMaxIndex / maxIndex * 100))
 
@@ -212,7 +213,8 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       let conf = roundToTwoDecimalPlaces(calculateConfidence(stdev, simCount));
       let ciLower = meanNScreened - conf;
       let ciUpper = meanNScreened + conf;
-      this.summaryStatisticsAgg = "Mean number to screen to achieve 100% recall: " + meanNScreened + " (" + ciLower + ", " + ciUpper + ")";
+      this.summaryStatisticsAgg = "Mean number to screen to achieve " + this.recallLevel + "% recall (" + Math.ceil(this.simulationDataIncludedItemsCount * this.recallLevel / 100) +
+        " out of " + this.simulationDataIncludedItemsCount + " retreived): " + meanNScreened + " (" + ciLower + ", " + ciUpper + ").";
       this.workloadReductionStats = "Mean simulated workload reduction: " + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - meanNScreened)) +
         " (" + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - ciUpper)) + ", " + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - ciLower)) + ")";
       this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(roundToTwoDecimalPlaces(100 - (meanNScreened / this.simulationDataItemCount * 100))) +

@@ -115,7 +115,7 @@
                   <th>Simulation</th>
                   <th>N included</th>
                   <th>N screened</th>
-                  <th>N screened@100</th>
+                  <th>N screened@{{ recallLevel }}</th>
                   <th>Simulated workload reduction</th>
                   <th>Workload reduction %</th>
                 </tr>
@@ -137,10 +137,22 @@
               <div>{{ workloadReductionStats }}</div>
               <div>{{ workloadReductionPercentStats }}</div>
             </div>
-            <div>
-              <button title="Download data" (click)="downloadData()" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2">
-                Download data
+            <div class="clearfix">
+              Specific recall: <kendo-numerictextbox [(ngModel)]="recallLevel"
+                                                     [min]="85" [format]="'n0'"
+                                                     [max]="100"
+                                                     [autoCorrect]="true"
+                                                     class="border border-dark rounded"
+                                                     style="width: 110px;"></kendo-numerictextbox>
+              <button title="Refresh statistics" (click)="processSimulation()" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+                Refresh statistics
               </button>
+              <div>
+                <button title="Download data" (click)="downloadData()" class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+                  Download data
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
