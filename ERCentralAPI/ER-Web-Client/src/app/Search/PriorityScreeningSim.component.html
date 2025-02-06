@@ -93,12 +93,13 @@
                     </kendo-chart-series-item>
                   </kendo-chart-series>
                   <kendo-chart-x-axis>
-                    <kendo-chart-x-axis-item [title]="{ text: 'Number of items screened' }"
-                                             [max]="simulationDataItemCount">
+                    <kendo-chart-x-axis-item [title]="{ text: xAxisText }"
+                                             [max]="simulationDataItemCountRoundedUp">
                     </kendo-chart-x-axis-item>
                   </kendo-chart-x-axis>
                   <kendo-chart-y-axis>
-                    <kendo-chart-y-axis-item [title]="{ text: 'Cumulative number of includes found' }" [max]="simulationDataIncludedItemsCount">
+                    <kendo-chart-y-axis-item [title]="{ text: yAxisText }"
+                                             [max]="simulationDataIncludedItemsCountRoundedUp">
                     </kendo-chart-y-axis-item>
                   </kendo-chart-y-axis>
                 </kendo-chart>
@@ -143,10 +144,9 @@
                                                      [max]="100"
                                                      [autoCorrect]="true"
                                                      class="border border-dark rounded"
-                                                     style="width: 110px;"></kendo-numerictextbox>
-              <button title="Refresh statistics" (click)="processSimulation()" class="btn btn-sm btn-outline-success ml-1 mr-0 my-0 pt-1 pb-0 px-2">
-                Refresh statistics
-              </button>
+                                                     style="width: 110px;"
+                                                     (valueChange)="processSimulation(false)"></kendo-numerictextbox>
+              
               <div>
                 <button title="Download data" (click)="downloadData()" class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
                   Download data

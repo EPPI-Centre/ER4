@@ -111,29 +111,37 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   
   simulationDataContainer: [number, number][][] = [];
   simulationDataItemCount: number = 0;
-  simulationDataIncludedItemsCount: number = 0;
+  simulationDataIncludedItemsCountRoundedUp: number = 0;
+  simulationDataItemCountRoundedUp: number = 0;
+  xAxisText: string = "";
+  yAxisText: string = "";
   statistics: simulationStats[] = [];
+  recallLevel: number = 100;
+  simulationDataIncludedItemsCount: number = 0;
+
   summaryStatisticsAgg: string = "";
   workloadReductionStats: string = "";
   workloadReductionPercentStats: string = "";
-  public recallLevel: number = 100;
 
   async showSimulation(simulation: PriorityScreeningSimulation) {
     const res = await this.classifierService.FetchPriorityScreeningSimulation(simulation.simulationName);
     if (res == true)
     {
-      this.processSimulation();
+      this.processSimulation(true);
     }
   }
 
-  processSimulation()
+  processSimulation(redrawGraph: boolean)
   {
     const dataframe = this.PriorityScreeningSimulationText;
 
     if (this.PriorityScreeningSimulationText != null) {
 
       // clear out previous runs
-      this.simulationDataContainer = [];
+      if (redrawGraph)
+      { 
+        this.simulationDataContainer = [];
+      }
       this.statistics = [];
       this.summaryStatisticsAgg = "";
       this.workloadReductionStats = "";
@@ -166,13 +174,20 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       const values = transformedArray.map(row => row.CumulativeIncl1);
 
       // Get the maximum index and included item count
-      this.simulationDataItemCount = nextMultipleOfTen(Math.max(...indices));
-      this.simulationDataIncludedItemsCount = nextMultipleOfTen(Math.max(...values));
+      this.simulationDataItemCount = Math.max(...indices);
+      this.simulationDataIncludedItemsCount = Math.max(...values);
+      this.simulationDataItemCountRoundedUp = nextMultipleOfTen(Math.max(...indices));
+      this.simulationDataIncludedItemsCountRoundedUp = nextMultipleOfTen(Math.max(...values));
+      this.xAxisText = "Number of items screened (N=" + this.simulationDataItemCount + ")";
+      this.yAxisText = "Cumulative number of includes found (N=" + this.simulationDataIncludedItemsCount + ")";
+      
 
       // lastly, set the data
       let simCount = (headers.length - 1) / 2;
-      for (let c = 0; c < simCount; c++) {
-        this.simulationDataContainer.push(transformedArray.map(row => [Number(row.index), Number(row["CumulativeIncl" + String(c + 1)])]));
+      if (redrawGraph) {
+        for (let c = 0; c < simCount; c++) {
+          this.simulationDataContainer.push(transformedArray.map(row => [Number(row.index), Number(row["CumulativeIncl" + String(c + 1)])]));
+        }
       }
 
       // now calculate the statistics
@@ -222,6 +237,9 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
           (ciLower / this.simulationDataItemCount * 100))) + ")";
     }
   }
+
+  
+
 
   downloadData() {
     if (this.PriorityScreeningSimulationText != null) {
