@@ -31,7 +31,12 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   ) { }
 
   //@Output() onCloseClick = new EventEmitter();
-  public ShowSettings: boolean = false;
+  public get ShowSettings(): boolean {
+    return this.robotsService.ShowSettingsInBatchPanel;
+  }
+  public set ShowSettings(val: boolean){
+    this.robotsService.ShowSettingsInBatchPanel = val;
+  }
   public ShowQueue: boolean = true;
   public DetailsJobId: number = -1;
   @Output() PleaseCloseMe = new EventEmitter();

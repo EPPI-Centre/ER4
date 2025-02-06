@@ -138,7 +138,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
   public itemId = new Subject<number>();
   public ShowOutComes: boolean = false;
   public ShowRobotOptions: boolean = false;
-  public showManualModal: boolean = false;
+  public showManualModalUncompleteWarning: boolean = false;
+  public showManualModalRobotOptions: boolean = false;
   public get leftPanel(): string {
     //console.log("leftPanel", this.ReviewerTermsService._ShowHideTermsList, this.ShowingOutComes);
     if (this.ReviewerTermsService._ShowHideTermsList) {
@@ -169,7 +170,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
   
   CloseManualModal() {
-    this.showManualModal = false;
+    this.showManualModalUncompleteWarning = false;
+    this.showManualModalRobotOptions = false;
   }
   public RobotDDData: Array<any> = [
     {
@@ -769,23 +771,17 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     const RSnode = this.ReviewSetsService.selectedNode as ReviewSet;
     if (!RSnode || !RSnode) return;
-    //for (let node of RSnode.attributes) {
-    //  if (node.description == "") {
-    //    this.notificationService.show({
-    //      content: "Can't run the OpenAI GPT4 robot: the code '" + node.name + "' has no description.",
-    //      position: { horizontal: 'center', vertical: 'top' },
-    //      animation: { type: 'fade', duration: 500 },
-    //      type: { style: 'error', icon: false },
-    //      hideAfter: 3000
-    //    });
-    //  }
-    //}
+
     //checks passed, we can try this.
     const itemSet = this.ItemCodingService.FindItemSetByItemSetId(RSnode.ItemSetId);
     if (RSnode.codingComplete && itemSet != null && itemSet.contactName != "OpenAI GPT4"
       && this.robotsService.RobotSetting.rememberTheseChoices == false
     ) {
-      this.showManualModal = true;
+      this.showManualModalUncompleteWarning = true;
+      return;
+    }
+    else if (this.robotsService.RobotSetting.rememberTheseChoices == false) {
+      this.showManualModalRobotOptions = true;
       return;
     }
     this.ActuallyRunRobotOpenAICommand(RSnode);    
