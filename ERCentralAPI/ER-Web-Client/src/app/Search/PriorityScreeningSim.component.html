@@ -9,7 +9,7 @@
               <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right  ">Name for your simulation </div>
               <div class=" col-12 col-sm-6 col-md-4">
                 <input class="form-control bg-light mx-0 px-1 col-12 col-sm-5 col-md-5 col-lg-8" id="simulationName" name="simulationName" (input)="CheckIfSimulationNameAlreadyExists()"
-                       required minlength="4 " pattern="^[a-zA-Z0-9]*$" #simulationName="ngModel" [(ngModel)]="simulationNameText" type="text" />
+                       required minlength="4" maxlength="20" pattern="^[a-zA-Z0-9]*$" #simulationName="ngModel" [(ngModel)]="simulationNameText" type="text" />
 
                 <div *ngIf="simulationName.invalid && (simulationName.dirty || simulationName.touched) && simulationName.errors"
                      class="alert alert-danger">
