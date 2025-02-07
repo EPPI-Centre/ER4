@@ -10,6 +10,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ChartComponent } from '@progress/kendo-angular-charts';
+import { saveAs } from '@progress/kendo-file-saver';
 
 function nextMultipleOfTen(num: number): number {
   return Math.ceil(num / 10) * 10;
@@ -86,6 +87,8 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   ngOnInit() {
     this.refreshPriorityScreeningSimulationList();
   }
+  @ViewChild('VisualiseChart')
+  private VisualiseChart!: ChartComponent;
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
 
@@ -238,7 +241,14 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     }
   }
 
-  
+
+  public exportChart(): void {
+
+  this.VisualiseChart.exportImage().then((dataURI) => {
+    saveAs(dataURI, 'chart.png');
+  });
+
+}
 
 
   downloadData() {
@@ -311,6 +321,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   public selectedModelDropDown2: string = '';
   public DD1: number = 0;
   public DD2: number = 0;
+  public simulationNameText: string = '';
 
   CloseBMDropDown1() {
 
@@ -323,7 +334,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
 
   CanPriorityScreening() {
     if (this.CanWrite() == false) return false;
-    if (this.selectedModelDropDown1 && this.selectedModelDropDown2
+    if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.simulationNameText != '' && !this.SimulationNameAlreadyExists
       && this.DD1 > 0 && this.DD2 > 0 && this.DD1 != this.DD2) {
       return true;
     }
@@ -337,6 +348,19 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
 
     return false;
   }
+
+  SimulationNameAlreadyExists: boolean = false;
+
+  CheckIfSimulationNameAlreadyExists() {
+    for (let c = 0; c < this.PriorityScreeningSimulationList.length; c++) {
+      if (this.PriorityScreeningSimulationList[c].simulationName.replace(".tsv", "").toLowerCase() == this.simulationNameText.toLowerCase()) {
+        this.SimulationNameAlreadyExists = true;
+        return;
+      }
+    }
+    this.SimulationNameAlreadyExists = false;
+  }
+
 
   public openConfirmationDialogPriorityScreening() {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the priority screening simulation with these codes ?', false, '')
@@ -356,9 +380,9 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
 
   async PriorityScreening() {
 
-    if (this.DD1 != null && this.DD2 != null) {
+    if (this.DD1 != null && this.DD2 != null && this.simulationNameText != "") {
 
-      let res = await this.classifierService.RunPriorityScreeningSimulation("¬¬PriorityScreening", this.DD1, this.DD2);
+      let res = await this.classifierService.RunPriorityScreeningSimulation("¬¬PriorityScreening¬¬" + this.simulationNameText, this.DD1, this.DD2);
 
       if (res != false) { //we get "false" if an error happened...
         if (res == "Starting...") {

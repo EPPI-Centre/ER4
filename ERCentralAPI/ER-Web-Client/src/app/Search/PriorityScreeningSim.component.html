@@ -4,35 +4,60 @@
       <div class="row">
         <div class="col-md-6">
           <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+             
             <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
-              <!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</label>-->
-              <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right  ">Simulate looking for records with this code</div>
-              <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-5 col-md-5 col-lg-4">
-                <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsedPriorityScreening = !isCollapsedPriorityScreening; isCollapsed2PriorityScreening=false" [attr.aria-expanded]="!isCollapsedPriorityScreening" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
-                <div (click)="SetAttrOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsedPriorityScreening">
-                  <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]=false></codesetSelector>
+              <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right  ">Name for your simulation </div>
+              <div class=" col-12 col-sm-6 col-md-4">
+                <input class="form-control bg-light mx-0 px-1 col-12 col-sm-5 col-md-5 col-lg-8" id="simulationName" name="simulationName" (input)="CheckIfSimulationNameAlreadyExists()"
+                       required minlength="4 " pattern="^[a-zA-Z0-9]*$" #simulationName="ngModel" [(ngModel)]="simulationNameText" type="text" />
+
+                <div *ngIf="simulationName.invalid && (simulationName.dirty || simulationName.touched) && simulationName.errors"
+                     class="alert alert-danger">
+
+                  <div *ngIf="simulationName.errors.required">
+                    Simulation name is required.
+                  </div>
+                  <div *ngIf="simulationName.errors.minlength">
+                    Simulation name must be at least 4 characters long.
+                  </div>
+                  <div *ngIf="simulationName.errors.pattern">
+                    Only alphanumeric characters are allowed.
+                  </div>
+                </div>
+                  <div *ngIf="SimulationNameAlreadyExists" class="alert alert-danger">
+                    You've already used this simulation name.
+                  </div>
+                  
+                </div>
+              <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+                <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right  ">Simulate looking for records with this code</div>
+                <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-5 col-md-5 col-lg-4">
+                  <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsedPriorityScreening = !isCollapsedPriorityScreening; isCollapsed2PriorityScreening=false" [attr.aria-expanded]="!isCollapsedPriorityScreening" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
+                  <div (click)="SetAttrOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsedPriorityScreening">
+                    <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]=false></codesetSelector>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
-              <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right">Distinguish from the ones with this code</div>
-              <div ngbDropdown class="d-inline-block mx-0 my-auto px-1 col-12 col-sm-5 col-md-5 col-lg-4">
-                <button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2PriorityScreening = !isCollapsed2PriorityScreening; isCollapsedPriorityScreening=false" [attr.aria-expanded]="!isCollapsed2PriorityScreening" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
-                <div (click)="SetAttrNotOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2PriorityScreening">
-                  <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
+              </div>
+              <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+                <div class="mx-0 px-1 col-12 col-sm-7 col-md-5 col-lg-5 my-auto text-sm-right">Distinguish from the ones with this code</div>
+                <div ngbDropdown class="d-inline-block mx-0 my-auto px-1 col-12 col-sm-5 col-md-5 col-lg-4">
+                  <button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2PriorityScreening = !isCollapsed2PriorityScreening; isCollapsedPriorityScreening=false" [attr.aria-expanded]="!isCollapsed2PriorityScreening" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
+                  <div (click)="SetAttrNotOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2PriorityScreening">
+                    <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
+                  </div>
+                </div>
+                <div *ngIf="SameCodesAreSelected" class="my-auto row mx-0 px-1 col-12 col-md-2 col-lg-3 ng-star-inserted">
+                  <div class="d-inline-block alert-danger rounded m-1 mx-md-auto p-1">Need to select two different codes!</div>
                 </div>
               </div>
-              <div *ngIf="SameCodesAreSelected" class="my-auto row mx-0 px-1 col-12 col-md-2 col-lg-3 ng-star-inserted">
-                <div class="d-inline-block alert-danger rounded m-1 mx-md-auto p-1">Need to select two different codes!</div>
+              <div class="col-12 mt-2 mb-2 justify-content-center">
+                <button (click)="openConfirmationDialogPriorityScreening()" [disabled]="!CanPriorityScreening()"
+                        type="button" class="btn btn-success" style="min-width:162px;max-width:300px;">
+                  Run priority screening simulation <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
+                </button>
               </div>
             </div>
-            <div class="col-12 mt-2 mb-2 justify-content-center">
-              <button (click)="openConfirmationDialogPriorityScreening()" [disabled]="!CanPriorityScreening()"
-                      type="button" class="btn btn-success" style="min-width:162px;max-width:300px;">
-                Run priority screening simulation <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
-              </button>
-            </div>
-          </div>
         </div>
         <div class="col-md-6">
           <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
@@ -77,7 +102,7 @@
             </div>
           </div>
       </div>
-      <div class="row">
+      <div class="row" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">
         <div class="col-md-6">
           <div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
             <div>
@@ -104,6 +129,13 @@
                   </kendo-chart-y-axis>
                 </kendo-chart>
               </figure>
+            </div>
+            <div class="row">
+              <div class="col-lg-6">
+                <button class="btn btn-info" (click)="exportChart()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">Save chart</button>
+                &nbsp;
+              </div>
+             
             </div>
           </div>
         </div>
@@ -148,7 +180,8 @@
                                                      (valueChange)="processSimulation(false)"></kendo-numerictextbox>
               
               <div>
-                <button title="Download data" (click)="downloadData()" class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+                <button title="Download data" (click)="downloadData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 "
+                        class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
                   Download data
                 </button>
               </div>

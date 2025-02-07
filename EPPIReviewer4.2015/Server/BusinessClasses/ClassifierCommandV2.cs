@@ -798,14 +798,14 @@ namespace BusinessLibrary.BusinessClasses
                 FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString();
                 RemoteFolder = "priority_screening_simulation/" + FolderAndFileName + "/";
                 RemoteFileName = RemoteFolder + "PriorityScreeningSimulationData_" + thisGuid.ToString() + ".tsv";
-                ScoresFile = RemoteFolder + thisGuid.ToString();
+                ScoresFile = RemoteFolder + _title.Replace("¬¬PriorityScreening¬¬", "") + ".tsv" ;
             }
             else
             {
                 FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ContactId" + ContactId.ToString() + "_" + thisGuid.ToString();
-                RemoteFolder = (CheckOrPriority == "PrioS" ? "priority_screening_simulation" : "check_screening /") + FolderAndFileName + "/";
-                RemoteFileName = RemoteFolder + (CheckOrPriority == "PrioS" ? "PriorityScreeningSimulationData.tsv" : "ScreeningCheckData.tsv");
-                ScoresFile = RemoteFolder + (CheckOrPriority == "PrioS" ? thisGuid.ToString() : "ScreeningCheckScores.tsv");
+                RemoteFolder = "check_screening /" + FolderAndFileName + "/";
+                RemoteFileName = RemoteFolder + "ScreeningCheckData.tsv";
+                ScoresFile = RemoteFolder + "ScreeningCheckScores.tsv";
             }
 
             bool DataFactoryRes = false;
