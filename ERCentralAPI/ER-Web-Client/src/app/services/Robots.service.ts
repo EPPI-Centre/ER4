@@ -154,6 +154,32 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
         return false;
       });
   }
+
+  public CancelRobotOpenAIBatch(JobId: number): Promise<boolean> {
+    this._BusyMethods.push("CancelRobotOpenAIBatch");
+    let body = JSON.stringify({ Value: JobId });
+    return lastValueFrom(this._httpC.post<iRobotOpenAiCancelQueuedBatchJobCommand>(this._baseUrl + 'api/Robots/CancelRobotOpenAIBatch', body))
+      .then((res) => {
+        this.RemoveBusy("CancelRobotOpenAIBatch");
+        if (res.success == false) {
+          this.modalService.GenericErrorMessage("The job could <strong>not be Cancelled</strong><br>This usually happens because the job had already started or ended.");
+        }
+        this.GetCurrentQueue();
+        return true;
+      },
+        (err) => {
+          this.RemoveBusy("CancelRobotOpenAIBatch");
+          this.modalService.GenericError(err);
+          this.GetCurrentQueue();
+          return false;
+        })
+      .catch((err) => {
+        this.RemoveBusy("CancelRobotOpenAIBatch");
+        this.modalService.GenericError(err);
+        this.GetCurrentQueue();
+        return false;
+      });
+  }
   public TextFromAttributeId(AttId: number): string {
     const res = this._reviewSetsService.FindAttributeById(AttId);
     if (res) {
@@ -261,4 +287,8 @@ export interface iRobotOpenAiTaskError {
   affectedItemId: number;
   errorMessage: string;
   stackTrace: string;
+}
+export interface iRobotOpenAiCancelQueuedBatchJobCommand {
+  jobId: number;
+  success: boolean;
 }
