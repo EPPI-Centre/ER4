@@ -52,7 +52,10 @@
           </tbody>
         </table>
         <div *ngIf="DetailsJobId > 0 && DetailedJob">
-          <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="DetailsJobId = -1">Hide Details</button>
+          <div class="border-bottom border-top border-info">
+            <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="DetailsJobId = -1">Hide Details</button>
+            <button *ngIf="DetailedJob.status == 'Queued'" class="btn btn-sm btn-outline-danger mr-1 py-0 small" (click)="CancelJob(DetailedJob)">Cancel Job</button>
+          </div>
           <div class="row mx-0 px-1 border-bottom">
             <div class="col-5">Id:</div><div class="col-7">{{DetailedJob.robotApiCallId}}</div>
           </div><div class="row mx-0 px-1 border-bottom">

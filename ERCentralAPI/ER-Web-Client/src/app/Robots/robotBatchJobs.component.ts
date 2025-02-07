@@ -193,6 +193,12 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
 
     );
   }
+
+  public CancelJob(job: iRobotOpenAiTaskReadOnly) {
+    this.robotsService.CancelRobotOpenAIBatch(job.robotApiCallId);
+  }
+
+
   Close() {
     this.PleaseCloseMe.emit();
   }

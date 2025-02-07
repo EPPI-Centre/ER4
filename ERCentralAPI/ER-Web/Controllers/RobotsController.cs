@@ -120,7 +120,27 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "RunRobotOpenAICommand error");
+                _logger.LogException(e, "EnqueueRobotOpenAIBatch error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+        [HttpPost("[action]")]
+        public IActionResult CancelRobotOpenAIBatch([FromBody] SingleIntCriteria crit)
+        {
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                else
+                {
+                    RobotOpenAiCancelQueuedBatchJobCommand res = new RobotOpenAiCancelQueuedBatchJobCommand(crit.Value);
+                    res = DataPortal.Execute(res);
+                    return Ok(res);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CancelRobotOpenAIBatch error");
                 return StatusCode(500, e.Message);
             }
 
