@@ -15,26 +15,9 @@ import { saveAs } from '@progress/kendo-file-saver';
 function nextMultipleOfTen(num: number): number {
   return Math.ceil(num / 10) * 10;
 }
-function roundToTwoDecimalPlaces(num: number): number {
-  return parseFloat(num.toPrecision(2));
-}
 function mean(arr: number[]): number {
   const sum = arr.reduce((a, b) => a + b, 0);
   return sum / arr.length;
-}
-function median(arr: number[]): number {
-  // Sort the array in ascending order
-  arr.sort((a, b) => a - b);
-
-  const mid = Math.floor(arr.length / 2);
-
-  if (arr.length % 2 === 0) {
-    // If the array length is even, return the average of the two middle elements
-    return (arr[mid - 1] + arr[mid]) / 2;
-  } else {
-    // If the array length is odd, return the middle element
-    return arr[mid];
-  }
 }
 function standardDeviation(arr: number[]): number {
   const avg = mean(arr);
@@ -209,9 +192,9 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         const maxValue = Math.max(...values);
 
         // Find the index when the value first reaches maximum
-        const firstMaxIndex = simulationData.find(row => row[1] === Math.ceil(maxValue * this.recallLevel / 100))?.[0] ?? 0;
+        const firstMaxIndex = simulationData.find(row => row[1] === Math.round((maxValue * this.recallLevel) / 100))?.[0] ?? 0;
         let workloadReduction = maxIndex - firstMaxIndex;
-        let workloadReductionPercent = roundToTwoDecimalPlaces(100 - (firstMaxIndex / maxIndex * 100))
+        let workloadReductionPercent = Math.round(100 - (firstMaxIndex / maxIndex * 100))
 
         nScreenedArray.push(firstMaxIndex);
         workloadReductionArray.push(workloadReduction);
@@ -226,17 +209,17 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
           workloadReductionPercent: workloadReductionPercent
         });
       }
-      let meanNScreened = roundToTwoDecimalPlaces(mean(nScreenedArray));
-      let stdev = roundToTwoDecimalPlaces(standardDeviation(nScreenedArray));
-      let conf = roundToTwoDecimalPlaces(calculateConfidence(stdev, simCount));
+      let meanNScreened = Math.round(mean(nScreenedArray));
+      let stdev = Math.round(standardDeviation(nScreenedArray));
+      let conf = Math.round(calculateConfidence(stdev, simCount));
       let ciLower = meanNScreened - conf;
       let ciUpper = meanNScreened + conf;
-      this.summaryStatisticsAgg = "Mean number to screen to achieve " + this.recallLevel + "% recall (" + Math.ceil(this.simulationDataIncludedItemsCount * this.recallLevel / 100) +
+      this.summaryStatisticsAgg = "Mean number to screen to achieve " + this.recallLevel + "% recall (" + Math.round(this.simulationDataIncludedItemsCount * this.recallLevel / 100) +
         " out of " + this.simulationDataIncludedItemsCount + " retreived): " + meanNScreened + " (" + ciLower + ", " + ciUpper + ").";
-      this.workloadReductionStats = "Mean simulated workload reduction: " + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - meanNScreened)) +
-        " (" + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - ciUpper)) + ", " + String(roundToTwoDecimalPlaces(this.simulationDataItemCount - ciLower)) + ")";
-      this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(roundToTwoDecimalPlaces(100 - (meanNScreened / this.simulationDataItemCount * 100))) +
-        "% (" + String(roundToTwoDecimalPlaces(100 - (ciUpper / this.simulationDataItemCount * 100))) + ", " + String(roundToTwoDecimalPlaces(100 -
+      this.workloadReductionStats = "Mean simulated workload reduction: " + String(Math.round(this.simulationDataItemCount - meanNScreened)) +
+        " (" + String(Math.round(this.simulationDataItemCount - ciUpper)) + ", " + String(Math.round(this.simulationDataItemCount - ciLower)) + ")";
+      this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(Math.round(100 - (meanNScreened / this.simulationDataItemCount * 100))) +
+        "% (" + String(Math.round(100 - (ciUpper / this.simulationDataItemCount * 100))) + ", " + String(Math.round(100 -
           (ciLower / this.simulationDataItemCount * 100))) + ")";
     }
   }
