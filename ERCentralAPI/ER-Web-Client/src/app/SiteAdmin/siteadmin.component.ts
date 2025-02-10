@@ -140,6 +140,7 @@ export class SiteAdminComponent implements OnInit {
 /////////////////////////////////////////////////////////////////////////
 
   public TmpCurrentContextHelp: string = "";
+  public TmpCurrentContextName: string = "";
   public OrigCurrentContextHelp: string = "";
   public enableSave: boolean = false;
 
@@ -166,32 +167,37 @@ export class SiteAdminComponent implements OnInit {
 
 
   public helpContent: string | null = null;
-  //public ContextSelection: number = 0;
   public context = "";
   public editingHelp = "";
 
 
   public RetrieveHelpNew(event: Event) {
     if (this.selected != null) {
-        if (this.selected.context_Name != "Select help context") {
+      if (this.showEdit == true) {
+        // we shouldn't be changing selection while editing so treat it like a cancel
+        this.enableSave = false;
+        this.showEdit = false;
+        this.OnlineHelpService.FetchHelpContent(this.selected.context_Name);
+      }
+      else {
+        if (this.selected.context_Name == "Select help context") {
+          // user selected '0' again so no data
+          this.OnlineHelpService.FetchHelpContent("");
+        }
+        else {
           this.OnlineHelpService.FetchHelpContent(this.selected.context_Name);
           if (this.CurrentContextHelp == null) {
             // there is no data
             this.OnlineHelpService.FetchHelpContent("");
           }
         }
-        else {
-          // user selected '0' again so no data
-          this.OnlineHelpService.FetchHelpContent("");
-        }    
+      }
     }
   }
 
 
-
   public onDataChange(event: CKEditor4.EventInfo) {
     var test = event.editor.getData();
-    //this.TmpCurrentContextHelp = this.model.editorData;
     this.TmpCurrentContextHelp = event.editor.getData();
     if (this.OrigCurrentContextHelp == event.editor.getData()) {
       // things are unchanged from origninal...
@@ -211,10 +217,6 @@ export class SiteAdminComponent implements OnInit {
       this.TmpCurrentContextHelp = "";
       this.OrigCurrentContextHelp = "";
       this.showEdit = false;
-
-      //this.OnlineHelpService.FetchHelpContent("0");
-      //this.ContextSelection = 0;
-      //this.OnlineHelpService.FetchHelpPageList();
     }
     else {
       // this is an 'edit'
@@ -223,8 +225,6 @@ export class SiteAdminComponent implements OnInit {
       this.OrigCurrentContextHelp = this.CurrentContextHelp;
       this.model.editorData = this.CurrentContextHelp;
       this.TmpCurrentContextHelp = this.model.editorData;
-      
-
     }    
   }
 
@@ -251,11 +251,9 @@ export class SiteAdminComponent implements OnInit {
       this.OnlineHelpService.FetchHelpPageList();
       this.OnlineHelpService.FetchHelpContent("");
 
-      // don't reset the dropdown
+      // don't reset the dropdown (can't get this to work yet)
       //this.OnlineHelpService.FetchHelpPageList();
       //this.OnlineHelpService.FetchHelpContent(this.selected.context_Name);
-
-
     }
   }
 
