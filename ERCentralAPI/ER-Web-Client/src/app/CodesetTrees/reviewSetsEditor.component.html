@@ -190,7 +190,10 @@
               </button>
               <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()" type="button"
                       [disabled]="!CanEditSelectedNode">
-                Delete Coding Tool...
+                <span class="k-icon k-i-trash"></span> Delete Coding Tool...
+              </button>
+              <button class="btn btn-outline-warning ml-3" (click)="CopyCodesetClicked()" type="button" [disabled]="!HasWriteRights">
+                <span class="k-icon k-i-copy"></span> Create a copy
               </button>
             </div>
             <div class="col-12 small alert-info p-1 m-1" *ngIf="CurrentReviewSetCanEditUrls">

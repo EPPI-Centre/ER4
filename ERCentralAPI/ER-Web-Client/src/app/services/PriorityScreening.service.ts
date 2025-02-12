@@ -31,18 +31,23 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     super(configService);
     //console.log("On create PriorityScreeningService");
     this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+    this.clearSub2 = this.EventEmitterService.OpeningNewReview.subscribe(() => { this.Clear(); });
   }
   ngOnDestroy() {
     console.log("Destroy search service");
     if (this.clearSub != null) this.clearSub.unsubscribe();
+    if (this.clearSub2 != null) this.clearSub2.unsubscribe();
   }
   private clearSub: Subscription | null = null;
+  private clearSub2: Subscription | null = null;
 
   @Output() gotList = new EventEmitter();
   @Output() gotItem = new EventEmitter();
   public ScreenedItemIds: number[] = [];
   public CurrentItem: Item = new Item();
   public CurrentItemIndex: number = 0;
+  public LastItemInTheQueueIsDone: boolean = false;
+
   private _CurrentItemAdditionalData: iAdditionalItemDetails | null = null;
   public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
     if (!this.CurrentItem || !this._CurrentItemAdditionalData) return null;
@@ -127,6 +132,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
           this.CurrentItemIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
           
           this.CheckRunTraining(success);
+          this.LastItemInTheQueueIsDone = false;
           this.gotItem.emit();
         },
         error => {

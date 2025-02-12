@@ -69,10 +69,8 @@ export class WorkAllocationComp implements OnInit {
   public isCollapsedCodeStudies: boolean = false;
   public FilterNumber: number = 1;
   public description: string = '';
-  public DestAttSet: SetAttribute = new SetAttribute();
-  public DestRevSet: ReviewSet = new ReviewSet();
-  public FiltAttSet: SetAttribute = new SetAttribute();
-  public FiltRevSet: ReviewSet = new ReviewSet();
+
+
   public dropdownBasicCodingTool: boolean = false;
   public dropdownBasicPerson: boolean = false;
   public ShowAllocations: boolean = true;
@@ -421,7 +419,7 @@ export class WorkAllocationComp implements OnInit {
     }
   }
   public RandomlyAssign() {
-
+    //console.log("WA RandomlyAssign click:", this.PanelName, this.CodingToolTree, this.DestAttSet);
     if (this.PanelName == 'RandomlyAssignSection') {
       this.PanelName = '';
     } else {
@@ -459,7 +457,7 @@ export class WorkAllocationComp implements OnInit {
     this.DropDownBasicCodingTool = new ReviewSet();
     this.selectedMemberDropDown = new Contact();
     this.PanelName = '';
-    //alert('Called Clear: ' + this.DropdownSelectedCodingTool);
+    //console.log('WA - Called Clear: ' + this.DropdownSelectedCodingTool);
 
   }
   public NewWorkAllocation() {
@@ -472,11 +470,7 @@ export class WorkAllocationComp implements OnInit {
   public CloseAssignSection() {
     this.PanelName = '';
   }
-  public CloseRandomlyAssignSection() {
 
-    this.RandomlyAssign();
-
-  }
   public CanAssign() {
     //console.log(this.numericRandomCreate, this.numericRandomSample);
     if (this.numericRandomCreate == null || this.numericRandomSample == null) return false;
@@ -522,55 +516,7 @@ export class WorkAllocationComp implements OnInit {
 
     if (!this.CanAssign()) return;
     this.FilterNumber = this.AllocateOptionsDropDown.nativeElement.selectedIndex;
-
-
-    if (this.DropdownWithWithoutSelectedCode != null && this.DropdownWithWithoutSelectedCode.nodeType == 'SetAttribute') {
-
-      this.FiltAttSet = this.DropdownWithWithoutSelectedCode as SetAttribute;
-
-    } else {
-
-      if (this.DropdownWithWithoutSelectedCode == null) {
-
-        this.FiltRevSet = this.selectedCodeSetDropDown as ReviewSet;
-
-      } else {
-        this.FiltRevSet = this.DropdownWithWithoutSelectedCode as ReviewSet;
-      }
-
-    }
-
-    //if (this.DropdownSelectedCodingTool != null ) {
-    // comma goes here shown by Sergio
-    //console.log(' checking nodeType 1 : ' + JSON.stringify(this.DropdownWithWithoutSelectedCode.nodeType) + ' ');
-    //console.log(' testing 1 : ' + JSON.stringify(this.DropdownSelectedCodingTool.nodeType) + ' ');
-    //}
-
-    if (this.DropdownSelectedCodingTool != null && this.DropdownSelectedCodingTool.nodeType == 'SetAttribute') {
-
-      this.DestAttSet = this.DropdownSelectedCodingTool as SetAttribute;
-      //alert(JSON.stringify(this.DestAttSet));
-
-    } else {
-
-      if (this.DropdownSelectedCodingTool != null) {
-        //	this.DestRevSet = this.selectedCodeSetDropDown as ReviewSet;
-        //} else {
-        this.DestRevSet = this.DropdownSelectedCodingTool as ReviewSet;
-      }
-    }
-
-    //console.log(' testing attribtue destination : ' + JSON.stringify(this.DestAttSet.attribute_id));
-    //console.log(' testing codeset destination : ' + JSON.stringify(this.DestRevSet.set_id));
-
-    //console.log(' testing dropdown : ' + JSON.stringify(this.DropdownSelectedCodingTool));
-
-    if (this.DestAttSet.attribute_id == -1 && this.DestRevSet.set_id == -1) {
-      //alert('in here now');
-      //this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
-      return;
-    }
-
+        
     let FilterType: string = '';
     let attributeIdFilter: number = 0;
     let setIdFilter: number = 0;
@@ -578,59 +524,60 @@ export class WorkAllocationComp implements OnInit {
     let setId: number = 0;
     let howMany: number = this.numericRandomCreate;
 
+
+    //checks for where to place the Group code(s) && finalising the "decision"
+    if (!this.DropdownSelectedCodingTool) return;
+    else if (this.DropdownSelectedCodingTool.nodeType == "SetAttribute" && (this.DropdownSelectedCodingTool as SetAttribute).attribute_id == -1) return;
+    else if (this.DropdownSelectedCodingTool.nodeType == "ReviewSet" && (this.DropdownSelectedCodingTool as ReviewSet).set_id == -1) return;
+    else if (this.DropdownSelectedCodingTool.nodeType == "SetAttribute") {
+      const t = (this.DropdownSelectedCodingTool as SetAttribute);
+      attributeId = t.attribute_id;
+      setId = t.set_id;
+    }
+    else { //we must be adding group code(s) to the root of a coding tool
+      const t = (this.DropdownSelectedCodingTool as ReviewSet);
+      setId = t.set_id;
+      attributeId = 0;
+    }
+
+    //here we check if filter settings make sense AND assign values to our final filter-variables if they do
     switch (this.FilterNumber) {
 
       case 0:
         FilterType = "No code / code set filter";
         break;
       case 1:
-        if (this.FiltRevSet.set_id == -1) {
+        if (!this.DropdownWithWithoutSelectedCode || this.DropdownWithWithoutSelectedCode.nodeType != "ReviewSet" || (this.DropdownWithWithoutSelectedCode as ReviewSet).set_id  < 1) {
           //this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
           return;
         }
-        setIdFilter = this.FiltRevSet.set_id;
+        setIdFilter = (this.DropdownWithWithoutSelectedCode as ReviewSet).set_id;
         FilterType = "All without any codes from this set";
         break;
       case 2:
-        if (this.FiltRevSet.set_id == -1) {
-          //this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
+        if (!this.DropdownWithWithoutSelectedCode || this.DropdownWithWithoutSelectedCode.nodeType != "ReviewSet" || (this.DropdownWithWithoutSelectedCode as ReviewSet).set_id < 1) {
           return;
         }
-        setIdFilter = this.FiltRevSet.set_id;
+        setIdFilter = (this.DropdownWithWithoutSelectedCode as ReviewSet).set_id;
         FilterType = "All with any codes from this set";
         break;
       case 3:
-        if (this.FiltAttSet.attribute_id == -1) {
-          //this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
+        if (!this.DropdownWithWithoutSelectedCode || this.DropdownWithWithoutSelectedCode.nodeType != "SetAttribute" || (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id < 1) {
           return;
         }
-        attributeIdFilter = this.FiltAttSet.attribute_id;
+        attributeIdFilter = (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id;
         FilterType = "All with this code";
         break;
       case 4:
-        if (this.FiltAttSet.attribute_id == -1) {
+        if (!this.DropdownWithWithoutSelectedCode || this.DropdownWithWithoutSelectedCode.nodeType != "SetAttribute" || (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id < 1) {
           //this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
           return;
         }
-        attributeIdFilter = this.FiltAttSet.attribute_id;
+        attributeIdFilter = (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id;
         FilterType = "All without this code";
         break;
       default:
         break;
-    }
-
-    // Could place logic in here for allowed to randomly allocate
-    if (this.DestAttSet.attribute_id != -1) {
-
-      attributeId = this.DestAttSet.attribute_id;
-      setId = this.DestAttSet.set_id;
-
-    }
-    else {
-
-      setId = this.DestRevSet.set_id;
-      attributeId = 0;
-
     }
 
     let assignParameters: PerformRandomAllocateCommand = new PerformRandomAllocateCommand();
@@ -645,23 +592,14 @@ export class WorkAllocationComp implements OnInit {
 
     if (this.numericRandomCreate == null || this.numericRandomCreate == undefined
       || this.numericRandomCreate < 1 || this.numericRandomCreate > 10) {
-
       return;
     }
     if (this.numericRandomSample == null || this.numericRandomSample == undefined
       || this.numericRandomSample < 1 || this.numericRandomSample > 100) {
-
       return;
     }
-    //console.log(JSON.stringify(assignParameters));
 
     this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
-
-    //this.DropdownSelectedCodingTool = null;
-    //this.DropdownWithWithoutSelectedCode = null;
-    //this.selectedCodeSetDropDown = new ReviewSet();
-    //this.DestRevSet.set_id = -1;
-    //this.DestAttSet.attribute_id = -1;
 
     this.RandomlyAssignSection = false;
   }

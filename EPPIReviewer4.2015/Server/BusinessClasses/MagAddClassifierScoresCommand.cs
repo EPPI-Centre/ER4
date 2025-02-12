@@ -140,7 +140,7 @@ namespace BusinessLibrary.BusinessClasses
                         command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", ModelReviewId));
                         command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
                         command2.Parameters.Add(new SqlParameter("@TITLE", "[Apply to OpenAlex Auto Update]"));
-                        command2.Parameters.Add(new SqlParameter("@IsApply", true));
+                        command2.Parameters.Add(new SqlParameter("@JobType", "Apply")); //"Apply", "Build" or "ChckS" (for "Check Screening")
                         command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
                         command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                         command2.ExecuteNonQuery();

@@ -1495,8 +1495,19 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(HasMAGScoresProperty, value);
             }
         }
+        public static readonly PropertyInfo<bool> RetainItemsListProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RetainItemsList", "RetainItemsList", false));
+        public bool RetainItemsList
+        {
+            get
+            {
+                return GetProperty(RetainItemsListProperty);
+            }
+            set
+            {
+                SetProperty(RetainItemsListProperty, value);
+            }
+        }
 
-        
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -1609,7 +1620,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                         ZoteroItemReviewR = TDS.TB_ZOTERO_ITEM_REVIEW.NewRow();
                         ZoteroItemReviewR["ItemKey"] = item.ZoteroKey;
                         ZoteroItemReviewR["ITEM_REVIEW_ID"] = ItemReviewR["ITEM_REVIEW_ID"];
-                        item.NewItemId = (long)ItemR["ITEM_ID"];
+                        //item.NewItemId = (long)ItemR["ITEM_ID"]; //as of Jan 2024 we always do this
                         TDS.TB_ZOTERO_ITEM_REVIEW.Rows.Add(ZoteroItemReviewR);
                     }
                 }
@@ -1925,7 +1936,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     TDS.TB_ITEM_MAG_MATCH.Rows.Add(ItemMag);
                 }
             }
-
+            item.NewItemId = (long)ItemR["ITEM_ID"];
         }
         private void BulkUpload(Data.ImportItemsDataset TDS, int Source_S)
         {
@@ -2069,7 +2080,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 {
                     TimeSpan time = DateTime.Now - startTime;
                     this.SourceName = "Server Saved it in (ms): " + time.TotalMilliseconds;
-                    if (!this.HasZoteroKeys) this.IncomingItems.Clear();
+                    if (!this.HasZoteroKeys && !this.RetainItemsList) this.IncomingItems.Clear();
                     if (SourceID == 0 & IsNew == true)
                     {//CASES 1 & 2, we want to keep the ID of the new source.
                         this.SourceID = Source_S + 1;

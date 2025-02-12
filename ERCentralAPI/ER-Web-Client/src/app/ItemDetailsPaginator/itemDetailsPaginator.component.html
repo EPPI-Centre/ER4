@@ -45,10 +45,10 @@
 
 	<ul *ngIf="IsScreening" class="pagination justify-content-start">
 		<li>
-			<button [ngClass]="{disabled:!HasPreviousScreening()}"
-					[disabled]="!HasPreviousScreening()"
+			<button [ngClass]="{disabled:!CanGoToPreviousScreening()}"
+					[disabled]="!CanGoToPreviousScreening()"
 					class="page-link" (click)="prevScreeningItem()">
-				Previously Screened
+				Previously Screened 
 			</button>
 
 		</li>
@@ -58,6 +58,10 @@
 					class="page-link" (click)="GetScreeningItem()">
 				Next In screening
 			</button>
+		</li>
+		<li class="small my-auto ml-2 px-1 rounded bg-light border border-info"
+				title="Number of items screened in this session">
+		{{PreviouslyScreenedCount}}
 		</li>
 	</ul>
 </div>

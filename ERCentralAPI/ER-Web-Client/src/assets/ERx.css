@@ -251,3 +251,11 @@ ul.k-tabstrip-items li.k-item.k-state-active {
 .light-yellow-bg {
   background-color: #fff3cd;
 }
+.GPTJobsErrorRow {
+  background-color: #ffc0c0 !important;
+  border-collapse: collapse;
+}
+.GPTJobsErrorRow td {
+  border-bottom: 1px solid white;
+}
+

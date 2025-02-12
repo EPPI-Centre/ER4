@@ -20,6 +20,7 @@ using BusinessLibrary.Security;
 using Microsoft.Azure.Search.Models;
 using System.Reflection;
 using EPPIDataServices.Helpers;
+using System.Data;
 
 
 namespace BusinessLibrary.BusinessClasses
@@ -29,7 +30,7 @@ namespace BusinessLibrary.BusinessClasses
         private readonly ILogger<RobotOpenAiHostedService> Logger;
         private List<Task<String>> ApiKeyTasks = new List<Task<String>>();
         private CancellationTokenSource TokenSource = new CancellationTokenSource();
-        private Task<string>? CreditWorker = null;
+        private List<Task<String>> CreditWorkers = new List<Task<String>>();
         private int ApiKeyTaskCount = 0;
         //private CancellationToken token = new CancellationTokenSource(5 * 60 * 1000).Token;
         public RobotOpenAiHostedService(ILogger<RobotOpenAiHostedService> logger)
@@ -49,10 +50,12 @@ namespace BusinessLibrary.BusinessClasses
         /// <returns></returns>
         public override Task StopAsync(CancellationToken cancellationToken)
         {
-            LogInfo("RobotOpenAiHostedService is stopping.");
+            LogInfo("RobotOpenAiHostedService is attempting to stop gracefully.");
             TokenSource.Cancel();
-            Task.WaitAll(ApiKeyTasks.ToArray());
-            if (CreditWorker != null) CreditWorker.Wait();
+            LogInfo("RobotOpenAiHostedService: checking if it can stop...");
+            if (ApiKeyTasks.Count > 0) Task.WaitAll(ApiKeyTasks.ToArray());
+            if (CreditWorkers.Count > 0) Task.WaitAll(CreditWorkers.ToArray());
+            LogInfo("RobotOpenAiHostedService has checked and can stop.");
             return Task.CompletedTask;
         }
         /// <summary>
@@ -85,14 +88,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 try
                 {
-                    if (CreditWorker == null || (CreditWorker.AsyncState as RobotOpenAiTaskReadOnly) == null ||
-                    (CreditWorker.AsyncState as RobotOpenAiTaskReadOnly).RobotApiCallId == 0 ||
-                    CreditWorker.Status == TaskStatus.RanToCompletion ||
-                    CreditWorker.Status == TaskStatus.Faulted || CreditWorker.Status == TaskStatus.Canceled)
+                    CheckCreditWorkers();
+                    if (CreditWorkers.Count < AzureSettings.RobotOpenAIQueueParallelism)
                     {
-                        CreditWorker = null;
                         FetchAndStartNextCreditJob(InternalToken);
-                        //if (CreditWorker == null) throw new InvalidOperationException("fake for testing");
                     }
                 } 
                 catch (Exception e)
@@ -108,8 +107,23 @@ namespace BusinessLibrary.BusinessClasses
                     Logger.LogInformation("RobotOpenAiHostedService main loop halting in Task.Delay");
                 }
             }
-            Task.WaitAll(ApiKeyTasks.ToArray());
-            if (CreditWorker != null) CreditWorker.Wait();
+            if (ApiKeyTasks.Count > 0) Task.WaitAll(ApiKeyTasks.ToArray());
+            if (CreditWorkers.Count > 0) Task.WaitAll(CreditWorkers.ToArray());
+        }
+        private void CheckCreditWorkers()
+        {
+            for (int i = 0; i < CreditWorkers.Count; i++)
+            {
+                Task<string> CreditWorker = CreditWorkers[i];
+                if (CreditWorker == null || CreditWorker.AsyncState == null || (CreditWorker.AsyncState as RobotOpenAiTaskReadOnly).RobotApiCallId == 0 ||
+                    CreditWorker.Status == TaskStatus.RanToCompletion ||
+                    CreditWorker.Status == TaskStatus.Faulted || CreditWorker.Status == TaskStatus.Canceled)
+                {
+                    CreditWorkers.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+            }
         }
         /// <summary>
         /// Runs every 30s unless there are enough running jobs already.
@@ -119,6 +133,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             try
             {
+                Task<String> CreditWorker;
                 RobotOpenAiTaskReadOnly res = DataPortal.Fetch<RobotOpenAiTaskReadOnly>(RobotOpenAiTaskCriteria.NewNextCreditTaskCriteria());
                 if (res != null && res.RobotApiCallId > 0)
                 {
@@ -130,6 +145,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         CreditWorker = Task<String>.Factory.StartNew((TaskCriteria) => DoPDFWork(res, cancellationToken), res);
                     }
+                    CreditWorkers.Add(CreditWorker);
                 }
                 //if (CreditWorker == null) throw new InvalidOperationException("fake for testing");
             }
@@ -329,15 +345,47 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
                 //if (CreditWorker != null) throw new InvalidOperationException("fake for testing");
+
+                //added Dec 2024 to ensure multiple jobs update their state promptly
+                //we start by marking the job as running, so to be sure it won't be picked up again
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                        {
+                            string status = "Running";
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", RT.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
+                            command.Parameters.Add(new SqlParameter("@STATUS", status));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", SqlDbType.BigInt));
+                            command.Parameters["@CURRENT_ITEM_ID"].Value = RT.CurrentItemId;
+                            command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
+                            command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogException(ex, "Failed to mark job as running");
+                }
+
                 LogInfo("Starting Batch " + RT.RobotApiCallId.ToString());
                 RobotOpenAICommand cmd = new RobotOpenAICommand();
                 int DefaultDelayInMs = 10000;
                 int CurrentDelayInMs;
+                int ActiveThreads = CreditWorkers.Count;
                 int DelayedCallsWithoutError = 0;//used to decide when to decrement
                 double RobotOpenAIRequestsPerMinute;
                 if (double.TryParse(AzureSettings.RobotOpenAIRequestsPerMinute, out RobotOpenAIRequestsPerMinute))
                 {
-                    if (RobotOpenAIRequestsPerMinute > 0) DefaultDelayInMs = (int)(1000 * 60 / RobotOpenAIRequestsPerMinute);
+                    if (RobotOpenAIRequestsPerMinute > 0)
+                    {
+                        DefaultDelayInMs = (int)((1000 * 60 / RobotOpenAIRequestsPerMinute)*ActiveThreads);
+                    }
                 }
 
                 int done = 0; //how many items we have done already, which is also the index value of the NEXT item to do
@@ -376,6 +424,21 @@ namespace BusinessLibrary.BusinessClasses
                         LogInfo("(-)Decrementing CurrentDelayInMs before Item = " + RT.ItemIDsList[done].ToString());
                         CurrentDelayInMs = CurrentDelayInMs - delayIncrement;
                     }
+                    if (CreditWorkers.Count != ActiveThreads)
+                    {//recalculate how long is our DefaultDelayInMs and change CurrentDelayInMs accordingly
+                        int OldDefaultDelay = DefaultDelayInMs;
+                        DefaultDelayInMs = (int)((1000 * 60 / RobotOpenAIRequestsPerMinute) * CreditWorkers.Count);
+                        if ((CurrentDelayInMs > DefaultDelayInMs && DelayedCallsWithoutError >= 10) //we're allowed to decrease the delay, enough calls without error have been made
+                            || CurrentDelayInMs < DefaultDelayInMs)//OR we're increasing the delay, which is allowed at any time
+                        {
+                            ActiveThreads = CreditWorkers.Count;
+                            CurrentDelayInMs = DefaultDelayInMs;
+                        }
+                        else if (CurrentDelayInMs > DefaultDelayInMs && DelayedCallsWithoutError < 10)
+                        {
+                            DefaultDelayInMs = OldDefaultDelay;//making "CreditWorkers.Count != ActiveThreads" evaluate to true again for the next item, until we'll have processed 10 items without error
+                        }
+                    }
                     if (CurrentDelayInMs > ApiLatency)
                     {
                         //wait to respect the "requests per second" limit, if/when necessary
@@ -404,7 +467,7 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             doclist += doc.MarkDownFileName + ",";
                         }
-                        doclist = doclist.Substring(0, doclist.Length - 1);
+                        if (doclist.EndsWith(",")) doclist = doclist.Substring(0, doclist.Length - 1);
                     }
                     cmd = new RobotOpenAICommand(RT.ReviewSetId, RT.ItemIDsList[done], 0, RT.ItemIDsList.Count == done + 1 ? true : false,
                             RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
@@ -424,13 +487,15 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         LogInfo("(+++)Cancel request accepted while running RobotOpenAICommand");
                     }
+                    else if (cmd.ReturnMessage == "Error: No valid prompts in codeset")
+                    {
+                        Exception e = new Exception("Coding tool supplied contains no valid prompts");
+                        LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no prompts", true, e);
+                        break;
+                    }
                     else
                     {
-                        if (CurrentDelayInMs > DefaultDelayInMs + delayIncrement)
-                        {
-                            LogInfo("[DelayedCallsWithoutError Incrementing at Item] = " + RT.ItemIDsList[done].ToString());
-                            DelayedCallsWithoutError++;
-                        }
+                        DelayedCallsWithoutError++;
                         done++;
                     }
                 }
@@ -439,7 +504,7 @@ namespace BusinessLibrary.BusinessClasses
                 //If the last item has been processed (done == todo) job has been marked as "Finished" by RobotOpenAICommand and we don't need to do anything
                 if (ct.IsCancellationRequested && done < todo)
                 {
-                    long ItemId = (done - 1 == 0) ? 0 : RT.ItemIDsList[done - 1];//the last ID that was actually done
+                    long ItemId = (done - 1 <= 0) ? 0 : RT.ItemIDsList[done - 1];//the last ID that was actually done
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         connection.Open();

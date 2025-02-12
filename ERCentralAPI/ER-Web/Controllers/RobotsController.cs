@@ -11,6 +11,7 @@ using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EPPIDataServices.Helpers;
+using System.Numerics;
 
 namespace ERxWebClient2.Controllers
 {
@@ -38,7 +39,24 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        [HttpGet("[action]")]
+        public IActionResult GetPastJobs()
+        {
 
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                RobotOpenAiTaskCriteria crit = RobotOpenAiTaskCriteria.NewPastJobsCriteria();
+                RobotOpenAiTaskReadOnlyList res = DataPortal.Fetch<RobotOpenAiTaskReadOnlyList>(crit);
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetPastJobs error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
         [HttpPost("[action]")]
         public IActionResult RunRobotOpenAICommand([FromBody] RobotOpenAICommandJson data)
         {
@@ -56,6 +74,23 @@ namespace ERxWebClient2.Controllers
             }
 
 		}
+        [HttpPost("[action]")]
+        public IActionResult RunRobotInvestigateCommand([FromBody] RobotInvestigateCommandJson data)
+        {
+
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                RobotInvestigateCommand res = DataPortal.Execute<RobotInvestigateCommand>(data.GetRobotInvestigateCommand());
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "RobotInvestigateCommand error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
         [HttpPost("[action]")]
         public IActionResult EnqueueRobotOpenAIBatch([FromBody] RobotOpenAiQueueBatchJobCommandJson data)
         {
@@ -85,7 +120,27 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "RunRobotOpenAICommand error");
+                _logger.LogException(e, "EnqueueRobotOpenAIBatch error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+        [HttpPost("[action]")]
+        public IActionResult CancelRobotOpenAIBatch([FromBody] SingleIntCriteria crit)
+        {
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                else
+                {
+                    RobotOpenAiCancelQueuedBatchJobCommand res = new RobotOpenAiCancelQueuedBatchJobCommand(crit.Value);
+                    res = DataPortal.Execute(res);
+                    return Ok(res);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CancelRobotOpenAIBatch error");
                 return StatusCode(500, e.Message);
             }
 
@@ -106,6 +161,23 @@ public class RobotOpenAICommandJson
     public RobotOpenAICommand GetRobotOpenAICommand()
     {
         RobotOpenAICommand res = new RobotOpenAICommand(reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
+        return res;
+    }
+}
+
+public class RobotInvestigateCommandJson
+{
+    public string queryForRobot = "";
+    public string getTextFrom = "";
+    public Int64 itemsWithThisAttribute;
+    public Int64 textFromThisAttribute;
+    public int sampleSize = 20;
+    public string returnMessage = "";
+    public string returnResultText = "";
+    public string returnItemIdList = "";
+    public RobotInvestigateCommand GetRobotInvestigateCommand()
+    {
+        RobotInvestigateCommand res = new RobotInvestigateCommand(queryForRobot, getTextFrom, itemsWithThisAttribute, textFromThisAttribute, sampleSize);
         return res;
     }
 }

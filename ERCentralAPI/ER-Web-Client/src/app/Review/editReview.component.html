@@ -45,6 +45,16 @@
         </div>
       </td>
     </tr>
+    <tr *ngIf="CanUseRobots">
+      <td colspan="2" class="w-100 mx-0 px-0">
+        <div class="row col-12 mx-0 px-0">
+          <div class="col-auto mx-auto row px-1">
+            <div>Robot/GPT past Jobs:</div>
+            <button class="btn btn-sm btn-outline-primary ml-1 my-auto py-0" (click)="GoToPastJobs()">View list..</button>
+          </div>
+        </div>
+      </td>
+    </tr>
     <tr>
       <td colspan="2" style="padding-left:15px">
         <div>

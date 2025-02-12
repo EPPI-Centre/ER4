@@ -37,7 +37,8 @@ import { SetupConfigurableReports } from '../Reports/SetupConfigurableReports.co
 import { FreqXtabMapsComp } from '../Frequencies/FreqXtabMaps.component';
 import { ClassifierService } from '../services/classifier.service';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
-import { trimEnd } from 'lodash';
+import { RobotInvestigate } from '../Robots/robotInvestigate.component';
+import {  RobotsService } from '../services/Robots.service';
 
 
 @Component({
@@ -91,6 +92,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     private configurablereportServ: ConfigurableReportService,
     @Inject('BASE_URL') private _baseUrl: string,
     private excelService: ExcelService,
+    private robotsService: RobotsService,
     private reviewInfoService: ReviewInfoService,
     private classifierService: ClassifierService,
     private ArmTimepointLinkListService: ArmTimepointLinkListService
@@ -109,6 +111,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
   @ViewChild(SetupConfigurableReports) private SetupConfigurableReports!: SetupConfigurableReports;
   @ViewChild('EditReviewComp') EditReviewComp!: EditReviewComponent;
+  @ViewChild('RobotInvestigate') RobotInvestigate!: RobotInvestigate;
   //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
   public DropdownSelectedCodeAllocate: singleNode | null = null;
@@ -607,15 +610,20 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   }
   ];
   public get CanRunOpenAIrobot(): boolean {
+    //let res: boolean = true;
     if (!this.HasWriteRights) return false;
-    else if (!this.ShowItemsTable) return false;
+    else if (!this.ShowItemsTable) return false;//return immediately, so that if the panel was open, it will re-open when user comes back to references tab
     else if (!this.reviewInfoService.ReviewInfo.hasCreditForRobots) return false;
     else {
       let node = this.reviewSetsService.selectedNode;
       if (node != null && node.nodeType == 'ReviewSet' && (node.subTypeName == "Standard" || node.subTypeName == "Screening")) return true;
       else return false;
     }
+    //if we're here, the result is 'false'
+    //this.ShowRobotBatchJobs = false;//we close the robots panel, otherwise it keeps reappearing!!
+    //return res;
   }
+
 
 
   public get HasSelectedItems(): boolean {
@@ -1215,7 +1223,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     this.SourcesService.Clear();
     this.workAllocationListService.Clear();
     this.DuplicatesService.Clear();
-    this.configurablereportServ.Clear(); FreqXtabMapsComp
+    this.configurablereportServ.Clear();
+    this.robotsService.Clear();
     if (this.FreqComponent) this.FreqComponent.Clear();
     if (this.FreqXtabMapsComp) this.FreqXtabMapsComp.Clear();
     if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();

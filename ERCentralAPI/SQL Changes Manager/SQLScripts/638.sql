@@ -1,0 +1,131 @@
+﻿USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_RobotApiCallLogCreate]    Script Date: 31/12/2024 14:32:09 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER   PROCEDURE [dbo].[st_RobotApiCallLogCreate] 
+(
+	@REVIEW_ID int,
+	@CREDIT_PURCHASE_ID int,
+	@ROBOT_NAME nvarchar(255),
+	@CRITERIA varchar(max),
+	@REVIEW_SET_ID int = 0,
+	@CURRENT_ITEM_ID bigint,
+	@FORCE_CODING_IN_ROBOT_NAME bit,
+	@LOCK_CODING bit,
+	@USE_PDFS bit,
+	@CONTACT_ID int,
+	@result varchar(50) OUTPUT, 
+	@JobId int OUTPUT,
+	@RobotContactId int OUTPUT
+)
+AS
+BEGIN
+
+	set @result = 'Success'
+	declare @rID int = (select ROBOT_ID from TB_CONTACT c 
+							Inner join TB_ROBOT_ACCOUNT rc on c.CONTACT_ID = rc.CONTACT_ID and c.CONTACT_NAME = @ROBOT_NAME
+							AND c.EMAIL like '%FAKE@ucl.ac.uk' AND c.EXPIRY_DATE is null);
+	IF @rID is null OR @rID < 1
+	BEGIN
+		set @result = 'Robot not found';
+		return;
+	END
+	set @RobotContactId = (select CONTACT_ID from TB_ROBOT_ACCOUNT where ROBOT_ID = @rID)
+	declare @chk int = (Select count(*) from  tb_review_set where REVIEW_SET_ID = @REVIEW_SET_ID and REVIEW_ID = @REVIEW_ID)
+	if @chk < 1 and @REVIEW_SET_ID > 0
+	BEGIN
+		set @result = 'Coding tool not found';
+		return;
+	END
+	set @chk = (select count(*) from TB_REVIEW_CONTACT where REVIEW_ID = @REVIEW_ID and CONTACT_ID = @RobotContactId)
+	if @chk < 1
+	BEGIN
+		declare @CR int 
+		insert into TB_REVIEW_CONTACT (REVIEW_ID, CONTACT_ID) values (@REVIEW_ID, @RobotContactId)
+		SET @CR = SCOPE_IDENTITY()
+		INSERT into TB_CONTACT_REVIEW_ROLE (REVIEW_CONTACT_ID, ROLE_NAME) values (@CR, 'Coding only')
+	END
+
+	insert into TB_ROBOT_API_CALL_LOG
+		(CREDIT_PURCHASE_ID,REVIEW_ID,ROBOT_ID,REVIEW_SET_ID,CRITERIA,[STATUS], CURRENT_ITEM_ID 
+		,SUCCESS,INPUT_TOKENS_COUNT,OUTPUT_TOKENS_COUNT,COST
+		,FORCE_CODING_IN_ROBOT_NAME, LOCK_CODING, USE_PDFS, CONTACT_ID)
+		VALUES
+		(@CREDIT_PURCHASE_ID, @REVIEW_ID, @rID, @REVIEW_SET_ID, @CRITERIA, 'Starting', @CURRENT_ITEM_ID
+		, 1, 0, 0, 0
+		, @FORCE_CODING_IN_ROBOT_NAME, @LOCK_CODING, @USE_PDFS, @CONTACT_ID);
+	SET @JobId = SCOPE_IDENTITY();
+END
+
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemList]    Script Date: 01/01/2025 11:56:24 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create OR ALTER procedure [dbo].[st_ItemTextSample]
+(
+      @REVIEW_ID INT,
+      @ATTRIBUTE_ID_LIST NVARCHAR(MAX) = '',
+	  @WhichText nvarchar(20) = 'title',
+	  @WhichAttribute bigint = 0,
+	  @SampleSize int = 50
+)
+
+As
+
+SET NOCOUNT ON
+
+IF (@ATTRIBUTE_ID_LIST != '')
+BEGIN
+	if @WhichText = 'title'
+	BEGIN
+		SELECT top(@SampleSize) I.ITEM_ID, I.SHORT_TITLE, I.TITLE, I.ABSTRACT from TB_ITEM_REVIEW IR
+		INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = IR.ITEM_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_ITEM I ON I.ITEM_ID = IR.ITEM_ID
+		WHERE IR.REVIEW_ID = @REVIEW_ID AND IR.IS_DELETED = 0 AND IR.IS_INCLUDED = 1
+		ORDER BY NEWID()
+	END
+
+	IF @WhichText = 'info'
+	BEGIN
+		SELECT top(@SampleSize) I.ITEM_ID, I.SHORT_TITLE, IA.ADDITIONAL_TEXT from TB_ITEM_REVIEW IR
+		INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = IR.ITEM_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_ITEM I ON I.ITEM_ID = IR.ITEM_ID
+		
+		-- additional filter to specific attribute
+		INNER JOIN TB_ITEM_ATTRIBUTE IA ON IA.ITEM_ID = IR.ITEM_ID and IA.ATTRIBUTE_ID = @WhichAttribute
+		INNER JOIN TB_ITEM_SET ISET ON ISET.ITEM_SET_ID = IA.ITEM_SET_ID AND ISET.IS_COMPLETED = 'TRUE'
+		WHERE IR.REVIEW_ID = @REVIEW_ID AND IR.IS_DELETED = 0 AND IR.IS_INCLUDED = 1
+		AND NOT IA.ADDITIONAL_TEXT IS NULL
+		ORDER BY NEWID()
+	END
+
+	if @WhichText = 'highlighted'
+	BEGIN
+		SELECT top(@SampleSize) I.ITEM_ID, I.SHORT_TITLE, PDF.SELECTION_TEXTS from TB_ITEM_REVIEW IR
+		INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = IR.ITEM_ID
+		INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+		INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		INNER JOIN TB_ITEM I ON I.ITEM_ID = IR.ITEM_ID
+
+		-- additional filter to specific attribute
+		INNER JOIN TB_ITEM_ATTRIBUTE IA ON IA.ITEM_ID = IR.ITEM_ID and IA.ATTRIBUTE_ID = @WhichAttribute
+		INNER JOIN TB_ITEM_SET ISET ON ISET.ITEM_SET_ID = IA.ITEM_SET_ID AND ISET.IS_COMPLETED = 'TRUE'
+
+		-- now get the highlighted text
+		INNER JOIN TB_ITEM_ATTRIBUTE_PDF PDF ON PDF.ITEM_ATTRIBUTE_ID = IA.ITEM_ATTRIBUTE_ID
+		WHERE IR.REVIEW_ID = @REVIEW_ID AND IR.IS_DELETED = 0 AND IR.IS_INCLUDED = 1
+		ORDER BY NEWID()
+	END
+END

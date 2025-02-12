@@ -17,7 +17,6 @@ export class EditReviewComponent implements OnInit, OnDestroy {
   constructor(private router: Router,
     @Inject('BASE_URL') private _baseUrl: string,
     public _reviewService: ReviewService,
-    private readonlyreviewsService: readonlyreviewsService,
     public _reviewerIdentityServ: ReviewerIdentityService,
     public modalService: ModalService,
     public ReviewInfoService: ReviewInfoService,
@@ -84,7 +83,12 @@ export class EditReviewComponent implements OnInit, OnDestroy {
       }
     }
   }
-  
+  public get CanUseRobots(): boolean {
+    return this.ReviewInfoService.ReviewInfo.canUseRobots;
+  }
+  public GoToPastJobs() {
+    this.router.navigate(['JobsRecord']);
+  }
   public get CanSaveReviewName(): boolean {
     if (this.CanWrite()) {
       const rn = this.EditingReviewName.trim();

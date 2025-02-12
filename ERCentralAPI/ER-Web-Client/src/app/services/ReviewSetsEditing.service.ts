@@ -1259,9 +1259,9 @@ export class ReviewSetsEditingService extends BusyAwareService {
 				}).catch(
 
 					(error) => {
-						console.log("ReviewSetCopy catch", error);
-						this.RemoveBusy("ReviewSetCopy");
-						this.modalService.GenericErrorMessage(error);
+            console.log("CreateVisualiseCodeSet", error);
+            this.RemoveBusy("CreateVisualiseCodeSet");
+            this.modalService.GenericError(error);
 						return command;
 					}
 		);

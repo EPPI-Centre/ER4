@@ -522,9 +522,10 @@ namespace BusinessLibrary.BusinessClasses
             if (filter != "" && filter.Length > 3)
             {
                 string[] filters = filter.ToLower().Split(',');
-                foreach (string s in filters)
+                for (int i = 0; i < filters.Length; i++)
                 {
-                    if (field.Contains(s))
+                    string s = filters[i].Trim();
+                    if (field.Contains(s) && s != "")
                     {
                         return false;
                     }

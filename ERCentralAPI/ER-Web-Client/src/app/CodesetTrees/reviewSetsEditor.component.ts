@@ -2,11 +2,12 @@ import { Component, Inject, OnInit, Input, OnDestroy, ViewChild } from '@angular
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, iSetType, ReviewSet, singleNode, kvAllowedAttributeType, SetAttribute } from '../services/ReviewSets.service';
-import { ReviewSetsEditingService, ChangeDataEntryMessage } from '../services/ReviewSetsEditing.service';
+import { ReviewSetsEditingService, ChangeDataEntryMessage, ReviewSetCopyCommand } from '../services/ReviewSetsEditing.service';
 import { CodesetTreeEditComponent } from './codesetTreeEdit.component';
 import { EditCodeComp } from './editcode.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { Subscription } from 'rxjs';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
   selector: 'ReviewSetsEditor',
@@ -25,6 +26,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     private ReviewerIdentityServ: ReviewerIdentityService,
     private ReviewSetsService: ReviewSetsService,
     private ReviewSetsEditingService: ReviewSetsEditingService,
+    private confirmationDialogService: ConfirmationDialogService,
     private ReviewInfoService: ReviewInfoService
   ) { }
   ngOnInit() {
@@ -210,6 +212,41 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
           //this.modalService.GenericErrorMessage(ErrMsg);
         });
   }
+
+  CopyCodesetClicked() {
+    const source = this.CurrentNodeAsReviewSet;
+    if (source == null) return;
+    //there is at least one set - the one we're copying, so the below is safe...
+    const order: number = this.ReviewSets[this.ReviewSets.length - 1].order + 1;
+    this.confirmationDialogService.confirm("Create a Copy?",
+      "This will create a new <strong>copy</strong> of the coding tool:<br>"
+      + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+      + source.set_name + "</strong></div>"
+      + "To avoid confusion, please <strong>edit name and description</strong> of the copied Tool as soon as possible.",
+      false, "").then(
+        (res: any) => {
+          if (res == true) {
+            this.ReviewSetsEditingService.ReviewSetCopy(source.reviewSetId, order).then(
+              (res2) => {
+                this.CopyCodesetIsDone(res2);
+              }
+            )
+          }
+        }
+      ).catch(() => { });
+  }
+  private CopyCodesetIsDone(ReviewSetCopyCmd: ReviewSetCopyCommand) {
+    if (ReviewSetCopyCmd.reviewSetId > 0) {
+      this.CancelActivity();
+      this.ReviewSetsService.GetReviewSets().then(() => {
+        this.RefreshLocalTree();
+        this.ReviewSetsService.selectedNode = this.ReviewSetsService.ReviewSets[this.ReviewSetsService.ReviewSets.length - 1];
+      });
+      //focus on the newly created tool, while we're there
+      
+    }
+  }
+
   RefreshLocalTree() {
     console.log("RefreshLocalTree (reviewSets editor)");
     if (this.treeEditorComponent) {

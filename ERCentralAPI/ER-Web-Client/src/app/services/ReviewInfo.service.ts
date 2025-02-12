@@ -52,17 +52,25 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
     await Helpers.Sleep(40);//just avoiding to send two requests exactly at the same time...
     this.FetchReviewMembers();
   }
-  public Fetch() {
+  public Fetch()  {
     this._BusyMethods.push("Fetch");
-    this._httpC.get<iReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(
+    return lastValueFrom(this._httpC.get<iReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo')).then(
       rI => {
         this.ReviewInfo = new ReviewInfo(rI);
         this.RemoveBusy("Fetch");
         //console.log("fetched revinfo:", this._ReviewInfo);
         //this.Save();
+        return true;
       }, error => {
         this.RemoveBusy("Fetch");
         this.modalService.SendBackHomeWithError(error);
+        return false;
+      }
+    ).catch(
+      caught => {
+        this.RemoveBusy("Fetch");
+        this.modalService.SendBackHomeWithError(caught);
+        return false;
       }
     );
   }

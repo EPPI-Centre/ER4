@@ -260,6 +260,8 @@ namespace BusinessLibrary.BusinessClasses
 
                     _Succeded = false;
                     _message = "Error. " + Environment.NewLine + e.Message;
+                    ErrorLogSink(e.Message);
+                    if (e.StackTrace != null) ErrorLogSink(e.StackTrace);
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         string SavedMsg = e.Message;
@@ -315,7 +317,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private class OpenAIChatClass
+        internal class OpenAIChatClass
         {
             public string role { get; set; }
             public string content { get; set; }
