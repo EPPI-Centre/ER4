@@ -11,6 +11,10 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using System.Data;
+using Microsoft.Rest.ClientRuntime.Azure.Authentication.Utilities;
+using Microsoft.Rest.ClientRuntime.Azure.Authentication.Utilities;
+
+
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
@@ -32,7 +36,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public ClassifierCommandV2() { }
         // variables for training the classifier
-        private string _title;
+        private string _title = "";
         private Int64 _attributeIdOn;
         private Int64 _attributeIdNotOn;
         private Int64 _attributeIdClassifyTo;
@@ -41,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
         // variables for applying the classifier
         private int _classifierId = -1;
 
-        private string _returnMessage;
+        private string _returnMessage = "";
 
         public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId)
         {
@@ -110,7 +114,12 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (_title.Contains("¬¬CheckScreening"))
             {
-                DoApplyCheckScreening();
+                DoApplyCheckOrPriorityScreening("ChckS");
+                return;
+            }
+            if (_title.Contains("¬¬PriorityScreening"))
+            {
+                DoApplyCheckOrPriorityScreening("PrioS");
                 return;
             }
             if (_attributeIdOn + _attributeIdNotOn != -2)
@@ -682,8 +691,9 @@ namespace BusinessLibrary.BusinessClasses
             //}
             //connection.Close();
         }
+        // does both priority screening simulation and check screening
 
-        private void DoApplyCheckScreening()
+        private void DoApplyCheckOrPriorityScreening(string CheckOrPriority)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -710,7 +720,7 @@ namespace BusinessLibrary.BusinessClasses
                     command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", SqlDbType.Int));
                     command2.Parameters["@REVIEW_ID_OF_MODEL"].Value = 0;
                     command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command2.Parameters.Add(new SqlParameter("@JobType", "ChckS")); //"Apply", "Build" or "ChckS" (for "Check Screening")
+                    command2.Parameters.Add(new SqlParameter("@JobType", CheckOrPriority)); //"Apply", "Build" or "ChckS" (for "Check Screening") "PrioS" (for "priority screening simulation)
                     command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
                     command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                     command2.ExecuteNonQuery();
@@ -767,21 +777,36 @@ namespace BusinessLibrary.BusinessClasses
                     return;
                 }
                 connection.Close();
-                Task.Run(() => UploadDataAndCheckScreeningAsync(ReviewId, ri.UserId, thisGuid, NewJobId));
+                Task.Run(() => UploadDataAndCheckOrPriorityScreeningSimulationAsync(ReviewId, ri.UserId, thisGuid, NewJobId, CheckOrPriority));
             }
         }
 
-        private async void UploadDataAndCheckScreeningAsync(int ReviewId, int ContactId, Guid thisGuid, int LogId)
+        // does both priority screening simulation and check screening
+        private async void UploadDataAndCheckOrPriorityScreeningSimulationAsync(int ReviewId, int ContactId, Guid thisGuid, int LogId, string CheckOrPriority)
         {
             if (AppIsShuttingDown)
             {
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "ClassifierCommandV2", true, false);
                 return;
             }
-            string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ContactId" + ContactId.ToString() + "_" + thisGuid.ToString();
-            string RemoteFolder = "check_screening/" + FolderAndFileName + "/";
-            string RemoteFileName = RemoteFolder + "ScreeningCheckData.tsv";
-            ScoresFile = RemoteFolder + "ScreeningCheckScores" + ".tsv";
+            string FolderAndFileName = "";
+            string RemoteFolder = "";
+            string RemoteFileName = "";
+
+            if ((CheckOrPriority == "PrioS"))
+            {
+                FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString();
+                RemoteFolder = "priority_screening_simulation/" + FolderAndFileName + "/";
+                RemoteFileName = RemoteFolder + "PriorityScreeningSimulationData_" + thisGuid.ToString() + ".tsv";
+                ScoresFile = RemoteFolder + _title.Replace("¬¬PriorityScreening¬¬", "") + ".tsv" ;
+            }
+            else
+            {
+                FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ContactId" + ContactId.ToString() + "_" + thisGuid.ToString();
+                RemoteFolder = "check_screening /" + FolderAndFileName + "/";
+                RemoteFileName = RemoteFolder + "ScreeningCheckData.tsv";
+                ScoresFile = RemoteFolder + "ScreeningCheckScores.tsv";
+            }
 
             bool DataFactoryRes = false;
             try
@@ -817,9 +842,10 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
                 DataFactoryHelper DFH = new DataFactoryHelper();
+                string endpoint = (CheckOrPriority == "PrioS" ? "do_priority_screening_simulation" : "do_check_screening");
                 Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
-                    {"do_check_screening", true },
+                    {endpoint, true },
                     {"DataFile", RemoteFileName },
                     {"EPPIReviewerApiRunId", thisGuid.ToString()},
                     {"ScoresFile", ScoresFile},
@@ -834,6 +860,14 @@ namespace BusinessLibrary.BusinessClasses
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to (re)build classifier", "", "ClassifierCommandV2", true, false);
                 return;
             }
+
+            if (CheckOrPriority == "PrioS")
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
+                _returnMessage = "success";
+                return; // we're done!
+            }
+
 
             DataTable Scores = new DataTable();
             if (DataFactoryRes == true)

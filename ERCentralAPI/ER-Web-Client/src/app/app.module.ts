@@ -142,6 +142,7 @@ import { RobotSettings } from './Robots/robotSettings.component';
 import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 import { RobotInvestigate } from './Robots/robotInvestigate.component';
 import { CheckScreening } from './Search/CheckScreening.component';
+import { PriorityScreeningSim } from './Search/PriorityScreeningSim.component';
 import { RobotJobs } from './Robots/robotJobs.component';
 
 
@@ -290,6 +291,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     RobotSettings,
     RobotBatchJobs,
     RobotInvestigate,
+    PriorityScreeningSim,
     CheckScreening,
     RobotJobs
   ],
@@ -354,6 +356,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'Zotero', component: ZoteroManagerComponent },
       { path: 'MetaAnalysis', component: MetaAnalysisComp },
       { path: 'Investigate', component: RobotInvestigate },
+      { path: 'PriorityScreeningSim', component: PriorityScreeningSim },
       { path: 'JobsRecord', component: RobotJobs },
       { path: '**', redirectTo: 'home' }
     ]),
