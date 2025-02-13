@@ -307,4 +307,10 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Models\ClassifierCommandV2.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
