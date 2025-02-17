@@ -46,6 +46,10 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
       return this._ReviewContacts;
     }
   }
+  private _ReviewJobs: iReviewJob[] = [];
+  public get ReviewJobs(): iReviewJob[] {
+    return this._ReviewJobs;
+  }
 
   public async FetchAll() {
     this.Fetch();
@@ -123,10 +127,34 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
     if (ind != -1) return this._ReviewContacts[ind].contactName;
     else return "N/A [Id:" + ContactID.toString() + "]";
   }
+  public FetchJobs(): Promise<boolean> {
+    this._ReviewJobs = [];
+    this._BusyMethods.push("FetchJobs");
+    return lastValueFrom(this._httpC.get<iReviewJob[]>(this._baseUrl + 'api/ReviewInfo/ReviewJobs')).then(
+      res => {
+        this._ReviewJobs = res;
+        this.RemoveBusy("FetchJobs");
+        return true;
+      }, error => {
+        this.RemoveBusy("FetchJobs");
+        this.modalService.GenericError(error);
+        return false;
+      }
+    ).catch(
+      caught => {
+        this.RemoveBusy("FetchJobs");
+        this.modalService.GenericError(caught);
+        return false;
+      }
+    );
+  }
+
+
   public Clear() {
     console.log("Clear in ReviewInfo service");
     this._ReviewInfo = new ReviewInfo();
     this._ReviewContacts = [];
+    this._ReviewJobs = [];
   }
 }
 
@@ -244,5 +272,18 @@ export class Contact {
   role: string = '';
 
   isExpired: number = 1;
+}
+export interface iReviewJob {
+  //LoadProperty<int>(ReviewJobIdProperty, reader.GetInt32("REVIEW_JOB_ID"));
+  reviewJobId: number;
+  jobOwnerId: number;
+  created: string;
+  updated: string;
+  status: string;
+  success: boolean;
+  jobMessage: string;
+  lengthInMinutes: number;
+  lengthInSeconds: number;
+  ownerName: string;
 }
 

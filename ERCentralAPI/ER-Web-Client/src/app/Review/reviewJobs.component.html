@@ -1,0 +1,51 @@
+<kendo-grid *ngIf="Jobs && Jobs.length > 0" id="RobotJobsGrid"
+            [kendoGridBinding]="Jobs"
+            [rowClass]="rowCallback"
+            [sortable]="{
+          allowUnsort: true,
+          mode: 'single'
+          }"
+            [selectable]="true"
+            [pageSize]="50"
+            [pageable]="{
+                buttonCount: 10,
+                info: false,
+                type: 'numeric',
+                pageSizes: false,
+                previousNext: true
+            }"
+            filterable="menu"
+            (dataStateChange)="dataStateChange($event)"
+            style="max-height: 75vh; height: 75vh;"
+            class="mt-1">
+  <kendo-grid-column field="reviewJobId" title="Id" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="reviewJobId" title="Id" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="jobOwnerId" title="OwnerId" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="ownerName" title="Owner Name" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="created" title="Date" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="updated" title="Last update" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="status" title="Status" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="success" title="Success" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="jobMessage" title="message" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="lengthInMinutes" title="Duration(m)" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <kendo-grid-column field="lengthInSeconds" title="Duration(s)" [width]="60" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <ng-template kendoPagerTemplate let-totalPages="totalPages" let-totalN="total" let-skipo="skip" let-pageSizep="pageSize">
+    <kendo-pager-prev-buttons *ngIf="totalPages > 1"></kendo-pager-prev-buttons>
+    <kendo-pager-numeric-buttons *ngIf="totalPages > 1" [buttonCount]="10"></kendo-pager-numeric-buttons>
+    <kendo-pager-next-buttons *ngIf="totalPages > 1"></kendo-pager-next-buttons>
+    <div *ngIf="totalPages == 1" class="m-0 p-0 small k-pager-info">[{{totalN}} Jobs]</div>
+    <div *ngIf="totalPages > 1" class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
+    <kendo-pager-page-sizes [pageSizes]="pageSizes"></kendo-pager-page-sizes>
+  </ng-template>
+</kendo-grid>

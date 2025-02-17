@@ -100,6 +100,30 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpGet("[action]")]
+        public IActionResult ReviewJobs()
+        {
+
+            try
+            {
+
+                if (!SetCSLAUser()) return Unauthorized();
+                
+
+                DataPortal<ReviewJobReadOnlyReadOnlyList> dp = new DataPortal<ReviewJobReadOnlyReadOnlyList>();
+
+                ReviewJobReadOnlyReadOnlyList result = dp.Fetch();
+
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "ReviewJobs Error");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
     public class ReviewInfoMVC
     {

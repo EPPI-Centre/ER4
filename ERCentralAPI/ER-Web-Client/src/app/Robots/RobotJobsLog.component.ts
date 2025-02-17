@@ -9,13 +9,13 @@ import { GridDataResult, PageChangeEvent, RowClassArgs, DataStateChangeEvent } f
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'RobotJobs',
-  templateUrl: './robotJobs.component.html',
+  selector: 'RobotJobsLog',
+  templateUrl: './RobotJobsLog.component.html',
   styles: [],
   providers: []
 })
 
-export class RobotJobs implements OnInit, OnDestroy {
+export class RobotJobsLog implements OnInit, OnDestroy {
   constructor(private router: Router,
     @Inject('BASE_URL') private _baseUrl: string,
     private _reviewerIdentityServ: ReviewerIdentityService,
