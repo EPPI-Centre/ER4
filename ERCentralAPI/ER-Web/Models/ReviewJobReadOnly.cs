@@ -96,24 +96,6 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-
-        public static readonly PropertyInfo<int> LengthInMinutesProperty = RegisterProperty<int>(new PropertyInfo<int>("LengthInMinutes", "LengthInMinutes"));
-        public int LengthInMinutes
-        {
-            get
-            {
-                return GetProperty(LengthInMinutesProperty);
-            }
-        }
-        public static readonly PropertyInfo<int> LengthInSecondsProperty = RegisterProperty<int>(new PropertyInfo<int>("LengthInSeconds", "LengthInSeconds"));
-        public int LengthInSeconds
-        {
-            get
-            {
-                return GetProperty(LengthInSecondsProperty);
-            }
-        }
-
         public static readonly PropertyInfo<string> OwnerNameProperty = RegisterProperty<string>(new PropertyInfo<string>("OwnerName", "OwnerName"));
         public string OwnerName
         {
@@ -140,11 +122,11 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
-        private void Child_Fetch(SafeDataReader reader)
+        private void Child_Fetch(SafeDataReader reader, bool IsSiteAdmin)
         {
-            Child_FetchDetails(reader);
+            Child_FetchDetails(reader, IsSiteAdmin);
         }
-        private void Child_FetchDetails(SafeDataReader reader)
+        private void Child_FetchDetails(SafeDataReader reader, bool IsSiteAdmin)
         {
             LoadProperty<int>(ReviewJobIdProperty, reader.GetInt32("REVIEW_JOB_ID"));  
             LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
@@ -152,10 +134,19 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<DateTime>(UpdatedProperty, reader.GetDateTime("END_TIME"));
             LoadProperty<string>(StatusProperty, reader.GetString("CURRENT_STATE"));
             LoadProperty<int>(SuccessProperty, reader.GetInt32("SUCCESS"));
-            LoadProperty<string>(JobMessageProperty, reader.GetString("JOB_MESSAGE"));
+            if (!IsSiteAdmin)
+            {
+                string res = "";
+                string[] temp = reader.GetString("JOB_MESSAGE").Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string line in temp)
+                {
+                    if (!line.StartsWith("Pipeline:")) res += line + Environment.NewLine;
+                }
+                res = res.TrimEnd();
+                LoadProperty<string>(JobMessageProperty, res);
+            }
+            else LoadProperty<string>(JobMessageProperty, reader.GetString("JOB_MESSAGE"));
             LoadProperty<string>(JobTypeProperty, reader.GetString("JOB_TYPE"));
-            LoadProperty<int>(LengthInMinutesProperty, reader.GetInt32("Len in Minutes"));
-            LoadProperty<int>(LengthInSecondsProperty, reader.GetInt32("Len in Seconds"));
             LoadProperty<string>(OwnerNameProperty, reader.GetString("CONTACT_NAME"));
         }
 

@@ -111,9 +111,9 @@ namespace ERxWebClient2.Controllers
                 if (!SetCSLAUser()) return Unauthorized();
                 
 
-                DataPortal<ReviewJobReadOnlyReadOnlyList> dp = new DataPortal<ReviewJobReadOnlyReadOnlyList>();
+                DataPortal<ReviewJobReadOnlyList> dp = new DataPortal<ReviewJobReadOnlyList>();
 
-                ReviewJobReadOnlyReadOnlyList result = dp.Fetch();
+                ReviewJobReadOnlyList result = dp.Fetch();
 
                 return Ok(result);
 

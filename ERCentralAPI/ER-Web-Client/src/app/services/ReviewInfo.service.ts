@@ -46,8 +46,8 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
       return this._ReviewContacts;
     }
   }
-  private _ReviewJobs: iReviewJob[] = [];
-  public get ReviewJobs(): iReviewJob[] {
+  private _ReviewJobs: ReviewJob[] = [];
+  public get ReviewJobs(): ReviewJob[] {
     return this._ReviewJobs;
   }
 
@@ -132,7 +132,9 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("FetchJobs");
     return lastValueFrom(this._httpC.get<iReviewJob[]>(this._baseUrl + 'api/ReviewInfo/ReviewJobs')).then(
       res => {
-        this._ReviewJobs = res;
+        for (let iJob of res) {
+          this._ReviewJobs.push(new ReviewJob(iJob));
+        }
         this.RemoveBusy("FetchJobs");
         return true;
       }, error => {
@@ -274,16 +276,58 @@ export class Contact {
   isExpired: number = 1;
 }
 export interface iReviewJob {
-  //LoadProperty<int>(ReviewJobIdProperty, reader.GetInt32("REVIEW_JOB_ID"));
   reviewJobId: number;
+  jobType: string;
   jobOwnerId: number;
   created: string;
   updated: string;
   status: string;
-  success: boolean;
+  success: number;
   jobMessage: string;
   lengthInMinutes: number;
   lengthInSeconds: number;
   ownerName: string;
+}
+
+export class ReviewJob {
+  constructor(data?: iReviewJob) {
+    if (data) {
+      this.reviewJobId = data.reviewJobId;
+      this.jobType = data.jobType;
+      this.jobOwnerId = data.jobOwnerId;
+      this.created = new Date(data.created);
+      this.updated = new Date(data.updated);
+      this.status = data.status;
+      this.success = data.success == 1 ? true : false;
+      this.jobMessage = data.jobMessage;
+      this.ownerName = data.ownerName;
+
+      const d1: any = this.created;
+      const d2: any = this.updated;
+      this.JobDurationMs = d2 - d1;
+    }
+    else {
+      this.reviewJobId = 0;
+      this.jobType = "";
+      this.jobOwnerId = 0;
+      this.created = new Date();
+      this.updated = this.created;
+      this.status = "";
+      this.success = false;
+      this.jobMessage = "";
+      this.ownerName = "";
+      this.JobDurationMs = 0;
+    }
+  }
+  reviewJobId: number;
+  jobType: string;
+  jobOwnerId: number;
+  created: Date;
+  updated: Date;
+  status: string;
+  success: boolean;
+  jobMessage: string;
+  ownerName: string;
+  JobDurationMs: number;
 }
 

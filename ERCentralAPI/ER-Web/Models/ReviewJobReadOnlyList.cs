@@ -19,9 +19,9 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class ReviewJobReadOnlyReadOnlyList : ReadOnlyListBase<ReviewJobReadOnlyReadOnlyList, ReviewJobReadOnly>
+    public class ReviewJobReadOnlyList : ReadOnlyListBase<ReviewJobReadOnlyList, ReviewJobReadOnly>
     {
-        public ReviewJobReadOnlyReadOnlyList() 
+        public ReviewJobReadOnlyList() 
         {
         }
         
@@ -43,7 +43,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", rid));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        Child_Fetch(reader);
+                        Child_Fetch(reader, ri.IsSiteAdmin);
                     }
                 }
             }
@@ -51,13 +51,13 @@ namespace BusinessLibrary.BusinessClasses
             RaiseListChangedEvents = true;
         }
        
-        private void Child_Fetch(SafeDataReader reader)
+        private void Child_Fetch(SafeDataReader reader, bool IsSiteAdmin)
         {
             RaiseListChangedEvents = false;
             IsReadOnly = false;
             while (reader.Read())
             {
-                Add(DataPortal.FetchChild<ReviewJobReadOnly>(reader));
+                Add(DataPortal.FetchChild<ReviewJobReadOnly>(reader, IsSiteAdmin));
             }
             IsReadOnly = true;
             RaiseListChangedEvents = true;
