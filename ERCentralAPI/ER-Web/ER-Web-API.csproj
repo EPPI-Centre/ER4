@@ -302,6 +302,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Models\RobotLLM.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="web.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
