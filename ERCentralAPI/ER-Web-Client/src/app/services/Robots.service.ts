@@ -39,7 +39,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   public RobotInvestigateResults: iRobotInvestigate[] = [];
 
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
-  public PastJobs: iRobotOpenAiTaskReadOnly[] = [];
+  public PastJobs: RobotOpenAiTaskReadOnly[] = [];
 
   public GetCurrentQueue(): Promise<void> {
     this.CurrentQueue = [];
@@ -63,7 +63,9 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("GetPastJobs");
     return lastValueFrom(this._httpC.get<iRobotOpenAiTaskReadOnly[]>(this._baseUrl + 'api/Robots/GetPastJobs'))
       .then((res) => {
-        this.PastJobs = res;
+        for (let iJob of res) {
+          this.PastJobs.push(new RobotOpenAiTaskReadOnly(iJob));
+        }
         this.RemoveBusy("GetPastJobs");
       },
         (err) => {
@@ -264,6 +266,7 @@ export interface iRobotOpenAiTaskReadOnly {
   creditPurchaseId: number;
   reviewId: number;
   robotId: number;
+  robotName: string;
   jobOwnerId: number;
   jobOwner: string;
   reviewSetId: number;
@@ -283,6 +286,104 @@ export interface iRobotOpenAiTaskReadOnly {
   robotContactId: number;
   errors: iRobotOpenAiTaskError[];
 }
+
+export class RobotOpenAiTaskReadOnly {
+  constructor(data?: iRobotOpenAiTaskReadOnly) {
+    if (data) {
+      this.robotApiCallId = data.robotApiCallId;
+      this.creditPurchaseId = data.creditPurchaseId;
+      this.reviewId = data.reviewId;
+      this.robotId = data.robotId;
+      this.robotName = data.robotName;
+      this.jobOwnerId = data.jobOwnerId;
+      this.jobOwner = data.jobOwner;
+      this.reviewSetId = data.reviewSetId;
+      this.rawCriteria = data.rawCriteria;
+      this.itemIDsList = data.itemIDsList;
+      this.status = data.status;
+      this.currentItemId = data.currentItemId;
+      this.created = new Date(data.created);
+      this.updated = new Date(data.updated);
+      this.success = data.success;
+      this.inputTokens = data.inputTokens;
+      this.outputTokens = data.outputTokens;
+      this.cost = data.cost;
+      this.onlyCodeInTheRobotName = data.onlyCodeInTheRobotName;
+      this.lockTheCoding = data.lockTheCoding;
+      this.useFullTextDocument = data.useFullTextDocument;
+      this.robotContactId = data.robotContactId;
+      this.errors = data.errors;
+
+      const d1: any = this.created;
+      const d2: any = this.updated;
+      this.JobDurationMs = d2 - d1;
+      if (data.rawCriteria == "Robot investigate single query") this.JobType = "Investigate";
+      else if (data.useFullTextDocument == true) this.JobType = "Coding (full text)";
+      else this.JobType = "Coding";
+
+      if (this.JobType.startsWith("Coding")) this.ItemsCount = this.itemIDsList.length;
+      else this.ItemsCount = -1;
+
+    } else {
+      this.robotApiCallId = 0;
+      this.creditPurchaseId = 0;
+      this.reviewId = 0;
+      this.robotId = 0;
+      this.robotName = "";
+      this.jobOwnerId = 0;
+      this.jobOwner = "";
+      this.reviewSetId = 0;
+      this.rawCriteria = "";
+      this.itemIDsList = [];
+      this.status = "";
+      this.currentItemId = 0;
+      this.created = new Date();
+      this.updated = this.created;
+      this.success = false;
+      this.inputTokens = 0;
+      this.outputTokens = 0;
+      this.cost = 0;
+      this.onlyCodeInTheRobotName = true;
+      this.lockTheCoding = true;
+      this.useFullTextDocument = false;
+      this.robotContactId = 0;
+      this.errors = [];
+
+      this.JobDurationMs = 0;
+      this.JobType = "N/A";
+      this.ItemsCount = -1;
+    }
+  }
+  robotApiCallId: number;
+  creditPurchaseId: number;
+  reviewId: number;
+  robotId: number;
+  robotName: string;
+  jobOwnerId: number;
+  jobOwner: string;
+  reviewSetId: number;
+  rawCriteria: string;
+  itemIDsList: number[];
+  status: string;
+  currentItemId: number;
+  created: Date;
+  updated: Date;
+  success: boolean;
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
+  onlyCodeInTheRobotName: boolean;
+  lockTheCoding: boolean;
+  useFullTextDocument: boolean;
+  robotContactId: number;
+  errors: iRobotOpenAiTaskError[];
+
+  JobDurationMs: number;
+  JobType: string;
+  ItemsCount: number;
+}
+
+
 export interface iRobotOpenAiTaskError {
   affectedItemId: number;
   errorMessage: string;

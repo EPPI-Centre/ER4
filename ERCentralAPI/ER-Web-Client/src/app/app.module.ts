@@ -143,7 +143,9 @@ import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 import { RobotInvestigate } from './Robots/robotInvestigate.component';
 import { CheckScreening } from './Search/CheckScreening.component';
 import { PriorityScreeningSim } from './Search/PriorityScreeningSim.component';
-import { RobotJobs } from './Robots/robotJobs.component';
+import { RobotJobsLog } from './Robots/RobotJobsLog.component';
+import { JobsContainer } from './Review/JobsContainer.component';
+import { ReviewJobs } from './Review/reviewJobs.component';
 
 
 
@@ -293,7 +295,9 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     RobotInvestigate,
     PriorityScreeningSim,
     CheckScreening,
-    RobotJobs
+    RobotJobsLog,
+    JobsContainer,
+    ReviewJobs
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -357,7 +361,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'MetaAnalysis', component: MetaAnalysisComp },
       { path: 'Investigate', component: RobotInvestigate },
       { path: 'PriorityScreeningSim', component: PriorityScreeningSim },
-      { path: 'JobsRecord', component: RobotJobs },
+      { path: 'JobsRecord', component: JobsContainer },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,

@@ -61,6 +61,14 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(RobotIdProperty);
             }
         }
+        public static readonly PropertyInfo<string> RobotNameProperty = RegisterProperty<string>(new PropertyInfo<string>("RobotName", "RobotName"));
+        public string RobotName
+        {
+            get
+            {
+                return GetProperty(RobotNameProperty);
+            }
+        }
         public static readonly PropertyInfo<int> JobOwnerIdProperty = RegisterProperty<int>(new PropertyInfo<int>("JobOwnerId", "JobOwnerId"));
         public int JobOwnerId
         {
@@ -337,8 +345,9 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<bool>(LockTheCodingProperty, reader.GetBoolean("LOCK_CODING"));
             LoadProperty<int>(RobotContactIdProperty, reader.GetInt32("ROBOT_CONTACT_ID"));
             LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
-            LoadProperty<bool>(UseFullTextDocumentProperty, reader.GetBoolean("USE_PDFS")); 
+            LoadProperty<bool>(UseFullTextDocumentProperty, reader.GetBoolean("USE_PDFS"));
             LoadProperty<string>(JobOwnerProperty, reader.GetString("CONTACT_NAME"));
+            LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
             if (RawCriteria.StartsWith("ItemIds: "))
@@ -374,6 +383,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<int>(RobotContactIdProperty, reader.GetInt32("ROBOT_CONTACT_ID"));
             LoadProperty<int>(JobOwnerIdProperty, -1);
             LoadProperty<string>(JobOwnerProperty, "N/A");
+            LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
             if (RawCriteria.StartsWith("ItemIds: "))
