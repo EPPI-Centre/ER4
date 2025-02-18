@@ -2,7 +2,7 @@
 
 The API endpoint in ADF is a multi-parameter endpoint that executes numerous pipelines on Azure Machine Learning.
 
-There are many similarities between the functionality on the EPPI Reviewer side. Broadly speaking, the usual process is as follows:
+There are many similarities between different features on the EPPI Reviewer side. Broadly speaking, the usual process is as follows:
 * Retrieve a set of items from the EPPI Reviewer database (with, optionally 'labels')
 * Save this set of items locally to a temp file on the webserver
 * Upload this file to blob storage (to a specified location, that is passed as a parameter to ADF)
@@ -51,10 +51,10 @@ API calls for scoring models (use CreateLocalFileWithoutLabels) and process data
 * *do_original_rct_classifier_b*
 * *do_economic_eval_classifier_b*
 * *do_systematic_reviews_classifier_b*
-* *do_covid_map_categories_b_*
-* *do_long_covid_svm_b_*
-* *do_pubmed_study_designs_b_*
-* *do_progress_plus_b_*
+* *do_covid_map_categories_b*
+* *do_long_covid_svm_b*
+* *do_pubmed_study_designs_b*
+* *do_progress_plus_b*
 
 Concerned with parsing pdfs / RAG pipeline:
 * *do_parse_pdf*

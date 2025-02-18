@@ -183,136 +183,132 @@ namespace BusinessLibrary.BusinessClasses
                 _message = "Error: GPT4 is disabled or there is no credit.";
                 return;
             }
-            else
-            {
-                if (_jobId == 0)
-                {//we need to create a record for this in TB_ROBOT_API_CALL_LOG - it's a single call doing one item!
-                    CreditForRobots CfR = rInfo.CreditForRobotsList.FirstOrDefault(f => f.AmountRemaining >= 0.01);
-                    int creditPurchaseId = 0;
-                    if (CfR == null && rInfo.OpenAIEnabled == false)
+            if (_jobId == 0)
+            {//we need to create a record for this in TB_ROBOT_API_CALL_LOG - it's a single call doing one item!
+                CreditForRobots CfR = rInfo.CreditForRobotsList.FirstOrDefault(f => f.AmountRemaining >= 0.01);
+                int creditPurchaseId = 0;
+                if (CfR == null && rInfo.OpenAIEnabled == false)
+                {
+                    _message = "Error: did not find suitable credit to use.";
+                    return;
+                }
+                else if (CfR != null)
+                {
+                    creditPurchaseId = CfR.CreditPurchaseId;
+                }
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_RobotApiCallLogCreate", connection))
                     {
-                        _message = "Error: did not find suitable credit to use.";
-                        return;
-                    }
-                    else if (CfR != null)
-                    {
-                        creditPurchaseId = CfR.CreditPurchaseId;
-                    }
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                    {
-                        connection.Open();
-                        using (SqlCommand command = new SqlCommand("st_RobotApiCallLogCreate", connection))
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
+                        command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
+                        command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
+                        command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                        command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
+                        command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
+                        command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument));
+                        command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
+                        command.Parameters["@result"].Size = 50;
+                        command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters.Add(new SqlParameter("@JobId", SqlDbType.Int));
+                        command.Parameters["@JobId"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters.Add(new SqlParameter("@RobotContactId", SqlDbType.Int));
+                        command.Parameters["@RobotContactId"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+                        if (command.Parameters["@result"].Value.ToString() != "Success")
                         {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
-                            command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
-                            command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
-                            command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
-                            command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
-                            command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
-                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
-                            command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
-                            command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
-                            command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument));
-                            command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
-                            command.Parameters["@result"].Size = 50;
-                            command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
-                            command.Parameters.Add(new SqlParameter("@JobId", SqlDbType.Int));
-                            command.Parameters["@JobId"].Direction = System.Data.ParameterDirection.Output;
-                            command.Parameters.Add(new SqlParameter("@RobotContactId", SqlDbType.Int));
-                            command.Parameters["@RobotContactId"].Direction = System.Data.ParameterDirection.Output;
-                            command.ExecuteNonQuery();
-                            if (command.Parameters["@result"].Value.ToString() != "Success")
-                            {
-                                _message = "Error. " + command.Parameters["@result"].Value.ToString();
-                                return;
-                            }
-                            _jobId = (int)command.Parameters["@JobId"].Value;
-                            _robotContactId = (int)command.Parameters["@RobotContactId"].Value;
+                            _message = "Error. " + command.Parameters["@result"].Value.ToString();
+                            return;
                         }
+                        _jobId = (int)command.Parameters["@JobId"].Value;
+                        _robotContactId = (int)command.Parameters["@RobotContactId"].Value;
                     }
                 }
-                //we have a jobID so now we can (and want) to catch and log exceptions
-                try
+            }
+            //we have a jobID so now we can (and want) to catch and log exceptions
+            try
+            {
+                if (AppIsShuttingDown)
                 {
+                    MarkAsPaused();
+                    return;
+                }
+                _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();//this runs synchronously, hence the catch will work
+                if (errors > 0)
+                {
+                    _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
+                    if (hasSavedSomeCodes == false && _Item_set_id > 0)
+                    {
+                        DeleteItemSetIfEmpty();
+                    }
                     if (AppIsShuttingDown)
                     {
                         MarkAsPaused();
                         return;
                     }
-                    _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();//this runs synchronously, hence the catch will work
-                    if (errors > 0)
-                    {
-                        _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
-                        if (hasSavedSomeCodes == false && _Item_set_id > 0)
-                        {
-                            DeleteItemSetIfEmpty();
-                        }
-                        if (AppIsShuttingDown)
-                        {
-                            MarkAsPaused();
-                            return;
-                        }
-                    }
                 }
-                catch (Exception e)
-                {
-
-                    _Succeded = false;
-                    _message = "Error. " + Environment.NewLine + e.Message;
-                    ErrorLogSink(e.Message);
-                    if (e.StackTrace != null) ErrorLogSink(e.StackTrace);
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                    {
-                        string SavedMsg = e.Message;
-                        if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
-                        connection.Open();
-                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
-                        {//this is to update the token numbers, and thus the cost, if we can
-                            command.CommandType = System.Data.CommandType.StoredProcedure; 
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
-                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
-                            command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
-                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
-                            command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
-                            command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
-                            command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
-                            command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
-                            command.ExecuteNonQuery();
-                        }
-                    }
-                    if (hasSavedSomeCodes == false && _Item_set_id > 0)
-                    {
-                        DeleteItemSetIfEmpty();
-                    }
-                    return;
-                }
-                if (AppIsShuttingDown && _Succeded == false)
-                {
-                    MarkAsPaused();
-                    return;
-                }
+            }
+            catch (Exception e)
+            {
+                _Succeded = false;
+                _message = "Error. " + Environment.NewLine + e.Message;
+                ErrorLogSink(e.Message);
+                if (e.StackTrace != null) ErrorLogSink(e.StackTrace);
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
+                    string SavedMsg = e.Message;
+                    if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
                     connection.Open();
                     using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
-                    {
-                        string status;
-                        if (_isLastInBatch == false) status = "Running";
-                        else
-                        {
-                            if (_Succeded == false) status = "Failed";
-                            else status = "Finished";
-                        }
+                    {//this is to update the token numbers, and thus the cost, if we can
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
                         command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
-                        command.Parameters.Add(new SqlParameter("@STATUS", status));
+                        command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
                         command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
                         command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                        command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                        command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
                         command.ExecuteNonQuery();
                     }
+                }
+                if (hasSavedSomeCodes == false && _Item_set_id > 0)
+                {
+                    DeleteItemSetIfEmpty();
+                }
+                return;
+            }
+            if (AppIsShuttingDown && _Succeded == false)
+            {
+                MarkAsPaused();
+                return;
+            }
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                {
+                    string status;
+                    if (_isLastInBatch == false) status = "Running";
+                    else
+                    {
+                        if (_Succeded == false) status = "Failed";
+                        else status = "Finished";
+                    }
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
+                    command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                    command.Parameters.Add(new SqlParameter("@STATUS", status));
+                    command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                    command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
+                    command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                    command.ExecuteNonQuery();
                 }
             }
         }
