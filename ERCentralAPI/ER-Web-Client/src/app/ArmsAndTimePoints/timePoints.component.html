@@ -79,7 +79,7 @@
 					<th class="text-center" style="">Actions</th>
 				</tr>
 				<tr *ngFor="let timepoint of timePointsList">
-					<td style="">{{timepoint.timepointValue}}&nbsp;{{timepoint.timepointMetric}}</td>
+					<td style="">{{timepoint.timepointDisplayValue}}</td>
                     <td style="white-space:nowrap;">
                         <button (click)="setTimePointForEdit(timepoint)"
                                 [disabled]="!HasWriteRights"

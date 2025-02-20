@@ -7,6 +7,7 @@ import { Item } from '../services/ItemList.service';
 import { iTimePoint } from '../services/ArmTimepointLinkList.service';
 import { iArm } from '../services/ArmTimepointLinkList.service';
 import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -58,7 +59,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     outcomeTimePoint.itemTimepointId = this._OutcomesService.currentOutcome.itemTimepointId;
     outcomeTimePoint.timepointMetric = this._OutcomesService.currentOutcome.itemTimepointMetric;
-    outcomeTimePoint.timepointValue = this._OutcomesService.currentOutcome.itemTimepointValue;
+    const tVal = Helpers.SafeParseNumber(this._OutcomesService.currentOutcome.itemTimepointValue);
+    if (tVal != null) outcomeTimePoint.timepointValue = tVal;
+    else outcomeTimePoint.timepointValue = 0;
     this._OutcomesService.currentOutcome.outcomeTimePoint = outcomeTimePoint;
   }
   private async FetchData() {
