@@ -447,20 +447,20 @@ namespace BusinessLibrary.BusinessClasses
                 VecFile = RemoteModelFolder + "Vectors.pkl";
                 ClfFile = RemoteModelFolder + "Clf.pkl";
                 ScoresFile = RemoteFolder + "ScoresFile.tsv";
-            }
-            if (rootFolder == "priority_screening_simulation/")
+            }// SG Feb 2025 added "else" to these IFs
+            else if (rootFolder == "priority_screening_simulation/")
             {
                 RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString() + "/";
                 DataFile = RemoteFolder + "PriorityScreeningSimulationData_" + BatchGuid + ".tsv";
                 ScoresFile = RemoteFolder + _title.Replace("¬¬PriorityScreening¬¬", "") + ".tsv";
             }
-            if (rootFolder == "check_screening/")
+            else if (rootFolder == "check_screening/")
             {
                 RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString() + "ContactId" + ri.UserId.ToString() + "_" + BatchGuid + "/";
                 DataFile = RemoteFolder + "ScreeningCheckData.tsv";
                 ScoresFile = RemoteFolder + "ScreeningCheckScores.tsv";
             }
-            if (rootFolder == "builtin_model/")
+            else if (rootFolder == "builtin_model/")
             {
                 RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString() + "ContactId" + ri.UserId.ToString() + "_" + BatchGuid + "/";
                 DataFile = RemoteFolder + DataFileName;
@@ -2235,20 +2235,14 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-            try
+            //SG Feb 2025 removed try...catch here as it's OK to let the controller do the catch and log
+            List<BlobInHierarchy> list = BlobOperations.Blobfilenames(blobConnection, "eppi-reviewer-data", RemoteFolder);
+            foreach (var toDel in list)
             {
-                List<BlobInHierarchy> list = BlobOperations.Blobfilenames(blobConnection, "eppi-reviewer-data", RemoteFolder);
-                foreach (var toDel in list)
-                {
-                    Console.WriteLine("Will delete " + toDel.BlobName);
-                    BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", toDel.BlobName);
-                }
+                Console.WriteLine("Will delete " + toDel.BlobName);
+                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", toDel.BlobName);
             }
-            catch (Exception ex)
-            {
-                DataFactoryHelper.LogExceptionToFile(ex, RevInfo.ReviewId, _classifierId, "Delete custom model");
-                _returnMessage = "Error deleting models files from Azure storage.";
-            }
+            
         }
 
         private double GetSafeValue(string data)
