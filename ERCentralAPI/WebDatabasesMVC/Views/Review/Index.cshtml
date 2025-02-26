@@ -321,6 +321,7 @@
                     $("#FreqSpinner").hide();
                     if (result == "success") {
                         freqData = data;
+                        sessionStorage.setItem("FreqPars", 0 + "," + dataItem.setId + "," + 0 + "," + dataItem.text + "," + "true,table");
                         BuildFreqs();
                     } else {
                         $("#FrequenciesGrid").html("");
@@ -333,6 +334,7 @@
                     $("#FreqSpinner").hide();
                     if (result == "success") {
                         freqData = data;
+                        sessionStorage.setItem("FreqPars", dataItem.id + "," + dataItem.setId + "," + 0 + "," + dataItem.text + "," + "true,table");
                         BuildFreqs();
                     } else {
                         $("#FrequenciesGrid").html("");
@@ -340,6 +342,7 @@
                 }).fail((response)=> handleFreqsError(response));
 
         }
+        
     }
     function handleFreqsError(response) {
         $("#FreqSpinner").hide();
