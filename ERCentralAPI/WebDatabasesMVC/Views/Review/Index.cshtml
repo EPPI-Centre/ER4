@@ -68,7 +68,23 @@
                             //    };
                             nodes.push(nd);
                         }
-                        GetYearsFreqs();//getting the years chart after the codes...
+                        if (sessionStorage.getItem("HideYearFreqs") == "Yes") {
+                            $("#publicationDiv").hide();
+                            HideShowPublicationDivIcon.className = "fa fa-plus";
+                            $("#publicationDiv").css("max-height", "0px");
+                            $("#YearFreq").hide();
+                            $("#YearFreqTable").hide();
+                            $("#BarByYearChartVisible").hide();
+                        }
+                        else {
+                            GetYearsFreqs();//getting the years chart after the codes...
+                        }
+
+                        sessionStorage.setItem("MapId", "0");
+                        sessionStorage.setItem("FreqPars", "");
+                        sessionStorage.setItem("CrossTabPars", "");
+                        sessionStorage.setItem("MapPars", "");
+                        
                         setTimeout(function () {
                             GetMaps();
                         }, 150); //don't like multiple requests to be fired all at once!
@@ -148,6 +164,8 @@
     function HideShowPublicationDiv() {
         if ("#publicationDiv") {
             if (HideShowPublicationDivIcon.className == "fa fa-plus") {
+                GetYearsFreqs();
+                sessionStorage.setItem("HideYearFreqs", "No");
                 $("#publicationDiv").show();
                 HideShowPublicationDivIcon.className = "fa fa-minus";
                 $("#publicationDiv").css("max-height", "1000px");
@@ -158,6 +176,7 @@
                 }
             }
             else {
+                sessionStorage.setItem("HideYearFreqs", "Yes");
                 $("#publicationDiv").hide();
                 HideShowPublicationDivIcon.className = "fa fa-plus";
                 $("#publicationDiv").css("max-height", "0px");
@@ -185,7 +204,7 @@
 
     function HideShowFrequencyDiv() {
         if ("#VisualsDiv") {
-            if (HideShowFrequencyDivIcon.className == "fa fa-plus") {
+            if (HideShowFrequencyDivIcon.className == "fa fa-plus") {                
                 $("#VisualsDiv").show();
                 HideShowFrequencyDivIcon.className = "fa fa-minus";
                 $("#VisualsDiv").css("max-height", "1000px");
@@ -203,7 +222,7 @@
                     $("#BarOrPieChartVisible").show();
                 }
             }
-            else {
+            else {               
                 $("#VisualsDiv").hide();
                 HideShowFrequencyDivIcon.className = "fa fa-plus";
                 $("#VisualsDiv").css("max-height", "0px");
@@ -1027,7 +1046,7 @@
         else {
             pars.segmentsParent = dataItemMapSegments.id;
             pars.setIdSegments = dataItemMapSegments.setId;
-        }
+        }       
         postwith(getBasePath() + "Frequencies/GetMap", pars);
         //postwith("../Frequencies/GetAjaxMap", pars);
 

@@ -326,7 +326,7 @@ namespace WebDatabasesMVC.Controllers
                             , map.ColumnsPublicAttributeName != "" ? map.ColumnsPublicAttributeName : map.ColumnsPublicSetName, "true"
                             , "bubble", 0, map.RowsAttributeID, map.RowsSetID
                             , map.RowsPublicAttributeName != "" ? map.RowsPublicAttributeName : map.RowsPublicSetName
-                            , map.SegmentsAttributeID, map.SegmentsSetID, map.WebDBMapName, map.WebDBMapDescription);
+                            , map.SegmentsAttributeID, map.SegmentsSetID, map.WebDBMapName, map.WebDBMapDescription, mapId);
                     return View("GetMap", crit);
                 }
                 else return Unauthorized();
