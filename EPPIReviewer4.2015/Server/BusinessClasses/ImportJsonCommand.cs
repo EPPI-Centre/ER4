@@ -434,7 +434,6 @@ namespace BusinessLibrary.BusinessClasses
             }
             itm.Parent_title = r.ParentTitle;
             itm.Short_title = r.ShortTitle;
-            if (itm.Short_title == "") itm.buildShortTitle();
             itm.DateEdited = r.DateEdited.Ticks > new DateTime(1900, 1, 1).Ticks ? r.DateEdited : new DateTime(1900, 1, 1);
             itm.Year = r.Year;
             itm.Month = r.Month;
@@ -465,6 +464,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 itm.OldItemId = r.OldItemId; 
             }
+            if (itm.Short_title == "") itm.buildShortTitle();
             this.IncomingItems.IncomingItems.Add(itm);
         }
 

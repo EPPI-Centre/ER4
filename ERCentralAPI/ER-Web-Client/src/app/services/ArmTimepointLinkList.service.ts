@@ -226,8 +226,7 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 				(result) => {
 					let tpi = this._currentItem.timepoints.findIndex(f => f.itemTimepointId == currenttimepoint.itemTimepointId);
 					if (tpi > -1) {
-						this._currentItem.timepoints[tpi].timepointMetric = result.timepointMetric;
-						this._currentItem.timepoints[tpi].timepointValue = result.timepointValue;
+						this._currentItem.timepoints[tpi] = result;
                     }
 					this.RemoveBusy("Updatetimepoint");
 				}
@@ -556,25 +555,27 @@ export class ItemTimepointDeleteWarningCommandJSON {
 export interface iTimePoint {
 	//[key: number]: any;  // Add index signature
 	itemId: number;
-	timepointValue: string;
+	timepointValue: number;
 	timepointMetric: string;
-	itemTimepointId: number;
+  itemTimepointId: number;
+  timepointDisplayValue: string;
 }
 
-export class TimePoint {
+export class TimePoint implements iTimePoint {
 
-	constructor(ItemId: number, TimepointValue: string, TimepointMetric: string,
+	constructor(ItemId: number, TimepointValue: number, TimepointMetric: string,
 		ItemTimepointId: number) {
 		this.itemId = ItemId;
 		this.timepointValue = TimepointValue;
 		this.timepointMetric = TimepointMetric;
-		this.itemTimepointId = ItemTimepointId;
+    this.itemTimepointId = ItemTimepointId;
+    this.timepointDisplayValue = this.timepointValue + " " + this.timepointMetric;
 	}
 	itemId: number = 0;
-	timepointValue: string = '';
+	timepointValue: number = 0;
 	timepointMetric: string = '';
 	itemTimepointId: number = 0;
-
+  timepointDisplayValue: string;
 }
 export interface iArm {
 	[key: number]: any;  // Add index signature

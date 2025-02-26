@@ -28,9 +28,9 @@
                           Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
                         </button>
                         <!--<button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
-                      >
-                Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
-              </button>-->
+                                >
+                          Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
+                        </button>-->
                       </div>
                       <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                        style="max-height: 520px;"></readonlyreviews>
@@ -67,6 +67,7 @@
                       <div class="row m-0 p-0">
                         <EditReviewComp #EditReviewComp *ngIf="HasAdminRights"></EditReviewComp>
                         <NewReviewComp></NewReviewComp>
+                        <button class="btn btn-outline-dark m-1" (click)="GoToPastJobs()">Review Jobs...</button>
                         <div *ngIf="HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
                           Setup Visualisations...
                         </div>
@@ -273,7 +274,7 @@
             <!--<kendo-icon name="print"></kendo-icon>-->
           </button>
           <button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1"
-                  title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool" 
+                  title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
                   [disabled]="!HasWriteRights" (click)="ShowRobotBatchJobs = !ShowRobotBatchJobs"></button>
         </div>
         <RobotBatchJobs *ngIf="CanRunOpenAIrobot && ShowRobotBatchJobs" (PleaseCloseMe)="ShowRobotBatchJobs = false"></RobotBatchJobs>

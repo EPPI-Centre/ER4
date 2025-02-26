@@ -92,7 +92,20 @@ export class Helpers {
     return retValue;
   }
 
-
+  //should not crash, irrespective of input.
+  //will return number OR null, so caller needs to check for nulls!
+  public static SafeParseNumber(str: string): number | null {
+    let retValue: number | null = null;
+    if (str !== null) {
+      if (str.length > 0) {
+        let tmp = Number(str);
+        if (!isNaN(tmp)) {
+          retValue = tmp;
+        }
+      }
+    }
+    return retValue;
+  }
 
   //used in 2 item details pages (view, edit) may be useful in other places.
   //is used to drive the appeareance and display name of fields that change meaning depending on pub-type.

@@ -1,4 +1,5 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Workbook, WorkbookSheet } from '@progress/kendo-angular-excel-export';
 import * as FileSaver from '@progress/kendo-file-saver';
 import * as XLSX from 'xlsx';
 
@@ -17,14 +18,27 @@ export class ExcelService {
 
 	  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
 
-    //const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+    
     //console.log('worksheet',worksheet);
     const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
     const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    //const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
     this.saveAsExcelFile(excelBuffer, excelFileName);
   }
-    public exportHISscreeningFile(json: any[], excelFileName: string) {
+
+  public exportAsMultiSheetExcelFile(data: DataForMultiSheetExcel[], excelFileName: string): void {
+    let SheetsToAdd: WorkbookSheet[] = [];
+    const workbook: XLSX.WorkBook = { Sheets: {  }, SheetNames: [] };
+    for (const sheetData of data) {
+      const sheetName = sheetData.SheetName;
+      const json = sheetData.SheetData;
+      let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    }
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, excelFileName);
+  }
+
+  public exportHISscreeningFile(json: any[], excelFileName: string) {
         const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json, {} as XLSX.JSON2SheetOpts);
         if (worksheet) {
             worksheet['!cols'] = [];
@@ -63,4 +77,8 @@ export class ExcelService {
     FileSaver.saveAs(data, fileName + EXCEL_EXTENSION);
   }
 
+}
+export class DataForMultiSheetExcel {
+  SheetName: string = "";
+  SheetData: any[] = [];
 }

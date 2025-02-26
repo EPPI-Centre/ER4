@@ -15,13 +15,18 @@
 					Enter Time Point value:
 					<div>
 						<input #timePointModel="ngModel" name="n1"
-							   required
+							   required max="9999999" min="-9999999"
 							   class="form-control"
 							   type="number" [(ngModel)]="TimePointValue" />
 					</div>
 					<div *ngIf="timePointModel.invalid && (timePointModel.dirty || timePointModel.touched) && timePointModel.errors"
-						 class="alert alert-danger p-1 small">
-
+							 class="alert alert-danger p-1 small">
+						<div *ngIf="timePointModel.errors.min">
+							Minimum value is 0
+						</div>
+						<div *ngIf="timePointModel.errors.max">
+							Maximum value is 9,999,999
+						</div>
 						<div *ngIf="timePointModel.errors.required">
 							Time Point value is required
 						</div>
@@ -74,7 +79,7 @@
 					<th class="text-center" style="">Actions</th>
 				</tr>
 				<tr *ngFor="let timepoint of timePointsList">
-					<td style="">{{timepoint.timepointValue}}&nbsp;{{timepoint.timepointMetric}}</td>
+					<td style="">{{timepoint.timepointDisplayValue}}</td>
                     <td style="white-space:nowrap;">
                         <button (click)="setTimePointForEdit(timepoint)"
                                 [disabled]="!HasWriteRights"
