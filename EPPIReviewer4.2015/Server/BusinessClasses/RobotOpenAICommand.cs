@@ -401,13 +401,14 @@ namespace BusinessLibrary.BusinessClasses
                     _message = "Error: Short or non-existent title and abstract";
                     return false;
                 }
-                char[] chars = { ' ' };
-                int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
-                if (wordCount > 3500)
-                {
-                    _message = "Error: Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
-                    return false;
-                }
+                //SG Feb 2025 commented out: this check is redundant, given much bigger context window (compared to when this check was written) and automatic truncation added later on
+                //char[] chars = { ' ' };
+                //int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
+                //if (wordCount > 3500)
+                //{
+                //    _message = "Error: Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
+                //    return false;
+                //}
             }
 
             // *** Get the codeset, build the list of prompts, and return if no valid prompts are present
@@ -516,7 +517,6 @@ namespace BusinessLibrary.BusinessClasses
                 {//oh my, the prompts themselves are too many. Deliberately rise an exception which produces the highest level of visibility: gets saved in TB_ROBOT_API_CALL_ERROR_LOG
                     //we will eventually show errors collected there to users!
                     throw new Exception("There are too many prompts, leaving no room for the data to classify!");
-
                 }
                 int excess = sysprompt.Length + userprompt.Length - limit;
                 userprompt = userprompt.Substring(0, userprompt.Length - excess);//this will work, having checked if sysprompt is too long in itself!
