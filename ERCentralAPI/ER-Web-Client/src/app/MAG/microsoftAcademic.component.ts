@@ -106,7 +106,12 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
           if ((this.item.abstract == "") && (paper.abstract != null)) {
             this.item.abstract = paper.abstract;
           }
-
+          // authors
+          if ((this.item.authors == "") && (paper.authors != null)) {
+            let enrichedAuthors = paper.authors.replace(/,/g, ";");
+            enrichedAuthors += ";";
+            this.item.authors = enrichedAuthors;
+          }
           // save the changes to item
           if (this.item) {
             this.ItemListService.UpdateItem(this.item);
