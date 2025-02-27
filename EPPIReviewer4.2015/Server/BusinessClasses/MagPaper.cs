@@ -70,12 +70,12 @@ namespace BusinessLibrary.BusinessClasses
         {
             if (Authors.Length > 100)
             {
-                string[] authorList = Authors.Split(',');
+                string[] authorList = Authors.Split(';');
                 string retAuthors = authorList[0].Trim();
                 int n = 1;
                 while (retAuthors.Length < 100 && n < authorList.Length)
                 {
-                    retAuthors += "," + authorList[n].Trim();
+                    retAuthors += "; " + authorList[n].Trim();
                     n++;
                 }
                 if (n < authorList.Length - 1)
@@ -795,7 +795,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     else
                     {
-                        a += ", " + adn;
+                        a += "; " + adn;
                     }
                 }
                 returnValue.LoadProperty<string>(AuthorsProperty, a);
