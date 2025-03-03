@@ -220,9 +220,10 @@ namespace BusinessLibrary.BusinessClasses
                 int NewJobId = 0;
                 List<Int64> ItemIds = new List<Int64>();
                 connection.Open();
-
+                bool buildingNewModel = false;
                 if (_classifierId == -1) // building a new classifier: we save a new model into the database
                 {
+                    buildingNewModel = true;
                     using (SqlCommand command = new SqlCommand("st_ClassifierSaveModel", connection))//Also checks if some classifier build job is already running
                     {//we do the check and job creation in a single SP as we need the operation to be "all or nothing"
                         command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -268,7 +269,7 @@ namespace BusinessLibrary.BusinessClasses
                 if (!QueryDbAndSaveTempFileWithLabels(ri, NewJobId)) // there wasn't enough data
                 {
                     _returnMessage = "Insufficient data";
-                    if (_classifierId == -1) //building a new classifier, there is not enough data, so we're not saving it
+                    if (buildingNewModel) //building a new classifier, there is not enough data, so we're not saving it
                     {
                         using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
                         {

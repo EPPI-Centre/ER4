@@ -405,7 +405,7 @@ namespace BusinessLibrary.BusinessClasses
                                             else
                                             {
                                                 PaperTotalFound++;
-                                                string[] resultParsed = result.Split(',');
+                                                //string[] resultParsed = result.Split(',');
                                                 SaveMatch(result, PaperTotalCount, PaperTotalFound, missingCount,
                                                     MagLogId, currentlyUsed, errorCount);
                                             }
@@ -434,7 +434,7 @@ namespace BusinessLibrary.BusinessClasses
                                     else
                                     { 
                                         PaperTotalFound++;
-                                        string[] resultParsed = result.Split(',');
+                                        //string[] resultParsed = result.Split(',');
                                         SaveMatch(result, PaperTotalCount, PaperTotalFound, missingCount,
                                             MagLogId, currentlyUsed, errorCount);
                                     }
