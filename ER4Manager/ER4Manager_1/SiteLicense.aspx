@@ -142,7 +142,7 @@
                                 </asp:DropDownList>
                                 </td>
                         </tr>
-                        <tr>
+                        <!--<tr>
                             <td colspan="4" style="background-color: #B6C6D6; ">
                                 British library codes (optional)&nbsp;&nbsp;
                                 <asp:LinkButton ID="lbShowBLCodes" runat="server" onclick="lbShowBLCodes_Click">Show/Edit</asp:LinkButton>
@@ -181,6 +181,66 @@
                                         </tr>
                                     </table>
                                 </asp:Panel>
+                            </td>
+                        </tr>-->
+                        <tr>
+                            <td colspan="4">
+                                <asp:Panel runat="server" ID="pnlGPTcredit" visible="false">
+                                    <table width="100%">
+                                        <tr>
+                                            <td style="background-color: #B6C6D6; width: 25%;">
+                                                <b>ChapGPT credit</b></td>                                
+                                                <td style="width: 25%; background-color: #E2E9EF; height: 27px;vertical-align:top">
+                                                    ChatGPT<br />
+                                                    Enter a PurchaseID to give this Site License ChatGPT access<br />
+                                                    <asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="true" Width="100px"></asp:TextBox>
+                                                    &nbsp;
+                                                    <asp:LinkButton ID="lbSavePurchaseCreditID" runat="server" onclick="lbSavePurchaseCreditID_Click" 
+                                                            ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
+                                                    <b><asp:Label ID="lblInvalidID" runat="server" Text="Invalid ID" Visible="false"></asp:Label></b>                               
+                                                </td>
+                                                <td style="background-color: #E2E9EF; height: 27px;vertical-align:top" colspan="2">
+                                                        ChatGPT Credit<br />
+                                                    <asp:GridView ID="gvCreditForRobots" runat="server" Width="100%" onrowdatabound="gvCreditForRobots_RowDataBound"
+                                                        onrowcommand="gvCreditForRobots_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
+                                                        DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
+                                                        <Columns>
+                                                            <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left" />
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:BoundField>
+                                                            <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left" />
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:BoundField>
+                                                            <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left" />
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:BoundField>
+                                                            <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left" />
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:BoundField>
+                                                            <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" 
+                                                                Text="Remove">
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left"/>
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:ButtonField>                         
+                                                        </Columns>
+                                                    </asp:GridView>
+
+                                                </td>
+
+
+                                            </tr>
+                                    </table>
+                                </asp:Panel>
+
                             </td>
                         </tr>
                     </table>

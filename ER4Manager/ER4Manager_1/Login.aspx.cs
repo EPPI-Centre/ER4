@@ -42,6 +42,7 @@ public partial class Login : System.Web.UI.Page
             Utils.SetSessionString("siteLicenseID", "0");
             Utils.SetSessionString("siteLicenseReviewID", "0");
             Utils.SetSessionString("EnablePSEnabler", "");
+            Utils.SetSessionString("EnableChatGPTEnabler", "0");
             Utils.SetSessionString("EnableShopCredit", "0");
             Utils.SetSessionString("EnableShopDebit", "0");
             Utils.SetSessionString("Credit_Purchase_ID", "");
@@ -100,6 +101,7 @@ public partial class Login : System.Web.UI.Page
                 //JB
                 Utils.SetSessionString("EnableDataPresenter", idr["ENABLE_DATA_PRESENTER"].ToString());
                 Utils.SetSessionString("EnablePSEnabler", idr["ENABLE_PRIORITY_SCREENING_ENABLER"].ToString());
+                Utils.SetSessionString("EnableChatGPTEnabler", idr["ENABLE_CHAPGPT_ENABLER"].ToString());
             }
             idr.Close();
             string test = Utils.GetSessionString("AccountCreationEnabled");

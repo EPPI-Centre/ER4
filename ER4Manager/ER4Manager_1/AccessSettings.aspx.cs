@@ -75,6 +75,7 @@ public partial class AccessSettings : System.Web.UI.Page
             rblExampleReviewCopy.SelectedValue = sdr["ENABLE_EXAMPLE_REVIEW_COPY"].ToString();
             rblDataPresenter.SelectedValue = sdr["ENABLE_DATA_PRESENTER"].ToString();
             rblPriorityScreeningEnableEnabler.SelectedValue = sdr["ENABLE_PRIORITY_SCREENING_ENABLER"].ToString();
+            rblChatGPTEnableEnabler.SelectedValue = sdr["ENABLE_CHAPGPT_ENABLER"].ToString();
             rblEnableShopCredit.SelectedValue = sdr["ENABLE_SHOP_CREDIT"].ToString();
             rblEnableShopDebit.SelectedValue = sdr["ENABLE_SHOP_DEBIT"].ToString();
         }
@@ -163,6 +164,14 @@ public partial class AccessSettings : System.Web.UI.Page
         Utils.SetSessionString("EnablePSEnabler", rblPriorityScreeningEnableEnabler.SelectedValue);
     }
 
+    protected void rblChatGPTEnableEnabler_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        bool isAdmDB = true;
+        string SQL = "update TB_MANAGEMENT_SETTINGS set ENABLE_CHAPGPT_ENABLER = '" +
+            rblChatGPTEnableEnabler.SelectedValue + "'";
+        Utils.ExecuteQuery(SQL, isAdmDB);
+        Utils.SetSessionString("EnableChatGPTEnabler", rblPriorityScreeningEnableEnabler.SelectedValue);
+    }
     protected void rblEnableShopCredit_SelectedIndexChanged(object sender, EventArgs e)
     {
         bool isAdmDB = true;
