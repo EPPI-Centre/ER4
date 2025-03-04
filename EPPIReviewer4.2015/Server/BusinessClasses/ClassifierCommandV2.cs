@@ -11,28 +11,13 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using System.Data;
-using Microsoft.Rest.ClientRuntime.Azure.Authentication.Utilities;
-using Microsoft.Rest.ClientRuntime.Azure.Authentication.Utilities;
-using System.ComponentModel;
-using System.Reflection.Metadata.Ecma335;
-using Markdig.Extensions.Tables;
-using Newtonsoft.Json.Linq;
-using System.Threading;
-using Microsoft.Azure.Search.Models;
-
-
-
-
-
-
-
-
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 #else
 using System.Net.Http.Json;
 #endif
@@ -163,6 +148,8 @@ namespace BusinessLibrary.BusinessClasses
         private void DoNewVersion()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            int ReviewId = ri.ReviewId;
+            int ContactId = ri.UserId;
             if (_title == "[Apply to OpenAlex Auto Update]")
             {
                 OpenAlexAutoUpdate = true;
@@ -171,49 +158,52 @@ namespace BusinessLibrary.BusinessClasses
             // simply delete a model - no further processing required
             if (_title == "DeleteThisModel~~")
             {
-                SetRemoteFileNames(ri, "user_models/", "DataForScoring.tsv");
+                SetRemoteFileNames(ReviewId, ContactId, "user_models/", "DataForScoring.tsv");
                 DeleteModel();
                 return;
             }
 
-            SetLocalTempFilename(ri);
             if (_title.Contains("¬¬CheckScreening"))
             {
-                SetRemoteFileNames(ri, "check_screening/", "");
-                DoApplyCheckOrPriorityScreening2(ri, "ChckS");
+                SetLocalTempFilename(ReviewId, ContactId, "ChckS");
+                SetRemoteFileNames(ReviewId, ContactId, "check_screening/", "");
+                DoApplyCheckOrPriorityScreening2(ReviewId, ContactId, "ChckS");
                 return;
             }
             if (_title.Contains("¬¬PriorityScreening"))
             {
-                SetRemoteFileNames(ri, "priority_screening_simulation/", "");
-                DoApplyCheckOrPriorityScreening2(ri, "PrioS");
+                SetLocalTempFilename(ReviewId, ContactId, "PrioS");
+                SetRemoteFileNames(ReviewId, ContactId, "priority_screening_simulation/", "");
+                DoApplyCheckOrPriorityScreening2(ReviewId, ContactId, "PrioS");
                 return;
             }
             // We're setting attributes and therefore building or rebuilding a model
             if (_attributeIdOn + _attributeIdNotOn != -2)
             {
+                SetLocalTempFilename(ReviewId, ContactId, "Build");
                 // setting filenames later once we have a modelid
-                DoTrainClassifier2(ri);
+                DoTrainClassifier2(ReviewId, ContactId);
                 return;
             }
             // if we're not setting attributes AND classifierId is positive, we're scoring using an existing user model
             if (_attributeIdOn + _attributeIdNotOn == -2 && _classifierId > 0)
             {
+                SetLocalTempFilename(ReviewId, ContactId, "Apply");
                 // setting remote filenames a bit later for this one, as we don't know yet whether the current reviewid is correct, or if the selected model is from another review
-                DoApplyClassifier2(ri, "user_models/");
+                DoApplyClassifier2(ReviewId, ContactId, "user_models/");
                 return;
             }
             // if we're not setting attributes AND classifierId is NEGATIVE, we're scoring using a built-in model
             if (_attributeIdOn + _attributeIdNotOn == -2 && _classifierId < 0)
             {
+                SetLocalTempFilename(ReviewId, ContactId, "Apply");
                 // setting remote filenames a bit later
-                //SetRemoteFileNames(ri, "builtin_model/", "DataForScoring.tsv");
-                DoApplyClassifier2(ri, "builtin_model/");
+                DoApplyClassifier2(ReviewId, ContactId, "builtin_model/");
                 return;
             }
 
         }
-        private void DoTrainClassifier2(ReviewerIdentity ri) // building a classifier
+        private void DoTrainClassifier2(int ReviewId, int ContactId) // building a classifier
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -227,9 +217,9 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlCommand command = new SqlCommand("st_ClassifierSaveModel", connection))//Also checks if some classifier build job is already running
                     {//we do the check and job creation in a single SP as we need the operation to be "all or nothing"
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                         command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title + " (in progress...)"));
-                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
                         command.Parameters.Add(new SqlParameter("@NEW_MODEL_ID", 0));
@@ -254,7 +244,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     _returnMessage = "";
                     //newModelId = _classifierId; // we're rebuilding an existing classifier - we mark this is starting and check it's not already running
-                    NewJobId = CanRunCheckAndMarkAsStarting(ri, "Build", ri.ReviewId, (_title.Contains(" (rebuilding...)") ? _title : _title + " (rebuilding...)"));
+                    NewJobId = CanRunCheckAndMarkAsStarting(ReviewId, ContactId, "Build", ReviewId, (_title.Contains(" (rebuilding...)") ? _title : _title + " (rebuilding...)"));
                     if (NewJobId == 0)
                     {
                         return;
@@ -262,19 +252,19 @@ namespace BusinessLibrary.BusinessClasses
                 }
 
                 // we have a modelid now, so will set the remote filenames
-                ModelReviewId = ri.ReviewId; // when building a model, this is always the same as the current review
-                SetRemoteFileNames(ri, "user_models/", "DataForTraining.tsv");
+                ModelReviewId = ReviewId; // when building a model, this is always the same as the current review
+                SetRemoteFileNames(ReviewId, ContactId, "user_models/", "DataForTraining.tsv");
 
                 // now save the temp file with labels for training
-                if (!QueryDbAndSaveTempFileWithLabels(ri, NewJobId)) // there wasn't enough data
+                if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId)) // there wasn't enough data
                 {
-                    _returnMessage = "Insufficient data";
+                    //_returnMessage = "Insufficient data";
                     if (buildingNewModel) //building a new classifier, there is not enough data, so we're not saving it
                     {
                         using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
                         {
                             command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ModelReviewId));
                             command.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
                             command.ExecuteNonQuery();
                         }
@@ -289,16 +279,23 @@ namespace BusinessLibrary.BusinessClasses
                             command.ExecuteNonQuery();
                         }
                     }
-                    File.Delete(LocalFileName);
-                    DataFactoryHelper.UpdateReviewJobLog(NewJobId, ri.ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
+                    try
+                    {
+                        File.Delete(LocalFileName);
+                    }
+                    catch (Exception ex)
+                    {//we try and catch because we do want to reach the `UpdateReviewJobLog` code
+                        DataFactoryHelper.LogExceptionToFile(ex, ModelReviewId, NewJobId, "ClassifierCommandV2");
+                    }
+                    DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
                     return;
                 }// there's enough data, so we keep going
 
-                Task.Run(() => FireAndForget(ri.ReviewId, NewJobId, "TrainClassifier", ri.UserId));
+                Task.Run(() => FireAndForget(ReviewId, NewJobId, "TrainClassifier", ContactId));
             }
         }
 
-        private void DoApplyClassifier2(ReviewerIdentity ri, string modelFolder)
+        private void DoApplyClassifier2(int ReviewId, int ContactId, string modelFolder)
         {
             int NewJobId = 0;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -315,7 +312,7 @@ namespace BusinessLibrary.BusinessClasses
                         using (SqlCommand command = new SqlCommand("st_ClassifierContactModels", connection))
                         {
                             command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                            command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
                             using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                             {
                                 while (reader.Read())
@@ -346,53 +343,62 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 //end of 27/09/2021 addition
 
-                NewJobId = CanRunCheckAndMarkAsStarting(ri, "Apply", ModelReviewId, "Apply model");
+                NewJobId = CanRunCheckAndMarkAsStarting(ReviewId, ContactId, "Apply", ModelReviewId, "Apply model");
                 if (NewJobId == 0)
                 {
                     return;
                 }
                 // setting RemoteFileNames now that we know the right review id for the model
-                SetRemoteFileNames(ri, modelFolder, "DataForScoring.tsv");
+                SetRemoteFileNames(ReviewId, ContactId, modelFolder, "DataForScoring.tsv");
                 if (!OpenAlexAutoUpdate)
                 {
-                    if (!QueryDbAndSaveTempFileWithoutLabels(ri, NewJobId))
+                    if (!QueryDbAndSaveTempFileWithoutLabels(ReviewId, ContactId, NewJobId))
                     {
                         File.Delete(LocalFileName);
-                        DataFactoryHelper.UpdateReviewJobLog(NewJobId, ri.ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
+                        DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
                         return;
                     }
                 }
                 else
                 {
-                    if (!QueryDbAndSaveOpenAlexTempFileWithoutLabels(ri, NewJobId))
+                    if (!QueryDbAndSaveOpenAlexTempFileWithoutLabels(ReviewId, ContactId, NewJobId))
                     {
                         File.Delete(LocalFileName);
-                        DataFactoryHelper.UpdateReviewJobLog(NewJobId, ri.ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
+                        DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
                         return;
                     }
 
                 }
-                Task.Run(() => FireAndForget(ri.ReviewId, NewJobId, "ApplyClassifier", ri.UserId));
+                Task.Run(() => FireAndForget(ReviewId, NewJobId, "ApplyClassifier", ContactId));
             }
         }
 
-        private void DoApplyCheckOrPriorityScreening2(ReviewerIdentity ri, string CheckOrPriority)
+        private void DoApplyCheckOrPriorityScreening2(int ReviewId, int ContactId, string CheckOrPriority)
         {
-            int NewJobId = CanRunCheckAndMarkAsStarting(ri, CheckOrPriority, ModelReviewId, _title);
+            int NewJobId = CanRunCheckAndMarkAsStarting(ReviewId, ContactId, CheckOrPriority, ModelReviewId, _title);
             if (NewJobId == 0)
             {
                 return;
             }
-            if (!QueryDbAndSaveTempFileWithLabels(ri, NewJobId)) // there wasn't enough data
+            int MinPositiveClass = 7;
+            int MinNegativeClass = 10;
+            int MinSampleSize = 20;
+            if (CheckOrPriority == "PrioS")
+            {
+                MinPositiveClass = 20;
+                MinNegativeClass = 40;
+                MinSampleSize = 200;
+            }
+            if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId, MinPositiveClass, MinNegativeClass, MinSampleSize)) // there wasn't enough data
             {
                 File.Delete(LocalFileName);
-                DataFactoryHelper.UpdateReviewJobLog(NewJobId, ri.ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
                 return;
             }
-            Task.Run(() => FireAndForget(ri.ReviewId, NewJobId, CheckOrPriority, ri.UserId));
+            Task.Run(() => FireAndForget(ReviewId, NewJobId, CheckOrPriority, ContactId));
         }
 
-        private int CanRunCheckAndMarkAsStarting(ReviewerIdentity ri, string JobType, int ReviewIdOfModel, string title)
+        private int CanRunCheckAndMarkAsStarting(int ReviewId, int ContactId, string JobType, int ReviewIdOfModel, string title)
         {
             int NewJobId = 0;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -404,10 +410,10 @@ namespace BusinessLibrary.BusinessClasses
 
                     command2.Parameters.Add(new SqlParameter("@MODEL_ID", SqlDbType.Int));
                     command2.Parameters["@MODEL_ID"].Value = _classifierId;
-                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", SqlDbType.Int));
                     command2.Parameters["@REVIEW_ID_OF_MODEL"].Value = ReviewIdOfModel;
-                    command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
                     command2.Parameters.Add(new SqlParameter("@JobType", JobType)); //"Apply", "Build" or "ChckS" (for "Check Screening") "PrioS" (for "priority screening simulation)
                     command2.Parameters.Add(new SqlParameter("@TITLE", title));
                     command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
@@ -427,22 +433,22 @@ namespace BusinessLibrary.BusinessClasses
             return NewJobId;
         }
 
-        private void SetLocalTempFilename(ReviewerIdentity ri)
+        private void SetLocalTempFilename(int ReviewId, int ContactId, string JobType)
         {
 #if (!CSLA_NETCORE)
 				LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath 
-                    + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".tsv";
+                    + "ReviewID" + ReviewId + "ContactId" + UserId.ToString() + JobType + ".tsv";
 #else
             DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-            LocalFileName = tmpDir.FullName + "\\ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".tsv";
+            LocalFileName = tmpDir.FullName + "\\ReviewID" + ReviewId + "ContactId" + ContactId.ToString() + JobType + ".tsv";
 #endif
         }
-        private void SetRemoteFileNames(ReviewerIdentity ri, string rootFolder, string DataFileName)
+        private void SetRemoteFileNames(int ReviewId, int ContactId, string rootFolder, string DataFileName)
         {
             BatchGuid = Guid.NewGuid().ToString();
             if (rootFolder == "user_models/")
             {
-                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString() + "ModelId" + _classifierId + "/";
+                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ModelId" + _classifierId + "/";
                 string RemoteModelFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ModelReviewId.ToString() + "ModelId" + _classifierId + "/";
                 DataFile = RemoteFolder + DataFileName;
                 VecFile = RemoteModelFolder + "Vectors.pkl";
@@ -451,26 +457,26 @@ namespace BusinessLibrary.BusinessClasses
             }// SG Feb 2025 added "else" to these IFs
             else if (rootFolder == "priority_screening_simulation/")
             {
-                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString() + "/";
+                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "/";
                 DataFile = RemoteFolder + "PriorityScreeningSimulationData_" + BatchGuid + ".tsv";
                 ScoresFile = RemoteFolder + _title.Replace("¬¬PriorityScreening¬¬", "") + ".tsv";
             }
             else if (rootFolder == "check_screening/")
             {
-                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString() + "ContactId" + ri.UserId.ToString() + "_" + BatchGuid + "/";
+                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ContactId" + ContactId.ToString() + "_" + BatchGuid + "/";
                 DataFile = RemoteFolder + "ScreeningCheckData.tsv";
                 ScoresFile = RemoteFolder + "ScreeningCheckScores.tsv";
             }
             else if (rootFolder == "builtin_model/")
             {
-                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString() + "ContactId" + ri.UserId.ToString() + "_" + BatchGuid + "/";
+                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ContactId" + ContactId.ToString() + "_" + BatchGuid + "/";
                 DataFile = RemoteFolder + DataFileName;
                 VecFile = RemoteFolder + "Vectors.pkl";
                 ClfFile = RemoteFolder + "Clf.pkl";
                 ScoresFile = RemoteFolder + "ScoresFile.tsv";
             }
         }
-        private bool QueryDbAndSaveTempFileWithLabels(ReviewerIdentity ri, int LogId)
+        private bool QueryDbAndSaveTempFileWithLabels(int ReviewId, int ContactId, int LogId, int MinPositiveClass = 7, int MinNegativeClass = 7, int MinSampleSize = 20)
         {
             List<Int64> ItemIds = new List<Int64>();
             int positiveClassCount = 0;
@@ -484,7 +490,7 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
@@ -511,26 +517,46 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
-                    if (positiveClassCount < 7 || negativeClasscount < 7 || sampleSize < 20)//at least 7 examples in each class and at least 20 records in total
+                    if (positiveClassCount < MinPositiveClass) 
                     {
+                        _returnMessage = "Insufficient Data (Positives count is " + positiveClassCount.ToString() + ").\r\nThis task requires at least "
+                            + MinPositiveClass.ToString() + " positive items, "
+                            + MinNegativeClass.ToString() + " negative items and "
+                            + MinSampleSize.ToString() + " total sample size.";
+                        return false;
+                    }
+                    else if (negativeClasscount < MinNegativeClass) 
+                    {
+                        _returnMessage = "Insufficient Data (Negatives count is " + negativeClasscount.ToString() + ").\r\nThis task requires at least "
+                            + MinPositiveClass.ToString() + " positive items, "
+                            + MinNegativeClass.ToString() + " negative items and "
+                            + MinSampleSize.ToString() + " total sample size.";
+                        return false;
+                    }
+                    else if (sampleSize < MinSampleSize)
+                    {
+                        _returnMessage = "Insufficient Data (Sample size is " + sampleSize.ToString() + ").\r\nThis task requires at least "
+                            + MinPositiveClass.ToString() + " positive items, "
+                            + MinNegativeClass.ToString() + " negative items and "
+                            + MinSampleSize.ToString() + " total sample size.";
                         return false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "Failed to get data to train classifier", "", "ClassifierCommandV2", true, false);
-                DataFactoryHelper.LogExceptionToFile(ex, ri.ReviewId, LogId, "ClassifierCommandV2");
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to get data to train classifier", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return false;
             }
             if (AppIsShuttingDown)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "Cancelled after writing temp file", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after writing temp file", "", "ClassifierCommandV2", true, false);
                 return false;
             }
             return true;
         }
-        private bool QueryDbAndSaveTempFileWithoutLabels(ReviewerIdentity ri, int LogId)
+        private bool QueryDbAndSaveTempFileWithoutLabels(int ReviewId, int ContactId, int LogId)
         {
             List<Int64> ItemIds = new List<Int64>();
             try
@@ -541,7 +567,7 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", _attributeIdClassifyTo));
                         command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
@@ -573,13 +599,13 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception ex)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "Failed to get data to score", "", "ClassifierCommandV2", true, false);
-                DataFactoryHelper.LogExceptionToFile(ex, ri.ReviewId, LogId, "ClassifierCommandV2");
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to get data to score", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return false;
             }
             if (AppIsShuttingDown)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "Cancelled after writing temp file", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after writing temp file", "", "ClassifierCommandV2", true, false);
                 return false;
             }
             if (ItemIds.Count < 1)
@@ -589,7 +615,7 @@ namespace BusinessLibrary.BusinessClasses
             return true;
         }
 
-        private bool QueryDbAndSaveOpenAlexTempFileWithoutLabels(ReviewerIdentity ri, int LogId)
+        private bool QueryDbAndSaveOpenAlexTempFileWithoutLabels(int ReviewId, int ContactId, int LogId)
         {
             List<Int64> Ids = new List<long>();
             try
@@ -619,19 +645,19 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception ex)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "Failed at st_MagAutoUpdateRunResults", "", "MagAddClassifierScoresCommand", true, false);
-                DataFactoryHelper.LogExceptionToFile(ex, ri.ReviewId, LogId, "MagAddClassifierScoresCommand");
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed at st_MagAutoUpdateRunResults", "", "MagAddClassifierScoresCommand", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "MagAddClassifierScoresCommand");
                 return false;
             }
 
             if (Ids.Count == 0)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "No papers to score", "", "MagAddClassifierScoresCommand", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "No papers to score", "", "MagAddClassifierScoresCommand", true, false);
                 return false;
             }
             if (AppIsShuttingDown)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "Cancelled before data-fetch", "", "MagAddClassifierScoresCommand", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before data-fetch", "", "MagAddClassifierScoresCommand", true, false);
                 return false;
             }
             try
@@ -686,15 +712,15 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (AppIsShuttingDown)
                 {//now we can delete the file!
-                    DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "Cancelled during data-fetch", "", "MagAddClassifierScoresCommand", true, false);
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled during data-fetch", "", "MagAddClassifierScoresCommand", true, false);
                     File.Delete(LocalFileName);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ri.ReviewId, "Failed at fetching data from OA", "", "MagAddClassifierScoresCommand", true, false);
-                DataFactoryHelper.LogExceptionToFile(ex, ri.ReviewId, LogId, "MagAddClassifierScoresCommand");
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed at fetching data from OA", "", "MagAddClassifierScoresCommand", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "MagAddClassifierScoresCommand");
                 return false;
             }
             return true;
@@ -708,37 +734,40 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return;
             }
-
+            Dictionary<string, object> parameters = GetAdfParameters(RunType);
             // everything triggers the ADF API
-            await RunDataFactoryJobAsync(ReviewId, LogId, GetAdfParameters(RunType));
-
-            // ADF has completed, so we now process results
-            switch (RunType)
-            {
-                case "TrainClassifier":
-                    DownloadTrainClassifierResults(ReviewId, LogId);
-                    break;
-                case "ApplyClassifier":
-                    if (!DownloadApplyClassifierResults(LogId, ContactId, ReviewId))
-                    {
-                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "No data in results (ended)", "", "ClassifierCommandV2", true, false);
-                        return;
-                    }
-                    break;
-                case "PrioS":
-                    // We literally do fire and forget here, as we don't need to do anything with the results
-                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
-                    _returnMessage = "success";
-                    break;
-                case "ChckS":
-                    if (!DownloadApplyClassifierResults(LogId, ContactId, ReviewId))
-                    {
-                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "No data in results (ended)", "", "ClassifierCommandV2", true, false);
-                        return;
-                    }
-                    break;
-                default: // should never hit this
-                    break;
+            bool DFresult = await RunDataFactoryJobAsync(ReviewId, LogId, parameters);
+            if (DFresult) //if DF didn't work, we trust the reason was logged appropriately either in DFHelper or in RunDataFactoryJobAsync
+            {                
+                switch (RunType)// ADF has completed, so we now process results
+                {
+                    case "TrainClassifier":
+                        //IMPORTANT! We do NOT delete training data as having it allows to rebuild models at ANY time, and it did save the day already once in the past
+                        DownloadTrainClassifierResults(ReviewId, LogId);
+                        break;
+                    case "ApplyClassifier":
+                        if (!DownloadApplyClassifierResults(LogId, ContactId, ReviewId))//will "cleanup" data uploaded
+                        {
+                            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "No data in results (ended)", "", "ClassifierCommandV2", true, false);
+                            return;
+                        }
+                        break;
+                    case "PrioS":
+                        // We literally do fire and forget here, as we don't need to do anything with the results
+                        //IMPORTANT! We do NOT delete simulation data as we may want to allow ppl to download it too.
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
+                        _returnMessage = "success";
+                        break;
+                    case "ChckS":
+                        if (!DownloadApplyClassifierResults(LogId, ContactId, ReviewId))//will "cleanup" data uploaded
+                        {
+                            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "No data in results (ended)", "", "ClassifierCommandV2", true, false);
+                            return;
+                        }
+                        break;
+                    default: // should never hit this
+                        break;
+                }
             }
         }
         private bool UploadTempFileToBlob(int ReviewId, int LogId)
@@ -847,16 +876,16 @@ namespace BusinessLibrary.BusinessClasses
             catch (Exception ex)
             {
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to (re)build classifier", "", "ClassifierCommandV2", true, false);
-                return false;
-            }
-            if (AppIsShuttingDown)
-            {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed at DataFactory", "", "ClassifierCommandV2", true, false);
                 return false;
             }
             if (DataFactoryRes)
             {
+                if (AppIsShuttingDown)//DF will log if ER signalled to shut down while DF is running, so here we're only checking if the shut down signal happened After DF last checked
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF", "", "ClassifierCommandV2", true, false);
+                    return false;
+                }
                 return true;
             }
             else
@@ -875,8 +904,6 @@ namespace BusinessLibrary.BusinessClasses
                 MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", RemoteFolder + "stats.tsv");
                 using (StreamReader tsvReader = new StreamReader(ms))
                 {
-                    //csvReader.SetDelimiters(new string[] { "," });
-                    //csvReader.HasFieldsEnclosedInQuotes = false;
                     string line = tsvReader.ReadLine();//headers line!!
                     line = tsvReader.ReadLine();//data line!!
                     if (line != null)
@@ -911,6 +938,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     connection.Close();
                 }
+                //IMPORTANT! We do NOT delete training data as having it allows to rebuild models at ANY time, and it did save the day already once in the past
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
             }
             catch (Exception ex)

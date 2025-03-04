@@ -94,8 +94,8 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	public FetchClassifierContactModelList(UserId: number) {
 		this._BusyMethods.push("FetchClassifierContactModelList");
 		this._CurrentUserId4ClassifierContactModelList = UserId;
-		this._httpC.get<ClassifierModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
-			.subscribe(result => {
+		lastValueFrom(this._httpC.get<ClassifierModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')).then(
+			result => {
 				this.RemoveBusy("FetchClassifierContactModelList");
 				if (result != null) {			
 					this.ClassifierContactAllModelList = result; 
@@ -108,9 +108,10 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 				error => {
 					this.RemoveBusy("FetchClassifierContactModelList");
 					this.modalService.GenericError(error);
-				},
-				() => {
-					this.RemoveBusy("FetchClassifierContactModelList");
+				}).catch (
+          (caught) => {
+            this.modalService.GenericError(caught);
+            this.RemoveBusy("FetchClassifierContactModelList");
 				});
 	}
 	public Delete(modelId: number): Promise<boolean> {
@@ -166,60 +167,54 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	}
 
 	showBuildModelMessage(notifyMsg: string) {
-
-		this.notificationService.show({
-			content: notifyMsg,
-			animation: { type: 'slide', duration: 400 },
-			position: { horizontal: 'center', vertical: 'top' },
-			type: { style: "info", icon: true },
-			closable: true
-		});
-
+    if (notifyMsg.startsWith("Already running")) {
+      this.modalService.GenericErrorMessage("The task did not start, as another job of this type is already running in this review.\r\nPlease check the Review Jobs log and try again.");
+    }
+    else if (notifyMsg.startsWith("Insufficient Data")) {
+      this.modalService.GenericErrorMessage(notifyMsg);
+    }
+    else {
+      this.notificationService.show({
+        content: notifyMsg,
+        animation: { type: 'slide', duration: 400 },
+        position: { horizontal: 'center', vertical: 'top' },
+        type: { style: "info", icon: true },
+        closable: true
+      });
+    }
 	}
 
-	CreateAsync(title: string, attrOn: number, attrNotOn: number, classifierId: number): Subscription {
+	CreateAsync(title: string, attrOn: number, attrNotOn: number, classifierId: number): Promise<void> {
 
-		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+    let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 
-		MVCcmd._attributeIdClassifyTo = 0;
-		MVCcmd._attributeIdNotOn = attrNotOn;
-		MVCcmd._attributeIdOn = attrOn;
-		MVCcmd._sourceId = -1;
-		MVCcmd._title = title;
-		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
-		MVCcmd._classifierId = classifierId;
+    MVCcmd._attributeIdClassifyTo = 0;
+    MVCcmd._attributeIdNotOn = attrNotOn;
+    MVCcmd._attributeIdOn = attrOn;
+    MVCcmd._sourceId = -1;
+    MVCcmd._title = title;
+    MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+    MVCcmd._classifierId = classifierId;
 
-        this._BusyMethods.push("CreateAsync");
-
-		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
-
-		//alert('about to send to controller');
-
-		return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/Classifier',
-			MVCcmd, { headers: headers }
-		).subscribe(
-
-			result => {
-
-				if (result.returnMessage == '') {
-
-					this.showBuildModelMessage('request was submitted');
-
-				} else {
-
-					this.showBuildModelMessage(result.returnMessage);
-				}
-
-				this.IamVerySorryRefresh();
-				this.RemoveBusy("CreateAsync");
-			},
-			error => {
-                this.RemoveBusy("CreateAsync");
-				this.modalService.GenericError(error);
-            }, () => {
-                this.RemoveBusy("CreateAsync");
-			}
-		);
+    this._BusyMethods.push("CreateAsync");
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/Classifier',
+      MVCcmd)).then(
+        result => {
+          if (result.returnMessage == '') {
+            this.showBuildModelMessage('request was submitted');
+          } else {
+            this.showBuildModelMessage(result.returnMessage);
+          }
+          this.IamVerySorryRefresh();
+          this.RemoveBusy("CreateAsync");
+        },
+        error => {
+          this.RemoveBusy("CreateAsync");
+          this.modalService.GenericError(error);
+        }).catch((caught) => {
+          this.modalService.GenericError(caught);
+          this.RemoveBusy("CreateAsync");
+        });
 	}
 	
   Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number): Promise<string | boolean> {

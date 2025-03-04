@@ -387,14 +387,11 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
             closable: true
           });
         }
-        else if (res == "Insufficient data") {
-          let msg: string = "Priority screening simulation <strong>did not start</strong>: not enough data.<br />"
-            + "Requirements are: <ol>"
-            + "<li>At least 7 items need to belong to the 'looking for records with this code' code</li>"
-            + "<li>At least 10 items need to belong to the 'distinguish from the ones coded with this code' code</li>"
-            + "<li>At least 20 items need to be used in total</li>"
-            + "<li>Note: items with both codes will be counted in the 'records with this code' list only</li></ol>";
-          this.modalService.GenericErrorMessage(msg);
+        else if ((res as string).startsWith("Insufficient Data")) {
+          this.modalService.GenericErrorMessage((res as string));
+        }
+        else {
+          this.modalService.GenericErrorMessage("Unexpected result:\r\n" + res.toString());
         }
       }
     }
