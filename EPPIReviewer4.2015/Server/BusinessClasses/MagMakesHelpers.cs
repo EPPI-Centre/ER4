@@ -485,7 +485,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     else
                     {
-                        tmp += ", " + author.author.display_name;
+                        tmp += "; " + author.author.display_name;
                     }
                 }
             }

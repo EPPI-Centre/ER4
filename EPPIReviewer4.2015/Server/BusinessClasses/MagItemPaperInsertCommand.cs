@@ -456,7 +456,7 @@ namespace BusinessLibrary.BusinessClasses
             ItemIncomingData tItem = ItemIncomingData.NewItem();
             tItem.AuthorsLi = new AuthorsHandling.AutorsList();
             tItem.pAuthorsLi = new AuthorsHandling.AutorsList();
-            string[] authors = mp.Authors.Split(',');
+            string[] authors = mp.Authors.Split(';');
             for (int x = 0; x < authors.Count(); x++)
             {
                 AutH author = NormaliseAuth.singleAuth(authors[x], x + 1, 0, true);
