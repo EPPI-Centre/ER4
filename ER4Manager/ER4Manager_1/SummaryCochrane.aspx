@@ -74,19 +74,15 @@
                                 </asp:RadioButtonList>
                             </td>
                         </tr>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                        </tr>
-                        <tr>
+                        <!--<tr>
                             <td>
                                 <asp:LinkButton ID="lbBritLibCodesProCochrane" runat="server" OnClick="lbBritLibCodesProCochrane_Click">BL codes</asp:LinkButton>
                                 &nbsp;&nbsp;&nbsp; </td>
                             <td>&nbsp;</td>
                             <td>&nbsp;</td>
-                        </tr>
+                        </tr>-->
                     </table>
+
                     <asp:Panel ID="pnlBritLibCodesProCochrane" runat="server" BorderColor="#999999" BorderStyle="Solid" BorderWidth="2px" Visible="False" Width="792px">
                         If you have document ordering codes from the <b>British Library</b> you can enter them here.
                     <asp:LinkButton ID="lbCancelBLProCochrane" runat="server" OnClick="lbCancelBLProCochrane_Click">(cancel)</asp:LinkButton>
@@ -206,6 +202,69 @@
                         If the account is valid it will be placed in the review and an email send to the 
                     account holder.
                     </asp:Panel>
+
+
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="width: 100%;">
+                                <panel ID="pnlGPTcredit" runat="server" visible="false">
+                                    <table style="width: 100%;">
+                                        <tr>
+                                            <td style="width: 40%; vertical-align:top;border: 1px;padding:3px">
+                                                <b>ChatGPT access</b><br />
+                                                <asp:TextBox ID="tbCreditPurchaseIDProspC" runat="server" Visible="true" Width="100px"></asp:TextBox>
+                                                &nbsp;
+                                                <asp:LinkButton ID="lbSavePurchaseCreditIDProspC" runat="server" onclick="lbSavePurchaseCreditIDProspC_Click" 
+                                                    ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
+                                                <b><asp:Label ID="lblInvalidIDProspC" runat="server" Text="Invalid ID" Visible="false"  ForeColor="Red"></asp:Label></b>
+                                                <br />
+                                                To use ChatGPT you must apply credit to your review.<br />
+                                                Credit can be purchased in the Purchase tab.<br />
+                                                Enter a PurchaseID number (displayed in the Credit Purchase table in the Summary tab) and click <b>Add</b>. 
+                                            </td>
+                                            <td style="width: 60%; vertical-align:top;border: 1px;padding:3px">
+                                                <b><asp:Label ID="lblChatGPTCreditTableHeading" runat="server" Text="ChatGPT Credit" Visible="False"></asp:Label></b>
+                                                <br />
+                                                <asp:GridView ID="gvCreditForRobotsProspC" runat="server" Width="100%" onrowdatabound="gvCreditForRobotsProspC_RowDataBound"
+                                                    onrowcommand="gvCreditForRobotsProspC_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
+                                                    DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
+                                                    <Columns>
+                                                        <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
+                                                        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                            HorizontalAlign="Left" />
+                                                        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                        </asp:BoundField>
+                                                        <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
+                                                        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                            HorizontalAlign="Left" />
+                                                        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                        </asp:BoundField>
+                                                        <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
+                                                        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                            HorizontalAlign="Left" />
+                                                        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                        </asp:BoundField>
+                                                        <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
+                                                        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                            HorizontalAlign="Left" />
+                                                        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                        </asp:BoundField>
+                                                        <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" 
+                                                            Text="Remove">
+                                                        <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                            HorizontalAlign="Left"/>
+                                                        <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                        </asp:ButtonField>                         
+                                                    </Columns>
+                                                </asp:GridView>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </panel>
+                            </td>
+                        </tr>
+                    </table>
+
                 </asp:Panel>
             </asp:Panel>
             <asp:Label ID="lblShareableReviewsCochrane" runat="server"
@@ -290,7 +349,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <asp:LinkButton ID="lbBritLibCodesFullCochrane" runat="server" OnClick="lbBritLibCodesFullCochrane_Click">BL codes</asp:LinkButton>
+                                <!--<asp:LinkButton ID="lbBritLibCodesFullCochrane" runat="server" OnClick="lbBritLibCodesFullCochrane_Click">BL codes</asp:LinkButton>-->
                                 &nbsp;&nbsp;&nbsp; </td>
                             <td>&nbsp;</td>
                             <td>&nbsp;</td>
@@ -416,13 +475,72 @@
                     </asp:Panel>
                 </asp:Panel>
             </asp:Panel>
-            <asp:Label ID="lblShareableReviewsCochraneFull" runat="server"
+
+        </asp:Panel>
+        <table style="width: 100%;background-color: #E2E9EF;">
+            <tr>
+                <td style="width: 100%;">
+                    <panel ID="pnlGPTcreditCochrane" runat="server" visible="false">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="width: 40%; vertical-align:top;border: 1px;padding:3px">
+                                    <b>ChatGPT access</b><br />
+                                    <asp:TextBox ID="tbCreditPurchaseIDCochrane" runat="server" Visible="true" Width="100px" ToolTip="PurchaseID"></asp:TextBox>
+                                    &nbsp;
+                                    <asp:LinkButton ID="lbSavePurchaseCreditIDCochrane" runat="server" onclick="lbSavePurchaseCreditIDCochrane_Click" 
+                                        ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
+                                    <b><asp:Label ID="lblInvalidIDCochrane" runat="server" Text="Invalid ID" Visible="false"  ForeColor="Red"></asp:Label></b>
+                                    <br />
+                                    To use ChatGPT you must apply credit to your review.<br />
+                                    Credit can be purchased in the Purchase tab.<br />
+                                    Enter a PurchaseID number (displayed in the Credit Purchase table in the Summary tab) and click <b>Add</b>. 
+                                </td>
+                                <td style="width: 60%; vertical-align:top;border: 1px;padding:3px">
+                                    <b><asp:Label ID="lblChatGPTCreditTableHeadingCochrane" runat="server" Text="ChatGPT Credit" Visible="False"></asp:Label></b>
+                                    <br />
+                                    <asp:GridView ID="gvCreditForRobotsCochrane" runat="server" Width="100%" onrowdatabound="gvCreditForRobotsCochrane_RowDataBound"
+                                        onrowcommand="gvCreditForRobotsCochrane_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
+                                        DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
+                                        <Columns>
+                                            <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
+                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                HorizontalAlign="Left" />
+                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                            </asp:BoundField>
+                                            <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
+                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                HorizontalAlign="Left" />
+                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                            </asp:BoundField>
+                                            <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
+                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                HorizontalAlign="Left" />
+                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                            </asp:BoundField>
+                                            <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
+                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                HorizontalAlign="Left" />
+                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                            </asp:BoundField>
+                                            <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" 
+                                                Text="Remove">
+                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                HorizontalAlign="Left"/>
+                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                            </asp:ButtonField>                         
+                                        </Columns>
+                                    </asp:GridView>
+                                </td>
+                            </tr>
+                        </table>
+                    </panel>
+                </td>
+            </tr>
+        </table>
+
+                <asp:Label ID="lblShareableReviewsCochraneFull" runat="server"
                 Text="You are not in any Cochrane reviews in EPPI-Reviewer." Visible="False"></asp:Label>
             <br />
-        </asp:Panel>
-        <br />
-
-
 
 
 </asp:Content>

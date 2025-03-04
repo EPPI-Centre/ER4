@@ -16,6 +16,14 @@ using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.Http;
+using Microsoft.CodeAnalysis;
+using Microsoft.Identity.Client;
+
+
+
+
 
 
 
@@ -319,21 +327,45 @@ namespace BusinessLibrary.BusinessClasses
             public string content { get; set; }
         }
 
-        private string getPrompts(string currentPrompt, AttributeSet aSet)
+        private string getPrompts(string currentPrompt, AttributeSet aSet, Dictionary<string, string> RagPrompts)
         {
             foreach (AttributeSet subSet in aSet.Attributes)
             {
-                currentPrompt = getPrompts(currentPrompt, subSet);
+                currentPrompt = getPrompts(currentPrompt, subSet, RagPrompts);
             }
             string possiblePrompt = aSet.AttributeSetDescription;
             if (possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':')) // checking it's in the right format
             {
-                possiblePrompt = possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}","").Replace("\"", ""); // once out of Alpha we could make this more complete
-                int firstIndexOfColumn = possiblePrompt.IndexOf(":");
-                if (firstIndexOfColumn == -1) { return currentPrompt; }
-                possiblePrompt = "\"" + possiblePrompt.Insert(firstIndexOfColumn, "\"");
-                currentPrompt += possiblePrompt + ",\n";
-                return currentPrompt;
+                // RAG prompts don't go in the main prompt list, they go in their own list and are resolved one by one
+                if (possiblePrompt.StartsWith("**"))
+                {
+                    string ragKey = getRagKeyFromPrompt(possiblePrompt);
+                    string ragPrompt = possiblePrompt.Replace("**", "").Replace(ragKey, "");
+                    int firstIndexOfColumn = ragPrompt.IndexOf(":");
+
+                    // we check it's looking like a proper prompt and format it before adding, so it's good to use later without further intervention
+                    // if firstIndexOfColumn == 0 then we have no prompt label, so we ignore it (could possibly insist on min label length?)
+                    if (firstIndexOfColumn > 0 && ragPrompt.IndexOf("//") > firstIndexOfColumn)
+                    {
+                        ragPrompt = ragPrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}", "").Replace("\"", "").Replace("RAG_", ""); // once out of Alpha we could make this more complete
+                        ragPrompt = "\"" + ragPrompt.Insert(firstIndexOfColumn, "\"");
+                        RagPrompts.Add(getKeyFromPrompt(possiblePrompt), ragPrompt);
+                    }
+
+                    // We're not adding anything to the first pass prompts, so just return
+                    return currentPrompt;
+                }
+                else
+                {
+                    possiblePrompt = possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}", "").Replace("\"", ""); // once out of Alpha we could make this more complete
+                    
+                    // JT - isn't this check redundant as we already know that the string contains : ?
+                    int firstIndexOfColumn = possiblePrompt.IndexOf(":");
+                    if (firstIndexOfColumn == -1) { return currentPrompt; }
+                    possiblePrompt = "\"" + possiblePrompt.Insert(firstIndexOfColumn, "\"");
+                    currentPrompt += possiblePrompt + ",\n";
+                    return currentPrompt;
+                }
             }
             else
             {
@@ -343,14 +375,10 @@ namespace BusinessLibrary.BusinessClasses
 
         private AttributeSet getAttributeFromPromptKey(string key, AttributeSet aSet)
         {
-            int columnIndex = aSet.AttributeSetDescription.IndexOf(':');
-            if (columnIndex > 0)
+            string label = getKeyFromPrompt(aSet.AttributeSetDescription);
+            if (label == key)
             {
-                string label = aSet.AttributeSetDescription.Substring(0, columnIndex);
-                if (label == key)
-                {
-                    return aSet;
-                }
+                return aSet;
             }
             foreach (AttributeSet subSet in aSet.Attributes)
             {
@@ -362,29 +390,50 @@ namespace BusinessLibrary.BusinessClasses
             }
             return null;
         }
+        private AttributeSet getAttributeFromRagPromptKey(string key, AttributeSet aSet)
+        {
+            string label = getKeyFromPrompt(aSet.AttributeSetDescription);
+            if (label == key)
+            {
+                return aSet;
+            }
+            foreach (AttributeSet subSet in aSet.Attributes)
+            {
+                AttributeSet possibleMatch = getAttributeFromRagPromptKey(key, subSet);
+                if (possibleMatch != null)
+                {
+                    return possibleMatch;
+                }
+            }
+            return null;
+        }
+
+        private string getKeyFromPrompt(string prompt)
+        {
+            int columnIndex = prompt.IndexOf(':');
+            if (columnIndex > 0)
+            {
+                return prompt.Substring(0, columnIndex);
+            }
+            return "";
+        }
+
+        private string getRagKeyFromPrompt(string prompt)
+        {
+            var match = Regex.Match(prompt, @"\*\*(.*?)\*\*");
+            return match.Success ? match.Groups[1].Value : string.Empty;
+        }
+
+        private string getRagSubKeyFromPrompt(string prompt)
+        {
+            return prompt.Replace(getRagKeyFromPrompt(prompt), "").Replace("**", "");
+        }
         private async Task<bool> DoRobot(int ReviewId, int UserId)
         {
             bool result = true;
+            Dictionary<string, string> RagPrompts = new Dictionary<string, string>();
             //
-            string endpoint;
-            string key;
-            if (_UserPrivateOpenAIKey != "")
-            {
-                //TEMPORARY (May 2024): use RobotOpenAIDirectEndpoint when we have an ad-hoc OpenAIKey for it
-                endpoint = AzureSettings.RobotOpenAIDirectEndpoint;
-                key = _UserPrivateOpenAIKey;
-
-            }
-            else if (_ExplicitEndpoint != "" && _ExplicitEndpointKey != "")
-            {
-                endpoint = _ExplicitEndpoint;
-                key = _ExplicitEndpointKey;
-            }
-            else
-            {
-                endpoint = AzureSettings.RobotOpenAIEndpoint;
-                key = AzureSettings.RobotOpenAIKey2;
-            }
+            
             //string document = GetDoc(_itemDocumentId, ReviewId);  // when we re-enable this, we need to check the stored proc (below) will return the text
             Item i = null;
             if (_useFullTextDocument == false)
@@ -423,7 +472,7 @@ namespace BusinessLibrary.BusinessClasses
             string prompt = "";
             foreach (AttributeSet subSet in rs.Attributes)
             { //maybe add code to check if we have 2 codes with the same prompt, which would break the "saving results" phase, somewhat (only the first will be coded)
-                string newPrompt = getPrompts("", subSet);
+                string newPrompt = getPrompts("", subSet, RagPrompts);
                 if (newPrompt != "")
                 {
                     prompt += newPrompt;
@@ -509,7 +558,7 @@ namespace BusinessLibrary.BusinessClasses
                 ErrorLogSink("Cancelling RobotOpenAICommand after preparing most of the prompts.");
                 return false;
             }
-            //we add lenght checks here and simply truncate the userprompt if things are too long.
+            //we add length checks here and simply truncate the userprompt if things are too long.
             int limit = 556522; //128000 / 0.23 we calculated this using 2 tests that had 100K++ tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
             if (sysprompt.Length + userprompt.Length > limit)
             {//call is likely to fail because it's too long - we truncate the userprompt and hope for the best!
@@ -527,6 +576,107 @@ namespace BusinessLibrary.BusinessClasses
                 new OpenAIChatClass { role = "user", content = userprompt},
             };
 
+            result = await MyRobotSubmitRequest(messages, false);
+
+            if (result)
+            {
+                // *** Go through each of the responses, find the right code, and save results
+                foreach (var kv in resultDict)
+                {
+                    AttributeSet matched = null;
+                    foreach (AttributeSet subSet in rs.Attributes)
+                    {
+                        matched = getAttributeFromPromptKey(kv.Key, subSet);
+                        if (matched != null)
+                        {
+                            SaveAttribute(matched, _itemId, kv.Value, ReviewId, UserId);
+                            break;
+                        }
+                    }
+                }
+
+                // if there are RAG_ prompts then go through them now
+                foreach (string c in RagPrompts.Keys)
+                {
+                    string ragKey = getRagKeyFromPrompt(c);
+                    if (resultDict.ContainsKey(ragKey))
+                    {
+                        userprompt = resultDict[ragKey];
+                        if (userprompt != "")
+                        {
+                            sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data requested is not in the text return 'false' for that field. \nShape: {" + RagPrompts[c] + "}";
+                            messages = new List<OpenAIChatClass>
+                            {
+                                new OpenAIChatClass { role = "system", content = sysprompt}, 
+                                new OpenAIChatClass { role = "user", content = userprompt},
+                            };
+
+                            result = await MyRobotSubmitRequest(messages, true);
+
+                            if (result)
+                            {
+                                AttributeSet matched = null;
+                                foreach (AttributeSet subSet in rs.Attributes)
+                                {
+                                    string ragPromptKey = c.Replace("\"", "");
+                                    matched = getAttributeFromPromptKey(ragPromptKey, subSet);
+                                    if (matched != null && resultRagDict.ContainsKey(getRagSubKeyFromPrompt(ragPromptKey)))
+                                    {
+                                        SaveAttribute(matched, _itemId, resultRagDict[getRagSubKeyFromPrompt(ragPromptKey)], ReviewId, UserId);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true)
+                {//_Item_set_id > 0 => there is coding to lock/unlock
+                 //_onlyCodeInTheRobotName == false && _lockTheCoding == true => we did not call st_ItemSetPrepareForRobot so we may need to lock the coding still
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        string sql = "UPDATE TB_ITEM_SET set IS_LOCKED = @IS_LOCKED where ITEM_SET_ID = @ITEM_SET_ID";
+                        using (SqlCommand commandEx = new SqlCommand(sql, connection))
+                        {
+                            commandEx.Parameters.Add(new SqlParameter("@IS_LOCKED", System.Data.SqlDbType.Bit));
+                            commandEx.Parameters["@IS_LOCKED"].Value = _lockTheCoding;
+                            commandEx.Parameters.Add(new SqlParameter("@ITEM_SET_ID", System.Data.SqlDbType.BigInt));
+                            commandEx.Parameters["@ITEM_SET_ID"].Value = _Item_set_id;
+                            commandEx.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        private Dictionary<string, string> resultDict;
+        private Dictionary<string, string> resultRagDict;
+
+        // This is just copied and pasted out of the above. It can be the starting point for putting this in a new object and having different options for the robot
+        private async Task<bool> MyRobotSubmitRequest(List<OpenAIChatClass> messages, bool isRag)
+        {
+            string endpoint;
+            string key;
+            if (_UserPrivateOpenAIKey != "")
+            {
+                //TEMPORARY (May 2024): use RobotOpenAIDirectEndpoint when we have an ad-hoc OpenAIKey for it
+                endpoint = AzureSettings.RobotOpenAIDirectEndpoint;
+                key = _UserPrivateOpenAIKey;
+
+            }
+            else if (_ExplicitEndpoint != "" && _ExplicitEndpointKey != "")
+            {
+                endpoint = _ExplicitEndpoint;
+                key = _ExplicitEndpointKey;
+            }
+            else
+            {
+                endpoint = AzureSettings.RobotOpenAIEndpoint;
+                key = AzureSettings.RobotOpenAIKey2;
+            }
 
             // *** additional params (modifiable in web.config)
             double temperature = Convert.ToDouble(AzureSettings.RobotOpenAITemperature);
@@ -579,8 +729,7 @@ namespace BusinessLibrary.BusinessClasses
             if (response.IsSuccessStatusCode == false)
             {
                 _message = "Error: " + response.ReasonPhrase;
-                result = false;
-                return result;
+                return false;
             }
 
             if (AppIsShuttingDown)//last time we check, if we need to cancel while we're saving results, it's best to have a go and try to save all results, not just some!
@@ -594,43 +743,18 @@ namespace BusinessLibrary.BusinessClasses
             _inputTokens = generatedText.usage.prompt_tokens;
             _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             var responses = generatedText.choices[0].message.content;
-            var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
-
-
-            // *** Go through each of the responses, find the right code, and save results
-            foreach (var kv in dict)
+            if (isRag)
             {
-                AttributeSet matched = null;
-                foreach (AttributeSet subSet in rs.Attributes)
-                {
-                    matched = getAttributeFromPromptKey(kv.Key, subSet);
-                    if (matched != null)
-                    {
-                        SaveAttribute(matched, _itemId, kv.Value, ReviewId, UserId);
-                        break;
-                    }
-                }
+                resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
             }
-            if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true)
-            {//_Item_set_id > 0 => there is coding to lock/unlock
-                //_onlyCodeInTheRobotName == false && _lockTheCoding == true => we did not call st_ItemSetPrepareForRobot so we may need to lock the coding still
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                {
-                    connection.Open();
-                    string sql = "UPDATE TB_ITEM_SET set IS_LOCKED = @IS_LOCKED where ITEM_SET_ID = @ITEM_SET_ID";
-                    using (SqlCommand commandEx = new SqlCommand(sql, connection))
-                    {
-                        commandEx.Parameters.Add(new SqlParameter("@IS_LOCKED", System.Data.SqlDbType.Bit));
-                        commandEx.Parameters["@IS_LOCKED"].Value = _lockTheCoding;
-                        commandEx.Parameters.Add(new SqlParameter("@ITEM_SET_ID", System.Data.SqlDbType.BigInt));
-                        commandEx.Parameters["@ITEM_SET_ID"].Value = _Item_set_id;
-                        commandEx.ExecuteNonQuery();
-                    }
-                }
+            else
+            {
+                resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
             }
+            // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
-           
-            return result;
+
+            return true;
         }
 
         private static readonly Regex BooleanPromptRx = new Regex(@": ?boolean ?\/\/");
