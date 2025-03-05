@@ -1100,12 +1100,12 @@ public partial class Summary : System.Web.UI.Page
 
         newrowS = dtS.NewRow();
         newrowS["PURCHASE_ID_SOURCE"] = "Source ID";
-        newrowS["PURCHASE_ID_SOURCE_REMAINING"] = 0;
+        newrowS["PURCHASE_ID_SOURCE_REMAINING"] = "NoValue";
         dtS.Rows.Add(newrowS);
 
         newrowD = dtD.NewRow();
         newrowD["PURCHASE_ID_DESTINATION"] = "Destination ID";
-        newrowD["PURCHASE_ID_DESTINATION_REMAINING"] = 0;
+        newrowD["PURCHASE_ID_DESTINATION_REMAINING"] = "NoValue";
         dtD.Rows.Add(newrowD);
 
         // we can grab the purchaseIDs from gvCreditPurchases
