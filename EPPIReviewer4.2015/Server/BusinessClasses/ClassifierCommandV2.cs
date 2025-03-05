@@ -144,6 +144,7 @@ namespace BusinessLibrary.BusinessClasses
         int ModelReviewId = -1;
         string BatchGuid = "";
         bool OpenAlexAutoUpdate = false;
+        bool buildingNewModel = false;
 
         private void DoNewVersion()
         {
@@ -210,7 +211,7 @@ namespace BusinessLibrary.BusinessClasses
                 int NewJobId = 0;
                 List<Int64> ItemIds = new List<Int64>();
                 connection.Open();
-                bool buildingNewModel = false;
+                
                 if (_classifierId == -1) // building a new classifier: we save a new model into the database
                 {
                     buildingNewModel = true;
@@ -258,15 +259,41 @@ namespace BusinessLibrary.BusinessClasses
                 // now save the temp file with labels for training
                 if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId)) // there wasn't enough data
                 {
-                    //_returnMessage = "Insufficient data";
-                    if (buildingNewModel) //building a new classifier, there is not enough data, so we're not saving it
+                    UndoChangesToClassifierRecord(NewJobId, false);
+                    return;
+                }// there's enough data, so we keep going
+
+                Task.Run(() => FireAndForget(ReviewId, NewJobId, "TrainClassifier", ContactId));
+            }
+        }
+        private void UndoChangesToClassifierRecord(int JobId, bool Leave_a_trace = true)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    if (buildingNewModel) //building a new classifier
                     {
-                        using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
+                        if (!Leave_a_trace)//not leaving traces, we'll delete the record of the empty model
                         {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ModelReviewId));
-                            command.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
-                            command.ExecuteNonQuery();
+                            using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ModelReviewId));
+                                command.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        else //leaving a trace, we mark the failed model as failed
+                        {
+                            using (SqlCommand command = new SqlCommand("st_ClassifierUpdateModelTitle", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
+                                command.Parameters.Add(new SqlParameter("@TITLE", _title + " (failed)"));
+                                command.ExecuteNonQuery();
+                            }
                         }
                     }
                     else
@@ -275,26 +302,26 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             command.CommandType = System.Data.CommandType.StoredProcedure;
                             command.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
-                            command.Parameters.Add(new SqlParameter("@TITLE", _title));
+                            if (!Leave_a_trace)//not leaving traces, rename the model to its original name
+                            {
+                                command.Parameters.Add(new SqlParameter("@TITLE", _title));
+                            }
+                            else //leaving a trace...
+                            {
+                                command.Parameters.Add(new SqlParameter("@TITLE", _title + " (model failed to rebuild)"));
+                            }
                             command.ExecuteNonQuery();
                         }
                     }
-                    try
-                    {
-                        File.Delete(LocalFileName);
-                    }
-                    catch (Exception ex)
-                    {//we try and catch because we do want to reach the `UpdateReviewJobLog` code
-                        DataFactoryHelper.LogExceptionToFile(ex, ModelReviewId, NewJobId, "ClassifierCommandV2");
-                    }
-                    DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
-                    return;
-                }// there's enough data, so we keep going
+                }
+                if (File.Exists(LocalFileName)) File.Delete(LocalFileName);
 
-                Task.Run(() => FireAndForget(ReviewId, NewJobId, "TrainClassifier", ContactId));
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.LogExceptionToFile(ex, ModelReviewId, JobId, "ClassifierCommandV2");
             }
         }
-
         private void DoApplyClassifier2(int ReviewId, int ContactId, string modelFolder)
         {
             int NewJobId = 0;
@@ -545,12 +572,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception ex)
             {
+                _returnMessage = "Failed to get data to train classifier";
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to get data to train classifier", "", "ClassifierCommandV2", true, false);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 return false;
             }
             if (AppIsShuttingDown)
             {
+                _returnMessage = "Cancelled after writing temp file";
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after writing temp file", "", "ClassifierCommandV2", true, false);
                 return false;
             }
@@ -732,13 +761,21 @@ namespace BusinessLibrary.BusinessClasses
             // everything uploads the temp file to blob
             if (!UploadTempFileToBlob(ReviewId, LogId))
             {
+                if (RunType == "TrainClassifier")
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        UndoChangesToClassifierRecord(LogId, true);
+                    }
+                }
                 return;
             }
             Dictionary<string, object> parameters = GetAdfParameters(RunType);
             // everything triggers the ADF API
             bool DFresult = await RunDataFactoryJobAsync(ReviewId, LogId, parameters);
             if (DFresult) //if DF didn't work, we trust the reason was logged appropriately either in DFHelper or in RunDataFactoryJobAsync
-            {                
+            {
                 switch (RunType)// ADF has completed, so we now process results
                 {
                     case "TrainClassifier":
@@ -767,6 +804,13 @@ namespace BusinessLibrary.BusinessClasses
                         break;
                     default: // should never hit this
                         break;
+                }
+            }
+            else //DF did not work
+            {
+                if (RunType == "TrainClassifier")
+                {
+                    UndoChangesToClassifierRecord(LogId, true);
                 }
             }
         }
@@ -943,6 +987,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception ex)
             {
+                UndoChangesToClassifierRecord(LogId, true);
                 DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to download data", "", "ClassifierCommandV2", true, false);
                 return false;
