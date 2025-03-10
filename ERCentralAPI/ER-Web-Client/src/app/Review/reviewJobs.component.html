@@ -34,13 +34,14 @@
                 previousNext: true
             }"
             filterable="menu"
+            [resizable]="true"
             (dataStateChange)="dataStateChange($event)"
             style="max-height: 75vh; height: 75vh;"
             class="mt-1">
 
   <kendo-grid-column field="reviewJobId" title="Id" [width]="40" class="px-1 py-0 m-1" filter="numeric">
   </kendo-grid-column>
-  <kendo-grid-column field="jobType" title="Job Type" [width]="120" class="px-1 py-0 m-1" >
+  <kendo-grid-column field="jobType" title="Job Type" [width]="120" class="px-1 py-0 m-1"  [style]="{ 'font-weight': 'bold'}" >
   </kendo-grid-column>
   <kendo-grid-column field="jobOwnerId" title="OwnerId" [width]="40" class="px-1 py-0 m-1" filter="numeric">
   </kendo-grid-column>
@@ -53,7 +54,7 @@
       {{JobDuration(dataItem)}}
     </ng-template>
   </kendo-grid-column>
-  <kendo-grid-column field="status" title="Status" [width]="100" class="px-1 py-0 m-1">
+  <kendo-grid-column field="status" title="Status" [width]="100" class="px-1 py-0 m-1" >
   </kendo-grid-column>
   <kendo-grid-column field="success" title="Success" [width]="40" class="px-1 py-0 m-1" filter="boolean">
   </kendo-grid-column>
