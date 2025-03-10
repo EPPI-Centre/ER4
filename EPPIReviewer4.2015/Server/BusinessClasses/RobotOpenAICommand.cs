@@ -16,21 +16,6 @@ using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis;
-using Microsoft.Identity.Client;
-
-
-
-
-
-
-
-
-
-
-
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
