@@ -222,7 +222,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Error with the dataportal priority screening simulation list logic");
+                _logger.LogException(e, "Error in FetchPriorityScreeningSimulationList");
                 return StatusCode(500, e.Message);
             }
         }

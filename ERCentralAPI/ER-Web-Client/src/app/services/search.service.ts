@@ -38,7 +38,6 @@ export class searchService extends BusyAwareService implements OnDestroy {
 
 	//@Output() searchesChanged = new EventEmitter();
     //public crit: CriteriaSearch = new CriteriaSearch();
-	public searchToBeDeleted: string = '';//WHY string?
 	public searchToBeUpdated: string = '';//WHY string?
 
 	public get SearchList(): Search[] {
@@ -73,7 +72,6 @@ export class searchService extends BusyAwareService implements OnDestroy {
 	public Clear() {
 		console.log("clear in Searches Service");
 		this._SearchList = [];
-		this.searchToBeDeleted = "";
 		this.searchToBeUpdated = "";
 		this.cmdSearches = new SearchCodeCommand();
         //this.crit = new CriteriaSearch();
@@ -85,18 +83,18 @@ export class searchService extends BusyAwareService implements OnDestroy {
 
         this._BusyMethods.push("Delete");
 		let body = JSON.stringify({ Value: value });
-		this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
-			body)
-			.subscribe(result => {
+		lastValueFrom( this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
+			body)).then(result => {
                 this.RemoveBusy("Delete");
-				let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
-				this.SearchList.splice(tmpIndex, 1);
 				this.Fetch();
             }, error => {
                 this.RemoveBusy("Delete");
                 this.modalService.GenericError(error);
             }
-		);
+    ).catch(caught => {
+      this.RemoveBusy("Delete");
+      this.modalService.GenericError(caught);
+    });
 	}
 
 	CreateSearch(cmd: SearchCodeCommand, apiStr: string) {

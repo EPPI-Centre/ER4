@@ -176,6 +176,11 @@ export class SearchComp implements OnInit, OnDestroy {
   public get SearchVisualiseData() {
     return this._reviewSetsEditingServ.SearchVisualiseData;
   }
+
+  public get PriorityScreeningIsEnabled(): boolean {
+    return this._reviewInfoService.ReviewInfo.showScreening;
+  }
+
   CancelVisualise() {
 
     this.ShowVisualiseSection = false;
@@ -581,18 +586,20 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public openConfirmationDialogDeleteSearches() {
-    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected search(es)?', false, '')
-      .then(
-        (confirmed: any) => {
-          //console.log('User confirmed:', confirmed);
-          if (confirmed) {
-            this.DeleteSearchSelected();
-          } else {
-            //alert('did not confirm');
+    if (this.HasSelectedSearches) {
+      this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected search(es)?', false, '')
+        .then(
+          (confirmed: any) => {
+            //console.log('User confirmed:', confirmed);
+            if (confirmed) {
+              this.DeleteSearchSelected();
+            } else {
+              //alert('did not confirm');
+            }
           }
-        }
-      )
-      .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+        )
+        .catch(() => {});
+    }
   }
 
   public openConfirmationDialog() {
@@ -821,7 +828,7 @@ export class SearchComp implements OnInit, OnDestroy {
   getLogicSearches(logicChoice: string) {
 
 
-    if (this.CanWrite() && this.checkBoxSelected == true) {
+    if (this.CanWrite() && this.HasSelectedSearches == true) {
 
       if (logicChoice == 'NOT (excluded)') {
         this._searchService.cmdSearches._included = 'false';
@@ -860,7 +867,6 @@ export class SearchComp implements OnInit, OnDestroy {
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
         //reset
         this._searchService.cmdSearches._logicType = '';
-        this.checkBoxSelected = false;
 
       }
 
@@ -938,8 +944,16 @@ export class SearchComp implements OnInit, OnDestroy {
       this.SearchForPersonModel = false;
     }
   }
-  DeleteSearchSelected() {
 
+  public get HasSelectedSearches(): boolean {
+    const list = this.DataSourceSearches.data as Search[];
+    const found = list.find(f => f.add == true);
+    if (found != undefined) return true;
+    else return false;
+  }
+
+  DeleteSearchSelected() {
+    if (!this.HasSelectedSearches) return;
     // Need to check if user has rights to delete
     let lstStrSearchIds = '';
 
@@ -1244,23 +1258,9 @@ export class SearchComp implements OnInit, OnDestroy {
     this._searchService.cmdSearches._searchText = heading;
   }
 
-  public checkBoxSelected: boolean = false;
   public checkboxClicked(dataItem: any) {
-
-    console.log(dataItem);
     dataItem.add = !dataItem.add;
-    if (dataItem.add == true && this.modelNum == 5) {
-
-      //this.ModelSelected = true;
-      this.checkBoxSelected = true;
-      this._searchService.searchToBeDeleted = dataItem.searchId;
-
-    }
-    if (dataItem.add == true) {
-      this.checkBoxSelected = true;
-    }
-
-  };
+  }
 
 
   BuildModel() {

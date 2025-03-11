@@ -45,13 +45,13 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     this._PriorityScreeningSimulationList = priorityScreeningSimulationList;
   }
 
-  private _PriorityScreeningSimulation: PriorityScreeningSimulation | null = null;
-  public get PriorityScreeningSimulation(): PriorityScreeningSimulation | null {
-    return this._PriorityScreeningSimulation;
-  }
-  public set PriorityScreeningSimulation(priorityScreeningSimulation: PriorityScreeningSimulation | null) {
-    this._PriorityScreeningSimulation = priorityScreeningSimulation;
-  }
+  //private _PriorityScreeningSimulation: PriorityScreeningSimulation | null = null;
+  //public get PriorityScreeningSimulation(): PriorityScreeningSimulation | null {
+  //  return this._PriorityScreeningSimulation;
+  //}
+  //public set PriorityScreeningSimulation(priorityScreeningSimulation: PriorityScreeningSimulation | null) {
+  //  this._PriorityScreeningSimulation = priorityScreeningSimulation;
+  //}
 
   public PriorityScreeningSimulationResults: string | null = null;
 
@@ -329,8 +329,8 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
   public FetchPriorityScreeningSimulationList() {
     this._BusyMethods.push("FetchPriorityScreeningSimulationList");
-    this._httpC.get<PriorityScreeningSimulation[]>(this._baseUrl + 'api/PriorirtyScreening/FetchPriorityScreeningSimulationList')
-      .subscribe(result => {
+    lastValueFrom( this._httpC.get<PriorityScreeningSimulation[]>(this._baseUrl + 'api/PriorirtyScreening/FetchPriorityScreeningSimulationList'))
+      .then(result => {
         this.RemoveBusy("FetchPriorityScreeningSimulationList");
         if (result != null) {
           this.PriorityScreeningSimulationList = result;
@@ -341,8 +341,9 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
         error => {
           this.RemoveBusy("FetchPriorityScreeningSimulationList");
           this.modalService.GenericError(error);
-        },
-        () => {
+        }).catch(
+          (caught) => {
+            this.modalService.GenericError(caught);
           this.RemoveBusy("FetchPriorityScreeningSimulationList");
         });
   }
@@ -420,7 +421,9 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		this.modelToBeDeleted = 0;
 		this._ClassifierModelList = [];
 		this._ClassifierContactModelList = [];
-		this._CurrentUserId4ClassifierContactModelList = 0;
+    this._CurrentUserId4ClassifierContactModelList = 0;
+    this._PriorityScreeningSimulationList = [];
+    this.PriorityScreeningSimulationResults = null;
     }
 }
 

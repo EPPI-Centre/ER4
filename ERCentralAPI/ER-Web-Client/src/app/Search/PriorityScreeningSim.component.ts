@@ -7,7 +7,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { ClassifierService, PriorityScreeningSimulation } from '../services/classifier.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { SetAttribute, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsService, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
@@ -64,11 +64,13 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     private _eventEmitterService: EventEmitterService,
     private notificationService: NotificationService,
     private modalService: ModalService,
+    public reviewSetsService: ReviewSetsService
   ) { }
 
   @Output() PleaseCloseMe = new EventEmitter();
   ngOnInit() {
     this.refreshPriorityScreeningSimulationList();
+    if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets();
   }
   @ViewChild('VisualiseChart')
   private VisualiseChart!: ChartComponent;
@@ -351,7 +353,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         (confirmed: any) => {
           console.log('User confirmed:', confirmed);
           if (confirmed) {
-            this.PriorityScreening();
+            this.TriggerPriorityScreeningSim();
           }
           else {
             //alert('pressed cancel close dialog');
@@ -361,7 +363,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       .catch(() => { });
   }
 
-  async PriorityScreening() {
+  async TriggerPriorityScreeningSim() {
 
     if (this.DD1 != null && this.DD2 != null && this.simulationNameText != "") {
 
