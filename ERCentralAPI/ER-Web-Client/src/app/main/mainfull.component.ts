@@ -1283,6 +1283,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   GoToSources() {
     this.router.navigate(['sources']);
   }
+  public get CanShowRobotInvestigate(): boolean {
+    if (!this.HasWriteRights) return false;
+    else if (this.reviewInfoService.ReviewInfo.hasCreditForRobots && this.ReviewerIdentityServ.UserCanGPTinvestigate) return true;
+    else return false;
+  }
+  GoToInvestigate() {
+    if (this.CanShowRobotInvestigate) this.router.navigate(['Investigate']);
+  }
+
   ImportCodesetClick() {
     this.router.navigate(['ImportCodesets']);
   }

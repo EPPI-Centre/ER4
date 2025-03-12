@@ -4,7 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode, PageChangeEvent } from '@progress/kendo-angular-grid';
+import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode, PageChangeEvent, DataStateChangeEvent } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { ReviewSetsService, ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -112,7 +112,7 @@ export class SearchComp implements OnInit, OnDestroy {
   public searchN: string = '';
   public searchId: string = 'N/A';
   public popUpTitle: string = '';
-
+  public pageSizes: number[] = [10, 25, 50, 100, 200, 300];
   
 
   public get ClassifierServiceIsBusy(): boolean {
@@ -120,20 +120,25 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public get DataSourceSearches(): GridDataResult {
-    return {
-      data: orderBy(this._searchService.SearchList, this.sortSearches).slice(this.skip, this.skip + this.pageSize),
-      total: this._searchService.SearchList.length,
-    };
+    return process(this._searchService.SearchList, this.state);
+    //return {
+    //  data: orderBy(this._searchService.SearchList, this.sortSearches).slice(this.skip, this.skip + this.pageSize),
+    //  total: this._searchService.SearchList.length,
+    //};
   }
   public sortSearches: SortDescriptor[] = [{
     field: 'searchNo',
     dir: 'desc'
   }];
-  public pageSize = 100;
-  public skip = 0;
-  pageChange({ skip, take }: PageChangeEvent): void {
-    this.skip = skip;
-    this.pageSize = take;
+  
+  public state: State = {
+    skip: 0,
+    take: 100
+  };
+  public dataStateChange(state: DataStateChangeEvent): void {
+    this.state = state;
+    if (state.sort) this.sortSearches = state.sort;
+    //this.DataSourceSearches; //makes sure it's "processed"
   }
 
   public sortChangeSearches(sort: SortDescriptor[]): void {
@@ -177,9 +182,6 @@ export class SearchComp implements OnInit, OnDestroy {
     return this._reviewSetsEditingServ.SearchVisualiseData;
   }
 
-  public get PriorityScreeningIsEnabled(): boolean {
-    return this._reviewInfoService.ReviewInfo.showScreening;
-  }
 
   CancelVisualise() {
 
@@ -303,11 +305,7 @@ export class SearchComp implements OnInit, OnDestroy {
       total: this.classifierService.ClassifierContactAllModelList.length,
     };
   }
-  public get CanShowRobotInvestigate(): boolean {
-    if (!this.HasWriteRights) return false;
-    else if (this._reviewInfoService.ReviewInfo.hasCreditForRobots && this.ReviewerIdentityServ.UserCanGPTinvestigate) return true;
-    else return false;
-  }
+
   CombineSearches() {
     alert("Not implemented!");
   }
@@ -585,22 +583,7 @@ export class SearchComp implements OnInit, OnDestroy {
     return sourceItem.source_Name;
   }
 
-  public openConfirmationDialogDeleteSearches() {
-    if (this.HasSelectedSearches) {
-      this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected search(es)?', false, '')
-        .then(
-          (confirmed: any) => {
-            //console.log('User confirmed:', confirmed);
-            if (confirmed) {
-              this.DeleteSearchSelected();
-            } else {
-              //alert('did not confirm');
-            }
-          }
-        )
-        .catch(() => {});
-    }
-  }
+
 
   public openConfirmationDialog() {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the selected model ?', false, '')
@@ -828,7 +811,7 @@ export class SearchComp implements OnInit, OnDestroy {
   getLogicSearches(logicChoice: string) {
 
 
-    if (this.CanWrite() && this.HasSelectedSearches == true) {
+    if (this.CanWrite() && this.HasSelectedSearches > 0) {
 
       if (logicChoice == 'NOT (excluded)') {
         this._searchService.cmdSearches._included = 'false';
@@ -945,25 +928,63 @@ export class SearchComp implements OnInit, OnDestroy {
     }
   }
 
-  public get HasSelectedSearches(): boolean {
+  public get HasSelectedSearches(): number { //0 = nothing selected, 1 = some selected, 2 all searches in page are selected
     const list = this.DataSourceSearches.data as Search[];
-    const found = list.find(f => f.add == true);
-    if (found != undefined) return true;
-    else return false;
+    const found = list.filter(f => f.add == true);
+    if (found.length > 0) {
+      if (found.length < list.length) return 1;
+      else return 2;
+    }
+    else return 0;
   }
 
-  DeleteSearchSelected() {
-    if (!this.HasSelectedSearches) return;
+  public openConfirmationDialogDeleteSearches() {
+    const selectedS = this.SearchList.filter(f => f.add == true);
+    if (selectedS.length > 0) {
+      //this.ConfirmationDialogService.confirm("Assign selected ("
+      //  + this.ItemListService.SelectedItems.length + ") items ? "
+      //  , "Are you sure you want to assign all selected items (<strong>"
+      //  + this.ItemListService.SelectedItems.length + "</strong>) to this code?<br>"
+      //  + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+      //  + encoded + "</strong></div>"
+      //  , false, '')
+      let msg: string = 'Are you sure you want to delete the selected searches?<br />';
+      if (selectedS.length == 1) {
+        msg = "Are you sure you want to delete the selected search?<br />"
+          + "This search contains: <strong>" + selectedS[0].hitsNo.toString() + " results</strong>."
+      }
+      else {
+        msg += "Your will delete <strong>" + selectedS.length.toString() + " searches</strong>, ";
+        let tot = selectedS.reduce((accumulator, currentValue) => accumulator + currentValue.hitsNo, 0);
+        msg += "comprising of a total of (up to) <strong>" + tot.toString() + " results.";
+      }
+
+      this.confirmationDialogService.confirm('Please confirm', msg, false, '')
+          .then(
+            (confirmed: any) => {
+              //console.log('User confirmed:', confirmed);
+              if (confirmed) {
+                this.DeleteSearchSelected(selectedS);
+              } else {
+                //alert('did not confirm');
+              }
+            }
+          )
+          .catch(() => { });
+    }
+  }
+  private DeleteSearchSelected(selected: Search[]) {
+    if (selected.length == 0 || !this.HasWriteRights) return;
     // Need to check if user has rights to delete
     let lstStrSearchIds = '';
 
-    for (var i = 0; i < this.DataSourceSearches.data.length; i++) {
-      if (this.DataSourceSearches.data[i].add == true) {
-        lstStrSearchIds += this.DataSourceSearches.data[i].searchId + ',';
+    for (var i = 0; i < selected.length; i++) {
+      if (selected[i].add == true) {
+        lstStrSearchIds += selected[i].searchId + ',';
       }
     }
     //console.log(lstStrSearchIds, lstStrSearchIds.substring(0, lstStrSearchIds.length - 1));
-    if (this.CanWrite() && lstStrSearchIds.length > 1) {
+    if (lstStrSearchIds.length > 1) {
       this._searchService.Delete(lstStrSearchIds.substring(0, lstStrSearchIds.length - 1));
     }
   }
@@ -1261,14 +1282,23 @@ export class SearchComp implements OnInit, OnDestroy {
   public checkboxClicked(dataItem: any) {
     dataItem.add = !dataItem.add;
   }
+  public selectAllinPageClicked(currentState: number) {
+    const list = this.DataSourceSearches.data as Search[];
+    //const found = list.filter(f => f.add == true);
+    let DestinationState: boolean = true;
+    if (currentState == 2 ) {//the one case when we "unselect all"
+      DestinationState = false;
+    }
+    for (const search of list) {
+      search.add = DestinationState;
+    }
+  }
 
 
   BuildModel() {
     this.router.navigate(['BuildModel']);
   }
-  GoToInvestigate() {
-    if (this.CanShowRobotInvestigate) this.router.navigate(['Investigate']);
-  }
+
 
   public sortCustomModel: SortDescriptor[] = [{
     field: 'modelId',
