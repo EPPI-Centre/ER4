@@ -138,7 +138,7 @@ export class SearchComp implements OnInit, OnDestroy {
     sort: this.sortSearches
   };
   public dataStateChange(state: DataStateChangeEvent): void {
-    console.log("dataStateChange");
+    //console.log("dataStateChange");
     this.state = state;
     if (state.sort) this.sortSearches = state.sort;
     //this.DataSourceSearches; //makes sure it's "processed"
@@ -272,7 +272,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     if (e.selectedRows[0] != undefined && (this.modelNum == 7 || this.modelNum == 8)) {
 
-      console.log("selected:", e.selectedRows[0].dataItem);
+      //console.log("selected:", e.selectedRows[0].dataItem);
 
       this.ModelSelected = true;
       this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
@@ -287,7 +287,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     } else {
 
-      console.log("selected:", e.selectedRows);
+      //console.log("selected:", e.selectedRows);
       this.modelTitle = '';
       this.ModelId = 0;
       this.ModelSelected = false;
@@ -592,7 +592,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the selected model ?', false, '')
       .then(
         (confirmed: any) => {
-          console.log('User confirmed:', confirmed);
+          //console.log('User confirmed:', confirmed);
           if (confirmed) {
             this.RunModel();
           }
@@ -601,14 +601,14 @@ export class SearchComp implements OnInit, OnDestroy {
           };
         }
       )
-      .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+      .catch(() => { });
   }
 
   public openRebuildConfirmationDialog(model: ClassifierModel) {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to rebuild this model ?', false, '')
       .then(
         (confirmed: any) => {
-          console.log('User confirmed:', confirmed);
+          //console.log('User confirmed:', confirmed);
           if (confirmed) {
             this.RebuildModel(model);
           }
@@ -617,7 +617,7 @@ export class SearchComp implements OnInit, OnDestroy {
           };
         }
       )
-      .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+      .catch(() => { });
   }
 
   
@@ -781,7 +781,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this._searchService.cmdSearches._included = this._searchInclOrExcl;
 
     if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
-    else console.log("I'm not doing it :-P ", value);
+    //else console.log("I'm not doing it :-P ", value);
 
   }
 
@@ -800,7 +800,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this._searchService.cmdSearches._searchType = this._searchMTLTB;
 
     if (value == 'More' || value == 'Less' || value == 'Between') this._searchMTLTB = value;
-    else console.log("I'm not doing it :-P ", value);
+    //else console.log("I'm not doing it :-P ", value);
 
   }
 
@@ -915,7 +915,7 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public get HasSelectedSearches(): number { //0 = nothing selected, 1 = some selected, 2 all searches in page are selected
-    console.log("HasSelectedSearches", this.DataSourceSearches.data);
+    //console.log("HasSelectedSearches", this.DataSourceSearches.data);
     const list = this.DataSourceSearches.data as Search[];
     const found = list.filter(f => f.add == true);
     if (found.length > 0) {
@@ -1267,11 +1267,11 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public checkboxClicked(dataItem: any) {
-    console.log(" checkboxClicked Before", dataItem.add);
+    //console.log(" checkboxClicked Before", dataItem.add);
     if (dataItem.add == undefined) dataItem.add = true;
     else dataItem.add = !dataItem.add;
     const t = this.DataSourceSearches;
-    console.log("after", dataItem.add, t);
+    //console.log("after", dataItem.add, t);
   }
   public selectAllinPageClicked(currentState: number) {
     const list = this.DataSourceSearches.data as Search[];
