@@ -120,6 +120,7 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public get DataSourceSearches(): GridDataResult {
+    //console.log("DataSourceSearches");
     return process(this._searchService.SearchList, this.state);
     //return {
     //  data: orderBy(this._searchService.SearchList, this.sortSearches).slice(this.skip, this.skip + this.pageSize),
@@ -133,9 +134,11 @@ export class SearchComp implements OnInit, OnDestroy {
   
   public state: State = {
     skip: 0,
-    take: 100
+    take: 100,
+    sort: this.sortSearches
   };
   public dataStateChange(state: DataStateChangeEvent): void {
+    console.log("dataStateChange");
     this.state = state;
     if (state.sort) this.sortSearches = state.sort;
     //this.DataSourceSearches; //makes sure it's "processed"
@@ -886,24 +889,7 @@ export class SearchComp implements OnInit, OnDestroy {
     take: 2
   };
 
-  selectAllSearchesChange(e: any): void {
 
-    if (e.target.checked) {
-      this.allSearchesSelected = true;
-
-      for (let i = 0; i < this.DataSourceSearches.data.length; i++) {
-
-        this.DataSourceSearches.data[i].add = true;
-      }
-    } else {
-      this.allSearchesSelected = false;
-
-      for (let i = 0; i < this.DataSourceSearches.data.length; i++) {
-
-        this.DataSourceSearches.data[i].add = false;
-      }
-    }
-  }
 
 
 
@@ -929,6 +915,7 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public get HasSelectedSearches(): number { //0 = nothing selected, 1 = some selected, 2 all searches in page are selected
+    console.log("HasSelectedSearches", this.DataSourceSearches.data);
     const list = this.DataSourceSearches.data as Search[];
     const found = list.filter(f => f.add == true);
     if (found.length > 0) {
@@ -1280,7 +1267,11 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public checkboxClicked(dataItem: any) {
-    dataItem.add = !dataItem.add;
+    console.log(" checkboxClicked Before", dataItem.add);
+    if (dataItem.add == undefined) dataItem.add = true;
+    else dataItem.add = !dataItem.add;
+    const t = this.DataSourceSearches;
+    console.log("after", dataItem.add, t);
   }
   public selectAllinPageClicked(currentState: number) {
     const list = this.DataSourceSearches.data as Search[];
