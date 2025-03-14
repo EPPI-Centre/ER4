@@ -400,7 +400,6 @@ namespace BusinessLibrary.BusinessClasses
             if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId, MinPositiveClass, MinNegativeClass, MinSampleSize)) // there wasn't enough data
             {
                 File.Delete(LocalFileName);
-                DataFactoryHelper.UpdateReviewJobLog(NewJobId, ReviewId, "Ended", _returnMessage, "ClassifierCommandV2", true, false);
                 return;
             }
             Task.Run(() => FireAndForget(ReviewId, NewJobId, CheckOrPriority, ContactId));
@@ -531,6 +530,7 @@ namespace BusinessLibrary.BusinessClasses
                             + MinPositiveClass.ToString() + " positive items, "
                             + MinNegativeClass.ToString() + " negative items and "
                             + MinSampleSize.ToString() + " total sample size.";
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed", _returnMessage, "ClassifierCommandV2", true, false);
                         return false;
                     }
                     else if (negativeClasscount < MinNegativeClass) 
@@ -539,6 +539,7 @@ namespace BusinessLibrary.BusinessClasses
                             + MinPositiveClass.ToString() + " positive items, "
                             + MinNegativeClass.ToString() + " negative items and "
                             + MinSampleSize.ToString() + " total sample size.";
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed", _returnMessage, "ClassifierCommandV2", true, false);
                         return false;
                     }
                     else if (sampleSize < MinSampleSize)
@@ -547,6 +548,7 @@ namespace BusinessLibrary.BusinessClasses
                             + MinPositiveClass.ToString() + " positive items, "
                             + MinNegativeClass.ToString() + " negative items and "
                             + MinSampleSize.ToString() + " total sample size.";
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed", _returnMessage, "ClassifierCommandV2", true, false);
                         return false;
                     }
                 }

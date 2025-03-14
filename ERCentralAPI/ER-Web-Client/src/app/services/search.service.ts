@@ -69,7 +69,7 @@ export class searchService extends BusyAwareService implements OnDestroy {
           this.Clear();
         }
       ).catch(caught => {
-        this.RemoveBusy("Delete");
+        this.RemoveBusy("Fetch");
         this.modalService.GenericError(caught);
       });
   }
@@ -125,7 +125,7 @@ export class searchService extends BusyAwareService implements OnDestroy {
         this.modalService.GenericError(error);
       }
     ).catch(caught => {
-      this.RemoveBusy("Delete");
+      this.RemoveBusy("CreateSearch");
       this.modalService.GenericError(caught);
     });
   }
@@ -153,7 +153,11 @@ export class searchService extends BusyAwareService implements OnDestroy {
           this.RemoveBusy("UpdateSearchName");
           return false;
         }
-      );
+    ).catch(caught => {
+      this.RemoveBusy("UpdateSearchName");
+      this.modalService.GenericError(caught);
+      return false;
+    });
   }
 
 
