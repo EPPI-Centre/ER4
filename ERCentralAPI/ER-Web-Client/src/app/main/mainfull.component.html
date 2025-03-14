@@ -209,7 +209,7 @@
             </kendo-tabstrip-tab>
             <kendo-tabstrip-tab [title]="'Search & Classify'">
               <ng-template kendoTabContent>
-                <SearchComp #SearchComp class="bg-light" (PleaseOpenTheCodes)="OpenCodesPanel()"></SearchComp>
+                <SearchComp #SearchComp class="bg-light" (PleaseOpenTheCodes)="OpenCodesPanel()" [autoRefreshThreshold]="SearchTabAutoRefreshThreshold"></SearchComp>
               </ng-template>
             </kendo-tabstrip-tab>
             <kendo-tabstrip-tab [title]="'Collaborate'">

@@ -35,7 +35,8 @@
 <div class="pane-content">
   <div class="containsAtoolbar">
     <kendo-toolbar>
-      <kendo-toolbar-button [title]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights" icon="refresh"></kendo-toolbar-button>
+      <kendo-toolbar-button *ngIf="SearchList.length < autoRefreshThreshold" [title]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights" icon="refresh"></kendo-toolbar-button>
+      <kendo-toolbar-button *ngIf="SearchList.length >= autoRefreshThreshold" [title]="'Refresh List (auto refresh is disabled)'" (click)="refreshSearches()" [disabled]="!HasWriteRights" icon="refresh" iconClass="k-icon k-i-refresh text-primary"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [disabled]="!HasWriteRights" aria-controls="collapseExample" [selected]="NewSearchSection"></kendo-toolbar-button>
       <kendo-toolbar-button [title]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights || HasSelectedSearches == 0" icon="delete"></kendo-toolbar-button>
       <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [disabled]="!HasWriteRights || HasSelectedSearches == 0" [data]="data"></kendo-toolbar-splitbutton>
@@ -585,8 +586,12 @@
       </ng-template>
     </kendo-grid>
   </div>
-  <div *ngIf="SearchList && isSearchServiceBusy">Loading items...</div>
-  <div *ngIf="!SearchList || SearchList.length <= 0 || isSearchServiceBusy" style="min-height:300px;">
+  <div *ngIf="SearchList && isSearchServiceBusy" style="min-height:300px;">
+    <div class="justify-content-center row m-0 ng-star-inserted">
+      <div class="p-2 font-weight-bold text-info mt-3"> Loading items... </div>
+    </div>
+  </div>
+  <div *ngIf="(!SearchList || SearchList.length == 0) && !isSearchServiceBusy" style="min-height:300px;">
     <div class="justify-content-center row m-0 ng-star-inserted">
       <div class="p-2 font-weight-bold text-info mt-3"> You've not run any searches yet. </div>
     </div>

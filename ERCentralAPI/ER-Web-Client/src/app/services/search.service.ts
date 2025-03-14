@@ -6,6 +6,8 @@ import { EventEmitterService } from './EventEmitter.service';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 import { Helpers } from '../helpers/HelperMethods';
+import { GridDataResult, DataStateChangeEvent } from '@progress/kendo-angular-grid';
+import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 
 @Injectable({
 
@@ -52,6 +54,33 @@ export class searchService extends BusyAwareService implements OnDestroy {
     //this.searchesChanged.emit();
   }
 
+  ///members/methods for Telerik Table management////////////////////////////
+  public get DataSourceSearches(): GridDataResult {
+    //console.log("DataSourceSearches");
+    return process(this.SearchList, this.state);
+  }
+  public sortSearches: SortDescriptor[] = [{
+    field: 'searchNo',
+    dir: 'desc'
+  }];
+
+  public state: State = {
+    skip: 0,
+    take: 100,
+    sort: this.sortSearches
+  };
+  public dataStateChange(state: DataStateChangeEvent): void {
+    //console.log("dataStateChange");
+    this.state = state;
+    if (state.sort) this.sortSearches = state.sort;
+    //this.DataSourceSearches; //makes sure it's "processed"
+  }
+
+  public sortChangeSearches(sort: SortDescriptor[]): void {
+    this.sortSearches = sort;
+    //console.log('sorting?' + this.sortSearches[0].field + " ");
+  }
+  //END of members/methods for Telerik Table management/////////////////////
 
 
   Fetch() {
@@ -87,8 +116,11 @@ export class searchService extends BusyAwareService implements OnDestroy {
 
     this._BusyMethods.push("Delete");
     let body = JSON.stringify({ Value: value });
+    const TheList = this.SearchList;
+    this.SearchList = [];
     lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
       body)).then(result => {
+        this.SearchList = TheList;
         const splitted = value.split(',');
         for (const deleted of splitted) {
           if (deleted.length > 0) {
@@ -101,8 +133,10 @@ export class searchService extends BusyAwareService implements OnDestroy {
             }
           }
         }
+        //this.dataStateChange(this.state as DataStateChangeEvent);
+        //const temp = this.DataSourceSearches;
         this.RemoveBusy("Delete");
-        this.Fetch();
+        //this.Fetch();
       }, error => {
         this.RemoveBusy("Delete");
         this.modalService.GenericError(error);

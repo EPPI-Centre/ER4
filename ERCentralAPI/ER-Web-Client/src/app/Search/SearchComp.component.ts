@@ -113,41 +113,38 @@ export class SearchComp implements OnInit, OnDestroy {
   public searchId: string = 'N/A';
   public popUpTitle: string = '';
   public pageSizes: number[] = [10, 25, 50, 100, 200, 300];
-  
+  @Input() autoRefreshThreshold: number = 500;
 
   public get ClassifierServiceIsBusy(): boolean {
     return this.classifierService.IsBusy;
   }
+  //bridge data properties/methods for the searches Telerik grid, now all hosted in searchService
+  public get SearchList(): Search[] {
+    return this._searchService.SearchList;
+  }
 
   public get DataSourceSearches(): GridDataResult {
     //console.log("DataSourceSearches");
-    return process(this._searchService.SearchList, this.state);
-    //return {
-    //  data: orderBy(this._searchService.SearchList, this.sortSearches).slice(this.skip, this.skip + this.pageSize),
-    //  total: this._searchService.SearchList.length,
-    //};
+    return this._searchService.DataSourceSearches;
+    
   }
-  public sortSearches: SortDescriptor[] = [{
-    field: 'searchNo',
-    dir: 'desc'
-  }];
+  public get sortSearches(): SortDescriptor[] {
+    return this._searchService.sortSearches;
+  }
   
-  public state: State = {
-    skip: 0,
-    take: 100,
-    sort: this.sortSearches
-  };
+  public get state(): State {
+    return this._searchService.state;
+  }
   public dataStateChange(state: DataStateChangeEvent): void {
-    //console.log("dataStateChange");
-    this.state = state;
-    if (state.sort) this.sortSearches = state.sort;
-    //this.DataSourceSearches; //makes sure it's "processed"
+    this._searchService.dataStateChange(state);
   }
 
   public sortChangeSearches(sort: SortDescriptor[]): void {
-    this.sortSearches = sort;
-    //console.log('sorting?' + this.sortSearches[0].field + " ");
+    this._searchService.sortChangeSearches(sort);
   }
+  //END of bridge data properties/methods for the searches Telerik grid, now all hosted in searchService
+
+
   public ContactChoice: Contact = new Contact();
   @Output() PleaseOpenTheCodes = new EventEmitter();
   @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
@@ -164,9 +161,7 @@ export class SearchComp implements OnInit, OnDestroy {
   public get HasWriteRights(): boolean {
     return this.ReviewerIdentityServ.HasWriteRights;
   }
-  public get SearchList(): Search[] {
-    return this._searchService.SearchList;
-  }
+
   public get isSearchServiceBusy(): boolean {
     return this._searchService.IsBusy;
   }
@@ -926,7 +921,7 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public openConfirmationDialogDeleteSearches() {
-    const selectedS = this.SearchList.filter(f => f.add == true);
+    const selectedS = (this.DataSourceSearches.data as Search[]).filter(f => f.add == true);
     if (selectedS.length > 0) {
       //this.ConfirmationDialogService.confirm("Assign selected ("
       //  + this.ItemListService.SelectedItems.length + ") items ? "
