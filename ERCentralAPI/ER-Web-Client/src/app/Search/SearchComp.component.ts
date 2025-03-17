@@ -19,7 +19,7 @@ import { saveAs } from '@progress/kendo-file-saver';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
-
+import 'hammerjs';
 
 @Component({
   selector: 'SearchComp',

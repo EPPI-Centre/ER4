@@ -11,6 +11,7 @@ import { ReviewSetsService, SetAttribute, singleNode } from '../services/ReviewS
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
+import 'hammerjs';
 
 function nextMultipleOfTen(num: number): number {
   return Math.ceil(num / 10) * 10;

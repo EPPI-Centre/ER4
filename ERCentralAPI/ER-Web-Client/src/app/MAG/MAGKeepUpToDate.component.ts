@@ -16,6 +16,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { NgForm } from '@angular/forms';
 import { ModalService } from '../services/modal.service';
 import { ClassifierModel, ClassifierService, MVCClassifierCommand } from '../services/classifier.service';
+import 'hammerjs';
 
 @Component({
     selector: 'MAGKeepUpToDate',
