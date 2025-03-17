@@ -85,11 +85,14 @@ export class searchService extends BusyAwareService implements OnDestroy {
 
   Fetch() {
     this._BusyMethods.push("Fetch");
-    lastValueFrom(this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches'))
+    lastValueFrom(this._httpC.get<iSearch[]>(this._baseUrl + 'api/SearchList/GetSearches'))
       .then(result => {
+        let resList: Search[] = [];
         this.RemoveBusy("Fetch");
-
-        this.SearchList = result;
+        for (const iSrc of result) {
+          resList.push(new Search(iSrc));
+        }
+        this.SearchList = resList;
         //this.searchesChanged.emit();
       },
         error => {
@@ -150,7 +153,8 @@ export class searchService extends BusyAwareService implements OnDestroy {
   CreateSearch(cmd: SearchCodeCommand, apiStr: string) {
     this._BusyMethods.push("CreateSearch");
     apiStr = 'api/SearchList/' + apiStr;
-    lastValueFrom(this._httpC.post<Search[]>(this._baseUrl + apiStr,
+    //different controller methods return different things, hence the 'post<any>' form
+    lastValueFrom(this._httpC.post<any>(this._baseUrl + apiStr,
       cmd)).then(() => {
         this.RemoveBusy("CreateSearch");
         this.Fetch();
@@ -198,19 +202,43 @@ export class searchService extends BusyAwareService implements OnDestroy {
 
 }
 
-export class Search {
+export interface iSearch {
+  searchNo: number;
+  selected: boolean;
+  searchId: number;
+  hitsNo: number;
+  title: string;
+  searchDate: string;
+  contactName: string;
+  isClassifierResult: boolean;
+}
 
+export class Search implements iSearch {
+  constructor(iSrc: iSearch | undefined) {
+    if (iSrc) {
+      this.searchNo = iSrc.searchNo;
+      this.selected = iSrc.selected;
+      this.searchId = iSrc.searchId;
+      this.hitsNo = iSrc.hitsNo;
+      this.title = iSrc.title;
+      this.searchDate = iSrc.searchDate;
+      this.contactName = iSrc.contactName;
+      this.isClassifierResult = iSrc.isClassifierResult;
+      this.add = false;
+      this.javaScriptDate = new Date(Helpers.StringWithSlashesToDate(iSrc.searchDate));
+    }
+  }
   searchNo: number = 0;
   selected: boolean = false;
   searchId: number = 0;
   hitsNo: number = 0;
   title: string = '';
   searchDate: string = '';
+  javaScriptDate: Date = new Date();
   contactName: string = '';
   isClassifierResult: boolean = false;
   add: boolean = false;
 }
-
 export class SearchCodeCommand {
 
   public _searches: string = '';

@@ -554,7 +554,7 @@
       </kendo-grid-column>
       <kendo-grid-column field="contactName" title="Created By" [width]="140" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold">
       </kendo-grid-column>
-      <kendo-grid-column field="searchDate" title="Date" [width]="140" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold">
+      <kendo-grid-column field="javaScriptDate" title="Date" [width]="140" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold">
         <ng-template kendoGridCellTemplate let-dataItem>
           {{FormatDate(dataItem.searchDate)}}
         </ng-template>
@@ -588,7 +588,7 @@
   </div>
   <div *ngIf="SearchList && isSearchServiceBusy" style="min-height:300px;">
     <div class="justify-content-center row m-0 ng-star-inserted">
-      <div class="p-2 font-weight-bold text-info mt-3"> Loading items... </div>
+      <div class="p-2 font-weight-bold text-info mt-3"> Loading... </div>
     </div>
   </div>
   <div *ngIf="(!SearchList || SearchList.length == 0) && !isSearchServiceBusy" style="min-height:300px;">

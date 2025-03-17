@@ -1323,8 +1323,6 @@ export class SearchComp implements OnInit, OnDestroy {
     return Helpers.FormatDate(DateSt);
   }
   SearchGetItemList(dataItem: Search) {
-
-    let search: Search = new Search();
     let cr: Criteria = new Criteria();
     cr.onlyIncluded = dataItem.selected;
     cr.showDeleted = false;
