@@ -792,7 +792,17 @@ namespace BusinessLibrary.BusinessClasses
                         break;
                     case "PrioS":
                         // We literally do fire and forget here, as we don't need to do anything with the results
-                        //IMPORTANT! We do NOT delete simulation input data as we may want to allow ppl to download it too.
+                        //we do delete the uploaded file, though
+                        try
+                        {
+                            BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", DataFile);
+                        }
+                        catch (Exception ex)
+                        {
+                            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to delete uploaded file", "", "ClassifierCommandV2", true, false);
+                            DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                            break;
+                        }
                         DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
                         break;
                     case "ChckS":

@@ -251,7 +251,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   }
 
   public confirmDeleteSimulation(simulation: PriorityScreeningSimulation) {
-    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this priority screening simulation ?', false, '')
+    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this priority screening simulation?', false, '')
       .then(
         (confirmed: any) => {
           console.log('User confirmed:', confirmed);
@@ -348,7 +348,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
 
 
   public openConfirmationDialogPriorityScreening() {
-    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the priority screening simulation with these codes ?', false, '')
+    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the priority screening simulation with these codes?', false, '')
       .then(
         (confirmed: any) => {
           console.log('User confirmed:', confirmed);
