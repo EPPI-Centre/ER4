@@ -93,9 +93,11 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     return this.classifierService.PriorityScreeningSimulationList;
   }
 
-  public get PriorityScreeningSimulationText(): string | null
-  {
+  public get PriorityScreeningSimulationText(): string | null {
     return this.classifierService.PriorityScreeningSimulationResults;
+  }
+  public get PriorityScreeningSimulationName(): string {
+    return this.classifierService.PriorityScreeningSimulationName;
   }
 
   refreshPriorityScreeningSimulationList() {
@@ -232,9 +234,10 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
 
 
   public exportChart(): void {
-
+    let title = this.PriorityScreeningSimulationName;
+    title = title.replace(".tsv", "");
   this.VisualiseChart.exportImage().then((dataURI) => {
-    saveAs(dataURI, 'chart.png');
+    saveAs(dataURI, title + '.png');
   });
 
 }
@@ -246,7 +249,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', 'simulationStudyResults.tsv');
+      link.setAttribute('download', this.PriorityScreeningSimulationName);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
@@ -258,7 +261,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this priority screening simulation?', false, '')
       .then(
         (confirmed: any) => {
-          console.log('User confirmed:', confirmed);
+          //console.log('User confirmed:', confirmed);
           if (confirmed) {
             this.deletePriorityScreeningSimulation(simulation);
           }
@@ -320,7 +323,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
 
     this.isCollapsed2PriorityScreening = false;
   }
-  private readonly pattern = /^[a-zA-Z0-9]*$/;
+  private readonly pattern = /^[A-Za-z0-9\-_ ]+$/;
   public get SimNameIsInvalid(): number {
     if (this.simulationNameText.length == 0) return 1;
     else if (this.simulationNameText.length < 4) return 2;
@@ -360,7 +363,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the priority screening simulation with these codes?', false, '')
       .then(
         (confirmed: any) => {
-          console.log('User confirmed:', confirmed);
+          //console.log('User confirmed:', confirmed);
           if (confirmed) {
             this.TriggerPriorityScreeningSim();
           }

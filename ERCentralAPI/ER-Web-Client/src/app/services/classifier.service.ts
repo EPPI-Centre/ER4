@@ -53,7 +53,15 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
   //  this._PriorityScreeningSimulation = priorityScreeningSimulation;
   //}
 
-  public PriorityScreeningSimulationResults: string | null = null;
+  private _currentSimulation: PriorityScreeningSimulation | null = null;
+  
+  public get PriorityScreeningSimulationResults(): string | null {
+    if (this._currentSimulation == null) return null;
+    return this._currentSimulation.blob;
+  } public get PriorityScreeningSimulationName(): string {
+    if (this._currentSimulation == null) return "";
+    return this._currentSimulation.simulationName;
+  }
 
 	private _CurrentUserId4ClassifierContactModelList: number = 0;
 	private _ClassifierContactModelList: ClassifierModel[] = [];
@@ -356,7 +364,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
       .then(
         (result) => {
           this.RemoveBusy("FetchPriorityScreeningSimulation");
-          this.PriorityScreeningSimulationResults = result.blob;
+          this._currentSimulation = result;
 
           return true;
         }, error => {
@@ -423,7 +431,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		this._ClassifierContactModelList = [];
     this._CurrentUserId4ClassifierContactModelList = 0;
     this._PriorityScreeningSimulationList = [];
-    this.PriorityScreeningSimulationResults = null;
+    this._currentSimulation = null;
     }
 }
 

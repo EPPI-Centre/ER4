@@ -242,7 +242,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Error with the dataportal priority screening simulation logic");
+                _logger.LogException(e, "Error in FetchPriorityScreeningSimulation");
                 return StatusCode(500, e.Message);
             }
         }
@@ -262,7 +262,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Error with the dataportal priority screening simulation logic");
+                _logger.LogException(e, "Error in DeletePriorityScreeningSimulation");
                 return StatusCode(500, e.Message);
             }
         }

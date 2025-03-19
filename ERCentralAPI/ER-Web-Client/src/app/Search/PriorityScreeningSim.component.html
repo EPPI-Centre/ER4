@@ -10,15 +10,19 @@
       <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0 ">
 
         <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+          <div class="mx-2 my-1 w-100 px-1 rounded border border-info alert-info small">
+            Please pick <strong>meaningful simulation names</strong>. Once a simulation runs, you will only have its name to tell you what it is. <br />
+            Simulation names must be between 4 and 40 characters long, can contain letters, numbers, spaces, dashes and underscores.
+          </div>
           <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right  ">Name for your simulation </div>
           <input class="form-control bg-white mx-0 px-1 col-12 col-md-8 my-auto" id="simulationName" name="simulationName"
-                 required maxlength="20" #simulationNameInput="ngModel" [(ngModel)]="simulationNameText" type="text" />
+                 required maxlength="40" #simulationNameInput="ngModel" [(ngModel)]="simulationNameText" type="text" />
           <div *ngIf="simulationNameInput.dirty && SimNameIsInvalid > 0"
                class="alert alert-danger small px-1 py-0">
             <ng-container [ngSwitch]="SimNameIsInvalid">
               <div *ngSwitchCase=1>Simulation name is required.</div>
               <div *ngSwitchCase=2>Simulation name must be at least 4 characters long.</div>
-              <div *ngSwitchCase=3>Only alphanumeric characters are allowed.</div>
+              <div *ngSwitchCase=3>Only letters, numbers, spaces, dashes and underscores are allowed.</div>
               <div *ngSwitchCase=4>You've already used this simulation name.</div>
               <!-- no need for *ngSwitchDefault -->
             </ng-container>
@@ -75,7 +79,7 @@
                 <tr *ngFor="let item of PriorityScreeningSimulationList">
 
                   <td class="">
-                    <button (click)="showSimulation(item)" class="btn btn-link px-1 py-0">{{item.simulationName}}</button>
+                    <button (click)="showSimulation(item)" [ngClass]="{'font-weight-bold': item.simulationName==PriorityScreeningSimulationName }" class="btn btn-link px-1 py-0">{{item.simulationName}}</button>
                   </td>
 
                   <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
@@ -103,6 +107,8 @@
           <figure class="figure col-12">
             <kendo-chart #VisualiseChart
                          *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">
+              <kendo-chart-title [text]="PriorityScreeningSimulationName">
+              </kendo-chart-title>
               <kendo-chart-legend [visible]="false"></kendo-chart-legend>
               <kendo-chart-series>
                 <kendo-chart-series-item *ngFor="let series of simulationDataContainer; index as i"
@@ -142,7 +148,7 @@
     </div>
     <div class="col-12 col-md-6 mx-0 px-1 mb-1">
       <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
-        <div><b>Statistics</b></div>
+        <div><strong>Statistics re: <span class="text-info">{{PriorityScreeningSimulationName}}</span></strong></div>
         <div style="overflow:auto;">
           <table class="table-sm table-bordered">
             <thead>

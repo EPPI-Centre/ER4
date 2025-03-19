@@ -92,6 +92,7 @@ namespace BusinessLibrary.BusinessClasses
             string blobConnection = AzureSettings.blobConnection;
             MemoryStream downloadedBlob = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile);
             this.blob = Encoding.UTF8.GetString(downloadedBlob.GetBuffer(), 0, (int)downloadedBlob.Length);
+            LoadProperty<string>(SimulationNameProperty, criteria.Value);
         }
         protected override void DataPortal_Insert()
         {
