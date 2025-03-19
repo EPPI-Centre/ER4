@@ -11,26 +11,19 @@
 
         <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
           <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right  ">Name for your simulation </div>
-          <input class="form-control bg-white mx-0 px-1 col-12 col-md-8 my-auto" id="simulationName" name="simulationName" (input)="CheckIfSimulationNameAlreadyExists()"
-                 required minlength="4" maxlength="20" pattern="^[a-zA-Z0-9]*$" #simulationName="ngModel" [(ngModel)]="simulationNameText" type="text" />
-          <div *ngIf="simulationName.invalid && (simulationName.dirty || simulationName.touched) && simulationName.errors"
+          <input class="form-control bg-white mx-0 px-1 col-12 col-md-8 my-auto" id="simulationName" name="simulationName"
+                 required maxlength="20" #simulationNameInput="ngModel" [(ngModel)]="simulationNameText" type="text" />
+          <div *ngIf="simulationNameInput.dirty && SimNameIsInvalid > 0"
                class="alert alert-danger small px-1 py-0">
-
-            <div *ngIf="simulationName.errors.required">
-              Simulation name is required.
-            </div>
-            <div *ngIf="simulationName.errors.minlength">
-              Simulation name must be at least 4 characters long.
-            </div>
-            <div *ngIf="simulationName.errors.pattern">
-              Only alphanumeric characters are allowed.
-            </div>
-            <div *ngIf="SimulationNameAlreadyExists">
-              You've already used this simulation name.
-            </div>
+            <ng-container [ngSwitch]="SimNameIsInvalid">
+              <div *ngSwitchCase=1>Simulation name is required.</div>
+              <div *ngSwitchCase=2>Simulation name must be at least 4 characters long.</div>
+              <div *ngSwitchCase=3>Only alphanumeric characters are allowed.</div>
+              <div *ngSwitchCase=4>You've already used this simulation name.</div>
+              <!-- no need for *ngSwitchDefault -->
+            </ng-container>
           </div>
         </div>
-
         <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
           <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Simulate looking for records with this code</div>
           <div ngbDropdown class="d-inline-block my-auto mx-0 px-1 col-12 col-sm-6 col-md-8 ">
@@ -53,7 +46,7 @@
           </div>
         </div>
         <div class="col-12 mt-2 mb-2 justify-content-center">
-          <button (click)="openConfirmationDialogPriorityScreening()" [disabled]="!CanPriorityScreening()"
+          <button (click)="openConfirmationDialogPriorityScreening()" [disabled]="!CanStartSimulation"
                   type="button" class="btn btn-success" style="min-width:162px;max-width:300px;">
             Run priority screening simulation <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
           </button>
@@ -110,12 +103,19 @@
           <figure class="figure col-12">
             <kendo-chart #VisualiseChart
                          *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">
+              <kendo-chart-legend [visible]="false"></kendo-chart-legend>
               <kendo-chart-series>
-                <kendo-chart-series-item *ngFor="let series of simulationDataContainer"
+                <kendo-chart-series-item *ngFor="let series of simulationDataContainer; index as i"
                                          type="scatterLine"
                                          [data]="series"
+                                         name="Sim #{{(i + 1).toString()}}"
                                          [markers]="{ visible: false }"
                                          [tooltip]="{ visible: true }">
+                  <kendo-chart-series-item-tooltip>
+                    <ng-template let-category="category" let-value="value" let-dataItem="dataItem" let-series="series">
+                      {{series.name}}: {{dataItem[0]}},{{dataItem[1]}}
+                    </ng-template>
+                  </kendo-chart-series-item-tooltip>
                 </kendo-chart-series-item>
               </kendo-chart-series>
               <kendo-chart-x-axis>

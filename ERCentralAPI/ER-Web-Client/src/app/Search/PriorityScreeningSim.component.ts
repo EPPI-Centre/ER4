@@ -12,6 +12,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
 import 'hammerjs';
+import { NgModel } from '@angular/forms';
 
 function nextMultipleOfTen(num: number): number {
   return Math.ceil(num / 10) * 10;
@@ -69,6 +70,8 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   ) { }
 
   @Output() PleaseCloseMe = new EventEmitter();
+
+  @ViewChild('simulationNameInput') simulationNameInput!: NgModel;
   ngOnInit() {
     this.refreshPriorityScreeningSimulationList();
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets();
@@ -79,6 +82,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   faSpinner = faSpinner;
 
   CanWrite(): boolean {
+    if (this.ClassifierServiceIsBusy) return false;
     return this._reviewerIdentityServ.HasWriteRights;
   }
   public get ClassifierServiceIsBusy(): boolean {
@@ -150,7 +154,8 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         headers.forEach((header, index) => {
           const num = Number(values[index]);
           if (!isNaN(num)) {
-            obj[header] = num;
+            if (index == 0) obj[header] = num + 1;//the first column, we want this "index" to start from 1, not 0
+            else obj[header] = num;
           }
         });
         if (Object.keys(obj).length === headers.length) {
@@ -159,14 +164,13 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       }).filter(row => row !== undefined);
 
       // Extract the index and first simulation columns
-      const indices = transformedArray.map(row => row.index);
       const values = transformedArray.map(row => row.CumulativeIncl1);
 
       // Get the maximum index and included item count
-      this.simulationDataItemCount = Math.max(...indices);
+      this.simulationDataItemCount = values.length;// Math.max(...indices);
       this.simulationDataIncludedItemsCount = Math.max(...values);
-      this.simulationDataItemCountRoundedUp = nextMultipleOfTen(Math.max(...indices));
-      this.simulationDataIncludedItemsCountRoundedUp = nextMultipleOfTen(Math.max(...values));
+      this.simulationDataItemCountRoundedUp = nextMultipleOfTen(values.length);
+      this.simulationDataIncludedItemsCountRoundedUp = nextMultipleOfTen(this.simulationDataIncludedItemsCount);
       this.xAxisText = "Number of items screened (N=" + this.simulationDataItemCount + ")";
       this.yAxisText = "Cumulative number of includes found (N=" + this.simulationDataIncludedItemsCount + ")";
       
@@ -188,10 +192,9 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         const simulationData = transformedArray.map(row => [Number(row.index), Number(row["CumulativeIncl" + String(c + 1)])]);
 
         // Find max index and value
-        const indices = simulationData.map(row => row[0]);
         const values = simulationData.map(row => row[1]);
 
-        const maxIndex = Math.max(...indices);
+        const maxIndex = values.length;// Math.max(...indices);
         const maxValue = Math.max(...values);
 
         // Find the index when the value first reaches maximum
@@ -204,7 +207,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         workloadReductionPercentArray.push(workloadReductionPercent);
 
         this.statistics.push({
-          simulation: c,
+          simulation: c + 1,
           nIncludes: maxValue,
           nScreened: maxIndex,
           nScreenedAt100: firstMaxIndex,
@@ -317,11 +320,18 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
 
     this.isCollapsed2PriorityScreening = false;
   }
-
-  CanPriorityScreening() {
+  private readonly pattern = /^[a-zA-Z0-9]*$/;
+  public get SimNameIsInvalid(): number {
+    if (this.simulationNameText.length == 0) return 1;
+    else if (this.simulationNameText.length < 4) return 2;
+    else if (this.pattern.test(this.simulationNameText) == false) return 3;
+    else if (this.SimulationNameAlreadyExists) return 4;
+    return 0;
+  }
+  public get CanStartSimulation(): boolean {
     if (this.CanWrite() == false) return false;
-    if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.simulationNameText != '' && !this.SimulationNameAlreadyExists
-      && this.DD1 > 0 && this.DD2 > 0 && this.DD1 != this.DD2) {
+    if (this.SimNameIsInvalid > 0) return false;
+    if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.DD1 > 0 && this.DD2 > 0 && this.DD1 != this.DD2) {
       return true;
     }
     return false;
@@ -335,16 +345,14 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     return false;
   }
 
-  SimulationNameAlreadyExists: boolean = false;
 
-  CheckIfSimulationNameAlreadyExists() {
-    for (let c = 0; c < this.PriorityScreeningSimulationList.length; c++) {
-      if (this.PriorityScreeningSimulationList[c].simulationName.replace(".tsv", "").toLowerCase() == this.simulationNameText.toLowerCase()) {
-        this.SimulationNameAlreadyExists = true;
-        return;
+  public get SimulationNameAlreadyExists() {
+    for (let sim of this.PriorityScreeningSimulationList) {
+      if (sim.simulationName.replace(".tsv", "").toLowerCase() == this.simulationNameText.toLowerCase()) {
+        return true;
       }
     }
-    this.SimulationNameAlreadyExists = false;
+    return false;
   }
 
 
@@ -367,10 +375,10 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   async TriggerPriorityScreeningSim() {
 
     if (this.DD1 != null && this.DD2 != null && this.simulationNameText != "") {
-
       let res = await this.classifierService.RunPriorityScreeningSimulation("¬¬PriorityScreening¬¬" + this.simulationNameText, this.DD1, this.DD2);
 
       if (res != false) { //we get "false" if an error happened...
+        if (this.simulationNameInput) this.simulationNameInput.reset('');
         if (res == "Starting...") {
           this.notificationService.show({
             content: 'Priority screening simulation started. Results will appear below when finished (click refresh list periodically)',
