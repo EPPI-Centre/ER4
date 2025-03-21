@@ -250,19 +250,19 @@ export class MAGKeepUpToDate implements OnInit {
               break;
           }
 
-            //this.MAGRelatedRunsService.currentlyApplyedModelToRunId = this.CurrentMagAutoUpdateRun.studyTypeClassifier;
-            //this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
-          //this.MAGRelatedRunsService.RunMagAddClassifierScoresCommand(cmd).then(async res => {
+          this.MAGRelatedRunsService.currentlyApplyedModelToRunId = this.CurrentMagAutoUpdateRun.studyTypeClassifier;
+          this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
+          
           this._classifierService.Apply("[Apply to OpenAlex Auto Update]",
              -1, StudyTypeClassifierId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId).then(async res => {
                 if (res) {
                     this.NotificationService.show({
-                        content: 'Model is being applied, should be ready in 10m (will check every 30s).',
+                        content: 'Model is being applied, should be ready within 15m (will check every 30s).',
                         animation: { type: 'slide', duration: 400 },
                         position: { horizontal: 'center', vertical: 'top' },
                         type: { style: "info", icon: true },
                         closable: false,
-                        hideAfter: 3000
+                        hideAfter: 5000
                     });
 
                   let now = new Date();
@@ -288,17 +288,17 @@ export class MAGKeepUpToDate implements OnInit {
             //cmd.topN = this.CurrentMagAutoUpdateRun.nPapers;
             this.MAGRelatedRunsService.currentlyApplyedModelToRunId = this.CurrentMagAutoUpdateRun.userClassifierModelId.toString();
             this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
-          //this.MAGRelatedRunsService.RunMagAddClassifierScoresCommand(cmd).then(async res => {
+          
           this._classifierService.Apply("[Apply to OpenAlex Auto Update]",
             -1, this.SelectedClassifierContactModel.modelId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId).then(async res => {
                 if (res) {
                     this.NotificationService.show({
-                        content: 'Model is being applied, should be ready in 10m (will check every 30s).',
+                        content: 'Model is being applied, should be ready within 15m (will check every 30s).',
                         animation: { type: 'slide', duration: 400 },
                         position: { horizontal: 'center', vertical: 'top' },
                         type: { style: "info", icon: true },
                         closable: false,
-                        hideAfter: 3000
+                        hideAfter: 5000
                     });
                     let now = new Date();
                     this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 15 * 60000); //15 minutes into the future!

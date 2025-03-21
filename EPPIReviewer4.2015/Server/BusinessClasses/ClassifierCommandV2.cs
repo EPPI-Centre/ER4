@@ -1108,7 +1108,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         if (data[IndexItemId].Length > 2)
                         {
-                            dt.Rows.Add(GetSafeValue(data[indexScore]), long.Parse(data[IndexItemId]), ReviewId, data[IndexPredictedLabel]); // (OpenAlexUpdates have no PredictedLabel column)
+                            dt.Rows.Add(GetSafeValue(data[indexScore]), long.Parse(data[IndexItemId]), !OpenAlexAutoUpdate ? ReviewId : _sourceId, data[IndexPredictedLabel]); // (OpenAlexUpdates have no PredictedLabel column)
                         }
                     }
                 }
@@ -1239,6 +1239,10 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
                     {
                         sbc.DestinationTableName = "TB_MAG_AUTO_UPDATE_CLASSIFIER_TEMP";
+                        sbc.ColumnMappings.Clear();
+                        sbc.ColumnMappings.Add("SCORE", "Score");
+                        sbc.ColumnMappings.Add("ITEM_ID", "PaperId");
+                        sbc.ColumnMappings.Add("MAG_AUTO_UPDATE_RUN_ID", "MAG_AUTO_UPDATE_RUN_ID");
                         sbc.BatchSize = 1000;
                         sbc.WriteToServer(dt);
                     }
