@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -236,12 +236,24 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   public exportChart(): void {
     let title = this.PriorityScreeningSimulationName;
     title = title.replace(".tsv", "");
-  this.VisualiseChart.exportImage().then((dataURI) => {
-    saveAs(dataURI, title + '.png');
-  });
-
-}
-
+    this.VisualiseChart.exportImage().then((dataURI) => {
+      saveAs(dataURI, title + '.png');
+    });
+  }
+  public exportChart2x(): void {
+    let title = this.PriorityScreeningSimulationName;
+    title = title.replace(".tsv", "");
+    const chart = (this.VisualiseChart.instance);
+    if (chart) {
+      let width2x = chart.element.offsetWidth * 2;
+      let height2x = chart.element.offsetHeight * 2;
+      console.log(width2x, height2x);
+      this.VisualiseChart.exportImage({height: height2x, width: width2x}).then((dataURI) => {
+        saveAs(dataURI, title + '.png');
+      });
+    }
+  }
+  
 
   downloadData() {
     if (this.PriorityScreeningSimulationText != null) {

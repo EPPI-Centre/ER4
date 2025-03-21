@@ -151,7 +151,7 @@ namespace BusinessLibrary.BusinessClasses
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             int ReviewId = ri.ReviewId;
             int ContactId = ri.UserId;
-            if (_title == "[Apply to OpenAlex Auto Update]")
+            if (_title.StartsWith("[Apply to OpenAlex Auto Update]"))
             {
                 OpenAlexAutoUpdate = true;
             }

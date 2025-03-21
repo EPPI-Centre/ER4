@@ -105,7 +105,7 @@
       <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
         <div>
           <figure class="figure col-12">
-            <kendo-chart #VisualiseChart
+            <kendo-chart #VisualiseChart style="min-height:400px; height:52vh;"
                          *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">
               <kendo-chart-title [text]="PriorityScreeningSimulationName">
               </kendo-chart-title>
@@ -138,8 +138,9 @@
           </figure>
         </div>
         <div class="row">
-          <div class="col-lg-6">
+          <div class="col">
             <button class="btn btn-info" (click)="exportChart()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">Save chart</button>
+            <button class="btn btn-outline-info ml-1" (click)="exportChart2x()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">Save chart (higher res)</button>
             &nbsp;
           </div>
 
@@ -179,22 +180,23 @@
           <div>{{ workloadReductionStats }}</div>
           <div>{{ workloadReductionPercentStats }}</div>
         </div>
-        <div class="clearfix">
-          Specific recall: <kendo-numerictextbox [(ngModel)]="recallLevel"
-                                                 [min]="85" [format]="'n0'"
-                                                 [max]="100"
-                                                 [autoCorrect]="true"
-                                                 class="border border-dark rounded"
-                                                 style="width: 110px;"
-                                                 (valueChange)="processSimulation(false)"></kendo-numerictextbox>
-
-          <div>
-            <button title="Download data" (click)="downloadData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 "
-                    class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
-              Download data
-            </button>
+        <div class="row px-0 mx-0 justify-content-around">
+          <div class="col px-0">
+            Specific recall: <kendo-numerictextbox [(ngModel)]="recallLevel"
+                                                   [min]="85" [format]="'n0'"
+                                                   [max]="100"
+                                                   [autoCorrect]="true"
+                                                   class="border border-dark rounded"
+                                                   style="width: 110px;"
+                                                   (valueChange)="processSimulation(false)"></kendo-numerictextbox>
           </div>
 
+            <div class="col px-1">
+              <button title="Download data" (click)="downloadData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 "
+                      class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+                Download data
+              </button>
+            </div>
         </div>
       </div>
     </div>

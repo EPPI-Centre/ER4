@@ -265,37 +265,14 @@ export class MAGKeepUpToDate implements OnInit {
                         hideAfter: 3000
                     });
 
-                    // JT commented this out as can't 
-                    //let now = new Date();
-                    //this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 10 * 60000); //10 minutes into the future!
-                    //this.MAGRelatedRunsService.refreshForStudyClassifier = true;
-                    //this.MAGRelatedRunsService.RefreshAutoUpdateRunsOnTimer();
-                  //this.CancelImportRefine();
+                  let now = new Date();
+                  this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 15 * 60000); //15 minutes into the future!
+                  this.MAGRelatedRunsService.refreshForStudyClassifier = true;
+                  this.MAGRelatedRunsService.RefreshAutoUpdateRunsOnTimer();
+                  this.CancelImportRefine();
 
 
-                    //let i: number = 0;
-                    //while (i < 20) {
-                    //    await Helpers.Sleep(1000 * 25);
-                    //    this.MAGRelatedRunsService.GetMagAutoUpdateRunList();
-                    //    await Helpers.Sleep(1000 * 5);//we give GetMagAutoUpdateRunList 5s to complete, not a big deal if it's not enough
-                    //    i++;
-                    //    let newRun = this.MAGRelatedRunsService.MagAutoUpdateRunList.find(f => f.magAutoUpdateRunId == this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId);
-                    //    if (newRun != undefined) {
-                    //        //we'll check if the model has been applied
-                    //        if (newRun.studyTypeClassifier !== this.MAGRelatedRunsService.currentlyApplyedModelToRunId) {
-                    //            //yay! it's in, so we can stop looping
-                    //            this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = 0;
-                    //            this.MAGRelatedRunsService.currentlyApplyedModelToRunId = "";
-                    //            this.CurrentMagAutoUpdateRun = newRun;//update what we have in here!!
-                    //            this.LoadGraph();//get update histogram, while we're there...
-                    //            i = 100;
-                    //            return;
-                    //        }
-                    //    }
-                    //}
-                    ////bad luck, either we were re-applying the same model or it's taking more than 5m, we give up
-                    //this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = 0;
-                    //this.MAGRelatedRunsService.currentlyApplyedModelToRunId = "";
+                    
                 }
             });
             this.SelectedStudyClassifier = this.StudyClassifiers[0];
@@ -323,37 +300,14 @@ export class MAGKeepUpToDate implements OnInit {
                         closable: false,
                         hideAfter: 3000
                     });
-
-                    // JT commented out for autorefresh
-                    //let now = new Date();
-                    //this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 10 * 60000); //10 minutes into the future!
-                    //this.MAGRelatedRunsService.refreshForStudyClassifier = false;
-                    //this.MAGRelatedRunsService.RefreshAutoUpdateRunsOnTimer();
-                    //this.CancelImportRefine();
+                    let now = new Date();
+                    this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 15 * 60000); //15 minutes into the future!
+                    this.MAGRelatedRunsService.refreshForStudyClassifier = false;
+                    this.MAGRelatedRunsService.RefreshAutoUpdateRunsOnTimer();
+                    this.CancelImportRefine();
 
 
-                    //while (i < 20) {
-                    //    await Helpers.Sleep(1000 * 25);
-                    //    this.MAGRelatedRunsService.GetMagAutoUpdateRunList();
-                    //    await Helpers.Sleep(1000 * 5);//we give GetMagAutoUpdateRunList 5s to complete, not a big deal if it's not enough
-                    //    i++;
-                    //    let newRun = this.MAGRelatedRunsService.MagAutoUpdateRunList.find(f => f.magAutoUpdateRunId == this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId);
-                    //    if (newRun != undefined) {
-                    //        //we'll check if the model has been applied
-                    //        if (newRun.userClassifierModelId.toString() !== this.MAGRelatedRunsService.currentlyApplyedModelToRunId) {
-                    //            //yay! it's in, so we can stop looping
-                    //            this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = 0;
-                    //            this.MAGRelatedRunsService.currentlyApplyedModelToRunId = "";
-                    //            this.CurrentMagAutoUpdateRun = newRun;//update what we have in here!!
-                    //            this.LoadGraph();//get update histogram, while we're there...
-                    //            i = 100;
-                    //            return;
-                    //        }
-                    //    }
-                    //}
-                    ////bad luck, either we were re-applying the same model or it's taking more than 5m, we give up
-                    //this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = 0;
-                    //this.MAGRelatedRunsService.currentlyApplyedModelToRunId = "";
+                    
                 }
             });
             this.SelectedClassifierContactModel = null;

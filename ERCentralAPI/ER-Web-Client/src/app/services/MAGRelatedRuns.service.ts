@@ -78,52 +78,26 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
     FetchMagRelatedPapersRunList() {
         
         this._BusyMethods.push("FetchMagRelatedPapersRunList");
-        this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
-            .subscribe(result => {
+        lastValueFrom(this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
+        ).then(result => {
                 this.RemoveBusy("FetchMagRelatedPapersRunList");
                 this.MagRelatedPapersRunList = result;
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
-                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
             },
                 error => {
                     this.RemoveBusy("FetchMagRelatedPapersRunList");
                     this.modalService.GenericError(error);
-                },
-                () => {
-                    this.RemoveBusy("FetchMagRelatedPapersRunList");
-                });
+          }).catch((caught) => {
+            this.RemoveBusy("FetchMagRelatedPapersRunList");
+            this.modalService.GenericError(caught);
+          });
     }
 
     public GetMagAutoUpdateList(alsoRuns: boolean = false) {
 
         this._BusyMethods.push("FetchMagUpdateLists");
-        this._httpC.get<MagAutoUpdate[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagAutoUpdateList')
-            .subscribe(result => {
+        lastValueFrom(this._httpC.get<MagAutoUpdate[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagAutoUpdateList')
+        ).then(result => {
                 this._MagUpdatesList = result;
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
-                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
                 if (alsoRuns) {
                     this.GetMagAutoUpdateRunList();
                 }
@@ -132,26 +106,25 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
                 error => {
                     this.RemoveBusy("FetchMagUpdateLists");
                     this.modalService.GenericError(error);
-                });
+          }).catch((caught) => {
+            this.RemoveBusy("FetchMagUpdateLists");
+            this.modalService.GenericError(caught);
+          });
     }
     public GetMagAutoUpdateRunList() {
         this._BusyMethods.push("GetMagAutoUpdateRunList");
-        this._httpC.get<MagAutoUpdateRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagAutoUpdateRuns')
-            .subscribe(result => {
+        lastValueFrom(this._httpC.get<MagAutoUpdateRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagAutoUpdateRuns')
+        ).then(result => {
                 this._MagAutoUpdateRunList = result; 
-                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
-                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
-                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
-                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
-                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
-                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
-                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
                 this.RemoveBusy("GetMagAutoUpdateRunList");
             },
                 error => {
                     this.RemoveBusy("GetMagAutoUpdateRunList");
                     this.modalService.GenericError(error);
-                });
+          }).catch((caught) => {
+            this.RemoveBusy("GetMagAutoUpdateRunList");
+            this.modalService.GenericError(caught);
+          });
     }
 
     public async RefreshAutoUpdateRunsOnTimer() {
@@ -186,7 +159,7 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
                 }
             }
         }
-        //bad luck, either we were re-applying the same model or it's taking more than 5m, we give up
+        //bad luck, either we were re-applying the same model or it's taking more than 15m, we give up
         this.currentlyApplyingModelToThisRunId = 0;
         this.currentlyApplyedModelToRunId = "";
         this.RefreshUntil = new Date();
@@ -194,9 +167,8 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
 
     public CreateAutoUpdate(magRun: MagRelatedPapersRun) {
         this._BusyMethods.push("CreateAutoUpdate");
-        this._httpC.post<MagAutoUpdate>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateAutoUpdate',
-            magRun)
-            .subscribe(result => {
+        lastValueFrom(this._httpC.post<MagAutoUpdate>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateAutoUpdate',
+            magRun)).then(result => {
                 if (result.magAutoUpdateId > 0) {
                     this.notificationService.showMAGRunMessage('Search was created');
                 } 
@@ -206,15 +178,17 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
             }, error => {
                 this.RemoveBusy("CreateAutoUpdate");
                 this.modalService.GenericError(error);
+            }).catch((caught) => {
+              this.RemoveBusy("CreateAutoUpdate");
+              this.modalService.GenericError(caught);
             });
     }
     DeleteMAGAutoUpdate(Id: number) {
 
         this._BusyMethods.push("DeleteMAGAutoUpdate");
         let body = JSON.stringify({ Value: Id });
-        this._httpC.post<MagAutoUpdate[]>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteAutoUpdate',
-            body)
-            .subscribe(result => {
+        lastValueFrom(this._httpC.post<MagAutoUpdate[]>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteAutoUpdate',
+            body)).then(result => {
                 this._MagUpdatesList = result;
                 this.notificationService.showMAGRunMessage('MAG Auto update task was deleted');
                 //let tmpIndex: number = this.MagAutoUpdatesList.findIndex(x => x.magAutoUpdateId == Number(result.magAutoUpdateId));
@@ -226,15 +200,17 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
             }, error => {
                 this.RemoveBusy("DeleteMAGAutoUpdate");
                 this.modalService.GenericError(error);
+            }).catch((caught) => {
+              this.RemoveBusy("DeleteMAGAutoUpdate");
+              this.modalService.GenericError(caught);
             });
     }
     DeleteMAGAutoUpdateRun(Id: number) {
 
         this._BusyMethods.push("DeleteMAGAutoUpdateRun");
         let body = JSON.stringify({ Value: Id });
-        this._httpC.post<MagAutoUpdateRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteAutoUpdateRun',
-            body)
-            .subscribe(result => {
+        lastValueFrom(this._httpC.post<MagAutoUpdateRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteAutoUpdateRun',
+            body)).then(result => {
                 this._MagAutoUpdateRunList = result;
                 this.notificationService.showMAGRunMessage('MAG Auto update task results were deleted');
                 
@@ -243,15 +219,17 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
             }, error => {
                     this.RemoveBusy("DeleteMAGAutoUpdateRun");
                 this.modalService.GenericError(error);
+            }).catch((caught) => {
+              this.RemoveBusy("DeleteMAGAutoUpdateRun");
+              this.modalService.GenericError(caught);
             });
     }
     DeleteMAGRelatedRun(Id: number) {
 
         this._BusyMethods.push("DeleteMAGRelatedRun");
         let body = JSON.stringify({ Value: Id });
-        this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteMagRelatedPapersRun',
-            body)
-            .subscribe(result => {
+        lastValueFrom(this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteMagRelatedPapersRun',
+            body)).then(result => {
 
                 this.RemoveBusy("DeleteMAGRelatedRun");
                 if (result.magRelatedRunId > 0) {
@@ -270,16 +248,15 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
             }, error => {
                 this.RemoveBusy("DeleteMAGRelatedRun");
                 this.modalService.GenericError(error);
-            },
-                () => {
-                    this.RemoveBusy("DeleteMAGRelatedRun");
-                });
+            }).catch((caught) => {
+              this.RemoveBusy("DeleteMAGRelatedRun");
+              this.modalService.GenericError(caught);
+            });
     }
     CreateMAGRelatedRun(magRun: MagRelatedPapersRun) {
         this._BusyMethods.push("MagRelatedPapersRunCreate");
-        this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateMagRelatedPapersRun',
-            magRun)
-            .subscribe(result => {
+        lastValueFrom(this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateMagRelatedPapersRun',
+            magRun)).then(result => {
 
                 this.RemoveBusy("MagRelatedPapersRunCreate");
                 if (result.magRelatedRunId > 0) {
@@ -296,10 +273,10 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
             }, error => {
                 this.RemoveBusy("MagRelatedPapersRunCreate");
                 this.modalService.GenericError(error);
-            },
-                () => {
-                    this.RemoveBusy("MagRelatedPapersRunCreate");
-                });
+            }).catch((caught) => {
+              this.RemoveBusy("MagRelatedPapersRunCreate");
+              this.modalService.GenericError(caught);
+            });
     }
   ImportMagRelatedRunPapers(cmd: MagItemPaperInsertCommand, magRelatedRun: MagRelatedPapersRun): Promise<void> {
 
@@ -344,9 +321,8 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
     UpdateMagRelatedRun(magRelatedRun: MagRelatedPapersRun) {
 
         this._BusyMethods.push("UpdateMagRelatedRun");
-        return this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/UpdateMagRelatedRun',
-            magRelatedRun).
-            subscribe(
+        return lastValueFrom(this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/UpdateMagRelatedRun',
+            magRelatedRun)).then(
 
                 (result: MagRelatedPapersRun) => {
                     this.RemoveBusy("UpdateMagRelatedRun");
@@ -366,14 +342,17 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
                     this.RemoveBusy("UpdateMagRelatedRun");
                     this.modalService.GenericErrorMessage('An api error with calling UpdateMagRelatedRun: ' + error);
                 }
-            );
+        ).catch(caught => {
+          this.RemoveBusy("UpdateMagRelatedRun");
+          this.modalService.GenericError(caught);
+        });
     }
     public GetMagAutoVisualiseList(crit: MagAutoUpdateVisualiseSelectionCriteria) {
 
         this._BusyMethods.push("GetMagAutoVisualiseList");
         //this._MagAutoUpdateVisualise = [];
-        this._httpC.post<MagAutoUpdateVisualise[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagMagAutoUpdateVisualise', crit)
-            .subscribe(result => {
+        lastValueFrom(this._httpC.post<MagAutoUpdateVisualise[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagMagAutoUpdateVisualise', crit)
+        ).then(result => {
                 this._MagAutoUpdateVisualise = result;
                 this.RemoveBusy("GetMagAutoVisualiseList");
             },
@@ -381,7 +360,10 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
                     this._MagAutoUpdateVisualise = [];
                     this.RemoveBusy("GetMagAutoVisualiseList");
                     this.modalService.GenericError(error);
-                });
+          }).catch(caught => {
+            this.RemoveBusy("GetMagAutoVisualiseList");
+            this.modalService.GenericError(caught);
+          });
     }
     public RunMagAddClassifierScoresCommand(cmd: MagAddClassifierScoresCommand): Promise<boolean> {
         this._BusyMethods.push("RunMagAddClassifierScoresCommand");
@@ -425,9 +407,8 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
 
         let notificationMsg: string = '';
         this._BusyMethods.push("ImportAutoUpdateRun");
-        this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportAutoUpdateRun',
-            cmd)
-            .subscribe(result => {
+        lastValueFrom(this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportAutoUpdateRun',
+            cmd)).then(result => {
                 if (result.nImported != null) {
                     if (result.nImported == cmd.topN) {
 
@@ -461,10 +442,10 @@ export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy
                 error => {
                     this.RemoveBusy("ImportAutoUpdateRun");
                     this.modalService.GenericError(error);
-                },
-                () => {
-                    this.RemoveBusy("ImportAutoUpdateRun");
-                });
+              }).catch(caught => {
+                this.RemoveBusy("ImportAutoUpdateRun");
+                this.modalService.GenericError(caught);
+              });;
     }
     public Clear(AlsoStopTheTimer: boolean = false) {
         console.log("Clear in MAGRelatedRunsService", AlsoStopTheTimer);
