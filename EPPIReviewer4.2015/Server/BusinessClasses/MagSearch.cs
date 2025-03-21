@@ -644,9 +644,9 @@ namespace BusinessLibrary.BusinessClasses
                 if (SearchText.StartsWith("¬Title and abstract:"))
                 {
                     //TitleAndAbstract = true;
-                    if (!MagSearchText.StartsWith("default.search:"))
+                    if (!MagSearchText.StartsWith("title_and_abstract.search:"))
                     {
-                        MagSearchText = "default.search:" + MagSearchText;
+                        MagSearchText = "title_and_abstract.search:" + MagSearchText;
                     }
                     //MagSearchText = MagSearchText;
                 }
@@ -837,7 +837,7 @@ namespace BusinessLibrary.BusinessClasses
             bool doSearch = false;
             if ((!theSearch.SearchText.StartsWith("Custom filter:")) && (theSearch.MagSearchText.IndexOf("display_name.search:") == -1) &&
                 (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1) &&
-                (theSearch.MagSearchText.IndexOf("default.search:") == -1))
+                (theSearch.MagSearchText.IndexOf("title_and_abstract.search:") == -1))
             //if ((theSearch.MagSearchText.IndexOf("display_name.search:") == -1) && (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1))
             {
                 doSearch = true; // i.e. title/abstract search where we 'search' rather than 'filter'
