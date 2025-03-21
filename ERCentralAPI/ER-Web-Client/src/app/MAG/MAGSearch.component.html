@@ -89,6 +89,14 @@
 
                     </div>
 
+                  <div *ngIf="WordsInSelection == '4'" style="padding-left:15px">
+                    <label>
+                      <input type="checkbox" [(ngModel)]="isCopiedFromOpenAlex" />
+                      I copied and pasted this search from the OpenAlex user interface from the 'API Query' link
+                    </label>
+
+                  </div>
+
                     <div class="col-12 row mb-2" *ngIf="WordsInSelection != '5'">
                         <div class="row mx-0 col-sm-6">
                             <div ngbDropdown class="col-12 px-0">

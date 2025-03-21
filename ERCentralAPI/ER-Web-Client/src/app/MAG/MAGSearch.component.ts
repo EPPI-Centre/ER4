@@ -382,6 +382,10 @@ export class MAGSearchComponent implements OnInit {
         newSearch.searchText = '\u00AC' + "OpenAlex ID(s): " + newSearch.magSearchText;
         break;
       case "4":
+        if (this.isCopiedFromOpenAlex) {
+          this.magSearchInput = this.magSearchInput.substring(this.magSearchInput.indexOf("filter=") + "filter=".length);
+          this.magSearchInput = decodeURIComponent(this.magSearchInput.replace("page=1&", "").replace("&per_page=10", ""));
+        }
         newSearch.magSearchText = this.magSearchInput;
         newSearch.searchText = '\u00AC' + "Custom filter: " + this.magSearchInput;
         break;
@@ -452,6 +456,9 @@ export class MAGSearchComponent implements OnInit {
       }
     );
   }
+  isCopiedFromOpenAlex: boolean = false;
+
+
       public GetSearchTextMagIds(searchText: string): string {
             let res:string = "";
             const numbers = this.magSearchInput.split(',');
