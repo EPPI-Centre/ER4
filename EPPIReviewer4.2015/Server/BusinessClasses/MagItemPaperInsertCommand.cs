@@ -273,8 +273,8 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         incomingList.SearchStr = ms.MagSearchText;
                         bool doSearch = false;
-                        if ((ms.MagSearchText.IndexOf("display_name.search:") == -1) && (ms.MagSearchText.IndexOf("concepts.id:") == -1) && (ms.MagSearchText.IndexOf("openalex_id:") == -1) && (ms.MagSearchText.IndexOf("default.search:") == -1))
-                        {// i.e. title/abstract search where we 'search' rather than 'filter'
+                        //if (!ms.SearchText.StartsWith("Custom filter:"))
+                        if ((!ms.SearchText.StartsWith("Custom filter:")) && (ms.MagSearchText.IndexOf("display_name.search:") == -1) && (ms.MagSearchText.IndexOf("concepts.id:") == -1) && (ms.MagSearchText.IndexOf("openalex_id:") == -1) && (ms.MagSearchText.IndexOf("default.search:") == -1))                        {// i.e. title/abstract search where we 'search' rather than 'filter'
                             doSearch = true; 
                         }
                         List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(ms.MagSearchText, doSearch);
