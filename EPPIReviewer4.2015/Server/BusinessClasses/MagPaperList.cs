@@ -605,7 +605,8 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 searchString = ms.MagSearchText;
                                 MagSearchText = searchString;
-                                if ((searchString.IndexOf("display_name.search:") == -1) && (searchString.IndexOf("concepts.id:") == -1) && (searchString.IndexOf("openalex_id:") == -1) && (searchString.IndexOf("default.search:") == -1))
+                                //if (!ms.SearchText.StartsWith("Custom filter:"))
+                                if ((!ms.SearchText.StartsWith("Custom filter:")) && (ms.MagSearchText.IndexOf("display_name.search:") == -1) && (ms.MagSearchText.IndexOf("concepts.id:") == -1) && (ms.MagSearchText.IndexOf("openalex_id:") == -1) && (ms.MagSearchText.IndexOf("default.search:") == -1))
                                 {
                                     doSearch = true; // i.e. title/abstract or custom search where we 'search' rather than 'filter'
                                 }

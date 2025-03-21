@@ -84,7 +84,17 @@ export class MAGSearchComponent implements OnInit {
 
         //this.FetchMagSearches();
          
+  }
+  public checkforFilterText(input: string): string {
+    const prefixToCheck = "Custom filter:";
+    const replacement = "custom filter:";
+
+    if (input.startsWith(prefixToCheck)) {
+      return replacement + input.slice(prefixToCheck.length);
     }
+
+    return input; // Return the original string if the prefix doesn't match
+  }
     public get MagSearchList(): MagSearch[] {
         return this._magSearchService.MagSearchList;
     }
@@ -343,9 +353,13 @@ export class MAGSearchComponent implements OnInit {
         //            //this._confirmationDialogService.showMAGRunMessage(msg);
         //        }
         //    );
-    }
+  }
+
+  
+
   public RunOpenAlexSearch() {
     let newSearch: MagSearchBuilder = new MagSearchBuilder();
+    this.magSearchInput = this.checkforFilterText(this.magSearchInput);
     switch (this.WordsInSelection) {
       case "0":
         newSearch.magSearchText = this.magSearchInput;
