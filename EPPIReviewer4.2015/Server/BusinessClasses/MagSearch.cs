@@ -585,6 +585,14 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
+        public bool DoSearchInAPICalls
+        {
+            get
+            {
+                if (SearchText.StartsWith("Custom search:") || SearchText.StartsWith("¬Custom search:")) return true;
+                return false;
+            }
+        }
 
 
         //protected override void AddAuthorizationRules()
@@ -641,70 +649,61 @@ namespace BusinessLibrary.BusinessClasses
                         MagSearchText = "display_name.search:" + MagSearchText;
                     }
                 }
-                if (SearchText.StartsWith("¬Title and abstract:"))
+                else if (SearchText.StartsWith("¬Title and abstract:"))
                 {
-                    //TitleAndAbstract = true;
                     if (!MagSearchText.StartsWith("title_and_abstract.search:"))
                     {
                         MagSearchText = "title_and_abstract.search:" + MagSearchText;
                     }
-                    //MagSearchText = MagSearchText;
                 }
-                if (SearchText.StartsWith("¬Topic:"))
+                else if (SearchText.StartsWith("¬Topic:"))
                 {
                     if (MagSearchText.IndexOf("concepts.id:") == -1) // i.e. for a rerun the search is already fully described
                     {
                         MagSearchText = "concepts.id:" + "https://openalex.org/C" + MagSearchText;
                     }
                 }
-                if (SearchText.StartsWith("¬OpenAlex ID(s):"))
+                else if (SearchText.StartsWith("¬OpenAlex ID(s):"))
                 {
-                    MagSearchText = "openalex_id:" + MagSearchText.Replace("W", "https://openalex.org/W");
+                    MagSearchText = "openalex_id:" + MagSearchText;//this bit seems unnecessary as of March 2025: + MagSearchText.Replace("W", "https://openalex.org/W");
                 }
-                if (SearchText.StartsWith("¬Custom filter:"))
+                else if (SearchText.StartsWith("¬Custom filter:"))
                 {
                     // Custom filter - just execute the searchtext
                 }
-                if (SearchText.StartsWith("¬Custom search:"))
+                else if (SearchText.StartsWith("¬Custom search:"))
                 {
                     // Custom search - just execute the searchtext
                     DoSearch = true;
                 }
                 SearchText = SearchText.Replace("¬", "");
 
-                if (TitleAndAbstract)
+                
+                if (this.DateFilter != "")
                 {
-                    resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", true);
-                }
-                else
-                {
-                    if (this.DateFilter != "")
+                    switch (DateFilter)
                     {
-                        switch (DateFilter)
-                        {
-                            case "Published on":
-                                MagSearchText += ",publication_date:" + Date1;
-                                break;
-                            case "Published before":
-                                MagSearchText += ",to_publication_date:" + Date1;
-                                break;
-                            case "Published after":
-                                MagSearchText += ",from_publication_date:" + Date1;
-                                break;
-                            case "Published between":
-                                MagSearchText += ",from_publication_date:" + Date1 + ",to_publication_date:" + Date2;
-                                break;
-                            case "Publication year":
-                                MagSearchText += ",publication_year:" + Date1;
-                                break;
-                            case "Created after":
-                                MagSearchText += ",from_created_date:" + Date1;
-                                break;
-                        }
+                        case "Published on":
+                            MagSearchText += ",publication_date:" + Date1;
+                            break;
+                        case "Published before":
+                            MagSearchText += ",to_publication_date:" + Date1;
+                            break;
+                        case "Published after":
+                            MagSearchText += ",from_publication_date:" + Date1;
+                            break;
+                        case "Published between":
+                            MagSearchText += ",from_publication_date:" + Date1 + ",to_publication_date:" + Date2;
+                            break;
+                        case "Publication year":
+                            MagSearchText += ",publication_year:" + Date1;
+                            break;
+                        case "Created after":
+                            MagSearchText += ",from_created_date:" + Date1;
+                            break;
                     }
-                    resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", DoSearch);
                 }
-
+                resp = MagMakesHelpers.EvaluateOaPaperFilter(MagSearchText, "1", "1", DoSearch);
                 if (resp != null && resp.meta != null)
                 {
                     HitsNo = resp.meta.count;
@@ -714,8 +713,6 @@ namespace BusinessLibrary.BusinessClasses
                     HitsNo = 0;
                     SearchText = "INVALID SEARCH";
                 }
-
-                
             }
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
@@ -834,14 +831,14 @@ namespace BusinessLibrary.BusinessClasses
         private List<string> GetIdsFromOpenAlex(MagSearch theSearch)
         {
             List<string> results = new List<string>();
-            bool doSearch = false;
-            if ((!theSearch.SearchText.StartsWith("Custom filter:")) && (theSearch.MagSearchText.IndexOf("display_name.search:") == -1) &&
-                (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1) &&
-                (theSearch.MagSearchText.IndexOf("title_and_abstract.search:") == -1))
-            //if ((theSearch.MagSearchText.IndexOf("display_name.search:") == -1) && (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1))
-            {
-                doSearch = true; // i.e. title/abstract search where we 'search' rather than 'filter'
-            }
+            bool doSearch = theSearch.DoSearchInAPICalls;
+            //if ((!theSearch.SearchText.StartsWith("Custom filter:")) && (theSearch.MagSearchText.IndexOf("display_name.search:") == -1) &&
+            //    (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1) &&
+            //    (theSearch.MagSearchText.IndexOf("title_and_abstract.search:") == -1))
+            ////if ((theSearch.MagSearchText.IndexOf("display_name.search:") == -1) && (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1))
+            //{
+            //    doSearch = true; // i.e. title/abstract search where we 'search' rather than 'filter'
+            //}
             List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(theSearch.MagSearchText, doSearch);
             foreach (MagMakesHelpers.OaPaperFilterResult r in res)
             {

@@ -441,23 +441,23 @@
 
 
 
-                    <table class="table  table-sm table-striped">
+                    <table class="table table-sm table-striped">
                         <thead>
                             <tr>
-                                <th class="" width="1">
-                                    <input class="m-1" style="zoom: 1.2;"
+                                <th class="" width="10">
+                                    <input class="m-1 larger-checkbox"
                                            type="checkbox"
                                            name="selectAll"
                                            [ngModel]="AllItemsAreSelected"
                                            (click)="ToggleAllItemsSelected()" />
                                 </th>
-                                <th class="" width="1">#</th>
-                                <th class="" width="6" style="min-width:50px">Name</th>
-                                <th class="" width="5" style="min-width:50px">Search string</th>
-                                <th class="" width="2">User</th>
-                                <th class="" width="2">Date</th>
-                                <th class="" width="2" style="text-align:center" title="Number of 'current' hits might be bigger, as new results appear in OpenAlex">Hits (min.)</th>
-                                <th class="" width="1" style="min-width:40px;text-align:center;font-size:0.76em;">Re-run/import</th>
+                                <th class="" width="50">#</th>
+                                <th class="" width="600" style="min-width:50px">Name</th>
+                                <th class="" width="600" style="min-width:50px">Search string</th>
+                                <th class="" width="150">User</th>
+                                <th class="" width="150">Date</th>
+                                <th class="" width="150" style="text-align:center" title="Number of 'current' hits might be bigger, as new results appear in OpenAlex">Hits (min.)</th>
+                                <th class="" width="100" style="min-width:40px;text-align:center;font-size:0.76em;">Re-run/import</th>
                                 <!--<th class="" width="1" style="min-width:40px;text-align:center">Import</th>-->
 
                             </tr>
@@ -466,7 +466,7 @@
                         <tbody>
                             <tr *ngFor="let item of MagSearchList" class="small" [ngClass]="{'font-italic': !CanImportMagPapers(item), 'font-weight-bold': CanImportMagPapers(item) }">
                                 <td class="">
-                                    <input class="ml-1" style="zoom: 1.2;"
+                                    <input class="ml-1 larger-checkbox" 
                                            type="checkbox"
                                            [(ngModel)]="item.add" />
                                 </td>
