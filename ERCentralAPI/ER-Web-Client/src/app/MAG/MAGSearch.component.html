@@ -162,75 +162,11 @@
                                                           class="border border-dark rounded mb-1"
                                                           style="width: 105px;"></kendo-numerictextbox>
                                 </div>
-                                <!--<div *ngIf="DateLimitSelection == 6 ">
-                                    Before this year:
-                                    <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
-                                                          name="n1" [format]="'#####'"
-                                                          [min]="1850"
-                                                          [max]="maxyear"
-                                                          [step]="1"
-                                                          [autoCorrect]="true"
-                                                          class="border border-dark rounded mb-1"
-                                                          style="width: 105px;"></kendo-numerictextbox>
-                                </div>
-                                <div *ngIf="DateLimitSelection == 7 ">
-                                    After this year:
-                                    <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
-                                                          name="n1" [format]="'#####'"
-                                                          [min]="1850"
-                                                          [max]="maxyear"
-                                                          [step]="1"
-                                                          [autoCorrect]="true"
-                                                          class="border border-dark rounded mb-1"
-                                                          style="width: 105px;"></kendo-numerictextbox>
-                                </div>
-                                <div *ngIf="DateLimitSelection == 8 ">
-                                    <div class="d-block">
-                                        Between year:
-                                        <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
-                                                              name="n1" [format]="'#####'"
-                                                              [min]="1850"
-                                                              [max]="maxyear"
-                                                              [step]="1"
-                                                              [autoCorrect]="true"
-                                                              class="border border-dark rounded mb-1"
-                                                              style="width: 105px;"></kendo-numerictextbox>
-                                    </div>
-                                    <div class="d-block">
-                                        and year:
-                                        <kendo-numerictextbox [(ngModel)]="valueYearPicker4"
-                                                              name="n2" [format]="'#####'"
-                                                              [min]="valueYearPicker3"
-                                                              [max]="maxyear"
-                                                              [step]="1"
-                                                              [autoCorrect]="true"
-                                                              class="border border-dark rounded mb-1"
-                                                              style="width: 105px;"></kendo-numerictextbox>
-                                    </div>
-                                </div>-->
                             </div>
-
                         </div>
                     </div>
 
                     <div class="col-12 row mb-2">
-                        <!--<div class="col-sm-6 ">
-                            <div ngbDropdown>
-                                <select class="col-12 form-control mb-1" name="PublicationTypeSelection"
-                                        [(ngModel)]="PublicationTypeSelection">
-                                    <option [ngValue]="0" [selected]="PublicationTypeSelection == 0">All publication types</option>
-                                    <option [ngValue]="1">Unknown types</option>
-                                    <option [ngValue]="2">Journal article</option>
-                                    <option [ngValue]="3">Patent</option>
-                                    <option [ngValue]="4">Conference paper</option>
-                                    <option [ngValue]="5">Book chapter</option>
-                                    <option [ngValue]="6">Book</option>
-                                    <option [ngValue]="7">Book reference entry</option>
-                                    <option [ngValue]="8">Dataset</option>
-                                    <option [ngValue]="9">Repository</option>
-                                </select>
-                            </div>
-                        </div>-->
                         <div class="col-sm-6 pt-1">
                             <button class="btn btn-primary btn-lg btn-sm text-white"
                                     [disabled]="!CanRunSearch()"
@@ -265,98 +201,7 @@
                                 </select>
                             </div>
                         </div>
-                        <!--<div class="row col-12">
-                            <div class="col-auto">(optional) Filter by date:</div>
-                            <div ngbDropdown class="col-auto">
-                                <select class="form-control mb-1" name="DateLimitSelectionCombine" [disabled]="!CanDeleteSearch()"
-                                        [(ngModel)]="DateLimitSelectionCombine">
-                                    <option [ngValue]="0" [selected]="DateLimitSelectionCombine == 0">No date limit</option>
-                                    <option [ngValue]="1">Publication date exactly</option>
-                                    <option [ngValue]="2">Publication date before</option>
-                                    <option [ngValue]="3">Publication date after</option>
-                                    <option [ngValue]="4">Publication dates between</option>
-                                    <option [ngValue]="5">Publication year exactly</option>
-                                    <option [ngValue]="6">Publication year before</option>
-                                    <option [ngValue]="7">Publication year after</option>
-                                    <option [ngValue]="8">Publication years between</option>
-                                </select>
-                            </div>
-                        </div>-->
-                        <!--<div *ngIf="DateLimitSelectionCombine > 0 && CanDeleteSearch()">
-                            <ng-container [ngSwitch]="DateLimitSelectionCombine">
-                                <div *ngSwitchCase="1">
-                                    Exact date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
-                                </div>
-                                <div *ngSwitchCase="2">
-                                    Before date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
-                                </div>
-                                <div *ngSwitchCase="3">
-                                    After date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
-                                </div>
-                                <div *ngSwitchCase="4" class="row mx-1">
-                                    <div class="d-block">Between: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker></div>
-                                    <div class="d-block">and <kendo-datepicker [(value)]="valueKendoDatepickerCombine2" [format]="'dd MMM yyyy'" [min]="valueKendoDatepickerCombine1"></kendo-datepicker></div>
-                                </div>
-                                <div *ngSwitchCase="5">
-                                    This year:
-                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
-                                                          name="n1" [format]="'#####'"
-                                                          [min]="1850"
-                                                          [max]="maxyear"
-                                                          [step]="1"
-                                                          [autoCorrect]="true"
-                                                          class="border border-dark rounded mb-1"
-                                                          style="width: 105px;"></kendo-numerictextbox>
-                                </div>
-                                <div *ngSwitchCase="6">
-                                    Before this year:
-                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
-                                                          name="n1" [format]="'#####'"
-                                                          [min]="1850"
-                                                          [max]="maxyear"
-                                                          [step]="1"
-                                                          [autoCorrect]="true"
-                                                          class="border border-dark rounded mb-1"
-                                                          style="width: 105px;"></kendo-numerictextbox>
-                                </div>
-                                <div *ngSwitchCase="7">
-                                    After this year:
-                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
-                                                          name="n1" [format]="'#####'"
-                                                          [min]="1850"
-                                                          [max]="maxyear"
-                                                          [step]="1"
-                                                          [autoCorrect]="true"
-                                                          class="border border-dark rounded mb-1"
-                                                          style="width: 105px;"></kendo-numerictextbox>
-                                </div>
-                                <div *ngSwitchCase="8" class="row mx-1">
-                                    <div class="d-block">
-                                        Between year:
-                                        <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
-                                                              name="n1" [format]="'#####'"
-                                                              [min]="1850"
-                                                              [max]="maxyear"
-                                                              [step]="1"
-                                                              [autoCorrect]="true"
-                                                              class="border border-dark rounded mb-1"
-                                                              style="width: 105px;"></kendo-numerictextbox>
-                                    </div>
-                                    <div class="d-block">
-                                        and year:
-                                        <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine2"
-                                                              name="n2" [format]="'#####'"
-                                                              [min]="valueYearPickerCombine1"
-                                                              [max]="maxyear"
-                                                              [step]="1"
-                                                              [autoCorrect]="true"
-                                                              class="border border-dark rounded mb-1"
-                                                              style="width: 105px;"></kendo-numerictextbox>
-                                    </div>
-                                </div>
-                                <div *ngSwitchDefault></div>
-                            </ng-container>
-                        </div>-->
+                        
                         <div class="col-12 row mt-2 mx-0 p-0">
                             <div class="col-auto">
                                 <button class="btn btn-primary btn-lg btn-sm text-white"
@@ -471,8 +316,40 @@
                                            [(ngModel)]="item.add" />
                                 </td>
                                 <td class="">{{item.searchNo}}</td>
-                                <td class="" style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.searchText}}>{{item.searchText}}</td>
-                                <td class="" style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.magSearchText}}>{{item.magSearchText | truncate}} </td>
+                                <td class="" title={{item.searchText}} style="word-break: break-all;">
+                                  <ng-container [ngSwitch]="DisplayStyleForName(item)">
+                                    <div *ngSwitchCase=0>{{item.searchText}}</div>
+                                    <div *ngSwitchCase=1>
+                                      <div class="row px-1 mx-0">
+                                        <div class="px-1 bg-light">{{item.searchText}}</div>
+                                        <button (click)="showFullTextForNameOfThisSearchId = -1" class="btn btn-link btn-sm py-0">Collapse...</button>
+                                      </div>
+                                    </div>
+                                    <div *ngSwitchCase=2>
+                                      <div class="row px-1 mx-0">
+                                        {{TruncateThis(item.searchText)}}
+                                        <button (click)="showFullTextForNameOfThisSearchId = item.magSearchId" class="btn btn-link btn-sm py-0 px-1">See all...</button>
+                                      </div>
+                                    </div>
+                                  </ng-container>
+                                </td>
+                                <td class="" title={{item.magSearchText}} style="word-break: break-all;">
+                                  <ng-container [ngSwitch]="DisplayStyleForSearchString(item)">
+                                    <div *ngSwitchCase=0>{{item.magSearchText}}</div>
+                                    <div *ngSwitchCase=1>
+                                      <div  class="row px-1 mx-0">
+                                        <div class="px-1 bg-light">{{item.magSearchText}}</div>
+                                        <button (click)="showFullTextForSearchStringOfThisSearchId = -1" class="btn btn-link btn-sm py-0 ">Collapse...</button>
+                                      </div>
+                                    </div>
+                                    <div *ngSwitchCase=2>
+                                      <div class="row px-1 mx-0">
+                                        {{TruncateThis(item.magSearchText)}}
+                                        <button (click)="showFullTextForSearchStringOfThisSearchId = item.magSearchId" class="btn btn-link btn-sm py-0 px-1">See all...</button>
+                                      </div>
+                                    </div>
+                                  </ng-container>
+                                </td>
                                 <td class="">{{item.contactName}}</td>
                                 <td class="">{{FormatDate2(item.searchDate)}}</td>
                                 <td class=" p-0" style="vertical-align:middle;text-align:center">
