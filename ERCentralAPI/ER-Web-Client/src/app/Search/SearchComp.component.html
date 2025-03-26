@@ -502,13 +502,14 @@
 
     <kendo-grid *ngIf="SearchList && SearchList.length > 0 "
                 [hidden]="isSearchServiceBusy"
-                [kendoGridBinding]="SearchList" [height]="600"
+                [data]="DataSourceSearches" [height]="600"
                 [sort]="sortSearches"
                 [sortable]="{
 	                    allowUnsort: false,
 	                    mode: 'single'
 	                    }"
-                [pageSize]="100"
+                [pageSize]="state.take"
+                [skip]="state.skip"
                 [pageable]="{
                             buttonCount: 10,
                             info: false,

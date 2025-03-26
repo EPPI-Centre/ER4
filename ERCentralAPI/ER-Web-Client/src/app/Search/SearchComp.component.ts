@@ -131,7 +131,10 @@ export class SearchComp implements OnInit, OnDestroy {
   public get sortSearches(): SortDescriptor[] {
     return this._searchService.sortSearches;
   }
-  
+  public get initialTake(): number {
+    if (this.state && this.state.take) return this.state.take;
+    return 100;
+  }
   public get state(): State {
     return this._searchService.state;
   }

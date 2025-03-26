@@ -67,7 +67,12 @@ export class searchService extends BusyAwareService implements OnDestroy {
   public state: State = {
     skip: 0,
     take: 100,
-    sort: this.sortSearches
+    sort: this.sortSearches,
+    filter: {
+      logic: "and",
+      filters: [],
+    },
+    group: []
   };
   public dataStateChange(state: DataStateChangeEvent): void {
     //console.log("dataStateChange");
@@ -123,28 +128,31 @@ export class searchService extends BusyAwareService implements OnDestroy {
     this.SearchList = [];
     lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
       body)).then(result => {
-        this.SearchList = TheList;
         const splitted = value.split(',');
         for (const deleted of splitted) {
           if (deleted.length > 0) {
             const Id = Helpers.SafeParseInt(deleted);
             if (Id) {
-              const index = this.SearchList.findIndex(f => f.searchId == Id);
+              const index = TheList.findIndex(f => f.searchId == Id);
               if (index != -1) {
-                this.SearchList.splice(index, 1);
+                TheList.splice(index, 1);
               }
             }
           }
         }
+        this.SearchList = TheList;
         //this.dataStateChange(this.state as DataStateChangeEvent);
+        //const throwaway = this.DataSourceSearches;
+        //console.log(throwaway, throwaway.data, this.state);
         //const temp = this.DataSourceSearches;
         this.RemoveBusy("Delete");
-        //this.Fetch();
       }, error => {
+        this.Fetch();
         this.RemoveBusy("Delete");
         this.modalService.GenericError(error);
       }
       ).catch(caught => {
+        this.Fetch();
         this.RemoveBusy("Delete");
         this.modalService.GenericError(caught);
       });
