@@ -939,7 +939,7 @@ export class SearchComp implements OnInit, OnDestroy {
           + "This search contains: <strong>" + selectedS[0].hitsNo.toString() + " results</strong>."
       }
       else {
-        msg += "Your will delete <strong>" + selectedS.length.toString() + " searches</strong>, ";
+        msg += "You will delete <strong>" + selectedS.length.toString() + " searches</strong>, ";
         let tot = selectedS.reduce((accumulator, currentValue) => accumulator + currentValue.hitsNo, 0);
         msg += "comprising of a total of (up to) <strong>" + tot.toString() + " results.";
       }
