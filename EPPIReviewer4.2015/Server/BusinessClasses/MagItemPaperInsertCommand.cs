@@ -272,12 +272,18 @@ namespace BusinessLibrary.BusinessClasses
                     if (ms.SearchIdsStored == false) // i.e. we need to run the search on OpenAlex and download the papers
                     {
                         incomingList.SearchStr = ms.MagSearchText;
-                        bool doSearch = false;
-                        if ((ms.MagSearchText.IndexOf("display_name.search:") == -1) && (ms.MagSearchText.IndexOf("concepts.id:") == -1) && (ms.MagSearchText.IndexOf("openalex_id:") == -1) && (ms.MagSearchText.IndexOf("default.search:") == -1))
-                        {// i.e. title/abstract search where we 'search' rather than 'filter'
-                            doSearch = true; 
-                        }
+                        bool doSearch = ms.DoSearchInAPICalls;
+                        //if (!ms.SearchText.StartsWith("Custom filter:"))
+                        //if ((!ms.SearchText.StartsWith("Custom filter:")) && (ms.MagSearchText.IndexOf("display_name.search:") == -1) && (ms.MagSearchText.IndexOf("concepts.id:") == -1) && (ms.MagSearchText.IndexOf("openalex_id:") == -1) && (ms.MagSearchText.IndexOf("title_and_abstract.search:") == -1))                        {// i.e. title/abstract search where we 'search' rather than 'filter'
+                        //    doSearch = true; 
+                        //}
+
                         List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(ms.MagSearchText, doSearch);
+
+                        //List<MagMakesHelpers.OaPaperFilterResult> res;
+                        //if (ms.HitsNo > 9000) res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(ms.MagSearchText, doSearch);
+                        //else res = MagMakesHelpers.downloadOaPaperFilterUsingMultiplePages(ms.MagSearchText, doSearch);
+
                         if (_SourceOfIds == "MagSearchResults") // all items not in the review just go into the incomingList
                         {
                             foreach (MagMakesHelpers.OaPaperFilterResult r in res)
