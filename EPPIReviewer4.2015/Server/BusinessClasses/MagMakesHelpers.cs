@@ -458,8 +458,8 @@ namespace BusinessLibrary.BusinessClasses
 
 
         // ******************************************** LIST OF CONCEPTS: from filter or search *************************
-        // e.g. https://api.openalex.org/concepts?filter=ancestors.id:https://openalex.org/C2522767166&page=1&per_page=50
-        // e.g. https://api.openalex.org/concepts?search=equity&page=1&per_page=10
+        // e.g. https://api.openalex.org/concepts?filter=ancestors.id:https://openalex.org/C2522767166&page=1&per-page=50
+        // e.g. https://api.openalex.org/concepts?search=equity&page=1&per-page=10
 
         public class OaConceptFilterResult
         {
@@ -509,7 +509,7 @@ namespace BusinessLibrary.BusinessClasses
             while (done == false)
             {
                 string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
-                string query = "works?" + filterOrSearch + "=" + expression + apiKey + "&page=1&per_page=100&cursor=" + cursor;
+                string query = "works?" + filterOrSearch + "=" + expression + apiKey + "&per-page=100&cursor=" + cursor;
                 string responseText = doOaRequest(query);
                 OaPaperFilterResult respJson = JsonConvert.DeserializeObject<OaPaperFilterResult>(responseText, jsonsettings);
                 if (respJson != null && respJson.results != null)
@@ -524,6 +524,33 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     done = true;
                 }
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// New method added in March 2025, to explore variability of results returned by OA.
+        /// Turns out that results returned change all the time (based on filter-searches that return between 1K and 5K results, without filters on date)
+        /// And that this is true when using regular paging (this method), as well as cursors (pre-existing method).
+        /// This method isn't used in code (at this time: April 2025) as it can't work for search results with more than 10K results.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="doSearch"></param>
+        /// <returns></returns>
+        public static List<OaPaperFilterResult> downloadOaPaperFilterUsingMultiplePages(string expression, bool doSearch)
+        {
+            List<OaPaperFilterResult> results = new List<OaPaperFilterResult>();
+            int TotPages = 0; int CurrentPage = 1; int pageSize = 50;
+            while (TotPages == 0 || CurrentPage <= TotPages)
+            {
+                results.Add(EvaluateOaPaperFilter(expression, pageSize.ToString(), CurrentPage.ToString(), doSearch));
+                if (TotPages == 0)
+                {
+                    int totItems = results[0].meta.count;
+                    TotPages = (int)Math.Floor( totItems / (decimal)pageSize);
+                    if (TotPages * 100 < totItems) TotPages++;
+                }
+                CurrentPage++;
             }
             return results;
         }
@@ -570,7 +597,7 @@ namespace BusinessLibrary.BusinessClasses
             if (doSearch == true)
                 filterOrSearch = "search";
             string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
-            string query = "works?" + filterOrSearch + "=" + expression + apiKey + "&page=" + PageNo + "&per_page=" + PageSize;
+            string query = "works?" + filterOrSearch + "=" + expression + apiKey + "&page=" + PageNo + "&per-page=" + PageSize;
             string responseText = doOaRequest(query);
             OaPaperFilterResult respJson = JsonConvert.DeserializeObject<OaPaperFilterResult>(responseText, jsonsettings);
             return respJson;
@@ -600,7 +627,7 @@ namespace BusinessLibrary.BusinessClasses
             if (doSearch == true)
                 filterOrSearch = "search";
             string apiKey = "&api_key=" + AzureSettings.OpenAlexApiKey;
-            string query = "concepts?" + filterOrSearch + "=" + expression + apiKey + "&page=" + PageNo + "&per_page=" + PageSize;
+            string query = "concepts?" + filterOrSearch + "=" + expression + apiKey + "&page=" + PageNo + "&per-page=" + PageSize;
             string responseText = doOaRequest(query);
             OaConceptFilterResult respJson = JsonConvert.DeserializeObject<OaConceptFilterResult>(responseText, jsonsettings);
             return respJson;
