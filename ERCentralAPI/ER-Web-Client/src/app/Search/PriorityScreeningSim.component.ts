@@ -223,7 +223,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       let ciLower = meanNScreened - conf;
       let ciUpper = meanNScreened + conf;
       this.summaryStatisticsAgg = "Mean number to screen to achieve " + this.recallLevel + "% recall (" + Math.round(this.simulationDataIncludedItemsCount * this.recallLevel / 100) +
-        " out of " + this.simulationDataIncludedItemsCount + " retreived): " + meanNScreened + " (" + ciLower + ", " + ciUpper + ").";
+        " out of " + this.simulationDataIncludedItemsCount + " retrieved): " + meanNScreened + " (" + ciLower + ", " + ciUpper + ").";
       this.workloadReductionStats = "Mean simulated workload reduction: " + String(Math.round(this.simulationDataItemCount - meanNScreened)) +
         " (" + String(Math.round(this.simulationDataItemCount - ciUpper)) + ", " + String(Math.round(this.simulationDataItemCount - ciLower)) + ")";
       this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(Math.round(100 - (meanNScreened / this.simulationDataItemCount * 100))) +
