@@ -1,0 +1,22 @@
+<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Jobs log" Context="jobslog"></HeaderComponent>
+<button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:10;" (click)="BackToMain()">
+  Close/back
+</button>
+<kendo-tabstrip *ngIf="CanUseRobots; else OnlyReviewJobs" #tabstrip [keepTabContent]="true"
+                (tabSelect)="onTabSelect($event)">
+  <kendo-tabstrip-tab [selected]="true" [title]="'Review Jobs'">
+    <ng-template kendoTabContent>
+      <ReviewJobs></ReviewJobs>
+    </ng-template>
+  </kendo-tabstrip-tab>
+
+  <kendo-tabstrip-tab [selected]="false" [title]="'Robot-coding Jobs'">
+    <ng-template kendoTabContent>
+      <RobotJobsLog></RobotJobsLog>
+    </ng-template>
+  </kendo-tabstrip-tab>
+</kendo-tabstrip>
+<ng-template #OnlyReviewJobs>
+  <div class="bg-light p-1"><ReviewJobs></ReviewJobs></div>
+</ng-template>
+<statusbar></statusbar>

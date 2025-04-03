@@ -12,7 +12,7 @@ using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
 using Newtonsoft.Json;
-using DeployR;
+//using DeployR;
 
 
 #if !SILVERLIGHT
@@ -167,6 +167,7 @@ namespace BusinessLibrary.BusinessClasses
                     return;
                 }
 
+
                 //OK, so we do want to do the training, but is a training round already running?
                 //this produces a new line in the log table and in TB_TRAINING
                 using (SqlCommand command = new SqlCommand("st_TrainingScreeningCheckOngoingLog", connection))
@@ -193,7 +194,7 @@ namespace BusinessLibrary.BusinessClasses
                         ReportBack = "Starting...";
                         NewJobId = (int)command.Parameters["@NewJobId"].Value;
                         _currentTrainingId = (int)command.Parameters["@NewTrainingId"].Value; 
-                        Task.Run(() => DoBuildAndScore(ReviewID, ri.UserId, NewJobId));
+                        Task.Run(() => DoBuildAndScore(ReviewID, ri.UserId, NewJobId, n_excludes + n_includes));
                     }
                     else //we assume this will never happen, SP must have returned -4!
                     {
@@ -227,16 +228,17 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private async void DoBuildAndScore(int ReviewId, int UserId, int LogId)
+        private async void DoBuildAndScore(int ReviewId, int UserId, int LogId, int AlreadyScreenedNumber)
         {
             string RemoteFileName = "";
             string LocalFileName = "";
             bool DataFactoryRes = false;
             string ScoresFile = "";
+            int TotalLines = 0;
             try
             {
 #if (!CSLA_NETCORE)
-            string LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + UserId.ToString() + ".tsv";
+                LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "PS-ReviewId" + RevInfo.ReviewId + "ContactId" + UserId.ToString() + ".tsv";
 #else
                 LocalFileName = "";
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
@@ -271,6 +273,7 @@ namespace BusinessLibrary.BusinessClasses
                                 file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
                                 while (reader.Read())
                                 {
+                                    TotalLines++;
                                     file.WriteLine(reader["item_id"].ToString() + "\t" +
                                         ClassifierCommandV2.CleanText(reader, "title") + "\t" +
                                         ClassifierCommandV2.CleanText(reader, "abstract") + "\t" +
@@ -284,6 +287,12 @@ namespace BusinessLibrary.BusinessClasses
                 if (AppIsShuttingDown)
                 {
                     DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "TrainingRunCommandV2", true, false);
+                    return;
+                }
+                if (AlreadyScreenedNumber >= TotalLines)
+                {
+                    File.Delete(LocalFileName);
+                    DoScreeningIsFinished(ReviewId, UserId, LogId);
                     return;
                 }
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "", "TrainingRunCommandV2");
@@ -444,6 +453,37 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
+        private void DoScreeningIsFinished(int ReviewId, int UserId, int LogId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_ScreeningCreateMLList", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", UserId));
+                        command.Parameters.Add(new SqlParameter("@WHAT_ATTRIBUTE_ID", RevInfo.ScreeningWhatAttributeId));
+                        command.Parameters.Add(new SqlParameter("@SCREENING_MODE", RevInfo.ScreeningMode));
+                        command.Parameters.Add(new SqlParameter("@CODE_SET_ID", RevInfo.ScreeningCodeSetId));
+                        command.Parameters.Add(new SqlParameter("@TRAINING_ID", _currentTrainingId));
+                        command.CommandTimeout = 145;
+                        
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
+                }
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "TrainingRunCommandV2", true, true);
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed at ScreeningIsFinished", "", "TrainingRunCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "TrainingRunCommandV2");
+                return;
+            }
+        }
         
 
         
@@ -466,9 +506,9 @@ namespace BusinessLibrary.BusinessClasses
         static string apiKeyVectorise = AzureSettings.apiKeyVectorise;
         static string BaseUrlSimulation5 = AzureSettings.BaseUrlSimulation5;
         static string apiKeySimulation5 = AzureSettings.apiKeySimulation5;
-        const string TempPath = @"UserTempUploads/ReviewId";
+        const string TempPath = @"UserTempUploads\";
 
-        
+
 #endif
     }
 }

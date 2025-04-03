@@ -1,0 +1,1 @@
+Please see our [contributing](CONTRIBUTING.md) policy EPPI Reviewer is not currently open to third party contributions. The [License file](LICENSE.md) and general [readme](README.md) files together explain what you can/cannot do with the source code.

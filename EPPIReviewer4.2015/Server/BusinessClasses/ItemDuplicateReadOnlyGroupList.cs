@@ -417,7 +417,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _RevId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _Cid));
-                        command.CommandTimeout = 120; //4 times the usual 30s...
+                        command.CommandTimeout = 240; //8 times the usual 30s...
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
                             string currentSearchText = "";
@@ -706,7 +706,7 @@ namespace BusinessLibrary.BusinessClasses
                 PAGES = pm.biblio != null ? pm.biblio.first_page + "-" + pm.biblio.last_page : "";
                 ISSUE = pm.biblio != null ? pm.biblio.issue : "";
                 DOI = pm.doi != null ? pm.doi.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
-                ABSTRACT = "";
+                ABSTRACT = MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index);
                 HAS_CODES = 0;
                 IS_MASTER = 0;
                 TYPE_ID = MagMakesHelpers.GetErEquivalentPubTypeFromOa(pm.type);

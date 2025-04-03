@@ -82,7 +82,7 @@ namespace ERxWebClient2.Controllers
                     {
                         _logger.LogError("Archie authentication didn't work, ri.ticket is: " + ri.Ticket);
                     }
-                    return Forbid();
+                    return StatusCode(StatusCodes.Status403Forbidden, ri.Ticket);
                 }
             }
             catch (Exception e)

@@ -398,7 +398,17 @@ public class Utils
             return "EPPISupport@ucl.ac.uk";
         }
     }
+    public static string getMD5Hash(string input)
+    {
 
+        System.Security.Cryptography.MD5CryptoServiceProvider CryptoService;
+        CryptoService = new System.Security.Cryptography.MD5CryptoServiceProvider();
+        string sharedS = "***REMOVED***";//***REMOVED***
+        byte[] InputBytes = System.Text.Encoding.Default.GetBytes(input + sharedS);
+        InputBytes = CryptoService.ComputeHash(InputBytes);
+        string s1 = BitConverter.ToString(InputBytes).Replace("-", ""), s2 = BitConverter.ToString(InputBytes);
+        return BitConverter.ToString(InputBytes).Replace("-", "").ToLower();
+    }
     public static string getMD5HashUCL(string input)
     {
 

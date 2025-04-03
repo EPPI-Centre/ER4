@@ -225,7 +225,7 @@ namespace EPPIDataServices.Helpers
                 return null;
             }
         }
-#endif
+
         /// <summary> 
         /// Call this when you want build a command, given an OPEN connection.
         /// Code calling it MUST:
@@ -249,6 +249,7 @@ namespace EPPIDataServices.Helpers
                 return null;
             }
         }
+#endif
         private void CheckConnection(SqlConnection connection)
         {
             if (connection.State != System.Data.ConnectionState.Open)

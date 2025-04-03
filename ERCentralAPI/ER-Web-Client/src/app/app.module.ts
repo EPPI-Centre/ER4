@@ -140,6 +140,12 @@ import { MetaAnalysisRunComp } from './MetaAnalysis/MetaAnalysisRun.component';
 import { MetaAnalysisRunNetworkComp } from './MetaAnalysis/MetaAnalysisRunNetwork.component'
 import { RobotSettings } from './Robots/robotSettings.component';
 import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
+import { RobotInvestigate } from './Robots/robotInvestigate.component';
+import { CheckScreening } from './Search/CheckScreening.component';
+import { PriorityScreeningSim } from './Search/PriorityScreeningSim.component';
+import { RobotJobsLog } from './Robots/RobotJobsLog.component';
+import { JobsContainer } from './Review/JobsContainer.component';
+import { ReviewJobs } from './Review/reviewJobs.component';
 
 
 
@@ -148,11 +154,19 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
   return (): Promise<boolean> => {
     return new Promise<boolean>((resolve: (a: boolean) => void): void => {
       let fallback = 'https://eppi.ioe.ac.uk/ER-Web-API/';
-      http.get('./assets/APIUrl.txt')
+      http.get('./assets/ClientConfig.txt')
         .pipe(
           map((x: any) => {
             if (x && x.APIBaseUrl) config.baseUrl = x.APIBaseUrl + "/";
             else config.baseUrl = fallback;
+            if (x) {
+              if (x.EnableGPTInvestigateGlobally != undefined && x.EnableGPTInvestigateGlobally == true) {
+                config.EnableGPTInvestigateGlobally = true;
+              }
+              else if (x.GPTinvestigateEnabledAccounts) {
+                config.GPTinvestigateEnabledAccounts = x.GPTinvestigateEnabledAccounts;
+              }
+            } 
             resolve(true);
           }),
           catchError((x: { status: number }, caught: Observable<void>) => {
@@ -277,7 +291,13 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     MetaAnalysisRunComp,
     MetaAnalysisRunNetworkComp,
     RobotSettings,
-    RobotBatchJobs
+    RobotBatchJobs,
+    RobotInvestigate,
+    PriorityScreeningSim,
+    CheckScreening,
+    RobotJobsLog,
+    JobsContainer,
+    ReviewJobs
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -331,6 +351,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'EditItem', component: editItemDetailsComp },
       { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
       { path: 'Reconciliation', component: ComparisonReconciliationComp },
+      { path: 'ReconciliationCO', component: ComparisonReconciliationComp },
       { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
       { path: 'intropage', component: intropageComponent },
       { path: 'Duplicates', component: DuplicatesComponent },
@@ -338,6 +359,9 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'WebDBs', component: WebDBsComponent },
       { path: 'Zotero', component: ZoteroManagerComponent },
       { path: 'MetaAnalysis', component: MetaAnalysisComp },
+      { path: 'Investigate', component: RobotInvestigate },
+      { path: 'PriorityScreeningSim', component: PriorityScreeningSim },
+      { path: 'JobsRecord', component: JobsContainer },
       { path: '**', redirectTo: 'home' }
     ]),
     ButtonsModule,

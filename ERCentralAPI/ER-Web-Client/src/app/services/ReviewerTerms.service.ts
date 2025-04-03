@@ -217,7 +217,7 @@ export class ReviewerTerm {
       }
       this.highlightSearchString = tempSt + "))" + SafeReviewerTerm;
     }
-    console.log("Term search string: ", this.highlightSearchString);
+   //console.log("Term search string: ", this.highlightSearchString);
   }
   public trainingReviewerTermId: number;
   public itemTermDictionaryId: number;

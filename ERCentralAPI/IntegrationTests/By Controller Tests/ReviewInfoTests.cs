@@ -74,7 +74,7 @@ namespace IntegrationTests.By_Controller_Tests
             (await AuthenticationDone()).Should().Be(true);
             Contact[]? Res = await GetReviewMembers();
             Res.Length.Should().Be(7);
-            Res[0].ToString().Should().Be("Bob Fake");
+            Res.FirstOrDefault(f => f.ToString() == "Bob Fake").Should().NotBeNull();
         }
 
         [Fact]

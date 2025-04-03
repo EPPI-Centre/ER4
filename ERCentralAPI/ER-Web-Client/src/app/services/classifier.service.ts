@@ -35,7 +35,34 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		console.log("Destroy MAGRelatedRunsService");
 		if (this.clearSub != null) this.clearSub.unsubscribe();
 	}
-	private clearSub: Subscription | null = null;
+  private clearSub: Subscription | null = null;
+
+  private _PriorityScreeningSimulationList: PriorityScreeningSimulation[] = [];
+  public get PriorityScreeningSimulationList(): PriorityScreeningSimulation[] {
+    return this._PriorityScreeningSimulationList;
+  }
+  public set PriorityScreeningSimulationList(priorityScreeningSimulationList: PriorityScreeningSimulation[]) {
+    this._PriorityScreeningSimulationList = priorityScreeningSimulationList;
+  }
+
+  //private _PriorityScreeningSimulation: PriorityScreeningSimulation | null = null;
+  //public get PriorityScreeningSimulation(): PriorityScreeningSimulation | null {
+  //  return this._PriorityScreeningSimulation;
+  //}
+  //public set PriorityScreeningSimulation(priorityScreeningSimulation: PriorityScreeningSimulation | null) {
+  //  this._PriorityScreeningSimulation = priorityScreeningSimulation;
+  //}
+
+  private _currentSimulation: PriorityScreeningSimulation | null = null;
+  
+  public get PriorityScreeningSimulationResults(): string | null {
+    if (this._currentSimulation == null) return null;
+    return this._currentSimulation.blob;
+  } public get PriorityScreeningSimulationName(): string {
+    if (this._currentSimulation == null) return "";
+    return this._currentSimulation.simulationName;
+  }
+
 	private _CurrentUserId4ClassifierContactModelList: number = 0;
 	private _ClassifierContactModelList: ClassifierModel[] = [];
 	public get ClassifierContactAllModelList(): ClassifierModel[] {
@@ -75,8 +102,8 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	public FetchClassifierContactModelList(UserId: number) {
 		this._BusyMethods.push("FetchClassifierContactModelList");
 		this._CurrentUserId4ClassifierContactModelList = UserId;
-		this._httpC.get<ClassifierModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
-			.subscribe(result => {
+		lastValueFrom(this._httpC.get<ClassifierModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')).then(
+			result => {
 				this.RemoveBusy("FetchClassifierContactModelList");
 				if (result != null) {			
 					this.ClassifierContactAllModelList = result; 
@@ -89,9 +116,10 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 				error => {
 					this.RemoveBusy("FetchClassifierContactModelList");
 					this.modalService.GenericError(error);
-				},
-				() => {
-					this.RemoveBusy("FetchClassifierContactModelList");
+				}).catch (
+          (caught) => {
+            this.modalService.GenericError(caught);
+            this.RemoveBusy("FetchClassifierContactModelList");
 				});
 	}
 	public Delete(modelId: number): Promise<boolean> {
@@ -147,60 +175,54 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	}
 
 	showBuildModelMessage(notifyMsg: string) {
-
-		this.notificationService.show({
-			content: notifyMsg,
-			animation: { type: 'slide', duration: 400 },
-			position: { horizontal: 'center', vertical: 'top' },
-			type: { style: "info", icon: true },
-			closable: true
-		});
-
+    if (notifyMsg.startsWith("Already running")) {
+      this.modalService.GenericErrorMessage("The task did not start, as another job of this type is already running in this review.\r\nPlease check the Review Jobs log and try again.");
+    }
+    else if (notifyMsg.startsWith("Insufficient Data")) {
+      this.modalService.GenericErrorMessage(notifyMsg);
+    }
+    else {
+      this.notificationService.show({
+        content: notifyMsg,
+        animation: { type: 'slide', duration: 400 },
+        position: { horizontal: 'center', vertical: 'top' },
+        type: { style: "info", icon: true },
+        closable: true
+      });
+    }
 	}
 
-	CreateAsync(title: string, attrOn: number, attrNotOn: number, classifierId: number): Subscription {
+	CreateAsync(title: string, attrOn: number, attrNotOn: number, classifierId: number): Promise<void> {
 
-		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+    let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 
-		MVCcmd._attributeIdClassifyTo = 0;
-		MVCcmd._attributeIdNotOn = attrNotOn;
-		MVCcmd._attributeIdOn = attrOn;
-		MVCcmd._sourceId = -1;
-		MVCcmd._title = title;
-		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
-		MVCcmd._classifierId = classifierId;
+    MVCcmd._attributeIdClassifyTo = 0;
+    MVCcmd._attributeIdNotOn = attrNotOn;
+    MVCcmd._attributeIdOn = attrOn;
+    MVCcmd._sourceId = -1;
+    MVCcmd._title = title;
+    MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+    MVCcmd._classifierId = classifierId;
 
-        this._BusyMethods.push("CreateAsync");
-
-		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
-
-		//alert('about to send to controller');
-
-		return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/Classifier',
-			MVCcmd, { headers: headers }
-		).subscribe(
-
-			result => {
-
-				if (result.returnMessage == '') {
-
-					this.showBuildModelMessage('request was submitted');
-
-				} else {
-
-					this.showBuildModelMessage(result.returnMessage);
-				}
-
-				this.IamVerySorryRefresh();
-				this.RemoveBusy("CreateAsync");
-			},
-			error => {
-                this.RemoveBusy("CreateAsync");
-				this.modalService.GenericError(error);
-            }, () => {
-                this.RemoveBusy("CreateAsync");
-			}
-		);
+    this._BusyMethods.push("CreateAsync");
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/Classifier',
+      MVCcmd)).then(
+        result => {
+          if (result.returnMessage == '') {
+            this.showBuildModelMessage('request was submitted');
+          } else {
+            this.showBuildModelMessage(result.returnMessage);
+          }
+          this.IamVerySorryRefresh();
+          this.RemoveBusy("CreateAsync");
+        },
+        error => {
+          this.RemoveBusy("CreateAsync");
+          this.modalService.GenericError(error);
+        }).catch((caught) => {
+          this.modalService.GenericError(caught);
+          this.RemoveBusy("CreateAsync");
+        });
 	}
 	
   Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number): Promise<string | boolean> {
@@ -245,6 +267,134 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     });
   }
 
+  CheckScreening(title: string, attrOn: number, attrNotOn: number): Promise<string | boolean> {
+    let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+
+    MVCcmd._title = title;
+    MVCcmd._attributeIdOn = attrOn;
+    MVCcmd._attributeIdNotOn = attrNotOn;
+    MVCcmd._attributeIdClassifyTo = -1;
+    MVCcmd._classifierId = -1;
+    MVCcmd._sourceId = -1;
+    MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+
+    this._BusyMethods.push("CheckScreening");
+
+    //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/CheckScreening'
+      , MVCcmd
+    )).then(result => {
+      //console.log(result);
+      this.RemoveBusy("CheckScreening");
+      return result.returnMessage;
+    },
+      error => {
+        this.modalService.GenericError(error);
+        this.RemoveBusy("CheckScreening");
+        return false;
+      }
+    ).catch(caught =>  {
+      this.RemoveBusy("CheckScreening");
+      this.modalService.GenericError(caught);
+      return false;
+    });
+  }
+
+  RunPriorityScreeningSimulation(title: string, attrOn: number, attrNotOn: number): Promise<string | boolean> {
+    let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+
+    MVCcmd._title = title;
+    MVCcmd._attributeIdOn = attrOn;
+    MVCcmd._attributeIdNotOn = attrNotOn;
+    MVCcmd._attributeIdClassifyTo = -1;
+    MVCcmd._classifierId = -1;
+    MVCcmd._sourceId = -1;
+    MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+
+    this._BusyMethods.push("RunPriorityScreeningSimulation");
+
+    //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/RunPriorityScreeningSimulation'
+      , MVCcmd
+    )).then(result => {
+      //console.log(result);
+      this.RemoveBusy("RunPriorityScreeningSimulation");
+      return result.returnMessage;
+    },
+      error => {
+        this.modalService.GenericError(error);
+        this.RemoveBusy("RunPriorityScreeningSimulation");
+        return false;
+      }
+    ).catch(caught => {
+      this.RemoveBusy("RunPriorityScreeningSimulation");
+      this.modalService.GenericError(caught);
+      return false;
+    });
+  }
+
+  public FetchPriorityScreeningSimulationList() {
+    this._BusyMethods.push("FetchPriorityScreeningSimulationList");
+    lastValueFrom( this._httpC.get<PriorityScreeningSimulation[]>(this._baseUrl + 'api/PriorirtyScreening/FetchPriorityScreeningSimulationList'))
+      .then(result => {
+        this.RemoveBusy("FetchPriorityScreeningSimulationList");
+        if (result != null) {
+          this.PriorityScreeningSimulationList = result;
+
+          console.log('this.PriorityScreeningSimulationList', this.PriorityScreeningSimulationList);
+        }
+      },
+        error => {
+          this.RemoveBusy("FetchPriorityScreeningSimulationList");
+          this.modalService.GenericError(error);
+        }).catch(
+          (caught) => {
+            this.modalService.GenericError(caught);
+          this.RemoveBusy("FetchPriorityScreeningSimulationList");
+        });
+  }
+
+  public FetchPriorityScreeningSimulation(simulationName: string): Promise<boolean> {
+    this._BusyMethods.push("FetchPriorityScreeningSimulation");
+    let body = JSON.stringify(simulationName);
+    return lastValueFrom(this._httpC.post<PriorityScreeningSimulation>(this._baseUrl + 'api/PriorirtyScreening/FetchPriorityScreeningSimulation',
+      body))
+      .then(
+        (result) => {
+          this.RemoveBusy("FetchPriorityScreeningSimulation");
+          this._currentSimulation = result;
+
+          return true;
+        }, error => {
+          this.modalService.GenericError(error);
+          //this.modalService.GenericErrorMessage("There was an error getting the priority screening simulation. Please contact eppisupport@ucl.ac.uk");
+          this.RemoveBusy("FetchPriorityScreeningSimulation");
+          return false;
+        }
+      );
+  }
+
+  public DeletePriorityScreeningSimulation(simulationName: string) {
+    this._BusyMethods.push("DeletePriorityScreeningSimulation");
+    let body = JSON.stringify(simulationName);
+    return lastValueFrom(this._httpC.post<PriorityScreeningSimulation>(this._baseUrl + 'api/PriorirtyScreening/DeletePriorityScreeningSimulation',
+      body))
+      .then(
+        (result) => {
+          this.RemoveBusy("DeletePriorityScreeningSimulation");
+          this.FetchPriorityScreeningSimulationList();
+          return true;
+        }, error => {
+          this.modalService.GenericError(error);
+          //this.modalService.GenericErrorMessage("There was an error getting the priority screening simulation. Please contact eppisupport@ucl.ac.uk");
+          this.RemoveBusy("DeletePriorityScreeningSimulation");
+          return false;
+        }
+      );
+  }
+
 
 	public async UpdateModelName(modelName: string, modelNumber: string): Promise<boolean> {
 		this._BusyMethods.push("UpdateModelName");
@@ -279,7 +429,9 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		this.modelToBeDeleted = 0;
 		this._ClassifierModelList = [];
 		this._ClassifierContactModelList = [];
-		this._CurrentUserId4ClassifierContactModelList = 0;
+    this._CurrentUserId4ClassifierContactModelList = 0;
+    this._PriorityScreeningSimulationList = [];
+    this._currentSimulation = null;
     }
 }
 
@@ -343,4 +495,9 @@ export class ClassifierCommandDeprecated {
 export interface ModelNameUpdate {
 	ModelId: string;
 	ModelName: string;
+}
+
+export class PriorityScreeningSimulation {
+  public simulationName: string = '';
+  public blob: string = '';
 }

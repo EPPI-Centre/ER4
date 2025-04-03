@@ -1,0 +1,5 @@
+EPPI Reviewer is not strictly **Free** software and at this time **it is not open to third party contributions**. Inside EPPI Reviewer 6 itself (in all pages) there is a "Feedback" function which is primarily used to receive suggestions about features/changes. Please feel free to use it so to reach our developers and recommend changes (we offer no guarantee about accepting/implementing any suggestion - we can only work on a "best effort" basis).
+
+You can use the same system to signal issues, bugs or any other concern. If you believe your matter is urgent, it is best to send an email to EPPISupport@ucl.ac.uk as we make every effort to ensure someone will always monitor it and it is thus the best way to make sure your query/concern will be acted upon as soon as possible.
+
+Should you ignore the above and attempt to file issues/alerts from within GitHub, please be aware that we do not have systems/procedures set up to monitor and respond to these, so we offer no guarantee we will notice and/or act upon them promptly.

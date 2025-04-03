@@ -6,6 +6,7 @@
 @using System.Linq;
 @using System.Security.Claims;
 
+
 @{
     Claim HiddenFieldsClaim = User.FindFirst("HiddenFields");
     List<string> HiddenFields = new List<string>();
@@ -47,10 +48,38 @@
     ItemsIds = ModelData.itemIds.split(',').map(cal => Number(cal));
     //console.log("parsed:", ItemsIds);
     CurrentItemsCriteria = ModelData.listCrit;
+    
+    var visual = "";
+    document.getElementById("returnToVisual").style.visibility = "show";
+    if (sessionStorage.getItem("MapId") != 0) {
+        // it's a prebuilt map       
+        document.getElementById("returnToVisual").textContent = "Return to Map";
+        visual = "PrebuiltMap";
+    }
+    else if (sessionStorage.getItem("FreqPars") != "") {
+        // it's from an on-the-fly frequencies
+        document.getElementById("returnToVisual").textContent = "Return to Frequency";
+        visual = "Frequency";
+    }
+    else if (sessionStorage.getItem("CrossTabPars") != "") {
+        // it's from an on-the-fly Crosstabs
+        document.getElementById("returnToVisual").textContent = "Return to Crosstab";
+        visual = "CrossTab";
+    }
+    else if (sessionStorage.getItem("MapPars") != "") {
+        // it's from an on-the-fly map
+        document.getElementById("returnToVisual").textContent = "Return to Map";
+        visual = "Map";
+    }
+    else {
+        // not from a visual so hide button
+        document.getElementById("returnToVisual").style.visibility = "hidden";
+        document.getElementById("returnToVisual").textContent = "";
+    }
+
     //console.log(ModelData);
     $("#InitialScript").remove();
     });
-
 </script>
 
 <br />
@@ -74,8 +103,10 @@
                 {
                     PagingText += " (Page " + (Model.ListCrit.pageNumber + 1).ToString() + " of " + Model.ListCrit.endPage.ToString() + ")";
                 }
-            }
-            <button class="btn btn-outline-primary btn-sm btn-round" onclick="BackToList()">@PagingText</button>
+            }            
+            <button class="btn btn-outline-primary btn-sm btn-round" onclick="BackToList()">@PagingText</button>            
+            <button class="btn btn-outline-primary btn-sm btn-round" onclick="ReturnToVisual()" id="returnToVisual"></button>
+
             <div class="d-flex mx-auto">
 
                 @if (canDoPrev)
@@ -1059,5 +1090,61 @@
         }
         return retVal + "</td></tr>";
     }
+
+    function ReturnToVisual() {
+        if (sessionStorage.getItem("MapId") != 0) {
+            // it's a prebuilt map m,
+            var mapId = sessionStorage.getItem("MapId");
+            console.log("Will go to map:" + mapId);
+            postwith(getBasePath() + "Frequencies/GetMapById", { mapId: mapId });
+        }
+        else if (sessionStorage.getItem("FreqPars") != "") {
+            // it's from an on-the-fly frequencies
+            var test = 1;
+            const freqPars = sessionStorage.getItem("FreqPars").split(",", 6);
+            var pars = {
+                attributeIdXAxis: freqPars[0]
+                , setIdXAxis: freqPars[1]
+                , attributeIdYAxis: freqPars[2]
+                , nameXAxis: freqPars[3]
+                , included: freqPars[4]
+                , graphic: "table"
+            }
+            var test1 = pars;
+            postwith(getBasePath() + "Frequencies/GetFrequencies", { attId: freqPars[0], setId: freqPars[1], parentName: freqPars[3], included: true });
+        }
+        else if (sessionStorage.getItem("CrossTabPars") != "") {
+            // it's from an on-the-fly Crosstabs
+            const crossTabPars = sessionStorage.getItem("CrossTabPars").split(",", 6);
+            var pars = {
+                attIdx: crossTabPars[0]
+                , setIdx: crossTabPars[1]
+                , attIdy: crossTabPars[2]
+                , setIdy: crossTabPars[3]
+                , included: crossTabPars[4]
+                , graphic: crossTabPars[5]
+            };
+
+            var test1 = pars;
+            postwith(getBasePath() + "Frequencies/GetCrosstab", pars);
+        }
+        else {
+            // it's from an on-the-fly map            
+            const mapPars = sessionStorage.getItem("MapPars").split(",", 8);
+            var pars = {
+            attributeIdXAxis: mapPars[0]
+            , attributeIdYAxis: mapPars[1]
+            , setIdXAxis: mapPars[2]
+            , setIdYAxis: mapPars[3]
+            , segmentsParent: mapPars[4]
+            , setIdSegments: mapPars[5]
+            , included: mapPars[6]
+            , graphic: mapPars[7]
+            }
+            var test1 = pars;
+            postwith(getBasePath() + "Frequencies/GetMap", pars);
+        }
+    }
+
 </script>
 

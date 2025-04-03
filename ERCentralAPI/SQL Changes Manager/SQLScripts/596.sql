@@ -163,5 +163,5 @@ declare @tmp_credit_for_robots_id int
 
 	
 SET NOCOUNT OFF
-
+GO
 

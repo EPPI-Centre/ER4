@@ -360,6 +360,31 @@ namespace ERxWebClient2.Controllers
             return rules;
         }
 
+        [HttpPost("[action]")]
+        public IActionResult ImportJsonReport([FromBody] JSONreport4upolad data)
+        {
+            //called the first time we run a given search (assumed new search string)
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri.ReviewId == 0 || !ri.IsSiteAdmin) return Forbid();
+
+                    ImportJsonCommand command = new ImportJsonCommand(data.content, data.importWhat, data.fileName);
+                    command = DataPortal.Execute(command);
+
+                    return Ok(command);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "ImportJsonReport error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
     }
     public class JSONSource
     {
@@ -415,23 +440,11 @@ namespace ERxWebClient2.Controllers
         public int queryKey = 0;
     }
 
-//    public string Source_Name
-//public DateTime DateOfSerach
-//public DateTime DateOfImport
-//public string SourceDataBase
-//public string SearchDescription
-//public string SearchString
-//public string Notes
-//public string ImportFilter
-//public int Total_Items
-//public int Deleted_Items
-//public int Source_ID
-//public bool IsFlagDeleted
-//public int Codes
-//public int InductiveCodes
-//public int AttachedFiles
-//public int Duplicates
-//public int isMasterOf
-//public int Outcomes
+    public class JSONreport4upolad
+    {
+        public string content { get; set; } = "";
+        public string importWhat { get; set; } = "";
+        public string fileName { get; set; } = "";
+    }
 }
 

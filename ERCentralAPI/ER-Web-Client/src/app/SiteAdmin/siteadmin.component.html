@@ -1,33 +1,40 @@
 <HeaderComponent *ngIf="IsSiteAdmin" PageTitle="Site Admin"></HeaderComponent>
 <div *ngIf="IsSiteAdmin" class="bg-light">
-    
-    <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
-        Close/back
-    </button>
-    <p class="font-weight-bold">Feedback (and error) messages:</p>
-    <div *ngIf="FeedbackMessageList.length > 0">
 
-        <kendo-grid [data]="DataSource" [height]="490"
-                    [sort]="state.sort"
-                    [sortable]="{
+  <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+    Close/back
+  </button>
+  <kendo-tabstrip #tabstrip [keepTabContent]="true"
+                  (tabSelect)="onTabSelect($event)">
+    <kendo-tabstrip-tab [selected]="true" [title]="'Main'">
+      <ng-template kendoTabContent>
+
+
+
+        <p class="font-weight-bold">Feedback (and error) messages:</p>
+        <div *ngIf="FeedbackMessageList.length > 0">
+
+          <kendo-grid [data]="DataSource" [height]="490"
+                      [sort]="state.sort"
+                      [sortable]="{
                     allowUnsort: false,
                     mode: 'single'
                     }"
-                    [pageSize]="state.take"
-                    [skip]="state.skip"
-                    [pageable]="{
+                      [pageSize]="state.take"
+                      [skip]="state.skip"
+                      [pageable]="{
                     info: true,
                     type: 'input',
                     pageSizes: true,
                     previousNext: true
                     }"
-                    filterable="menu"
-                    (dataStateChange)="dataStateChange($event)">
+                      filterable="menu"
+                      (dataStateChange)="dataStateChange($event)">
             <ng-template kendoPagerTemplate let-totalPages="totalPages" let-currentPage="currentPage">
-                <kendo-pager-prev-buttons></kendo-pager-prev-buttons>
-                <kendo-pager-info></kendo-pager-info>
-                <kendo-pager-next-buttons></kendo-pager-next-buttons>
-                <kendo-pager-page-sizes [pageSizes]="[5, 10, 25, 50, 100]"></kendo-pager-page-sizes>
+              <kendo-pager-prev-buttons></kendo-pager-prev-buttons>
+              <kendo-pager-info></kendo-pager-info>
+              <kendo-pager-next-buttons></kendo-pager-next-buttons>
+              <kendo-pager-page-sizes [pageSizes]="[5, 10, 25, 50, 100]"></kendo-pager-page-sizes>
             </ng-template>
             <kendo-grid-column field="dateCreated" headerClass="small" class="small" [width]="2" title="Date">
             </kendo-grid-column>
@@ -38,10 +45,10 @@
             <kendo-grid-column field="contactName" headerClass="small" class="small" [width]="2" title="User">
             </kendo-grid-column>
             <kendo-grid-column field="contactEmail" headerClass="small" class="small" [width]="2" title="Email">
-                <ng-template kendoGridCellTemplate let-dataItem>
-                    <a href="mailto:{{dataItem.contactEmail}}?BCC=EPPISupport@ucl.ac.uk&subject=EPPI-Reviewer Feedback&body=Your Feedback: {{dataItem.message}} "
-                       style="color:#007bff; text-decoration:underline;">{{dataItem.contactEmail}}</a>
-                </ng-template>
+              <ng-template kendoGridCellTemplate let-dataItem>
+                <a href="mailto:{{dataItem.contactEmail}}?BCC=EPPISupport@ucl.ac.uk&subject=EPPI-Reviewer Feedback&body=Your Feedback: {{dataItem.message}} "
+                   style="color:#007bff; text-decoration:underline;">{{dataItem.contactEmail}}</a>
+              </ng-template>
             </kendo-grid-column>
             <kendo-grid-column field="contactId" headerClass="small" [width]="2" title="Cont.ID">
             </kendo-grid-column>
@@ -49,30 +56,139 @@
             </kendo-grid-column>
             <kendo-grid-column field="isError" headerClass="small" [width]="2" title="IsError">
             </kendo-grid-column>
-        </kendo-grid>
-    </div>
-    <div *ngIf="FeedbackMessageList.length == 0">
-        FeedbackMessageList is empty
-    </div>
-    Open Review:
-    <div class="col-12">
-        <div class="form-group border border-dark rounded row m-0 p-1">
+          </kendo-grid>
+        </div>
+        <div *ngIf="FeedbackMessageList.length == 0">
+          FeedbackMessageList is empty
+        </div>
+
+        <br />
+        Open Review:
+        <div class="col-12">
+          <div class="form-group border border-dark rounded row m-0 p-1">
             <label class="control-label mt-2 mx-1">U:</label>
             <div class="mr-2">
-                <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
+              <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
             </div>
             <label class="control-label mt-2 mr-1">P:</label>
             <div class="mr-2">
-                <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
+              <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
             </div>
             <label class=" control-label mt-2 mr-1">R:</label>
             <div class="mr-2">
-                <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
+              <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
             </div>
             <button class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
             <!--<div *ngIf="LoggedStatus != ''">{{LoggedStatus}}</div>-->
+          </div>
+
         </div>
-    </div>
+
+
+
+      </ng-template>
+    </kendo-tabstrip-tab>
+
+    <kendo-tabstrip-tab [selected]="false" [title]="'Help'">
+      <ng-template kendoTabContent>
+        
+        <div>
+          <table>
+            <tr>
+              <td style="vertical-align:top">
+                <select class="btn btn-outline-primary mt-3" id="dropdownBasicHelpPages"
+                        [(ngModel)]="selected" (change)="RetrieveHelpNew($event)">
+                  <option [ngValue]="item" *ngFor="let item of HelpPages">
+                    {{DisplayFriendlyHelpPageNames(item)}}
+                  </option>
+                </select>
+              </td>
+              <td style="vertical-align:top;padding-top:15px">
+                &nbsp;&nbsp;&nbsp;Select the help page from the dropdown then click <b>Edit</b>. Text can be edited in the WYSIWYG editor.<br />
+                &nbsp;&nbsp;&nbsp;The editor does not recognise most bootstrap classes but they can be edited manually under <b>Source</b>.<br />
+                &nbsp;&nbsp;&nbsp;New images must be manually uploaded to the server (for now).
+              </td>
+            </tr>
+          </table>
+        </div>
+        
+
+        <div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
+             class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+          <div *ngIf="ActivePanel=='Help'&& IsServiceBusy">Loading help...</div>
+          <div *ngIf="ActivePanel=='Help' && CurrentContextHelp.length == 0"
+               class="m-0 p-1">
+            Apologies, there currently is no help for this page/activity.<br />
+            Please check this help page later: we are adding new Help content regularly.
+          </div>
+          <div [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
+               class="m-0 p-1"
+               [innerHTML]=GetText()>
+          </div>
+        </div>
+
+        <button *ngIf="CurrentContextHelp.length > 0" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()"><span>{{ShowEdit ? 'Cancel' : 'Edit'}}</span></button>
+        <button *ngIf="ShowEdit" [disabled]="!CanSaveHelp()" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Save()">Save</button>
+
+
+        <div *ngIf="ShowEdit" class="rounded col w-100">
+          <ckeditor [(ngModel)]="model.editorData" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"
+                    [config]="{extraAllowedContent:'div(*);p(*)'}" (change)="onDataChange($event)">
+          </ckeditor>
+
+        </div>
+
+        <!--<HeaderComponent [Context]="2" PageTitle=""></HeaderComponent>-->
+
+      </ng-template>
+    </kendo-tabstrip-tab>
+
+    <kendo-tabstrip-tab [title]="'Import JSON-Report'">
+      <ng-template kendoTabContent>
+        <div>
+          <div class="border-bottom border-primary mb-1">
+            Here you can import JSON reports as new data into the current review.<br />
+            Data imported will include Coding tools, Items, and coding thereof. <br />
+            Types (for items, coding tools and codes) will be imported if the report was created with ER V.6.15.6.0 (or higher). Otherwise, the import will have to make very crude guesses about types.
+          </div>
+          <div *ngIf="!canImport">
+            <input type="file" #file style="display: none" (change)="onFilesAdded()"
+                   accept=".json" />
+            <button type="button" class="btn btn-primary m-1" (click)="addFile()">Select File</button>
+          </div>
+          <div *ngIf="canImport">
+            <div class="row mx-0 px-0">
+              <div class="col-12 d-flex font-weight-bold justify-content-center">
+                <div class="mx-auto rounded border border-info px-3 py-1 m-1">Current Review: <span class="alert-dark rounded px-2 py-1">{{CurrentReviewName}}</span></div>
+              </div>
+              <div class="col-auto d-inline-block">
+                Filename Selected: <span class="alert-dark rounded px-2 py-1">{{importCommand.fileName}}</span>
+              </div>
+
+              <div class="col-auto border border-info rounded row mx-1 px-1">
+                <div class="col-auto">Coding tools to import (names):</div>
+                <div class="col-auto">
+                  <div *ngFor="let tool of CodingTools4Import" class="m-1 alert-info px-1">{{tool}}</div>
+                </div>
+              </div>
+              <div class="col-auto d-inline-block">
+                Items count to import: <span class="alert-dark rounded px-2 py-1">{{ItemsCount4Import}}</span>
+              </div>
+            </div>
+            <div class="row mx-0">
+              <button type="button" class="btn btn-danger m-1" (click)="ImportJson()" [disabled]="busyImporting">
+                Import!
+                <span *ngIf="busyImporting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </button>
+              <button type="button" class="btn btn-outline-success m-1" (click)="ClearJSONCache()">Clear</button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </kendo-tabstrip-tab>
+  </kendo-tabstrip>
+    
+    
 </div>
 
 

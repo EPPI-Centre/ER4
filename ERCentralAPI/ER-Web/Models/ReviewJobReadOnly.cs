@@ -1,0 +1,155 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Csla;
+using Csla.Security;
+using Csla.Core;
+using Csla.Serialization;
+using Csla.Silverlight;
+//using Csla.Validation;
+using System.ComponentModel;
+using BusinessLibrary.Security;
+
+#if !SILVERLIGHT
+using Csla.Data;
+using System.Data.SqlClient;
+using BusinessLibrary.Data;
+#endif
+
+namespace BusinessLibrary.BusinessClasses
+{
+    [Serializable]
+    public class ReviewJobReadOnly : ReadOnlyBase<ReviewJobReadOnly>
+    {
+        public ReviewJobReadOnly() { }
+
+        public static readonly PropertyInfo<int> ReviewJobIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewJobId", "ReviewJobId"));
+        public int ReviewJobId
+        {
+            get
+            {
+                return GetProperty(ReviewJobIdProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<int> JobOwnerIdProperty = RegisterProperty<int>(new PropertyInfo<int>("JobOwnerId", "JobOwnerId"));
+        public int JobOwnerId
+        {
+            get
+            {
+                return GetProperty(JobOwnerIdProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<DateTime> CreatedProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("Created", "Created"));
+        public DateTime Created
+        {
+            get
+            {
+                return GetProperty(CreatedProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<DateTime> UpdatedProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("Updated", "Updated"));
+        public DateTime Updated
+        {
+            get
+            {
+                return GetProperty(UpdatedProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<string> JobTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("JobType", "JobType"));
+        public string JobType
+        {
+            get
+            {
+                return GetProperty(JobTypeProperty);
+            }
+        }
+        public static readonly PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status"));
+        public string Status
+        {
+            get
+            {
+                return GetProperty(StatusProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<int> SuccessProperty = RegisterProperty<int>(new PropertyInfo<int>("Success", "Success"));
+        public int Success
+        {
+            get
+            {
+                return GetProperty(SuccessProperty);
+            }
+        }
+
+
+        public static readonly PropertyInfo<string> JobMessageProperty = RegisterProperty<string>(new PropertyInfo<string>("JobMessage", "JobMessage"));
+        public string JobMessage
+        {
+            get
+            {
+                return GetProperty(JobMessageProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<string> OwnerNameProperty = RegisterProperty<string>(new PropertyInfo<string>("OwnerName", "OwnerName"));
+        public string OwnerName
+        {
+            get
+            {
+                return GetProperty(OwnerNameProperty);
+            }
+        }
+
+        //protected override void AddAuthorizationRules()
+        //{
+        //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
+        //    //AuthorizationRules.AllowGet(typeof(ReadOnlyItemAttribute), canRead);
+        //    //AuthorizationRules.AllowRead(ItemAttributeIdProperty, canRead);
+        //}
+
+#if !SILVERLIGHT
+
+
+
+        protected void DataPortal_Fetch(RobotOpenAiTaskCriteria criteria)
+        {
+            
+            
+        }
+
+        private void Child_Fetch(SafeDataReader reader, bool IsSiteAdmin)
+        {
+            Child_FetchDetails(reader, IsSiteAdmin);
+        }
+        private void Child_FetchDetails(SafeDataReader reader, bool IsSiteAdmin)
+        {
+            LoadProperty<int>(ReviewJobIdProperty, reader.GetInt32("REVIEW_JOB_ID"));  
+            LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
+            LoadProperty<DateTime>(CreatedProperty, reader.GetDateTime("START_TIME"));
+            LoadProperty<DateTime>(UpdatedProperty, reader.GetDateTime("END_TIME"));
+            LoadProperty<string>(StatusProperty, reader.GetString("CURRENT_STATE"));
+            LoadProperty<int>(SuccessProperty, reader.GetInt32("SUCCESS"));
+            if (!IsSiteAdmin)
+            {
+                string res = "";
+                string[] temp = reader.GetString("JOB_MESSAGE").Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string line in temp)
+                {
+                    if (!line.StartsWith("Pipeline:")) res += line + Environment.NewLine;
+                }
+                res = res.TrimEnd();
+                LoadProperty<string>(JobMessageProperty, res);
+            }
+            else LoadProperty<string>(JobMessageProperty, reader.GetString("JOB_MESSAGE"));
+            LoadProperty<string>(JobTypeProperty, reader.GetString("JOB_TYPE"));
+            LoadProperty<string>(OwnerNameProperty, reader.GetString("CONTACT_NAME"));
+        }
+
+#endif
+    }
+}

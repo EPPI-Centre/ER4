@@ -20,14 +20,33 @@
 
     $(document).ready(function () {
         //console.log("ready function is happening");
-        var pars = {
-            attributeIdXAxis: @Model.attributeIdXAxis
-            , setIdXAxis: @Model.setIdXAxis
-            , attributeIdYAxis: @Model.attributeIdYAxis
-            , nameXAxis: $("#nameXAxisCrit").val()
-            , included: @Model.included
-            , graphic: "table"
+
+        if (sessionStorage.getItem("FreqPars") == "")
+        {
+            var pars = {
+                attributeIdXAxis: @Model.attributeIdXAxis
+                , setIdXAxis: @Model.setIdXAxis
+                , attributeIdYAxis: @Model.attributeIdYAxis
+                , nameXAxis: $("#nameXAxisCrit").val()
+                , included: @Model.included
+                , graphic: "table"
+            }
         }
+        else {
+            const freqPars = sessionStorage.getItem("FreqPars").split(",", 6);
+            var pars = {
+                attributeIdXAxis: freqPars[0]
+                , setIdXAxis: freqPars[1]
+                , attributeIdYAxis: freqPars[2]
+                , nameXAxis: freqPars[3]
+                , included: freqPars[4]
+                , graphic: "table"
+            }
+        }
+
+         sessionStorage.setItem("FreqPars", pars.attributeIdXAxis + "," + pars.setIdXAxis + "," + 
+            pars.attributeIdYAxis + "," + pars.nameXAxis + "," + "true,table");
+
         $("#BuildBarHideNOA").hide();
         $("#BuildBarShowNOA").hide();
         $("#TallerBarBT").hide();
@@ -657,6 +676,7 @@
                 , function (data, result) {
                     if (spinnerItems) spinnerItems.hide();
                     BuildItems(data, result);
+                    document.getElementById('listDiv').scrollIntoView({ behavior: 'smooth' });
                 }
             );
         } else {
@@ -666,6 +686,7 @@
                 , function (data, result) {
                     if (spinnerItems) spinnerItems.hide();
                     BuildItems(data, result);
+                    document.getElementById('listDiv').scrollIntoView({ behavior: 'smooth' });
                 }
             );
         }
@@ -798,7 +819,7 @@
                         </div>
                     </div>
                 </div>
-
+                <div id="listDiv"></div>
                 <div class="card">
                     <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
                         <div class="col-auto p-1">Loading...</div>

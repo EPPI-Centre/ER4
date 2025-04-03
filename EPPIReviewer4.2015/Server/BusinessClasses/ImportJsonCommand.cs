@@ -20,6 +20,7 @@ using Newtonsoft.Json.Linq;
 
 
 
+
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -31,6 +32,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using AuthorsHandling;
+using BusinessLibrary.BusinessClasses.ImportItems;
 
 #endif
 
@@ -40,15 +42,16 @@ namespace BusinessLibrary.BusinessClasses
     public class ImportJsonCommand : CommandBase<ImportJsonCommand>
     {
 
-#if SILVERLIGHT
-    public ImportJsonCommand(){}
-#else
-        public ImportJsonCommand() { }
-#endif
-        private string _path;
-        private string _message;
 
-        private static PropertyInfo<ReviewSetsList> ReviewSetsProperty = RegisterProperty<ReviewSetsList>(new PropertyInfo<ReviewSetsList>("ReviewSets", "ReviewSets"));
+        public ImportJsonCommand() { }
+
+        private string _path = "";
+        private string _message = "";
+        private string _ReportContent = "";
+        private string _ImportWhat = "";
+        private string _SourceName = "";
+
+        public static readonly PropertyInfo<ReviewSetsList> ReviewSetsProperty = RegisterProperty<ReviewSetsList>(new PropertyInfo<ReviewSetsList>("ReviewSets", "ReviewSets"));
         public ReviewSetsList ReviewSets
         {
             get { return ReadProperty(ReviewSetsProperty); }
@@ -60,10 +63,16 @@ namespace BusinessLibrary.BusinessClasses
             get { return _message; }
         }
 
-        public ImportJsonCommand(string Path, string Message)
+        public ImportJsonCommand(string Path, string ImportWhat)
         {
             _path = Path;
-            _message = Message;
+            _ImportWhat = ImportWhat;
+        }
+        public ImportJsonCommand(string JSONReport, string ImportWhat, string SourceName)
+        {
+            _ReportContent = JSONReport;
+            _ImportWhat = ImportWhat;
+            _SourceName = SourceName;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -71,11 +80,17 @@ namespace BusinessLibrary.BusinessClasses
             base.OnGetState(info, mode);
             info.AddValue("_abstract", _path);
             info.AddValue("_message", _message);
+            info.AddValue("_ReportContent", _ReportContent);
+            info.AddValue("_ImportWhat", _ImportWhat);
+            info.AddValue("_SourceName", _SourceName); 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
             _path = info.GetValue<string>("_abstract");
             _message = info.GetValue<string>("_message");
+            _ReportContent = info.GetValue<string>("_ReportContent");
+            _ImportWhat = info.GetValue<string>("_ImportWhat");
+            _SourceName = info.GetValue<string>("_SourceName");
         }
 
 
@@ -83,30 +98,49 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            _message = "codesets, items, codes";
+            if (_ImportWhat == "") _ImportWhat = "codesets, items, codes";
             Rootobject ro = null;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             try
             {
+                if (_path != "")
                 ro = JsonConvert.DeserializeObject<Rootobject>(File.ReadAllText(_path), new JsonSerializerSettings
                 {
                     DateFormatString = "dd/MM/yyyy"
                 });
+                else if (_ReportContent != "")
+                {
+                    ro = JsonConvert.DeserializeObject<Rootobject>(_ReportContent, new JsonSerializerSettings
+                    {
+                        DateFormatString = "dd/MM/yyyy"
+                    });
+                }
+                else
+                {
+                    _message = "Error: no data";
+                    return;
+                }
             }
             catch (Exception e)
             {
-                _message = "deserialize error";
+                _message = "Error: deserialize failed";
                 return;
             }
-            if (_message.Contains("codesets"))
+            if (_ImportWhat.Contains("codesets"))
             {
+                if (ReviewSets == null)
+                {
+                    DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
+                    this.ReviewSets = dp.Fetch();//this allows to import more items, AFTER having imported the coding tools in a previous import
+                    if (ReviewSets == null) this.ReviewSets = new ReviewSetsList();
+                }
                 AddCodeSets(ro, ri.ReviewId, ri.UserId);
             }
-            if (_message.Contains("items"))
+            if (_ImportWhat.Contains("items"))
             {
                 AddItems(ro, ri.ReviewId, ri.UserId);
             }
-            if (_message.Contains("codes"))
+            if (_ImportWhat.Contains("codes"))
             {
                 AddCodes(ro, ri.ReviewId, ri.UserId);
             }
@@ -140,8 +174,8 @@ namespace BusinessLibrary.BusinessClasses
                         _message = "Could not create code set";
                         return;
                     }
+                    this.ReviewSets.Add(rs);
                 }
-                this.ReviewSets.Add(rs);
                 if (rs != null && CurrentCodeSet.Attributes != null)
                 {
                     int c = 0;
@@ -210,9 +244,9 @@ namespace BusinessLibrary.BusinessClasses
         private AttributeSet FindAttributeByAttributeId(Attributeslist alist, ReviewSet rs)
         {
             AttributeSet aset = null;
-            if (CodeSetUsingOriginalId == false) // using the field OriginalSetId
+            if (CodeSetUsingOriginalId == true) // using the field OriginalSetId
             {
-                aset = rs.GetAttributeSetFromOriginalAttributeId(alist.OriginalAttributeID);
+                aset = rs.GetAttributeSetFromOriginalAttributeId(alist.AttributeId);
             }
             else
             {
@@ -232,13 +266,14 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    command.Parameters.Add(new SqlParameter("@SET_TYPE_ID", 3)); // NOT PRESENT IN JSON
+                    if (cs.SetType != null && cs.SetType.SetTypeId > 0) command.Parameters.Add(new SqlParameter("@SET_TYPE_ID", cs.SetType.SetTypeId));
+                    else command.Parameters.Add(new SqlParameter("@SET_TYPE_ID", 3)); // NOT PRESENT IN JSON
                     command.Parameters.Add(new SqlParameter("@ALLOW_CODING_EDITS", true));
                     command.Parameters.Add(new SqlParameter("@SET_NAME", cs.SetName));
                     command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", true));
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", 0));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", cs.SetDescription));
-                    command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", cs.OriginalSetId));
+                    command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", cs.SetId));
 
                     SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
@@ -270,7 +305,8 @@ namespace BusinessLibrary.BusinessClasses
             NewAttributeSet.AttributeSetDescription = a.AttributeSetDescription;
             NewAttributeSet.AttributeSetId = rs.SetId;
             NewAttributeSet.AttributeType = a.AttributeType;
-            NewAttributeSet.AttributeTypeId = a.AttributeType == "Not selectable (no checkbox)" ? 1 : 2; // NO AttributeTypeId in json file??
+            if (a.AttributeTypeId > 0) NewAttributeSet.AttributeTypeId = a.AttributeTypeId;
+            else NewAttributeSet.AttributeTypeId = a.AttributeType == "Not selectable (no checkbox)" ? 1 : 2; // NO AttributeTypeId in older json files
             NewAttributeSet.ContactId = ContactId;
             NewAttributeSet.ExtType = a.ExtType;
             NewAttributeSet.ExtURL = a.ExtURL;
@@ -285,7 +321,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@SET_ID", rs.SetId));
                     command.Parameters.Add(new SqlParameter("@PARENT_ATTRIBUTE_ID", aset == null ? 0 : aset.AttributeId));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_TYPE_ID", a.AttributeType == "Not selectable (no checkbox)" ? 1 : 2)); // NO AttributeTypeId in json file??
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_TYPE_ID", NewAttributeSet.AttributeTypeId)); 
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_DESC", a.AttributeSetDescription));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ORDER", order));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_NAME", a.AttributeName));
@@ -312,9 +348,17 @@ namespace BusinessLibrary.BusinessClasses
 
         // ***********************************************************************************************************
         // Adding items
-
+        private IncomingItemsList IncomingItems = new IncomingItemsList();
+        private ItemTypeNVL ItemTypes = null;
         private void AddItems(Rootobject ro, int ReviewId, int ContactId)
         {
+            IncomingItems = IncomingItemsList.NewIncomingItemsList();
+            IncomingItems.SourceName = _SourceName;
+            IncomingItems.IncomingItems = new MobileList<ItemIncomingData>();
+            IncomingItems.IsIncluded = true;
+            IncomingItems.RetainItemsList = true;
+            ItemTypeNVLFactory factory = new ItemTypeNVLFactory();
+            ItemTypes = factory.FetchItemTypeNVL();
             foreach (Reference r in ro.References)
             {
                 Item i = null;
@@ -336,11 +380,100 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (i == null)
                 {
-                    SaveReference(ReviewId, ContactId, r);
+                    //SaveReference(ReviewId, ContactId, r);
+                    AddReference(r);
                 }
+            }
+            if (IncomingItems.IncomingItems != null && IncomingItems.IncomingItems.Count > 0)
+            {
+                IncomingItems = IncomingItems.Save();
+                int index = 0;
+                foreach (ItemIncomingData iid in IncomingItems.IncomingItems)
+                {
+                    //we rely on the two lists being in identical order!
+                    ro.References[index].ItemId = iid.NewItemId;//the new item ID is used to build arms!
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        SaveArms(connection, ro.References[index]);
+                    }
+                    index++;
+                }
+                //SelectionCriteria crit = new SelectionCriteria();
+                //crit.SourceId = IncomingItems.SourceID;
+                //crit.PageSize = 4000;
+                //crit.PageNumber = 1;
+                //ItemList imported = new ItemList();
+                //ItemList importedPage = DataPortal.Fetch<ItemList>(crit);
+                //if (importedPage != null) imported.AddRange(importedPage.ToList());
+                //if (importedPage != null && importedPage.PageCount > 1)
+                //{
+                //    while (crit.PageNumber <= importedPage.PageCount)
+                //    {
+                //        crit.PageNumber++;
+                //        importedPage = DataPortal.Fetch<ItemList>(crit);
+                //        if (importedPage != null) imported.AddRange(importedPage.ToList());
+                //    }
+                //}
+                
             }
         }
 
+        private void AddReference(Reference r)
+        {
+            ItemIncomingData itm = new ItemIncomingData();
+            itm.Title = r.Title;
+            var type = this.ItemTypes.FirstOrDefault(t => t.Value == r.TypeName);
+            if (type != null) 
+            {
+                itm.TypeId = type.Key;
+            }
+            else
+            {
+                itm.TypeId = 14;
+            }
+            itm.Parent_title = r.ParentTitle;
+            itm.Short_title = r.ShortTitle;
+            itm.DateEdited = r.DateEdited.Ticks > new DateTime(1900, 1, 1).Ticks ? r.DateEdited : new DateTime(1900, 1, 1);
+            itm.Year = r.Year;
+            itm.Month = r.Month;
+            itm.Standard_number = r.StandardNumber;
+            itm.City = r.City; 
+            itm.Country = r.Country;
+            itm.Publisher = r.Publisher;
+            itm.Institution = r.Institution;
+            itm.Volume = r.Volume;
+            itm.Pages = r.Pages;
+            itm.Issue = r.Issue;
+            itm.Availability = r.Availability;
+            itm.Url = r.URL;
+            itm.Comments = r.Comments;
+            itm.Abstract = r.Abstract;
+            itm.DOI = r.DOI;
+            itm.Keywords = r.Keywords;
+            itm.AuthorsLi = new AutorsList();
+            itm.pAuthorsLi = new MobileList<AutH>();
+            if (r.Authors != null && r.Authors.Length > 0) itm.AuthorsLi.AddRange(NormaliseAuth.processField(r.Authors, 0));
+            if (r.ParentAuthors != null && r.ParentAuthors.Length > 0) itm.AuthorsLi.AddRange(NormaliseAuth.processField(r.ParentAuthors, 1));
+            if (r.ItemId > 0)
+            {
+                itm.OldItemId = r.ItemId.ToString();
+                if (r.OldItemId.Trim() != "") itm.Comments = "Older ID: " + r.OldItemId.Trim() + Environment.NewLine + itm.Comments;
+            }
+            else if (r.OldItemId != null && r.OldItemId != "")
+            {
+                itm.OldItemId = r.OldItemId; 
+            }
+            if (itm.Short_title == "") itm.buildShortTitle();
+            this.IncomingItems.IncomingItems.Add(itm);
+        }
+
+        /// <summary>
+        /// deprecated - doesn't allow to produce a source!
+        /// </summary>
+        /// <param name="ReviewId"></param>
+        /// <param name="ContactId"></param>
+        /// <param name="r"></param>
         public void SaveReference(int ReviewId, int ContactId, Reference r)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -544,13 +677,16 @@ namespace BusinessLibrary.BusinessClasses
 
         private void SaveOutcome(Outcome o, int ReviewId, int ContactId, Int64 ItemId)
         {
-            // If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
-            if (ReviewSets.Count != 1)
-            {
-                return;
-            }
+            //commented out: we try something a bit better below
+            //// If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
+            //if (ReviewSets.Count != 1)
+            //{
+            //    return;
+            //}
 
-            ReviewSet rs = ReviewSets[0];
+            //this can still be wrong, when we have multiple "Standard" tools imported: we could end up trying to add outcomes to the wrong tool.
+            ReviewSet rs = ReviewSets.FirstOrDefault(f=>f.SetTypeId == 3);
+            if (rs == null) return;
             Int64 NewOutcomeId = 0;
             Int64 ItemSetId = 0;
             if (rs != null)
@@ -621,11 +757,13 @@ namespace BusinessLibrary.BusinessClasses
                                 {
                                     if (attributes == "")
                                     {
-                                        attributes = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId).AttributeId.ToString();
+                                        AttributeSet tmp = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId);
+                                        if (tmp != null) attributes = tmp.AttributeId.ToString();
                                     }
                                     else
                                     {
-                                        attributes += "," + rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId).AttributeId.ToString();
+                                        AttributeSet tmp = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId);
+                                        if (tmp != null) attributes += "," + tmp.AttributeId.ToString();
                                     }
                                 }
                                 using (SqlCommand command = new SqlCommand("st_OutcomeItemAttributesSave", connection))
@@ -667,6 +805,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             public string SetTypeName { get; set; }
             public string SetTypeDescription { get; set; }
+            public int SetTypeId { get; set; }
         }
 
         public class Attributes
@@ -681,6 +820,7 @@ namespace BusinessLibrary.BusinessClasses
             public Int64 OriginalAttributeID { get; set; }
             public string AttributeSetDescription { get; set; }
             public string AttributeType { get; set; }
+            public int AttributeTypeId { get; set; } = 0;
             public string AttributeName { get; set; }
             public string AttributeDescription { get; set; }
             public string ExtURL { get; set; }

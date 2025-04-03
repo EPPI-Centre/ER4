@@ -14,6 +14,7 @@ using System.Web.UI.HtmlControls;
 using System.IO;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using Telerik.Web.UI.ExportInfrastructure;
 
 public partial class Summary : System.Web.UI.Page
 {
@@ -220,6 +221,8 @@ public partial class Summary : System.Web.UI.Page
 
     private void buildCreditPurchaseGrid()
     {
+        // adjust fn_CreditRemainingDetails to handle credit transfers
+
         DateTime dayPurchased;
         string remaining = "";
         bool isAdmDB = true;
@@ -945,7 +948,11 @@ public partial class Summary : System.Web.UI.Page
             case "HISTORY":
                 pnlHistory.Visible = true;
                 DateTime dateExtended;
-                lblCreditPruchaseID.Text = creditPurchaseID;
+                lblCreditPurchaseID.Text = creditPurchaseID;
+                string sourceID = "";
+                string destinationID = "";
+                string amount = "";
+
                 DataTable dt = new DataTable();
                 System.Data.DataRow newrow;
 
@@ -964,23 +971,48 @@ public partial class Summary : System.Web.UI.Page
                 {
                     newrow = dt.NewRow();
                     newrow["CREDIT_EXTENSION_ID"] = idr["tv_credit_extension_id"].ToString();
-                    newrow["TYPE"] = idr["tv_type_extended_name"].ToString();
                     newrow["ID"] = idr["tv_id_extended"].ToString();
-                    newrow["NAME"] = idr["tv_name"].ToString();
+
+                    if (idr["tv_id_extended"].ToString() == "0")
+                    {
+                        // 000000130000001400000010
+                        sourceID = idr["tv_log_notes"].ToString().Substring(0, 8).TrimStart('0');
+                        destinationID = idr["tv_log_notes"].ToString().Substring(8, 8).TrimStart('0');
+                        amount = idr["tv_log_notes"].ToString().Substring(16, 8).TrimStart('0');
+
+                        newrow["NAME"] = "Transfer £" + amount + " from PurchaseID " + sourceID + " to PurchaseID " + destinationID;
+
+                        if (destinationID == creditPurchaseID)
+                        {
+                            newrow["COST"] = "-" + amount;
+                        }
+                        else
+                        {
+                            newrow["COST"] = amount;
+                        }
+                    }
+                    else
+                    {    
+                        newrow["NAME"] = idr["tv_name"].ToString();
+                        newrow["COST"] = idr["tv_cost"].ToString();
+                    }
+                    newrow["TYPE"] = idr["tv_type_extended_name"].ToString();
+
+
 
                     dateExtended = Convert.ToDateTime(idr["tv_date_extended"].ToString());
                     newrow["DATE_EXTENDED"] = dateExtended.ToString("dd MMM yyyy");
                     //newrow["DATE_EXTENDED"] = idr["tv_date_extended"].ToString();
 
                     newrow["NUMBER_MONTHS"] = idr["tv_months_extended"].ToString();
-                    newrow["COST"] = idr["tv_cost"].ToString();
+                    
                     dt.Rows.Add(newrow);
 
                 }
                 idr.Close();
 
-                gvCreditHistroy.DataSource = dt;
-                gvCreditHistroy.DataBind();
+                gvCreditHistory.DataSource = dt;
+                gvCreditHistory.DataBind();
 
                 break;
             default:
@@ -1049,4 +1081,137 @@ public partial class Summary : System.Web.UI.Page
         }
 
     }
+
+
+    protected void lbMoveCredit_Click(object sender, EventArgs e)
+    {
+        pnlMoveCredit.Visible = true;
+
+        DataTable dtS = new DataTable();
+        System.Data.DataRow newrowS;
+        dtS.Columns.Add(new DataColumn("PURCHASE_ID_SOURCE", typeof(string)));
+        dtS.Columns.Add(new DataColumn("PURCHASE_ID_SOURCE_REMAINING", typeof(string)));
+
+        DataTable dtD = new DataTable();
+        System.Data.DataRow newrowD;
+        dtD.Columns.Add(new DataColumn("PURCHASE_ID_DESTINATION", typeof(string)));
+        dtD.Columns.Add(new DataColumn("PURCHASE_ID_DESTINATION_REMAINING", typeof(string)));
+
+
+        newrowS = dtS.NewRow();
+        newrowS["PURCHASE_ID_SOURCE"] = "Source ID";
+        newrowS["PURCHASE_ID_SOURCE_REMAINING"] = "NoValue";
+        dtS.Rows.Add(newrowS);
+
+        newrowD = dtD.NewRow();
+        newrowD["PURCHASE_ID_DESTINATION"] = "Destination ID";
+        newrowD["PURCHASE_ID_DESTINATION_REMAINING"] = "NoValue";
+        dtD.Rows.Add(newrowD);
+
+        // we can grab the purchaseIDs from gvCreditPurchases
+        for (int i = 0; i < gvCreditPurchases.Rows.Count; i++)
+        {
+            newrowS = dtS.NewRow();
+            newrowS["PURCHASE_ID_SOURCE"] = gvCreditPurchases.Rows[i].Cells[0].Text;
+            newrowS["PURCHASE_ID_SOURCE_REMAINING"] = gvCreditPurchases.Rows[i].Cells[3].Text;
+            dtS.Rows.Add(newrowS);
+
+            newrowD = dtD.NewRow();
+            newrowD["PURCHASE_ID_DESTINATION"] = gvCreditPurchases.Rows[i].Cells[0].Text;
+            newrowD["PURCHASE_ID_DESTINATION_REMAINING"] = gvCreditPurchases.Rows[i].Cells[3].Text;
+            dtD.Rows.Add(newrowD);
+        }
+
+        ddlSourcePurchaseID.DataSource = dtS;
+        ddlSourcePurchaseID.DataBind();
+
+        ddlDestinationPurchaseID.DataSource = dtD;
+        ddlDestinationPurchaseID.DataBind();
+
+        tbAmountToTransfer.Text = "";
+        ddlSourcePurchaseID.SelectedIndex = 0;
+        ddlDestinationPurchaseID.SelectedIndex = 0;
+    }
+
+    protected void cmdTransferCreditPurchase_Click(object sender, EventArgs e)
+    {
+        lblTransferCreditPurchaseResult.Visible = false;
+        if ((ddlSourcePurchaseID.SelectedIndex != 0) && (ddlDestinationPurchaseID.SelectedIndex != 0) &&
+            (Utils.IsNumeric(tbAmountToTransfer.Text)))
+        {
+            int toTransfer;
+            if (!int.TryParse(tbAmountToTransfer.Text, out toTransfer))
+            {
+                lblTransferCreditPurchaseResult.Text = "Transfer amount is not valid - please enter a non-decimal amount";
+                lblTransferCreditPurchaseResult.Visible = true;
+                return;
+            }
+            // if the amount > 0
+            if (toTransfer > 0)
+            {           
+                // something is selected in each control
+                if (ddlSourcePurchaseID.SelectedIndex != ddlDestinationPurchaseID.SelectedIndex)
+                {
+                    if (toTransfer <= int.Parse(ddlSourcePurchaseID.SelectedItem.Value))
+                    {
+                        // there is enough in source to handle the transfer request
+                        // so create the transfer details for TB_EXPIRY_EDIT_LOG
+                        // format 000000130000001400000010 (S, D, Amount)
+                        string fill = "0000000";
+                        // source
+                        string pt1 = fill + ddlSourcePurchaseID.SelectedItem.Text;
+                        pt1 = pt1.Remove(0, pt1.Length - 8);
+                        // destination
+                        string pt2 = fill + ddlDestinationPurchaseID.SelectedItem.Text;
+                        pt2 = pt2.Remove(0, pt2.Length - 8);
+                        // amount
+                        string pt3 = fill + tbAmountToTransfer.Text;
+                        pt3 = pt3.Remove(0, pt3.Length - 8);
+
+                        string extensionNotes = pt1 + pt2 + pt3;
+
+                        // we will log the transaction in TB_EXPIRY_EDIT_LOG and then TB_CREDIT_EXTENSIONS
+                        bool isAdmDB = true;
+                        Utils.ExecuteSP(isAdmDB, Server, "st_TransferCredit", ddlSourcePurchaseID.SelectedItem.Text,
+                            ddlDestinationPurchaseID.SelectedItem.Text, extensionNotes, Utils.GetSessionString("Contact_ID"));
+
+                        // reload gvCreditPurchases
+                        buildCreditPurchaseGrid();
+                        pnlMoveCredit.Visible = false;
+                        pnlHistory.Visible = false;
+                    }
+                    else
+                    {
+                        lblTransferCreditPurchaseResult.Text = "Insufficient funds in Source";
+                        lblTransferCreditPurchaseResult.Visible = true;
+                    }
+                }
+                else
+                {
+                    lblTransferCreditPurchaseResult.Text = "Source and Destination are the same";
+                    lblTransferCreditPurchaseResult.Visible = true;
+                }
+            }
+            else
+            {
+                lblTransferCreditPurchaseResult.Text = "Transfer amount too low";
+                lblTransferCreditPurchaseResult.Visible = true;
+            }
+        }
+        else
+        {
+            lblTransferCreditPurchaseResult.Text = "Invalid selections";
+            lblTransferCreditPurchaseResult.Visible = true;
+        }
+
+    }
+
+    protected void lbCancelTransfer_Click(object sender, EventArgs e)
+    {
+        pnlMoveCredit.Visible = false;
+
+    }
+
+
+
 }

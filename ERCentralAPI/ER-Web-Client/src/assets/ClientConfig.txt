@@ -1,0 +1,5 @@
+{
+  "APIBaseUrl": "https://localhost:44344",
+  "EnableGPTInvestigateGlobally" : false,
+  "GPTinvestigateEnabledAccounts" : [1214,1512,1273,649,8123,1576,4688,18468,8451]
+}

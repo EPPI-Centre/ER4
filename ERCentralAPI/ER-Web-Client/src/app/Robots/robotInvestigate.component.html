@@ -1,0 +1,108 @@
+<HeaderComponent PageTitle="Investigate (via GPT)" Context="investigate"></HeaderComponent>
+<div class="p-1 m-0  ">
+  <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()" style="z-index:10;">
+    Close/back
+  </button>
+  <div class="border border-dark rounded mt-0 mx-0 mb-1 p-1 bg-light">
+    <h5 class="m-1 p-1 font-weight-bold col-12">Query and settings</h5>
+    <div class="col-12">
+      <textarea id="queryForRobot" type="" name="queryForRobot" [(ngModel)]="queryInputForRobot" placeholder="Enter query here..." class="form-control col-12 mb-1"
+                rows="2" wrap="soft"></textarea>
+    </div>
+    <div class="col-12">
+      Sample size: <kendo-numerictextbox [(ngModel)]="sampleSize"
+                                         [min]="1" [format]="'n0'"
+                                         [max]="selectedRobotInvestigateTextOption !== 'title' ? 300 : 150"
+                                         [autoCorrect]="true"
+                                         class="border border-dark rounded"
+                                         style="width: 110px;"></kendo-numerictextbox>
+    </div>
+    <div class="row col-12 mx-0 pt-1">
+      <div class="my-auto col-3 px-0 ">Use items with this code:</div>
+      <div ngbDropdown class="d-inline-block col-6 col-sm-6 col-md-4 px-1">
+        <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsedRobotInvestigate = !isCollapsedRobotInvestigate;
+                isCollapsedRobotInvestigate2=false" [attr.aria-expanded]="!isCollapsedRobotInvestigate" aria-controls="collapseCodeTree">
+          {{selectedAttributeDropDown1}}&nbsp;
+        </button>
+        <div (click)="SetAttr1(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsedRobotInvestigate">
+          <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 row mx-0 border-bottom">
+      <div class="col-3 px-0 my-auto ">
+        Use the following text(s) to build the prompts:
+      </div>
+      <div class="col-auto my-1 ml-2 rounded border border-info bg-whilte">
+        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="title">{{TextFromInvestigateTextOption("title")}}</label>
+        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="info">{{TextFromInvestigateTextOption("info")}}</label>
+        <label class="radio-multi-line-label mb-1"> <input type="radio" name="options" [(ngModel)]="selectedRobotInvestigateTextOption" value="highlighted">{{TextFromInvestigateTextOption("highlighted")}}</label>
+      </div>
+    </div>
+
+    <div class="row col-12 mt-1 mx-0" *ngIf="selectedRobotInvestigateTextOption !== 'title'">
+      <div class="my-auto col-3 px-0">Which code is the {{WhatToSubmitPartialText}} using?</div>
+      <div ngbDropdown class="d-inline-block col-6 col-sm-6 col-md-4 px-1">
+        <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedRobotInvestigate2 = !isCollapsedRobotInvestigate2;
+                isCollapsedRobotInvestigate=false" [attr.aria-expanded]="!isCollapsedRobotInvestigate2" aria-controls="collapseCodeTree2">
+          {{selectedAttributeDropDown2}}&nbsp;
+        </button>
+        <div (click)="SetAttr2(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedRobotInvestigate2">
+          <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 mt-1">
+      <button class="btn btn-outline-danger m-0 p-0 px-1 " [disabled]="CannotRunRobotInvestigate" (click)="RunRobotInvestigateCommand()">
+        <span *ngIf="!busyInvestigating">Submit query</span> <span *ngIf="busyInvestigating">Investigating...</span>
+        <span *ngIf="busyInvestigating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+  <div class="border border-primary rounded m-0 p-1 mb-1 col-12 bg-light ">
+    <div class="row px-1 mx-0">
+      <div class="mx-auto row">
+        <button class="btn btn-sm btn-outline-success mx-1" [disabled]="!CanGoToPrevious" (click)="CurrentIndexInResults = 0">|<</button>
+        <button class="btn btn-sm btn-outline-success mx-1" [disabled]="!CanGoToPrevious" (click)="CurrentIndexInResults = CurrentIndexInResults - 1"><</button>
+        <div class="my-auto mx-1">Showing result {{CurrentIndexInResults + 1}} of {{ResultsFromRobot.length}}</div>
+        <button class="btn btn-sm btn-outline-success mx-1" [disabled]="!CanGoToNext" (click)="CurrentIndexInResults = CurrentIndexInResults + 1">></button>
+        <button class="btn btn-sm btn-outline-success mx-1" [disabled]="!CanGoToNext" (click)="CurrentIndexInResults = ResultsFromRobot.length - 1">>|</button>
+        <button (click)="SaveCurrentResult()" [disabled]="!CurrentResult"
+                title="Save as Html (Supports opening in Word)"
+                type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
+          <span class="k-icon k-i-save"></span>
+        </button>
+      </div>
+    </div>
+    <div *ngIf="CurrentResult" style="max-height: 40vh; overflow: auto;">
+      <div class="row mx-1 px-1">
+        <div class="font-weight-bold col-auto my-auto px-0">Query:</div>
+        <div class="rounded border border-info small px-1 bg-white col-auto mb-1">{{CurrentResult.queryForRobot}}</div>
+      </div>
+      <div class="row mx-1 px-1">
+        <div class="font-weight-bold my-auto">Item IDs used:</div>
+        <div class="rounded border border-info small px-1 bg-white col-auto mb-1">{{CurrentResult.returnItemIdList}}</div>
+      </div>
+      <div class="row mx-1 px-1">
+        <div class="col-auto row">
+          <div class="font-weight-bold my-auto">Grab text from:</div>
+          <div class="rounded border border-info small px-1 bg-white mb-1">{{TextFromInvestigateTextOption(CurrentResult.getTextFrom)}}</div>
+        </div>
+        <div *ngIf="CurrentResult.getTextFrom != 'title'" class="col-auto mx-1 px-1 row">
+          <div class="font-weight-bold my-auto">Using this code:</div>
+          <div class="rounded border border-info small px-1 bg-white mb-1">{{TextFromAttributeId(CurrentResult.textFromThisAttribute)}}</div>
+        </div>
+        <div class="col-auto mx-1 px-1 row">
+          <div class="font-weight-bold my-auto">Sample Size:</div>
+          <div class="rounded border border-info small px-1 bg-white mb-1">{{CurrentResult.sampleSize}}</div>
+        </div>
+      </div>
+      <div class="m-1 p-1 font-weight-bold col-12">Results</div>
+      <div class="m-1 p-1 rounded border border-primary bg-white" [innerHTML]="CurrentResult.returnResultText"></div>
+    </div>
+    <div *ngIf="!CurrentResult">No results yet</div>
+  </div>
+</div>
+<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" ></statusbar>

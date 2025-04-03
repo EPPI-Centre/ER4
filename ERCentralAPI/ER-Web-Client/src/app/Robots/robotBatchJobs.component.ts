@@ -31,9 +31,15 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   ) { }
 
   //@Output() onCloseClick = new EventEmitter();
-  public ShowSettings: boolean = false;
+  public get ShowSettings(): boolean {
+    return this.robotsService.ShowSettingsInBatchPanel;
+  }
+  public set ShowSettings(val: boolean){
+    this.robotsService.ShowSettingsInBatchPanel = val;
+  }
   public ShowQueue: boolean = true;
   public DetailsJobId: number = -1;
+  @Output() PleaseCloseMe = new EventEmitter();
 
   ngOnInit() {
     this.robotsService.GetCurrentQueue().then(() => {
@@ -75,7 +81,21 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       else return false;
     }
   }
-
+  public JobCSSclass(Job: iRobotOpenAiTaskReadOnly): string {
+    let res:string = "";
+    if (this._reviewerIdentityServ.reviewerIdentity.isSiteAdmin) {
+      if (Job.reviewId == this._reviewerIdentityServ.reviewerIdentity.reviewId
+        || Job.jobOwnerId == this._reviewerIdentityServ.reviewerIdentity.userId) res = "alert-primary";
+      else res = "";
+    } else {
+      if (Job.reviewId > 0) res = "alert-primary";
+      else res = "";
+    }
+    if (Job.robotApiCallId == this.DetailsJobId) {
+      res += (res == "" ? "" : " ") + "font-weight-bold";
+    }
+    return res;
+  }
   public get DetailedJob(): iRobotOpenAiTaskReadOnly | undefined {
     if (this.DetailsJobId > 0) {
       const index = this.robotsService.CurrentQueue.findIndex(f => f.robotApiCallId == this.DetailsJobId);
@@ -90,11 +110,15 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   public JobDescription(Job: iRobotOpenAiTaskReadOnly): string {
     if (Job.status == 'Running') {
       let index = Job.itemIDsList.findIndex(f => f == Job.currentItemId) + 1;
-      return "On Item " + index.toString() + " of " + Job.itemIDsList.length.toString();
+      return "Done Item " + index.toString() + " of " + Job.itemIDsList.length.toString();
     }
     else return 'Queued';
   }
-  public ShowJobDetails(robotApiCallId: number) {
+  public JobDetails(robotApiCallId: number) {
+    if (this.DetailsJobId == robotApiCallId) {
+      this.DetailsJobId = -1;
+      return;
+    }
     const index = this.robotsService.CurrentQueue.findIndex(f => f.robotApiCallId == robotApiCallId);
     if (index == -1) this.DetailsJobId = -1;
     else this.DetailsJobId = robotApiCallId;
@@ -102,17 +126,36 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   public RefreshQueue() {
     this.robotsService.GetCurrentQueue();
   }
+  public GoToPastJobs() {
+    this.router.navigate(['JobsRecord']);
+  }
 
   public SubmitBatch() {
     if (!this.CanSubmitBatch) return;
     const encoded = Helpers.htmlEncode(this.reviewSetsService.selectedNode  ? this.reviewSetsService.selectedNode.name : "[undefined]");
     let msg: string = "This will queue a batch-coding request.<br />"
-    msg += "The batch contains <strong>" + this.SelectedItemsCount.toString() + (this.SelectedItemsCount > 1 ? " Items" : " Item") + "</strong>.<br />"
-      + "The coding tool to use is: <br />"
-      + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
-      + encoded + "</strong></div>"
-      + "<span class='small'>The job will be queued on a 1st-come, 1st-served basis and might take a while to start and/or run.</span>";
-    this.confirmationDialogService.confirm("Submit Robot-Coding batch?", msg, false, "", "Submit", "Cancel", "sm").then((confirm: any) => {
+    if (this.RobotSettings.useFullTextDocument) {
+      msg += "The batch contains <strong>" + this.SelectedItemsCount.toString() + (this.SelectedItemsCount > 1 ? " Items" : " Item") + "</strong>.<br />"
+        + "The coding tool to use is: <br />"
+        + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+        + encoded + "</strong></div>"
+        + "<div class='my-1 px-1 alert-warning'>The job will submit <strong>full-text documents</strong> to GPT. This means that:"
+        + "<ol><li>The PDFs will be parsed for processing, which can take minutes (per document)</li>"
+        + "<li>Cost per item is higher (possibly about <strong>£0.10 per document</strong>)</li>"
+        + "<li>Process is much slower, as each item might take more than one minute to process</li></ol>"
+        + "Are you <strong>sure</strong> you want to proceed?"
+        + "</div>"
+        + "<span class='small'>The job will be queued on a 1st-come, 1st-served basis and might take a while to start and/or run.</span>";
+    }
+    else {
+      msg += "The batch contains <strong>" + this.SelectedItemsCount.toString() + (this.SelectedItemsCount > 1 ? " Items" : " Item") + "</strong>.<br />"
+        + "The coding tool to use is: <br />"
+        + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+        + encoded + "</strong></div>"
+        + "<span class='small'>The job will be queued on a 1st-come, 1st-served basis and might take a while to start and/or run.</span>";
+    }
+    this.confirmationDialogService.confirm("Submit Robot-Coding batch?", msg, false, "", "Submit", "Cancel"
+      , this.RobotSettings.useFullTextDocument ? "lg" : "sm").then((confirm: any) => {
       if (confirm) {
         this.ActuallySubmitBach();
       }
@@ -130,6 +173,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       criteria: crit,
       onlyCodeInTheRobotName: this.RobotSettings.onlyCodeInTheRobotName,
       lockTheCoding: this.RobotSettings.lockTheCoding,
+      useFullTextDocument: this.RobotSettings.useFullTextDocument,
       returnMessage: ""
     };
     this.robotsService.EnqueueRobotOpenAIBatchCommand(data).then(
@@ -140,7 +184,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
             animation: { type: 'slide', duration: 400 },
             position: { horizontal: 'center', vertical: 'top' },
             type: { style: "info", icon: true },
-            closable: true
+            hideAfter: 4000
           });
           this.robotsService.GetCurrentQueue();
           this.ShowQueue = true;
@@ -148,6 +192,15 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       }
 
     );
+  }
+
+  public CancelJob(job: iRobotOpenAiTaskReadOnly) {
+    this.robotsService.CancelRobotOpenAIBatch(job.robotApiCallId);
+  }
+
+
+  Close() {
+    this.PleaseCloseMe.emit();
   }
   ngOnDestroy() {
 

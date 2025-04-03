@@ -288,6 +288,18 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<bool> ComparisonsInCodingOnlyProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ComparisonsInCodingOnly", "ComparisonsInCodingOnly", false));
+        public bool ComparisonsInCodingOnly
+        {
+            get
+            {
+                return GetProperty(ComparisonsInCodingOnlyProperty);
+            }
+            set
+            {
+                SetProperty(ComparisonsInCodingOnlyProperty, value);
+            }
+        }
 #if !WEBDB
         public static readonly PropertyInfo<bool> OpenAIEnabledProperty = RegisterProperty<bool>(new PropertyInfo<bool>("OpenAIEnabled", "OpenAIEnabled", false));
         public bool OpenAIEnabled
@@ -402,6 +414,7 @@ namespace BusinessLibrary.BusinessClasses
                     //command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", ReadProperty(ScreeningIndexedProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_ENABLED", ReadProperty(MagEnabledProperty)));
                     command.Parameters.Add(new SqlParameter("@SHOW_SCREENING", ReadProperty(ShowScreeningProperty)));
+                    command.Parameters.Add(new SqlParameter("@ENABLE_COMPARISON_IN_CODING_ONLY", ReadProperty(ComparisonsInCodingOnlyProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -468,6 +481,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(BL_CC_AUTH_CODEProperty, reader.GetString("BL_CC_AUTH_CODE"));
                             LoadProperty<string>(BL_CC_TXProperty, reader.GetString("BL_CC_TX"));
                             LoadProperty<int>(MagEnabledProperty, reader.GetInt32("MAG_ENABLED"));
+                            LoadProperty<bool>(ComparisonsInCodingOnlyProperty, reader.GetBoolean("ENABLE_COMPARISON_IN_CODING_ONLY"));
 #if !WEBDB
                             LoadProperty<bool>(OpenAIEnabledProperty, reader.GetBoolean("OPEN_AI_ENABLED"));
 #endif

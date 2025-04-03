@@ -7,6 +7,7 @@ import { Item } from '../services/ItemList.service';
 import { iTimePoint } from '../services/ArmTimepointLinkList.service';
 import { iArm } from '../services/ArmTimepointLinkList.service';
 import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -31,16 +32,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() item: Item | undefined;
   // Correction for unit of analysis error
   public ShowCFUOAEBool: boolean = false;
-  public OutcomeTypeList: OutcomeType[] = [
-    { "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
-    { "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
-    { "outcomeTypeId": 2, "outcomeTypeName": "Binary: 2 x 2 table" },
-    { "outcomeTypeId": 3, "outcomeTypeName": "Continuous: N, Mean, and SE" },
-    { "outcomeTypeId": 4, "outcomeTypeName": "Continuous: N, Mean, and CI" },
-    { "outcomeTypeId": 5, "outcomeTypeName": "Continuous: N, t- or p-value" },
-    { "outcomeTypeId": 6, "outcomeTypeName": "Diagnostic test: 2 x 2 table" },
-    { "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
-  ];
+  public get OutcomeTypeList(): OutcomeType[] {
+    return this._OutcomesService.OutcomeTypeList;
+  }
 
   public get currentOutcomeHasChanges(): boolean {
     return this._OutcomesService.currentOutcomeHasChanges;
@@ -65,7 +59,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     outcomeTimePoint.itemTimepointId = this._OutcomesService.currentOutcome.itemTimepointId;
     outcomeTimePoint.timepointMetric = this._OutcomesService.currentOutcome.itemTimepointMetric;
-    outcomeTimePoint.timepointValue = this._OutcomesService.currentOutcome.itemTimepointValue;
+    const tVal = Helpers.SafeParseNumber(this._OutcomesService.currentOutcome.itemTimepointValue);
+    if (tVal != null) outcomeTimePoint.timepointValue = tVal;
+    else outcomeTimePoint.timepointValue = 0;
     this._OutcomesService.currentOutcome.outcomeTimePoint = outcomeTimePoint;
   }
   private async FetchData() {

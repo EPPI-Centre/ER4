@@ -401,6 +401,11 @@ public partial class SiteLicense : System.Web.UI.Page
                         lblAccountAdmMessage.ForeColor = System.Drawing.Color.Black;
                     }
                 }
+                if (Utils.GetSessionString("EnableChatGPTEnabler") == "True")
+                {
+                    pnlGPTcredit.Visible = true;
+                    getOpenAIDetails();
+                }
             }
             else
             {
@@ -1520,4 +1525,112 @@ public partial class SiteLicense : System.Web.UI.Page
                 break;
         }
     }
+
+
+    protected void gvCreditForRobots_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        bool isAdmDB = true;
+        int index = Convert.ToInt32(e.CommandArgument);
+        string creditForRobotsID = (string)gvCreditForRobots.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                isAdmDB = true;
+                Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID,
+                    Utils.GetSessionString("Contact_ID"), 0, lblSiteLicID.Text);
+                getOpenAIDetails();
+                /*if (lbLicenseHistory.Text == "Hide")
+                {
+                    buildLicenseLogGrid();
+                }*/
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    protected void gvCreditForRobots_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton lb = (LinkButton)(e.Row.Cells[4].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this CreditID from this review?') == false) return false;");
+        }
+    }
+
+    private void getOpenAIDetails()
+    {
+        string contact_name = "";
+        string contact_id = "";
+
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
+
+        dt.Columns.Add(new DataColumn("CREDIT_FOR_ROBOTS_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASER", typeof(string)));
+        dt.Columns.Add(new DataColumn("REMAINING", typeof(string)));
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
+            "0", lblSiteLicID.Text);
+        while (idr.Read())
+        {
+            newrow = dt.NewRow();
+            newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
+            newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
+
+            contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
+            contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
+            newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
+
+            newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
+            dt.Rows.Add(newrow);
+        }
+        idr.Close();
+
+        gvCreditForRobots.DataSource = dt;
+        gvCreditForRobots.DataBind();
+
+    }
+
+    protected void lbSavePurchaseCreditID_Click(object sender, EventArgs e)
+    {
+        if ((tbCreditPurchaseID.Text.Trim() != "") && (Utils.IsNumeric(tbCreditPurchaseID.Text) == true))
+        {
+
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseID.Text.Trim());
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                getOpenAIDetails();
+                lblInvalidID.Visible = false;
+                tbCreditPurchaseID.Text = "";
+                /*if (lbLicenseHistory.Text == "Hide")
+                {
+                    buildLicenseLogGrid();
+                }*/
+            }
+            else
+            {
+                lblInvalidID.Visible = true;
+            }
+        }
+    }
+
 }

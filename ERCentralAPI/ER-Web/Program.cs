@@ -91,6 +91,18 @@ try
                 options.ShutdownTimeout = TimeSpan.FromSeconds(30);
             })
         .AddHostedService<GracefulShutdownGuardianService>().AddHostedService<RobotOpenAiHostedService>();
+    //line above: order is important. Having GracefulShutdownGuardianService first, means it's the last to stop, which is ideal:
+    //This service has one role: to keep ER alive while long-lasting-tasks are shutting down. This is done via two mechanisms:
+    //1. Makes Program.CancelToken.IsCancellationRequested flip to true, so that fire-and-forget tasks in LongLastingFireAndForgetCommands can notice and stop gracefully
+    //2. Monitor TB_REVIEW_JOB for fired and forgotten tasks - GracefulShutdownGuardianService will only finish "stopping" when either:
+    //2.1 No review_jobs report themselves as "running" in TB_REVIEW_JOB
+    //2.2 28 seconds passed since we first checked for running jobs.
+    //IOW, GracefulShutdownGuardianService only stops when everything else has stopped gracefully, or when it's too late and we're giving up.
+    //thus, since pt.1 happens immediately (inside OnStopping()), we then ALSO wait for RobotOpenAiHostedService to stop, and only then check for fired and forgotten long lasting tasks
+    //however Program.CancelToken.IsCancellationRequested flipped to true immediately, so all fired and forgotten tasks had the best chance to stop gracefully
+    //this matters, because RobotOpenAiHostedService executes RobotOpenAICommand which has a long-ish lasting task (calling GPT API) that monitors Program.CancelToken, but doesn't log to TB_REVIEW_JOB
+    //so, in this way any RobotOpenAICommand will be cancelled as soon as possible, allowing RobotOpenAiHostedService to stop gracefully, and also giving any other long lasting task
+    //their best chance to stop concurrently. GracefulShutdownGuardianService will stop last, fulfilling it's general role, which is .
 
     var app = builder.Build();
     var SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
@@ -185,6 +197,14 @@ public partial class Program
 
 
 }
+/// <summary>
+/// This service has one role: to keep ER alive while long-lasting-tasks are shutting down. This is done via two mechanisms:
+/// 1. Makes Program.CancelToken.IsCancellationRequested flip to true, so that fire-and-forget tasks in LongLastingFireAndForgetCommands can notice and stop gracefully
+/// 2. Monitor TB_REVIEW_JOB for fired and forgotten tasks - GracefulShutdownGuardianService will only finish "stopping" when either:
+/// 2.1 No review_jobs report themselves as "running" in TB_REVIEW_JOB (i.e. SUCCESS field is null)
+/// 2.2 28 seconds passed since we first checked for running jobs.
+/// IOW, GracefulShutdownGuardianService is supposed to stop only when everything else has stopped gracefully, or when it's too late and we're giving up.
+/// </summary>
 internal class GracefulShutdownGuardianService : IHostedService, IDisposable
 {
     //private Timer _timer;
@@ -220,7 +240,7 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
     //}
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        Program.TokenSource.Cancel();
+        //Program.TokenSource.Cancel();
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is stopping, with ID: " + ID);
         //Logger.Information("CT ID: " + cancellationToken.GetHashCode().ToString() + " please make sense! " + cancellationToken.IsCancellationRequested.ToString());
         Logger.Information("GracefulShutdownGuardianService is stopping, with ID: " + ID);
@@ -288,6 +308,7 @@ internal class GracefulShutdownGuardianService : IHostedService, IDisposable
     }
     private void OnStopping()
     {
+        Program.TokenSource.Cancel(); //we do this here, which ensures fire-and-forget tasks will be notified immediately
         //Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStopping(), with ID: " + ID);
         Logger.Information("GracefulShutdownGuardianService OnStopping(), with ID: " + ID);
     }

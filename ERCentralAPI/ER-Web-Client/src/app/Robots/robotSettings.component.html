@@ -1,11 +1,15 @@
 <div class="px-0 mx-1 my-0">
-  <div class="row px-1 mx-0 border-bottom">
+  <div class="row px-1 mx-0 my-1 border-bottom ">
     <div>Always add coding in the Robot's name</div>
     <input class="m-1" type="checkbox" [(ngModel)]="RobotSettings.onlyCodeInTheRobotName" />
   </div>
-  <div class="row px-1 mx-0 border-bottom">
+  <div class="row px-1 mx-0 my-1 border-bottom">
     <div>Always lock the coding produced by the Robot</div>
     <input class="m-1" type="checkbox" [(ngModel)]="RobotSettings.lockTheCoding" />
+  </div>
+  <div *ngIf="Context == 'Batch'" class="row px-1 mx-0 my-1 border-bottom">
+    <div>Code using full text documents (PDFs only)</div>
+    <input class="m-1" type="checkbox" [(ngModel)]="RobotSettings.useFullTextDocument" />
   </div>
   <div *ngIf="Context == 'Modal' || RobotSettings.rememberTheseChoices == true" class="row px-1 mx-0 alert-dark rounded">
     <div>Don't ask again, for this session</div>

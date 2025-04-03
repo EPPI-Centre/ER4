@@ -3,16 +3,24 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Criteria, ItemList } from '../services/ItemList.service';
-import { ItemListService } from '../services/ItemList.service'
+import { ItemListService, StringKeyValue } from '../services/ItemList.service';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand, ReviewStatisticsCodeSet2, iReviewStatisticsReviewer2 } from '../services/codesetstatistics.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand, ReviewStatisticsCodeSet2, iReviewStatisticsReviewer2, iReviewStatisticsCodeSet2, iBulkDeleteCodingCommand } from '../services/codesetstatistics.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { saveAs } from '@progress/kendo-file-saver';
-import { ConfigurableReportService } from '../services/configurablereport.service';
+import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
+import { ConfigurableReportService, iReportAllCodingCommand } from '../services/configurablereport.service';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { Helpers } from '../helpers/HelperMethods';
+import {
+  Workbook, WorkbookSheetColumn, WorkbookSheetRow, WorkbookSheetRowCell, WorkbookSheet
+  , WorkbookSheetRowCellBorderBottom, WorkbookSheetRowCellBorderLeft, WorkbookSheetRowCellBorderRight, WorkbookSheetRowCellBorderTop
+} from "@progress/kendo-ooxml";
+import { OutcomesService } from '../services/outcomes.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -32,7 +40,9 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     private confirmationDialogService: ConfirmationDialogService,
     private _reviewInfoService: ReviewInfoService,
     private _notificationService: NotificationService,
-    private configurablereportServ: ConfigurableReportService
+    private _OutcomesService: OutcomesService,
+    private configurablereportServ: ConfigurableReportService,
+    private eventEmitterService: EventEmitterService
   ) {
 
   }
@@ -43,6 +53,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   //faSpin = faSpin;
   @ViewChild('CodeStudiesTreeOne') CodeStudiesTreeOne!: codesetSelectorComponent;
   @Output() tabSelectEvent = new EventEmitter();
+
+  subOpeningReview: Subscription | null = null;
 
   public stats: ReviewStatisticsCountsCommand | null = null;
   public countDown: any | undefined;
@@ -62,23 +74,30 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   public PanelName: string = '';
   public complete: string = '';
   public selectedReviewer1: Contact = new Contact();
-  //public ImportOrNewDDData: Array<any> = [{
-  //	text: 'New Reference',
-  //	click: () => {
-  //		this.NewReference();
-  //	}
-  //}];
-
-  //dtOptions: DataTables.Settings = {};
-  //dtTrigger: Subject<any> = new Subject();
-
+  public selectedReviewer4BulkDelete: iReviewStatisticsReviewer2 | null = null;
+  public BulkDeleteCodingCommand: iBulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+  private GetNewBulkDeleteCodingCommand(): iBulkDeleteCodingCommand {
+    return {
+      setId: 0,
+      reviewerId: 0,
+      isPreview: true,
+      totalItemsAffected: 0,
+      completedCodingToBeDeleted: 0,
+      incompletedCodingToBeDeleted: 0,
+      hiddenIncompletedCodingToBeDeleted: 0
+    };
+  }
   public get Contacts(): Contact[] {
 
     return this._reviewInfoService.Contacts;
   }
   public get CodeSets(): ReviewSet[] {
-
+    //actually, only those that may have incomplete coding...
     return this.reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
+  }
+  public get AllCodeSets(): ReviewSet[] {
+
+    return this.reviewSetsService.ReviewSets;
   }
   public get IsServiceBusy(): boolean {
     return this.codesetStatsServ.IsBusy;
@@ -124,11 +143,27 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   public get WillNotAutoRefreshCodingStats(): boolean {
     return this.codesetStatsServ.WouldSkipFullStats;
   }
+  public get AllCodingReportOptions() {
+    return this.configurablereportServ.reportAllCodingCommandOptions;
+  }
+  private _showAllCodingReportOptions: boolean = false;
+  public get showAllCodingReportOptions(): boolean {
+    if (this.DetailsForSetId) return this._showAllCodingReportOptions;
+    else return false;
+  }
+  public set showAllCodingReportOptions(val: boolean) {
+    this._showAllCodingReportOptions = val;
+  }
+  public get showAllCodingReportOptionsText(): string {
+    if (this._showAllCodingReportOptions) return "Close Excel Options";
+    else return "More...";
+  }
+
   ngOnInit() {
 
     console.log('inititating stats');
 
-    //this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
+    this.subOpeningReview = this.eventEmitterService.OpeningNewReview.subscribe(() => this.Clear());
     //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
 
     //	() => {
@@ -140,6 +175,16 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     //	|| (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
     //) this.Reload();
   }
+
+  public colourOnly(): boolean {
+    if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   public ImportOrNewDDData: Array<any> = [{
     text: 'New Reference',
     click: () => {
@@ -160,6 +205,15 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
       this.ImportCodesetClick();
     }
   }];
+
+  public get CodersForCodingToolToDelete(): iReviewStatisticsReviewer2[] {
+    if (this.selectedCodeSet.set_id < 1) return [];
+    const toolStats = this.codesetStatsServ.CodingProgressStats.find(f => f.setId == this.selectedCodeSet.set_id);
+    if (!toolStats) return [];
+    return  toolStats.reviewerStatistics;
+  }
+
+
   ShowDetailsForSetId(SetId: number) {
     if (this.DetailsForSetId == SetId) this.DetailsForSetId = 0;
     else this.DetailsForSetId = SetId;
@@ -168,18 +222,16 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     //this.reviewSetsService.GetReviewStatsEmit.emit();
     this.codesetStatsServ.GetReviewStatisticsCountsCommand(true, true);
   }
-  Reload() {
-    this.Clear();
-  }
+  
   GetStats() {
     //console.log('getting stats...');
     //this.codesetStatsServ.GetReviewStatisticsCountsCommand();
     //this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
   }
   Clear() {
-    this.ItemListService.SaveItems(new ItemList(), new Criteria());
-    this.reviewSetsService.Clear();
-
+    this.PanelName = "";
+    this.showAllCodingReportOptions = false;
+    this.ClearBulkFields();
   }
   EditCodeSets() {
     this.router.navigate(['EditCodeSets']);
@@ -259,16 +311,16 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         '<br />' +
         '<br />Please check the (full) manual if you are unsure about the implications.' +
         '<br /><b>' + tmpComplete + '</b> ' + tmpStrItemVisible, false, '', undefined, undefined, 'lg')
-        .then(
-          (confirmed: any) => {
+        .then((confirmed: any)  => {
             console.log('User confirmed:');
             if (confirmed) {
-
-              this.codesetStatsServ.SendToItemBulkCompleteCommand(
+              this.saving = true;
+              this.codesetStatsServ.SendToItemBulkCompleteCommand(//stats are refreshed here, overriding review-size check.
                 setId,
                 contactId,
-                completeOrNot);//stats are refreshed here, overriding review-size check.
-
+                completeOrNot).then(
+                  () => { this.saving = false; }).catch(
+                    () => { this.saving = false; });
             } else {
               //alert('did not confirm');
             }
@@ -303,7 +355,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     this.PreviewMsg = "Please click \"Preview\" to continue.";
 
     if (this.selectedCodeSet.name == '') {
-      this.PreviewMsg = "Please select the codeset to be " + compORuncomp + ".";
+      this.PreviewMsg = "Please select the coding tool to be " + compORuncomp + ".";
       //console.log(msg);
       return false;
     }
@@ -342,7 +394,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     let apiResult: Promise<BulkCompleteUncompleteCommand> | any;
 
     if (this.isBulkCompleting) {
-
+      this.saving = true;
       apiResult = this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
         attId,
         this.isBulkCompleting.toString(),
@@ -351,6 +403,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         reviewerId
       ).then(
         () => {
+          this.saving = false;
           this._notificationService.show({
             content: 'finished the bulk complete',
             animation: { type: 'slide', duration: 400 },
@@ -359,10 +412,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
             closable: true
           });
         }
-      );
+      ).catch(() => { this.saving = false; });
     }
     else {
-
+      this.saving = true;
       apiResult = this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
         attId,
         this.isBulkCompleting.toString(),
@@ -370,6 +423,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         'false'
       ).then(
         () => {
+          this.saving = false;
           this._notificationService.show({
             content: 'finished the bulk uncomplete',
             animation: { type: 'slide', duration: 400 },
@@ -378,7 +432,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
             closable: true
           });
         }
-      );
+      ).catch(() => { this.saving = false; });
     }
     this.ClearBulkFields();
     this.changePanel('');
@@ -425,7 +479,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         setId,
         'true',
         reviewerId
-
       ).then(
 
         (result: BulkCompleteUncompleteCommand) => {
@@ -471,88 +524,1005 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     return this.canBulkComplete;
   }
 
+  //used only for bulk-complete/bulk un-complete
   changePanel(completeOrNot: string) {
+    //desired behaviour: close if completeOrNot is empty, open complete/un-complete panel depending on on true/false val of completeOrNot
+    //we also want to ClearBulkFields();
 
-    this.isBulkCompleting = true;
-
-    if (this.PanelName == '') {
-
-      this.PanelName = 'BulkCompleteSection';
-
-    } else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Complete') {
-
-      this.PanelName = '';
-
-    } else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Uncomplete') {
-
-      this.PanelName = 'BulkCompleteSection';
-
-    } else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Complete') {
-
-      this.PanelName = 'BulkCompleteSection';
-
-    } else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Uncomplete') {
-
-      this.PanelName = '';
-    }
-    else {
-
-      this.PanelName = '';
-    }
-    if (completeOrNot == 'true') {
-
-      this.complete = 'Complete';
-
-    } else {
-
-      this.complete = 'Uncomplete';
-    }
     this.ClearBulkFields();
+
+    if (completeOrNot == "") {
+      this.PanelName = "";
+      return;
+    }
+    else if (completeOrNot == 'true') {
+      //we should show the "bulk complete" panel, unless it's already shown, in which case we close it
+      if (this.PanelName == "BulkCompleteSection" && this.complete == "Complete") {
+        this.PanelName = "";
+        return;
+      }
+      this.PanelName = 'BulkCompleteSection';
+      this.complete = 'Complete';
+    }
+    else if (completeOrNot == 'false') {
+      //we should show the "bulk un-complete" panel, unless it's already shown, in which case we close it
+      if (this.PanelName == "BulkCompleteSection" && this.complete == "Uncomplete") {
+        this.PanelName = "";
+        return;
+      }
+      this.PanelName = 'BulkCompleteSection';
+      this.complete = 'Uncomplete';
+
+    }
+    //if (this.PanelName == '') {
+    //  this.PanelName = 'BulkCompleteSection';
+    //} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Complete') {
+    //  this.PanelName = '';
+    //} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Uncomplete') {
+    //  this.PanelName = 'BulkCompleteSection';
+    //} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Complete') {
+    //  this.PanelName = 'BulkCompleteSection';
+    //} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Uncomplete') {
+    //  this.PanelName = '';
+    //}
+    //else {
+    //  this.PanelName = '';
+    //}
+    //if (completeOrNot == 'true') {
+    //  this.complete = 'Complete';
+    //} else {
+    //  this.complete = 'Uncomplete';
+    //}
+    //this.ClearBulkFields();
   }
 
+  public OpenBulkDeletePanel() {
+    if (this.PanelName == 'BulkDeleteSection') {
+      this.CloseBulkDeletePanel();
+      return;
+    }
+    this.ClearBulkFields();
+    this.PanelName = 'BulkDeleteSection';
+  }
+  public CloseBulkDeletePanel() {
+    this.ClearBulkFields();
+    this.PanelName = '';
+  }
+  public get CanPreviewBulkDelete(): boolean {
+    if (this.selectedCodeSet.set_id < 1) {
+      
+      this.PreviewMsg = "Please select the coding tool from which to delete the coding.";
+      return false;
+    }
+    else if (this.selectedReviewer4BulkDelete == null
+      || this.selectedReviewer4BulkDelete.contactId == undefined || this.selectedReviewer4BulkDelete.contactId < 1) {
+      
+      this.PreviewMsg = "Please select whose coding to delete.";
+      return false;
+    }
+    this.PreviewMsg = "";
+    
+    return true;
+  }
+  DropdownDeleteChangeCodingToolSelection() {
+    this.selectedReviewer4BulkDelete = null;
+    this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+    this.showMessage = false;
+  }
+  DropdownDeleteChangeReviewerSelection() {
+    this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+    this.showMessage = false;
+  }
 
-  public async GetAndSaveCodingReport(setStats: StatsCompletion) {
+  public async PreviewDelete() {
+    this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+    if (!this.CanPreviewBulkDelete
+      || this.selectedCodeSet.set_id < 1
+      || this.selectedReviewer4BulkDelete == null || this.selectedReviewer4BulkDelete.contactId < 1) return;
+    let cmd = this.BulkDeleteCodingCommand;
+    cmd.isPreview = true;
+    cmd.setId = this.selectedCodeSet.set_id;
+    cmd.reviewerId = this.selectedReviewer4BulkDelete.contactId;
+    const cmdRes = await this.codesetStatsServ.ExecuteBulkDeleteCodingCommand(cmd);
+
+    if (cmdRes != false && cmdRes != true) {
+      this.showMessage = true;
+      this.BulkDeleteCodingCommand = cmdRes;
+    }
+  }
+
+  public ConfirmDeleteCoding() {
+    if (!this.HasAdminRights
+      || !this.HasWriteRights
+      || !this.selectedReviewer4BulkDelete
+      || this.selectedCodeSet.set_id < 1
+      || this.BulkDeleteCodingCommand.totalItemsAffected < 1) return;
+    let Msg = "<strong>Warning!</strong> You are about to delete coding in bulk. <br/>";
+    Msg += "If you proceed, the coding done by <strong>" + this.selectedReviewer4BulkDelete.contactName + "</strong> on the \"<strong>" + this.selectedCodeSet.set_name + "</strong>\" tool will be deleted. <br />";
+    Msg += "A total of <strong>" + this.BulkDeleteCodingCommand.totalItemsAffected + "</strong> items will be affected. <br />"
+    Msg += "<div class='row m-1 p-0'> <strong class='alert-danger p-1 rounded mx-auto'><span class='k-icon k-i-warning'></span>This cannot be undone!<span class='k-icon k-i-warning'></span></strong></div>";
+    let ConfirmText = "";
+    const rnd = Math.random();
+    if (rnd < 0.33333) ConfirmText = "OK proceed";
+    else if (rnd < 0.66667) ConfirmText = "I understand";
+    else ConfirmText = "I agree";
+    Msg += "To proceed, please type '" + ConfirmText + "' in the box below.";
+    this.confirmationDialogService.confirm("Bulk delete coding?", Msg, true, ConfirmText, "Delete All!", "Cancel")
+      .then((res: any) => {
+        if (res == true) {
+          this.DoDeleteCoding();
+        }
+      }).catch(() => { });
+
+  }
+  private async DoDeleteCoding() {
+    if (!this.HasAdminRights
+      || !this.HasWriteRights
+      || !this.selectedReviewer4BulkDelete
+      || this.selectedCodeSet.set_id < 1
+      || this.BulkDeleteCodingCommand.totalItemsAffected < 1) return;
+    this.BulkDeleteCodingCommand.isPreview = false;
+    this.saving = true;
+    const cmdRes = await this.codesetStatsServ.ExecuteBulkDeleteCodingCommand(this.BulkDeleteCodingCommand);
+    this.saving = false;
+    if (cmdRes != false && cmdRes != true) {
+      this.ClearBulkFields();
+      this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
+      this.PanelName = '';
+      this._notificationService.show({
+        content: "Coding from " + cmdRes.totalItemsAffected + " items has been deleted",
+        animation: { type: 'slide', duration: 400 },
+        position: { horizontal: 'center', vertical: 'top' },
+        type: { style: "info", icon: true },
+        hideAfter: 5000
+      });
+    } else {
+      this.BulkDeleteCodingCommand.isPreview = true;
+    }
+  }
+  public async GetAndSaveCodingReport(setStats: ReviewStatisticsCodeSet2) {
     console.log("Asking for the report");
     let stringReport = await this.configurablereportServ.FetchAllCodingReportBySet(setStats.setId);
     if (stringReport != 'error') {
-      console.log("Got the report");
+      //console.log("Got the report");
       this.SaveAsHtml(stringReport, setStats.setName);
+    }
+  }
+  public async GetAndSaveJsonCodingReport(setStats: ReviewStatisticsCodeSet2) {
+    console.log("Asking for the report");
+    let jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
+    if (jsonVal != false) {
+      //console.log("Got the report");
+      this.SaveAsJson(JSON.stringify(jsonVal), setStats.setName);
     }
   }
   private saving: boolean = false;
   public SaveAsHtml(reportHTML: string, CodesetName: string) {
     if (reportHTML.length < 1) return;
     this.saving = true;
-    //console.log("Encoding the report, length:", reportHTML.length);
-    //let dataURI: string = "";
-    //if (reportHTML.length < 1000000) dataURI = "data:text/plain;base64," + encodeBase64(reportHTML);
-    //else {
-    //	let remaining = reportHTML.length;
-    //	let i: number = 0; const ChunkLength = 999999;
-    //	dataURI = "data:text/plain;base64,";
-    //	while (remaining > 0 && i < 10000) {
-    //		const end = remaining < ChunkLength ? reportHTML.length : (i + 1) * ChunkLength;  //((i + 1) * ChunkLength > reportHTML.length)
-    //		const tmp = reportHTML.substring(i * ChunkLength, end);
-    //		dataURI += encodeBase64(tmp);
-    //		console.log("Datauri l:", dataURI.length, i);
-    //		i++;
-    //		remaining = reportHTML.length - end;
-    //	}
-    //	console.log("in chunks", dataURI);
-    //	console.log("in one", "data:text/plain;base64," + encodeBase64(reportHTML));
-    //      }
-    //console.log("Saving the report");
-
-    //saveAs(dataURI, CodesetName + " full coding report.html");
     const b = new Blob([reportHTML], { type: 'text/html' });
     saveAs(b, CodesetName + " full coding report.html");
     this.saving = false;
   }
+  private SaveAsJson(JsonReport: string, CodesetName: string) {
+    //console.log("Save as Json, codesets: " + this.ItemCodingService.jsonReport.CodeSets.length + "; refs: " + this.ItemCodingService.jsonReport.References.length);
+    if (!JsonReport) {
+      console.log("Save as Json. Return (not jsonreport)");
+      return;
+    }
+    this.saving = true;
+    console.log("Save as Json. Encoding");
+    const dataURI = "data:text/plain;base64," + encodeBase64(JsonReport);
+    const blob = Helpers.dataURItoBlob(dataURI);
+    console.log("Savign json report...");//, dataURI)
+    saveAs(blob, "All coding for " + CodesetName + ".json");
+    this.saving = false;
+  }
 
+  private readonly borderBottom: WorkbookSheetRowCellBorderBottom = { size: 1 };
+  private readonly borderLeft: WorkbookSheetRowCellBorderLeft = { size: 1 };
+  private readonly borderTop: WorkbookSheetRowCellBorderTop = { size: 1 };
+  private readonly borderRight: WorkbookSheetRowCellBorderRight = { size: 1 };
+
+  public GetAndSaveXLSCodingReport(setStats: ReviewStatisticsCodeSet2) {
+    //safety measures, let's check the size of the job...
+    let Size: string = "small"; //medium, big, very big, massive
+    let FormattedMsg: string = ""; //medium, big, very big, massive
+    const ItemsEstimatedCount = setStats.numItemsCompleted + setStats.numItemsIncomplete +
+      (Math.min(setStats.numItemsCompleted, setStats.numItemsIncomplete) * setStats.reviewerStatistics.length);
+    const CS = this.reviewSetsService.FindSetById(setStats.setId);
+    const CodesCount = (CS ? CS.NumberOfChildren : 0);
+    const reviewersCount = setStats.reviewerStatistics.length;
+    if (CodesCount == 0) return;//shouldn't happen, but we can cut our losses if it does
+    let SheetsCount = 3;
+    if (this.AllCodingReportOptions.includeArms) SheetsCount += 3;
+
+    let estimatedCells: number = SheetsCount * (this.AllCodingReportOptions.showFullTitle ? 4 : 3) * ItemsEstimatedCount;
+    estimatedCells += ItemsEstimatedCount * reviewersCount * CodesCount * SheetsCount;
+    if (this.AllCodingReportOptions.includeOutcomes) {
+      estimatedCells += (this.AllCodingReportOptions.showFullTitle ? 4 : 3) * ItemsEstimatedCount;
+      estimatedCells += 20 * ItemsEstimatedCount;
+    }
+    if (estimatedCells < 5000) {
+      this.DoGetAndSaveXLSCodingReport(setStats, Size);
+      return;
+    }
+    else if (estimatedCells >= 5000 && estimatedCells < 20000) {
+      Size = "medium";
+      FormattedMsg = "This report is expected to be (relatively) medium in size and should take a few seconds to arrive.<br />Proceed?"
+    }
+    else if (estimatedCells >= 20000 && estimatedCells < 100000) {
+      Size = "big";
+      FormattedMsg = "This report is expected to be big in size and may take many seconds to arrive.<br />Proceed?"
+    }
+    else if (estimatedCells >= 100000 && estimatedCells < 1200000) {
+      Size = "very big";
+      FormattedMsg = "This report is expected to be <strong>very big</strong> in size and may take minutes to arrive.<br />Proceed?"
+    }
+    else if (estimatedCells >= 1200000) {
+      Size = "massive";
+      FormattedMsg = "This report is expected to be <strong>massive</strong> in size and <strong>may take many minutes</strong> to arrive.<br />"
+        + "Moreover, <strong>it may crash your browser</strong> by running out of available memory. <br />Proceed?"
+    }
+    this.confirmationDialogService.confirm("Get full coding Report?"
+      , FormattedMsg, false, '').then(
+        (confirmed: any) => {
+          if (confirmed == true) this.DoGetAndSaveXLSCodingReport(setStats, Size);
+        }
+    ).catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+  }
+
+  public async DoGetAndSaveXLSCodingReport(setStats: ReviewStatisticsCodeSet2, size: string) {
+    console.log("Asking for the report");
+    let jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
+    if (jsonVal != false) {
+      this.saving = true;
+      this.ProduceXLSreport(jsonVal as iReportAllCodingCommand, setStats);
+      //this.saving = false;
+    }
+  }
+  private ProduceXLSreport(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2) {
+
+    let SheetsToAdd: WorkbookSheet[] = [{
+      name: "Codes (whole study)",
+      columns: <WorkbookSheetColumn[]>[],
+      rows: []
+    }, {
+      name: "InfoBox (whole study)",
+      columns: <WorkbookSheetColumn[]>[],
+      rows: []
+    }, {
+      name: "PDF coding (whole study)",
+      columns: <WorkbookSheetColumn[]>[],
+      rows: []
+      }];
+
+    if (this.AllCodingReportOptions.includeArms) {
+      //we need 3 more sheets!
+      SheetsToAdd.push({
+        name: "Codes (arms)",
+        columns: <WorkbookSheetColumn[]>[],
+        rows: []
+      });
+      SheetsToAdd.push({
+        name: "InfoBox (arms)",
+        columns: <WorkbookSheetColumn[]>[],
+        rows: []
+      });
+      SheetsToAdd.push({
+        name: "PDF coding (arms)",
+        columns: <WorkbookSheetColumn[]>[],
+        rows: []
+      });
+    }
+
+    if (this.AllCodingReportOptions.includeOutcomes) {
+      SheetsToAdd.push({
+        name: "Outcomes",
+        columns: <WorkbookSheetColumn[]>[],
+        rows: []
+      });
+    }
+    const workbook: Workbook = new Workbook({
+      sheets: <WorkbookSheet[]>SheetsToAdd
+    });
+
+    const NamesCells: WorkbookSheetRowCell[] = [];
+    const Reviewers: StringKeyValue[] = [];
+
+    //sort by contactId so that reports will always show reviewers in the same order - useful when iterating and comparing reports
+    let SortedReviewerStats = setStats.reviewerStatistics.sort((a, b) => a.contactId - b.contactId);
+    for (let p of SortedReviewerStats) {
+      NamesCells.push({ value: p.contactName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+      Reviewers.push(new StringKeyValue(p.contactId.toString(), p.contactName));
+    }
+    let sheets = workbook.options.sheets;
+    if (!sheets) return;
+    let sheet1 = sheets[0];
+    let sheet2 = sheets[1];
+    let sheet3 = sheets[2];
+    let sheet4: WorkbookSheet = {};
+    let sheet5: WorkbookSheet = {};
+    let sheet6: WorkbookSheet = {};
+    let outcomesSheet: WorkbookSheet = {};
+
+    if (this.AllCodingReportOptions.includeArms) {
+      sheet4 = sheets[3];
+      sheet5 = sheets[4];
+      sheet6 = sheets[5];
+    }
+    const sheet3ColCount = 4 + (NamesCells.length * jsonData.attributes.length);
+    
+    for (let i = 0; i < sheet3ColCount; i++) {
+      const AutoColumn: WorkbookSheetColumn = { autoWidth: false, width : 70};
+      sheet3.columns?.push(AutoColumn);
+    }
+
+    let tmpRow = this.BuildFirstRow(jsonData, setStats);
+    sheet1.rows?.push(tmpRow);
+    sheet2.rows?.push(tmpRow);
+    sheet3.rows?.push(tmpRow);
+    if (this.AllCodingReportOptions.includeArms) {
+      sheet4.rows?.push(tmpRow);
+      sheet5.rows?.push(tmpRow);
+      sheet6.rows?.push(tmpRow);
+    }
+    tmpRow = this.BuildSecondRow(jsonData, setStats);
+    sheet1.rows?.push(tmpRow);
+    sheet2.rows?.push(tmpRow);
+    sheet3.rows?.push(tmpRow);
+    if (this.AllCodingReportOptions.includeArms) {
+      sheet4.rows?.push(tmpRow);
+      sheet5.rows?.push(tmpRow);
+      sheet6.rows?.push(tmpRow);
+    }
+
+    tmpRow = this.BuildThirdRow(jsonData, setStats, NamesCells);
+    sheet1.rows?.push(tmpRow);
+    sheet2.rows?.push(tmpRow);
+    sheet3.rows?.push(tmpRow);
+    if (this.AllCodingReportOptions.includeArms) {
+      sheet4.rows?.push(tmpRow);
+      sheet5.rows?.push(tmpRow);
+      sheet6.rows?.push(tmpRow);
+    }
+
+    sheet1.frozenColumns = 2;
+    sheet1.frozenRows = 3;
+    sheet2.frozenColumns = 2;
+    sheet2.frozenRows = 3;
+    sheet3.frozenColumns = 2;
+    sheet3.frozenRows = 3;
+    if (this.AllCodingReportOptions.includeArms) {
+      sheet4.frozenColumns = 2;
+      sheet4.frozenRows = 3;
+      sheet5.frozenColumns = 2;
+      sheet5.frozenRows = 3;
+      sheet6.frozenColumns = 2;
+      sheet6.frozenRows = 3;
+    }
+    
+    if (!this.AllCodingReportOptions.includeArms) {//check for how many sheets only once, then do the work "efficiently"
+      for (let i = 0; i < jsonData.items.length; i++) {
+        sheet1.rows?.push(
+          this.BuildWholeStudyDataRow(jsonData, setStats, i, Reviewers)
+        );
+        sheet2.rows?.push(
+          this.BuildWholeStudyInfoBoxRow(jsonData, setStats, i, Reviewers)
+        );
+        sheet3.rows?.push(
+          this.BuildWholeStudyPDFRow(jsonData, setStats, i, Reviewers)
+        );
+      }
+    }
+    else {
+      for (let i = 0; i < jsonData.items.length; i++) {
+        sheet1.rows?.push(
+          this.BuildWholeStudyDataRow(jsonData, setStats, i, Reviewers)
+        );
+        sheet2.rows?.push(
+          this.BuildWholeStudyInfoBoxRow(jsonData, setStats, i, Reviewers)
+        );
+        sheet3.rows?.push(
+          this.BuildWholeStudyPDFRow(jsonData, setStats, i, Reviewers)
+        );
+        sheet4.rows?.push(
+          this.BuildArmsDataRow(jsonData, setStats, i, Reviewers)
+        );
+        sheet5.rows?.push(
+          this.BuildArmsInfoBoxDataRow(jsonData, setStats, i, Reviewers)
+        );
+        sheet6.rows?.push(
+          this.BuildArmsPDFDataRow(jsonData, setStats, i, Reviewers)
+        ); 
+      }
+    }
+    if (workbook && workbook.options && workbook.options.sheets && workbook.options.sheets[2] && workbook.options.sheets[2].columns) {
+      for (let i = 3; i < workbook.options.sheets[2].columns.length; i++) {
+        if (workbook
+          && workbook.options
+          && workbook.options.sheets
+          && workbook.options.sheets[2]
+          && workbook.options.sheets[2].rows
+          && workbook.options.sheets[2].rows[2]
+          && workbook.options.sheets[2].rows[2].cells
+          && workbook.options.sheets[2].rows[2].cells[i])
+          if (workbook.options.sheets[2].rows[2].cells[i].value != undefined) {
+            const val = workbook.options.sheets[2].rows[2].cells[i].value;
+            if (val) workbook.options.sheets[2].columns[i].width = val.toString().length * 8.2;
+          }
+      }
+    }
+    if (this.AllCodingReportOptions.includeOutcomes) {
+      outcomesSheet = sheets[sheets.length - 1];
+      outcomesSheet.frozenRows = 1;
+      outcomesSheet.frozenColumns = 3;
+      this.BuildOutcomesSheet(jsonData, outcomesSheet);
+    }
+    workbook.toDataURL().then((dataUrl) => {
+      saveAs(dataUrl, "All coding for " + setStats.setName + ".xlsx");
+      this.saving = false;
+    });
+  }
+
+  private BuildFirstRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2): WorkbookSheetRow {
+    const cell1: WorkbookSheetRowCell = { value: "ITEM_ID", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell2: WorkbookSheetRowCell = { value: "Short Title", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell3: WorkbookSheetRowCell = { value: "Full title", wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell4: WorkbookSheetRowCell = { value: "I/E/D/S flag", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const res: WorkbookSheetRow = { cells: [cell1, cell2] };
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push(cell3);
+    res.cells?.push(cell4);
+    const NofReviewer = setStats.reviewerStatistics.length;
+    for (let code of jsonData.attributes) {
+      res.cells?.push({ value: code.attName, colSpan: NofReviewer, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    }
+    return res;
+  }
+
+  private BuildSecondRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2): WorkbookSheetRow {
+    let cSpan: number = 3;
+    if (this.AllCodingReportOptions.showFullTitle) cSpan = 4;
+    const cell1: WorkbookSheetRowCell = { value: "Full code path", colSpan: cSpan, textAlign: "right", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const res: WorkbookSheetRow = { cells: [cell1] };
+    const NofReviewer = setStats.reviewerStatistics.length;
+    for (let code of jsonData.attributes) {
+      res.cells?.push({ value: code.fullPath, colSpan: NofReviewer, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    }
+    return res;
+  }
+
+  private BuildThirdRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, NamesCells: WorkbookSheetRowCell[]): WorkbookSheetRow {
+    let cSpan: number = 3;
+    if (this.AllCodingReportOptions.showFullTitle) cSpan = 4;
+    const cell1: WorkbookSheetRowCell = { value: "Reviewers:", colSpan: cSpan, textAlign: "right", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const res: WorkbookSheetRow = { cells: [cell1] };
+    
+    for (let code of jsonData.attributes) {
+      res.cells?.push(...NamesCells);//spread operator! https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+    }
+    return res;
+  }
+
+  private BuildWholeStudyDataRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [] };
+    const item = jsonData.items[index];
+    let CompCodingVal: string | number = this.AllCodingReportOptions.labelForCompletedCoding;
+    let IncompCodingVal: string | number = this.AllCodingReportOptions.labelForIncompleteCoding;
+    let NoCodingVal: string | number = this.AllCodingReportOptions.labelForNoCoding;
+    if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
+      CompCodingVal = +CompCodingVal;
+      IncompCodingVal = +IncompCodingVal;
+      NoCodingVal = +NoCodingVal;
+    }
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          const CodingFound = CodesFound.value.find(f => f.contactId.toString() == rId.key && f.armName == "");
+          if (CodingFound) {
+            if (CodingFound.isComplete) res.cells?.push({
+              value: CompCodingVal, background: "#d0ffd0"
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)});
+            else res.cells?.push({
+              value: IncompCodingVal, background: "#dddddd"
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)});
+          }
+          else res.cells?.push({
+            value: NoCodingVal
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)});
+        }
+      }
+      else {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          res.cells?.push({
+            value: NoCodingVal
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)});
+        }
+      }
+    }
+    return res;
+  }
+
+  private BuildWholeStudyInfoBoxRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [] };
+    const item = jsonData.items[index];
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          const CodingFound = CodesFound.value.find(f => f.contactId.toString() == rId.key);
+          if (CodingFound && CodingFound.armName == "") {
+            if (CodingFound.isComplete) res.cells?.push({
+              value: CodingFound.infoBox, background: "#d0ffd0"
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            });
+            else res.cells?.push({
+              value: CodingFound.infoBox, background: "#dddddd"
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            });
+          }
+          else res.cells?.push({
+            value: ""
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+      else {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          res.cells?.push({
+            value: ""
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+    }
+    return res;
+  }
+
+  private readonly rx: RegExp = /<br \/>/g;
+  private readonly rx2: RegExp = /\r\n|\r|\n/g;
+
+  private BuildWholeStudyPDFRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [], height: 22 };
+    const LinesSep = "\r\n" + this.AllCodingReportOptions.linesSeparator + "\r\n";
+    const item = jsonData.items[index];
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+    let maxLines: number = 0; let cellLines = 0;
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          cellLines = 0;
+          const CodingFound = CodesFound.value.find(f => f.contactId.toString() == rId.key && f.armName == "");
+          if (CodingFound
+            && CodingFound.pdf && CodingFound.pdf.length > 0) {
+            let cellString = "";
+            for (const p of CodingFound.pdf) {
+              cellString += "[" + p.docName + ", pg: " + p.page + "] " + p.text.replace(this.rx, "\r\n");
+              if (cellString != "") cellString += LinesSep;
+            }
+            if (cellString.endsWith(LinesSep)) cellString = cellString.substring(0, cellString.length - LinesSep.length);
+            if (CodingFound.isComplete) res.cells?.push({
+              value: cellString, wrap: true, background: "#d0ffd0"
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            });
+            else res.cells?.push({
+              value: cellString, wrap: true, background: "#dddddd"
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            });
+
+            cellLines = cellString.split(this.rx2).length;
+            if (cellLines > maxLines) maxLines = cellLines;
+          }
+          else if (CodingFound) {
+            if (CodingFound.isComplete) res.cells?.push({
+              value: "", background: "#d0ffd0"
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            });
+            else res.cells?.push({
+              value: "", background: "#dddddd"
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            });
+          }
+          else res.cells?.push({
+            value: ""
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+      else {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          res.cells?.push({
+            value: ""
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+    }
+    if (maxLines > 0 && res.height) res.height = (res.height + 8) * maxLines;
+    return res;
+  }
+
+  private BuildArmsDataRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [], height: 22 };
+    const item = jsonData.items[index];
+    const LinesSep = "\r\n" + this.AllCodingReportOptions.linesSeparator + "\r\n";
+    let CompCodingVal: string | number = this.AllCodingReportOptions.labelForCompletedCoding;
+    let IncompCodingVal: string | number = this.AllCodingReportOptions.labelForIncompleteCoding;
+    let NoCodingVal: string | number = this.AllCodingReportOptions.labelForNoCoding;
+    if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+      CompCodingVal = ""; IncompCodingVal = "";
+    }
+    else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
+      CompCodingVal = +CompCodingVal;
+      IncompCodingVal = +IncompCodingVal;
+      NoCodingVal = +NoCodingVal;
+    }
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+
+    let maxLines: number = 0; let cellLines = 0;
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          cellLines = 0;
+          const CodingFound = CodesFound.value.filter(f => f.contactId.toString() == rId.key && f.armName != "");
+          if (CodingFound && CodingFound.length > 0) {
+            let CellContent: string = "";
+            let BgString: string = "";
+            if (CodingFound[0].isComplete) {
+              if (CompCodingVal != "") CellContent += CompCodingVal + LinesSep;
+              BgString = "#d0ffd0";
+            } else {
+              if (IncompCodingVal != "") CellContent += IncompCodingVal + LinesSep;
+              BgString = "#dddddd";
+            }
+
+            for (const ArmCoding of CodingFound) {
+              CellContent += ArmCoding.armName + LinesSep;
+            }
+
+            cellLines = CellContent.split(this.rx2).length;
+            if (CellContent.endsWith(LinesSep)) CellContent = CellContent.substring(0, CellContent.length - LinesSep.length);
+            if (cellLines > maxLines) maxLines = cellLines;
+            res.cells?.push({
+              value: CellContent, background: BgString, wrap: true
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            })
+          }
+          else res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+      else {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+    }
+    if (maxLines > 0 && res.height) res.height = (res.height) * maxLines;
+    return res;
+  }
+
+  private BuildArmsInfoBoxDataRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [], height: 22 };
+    const item = jsonData.items[index];
+    const LinesSep = "\r\n" + this.AllCodingReportOptions.linesSeparator + "\r\n";
+
+    //behaviour: don't put labelFor[Completed/Incomplete/No]Coding in this sheet!
+    //if we want to change it, then change/uncomment the following few lines
+    let CompCodingVal: string | number = ""; //this.AllCodingReportOptions.labelForCompletedCoding;
+    let IncompCodingVal: string | number = ""; //this.AllCodingReportOptions.labelForIncompleteCoding;
+    let NoCodingVal: string | number = "";// this.AllCodingReportOptions.labelForNoCoding;
+    //if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+    //  CompCodingVal = ""; IncompCodingVal = "";
+    //}
+    //else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
+    //  CompCodingVal = +CompCodingVal;
+    //  IncompCodingVal = +IncompCodingVal;
+    //  NoCodingVal = +NoCodingVal;
+    //}
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+
+    let maxLines: number = 0; let cellLines = 0;
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          cellLines = 0;
+          const CodingFound = CodesFound.value.filter(f => f.contactId.toString() == rId.key && f.armName != "");
+          if (CodingFound && CodingFound.length > 0) {
+            let CellContent: string = "";
+            let BgString: string = "";
+            if (CodingFound[0].isComplete) {
+              if (CompCodingVal != "") CellContent += CompCodingVal + LinesSep;
+              BgString = "#d0ffd0";
+            } else {
+              if (IncompCodingVal != "") CellContent += IncompCodingVal + LinesSep;
+              BgString = "#dddddd";
+            }
+
+            for (const ArmCoding of CodingFound) {
+              if (ArmCoding.infoBox.trim() != "") {
+                CellContent += ArmCoding.armName + ":\r\n" + ArmCoding.infoBox + LinesSep;
+              }
+            }
+
+            cellLines = CellContent.split(this.rx2).length;
+            if (CellContent.endsWith(LinesSep)) CellContent = CellContent.substring(0, CellContent.length - LinesSep.length);
+            if (cellLines > maxLines) maxLines = cellLines;
+            res.cells?.push({
+              value: CellContent, background: BgString, wrap: true
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            })
+          }
+          else res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+      else {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+    }
+    if (maxLines > 0 && res.height) res.height = (res.height) * maxLines;
+    return res;
+  }
+  private BuildArmsPDFDataRow(jsonData: iReportAllCodingCommand, setStats: ReviewStatisticsCodeSet2, index: number, reviewers: StringKeyValue[]): WorkbookSheetRow {
+    const res: WorkbookSheetRow = { cells: [], height: 22 };
+    const item = jsonData.items[index];
+    const LinesSep = "\r\n" + this.AllCodingReportOptions.linesSeparator + "\r\n";
+
+    //behaviour: don't put labelFor[Completed/Incomplete/No]Coding in this sheet!
+    //if we want to change it, then change/uncomment the following few lines
+    let CompCodingVal: string | number = ""; //this.AllCodingReportOptions.labelForCompletedCoding;
+    let IncompCodingVal: string | number = ""; //this.AllCodingReportOptions.labelForIncompleteCoding;
+    let NoCodingVal: string | number = "";// this.AllCodingReportOptions.labelForNoCoding;
+    //if (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion) {
+    //  CompCodingVal = ""; IncompCodingVal = "";
+    //}
+    //else if (this.AllCodingReportOptions.saveLabelsAsNumbers) {
+    //  CompCodingVal = +CompCodingVal;
+    //  IncompCodingVal = +IncompCodingVal;
+    //  NoCodingVal = +NoCodingVal;
+    //}
+    res.cells?.push({ value: item.itemId });
+    res.cells?.push({ value: item.shortTitle });
+    if (this.AllCodingReportOptions.showFullTitle) res.cells?.push({ value: item.title });
+    res.cells?.push({ value: item.state });
+
+    let maxLines: number = 0; let cellLines = 0;
+
+    for (let code of jsonData.attributes) {
+      const CodesFound = jsonData.items[index].codingsList.find(f => f.key.attId == code.attId);
+      if (CodesFound) {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          cellLines = 0;
+          const CodingFound = CodesFound.value.filter(f => f.contactId.toString() == rId.key && f.armName != "");
+          if (CodingFound && CodingFound.length > 0) {
+            let CellContent: string = "";
+            let perPdfContent: string = "";
+            let BgString: string = "";
+            if (CodingFound[0].isComplete) {
+              if (CompCodingVal != "") CellContent += CompCodingVal + LinesSep;
+              BgString = "#d0ffd0";
+            } else {
+              if (IncompCodingVal != "") CellContent += IncompCodingVal + LinesSep;
+              BgString = "#dddddd";
+            }
+            for (const ArmCoding of CodingFound) {
+              if (ArmCoding && ArmCoding.pdf && ArmCoding.pdf.length > 0) {
+                perPdfContent = "";
+                perPdfContent += "Arm name: " + ArmCoding.armName + "\r\n";
+                for (const p of ArmCoding.pdf) {
+                  perPdfContent += "[" + p.docName + ", pg: " + p.page + "] " + p.text.replace(this.rx, "\r\n");
+                  if (perPdfContent != "") perPdfContent += LinesSep;
+                }
+                if (perPdfContent != "") CellContent += perPdfContent;
+              }
+            }
+
+            cellLines = CellContent.split(this.rx2).length;
+            if (CellContent.endsWith(LinesSep)) CellContent = CellContent.substring(0, CellContent.length - LinesSep.length);
+            if (cellLines > maxLines) maxLines = cellLines;
+            res.cells?.push({
+              value: CellContent, background: BgString, wrap: true
+              , borderLeft: (i == 0 ? { size: 1 } : undefined)
+              , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+            });
+          }
+          else res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+      else {
+        for (let i = 0; i < reviewers.length; i++) {
+          let rId = reviewers[i];
+          res.cells?.push({
+            value: (this.AllCodingReportOptions.UseOnlyColourCodingForCompletion ? "" : NoCodingVal)
+            , borderLeft: (i == 0 ? { size: 1 } : undefined)
+            , borderRight: (i == reviewers.length - 1 ? { size: 1 } : undefined)
+          });
+        }
+      }
+    }
+    if (maxLines > 0 && res.height) res.height = (res.height) * maxLines;
+    return res;
+  }
+
+  private BuildOutcomesSheet(jsonData: iReportAllCodingCommand, sheet: WorkbookSheet) {
+    const ItemsWithOutcomes = jsonData.items.filter(f => f.outcomesLists.length > 0);
+    if (ItemsWithOutcomes.length == 0) return;
+
+    //we have data to show, so we do...
+    const cell1: WorkbookSheetRowCell = { value: "ITEM_ID", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell2: WorkbookSheetRowCell = { value: "Short Title", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell3: WorkbookSheetRowCell = { value: "Reviewer", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell4: WorkbookSheetRowCell = { value: "IsCompleted", wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const cell5: WorkbookSheetRowCell = { value: "Full title", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const headers: WorkbookSheetRow = { cells: [cell1, cell2, cell3, cell4] };
+    if (this.AllCodingReportOptions.showFullTitle) headers.cells?.push(cell5);
+    
+    headers.cells?.push({ value: "I/E/D/S flag", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    
+    headers.cells?.push({ value: "Outcome title", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Outcome description", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Timepoint", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Outcome", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Intervention", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Comparison", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Arm 1", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Arm 2", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Outcome type", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 1", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 2", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 3", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 4", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 5", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 6", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 7", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 8", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 9", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 10", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 11", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 12", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 13", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Data 14", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "ES", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "SE", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    headers.cells?.push({ value: "Outcome Codes", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+    sheet.rows?.push(headers);
+    
+    for (const item of ItemsWithOutcomes) {
+      for (const PerUserOutcome of item.outcomesLists) {
+        for (const val of PerUserOutcome.value) {
+          const row: WorkbookSheetRow = { cells: [], height: 22 };
+          row.cells?.push({ value: item.itemId, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: item.shortTitle, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.contactName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.isComplete, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          if (this.AllCodingReportOptions.showFullTitle) row.cells?.push({ value: item.title, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+
+          row.cells?.push({ value: item.state, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+
+          row.cells?.push({ value: val.outcome.title, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.outcomeDescription, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.timepointDisplayValue, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.outcomeText, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.interventionText, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.controlText, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.grp1ArmName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.grp2ArmName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+
+          const oType = this._OutcomesService.OutcomeTypeList.find(f => f.outcomeTypeId == val.outcome.outcomeTypeId);
+          if (oType) {
+            row.cells?.push({ value: oType.outcomeTypeName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          } else {//shouldn't happen, but for safety reasons, we add a cell anyway
+            row.cells?.push({ value: "undefined", borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          }
+
+          row.cells?.push({ value: val.outcome.data1, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data2, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data3, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data4, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data5, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data6, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data7, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data8, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data9, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data10, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data11, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data12, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data13, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.data14, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.es, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          row.cells?.push({ value: val.outcome.sees, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          let cellVal: string = "";
+          for (const oCode of val.outcome.outcomeCodes.outcomeItemAttributesList) {
+            cellVal += oCode.attributeName + "\r\n";
+          }
+          if (cellVal != "") cellVal = cellVal.substring(0, cellVal.length - 2);
+          const cellLines = cellVal.split(this.rx2).length;
+          if (row.height) row.height = (row.height + 4) * cellLines;
+          row.cells?.push({ value: cellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop });
+          sheet.rows?.push(row);
+
+        }
+
+      }
+    }
+  }
 
   ngOnDestroy() {
-    //if (this.subOpeningReview) {
-    //	this.subOpeningReview.unsubscribe();
-    //}
+    if (this.subOpeningReview) {
+    	this.subOpeningReview.unsubscribe();
+    }
   }
 }

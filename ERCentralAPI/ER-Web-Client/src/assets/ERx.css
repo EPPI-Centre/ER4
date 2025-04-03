@@ -236,7 +236,14 @@ ul.k-tabstrip-items li.k-item.k-state-active {
   mask-image: linear-gradient( to top left, rgba(0, 0, 0, 0) 0em, rgba(0, 0, 0, 1) 1.15em);
   -webkit-mask-image: linear-gradient( to top left, rgba(0, 0, 0, 0) 0em, rgba(0, 0, 0, 1) 1.15em);
 }
-
+.larger-checkbox {
+  height: 17px;
+  width: 17px;
+}
+.medium-checkbox {
+  height: 15px;
+  width: 15px;
+}
 
 
 .tableFixHead {
@@ -251,3 +258,11 @@ ul.k-tabstrip-items li.k-item.k-state-active {
 .light-yellow-bg {
   background-color: #fff3cd;
 }
+.GPTJobsErrorRow {
+  background-color: #ffc0c0 !important;
+  border-collapse: collapse;
+}
+.GPTJobsErrorRow td {
+  border-bottom: 1px solid white;
+}
+

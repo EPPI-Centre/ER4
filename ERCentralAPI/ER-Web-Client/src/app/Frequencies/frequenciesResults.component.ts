@@ -7,7 +7,7 @@ import { frequenciesService, Frequency } from '../services/frequencies.service';
 import { ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { BaseChartDirective } from 'ng2-charts';
+import 'hammerjs';
 
 @Component({
    

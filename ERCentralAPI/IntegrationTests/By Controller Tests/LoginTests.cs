@@ -47,7 +47,7 @@ namespace IntegrationTests.By_Controller_Tests {
             _ = ParsedResponse["token"].ToString().Should().NotBeNullOrEmpty();
             string token = ParsedResponse["token"].ToString();
             SetCookieHeaderVal(token);
-            SingleIntCriteria rc = new SingleIntCriteria() { Value = 5};
+            SingleIntCriteria rc = new SingleIntCriteria() { Value = 6};
             ParsedResponse = await client.PostAndDeserialize("api/Login/LoginToReview", rc);
             _ = ((bool)ParsedResponse["isAuthenticated"]).Should().Be(true);
             _ = ParsedResponse["token"].ToString().Should().NotBeNullOrEmpty();

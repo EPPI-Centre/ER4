@@ -19,7 +19,8 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
         private modalService: ModalService,
         private ItemListService: ItemListService,
         private EventEmitterService: EventEmitterService,
-      configService: ConfigService
+        private _httpC: HttpClient,
+        configService: ConfigService
     ) {
       super(configService);
         //console.log("On create OnlineHelpService");
@@ -30,7 +31,7 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
         if (this.clearSub != null) this.clearSub.unsubscribe();
     }
     private clearSub: Subscription | null = null;
-    private _CurrentHTMLHelp: string = ""
+    private _CurrentHTMLHelp: string = "";
     public get CurrentHTMLHelp(): string {
         if (this.IsBusy) return "";
         else return this._CurrentHTMLHelp;
@@ -66,6 +67,55 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
                 );
         }
     }
+
+  public UpdateHelpContent(message: OnlineHelpContent1) {
+
+    this._BusyMethods.push("UpdateHelpContent");
+
+    this._http.post<OnlineHelpContent>(this._baseUrl + 'api/Help/UpdateHelpcontent', message)
+        .subscribe(result => {
+          this.RemoveBusy("UpdateHelpContent");
+        },
+          (error) => {
+            console.log("UpdateHelpContent error:", error);
+            this.RemoveBusy("UpdateHelpContent");
+            this.modalService.GenericError(error);
+          }
+        );
+    }
+
+
+
+  private _OnlineHelpPages: ReadOnlyHelpPage[] = [];
+  public get HelpPages(): ReadOnlyHelpPage[] {
+    return this._OnlineHelpPages;
+  }
+
+  public FetchHelpPageList() {
+    this._BusyMethods.push("FetchHelpPageList");
+    return this._httpC.get<ReadOnlyHelpPageList>(this._baseUrl + 'api/Help/GetHelpPageList').subscribe(result => {
+      this._OnlineHelpPages = result.helpPages;
+      this.RemoveBusy("FetchHelpPageList");
+    }, error => {
+      this.RemoveBusy("FetchHelpPageList");
+      this.modalService.GenericError(error);
+    }
+    );
+  }
+/*
+  public FetchSources() {
+    this._BusyMethods.push("FetchSources");
+    return this._httpC.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
+      this._ReviewSources = result.sources;
+      this._SomeSourceIsBeingDeleted = result.someSourceIsBeingDeleted;
+      this.RemoveBusy("FetchSources");
+    }, error => {
+      this.RemoveBusy("FetchSources");
+      this.modalService.GenericError(error);
+    }
+    );
+  }
+*/
     public CreateFeedbackMessage(message: FeedbackAndClientError4Create) {
 
         this._BusyMethods.push("CreateFeedbackMessage");
@@ -103,9 +153,13 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
     }
 }
 export interface OnlineHelpContent{
-    onlineHelpContentId: number;
     context: string;
     helpHTML: string;
+}
+
+export class OnlineHelpContent1 {
+  public context: string = "";
+  public helpHTML: string = "";
 }
 
 export class FeedbackAndClientError4Create {
@@ -121,3 +175,15 @@ export class FeedbackAndClientError extends FeedbackAndClientError4Create {
     public dateCreated: string = "";
     public reviewId: number = 0;
 }
+
+export interface ReadOnlyHelpPage {
+  isSelected: boolean;
+  helpPage_ID: number;
+  context_Name: string;
+}
+
+export interface ReadOnlyHelpPageList {
+  helpPages: ReadOnlyHelpPage[];
+}
+
+

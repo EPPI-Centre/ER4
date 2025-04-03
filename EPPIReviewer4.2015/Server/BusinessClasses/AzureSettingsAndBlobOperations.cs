@@ -158,6 +158,14 @@ namespace BusinessLibrary.BusinessClasses
         public static string DeployRUser { get { return AppSettings["DeployRUser"]; } }
         public static string DeployRPassword { get { return AppSettings["DeployRPassword"]; } }
 
+        public static string CochraneOAuthSS { get { return AppSettings["CochraneOAuthSS"]; } }
+        public static string CochraneOAuthRedirectUri { get { return AppSettings["CochraneOAuthRedirectUri"]; } }
+        public static string CochraneAPIBaseAddress { get { return AppSettings["CochraneAPIBaseAddress"]; } }
+        public static string CochraneoAuthBaseAddress { get { return AppSettings["CochraneoAuthBaseAddress"]; } }
+        public static string CochraneAccountBaseAddress { get { return AppSettings["CochraneAccountBaseAddress"]; } }
+
+
+
         public static string tenantID { get { return AzureContReviewSettings["tenantID"]; } }
         public static string appClientId { get { return AzureContReviewSettings["appClientId"]; } }
         public static string appClientSecret { get { return AzureContReviewSettings["appClientSecret"]; } }
@@ -226,7 +234,24 @@ namespace BusinessLibrary.BusinessClasses
         public static string RobotOpenAIPresencePenalty { get { return RobotSettings["RobotOpenAIPresencePenalty"]; } }
         public static string RobotOpenAIRequestsPerMinute { get { return RobotSettings["RobotOpenAIRequestsPerMinute"]; } }
         public static string RobotOpenAIDirectEndpoint { get { return RobotSettings["RobotOpenAIDirectEndpoint"]; } }
-        
+        public static int RobotOpenAIQueueParallelism 
+        { 
+            get 
+            { 
+                string tmp = RobotSettings["RobotOpenAIQueueParallelism"];
+                if (tmp == null || tmp == "") return 0;
+                else
+                {
+                    int res;
+                    if (int.TryParse(tmp, out res))
+                    {
+                        if (res > 0) return res;
+                        else return 0;
+                    }
+                    return 0;
+                }
+            } 
+        }
 
     }
     public class BlobOperations

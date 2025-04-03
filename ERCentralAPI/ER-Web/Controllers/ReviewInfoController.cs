@@ -72,7 +72,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
                     ReviewInfo result = DataPortal.Fetch<ReviewInfo>();
                     result.ShowScreening = revinfo.showScreening;
@@ -84,7 +84,7 @@ namespace ERxWebClient2.Controllers
                     result.ScreeningAutoExclude = revinfo.screeningAutoExclude;
                     //result.ScreeningIndexed = revinfo.screeningIndexed;
                     result.MagEnabled = revinfo.magEnabled;
-
+                    result.ComparisonsInCodingOnly = revinfo.comparisonsInCodingOnly;
                     //screeningModelRunning;
                     //screeningIndexed;
                     //screeningListIsGood;
@@ -97,6 +97,30 @@ namespace ERxWebClient2.Controllers
             {
                 string json = JsonConvert.SerializeObject(revinfo);
                 _logger.LogError(e, "Dataportal Error with updating ReviewInfo: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult ReviewJobs()
+        {
+
+            try
+            {
+
+                if (!SetCSLAUser()) return Unauthorized();
+                
+
+                DataPortal<ReviewJobReadOnlyList> dp = new DataPortal<ReviewJobReadOnlyList>();
+
+                ReviewJobReadOnlyList result = dp.Fetch();
+
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "ReviewJobs Error");
                 return StatusCode(500, e.Message);
             }
         }
@@ -122,5 +146,6 @@ namespace ERxWebClient2.Controllers
         public string bL_CC_AUTH_CODE { get; set; }
         public string bL_CC_TX { get; set; }
         public int magEnabled { get; set; }
+        public bool comparisonsInCodingOnly { get; set; }
     }
 }

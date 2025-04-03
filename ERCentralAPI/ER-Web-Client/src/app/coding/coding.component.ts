@@ -564,20 +564,30 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 
       if (cmd.saveType == "Insert" || cmd.saveType == "Update") {
         this.ItemCodingService.ApplyInsertOrUpdateItemAttribute(cmdResult, itemSet);
-        //if (cmd.saveType == "Insert") this.ItemCodingService.FetchItemAttPDFCoding;
+
+        if (this.IsScreening && cmd.saveType == "Insert" && this.PriorityScreeningService.CurrentItemIndex == this.PriorityScreeningService.ScreenedItemIds.length - 1) {
+          //snippet to tell the PS service that the last item in the list of screening items has been coded.
+          //this is used to count "items screened in this session" accurately
+          let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>
+            cset.setId == this.reviewInfoService.ReviewInfo.screeningCodeSetId
+            && (cset.contactId == this.ReviewerIdentityServ.reviewerIdentity.userId || cset.isCompleted));
+          if (ItemSetIndex > -1) {
+            this.PriorityScreeningService.LastItemInTheQueueIsDone = true;
+          }
+        }
       }
       else if (cmd.saveType == "Delete") {
+        this.ItemCodingService.ApplyDeleteItemAttribute(itemSet, itemAtt);
 
-        //if (itemSet) console.log(itemSet.itemAttributesList.length);
-        //if (itemAtt) console.log(itemAtt.attributeId);
-        if (itemSet && itemAtt) {
-          //remove the itemAttribute from itemSet
-          itemSet.itemAttributesList = itemSet.itemAttributesList.filter(obj => obj !== itemAtt);
-          if (itemSet.itemAttributesList.length == 0) {
-            //if itemset does not have item attributes, remove the itemset
-            this.ItemCodingService.ItemCodingList = this.ItemCodingService.ItemCodingList.filter(obj => itemSet && obj.itemSetId !== itemSet.itemSetId);
+        if (this.IsScreening && this.PriorityScreeningService.CurrentItemIndex == this.PriorityScreeningService.ScreenedItemIds.length - 1) {
+          //snippet to tell the PS service that the last item in the list of screening items has NOT been coded.
+          //this is used to count "items screened in this session" accurately
+          let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>
+            cset.setId == this.reviewInfoService.ReviewInfo.screeningCodeSetId
+            && (cset.contactId == this.ReviewerIdentityServ.reviewerIdentity.userId || cset.isCompleted));
+          if (ItemSetIndex == -1) {
+            this.PriorityScreeningService.LastItemInTheQueueIsDone = false;
           }
-          //if (itemSet) console.log(itemSet.itemAttributesList.length);
         }
       }
 

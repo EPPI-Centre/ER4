@@ -138,7 +138,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
   public itemId = new Subject<number>();
   public ShowOutComes: boolean = false;
   public ShowRobotOptions: boolean = false;
-  public showManualModal: boolean = false;
+  public showManualModalUncompleteWarning: boolean = false;
+  public showManualModalRobotOptions: boolean = false;
   public get leftPanel(): string {
     //console.log("leftPanel", this.ReviewerTermsService._ShowHideTermsList, this.ShowingOutComes);
     if (this.ReviewerTermsService._ShowHideTermsList) {
@@ -169,7 +170,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
   
   CloseManualModal() {
-    this.showManualModal = false;
+    this.showManualModalUncompleteWarning = false;
+    this.showManualModalRobotOptions = false;
   }
   public RobotDDData: Array<any> = [
     {
@@ -670,12 +672,31 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
       if (cmd.saveType == "Insert" || cmd.saveType == "Update") {
         this.ItemCodingService.ApplyInsertOrUpdateItemAttribute(cmdResult, itemSet);
+
+        if (this.IsScreening && cmd.saveType == "Insert" && this.PriorityScreeningService.CurrentItemIndex == this.PriorityScreeningService.ScreenedItemIds.length - 1) {
+          //snippet to tell the PS service that the last item in the list of screening items has been coded.
+          //this is used to count "items screened in this session" accurately
+          let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>
+            cset.setId == this.reviewInfoService.ReviewInfo.screeningCodeSetId
+            && (cset.contactId == this.ReviewerIdentityServ.reviewerIdentity.userId || cset.isCompleted));
+          if (ItemSetIndex > -1) {
+            this.PriorityScreeningService.LastItemInTheQueueIsDone = true;
+          }
+        }
         //if (cmd.saveType == "Insert") this.ItemCodingService.FetchItemAttPDFCoding;
       }
       else if (cmd.saveType == "Delete") {
         this.ItemCodingService.ApplyDeleteItemAttribute(itemSet, itemAtt);
-        //if (itemSet) console.log(itemSet.itemAttributesList.length);
-        //if (itemAtt) console.log(itemAtt.attributeId);
+        if (this.IsScreening && this.PriorityScreeningService.CurrentItemIndex == this.PriorityScreeningService.ScreenedItemIds.length - 1) {
+          //snippet to tell the PS service that the last item in the list of screening items has NOT been coded.
+          //this is used to count "items screened in this session" accurately
+          let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>
+            cset.setId == this.reviewInfoService.ReviewInfo.screeningCodeSetId
+            && (cset.contactId == this.ReviewerIdentityServ.reviewerIdentity.userId || cset.isCompleted));
+          if (ItemSetIndex == -1) {
+            this.PriorityScreeningService.LastItemInTheQueueIsDone = false;
+          }
+        }
       }
 
       this.SetCoding();
@@ -750,23 +771,17 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     const RSnode = this.ReviewSetsService.selectedNode as ReviewSet;
     if (!RSnode || !RSnode) return;
-    //for (let node of RSnode.attributes) {
-    //  if (node.description == "") {
-    //    this.notificationService.show({
-    //      content: "Can't run the OpenAI GPT4 robot: the code '" + node.name + "' has no description.",
-    //      position: { horizontal: 'center', vertical: 'top' },
-    //      animation: { type: 'fade', duration: 500 },
-    //      type: { style: 'error', icon: false },
-    //      hideAfter: 3000
-    //    });
-    //  }
-    //}
+
     //checks passed, we can try this.
     const itemSet = this.ItemCodingService.FindItemSetByItemSetId(RSnode.ItemSetId);
     if (RSnode.codingComplete && itemSet != null && itemSet.contactName != "OpenAI GPT4"
       && this.robotsService.RobotSetting.rememberTheseChoices == false
     ) {
-      this.showManualModal = true;
+      this.showManualModalUncompleteWarning = true;
+      return;
+    }
+    else if (this.robotsService.RobotSetting.rememberTheseChoices == false) {
+      this.showManualModalRobotOptions = true;
       return;
     }
     this.ActuallyRunRobotOpenAICommand(RSnode);    
@@ -785,11 +800,21 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       itemDocumentId: 0,
       itemId: this.itemID,
       onlyCodeInTheRobotName: this.robotsService.RobotSetting.onlyCodeInTheRobotName,
-      lockTheCoding: this.robotsService.RobotSetting.lockTheCoding, 
+      lockTheCoding: this.robotsService.RobotSetting.lockTheCoding,
+      useFullTextDocument: false,
       returnMessage: ""
     };
     let res = await this.robotsService.RunRobotOpenAICommand(cmd);
-    if (res.returnMessage != "Error") {
+    if (res.returnMessage.indexOf("Completed with errors") > -1) {
+      this.notificationService.show({
+        content: "GPT4 result: " + res.returnMessage,
+        position: { horizontal: 'center', vertical: 'top' },
+        animation: { type: 'fade', duration: 500 },
+        type: { style: 'error', icon: true },
+        closable: true
+      });
+    }
+    else {
       //no need to handle errors here - we do that in the service as usual
       //this.confirmationDialogService..ShowInformationalModal(res.returnMessage, "GPT4 result");
       this.notificationService.show({

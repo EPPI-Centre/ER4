@@ -35,12 +35,9 @@
                                          [data]="RobotDDData" [disabled]="!HasWriteRights"
                                          title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
                                          style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
-              <!--<button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1"
-                      title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
-                      [disabled]="!HasWriteRights" (click)="RunRobotOpenAICommand()"></button>-->
             </div>
             <div *ngIf="ShowRobotOptions" class="p-1 bg-light rounded">
-              <div class="row mx-1"><RobotSettings></RobotSettings></div>
+              <div class="row mx-1"><RobotSettings Context="Coding"></RobotSettings></div>
               <div class="row mx-1 border-top">
                 <button type="button" class="btn btn-outline-dark btn-sm px-1 py-0 mt-1" (click)="ShowRobotOptions = false">Close</button>
               </div>
@@ -167,7 +164,7 @@
 </div>
 
 
-<div *ngIf="showManualModal">
+<div *ngIf="showManualModalUncompleteWarning">
   <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="CloseManualModal()"></div>
   <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
     <div role="document" class="modal-dialog p-2" style="z-index:1001; background-color: white; pointer-events: auto;">
@@ -181,6 +178,30 @@
           As a consequence, the coding created will be visible in the Coding Record and in comparisons, but would be <strong>otherwise hidden</strong>.<br />
           You can change this and ask the robot to <strong>add its coding</strong> to the <strong>pre-existing coding</strong> instead
           by un-ticking the "<span class="text-monospace">Always add coding in the Robot's name</span>" option, below.<br />
+        </div>
+        <div class="row mt-1 border-bottom border-top"><RobotSettings Context="Modal"></RobotSettings></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="CloseManualModal()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
+        <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()">&nbsp;OK&nbsp;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showManualModalRobotOptions">
+  <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="CloseManualModal()"></div>
+  <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
+    <div role="document" class="modal-dialog p-2" style="z-index:1001; background-color: white; pointer-events: auto;">
+      <div class="modal-header alert-info">
+        <H4 class="modal-title">Robot Coding Settings</H4>
+      </div>
+      <div class="modal-body">
+        <div class="row d-inline-block alert-primary rounded p-1">
+          You are asking the Robot to auto-code the present item.<br />
+          <strong>Please review the Settings</strong> before continuing.<br />
+          Ticking the <span class="text-monospace bg-light px-1">Don't ask again, for this session</span>
+          option will prevent this dialog from appearing again during this session.
         </div>
         <div class="row mt-1 border-bottom border-top"><RobotSettings Context="Modal"></RobotSettings></div>
       </div>

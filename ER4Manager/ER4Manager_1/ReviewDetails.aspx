@@ -258,47 +258,82 @@ function openReviewerList(ID) {
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">
                         Priority screening</td>
-                    <td style="background-color: #FFFFCC" colspan="2">
+                    <td style="background-color: #FFFFCC" colspan="4">
                         <asp:CheckBox ID="cbShowScreening" runat="server" AutoPostBack="True" 
-                            oncheckedchanged="cbShowScreening_CheckedChanged" Text="SHOW_SCREENING" /><br />
+                            oncheckedchanged="cbShowScreening_CheckedChanged" Text="SHOW_SCREENING" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <asp:CheckBox ID="cbAllowReviewerTerms" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbAllowReviewerTerms_CheckedChanged" 
-                            Text="ALLOW_REVIEWER_TERMS" /><br />
+                            Text="ALLOW_REVIEWER_TERMS" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <asp:CheckBox ID="cbAllowClusteredSearch" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbAllowClusteredSearch_CheckedChanged" 
                             Text="ALLOW_CLUSTERED_SEARCH" />
                     </td>
+                </tr>
+                <tr>
                     <td style="width: 20%; background-color: #B6C6D6">
-                        More AI tech<br /><br />
+                        More AI tech<br /><br /><br />
                         Enter a Purchase ID to give this review OpenAI access
-                        (Enter 0 to clear)
                     </td>
-                    <td style="background-color: #FFFFCC" colspan="3">
+                    <td style="background-color: #FFFFCC;vertical-align:top;padding:3px" colspan="1">
                   <asp:CheckBox ID="cbEnableMag" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbEnableMag_CheckedChanged" Text="ENABLE OpenAlex" /><br />
                       <asp:CheckBox ID="cbEnableOpenAI" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbEnableOpenAI_CheckedChanged" Text="ENABLE OpenAI" /><br />
-                    OpenAI Credit ID: 
-                       <b><asp:Label ID="lblCreditPurchaseID" runat="server" Text="N/A"></asp:Label></b>
-                       <asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="false" Width="75px"></asp:TextBox>
-&nbsp;                 <asp:LinkButton ID="lbSavePurchaseCreditID" runat="server" onclick="lbSavePurchaseCreditID_Click" 
-                            ToolTip="Save the value in the textbox">Edit</asp:LinkButton><br />
-
-                    <asp:Panel ID="pnlCreditDetails" runat="server" Visible="false">
-                    Remaining: £
-                        <b><asp:Label ID="lblCreditPurchaseValue" runat="server" Text="N/A"></asp:Label></b>
                         <br />
-                    Purchaser: 
-                        <b><asp:Label ID="lblCreditPurchaserName" runat="server" Text="N/A"></asp:Label>&nbsp;
-                            <asp:Label ID="lblCreditPurchaserID" runat="server" Text="N/A"></asp:Label></b>
-                    </asp:Panel>
+                <asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="true" Width="100px"></asp:TextBox>
+&nbsp;                 <asp:LinkButton ID="lbSavePurchaseCreditID" runat="server" onclick="lbSavePurchaseCreditID_Click" 
+                            ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
+                        <b><asp:Label ID="lblInvalidID" runat="server" Text="Invalid ID" Visible="false"></asp:Label></b>
                     </td>
+                  
+                   <td style="background-color: #FFFFCC;vertical-align:top;padding:3px" colspan="3">
+                       OpenAI Credit<br />
+                    <asp:GridView ID="gvCreditForRobots" runat="server" Width="100%" onrowdatabound="gvCreditForRobots_RowDataBound"
+                        onrowcommand="gvCreditForRobots_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
+                        DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
+                        <Columns>
+                            <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
+                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                HorizontalAlign="Left" />
+                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                            </asp:BoundField>
+                            <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
+                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                HorizontalAlign="Left" />
+                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                            </asp:BoundField>
+                            <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
+                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                HorizontalAlign="Left" />
+                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                            </asp:BoundField>
+                            <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
+                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                HorizontalAlign="Left" />
+                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                            </asp:BoundField>
+                            <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" 
+                                Text="Remove">
+                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                HorizontalAlign="Left"/>
+                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                            </asp:ButtonField>                         
+                        </Columns>
+                    </asp:GridView>
+                    </td>
+                   
                 </tr>
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">
-                        British library</td>
+                        British library&nbsp;&nbsp;
+                          <asp:LinkButton ID="lbBritishLibrary" runat="server" Enabled="True" 
+                        onclick="lbBritishLibrary_Click">View</asp:LinkButton>
+
+                    </td>
                     <td style="background-color: #FFFFCC" colspan="2" valign="top">
-                        
+                    <asp:Panel ID="pnlBL1" runat="server" Visible="false">   
                         Library privilege copies&nbsp;&nbsp;
                         <asp:LinkButton ID="lbSaveBritLibPrivilege" runat="server" 
                             onclick="lbSaveBritLibPrivilege_Click">Save</asp:LinkButton>
@@ -310,8 +345,11 @@ function openReviewerList(ID) {
                         Authorisation code
                         <br />
                         <asp:TextBox ID="tbBritLibPrivilegeTxLine" runat="server" Width="50%"></asp:TextBox>
-                        TX line to export</td>
+                        TX line to export
+                    </asp:Panel>
+                        </td>
                     <td style="background-color: #FFFFCC" colspan="2" valign="top">
+                        <asp:Panel ID="pnlBL2" runat="server" Visible="false">   
                         Copyright cleared copies&nbsp;&nbsp;
                         <asp:LinkButton ID="lbSaveBritLibCRCleared" runat="server" 
                             onclick="lbSaveBritLibCopyrightCleard_Click">Save</asp:LinkButton>
@@ -321,7 +359,10 @@ function openReviewerList(ID) {
                         <asp:TextBox ID="tbBritLibCRClearedAuthCode" runat="server" Width="50%"></asp:TextBox>
                         Authorisation code<br />
                         <asp:TextBox ID="tbBritLibCRClearedTxLine" runat="server" Width="50%"></asp:TextBox>
-                        TX line to export</td>
+                        TX line to export
+                            </asp:Panel>
+                            
+                            </td>
                 </tr>
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">

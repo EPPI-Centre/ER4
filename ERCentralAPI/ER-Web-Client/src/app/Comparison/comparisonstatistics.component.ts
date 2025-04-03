@@ -39,7 +39,8 @@ export class ComparisonStatsComp implements OnInit {
 	public lockCoding: boolean = true;
 	public Full: boolean = true;
 
-	@Input('rowSelected') rowSelected!: number;
+  @Input('rowSelected') rowSelected!: number;
+  @Input('isCodingOnly') isCodingOnly: boolean = false;
 	@Output() setListSubType = new EventEmitter();
     private GoToReconcileSub: Subscription | null = null;
 	public ListSubType: string = "";
@@ -119,8 +120,9 @@ export class ComparisonStatsComp implements OnInit {
 			}
 		}
 	}
-	GoToReconcile() {
-		this.router.navigate(['Reconciliation']);
+  GoToReconcile() {
+    if (this.isCodingOnly) this.router.navigate(['ReconciliationCO']);
+    else this.router.navigate(['Reconciliation']);
 	}
 	public Complete(currentComparison: Comparison) {
 		var completeComparison = <iCompleteComparison>{};

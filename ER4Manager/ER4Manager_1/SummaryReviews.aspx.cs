@@ -316,19 +316,13 @@ public partial class SummaryReviews : System.Web.UI.Page
                         rblPSNonShareableEnable.Visible = true;
                         rblPSNonShareableEnable.SelectedValue = idr["SHOW_SCREENING"].ToString();
                     }
-
+                    if (Utils.GetSessionString("EnableChatGPTEnabler") == "True")
+                    {
+                        pnlGPTcredit.Visible = true;
+                        getOpenAIDetails();
+                    }
                 }
                 idr.Close();
-                /*
-                string SQL = "select REVIEW_NAME from TB_REVIEW where REVIEW_ID = '" + ReviewID + "'";
-                bool isAdmDB = false;
-                SqlDataReader sdr = Utils.ReturnReader(SQL, isAdmDB);
-                if (sdr.Read())
-                {
-                    tbReviewName.Text = sdr["REVIEW_NAME"].ToString();
-                }
-                sdr.Close();
-                */
                 break;
 
             default:
@@ -336,9 +330,7 @@ public partial class SummaryReviews : System.Web.UI.Page
         }
     }
     protected void gvReview_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-
-        
+    {      
         switch (e.CommandName)
         {
             case "EDT":
@@ -515,6 +507,11 @@ public partial class SummaryReviews : System.Web.UI.Page
                     lblPSShareableReview.Visible = true;
                     string test1 = idr["SHOW_SCREENING"].ToString();
                     rblPSShareableEnable.SelectedValue = idr["SHOW_SCREENING"].ToString();
+                }
+                if (Utils.GetSessionString("EnableChatGPTEnabler") == "True")
+                {
+                    pnlGPTcreditShare.Visible = true;
+                    getOpenAIDetailsShare();
                 }
 
             }
@@ -896,6 +893,220 @@ public partial class SummaryReviews : System.Web.UI.Page
                 lblNonShareableReviewNumber.Text, "ShowScreening", rblPSNonShareableEnable.SelectedValue);
     }
 
+    protected void gvCreditForRobots_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        bool isAdmDB = true;
+        int index = Convert.ToInt32(e.CommandArgument);
+        string creditForRobotsID = (string)gvCreditForRobots.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                isAdmDB = true;
+                Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID,
+                    Utils.GetSessionString("Contact_ID"), lblNonShareableReviewNumber.Text, 0);
+                getOpenAIDetails();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    protected void gvCreditForRobotsShare_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        bool isAdmDB = true;
+        int index = Convert.ToInt32(e.CommandArgument);
+        string creditForRobotsID = (string)gvCreditForRobotsShare.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                isAdmDB = true;
+                Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID,
+                    Utils.GetSessionString("Contact_ID"), lblShareableReviewNumber.Text, 0);
+                getOpenAIDetailsShare();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    protected void gvCreditForRobots_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton lb = (LinkButton)(e.Row.Cells[4].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this CreditID from this review?') == false) return false;");
+        }
+    }
+
+    protected void gvCreditForRobotsShare_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton lb = (LinkButton)(e.Row.Cells[4].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this CreditID from this review?') == false) return false;");
+        }
+    }
+
+    private void getOpenAIDetails()
+    {
+
+        string contact_name = "";
+        string contact_id = "";
+
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
+
+        dt.Columns.Add(new DataColumn("CREDIT_FOR_ROBOTS_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASER", typeof(string)));
+        dt.Columns.Add(new DataColumn("REMAINING", typeof(string)));
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
+            lblNonShareableReviewNumber.Text, "0");
+        while (idr.Read())
+        {
+            newrow = dt.NewRow();
+            newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
+            newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
+
+            contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
+            contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
+            newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
+
+            newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
+            dt.Rows.Add(newrow);
+        }
+        idr.Close();
+
+        gvCreditForRobots.DataSource = dt;
+        gvCreditForRobots.DataBind();
+
+        lblChatGPTCreditTableHeading.Visible = false;
+        if (dt.Rows.Count > 0)
+        {
+            lblChatGPTCreditTableHeading.Visible = true;
+        }
+        
+
+    }
+
+    private void getOpenAIDetailsShare()
+    {
+
+        string contact_name = "";
+        string contact_id = "";
+
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
+
+        dt.Columns.Add(new DataColumn("CREDIT_FOR_ROBOTS_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASER", typeof(string)));
+        dt.Columns.Add(new DataColumn("REMAINING", typeof(string)));
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
+            lblShareableReviewNumber.Text, "0");
+        while (idr.Read())
+        {
+            newrow = dt.NewRow();
+            newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
+            newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
+
+            contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
+            contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
+            newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
+
+            newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
+            dt.Rows.Add(newrow);
+        }
+        idr.Close();
+
+        gvCreditForRobotsShare.DataSource = dt;
+        gvCreditForRobotsShare.DataBind();
+
+        lblChatGPTCreditTableHeadingShare.Visible = false;
+        if (dt.Rows.Count > 0)
+        {
+            lblChatGPTCreditTableHeadingShare.Visible = true;
+        }
+
+
+    }
+
+
+
+    protected void lbSavePurchaseCreditID_Click(object sender, EventArgs e)
+    {
+        if ((tbCreditPurchaseID.Text.Trim() != "") && (Utils.IsNumeric(tbCreditPurchaseID.Text) == true))
+        {
+
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseID.Text.Trim());
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblNonShareableReviewNumber.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                getOpenAIDetails();
+                lblInvalidID.Visible = false;
+                tbCreditPurchaseID.Text = "";
+            }
+            else
+            {
+                lblInvalidID.Visible = true;
+            }
+        }
+    }
+
+    protected void lbSavePurchaseCreditIDShare_Click(object sender, EventArgs e)
+    {
+        if ((tbCreditPurchaseIDShare.Text.Trim() != "") && (Utils.IsNumeric(tbCreditPurchaseIDShare.Text) == true))
+        {
+
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseIDShare.Text.Trim());
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblShareableReviewNumber.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                getOpenAIDetailsShare();
+                lblInvalidIDShare.Visible = false;
+                tbCreditPurchaseIDShare.Text = "";
+            }
+            else
+            {
+                lblInvalidIDShare.Visible = true;
+            }
+        }
+    }
+
     protected void gvReview_PageIndexChanging(object sender, GridViewPageEventArgs e)
     {
         buildShareableReviewGrid(e.NewPageIndex);
@@ -924,4 +1135,8 @@ public partial class SummaryReviews : System.Web.UI.Page
     {
         buildOtherShareableReviewGrid(e.NewPageIndex);
     }
+
+
+
+
 }

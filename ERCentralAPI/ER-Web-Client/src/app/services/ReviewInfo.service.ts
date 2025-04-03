@@ -46,23 +46,35 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
       return this._ReviewContacts;
     }
   }
+  private _ReviewJobs: ReviewJob[] = [];
+  public get ReviewJobs(): ReviewJob[] {
+    return this._ReviewJobs;
+  }
 
   public async FetchAll() {
     this.Fetch();
     await Helpers.Sleep(40);//just avoiding to send two requests exactly at the same time...
     this.FetchReviewMembers();
   }
-  public Fetch() {
+  public Fetch()  {
     this._BusyMethods.push("Fetch");
-    this._httpC.get<iReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(
+    return lastValueFrom(this._httpC.get<iReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo')).then(
       rI => {
         this.ReviewInfo = new ReviewInfo(rI);
         this.RemoveBusy("Fetch");
         //console.log("fetched revinfo:", this._ReviewInfo);
         //this.Save();
+        return true;
       }, error => {
         this.RemoveBusy("Fetch");
         this.modalService.SendBackHomeWithError(error);
+        return false;
+      }
+    ).catch(
+      caught => {
+        this.RemoveBusy("Fetch");
+        this.modalService.SendBackHomeWithError(caught);
+        return false;
       }
     );
   }
@@ -115,10 +127,36 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
     if (ind != -1) return this._ReviewContacts[ind].contactName;
     else return "N/A [Id:" + ContactID.toString() + "]";
   }
+  public FetchJobs(): Promise<boolean> {
+    this._ReviewJobs = [];
+    this._BusyMethods.push("FetchJobs");
+    return lastValueFrom(this._httpC.get<iReviewJob[]>(this._baseUrl + 'api/ReviewInfo/ReviewJobs')).then(
+      res => {
+        for (let iJob of res) {
+          this._ReviewJobs.push(new ReviewJob(iJob));
+        }
+        this.RemoveBusy("FetchJobs");
+        return true;
+      }, error => {
+        this.RemoveBusy("FetchJobs");
+        this.modalService.GenericError(error);
+        return false;
+      }
+    ).catch(
+      caught => {
+        this.RemoveBusy("FetchJobs");
+        this.modalService.GenericError(caught);
+        return false;
+      }
+    );
+  }
+
+
   public Clear() {
     console.log("Clear in ReviewInfo service");
     this._ReviewInfo = new ReviewInfo();
     this._ReviewContacts = [];
+    this._ReviewJobs = [];
   }
 }
 
@@ -147,6 +185,7 @@ export class ReviewInfo {
       this.openAIEnabled = iRnfo.openAIEnabled;
       this.canUseRobots = iRnfo.canUseRobots;
       this.hasCreditForRobots = iRnfo.hasCreditForRobots;
+      this.comparisonsInCodingOnly = iRnfo.comparisonsInCodingOnly;
     }
   }
   public Clone(): ReviewInfo {
@@ -173,6 +212,7 @@ export class ReviewInfo {
     res.openAIEnabled = this.openAIEnabled;
     res.canUseRobots = this.canUseRobots;
     res.hasCreditForRobots = this.hasCreditForRobots;
+    res.comparisonsInCodingOnly = this.comparisonsInCodingOnly;
     return res;
   }
   reviewId: number = 0;
@@ -197,6 +237,7 @@ export class ReviewInfo {
   openAIEnabled: boolean = false;
   canUseRobots: boolean = false;
   hasCreditForRobots: boolean = false;
+  comparisonsInCodingOnly: boolean = false;
 }
 export interface iReviewInfo {
   reviewId: number;
@@ -221,6 +262,7 @@ export interface iReviewInfo {
   openAIEnabled: boolean;
   canUseRobots: boolean;
   hasCreditForRobots: boolean;
+  comparisonsInCodingOnly: boolean;
 }
 export class Contact {
 
@@ -232,5 +274,60 @@ export class Contact {
   role: string = '';
 
   isExpired: number = 1;
+}
+export interface iReviewJob {
+  reviewJobId: number;
+  jobType: string;
+  jobOwnerId: number;
+  created: string;
+  updated: string;
+  status: string;
+  success: number;
+  jobMessage: string;
+  lengthInMinutes: number;
+  lengthInSeconds: number;
+  ownerName: string;
+}
+
+export class ReviewJob {
+  constructor(data?: iReviewJob) {
+    if (data) {
+      this.reviewJobId = data.reviewJobId;
+      this.jobType = data.jobType;
+      this.jobOwnerId = data.jobOwnerId;
+      this.created = new Date(data.created);
+      this.updated = new Date(data.updated);
+      this.status = data.status;
+      this.success = data.success == 1 ? true : false;
+      this.jobMessage = data.jobMessage;
+      this.ownerName = data.ownerName;
+
+      const d1: any = this.created;
+      const d2: any = this.updated;
+      this.JobDurationMs = d2 - d1;
+    }
+    else {
+      this.reviewJobId = 0;
+      this.jobType = "";
+      this.jobOwnerId = 0;
+      this.created = new Date();
+      this.updated = this.created;
+      this.status = "";
+      this.success = false;
+      this.jobMessage = "";
+      this.ownerName = "";
+      this.JobDurationMs = 0;
+    }
+  }
+  reviewJobId: number;
+  jobType: string;
+  jobOwnerId: number;
+  created: Date;
+  updated: Date;
+  status: string;
+  success: boolean;
+  jobMessage: string;
+  ownerName: string;
+  JobDurationMs: number;
 }
 

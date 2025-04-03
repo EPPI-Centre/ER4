@@ -170,6 +170,11 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return ReadProperty(WebDBMapDescriptionProperty); }
         }
+        private static PropertyInfo<int> MapIdProperty = RegisterProperty<int>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<int>("MapId", "MapId"));
+        public int MapId
+        {
+            get { return ReadProperty(MapIdProperty); }
+        }
 
 
         public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string NameXaxis
@@ -177,7 +182,8 @@ namespace BusinessLibrary.BusinessClasses
                                                             , Int64 OnlyThisAttribute = 0
                                                             , Int64 AttributeIdYAxis = 0, int SetIdYAxis = 0, string NameYaxis = ""
                                                             , Int64 SegmentsParent = 0, int SegmentsSetId = 0
-                                                            , string WebDBMapName = "", string WebDBMapDescription = "")
+                                                            , string WebDBMapName = "", string WebDBMapDescription = ""
+                                                            , int MapId = 0)
         {
             LoadProperty(webDbIdProperty, WebDbId);
             LoadProperty(attributeIdXAxisProperty, AttributeIdXAxis);
@@ -193,6 +199,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(setIdSegmentsProperty, SegmentsSetId);
             LoadProperty(WebDBMapNameProperty, WebDBMapName);
             LoadProperty(WebDBMapDescriptionProperty, WebDBMapDescription);
+            LoadProperty(MapIdProperty, MapId);
         }
         public WebDbFrequencyCrosstabAndMapSelectionCriteria() { }
     }

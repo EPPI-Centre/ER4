@@ -208,6 +208,67 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        // ************************************ Below here is priority screening simulation study *******************************
+        [HttpGet("[action]")]
+        public IActionResult FetchPriorityScreeningSimulationList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                DataPortal<PriorityScreeningSimulationList> dp = new DataPortal<PriorityScreeningSimulationList>();
+                PriorityScreeningSimulationList result = dp.Fetch();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in FetchPriorityScreeningSimulationList");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult FetchPriorityScreeningSimulation([FromBody] string crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                SingleCriteria<PriorityScreeningSimulation, string> criteria =
+                    new SingleCriteria<PriorityScreeningSimulation, string>(crit);
+
+                DataPortal<PriorityScreeningSimulation> dp = new DataPortal<PriorityScreeningSimulation>();
+                PriorityScreeningSimulation result = dp.Fetch(criteria);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in FetchPriorityScreeningSimulation");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DeletePriorityScreeningSimulation([FromBody] string crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                SingleCriteria<PriorityScreeningSimulation, string> criteria =
+                    new SingleCriteria<PriorityScreeningSimulation, string>(crit);
+
+                DataPortal<PriorityScreeningSimulation> dp = new DataPortal<PriorityScreeningSimulation>();
+                dp.Delete(criteria);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in DeletePriorityScreeningSimulation");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        // ******************************* end priority screening simulation study ********************************************
+
     }
     public class TrainingScreeningCriteriaMVC
     {

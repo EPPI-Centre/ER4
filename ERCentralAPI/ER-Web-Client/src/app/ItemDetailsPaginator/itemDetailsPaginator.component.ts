@@ -58,11 +58,45 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
 
 
-  public HasPreviousScreening(): boolean {
+  public CanGoToPreviousScreening(): boolean {
 
-    if (this.PriorityScreeningService.CurrentItemIndex > 0) return true;
+    if (this.PriorityScreeningService.CurrentItemIndex > 0) {
+      if (this.PriorityScreeningService.CurrentItemIndex == this.PriorityScreeningService.ScreenedItemIds.length - 1) return true;//last item
+      else {
+        //we're inside the queue, and thus we're not allowed to leave this item if it doesn't have a code from the screening tool
+        return this.CanMoveToNextInScreening();
+      }
+    }
     return false;
   }
+
+  public get PreviouslyScreenedCount(): number {
+    let res: number = 0;
+
+
+    //if we can't go to next, it's because the current item isn't screened, so we shouldn't count it.
+    //but when we are already in the last items of the list of "seen items", then this is accounted for by LastItemInTheQueueIsDone already
+    //instead, when we're somewhere inside the queue, we need to account for both things!
+    let WeAreInTheLastItem = this.PriorityScreeningService.ScreenedItemIds[this.PriorityScreeningService.ScreenedItemIds.length - 1] == this.PriorityScreeningService.CurrentItem.itemId;
+
+    //console.log("PreviouslyScreenedCount", this.PriorityScreeningService.ScreenedItemIds
+    //  , this.PriorityScreeningService.LastItemInTheQueueIsDone
+    //  , WeAreInTheLastItem
+    //  , this.PriorityScreeningService.CurrentItem.itemId);
+
+    if (this.PriorityScreeningService.LastItemInTheQueueIsDone) {
+      
+      res = this.PriorityScreeningService.ScreenedItemIds.length;
+      if (!WeAreInTheLastItem && !this.CanMoveToNextInScreening()) res--;
+    }
+    else {
+      res = this.PriorityScreeningService.ScreenedItemIds.length - 1;
+      if (!WeAreInTheLastItem && !this.CanMoveToNextInScreening()) res--;
+    }
+    
+    return res;
+  }
+
   public CanMoveToNextInScreening(): boolean {
 
     let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>

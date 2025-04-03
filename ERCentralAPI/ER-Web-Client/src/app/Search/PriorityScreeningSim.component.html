@@ -1,0 +1,205 @@
+<HeaderComponent PageTitle="Priority screening simulations" Context="priority screening simulations"></HeaderComponent>
+
+<button class="page-link rounded pt-1 pb-1 mt-2 float-right" style="position: absolute; right: 16px; z-index: 20;" (click)="BackToMain()">
+  Close/back
+</button>
+
+<div class="border border-dark rounded mt-0 mx-0 mb-1 px-1 bg-light">
+  <div class="row mx-0 mx-0">
+    <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+      <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0 ">
+
+        <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+          <div class="mx-2 my-1 w-100 px-1 rounded border border-info alert-info small">
+            Please pick <strong>meaningful simulation names</strong>. Once a simulation runs, you will only have its name to tell you what it is. <br />
+            Simulation names must be between 4 and 40 characters long, can contain letters, numbers, spaces, dashes and underscores.
+          </div>
+          <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right  ">Name for your simulation </div>
+          <input class="form-control bg-white mx-0 px-1 col-12 col-md-8 my-auto" id="simulationName" name="simulationName"
+                 required maxlength="40" #simulationNameInput="ngModel" [(ngModel)]="simulationNameText" type="text" />
+          <div *ngIf="simulationNameInput.dirty && SimNameIsInvalid > 0"
+               class="alert alert-danger small px-1 py-0">
+            <ng-container [ngSwitch]="SimNameIsInvalid">
+              <div *ngSwitchCase=1>Simulation name is required.</div>
+              <div *ngSwitchCase=2>Simulation name must be at least 4 characters long.</div>
+              <div *ngSwitchCase=3>Only letters, numbers, spaces, dashes and underscores are allowed.</div>
+              <div *ngSwitchCase=4>You've already used this simulation name.</div>
+              <!-- no need for *ngSwitchDefault -->
+            </ng-container>
+          </div>
+        </div>
+        <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+          <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Simulate looking for records with this code</div>
+          <div ngbDropdown class="d-inline-block my-auto mx-0 px-1 col-12 col-sm-6 col-md-8 ">
+            <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsedPriorityScreening = !isCollapsedPriorityScreening; isCollapsed2PriorityScreening=false" [attr.aria-expanded]="!isCollapsedPriorityScreening" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
+            <div (click)="SetAttrOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsedPriorityScreening">
+              <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]=false></codesetSelector>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+          <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Distinguish from the ones with this code</div>
+          <div ngbDropdown class="d-inline-block my-auto mx-0 px-1 col-12 col-sm-6 col-md-8">
+            <button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2PriorityScreening = !isCollapsed2PriorityScreening; isCollapsedPriorityScreening=false" [attr.aria-expanded]="!isCollapsed2PriorityScreening" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
+            <div (click)="SetAttrNotOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2PriorityScreening">
+              <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
+            </div>
+          </div>
+          <div *ngIf="SameCodesAreSelected" class="my-auto row mx-0 px-1 col-12">
+            <div class="d-inline-block alert-danger rounded m-1 mx-md-auto p-1">Need to select two different codes!</div>
+          </div>
+        </div>
+        <div class="col-12 mt-2 mb-2 justify-content-center">
+          <button (click)="openConfirmationDialogPriorityScreening()" [disabled]="!CanStartSimulation"
+                  type="button" class="btn btn-success" style="min-width:162px;max-width:300px;">
+            Run priority screening simulation <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+      <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
+        <div class="p-1 m-0  ">
+          <div><b>Completed simulation runs</b></div>
+          <div>
+            <button title="Refresh list" (click)="refreshPriorityScreeningSimulationList()" class="btn btn-sm btn-outline-success ml-1 mr-0 mb-1 pt-1 pb-0 px-2">
+              Refresh list  <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+            </button>
+          </div>
+          <div style="max-height:27vh; min-height:185px;overflow:auto;">
+            <table class="table-sm w-100 table-striped">
+              <thead>
+                <tr>
+                  <th class="" >Name</th>
+                  <th class="" ></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let item of PriorityScreeningSimulationList">
+
+                  <td class="">
+                    <button (click)="showSimulation(item)" [ngClass]="{'font-weight-bold': item.simulationName==PriorityScreeningSimulationName }" class="btn btn-link px-1 py-0">{{item.simulationName}}</button>
+                  </td>
+
+                  <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
+                    <button class="btn btn-sm btn-danger" title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
+                      <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
+                    </button>
+                    <!--<div class="p-0 "
+       style="border: 1px solid white; border-radius: 3px; float: right; cursor: pointer; position: relative; top: 15%; margin-left: 2px;"
+       title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
+    <span class="k-icon k-i-trash alert-danger" size="small" style="position: relative; top:-2px;"></span>
+  </div>-->
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mx-0 px-0" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">
+    <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+      <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
+        <div>
+          <figure class="figure col-12">
+            <kendo-chart #VisualiseChart style="min-height:400px; height:52vh;"
+                         *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">
+              <kendo-chart-title [text]="PriorityScreeningSimulationName">
+              </kendo-chart-title>
+              <kendo-chart-legend [visible]="false"></kendo-chart-legend>
+              <kendo-chart-series>
+                <kendo-chart-series-item *ngFor="let series of simulationDataContainer; index as i"
+                                         type="scatterLine"
+                                         [data]="series"
+                                         name="Sim #{{(i + 1).toString()}}"
+                                         [markers]="{ visible: false }"
+                                         [tooltip]="{ visible: true }">
+                  <kendo-chart-series-item-tooltip>
+                    <ng-template let-category="category" let-value="value" let-dataItem="dataItem" let-series="series">
+                      {{series.name}}: {{dataItem[0]}},{{dataItem[1]}}
+                    </ng-template>
+                  </kendo-chart-series-item-tooltip>
+                </kendo-chart-series-item>
+              </kendo-chart-series>
+              <kendo-chart-x-axis>
+                <kendo-chart-x-axis-item [title]="{ text: xAxisText }"
+                                         [max]="simulationDataItemCountRoundedUp">
+                </kendo-chart-x-axis-item>
+              </kendo-chart-x-axis>
+              <kendo-chart-y-axis>
+                <kendo-chart-y-axis-item [title]="{ text: yAxisText }"
+                                         [max]="simulationDataIncludedItemsCountRoundedUp">
+                </kendo-chart-y-axis-item>
+              </kendo-chart-y-axis>
+            </kendo-chart>
+          </figure>
+        </div>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-info" (click)="exportChart()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">Save chart</button>
+            <button class="btn btn-outline-info ml-1" (click)="exportChart2x()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">Save chart (higher res)</button>
+            &nbsp;
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+      <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
+        <div><strong>Statistics re: <span class="text-info">{{PriorityScreeningSimulationName}}</span></strong></div>
+        <div style="overflow:auto;">
+          <table class="table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>Simulation</th>
+                <th>N included</th>
+                <th>N screened</th>
+                <th>N screened@{{ recallLevel }}</th>
+                <th>Simulated workload reduction</th>
+                <th>Workload reduction %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let statistic of statistics">
+                <td>{{ statistic.simulation }}</td>
+                <td>{{ statistic.nIncludes }}</td>
+                <td>{{ statistic.nScreened }}</td>
+                <td>{{ statistic.nScreenedAt100 }}</td>
+                <td>{{ statistic.workloadReduction }}</td>
+                <td>{{ statistic.workloadReductionPercent }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <br />
+          <div>{{ summaryStatisticsAgg }}</div>
+          <div>{{ workloadReductionStats }}</div>
+          <div>{{ workloadReductionPercentStats }}</div>
+        </div>
+        <div class="row px-0 mx-0 justify-content-around">
+          <div class="col px-0">
+            Specific recall: <kendo-numerictextbox [(ngModel)]="recallLevel"
+                                                   [min]="85" [format]="'n0'"
+                                                   [max]="100"
+                                                   [autoCorrect]="true"
+                                                   class="border border-dark rounded"
+                                                   style="width: 110px;"
+                                                   (valueChange)="processSimulation(false)"></kendo-numerictextbox>
+          </div>
+
+            <div class="col px-1">
+              <button title="Download data" (click)="downloadData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 "
+                      class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+                Download data
+              </button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>
