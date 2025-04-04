@@ -250,6 +250,19 @@ namespace BusinessLibrary.BusinessClasses
             {
                 _Succeded = false;
                 _message = "Error. " + Environment.NewLine + e.Message;
+                if (e.Message.Contains("An item with the same key has already been added. Key:"))
+                {//this happens if a RAG label appears twice in the coding tool - I.e. exactly the same label, as in when "**RefToRegularPrompt**details" (the whole thing) is repeated exactly.
+                    //in this (predictable) case we want the error message to be clearly informative to the user.
+                    int index = e.Message.IndexOf("An item with the same key has already been added. Key:");
+                    if (index >= 0)
+                    {
+                        string Msg = e.Message.Substring(index + ("An item with the same key has already been added. Key:").Length).Trim();
+                        Msg = "Error, the following label appears twice in the prompts: \"" + Msg + "\". " + Environment.NewLine + "Please correct this by editing the coding tool and retry.";
+                        e = new Exception(Msg);
+                    }
+                    _itemId = 0;//problem is with the coding tool - no need to point users to an item
+                    _isLastInBatch = true;//if this is a batch, RobotOpenAiHostedService will notice the error and execution will stop here, so we want the log to report the job as "Failed", see below.
+                }
                 ErrorLogSink(e.Message);
                 if (e.StackTrace != null) ErrorLogSink(e.StackTrace);
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -725,8 +738,8 @@ namespace BusinessLibrary.BusinessClasses
 
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
-            _inputTokens = generatedText.usage.prompt_tokens;
-            _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            _inputTokens += generatedText.usage.prompt_tokens;
+            _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             var responses = generatedText.choices[0].message.content;
             if (isRag)
             {

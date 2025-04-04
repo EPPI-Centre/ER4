@@ -499,6 +499,10 @@ namespace BusinessLibrary.BusinessClasses
                         LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - too many prompts", true, e, 0);
                         break;
                     }
+                    else if (cmd.ReturnMessage.StartsWith("Error.") && cmd.ReturnMessage.Contains("An item with the same key has already been added. Key:"))
+                    {//this happens if a RAG label appears twice in the coding tool - I.e. exactly the same label, as in when "**RefToRegularPrompt**details" (the whole thing) is repeated exactly.
+                        break; //an exception is caught inside RobotOpenAICommand and logged therein, so we just stop processing this whole batch.
+                    }
                     else
                     {
                         //checks for non-batch-fatal failures, batch will continue execution, but we log per-item errors here
