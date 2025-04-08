@@ -94,7 +94,88 @@
                 }
             },
             select: TreeViewSelection
-        });
+        })
+        
+
+        var showMap = 1;
+        if (showMap == 1) {
+
+        var countrySetID = 5131
+        var countryAttributeID = 181330
+
+        $.post("../Frequencies/GetFrequenciesJSON", {
+            attId: countryAttributeID, setId: countrySetID, included: true
+        },
+            function (data, result) {
+                BuildFreqsWM(data, result);
+
+                // the countries with itemCounts > 0 and has a 2 letter countryCode
+                const countries = [];
+                var counter = 0;
+                var countryCode;
+                var counts;
+                for (j = 0; j < data.results.length; j++) {
+                    countryCode = data.results[j].countryCode;
+                    counts = data.results[j].itemCount;
+                    if ((countryCode != 0) && (counts != 0)) {
+                        countries[counter] = countryCode;
+                        counter += 1;
+                    }
+                }
+
+                $('#map-example').vectorMap( {
+                    map: 'world_en',
+                    backgroundColor: 'transparent',
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    color: '#e4e4e4',
+                    enableZoom: true,
+                    hoverColor: '#35cd3a',
+                    hoverOpacity: null,
+                    normalizeFunction: 'linear',
+                    scaleColors: ['#b6d6ff', '#005ace'],
+                    selectedColor: '#35cd3a',
+                    selectedRegions: countries,
+                    showTooltip: true,
+                    onRegionClick: function (element, code, region) {
+                        var codeP = code;
+                        var regionP = region;
+                        GoToListJQVMap(data, codeP, regionP)
+                    },
+                    onResize: function (element, width, height) {
+                        console.log('Map Size: ' + width + 'x' + height);
+                    },
+                    onLabelShow: function (event, label, code) {
+                        var index = 0;
+                        for (j = 0; j < data.results.length; j++) {
+                            if ((data.results[j].countryCode).toLowerCase() == code) {
+                                index = j;
+                                j = data.results.length;
+                            }
+                        }
+
+                        var countryName = label[0].innerHTML;
+                        var html = ['<table>',
+                            '<tr>',
+                            '<td>',
+                            countryName,
+                            '</td>',
+                            '</tr>',
+                            '<tr>',
+                            '<td>',
+                            data.results[index].itemCount,
+                            //code,
+                            '</td>',
+                            '</tr>',
+                            '</table>'
+                        ].join("");
+                        label[0].innerHTML = html;
+                    }
+                })
+
+            })
+        };
+        
         treeviewData = $("#treeView").data("kendoTreeView");
         const descrPanel = $("#WebDBDescription");
         //console.log("descrPanel:", descrPanel, descrPanel.height());
@@ -1196,6 +1277,8 @@
         x.style.display = "none";
         x = document.getElementById('MapsCard');
         x.style.display = "none";
+        x = document.getElementById('WorldMapCard');
+        x.style.display = "none";
         x = document.getElementById('FrequenciesCard');
         x.style.display = "none";
         x = document.getElementById('YearFrequenciesCard');
@@ -1210,10 +1293,25 @@
         // retrieve data if needed
         if (cardName == 'YearFrequenciesCard') {GetYearsFreqs();}
         if (cardName == 'MapsCard') {GetMaps();}
+    }
 
 
-
-
+    function GoToListJQVMap(data, codeP, regionP) {
+        /* get the attributeID for the selected country and list the studies*/
+        var attributeID = 0;
+        var countryCode;
+        for (j = 0; j < data.results.length; j++) {
+            countryCode = data.results[j].countryCode;
+            if ((data.results[j].countryCode).toLowerCase() == codeP) {
+                attributeID = data.results[j].attributeId;
+                j = data.results.length;
+            }
+        }
+        GoToItems(attributeID, regionP);
+        /*
+        if (attributeID != 0) {
+            GoToItems(attributeID, regionP);
+        }*/
     }
 
 
@@ -1479,6 +1577,19 @@
                         <div class="card-body" id="MapsCardBody">
                         </div>
                     </div>
+
+                    <div class="card" id="WorldMapCard" style="display:none;">
+                        <div class="card-header">
+                            <div class="card-title">Hello hello</div>
+                            <div class="card-title" id="WorldMapTitle"></div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mapcontainer">
+                                <div id="map-example" class="vmap" style="height: 450px"></div>
+                            </div>
+                        </div>
+                    </div>
+
 
 
                     <!-- Frequency card -->
