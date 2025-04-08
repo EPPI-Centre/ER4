@@ -77,7 +77,7 @@
                             $("#BarByYearChartVisible").hide();
                         }
                         else {
-                            GetYearsFreqs();//getting the years chart after the codes...
+                            //GetYearsFreqs();//getting the years chart after the codes...
                         }
 
                         sessionStorage.setItem("MapId", "0");
@@ -85,9 +85,10 @@
                         sessionStorage.setItem("CrossTabPars", "");
                         sessionStorage.setItem("MapPars", "");
                         
-                        setTimeout(function () {
-                            GetMaps();
-                        }, 150); //don't like multiple requests to be fired all at once!
+                        //setTimeout(function () {
+                        //    GetMaps();
+                        //}, 150); //don't like multiple requests to be fired all at once!
+
                         return nodes;
                     }
                 }
@@ -356,6 +357,22 @@
     }
 
     function BuildFreqs() {
+
+        // hide all containers
+        var x = document.getElementById('DescriptionCard');
+        x.style.display = "none";
+        x = document.getElementById('MapsCard');
+        x.style.display = "none";
+        x = document.getElementById('FrequenciesCard');
+        x.style.display = "none";
+        x = document.getElementById('YearFrequenciesCard');
+        x.style.display = "none";
+        x = document.getElementById('CrosstabAndMapCard');
+        x.style.display = "none";
+        // show frequency container
+        var x = document.getElementById('FrequenciesCard');
+        x.style.display = "block";
+
         $("#BarOrPieChartVisible").hide();
         $("#FrequenciesGrid").show();
         $("#FrequenciesChart").hide();
@@ -1162,6 +1179,44 @@
         console.log("Will go to map:" + mapId);
         postwith(getBasePath() + "Frequencies/GetMapById", { mapId: mapId });
     }
+
+    function filterToggle(divName) {
+        var x = document.getElementById(divName);
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+
+
+    function showCard(cardName) {
+        // hide all containers
+        var x = document.getElementById('DescriptionCard');
+        x.style.display = "none";
+        x = document.getElementById('MapsCard');
+        x.style.display = "none";
+        x = document.getElementById('FrequenciesCard');
+        x.style.display = "none";
+        x = document.getElementById('YearFrequenciesCard');
+        x.style.display = "none";
+        x = document.getElementById('CrosstabAndMapCard');
+        x.style.display = "none";
+
+        // show selected container
+        var x = document.getElementById(cardName);
+        x.style.display = "block";
+
+        // retrieve data if needed
+        if (cardName == 'YearFrequenciesCard') {GetYearsFreqs();}
+        if (cardName == 'MapsCard') {GetMaps();}
+
+
+
+
+    }
+
+
 </script>
 
 
@@ -1182,7 +1237,7 @@
 
 
 <!-- Side bar coding tools area -->
-<div class="sidebar sidebar-style-2">
+<div class="sidebar sidebar-style-2" style="background-color:#a4d2f7">
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
 
@@ -1198,9 +1253,6 @@
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
 
-
-
-
                     <div style="padding-left:10px">
                         <!-- this button should be invisible if the screen is > 325px wide --> 
                         <button id="smallPhoneButton" class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" 
@@ -1208,16 +1260,97 @@
                             <span class="navbar-toggler-icon">
                                 <i class="icon-menu"></i>
                             </span>
-                        </button>
+                        </button>               
+                    </div>
 
-                        <!--CODING TOOLS<br /><br />-->
-                        <button id="GoToItemsWithThisCodeSB" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
-                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreqSB">Frequencies</button>
+
+                    <div style="padding-left:10px">
+
+                        <!-- Home -->
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('DescriptionCard')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="100%"><h5><b>HOME</b></h5></td>
+                                </tr>
+                            </table>
+                        </div>
+                    
+                        <!-- Coding tools -->
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('codingToolsDiv')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                    <h5><b>CODING TOOLS</b></h5>
+                                    </td>
+                                    <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                            <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                        </svg>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!-- Display Coding tools -->
+                        <div id="codingToolsDiv" style="width: 95%; display:none">                            
+                            <button id="GoToItemsWithThisCodeSB" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
+                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreqSB">Frequencies</button>
+                            <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif">
+                            </div>
+                        </div>
+
+                        <!-- Pre-built maps -->
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('MapsCard')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="100%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                    <h5><b>EVIDENCE MAPS</b></h5>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- World map -->
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('MapsCard')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="100%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <h5><b>LOCATIONS</b></h5>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Publication year frequencies -->
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('YearFrequenciesCard')">                         
+                            <table width="100%">
+                                <tr>
+                                    <td width="100%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <h5><b>PUBLICATION DATES</b></h5>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+
+                        <!-- On-the-fly Crosstabs and Maps -->
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('CrosstabAndMapCard')">                            
+                            <table width="100%">
+                                <tr>
+                                    <td width="100%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <h5><b>CROSSTABS AND MAPS</b></h5>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
                     </div>
                 </li>
-                <li class="nav-item">
+
+
+
+                <!--<li class="nav-item">
                     <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
-                </li>
+                </li>-->
             </ul>
 
         </div>
@@ -1284,10 +1417,11 @@
         <!-- Everything below header -->
         <div class="page-inner px-2 mt--5">
             <div class="row mx-0 mt--2">
-                <div class="col-12 col-md-7 col-lg-8">
+                <div class="col-12 col-md-12 col-lg-12">
+
 
                     <!-- Description card -->
-                    <div class="card ">
+                    <div class="card " id="DescriptionCard" style="display:block;">
                         <div class="card-header">
                             <table width="100%">
                                 <tr>
@@ -1348,7 +1482,7 @@
 
 
                     <!-- Frequency card -->
-                    <div class="card ">
+                    <div id="FrequenciesCard" class="card" style="display:none;">
 
                         <div class="card-header">
                             <input type="hidden" value="0" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
@@ -1451,14 +1585,8 @@
                     </div>
 
 
-
-                </div>
-
-
-                <div class="col-auto col-lg">
-
                     <!-- Publication date frequency card -->
-                    <div class="card">
+                    <div id="YearFrequenciesCard" class="card" style="display:none;">
                         <div class="card-header">
                             <table width="100%">
                                 <tr>
@@ -1515,8 +1643,9 @@
                         </div>
                     </div>
 
+
                     <!-- Crosstab and Map card -->
-                    <div class="card ">
+                    <div id="CrosstabAndMapCard" class="card" style="display:none;">
                         <div class="card-header">
                             <table width="100%">
                                 <tr>
@@ -1594,7 +1723,18 @@
                         </div>
                     </div>
 
+
+
                 </div>
+
+
+                <!--<div class="col-auto col-lg">
+
+
+
+
+
+                </div>-->
             </div>
 
         </div>
