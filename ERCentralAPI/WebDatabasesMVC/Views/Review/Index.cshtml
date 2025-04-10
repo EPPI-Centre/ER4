@@ -68,6 +68,27 @@
                             //    };
                             nodes.push(nd);
                         }
+
+                        var worldMap = "FROM_TEST_DATE";
+                        if (worldMap == "FROM_FIELD") {
+                            if (sessionStorage.getItem("IsTouchScreen") == "Yes") {
+                                setTimeout(function () {
+                                    createWorldMapTouchScreen();
+                                }, 150);
+                                //$("#cbTouchScreen").checked = true;
+                                document.getElementById("cbTouchScreen").checked = true;
+                                $("#info").html("Click a bubble");
+                                $("#ListItemsTouchScreen").show();
+                                $("#ListItemsTouchScreen").prop("disabled", true);
+                            }
+                            else {
+                                setTimeout(function () {
+                                    createWorldMap(); // draw map
+                                }, 150);
+                            }
+                        }
+
+
                         if (sessionStorage.getItem("HideYearFreqs") == "Yes") {
                             $("#publicationDiv").hide();
                             HideShowPublicationDivIcon.className = "fa fa-plus";
@@ -94,14 +115,8 @@
                 }
             },
             select: TreeViewSelection
-        })
+        });
         
-
-        ;
-        
-
-
-
         treeviewData = $("#treeView").data("kendoTreeView");
         const descrPanel = $("#WebDBDescription");
         //console.log("descrPanel:", descrPanel, descrPanel.height());
@@ -142,6 +157,242 @@
 
 
     });
+
+    //for testing without database access
+    var ds = new kendo.data.DataSource({
+        data: [
+            {"location": [37.090240, -95.712891], "value": 350, "country": "United States"},
+            {"location": [56.130366, -106.346771], "value": 263, "country": "Canada"},
+            {"location": [55.378051, -3.435973], "value": 250, "country": "United Kingdom"},
+            {"location": [-25.274398, 133.775136], "value": 1, "country": "Australia"},
+            {"location": [56.26392, 9.501785], "value": 88, "country": "Denmark"},
+            {"location": [51.165691, 10.451526], "value": 30, "country": "Germany"},
+            {"location": [53.41291, -8.24389], "value": 100, "country": "Ireland" },
+            {"location": [-14.235004, -51.92528], "value": 10, "country": "Brazil" }
+        ]
+    });
+    
+
+
+    /*var ds = new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: "../Review/CountryHistogramJSON",
+                    dataType: "json"
+            }
+        }
+    });*/
+
+
+    function createWorldMapTouchScreen() {
+        // for touchscreen there is no hover so...
+        // when you click on the bubble a button to 'list records' is enabled in the card header
+
+        var template = kendo.template($("#info-template").html());
+        var emptyTemplate = kendo.template($("#empty-info-template").html());
+        var activeShape;
+
+        $("#map").kendoMap({
+            center: [37.090240, 0.0000],
+            controls: {
+                zoom: true
+            },
+            zoom: [2],
+            minZoom: 2,
+            maxZoom: 5,
+            zoomable: true,
+            layerDefaults: {
+                bubble: {
+                    style: {
+                        fill: {
+                            color: "#00f",
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            width: 0
+                        }
+                    },
+                    maxSize: 60,
+                    minSize: 5
+                }
+            },
+            layers: [
+                {
+                type: "tile",
+                urlTemplate: "https://#= subdomain #.tile.openstreetmap.org/#= zoom #/#= x #/#= y #.png",
+                subdomains: ["a", "b", "c"]
+                },
+                {
+                type: "bubble",
+                dataSource: ds
+                }
+            ],
+            shapeMouseEnter: onShapeMouseEnter,
+            shapeClick: onShapeClick,
+            wraparound: false,
+            reset: onReset
+        });
+
+        var map = $("#map").data("kendoMap");
+        zoom = map.zoom();
+        map.zoom(zoom);
+
+        // to disable mouse scroll wheel in map
+        //$("#map").unbind("mousewheel");
+        //$("#map").unbind("DOMMouseScroll");
+
+
+        function onShapeMouseEnter(e) {
+            if (activeShape) {
+                activeShape.options.set("stroke", null);
+            }
+
+            activeShape = e.shape;
+            activeShape.options.set("stroke", { width: 2.5, color: "#00f" });
+
+            $("#info").html(template(e.shape.dataItem));
+        }
+
+        function onShapeClick(e) {
+            if (!$(e.originalEvent.relatedTarget).is(".k-popup, .k-animation-container")) {
+                //alert("The bubble is clicked");
+
+                if (activeShape) {
+                activeShape.options.set("stroke", null);
+                }
+
+                activeShape = e.shape;
+                activeShape.options.set("stroke", { width: 2.5, color: "#00f" });
+
+                $("#info").html(template(e.shape.dataItem));
+                $("#ListItemsTouchScreen").prop("disabled", false);
+            }
+        }
+
+        function onReset() {
+            // when you zoom we want to reset the selected country
+            const infoTest = $("#info");
+            const listItemsTouchScreen = $("#ListItemsTouchScreen");
+
+            $("#ListItemsTouchScreen").prop("disabled", true);
+            infoTest[0].innerText = "Click a bubble";
+            activeShape = null;
+        }
+    }
+
+
+    function createWorldMap() {
+        var template = kendo.template($("#info-template").html());
+        var emptyTemplate = kendo.template($("#empty-info-template").html());
+        var activeShape;
+
+        $("#map").kendoMap({
+            center: [37.090240, 0.0000],
+            controls: {
+                zoom: true
+            },
+            zoom: [2],
+            minZoom: 2,
+            maxZoom: 5,
+            zoomable: true,
+            layerDefaults: {
+                bubble: {
+                    style: {
+                        fill: {
+                            color: "#eb2719",
+                            opacity: 0.45
+                        },
+                        stroke: {
+                            width: 0
+                        }
+                    },
+                maxSize: 60, // max bubble size in px
+                minSize: 5 // min bubble size in px so you can see it
+                }
+            },
+            layers: [
+                {
+                type: "tile",
+                urlTemplate: "https://#= subdomain #.tile.openstreetmap.org/#= zoom #/#= x #/#= y #.png",
+                subdomains: ["a", "b", "c"]
+                },
+                {
+                type: "marker",
+                dataSource: ds,
+                locationField : "location",
+                shape: "pinTarget",
+                colorField: "red",
+                tooltip: {
+                    template: "#= kendo.toString(marker.dataItem.country) + ': ' + kendo.toString(marker.dataItem.value) #"
+                    }
+                },
+                {
+                type: "bubble",
+                dataSource: ds
+                }
+            ],
+            markerClick: onMarkerClick,
+            wraparound: false,
+            reset: onReset
+        });
+
+        var map = $("#map").data("kendoMap");
+        zoom = map.zoom();
+        map.zoom(zoom);
+
+        // to disable mouse scroll wheel in map
+        //$("#map").unbind("mousewheel");
+        //$("#map").unbind("DOMMouseScroll");
+
+        function onMarkerClick(e) {
+            //alert("The Marker is clicked");
+            ListItemsByCountry(e);
+        }
+
+        function onReset() {
+            $("#info").html(emptyTemplate({}));
+            activeShape = null;
+        }
+    }
+
+
+    //$(document).ready(createWorldMap);
+
+
+    function ListItemsByCountry(e) {
+        //alert("The marker is clicked");
+        var countryName = e.marker.dataItem.country;
+
+        postwith("../ItemList/GetListSearchResults", {
+            SearchString: countryName
+            , SearchWhat: "Country"
+            , included: "true"
+        })
+    }
+
+
+    function ListItemsByCountryTouchScreen() {
+        //alert("The List records button is clicked");
+
+        const infoTest = $("#info");
+        var labelText = infoTest[0].innerText;
+        let countryName = labelText.substring(0, labelText.indexOf(':'));
+
+        postwith("../ItemList/GetListSearchResults", {
+            SearchString: countryName
+            , SearchWhat: "Country"
+            , included: "true"
+        })
+    }
+
+
+
+
+
+
+
+
+
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
         if (descrPanel) {
@@ -250,6 +501,35 @@
             }
         }
     }
+
+
+        function HideShowWorldMapDiv() {
+        if ("#WorldMapDiv") {
+            if (HideShowWorldMapDivIcon.className == "fa fa-plus") {
+                $("#WorldMapDiv").show();
+                HideShowWorldMapDivIcon.className = "fa fa-minus";
+                $("#WorldMapInformationDiv").show();
+                sessionStorage.setItem("HideShowWorldMap", "No");
+                if (sessionStorage.getItem("IsTouchScreen") == "Yes") {
+                    setTimeout(function () {
+                        createWorldMapTouchScreen();
+                        }, 150);
+                    }
+                    else {
+                        setTimeout(function () {
+                        createWorldMap();
+                        }, 150);
+                }
+            }
+            else {
+                $("#WorldMapDiv").hide();
+                HideShowWorldMapDivIcon.className = "fa fa-plus";
+                $("#WorldMapInformationDiv").hide();
+                sessionStorage.setItem("HideShowWorldMap", "Yes");
+            }
+        }
+    }
+
 
 
     function HideShowMapDescriptionDiv(ID) {
@@ -1243,108 +1523,8 @@
         // retrieve data if needed
         if (cardName == 'YearFrequenciesCard') {GetYearsFreqs();}
         if (cardName == 'MapsCard') {GetMaps();}
-        if (cardName == 'WorldMapCard') {GetWorldMap();}
+        if (cardName == 'WorldMapCard') {createWorldMap();}
 
-    }
-
-
-    function GetWorldMap () {
-
-        var countrySetID = 5131
-        var countryAttributeID = 181330
-
-        $.post(getBasePath() + "../Frequencies/GetFrequenciesJSON", {
-            attId: countryAttributeID, setId: countrySetID, included: true
-        },
-            function (data, result) {
-                BuildFreqsWM(data, result);
-
-                // the countries with itemCounts > 0 and has a 2 letter countryCode
-                const countries = [];
-                var counter = 0;
-                var countryCode;
-                var counts;
-                for (j = 0; j < data.results.length; j++) {
-                    countryCode = data.results[j].countryCode;
-                    counts = data.results[j].itemCount;
-                    if ((countryCode != 0) && (counts != 0)) {
-                        countries[counter] = countryCode;
-                        counter += 1;
-                    }
-                }
-
-                $('#map-example').vectorMap( {
-                    map: 'world_en',
-                    backgroundColor: 'transparent',
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                    color: '#e4e4e4',
-                    enableZoom: true,
-                    hoverColor: '#35cd3a',
-                    hoverOpacity: null,
-                    normalizeFunction: 'linear',
-                    scaleColors: ['#b6d6ff', '#005ace'],
-                    selectedColor: '#35cd3a',
-                    selectedRegions: countries,
-                    showTooltip: true,
-                    onRegionClick: function (element, code, region) {
-                        var codeP = code;
-                        var regionP = region;
-                        GoToListJQVMap(data, codeP, regionP)
-                    },
-                    onResize: function (element, width, height) {
-                        console.log('Map Size: ' + width + 'x' + height);
-                    },
-                    onLabelShow: function (event, label, code) {
-                        var index = 0;
-                        for (j = 0; j < data.results.length; j++) {
-                            if ((data.results[j].countryCode).toLowerCase() == code) {
-                                index = j;
-                                j = data.results.length;
-                            }
-                        }
-
-                    var countryName = label[0].innerHTML;
-                    var html = ['<table>',
-                        '<tr>',
-                        '<td>',
-                        countryName,
-                        '</td>',
-                        '</tr>',
-                        '<tr>',
-                        '<td>',
-                        data.results[index].itemCount,
-                        //code,
-                        '</td>',
-                        '</tr>',
-                        '</table>'
-                    ].join("");
-                    label[0].innerHTML = html;
-                }
-            })
-
-        })
-    }
-
-    function BuildFreqsWM(data, result) { }
-
-
-    function GoToListJQVMap(data, codeP, regionP) {
-        /* get the attributeID for the selected country and list the studies*/
-        var attributeID = 0;
-        var countryCode;
-        for (j = 0; j < data.results.length; j++) {
-            countryCode = data.results[j].countryCode;
-            if ((data.results[j].countryCode).toLowerCase() == codeP) {
-                attributeID = data.results[j].attributeId;
-                j = data.results.length;
-            }
-        }
-        GoToItems(attributeID, regionP);
-        /*
-        if (attributeID != 0) {
-            GoToItems(attributeID, regionP);
-        }*/
     }
 
 
@@ -1615,13 +1795,65 @@
                     <!-- World map card -->
                     <div class="card" id="WorldMapCard" style="display:none;">
                         <div class="card-header">
-                            <div class="card-title">Map of the World...</div>
-                            <div class="card-title" id="WorldMapTitle"></div>
-                        </div>
-                        <div class="card-body">
-                            <div class="mapcontainer">
-                                <div id="map-example" class="vmap" style="height: 450px"></div>
+                            <table width="100%">
+                                <tr>
+                                    <td style="vertical-align: bottom;text-align: left; width:165px">
+                                        <div class="card-title" id="FrequenciesResult">Map of the world</div>
+                                    </td>
+                                    <td class="px-4 py-1" style="vertical-align: bottom;text-align: left">
+                                        <input type="checkbox" id="cbTouchScreen" />&nbsp;
+                                        <label for="cbTouchScreen">Touchscreen</label>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <div id="WorldMapDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowWorldMapDiv()">
+                                            <div id="HideShowWorldMapDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <script>
+                                $("#cbTouchScreen").change(function() {
+                                    if(this.checked){
+                                        //alert("The Check-box is Checked");
+                                        createWorldMapTouchScreen();
+                                        $("#info").html("Click a bubble");
+                                        $("#ListItemsTouchScreen").show();
+                                        $("#ListItemsTouchScreen").prop("disabled", true);
+                                        sessionStorage.setItem("IsTouchScreen", "Yes");
+                                    } else {
+                                        //alert("The Check-box is Un-Checked");
+                                        createWorldMap();
+                                        $("#info").html("Hover over and click a marker");
+                                        $("#ListItemsTouchScreen").hide();
+                                        sessionStorage.setItem("IsTouchScreen", "No");
+                                    }
+                                });
+                            </script>
+                            <div id="WorldMapInformationDiv">
+                                <table>
+                                    <tr>
+                                        <td class="pt-1">
+                                            <div id="info" class="box-col"></div>
+                                        </td>
+                                        <td class="px-4 py-1">
+                                            <button id="ListItemsTouchScreen" onclick="ListItemsByCountryTouchScreen()" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
+                        </div>
+                        <div class="card-body" id="WorldMapDiv">
+                            <div id="map"></div>
+                            <script id="info-template" type="text/x-kendo-template">
+                                <h5>#= country #: #= kendo.toString(value, "N0") #</h5>
+                            </script>
+                            <script id="empty-info-template" type="text/x-kendo-template">
+
+                                <h5><div id="hoverMessage">Hover over and click a marker to list the records</div></h5>
+                            </script>
+
                         </div>
                     </div>
 
