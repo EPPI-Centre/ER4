@@ -97,85 +97,11 @@
         })
         
 
-        var showMap = 1;
-        if (showMap == 1) {
-
-        var countrySetID = 5131
-        var countryAttributeID = 181330
-
-        $.post("../Frequencies/GetFrequenciesJSON", {
-            attId: countryAttributeID, setId: countrySetID, included: true
-        },
-            function (data, result) {
-                BuildFreqsWM(data, result);
-
-                // the countries with itemCounts > 0 and has a 2 letter countryCode
-                const countries = [];
-                var counter = 0;
-                var countryCode;
-                var counts;
-                for (j = 0; j < data.results.length; j++) {
-                    countryCode = data.results[j].countryCode;
-                    counts = data.results[j].itemCount;
-                    if ((countryCode != 0) && (counts != 0)) {
-                        countries[counter] = countryCode;
-                        counter += 1;
-                    }
-                }
-
-                $('#map-example').vectorMap( {
-                    map: 'world_en',
-                    backgroundColor: 'transparent',
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                    color: '#e4e4e4',
-                    enableZoom: true,
-                    hoverColor: '#35cd3a',
-                    hoverOpacity: null,
-                    normalizeFunction: 'linear',
-                    scaleColors: ['#b6d6ff', '#005ace'],
-                    selectedColor: '#35cd3a',
-                    selectedRegions: countries,
-                    showTooltip: true,
-                    onRegionClick: function (element, code, region) {
-                        var codeP = code;
-                        var regionP = region;
-                        GoToListJQVMap(data, codeP, regionP)
-                    },
-                    onResize: function (element, width, height) {
-                        console.log('Map Size: ' + width + 'x' + height);
-                    },
-                    onLabelShow: function (event, label, code) {
-                        var index = 0;
-                        for (j = 0; j < data.results.length; j++) {
-                            if ((data.results[j].countryCode).toLowerCase() == code) {
-                                index = j;
-                                j = data.results.length;
-                            }
-                        }
-
-                        var countryName = label[0].innerHTML;
-                        var html = ['<table>',
-                            '<tr>',
-                            '<td>',
-                            countryName,
-                            '</td>',
-                            '</tr>',
-                            '<tr>',
-                            '<td>',
-                            data.results[index].itemCount,
-                            //code,
-                            '</td>',
-                            '</tr>',
-                            '</table>'
-                        ].join("");
-                        label[0].innerHTML = html;
-                    }
-                })
-
-            })
-        };
+        ;
         
+
+
+
         treeviewData = $("#treeView").data("kendoTreeView");
         const descrPanel = $("#WebDBDescription");
         //console.log("descrPanel:", descrPanel, descrPanel.height());
@@ -204,6 +130,14 @@
         $("#smallPhoneButton").hide();
         if ($(window).outerWidth() <= 325) {
             $("#smallPhoneButton").show();
+        }
+
+
+        if (sessionStorage.getItem("ShowCard") != null) {
+            if (sessionStorage.getItem("ShowCard") != "") {
+                showCard(sessionStorage.getItem("ShowCard"));
+            }
+            sessionStorage.setItem("ShowCard", "");
         }
 
 
@@ -1265,9 +1199,13 @@
         var x = document.getElementById(divName);
         if (x.style.display === "none") {
             x.style.display = "block";
+            if (divName == "codingToolsDiv") {showCard('codingToolsDiv')}
         } else {
             x.style.display = "none";
+            if (divName == "codingToolsDiv") {showCard('DescriptionCard')}
         }
+
+        
     }
 
 
@@ -1287,13 +1225,108 @@
         x.style.display = "none";
 
         // show selected container
-        var x = document.getElementById(cardName);
-        x.style.display = "block";
-
+        if (cardName == 'codingToolsDiv') {
+            x = document.getElementById('codingToolsDiv');
+            x.style.display = "block";
+            x = document.getElementById('FrequenciesCard');
+            x.style.display = "block";
+            x = document.getElementById('CrosstabAndMapCard');
+            x.style.display = "block";
+        }
+        else {
+            x = document.getElementById(cardName);
+            x.style.display = "block";
+            x = document.getElementById('codingToolsDiv');
+            x.style.display = "none";
+        }
+        
         // retrieve data if needed
         if (cardName == 'YearFrequenciesCard') {GetYearsFreqs();}
         if (cardName == 'MapsCard') {GetMaps();}
+        if (cardName == 'WorldMapCard') {GetWorldMap();}
+
     }
+
+
+    function GetWorldMap () {
+
+        var countrySetID = 5131
+        var countryAttributeID = 181330
+
+        $.post(getBasePath() + "../Frequencies/GetFrequenciesJSON", {
+            attId: countryAttributeID, setId: countrySetID, included: true
+        },
+            function (data, result) {
+                BuildFreqsWM(data, result);
+
+                // the countries with itemCounts > 0 and has a 2 letter countryCode
+                const countries = [];
+                var counter = 0;
+                var countryCode;
+                var counts;
+                for (j = 0; j < data.results.length; j++) {
+                    countryCode = data.results[j].countryCode;
+                    counts = data.results[j].itemCount;
+                    if ((countryCode != 0) && (counts != 0)) {
+                        countries[counter] = countryCode;
+                        counter += 1;
+                    }
+                }
+
+                $('#map-example').vectorMap( {
+                    map: 'world_en',
+                    backgroundColor: 'transparent',
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    color: '#e4e4e4',
+                    enableZoom: true,
+                    hoverColor: '#35cd3a',
+                    hoverOpacity: null,
+                    normalizeFunction: 'linear',
+                    scaleColors: ['#b6d6ff', '#005ace'],
+                    selectedColor: '#35cd3a',
+                    selectedRegions: countries,
+                    showTooltip: true,
+                    onRegionClick: function (element, code, region) {
+                        var codeP = code;
+                        var regionP = region;
+                        GoToListJQVMap(data, codeP, regionP)
+                    },
+                    onResize: function (element, width, height) {
+                        console.log('Map Size: ' + width + 'x' + height);
+                    },
+                    onLabelShow: function (event, label, code) {
+                        var index = 0;
+                        for (j = 0; j < data.results.length; j++) {
+                            if ((data.results[j].countryCode).toLowerCase() == code) {
+                                index = j;
+                                j = data.results.length;
+                            }
+                        }
+
+                    var countryName = label[0].innerHTML;
+                    var html = ['<table>',
+                        '<tr>',
+                        '<td>',
+                        countryName,
+                        '</td>',
+                        '</tr>',
+                        '<tr>',
+                        '<td>',
+                        data.results[index].itemCount,
+                        //code,
+                        '</td>',
+                        '</tr>',
+                        '</table>'
+                    ].join("");
+                    label[0].innerHTML = html;
+                }
+            })
+
+        })
+    }
+
+    function BuildFreqsWM(data, result) { }
 
 
     function GoToListJQVMap(data, codeP, regionP) {
@@ -1368,7 +1401,7 @@
                         <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('DescriptionCard')">
                             <table width="100%">
                                 <tr>
-                                    <td width="100%"><h5><b>HOME</b></h5></td>
+                                    <td width="100%"><span style="font-size:medium;font-weight:bold;color:darkslategray">HOME</span></td>
                                 </tr>
                             </table>
                         </div>
@@ -1377,10 +1410,11 @@
                         <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('codingToolsDiv')">
                             <table width="100%">
                                 <tr>
-                                    <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
-                                    <h5><b>CODING TOOLS</b></h5>
+                                    <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;vertical-align:top">
+                                        <span style="font-size:medium;font-weight:bold;color:darkslategray">CODING TOOLS</span><br />
+                                        <span style="font-size:medium;font-weight:bold;color:darkslategray">Frequencies and Crosstabs</span>
                                     </td>
-                                    <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                    <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;vertical-align:top">
                                         <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
                                             <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
                                         </svg>
@@ -1401,18 +1435,18 @@
                             <table width="100%">
                                 <tr>
                                     <td width="100%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
-                                    <h5><b>EVIDENCE MAPS</b></h5>
+                                        <span style="font-size:medium;font-weight:bold;color:darkslategray">EVIDENCE MAPS</span>
                                     </td>
                                 </tr>
                             </table>
                         </div>
 
                         <!-- World map -->
-                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('MapsCard')">
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('WorldMapCard')">
                             <table width="100%">
                                 <tr>
                                     <td width="100%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
-                                        <h5><b>LOCATIONS</b></h5>
+                                        <span style="font-size:medium;font-weight:bold;color:darkslategray">LOCATIONS</span>
                                     </td>
                                 </tr>
                             </table>
@@ -1423,7 +1457,7 @@
                             <table width="100%">
                                 <tr>
                                     <td width="100%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
-                                        <h5><b>PUBLICATION DATES</b></h5>
+                                        <span style="font-size:medium;font-weight:bold;color:darkslategray">PUBLICATION DATES</span>
                                     </td>
                                 </tr>
                             </table>
@@ -1431,7 +1465,7 @@
 
 
                         <!-- On-the-fly Crosstabs and Maps -->
-                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('CrosstabAndMapCard')">                            
+                        <!--<div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="showCard('CrosstabAndMapCard')">                            
                             <table width="100%">
                                 <tr>
                                     <td width="100%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
@@ -1439,7 +1473,7 @@
                                     </td>
                                 </tr>
                             </table>
-                        </div>
+                        </div>-->
 
                     </div>
                 </li>
@@ -1578,9 +1612,10 @@
                         </div>
                     </div>
 
+                    <!-- World map card -->
                     <div class="card" id="WorldMapCard" style="display:none;">
                         <div class="card-header">
-                            <div class="card-title">Hello hello</div>
+                            <div class="card-title">Map of the World...</div>
                             <div class="card-title" id="WorldMapTitle"></div>
                         </div>
                         <div class="card-body">
