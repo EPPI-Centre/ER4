@@ -36,9 +36,8 @@
     var freqData = null;
     let MapsData = null;
 
+    sessionStorage.setItem("HomeURL", "https://localhost:44314/Review/Index/1");
     
-
-
     $(document).ready(function () {
         $("#treeView").kendoTreeView({
             dataSource: {
@@ -69,7 +68,8 @@
                             nodes.push(nd);
                         }
 
-                        var worldMap = "FROM_TEST_DATE";
+
+                        /*var worldMap = "FROM_TEST_DATE";
                         if (worldMap == "FROM_FIELD") {
                             if (sessionStorage.getItem("IsTouchScreen") == "Yes") {
                                 setTimeout(function () {
@@ -86,7 +86,7 @@
                                     createWorldMap(); // draw map
                                 }, 150);
                             }
-                        }
+                        }*/
 
 
                         if (sessionStorage.getItem("HideYearFreqs") == "Yes") {
@@ -1141,6 +1141,7 @@
                 //max 6 children in the segments of maps
                 $("#CurrentNodeSetMapSegments").prop("disabled", false);
             } else $("#CurrentNodeSetMapSegments").prop("disabled", true);
+            //GetFreqs();
         }
         else {
             $("#CurrentNodeGoToFreq").prop("disabled", true);
@@ -1798,7 +1799,7 @@
                             <table width="100%">
                                 <tr>
                                     <td style="vertical-align: bottom;text-align: left; width:165px">
-                                        <div class="card-title" id="FrequenciesResult">Map of the world</div>
+                                        <div class="card-title" id="WorldFrequenciesResult">Map of the world</div>
                                     </td>
                                     <td class="px-4 py-1" style="vertical-align: bottom;text-align: left">
                                         <input type="checkbox" id="cbTouchScreen" />&nbsp;

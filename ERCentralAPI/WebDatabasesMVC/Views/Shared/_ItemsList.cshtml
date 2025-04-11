@@ -604,7 +604,8 @@
     function goToCard(cardName) {
         sessionStorage.setItem("ShowCard", cardName);
         // go to homepage
-        window.location.href = "https://localhost:44314/Review/Index/1";
+        //window.location.href = "https://localhost:44314/Review/Index/1";
+        window.location.href = sessionStorage.getItem("HomeURL")
     }
 </script>
 
