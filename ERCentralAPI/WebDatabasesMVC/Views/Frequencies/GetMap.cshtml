@@ -87,6 +87,7 @@
         $("#resultsTable").hide();
         $("#mapLegend").hide();
 
+        clearReturnToSessionVals();
         sessionStorage.setItem("MapPars", pars.attributeIdXAxis + "," + pars.attributeIdYAxis + "," + pars.setIdXAxis + "," + pars.setIdYAxis + "," +
             pars.segmentsParent + "," + pars.setIdSegments + "," + "true,bubble");
 

@@ -68,22 +68,7 @@
                             //    };
                             nodes.push(nd);
                         }
-                        if (sessionStorage.getItem("HideYearFreqs") == "Yes") {
-                            $("#publicationDiv").hide();
-                            HideShowPublicationDivIcon.className = "fa fa-plus";
-                            $("#publicationDiv").css("max-height", "0px");
-                            $("#YearFreq").hide();
-                            $("#YearFreqTable").hide();
-                            $("#BarByYearChartVisible").hide();
-                        }
-                        else {
-                            GetYearsFreqs();//getting the years chart after the codes...
-                        }
 
-                        sessionStorage.setItem("MapId", "0");
-                        sessionStorage.setItem("FreqPars", "");
-                        sessionStorage.setItem("CrossTabPars", "");
-                        sessionStorage.setItem("MapPars", "");
                         
                         setTimeout(function () {
                             GetMaps();
@@ -123,8 +108,18 @@
         if ($(window).outerWidth() <= 325) {
             $("#smallPhoneButton").show();
         }
-
-
+        if (sessionStorage.getItem("HideYearFreqs") == "Yes") {
+            $("#publicationDiv").hide();
+            HideShowPublicationDivIcon.className = "fa fa-plus";
+            $("#publicationDiv").css("max-height", "0px");
+            $("#YearFreq").hide();
+            $("#YearFreqTable").hide();
+            $("#BarByYearChartVisible").hide();
+        }
+        else {
+            GetYearsFreqs();//getting the years chart after the codes...
+        }
+        clearReturnToSessionVals();
     });
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");

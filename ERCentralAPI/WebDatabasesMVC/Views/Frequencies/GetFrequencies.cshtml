@@ -44,7 +44,8 @@
             }
         }
 
-         sessionStorage.setItem("FreqPars", pars.attributeIdXAxis + "," + pars.setIdXAxis + "," + 
+        clearReturnToSessionVals();
+        sessionStorage.setItem("FreqPars", pars.attributeIdXAxis + "," + pars.setIdXAxis + "," + 
             pars.attributeIdYAxis + "," + pars.nameXAxis + "," + "true,table");
 
         $("#BuildBarHideNOA").hide();
