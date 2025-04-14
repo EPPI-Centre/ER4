@@ -282,9 +282,13 @@
         }
         //console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
         if (dataItem.isCodeset == true) {
+            sessionStorage.setItem("FreqPars", 0 + "," + dataItem.setId + "," + 0 + "," + dataItem.text + "," + "true,table");
             postwith(getBasePath() + "Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, parentName: dataItem.text, included: true });
         }
-        else postwith(getBasePath() + "Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, parentName: dataItem.text, included: true });
+        else { 
+            sessionStorage.setItem("FreqPars", dataItem.id + "," + dataItem.setId + "," + 0 + "," + dataItem.text + "," + "true,table");
+            postwith(getBasePath() + "Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, parentName: dataItem.text, included: true });
+        }
     }
     function GetFreqs() {
         //console.log("CurrentNodeGoToFreq");
