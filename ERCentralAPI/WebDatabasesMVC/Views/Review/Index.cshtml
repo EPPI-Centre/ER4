@@ -316,6 +316,7 @@
                     $("#FreqSpinner").hide();
                     if (result == "success") {
                         freqData = data;
+                        clearReturnToSessionVals();
                         sessionStorage.setItem("FreqPars", 0 + "," + dataItem.setId + "," + 0 + "," + dataItem.text + "," + "true,table");
                         BuildFreqs();
                     } else {
@@ -329,6 +330,7 @@
                     $("#FreqSpinner").hide();
                     if (result == "success") {
                         freqData = data;
+                        clearReturnToSessionVals();
                         sessionStorage.setItem("FreqPars", dataItem.id + "," + dataItem.setId + "," + 0 + "," + dataItem.text + "," + "true,table");
                         BuildFreqs();
                     } else {
