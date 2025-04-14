@@ -625,6 +625,12 @@ namespace BusinessLibrary.BusinessClasses
                                     }
                                 }
                             }
+                            if (AppIsShuttingDown)
+                            {
+                                result = false;
+                                ErrorLogSink("Cancelled RobotOpenAICommand while submitting Rag prompts.");
+                                break; //DoRobot will be returning false (result is false) and job will be marked as paused...
+                            }
                         }
                     }
                 }
