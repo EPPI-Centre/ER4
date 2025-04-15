@@ -191,16 +191,20 @@
                                             <td style="background-color: #B6C6D6; width: 25%;">
                                                 <b>ChapGPT credit</b></td>                                
                                                 <td style="width: 25%; background-color: #E2E9EF; height: 27px;vertical-align:top">
-                                                    ChatGPT<br />
-                                                    Enter a PurchaseID to give this Site License ChatGPT access<br />
-                                                    <asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="true" Width="100px"></asp:TextBox>
+                                                    <b>OpenAI GPT4</b><br />
+                                                    Select a PurchaseID to give this Site License OpenAI GPT4 access<br />
+                                                    <asp:DropDownList ID="ddlCreditPurchases" runat="server" 
+                                                        DataTextField="CREDIT_ID_REMAINING" DataValueField="CREDIT_PURCHASE_ID" 
+                                                        Enabled="True" AutoPostBack="True" OnSelectedIndexChanged="ddlCreditPurchases_SelectedIndexChanged">
+                                                    </asp:DropDownList><br />
+                                                    <!--<asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="true" Width="100px"></asp:TextBox>
                                                     &nbsp;
                                                     <asp:LinkButton ID="lbSavePurchaseCreditID" runat="server" onclick="lbSavePurchaseCreditID_Click" 
                                                             ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
-                                                    <b><asp:Label ID="lblInvalidID" runat="server" Text="Invalid ID" Visible="false"></asp:Label></b>                               
+                                                    <b><asp:Label ID="lblInvalidID" runat="server" Text="Invalid ID" Visible="false"></asp:Label></b>-->                               
                                                 </td>
                                                 <td style="background-color: #E2E9EF; height: 27px;vertical-align:top" colspan="2">
-                                                        ChatGPT Credit<br />
+                                                        OpenAI GPT4 Credit<br />
                                                     <asp:GridView ID="gvCreditForRobots" runat="server" Width="100%" onrowdatabound="gvCreditForRobots_RowDataBound"
                                                         onrowcommand="gvCreditForRobots_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
                                                         DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">

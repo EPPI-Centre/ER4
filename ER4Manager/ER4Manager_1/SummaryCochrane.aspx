@@ -211,19 +211,17 @@
                                     <table style="width: 100%;">
                                         <tr>
                                             <td style="width: 40%; vertical-align:top;border: 1px;padding:3px">
-                                                <b>ChatGPT access</b><br />
-                                                <asp:TextBox ID="tbCreditPurchaseIDProspC" runat="server" Visible="true" Width="100px"></asp:TextBox>
-                                                &nbsp;
-                                                <asp:LinkButton ID="lbSavePurchaseCreditIDProspC" runat="server" onclick="lbSavePurchaseCreditIDProspC_Click" 
-                                                    ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
-                                                <b><asp:Label ID="lblInvalidIDProspC" runat="server" Text="Invalid ID" Visible="false"  ForeColor="Red"></asp:Label></b>
-                                                <br />
-                                                To use ChatGPT you must apply credit to your review.<br />
-                                                Credit can be purchased in the Purchase tab.<br />
-                                                Enter a PurchaseID number (displayed in the Credit Purchase table in the Summary tab) and click <b>Add</b>. 
+                                                <b>OpenAI GPT4 access</b><br />
+                                                <asp:DropDownList ID="ddlCreditPurchasesProspC" runat="server" 
+                                                    DataTextField="CREDIT_ID_REMAINING" DataValueField="CREDIT_PURCHASE_ID" 
+                                                    Enabled="True" AutoPostBack="True" OnSelectedIndexChanged="ddlCreditPurchasesProspC_SelectedIndexChanged">
+                                                </asp:DropDownList><br />
+                                                If listed, select a PurchaseID from the dropdown menu.<br />
+                                                To use OpenAI GPT4 you must apply credit to your review.<br />
+                                                Credit can be purchased in the Purchase tab.
                                             </td>
                                             <td style="width: 60%; vertical-align:top;border: 1px;padding:3px">
-                                                <b><asp:Label ID="lblChatGPTCreditTableHeading" runat="server" Text="ChatGPT Credit" Visible="False"></asp:Label></b>
+                                                <b><asp:Label ID="lblChatGPTCreditTableHeading" runat="server" Text="OpenAI GPT4 Credit" Visible="False"></asp:Label></b>
                                                 <br />
                                                 <asp:GridView ID="gvCreditForRobotsProspC" runat="server" Width="100%" onrowdatabound="gvCreditForRobotsProspC_RowDataBound"
                                                     onrowcommand="gvCreditForRobotsProspC_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
@@ -484,19 +482,17 @@
                         <table style="width: 100%;">
                             <tr>
                                 <td style="width: 40%; vertical-align:top;border: 1px;padding:3px">
-                                    <b>ChatGPT access</b><br />
-                                    <asp:TextBox ID="tbCreditPurchaseIDCochrane" runat="server" Visible="true" Width="100px" ToolTip="PurchaseID"></asp:TextBox>
-                                    &nbsp;
-                                    <asp:LinkButton ID="lbSavePurchaseCreditIDCochrane" runat="server" onclick="lbSavePurchaseCreditIDCochrane_Click" 
-                                        ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
-                                    <b><asp:Label ID="lblInvalidIDCochrane" runat="server" Text="Invalid ID" Visible="false"  ForeColor="Red"></asp:Label></b>
-                                    <br />
-                                    To use ChatGPT you must apply credit to your review.<br />
-                                    Credit can be purchased in the Purchase tab.<br />
-                                    Enter a PurchaseID number (displayed in the Credit Purchase table in the Summary tab) and click <b>Add</b>. 
+                                    <b>OpenAI GPT4 access</b><br />
+                                    <asp:DropDownList ID="ddlCreditPurchasesCochrane" runat="server" 
+                                        DataTextField="CREDIT_ID_REMAINING" DataValueField="CREDIT_PURCHASE_ID" 
+                                        Enabled="True" AutoPostBack="True" OnSelectedIndexChanged="ddlCreditPurchasesCochrane_SelectedIndexChanged">
+                                    </asp:DropDownList><br />
+                                    If listed, select a PurchaseID from the dropdown menu.<br />
+                                    To use OpenAI GPT4 you must apply credit to your review.<br />
+                                    Credit can be purchased in the Purchase tab. 
                                 </td>
                                 <td style="width: 60%; vertical-align:top;border: 1px;padding:3px">
-                                    <b><asp:Label ID="lblChatGPTCreditTableHeadingCochrane" runat="server" Text="ChatGPT Credit" Visible="False"></asp:Label></b>
+                                    <b><asp:Label ID="lblChatGPTCreditTableHeadingCochrane" runat="server" Text="OpenAI GPT4 Credit" Visible="False"></asp:Label></b>
                                     <br />
                                     <asp:GridView ID="gvCreditForRobotsCochrane" runat="server" Width="100%" onrowdatabound="gvCreditForRobotsCochrane_RowDataBound"
                                         onrowcommand="gvCreditForRobotsCochrane_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 

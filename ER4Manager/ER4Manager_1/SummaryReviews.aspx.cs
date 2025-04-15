@@ -320,6 +320,7 @@ public partial class SummaryReviews : System.Web.UI.Page
                     {
                         pnlGPTcredit.Visible = true;
                         getOpenAIDetails();
+                        getCreditPurchases();
                     }
                 }
                 idr.Close();
@@ -512,6 +513,7 @@ public partial class SummaryReviews : System.Web.UI.Page
                 {
                     pnlGPTcreditShare.Visible = true;
                     getOpenAIDetailsShare();
+                    getCreditPurchases();
                 }
 
             }
@@ -993,6 +995,42 @@ public partial class SummaryReviews : System.Web.UI.Page
 
     }
 
+
+    private void getCreditPurchases()
+    {
+        string remaining = "";
+        string purchaseID = "";
+        bool isAdmDB = true;
+        DataTable dt2 = new DataTable();
+        System.Data.DataRow newrow2;
+        dt2.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt2.Columns.Add(new DataColumn("CREDIT_ID_REMAINING", typeof(string)));
+
+        newrow2 = dt2.NewRow();
+        newrow2["CREDIT_PURCHASE_ID"] = "0";
+        newrow2["CREDIT_ID_REMAINING"] = "PurchaseID - (£Remaining)";
+        dt2.Rows.Add(newrow2);
+
+        IDataReader idr1 = Utils.GetReader(isAdmDB, "st_CreditPurchasesByPurchaser", Utils.GetSessionString("Contact_ID"));
+        while (idr1.Read())
+        {
+            newrow2 = dt2.NewRow();
+            newrow2["CREDIT_PURCHASE_ID"] = idr1["tv_credit_purchase_id"].ToString();
+            purchaseID = idr1["tv_credit_purchase_id"].ToString();
+            remaining = idr1["tv_credit_remaining"].ToString();
+            if (remaining == "")
+                remaining = idr1["tb_credit_purchased"].ToString();
+            newrow2["CREDIT_ID_REMAINING"] = "PurchaseID: "+ purchaseID + " - (£" + remaining + ")";
+            dt2.Rows.Add(newrow2);
+        }
+        idr1.Close();
+        ddlCreditPurchases.DataSource = dt2;
+        ddlCreditPurchases.DataBind();
+        ddlCreditPurchasesShare.DataSource = dt2;
+        ddlCreditPurchasesShare.DataBind();
+    }
+
+
     private void getOpenAIDetailsShare()
     {
 
@@ -1038,7 +1076,7 @@ public partial class SummaryReviews : System.Web.UI.Page
     }
 
 
-
+    /*
     protected void lbSavePurchaseCreditID_Click(object sender, EventArgs e)
     {
         if ((tbCreditPurchaseID.Text.Trim() != "") && (Utils.IsNumeric(tbCreditPurchaseID.Text) == true))
@@ -1071,8 +1109,9 @@ public partial class SummaryReviews : System.Web.UI.Page
                 lblInvalidID.Visible = true;
             }
         }
-    }
+    }*/
 
+    /*
     protected void lbSavePurchaseCreditIDShare_Click(object sender, EventArgs e)
     {
         if ((tbCreditPurchaseIDShare.Text.Trim() != "") && (Utils.IsNumeric(tbCreditPurchaseIDShare.Text) == true))
@@ -1105,7 +1144,7 @@ public partial class SummaryReviews : System.Web.UI.Page
                 lblInvalidIDShare.Visible = true;
             }
         }
-    }
+    }*/
 
     protected void gvReview_PageIndexChanging(object sender, GridViewPageEventArgs e)
     {
@@ -1138,5 +1177,68 @@ public partial class SummaryReviews : System.Web.UI.Page
 
 
 
+
+
+    protected void ddlCreditPurchasesShare_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlCreditPurchasesShare.SelectedIndex != 0)
+        {
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, ddlCreditPurchasesShare.SelectedValue);
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblShareableReviewNumber.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                getOpenAIDetailsShare();
+            }
+            else
+            {
+                // not much to do if it fails
+            }
+        }
+    }
+
+    protected void ddlCreditPurchases_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlCreditPurchases.SelectedIndex != 0)
+        {
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, ddlCreditPurchases.SelectedValue);
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblNonShareableReviewNumber.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                getOpenAIDetails();
+            }
+            else
+            {
+                // not much to do if it fails
+            }
+        }
+    }
 
 }

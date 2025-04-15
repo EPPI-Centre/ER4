@@ -400,12 +400,21 @@ public partial class SiteLicense : System.Web.UI.Page
                         lblAccountAdmMessage.Visible = false;
                         lblAccountAdmMessage.ForeColor = System.Drawing.Color.Black;
                     }
-                }
-                if (Utils.GetSessionString("EnableChatGPTEnabler") == "True")
-                {
-                    pnlGPTcredit.Visible = true;
-                    getOpenAIDetails();
-                }
+                    if (Utils.GetSessionString("EnableChatGPTEnabler") == "True")
+                    {
+                        pnlGPTcredit.Visible = true;
+                        getOpenAIDetails();
+                        getCreditPurchases();
+                        if (lblDetailsHeading.Text == "There are no packages associated with this license")
+                        {
+                            ddlCreditPurchases.Enabled = false;
+                        }
+                        else
+                        {
+                            ddlCreditPurchases.Enabled = true;
+                        }
+                    }
+                }                
             }
             else
             {
@@ -1329,6 +1338,21 @@ public partial class SiteLicense : System.Web.UI.Page
             lblDetailsHeading.Text = "There are no packages associated with this license";
         }
 
+        if (Utils.GetSessionString("EnableChatGPTEnabler") == "True")
+        { 
+            pnlGPTcredit.Visible = true;
+            getOpenAIDetails();
+            getCreditPurchases();
+            if (lblDetailsHeading.Text == "There are no packages associated with this license")
+            {
+                ddlCreditPurchases.Enabled = false;
+            }
+            else
+            {
+                ddlCreditPurchases.Enabled = true;
+            }                
+        }
+
         pnlPackages.Visible = true;
 
         buildGrids();
@@ -1633,4 +1657,67 @@ public partial class SiteLicense : System.Web.UI.Page
         }
     }
 
+    private void getCreditPurchases()
+    {
+        string remaining = "";
+        string purchaseID = "";
+        bool isAdmDB = true;
+        DataTable dt2 = new DataTable();
+        System.Data.DataRow newrow2;
+        dt2.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt2.Columns.Add(new DataColumn("CREDIT_ID_REMAINING", typeof(string)));
+
+        newrow2 = dt2.NewRow();
+        newrow2["CREDIT_PURCHASE_ID"] = "0";
+        newrow2["CREDIT_ID_REMAINING"] = "PurchaseID - (£Remaining)";
+        dt2.Rows.Add(newrow2);
+
+        IDataReader idr1 = Utils.GetReader(isAdmDB, "st_CreditPurchasesByPurchaser", Utils.GetSessionString("Contact_ID"));
+        while (idr1.Read())
+        {
+            newrow2 = dt2.NewRow();
+            newrow2["CREDIT_PURCHASE_ID"] = idr1["tv_credit_purchase_id"].ToString();
+            purchaseID = idr1["tv_credit_purchase_id"].ToString();
+            remaining = idr1["tv_credit_remaining"].ToString();
+            if (remaining == "")
+                remaining = idr1["tb_credit_purchased"].ToString();
+            newrow2["CREDIT_ID_REMAINING"] = "PurchaseID: " + purchaseID + " - (£" + remaining + ")";
+            dt2.Rows.Add(newrow2);
+        }
+        idr1.Close();
+        ddlCreditPurchases.DataSource = dt2;
+        ddlCreditPurchases.DataBind();
+    }
+
+
+    protected void ddlCreditPurchases_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlCreditPurchases.SelectedIndex != 0)
+        {
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, ddlCreditPurchases.SelectedValue);
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                getOpenAIDetails();
+            }
+            else
+            {
+                // not much to do if it fails
+            }
+        }
+    }
 }

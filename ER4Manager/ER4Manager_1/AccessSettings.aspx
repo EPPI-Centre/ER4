@@ -123,7 +123,7 @@
                                     </tr>
                                     <tr>
                                         <td class="style1" valign="top">
-                                            Enable users to apply credit for ChatGPT
+                                            Enable users to apply credit for OpenAI GPT4
                                             </td>
                                         <td class="style2">
                                             <asp:RadioButtonList ID="rblChatGPTEnableEnabler" runat="server" AutoPostBack="True" 
