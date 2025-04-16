@@ -29,9 +29,9 @@ BEGIN
 
 
 	declare @tv_credit_purchases table (tv_credit_purchase_id int, tv_date_purchased date, tb_credit_purchased int,
-		tv_credit_remaining float)
+		tv_credit_remaining int)
 	insert into @tv_credit_purchases (tv_credit_purchase_id, tv_date_purchased, tb_credit_purchased, tv_credit_remaining)
-	  SELECT tv_credit_purchase_id, tv_date_purchased, tv_credit_purchased, round(tv_credit_remaining,2) 
+	  SELECT tv_credit_purchase_id, tv_date_purchased, tv_credit_purchased, tv_credit_remaining 
 	  from TB_CREDIT_PURCHASE cp
 		Cross apply dbo.fn_CreditRemainingDetails(cp.CREDIT_PURCHASE_ID)  as details 
 		where details.tv_credit_purchase_id = cp.CREDIT_PURCHASE_ID and cp.PURCHASER_CONTACT_ID = @CONTACT_ID
