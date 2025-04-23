@@ -1248,7 +1248,7 @@ public partial class SummaryCochrane : System.Web.UI.Page
 
         newrow2 = dt2.NewRow();
         newrow2["CREDIT_PURCHASE_ID"] = "0";
-        newrow2["CREDIT_ID_REMAINING"] = "PurchaseID - (£Remaining)";
+        newrow2["CREDIT_ID_REMAINING"] = "PurchaseID - (£ Remaining)";
         dt2.Rows.Add(newrow2);
 
         IDataReader idr1 = Utils.GetReader(isAdmDB, "st_CreditPurchasesByPurchaser", Utils.GetSessionString("Contact_ID"));
@@ -1266,8 +1266,10 @@ public partial class SummaryCochrane : System.Web.UI.Page
         idr1.Close();
         ddlCreditPurchasesProspC.DataSource = dt2;
         ddlCreditPurchasesProspC.DataBind();
+        ddlCreditPurchasesProspC.Attributes["onchange"] = "DisableControls();";
         ddlCreditPurchasesCochrane.DataSource = dt2;
         ddlCreditPurchasesCochrane.DataBind();
+        ddlCreditPurchasesCochrane.Attributes["onchange"] = "DisableControls();";
     }
 
 
@@ -1472,9 +1474,10 @@ public partial class SummaryCochrane : System.Web.UI.Page
 
 
             Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
-
+            //System.Threading.Thread.Sleep(5000);
             if (paramList[4].Value.ToString() == "SUCCESS")
             {
+                ddlCreditPurchasesProspC.SelectedValue = ddlCreditPurchasesProspC.Items[0].Value;
                 getOpenAIDetailsProspC();
             }
             else
@@ -1503,9 +1506,10 @@ public partial class SummaryCochrane : System.Web.UI.Page
 
 
             Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
-
+            //System.Threading.Thread.Sleep(5000);
             if (paramList[4].Value.ToString() == "SUCCESS")
             {
+                ddlCreditPurchasesCochrane.SelectedValue = ddlCreditPurchasesCochrane.Items[0].Value;
                 getOpenAIDetailsCochrane();
             }
             else

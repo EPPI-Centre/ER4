@@ -1113,12 +1113,14 @@ public partial class Summary : System.Web.UI.Page
         {
             newrowS = dtS.NewRow();
             newrowS["PURCHASE_ID_SOURCE"] = gvCreditPurchases.Rows[i].Cells[0].Text;
-            newrowS["PURCHASE_ID_SOURCE_REMAINING"] = gvCreditPurchases.Rows[i].Cells[3].Text;
+            //value below is used for the element DataValueField, needs to be unique
+            newrowS["PURCHASE_ID_SOURCE_REMAINING"] = gvCreditPurchases.Rows[i].Cells[3].Text + "|Id:" + gvCreditPurchases.Rows[i].Cells[0].Text;
             dtS.Rows.Add(newrowS);
 
             newrowD = dtD.NewRow();
             newrowD["PURCHASE_ID_DESTINATION"] = gvCreditPurchases.Rows[i].Cells[0].Text;
-            newrowD["PURCHASE_ID_DESTINATION_REMAINING"] = gvCreditPurchases.Rows[i].Cells[3].Text;
+            //value below is used for the element DataValueField, needs to be unique
+            newrowD["PURCHASE_ID_DESTINATION_REMAINING"] = gvCreditPurchases.Rows[i].Cells[3].Text + "|Id:" + gvCreditPurchases.Rows[i].Cells[0].Text;
             dtD.Rows.Add(newrowD);
         }
 
@@ -1152,7 +1154,9 @@ public partial class Summary : System.Web.UI.Page
                 // something is selected in each control
                 if (ddlSourcePurchaseID.SelectedIndex != ddlDestinationPurchaseID.SelectedIndex)
                 {
-                    if (toTransfer <= int.Parse(ddlSourcePurchaseID.SelectedItem.Value))
+                    string[] splitted = ddlSourcePurchaseID.SelectedItem.Value.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    string SourceRemainingAmountString = splitted[0];
+                    if (toTransfer <= int.Parse(SourceRemainingAmountString))
                     {
                         // there is enough in source to handle the transfer request
                         // so create the transfer details for TB_EXPIRY_EDIT_LOG

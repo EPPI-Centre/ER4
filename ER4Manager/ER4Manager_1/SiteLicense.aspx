@@ -9,32 +9,41 @@
     <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
         <script language="javascript" type="text/javascript">
-        function openContactList(ID) 
-        {
-            var iWidthOfWin = 800;
-            var iHeightOfWin = 450;
-            var iLocX = (screen.width - iWidthOfWin) / 2;
-            var iLocY = (screen.height - iHeightOfWin) / 2;
+            function openContactList(ID) 
+            {
+                var iWidthOfWin = 800;
+                var iHeightOfWin = 450;
+                var iLocX = (screen.width - iWidthOfWin) / 2;
+                var iLocY = (screen.height - iHeightOfWin) / 2;
 
-            var strFeatures = "scrollbars=yes,self.focus(), resizable=yes "
-                         + ",width=" + iWidthOfWin
-                         + ",height=" + iHeightOfWin
-                         + ",screenX=" + iLocX
-                         + ",screenY=" + iLocY
-                         + ",left=" + iLocX
-                         + ",top=" + iLocY;
+                var strFeatures = "scrollbars=yes,self.focus(), resizable=yes "
+                             + ",width=" + iWidthOfWin
+                             + ",height=" + iHeightOfWin
+                             + ",screenX=" + iLocX
+                             + ",screenY=" + iLocY
+                             + ",left=" + iLocX
+                             + ",top=" + iLocY;
 
-            var theURL = "SelectFunder.aspx?funder=" + ID;
-            windowName = new String(Math.round(Math.random() * 100000));
-            DetailsWindow = window.open(theURL, windowName, strFeatures);
-        }
+                var theURL = "SelectFunder.aspx?funder=" + ID;
+                windowName = new String(Math.round(Math.random() * 100000));
+                DetailsWindow = window.open(theURL, windowName, strFeatures);
+            }
+            function DisableControls() {
+                var el = document.getElementById('<%= pnlGPTcredit.ClientID %>'); 
+                if (el) {
+                    el.style.display = "none";
+                    var el2 = document.getElementById('jsSavingDiv');
+                    if (el2) {
+                        el2.style.display = "block";
+                    } 
+                }
+            }
 
-            </script>
+        </script>
 
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 
 
@@ -185,14 +194,17 @@
                         </tr>-->
                         <tr>
                             <td colspan="4">
+                                <div id="jsSavingDiv" style="display:none;padding: 1em; margin: 1em; border-collapse:collapse; background-color:#B6C6D6; border: 1px solid black;">
+                                    Saving...
+                                </div>
                                 <asp:Panel runat="server" ID="pnlGPTcredit" visible="false">
                                     <table width="100%">
                                         <tr>
                                             <td style="background-color: #B6C6D6; width: 25%;">
-                                                <b>ChapGPT credit</b></td>                                
+                                                <b>LLM Coding</b></td>                                
                                                 <td style="width: 25%; background-color: #E2E9EF; height: 27px;vertical-align:top">
-                                                    <b>OpenAI GPT4</b><br />
-                                                    Select a PurchaseID to give this Site License OpenAI GPT4 access<br />
+                                                    <b>LLM Coding</b><br />
+                                                    Select a PurchaseID to give this Site License LLM Coding access<br />
                                                     <asp:DropDownList ID="ddlCreditPurchases" runat="server" 
                                                         DataTextField="CREDIT_ID_REMAINING" DataValueField="CREDIT_PURCHASE_ID" 
                                                         Enabled="True" AutoPostBack="True" OnSelectedIndexChanged="ddlCreditPurchases_SelectedIndexChanged">
@@ -204,7 +216,7 @@
                                                     <b><asp:Label ID="lblInvalidID" runat="server" Text="Invalid ID" Visible="false"></asp:Label></b>-->                               
                                                 </td>
                                                 <td style="background-color: #E2E9EF; height: 27px;vertical-align:top" colspan="2">
-                                                        OpenAI GPT4 Credit<br />
+                                                        LLM Coding Credit<br />
                                                     <asp:GridView ID="gvCreditForRobots" runat="server" Width="100%" onrowdatabound="gvCreditForRobots_RowDataBound"
                                                         onrowcommand="gvCreditForRobots_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
                                                         DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">

@@ -1669,7 +1669,7 @@ public partial class SiteLicense : System.Web.UI.Page
 
         newrow2 = dt2.NewRow();
         newrow2["CREDIT_PURCHASE_ID"] = "0";
-        newrow2["CREDIT_ID_REMAINING"] = "PurchaseID - (£Remaining)";
+        newrow2["CREDIT_ID_REMAINING"] = "PurchaseID - (£ Remaining)";
         dt2.Rows.Add(newrow2);
 
         IDataReader idr1 = Utils.GetReader(isAdmDB, "st_CreditPurchasesByPurchaser", Utils.GetSessionString("Contact_ID"));
@@ -1687,6 +1687,7 @@ public partial class SiteLicense : System.Web.UI.Page
         idr1.Close();
         ddlCreditPurchases.DataSource = dt2;
         ddlCreditPurchases.DataBind();
+        ddlCreditPurchases.Attributes["onchange"] = "DisableControls();";
     }
 
 
@@ -1707,11 +1708,12 @@ public partial class SiteLicense : System.Web.UI.Page
             paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
                 true, 0, 0, null, DataRowVersion.Default, "");
 
-
+            //System.Threading.Thread.Sleep(5000);
             Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
 
             if (paramList[4].Value.ToString() == "SUCCESS")
             {
+                ddlCreditPurchases.SelectedValue = ddlCreditPurchases.Items[0].Value;
                 getOpenAIDetails();
             }
             else

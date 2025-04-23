@@ -29,11 +29,19 @@
             var el = document.getElementById('<%= pnlReviewDetails.ClientID %>'); 
             if (el) {
                 el.style.display = "none";
+                var el2 = document.getElementById('jsSavingDiv');
+                if (el2) {
+                    el2.style.display = "block";
+                } 
             }
-            var el = document.getElementById('jsSavingDiv');
-            if (el) {
-                el.style.display = "block";
-            } 
+            var el3 = document.getElementById('<%= pnlEditNonShareableReview.ClientID %>');
+            if (el3) {
+                el3.style.display = "none";
+                var el4 = document.getElementById('jsSavingDiv2');
+                if (el4) {
+                    el4.style.display = "block";
+                }
+            }
         }
 
     </script>
@@ -242,67 +250,67 @@
                     If the account is valid it will be placed in the review and an email send to the 
                         account holder.
                 </asp:Panel>
+
+                <table style="width: 100%;background-color: #E2E9EF;">
+                    <tr>
+                        <td style="width: 100%;">
+                            <panel ID="pnlGPTcreditShare" runat="server" visible="false">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 40%; vertical-align:top;border: 1px;padding:3px">
+                                            <b>LLM Coding access</b><br />
+                                            <asp:DropDownList ID="ddlCreditPurchasesShare" runat="server" 
+                                                DataTextField="CREDIT_ID_REMAINING" DataValueField="CREDIT_PURCHASE_ID" 
+                                                Enabled="True" AutoPostBack="True" OnSelectedIndexChanged="ddlCreditPurchasesShare_SelectedIndexChanged">
+                                            </asp:DropDownList><br />
+                                            If listed, select a PurchaseID from the dropdown menu.<br />
+                                            To use LLM Coding you must apply credit to your review.<br />
+                                            Credit can be purchased in the Purchase tab.                         
+                                        </td>
+                                        <td style="width: 60%; vertical-align:top;border: 1px;padding:3px">
+                                            <b><asp:Label ID="lblChatGPTCreditTableHeadingShare" runat="server" Text="LLM Coding Credit" Visible="False"></asp:Label></b>
+                                            <br />
+                                            <asp:GridView ID="gvCreditForRobotsShare" runat="server" Width="100%" onrowdatabound="gvCreditForRobotsShare_RowDataBound"
+                                                onrowcommand="gvCreditForRobotsShare_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
+                                                DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
+                                                <Columns>
+                                                    <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
+                                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                        HorizontalAlign="Left" />
+                                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                    </asp:BoundField>
+                                                    <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
+                                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                        HorizontalAlign="Left" />
+                                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                    </asp:BoundField>
+                                                    <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
+                                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                        HorizontalAlign="Left" />
+                                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                    </asp:BoundField>
+                                                    <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
+                                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                        HorizontalAlign="Left" />
+                                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                    </asp:BoundField>
+                                                    <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" 
+                                                        Text="Remove">
+                                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                        HorizontalAlign="Left"/>
+                                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                    </asp:ButtonField>                         
+                                                </Columns>
+                                            </asp:GridView>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </panel>
+                        </td>
+                    </tr>
+                </table>
+
             </asp:Panel>
-
-
-            <table style="width: 100%;background-color: #E2E9EF;">
-                <tr>
-                    <td style="width: 100%;">
-                        <panel ID="pnlGPTcreditShare" runat="server" visible="false">
-                            <table style="width: 100%;">
-                                <tr>
-                                    <td style="width: 40%; vertical-align:top;border: 1px;padding:3px">
-                                        <b>OpenAI GPT4 access</b><br />
-                                        <asp:DropDownList ID="ddlCreditPurchasesShare" runat="server" 
-                                            DataTextField="CREDIT_ID_REMAINING" DataValueField="CREDIT_PURCHASE_ID" 
-                                            Enabled="True" AutoPostBack="True" OnSelectedIndexChanged="ddlCreditPurchasesShare_SelectedIndexChanged">
-                                        </asp:DropDownList><br />
-                                        If listed, select a PurchaseID from the dropdown menu.<br />
-                                        To use OpenAI GPT4 you must apply credit to your review.<br />
-                                        Credit can be purchased in the Purchase tab.                         
-                                    </td>
-                                    <td style="width: 60%; vertical-align:top;border: 1px;padding:3px">
-                                        <b><asp:Label ID="lblChatGPTCreditTableHeadingShare" runat="server" Text="OpenAI GPT4 Credit" Visible="False"></asp:Label></b>
-                                        <br />
-                                        <asp:GridView ID="gvCreditForRobotsShare" runat="server" Width="100%" onrowdatabound="gvCreditForRobotsShare_RowDataBound"
-                                            onrowcommand="gvCreditForRobotsShare_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
-                                            DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
-                                            <Columns>
-                                                <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
-                                                <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
-                                                    HorizontalAlign="Left" />
-                                                <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
-                                                </asp:BoundField>
-                                                <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
-                                                <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
-                                                    HorizontalAlign="Left" />
-                                                <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
-                                                </asp:BoundField>
-                                                <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
-                                                <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
-                                                    HorizontalAlign="Left" />
-                                                <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
-                                                </asp:BoundField>
-                                                <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
-                                                <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
-                                                    HorizontalAlign="Left" />
-                                                <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
-                                                </asp:BoundField>
-                                                <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" 
-                                                    Text="Remove">
-                                                <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
-                                                    HorizontalAlign="Left"/>
-                                                <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
-                                                </asp:ButtonField>                         
-                                            </Columns>
-                                        </asp:GridView>
-                                    </td>
-                                </tr>
-                            </table>
-                        </panel>
-                    </td>
-                </tr>
-            </table>
 
         </asp:Panel>
 
@@ -337,6 +345,9 @@
         <asp:Label ID="lblNonShareableReviews" runat="server"
             Text="You do not own any non-shareable reviews." Visible="False"></asp:Label>
         <br />
+    <div id="jsSavingDiv2" style="display:none;padding: 1em; margin: 1em; border-collapse:collapse; background-color:#B6C6D6; border: 1px solid black;">
+        Saving...
+    </div>
         <asp:Panel ID="pnlEditNonShareableReview" runat="server" Visible="False"
             BackColor="#E2E9EF" BorderStyle="Solid" BorderWidth="1px">
             <table id="Table4" border="1" cellpadding="1" cellspacing="1" width="600">
@@ -384,17 +395,17 @@
                             <table style="width: 100%;">
                                 <tr>
                                     <td style="width: 40%; vertical-align:top;border: 1px;padding:3px">
-                                        <b>OpenAI GPT4 access</b><br />
+                                        <b>LLM Coding access</b><br />
                                         <asp:DropDownList ID="ddlCreditPurchases" runat="server" 
                                             DataTextField="CREDIT_ID_REMAINING" DataValueField="CREDIT_PURCHASE_ID" 
                                             Enabled="True" AutoPostBack="True" OnSelectedIndexChanged="ddlCreditPurchases_SelectedIndexChanged">
                                         </asp:DropDownList><br />
                                         If listed, select a PurchaseID from the dropdown menu.<br />
-                                        To use OpenAI GPT4 you must apply credit to your review.<br />
+                                        To use LLM Coding you must apply credit to your review.<br />
                                         Credit can be purchased in the Purchase tab.
                                     </td>
                                     <td style="width: 60%; vertical-align:top;border: 1px;padding:3px">
-                                        <b><asp:Label ID="lblChatGPTCreditTableHeading" runat="server" Text="OpenAI GPT4 Credit" Visible="False"></asp:Label></b>
+                                        <b><asp:Label ID="lblChatGPTCreditTableHeading" runat="server" Text="LLM Coding Credit" Visible="False"></asp:Label></b>
                                         <br />
                                         <asp:GridView ID="gvCreditForRobots" runat="server" Width="100%" onrowdatabound="gvCreditForRobots_RowDataBound"
                                             onrowcommand="gvCreditForRobots_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
