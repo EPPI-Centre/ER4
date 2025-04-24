@@ -330,7 +330,7 @@ export class SiteAdminComponent implements OnInit {
     console.log("onFilesAdded", file.size, file.name);
     if (file) {
       //if (file.size > 31457280 && 1 !== 1) {
-      if (file.size > 52428800) {
+      if (file.size > 102428800) {
         //console.log("onFilesAdded", file.size, file.name);
         this.modalService.GenericErrorMessage("Sorry, the <strong>maximum</strong> file size is <strong>50MB</strong>. Please select a smaller file.");
       }
