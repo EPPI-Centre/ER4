@@ -12,7 +12,7 @@ import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../serv
 import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { crosstabService } from '../services/crosstab.service';
-import { searchService } from '../services/search.service';
+import { Search, searchService } from '../services/search.service';
 import { SourcesService } from '../services/sources.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -137,7 +137,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   public printCsetShowTypes: boolean = false;
   public reportsShowWhat: string = "AllFreq";
   public ShowRobotBatchJobs: boolean = false;
-
+  public SearchTabAutoRefreshThreshold:number = 2000;
 
   ngOnInit() {
     this._eventEmitter.PleaseSelectItemsListTab.subscribe(
@@ -653,8 +653,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       this.selectedNode
       && this.selectedNode.nodeType == "SetAttribute" &&
       this.ReviewerIdentityServ.HasWriteRights
-      && this.searchService.SearchList
-      && this.searchService.SearchList.findIndex(x => x.add == true) != -1
+      && this.searchService.DataSourceSearches.data.findIndex(x => x.add == true) != -1
       //&& this.searchService.SearchList.length > 0
     ) return true;
     else return false;
@@ -870,25 +869,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       const SetA = this.reviewSetsService.selectedNode as SetAttribute;
       if (!SetA) return;
       else {
+        const list = (this.searchService.DataSourceSearches.data as Search[]).filter(x => x.add == true);
+        let msg = "You are about to "
+          + (IsBulkAssign ? "<strong>assign</strong> the selected searches to a code, as follows:<br />" : "<strong>remove</strong> the selected searches from a code, as follows:<br />")
+          + "<UL><LI> Number of searches: <strong>" + list.length.toString() + "</strong></LI>"
+          + "<LI> Selected code: <strong>" + this.reviewSetsService.selectedNode.name + "</strong></LI></UL>"
         if (IsBulkAssign
           && this.reviewSetsService.selectedNode) {
-          this.ConfirmationDialogService.confirm("Assign the selected ("
-            + this.searchService.SearchList.filter(x => x.add == true).length + ") searches ? ", "Are you sure you want to assign all selected searches to this ("
-            + this.reviewSetsService.selectedNode.name + ") code?", false, '')
+          this.ConfirmationDialogService.confirm("Assign the selected searches?", msg, false, '')
             .then((confirm: any) => {
               if (confirm) {
-                this.BulkAssignCodesToSearches(SetA.attribute_id, SetA.set_id);
+                this.BulkAssignCodesToSearches(SetA.attribute_id, SetA.set_id, list);
               }
             });
         }
         else if (!IsBulkAssign
           && this.reviewSetsService.selectedNode) {
-          this.ConfirmationDialogService.confirm("Remove the selected ("
-            + this.searchService.SearchList.filter(x => x.add == true).length + ") searches?", "Are you sure you want to remove all selected searches from this ("
-            + this.reviewSetsService.selectedNode.name + ") code?", false, '')
+          this.ConfirmationDialogService.confirm("Remove the selected searches?", msg, false, '')
             .then((confirm: any) => {
               if (confirm) {
-                this.BulkDeleteCodesToSearches(SetA.attribute_id, SetA.set_id);
+                this.BulkDeleteCodesToSearches(SetA.attribute_id, SetA.set_id, list);
               }
             });
         }
@@ -896,14 +896,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 
   }
-  BulkAssignCodesToSearches(attribute_id: number, set_id: number): any {
+  BulkAssignCodesToSearches(attribute_id: number, set_id: number, searches: Search[]): void {
     let ItemIds: string = "";
     let cmd: ItemAttributeBulkSaveCommand = new ItemAttributeBulkSaveCommand();
     cmd.itemIds = ItemIds;
     cmd.attributeId = attribute_id;
     cmd.setId = set_id;
     cmd.saveType = "Insert";
-    const searches = this.searchService.SearchList.filter(x => x.add == true);
     let SearchIds: string = "";
     for (let item of searches) {
       SearchIds += item.searchId.toString() + ",";
@@ -912,13 +911,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     cmd.searchIds = SearchIds;
     this.reviewSetsService.ExecuteItemAttributeBulkInsertCommand(cmd);
   }
-  BulkDeleteCodesToSearches(attribute_id: number, set_id: number): any {
+  BulkDeleteCodesToSearches(attribute_id: number, set_id: number, searches: Search[]): void {
     let ItemIds: string = "";
     let cmd: ItemAttributeBulkSaveCommand = new ItemAttributeBulkSaveCommand();
     cmd.itemIds = ItemIds;
     cmd.attributeId = attribute_id;
     cmd.setId = set_id;
-    const searches = this.searchService.SearchList.filter(x => x.add == true);
     let SearchIds: string = "";
     for (let item of searches) {
       SearchIds += item.searchId.toString() + ",";
@@ -1162,7 +1160,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       this.HelpAndFeebackContext = "main\\search";
       this.ShowItemsTable = false;
       this.ShowSearchesAssign = true;
-      this._searchService.Fetch();
+      if (this._searchService.SearchList.length < this.SearchTabAutoRefreshThreshold) this._searchService.Fetch();
     }
     //      else if (e.title == 'Microsoft Academic Graph') {
     //	this.HelpAndFeebackContext = "main\\microsoft";
@@ -1283,6 +1281,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   GoToSources() {
     this.router.navigate(['sources']);
   }
+  public get CanShowRobotInvestigate(): boolean {
+    if (!this.HasWriteRights) return false;
+    else if (this.reviewInfoService.ReviewInfo.hasCreditForRobots && this.ReviewerIdentityServ.UserCanGPTinvestigate) return true;
+    else return false;
+  }
+  GoToInvestigate() {
+    if (this.CanShowRobotInvestigate) this.router.navigate(['Investigate']);
+  }
+
   ImportCodesetClick() {
     this.router.navigate(['ImportCodesets']);
   }
@@ -1291,6 +1298,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());
     //console.log("ToRis", dataURI)
     saveAs(dataURI, "ExportedRis.txt");
+  }
+  public GoToPastJobs() {
+    this.router.navigate(['JobsRecord']);
   }
 
   ngOnDestroy() {

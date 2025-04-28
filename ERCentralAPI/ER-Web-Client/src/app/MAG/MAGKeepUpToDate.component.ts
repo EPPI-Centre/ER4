@@ -15,7 +15,8 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { Helpers } from '../helpers/HelperMethods';
 import { NgForm } from '@angular/forms';
 import { ModalService } from '../services/modal.service';
-import { ClassifierModel, ClassifierService } from '../services/classifier.service';
+import { ClassifierModel, ClassifierService, MVCClassifierCommand } from '../services/classifier.service';
+import 'hammerjs';
 
 @Component({
     selector: 'MAGKeepUpToDate',
@@ -223,50 +224,55 @@ export class MAGKeepUpToDate implements OnInit {
     }
     async RunStudyClassifier() {
         if (this.CurrentMagAutoUpdateRun != null && this.StudyClassifiers.indexOf(this.SelectedStudyClassifier) > 0) {
-            let cmd: MagAddClassifierScoresCommand = new MagAddClassifierScoresCommand();
-            cmd.magAutoUpdateRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
-            cmd.studyTypeClassifier = this.SelectedStudyClassifier;
-            cmd.topN = this.CurrentMagAutoUpdateRun.nPapers;
-            this.MAGRelatedRunsService.currentlyApplyedModelToRunId = this.CurrentMagAutoUpdateRun.studyTypeClassifier;
-            this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
-            this.MAGRelatedRunsService.RunMagAddClassifierScoresCommand(cmd).then(async res => {
+            //let cmd: MagAddClassifierScoresCommand = new MagAddClassifierScoresCommand();
+            //cmd.magAutoUpdateRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
+            //cmd.studyTypeClassifier = this.SelectedStudyClassifier;
+          //cmd.topN = this.CurrentMagAutoUpdateRun.nPapers;
+
+          let cmd: MVCClassifierCommand = new MVCClassifierCommand();
+
+          let StudyTypeClassifierId: number = 0;
+          switch (this.SelectedStudyClassifier) {
+            case "RCT":
+              StudyTypeClassifierId = -1;
+              break;
+            case "Cochrane RCT":
+              StudyTypeClassifierId = -4;
+              break;
+            case "Economic evaluation":
+              StudyTypeClassifierId = -3;
+              break;
+            case "Systematic review":
+              StudyTypeClassifierId = -2;
+              break;
+            default:
+              StudyTypeClassifierId = 0;
+              break;
+          }
+
+          this.MAGRelatedRunsService.currentlyApplyedModelToRunId = this.CurrentMagAutoUpdateRun.studyTypeClassifier;
+          this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
+          
+          this._classifierService.Apply("[Apply to OpenAlex Auto Update]",
+             -1, StudyTypeClassifierId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId).then(async res => {
                 if (res) {
                     this.NotificationService.show({
-                        content: 'Model is being applied, should be ready in 10m (will check every 30s).',
+                        content: 'Model is being applied, should be ready within 15m (will check every 30s).',
                         animation: { type: 'slide', duration: 400 },
                         position: { horizontal: 'center', vertical: 'top' },
                         type: { style: "info", icon: true },
                         closable: false,
-                        hideAfter: 3000
+                        hideAfter: 5000
                     });
-                    let now = new Date();
-                    this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 10 * 60000); //10 minutes into the future!
-                    this.MAGRelatedRunsService.refreshForStudyClassifier = true;
-                    this.MAGRelatedRunsService.RefreshAutoUpdateRunsOnTimer();
-                    this.CancelImportRefine();
-                    //let i: number = 0;
-                    //while (i < 20) {
-                    //    await Helpers.Sleep(1000 * 25);
-                    //    this.MAGRelatedRunsService.GetMagAutoUpdateRunList();
-                    //    await Helpers.Sleep(1000 * 5);//we give GetMagAutoUpdateRunList 5s to complete, not a big deal if it's not enough
-                    //    i++;
-                    //    let newRun = this.MAGRelatedRunsService.MagAutoUpdateRunList.find(f => f.magAutoUpdateRunId == this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId);
-                    //    if (newRun != undefined) {
-                    //        //we'll check if the model has been applied
-                    //        if (newRun.studyTypeClassifier !== this.MAGRelatedRunsService.currentlyApplyedModelToRunId) {
-                    //            //yay! it's in, so we can stop looping
-                    //            this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = 0;
-                    //            this.MAGRelatedRunsService.currentlyApplyedModelToRunId = "";
-                    //            this.CurrentMagAutoUpdateRun = newRun;//update what we have in here!!
-                    //            this.LoadGraph();//get update histogram, while we're there...
-                    //            i = 100;
-                    //            return;
-                    //        }
-                    //    }
-                    //}
-                    ////bad luck, either we were re-applying the same model or it's taking more than 5m, we give up
-                    //this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = 0;
-                    //this.MAGRelatedRunsService.currentlyApplyedModelToRunId = "";
+
+                  let now = new Date();
+                  this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 15 * 60000); //15 minutes into the future!
+                  this.MAGRelatedRunsService.refreshForStudyClassifier = true;
+                  this.MAGRelatedRunsService.RefreshAutoUpdateRunsOnTimer();
+                  this.CancelImportRefine();
+
+
+                    
                 }
             });
             this.SelectedStudyClassifier = this.StudyClassifiers[0];
@@ -274,51 +280,34 @@ export class MAGKeepUpToDate implements OnInit {
     }
     async RunContactModelClassifier() {
         if (this.CurrentMagAutoUpdateRun != null && this.SelectedClassifierContactModel && this.SelectedClassifierContactModel.modelId > 0) {
-            let cmd: MagAddClassifierScoresCommand = new MagAddClassifierScoresCommand();
-            cmd.magAutoUpdateRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
-            cmd.userClassifierModelId = this.SelectedClassifierContactModel.modelId;
-            cmd.userClassifierReviewId = this.SelectedClassifierContactModel.reviewId;
-            cmd.studyTypeClassifier = "None";
-            cmd.topN = this.CurrentMagAutoUpdateRun.nPapers;
+            //let cmd: MagAddClassifierScoresCommand = new MagAddClassifierScoresCommand();
+            //cmd.magAutoUpdateRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
+            //cmd.userClassifierModelId = this.SelectedClassifierContactModel.modelId;
+            //cmd.userClassifierReviewId = this.SelectedClassifierContactModel.reviewId;
+            //cmd.studyTypeClassifier = "None";
+            //cmd.topN = this.CurrentMagAutoUpdateRun.nPapers;
             this.MAGRelatedRunsService.currentlyApplyedModelToRunId = this.CurrentMagAutoUpdateRun.userClassifierModelId.toString();
             this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
-            this.MAGRelatedRunsService.RunMagAddClassifierScoresCommand(cmd).then(async res => {
+          
+          this._classifierService.Apply("[Apply to OpenAlex Auto Update]",
+            -1, this.SelectedClassifierContactModel.modelId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId).then(async res => {
                 if (res) {
                     this.NotificationService.show({
-                        content: 'Model is being applied, should be ready in 10m (will check every 30s).',
+                        content: 'Model is being applied, should be ready within 15m (will check every 30s).',
                         animation: { type: 'slide', duration: 400 },
                         position: { horizontal: 'center', vertical: 'top' },
                         type: { style: "info", icon: true },
                         closable: false,
-                        hideAfter: 3000
+                        hideAfter: 5000
                     });
                     let now = new Date();
-                    this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 10 * 60000); //10 minutes into the future!
+                    this.MAGRelatedRunsService.RefreshUntil = new Date(now.getTime() + 15 * 60000); //15 minutes into the future!
                     this.MAGRelatedRunsService.refreshForStudyClassifier = false;
                     this.MAGRelatedRunsService.RefreshAutoUpdateRunsOnTimer();
                     this.CancelImportRefine();
-                    //while (i < 20) {
-                    //    await Helpers.Sleep(1000 * 25);
-                    //    this.MAGRelatedRunsService.GetMagAutoUpdateRunList();
-                    //    await Helpers.Sleep(1000 * 5);//we give GetMagAutoUpdateRunList 5s to complete, not a big deal if it's not enough
-                    //    i++;
-                    //    let newRun = this.MAGRelatedRunsService.MagAutoUpdateRunList.find(f => f.magAutoUpdateRunId == this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId);
-                    //    if (newRun != undefined) {
-                    //        //we'll check if the model has been applied
-                    //        if (newRun.userClassifierModelId.toString() !== this.MAGRelatedRunsService.currentlyApplyedModelToRunId) {
-                    //            //yay! it's in, so we can stop looping
-                    //            this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = 0;
-                    //            this.MAGRelatedRunsService.currentlyApplyedModelToRunId = "";
-                    //            this.CurrentMagAutoUpdateRun = newRun;//update what we have in here!!
-                    //            this.LoadGraph();//get update histogram, while we're there...
-                    //            i = 100;
-                    //            return;
-                    //        }
-                    //    }
-                    //}
-                    ////bad luck, either we were re-applying the same model or it's taking more than 5m, we give up
-                    //this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = 0;
-                    //this.MAGRelatedRunsService.currentlyApplyedModelToRunId = "";
+
+
+                    
                 }
             });
             this.SelectedClassifierContactModel = null;

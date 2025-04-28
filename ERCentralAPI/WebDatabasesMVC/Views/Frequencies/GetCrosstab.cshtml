@@ -17,6 +17,10 @@
             , graphic: "table"
         };
 
+        clearReturnToSessionVals();
+        sessionStorage.setItem("CrossTabPars", @Model.attributeIdXAxis + "," + @Model.setIdXAxis + "," + 
+            @Model.attributeIdYAxis + "," + @Model.setIdYAxis + "," + @Model.included + ",table");
+
         $("#spinner").show();
         $.post("../Frequencies/GetCrosstabJSON", pars, (data, status) => buildResults(data, status))
         .fail(function (response) {

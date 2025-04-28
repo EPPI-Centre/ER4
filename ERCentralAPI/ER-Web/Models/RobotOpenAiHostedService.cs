@@ -204,7 +204,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 catch (Exception e)
                 {
-                    LogRobotJobException(RT, "RobotOpenAiHostedService DoPDFWork error in resuming markdownItemsPdfCommand execution", true, e);
+                    LogRobotJobException(RT, "RobotOpenAiHostedService DoPDFWork error in resuming markdownItemsPdfCommand execution", true, e, 0);
                     return "Error";
                 }
             }
@@ -225,7 +225,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     DataFactoryHelper.UpdateReviewJobLog(markdownItemsPdfCommand.JobId, RT.ReviewId, "Failed during the synchronous execution phase", "", "MarkdownItemsPdfCommand (in RobotOpenAiHostedService)", true, false);
                 }
-                LogRobotJobException(RT, "RobotOpenAiHostedService DoPDFWork error in markdownItemsPdfCommand execution", true, e);
+                LogRobotJobException(RT, "RobotOpenAiHostedService DoPDFWork error in markdownItemsPdfCommand execution", true, e, 0);
                 return "Error";
             }
             //markdownItemsPdfCommand is now running its own fire-and-forget method, but reports how it's going via the Result property
@@ -321,7 +321,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 catch (Exception ex)
                 {
-                    LogRobotJobException(RT, "markdownItemsPdfCommand for robot Job " + RT.RobotApiCallId + " is ALREADY RUNNING! (Shouldn't happen!)", true, ex);
+                    LogRobotJobException(RT, "markdownItemsPdfCommand for robot Job " + RT.RobotApiCallId + " is ALREADY RUNNING! (Shouldn't happen!)", true, ex, 0);
                 }
                 return "Failed";
             }
@@ -490,11 +490,44 @@ namespace BusinessLibrary.BusinessClasses
                     else if (cmd.ReturnMessage == "Error: No valid prompts in codeset")
                     {
                         Exception e = new Exception("Coding tool supplied contains no valid prompts");
-                        LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no prompts", true, e);
+                        LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no prompts", true, e, 0);
                         break;
+                    }
+                    else if (cmd.ReturnMessage.Contains("There are too many prompts, leaving no room for the data to classify!"))
+                    {
+                        Exception e = new Exception("There are too many prompts, leaving no room for the data to classify!");
+                        LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - too many prompts", true, e, 0);
+                        break;
+                    }
+                    else if (cmd.ReturnMessage.StartsWith("Error.") && cmd.ReturnMessage.Contains("An item with the same key has already been added. Key:"))
+                    {//this happens if a RAG label appears twice in the coding tool - I.e. exactly the same label, as in when "**RefToRegularPrompt**details" (the whole thing) is repeated exactly.
+                        break; //an exception is caught inside RobotOpenAICommand and logged therein, so we just stop processing this whole batch.
                     }
                     else
                     {
+                        //checks for non-batch-fatal failures, batch will continue execution, but we log per-item errors here
+                        if (cmd.ReturnMessage == "Error: Null item")
+                        {
+                            Exception e = new Exception("Failed to retrieve this item");
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, false, e, RT.ItemIDsList[done]);
+                        }
+                        else if (cmd.ReturnMessage == "Error: Short or non-existent title and abstract")
+                        {
+                            Exception e = new Exception("Not enough data present for this item (T&A)");
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, false, e, RT.ItemIDsList[done]);
+                        }
+                        else if (cmd.ReturnMessage == "Error: no PDFs to process")
+                        {
+                            Exception e = new Exception("This item doesn't have PDF Document(s) uploaded");
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, false, e, RT.ItemIDsList[done]);
+                        }
+                        else if (cmd.ReturnMessage == "Error: no PDF text to process")
+                        {
+                            Exception e = new Exception("No text could be extracted from PDF(s) uploaded to this item");
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, false, e, RT.ItemIDsList[done]);
+                        }
+
+                        //end of checks for non-batch-fatal failures
                         DelayedCallsWithoutError++;
                         done++;
                     }
@@ -528,7 +561,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception e)
             {
-                LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error", true, e);
+                LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error", true, e, 0);
                 return "Error";
             }
         }
@@ -540,7 +573,7 @@ namespace BusinessLibrary.BusinessClasses
         /// <param name="headline"></param>
         /// <param name="IsFatal"></param>
         /// <param name="e"></param>
-        private void LogRobotJobException(RobotOpenAiTaskReadOnly RT, string headline, bool IsFatal, Exception e)
+        private void LogRobotJobException(RobotOpenAiTaskReadOnly RT, string headline, bool IsFatal, Exception e, long CurrentItemId)
         {
             Logger.LogException(e, headline);
             try
@@ -557,7 +590,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", RT.RobotApiCallId));
                         command.Parameters.Add(new SqlParameter("@STATUS", IsFatal ? "Failed" : "Running"));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
-                        command.Parameters["@CURRENT_ITEM_ID"].Value = 0;
+                        command.Parameters["@CURRENT_ITEM_ID"].Value = CurrentItemId;
                         command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
                         command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
                         command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));

@@ -386,7 +386,9 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (IncomingItems.IncomingItems != null && IncomingItems.IncomingItems.Count > 0)
             {
-                IncomingItems = IncomingItems.Save();
+                int batchSize = 2000;
+                if (IncomingItems.IncomingItems.Count > batchSize) SaveItemsInBatches(IncomingItems, batchSize);
+                else IncomingItems = IncomingItems.Save();
                 int index = 0;
                 foreach (ItemIncomingData iid in IncomingItems.IncomingItems)
                 {
@@ -418,6 +420,45 @@ namespace BusinessLibrary.BusinessClasses
                 
             }
         }
+        private void SaveItemsInBatches(IncomingItemsList BigList, int batchSize)
+        {
+            
+            int BatchesCount = (int)Math.Ceiling((double)BigList.IncomingItems.Count / batchSize);
+            int SourceId = 0;
+            MobileList<ItemIncomingData> AllSavedItems = new MobileList<ItemIncomingData>();
+            for (int i = 0; i < BatchesCount; i++)
+            {
+                IncomingItemsList SmallList = new IncomingItemsList();
+                SmallList.IncomingItems = new MobileList<ItemIncomingData>();
+                SmallList.IsFirst = false;
+                SmallList.IsLast = false;
+                SmallList.SourceName = BigList.SourceName;
+                SmallList.IsIncluded = true;
+                SmallList.RetainItemsList = true;
+                SmallList.SourceID = SourceId;
+                if (i == 0)
+                {//1st batch
+                    SmallList.IsFirst = true;
+                    SmallList.IncomingItems.AddRange(BigList.IncomingItems.GetRange(0, batchSize));
+                }
+                else if (i == BatchesCount - 1)
+                {//last batch
+                    SmallList.IncomingItems.AddRange(BigList.IncomingItems.GetRange(i * batchSize, BigList.IncomingItems.Count - i * batchSize));
+                    SmallList.IsLast = true;
+                }
+                else
+                {//interim batches
+                    SmallList.IncomingItems.AddRange(BigList.IncomingItems.GetRange(i * batchSize, batchSize));
+                }
+                SmallList = SmallList.Save();
+                if (i == 0)
+                { //we created the SourceRecord, so now we want to re-use it!
+                    SourceId = SmallList.SourceID;
+                }
+                AllSavedItems.AddRange(SmallList.IncomingItems);
+            }
+            BigList.IncomingItems = AllSavedItems;
+        }
 
         private void AddReference(Reference r)
         {
@@ -434,7 +475,6 @@ namespace BusinessLibrary.BusinessClasses
             }
             itm.Parent_title = r.ParentTitle;
             itm.Short_title = r.ShortTitle;
-            if (itm.Short_title == "") itm.buildShortTitle();
             itm.DateEdited = r.DateEdited.Ticks > new DateTime(1900, 1, 1).Ticks ? r.DateEdited : new DateTime(1900, 1, 1);
             itm.Year = r.Year;
             itm.Month = r.Month;
@@ -465,6 +505,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 itm.OldItemId = r.OldItemId; 
             }
+            if (itm.Short_title == "") itm.buildShortTitle();
             this.IncomingItems.IncomingItems.Add(itm);
         }
 

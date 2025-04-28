@@ -146,14 +146,11 @@ export class CheckScreening implements OnInit, OnDestroy {
             closable: true
           });
         }
-        else if (res == "Insufficient data") {
-          let msg: string = "Screening check <strong>did not start</strong>: not enough data.<br />"
-            + "Requirements are: <ol>"
-            + "<li>At least 7 items need to belong to the 'Records like these' code</li>"
-            + "<li>At least 10 items need to belong to the 'Among the ones...' code</li>"
-            + "<li>At least 20 items need to be used in total</li>"
-            + "<li>Note: items with both codes will be counted in the 'Records like these' list only</li></ol>";
-          this.modalService.GenericErrorMessage(msg);
+        else if ((res as string).startsWith("Insufficient Data")) {
+          this.modalService.GenericErrorMessage((res as string));
+        }
+        else {
+          this.modalService.GenericErrorMessage("Unexpected result:\r\n" + res.toString());
         }
       }
     }

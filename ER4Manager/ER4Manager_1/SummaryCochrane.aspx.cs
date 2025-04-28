@@ -168,12 +168,23 @@ public partial class SummaryCochrane : System.Web.UI.Page
                     lbInviteReviewerCochrane.Visible = true;
                 pnlEditShareableReviewCochrane.Visible = true;
                 lblShareableReviewNumberCochrane.Text = ReviewID;
+
+                if (Utils.GetSessionString("EnableChatGPTEnabler") == "True")
+                {
+                    pnlGPTcredit.Visible = true;
+                    getOpenAIDetailsProspC();
+                    getCreditPurchases();
+                }
+
+
                 DateTime lastAccessed;
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewDetails",
                     ReviewID);
                 if (idr.Read())
                 {
+                    
+                    
                     tbShareableReviewNameCochrane.Text = idr["REVIEW_NAME"].ToString();
                     if (Utils.GetSessionString("EnablePSEnabler") == "True")
                     {
@@ -764,6 +775,15 @@ public partial class SummaryCochrane : System.Web.UI.Page
                 lblPSFullCochraneReviewEnable.Visible = false;
                 rblPSFullCochraneReviewEnable.Visible = false;
                 lblShareableReviewNumberCochraneFull.Text = ReviewID;
+
+                if (Utils.GetSessionString("EnableChatGPTEnabler") == "True")
+                {
+                    pnlGPTcreditCochrane.Visible = true;
+                    getOpenAIDetailsCochrane();
+                    getCreditPurchases();
+                }
+
+
                 DateTime lastAccessed;
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewDetails",
@@ -1178,5 +1198,326 @@ public partial class SummaryCochrane : System.Web.UI.Page
         Utils.ExecuteSP(isAdmDB, Server, "st_PriorityScreeningTurnOnOff",
                 lblShareableReviewNumberCochraneFull.Text, "ShowScreening", rblPSFullCochraneReviewEnable.SelectedValue);
     }
+
+
+    /*
+    protected void lbSavePurchaseCreditIDCochrane_Click(object sender, EventArgs e)
+    {
+        if ((tbCreditPurchaseIDCochrane.Text.Trim() != "") && (Utils.IsNumeric(tbCreditPurchaseIDCochrane.Text) == true))
+        {
+
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseIDCochrane.Text.Trim());
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblShareableReviewNumberCochraneFull.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                getOpenAIDetailsCochrane();
+                lblInvalidIDCochrane.Visible = false;
+                tbCreditPurchaseIDCochrane.Text = "";
+            }
+            else
+            {
+                lblInvalidIDCochrane.Visible = true;
+            }
+        }
+    }
+    */
+
+    private void getCreditPurchases()
+    {
+        string remaining = "";
+        string purchaseID = "";
+        bool isAdmDB = true;
+        DataTable dt2 = new DataTable();
+        System.Data.DataRow newrow2;
+        dt2.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt2.Columns.Add(new DataColumn("CREDIT_ID_REMAINING", typeof(string)));
+
+        newrow2 = dt2.NewRow();
+        newrow2["CREDIT_PURCHASE_ID"] = "0";
+        newrow2["CREDIT_ID_REMAINING"] = "PurchaseID - (£ Remaining)";
+        dt2.Rows.Add(newrow2);
+
+        IDataReader idr1 = Utils.GetReader(isAdmDB, "st_CreditPurchasesByPurchaser", Utils.GetSessionString("Contact_ID"));
+        while (idr1.Read())
+        {
+            newrow2 = dt2.NewRow();
+            newrow2["CREDIT_PURCHASE_ID"] = idr1["tv_credit_purchase_id"].ToString();
+            purchaseID = idr1["tv_credit_purchase_id"].ToString();
+            remaining = idr1["tv_credit_remaining"].ToString();
+            if (remaining == "")
+                remaining = idr1["tb_credit_purchased"].ToString();
+            newrow2["CREDIT_ID_REMAINING"] = "PurchaseID: " + purchaseID + " - (£" + remaining + ")";
+            dt2.Rows.Add(newrow2);
+        }
+        idr1.Close();
+        ddlCreditPurchasesProspC.DataSource = dt2;
+        ddlCreditPurchasesProspC.DataBind();
+        ddlCreditPurchasesProspC.Attributes["onchange"] = "DisableControls();";
+        ddlCreditPurchasesCochrane.DataSource = dt2;
+        ddlCreditPurchasesCochrane.DataBind();
+        ddlCreditPurchasesCochrane.Attributes["onchange"] = "DisableControls();";
+    }
+
+
+    /*
+    protected void lbSavePurchaseCreditIDProspC_Click(object sender, EventArgs e)
+    {
+        if ((tbCreditPurchaseIDProspC.Text.Trim() != "") && (Utils.IsNumeric(tbCreditPurchaseIDProspC.Text) == true))
+        {
+
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, tbCreditPurchaseIDProspC.Text.Trim());
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblShareableReviewNumberCochrane.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                getOpenAIDetailsProspC();
+                lblInvalidIDProspC.Visible = false;
+                tbCreditPurchaseIDProspC.Text = "";
+            }
+            else
+            {
+                lblInvalidIDCochrane.Visible = true;
+            }
+        }
+    }
+    */
+
+    private void getOpenAIDetailsProspC()
+    {
+
+        string contact_name = "";
+        string contact_id = "";
+
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
+
+        dt.Columns.Add(new DataColumn("CREDIT_FOR_ROBOTS_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASER", typeof(string)));
+        dt.Columns.Add(new DataColumn("REMAINING", typeof(string)));
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
+            lblShareableReviewNumberCochrane.Text, "0");
+        while (idr.Read())
+        {
+            newrow = dt.NewRow();
+            newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
+            newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
+
+            contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
+            contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
+            newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
+
+            newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
+            dt.Rows.Add(newrow);
+        }
+        idr.Close();
+
+        gvCreditForRobotsProspC.DataSource = dt;
+        gvCreditForRobotsProspC.DataBind();
+
+        lblChatGPTCreditTableHeading.Visible = false;
+        if (dt.Rows.Count > 0)
+        {
+            lblChatGPTCreditTableHeading.Visible = true;
+        }
+
+
+    }
+
+
+    private void getOpenAIDetailsCochrane()
+    {
+
+        string contact_name = "";
+        string contact_id = "";
+
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
+
+        dt.Columns.Add(new DataColumn("CREDIT_FOR_ROBOTS_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASER", typeof(string)));
+        dt.Columns.Add(new DataColumn("REMAINING", typeof(string)));
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
+            lblShareableReviewNumberCochraneFull.Text, "0");
+        while (idr.Read())
+        {
+            newrow = dt.NewRow();
+            newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
+            newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
+
+            contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
+            contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
+            newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
+
+            newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
+            dt.Rows.Add(newrow);
+        }
+        idr.Close();
+
+        gvCreditForRobotsCochrane.DataSource = dt;
+        gvCreditForRobotsCochrane.DataBind();
+
+        lblChatGPTCreditTableHeadingCochrane.Visible = false;
+        if (dt.Rows.Count > 0)
+        {
+            lblChatGPTCreditTableHeadingCochrane.Visible = true;
+        }
+    }
+
+    protected void gvCreditForRobotsProspC_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton lb = (LinkButton)(e.Row.Cells[4].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this CreditID from this review?') == false) return false;");
+        }
+    }
+
+    protected void gvCreditForRobotsProspC_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        bool isAdmDB = true;
+        int index = Convert.ToInt32(e.CommandArgument);
+        string creditForRobotsID = (string)gvCreditForRobotsProspC.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                isAdmDB = true;
+                Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID,
+                    Utils.GetSessionString("Contact_ID"), lblShareableReviewNumberCochrane.Text, 0);
+                getOpenAIDetailsProspC();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
+
+    protected void gvCreditForRobotsCochrane_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton lb = (LinkButton)(e.Row.Cells[4].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this CreditID from this review?') == false) return false;");
+        }
+    }
+
+    protected void gvCreditForRobotsCochrane_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        bool isAdmDB = true;
+        int index = Convert.ToInt32(e.CommandArgument);
+        string creditForRobotsID = (string)gvCreditForRobotsCochrane.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                isAdmDB = true;
+                Utils.ExecuteSP(isAdmDB, Server, "st_RemoveCreditPurchaseIDForOpenAI", creditForRobotsID,
+                    Utils.GetSessionString("Contact_ID"), lblShareableReviewNumberCochraneFull.Text, 0);
+                getOpenAIDetailsCochrane();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
+    protected void ddlCreditPurchasesProspC_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlCreditPurchasesProspC.SelectedIndex != 0)
+        {
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, ddlCreditPurchasesProspC.SelectedValue);
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblShareableReviewNumberCochrane.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+            //System.Threading.Thread.Sleep(5000);
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                ddlCreditPurchasesProspC.SelectedValue = ddlCreditPurchasesProspC.Items[0].Value;
+                getOpenAIDetailsProspC();
+            }
+            else
+            {
+                // not much to do if it fails
+            }
+        }
+    }
+
+    protected void ddlCreditPurchasesCochrane_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlCreditPurchasesCochrane.SelectedIndex != 0)
+        {
+            bool isAdmDB = true;
+            SqlParameter[] paramList = new SqlParameter[5];
+            paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, ddlCreditPurchasesCochrane.SelectedValue);
+            paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, lblShareableReviewNumberCochraneFull.Text);
+            paramList[2] = new SqlParameter("@LICENSE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, 0);
+            paramList[3] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+            paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 100, ParameterDirection.Output,
+                true, 0, 0, null, DataRowVersion.Default, "");
+
+
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_SetCreditPurchaseIDForOpenAIByPurchaserID", paramList);
+            //System.Threading.Thread.Sleep(5000);
+            if (paramList[4].Value.ToString() == "SUCCESS")
+            {
+                ddlCreditPurchasesCochrane.SelectedValue = ddlCreditPurchasesCochrane.Items[0].Value;
+                getOpenAIDetailsCochrane();
+            }
+            else
+            {
+                // not much to do if it fails
+            }
+        }
+    }
+
 
 }

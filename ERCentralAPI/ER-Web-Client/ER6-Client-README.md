@@ -24,6 +24,8 @@ Please note that npm packages will be downloaded automatically upon running/debu
 
 The ER6 client also depends on the [PDFTron WebViewer](https://www.pdftron.com/webviewer/index.html). This is a pure Javascript commercial product for which you will also need to procure a license. The licensed files are stored in `[..]\ERCentralAPI\ER-Web-Client\src\assets\lib\` within this repository.
 
+To enable / disable the 'investigate' feature see ClientConfig.txt in the /src/assets folder
+
 ------------------
 
 # (Automatically generated) ERWebClient Original Readme

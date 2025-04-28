@@ -56,3 +56,10 @@ function getBasePath() {
     if (el) return el.href;
     else return "../";  
 };
+
+function clearReturnToSessionVals() {
+    sessionStorage.setItem("MapId", "0");
+    sessionStorage.setItem("FreqPars", "");
+    sessionStorage.setItem("CrossTabPars", "");
+    sessionStorage.setItem("MapPars", "");
+};

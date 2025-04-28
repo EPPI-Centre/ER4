@@ -9,32 +9,41 @@
     <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
         <script language="javascript" type="text/javascript">
-        function openContactList(ID) 
-        {
-            var iWidthOfWin = 800;
-            var iHeightOfWin = 450;
-            var iLocX = (screen.width - iWidthOfWin) / 2;
-            var iLocY = (screen.height - iHeightOfWin) / 2;
+            function openContactList(ID) 
+            {
+                var iWidthOfWin = 800;
+                var iHeightOfWin = 450;
+                var iLocX = (screen.width - iWidthOfWin) / 2;
+                var iLocY = (screen.height - iHeightOfWin) / 2;
 
-            var strFeatures = "scrollbars=yes,self.focus(), resizable=yes "
-                         + ",width=" + iWidthOfWin
-                         + ",height=" + iHeightOfWin
-                         + ",screenX=" + iLocX
-                         + ",screenY=" + iLocY
-                         + ",left=" + iLocX
-                         + ",top=" + iLocY;
+                var strFeatures = "scrollbars=yes,self.focus(), resizable=yes "
+                             + ",width=" + iWidthOfWin
+                             + ",height=" + iHeightOfWin
+                             + ",screenX=" + iLocX
+                             + ",screenY=" + iLocY
+                             + ",left=" + iLocX
+                             + ",top=" + iLocY;
 
-            var theURL = "SelectFunder.aspx?funder=" + ID;
-            windowName = new String(Math.round(Math.random() * 100000));
-            DetailsWindow = window.open(theURL, windowName, strFeatures);
-        }
+                var theURL = "SelectFunder.aspx?funder=" + ID;
+                windowName = new String(Math.round(Math.random() * 100000));
+                DetailsWindow = window.open(theURL, windowName, strFeatures);
+            }
+            function DisableControls() {
+                var el = document.getElementById('<%= pnlGPTcredit.ClientID %>'); 
+                if (el) {
+                    el.style.display = "none";
+                    var el2 = document.getElementById('jsSavingDiv');
+                    if (el2) {
+                        el2.style.display = "block";
+                    } 
+                }
+            }
 
-            </script>
+        </script>
 
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 
 
@@ -142,7 +151,7 @@
                                 </asp:DropDownList>
                                 </td>
                         </tr>
-                        <tr>
+                        <!--<tr>
                             <td colspan="4" style="background-color: #B6C6D6; ">
                                 British library codes (optional)&nbsp;&nbsp;
                                 <asp:LinkButton ID="lbShowBLCodes" runat="server" onclick="lbShowBLCodes_Click">Show/Edit</asp:LinkButton>
@@ -181,6 +190,73 @@
                                         </tr>
                                     </table>
                                 </asp:Panel>
+                            </td>
+                        </tr>-->
+                        <tr>
+                            <td colspan="4">
+                                <div id="jsSavingDiv" style="display:none;padding: 1em; margin: 1em; border-collapse:collapse; background-color:#B6C6D6; border: 1px solid black;">
+                                    Saving...
+                                </div>
+                                <asp:Panel runat="server" ID="pnlGPTcredit" visible="false">
+                                    <table width="100%">
+                                        <tr>
+                                            <td style="background-color: #B6C6D6; width: 25%;">
+                                                <b>LLM Coding</b></td>                                
+                                                <td style="width: 25%; background-color: #E2E9EF; height: 27px;vertical-align:top">
+                                                    <b>LLM Coding</b><br />
+                                                    Select a PurchaseID to give this Site License LLM Coding access<br />
+                                                    <asp:DropDownList ID="ddlCreditPurchases" runat="server" 
+                                                        DataTextField="CREDIT_ID_REMAINING" DataValueField="CREDIT_PURCHASE_ID" 
+                                                        Enabled="True" AutoPostBack="True" OnSelectedIndexChanged="ddlCreditPurchases_SelectedIndexChanged">
+                                                    </asp:DropDownList><br />
+                                                    <!--<asp:TextBox ID="tbCreditPurchaseID" runat="server" Visible="true" Width="100px"></asp:TextBox>
+                                                    &nbsp;
+                                                    <asp:LinkButton ID="lbSavePurchaseCreditID" runat="server" onclick="lbSavePurchaseCreditID_Click" 
+                                                            ToolTip="Add a purchase credit ID">Add</asp:LinkButton>
+                                                    <b><asp:Label ID="lblInvalidID" runat="server" Text="Invalid ID" Visible="false"></asp:Label></b>-->                               
+                                                </td>
+                                                <td style="background-color: #E2E9EF; height: 27px;vertical-align:top" colspan="2">
+                                                        LLM Coding Credit<br />
+                                                    <asp:GridView ID="gvCreditForRobots" runat="server" Width="100%" onrowdatabound="gvCreditForRobots_RowDataBound"
+                                                        onrowcommand="gvCreditForRobots_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
+                                                        DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
+                                                        <Columns>
+                                                            <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left" />
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:BoundField>
+                                                            <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left" />
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:BoundField>
+                                                            <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left" />
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:BoundField>
+                                                            <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left" />
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:BoundField>
+                                                            <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" 
+                                                                Text="Remove">
+                                                            <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                                                HorizontalAlign="Left"/>
+                                                            <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                                            </asp:ButtonField>                         
+                                                        </Columns>
+                                                    </asp:GridView>
+
+                                                </td>
+
+
+                                            </tr>
+                                    </table>
+                                </asp:Panel>
+
                             </td>
                         </tr>
                     </table>

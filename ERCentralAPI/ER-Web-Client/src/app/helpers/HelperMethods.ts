@@ -58,7 +58,15 @@ export class Helpers {
       return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });
     }
   }
-
+  public static StringWithSlashesToDate(DfsMfsYYYY: string): Date {
+    const splitted = DfsMfsYYYY.split("/");
+    if (splitted.length != 3) return new Date();
+    const year = parseInt(splitted[2]);
+    const month = parseInt(splitted[1]) - 1;
+    const day = parseInt(splitted[0]);
+    const date: Date = new Date(year, month, day);
+    return date;
+  }
   //used when we want a component to wait some time in a sync manner (for example to check when a service stops being busy).
   //Correct way to call this function requires the calling method to be async. 
   //If done within a loop, should also include a safety to avoid infinite loops!!!
@@ -92,7 +100,20 @@ export class Helpers {
     return retValue;
   }
 
-
+  //should not crash, irrespective of input.
+  //will return number OR null, so caller needs to check for nulls!
+  public static SafeParseNumber(str: string): number | null {
+    let retValue: number | null = null;
+    if (str !== null) {
+      if (str.length > 0) {
+        let tmp = Number(str);
+        if (!isNaN(tmp)) {
+          retValue = tmp;
+        }
+      }
+    }
+    return retValue;
+  }
 
   //used in 2 item details pages (view, edit) may be useful in other places.
   //is used to drive the appeareance and display name of fields that change meaning depending on pub-type.

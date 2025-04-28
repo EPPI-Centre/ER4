@@ -17,13 +17,6 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
-
-
-
-
-
-
-
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -183,136 +176,145 @@ namespace BusinessLibrary.BusinessClasses
                 _message = "Error: GPT4 is disabled or there is no credit.";
                 return;
             }
-            else
-            {
-                if (_jobId == 0)
-                {//we need to create a record for this in TB_ROBOT_API_CALL_LOG - it's a single call doing one item!
-                    CreditForRobots CfR = rInfo.CreditForRobotsList.FirstOrDefault(f => f.AmountRemaining >= 0.01);
-                    int creditPurchaseId = 0;
-                    if (CfR == null && rInfo.OpenAIEnabled == false)
+            if (_jobId == 0)
+            {//we need to create a record for this in TB_ROBOT_API_CALL_LOG - it's a single call doing one item!
+                CreditForRobots CfR = rInfo.CreditForRobotsList.FirstOrDefault(f => f.AmountRemaining >= 0.01);
+                int creditPurchaseId = 0;
+                if (CfR == null && rInfo.OpenAIEnabled == false)
+                {
+                    _message = "Error: did not find suitable credit to use.";
+                    return;
+                }
+                else if (CfR != null)
+                {
+                    creditPurchaseId = CfR.CreditPurchaseId;
+                }
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_RobotApiCallLogCreate", connection))
                     {
-                        _message = "Error: did not find suitable credit to use.";
-                        return;
-                    }
-                    else if (CfR != null)
-                    {
-                        creditPurchaseId = CfR.CreditPurchaseId;
-                    }
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                    {
-                        connection.Open();
-                        using (SqlCommand command = new SqlCommand("st_RobotApiCallLogCreate", connection))
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
+                        command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
+                        command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
+                        command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                        command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
+                        command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
+                        command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument));
+                        command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
+                        command.Parameters["@result"].Size = 50;
+                        command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters.Add(new SqlParameter("@JobId", SqlDbType.Int));
+                        command.Parameters["@JobId"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters.Add(new SqlParameter("@RobotContactId", SqlDbType.Int));
+                        command.Parameters["@RobotContactId"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+                        if (command.Parameters["@result"].Value.ToString() != "Success")
                         {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
-                            command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
-                            command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
-                            command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
-                            command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
-                            command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
-                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
-                            command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
-                            command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
-                            command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument));
-                            command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
-                            command.Parameters["@result"].Size = 50;
-                            command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
-                            command.Parameters.Add(new SqlParameter("@JobId", SqlDbType.Int));
-                            command.Parameters["@JobId"].Direction = System.Data.ParameterDirection.Output;
-                            command.Parameters.Add(new SqlParameter("@RobotContactId", SqlDbType.Int));
-                            command.Parameters["@RobotContactId"].Direction = System.Data.ParameterDirection.Output;
-                            command.ExecuteNonQuery();
-                            if (command.Parameters["@result"].Value.ToString() != "Success")
-                            {
-                                _message = "Error. " + command.Parameters["@result"].Value.ToString();
-                                return;
-                            }
-                            _jobId = (int)command.Parameters["@JobId"].Value;
-                            _robotContactId = (int)command.Parameters["@RobotContactId"].Value;
+                            _message = "Error. " + command.Parameters["@result"].Value.ToString();
+                            return;
                         }
+                        _jobId = (int)command.Parameters["@JobId"].Value;
+                        _robotContactId = (int)command.Parameters["@RobotContactId"].Value;
                     }
                 }
-                //we have a jobID so now we can (and want) to catch and log exceptions
-                try
+            }
+            //we have a jobID so now we can (and want) to catch and log exceptions
+            try
+            {
+                if (AppIsShuttingDown)
                 {
+                    MarkAsPaused();
+                    return;
+                }
+                _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();//this runs synchronously, hence the catch will work
+                if (errors > 0)
+                {
+                    _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
+                    if (hasSavedSomeCodes == false && _Item_set_id > 0)
+                    {
+                        DeleteItemSetIfEmpty();
+                    }
                     if (AppIsShuttingDown)
                     {
                         MarkAsPaused();
                         return;
                     }
-                    _Succeded = Task.Run(() => DoRobot(_reviewId, _robotContactId)).GetAwaiter().GetResult();//this runs synchronously, hence the catch will work
-                    if (errors > 0)
-                    {
-                        _message += Environment.NewLine + "Error(s) occurred. Could not save " + errors.ToString() + " code(s).";
-                        if (hasSavedSomeCodes == false && _Item_set_id > 0)
-                        {
-                            DeleteItemSetIfEmpty();
-                        }
-                        if (AppIsShuttingDown)
-                        {
-                            MarkAsPaused();
-                            return;
-                        }
-                    }
                 }
-                catch (Exception e)
-                {
-
-                    _Succeded = false;
-                    _message = "Error. " + Environment.NewLine + e.Message;
-                    ErrorLogSink(e.Message);
-                    if (e.StackTrace != null) ErrorLogSink(e.StackTrace);
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            }
+            catch (Exception e)
+            {
+                _Succeded = false;
+                _message = "Error. " + Environment.NewLine + e.Message;
+                if (e.Message.Contains("An item with the same key has already been added. Key:"))
+                {//this happens if a RAG label appears twice in the coding tool - I.e. exactly the same label, as in when "**RefToRegularPrompt**details" (the whole thing) is repeated exactly.
+                    //in this (predictable) case we want the error message to be clearly informative to the user.
+                    int index = e.Message.IndexOf("An item with the same key has already been added. Key:");
+                    if (index >= 0)
                     {
-                        string SavedMsg = e.Message;
-                        if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
-                        connection.Open();
-                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
-                        {//this is to update the token numbers, and thus the cost, if we can
-                            command.CommandType = System.Data.CommandType.StoredProcedure; 
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
-                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
-                            command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
-                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
-                            command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
-                            command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
-                            command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
-                            command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
-                            command.ExecuteNonQuery();
-                        }
+                        string Msg = e.Message.Substring(index + ("An item with the same key has already been added. Key:").Length).Trim();
+                        Msg = "Error, the following label appears twice in the prompts: \"" + Msg + "\". " + Environment.NewLine + "Please correct this by editing the coding tool and retry.";
+                        e = new Exception(Msg);
                     }
-                    if (hasSavedSomeCodes == false && _Item_set_id > 0)
-                    {
-                        DeleteItemSetIfEmpty();
-                    }
-                    return;
+                    _itemId = 0;//problem is with the coding tool - no need to point users to an item
+                    _isLastInBatch = true;//if this is a batch, RobotOpenAiHostedService will notice the error and execution will stop here, so we want the log to report the job as "Failed", see below.
                 }
-                if (AppIsShuttingDown && _Succeded == false)
-                {
-                    MarkAsPaused();
-                    return;
-                }
+                ErrorLogSink(e.Message);
+                if (e.StackTrace != null) ErrorLogSink(e.StackTrace);
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
+                    string SavedMsg = e.Message;
+                    if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
                     connection.Open();
                     using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
-                    {
-                        string status;
-                        if (_isLastInBatch == false) status = "Running";
-                        else
-                        {
-                            if (_Succeded == false) status = "Failed";
-                            else status = "Finished";
-                        }
+                    {//this is to update the token numbers, and thus the cost, if we can
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
                         command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
-                        command.Parameters.Add(new SqlParameter("@STATUS", status));
+                        command.Parameters.Add(new SqlParameter("@STATUS", _isLastInBatch ? "Failed" : "Running"));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
                         command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
                         command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                        command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                        command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
                         command.ExecuteNonQuery();
                     }
+                }
+                if (hasSavedSomeCodes == false && _Item_set_id > 0)
+                {
+                    DeleteItemSetIfEmpty();
+                }
+                return;
+            }
+            if (AppIsShuttingDown && _Succeded == false)
+            {
+                MarkAsPaused();
+                return;
+            }
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                {
+                    string status;
+                    if (_isLastInBatch == false) status = "Running";
+                    else
+                    {
+                        if (_Succeded == false) status = "Failed";
+                        else status = "Finished";
+                    }
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
+                    command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                    command.Parameters.Add(new SqlParameter("@STATUS", status));
+                    command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                    command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
+                    command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
+                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -323,21 +325,45 @@ namespace BusinessLibrary.BusinessClasses
             public string content { get; set; }
         }
 
-        private string getPrompts(string currentPrompt, AttributeSet aSet)
+        private string getPrompts(string currentPrompt, AttributeSet aSet, Dictionary<string, string> RagPrompts)
         {
             foreach (AttributeSet subSet in aSet.Attributes)
             {
-                currentPrompt = getPrompts(currentPrompt, subSet);
+                currentPrompt = getPrompts(currentPrompt, subSet, RagPrompts);
             }
             string possiblePrompt = aSet.AttributeSetDescription;
             if (possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':')) // checking it's in the right format
             {
-                possiblePrompt = possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}","").Replace("\"", ""); // once out of Alpha we could make this more complete
-                int firstIndexOfColumn = possiblePrompt.IndexOf(":");
-                if (firstIndexOfColumn == -1) { return currentPrompt; }
-                possiblePrompt = "\"" + possiblePrompt.Insert(firstIndexOfColumn, "\"");
-                currentPrompt += possiblePrompt + ",\n";
-                return currentPrompt;
+                // RAG prompts don't go in the main prompt list, they go in their own list and are resolved one by one
+                if (possiblePrompt.StartsWith("**"))
+                {
+                    string ragKey = getRagKeyFromPrompt(possiblePrompt);
+                    string ragPrompt = possiblePrompt.Replace("**", "").Replace(ragKey, "");
+                    int firstIndexOfColumn = ragPrompt.IndexOf(":");
+
+                    // we check it's looking like a proper prompt and format it before adding, so it's good to use later without further intervention
+                    // if firstIndexOfColumn == 0 then we have no prompt label, so we ignore it (could possibly insist on min label length?)
+                    if (firstIndexOfColumn > 0 && ragPrompt.IndexOf("//") > firstIndexOfColumn)
+                    {
+                        ragPrompt = ragPrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}", "").Replace("\"", "").Replace("RAG_", ""); // once out of Alpha we could make this more complete
+                        ragPrompt = "\"" + ragPrompt.Insert(firstIndexOfColumn, "\"");
+                        RagPrompts.Add(getKeyFromPrompt(possiblePrompt), ragPrompt);
+                    }
+
+                    // We're not adding anything to the first pass prompts, so just return
+                    return currentPrompt;
+                }
+                else
+                {
+                    possiblePrompt = possiblePrompt.Replace("'", "").Replace(",", "").Replace("{", "").Replace("}", "").Replace("\"", ""); // once out of Alpha we could make this more complete
+                    
+                    // JT - isn't this check redundant as we already know that the string contains : ?
+                    int firstIndexOfColumn = possiblePrompt.IndexOf(":");
+                    if (firstIndexOfColumn == -1) { return currentPrompt; }
+                    possiblePrompt = "\"" + possiblePrompt.Insert(firstIndexOfColumn, "\"");
+                    currentPrompt += possiblePrompt + ",\n";
+                    return currentPrompt;
+                }
             }
             else
             {
@@ -347,14 +373,10 @@ namespace BusinessLibrary.BusinessClasses
 
         private AttributeSet getAttributeFromPromptKey(string key, AttributeSet aSet)
         {
-            int columnIndex = aSet.AttributeSetDescription.IndexOf(':');
-            if (columnIndex > 0)
+            string label = getKeyFromPrompt(aSet.AttributeSetDescription);
+            if (label == key)
             {
-                string label = aSet.AttributeSetDescription.Substring(0, columnIndex);
-                if (label == key)
-                {
-                    return aSet;
-                }
+                return aSet;
             }
             foreach (AttributeSet subSet in aSet.Attributes)
             {
@@ -366,29 +388,50 @@ namespace BusinessLibrary.BusinessClasses
             }
             return null;
         }
+        private AttributeSet getAttributeFromRagPromptKey(string key, AttributeSet aSet)
+        {
+            string label = getKeyFromPrompt(aSet.AttributeSetDescription);
+            if (label == key)
+            {
+                return aSet;
+            }
+            foreach (AttributeSet subSet in aSet.Attributes)
+            {
+                AttributeSet possibleMatch = getAttributeFromRagPromptKey(key, subSet);
+                if (possibleMatch != null)
+                {
+                    return possibleMatch;
+                }
+            }
+            return null;
+        }
+
+        private string getKeyFromPrompt(string prompt)
+        {
+            int columnIndex = prompt.IndexOf(':');
+            if (columnIndex > 0)
+            {
+                return prompt.Substring(0, columnIndex);
+            }
+            return "";
+        }
+
+        private string getRagKeyFromPrompt(string prompt)
+        {
+            var match = Regex.Match(prompt, @"\*\*(.*?)\*\*");
+            return match.Success ? match.Groups[1].Value : string.Empty;
+        }
+
+        private string getRagSubKeyFromPrompt(string prompt)
+        {
+            return prompt.Replace(getRagKeyFromPrompt(prompt), "").Replace("**", "");
+        }
         private async Task<bool> DoRobot(int ReviewId, int UserId)
         {
             bool result = true;
+            Dictionary<string, string> RagPrompts = new Dictionary<string, string>();
             //
-            string endpoint;
-            string key;
-            if (_UserPrivateOpenAIKey != "")
-            {
-                //TEMPORARY (May 2024): use RobotOpenAIDirectEndpoint when we have an ad-hoc OpenAIKey for it
-                endpoint = AzureSettings.RobotOpenAIDirectEndpoint;
-                key = _UserPrivateOpenAIKey;
-
-            }
-            else if (_ExplicitEndpoint != "" && _ExplicitEndpointKey != "")
-            {
-                endpoint = _ExplicitEndpoint;
-                key = _ExplicitEndpointKey;
-            }
-            else
-            {
-                endpoint = AzureSettings.RobotOpenAIEndpoint;
-                key = AzureSettings.RobotOpenAIKey2;
-            }
+            
             //string document = GetDoc(_itemDocumentId, ReviewId);  // when we re-enable this, we need to check the stored proc (below) will return the text
             Item i = null;
             if (_useFullTextDocument == false)
@@ -405,13 +448,14 @@ namespace BusinessLibrary.BusinessClasses
                     _message = "Error: Short or non-existent title and abstract";
                     return false;
                 }
-                char[] chars = { ' ' };
-                int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
-                if (wordCount > 3500)
-                {
-                    _message = "Error: Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
-                    return false;
-                }
+                //SG Feb 2025 commented out: this check is redundant, given much bigger context window (compared to when this check was written) and automatic truncation added later on
+                //char[] chars = { ' ' };
+                //int wordCount = i.Abstract.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length + i.Title.Split(chars, StringSplitOptions.RemoveEmptyEntries).Length;
+                //if (wordCount > 3500)
+                //{
+                //    _message = "Error: Maximum word count is currently 3500 words. This title+abstract is " + wordCount.ToString() + " words long.";
+                //    return false;
+                //}
             }
 
             // *** Get the codeset, build the list of prompts, and return if no valid prompts are present
@@ -426,7 +470,7 @@ namespace BusinessLibrary.BusinessClasses
             string prompt = "";
             foreach (AttributeSet subSet in rs.Attributes)
             { //maybe add code to check if we have 2 codes with the same prompt, which would break the "saving results" phase, somewhat (only the first will be coded)
-                string newPrompt = getPrompts("", subSet);
+                string newPrompt = getPrompts("", subSet, RagPrompts);
                 if (newPrompt != "")
                 {
                     prompt += newPrompt;
@@ -512,7 +556,7 @@ namespace BusinessLibrary.BusinessClasses
                 ErrorLogSink("Cancelling RobotOpenAICommand after preparing most of the prompts.");
                 return false;
             }
-            //we add lenght checks here and simply truncate the userprompt if things are too long.
+            //we add length checks here and simply truncate the userprompt if things are too long.
             int limit = 556522; //128000 / 0.23 we calculated this using 2 tests that had 100K++ tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
             if (sysprompt.Length + userprompt.Length > limit)
             {//call is likely to fail because it's too long - we truncate the userprompt and hope for the best!
@@ -520,7 +564,6 @@ namespace BusinessLibrary.BusinessClasses
                 {//oh my, the prompts themselves are too many. Deliberately rise an exception which produces the highest level of visibility: gets saved in TB_ROBOT_API_CALL_ERROR_LOG
                     //we will eventually show errors collected there to users!
                     throw new Exception("There are too many prompts, leaving no room for the data to classify!");
-
                 }
                 int excess = sysprompt.Length + userprompt.Length - limit;
                 userprompt = userprompt.Substring(0, userprompt.Length - excess);//this will work, having checked if sysprompt is too long in itself!
@@ -531,6 +574,113 @@ namespace BusinessLibrary.BusinessClasses
                 new OpenAIChatClass { role = "user", content = userprompt},
             };
 
+            result = await MyRobotSubmitRequest(messages, false);
+
+            if (result)
+            {
+                // *** Go through each of the responses, find the right code, and save results
+                foreach (var kv in resultDict)
+                {
+                    AttributeSet matched = null;
+                    foreach (AttributeSet subSet in rs.Attributes)
+                    {
+                        matched = getAttributeFromPromptKey(kv.Key, subSet);
+                        if (matched != null)
+                        {
+                            SaveAttribute(matched, _itemId, kv.Value, ReviewId, UserId);
+                            break;
+                        }
+                    }
+                }
+
+                // if there are RAG_ prompts then go through them now
+                foreach (string c in RagPrompts.Keys)
+                {
+                    string ragKey = getRagKeyFromPrompt(c);
+                    if (resultDict.ContainsKey(ragKey))
+                    {
+                        userprompt = resultDict[ragKey];
+                        if (userprompt != "")
+                        {
+                            sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data requested is not in the text return 'false' for that field. \nShape: {" + RagPrompts[c] + "}";
+                            messages = new List<OpenAIChatClass>
+                            {
+                                new OpenAIChatClass { role = "system", content = sysprompt}, 
+                                new OpenAIChatClass { role = "user", content = userprompt},
+                            };
+
+                            result = await MyRobotSubmitRequest(messages, true);
+
+                            if (result)
+                            {
+                                AttributeSet matched = null;
+                                foreach (AttributeSet subSet in rs.Attributes)
+                                {
+                                    string ragPromptKey = c.Replace("\"", "");
+                                    matched = getAttributeFromPromptKey(ragPromptKey, subSet);
+                                    if (matched != null && resultRagDict.ContainsKey(getRagSubKeyFromPrompt(ragPromptKey)))
+                                    {
+                                        SaveAttribute(matched, _itemId, resultRagDict[getRagSubKeyFromPrompt(ragPromptKey)], ReviewId, UserId);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (AppIsShuttingDown)
+                            {
+                                result = false;
+                                ErrorLogSink("Cancelled RobotOpenAICommand while submitting Rag prompts.");
+                                break; //DoRobot will be returning false (result is false) and job will be marked as paused...
+                            }
+                        }
+                    }
+                }
+
+                if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true)
+                {//_Item_set_id > 0 => there is coding to lock/unlock
+                 //_onlyCodeInTheRobotName == false && _lockTheCoding == true => we did not call st_ItemSetPrepareForRobot so we may need to lock the coding still
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        string sql = "UPDATE TB_ITEM_SET set IS_LOCKED = @IS_LOCKED where ITEM_SET_ID = @ITEM_SET_ID";
+                        using (SqlCommand commandEx = new SqlCommand(sql, connection))
+                        {
+                            commandEx.Parameters.Add(new SqlParameter("@IS_LOCKED", System.Data.SqlDbType.Bit));
+                            commandEx.Parameters["@IS_LOCKED"].Value = _lockTheCoding;
+                            commandEx.Parameters.Add(new SqlParameter("@ITEM_SET_ID", System.Data.SqlDbType.BigInt));
+                            commandEx.Parameters["@ITEM_SET_ID"].Value = _Item_set_id;
+                            commandEx.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        private Dictionary<string, string> resultDict;
+        private Dictionary<string, string> resultRagDict;
+
+        // This is just copied and pasted out of the above. It can be the starting point for putting this in a new object and having different options for the robot
+        private async Task<bool> MyRobotSubmitRequest(List<OpenAIChatClass> messages, bool isRag)
+        {
+            string endpoint;
+            string key;
+            if (_UserPrivateOpenAIKey != "")
+            {
+                //TEMPORARY (May 2024): use RobotOpenAIDirectEndpoint when we have an ad-hoc OpenAIKey for it
+                endpoint = AzureSettings.RobotOpenAIDirectEndpoint;
+                key = _UserPrivateOpenAIKey;
+
+            }
+            else if (_ExplicitEndpoint != "" && _ExplicitEndpointKey != "")
+            {
+                endpoint = _ExplicitEndpoint;
+                key = _ExplicitEndpointKey;
+            }
+            else
+            {
+                endpoint = AzureSettings.RobotOpenAIEndpoint;
+                key = AzureSettings.RobotOpenAIKey2;
+            }
 
             // *** additional params (modifiable in web.config)
             double temperature = Convert.ToDouble(AzureSettings.RobotOpenAITemperature);
@@ -583,8 +733,7 @@ namespace BusinessLibrary.BusinessClasses
             if (response.IsSuccessStatusCode == false)
             {
                 _message = "Error: " + response.ReasonPhrase;
-                result = false;
-                return result;
+                return false;
             }
 
             if (AppIsShuttingDown)//last time we check, if we need to cancel while we're saving results, it's best to have a go and try to save all results, not just some!
@@ -595,46 +744,21 @@ namespace BusinessLibrary.BusinessClasses
 
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
-            _inputTokens = generatedText.usage.prompt_tokens;
-            _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            _inputTokens += generatedText.usage.prompt_tokens;
+            _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             var responses = generatedText.choices[0].message.content;
-            var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
-
-
-            // *** Go through each of the responses, find the right code, and save results
-            foreach (var kv in dict)
+            if (isRag)
             {
-                AttributeSet matched = null;
-                foreach (AttributeSet subSet in rs.Attributes)
-                {
-                    matched = getAttributeFromPromptKey(kv.Key, subSet);
-                    if (matched != null)
-                    {
-                        SaveAttribute(matched, _itemId, kv.Value, ReviewId, UserId);
-                        break;
-                    }
-                }
+                resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
             }
-            if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true)
-            {//_Item_set_id > 0 => there is coding to lock/unlock
-                //_onlyCodeInTheRobotName == false && _lockTheCoding == true => we did not call st_ItemSetPrepareForRobot so we may need to lock the coding still
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                {
-                    connection.Open();
-                    string sql = "UPDATE TB_ITEM_SET set IS_LOCKED = @IS_LOCKED where ITEM_SET_ID = @ITEM_SET_ID";
-                    using (SqlCommand commandEx = new SqlCommand(sql, connection))
-                    {
-                        commandEx.Parameters.Add(new SqlParameter("@IS_LOCKED", System.Data.SqlDbType.Bit));
-                        commandEx.Parameters["@IS_LOCKED"].Value = _lockTheCoding;
-                        commandEx.Parameters.Add(new SqlParameter("@ITEM_SET_ID", System.Data.SqlDbType.BigInt));
-                        commandEx.Parameters["@ITEM_SET_ID"].Value = _Item_set_id;
-                        commandEx.ExecuteNonQuery();
-                    }
-                }
+            else
+            {
+                resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
             }
+            // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
-           
-            return result;
+
+            return true;
         }
 
         private static readonly Regex BooleanPromptRx = new Regex(@": ?boolean ?\/\/");

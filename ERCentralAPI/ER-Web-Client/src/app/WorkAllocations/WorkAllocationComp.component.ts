@@ -547,18 +547,18 @@ export class WorkAllocationComp implements OnInit {
         FilterType = "No code / code set filter";
         break;
       case 1:
-        if (!this.DropdownWithWithoutSelectedCode || this.DropdownWithWithoutSelectedCode.nodeType != "ReviewSet" || (this.DropdownWithWithoutSelectedCode as ReviewSet).set_id  < 1) {
+        if (!this.selectedCodeSetDropDown || this.selectedCodeSetDropDown.nodeType != "ReviewSet" || this.selectedCodeSetDropDown.set_id  < 1) {
           //this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
           return;
         }
-        setIdFilter = (this.DropdownWithWithoutSelectedCode as ReviewSet).set_id;
+        setIdFilter = this.selectedCodeSetDropDown.set_id;
         FilterType = "All without any codes from this set";
         break;
       case 2:
-        if (!this.DropdownWithWithoutSelectedCode || this.DropdownWithWithoutSelectedCode.nodeType != "ReviewSet" || (this.DropdownWithWithoutSelectedCode as ReviewSet).set_id < 1) {
+        if (!this.selectedCodeSetDropDown || this.selectedCodeSetDropDown.nodeType != "ReviewSet" || this.selectedCodeSetDropDown.set_id < 1) {
           return;
         }
-        setIdFilter = (this.DropdownWithWithoutSelectedCode as ReviewSet).set_id;
+        setIdFilter = this.selectedCodeSetDropDown.set_id;
         FilterType = "All with any codes from this set";
         break;
       case 3:

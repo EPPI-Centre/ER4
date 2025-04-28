@@ -28,9 +28,9 @@
                           Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
                         </button>
                         <!--<button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
-                      >
-                Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
-              </button>-->
+                                >
+                          Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
+                        </button>-->
                       </div>
                       <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                        style="max-height: 520px;"></readonlyreviews>
@@ -67,6 +67,7 @@
                       <div class="row m-0 p-0">
                         <EditReviewComp #EditReviewComp *ngIf="HasAdminRights"></EditReviewComp>
                         <NewReviewComp></NewReviewComp>
+                        <button class="btn btn-outline-dark m-1" (click)="GoToPastJobs()">Automation Logs</button>
                         <div *ngIf="HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
                           Setup Visualisations...
                         </div>
@@ -192,10 +193,9 @@
                       <kendo-toolbar-button [toggleable]="true" [text]="'Configurable reports'" (click)="reportsShowWhat = 'ReportsCfg'" [selected]="reportsShowWhat == 'ReportsCfg'">Configurable reports</kendo-toolbar-button>
 
                     </kendo-toolbar-buttongroup>
-                    <kendo-toolbar-buttongroup>
-                      <kendo-toolbar-button text="Run Reports" [iconClass]="RunReportsShow2 ? 'k-icon k-i-arrow-chevron-up ml-0 mr-0' : 'k-icon k-i-arrow-chevron-down ml-0 mr-0'"
-                                            (click)="RunConfigurableReports2()" [selected]="RunReportsShow2"></kendo-toolbar-button>
-                    </kendo-toolbar-buttongroup>
+                    <kendo-toolbar-button text="Run Reports" [iconClass]="RunReportsShow2 ? 'k-icon k-i-arrow-chevron-up ml-0 mr-0' : 'k-icon k-i-arrow-chevron-down ml-0 mr-0'"
+                                          (click)="RunConfigurableReports2()" [selected]="RunReportsShow2"></kendo-toolbar-button>
+                    <kendo-toolbar-button *ngIf="CanShowRobotInvestigate" [text]="'Investigate'" (click)="GoToInvestigate()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
                   </kendo-toolbar>
                 </div>
                 <div *ngIf="RunReportsShow2" class="rounded alert alert-info col-12 d-flex container px-1"
@@ -209,7 +209,7 @@
             </kendo-tabstrip-tab>
             <kendo-tabstrip-tab [title]="'Search & Classify'">
               <ng-template kendoTabContent>
-                <SearchComp #SearchComp class="bg-light" (PleaseOpenTheCodes)="OpenCodesPanel()"></SearchComp>
+                <SearchComp #SearchComp class="bg-light" (PleaseOpenTheCodes)="OpenCodesPanel()" [autoRefreshThreshold]="SearchTabAutoRefreshThreshold"></SearchComp>
               </ng-template>
             </kendo-tabstrip-tab>
             <kendo-tabstrip-tab [title]="'Collaborate'">
@@ -273,7 +273,7 @@
             <!--<kendo-icon name="print"></kendo-icon>-->
           </button>
           <button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1"
-                  title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool" 
+                  title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
                   [disabled]="!HasWriteRights" (click)="ShowRobotBatchJobs = !ShowRobotBatchJobs"></button>
         </div>
         <RobotBatchJobs *ngIf="CanRunOpenAIrobot && ShowRobotBatchJobs" (PleaseCloseMe)="ShowRobotBatchJobs = false"></RobotBatchJobs>

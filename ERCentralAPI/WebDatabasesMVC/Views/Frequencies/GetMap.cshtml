@@ -17,6 +17,7 @@
 
 <input type="hidden" value="@Model.WebDBMapName" name="WebDBMapName" id="WebDBMapNameCrit" />
 <input type="hidden" value="@Model.WebDBMapDescription" name="WebDBMapDescription" id="WebDBMapDescriptionCrit" />
+<input type="hidden" value="@Model.MapId" name="MapId" id="MapIdCrit" />
 
 
 <input type="hidden" value="-1" name="SetIdXName" id="SetIdXNameCrit" />
@@ -45,19 +46,53 @@
         $("#ExpandMapDiv").show();
         $("#ReduceMapDiv").hide();
         //console.log("ready function is happening");
-        var pars = {
-            attributeIdXAxis: @Model.attributeIdXAxis
-            , attributeIdYAxis: @Model.attributeIdYAxis
-            , setIdXAxis: @Model.setIdXAxis
-            , setIdYAxis: @Model.setIdYAxis
-            , segmentsParent: @Model.segmentsParent
-            , setIdSegments: @Model.setIdSegments
-            , included: @Model.included
-            , graphic: "bubble"
+
+        if (@Model.MapId != "0") {
+            // it's a prebuilt  map
+            sessionStorage.setItem("MapId", @Model.MapId);
         }
+
+        if (sessionStorage.getItem("MapPars") == "")
+        {
+            // it's from the index page
+            var test = 1;
+            var pars = {
+                attributeIdXAxis: @Model.attributeIdXAxis
+                , attributeIdYAxis: @Model.attributeIdYAxis
+                , setIdXAxis: @Model.setIdXAxis
+                , setIdYAxis: @Model.setIdYAxis
+                , segmentsParent: @Model.segmentsParent
+                , setIdSegments: @Model.setIdSegments
+                , included: @Model.included
+                , graphic: "bubble"
+            }
+        }
+        else {
+            // it's from the item details page
+            var test1 = 1;
+            const mapPars = sessionStorage.getItem("MapPars").split(",", 8);
+            var pars = {
+                attributeIdXAxis: mapPars[0]
+                , attributeIdYAxis: mapPars[1]
+                , setIdXAxis: mapPars[2]
+                , setIdYAxis: mapPars[3]
+                , segmentsParent: mapPars[4]
+                , setIdSegments: mapPars[5]
+                , included: mapPars[6]
+                , graphic: "bubble"
+            }
+        }
+
         $("#spinner").show();
         $("#resultsTable").hide();
         $("#mapLegend").hide();
+
+        clearReturnToSessionVals();
+        sessionStorage.setItem("MapPars", pars.attributeIdXAxis + "," + pars.attributeIdYAxis + "," + pars.setIdXAxis + "," + pars.setIdYAxis + "," +
+            pars.segmentsParent + "," + pars.setIdSegments + "," + "true,bubble");
+
+        var test2 = 1;
+
         $.post("../Frequencies/GetMapJSON", pars, (data, status) => buildResults(data, status))
             .fail(function (response) {
                 alert(showAjaxError(response));
@@ -84,6 +119,10 @@
             $("#ExpandDescription").hide();
             $("#ReduceDescription").hide();
         }
+
+
+        
+        
     });
 
     function buildResults(data, status) {

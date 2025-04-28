@@ -35,14 +35,15 @@
 <div class="pane-content">
   <div class="containsAtoolbar">
     <kendo-toolbar>
+      <kendo-toolbar-button *ngIf="SearchList.length < autoRefreshThreshold" [title]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights" icon="refresh"></kendo-toolbar-button>
+      <kendo-toolbar-button *ngIf="SearchList.length >= autoRefreshThreshold" [title]="'Refresh List (auto refresh is disabled)'" (click)="refreshSearches()" [disabled]="!HasWriteRights" icon="refresh" iconClass="k-icon k-i-refresh text-primary"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [disabled]="!HasWriteRights" aria-controls="collapseExample" [selected]="NewSearchSection"></kendo-toolbar-button>
-      <kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-      <kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-      <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [disabled]="!HasWriteRights" [data]="data"></kendo-toolbar-splitbutton>
+      <kendo-toolbar-button [title]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights || HasSelectedSearches == 0" icon="delete"></kendo-toolbar-button>
+      <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [disabled]="!HasWriteRights || HasSelectedSearches == 0" [data]="data"></kendo-toolbar-splitbutton>
       <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Check Screening'" (click)="OpenCheckScreening()" [disabled]="!HasWriteRights" [selected]="CheckScreeningSection"></kendo-toolbar-button>
-      <kendo-toolbar-button *ngIf="CanShowRobotInvestigate" [text]="'Investigate'" (click)="GoToInvestigate()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
+      <kendo-toolbar-button [text]="'Priority screening simulation'" (click)="OpenPriorityScreening()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
   </div>
   <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
@@ -499,39 +500,52 @@
   </div>
   <div class="card col-12 bg-light">
 
-    <kendo-grid *ngIf="SearchList && SearchList.length > 0 && !isSearchServiceBusy"
+    <kendo-grid *ngIf="SearchList && SearchList.length > 0 "
+                [hidden]="isSearchServiceBusy"
                 [data]="DataSourceSearches" [height]="600"
+                [sort]="sortSearches"
                 [sortable]="{
-	                    allowUnsort: true,
+	                    allowUnsort: false,
 	                    mode: 'single'
 	                    }"
-                [sort]="sortSearches"
-                [pageSize]="pageSize"
-                [skip]="skip"
+                [pageSize]="state.take"
+                [skip]="state.skip"
                 [pageable]="{
                             buttonCount: 10,
                             info: false,
                             type: 'numeric',
-                            pageSizes: false,
+                            pageSizes: true,
                             previousNext: true
                         }"
-                (pageChange)="pageChange($event)"
-                (sortChange)="sortChangeSearches($event)"
+                 (dataStateChange)="dataStateChange($event)"
+                
                 class="mt-1">
 
       <kendo-grid-column [sortable]="false" [width]="33" class="px-1 py-0 m-1"
-                         [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
+                         headerClass="py-0 px-1"
+                         [headerStyle]="{ 'text-align': 'center', 'max-width':'33px', 'min-width':'33px', 'background-color':'rgba(0, 0, 0, 0.04)'}"
                          [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
+        <ng-template kendoGridHeaderTemplate>
+          <ng-container [ngSwitch]="HasSelectedSearches">
+            <input *ngSwitchCase="0" type="checkbox" (click)="selectAllinPageClicked(0)" class="my-auto larger-checkbox" title="No search selected (in this page)" style="font-size: 2.5em; position:relative; top:2px;"/>
+            <input *ngSwitchCase="1" type="checkbox" (click)="selectAllinPageClicked(1)" checked class="my-auto larger-checkbox linear-fade" title="Some searches are selected (in this page)" style="font-size: 2.5em; position: relative; top:2px;"/>
+            <input *ngSwitchDefault type="checkbox" checked (click)="selectAllinPageClicked(2)" class="my-auto larger-checkbox" title="All searches are selected (in this page)" style="font-size: 2.5em; position: relative; top:2px;"/>
+          </ng-container>
+          <!--<input style="zoom: 1.2;" (click)="selectAllinPageClicked()"
+                 type="checkbox"
+                 field="selected" />-->
+        </ng-template>
         <ng-template kendoGridCellTemplate let-dataItem>
-          <input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+          <input class="my-auto larger-checkbox" (click)="checkboxClicked(dataItem)"
                  type="checkbox"
                  field="selected"
                  [checked]="dataItem.add" />
         </ng-template>
+
       </kendo-grid-column>
-      <kendo-grid-column field="searchNo" title="No" [width]="60" class="px-1 py-0 m-1">
+      <kendo-grid-column field="searchNo" title="No" [width]="60" class="px-1 py-0 m-1"  headerClass="py-0 font-weight-bold">
       </kendo-grid-column>
-      <kendo-grid-column field="title" title="Name" [width]="360" class="px-1 py-0 m-1">
+      <kendo-grid-column field="title" title="Name" [width]="360" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold">
         <ng-template kendoGridCellTemplate let-dataItem>
           <div (click)="SearchNameEdit(dataItem.searchId, dataItem.searchNo, dataItem.title)" class="btn btn-sm btn-light">
             <span class="k-icon k-i-edit"></span>
@@ -539,14 +553,14 @@
           {{dataItem.title}}
         </ng-template>
       </kendo-grid-column>
-      <kendo-grid-column field="contactName" title="Created By" [width]="140" class="px-1 py-0 m-1">
+      <kendo-grid-column field="contactName" title="Created By" [width]="140" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold">
       </kendo-grid-column>
-      <kendo-grid-column field="searchDate" title="Date" [width]="140" class="px-1 py-0 m-1">
+      <kendo-grid-column field="javaScriptDate" title="Date" [width]="140" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold">
         <ng-template kendoGridCellTemplate let-dataItem>
           {{FormatDate(dataItem.searchDate)}}
         </ng-template>
       </kendo-grid-column>
-      <kendo-grid-column [width]="80" class="px-1 py-0 m-1"
+      <kendo-grid-column [width]="80" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold"
                          field="hitsNo" title="Hits">
         <ng-template kendoGridCellTemplate let-dataItem>
           <div (click)="SearchGetItemList(dataItem)" class="btn btn-link font-weight-bold">
@@ -554,7 +568,7 @@
           </div>
         </ng-template>
       </kendo-grid-column>
-      <kendo-grid-column field="isClassifierResult" class="px-1 py-0 m-1"
+      <kendo-grid-column field="isClassifierResult" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold"
                          title="Classifier" [width]="80">
         <ng-template kendoGridCellTemplate let-dataItem>
           <div (click)="OpenClassifierVisualisation(dataItem)"
@@ -569,11 +583,16 @@
         <kendo-pager-next-buttons *ngIf="totalPages > 1"></kendo-pager-next-buttons>
         <div *ngIf="totalPages == 1" class="m-0 p-0 small k-pager-info">[{{totalN}} Searches]</div>
         <div *ngIf="totalPages > 1" class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
+        <kendo-pager-page-sizes [pageSizes]="pageSizes"></kendo-pager-page-sizes>
       </ng-template>
     </kendo-grid>
   </div>
-  <div *ngIf="SearchList && isSearchServiceBusy">Loading items...</div>
-  <div *ngIf="!SearchList || SearchList.length <= 0 || isSearchServiceBusy" style="min-height:300px;">
+  <div *ngIf="SearchList && isSearchServiceBusy" style="min-height:300px;">
+    <div class="justify-content-center row m-0 ng-star-inserted">
+      <div class="p-2 font-weight-bold text-info mt-3"> Loading... </div>
+    </div>
+  </div>
+  <div *ngIf="(!SearchList || SearchList.length == 0) && !isSearchServiceBusy" style="min-height:300px;">
     <div class="justify-content-center row m-0 ng-star-inserted">
       <div class="p-2 font-weight-bold text-info mt-3"> You've not run any searches yet. </div>
     </div>

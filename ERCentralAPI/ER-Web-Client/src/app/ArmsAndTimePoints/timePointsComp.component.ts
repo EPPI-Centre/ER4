@@ -66,19 +66,14 @@ export class timePointsComp  implements OnInit {
 	}
 	public get TimePointTheSame(): boolean {
 		if (this.item == undefined || this.item.timepoints == undefined) return true;
-		else if (this.item.timepoints.findIndex(f => f.timepointMetric == this.SelectedUnit && f.timepointValue == this.TimePointValue.toString()) > -1) return true;
+		else if (this.item.timepoints.findIndex(f => f.timepointMetric == this.SelectedUnit && f.timepointValue == this.TimePointValue) > -1) return true;
 		return false;
 	}
 
-	setTimePointForEdit(timepoint: iTimePoint) {
-		let val = Helpers.SafeParseInt(timepoint.timepointValue.toString());
-		//the toString() above is because timepointValue should be a number, as it arrives from the API as such, and thus, iTimePoint objects actually contain numbers :-(
-		console.log("setTimePointForEdit", val);
-		if (val != null) {
-			this.EditingTimepointId = timepoint.itemTimepointId;
-			this.SelectedUnit = timepoint.timepointMetric;
-			this.TimePointValue = val;
-        }
+  setTimePointForEdit(timepoint: iTimePoint) {
+    this.EditingTimepointId = timepoint.itemTimepointId;
+    this.SelectedUnit = timepoint.timepointMetric;
+    this.TimePointValue = timepoint.timepointValue;
 	}
 
 	//editField!: string;
@@ -170,7 +165,7 @@ export class timePointsComp  implements OnInit {
         //for some reason, if we don't await, the arms dropdowns show the first arm as "selected", when in fact it isn't...
         await Helpers.Sleep(5);
         this.item.timepoints = toKeep;
-        if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
+        if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint(0, 0, '', 0));
       }
     }
   }
@@ -178,7 +173,7 @@ export class timePointsComp  implements OnInit {
 	CreateTimepoint() {
 		if (!this.HasWriteRights || this.TimePointTheSame || this.item == undefined || this.item.itemId < 1) return;
 		else {
-			let newtimepoint: TimePoint = new TimePoint(this.item.itemId, this.TimePointValue.toString(), this.SelectedUnit, 0);
+			let newtimepoint: TimePoint = new TimePoint(this.item.itemId, this.TimePointValue, this.SelectedUnit, 0);
 			this._timePointsService.Createtimepoint(newtimepoint);
 			this.Clear()
         }
@@ -191,7 +186,7 @@ export class timePointsComp  implements OnInit {
 			let tpi = this.item.timepoints.findIndex(f => f.itemTimepointId == this.EditingTimepointId);
 			if (tpi == -1) return;
 			let tp = this.item.timepoints[tpi];
-			tp.timepointValue = this.TimePointValue.toString();
+			tp.timepointValue = this.TimePointValue;
 			tp.timepointMetric = this.SelectedUnit;
 			this._timePointsService.Updatetimepoint(tp);
 			this.Clear();

@@ -706,7 +706,7 @@ namespace BusinessLibrary.BusinessClasses
                 PAGES = pm.biblio != null ? pm.biblio.first_page + "-" + pm.biblio.last_page : "";
                 ISSUE = pm.biblio != null ? pm.biblio.issue : "";
                 DOI = pm.doi != null ? pm.doi.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
-                ABSTRACT = "";
+                ABSTRACT = MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index);
                 HAS_CODES = 0;
                 IS_MASTER = 0;
                 TYPE_ID = MagMakesHelpers.GetErEquivalentPubTypeFromOa(pm.type);

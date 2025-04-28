@@ -1,0 +1,79 @@
+<div class="w-100 mx-0 px-0 row">
+  <div class="col px-0">
+    <div class="m-1 rounded alert-info px-1">
+      This list includes review-specific tasks that may take a long time, and could thus break, or get cancelled due to back-end operations.<br />
+      The "Job Message" field contains data that can help EPPISupport to troubleshoot issues.
+    </div>
+  </div>
+  <div class="justify-self-end col-auto px-0 d-flex">
+    <button class="btn btn-sm btn-outline-success mx-1 align-self-end mt-auto mb-0 py-0 px-1 float-right" (click)="Refresh()">
+      <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+    </button>
+  </div>
+</div>
+<div  *ngIf="!Jobs || Jobs.length == 0"  style="min-height:40vh;">
+  <div class=" m-1 p-1 rounded alert-info">
+    <div *ngIf="!IsServiceBusy">No Jobs in this review</div>
+    <div *ngIf="IsServiceBusy">Loading...</div>
+  </div>
+</div>
+<kendo-grid *ngIf="Jobs && Jobs.length > 0" id="RobotJobsGrid"
+            [kendoGridBinding]="Jobs"
+            [rowClass]="rowCallback"
+            [sortable]="{
+          allowUnsort: true,
+          mode: 'single'
+          }"
+            [selectable]="true"
+            [pageSize]="50"
+            [pageable]="{
+                buttonCount: 10,
+                info: false,
+                type: 'numeric',
+                pageSizes: false,
+                previousNext: true
+            }"
+            filterable="menu"
+            [resizable]="true"
+            (dataStateChange)="dataStateChange($event)"
+            style="max-height: 75vh; height: 75vh;"
+            class="mt-1">
+
+  <kendo-grid-column field="reviewJobId" title="Id" [width]="40" class="px-1 py-0 m-1" filter="numeric">
+  </kendo-grid-column>
+  <kendo-grid-column field="jobType" title="Job Type" [width]="120" class="px-1 py-0 m-1"  [style]="{ 'font-weight': 'bold'}" >
+  </kendo-grid-column>
+  <kendo-grid-column field="jobOwnerId" title="OwnerId" [width]="40" class="px-1 py-0 m-1" filter="numeric">
+  </kendo-grid-column>
+  <kendo-grid-column field="ownerName" title="Owner Name" [width]="80" class="px-1 py-0 m-1" >
+  </kendo-grid-column>
+  <kendo-grid-column field="created" title="Date" format="dd/MMM/yyyy hh:mm" [width]="80" class="px-1 py-0 m-1" filter="date">
+  </kendo-grid-column>
+  <kendo-grid-column field="JobDurationMs" title="Duration" [width]="50" class="px-1 py-0 m-1" [filterable]="false">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      {{JobDuration(dataItem)}}
+    </ng-template>
+  </kendo-grid-column>
+  <kendo-grid-column field="status" title="Status" [width]="100" class="px-1 py-0 m-1" >
+  </kendo-grid-column>
+  <kendo-grid-column field="success" title="Success" [width]="40" class="px-1 py-0 m-1" filter="boolean">
+  </kendo-grid-column>
+  <kendo-grid-column field="jobMessage" title="Job Message" [width]="160" class="px-1 py-0 m-1">
+  </kendo-grid-column>
+  <ng-template kendoPagerTemplate let-totalPages="totalPages" let-totalN="total" let-skipo="skip" let-pageSizep="pageSize">
+    <div class="row mx-1 px-1 col-12">
+      <kendo-pager-prev-buttons *ngIf="totalPages > 1"></kendo-pager-prev-buttons>
+      <kendo-pager-numeric-buttons *ngIf="totalPages > 1" [buttonCount]="10"></kendo-pager-numeric-buttons>
+      <kendo-pager-next-buttons *ngIf="totalPages > 1"></kendo-pager-next-buttons>
+      <div *ngIf="totalPages == 1" class="m-0 p-0 small k-pager-info">[{{totalN}} Jobs]</div>
+      <div *ngIf="totalPages > 1" class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
+      <button class="btn btn-sm btn-outline-primary my-auto py-0 px-1 mr-1" (click)="AllToExcel()" title="Export All Data to Excel">
+        Export (all) <i class="k-icon k-i-excel my-1"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-primary my-auto py-0 px-1 mr-1" (click)="PageToExcel()" title="Export to Excel">
+        Export (page/view)<i class="k-icon k-i-excel my-1"></i>
+      </button>
+      <kendo-pager-page-sizes [pageSizes]="pageSizes"></kendo-pager-page-sizes>
+    </div>
+  </ng-template>
+</kendo-grid>
