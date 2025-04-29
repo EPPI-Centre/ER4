@@ -246,10 +246,14 @@ namespace BusinessLibrary.BusinessClasses
                                     continue;
                                 }
                             }
-                            file.WriteLine(pm.id.Replace("https://openalex.org/W", "") + "\t" +
-                                            MagMakesHelpers.CleanText(pm.title) + "\t" +
-                                            MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index)) + "\t" +
-                                            "99");
+                            ClassifierCommandV2.WriteDataLineInFileToUpload(pm.id.Replace("https://openalex.org/W", "")
+                                , MagMakesHelpers.CleanText(pm.title)
+                                , MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index))
+                                , "99", file);
+                            //file.WriteLine(pm.id.Replace("https://openalex.org/W", "") + "\t" +
+                            //                MagMakesHelpers.CleanText(pm.title) + "\t" +
+                            //                MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index)) + "\t" +
+                            //                "99");
                         }
                         count += 50;
                         if (AppIsShuttingDown || cancellationToken.IsCancellationRequested)

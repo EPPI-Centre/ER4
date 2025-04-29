@@ -11,6 +11,8 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using System.Data;
+using System.Reflection.Emit;
+
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
@@ -511,10 +513,8 @@ namespace BusinessLibrary.BusinessClasses
                                     {
                                         sampleSize++;
                                         ItemIds.Add(reader.GetInt64("ITEM_ID"));
-                                        file.WriteLine(reader["item_id"].ToString() + "\t" +
-                                            CleanText(reader, "title") + "\t" +
-                                            CleanText(reader, "abstract") + "\t" +
-                                            CleanText(reader, "LABEL"));
+                                        WriteDataLineInFileToUpload(reader.GetInt64("ITEM_ID").ToString(), CleanText(reader, "title"),
+                                            CleanText(reader, "abstract"), CleanText(reader, "LABEL"), file);
                                         if (reader["LABEL"].ToString() == "1")
                                             positiveClassCount++;
                                         else
@@ -587,20 +587,16 @@ namespace BusinessLibrary.BusinessClasses
                             using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
                             {
                                 file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+                                string LabelSt = "99";
+
                                 while (reader.Read())
                                 {
                                     if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
                                     {
                                         ItemIds.Add(reader.GetInt64("ITEM_ID"));
-                                        file.WriteLine(reader["item_id"].ToString() + "\t" +
-                                            CleanText(reader, "title") + "\t" +
-                                            CleanText(reader, "abstract") + "\t" +
-                                            "99");
-                                        //file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
-                                        //	"\"" + reader["LABEL"].ToString() + "\"," +
-                                        //	"\"" + CleanText(reader, "title") + "\"," +
-                                        //	"\"" + CleanText(reader, "abstract") + "\"," +
-                                        //	"\"" + CleanText(reader, "keywords") + "\"," + "\"" + RevInfo.ReviewId.ToString() + "\"");
+                                        WriteDataLineInFileToUpload(reader.GetInt64("ITEM_ID").ToString(), CleanText(reader, "title"), 
+                                            CleanText(reader, "abstract"), LabelSt, file);
+                                       
                                     }
                                 }
                             }
@@ -721,10 +717,15 @@ namespace BusinessLibrary.BusinessClasses
                                     continue;
                                 }
                             }
-                            file.WriteLine(pm.id.Replace("https://openalex.org/W", "") + "\t" +
-                                            MagMakesHelpers.CleanText(pm.title) + "\t" +
-                                            MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index)) + "\t" +
-                                            "99");
+                            WriteDataLineInFileToUpload(pm.id.Replace("https://openalex.org/W", "")
+                                , MagMakesHelpers.CleanText(pm.title)
+                                , MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index))
+                                , "99", file);
+
+                            //file.WriteLine(pm.id.Replace("https://openalex.org/W", "") + "\t" +
+                            //                MagMakesHelpers.CleanText(pm.title) + "\t" +
+                            //                MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index)) + "\t" +
+                            //                "99");
                         }
                         count += batchSize;
                         if (AppIsShuttingDown)
@@ -2354,6 +2355,27 @@ namespace BusinessLibrary.BusinessClasses
             //             data = dbl.ToString("F10");
             //}
             return Convert.ToDouble(data);
+        }
+        public static void WriteDataLineInFileToUpload(string ItemIdSt, string Title, string Abstract, string Label, System.IO.StreamWriter file)
+        {
+            int MaxLineLength = 16000;
+            if (ItemIdSt.Length + Title.Length + Abstract.Length + Label.Length + 6 > MaxLineLength)
+            {
+                //Accoding to in-house testing Azure file parser can't handle files with one or more lines longer than ~16000 chars,
+                //so we'll truncate the Abstract, when needed
+                int offset = ItemIdSt.Length + Title.Length + Label.Length + 6;
+                int maxAbstractLen = MaxLineLength - offset;
+                Abstract = Abstract.Substring(0, maxAbstractLen);
+                int lastSpaceIndex = Abstract.LastIndexOf(" ");
+                if (lastSpaceIndex != -1)
+                {
+                    Abstract = Abstract.Substring(0, lastSpaceIndex);
+                }
+            }
+            file.WriteLine(ItemIdSt + "\t" +
+                Title + "\t" +
+                Abstract + "\t" +
+                Label);
         }
 
         public static string CleanText(Csla.Data.SafeDataReader reader, string field)

@@ -274,10 +274,11 @@ namespace BusinessLibrary.BusinessClasses
                                 while (reader.Read())
                                 {
                                     TotalLines++;
-                                    file.WriteLine(reader["item_id"].ToString() + "\t" +
-                                        ClassifierCommandV2.CleanText(reader, "title") + "\t" +
-                                        ClassifierCommandV2.CleanText(reader, "abstract") + "\t" +
-                                        ClassifierCommandV2.CleanText(reader, "INCLUDED"));
+                                    ClassifierCommandV2.WriteDataLineInFileToUpload(reader.GetInt64("item_id").ToString()
+                                        , ClassifierCommandV2.CleanText(reader, "title")
+                                        , ClassifierCommandV2.CleanText(reader, "abstract")
+                                        , ClassifierCommandV2.CleanText(reader, "INCLUDED")
+                                        , file);
                                 }
                             }
                         }
