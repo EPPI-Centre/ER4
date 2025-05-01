@@ -80,24 +80,17 @@ namespace BusinessLibrary.BusinessClasses
             bool ReviewExists = false;
             bool ContactInReview = false;
             bool IsCheckedOutHere = false;
-            Dictionary<string, string> pars = new Dictionary<string, string>();
-            pars.Add("myRole", "Author");
-            pars.Add("published", "false");
-            XDocument reviews = Identity.GetXMLQuery("rest/reviews", pars);
             ReadOnlyArchieReview roar = ReadOnlyArchieReview.GetReadOnlyReview(Identity);
-            foreach (XElement el in reviews.Elements().Elements("review"))
+            ReadOnlyArchieReviewList CochList = DataPortal.Fetch<ReadOnlyArchieReviewList>();
+            foreach (ReadOnlyArchieReview rev in CochList)
             {
-                roar = ReadOnlyArchieReview.GetReadOnlyReview(el, Identity);
-                if (roar.ArchieReviewId == ArchieReviewID && ArchieReviewID != "-1")
+                if (rev.ArchieReviewId == ArchieReviewID && ArchieReviewID != "-1")
                 {
+                    roar = rev;
                     break;
                 }
-                else
-                {
-                    roar = null;
-                }
             }
-            if (roar == null)
+            if (roar.ArchieReviewId == "-1")
             {
                 Result = "Not Done: User doesn't have access to this review in Archie";
                 return;
@@ -125,9 +118,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             if (!ReviewExists)
-            
             {
-                
                 //create review in ER4
                 string name = roar.ReviewName;
                 if (name.Length > 255)
@@ -168,15 +159,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (!IsCheckedOutHere)
             {
-                //check out review from Archie
-                //we don't anymore, since checking out reviews isn't supported from Dec 2020
-                //XDocument FullXMLReview = Identity.CheckOutReview(ArchieReviewID);
-                //if (FullXMLReview == null || FullXMLReview.Element("Error") != null)
-                //{//to do
-                //    Result = "Not Done: couldn't check out review from Archie";
-                //    return;
-                //}
-                //mark review as not checked out here
+                //legacy - the "is checked out here" flag has no meaning on the Cochrane side anymore.
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
