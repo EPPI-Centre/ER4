@@ -50,9 +50,18 @@
         if (@Model.MapId != "0") {
             // it's a prebuilt  map
             sessionStorage.setItem("MapId", @Model.MapId);
+            var pars = {
+                attributeIdXAxis: @Model.attributeIdXAxis
+                , attributeIdYAxis: @Model.attributeIdYAxis
+                , setIdXAxis: @Model.setIdXAxis
+                , setIdYAxis: @Model.setIdYAxis
+                , segmentsParent: @Model.segmentsParent
+                , setIdSegments: @Model.setIdSegments
+                , included: @Model.included
+                , graphic: "bubble"
+            }
         }
-
-        if (sessionStorage.getItem("MapPars") == "")
+        else if (sessionStorage.getItem("MapPars") == "")
         {
             // it's from the index page
             var test = 1;
