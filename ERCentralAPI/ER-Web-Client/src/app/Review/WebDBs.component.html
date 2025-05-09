@@ -413,7 +413,7 @@
 
             </ckeditor>-->
 
-            <kendo-editor [(ngModel)]="EditingDB.webDBDescription">
+            <kendo-editor [(ngModel)]="EditingDB.webDBDescription" [pasteCleanupSettings]="pasteCleanupSettings">
               <kendo-toolbar>
                 <kendo-toolbar-buttongroup>
                   <kendo-toolbar-button kendoEditorBoldButton></kendo-toolbar-button>
@@ -454,6 +454,20 @@
                 <kendo-toolbar-buttongroup>
                   <kendo-toolbar-button kendoEditorInsertImageButton></kendo-toolbar-button>
                   <kendo-toolbar-button kendoEditorCleanFormattingButton></kendo-toolbar-button>
+                </kendo-toolbar-buttongroup>
+                <kendo-editor-insert-table-button></kendo-editor-insert-table-button>
+                <kendo-toolbar-buttongroup>
+                  <kendo-toolbar-button kendoEditorAddColumnBeforeButton></kendo-toolbar-button>
+                  <kendo-toolbar-button kendoEditorAddColumnAfterButton></kendo-toolbar-button>
+                  <kendo-toolbar-button kendoEditorAddRowBeforeButton></kendo-toolbar-button>
+                  <kendo-toolbar-button kendoEditorAddRowAfterButton></kendo-toolbar-button>
+                </kendo-toolbar-buttongroup>
+                <kendo-toolbar-buttongroup>
+                  <kendo-toolbar-button kendoEditorDeleteColumnButton></kendo-toolbar-button>
+                  <kendo-toolbar-button kendoEditorDeleteRowButton></kendo-toolbar-button>
+                  <kendo-toolbar-button kendoEditorDeleteTableButton></kendo-toolbar-button>
+                  <kendo-toolbar-button kendoEditorMergeCellsButton></kendo-toolbar-button>
+                  <kendo-toolbar-button kendoEditorSplitCellButton></kendo-toolbar-button>
                 </kendo-toolbar-buttongroup>
               </kendo-toolbar>
 
@@ -910,7 +924,7 @@
               </div>
               <div class="p-1 mx-0">
                 <div class="col-12 mx-0 p-0 font-weight-bold">Map Description:</div>
-                <kendo-editor [(ngModel)]="EditingMap.webDBMapDescription">
+                <kendo-editor [(ngModel)]="EditingMap.webDBMapDescription" [pasteCleanupSettings]="pasteCleanupSettings">
                   <kendo-toolbar>
                     <kendo-toolbar-buttongroup>
                       <kendo-toolbar-button kendoEditorBoldButton></kendo-toolbar-button>
@@ -951,6 +965,20 @@
                     <kendo-toolbar-buttongroup>
                       <kendo-toolbar-button kendoEditorInsertImageButton></kendo-toolbar-button>
                       <kendo-toolbar-button kendoEditorCleanFormattingButton></kendo-toolbar-button>
+                    </kendo-toolbar-buttongroup>
+                    <kendo-editor-insert-table-button></kendo-editor-insert-table-button>
+                    <kendo-toolbar-buttongroup>
+                      <kendo-toolbar-button kendoEditorAddColumnBeforeButton></kendo-toolbar-button>
+                      <kendo-toolbar-button kendoEditorAddColumnAfterButton></kendo-toolbar-button>
+                      <kendo-toolbar-button kendoEditorAddRowBeforeButton></kendo-toolbar-button>
+                      <kendo-toolbar-button kendoEditorAddRowAfterButton></kendo-toolbar-button>
+                    </kendo-toolbar-buttongroup>
+                    <kendo-toolbar-buttongroup>
+                      <kendo-toolbar-button kendoEditorDeleteColumnButton></kendo-toolbar-button>
+                      <kendo-toolbar-button kendoEditorDeleteRowButton></kendo-toolbar-button>
+                      <kendo-toolbar-button kendoEditorDeleteTableButton></kendo-toolbar-button>
+                      <kendo-toolbar-button kendoEditorMergeCellsButton></kendo-toolbar-button>
+                      <kendo-toolbar-button kendoEditorSplitCellButton></kendo-toolbar-button>
                     </kendo-toolbar-buttongroup>
                   </kendo-toolbar>
 

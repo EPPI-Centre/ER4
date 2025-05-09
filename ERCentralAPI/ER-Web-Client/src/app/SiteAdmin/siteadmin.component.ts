@@ -55,6 +55,15 @@ export class SiteAdminComponent implements OnInit {
     public revId: string = "";
     public LogTypeSelection: number = 0;
 
+  public pasteCleanupSettings = {
+    convertMsLists: true,
+    removeHtmlComments: true,
+    stripTags: ['script'], //or alternatively: stripTags: ['script', 'img'],
+    // removeAttributes: ['lang'],
+    removeMsClasses: true,
+    removeMsStyles: true,
+    removeInvalidHTML: true,
+  };
 
     private _ActivePanel: string = "Help";
     public ActivePanel: string = "Help";
