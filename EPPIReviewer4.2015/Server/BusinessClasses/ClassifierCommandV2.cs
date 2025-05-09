@@ -507,6 +507,7 @@ namespace BusinessLibrary.BusinessClasses
                             using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
                             {
                                 file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+                                //file.WriteLine("0\tand\tand\t98");
                                 while (reader.Read())
                                 {
                                     if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
@@ -2337,11 +2338,11 @@ namespace BusinessLibrary.BusinessClasses
         private double GetSafeValue(string data)
         {
 
-            if (data == "1" || data == "1.0")
+            if (data == "1" || data == "1.0" || data == "1.000000000000000000")
             {
                 data = "0.99999999";
             }
-            else if (data == "0" || data == "1.0")
+            else if (data == "0" || data == "0.000000000000000000")
             {
                 data = "0.00000001";
             }
@@ -2354,24 +2355,27 @@ namespace BusinessLibrary.BusinessClasses
 
             //             data = dbl.ToString("F10");
             //}
-            return Convert.ToDouble(data);
+            double res = Convert.ToDouble(data);
+            if (res < 0.00000001) res = 0.00000001;
+            else if (res > 0.99999999) res = 0.99999999;
+            return res;
         }
         public static void WriteDataLineInFileToUpload(string ItemIdSt, string Title, string Abstract, string Label, System.IO.StreamWriter file)
         {
-            int MaxLineLength = 16000;
-            if (ItemIdSt.Length + Title.Length + Abstract.Length + Label.Length + 6 > MaxLineLength)
-            {
-                //Accoding to in-house testing Azure file parser can't handle files with one or more lines longer than ~16000 chars,
-                //so we'll truncate the Abstract, when needed
-                int offset = ItemIdSt.Length + Title.Length + Label.Length + 6;
-                int maxAbstractLen = MaxLineLength - offset;
-                Abstract = Abstract.Substring(0, maxAbstractLen);
-                int lastSpaceIndex = Abstract.LastIndexOf(" ");
-                if (lastSpaceIndex != -1)
-                {
-                    Abstract = Abstract.Substring(0, lastSpaceIndex);
-                }
-            }
+            //int MaxLineLength = 15000;//9000;
+            //if (ItemIdSt.Length + Title.Length + Abstract.Length + Label.Length + 6 > MaxLineLength)
+            //{
+            //    //Accoding to in-house testing Azure file parser can't handle files with one or more lines longer than ~16000 chars,
+            //    //so we'll truncate the Abstract, when needed
+            //    int offset = ItemIdSt.Length + Title.Length + Label.Length + 6;
+            //    int maxAbstractLen = MaxLineLength - offset;
+            //    Abstract = Abstract.Substring(0, maxAbstractLen);
+            //    int lastSpaceIndex = Abstract.LastIndexOf(" ");
+            //    if (lastSpaceIndex != -1)
+            //    {
+            //        Abstract = Abstract.Substring(0, lastSpaceIndex);
+            //    }
+            //}
             file.WriteLine(ItemIdSt + "\t" +
                 Title + "\t" +
                 Abstract + "\t" +
