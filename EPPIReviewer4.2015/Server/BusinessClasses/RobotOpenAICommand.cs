@@ -34,14 +34,13 @@ using System.Web;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class RobotOpenAICommand : LongLastingFireAndForgetCommand<RobotOpenAICommand>
+    public class RobotOpenAICommand : LLMRobotCommand
     {
 
         public RobotOpenAICommand() { }
         private int _reviewSetId;
         private Int64 _itemDocumentId;
         private Int64 _itemId;
-        private string _message = "";
         private string _UserPrivateOpenAIKey = "";//will be filled in automatically if/when it's present in ReviewInfo
         private string _ExplicitEndpoint = "";
         private string _ExplicitEndpointKey = "";
@@ -56,11 +55,9 @@ namespace BusinessLibrary.BusinessClasses
         private string _DocsList = "";
         private bool _Succeded = false;
         private int errors = 0;
+        private string _RobotName = "";
 
-        public string ReturnMessage
-        {
-            get { return _message; }
-        }
+
         public bool Succeded
         {
             get { return _Succeded; }
@@ -70,8 +67,9 @@ namespace BusinessLibrary.BusinessClasses
             get { return errors; }
         }
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
+        public RobotOpenAICommand(string robotName, int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
         {
+            _RobotName = robotName;
             _reviewSetId = reviewSetId;
             _itemId = itemId;
             _itemDocumentId = itemDocumentId;
@@ -80,10 +78,11 @@ namespace BusinessLibrary.BusinessClasses
             _lockTheCoding = lockTheCoding;
             _useFullTextDocument = useFullTextDocument;
         }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
+        public RobotOpenAICommand(string robotName, int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
             int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
             string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
         {
+            _RobotName = robotName;
             _reviewSetId = reviewSetId;
             _itemId = itemId;
             _itemDocumentId = itemDocumentId;
@@ -122,6 +121,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_useFullTextDocument", _useFullTextDocument); 
             info.AddValue("_DocsList", _DocsList);
             info.AddValue("errors", errors);
+            info.AddValue("_RobotName", _RobotName);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
@@ -143,6 +143,7 @@ namespace BusinessLibrary.BusinessClasses
             _useFullTextDocument = info.GetValue<bool>("_useFullTextDocument");
             _DocsList = info.GetValue<string>("_DocsList");
             errors = info.GetValue<int>("errors");
+            _RobotName = info.GetValue<string>("_RobotName");
         }
 
 
@@ -198,7 +199,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
                         command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
-                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", _RobotName));
                         command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
                         command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));

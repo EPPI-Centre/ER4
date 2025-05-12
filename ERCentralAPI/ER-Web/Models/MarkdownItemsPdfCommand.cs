@@ -26,7 +26,7 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class MarkdownItemsPdfCommand : LongLastingFireAndForgetCommand<MarkdownItemsPdfCommand>
+    public class MarkdownItemsPdfCommand : LongLastingFireAndForgetCommand
     {
         public MarkdownItemsPdfCommand(){}
 

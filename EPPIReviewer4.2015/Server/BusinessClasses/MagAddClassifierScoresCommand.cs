@@ -33,7 +33,7 @@ using System.Data;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class MagAddClassifierScoresCommand : LongLastingFireAndForgetCommand<MagAddClassifierScoresCommand>
+    public class MagAddClassifierScoresCommand : LongLastingFireAndForgetCommand
     {
 
 #if SILVERLIGHT

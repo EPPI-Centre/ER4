@@ -251,10 +251,9 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_RobotApiJobFetchNextCreditTasksByRobotName", connection))
+                    using (SqlCommand command = new SqlCommand("st_RobotApiJobFetchNextCreditTasks", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
                             while (reader.Read())

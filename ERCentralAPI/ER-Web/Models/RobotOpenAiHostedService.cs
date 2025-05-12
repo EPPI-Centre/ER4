@@ -374,7 +374,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
 
                 LogInfo("Starting Batch " + RT.RobotApiCallId.ToString());
-                RobotOpenAICommand cmd = new RobotOpenAICommand();
+                LLMRobotCommand cmd;
                 int DefaultDelayInMs = 10000;
                 int CurrentDelayInMs;
                 int ActiveThreads = CreditWorkers.Count;
@@ -469,13 +469,13 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         if (doclist.EndsWith(",")) doclist = doclist.Substring(0, doclist.Length - 1);
                     }
-                    cmd = new RobotOpenAICommand(RT.ReviewSetId, RT.ItemIDsList[done], 0, RT.ItemIDsList.Count == done + 1 ? true : false,
+                    cmd = LLM_Factory.GetRobot(RT.RobotName, RT.ReviewSetId, RT.ItemIDsList[done], 0, RT.ItemIDsList.Count == done + 1 ? true : false,
                             RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
                             RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist,
                             AzureSettings.RobotOpenAIBatchEndpoint, AzureSettings.RobotOpenAIBatchKey);
                     LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
                     start = DateTime.Now;
-                    cmd = DataPortal.Execute<RobotOpenAICommand>(cmd);
+                    cmd = DataPortal.Execute<LLMRobotCommand>(cmd);
                     ApiLatency = (int)((DateTime.Now.Ticks - start.Ticks) / 10000) - 50; //how long the cmd execution took, in Ms, minus 50ms to stay safe...
                     if (cmd.ReturnMessage == "Error: Too Many Requests")
                     {

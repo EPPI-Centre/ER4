@@ -30,7 +30,7 @@ using System.Net.Http.Json;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class ClassifierCommandV2 : LongLastingFireAndForgetCommand<ClassifierCommandV2>
+    public class ClassifierCommandV2 : LongLastingFireAndForgetCommand
     {
 
         public ClassifierCommandV2() { }

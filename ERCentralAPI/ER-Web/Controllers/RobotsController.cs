@@ -64,7 +64,7 @@ namespace ERxWebClient2.Controllers
 			try
             {
                 if (!SetCSLAUser4Writing()) return Unauthorized();
-                RobotOpenAICommand res = DataPortal.Execute<RobotOpenAICommand>(data.GetRobotOpenAICommand());
+                LLMRobotCommand res = DataPortal.Execute<LLMRobotCommand>(data.GetRobotOpenAICommand());
                 return Ok(res);
             }
             catch (Exception e)
@@ -112,7 +112,7 @@ namespace ERxWebClient2.Controllers
                     {
                         CreditId = rinfo.CreditForRobotsList[0].CreditPurchaseId;
                     }
-                    RobotOpenAiQueueBatchJobCommand res = new RobotOpenAiQueueBatchJobCommand(data.criteria, CreditId, data.reviewSetId, data.onlyCodeInTheRobotName, data.lockTheCoding, data.useFullTextDocument);
+                    RobotOpenAiQueueBatchJobCommand res = new RobotOpenAiQueueBatchJobCommand(data.robotName, data.criteria, CreditId, data.reviewSetId, data.onlyCodeInTheRobotName, data.lockTheCoding, data.useFullTextDocument);
                     res = DataPortal.Execute(res);
                     data.returnMessage = res.Result;
                     return Ok(data);
@@ -151,6 +151,7 @@ namespace ERxWebClient2.Controllers
 
 public class RobotOpenAICommandJson
 {
+    public string robotName { get; set; } = "OpenAI GPT4";
     public int reviewSetId;
     public Int64 itemDocumentId;
     public Int64 itemId;
@@ -158,15 +159,16 @@ public class RobotOpenAICommandJson
     public bool lockTheCoding { get; set; }
     public bool useFullTextDocument { get; set; }
     public string returnMessage = "";
-    public RobotOpenAICommand GetRobotOpenAICommand()
+    public LLMRobotCommand GetRobotOpenAICommand()
     {
-        RobotOpenAICommand res = new RobotOpenAICommand(reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
+        LLMRobotCommand res = LLM_Factory.GetRobot(robotName, reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
         return res;
     }
 }
 
 public class RobotInvestigateCommandJson
 {
+    public string robotName { get; set; } = "OpenAI GPT4";
     public string queryForRobot = "";
     public string getTextFrom = "";
     public Int64 itemsWithThisAttribute;
@@ -177,7 +179,7 @@ public class RobotInvestigateCommandJson
     public string returnItemIdList = "";
     public RobotInvestigateCommand GetRobotInvestigateCommand()
     {
-        RobotInvestigateCommand res = new RobotInvestigateCommand(queryForRobot, getTextFrom, itemsWithThisAttribute, textFromThisAttribute, sampleSize);
+        RobotInvestigateCommand res = new RobotInvestigateCommand( queryForRobot, getTextFrom, itemsWithThisAttribute, textFromThisAttribute, sampleSize);
         return res;
     }
 }
@@ -187,6 +189,7 @@ public class RobotOpenAiQueueBatchJobCommandJson
     public int reviewSetId;
     public Int64 itemDocumentId;
     public string criteria { get; set; } = "";
+    public string robotName { get; set; } = "OpenAI GPT4";
     public bool onlyCodeInTheRobotName { get; set; }
     public bool lockTheCoding { get; set; }
     public bool useFullTextDocument { get; set; }
