@@ -39,7 +39,6 @@ namespace BusinessLibrary.BusinessClasses
 
         public RobotOpenAICommand() { }
         private int _reviewSetId;
-        private Int64 _itemDocumentId;
         private Int64 _itemId;
         private string _UserPrivateOpenAIKey = "";//will be filled in automatically if/when it's present in ReviewInfo
         private string _ExplicitEndpoint = "";
@@ -55,8 +54,14 @@ namespace BusinessLibrary.BusinessClasses
         private string _DocsList = "";
         private bool _Succeded = false;
         private int errors = 0;
-        private string _RobotName = "";
 
+
+        public static readonly PropertyInfo<RobotCoderReadOnly> RobotCoderProperty = RegisterProperty<RobotCoderReadOnly>(new PropertyInfo<RobotCoderReadOnly>("RobotCoder", "RobotCoder"));
+        public RobotCoderReadOnly RobotCoder
+        {
+            get { return ReadProperty(RobotCoderProperty); }
+            set { LoadProperty(RobotCoderProperty, value); }
+        }
 
         public bool Succeded
         {
@@ -67,25 +72,23 @@ namespace BusinessLibrary.BusinessClasses
             get { return errors; }
         }
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotOpenAICommand(string robotName, int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
+        public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
         {
-            _RobotName = robotName;
+            RobotCoder = robot;
             _reviewSetId = reviewSetId;
             _itemId = itemId;
-            _itemDocumentId = itemDocumentId;
             _message = "";
             _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
             _lockTheCoding = lockTheCoding;
             _useFullTextDocument = useFullTextDocument;
         }
-        public RobotOpenAICommand(string robotName, int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
+        public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
             int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
             string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
         {
-            _RobotName = robotName;
+            RobotCoder = robot;
             _reviewSetId = reviewSetId;
             _itemId = itemId;
-            _itemDocumentId = itemDocumentId;
             _message = "";
             _isLastInBatch = isLastInBatch;
             _jobId = JobId;
@@ -105,7 +108,6 @@ namespace BusinessLibrary.BusinessClasses
             base.OnGetState(info, mode);
             info.AddValue("_reviewSetId", _reviewSetId);
             info.AddValue("_itemId", _itemId);
-            info.AddValue("_itemDocumentId", _itemDocumentId);
             info.AddValue("_message", _message);
             info.AddValue("_UserPrivateOpenAIKey", _UserPrivateOpenAIKey);
             info.AddValue("_ExplicitEndpoint", _ExplicitEndpoint);
@@ -121,13 +123,11 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_useFullTextDocument", _useFullTextDocument); 
             info.AddValue("_DocsList", _DocsList);
             info.AddValue("errors", errors);
-            info.AddValue("_RobotName", _RobotName);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
             _reviewSetId = info.GetValue<int>("_reviewSetId");
             _itemId = info.GetValue<Int64>("_itemId");
-            _itemDocumentId = info.GetValue<Int64>("_itemDocumentId");
             _message = info.GetValue<string>("_message");
             _UserPrivateOpenAIKey = info.GetValue<string>("_UserPrivateOpenAIKey");
             _ExplicitEndpoint = info.GetValue<string>("_ExplicitEndpoint");
@@ -143,7 +143,6 @@ namespace BusinessLibrary.BusinessClasses
             _useFullTextDocument = info.GetValue<bool>("_useFullTextDocument");
             _DocsList = info.GetValue<string>("_DocsList");
             errors = info.GetValue<int>("errors");
-            _RobotName = info.GetValue<string>("_RobotName");
         }
 
 
@@ -199,7 +198,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
                         command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
-                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", _RobotName));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", RobotCoder.RobotName));
                         command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
                         command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
@@ -679,15 +678,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                endpoint = AzureSettings.RobotOpenAIEndpoint;
-                key = AzureSettings.RobotOpenAIKey2;
+                endpoint = RobotCoder.EndPoint;
+                key = AzureSettings.RobotAPIKeyByRobotName(RobotCoder.RobotName);
             }
-
-            // *** additional params (modifiable in web.config)
-            double temperature = Convert.ToDouble(AzureSettings.RobotOpenAITemperature);
-            int frequency_penalty = Convert.ToInt16(AzureSettings.RobotOpenAIFrequencyPenalty);
-            int presence_penalty = Convert.ToInt16(AzureSettings.RobotOpenAIPresencePenalty);
-            double top_p = Convert.ToDouble(AzureSettings.RobotOpenAITopP);
+            
+            double temperature = Convert.ToDouble(RobotCoder.Temperature);
+            int frequency_penalty = Convert.ToInt16(RobotCoder.FrequencyPenalty);
+            int presence_penalty = Convert.ToInt16(RobotCoder.PresencePenalty);
+            double top_p = Convert.ToDouble(RobotCoder.TopP);
 
 
             // *** Create the client and submit the request to the LLM

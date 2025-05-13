@@ -43,6 +43,7 @@ export class RobotInvestigate implements OnInit, OnDestroy {
     else this.CheckUserRights();
     if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(true);
     if (this.ResultsFromRobot.length > 0) this.CurrentIndexInResults = this.ResultsFromRobot.length - 1;
+    if (this._robotsService.RobotsList.length == 0) this._robotsService.GetRobotsList();
   }
   private CheckUserRights() {
     if (!this._reviewerIdentityServ.UserCanGPTinvestigate || !this._reviewInfoService.ReviewInfo.hasCreditForRobots) {

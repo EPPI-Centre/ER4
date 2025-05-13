@@ -45,6 +45,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
     this.robotsService.GetCurrentQueue().then(() => {
       if (this.robotsService.CurrentQueue.length > 0) this.ShowQueue = true;
       else this.ShowQueue = false;
+      if (this.robotsService.RobotsList.length == 0) this.robotsService.GetRobotsList();
     });
   }
   HasWriteRights(): boolean {
@@ -72,6 +73,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   public get CanSubmitBatch(): boolean {
     if (!this.HasWriteRights) return false;
     else if (!this.reviewInfoService.ReviewInfo.hasCreditForRobots) return false;
+    else if (this.robotsService.RobotSetting.robotName == "") return false;
     else {
       let node = this.reviewSetsService.selectedNode;
       if (node != null && node.nodeType == 'ReviewSet' && (node.subTypeName == "Standard" || node.subTypeName == "Screening")) {
@@ -169,6 +171,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
     crit = crit.substring(0, crit.length - 1);
     const node = this.reviewSetsService.selectedNode as ReviewSet;
     let data: iRobotOpenAiQueueBatchJobCommand = {
+      robotName: this.RobotSettings.robotName,
       reviewSetId: node.reviewSetId,
       criteria: crit,
       onlyCodeInTheRobotName: this.RobotSettings.onlyCodeInTheRobotName,

@@ -469,10 +469,9 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         if (doclist.EndsWith(",")) doclist = doclist.Substring(0, doclist.Length - 1);
                     }
-                    cmd = LLM_Factory.GetRobot(RT.RobotName, RT.ReviewSetId, RT.ItemIDsList[done], 0, RT.ItemIDsList.Count == done + 1 ? true : false,
+                    cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
                             RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
-                            RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist,
-                            AzureSettings.RobotOpenAIBatchEndpoint, AzureSettings.RobotOpenAIBatchKey);
+                            RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist);
                     LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
                     start = DateTime.Now;
                     cmd = DataPortal.Execute<LLMRobotCommand>(cmd);

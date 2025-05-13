@@ -23,6 +23,25 @@ namespace ERxWebClient2.Controllers
         public RobotsController(ILogger<RobotsController> logger) : base(logger)
         { }
         [HttpGet("[action]")]
+        public IActionResult GetRobotsList()
+        {
+
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                RobotCoderReadOnlyList res = DataPortal.Fetch<RobotCoderReadOnlyList>();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetRobotsList error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+
+
+        [HttpGet("[action]")]
         public IActionResult GetCurrentJobsQueue()
         {
 
@@ -152,8 +171,8 @@ namespace ERxWebClient2.Controllers
 public class RobotOpenAICommandJson
 {
     public string robotName { get; set; } = "OpenAI GPT4";
+    public string endPoint { get; set; } = "";
     public int reviewSetId;
-    public Int64 itemDocumentId;
     public Int64 itemId;
     public bool onlyCodeInTheRobotName { get; set; }
     public bool lockTheCoding { get; set; }
@@ -161,7 +180,8 @@ public class RobotOpenAICommandJson
     public string returnMessage = "";
     public LLMRobotCommand GetRobotOpenAICommand()
     {
-        LLMRobotCommand res = LLM_Factory.GetRobot(robotName, reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
+        RobotCoderReadOnly robot = DataPortal.Fetch<RobotCoderReadOnly>(new SingleCriteria<RobotCoderReadOnly, string>(robotName));
+        LLMRobotCommand res = LLM_Factory.GetRobot(robot, reviewSetId, itemId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
         return res;
     }
 }

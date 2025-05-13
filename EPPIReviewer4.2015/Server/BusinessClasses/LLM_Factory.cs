@@ -2,18 +2,17 @@
 {
     public static class LLM_Factory
     {
-        public static LLMRobotCommand GetRobot(string robotName, int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
+        public static LLMRobotCommand GetRobot(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
         {
-            RobotOpenAICommand res = new RobotOpenAICommand(robotName, reviewSetId, itemId, itemDocumentId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
+            RobotOpenAICommand res = new RobotOpenAICommand(robot, reviewSetId, itemId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
             return res;
         }
-        public static LLMRobotCommand GetRobot(string robotName, int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, int reviewId,
-            int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
-            string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
+        public static LLMRobotCommand GetRobot(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool isLastInBatch, int JobId, int robotContactId, int reviewId,
+            int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "")
         {
-            RobotOpenAICommand res = new RobotOpenAICommand(robotName, reviewSetId, itemId, itemDocumentId, isLastInBatch, JobId, robotContactId, reviewId,
+            RobotOpenAICommand res = new RobotOpenAICommand(robot, reviewSetId, itemId, isLastInBatch, JobId, robotContactId, reviewId,
             JobOwnerId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument, docsList,
-            ExplicitEndpoint, ExplicitEndpointKey);
+            robot.EndPoint, AzureSettings.RobotAPIKeyByRobotName(robot.RobotName));
             return res;
         }
     }

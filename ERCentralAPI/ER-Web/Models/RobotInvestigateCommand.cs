@@ -312,7 +312,9 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                endpoint = AzureSettings.RobotOpenAIEndpoint;
+                RobotCoderReadOnly r = DataPortal.Fetch<RobotCoderReadOnly>(new SingleCriteria<RobotCoderReadOnly, string>("OpenAI GPT4"));
+
+                endpoint = r.EndPoint;
                 key = AzureSettings.RobotOpenAIKey2;
             }
 

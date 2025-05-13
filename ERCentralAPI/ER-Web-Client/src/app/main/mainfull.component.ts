@@ -166,7 +166,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.CodingProgressStats.length == 0)
       || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.CodingProgressStats.length == 0)
     ) this.Reload();
-
+    if (this.robotsService.RobotsList.length == 0) this.robotsService.GetRobotsList();
   }
 
 

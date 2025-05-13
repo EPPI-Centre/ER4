@@ -33,6 +33,14 @@ export class RobotSettings implements OnInit, OnDestroy {
   public get RobotSettings(): iRobotSettings {
     return this.robotsService.RobotSetting;
   }
+  public get RobotsList() {
+    return this.robotsService.RobotsList;
+  }
+
+  RobotChanged(event: Event) {
+    let name =(event.target as HTMLOptionElement).value;
+    this.RobotSettings.robotName = name;
+  }
 
   ngOnDestroy() {
 

@@ -29,6 +29,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   public RobotSetting: iRobotSettings = this.DefaultRobotSetting;
   private get DefaultRobotSetting(): iRobotSettings {
     return {
+      robotName: "",
       onlyCodeInTheRobotName: true,
       lockTheCoding: true,
       useFullTextDocument: false,
@@ -37,9 +38,28 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   }
   public ShowSettingsInBatchPanel: boolean = true;
   public RobotInvestigateResults: iRobotInvestigate[] = [];
+  public RobotsList: iRobotCoderReadOnly[] = [];
 
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
   public PastJobs: RobotOpenAiTaskReadOnly[] = [];
+
+  public GetRobotsList(): Promise<void> {
+    this.CurrentQueue = [];
+    this._BusyMethods.push("GetRobotsList");
+    return lastValueFrom(this._httpC.get<iRobotCoderReadOnly[]>(this._baseUrl + 'api/Robots/GetRobotsList'))
+      .then((res) => {
+        this.RobotsList = res;
+        this.RemoveBusy("GetRobotsList");
+      },
+        (err) => {
+          this.RemoveBusy("GetRobotsList");
+          this.modalService.GenericError(err);
+        })
+      .catch((err) => {
+        this.RemoveBusy("GetRobotsList");
+        this.modalService.GenericError(err);
+      });
+  }
 
   public GetCurrentQueue(): Promise<void> {
     this.CurrentQueue = [];
@@ -214,6 +234,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   }
   public Clear() {
     this.CurrentQueue = [];
+    this.RobotsList = [];
     this.PastJobs = [];
     this.RobotInvestigateResults = [];
     this.RobotSetting = this.DefaultRobotSetting;
@@ -228,6 +249,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   }
 }
 export interface iRobotOpenAICommand {
+  robotName: string;
   reviewSetId: number;
   itemDocumentId: number;
   itemId: number;
@@ -237,6 +259,7 @@ export interface iRobotOpenAICommand {
   returnMessage: string;
 }
 export interface iRobotOpenAiQueueBatchJobCommand {
+  robotName: string;
   reviewSetId: number;
   criteria: string;
   onlyCodeInTheRobotName: boolean;
@@ -246,6 +269,7 @@ export interface iRobotOpenAiQueueBatchJobCommand {
 }
 
 export interface iRobotSettings {
+  robotName: string;
   onlyCodeInTheRobotName: boolean;
   lockTheCoding: boolean;
   useFullTextDocument: boolean;
@@ -382,7 +406,16 @@ export class RobotOpenAiTaskReadOnly {
   JobType: string;
   ItemsCount: number;
 }
-
+export interface iRobotCoderReadOnly {
+  robotId: number;
+  robotContactId: number;
+  robotName: string;
+  isPublic: boolean;
+  topP: number;
+  temperature: number;
+  frequencyPenalty: number;
+  presencePenalty: number;
+}
 
 export interface iRobotOpenAiTaskError {
   affectedItemId: number;
