@@ -9,7 +9,7 @@ import { ReviewSetsService, ReviewSet, singleNode, SetAttribute } from '../servi
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { iRobotInvestigate, RobotsService } from '../services/Robots.service';
+import { iRobotInvestigate, iRobotSettings, RobotsService } from '../services/Robots.service';
 import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
 
@@ -109,6 +109,18 @@ export class RobotInvestigate implements OnInit, OnDestroy {
     return this._robotsService.TextFromInvestigateTextOption(OptionVal);
   }
 
+  public get RobotSettings(): iRobotSettings {
+    return this._robotsService.RobotSetting;
+  }
+  public get RobotsList() {
+    return this._robotsService.RobotsList;
+  }
+
+  RobotChanged(event: Event) {
+    let name = (event.target as HTMLOptionElement).value;
+    this._robotsService.RobotSetting.robotName = name;
+  }
+
   SaveCurrentResult() {
     if (!this.CurrentResult) return;
     const repHTML = this._robotsService.InvestigateReportHTML(this.CurrentResult);
@@ -170,6 +182,7 @@ export class RobotInvestigate implements OnInit, OnDestroy {
       this.sampleSize = Math.min(this.sampleSize, 150)
     };
     let cmd: iRobotInvestigate = {
+      robotName: this._robotsService.RobotSetting.robotName,
       queryForRobot: this.queryInputForRobot,
       getTextFrom: this.selectedRobotInvestigateTextOption,
       itemsWithThisAttribute: this.DD1,

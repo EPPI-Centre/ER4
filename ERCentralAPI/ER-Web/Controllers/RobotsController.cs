@@ -199,7 +199,8 @@ public class RobotInvestigateCommandJson
     public string returnItemIdList = "";
     public RobotInvestigateCommand GetRobotInvestigateCommand()
     {
-        RobotInvestigateCommand res = new RobotInvestigateCommand( queryForRobot, getTextFrom, itemsWithThisAttribute, textFromThisAttribute, sampleSize);
+        RobotCoderReadOnly robot = DataPortal.Fetch<RobotCoderReadOnly>(new SingleCriteria<RobotCoderReadOnly, string>(robotName));
+        RobotInvestigateCommand res = new RobotInvestigateCommand(robot, queryForRobot, getTextFrom, itemsWithThisAttribute, textFromThisAttribute, sampleSize);
         return res;
     }
 }

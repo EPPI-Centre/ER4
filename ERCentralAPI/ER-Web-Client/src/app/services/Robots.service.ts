@@ -276,6 +276,7 @@ export interface iRobotSettings {
   rememberTheseChoices: boolean;
 }
 export interface iRobotInvestigate {
+  robotName: string;
   queryForRobot: string;
   getTextFrom: string;
   itemsWithThisAttribute: number;
