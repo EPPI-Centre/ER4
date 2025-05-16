@@ -310,6 +310,7 @@ export interface iRobotOpenAiTaskReadOnly {
   useFullTextDocument: boolean;
   robotContactId: number;
   errors: iRobotOpenAiTaskError[];
+  robot: iRobotCoderReadOnly;
 }
 
 export class RobotOpenAiTaskReadOnly {
@@ -338,6 +339,7 @@ export class RobotOpenAiTaskReadOnly {
       this.useFullTextDocument = data.useFullTextDocument;
       this.robotContactId = data.robotContactId;
       this.errors = data.errors;
+      this.robot = data.robot;
 
       const d1: any = this.created;
       const d2: any = this.updated;
@@ -373,6 +375,16 @@ export class RobotOpenAiTaskReadOnly {
       this.useFullTextDocument = false;
       this.robotContactId = 0;
       this.errors = [];
+      this.robot = {
+        robotId: -1,
+        robotContactId: -1,
+        robotName: "",
+        isPublic: false,
+        topP: 0,
+        temperature: 0,
+        frequencyPenalty:0,
+        presencePenalty: 0
+      };
 
       this.JobDurationMs = 0;
       this.JobType = "N/A";
@@ -402,6 +414,7 @@ export class RobotOpenAiTaskReadOnly {
   useFullTextDocument: boolean;
   robotContactId: number;
   errors: iRobotOpenAiTaskError[];
+  robot: iRobotCoderReadOnly;
 
   JobDurationMs: number;
   JobType: string;
