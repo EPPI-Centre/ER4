@@ -103,9 +103,31 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(PresencePenaltyProperty);
             }
         }
-
-
-
+        public static readonly PropertyInfo<string> DescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("Description", "Description"));
+        public string Description
+        {
+            get
+            {
+                return GetProperty(DescriptionProperty);
+            }
+        }
+        public static readonly PropertyInfo<DateTime> RetirementDateProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("RetirementDate", "RetirementDate", DateTime.MinValue));
+        public DateTime RetirementDate
+        {
+            get
+            {
+                return GetProperty(RetirementDateProperty);
+            }
+        }
+        public bool IsRetired
+        {
+            get
+            {
+                if (RetirementDate == DateTime.MinValue) return false; 
+                else if (RetirementDate <= DateTime.Now) return true;
+                return false;
+            }
+        }
 
         //protected override void AddAuthorizationRules()
         //{
@@ -146,6 +168,8 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<decimal>(TemperatureProperty, reader.GetDecimal("TEMPERATURE"));
             LoadProperty<decimal>(FrequencyPenaltyProperty, reader.GetDecimal("FREQUENCY_PENALTY"));
             LoadProperty<decimal>(PresencePenaltyProperty, reader.GetDecimal("PRESENCE_PENALTY"));
+            LoadProperty<string>(DescriptionProperty, reader.GetString("PUBLIC_DESCRIPTION"));
+            LoadProperty<DateTime>(RetirementDateProperty, reader.GetDateTime("RETIREMENT_DATE"));
         }
 #endif
     }

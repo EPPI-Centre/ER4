@@ -4,7 +4,7 @@
     <div class="col-auto mr-1 px-0">Robot:</div>
     <select class="col px-0" (change)="RobotChanged($event)">
       <option value="">Please select</option>
-      <option [ngValue]="r.robotName" *ngFor="let r of RobotsList" [selected]="r.robotName == RobotSettings.robotName">
+      <option [ngValue]="r.robotName" *ngFor="let r of RobotsList" [selected]="r.robotName == RobotSettings.robotName" [disabled]="r.isRetired">
         {{r.robotName}}
       </option>
     </select>

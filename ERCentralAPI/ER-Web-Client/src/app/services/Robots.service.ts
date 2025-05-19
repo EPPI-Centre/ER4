@@ -383,7 +383,10 @@ export class RobotOpenAiTaskReadOnly {
         topP: 0,
         temperature: 0,
         frequencyPenalty:0,
-        presencePenalty: 0
+        presencePenalty: 0,
+        description: "",
+        retirementDate: "",
+        isRetired: true
       };
 
       this.JobDurationMs = 0;
@@ -429,6 +432,9 @@ export interface iRobotCoderReadOnly {
   temperature: number;
   frequencyPenalty: number;
   presencePenalty: number;
+  description: string;
+  retirementDate: string;
+  isRetired: boolean;
 }
 
 export interface iRobotOpenAiTaskError {
