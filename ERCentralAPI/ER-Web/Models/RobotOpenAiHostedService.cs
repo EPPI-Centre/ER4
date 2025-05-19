@@ -374,7 +374,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
 
                 LogInfo("Starting Batch " + RT.RobotApiCallId.ToString());
-                LLMRobotCommand cmd;
+                LLMRobotCommand? cmd = null;
                 int DefaultDelayInMs = 10000;
                 int CurrentDelayInMs;
                 int ActiveThreads = CreditWorkers.Count;
@@ -469,10 +469,19 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         if (doclist.EndsWith(",")) doclist = doclist.Substring(0, doclist.Length - 1);
                     }
-                    cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
-                            RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
-                            RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist);
-                    LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
+                    if (cmd == null)
+                    { //first time we're executing this while loop
+                        cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
+                                RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
+                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist);
+                    } 
+                    else
+                    {
+                        cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
+                                RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
+                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt);
+                    }
+                        LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
                     start = DateTime.Now;
                     cmd = DataPortal.Execute<LLMRobotCommand>(cmd);
                     ApiLatency = (int)((DateTime.Now.Ticks - start.Ticks) / 10000) - 50; //how long the cmd execution took, in Ms, minus 50ms to stay safe...

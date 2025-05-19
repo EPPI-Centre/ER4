@@ -56,12 +56,7 @@ namespace BusinessLibrary.BusinessClasses
         private int errors = 0;
 
 
-        public static readonly PropertyInfo<RobotCoderReadOnly> RobotCoderProperty = RegisterProperty<RobotCoderReadOnly>(new PropertyInfo<RobotCoderReadOnly>("RobotCoder", "RobotCoder"));
-        public RobotCoderReadOnly RobotCoder
-        {
-            get { return ReadProperty(RobotCoderProperty); }
-            set { LoadProperty(RobotCoderProperty, value); }
-        }
+        
 
         public bool Succeded
         {
@@ -460,7 +455,15 @@ namespace BusinessLibrary.BusinessClasses
 
             // *** Get the codeset, build the list of prompts, and return if no valid prompts are present
             ReviewSet rs = null;
-            rs = ReviewSet.GetReviewSet(_reviewSetId);
+            if (ReviewSetForPrompts != null && ReviewSetForPrompts.ReviewSetId == _reviewSetId)
+            {
+                rs = ReviewSetForPrompts;
+            }
+            else
+            {
+                rs = ReviewSet.GetReviewSet(_reviewSetId);
+                ReviewSetForPrompts = rs;
+            }
             if (rs == null)
             {
                 _message = "Error: could not get code set";
@@ -468,13 +471,21 @@ namespace BusinessLibrary.BusinessClasses
             }
 
             string prompt = "";
-            foreach (AttributeSet subSet in rs.Attributes)
-            { //maybe add code to check if we have 2 codes with the same prompt, which would break the "saving results" phase, somewhat (only the first will be coded)
-                string newPrompt = getPrompts("", subSet, RagPrompts);
-                if (newPrompt != "")
-                {
-                    prompt += newPrompt;
+            if (CachedPrompt == "")
+            {
+                foreach (AttributeSet subSet in rs.Attributes)
+                { //maybe add code to check if we have 2 codes with the same prompt, which would break the "saving results" phase, somewhat (only the first will be coded)
+                    string newPrompt = getPrompts("", subSet, RagPrompts);
+                    if (newPrompt != "")
+                    {
+                        prompt += newPrompt;
+                    }
                 }
+                CachedPrompt = prompt;
+            }
+            else
+            {
+                prompt = CachedPrompt;
             }
 
             if (prompt == "")
