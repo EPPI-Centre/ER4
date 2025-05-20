@@ -28,7 +28,7 @@ if @rid > 0
 BEGIN
 	update TB_ROBOT_ACCOUNT set [ENDPOINT] = 'https://gpt34eppi.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2025-01-01-preview'											
 		, IS_PUBLIC = 1
-		, PUBLIC_DESCRIPTION = N'This is the first LLM deployed in EPPI Reviewer 2024. The model used is OpenAI "GPT-4o" with "model version = 2024-08-06".'
+		, PUBLIC_DESCRIPTION = N'This is the first LLM deployed in EPPI Reviewer in 2024. The model used is OpenAI "GPT-4o" with "model version = 2024-08-06".'
 		, RETIREMENT_DATE = CAST('2025-08-20 00:00:00.000' AS DATETIME) 
 	WHERE ROBOT_ID = @rid
 END

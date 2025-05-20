@@ -386,7 +386,9 @@ export class RobotOpenAiTaskReadOnly {
         presencePenalty: 0,
         description: "",
         retirementDate: "",
-        isRetired: true
+        isRetired: true,
+        inputTokenCostPerMillion: 0,
+        outputTokenCostPerMillion: 0
       };
 
       this.JobDurationMs = 0;
@@ -435,6 +437,8 @@ export interface iRobotCoderReadOnly {
   description: string;
   retirementDate: string;
   isRetired: boolean;
+  inputTokenCostPerMillion: number;
+  outputTokenCostPerMillion: number;
 }
 
 export interface iRobotOpenAiTaskError {

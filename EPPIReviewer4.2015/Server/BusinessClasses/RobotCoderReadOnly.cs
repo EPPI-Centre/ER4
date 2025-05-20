@@ -129,6 +129,25 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<int> InputTokenCostPmProperty = RegisterProperty<int>(new PropertyInfo<int>("InputTokenCostPm", "InputTokenCostPm"));
+        public int InputTokenCostPerMillion
+        {
+            get
+            {
+                return GetProperty(InputTokenCostPmProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<int> OutputTokenCostPmProperty = RegisterProperty<int>(new PropertyInfo<int>("OutputTokenCostPm", "OutputTokenCostPm"));
+        public int OutputTokenCostPerMillion
+        {
+            get
+            {
+                return GetProperty(OutputTokenCostPmProperty);
+            }
+        }
+
+
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -170,6 +189,30 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<decimal>(PresencePenaltyProperty, reader.GetDecimal("PRESENCE_PENALTY"));
             LoadProperty<string>(DescriptionProperty, reader.GetString("PUBLIC_DESCRIPTION"));
             LoadProperty<DateTime>(RetirementDateProperty, reader.GetDateTime("RETIREMENT_DATE"));
+
+            string tmp = reader.GetString("FOR_SALE_IDs");
+            string[] IdsStr = tmp.Split(',');
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand("st_RobotCoderForSale", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RobotId", RobotId));
+                    using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader2.Read())
+                        {//1st line: input tokens cost
+                            LoadProperty<int>(InputTokenCostPmProperty, reader2.GetInt32("PRICE_PER_MONTH"));
+                        }
+                        if (reader2.Read())
+                        {//2nd line: output tokens
+                            LoadProperty<int>(OutputTokenCostPmProperty, reader2.GetInt32("PRICE_PER_MONTH"));
+                        }
+                    }
+                }
+            }
         }
 #endif
     }
